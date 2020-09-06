@@ -8,8 +8,8 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class AsymmetricPeakshavingChartOverviewComponent {
 
-    public edge: Edge = null;
-    public component: EdgeConfig.Component = null;
+    public edge: Edge | null = null;
+    public component: EdgeConfig.Component | null = null;
 
     private static readonly SELECTOR = "asymmetricpeakshaving-chart-overview";
 

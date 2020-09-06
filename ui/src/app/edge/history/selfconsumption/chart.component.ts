@@ -14,7 +14,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class SelfconsumptionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
+    @Input() private period: DefaultTypes.HistoryPeriod | null = null;
 
     ngOnChanges() {
         this.updateChart();
@@ -44,103 +44,106 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.colors = [];
-        this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            let result = response.result;
-            // convert labels
-            let labels: Date[] = [];
-            for (let timestamp of result.timestamps) {
-                labels.push(new Date(timestamp));
-            }
-            this.labels = labels;
+        if (this.period != null) {
 
-            // convert datasets
-            let datasets = [];
+            this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+                let result = response.result;
+                // convert labels
+                let labels: Date[] = [];
+                for (let timestamp of result.timestamps) {
+                    labels.push(new Date(timestamp));
+                }
+                this.labels = labels;
 
-            // required data for self consumption
-            let sellToGridData: number[] = [];
-            let dischargeData: number[] = [];
-            let productionData: number[] = [];
+                // convert datasets
+                let datasets = [];
 
-            if ('_sum/EssActivePower' in result.data) {
-                /*
-                 * Storage Discharge
-                 */
-                let effectivePower;
-                if ('_sum/ProductionDcActualPower' in result.data && result.data['_sum/ProductionDcActualPower'].length > 0) {
-                    effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
-                        return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
+                // required data for self consumption
+                let sellToGridData: (number | null)[] = [];
+                let dischargeData: (number | null)[] = [];
+                let productionData: (number | null)[] = [];
+
+                if ('_sum/EssActivePower' in result.data) {
+                    /*
+                     * Storage Discharge
+                     */
+                    let effectivePower;
+                    if ('_sum/ProductionDcActualPower' in result.data && result.data['_sum/ProductionDcActualPower'].length > 0) {
+                        effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
+                            return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
+                        });
+                    } else {
+                        effectivePower = result.data['_sum/EssActivePower'];
+                    }
+                    dischargeData = effectivePower.map(value => {
+                        if (value == null) {
+                            return null
+                        } else if (value > 0) {
+                            return value;
+                        } else {
+                            return 0;
+                        }
                     });
-                } else {
-                    effectivePower = result.data['_sum/EssActivePower'];
+                };
+
+                if ('_sum/GridActivePower' in result.data) {
+                    /*
+                     * Sell To Grid
+                     */
+                    sellToGridData = result.data['_sum/GridActivePower'].map(value => {
+                        if (value == null) {
+                            return null
+                        } else if (value < 0) {
+                            return value * -1; // invert value
+                        } else {
+                            return 0;
+                        }
+                    });
+                };
+
+                if ('_sum/ProductionActivePower' in result.data) {
+                    /*
+                     * Production
+                     */
+                    productionData = result.data['_sum/ProductionActivePower'].map(value => {
+                        if (value == null) {
+                            return null
+                        } else {
+                            return value;
+                        }
+                    });
                 }
-                dischargeData = effectivePower.map(value => {
-                    if (value == null) {
-                        return null
-                    } else if (value > 0) {
-                        return value;
-                    } else {
-                        return 0;
-                    }
-                });
-            };
 
-            if ('_sum/GridActivePower' in result.data) {
+
                 /*
-                 * Sell To Grid
-                 */
-                sellToGridData = result.data['_sum/GridActivePower'].map(value => {
-                    if (value == null) {
-                        return null
-                    } else if (value < 0) {
-                        return value * -1; // invert value
-                    } else {
-                        return 0;
-                    }
-                });
-            };
-
-            if ('_sum/ProductionActivePower' in result.data) {
-                /*
-                 * Production
-                 */
-                productionData = result.data['_sum/ProductionActivePower'].map(value => {
+                * Self Consumption
+                */
+                let selfConsumption = productionData.map((value, index) => {
                     if (value == null) {
                         return null
                     } else {
-                        return value;
+                        return CurrentData.calculateSelfConsumption(sellToGridData[index], value, dischargeData[index]);
                     }
-                });
-            }
+                })
 
-
-            /*
-            * Self Consumption
-            */
-            let selfConsumption = productionData.map((value, index) => {
-                if (value == null) {
-                    return null
-                } else {
-                    return CurrentData.calculateSelfConsumption(sellToGridData[index], value, dischargeData[index]);
-                }
-            })
-
-            datasets.push({
-                label: this.translate.instant('General.selfConsumption'),
-                data: selfConsumption,
-                hidden: false
-            })
-            this.colors.push({
-                backgroundColor: 'rgba(253,197,7,0.05)',
-                borderColor: 'rgba(253,197,7,1)'
-            })
-            this.service.stopSpinner(this.spinnerId);
-            this.datasets = datasets;
-            this.loading = false;
-        }).catch(reason => {
-            console.error(reason); // TODO error message
-            this.initializeChart();
-            return;
-        });
+                datasets.push({
+                    label: this.translate.instant('General.selfConsumption'),
+                    data: selfConsumption,
+                    hidden: false
+                })
+                this.colors.push({
+                    backgroundColor: 'rgba(253,197,7,0.05)',
+                    borderColor: 'rgba(253,197,7,1)'
+                })
+                this.service.stopSpinner(this.spinnerId);
+                this.datasets = datasets;
+                this.loading = false;
+            }).catch(reason => {
+                console.error(reason); // TODO error message
+                this.initializeChart();
+                return;
+            });
+        }
     }
 
     protected getChannelAddresses(): Promise<ChannelAddress[]> {

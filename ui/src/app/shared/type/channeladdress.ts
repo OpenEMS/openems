@@ -12,7 +12,8 @@ export class ChannelAddress {
 
     constructor(
         public readonly componentId: string,
-        public readonly channelId: string
+        public readonly channelId: string,
+        public readonly unit?: string
     ) { }
 
     public toString() {

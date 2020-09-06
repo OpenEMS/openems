@@ -47,14 +47,16 @@ export abstract class AbstractHistoryWidget {
                 this.service.getConfig().then(config => {
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses);
-                        edge.sendRequest(this.service.websocket, request).then(response => {
-                            let result = (response as QueryHistoricTimeseriesDataResponse).result;
-                            if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
-                                resolve(response as QueryHistoricTimeseriesDataResponse);
-                            } else {
-                                reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
-                            }
-                        }).catch(reason => reject(reason));
+                        if (this.service.websocket != null) {
+                            edge.sendRequest(this.service.websocket, request).then(response => {
+                                let result = (response as QueryHistoricTimeseriesDataResponse).result;
+                                if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
+                                    resolve(response as QueryHistoricTimeseriesDataResponse);
+                                } else {
+                                    reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                                }
+                            }).catch(reason => reject(reason));
+                        }
                     }).catch(reason => reject(reason));
                 })
             });
@@ -72,5 +74,5 @@ export abstract class AbstractHistoryWidget {
     /**
      * Updates and Fills the Chart
      */
-    protected abstract updateValues()
+    protected abstract updateValues(): void
 }

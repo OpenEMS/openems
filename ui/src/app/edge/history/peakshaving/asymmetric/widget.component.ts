@@ -9,13 +9,13 @@ import { Edge, Service, EdgeConfig } from 'src/app/shared/shared';
 })
 export class AsymmetricPeakshavingWidgetComponent implements OnInit {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public componentId: string;
+    @Input() public period: DefaultTypes.HistoryPeriod | null = null;
+    @Input() public componentId: string = '';
 
     private static readonly SELECTOR = "asymmetricPeakshavingWidget";
 
-    public edge: Edge = null;
-    public component: EdgeConfig.Component = null;
+    public edge: Edge | null = null;
+    public component: EdgeConfig.Component | null = null;
 
     constructor(
         public service: Service,

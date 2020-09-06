@@ -10,13 +10,13 @@ export class ConsumptionChartOverviewComponent {
 
     private static readonly SELECTOR = "consumption-chart-overview";
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
-    public evcsComponents: EdgeConfig.Component[] = null;
-    public consumptionMeterComponents: EdgeConfig.Component[] = null;
+    public evcsComponents: EdgeConfig.Component[] = [];
+    public consumptionMeterComponents: EdgeConfig.Component[] = [];
     public showPhases: boolean = false;
-    public showTotal: boolean = null;
-    public isOnlyChart: boolean = null;
+    public showTotal: boolean | null = null;
+    public isOnlyChart: boolean | null = null;
 
     constructor(
         public service: Service,

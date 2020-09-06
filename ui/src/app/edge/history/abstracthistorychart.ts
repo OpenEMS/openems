@@ -73,14 +73,16 @@ export abstract class AbstractHistoryChart {
                     this.setLabel(config);
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses);
-                        edge.sendRequest(this.service.websocket, request).then(response => {
-                            let result = (response as QueryHistoricTimeseriesDataResponse).result;
-                            if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
-                                resolve(response as QueryHistoricTimeseriesDataResponse);
-                            } else {
-                                reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
-                            }
-                        }).catch(reason => reject(reason));
+                        if (this.service.websocket != null) {
+                            edge.sendRequest(this.service.websocket, request).then(response => {
+                                let result = (response as QueryHistoricTimeseriesDataResponse).result;
+                                if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
+                                    resolve(response as QueryHistoricTimeseriesDataResponse);
+                                } else {
+                                    reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                                }
+                            }).catch(reason => reject(reason));
+                        }
                     }).catch(reason => reject(reason));
                 })
             });
@@ -110,12 +112,12 @@ export abstract class AbstractHistoryChart {
     /**
      * Sets the Label of Chart
      */
-    protected abstract setLabel(config: EdgeConfig)
+    protected abstract setLabel(config: EdgeConfig): void
 
     /**
      * Updates and Fills the Chart
      */
-    protected abstract updateChart()
+    protected abstract updateChart(): void
 
     /**
      * Initializes empty chart on error
@@ -132,5 +134,5 @@ export abstract class AbstractHistoryChart {
     /**
      * Sets Chart Height
      */
-    protected abstract getChartHeight()
+    protected abstract getChartHeight(): number
 }

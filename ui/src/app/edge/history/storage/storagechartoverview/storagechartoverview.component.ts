@@ -8,16 +8,16 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class StorageChartOverviewComponent {
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
     private static readonly SELECTOR = "storage-chart-overview";
 
-    public essComponents: EdgeConfig.Component[] = null;
-    public chargerComponents: EdgeConfig.Component[] = null;
+    public essComponents: EdgeConfig.Component[] = [];
+    public chargerComponents: EdgeConfig.Component[] = [];
 
     public showPhases: boolean = false;
-    public showTotal: boolean = null;
-    public isOnlyChart = null;
+    public showTotal: boolean | null = null;
+    public isOnlyChart: boolean | null = null;
 
     // referene to the Utils method to access via html
     public isLastElement = Utils.isLastElement;

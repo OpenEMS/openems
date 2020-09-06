@@ -10,12 +10,12 @@ export class ChannelthresholdChartOverviewComponent {
 
     private static readonly SELECTOR = "channelthreshold-chart-overview";
 
-    public edge: Edge = null;
-    public config: EdgeConfig = null;
+    public edge: Edge | null = null;
+    public config: EdgeConfig | null = null;
 
-    public component: EdgeConfig.Component = null;
+    public component: EdgeConfig.Component | null = null;
 
-    public showTotal: boolean = null;
+    public showTotal: boolean | null = null;
     public channelthresholdComponents: string[] = [];
 
     // referene to the Utils method to access via html

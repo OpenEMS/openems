@@ -8,10 +8,10 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class ChpSocChartOverviewComponent {
 
-    public edge: Edge = null;
-    public config: EdgeConfig = null;
+    public edge: Edge | null = null;
+    public config: EdgeConfig | null = null;
 
-    public component: EdgeConfig.Component = null;
+    public component: EdgeConfig.Component | null = null;
 
     private static readonly SELECTOR = "chpsoc-chart-overview";
 

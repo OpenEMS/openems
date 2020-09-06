@@ -50,7 +50,7 @@ export class EnergyModalComponent implements OnInit {
                 // Consumption
                 new ChannelAddress('_sum', 'ConsumptionActivePower')
             ];
-            let energyChannels = [
+            let energyChannels: ChannelAddress[] = [
                 // new ChannelAddress('_sum', 'EssSoc'),
                 // new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
                 // new ChannelAddress('_sum', 'GridSellActiveEnergy'),

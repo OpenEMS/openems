@@ -11,18 +11,18 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 })
 export class HeatingelementWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public componentId: string;
+    @Input() public period: DefaultTypes.HistoryPeriod | null = null;
+    @Input() public componentId: string = '';
 
     private static readonly SELECTOR = "heatingelementWidget";
 
-    public component: EdgeConfig.Component = null;
+    public component: EdgeConfig.Component | null = null;
 
-    public activeTimeOverPeriodLevel1: number = null;
-    public activeTimeOverPeriodLevel2: number = null;
-    public activeTimeOverPeriodLevel3: number = null;
+    public activeTimeOverPeriodLevel1: number | null = null;
+    public activeTimeOverPeriodLevel2: number | null = null;
+    public activeTimeOverPeriodLevel3: number | null = null;
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
     constructor(
         public service: Service,

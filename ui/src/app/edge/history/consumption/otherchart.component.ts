@@ -1,7 +1,7 @@
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
+import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem, Dataset } from '../shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
@@ -14,7 +14,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class ConsumptionOtherChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
+    @Input() private period: DefaultTypes.HistoryPeriod | null = null;
 
     ngOnChanges() {
         this.updateChart();
@@ -43,65 +43,63 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
     protected updateChart() {
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
-        this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getConfig().then(config => {
-                this.colors = [];
-                let result = (response as QueryHistoricTimeseriesDataResponse).result;
+        if (this.period != null) {
+            this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+                this.service.getConfig().then(config => {
+                    this.colors = [];
+                    let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
-                // convert labels
-                let labels: Date[] = [];
-                for (let timestamp of result.timestamps) {
-                    labels.push(new Date(timestamp));
-                }
-                this.labels = labels;
+                    // convert labels
+                    let labels: Date[] = [];
+                    for (let timestamp of result.timestamps) {
+                        labels.push(new Date(timestamp));
+                    }
+                    this.labels = labels;
 
-                // convert datasets
-                let datasets = [];
+                    // convert datasets
+                    let datasets: Dataset[] = [];
 
-                // gather EVCS consumption
-                let totalEvcsConsumption: number[] = [];
-                config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion')).forEach(component => {
-                    totalEvcsConsumption = result.data[component.id + '/ChargePower'].map((value, index) => {
-                        return Utils.addSafely(totalEvcsConsumption[index], value / 1000)
-                    });
-                })
+                    // gather EVCS consumption
+                    let totalEvcsConsumption: (number | null)[] = [];
+                    config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion')).forEach(component => {
+                        totalEvcsConsumption = result.data[component.id + '/ChargePower'].map((value, index) => {
+                            return Utils.addSafely(totalEvcsConsumption[index], value / 1000)
+                        });
+                    })
 
-                // gather other Consumption (Total - EVCS)
-                let otherConsumption: number[] = [];
-                if (totalEvcsConsumption != []) {
+                    // gather other Consumption (Total - EVCS)
+                    let otherConsumption: (number | null)[] = [];
                     otherConsumption = result.data['_sum/ConsumptionActivePower'].map((value, index) => {
-                        if (value != null && totalEvcsConsumption[index] != null) {
-                            return Utils.subtractSafely(value / 1000, totalEvcsConsumption[index]);
-                        }
-                    })
-                }
-
-                // show other consumption
-                if (totalEvcsConsumption != []) {
-                    datasets.push({
-                        label: this.translate.instant('General.consumption'),
-                        data: otherConsumption,
-                        hidden: false
-                    });
-                    this.colors.push({
-                        backgroundColor: 'rgba(253,197,7,0.05)',
-                        borderColor: 'rgba(253,197,7,1)',
+                        return Utils.subtractSafely(value / 1000, totalEvcsConsumption[index]);
                     })
 
-                }
-                this.datasets = datasets;
-                this.loading = false;
-                this.service.stopSpinner(this.spinnerId);
+                    // show other consumption
+                    if (totalEvcsConsumption != []) {
+                        datasets.push({
+                            label: this.translate.instant('General.consumption'),
+                            data: otherConsumption,
+                            hidden: false
+                        });
+                        this.colors.push({
+                            backgroundColor: 'rgba(253,197,7,0.05)',
+                            borderColor: 'rgba(253,197,7,1)',
+                        })
+
+                    }
+                    this.datasets = datasets;
+                    this.loading = false;
+                    this.service.stopSpinner(this.spinnerId);
+                }).catch(reason => {
+                    console.error(reason); // TODO error message
+                    this.initializeChart();
+                    return;
+                });
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
             });
-        }).catch(reason => {
-            console.error(reason); // TODO error message
-            this.initializeChart();
-            return;
-        });
+        }
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {

@@ -11,12 +11,12 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 })
 export class SelfconsumptionWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input() public period: DefaultTypes.HistoryPeriod | null = null;
 
     private static readonly SELECTOR = "selfconsumptionWidget";
 
-    public selfconsumptionValue: number = null;
-    public edge: Edge = null;
+    public selfconsumptionValue: number | null = null;
+    public edge: Edge | null = null;
 
     constructor(
         public service: Service,
@@ -42,13 +42,19 @@ export class SelfconsumptionWidgetComponent extends AbstractHistoryWidget implem
 
     protected updateValues() {
         this.service.getConfig().then(config => {
-            this.getChannelAddresses(this.edge, config).then(channels => {
-                this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
-                    let result = response.result;
-                    this.selfconsumptionValue = CurrentData.calculateSelfConsumption(result.data['_sum/GridSellActiveEnergy'],
-                        result.data['_sum/ProductionActiveEnergy'], result.data['_sum/EssActiveDischargeEnergy']);
-                })
-            });
+            if (this.edge != null) {
+                this.getChannelAddresses(this.edge, config).then(channels => {
+                    if (this.period != null) {
+                        this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
+                            let result = response.result;
+                            if (result.data['_sum/GridSellActiveEnergy'] && result.data['_sum/ProductionActiveEnergy'] &&
+                                result.data['_sum/EssActiveDischargeEnergy'] != null)
+                                this.selfconsumptionValue = CurrentData.calculateSelfConsumption(result.data['_sum/GridSellActiveEnergy'],
+                                    result.data['_sum/ProductionActiveEnergy'], result.data['_sum/EssActiveDischargeEnergy']);
+                        })
+                    }
+                });
+            }
         })
     }
 

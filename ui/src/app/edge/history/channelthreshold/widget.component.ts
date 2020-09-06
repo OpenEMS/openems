@@ -12,15 +12,15 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 })
 export class ChanneltresholdWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public componentId: string;
-    public config: EdgeConfig = null;
-    public component: EdgeConfig.Component = null;
+    @Input() public period: DefaultTypes.HistoryPeriod | null = null;
+    @Input() public componentId: string = '';
+    public config: EdgeConfig | null = null;
+    public component: EdgeConfig.Component | null = null;
 
     private static readonly SELECTOR = "channelthresholdWidget";
 
-    public activeTimeOverPeriod: string = null;
-    public edge: Edge = null;
+    public activeTimeOverPeriod: string = '';
+    public edge: Edge | null = null;
 
     constructor(
         public service: Service,

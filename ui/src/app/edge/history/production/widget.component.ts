@@ -11,12 +11,12 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 })
 export class ProductionComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input() public period: DefaultTypes.HistoryPeriod | null = null;
 
     private static readonly SELECTOR = "productionWidget";
 
-    public edge: Edge = null;
-    public data: Cumulated = null;
+    public edge: Edge | null = null;
+    public data: Cumulated | null = null;
 
     constructor(
         public service: Service,
@@ -42,11 +42,15 @@ export class ProductionComponent extends AbstractHistoryWidget implements OnInit
 
     protected updateValues() {
         this.service.getConfig().then(config => {
-            this.getChannelAddresses(this.edge, config).then(channels => {
-                this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
-                    this.data = response.result.data;
-                })
-            });
+            if (this.edge != null) {
+                this.getChannelAddresses(this.edge, config).then(channels => {
+                    if (this.period != null) {
+                        this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
+                            this.data = response.result.data;
+                        })
+                    }
+                });
+            }
         })
     }
 

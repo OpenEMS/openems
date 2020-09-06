@@ -10,10 +10,10 @@ export class SinglethresholdChartOverviewComponent {
 
     private static readonly SELECTOR = "channelthreshold-chart-overview";
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
-    public component: EdgeConfig.Component;
-    public inputChannel: string;
+    public component: EdgeConfig.Component | null = null;
+    public inputChannel: string = '';
 
     public channelthresholdComponents: string[] = [];
 
@@ -29,9 +29,11 @@ export class SinglethresholdChartOverviewComponent {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.service.getConfig().then(config => {
                 this.edge = edge;
-                this.inputChannel = config.getComponentProperties(this.component.id)['inputChannelAddress'];
-                for (let componentId of config.getComponentIdsByFactory("Controller.IO.ChannelSingleThreshold")) {
-                    this.channelthresholdComponents.push(componentId)
+                if (this.component != null) {
+                    this.inputChannel = config.getComponentProperties(this.component.id)['inputChannelAddress'];
+                    for (let componentId of config.getComponentIdsByFactory("Controller.IO.ChannelSingleThreshold")) {
+                        this.channelthresholdComponents.push(componentId)
+                    }
                 }
             })
         });

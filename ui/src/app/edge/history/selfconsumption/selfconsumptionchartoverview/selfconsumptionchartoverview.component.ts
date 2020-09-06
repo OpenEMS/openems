@@ -10,7 +10,7 @@ export class SelfconsumptionChartOverviewComponent {
 
     private static readonly SELECTOR = "selfconsumption-chart-overview";
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
     constructor(
         public service: Service,

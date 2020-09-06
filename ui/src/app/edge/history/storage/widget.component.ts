@@ -12,12 +12,12 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 })
 export class StorageComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input() public period: DefaultTypes.HistoryPeriod | null = null;
 
     private static readonly SELECTOR = "storageWidget";
 
-    public data: Cumulated = null;
-    public edge: Edge = null;
+    public data: Cumulated | null = null;
+    public edge: Edge | null = null;
 
     constructor(
         public service: Service,
@@ -44,11 +44,15 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
 
     protected updateValues() {
         this.service.getConfig().then(config => {
-            this.getChannelAddresses(this.edge, config).then(channels => {
-                this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
-                    this.data = response.result.data;
-                })
-            });
+            if (this.edge != null) {
+                this.getChannelAddresses(this.edge, config).then(channels => {
+                    if (this.period != null) {
+                        this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
+                            this.data = response.result.data;
+                        })
+                    }
+                });
+            }
         })
     }
 

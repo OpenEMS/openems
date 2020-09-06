@@ -7,6 +7,9 @@ export interface Dataset {
     label: string;
     data: number[] | (number | null)[];
     hidden: boolean;
+    borderDash?: number[];
+    yAxisID?: string;
+    position?: string;
 }
 
 export const EMPTY_DATASET = [{

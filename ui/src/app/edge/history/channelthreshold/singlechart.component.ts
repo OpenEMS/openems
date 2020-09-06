@@ -1,7 +1,7 @@
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
+import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem, Dataset } from '../shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
@@ -14,8 +14,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-  @Input() private period: DefaultTypes.HistoryPeriod;
-  @Input() public componentId: string;
+  @Input() private period: DefaultTypes.HistoryPeriod | null = null;
+  @Input() public componentId: string = '';
 
   ngOnChanges() {
     this.updateChart();
@@ -44,43 +44,46 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
     this.service.startSpinner(this.spinnerId);
     this.colors = [];
     this.loading = true;
-    this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-      let result = (response as QueryHistoricTimeseriesDataResponse).result;
-      // convert labels
-      let labels: Date[] = [];
-      for (let timestamp of result.timestamps) {
-        labels.push(new Date(timestamp));
-      }
-      this.labels = labels;
+    if (this.period != null) {
+      this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+        let result = (response as QueryHistoricTimeseriesDataResponse).result;
+        // convert labels
+        let labels: Date[] = [];
+        for (let timestamp of result.timestamps) {
+          labels.push(new Date(timestamp));
+        }
+        this.labels = labels;
 
-      // convert datasets
-      let datasets = [];
-      for (let channel in result.data) {
-        let address = ChannelAddress.fromString(channel);
-        let data = result.data[channel].map(value => {
-          if (value == null) {
-            return null
-          } else {
-            return value * 100; // convert to % [0,100]
-          }
-        });
-        datasets.push({
-          label: address.channelId,
-          data: data
-        });
-        this.colors.push({
-          backgroundColor: 'rgba(0,191,255,0.05)',
-          borderColor: 'rgba(0,191,255,1)',
-        })
-      }
-      this.datasets = datasets;
-      this.loading = false;
-      this.service.stopSpinner(this.spinnerId);
-    }).catch(reason => {
-      console.error(reason); // TODO error message
-      this.initializeChart();
-      return;
-    });
+        // convert datasets
+        let datasets: Dataset[] = [];
+        for (let channel in result.data) {
+          let address = ChannelAddress.fromString(channel);
+          let data = result.data[channel].map(value => {
+            if (value == null) {
+              return null
+            } else {
+              return value * 100; // convert to % [0,100]
+            }
+          });
+          datasets.push({
+            label: address.channelId,
+            data: data,
+            hidden: false
+          });
+          this.colors.push({
+            backgroundColor: 'rgba(0,191,255,0.05)',
+            borderColor: 'rgba(0,191,255,1)',
+          })
+        }
+        this.datasets = datasets;
+        this.loading = false;
+        this.service.stopSpinner(this.spinnerId);
+      }).catch(reason => {
+        console.error(reason); // TODO error message
+        this.initializeChart();
+        return;
+      });
+    }
   }
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {

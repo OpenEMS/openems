@@ -10,7 +10,7 @@ export class GridChartOverviewComponent {
 
     private static readonly SELECTOR = "grid-chart-overview";
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
     public showPhases: boolean = false;
 

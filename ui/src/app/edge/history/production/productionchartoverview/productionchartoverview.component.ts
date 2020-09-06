@@ -10,14 +10,14 @@ export class ProductionChartOverviewComponent {
 
     private static readonly SELECTOR = "production-chart-overview";
 
-    public edge: Edge = null;
-    public config: EdgeConfig = null;
+    public edge: Edge | null = null;
+    public config: EdgeConfig | null = null;
 
-    public productionMeterComponents: EdgeConfig.Component[] = null;
-    public chargerComponents: EdgeConfig.Component[] = null;
-    public showTotal: boolean = null;
-    public showPhases: boolean = false;
-    public isOnlyChart: boolean = null;
+    public productionMeterComponents: EdgeConfig.Component[] = [];
+    public chargerComponents: EdgeConfig.Component[] = [];
+    public showTotal: boolean | null = null;
+    public showPhases: boolean | null = false;
+    public isOnlyChart: boolean | null = null;
 
     // referene to the Utils method to access via html
     public isLastElement = Utils.isLastElement;

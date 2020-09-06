@@ -1,7 +1,7 @@
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
+import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem, Dataset } from '../shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
@@ -14,8 +14,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class SinglethresholdChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-  @Input() private period: DefaultTypes.HistoryPeriod;
-  @Input() public componentId: string;
+  @Input() private period: DefaultTypes.HistoryPeriod | null = null;
+  @Input() public componentId: string = '';
 
   ngOnChanges() {
     this.updateChart();
@@ -44,138 +44,140 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
     this.service.startSpinner(this.spinnerId);
     this.colors = [];
     this.loading = true;
-    this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-      this.service.getConfig().then(config => {
-        let outputChannel = config.getComponentProperties(this.componentId)['outputChannelAddress'];
-        let inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
-        let result = (response as QueryHistoricTimeseriesDataResponse).result;
-        let yAxisID
+    if (this.period != null) {
+      this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+        this.service.getConfig().then(config => {
+          let outputChannel = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+          let inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
+          let result = (response as QueryHistoricTimeseriesDataResponse).result;
+          let yAxisID
 
-        // set yAxis for % values (if there are no other % values: use left yAxis, if there are: use right yAxis - for percent values)
-        if (result.data["_sum/EssSoc"]) {
-          yAxisID = "yAxis1";
-        } else {
-          yAxisID = "yAxis2";
-        }
-
-        // convert labels
-        let labels: Date[] = [];
-        for (let timestamp of result.timestamps) {
-          labels.push(new Date(timestamp));
-        }
-        this.labels = labels;
-        let datasets = [];
-
-        // convert datasets
-        for (let channel in result.data) {
-          if (channel == outputChannel) {
-            let address = ChannelAddress.fromString(channel);
-            let data = result.data[channel].map(value => {
-              if (value == null) {
-                return null
-              } else {
-                return value * 100; // convert to % [0,100]
-              }
-            });
-            datasets.push({
-              label: address.channelId,
-              data: data,
-              hidden: false,
-              yAxisID: yAxisID,
-              position: 'right'
-            });
-            this.colors.push({
-              backgroundColor: 'rgba(0,191,255,0.05)',
-              borderColor: 'rgba(0,191,255,1)',
-            })
+          // set yAxis for % values (if there are no other % values: use left yAxis, if there are: use right yAxis - for percent values)
+          if (result.data["_sum/EssSoc"]) {
+            yAxisID = "yAxis1";
+          } else {
+            yAxisID = "yAxis2";
           }
-          if (channel == inputChannel) {
-            let inputLabel: string = null;
-            let address = ChannelAddress.fromString(channel);
-            switch (address.channelId) {
-              case 'GridActivePower':
-                inputLabel = this.translate.instant('General.grid');
-                break;
-              case 'ProductionActivePower':
-                inputLabel = this.translate.instant('General.production');
-                break;
-              case 'EssSoc':
-                inputLabel = this.translate.instant('General.soc');
-                break;
-              default:
-                inputLabel = this.translate.instant('Edge.Index.Widgets.Singlethreshold.other');
-                break;
-            }
-            let data
-            if (address.channelId == 'EssSoc') {
-              data = result.data[channel].map(value => {
-                if (value == null) {
-                  return null
-                } else if (value > 100 || value < 0) {
-                  return null;
-                } else {
-                  return value;
-                }
-              })
-            } else if (address.channelId == 'ProductionActivePower' || address.channelId == 'GridActivePower') {
-              data = result.data[channel].map(value => {
+
+          // convert labels
+          let labels: Date[] = [];
+          for (let timestamp of result.timestamps) {
+            labels.push(new Date(timestamp));
+          }
+          this.labels = labels;
+          let datasets: Dataset[] = [];
+
+          // convert datasets
+          for (let channel in result.data) {
+            if (channel == outputChannel) {
+              let address = ChannelAddress.fromString(channel);
+              let data = result.data[channel].map(value => {
                 if (value == null) {
                   return null
                 } else {
-                  return value / 1000; // convert to kW
+                  return value * 100; // convert to % [0,100]
                 }
               });
-            } else {
-              data = result.data[channel].map(value => {
-                if (value == null) {
-                  return null
-                } else {
-                  return value;
-                }
-              });
-            }
-            if (address.channelId == 'EssSoc') {
               datasets.push({
-                label: inputLabel,
+                label: address.channelId,
                 data: data,
                 hidden: false,
                 yAxisID: yAxisID,
                 position: 'right'
               });
-
               this.colors.push({
-                backgroundColor: 'rgba(189, 195, 199,0.05)',
-                borderColor: 'rgba(189, 195, 199,1)',
-              })
-            } else {
-              datasets.push({
-                label: inputLabel,
-                data: data,
-                hidden: false,
-                yAxisID: 'yAxis1',
-                position: 'left',
-              });
-
-              this.colors.push({
-                backgroundColor: 'rgba(0,0,0,0.05)',
-                borderColor: 'rgba(0,0,0,1)'
+                backgroundColor: 'rgba(0,191,255,0.05)',
+                borderColor: 'rgba(0,191,255,1)',
               })
             }
+            if (channel == inputChannel) {
+              let inputLabel: string = '';
+              let address = ChannelAddress.fromString(channel);
+              switch (address.channelId) {
+                case 'GridActivePower':
+                  inputLabel = this.translate.instant('General.grid');
+                  break;
+                case 'ProductionActivePower':
+                  inputLabel = this.translate.instant('General.production');
+                  break;
+                case 'EssSoc':
+                  inputLabel = this.translate.instant('General.soc');
+                  break;
+                default:
+                  inputLabel = this.translate.instant('Edge.Index.Widgets.Singlethreshold.other');
+                  break;
+              }
+              let data
+              if (address.channelId == 'EssSoc') {
+                data = result.data[channel].map(value => {
+                  if (value == null) {
+                    return null
+                  } else if (value > 100 || value < 0) {
+                    return null;
+                  } else {
+                    return value;
+                  }
+                })
+              } else if (address.channelId == 'ProductionActivePower' || address.channelId == 'GridActivePower') {
+                data = result.data[channel].map(value => {
+                  if (value == null) {
+                    return null
+                  } else {
+                    return value / 1000; // convert to kW
+                  }
+                });
+              } else {
+                data = result.data[channel].map(value => {
+                  if (value == null) {
+                    return null
+                  } else {
+                    return value;
+                  }
+                });
+              }
+              if (address.channelId == 'EssSoc') {
+                datasets.push({
+                  label: inputLabel,
+                  data: data,
+                  hidden: false,
+                  yAxisID: yAxisID,
+                  position: 'right'
+                });
+
+                this.colors.push({
+                  backgroundColor: 'rgba(189, 195, 199,0.05)',
+                  borderColor: 'rgba(189, 195, 199,1)',
+                })
+              } else {
+                datasets.push({
+                  label: inputLabel,
+                  data: data,
+                  hidden: false,
+                  yAxisID: 'yAxis1',
+                  position: 'left',
+                });
+
+                this.colors.push({
+                  backgroundColor: 'rgba(0,0,0,0.05)',
+                  borderColor: 'rgba(0,0,0,1)'
+                })
+              }
+            }
           }
-        }
-        this.datasets = datasets;
-        this.loading = false;
-        this.service.stopSpinner(this.spinnerId);
+          this.datasets = datasets;
+          this.loading = false;
+          this.service.stopSpinner(this.spinnerId);
+        }).catch(reason => {
+          console.error(reason); // TODO error message
+          this.initializeChart();
+          return;
+        });
       }).catch(reason => {
         console.error(reason); // TODO error message
         this.initializeChart();
         return;
       });
-    }).catch(reason => {
-      console.error(reason); // TODO error message
-      this.initializeChart();
-      return;
-    });
+    }
   }
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
@@ -190,7 +192,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
   protected setLabel(config: EdgeConfig) {
     let inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
     let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
-    let labelString;
+    let labelString: string = '';
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     let translate = this.translate;
 
@@ -203,7 +205,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
       options.scales.yAxes[0].id = "yAxis1"
       options.scales.yAxes[0].scaleLabel.labelString = labelString;
     } else {
-      labelString = config.getChannel(inputChannel)['unit'];
+      labelString = config.getChannel(inputChannel)?.unit as string;
       options.scales.yAxes[0].id = "yAxis1"
       options.scales.yAxes[0].scaleLabel.labelString = labelString;
     }

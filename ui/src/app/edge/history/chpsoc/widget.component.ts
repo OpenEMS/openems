@@ -12,14 +12,14 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 })
 export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public componentId: string;
+    @Input() public period: DefaultTypes.HistoryPeriod | null = null;
+    @Input() public componentId: string = '';
 
     private static readonly SELECTOR = "chpsocWidget";
 
-    public activeTimeOverPeriod: string = null;
-    public edge: Edge = null;
-    public component: EdgeConfig.Component = null;
+    public activeTimeOverPeriod: string = '';
+    public edge: Edge | null = null;
+    public component: EdgeConfig.Component | null = null;
 
     constructor(
         public service: Service,

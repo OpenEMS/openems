@@ -250,7 +250,7 @@ export class CurrentData {
       ), 0)
   }
 
-  public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number, storageDischargeActivePower: number): number | null {
+  public static calculateSelfConsumption(sellToGrid: number | null, productionActivePower: number | null, storageDischargeActivePower: number | null): number | null {
     if (productionActivePower == 0) {
       return null;
     }

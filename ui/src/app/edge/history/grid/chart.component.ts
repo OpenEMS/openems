@@ -13,8 +13,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class GridChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
-    @Input() private showPhases: boolean;
+    @Input() private period: DefaultTypes.HistoryPeriod | null = null;
+    @Input() private showPhases: boolean | null = null;
 
     ngOnChanges() {
         this.updateChart();
@@ -44,109 +44,111 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
         this.loading = true;
         this.service.startSpinner(this.spinnerId);
         this.colors = [];
-        this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            let result = response.result;
-            // convert labels
-            let labels: Date[] = [];
-            for (let timestamp of result.timestamps) {
-                labels.push(new Date(timestamp));
-            }
-            this.labels = labels;
+        if (this.period != null) {
+            this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+                let result = response.result;
+                // convert labels
+                let labels: Date[] = [];
+                for (let timestamp of result.timestamps) {
+                    labels.push(new Date(timestamp));
+                }
+                this.labels = labels;
 
-            // convert datasets
-            let datasets = [];
+                // convert datasets
+                let datasets = [];
 
-            if ('_sum/GridActivePower' in result.data) {
-                let gridData = result.data['_sum/GridActivePower'].map(value => {
-                    if (value == null) {
-                        return null
-                    } else if (value == 0) {
-                        return 0;
-                    } else {
-                        return value / 1000;
+                if ('_sum/GridActivePower' in result.data) {
+                    let gridData = result.data['_sum/GridActivePower'].map(value => {
+                        if (value == null) {
+                            return null
+                        } else if (value == 0) {
+                            return 0;
+                        } else {
+                            return value / 1000;
+                        }
+                    });
+                    datasets.push({
+                        label: this.translate.instant('General.grid'),
+                        data: gridData,
+                        hidden: false
+                    });
+                    this.colors.push({
+                        backgroundColor: 'rgba(0,0,0,0.05)',
+                        borderColor: 'rgba(0,0,0,1)'
+                    })
+                }
+
+                if ('_sum/GridActivePowerL1' && '_sum/GridActivePowerL2' && '_sum/GridActivePowerL3' in result.data && this.showPhases == true) {
+                    if ('_sum/GridActivePowerL1' in result.data) {
+                        /**
+                         * Buy From Grid
+                         */
+                        let gridData = result.data['_sum/GridActivePowerL1'].map(value => {
+                            if (value == null) {
+                                return null
+                            } else if (value == 0) {
+                                return 0;
+                            } else {
+                                return value / 1000;
+                            }
+                        });
+                        datasets.push({
+                            label: this.translate.instant('General.phase') + ' ' + 'L1',
+                            data: gridData,
+                            hidden: false
+                        });
+                        this.colors.push(this.phase1Color);
                     }
-                });
-                datasets.push({
-                    label: this.translate.instant('General.grid'),
-                    data: gridData,
-                    hidden: false
-                });
-                this.colors.push({
-                    backgroundColor: 'rgba(0,0,0,0.05)',
-                    borderColor: 'rgba(0,0,0,1)'
-                })
-            }
-
-            if ('_sum/GridActivePowerL1' && '_sum/GridActivePowerL2' && '_sum/GridActivePowerL3' in result.data && this.showPhases == true) {
-                if ('_sum/GridActivePowerL1' in result.data) {
-                    /**
-                     * Buy From Grid
-                     */
-                    let gridData = result.data['_sum/GridActivePowerL1'].map(value => {
-                        if (value == null) {
-                            return null
-                        } else if (value == 0) {
-                            return 0;
-                        } else {
-                            return value / 1000;
-                        }
-                    });
-                    datasets.push({
-                        label: this.translate.instant('General.phase') + ' ' + 'L1',
-                        data: gridData,
-                        hidden: false
-                    });
-                    this.colors.push(this.phase1Color);
+                    if ('_sum/GridActivePowerL2' in result.data) {
+                        /**
+                         * Buy From Grid
+                         */
+                        let gridData = result.data['_sum/GridActivePowerL2'].map(value => {
+                            if (value == null) {
+                                return null
+                            } else if (value == 0) {
+                                return 0;
+                            } else {
+                                return value / 1000;
+                            }
+                        });
+                        datasets.push({
+                            label: this.translate.instant('General.phase') + ' ' + 'L2',
+                            data: gridData,
+                            hidden: false
+                        });
+                        this.colors.push(this.phase2Color);
+                    }
+                    if ('_sum/GridActivePowerL3' in result.data) {
+                        /**
+                         * Buy From Grid
+                         */
+                        let gridData = result.data['_sum/GridActivePowerL3'].map(value => {
+                            if (value == null) {
+                                return null
+                            } else if (value == 0) {
+                                return 0;
+                            } else {
+                                return value / 1000;
+                            }
+                        });
+                        datasets.push({
+                            label: this.translate.instant('General.phase') + ' ' + 'L3',
+                            data: gridData,
+                            hidden: false
+                        });
+                        this.colors.push(this.phase3Color);
+                    }
                 }
-                if ('_sum/GridActivePowerL2' in result.data) {
-                    /**
-                     * Buy From Grid
-                     */
-                    let gridData = result.data['_sum/GridActivePowerL2'].map(value => {
-                        if (value == null) {
-                            return null
-                        } else if (value == 0) {
-                            return 0;
-                        } else {
-                            return value / 1000;
-                        }
-                    });
-                    datasets.push({
-                        label: this.translate.instant('General.phase') + ' ' + 'L2',
-                        data: gridData,
-                        hidden: false
-                    });
-                    this.colors.push(this.phase2Color);
-                }
-                if ('_sum/GridActivePowerL3' in result.data) {
-                    /**
-                     * Buy From Grid
-                     */
-                    let gridData = result.data['_sum/GridActivePowerL3'].map(value => {
-                        if (value == null) {
-                            return null
-                        } else if (value == 0) {
-                            return 0;
-                        } else {
-                            return value / 1000;
-                        }
-                    });
-                    datasets.push({
-                        label: this.translate.instant('General.phase') + ' ' + 'L3',
-                        data: gridData,
-                        hidden: false
-                    });
-                    this.colors.push(this.phase3Color);
-                }
-            }
-            this.datasets = datasets;
-            this.loading = false;
-            this.service.stopSpinner(this.spinnerId);
-        }).catch(reason => {
-            console.error(reason); // TODO error message
-            this.initializeChart();
-            return;
-        });
+                this.datasets = datasets;
+                this.loading = false;
+                this.service.stopSpinner(this.spinnerId);
+            }).catch(reason => {
+                console.error(reason); // TODO error message
+                this.initializeChart();
+                return;
+            });
+        }
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {

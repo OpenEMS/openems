@@ -10,10 +10,10 @@ export class FixDigitalOutputChartOverviewComponent {
 
     private static readonly SELECTOR = "fixdigitaloutput-chart-overview";
 
-    public edge: Edge = null;
-    public component: EdgeConfig.Component = null;
+    public edge: Edge | null = null;
+    public component: EdgeConfig.Component | null = null;
 
-    public showTotal: boolean = null;
+    public showTotal: boolean | null = null;
     public fixDigitalOutputComponents: string[] = [];
 
     // referene to the Utils method to access via html
