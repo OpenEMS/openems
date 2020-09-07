@@ -34,9 +34,7 @@ export class ConsumptionComponent {
           new ChannelAddress(component.id, 'ActivePower'),
         )
       }
-      console.log("consumptionMeterComponents", this.consumptionMeterComponents)
       this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster.SelfConsumtion') && !(component.factoryId == 'Evcs.Cluster.PeakShaving') && !component.isEnabled == false);
-      console.log("evcscomponents", this.evcsComponents)
       for (let component of this.evcsComponents) {
         channels.push(
           new ChannelAddress(component.id, 'ChargePower'),

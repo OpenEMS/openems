@@ -53,11 +53,12 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-        let channels: ChannelAddress[] = [
-            new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
-        ]
-
         return new Promise((resolve) => {
+
+            let channels: ChannelAddress[] = [
+                new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
+            ]
+
             this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster.SelfConsumtion') && !(component.factoryId == 'Evcs.Cluster.PeakShaving') && !component.isEnabled == false);
             for (let component of this.evcsComponents) {
                 channels.push(
