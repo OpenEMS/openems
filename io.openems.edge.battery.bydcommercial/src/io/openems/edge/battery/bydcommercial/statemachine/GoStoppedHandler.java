@@ -4,11 +4,12 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.bydcommercial.PreChargeControl;
-import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.Context;
+import io.openems.edge.battery.bydcommercial.PowerCircuitControl;
+import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.battery.bydcommercial.utils.Constants;
+import io.openems.edge.common.statemachine.StateHandler;
 
-public class GoStopped extends State.Handler {
+public class GoStoppedHandler extends StateHandler<State, Context> {
 
 	private Instant lastAttempt = Instant.MIN;
 	private int attemptCounter = 0;
@@ -20,10 +21,10 @@ public class GoStopped extends State.Handler {
 	}
 
 	@Override
-	public State getNextState(Context context) throws OpenemsNamedException {
-		PreChargeControl preChargeControl = context.component.getPreChargeControl();
+	public State runAndGetNextState(Context context) throws OpenemsNamedException {
+		PowerCircuitControl preChargeControl = context.component.getPreChargeControl();
 
-		if (preChargeControl == PreChargeControl.SWITCH_OFF) {
+		if (preChargeControl == PowerCircuitControl.SWITCH_OFF) {
 			return State.STOPPED;
 		}
 
@@ -34,12 +35,12 @@ public class GoStopped extends State.Handler {
 
 			if (this.attemptCounter > Constants.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				context.component.setMaxStopAttempts(true);
+				context.component._setMaxStopAttempts(true);
 				return State.UNDEFINED;
 
 			} else {
 				// Trying to switch off
-				context.component.setPreChargeControl(PreChargeControl.SWITCH_OFF);
+				context.component.setPowerCircuitControl(PowerCircuitControl.SWITCH_OFF);
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
 				return State.GO_STOPPED;

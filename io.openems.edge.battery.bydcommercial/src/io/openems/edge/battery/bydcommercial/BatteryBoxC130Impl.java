@@ -1,5 +1,7 @@
 package io.openems.edge.battery.bydcommercial;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -18,10 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.bydcommercial.statemachine.Context;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine;
+import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -58,7 +61,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 	/**
 	 * Manages the {@link State}s of the StateMachine.
 	 */
-	private final StateMachine stateMachine = new StateMachine();
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private Config config;
 
@@ -109,7 +112,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		StateMachine.Context context = new StateMachine.Context(this, this.config);
+		Context context = new Context(this, this.config);
 
 		// Call the StateMachine
 		try {
@@ -126,6 +129,8 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc() //
+				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
+				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
 				+ "|State:" + this.stateMachine.getCurrentState();
 	}
 
@@ -133,11 +138,12 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(0x2010, Priority.HIGH, //
-						m(BatteryBoxC130.ChannelId.PRE_CHARGE_CONTROL, new UnsignedWordElement(0x2010)) //
+						m(BatteryBoxC130.ChannelId.POWER_CIRCUIT_CONTROL, new UnsignedWordElement(0x2010)) //
 				), //
 
 				new FC16WriteRegistersTask(0x2010, //
-						m(BatteryBoxC130.ChannelId.PRE_CHARGE_CONTROL, new UnsignedWordElement(0x2010)) //
+
+						m(BatteryBoxC130.ChannelId.POWER_CIRCUIT_CONTROL, new UnsignedWordElement(0x2010)) //
 				), //
 				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
 						m(new UnsignedWordElement(0x2100)) //
@@ -178,17 +184,12 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 										ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(Battery.ChannelId.MIN_CELL_TEMPERATURE,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-								.build() //
-				// new DummyRegisterElement(0x210D, 0x2115), //
-				// m(BatteryBoxC130.ChannelId.SYSTEM_INSULATION, new
-				// UnsignedWordElement(0x2116)) //
-				// m(BatteryBoxC130.ChannelId.BATTERY_CHARGE_STATE, new
-				// UnsignedWordElement(0x211D)) //
-				), //
+								.build(), //
+						m(BatteryBoxC130.ChannelId.MODULE_QTY, new UnsignedWordElement(0x210D)), //
+						m(BatteryBoxC130.ChannelId.TOTAL_VOLTAGE_OF_SINGLE_MODULE, new UnsignedWordElement(0x210E))), //
 				new FC3ReadRegistersTask(0x211D, Priority.HIGH, //
 						m(new BitsWordElement(0x211D, this) //
 								.bit(1, BatteryBoxC130.ChannelId.NEED_CHARGE)) //
-
 				), //
 				new FC3ReadRegistersTask(0x2140, Priority.LOW, //
 						m(new BitsWordElement(0x2140, this) //
@@ -603,7 +604,6 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_47_TEMPERATURE, new UnsignedWordElement(0x2C2F)) //
 				)//
 		); //
-
 	}
 
 	@Override
@@ -614,9 +614,34 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
+
 	@Override
-	public void setStartStop(StartStop value) throws OpenemsNamedException {
-		// TODO start stop is not implemented
-		throw new NotImplementedException("Start Stop is not implemented for Soltaro SingleRack Version B");
+	public void setStartStop(StartStop value) {
+		if (this.startStopTarget.getAndSet(value) != value) {
+			// Set only if value changed
+			this.stateMachine.forceNextState(State.UNDEFINED);
+		}
 	}
+
+	@Override
+	public StartStop getStartStopTarget() {
+		switch (this.config.startStop()) {
+		case AUTO:
+			// read StartStop-Channel
+			return this.startStopTarget.get();
+
+		case START:
+			// force START
+			return StartStop.START;
+
+		case STOP:
+			// force STOP
+			return StartStop.STOP;
+		}
+
+		assert false;
+		return StartStop.UNDEFINED; // can never happen
+	}
+
 }

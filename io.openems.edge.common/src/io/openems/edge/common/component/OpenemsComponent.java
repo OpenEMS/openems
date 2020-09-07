@@ -258,6 +258,20 @@ public interface OpenemsComponent {
 	}
 
 	/**
+	 * Does this OpenEMS Component report any Warnings?
+	 * 
+	 * <p>
+	 * Evaluates all {@link StateChannel}s and returns true if any Channel with
+	 * {@link Level#WARNING} is set.
+	 * 
+	 * @return true if there is a Warning.
+	 */
+	public default boolean hasWarnings() {
+		Level level = this.getState();
+		return level.isAtLeast(Level.WARNING);
+	}
+	
+	/**
 	 * Sets a target filter for a Declarative Service @Reference member.
 	 * 
 	 * <p>
