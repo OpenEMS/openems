@@ -13,7 +13,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 			return State.UNDEFINED;
 		}
 
-		if (context.component.getPreChargeControl() != PowerCircuitControl.SWITCH_ON) {
+		if (context.component.getPowerCircuitControl() != PowerCircuitControl.SWITCH_ON) {
 			return State.UNDEFINED;
 		}
 

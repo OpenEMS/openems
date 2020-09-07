@@ -17,7 +17,7 @@ public class ErrorHandler extends StateHandler<State, Context> {
 		this.entryAt = Instant.now();
 
 		// Try to stop system
-		context.component._setPreChargeControl(PowerCircuitControl.SWITCH_OFF);
+		context.component._setPowerCircuitControl(PowerCircuitControl.SWITCH_OFF);
 	}
 
 	@Override

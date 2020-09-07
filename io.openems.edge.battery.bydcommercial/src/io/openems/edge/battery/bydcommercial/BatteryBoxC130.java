@@ -21,7 +21,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 	 * 
 	 * @return the Channel
 	 */
-	public default WriteChannel<PowerCircuitControl> getPreChargeControlChannel() {
+	public default WriteChannel<PowerCircuitControl> getPowerCircuitControlChannel() {
 		return this.channel(ChannelId.POWER_CIRCUIT_CONTROL);
 	}
 
@@ -30,8 +30,8 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 	 * 
 	 * @return the Channel {@link Value}
 	 */
-	public default PowerCircuitControl getPreChargeControl() {
-		return this.getPreChargeControlChannel().value().asEnum();
+	public default PowerCircuitControl getPowerCircuitControl() {
+		return this.getPowerCircuitControlChannel().value().asEnum();
 	}
 
 	/**
@@ -40,8 +40,8 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 	 * 
 	 * @param value the next value
 	 */
-	public default void _setPreChargeControl(PowerCircuitControl value) {
-		this.getPreChargeControlChannel().setNextValue(value);
+	public default void _setPowerCircuitControl(PowerCircuitControl value) {
+		this.getPowerCircuitControlChannel().setNextValue(value);
 	}
 
 	/**
@@ -51,7 +51,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void setPowerCircuitControl(PowerCircuitControl value) throws OpenemsNamedException {
-		this.getPreChargeControlChannel().setNextWriteValue(value);
+		this.getPowerCircuitControlChannel().setNextWriteValue(value);
 	}
 
 	/**

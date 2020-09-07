@@ -22,9 +22,9 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		PowerCircuitControl preChargeControl = context.component.getPreChargeControl();
+		PowerCircuitControl powerCircuitControl = context.component.getPowerCircuitControl();
 
-		if (preChargeControl == PowerCircuitControl.SWITCH_OFF) {
+		if (powerCircuitControl == PowerCircuitControl.SWITCH_OFF) {
 			return State.STOPPED;
 		}
 
