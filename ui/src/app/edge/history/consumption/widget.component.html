@@ -7,17 +7,56 @@
     </ion-item>
     <ion-card-content>
         <table class="full_width">
-            <tr>
-                <td style="width:65%"></td>
-                <td style="width:35%" class="align_right" *ngIf="data && service.isKwhAllowed(edge); else noData">
-                    {{ data["_sum/ConsumptionActiveEnergy"] | unitvalue:'kWh' }}
-                </td>
-                <ng-template #noData>
+            <ng-container *ngIf="data && service.isKwhAllowed(edge); else noData">
+                <ng-container
+                    *ngIf="(evcsComponents.length == 0 && consumptionMeterComponents.length == 0) || hasOtherPowerOnly() == true">
+                    <tr>
+                        <td style="width:65%"></td>
+                        <td style="width:35%" class="align_right">
+                            {{ data["_sum/ConsumptionActiveEnergy"] | unitvalue:'kWh' }}
+                        </td>
+                    </tr>
+                </ng-container>
+                <ng-container *ngIf="hasOtherPowerOnly() == false">
+                    <ng-container *ngIf="evcsComponents.length > 0">
+                        <ng-container *ngFor="let component of evcsComponents">
+                            <tr>
+                                <td style="width:65%">{{ component.alias }}</td>
+                                <td style="width:35%" class="align_right">
+                                    {{ data[component.id + "/EnergyTotal"] | unitvalue:'kWh' }}
+                                </td>
+                            </tr>
+                        </ng-container>
+                    </ng-container>
+                    <ng-container *ngIf="consumptionMeterComponents.length > 0">
+                        <ng-container *ngFor="let component of consumptionMeterComponents">
+                            <tr>
+                                <td style="width:65%">{{ component.alias }}</td>
+                                <td style="width:35%" class="align_right">
+                                    {{ data[component.id + "/ActiveConsumptionEnergy"] | unitvalue:'kWh' }}
+                                </td>
+                            </tr>
+                        </ng-container>
+                    </ng-container>
+                    <tr>
+                        <td style="width:65%" translate>General.otherConsumption</td>
+                        <ng-container *ngIf="getTotalOtherEnergy() as otherPower">
+                            <td style="width:35%" class="align_right" *ngIf="otherPower > 0">
+                                {{ otherPower  | unitvalue:'kWh' }}
+                            </td>
+                        </ng-container>
+                    </tr>
+                </ng-container>
+            </ng-container>
+
+            <ng-template #noData>
+                <tr>
+                    <td style="width:65%"></td>
                     <td style="width:35%" class="align_right">
                         &nbsp;
                     </td>
-                </ng-template>
-            </tr>
+                </tr>
+            </ng-template>
         </table>
     </ion-card-content>
 </ion-card>

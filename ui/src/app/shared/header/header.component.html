@@ -19,14 +19,16 @@
     <ng-container *ngIf="service.currentEdge | async as edge">
       <ng-container *ngIf="currentPage == 'IndexLive' || currentPage == 'IndexHistory'">
         <ion-buttons>
-          <ion-segment mode="md" [(ngModel)]="currentPage" class="ion-justify-content-center">
-            <ion-segment-button (click)="updateLiveHistorySegment('IndexLive')" value="IndexLive">
+          <ion-segment mode="md" (ionChange)="segmentChanged($event)" [(ngModel)]="currentPage"
+            class="ion-justify-content-center">
+            <ion-segment-button value="IndexLive">
               <ion-label translate>General.live</ion-label>
             </ion-segment-button>
-            <ion-segment-button (click)="updateLiveHistorySegment('IndexHistory')" value="IndexHistory">
+            <ion-segment-button value="IndexHistory">
               <ion-label translate>General.history</ion-label>
             </ion-segment-button>
           </ion-segment>
+
         </ion-buttons>
       </ng-container>
     </ng-container>

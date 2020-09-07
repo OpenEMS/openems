@@ -331,6 +331,7 @@ export class Service implements ErrorHandler {
         });
       }, 100);
     }
+    this.queryEnergyTimeout = null;
     return response;
   }
 

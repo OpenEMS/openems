@@ -14,8 +14,8 @@ export class ProductionComponent {
 
     public config: EdgeConfig = null;
     public edge: Edge = null;
-    public productionMeterComponents: EdgeConfig.Component[] = null;
-    public chargerComponents: EdgeConfig.Component[] = null;
+    public productionMeterComponents: EdgeConfig.Component[] = [];
+    public chargerComponents: EdgeConfig.Component[] = [];
 
     constructor(
         private route: ActivatedRoute,
@@ -50,7 +50,6 @@ export class ProductionComponent {
                 new ChannelAddress('_sum', 'ProductionAcActivePowerL2'),
                 new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
             )
-            console.log("chargerComponents", this.chargerComponents, "\n", "productionMeter", this.productionMeterComponents)
             this.edge.subscribeChannels(this.websocket, ProductionComponent.SELECTOR, channels);
         })
     };

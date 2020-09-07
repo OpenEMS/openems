@@ -145,13 +145,14 @@ export class HeaderComponent {
         }
     }
 
-    public updateLiveHistorySegment(navigateTo) {
-        if (navigateTo == "IndexLive") {
+    public segmentChanged(event) {
+        if (event.detail.value == "IndexLive") {
             this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/live");
-
+            this.cdRef.detectChanges();
         }
-        if (navigateTo == "IndexHistory") {
+        if (event.detail.value == "IndexHistory") {
             this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/history");
+            this.cdRef.detectChanges();
         }
     }
 

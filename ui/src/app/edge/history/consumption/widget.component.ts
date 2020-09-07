@@ -17,6 +17,8 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
 
     public data: Cumulated = null;
     public edge: Edge = null;
+    public evcsComponents: EdgeConfig.Component[] = null;
+    public consumptionMeterComponents: EdgeConfig.Component[] = null;
 
     constructor(
         public service: Service,
@@ -51,12 +53,46 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
+        let channels: ChannelAddress[] = [
+            new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
+        ]
+
         return new Promise((resolve) => {
-            let channels: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
-            ];
+            this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster.SelfConsumtion') && !(component.factoryId == 'Evcs.Cluster.PeakShaving') && !component.isEnabled == false);
+            for (let component of this.evcsComponents) {
+                channels.push(
+                    new ChannelAddress(component.id, 'EnergyTotal'),
+                )
+            }
+
+            this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED');
+            for (let component of this.consumptionMeterComponents) {
+                channels.push(
+                    new ChannelAddress(component.id, 'ActiveConsumptionEnergy'),
+                )
+            }
+
             resolve(channels);
         });
+    }
+
+    public getTotalOtherEnergy(): number {
+        let otherEnergy: number = 0;
+        this.evcsComponents.forEach(component => {
+            otherEnergy += this.data[component.id + '/EnergyTotal'];
+        })
+        this.consumptionMeterComponents.forEach(component => {
+            otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'];
+        })
+        return this.data["_sum/ConsumptionActiveEnergy"] - otherEnergy;
+    }
+
+    public hasOtherPowerOnly(): boolean {
+        if (this.data["_sum/ConsumptionActiveEnergy"] == this.getTotalOtherEnergy()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 
