@@ -140,9 +140,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(0x2010, Priority.HIGH, //
 						m(BatteryBoxC130.ChannelId.POWER_CIRCUIT_CONTROL, new UnsignedWordElement(0x2010)) //
 				), //
-
 				new FC16WriteRegistersTask(0x2010, //
-
 						m(BatteryBoxC130.ChannelId.POWER_CIRCUIT_CONTROL, new UnsignedWordElement(0x2010)) //
 				), //
 				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
@@ -286,6 +284,10 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new SignedWordElement(0x216C), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new SignedWordElement(0x216D), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(0x216E), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(0x216F), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), //
 
