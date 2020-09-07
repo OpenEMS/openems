@@ -8,9 +8,9 @@ import { Edge, Service, Utils, Widgets, EdgeConfig } from '../../shared/shared';
 })
 export class LiveComponent implements OnInit {
 
-  public edge: Edge = null
-  public config: EdgeConfig = null;
-  public widgets: Widgets = null;
+  public edge: Edge | null = null
+  public config: EdgeConfig | null = null;
+  public widgets: Widgets | null = null;
 
   constructor(
     private route: ActivatedRoute,
