@@ -7,7 +7,7 @@ import io.openems.edge.common.test.AbstractComponentConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = "ctrlEvcs0";
+		private String id;
 		private String alias = "Controller Evcs";
 		private boolean enabled = true;
 		private boolean debugMode = false;

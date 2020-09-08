@@ -1,5 +1,7 @@
 package io.openems.edge.controller.evcs;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
@@ -41,9 +43,6 @@ public class EvcsControllerTest {
 	private static ChannelAddress evcs0SetPowerRequest = new ChannelAddress("evcs0", "SetChargePowerRequest");
 	private static ChannelAddress evcs0Status = new ChannelAddress("evcs0", "Status");
 	private static ChannelAddress evcs0MaximumHardwarePower = new ChannelAddress("evcs0", "MaximumHardwarePower");
-	private static ChannelAddress evcs0DefaultChargeMinPower = new ChannelAddress("ctrlEvcs0", "_PropertyDefaultChargeMinPower");
-	private static ChannelAddress evcs0ForceChargeMinPower = new ChannelAddress("ctrlEvcs0", "_PropertyForceChargeMinPower");
-	
 
 	@Test
 	public void excessChargeTest1() throws Exception {
@@ -51,7 +50,7 @@ public class EvcsControllerTest {
 		ENABLE_CHARGING = true;
 		CHARGE_MODE = ChargeMode.EXCESS_POWER;
 		PRIORITY = Priority.CAR;
-		
+
 		new ControllerTest(new EvcsController()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -59,6 +58,7 @@ public class EvcsControllerTest {
 				.addReference("evcs", EVCS) //
 				.addReference("ess", ESS) //
 				.activate(MyConfig.create() //
+						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
 						.setEnableCharging(ENABLE_CHARGING) //
 						.setChargeMode(CHARGE_MODE) //
@@ -90,6 +90,7 @@ public class EvcsControllerTest {
 				.addReference("evcs", EVCS) //
 				.addReference("ess", ESS) //
 				.activate(MyConfig.create() //
+						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
 						.setEnableCharging(ENABLE_CHARGING) //
 						.setChargeMode(CHARGE_MODE) //
@@ -109,7 +110,7 @@ public class EvcsControllerTest {
 
 		;
 	}
-	
+
 	@Test
 	public void forceChargeTest() throws Exception {
 
@@ -117,7 +118,7 @@ public class EvcsControllerTest {
 		FORCE_CHARGE_MIN_POWER = 7360;
 		CHARGE_MODE = ChargeMode.FORCE_CHARGE;
 		PRIORITY = Priority.CAR;
-		
+
 		new ControllerTest(new EvcsController()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -125,6 +126,7 @@ public class EvcsControllerTest {
 				.addReference("evcs", EVCS) //
 				.addReference("ess", ESS) //
 				.activate(MyConfig.create() //
+						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
 						.setEnableCharging(ENABLE_CHARGING) //
 						.setChargeMode(CHARGE_MODE) //
@@ -140,15 +142,14 @@ public class EvcsControllerTest {
 						.input(sumGridActivePower, -40000) //
 						.input(evcs0ChargePower, 5000) //
 						.input(essAllowedChargePower, 30000) //
-						.output(evcs0SetChargePowerLimit, 22080))
-		;
+						.output(evcs0SetChargePowerLimit, 22080));
 	}
 
 	@Test
 	public void chargingDisabledTest() throws Exception {
 
 		ENABLE_CHARGING = false;
-		
+
 		new ControllerTest(new EvcsController()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -156,6 +157,7 @@ public class EvcsControllerTest {
 				.addReference("evcs", EVCS) //
 				.addReference("ess", ESS) //
 				.activate(MyConfig.create() //
+						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
 						.setEnableCharging(ENABLE_CHARGING) //
 						.setChargeMode(CHARGE_MODE) //
@@ -166,39 +168,40 @@ public class EvcsControllerTest {
 						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
 						.build()) //
 				.next(new TestCase() //
-						.output(evcs0SetChargePowerLimit, 0))
-		;
-	}
-	
-	@Test
-	public void wrongConfigParametersTest() throws Exception {
-		
-		DEFAULT_CHARGE_MIN_POWER = 30000;
-		FORCE_CHARGE_MIN_POWER = 30000;
-		
-		new ControllerTest(new EvcsController()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager()) //
-				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
-				.addReference("ess", ESS) //
-				.activate(MyConfig.create() //
-						.setEvcsId(EVCS_ID) //
-						.setEnableCharging(ENABLE_CHARGING) //
-						.setChargeMode(CHARGE_MODE) //
-						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
-						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
-						.setPriority(PRIORITY) //
-						.setEssId(ESS_ID) //
-						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
-						.build()) //
-				.next(new TestCase() //
-						.input(evcs0MaximumHardwarePower, 11000)
-						.output(evcs0DefaultChargeMinPower, 11000)
-						.output(evcs0ForceChargeMinPower, 11000))
-		;
+						.output(evcs0SetChargePowerLimit, 0));
 	}
 
+	@Test
+	public void wrongConfigParametersTest() throws Exception {
+
+		DEFAULT_CHARGE_MIN_POWER = 30000;
+		FORCE_CHARGE_MIN_POWER = 30000;
+
+		DummyConfigurationAdmin cm = new DummyConfigurationAdmin();
+		new ControllerTest(new EvcsController()) //
+				.addReference("cm", cm) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("sum", new DummySum()) //
+				.addReference("evcs", EVCS) //
+				.addReference("ess", ESS) //
+				.activate(MyConfig.create() //
+						.setId("ctrlEvcs0") //
+						.setEvcsId(EVCS_ID) //
+						.setEnableCharging(ENABLE_CHARGING) //
+						.setChargeMode(CHARGE_MODE) //
+						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
+						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
+						.setPriority(PRIORITY) //
+						.setEssId(ESS_ID) //
+						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
+						.build()) //
+				.next(new TestCase() //
+						.input(evcs0MaximumHardwarePower, 12000));
+
+		assertEquals(12000,
+				(int) (Integer) cm.getConfiguration("ctrlEvcs0").getProperties().get("defaultChargeMinPower"));
+		assertEquals(4000, (int) (Integer) cm.getConfiguration("ctrlEvcs0").getProperties().get("forceChargeMinPower"));
+	}
 
 	@Test
 	public void clusterTest() throws Exception {
@@ -215,6 +218,7 @@ public class EvcsControllerTest {
 				.addReference("evcs", EVCS) //
 				.addReference("ess", ESS) //
 				.activate(MyConfig.create() //
+						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
 						.setEnableCharging(ENABLE_CHARGING) //
 						.setChargeMode(CHARGE_MODE) //

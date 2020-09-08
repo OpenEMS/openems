@@ -3,6 +3,7 @@ package io.openems.edge.controller.evcs;
 import java.io.IOException;
 import java.time.Clock;
 import java.util.Dictionary;
+import java.util.Optional;
 
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -66,7 +67,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedEvcs evcs;
-	
+
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private SymmetricEss ess;
 
@@ -118,17 +119,8 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	 */
 	@Override
 	public void run() throws OpenemsNamedException {
-		//SymmetricEss ess = this.componentManager.getComponent(config.ess_id());
-		int maxHW = this.evcs.getMaximumHardwarePower().orElse(22080);
-		if (maxHW != 0) {
-			maxHW = (int) Math.ceil(maxHW / 100.0) * 100;
-			if (config.defaultChargeMinPower() > maxHW) {
-				configUpdate("defaultChargeMinPower", maxHW);
-			}
-			if (config.forceChargeMinPower() * this.evcs.getPhases().orElse(3) > maxHW) {
-				configUpdate("forceChargeMinPower", maxHW / 3);
-			}
-		}
+
+		adaptConfigToHardwareLimits();
 
 		this.evcs.setEnergyLimit(config.energySessionLimit());
 
@@ -193,7 +185,8 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			}
 
 			Channel<Integer> minimumHardwarePowerChannel = evcs.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
-			if (nextChargePower < minimumHardwarePowerChannel.value().orElse(0)) { /* charging under 6A isn't possible */
+			if (nextChargePower < minimumHardwarePowerChannel.value()
+					.orElse(0)) { /* charging under 6A isn't possible */
 				nextChargePower = 0;
 			}
 
@@ -210,10 +203,10 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		if (nextChargePower < nextMinPower) {
 			nextChargePower = nextMinPower;
 		}
-		
+
 		// charging under minimum hardware power isn't possible
 		Channel<Integer> minimumHardwarePowerChannel = evcs.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
-		if (nextChargePower < minimumHardwarePowerChannel.value().orElse(0)) { 
+		if (nextChargePower < minimumHardwarePowerChannel.value().orElse(0)) {
 			nextChargePower = 0;
 		}
 
@@ -249,6 +242,27 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			this.evcs.setChargePowerLimit(nextChargePower);
 		}
 		this.logDebug(this.log, "Next charge power: " + nextChargePower + " W");
+	}
+
+	/**
+	 * Adapt the charge limits to the given hardware limits of the EVCS.
+	 */
+	private void adaptConfigToHardwareLimits() {
+
+		Optional<Integer> maxHardwareOpt = this.evcs.getMaximumHardwarePower().asOptional();
+		if (maxHardwareOpt.isPresent()) {
+			int maxHW = maxHardwareOpt.get();
+			if (maxHW != 0) {
+				maxHW = (int) Math.ceil(maxHW / 100.0) * 100;
+				if (config.defaultChargeMinPower() > maxHW) {
+					configUpdate("defaultChargeMinPower", maxHW);
+				}
+				if (config.forceChargeMinPower() * this.evcs.getPhases().orElse(3) > maxHW) {
+					configUpdate("forceChargeMinPower", maxHW / 3);
+				}
+			}
+		}
+
 	}
 
 	/**
