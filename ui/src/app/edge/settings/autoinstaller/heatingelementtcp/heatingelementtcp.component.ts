@@ -83,7 +83,7 @@ export class HeatingElementTcpInstallerComponent {
     let result: { name: string, value: any }[] = [];
     fields.forEach(field => {
       if (field.key == 'alias') {
-        result.push({ name: 'alias', value: '' })
+        result.push({ name: 'alias', value: 'Heizstab' })
       }
       Object.keys(model).forEach(modelKey => {
         if (field.key == modelKey) {

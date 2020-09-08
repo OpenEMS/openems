@@ -6,6 +6,7 @@ import { HeatingElementRtuInstallerComponent } from './heatingelementrtu/heating
 import { HeatingElementTcpInstallerComponent } from './heatingelementtcp/heatingelementtcp.component';
 import { HeatingpumpTcpInstallerComponent } from './heatingpumptcp/heatingpumptcp.component';
 import { ModalController } from '@ionic/angular';
+import { ReadWriteModbusTCPInstallerComponent } from './readwritemodbustcp/readwritemodbustcp.component';
 
 @Component({
   selector: AutoinstallerComponent.SELECTOR,
@@ -59,6 +60,13 @@ export class AutoinstallerComponent {
   public async presentModalHeatingpump() {
     const modal = await this.modalCtrl.create({
       component: HeatingpumpTcpInstallerComponent,
+    });
+    return await modal.present();
+  }
+
+  public async presentModalReadWrite() {
+    const modal = await this.modalCtrl.create({
+      component: ReadWriteModbusTCPInstallerComponent,
     });
     return await modal.present();
   }

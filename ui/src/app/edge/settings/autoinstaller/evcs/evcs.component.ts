@@ -76,7 +76,7 @@ export class EvcsInstallerComponent {
     let result: { name: string, value: any }[] = [];
     fields.forEach(field => {
       if (field.key == 'alias') {
-        result.push({ name: 'alias', value: '' })
+        result.push({ name: 'alias', value: 'Ladesäule' })
       }
       Object.keys(model).forEach(modelKey => {
         if (field.key == modelKey) {
