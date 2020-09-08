@@ -308,7 +308,11 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 						m(RefuStore88kChannelId.TMP_SF, new UnsignedWordElement(SUNSPEC_103 + 37)), // 40107
 						m(RefuStore88kChannelId.ST, new UnsignedWordElement(SUNSPEC_103 + 38)), // 40108
 						m(RefuStore88kChannelId.ST_VND, new UnsignedWordElement(SUNSPEC_103 + 39)), // 40109
-						m(new BitsWordElement(SUNSPEC_103 + 40, this) //
+						m(new BitsWordElement(SUNSPEC_103 + 41, this) //
+								.bit(0, RefuStore88kChannelId.OTHER_ALARM) //
+								.bit(1, RefuStore88kChannelId.OTHER_WARNING) //
+						), //
+						m(new BitsWordElement(SUNSPEC_103 + 41, this) //
 								.bit(0, RefuStore88kChannelId.GROUND_FAULT) //
 								.bit(1, RefuStore88kChannelId.DC_OVER_VOLTAGE) //
 								.bit(2, RefuStore88kChannelId.AC_DISCONNECT) //
@@ -326,10 +330,7 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 								.bit(14, RefuStore88kChannelId.MEMORY_LOSS) //
 								.bit(15, RefuStore88kChannelId.HW_TEST_FAILURE) //
 						), //
-						m(new BitsWordElement(SUNSPEC_103 + 41, this) //
-								.bit(0, RefuStore88kChannelId.OTHER_ALARM) //
-								.bit(1, RefuStore88kChannelId.OTHER_WARNING) //
-						), //
+//				
 						m(RefuStore88kChannelId.EVT_2, new UnsignedDoublewordElement(SUNSPEC_103 + 42)), // 40112
 						m(RefuStore88kChannelId.EVT_VND_1, new UnsignedDoublewordElement(SUNSPEC_103 + 44)), // 40114
 						m(RefuStore88kChannelId.EVT_VND_2, new UnsignedDoublewordElement(SUNSPEC_103 + 46)), // 40116
