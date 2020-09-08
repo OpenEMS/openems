@@ -34,32 +34,6 @@ export class Utils {
   }
 
   /**
-   * Helps to use an object inside an *ngFor loop. Returns the object key value pairs.
-   */
-  public keyvalues(object: {}): any[] | {} {
-    if (!object) {
-      return object;
-    }
-    let keyvalues = [];
-    for (let key in object) {
-      keyvalues.push({ key: key, value: object[key] });
-    }
-    return keyvalues;
-  }
-
-  /**
-   * Helps to use an object inside an *ngFor loop. Returns the object values.
-   * Source: https://stackoverflow.com/a/39896058
-   */
-  public values(object: {}): any[] {
-    let values = [];
-    for (let key in object) {
-      values.push(object[key]);
-    }
-    return values;
-  }
-
-  /**
    * Returns true if an object has a property
    */
   public has(object: {}, property: string): boolean {

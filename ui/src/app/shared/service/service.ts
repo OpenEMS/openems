@@ -37,7 +37,7 @@ export class Service implements ErrorHandler {
   /**
    * Holds the currently selected Edge.
    */
-  public readonly currentEdge: BehaviorSubject<Edge> = new BehaviorSubject<Edge>(null);
+  public readonly currentEdge: BehaviorSubject<Edge | null> = new BehaviorSubject<Edge | null>(null);
 
   /**
    * Holds references of Edge-IDs (=key) to Edge objects (=value)
@@ -150,24 +150,25 @@ export class Service implements ErrorHandler {
         //  onError();
       }, Service.TIMEOUT);
 
-      let setCurrentEdge = (edge: Edge | null) => {
+      // const setCurrentEdge: (edge: Edge | null) => void = function (edge: Edge | null): void {
+      const setCurrentEdge = function (service: Service, edge: Edge | null): void {
         clearTimeout(timeout);
-        if (edge != this.currentEdge.value) {
-          if (edge && this.websocket != null) {
-            edge.markAsCurrentEdge(this.websocket);
+        if (edge != service.currentEdge.value) {
+          if (edge && service.websocket != null) {
+            edge.markAsCurrentEdge(service.websocket);
           }
           if (edge != null) {
-            this.currentEdge.next(edge);
+            service.currentEdge.next(edge);
           }
         }
         resolve(edge);
-      }
+      };
 
       let onError = () => {
         if (subscription != null) {
           subscription.unsubscribe();
         }
-        setCurrentEdge.apply(null);
+        setCurrentEdge(this, null);
         // redirect to index
         this.router.navigate(['/index']);
       }
@@ -179,7 +180,7 @@ export class Service implements ErrorHandler {
           map(edges => edges[edgeId])
         )
         .subscribe(edge => {
-          setCurrentEdge(edge);
+          setCurrentEdge(this, edge);
         }, error => {
           console.error("Error while setting current edge: ", error);
           onError();
@@ -191,7 +192,7 @@ export class Service implements ErrorHandler {
    * Gets the current Edge - or waits for a Edge if it is not available yet.
    */
   public getCurrentEdge(): Promise<Edge> {
-    return this.currentEdge.pipe(
+    return <Promise<Edge>>this.currentEdge.pipe(
       filter(edge => edge != null),
       first()
     ).toPromise();
@@ -227,7 +228,7 @@ export class Service implements ErrorHandler {
       this.setToken(token);
 
       // Metadata
-      let newEdges = {};
+      let newEdges: { [edgeId: string]: Edge } = {};
       for (let edge of edges) {
         let newEdge = new Edge(
           edge.id,
@@ -268,7 +269,7 @@ export class Service implements ErrorHandler {
     // keep only the date, without time
     fromDate.setHours(0, 0, 0, 0);
     toDate.setHours(0, 0, 0, 0);
-    let promise = { resolve: null, reject: null };
+    let promise: { resolve: any, reject: any } = { resolve: null, reject: null };
     let response = new Promise<QueryHistoricTimeseriesEnergyResponse>((resolve, reject) => {
       promise.resolve = resolve;
       promise.reject = reject;

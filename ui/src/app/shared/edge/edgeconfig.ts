@@ -389,7 +389,7 @@ export class EdgeConfig {
         allFactories.forEach(item => {
             let factories =
                 // create one flat array
-                [].concat(...item.factories)
+                ([] as EdgeConfig.Factory[]).concat(...item.factories)
                     // remove Factories from list that have already been listed before
                     .filter(factory => !ignoreFactoryIds.includes(factory.id))
                     // remove duplicates
@@ -441,7 +441,7 @@ export class EdgeConfig {
         allComponents.forEach(item => {
             let components =
                 // create one flat array
-                [].concat(...item.components)
+                ([] as EdgeConfig.Component[]).concat(...item.components)
                     // remove Components from list that have already been listed before
                     .filter(component => !ignoreComponentIds.includes(component.id))
                     // remove duplicates

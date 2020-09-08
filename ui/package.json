@@ -48,7 +48,6 @@
     "node-sass": "^4.14.1",
     "roboto-fontface": "0.10.0",
     "rxjs": "^6.6.2",
-    "semver-compare-multi": "^1.0.3",
     "tslib": "^1.13.0",
     "zone.js": "^0.10.3"
   },

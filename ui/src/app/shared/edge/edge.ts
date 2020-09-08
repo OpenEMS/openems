@@ -1,5 +1,4 @@
 import { BehaviorSubject, Subject } from 'rxjs';
-// import { cmp } from 'semver-compare-multi';
 import { environment as env } from '../../../environments';
 import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
@@ -19,16 +18,17 @@ import { Role } from '../type/role';
 import { SystemLog } from '../type/systemlog';
 import { CurrentData } from './currentdata';
 import { EdgeConfig } from './edgeconfig';
+import { EdgeRpcResponse } from '../jsonrpc/response/edgeRpcResponse';
 
 export class Edge {
 
   constructor(
-    public readonly id?: string,
-    public readonly comment?: string,
-    public readonly producttype?: string,
-    public readonly version?: string,
-    public readonly role?: Role,
-    public isOnline?: boolean
+    public readonly id: string,
+    public readonly comment: string,
+    public readonly producttype: string,
+    public readonly version: string,
+    public readonly role: Role,
+    public isOnline: boolean
   ) { }
 
   // holds currently subscribed channels, identified by source id
@@ -232,7 +232,7 @@ export class Edge {
         if (env.debugMode) {
           console.info("Response     [" + request.method + "]", response);
         }
-        resolve(response['result']['payload']);
+        resolve((response as EdgeRpcResponse).result.payload);
       }).catch(reason => {
         if (env.debugMode) {
           console.warn("Request fail [" + request.method + "]", reason);
