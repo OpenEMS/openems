@@ -15,6 +15,7 @@ import { HeatingElementRtuInstallerComponent } from './autoinstaller/heatingelem
 import { HeatingElementTcpInstallerComponent } from './autoinstaller/heatingelementtcp/heatingelementtcp.component';
 import { EvcsInstallerComponent } from './autoinstaller/evcs/evcs.component';
 import { HeatingpumpTcpInstallerComponent } from './autoinstaller/heatingpumptcp/heatingpumptcp.component';
+import { ReadWriteModbusTCPInstallerComponent } from './autoinstaller/readwritemodbustcp/readwritemodbustcp.component';
 
 @NgModule({
   imports: [
@@ -28,20 +29,22 @@ import { HeatingpumpTcpInstallerComponent } from './autoinstaller/heatingpumptcp
     ComponentInstallIndexComponent,
     ComponentUpdateComponent,
     ComponentUpdateIndexComponent,
+    EvcsInstallerComponent,
+    HeatingElementRtuInstallerComponent,
+    HeatingElementTcpInstallerComponent,
+    HeatingpumpTcpInstallerComponent,
     NetworkComponent,
     ProfileComponent,
+    ReadWriteModbusTCPInstallerComponent,
     SettingsComponent,
     SystemExecuteComponent,
-    HeatingElementRtuInstallerComponent,
-    HeatingElementTcpInstallerComponent,
-    EvcsInstallerComponent,
-    HeatingpumpTcpInstallerComponent,
   ],
   entryComponents: [
+    EvcsInstallerComponent,
     HeatingElementRtuInstallerComponent,
     HeatingElementTcpInstallerComponent,
-    EvcsInstallerComponent,
     HeatingpumpTcpInstallerComponent,
+    ReadWriteModbusTCPInstallerComponent,
   ]
 })
 export class SettingsModule { }

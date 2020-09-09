@@ -90,7 +90,7 @@ export class HeatingpumpTcpInstallerComponent {
     let result: { name: string, value: any }[] = [];
     fields.forEach(field => {
       if (field.key == 'alias') {
-        result.push({ name: 'alias', value: '' })
+        result.push({ name: 'alias', value: 'Wärmepumpe' })
       }
       Object.keys(model).forEach(modelKey => {
         if (field.key == modelKey) {

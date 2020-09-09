@@ -54,5 +54,18 @@
         </ion-card-content>
       </ion-card>
     </ion-col>
+    <ion-col size="3" size-sm="4">
+      <ion-card>
+        <ion-item lines="full" color="light">
+          <ion-icon slot="start" color="primary" size="large" name="reader-outline"></ion-icon>
+          <ion-label>Modbus/TCP Read/Write</ion-label>
+        </ion-item>
+        <ion-card-content>
+          <ion-button class="ion-float-right" (click)="presentModalReadWrite()">
+            <ion-icon slot="icon-only" name="add-circle-outline"></ion-icon>
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
   </ion-row>
 </ion-grid>
