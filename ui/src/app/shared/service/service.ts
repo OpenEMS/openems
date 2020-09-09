@@ -73,11 +73,37 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * Sets the application language
+   * Set the application language
    */
   public setLang(id: LanguageTag) {
     this.translate.use(id);
     // TODO set locale for date-fns: https://date-fns.org/docs/I18n
+  }
+
+  /**
+   * Convert the browser language in Language Tag
+   */
+  public browserLangToLangTag(browserLang: string): LanguageTag {
+    switch (browserLang) {
+      case "de": {
+        return "German" as LanguageTag
+      }
+      case "en": {
+        return "English" as LanguageTag
+      }
+      case "es": {
+        return "Spanish" as LanguageTag
+      }
+      case "nl": {
+        return "Dutch" as LanguageTag
+      }
+      case "cz": {
+        return "Czech" as LanguageTag
+      }
+      default: {
+        return "German" as LanguageTag
+      }
+    }
   }
 
   /**

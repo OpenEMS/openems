@@ -1,14 +1,12 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
-import { Edge, Service, Websocket, ChannelAddress } from './shared/shared';
+import { Component } from '@angular/core';
+import { Service, Websocket } from './shared/shared';
 import { environment } from '../environments';
-import { filter, takeUntil } from 'rxjs/operators';
-import { LanguageTag } from './shared/translate/language';
+import { takeUntil } from 'rxjs/operators';
 import { MenuController, Platform, ToastController, ModalController } from '@ionic/angular';
-import { NavigationEnd, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { StatusSingleComponent } from './shared/status/single/status.component';
-import { Subject, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -36,7 +34,7 @@ export class AppComponent {
     public websocket: Websocket,
   ) {
     // this.initializeApp();
-    service.setLang(LanguageTag.DE);
+    service.setLang(this.service.browserLangToLangTag(navigator.language));
   }
 
   initializeApp() {
