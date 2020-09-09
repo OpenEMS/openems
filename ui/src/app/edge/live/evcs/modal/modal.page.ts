@@ -41,6 +41,7 @@ export class EvcsModalComponent implements OnInit {
         this.chargeMode = 'OFF';
       }
     }
+    this.oldNumberOfPhases = this.getNumberOfPhasesOrThree();
   }
 
   /**
@@ -173,7 +174,6 @@ export class EvcsModalComponent implements OnInit {
    * @param event
    */
   updateForceMinPower(event: CustomEvent, currentController: EdgeConfig.Component, numberOfPhases: number) {
-
     if (numberOfPhases != this.oldNumberOfPhases) {
       this.oldNumberOfPhases = numberOfPhases;
       return;
