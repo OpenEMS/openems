@@ -1,5 +1,5 @@
-= Sell-To-Grid limit
+= PV-Inverter Sell-To-Grid limit
 
-Dynamically limits the Sell-To-Grid power to a defined maximum power.
+Dynamically limits the Sell-To-Grid power of a PV-Inverter to a defined maximum power.
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.selltogridlimit[Source Code icon:github[]]
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.pvinverter.selltogridlimit[Source Code icon:github[]]

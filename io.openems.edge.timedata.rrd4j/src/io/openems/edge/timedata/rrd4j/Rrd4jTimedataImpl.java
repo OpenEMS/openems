@@ -119,8 +119,8 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 					continue; // not existing -> abort
 				}
 
-				FetchRequest request = database.createFetchRequest(ConsolFun.AVERAGE, fromTimestamp, toTimeStamp,
-						resolution);
+				ChannelDef chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
+				FetchRequest request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp);
 				FetchData data = request.fetchData();
 				database.close();
 
