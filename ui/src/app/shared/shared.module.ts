@@ -1,4 +1,3 @@
-import 'hammerjs';
 import { appRoutingProviders } from './../app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChartOptionsComponent } from './chartoptions/chartoptions.component';

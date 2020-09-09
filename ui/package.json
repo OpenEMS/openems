@@ -38,7 +38,6 @@
     "d3": "5.15.0",
     "date-fns": "^2.15.0",
     "file-saver": "^2.0.2",
-    "hammerjs": "2.0.8",
     "intl": "^1.2.5",
     "ng2-charts": "2.4.0",
     "ng2-cookies": "^1.0.12",
