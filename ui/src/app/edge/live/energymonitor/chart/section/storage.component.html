@@ -8,7 +8,7 @@
             <svg:stop offset="100%" [attr.stop-color]="color" />
         </svg:linearGradient>
     </svg:defs>
-    <svg:polygon [attr.points]="energyFlow.points" attr.fill="#{{sectionId}}" style="fill:#009846" />
+    <svg:polygon [attr.points]="energyFlow.points" attr.fill="url(#{{ sectionId }})" />
     <ng-container *ngIf="chargeAnimationTrigger">
         <svg:polygon [@Charge]="stateNameCharge" [attr.points]="energyFlow.animationPoints" style="fill:white" />
     </ng-container>

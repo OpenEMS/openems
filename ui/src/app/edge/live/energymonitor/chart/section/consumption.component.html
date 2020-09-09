@@ -8,7 +8,7 @@
             <svg:stop offset="100%" [attr.stop-color]="color" />
         </svg:linearGradient>
     </svg:defs>
-    <svg:polygon [attr.points]="energyFlow.points" attr.fill="#{{ sectionId }}" style="fill:rgba(253,197,7,1)" />
+    <svg:polygon [attr.points]="energyFlow.points" attr.fill="url(#{{ sectionId }})" />
     <svg:polygon [@Consumption]="stateName" [attr.points]="energyFlow.animationPoints" style="fill:white" />
 </svg:g>
 <svg:g *ngIf="isEnabled && squarePosition && square"
