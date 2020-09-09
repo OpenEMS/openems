@@ -66,13 +66,8 @@
                     <ion-card-content class="underline">
                         <table class="full_width">
                             <tr>
-                                <td style="width:100%" class="ion-padding"
-                                    *ngIf="meterComponent.id == meterComponent.alias">
-                                    {{component.id}}
-                                </td>
-                                <td style="width: 100%" class="ion-padding"
-                                    *ngIf="meterComponent.id != meterComponent.alias">
-                                    {{component.alias}}
+                                <td style="width:100%" class="ion-padding">
+                                    {{meterComponent.alias}}
                                 </td>
                             </tr>
                         </table>
