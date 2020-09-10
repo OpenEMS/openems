@@ -219,7 +219,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 				/*
 				 * BMS System Running Status Registers
 				 */
-				new FC3ReadRegistersTask(0x1044, Priority.LOW, //
+				new FC3ReadRegistersTask(0x1044, Priority.HIGH, //
 						m(SoltaroCluster.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
 						m(SoltaroCluster.ChannelId.SYSTEM_CURRENT, new UnsignedWordElement(0x1045), //
 								ElementToChannelConverter.SCALE_FACTOR_2),
