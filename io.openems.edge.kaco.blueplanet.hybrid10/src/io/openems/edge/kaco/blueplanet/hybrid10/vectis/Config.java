@@ -16,9 +16,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-	
-	@AttributeDefinition(name = "Use external sensors", description = "Only activate this if Vectis uses external sensors")
-	boolean external() default false;
 
 	@AttributeDefinition(name = "Core-ID", description = "ID of Core component")
 	String core_id() default "kacoCore0";
