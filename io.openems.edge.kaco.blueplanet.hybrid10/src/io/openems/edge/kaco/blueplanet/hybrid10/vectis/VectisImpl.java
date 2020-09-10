@@ -51,8 +51,6 @@ public class VectisImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
-	private Config config;
-
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
@@ -66,7 +64,6 @@ public class VectisImpl extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "core", config.core_id())) {
 			return;
 		}
-		this.config = config;
 	}
 
 	@Deactivate
@@ -103,26 +100,22 @@ public class VectisImpl extends AbstractOpenemsComponent
 		Integer activePowerL3 = null;
 		Integer freq = null;
 		Integer vectisStatus = null;
+		SensorConfig sensorConfig = SensorConfig.UNDEFINED;
 
 		if (this.core.isConnected()) {
 			VectisData vectis = this.core.getVectis();
 			InverterData inverter = this.core.getInverterData();
 
-			if (this.config.external()) {
-				// Use external sensor
-				reactivePowerL1 = GlobalUtils.roundToPowerPrecision(vectis.getReactivePowerExt(0));
-				reactivePowerL2 = GlobalUtils.roundToPowerPrecision(vectis.getReactivePowerExt(1));
-				reactivePowerL3 = GlobalUtils.roundToPowerPrecision(vectis.getReactivePowerExt(2));
-				reactivePower = reactivePowerL1 + reactivePowerL2 + reactivePowerL3;
+			Status status = this.core.getStatusData();
+			if (status != null) {
+				sensorConfig = (SensorConfig) SENSOR_CONFIG_DOC.getOption(status.getVectisStatus());
+			}
 
-				activePowerL1 = GlobalUtils.roundToPowerPrecision(vectis.getACPowerExt(0));
-				activePowerL2 = GlobalUtils.roundToPowerPrecision(vectis.getACPowerExt(1));
-				activePowerL3 = GlobalUtils.roundToPowerPrecision(vectis.getACPowerExt(2));
-				activePower = activePowerL1 + activePowerL2 + activePowerL3;
-
-				freq = Math.round(vectis.getFrequencyExt());
-
-			} else {
+			switch (sensorConfig) {
+			case DISABLED:
+			case UNDEFINED:
+			case INTERNAL:
+			case INTERNAL_AND_EXTERNAL:
 				// Use internal sensor
 				reactivePowerL1 = GlobalUtils.roundToPowerPrecision(vectis.getReactivePower(0));
 				reactivePowerL2 = GlobalUtils.roundToPowerPrecision(vectis.getReactivePower(1));
@@ -135,13 +128,23 @@ public class VectisImpl extends AbstractOpenemsComponent
 				activePower = activePowerL1 + activePowerL2 + activePowerL3;
 
 				freq = Math.round(inverter.getGridFrequency());
-			}
+				break;
 
-			Status status = this.core.getStatusData();
-			if (status != null) {
-				vectisStatus = status.getVectisStatus();
-			}
+			case EXTERNAL:
+				// Use external sensor
+				reactivePowerL1 = GlobalUtils.roundToPowerPrecision(vectis.getReactivePowerExt(0));
+				reactivePowerL2 = GlobalUtils.roundToPowerPrecision(vectis.getReactivePowerExt(1));
+				reactivePowerL3 = GlobalUtils.roundToPowerPrecision(vectis.getReactivePowerExt(2));
+				reactivePower = reactivePowerL1 + reactivePowerL2 + reactivePowerL3;
 
+				activePowerL1 = GlobalUtils.roundToPowerPrecision(vectis.getACPowerExt(0));
+				activePowerL2 = GlobalUtils.roundToPowerPrecision(vectis.getACPowerExt(1));
+				activePowerL3 = GlobalUtils.roundToPowerPrecision(vectis.getACPowerExt(2));
+				activePower = activePowerL1 + activePowerL2 + activePowerL3;
+
+				freq = Math.round(vectis.getFrequencyExt());
+				break;
+			}
 		}
 
 		this._setReactivePowerL1(reactivePowerL1);
@@ -154,6 +157,7 @@ public class VectisImpl extends AbstractOpenemsComponent
 		this._setActivePower(activePower);
 		this._setFrequency(freq);
 		this.channel(Vectis.ChannelId.VECTIS_STATUS).setNextValue(vectisStatus);
+		this.channel(Vectis.ChannelId.SENSOR_CONFIG).setNextValue(sensorConfig);
 
 		// Calculate Energy
 		if (activePower == null) {
