@@ -68,10 +68,14 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	@Reference
 	private ManagedSymmetricEss ess;
 
+	@Reference
+	private SymmetricMeter meter;
+
 	public EvcsClusterPeakShaving() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				Evcs.ChannelId.values());
+				Evcs.ChannelId.values(), //
+				AbstractEvcsCluster.ChannelId.values());
 	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
@@ -106,6 +110,9 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 			return;
 		}
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
+			return;
+		}
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "meter", config.meter_id())) {
 			return;
 		}
 	}
@@ -201,31 +208,25 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 
 	}
 
+	/**
+	 * Calculates the current grid power depending on the phases if possible.
+	 * 
+	 * @return calculated grid power
+	 */
 	private int getGridPower() {
-		SymmetricMeter meter;
-		try {
-			meter = this.componentManager.getComponent(this.config.meter_id());
+		int gridPower = this.meter.getActivePower().orElse(0);
 
-			int gridPower = meter.getActivePower().orElse(0);
+		if (this.meter instanceof AsymmetricMeter) {
+			AsymmetricMeter asymmetricMeter = (AsymmetricMeter) this.meter;
 
-			if (meter instanceof AsymmetricMeter) {
-				AsymmetricMeter asymmetricMeter = (AsymmetricMeter) meter;
+			int gridPowerL1 = asymmetricMeter.getActivePowerL1().orElse(0);
+			int gridPowerL2 = asymmetricMeter.getActivePowerL2().orElse(0);
+			int gridPowerL3 = asymmetricMeter.getActivePowerL3().orElse(0);
 
-				int gridPowerL1 = asymmetricMeter.getActivePowerL1().orElse(0);
-				int gridPowerL2 = asymmetricMeter.getActivePowerL2().orElse(0);
-				int gridPowerL3 = asymmetricMeter.getActivePowerL3().orElse(0);
-
-				int maxPowerOnPhase = Math.max(Math.max(gridPowerL1, gridPowerL2), gridPowerL3);
-				gridPower = maxPowerOnPhase * 3;
-			}
-
-			return gridPower;
-
-		} catch (OpenemsNamedException e) {
-			this.logWarn(log, "The component " + this.config.meter_id()
-					+ " is not configured. Maximum power for all EVCS will be calculated without grid power.");
-			return 0;
+			int maxPowerOnPhase = Math.max(Math.max(gridPowerL1, gridPowerL2), gridPowerL3);
+			gridPower = maxPowerOnPhase * 3;
 		}
+		return gridPower;
 	}
 
 	@Override

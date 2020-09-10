@@ -10,7 +10,10 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -30,6 +33,23 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 	public AbstractEvcsCluster(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
+	}
+
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		MAXIMUM_POWER_TO_DISTRIBUTE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT).text("Maximum power to distribute, for all given Evcss"));
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+
 	}
 
 	@Override
@@ -93,6 +113,7 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 	protected void limitEvcss() {
 		try {
 			int totalPowerLimit = this.getMaximumPowerToDistribute();
+			this.channel(ChannelId.MAXIMUM_POWER_TO_DISTRIBUTE).setNextValue(totalPowerLimit);
 
 			/*
 			 * If a maximum power is present, e.g. from another cluster, then the limit will
@@ -119,11 +140,12 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 					int requestedPower = managedEvcs.getSetChargePowerRequestChannel().getNextWriteValue().orElse(0);
 
 					if (requestedPower <= 0) {
+						managedEvcs.setChargePowerLimit(0);
 						continue;
 					}
 
-					int guaranteedPower = getGuaranteedPower(evcs);
-					Status status = evcs.getStatus();
+					int guaranteedPower = getGuaranteedPower(managedEvcs);
+					Status status = managedEvcs.getStatus();
 					switch (status) {
 					case CHARGING_FINISHED:
 						managedEvcs.setChargePowerLimit(requestedPower);
@@ -148,15 +170,17 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 					// EVCS is active.
 					case CHARGING_REJECTED:
 					case CHARGING:
-
-						activeEvcss.add(managedEvcs);
-
 						/*
 						 * Reduces the available power by the guaranteed power of each charging station.
 						 * Sets the minimum power depending on the guaranteed and the maximum Power.
 						 */
-						totalPowerLeftMinusGuarantee -= guaranteedPower;
-						evcs._setMinimumPower(guaranteedPower);
+						if (totalPowerLeftMinusGuarantee - guaranteedPower >= 0) {
+							totalPowerLeftMinusGuarantee -= guaranteedPower;
+							managedEvcs._setMinimumPower(guaranteedPower);
+							activeEvcss.add(managedEvcs);
+						} else {
+							managedEvcs.setChargePowerLimit(0);
+						}
 					}
 				}
 			}
@@ -165,8 +189,9 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 			 * Distributes the available Power to the active EVCSs
 			 */
 			for (ManagedEvcs evcs : activeEvcss) {
-
-				int guaranteedPower = evcs.getMinimumPower().orElse(0);
+				
+				//int guaranteedPower = evcs.getMinimumPowerChannel().getNextValue().orElse(0); 
+				int guaranteedPower = evcs.getMinimumPowerChannel().getNextValue().orElse(0);
 
 				// Power left for the this EVCS including its guaranteed power
 				final int powerLeft = totalPowerLeftMinusGuarantee + guaranteedPower;
