@@ -26,7 +26,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	 * Holds the number of past values for this Channel that are kept in the
 	 * 'pastValues' variable.
 	 */
-	public final static int NO_OF_PAST_VALUES = 100;
+	public static final int NO_OF_PAST_VALUES = 100;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractReadChannel.class);
 
@@ -53,7 +53,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 		this.activeValue = new Value<T>(this, null);
 
 		// validate Type
-		if (!validateType(channelDoc.getType(), type)) {
+		if (!this.validateType(channelDoc.getType(), type)) {
 			throw new IllegalArgumentException("[" + this.address() + "]: Types do not match. Got [" + type
 					+ "]. Expected [" + channelDoc.getType() + "].");
 		}
@@ -83,7 +83,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 		this.onChangeCallbacks.clear();
 		this.onSetNextValueCallbacks.clear();
 		this.onUpdateCallbacks.clear();
-		if (onSetNextWriteCallbacks != null) {
+		if (this.onSetNextWriteCallbacks != null) {
 			this.onSetNextWriteCallbacks.clear();
 		}
 	}
@@ -100,7 +100,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 
 	@Override
 	public OpenemsComponent getComponent() {
-		return parent;
+		return this.parent;
 	}
 
 	@Override
@@ -141,7 +141,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	public void _setNextValue(T value) {
 		this.nextValue = new Value<T>(this, value);
 		if (this.channelDoc.isDebug()) {
-			log.info("Next value for [" + this.address() + "]: " + this.nextValue.asString());
+			this.log.info("Next value for [" + this.address() + "]: " + this.nextValue.asString());
 		}
 		this.onSetNextValueCallbacks.forEach(callback -> callback.accept(this.nextValue));
 	}
@@ -165,17 +165,28 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 
 	@Override
 	public String toString() {
-		return "Channel [ID=" + channelId + ", type=" + type + ", activeValue=" + this.activeValue.asString() + "]";
+		return "Channel [" //
+				+ "ID=" + this.channelId + ", " //
+				+ "type=" + this.type + ", " //
+				+ "activeValue=" + this.activeValue.asString() //
+				+ "]";
 	}
 
 	@Override
-	public void onUpdate(Consumer<Value<T>> callback) {
+	public Consumer<Value<T>> onUpdate(Consumer<Value<T>> callback) {
 		this.onUpdateCallbacks.add(callback);
+		return callback;
 	}
 
 	@Override
-	public void onSetNextValue(Consumer<Value<T>> callback) {
+	public void removeOnUpdateCallback(Consumer<Value<?>> callback) {
+		this.onUpdateCallbacks.remove(callback);
+	}
+
+	@Override
+	public Consumer<Value<T>> onSetNextValue(Consumer<Value<T>> callback) {
 		this.onSetNextValueCallbacks.add(callback);
+		return callback;
 	}
 
 	@Override
@@ -184,8 +195,14 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	}
 
 	@Override
-	public void onChange(BiConsumer<Value<T>, Value<T>> callback) {
+	public BiConsumer<Value<T>, Value<T>> onChange(BiConsumer<Value<T>, Value<T>> callback) {
 		this.onChangeCallbacks.add(callback);
+		return callback;
+	}
+
+	@Override
+	public void removeOnChangeCallback(BiConsumer<?, ?> callback) {
+		this.onChangeCallbacks.remove(callback);
 	}
 
 	/*

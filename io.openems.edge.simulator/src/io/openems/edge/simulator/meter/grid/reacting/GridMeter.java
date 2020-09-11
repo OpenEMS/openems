@@ -1,8 +1,8 @@
 package io.openems.edge.simulator.meter.grid.reacting;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -20,9 +20,11 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
@@ -36,7 +38,6 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 				"type=GRID" //
 		})
@@ -57,23 +58,120 @@ public class GridMeter extends AbstractOpenemsComponent
 		}
 	}
 
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-	private volatile List<ManagedSymmetricEss> symmetricEsss = new CopyOnWriteArrayList<>();
-
-	// all meters are needed even grid meters
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-	private volatile List<SymmetricMeter> symmetricMeters = new CopyOnWriteArrayList<>();
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
-
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+
+	private final CopyOnWriteArraySet<ManagedSymmetricEss> symmetricEsss = new CopyOnWriteArraySet<>();
+
+	@Reference
+	protected ConfigurationAdmin cm;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
+
+	@Reference(//
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE, //
+			target = "(enabled=true)")
+	protected void addEss(ManagedSymmetricEss ess) {
+		this.symmetricEsss.add(ess);
+		ess.getActivePowerChannel().onSetNextValue(this.updateChannelsCallback);
+	}
+
+	protected void removeEss(ManagedSymmetricEss ess) {
+		ess.getActivePowerChannel().removeOnSetNextValueCallback(this.updateChannelsCallback);
+		this.symmetricEsss.remove(ess);
+	}
+
+	private final CopyOnWriteArraySet<SymmetricMeter> symmetricMeters = new CopyOnWriteArraySet<>();
+
+	@Reference(//
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE, //
+			target = "(&(enabled=true)(!(service.factoryPid=Simulator.GridMeter.Reacting)))")
+	protected void addMeter(SymmetricMeter meter) {
+		this.symmetricMeters.add(meter);
+		meter.getActivePowerChannel().onSetNextValue(this.updateChannelsCallback);
+	}
+
+	protected void removeMeter(SymmetricMeter meter) {
+		meter.getActivePowerChannel().removeOnSetNextValueCallback(this.updateChannelsCallback);
+		this.symmetricMeters.remove(meter);
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.calculateEnergy();
+			break;
+		}
+	}
+
+	private final Consumer<Value<Integer>> updateChannelsCallback = (value) -> {
+		Integer sum = null;
+
+		for (ManagedSymmetricEss ess : this.symmetricEsss) {
+			sum = subtract(sum, ess.getActivePowerChannel().getNextValue().get());
+		}
+		for (SymmetricMeter sm : this.symmetricMeters) {
+			try {
+				switch (sm.getMeterType()) {
+				case CONSUMPTION_METERED:
+				case GRID:
+					// ignore
+					break;
+				case CONSUMPTION_NOT_METERED:
+					sum = add(sum, sm.getActivePowerChannel().getNextValue().get());
+					break;
+				case PRODUCTION:
+				case PRODUCTION_AND_CONSUMPTION:
+					sum = subtract(sum, sm.getActivePowerChannel().getNextValue().get());
+					break;
+				}
+			} catch (NullPointerException e) {
+				// ignore
+			}
+		}
+
+		this._setActivePower(sum);
+
+		Integer simulatedActivePowerByThree = TypeUtils.divide(sum, 3);
+		this._setActivePowerL1(simulatedActivePowerByThree);
+		this._setActivePowerL2(simulatedActivePowerByThree);
+		this._setActivePowerL3(simulatedActivePowerByThree);
+	};
+
+	private static Integer add(Integer sum, Integer activePower) {
+		if (activePower == null && sum == null) {
+			return null;
+		} else if (activePower == null) {
+			return sum;
+		} else if (sum == null) {
+			return activePower;
+		} else {
+			return sum + activePower;
+		}
+	}
+
+	private static Integer subtract(Integer sum, Integer activePower) {
+		if (activePower == null && sum == null) {
+			return null;
+		} else if (activePower == null) {
+			return sum;
+		} else if (sum == null) {
+			return activePower * -1;
+		} else {
+			return sum - activePower;
+		}
+	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
@@ -97,69 +195,6 @@ public class GridMeter extends AbstractOpenemsComponent
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.GRID;
-	}
-
-	@Override
-	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.updateChannels();
-			break;
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.calculateEnergy();
-			break;
-		}
-	}
-
-	private void updateChannels() {
-		// calculate power sum from all meters and esss, but exclude grid meters.
-		// Count the latter to spread the load equally on the different grid-nodes.
-		int powerSum = 0;
-		int gridCount = 0;
-
-		for (ManagedSymmetricEss ess : this.symmetricEsss) {
-			try {
-				powerSum += ess.getActivePowerChannel().getNextValue().get();
-			} catch (NullPointerException e) {
-				// ignore
-			}
-		}
-		for (SymmetricMeter sm : this.symmetricMeters) {
-			try {
-				switch (sm.getMeterType()) {
-				case CONSUMPTION_METERED:
-					// ignore
-					break;
-				case CONSUMPTION_NOT_METERED:
-					powerSum -= sm.getActivePowerChannel().getNextValue().get();
-					break;
-				case GRID:
-					gridCount++;
-					break;
-				case PRODUCTION:
-				case PRODUCTION_AND_CONSUMPTION:
-					powerSum += sm.getActivePowerChannel().getNextValue().get();
-					break;
-				}
-			} catch (NullPointerException e) {
-				// ignore
-			}
-		}
-
-		int activePower = -powerSum;
-		// prevent division by 0 (occurs at startup of the first GridMeter)
-		if (gridCount != 0) {
-			// grids level the resulting power on 0
-			activePower /= gridCount;
-		}
-
-		this._setActivePower(activePower);
-		this._setActivePowerL1(activePower / 3);
-		this._setActivePowerL2(activePower / 3);
-		this._setActivePowerL3(activePower / 3);
 	}
 
 	@Override
