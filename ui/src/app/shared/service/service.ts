@@ -297,6 +297,8 @@ export class Service implements ErrorHandler {
     if (this.queryEnergyTimeout == null) {
       this.queryEnergyTimeout = setTimeout(() => {
 
+        this.queryEnergyTimeout = null;
+
         // merge requests
         let mergedRequests: {
           fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[];
@@ -336,7 +338,7 @@ export class Service implements ErrorHandler {
         // send merged requests
         this.getCurrentEdge().then(edge => {
           for (let source of mergedRequests) {
-            let request = new QueryHistoricTimeseriesEnergyRequest(source.fromDate, source.fromDate, source.channels);
+            let request = new QueryHistoricTimeseriesEnergyRequest(source.fromDate, source.toDate, source.channels);
             edge.sendRequest(this.websocket, request).then(response => {
               let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
               if (Object.keys(result.data).length != 0) {
@@ -357,7 +359,6 @@ export class Service implements ErrorHandler {
         });
       }, 100);
     }
-    this.queryEnergyTimeout = null;
     return response;
   }
 
@@ -365,6 +366,7 @@ export class Service implements ErrorHandler {
     fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
   }[] = [];
   private queryEnergyTimeout: any = null;
+
 
   /**
    * Start NGX-Spinner
