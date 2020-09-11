@@ -96,7 +96,7 @@ public class EvcsClusterTest {
 		}
 
 		@Override
-		protected void executeController() throws OpenemsNamedException {
+		protected void onAfterControllers() throws OpenemsNamedException {
 			/*
 			 * Warn: Maximum power is not correct, because the evcs power of the whole
 			 * cluster is still zero

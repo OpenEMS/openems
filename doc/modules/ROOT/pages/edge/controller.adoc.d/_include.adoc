@@ -29,6 +29,8 @@ include::io.openems.edge.controller.ess.acisland.adoc[leveloffset=+1]
 
 include::io.openems.edge.controller.ess.delaycharge.adoc[leveloffset=+1]
 
+include::io.openems.edge.controller.ess.hybrid.surplusfeedtogrid.adoc[leveloffset=+1]
+
 include::io.openems.edge.controller.ess.limittotaldischarge.adoc[leveloffset=+1]
 
 include::io.openems.edge.controller.ess.mindischargeperiod.adoc[leveloffset=+1]

@@ -471,7 +471,6 @@ public class JsonUtils {
 		}
 	}
 
-	@Deprecated
 	public static Object getAsType(Class<?> type, JsonElement j) throws NotImplementedException {
 		try {
 			if (Integer.class.isAssignableFrom(type)) {
