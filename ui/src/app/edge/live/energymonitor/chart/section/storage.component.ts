@@ -56,6 +56,15 @@ export class StorageSectionComponent extends AbstractSection implements OnDestro
         this.unitpipe = unitpipe;
     }
 
+    ngOnInit() {
+        if (navigator.vendor.match(/apple/i)) {
+            this.fillRef = "url(" + window.location.origin + window.location.pathname + "#" + this.sectionId + ")"
+        }
+        else {
+            this.fillRef = "url(#" + this.sectionId + ")"
+        }
+    }
+
     toggleCharge() {
         this.startAnimation = setInterval(() => {
             this.showChargeAnimation = !this.showChargeAnimation;
