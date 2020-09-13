@@ -2,10 +2,13 @@ image:
   file: .gitpod.Dockerfile
 
 tasks:
-  - init: ./gradlew build -x test
+  - init: ./gradlew build buildEdge -x test
+    command: java -jar build/openems-edge.jar
   - init: cd ui && npm install
-  - command: cd ui && ng serve --host 0.0.0.0 --disable-host-check
+    command: cd ui && ng serve --host 0.0.0.0 --disable-host-check
 
 ports:
+  - port: 8080
+  - port: 8084
   - port: 4200
     onOpen: open-browser
