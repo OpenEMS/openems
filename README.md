@@ -1,6 +1,6 @@
+[![Build Status](https://www.travis-ci.com/OpenEMS/openems.svg?branch=develop)](https://www.travis-ci.com/OpenEMS/openems)
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/OpenEMS/openems)
 
-[![Build Status](https://www.travis-ci.com/OpenEMS/openems.svg?branch=develop)](https://www.travis-ci.com/OpenEMS/openems)
 <h1 align="center">
   <img src="./doc/modules/ROOT/assets/images/OpenEMS-Logo.png" alt="the Feneco - OpenEMS Logo" width="200"></a>
   <br/>Open Source Energy Management System
