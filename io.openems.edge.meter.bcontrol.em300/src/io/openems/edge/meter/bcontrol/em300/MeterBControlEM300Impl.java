@@ -143,15 +143,15 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 
 		if (this.config.invert()) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(512, Priority.LOW, //
-					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(512),
-							ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(516),
-							ElementToChannelConverter.SCALE_FACTOR_MINUS_1)));
-		} else {
-			modbusProtocol.addTask(new FC3ReadRegistersTask(512, Priority.LOW, //
 					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(512),
 							ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(516),
+							ElementToChannelConverter.SCALE_FACTOR_MINUS_1)));
+		} else {
+			modbusProtocol.addTask(new FC3ReadRegistersTask(512, Priority.LOW, //
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(512),
+							ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(516),
 							ElementToChannelConverter.SCALE_FACTOR_MINUS_1)));
 		}
 
