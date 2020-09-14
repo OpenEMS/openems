@@ -5,7 +5,7 @@ tasks:
   - init: ./gradlew build buildEdge -x test
     command: java -jar build/openems-edge.jar
   - init: cd ui && npm install
-    command: ng serve --host 0.0.0.0 --disable-host-check
+    command: ng serve -c gitpod --host 0.0.0.0 --disable-host-check
 
 ports:
   - port: 8080
