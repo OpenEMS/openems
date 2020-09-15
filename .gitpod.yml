@@ -3,9 +3,15 @@ image:
 
 tasks:
   - init: ./gradlew build buildEdge -x test
-    command: java -jar build/openems-edge.jar
+    command: java 
+      -Dfelix.cm.dir=$(pwd)/tools/docker/openems-edge/config.d
+      -Dopenems.data.dir=$(pwd)/tools/docker/openems-edge/data
+      -jar build/openems-edge.jar
   - init: cd ui && npm install
-    command: ng serve -c gitpod --host 0.0.0.0 --disable-host-check
+    command: ng serve 
+      -c gitpod
+      --host 0.0.0.0
+      --disable-host-check
 
 ports:
   - port: 8080
