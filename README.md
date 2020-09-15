@@ -46,6 +46,11 @@ OpenEMS is generally used in combination with external hardware and software com
 (the exception is a simulated development environment - see [Getting Started](https://openems.github.io/openems.io/openems/latest/gettingstarted.html)). As a brief overview, this is how OpenEMS is used in production setups:
 ![alt text](./doc/modules/ROOT/assets/images/system-architecture.png "OpenEMS System Architecture")
 
+## Getting Started
+
+* Open up a [Live-Demo on Gitpod](https://gitpod.io/#https://github.com/OpenEMS/openems)
+* Follow the [Getting Started](https://openems.github.io/openems.io/openems/latest/gettingstarted.html) guide to setup OpenEMS on your own computer
+
 ## Documentation
 
 * [Latest version of documentation](https://openems.github.io/openems.io/openems/latest/introduction.html)
