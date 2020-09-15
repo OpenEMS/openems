@@ -56,8 +56,8 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let channels: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'EssDcChargeEnergy'),
-                new ChannelAddress('_sum', 'EssDcDischargeEnergy')
+                new ChannelAddress('_sum', 'ActiveChargeEnergy'),
+                new ChannelAddress('_sum', 'ActiveDischargeEnergy')
             ];
             this.essComponents = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && component.isEnabled);
             this.essComponents.forEach(component => {
