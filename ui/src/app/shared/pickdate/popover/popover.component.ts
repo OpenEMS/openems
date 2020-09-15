@@ -41,6 +41,7 @@ export class PickDatePopoverComponent {
         disableUntil: { day: 1, month: 1, year: 2013 }, // TODO start with date since the edge is available
         inline: true,
         selectorHeight: '225px',
+        selectorWidth: '251px',
         showWeekNumbers: true,
     };
 
