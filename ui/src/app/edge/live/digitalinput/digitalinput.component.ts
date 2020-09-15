@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { Edge, EdgeConfig, Service, Websocket, ChannelAddress } from 'src/app/shared/shared';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { ModalController } from '@ionic/angular';
+import { DigitalInputModalComponent } from './modal/modal.component';
 
 @Component({
     selector: 'digitalinput',
@@ -15,11 +17,13 @@ export class DigitalInputComponent {
     public edge: Edge = null;
     public config: EdgeConfig = null;
     public ioComponents: EdgeConfig.Component[] = null;
+    public ioComponentCount = 0;
 
     constructor(
         public service: Service,
         private websocket: Websocket,
         private route: ActivatedRoute,
+        public modalCtrl: ModalController,
         protected translate: TranslateService,
     ) { }
 
@@ -45,7 +49,7 @@ export class DigitalInputComponent {
 
             }
             this.edge.subscribeChannels(this.websocket, DigitalInputComponent.SELECTOR, channels);
-
+            this.ioComponentCount = this.ioComponents.length;
         });
     }
 
@@ -53,6 +57,17 @@ export class DigitalInputComponent {
         if (this.edge != null) {
             this.edge.unsubscribeChannels(this.websocket, DigitalInputComponent.SELECTOR);
         }
+    }
+
+    async presentModal() {
+        const modal = await this.modalCtrl.create({
+            component: DigitalInputModalComponent,
+            componentProps: {
+                edge: this.edge,
+                ioComponents: this.ioComponents,
+            }
+        });
+        return await modal.present();
     }
 
 }

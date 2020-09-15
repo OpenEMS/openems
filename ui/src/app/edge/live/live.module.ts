@@ -43,6 +43,7 @@ import { StorageModalComponent } from './storage/modal/modal.component';
 import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetricpeakshaving.component';
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
 import { DigitalInputComponent } from './digitalinput/digitalinput.component';
+import { DigitalInputModalComponent } from './digitalinput/modal/modal.component';
 
 @NgModule({
   imports: [
@@ -71,6 +72,7 @@ import { DigitalInputComponent } from './digitalinput/digitalinput.component';
     StorageModalComponent,
     SymmetricPeakshavingModalComponent,
     DigitalInputComponent,
+    DigitalInputModalComponent,
   ],
   declarations: [
     AdministrationComponent,
@@ -114,6 +116,7 @@ import { DigitalInputComponent } from './digitalinput/digitalinput.component';
     SymmetricPeakshavingComponent,
     SymmetricPeakshavingModalComponent,
     DigitalInputComponent,
+    DigitalInputModalComponent,
   ]
 })
 export class LiveModule { }
