@@ -6,6 +6,8 @@ import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/respon
 import { TranslateService } from '@ngx-translate/core';
 import { interval, Subject, fromEvent } from 'rxjs';
 import { takeUntil, debounceTime, delay } from 'rxjs/operators';
+import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
+import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 
 export abstract class AbstractHistoryChart {
 
@@ -53,6 +55,7 @@ export abstract class AbstractHistoryChart {
      */
     protected abstract getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]>;
 
+
     /**
      * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
      * 
@@ -76,6 +79,33 @@ export abstract class AbstractHistoryChart {
                                 reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
                             }
                         }).catch(reason => reject(reason));
+                    }).catch(reason => reject(reason));
+                })
+            });
+        });
+    }
+    /**
+     * Sends the Historic Timeseries Energy per Period Query and makes sure the result is not empty.
+     * 
+     * @param fromDate the From-Date
+     * @param toDate   the To-Date
+     * @param resolution the resolution in seconds
+     * @param edge     the current Edge
+     * @param ws       the websocket
+     */
+    protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date, resolution: number, channelAddresses: ChannelAddress[]): Promise<queryHistoricTimeseriesEnergyPerPeriodResponse> {
+        return new Promise((resolve, reject) => {
+            this.service.getCurrentEdge().then(edge => {
+                this.service.getConfig().then(config => {
+                    this.setLabel(config);
+                    let request = new queryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution);
+                    edge.sendRequest(this.service.websocket, request).then(response => {
+                        let result = (response as QueryHistoricTimeseriesDataResponse).result;
+                        if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
+                            resolve(response as queryHistoricTimeseriesEnergyPerPeriodResponse);
+                        } else {
+                            reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                        }
                     }).catch(reason => reject(reason));
                 })
             });

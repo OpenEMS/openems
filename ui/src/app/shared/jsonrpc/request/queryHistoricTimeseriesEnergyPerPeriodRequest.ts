@@ -21,7 +21,7 @@ import { JsonRpcUtils } from "../jsonrpcutils";
  * }
  * </pre>
  */
-export class queryHistoricTimeseriesEnergyPerPeriod extends JsonrpcRequest {
+export class queryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcRequest {
 
 
     static METHOD: string = "queryHistoricTimeseriesEnergyPerPeriod";
@@ -32,7 +32,7 @@ export class queryHistoricTimeseriesEnergyPerPeriod extends JsonrpcRequest {
         private channels: ChannelAddress[],
         private resolution: number
     ) {
-        super(queryHistoricTimeseriesEnergyPerPeriod.METHOD, {
+        super(queryHistoricTimeseriesEnergyPerPeriodRequest.METHOD, {
             timezone: new Date().getTimezoneOffset() * 60,
             fromDate: format(fromDate, 'yyyy-MM-dd'),
             toDate: format(toDate, 'yyyy-MM-dd'),
