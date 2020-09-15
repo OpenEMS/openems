@@ -28,6 +28,7 @@ import { StorageChartOverviewComponent } from './edge/history/storage/storagecha
 import { SymmetricPeakshavingChartComponent } from './edge/history/peakshaving/symmetric/chart.component';
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
+import { HeatingelementChartOverviewComponent } from './edge/history/heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
@@ -45,12 +46,12 @@ const routes: Routes = [
   { path: 'device/:edgeId/history/selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
   { path: 'device/:edgeId/history/consumptionchart', component: ConsumptionChartOverviewComponent },
   { path: 'device/:edgeId/history/gridchart', component: GridChartOverviewComponent },
-  { path: 'device/:edgeId/history/productionnchart', component: ProductionChartOverviewComponent },
+  { path: 'device/:edgeId/history/productionchart', component: ProductionChartOverviewComponent },
   { path: 'device/:edgeId/history/storagechart', component: StorageChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/asymmetricpeakshavingchart', component: AsymmetricPeakshavingChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/channelthresholdchart', component: ChannelthresholdChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/fixdigitaloutputchart', component: FixDigitalOutputChartOverviewComponent },
-  { path: 'device/:edgeId/history/:componentId/heatingelementchart', component: FixDigitalOutputChartOverviewComponent },
+  { path: 'device/:edgeId/history/:componentId/heatingelementchart', component: HeatingelementChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/singlethresholdchart', component: SinglethresholdChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/symmetricpeakshavingchart', component: SymmetricPeakshavingChartComponent },
 

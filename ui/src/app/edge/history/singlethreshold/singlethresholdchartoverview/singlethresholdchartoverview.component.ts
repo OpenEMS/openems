@@ -12,10 +12,8 @@ export class SinglethresholdChartOverviewComponent {
 
     public edge: Edge = null;
 
-    public component: EdgeConfig.Component;
+    public component: EdgeConfig.Component = null;
     public inputChannel: string;
-
-    public channelthresholdComponents: string[] = [];
 
     // referene to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
@@ -29,10 +27,8 @@ export class SinglethresholdChartOverviewComponent {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.service.getConfig().then(config => {
                 this.edge = edge;
+                this.component = config.getComponent(this.route.snapshot.params.componentId);
                 this.inputChannel = config.getComponentProperties(this.component.id)['inputChannelAddress'];
-                for (let componentId of config.getComponentIdsByFactory("Controller.IO.ChannelSingleThreshold")) {
-                    this.channelthresholdComponents.push(componentId)
-                }
             })
         });
     }
