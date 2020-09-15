@@ -1,13 +1,12 @@
-import { Component, Input, ChangeDetectorRef } from '@angular/core';
-import { Platform, MenuController, ModalController, ToastController } from '@ionic/angular';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
+import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { environment } from 'src/environments';
+import { MenuController, ModalController, ToastController } from '@ionic/angular';
+import { PickDateComponent } from '../pickdate/pickdate.component';
 import { Router, NavigationEnd } from '@angular/router';
 import { Service, Websocket, ChannelAddress, Edge } from '../shared';
-import { takeUntil, filter } from 'rxjs/operators';
-import { environment } from 'src/environments';
-import { Subject } from 'rxjs';
 import { StatusSingleComponent } from '../status/single/status.component';
+import { Subject } from 'rxjs';
+import { takeUntil, filter } from 'rxjs/operators';
 
 
 @Component({
@@ -15,6 +14,8 @@ import { StatusSingleComponent } from '../status/single/status.component';
     templateUrl: './header.component.html'
 })
 export class HeaderComponent {
+
+    @ViewChild(PickDateComponent, { static: false }) PickDateComponent: PickDateComponent
 
     public env = environment;
     public backUrl: string | boolean = '/';

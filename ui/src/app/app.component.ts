@@ -16,7 +16,6 @@ export class AppComponent {
 
   public env = environment;
   public backUrl: string | boolean = '/';
-  public showChartPageOnly: boolean = true;
   public enableSideMenu: boolean;
   public currentPage: 'EdgeSettings' | 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
   public isSystemLogEnabled: boolean = false;
