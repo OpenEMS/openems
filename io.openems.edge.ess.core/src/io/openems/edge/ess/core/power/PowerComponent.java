@@ -117,7 +117,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 
 	private final Logger log = LoggerFactory.getLogger(PowerComponent.class);
 
-	protected static final boolean DEFAULT_SYMMETRIC_MODE = false;
+	protected static final boolean DEFAULT_SYMMETRIC_MODE = true;
 	protected static final boolean DEFAULT_DEBUG_MODE = false;
 	protected static final SolverStrategy DEFAULT_SOLVER_STRATEGY = SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET;
 
@@ -200,6 +200,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 			if (Objects.equals(entry.getValue(), ess)) {
 				this.data.removeEss(entry.getKey());
 				i.remove();
+				break;
 			}
 		}
 	}

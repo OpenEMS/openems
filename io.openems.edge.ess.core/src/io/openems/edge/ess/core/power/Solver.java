@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.LinearConstraint;
@@ -19,6 +20,7 @@ import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -171,10 +173,15 @@ public class Solver {
 		TargetDirection targetDirection = null;
 		try {
 			// Check if the Problem is solvable at all.
+			Stopwatch stopwatch = Stopwatch.createStarted();
 			allConstraints = this.data.getConstraintsForAllInverters();
+			System.out.println("getConstraintsForAllInverters [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
 			// Add Strict constraints if required
+			stopwatch = Stopwatch.createStarted();
 			this.addConstraintsForNotStrictlyDefinedCoefficients(allInverters, allConstraints);
+			System.out.println("addConstraintsForNotStrictlyDefinedCoefficients ["
+					+ stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
 			// Print log with currently active EQUALS != 0 Constraints
 			if (this.debugMode) {
@@ -187,12 +194,17 @@ public class Solver {
 			}
 
 			// Evaluates whether it is a CHARGE or DISCHARGE problem.
+			stopwatch = Stopwatch.createStarted();
 			targetDirection = this.getTargetDirection();
+			System.out.println("getTargetDirection [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
 			// Gets the target-Inverters, i.e. the Inverters that are minimally required to
 			// solve the Problem.
+			stopwatch = Stopwatch.createStarted();
 			List<Inverter> targetInverters = this.getTargetInverters(data.getInverters(), targetDirection);
+			System.out.println("getTargetInverters [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
+			stopwatch = Stopwatch.createStarted();
 			switch (this.strategy) {
 			case UNDEFINED:
 			case ALL_CONSTRAINTS:
@@ -219,6 +231,7 @@ public class Solver {
 						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET);
 				break;
 			}
+			System.out.println("strategy [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms] " + this.strategy);
 
 		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 			if (this.debugMode) {
@@ -715,6 +728,11 @@ public class Solver {
 	 * @return a list of target inverters
 	 */
 	private List<Inverter> getTargetInverters(List<Inverter> allInverters, TargetDirection targetDirection) {
+		// Only zero or one inverters available? No need to optimize.
+		if (allInverters.size() < 2) {
+			return allInverters;
+		}
+
 		// Change target direction only once in a while
 		if (this.activeTargetDirection == null || targetDirectionChangedSince > 100) {
 			if (this.debugMode) {
@@ -739,46 +757,73 @@ public class Solver {
 			sortedInverters = allInverters;
 		}
 
-		// currently highest index in the sortedInverters list, that solved successfully
-		int highestSolvedIndex = -1;
-		// currently lowest index in the sortedInverter list, that solved unsuccessfully
-		int lowestUnsolvedIndex = sortedInverters.size();
-		// current index in the binary search
-		int index;
-		if (this.lastDisabledInverterIndex == -1) {
-			// initially: start in the middle
-			index = sortedInverters.size() / 2;
-		} else {
-			// use index from last run as start; if this run is similar to the last run,
-			// solveWithDisabledInverters will be called only twice.
-			index = Math.min(this.lastDisabledInverterIndex, sortedInverters.size() - 1);
-		}
+		/**
+		 * Keeps feasible solutions for disabling inverters:
+		 * 
+		 * <ul>
+		 * <li>null -> still needs to be tried
+		 * <li>false -> this solution is not feasible
+		 * <li>true -> this solution is feasible
+		 * </ul>
+		 */
+		Boolean[] disableInvertersFromIndex = new Boolean[sortedInverters.size()];
 
-		do {
-			try {
-				this.solveWithDisabledInverters(sortedInverters.subList(0, index + 1));
-				highestSolvedIndex = index;
-			} catch (NoFeasibleSolutionException | UnboundedSolutionException | OpenemsException e) {
-				lowestUnsolvedIndex = index;
+		// find first and last possible index
+		int firstPossibleIndex = -1;
+		for (int i = 0; i < disableInvertersFromIndex.length; i++) {
+			if (disableInvertersFromIndex[i] != Boolean.FALSE) {
+				firstPossibleIndex = i;
+				break;
 			}
-			// next binary search index: middle between lowestUnsolvedIndex and
-			// highestSolvedIndex
-			index = (lowestUnsolvedIndex + highestSolvedIndex) / 2;
+		}
+		int lastPossibleIndex = -1;
+		for (int i = disableInvertersFromIndex.length - 1; i > -1; i--) {
+			if (disableInvertersFromIndex[i] != Boolean.FALSE) {
+				lastPossibleIndex = i;
+				break;
+			}
+		}
+		
+		if(firstPossibleIndex == -1 || lastPossibleIndex == -1) {
+			// no possible solution left
+		}
 
-		} while (lowestUnsolvedIndex - highestSolvedIndex > 1 /* no better solution possible */);
-
-		// keep the last index as a result to improve speed of a similar next run
-		this.lastDisabledInverterIndex = index;
-
-		// build result
+//		// current index in the binary search
+//		int index;
+//		if (this.lastDisabledInverterIndex == -1) {
+//			// initially: start in the middle
+//			index = disableInvertersFromIndex.length / 2;
+//		} else {
+//			// use index from last run as start; if this run is similar to the last run,
+//			// solveWithDisabledInverters will be called only twice.
+//			index = Math.min(this.lastDisabledInverterIndex, disableInvertersFromIndex.length - 1);
+//		}
+//
+//		do {
+//			try {
+//				this.solveWithDisabledInverters(sortedInverters.subList(0, index + 1));
+//				highestSolvedIndex = index;
+//			} catch (NoFeasibleSolutionException | UnboundedSolutionException | OpenemsException e) {
+//				lowestUnsolvedIndex = index;
+//			}
+//			// next binary search index: middle between lowestUnsolvedIndex and
+//			// highestSolvedIndex
+//			index = (lowestUnsolvedIndex + highestSolvedIndex) / 2;
+//
+//		} while ((highestSolvedIndex > -1 && lowestUnsolvedIndex - highestSolvedIndex > 1));
+//
+//		// keep the last index as a result to improve speed of a similar next run
+//		this.lastDisabledInverterIndex = index;
+//
+//		// build result
 		List<Inverter> result = new ArrayList<>(allInverters);
-		for (Inverter disabledInverter : sortedInverters.subList(0, index + 1)) {
-			result.remove(disabledInverter);
-		}
-		// get result in the order of preferred usage
-		if (this.activeTargetDirection == TargetDirection.CHARGE) {
-			result = Lists.reverse(result);
-		}
+//		for (Inverter disabledInverter : sortedInverters.subList(0, index + 1)) {
+//			result.remove(disabledInverter);
+//		}
+//		// get result in the order of preferred usage
+//		if (this.activeTargetDirection == TargetDirection.CHARGE) {
+//			result = Lists.reverse(result);
+//		}
 		return result;
 	}
 
@@ -858,21 +903,21 @@ public class Solver {
 	 */
 	public TargetDirection getTargetDirection() throws OpenemsException {
 		List<Constraint> constraints = this.data.getConstraintsForAllInverters();
-		Constraint equals0 = this.data.createPConstraint(Relationship.EQUALS, 0);
+		Constraint equals0 = this.data.createSumOfPConstraint(Relationship.EQUALS, 0);
 		constraints.add(equals0);
 		try {
 			this.solveWithConstraints(constraints);
 			return TargetDirection.KEEP_ZERO;
 		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 			constraints.remove(equals0);
-			Constraint greaterOrEquals0 = this.data.createPConstraint(Relationship.GREATER_OR_EQUALS, 0);
+			Constraint greaterOrEquals0 = this.data.createSumOfPConstraint(Relationship.GREATER_OR_EQUALS, 0);
 			constraints.add(greaterOrEquals0);
 			try {
 				this.solveWithConstraints(constraints);
 				return TargetDirection.DISCHARGE;
 			} catch (NoFeasibleSolutionException | UnboundedSolutionException e2) {
 				constraints.remove(greaterOrEquals0);
-				Constraint lessOrEquals0 = this.data.createPConstraint(Relationship.LESS_OR_EQUALS, 0);
+				Constraint lessOrEquals0 = this.data.createSumOfPConstraint(Relationship.LESS_OR_EQUALS, 0);
 				constraints.add(lessOrEquals0);
 				this.solveWithConstraints(constraints);
 				return TargetDirection.CHARGE;

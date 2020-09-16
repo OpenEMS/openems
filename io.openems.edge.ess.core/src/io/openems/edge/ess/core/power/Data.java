@@ -66,13 +66,13 @@ public class Data {
 		this.essIds.add(ess.id());
 		// create inverters and add them to list
 		EssType essType = this.parent.getEssType(ess.id());
-		for (Inverter inverter : Inverter.of(ess, essType)) {
+		for (Inverter inverter : Inverter.of(this.symmetricMode, ess, essType)) {
 			this.inverters.add(inverter);
 		}
 		// Initially sort Inverters
 		this.invertersUpdateWeights(this.inverters);
 		Data.invertersSortByWeights(this.inverters);
-		this.coefficients.initialize(this.essIds);
+		this.coefficients.initialize(this.symmetricMode, this.essIds);
 	}
 
 	protected synchronized void removeEss(String essId) {
@@ -86,12 +86,13 @@ public class Data {
 				iter.remove();
 			}
 		}
-		this.coefficients.initialize(this.essIds);
+		this.coefficients.initialize(this.symmetricMode, this.essIds);
 	}
 
-	public void setSymmetricMode(boolean symmetricMode) {
+	public synchronized void setSymmetricMode(boolean symmetricMode) {
 		if (this.symmetricMode != symmetricMode) {
 			this.symmetricMode = symmetricMode;
+			this.coefficients.initialize(this.symmetricMode, this.essIds);
 			this.initializeCycle(); // because SymmetricEssConstraints need to be renewed
 		}
 	}
@@ -118,11 +119,16 @@ public class Data {
 
 	public void addSimpleConstraint(String description, String essId, Phase phase, Pwr pwr, Relationship relationship,
 			double value) throws OpenemsException {
+		if (this.symmetricMode && phase != Phase.ALL) {
+			// Symmetric Mode is activated; but asymmetric Constraints is added
+			phase = Phase.ALL;
+			value *= 3;
+		}
 		this.constraints.add(this.createSimpleConstraint(description, essId, phase, pwr, relationship, value));
 	}
 
 	public Coefficients getCoefficients() {
-		return coefficients;
+		return this.coefficients;
 	}
 
 	public Coefficient getCoefficient(String essId, Phase phase, Pwr pwr) throws OpenemsException {
@@ -166,7 +172,7 @@ public class Data {
 				this.createGenericEssConstraints().stream(), //
 				this.createStaticEssConstraints().stream(), //
 				this.createClusterConstraints().stream(), //
-				this.createSumOfPhasesConstraints(disabledInverters).stream(), //
+				this.createSumOfPhasesConstraints().stream(), //
 				this.createSymmetricEssConstraints().stream(), //
 				this.createSinglePhaseEssConstraints().stream(), //
 				this.constraints.stream()).collect(Collectors.toList());
@@ -275,18 +281,17 @@ public class Data {
 			ManagedSymmetricEss ess = this.parent.getEss(essId);
 			if (ess instanceof MetaEss) {
 				MetaEss e = (MetaEss) ess;
-				for (Phase phase : Phase.values()) {
+				if (this.symmetricMode) {
+					// Symmetric Mode
 					for (Pwr pwr : Pwr.values()) {
-						// creates a constraint of the form
-						// 1*sumL1 - 1*ess1_L1 - 1*ess2_L1 = 0
-						List<LinearCoefficient> cos = new ArrayList<>();
-						cos.add(new LinearCoefficient(this.coefficients.of(essId, phase, pwr), 1));
-						for (String subEssId : e.getEssIds()) {
-							cos.add(new LinearCoefficient(this.coefficients.of(subEssId, phase, pwr), -1));
+						result.add(this.createClusterConstraint(e, Phase.ALL, pwr));
+					}
+				} else {
+					// Asymmetric Mode
+					for (Phase phase : Phase.values()) {
+						for (Pwr pwr : Pwr.values()) {
+							result.add(this.createClusterConstraint(e, phase, pwr));
 						}
-						Constraint c = new Constraint(ess.id() + ": Sum of " + pwr.getSymbol() + phase.getSymbol(), cos,
-								Relationship.EQUALS, 0);
-						result.add(c);
 					}
 				}
 			}
@@ -295,26 +300,51 @@ public class Data {
 	}
 
 	/**
+	 * Creates a constraint of the form: 1*sumL1 - 1*ess1_L1 - 1*ess2_L1 = 0
+	 * 
+	 * @param e     the {@link MetaEss} Cluster
+	 * @param phase the {@link Phase}
+	 * @param pwr   the {@link Pwr}
+	 * @return the {@link Constraint}
+	 * @throws OpenemsException on error
+	 */
+	private Constraint createClusterConstraint(MetaEss e, Phase phase, Pwr pwr) throws OpenemsException {
+		List<LinearCoefficient> cos = new ArrayList<>();
+		cos.add(new LinearCoefficient(this.coefficients.of(e.id(), phase, pwr), 1));
+		for (String subEssId : e.getEssIds()) {
+			cos.add(new LinearCoefficient(this.coefficients.of(subEssId, phase, pwr), -1));
+		}
+		return new Constraint(e.id() + ": Sum of " + pwr.getSymbol() + phase.getSymbol(), cos, Relationship.EQUALS, 0);
+	}
+
+	/**
 	 * Creates Constraints for Three-Phased Ess: P = L1 + L2 + L3.
 	 * 
-	 * @param disabledInverters Collection of disabled inverters
+	 * <p>
+	 * If symmetricMode is activated, an empty list is returned.
+	 * 
 	 * @return List of Constraints
-	 * @throws OpenemsException
+	 * @throws OpenemsException on error
 	 */
-	public List<Constraint> createSumOfPhasesConstraints(Collection<Inverter> disabledInverters)
-			throws OpenemsException {
+	public List<Constraint> createSumOfPhasesConstraints() throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();
-		for (String essId : this.essIds) {
-			for (Pwr pwr : Pwr.values()) {
-				// creates two constraint of the form
-				// 1*P - 1*L1 - 1*L2 - 1*L3 = 0
-				// 1*Q - 1*L1 - 1*L2 - 1*L3 = 0
-				result.add(new Constraint(essId + ": " + pwr.getSymbol() + "=L1+L2+L3",
-						new LinearCoefficient[] { new LinearCoefficient(this.coefficients.of(essId, Phase.ALL, pwr), 1),
-								new LinearCoefficient(this.coefficients.of(essId, Phase.L1, pwr), -1),
-								new LinearCoefficient(this.coefficients.of(essId, Phase.L2, pwr), -1),
-								new LinearCoefficient(this.coefficients.of(essId, Phase.L3, pwr), -1) //
-						}, Relationship.EQUALS, 0));
+		if (this.symmetricMode) {
+			// Symmetric Mode
+		} else {
+			// Asymmetric Mode
+			for (String essId : this.essIds) {
+				for (Pwr pwr : Pwr.values()) {
+					// creates two constraint of the form
+					// 1*P - 1*L1 - 1*L2 - 1*L3 = 0
+					// 1*Q - 1*L1 - 1*L2 - 1*L3 = 0
+					result.add(new Constraint(essId + ": " + pwr.getSymbol() + "=L1+L2+L3",
+							new LinearCoefficient[] {
+									new LinearCoefficient(this.coefficients.of(essId, Phase.ALL, pwr), 1),
+									new LinearCoefficient(this.coefficients.of(essId, Phase.L1, pwr), -1),
+									new LinearCoefficient(this.coefficients.of(essId, Phase.L2, pwr), -1),
+									new LinearCoefficient(this.coefficients.of(essId, Phase.L3, pwr), -1) //
+							}, Relationship.EQUALS, 0));
+				}
 			}
 		}
 		return result;
@@ -331,13 +361,10 @@ public class Data {
 		for (String essId : this.essIds) {
 			ManagedSymmetricEss ess = this.parent.getEss(essId);
 			EssType essType = EssType.getEssType(ess);
-			if (
-			// Symmetric: always
-			essType == EssType.SYMMETRIC
-					// Asymmetric: only if symmetric-mode is activated
-					|| (essType == EssType.ASYMMETRIC && this.symmetricMode == true)) {
+			if (!this.symmetricMode && essType == EssType.SYMMETRIC) {
 				/*
-				 * Symmetric Constraints for each ESS separately
+				 * Symmetric-Mode is deactivated and this is a Symmetric ESS: Add Symmetric
+				 * Constraints
 				 */
 				for (Pwr pwr : Pwr.values()) {
 					// creates two constraint of the form
@@ -348,24 +375,6 @@ public class Data {
 							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L2, pwr), -1) //
 					}, Relationship.EQUALS, 0));
 					result.add(new Constraint(essId + ": Symmetric L1/L3", new LinearCoefficient[] { //
-							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L1, pwr), 1), //
-							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L3, pwr), -1) //
-					}, Relationship.EQUALS, 0));
-				}
-
-			} else if (essType == EssType.META && this.symmetricMode == true) {
-				/*
-				 * Symmetric Constraint for Sum
-				 */
-				// creates two constraint of the form
-				// 1*L1 - 1*L2 = 0
-				// 1*L1 - 1*L3 = 0
-				for (Pwr pwr : Pwr.values()) {
-					result.add(new Constraint("Sum of P: Symmetric L1/L2", new LinearCoefficient[] { //
-							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L1, pwr), 1), //
-							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L2, pwr), -1) //
-					}, Relationship.EQUALS, 0));
-					result.add(new Constraint("Sum of P: Symmetric L1/L3", new LinearCoefficient[] { //
 							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L1, pwr), 1), //
 							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L3, pwr), -1) //
 					}, Relationship.EQUALS, 0));
@@ -383,7 +392,7 @@ public class Data {
 	 * @return Constraint
 	 * @throws OpenemsException
 	 */
-	public Constraint createPConstraint(Relationship relationship, int value) throws OpenemsException {
+	public Constraint createSumOfPConstraint(Relationship relationship, int value) throws OpenemsException {
 		List<LinearCoefficient> cos = new ArrayList<>();
 		for (Inverter inverter : this.inverters) {
 			cos.add(new LinearCoefficient(this.coefficients.of(inverter.getEssId(), inverter.getPhase(), Pwr.ACTIVE),
@@ -393,7 +402,7 @@ public class Data {
 	}
 
 	/**
-	 * Creates a simple Constraint with only one Coefficient.
+	 * Creates a simple Constraint with only one Coefficient. createSumOfPConstraint
 	 * 
 	 * @param description  a description for the Constraint
 	 * @param essId        the component ID of Ess
@@ -417,17 +426,25 @@ public class Data {
 	 * For Single-Phase-ESS: Creates an EQUALS ZERO constraint for the not-connected
 	 * phases.
 	 * 
+	 * <p>
+	 * If symmetricMode is activated, an empty list is returned.
+	 * 
 	 * @return List of Constraints
 	 * @throws OpenemsException
 	 */
 	public List<Constraint> createSinglePhaseEssConstraints() throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();
-		for (Inverter inv : inverters) {
-			if (inv instanceof DummyInverter) {
-				for (Pwr pwr : Pwr.values()) {
-					result.add(this.createSimpleConstraint(
-							inv.getEssId() + ": Dummy " + pwr.getSymbol() + inv.getPhase().getSymbol(), inv.getEssId(),
-							inv.getPhase(), pwr, Relationship.EQUALS, 0));
+		if (this.symmetricMode) {
+			// Symmetric Mode
+		} else {
+			// Asymmetric Mode
+			for (Inverter inv : inverters) {
+				if (inv instanceof DummyInverter) {
+					for (Pwr pwr : Pwr.values()) {
+						result.add(this.createSimpleConstraint(
+								inv.getEssId() + ": Dummy " + pwr.getSymbol() + inv.getPhase().getSymbol(),
+								inv.getEssId(), inv.getPhase(), pwr, Relationship.EQUALS, 0));
+					}
 				}
 			}
 		}
