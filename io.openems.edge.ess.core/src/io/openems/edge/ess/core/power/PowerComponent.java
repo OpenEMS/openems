@@ -124,7 +124,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	/**
 	 * Holds all managed Ess objects by their ID.
 	 */
-	private final Map<String, ManagedSymmetricEss> esss = new HashMap<>();
+	protected final Map<String, ManagedSymmetricEss> esss = new HashMap<>();
 
 	private final Data data;
 	private final Solver solver;

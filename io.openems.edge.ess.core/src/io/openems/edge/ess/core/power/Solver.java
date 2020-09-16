@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.linear.LinearConstraint;
 import org.apache.commons.math3.optim.linear.LinearConstraintSet;
 import org.apache.commons.math3.optim.linear.LinearObjectiveFunction;
 import org.apache.commons.math3.optim.linear.NoFeasibleSolutionException;
@@ -21,15 +20,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Lists;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.ThrowingFunction;
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
+import io.openems.edge.ess.core.power.data.LinearSolverUtil;
+import io.openems.edge.ess.core.power.data.TargetDirectionUtil;
+import io.openems.edge.ess.core.power.data.TargetDirectionUtil.TargetDirection;
+import io.openems.edge.ess.core.power.optimizers.Optimizers;
+import io.openems.edge.ess.core.power.solver.ConstraintSolver;
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.DummyInverter;
@@ -48,16 +52,32 @@ public class Solver {
 	private static final double LEARNING_RATE = 0.1;
 
 	private final Logger log = LoggerFactory.getLogger(Solver.class);
-
 	private final Data data;
+	private final Optimizers optimizers = new Optimizers();
 
 	private boolean debugMode = PowerComponent.DEFAULT_DEBUG_MODE;
 	private SolverStrategy strategy = PowerComponent.DEFAULT_SOLVER_STRATEGY;
 	private OnSolved onSolvedCallback = (isSolved, duration, strategy) -> {
 	};
 
+	private final ThrowingFunction<List<Inverter>, PointValuePair, Exception> solveWithDisabledInverters;
+
 	public Solver(Data data) {
 		this.data = data;
+
+		/**
+		 * Solves the problem, while setting all DisabledInverters to EQUALS zero.
+		 * 
+		 * @param disabledInverters a list of disabled inverters
+		 * @return a solution
+		 * @throws NoFeasibleSolutionException if not solvable
+		 * @throws UnboundedSolutionException  if not solvable
+		 * @throws OpenemsException
+		 */
+		this.solveWithDisabledInverters = (disabledInverters) -> {
+			List<Constraint> constraints = this.data.getConstraintsWithoutDisabledInverters(disabledInverters);
+			return ConstraintSolver.solve(this.data.getCoefficients(), constraints);
+		};
 	}
 
 	/**
@@ -76,7 +96,8 @@ public class Solver {
 	 */
 	public void isSolvableOrError() throws OpenemsException {
 		try {
-			this.solveWithAllConstraints();
+			ConstraintSolver.solve(this.data.getCoefficients(),
+					this.data.getConstraintsForAllInverters());
 		} catch (NoFeasibleSolutionException e) {
 			throw new PowerException(Type.NO_FEASIBLE_SOLUTION);
 		} catch (UnboundedSolutionException e) {
@@ -91,7 +112,8 @@ public class Solver {
 	 */
 	public boolean isSolvable() {
 		try {
-			this.solveWithAllConstraints();
+			ConstraintSolver.solve(this.data.getCoefficients(),
+					this.data.getConstraintsForAllInverters());
 			return true;
 		} catch (NoFeasibleSolutionException | UnboundedSolutionException | OpenemsException e) {
 			return false;
@@ -107,7 +129,7 @@ public class Solver {
 			this.log.error(e.getMessage());
 			return 0d;
 		}
-		double[] cos = Solver.getEmptyCoefficients(data);
+		double[] cos = LinearSolverUtil.generateEmptyCoefficientsArray(data.getCoefficients().getNoOfCoefficients());
 		cos[index] = 1;
 		LinearObjectiveFunction objectiveFunction = new LinearObjectiveFunction(cos, 0);
 
@@ -121,7 +143,7 @@ public class Solver {
 		}
 
 		LinearConstraintSet constraints = new LinearConstraintSet(
-				Solver.convertToLinearConstraints(this.data, allConstraints));
+				LinearSolverUtil.convertToLinearConstraints(this.data.getCoefficients(), allConstraints));
 
 		SimplexSolver solver = new SimplexSolver();
 		try {
@@ -195,13 +217,18 @@ public class Solver {
 
 			// Evaluates whether it is a CHARGE or DISCHARGE problem.
 			stopwatch = Stopwatch.createStarted();
-			targetDirection = this.getTargetDirection();
+			targetDirection = TargetDirectionUtil.from(//
+					this.data.getInverters(), //
+					this.data.getCoefficients(), //
+					this.data.getConstraintsForAllInverters() //
+			);
 			System.out.println("getTargetDirection [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
 			// Gets the target-Inverters, i.e. the Inverters that are minimally required to
 			// solve the Problem.
 			stopwatch = Stopwatch.createStarted();
-			List<Inverter> targetInverters = this.getTargetInverters(data.getInverters(), targetDirection);
+			List<Inverter> targetInverters = this.optimizers.reduceNumberOfUsedInverters.apply(allInverters,
+					targetDirection, this.solveWithDisabledInverters);
 			System.out.println("getTargetInverters [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
 			stopwatch = Stopwatch.createStarted();
@@ -286,7 +313,7 @@ public class Solver {
 			case NONE:
 				break;
 			case ALL_CONSTRAINTS:
-				solution = this.solveWithConstraints(allConstraints);
+				solution = ConstraintSolver.solve(this.data.getCoefficients(), allConstraints);
 				break;
 			case OPTIMIZE_BY_MOVING_TOWARDS_TARGET:
 				solution = this.optimizeByMovingTowardsTarget(targetDirection, allInverters, targetInverters,
@@ -305,8 +332,8 @@ public class Solver {
 				return new SolveSolution(strategy, solution);
 			}
 		}
-		// to strategy was successful -> try allConstraints
-		solution = this.solveWithConstraints(allConstraints);
+		// no strategy was successful -> try allConstraints
+		solution = ConstraintSolver.solve(this.data.getCoefficients(), allConstraints);
 		if (solution != null) {
 			return new SolveSolution(SolverStrategy.ALL_CONSTRAINTS, solution);
 		} else {
@@ -325,11 +352,12 @@ public class Solver {
 	private void addConstraintsForNotStrictlyDefinedCoefficients(List<Inverter> allInverters,
 			List<Constraint> allConstraints) throws OpenemsException {
 		LinearConstraintSet constraints = new LinearConstraintSet(
-				Solver.convertToLinearConstraints(this.data, allConstraints));
+				LinearSolverUtil.convertToLinearConstraints(this.data.getCoefficients(), allConstraints));
 
 		for (Pwr pwr : Pwr.values()) {
 			// prepare objective function
-			double[] cos = Solver.getEmptyCoefficients(data);
+			double[] cos = LinearSolverUtil
+					.generateEmptyCoefficientsArray(this.data.getCoefficients().getNoOfCoefficients());
 			for (Inverter inv : allInverters) {
 				Coefficient c = this.data.getCoefficient(inv.getEssId(), inv.getPhase(), pwr);
 				cos[c.getIndex()] = 1;
@@ -423,7 +451,8 @@ public class Solver {
 						Relationship.EQUALS, 0);
 				constraints.add(c);
 			}
-			return this.solveWithConstraints(constraints);
+			return ConstraintSolver.solve(this.data.getCoefficients(), constraints);
+
 		} catch (OpenemsException | NoFeasibleSolutionException | UnboundedSolutionException e) {
 			return null;
 		}
@@ -455,7 +484,7 @@ public class Solver {
 			}
 		}
 
-		PointValuePair result = this.solveWithConstraints(constraints);
+		PointValuePair result = ConstraintSolver.solve(this.data.getCoefficients(), constraints);
 		PointValuePair thisSolution = null;
 
 		Relationship relationship = Relationship.EQUALS;
@@ -479,7 +508,7 @@ public class Solver {
 			constraints.add(c);
 			// Try to solve with Constraint
 			try {
-				thisSolution = this.solveWithConstraints(constraints);
+				thisSolution = ConstraintSolver.solve(this.data.getCoefficients(), constraints);
 				result = thisSolution; // only if solving was successful
 			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 				// solving failed
@@ -505,7 +534,7 @@ public class Solver {
 			constraints.add(c);
 			// Try to solve with Constraint
 			try {
-				thisSolution = this.solveWithConstraints(constraints);
+				thisSolution = ConstraintSolver.solve(this.data.getCoefficients(), constraints);
 				result = thisSolution; // only if solving was successful
 			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 				// If solving fails: remove the Constraints
@@ -628,7 +657,8 @@ public class Solver {
 			}
 
 			try {
-				PointValuePair solution = this.solveWithConstraints(constraints);
+				PointValuePair solution = ConstraintSolver.solve(this.data.getCoefficients(),
+						constraints);
 				return solution;
 			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 				// Adjust next weights
@@ -708,221 +738,6 @@ public class Solver {
 			result.put(inv, powerTuple);
 		}
 		return result;
-	}
-
-	private TargetDirection activeTargetDirection = null;
-	private int targetDirectionChangedSince = 0;
-	private int lastDisabledInverterIndex = -1;
-
-	/**
-	 * Finds the target Inverters, i.e. the Inverters that are minimally required to
-	 * fulfill all Constraints.
-	 * 
-	 * <p>
-	 * This method therefore removes inverters till it finds a minimum setup. It
-	 * uses an algorithm similarly to binary tree search to find the minimum
-	 * required number of inverters.
-	 * 
-	 * @param allInverters    a list of all inverters
-	 * @param targetDirection the target direction
-	 * @return a list of target inverters
-	 */
-	private List<Inverter> getTargetInverters(List<Inverter> allInverters, TargetDirection targetDirection) {
-		// Only zero or one inverters available? No need to optimize.
-		if (allInverters.size() < 2) {
-			return allInverters;
-		}
-
-		// Change target direction only once in a while
-		if (this.activeTargetDirection == null || targetDirectionChangedSince > 100) {
-			if (this.debugMode) {
-				log.info("Change target direction from [" + this.activeTargetDirection + "] to [" + targetDirection
-						+ "] after [" + targetDirectionChangedSince + "]");
-			}
-			this.activeTargetDirection = targetDirection;
-		}
-		if (this.activeTargetDirection != targetDirection) {
-			this.targetDirectionChangedSince++;
-		} else {
-			this.targetDirectionChangedSince = 0;
-		}
-
-		// For CHARGE take list as it is; for DISCHARGE reverse it. This prefers
-		// high-weight inverters (e.g. high state-of-charge) on DISCHARGE and low-weight
-		// inverters (e.g. low state-of-charge) on CHARGE.
-		List<Inverter> sortedInverters;
-		if (this.activeTargetDirection == TargetDirection.DISCHARGE) {
-			sortedInverters = Lists.reverse(allInverters);
-		} else {
-			sortedInverters = allInverters;
-		}
-
-		/**
-		 * Keeps feasible solutions for disabling inverters:
-		 * 
-		 * <ul>
-		 * <li>null -> still needs to be tried
-		 * <li>false -> this solution is not feasible
-		 * <li>true -> this solution is feasible
-		 * </ul>
-		 */
-		Boolean[] disableInvertersFromIndex = new Boolean[sortedInverters.size()];
-
-		// find first and last possible index
-		int firstPossibleIndex = -1;
-		for (int i = 0; i < disableInvertersFromIndex.length; i++) {
-			if (disableInvertersFromIndex[i] != Boolean.FALSE) {
-				firstPossibleIndex = i;
-				break;
-			}
-		}
-		int lastPossibleIndex = -1;
-		for (int i = disableInvertersFromIndex.length - 1; i > -1; i--) {
-			if (disableInvertersFromIndex[i] != Boolean.FALSE) {
-				lastPossibleIndex = i;
-				break;
-			}
-		}
-		
-		if(firstPossibleIndex == -1 || lastPossibleIndex == -1) {
-			// no possible solution left
-		}
-
-//		// current index in the binary search
-//		int index;
-//		if (this.lastDisabledInverterIndex == -1) {
-//			// initially: start in the middle
-//			index = disableInvertersFromIndex.length / 2;
-//		} else {
-//			// use index from last run as start; if this run is similar to the last run,
-//			// solveWithDisabledInverters will be called only twice.
-//			index = Math.min(this.lastDisabledInverterIndex, disableInvertersFromIndex.length - 1);
-//		}
-//
-//		do {
-//			try {
-//				this.solveWithDisabledInverters(sortedInverters.subList(0, index + 1));
-//				highestSolvedIndex = index;
-//			} catch (NoFeasibleSolutionException | UnboundedSolutionException | OpenemsException e) {
-//				lowestUnsolvedIndex = index;
-//			}
-//			// next binary search index: middle between lowestUnsolvedIndex and
-//			// highestSolvedIndex
-//			index = (lowestUnsolvedIndex + highestSolvedIndex) / 2;
-//
-//		} while ((highestSolvedIndex > -1 && lowestUnsolvedIndex - highestSolvedIndex > 1));
-//
-//		// keep the last index as a result to improve speed of a similar next run
-//		this.lastDisabledInverterIndex = index;
-//
-//		// build result
-		List<Inverter> result = new ArrayList<>(allInverters);
-//		for (Inverter disabledInverter : sortedInverters.subList(0, index + 1)) {
-//			result.remove(disabledInverter);
-//		}
-//		// get result in the order of preferred usage
-//		if (this.activeTargetDirection == TargetDirection.CHARGE) {
-//			result = Lists.reverse(result);
-//		}
-		return result;
-	}
-
-	/**
-	 * Solves the problem, while setting all DisabledInverters to EQUALS zero.
-	 * 
-	 * @param disabledInverters a list of disabled inverters
-	 * @return a solution
-	 * @throws NoFeasibleSolutionException if not solvable
-	 * @throws UnboundedSolutionException  if not solvable
-	 * @throws OpenemsException
-	 */
-	private PointValuePair solveWithDisabledInverters(List<Inverter> disabledInverters)
-			throws NoFeasibleSolutionException, UnboundedSolutionException, OpenemsException {
-		List<Constraint> constraints = this.data.getConstraintsWithoutDisabledInverters(disabledInverters);
-		return this.solveWithConstraints(constraints);
-	}
-
-	/**
-	 * Solves the problem with the given list of Constraints.
-	 * 
-	 * @param constraints a list of Constraints
-	 * @return a solution
-	 * @throws NoFeasibleSolutionException if not solvable
-	 * @throws UnboundedSolutionException  if not solvable
-	 */
-	private PointValuePair solveWithConstraints(List<Constraint> constraints)
-			throws NoFeasibleSolutionException, UnboundedSolutionException {
-		List<LinearConstraint> linearConstraints = Solver.convertToLinearConstraints(this.data, constraints);
-		return this.solveWithLinearConstraints(linearConstraints);
-	}
-
-	/**
-	 * Solves the problem with the given list of LinearConstraints.
-	 * 
-	 * @param constraints a list of LinearConstraints
-	 * @return a solution
-	 * @throws NoFeasibleSolutionException if not solvable
-	 * @throws UnboundedSolutionException  if not solvable
-	 */
-	private PointValuePair solveWithLinearConstraints(List<LinearConstraint> constraints)
-			throws NoFeasibleSolutionException, UnboundedSolutionException {
-		LinearObjectiveFunction objectiveFunction = Solver.getDefaultObjectiveFunction(this.data);
-
-		SimplexSolver solver = new SimplexSolver();
-		return solver.optimize(//
-				objectiveFunction, //
-				new LinearConstraintSet(constraints), //
-				GoalType.MINIMIZE, //
-				PivotSelectionRule.BLAND);
-	}
-
-	/**
-	 * Solves the problem. Applies all set Constraints.
-	 * 
-	 * @return a solution
-	 * @throws NoFeasibleSolutionException if not solvable
-	 * @throws UnboundedSolutionException  if not solvable
-	 * @throws OpenemsException
-	 */
-	private PointValuePair solveWithAllConstraints()
-			throws NoFeasibleSolutionException, UnboundedSolutionException, OpenemsException {
-		List<Constraint> allConstraints = this.data.getConstraintsForAllInverters();
-		return this.solveWithConstraints(allConstraints);
-	}
-
-	public enum TargetDirection {
-		KEEP_ZERO, CHARGE, DISCHARGE;
-	}
-
-	/**
-	 * Gets the TargetDirection of the Problem, i.e. whether it is a DISCHARGE or
-	 * CHARGE problem.
-	 * 
-	 * @return the target direction
-	 * @throws OpenemsException
-	 */
-	public TargetDirection getTargetDirection() throws OpenemsException {
-		List<Constraint> constraints = this.data.getConstraintsForAllInverters();
-		Constraint equals0 = this.data.createSumOfPConstraint(Relationship.EQUALS, 0);
-		constraints.add(equals0);
-		try {
-			this.solveWithConstraints(constraints);
-			return TargetDirection.KEEP_ZERO;
-		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
-			constraints.remove(equals0);
-			Constraint greaterOrEquals0 = this.data.createSumOfPConstraint(Relationship.GREATER_OR_EQUALS, 0);
-			constraints.add(greaterOrEquals0);
-			try {
-				this.solveWithConstraints(constraints);
-				return TargetDirection.DISCHARGE;
-			} catch (NoFeasibleSolutionException | UnboundedSolutionException e2) {
-				constraints.remove(greaterOrEquals0);
-				Constraint lessOrEquals0 = this.data.createSumOfPConstraint(Relationship.LESS_OR_EQUALS, 0);
-				constraints.add(lessOrEquals0);
-				this.solveWithConstraints(constraints);
-				return TargetDirection.CHARGE;
-			}
-		}
 	}
 
 	/**
@@ -1046,64 +861,6 @@ public class Solver {
 				log.error("No Solution for [" + ess.id() + "] available!");
 			}
 		}
-	}
-
-	/**
-	 * Gets all Constraints converted to Linear Constraints.
-	 * 
-	 * @param data        the data object
-	 * @param constraints a list of Constraints
-	 * @return a list of LinearConstraints
-	 */
-	public static List<LinearConstraint> convertToLinearConstraints(Data data, List<Constraint> constraints) {
-		List<LinearConstraint> result = new ArrayList<>();
-		for (Constraint c : constraints) {
-			if (c.getValue().isPresent()) {
-				double[] cos = Solver.getEmptyCoefficients(data);
-				for (LinearCoefficient co : c.getCoefficients()) {
-					// TODO verify, that ESS is enabled
-					cos[co.getCoefficient().getIndex()] = co.getValue();
-				}
-				org.apache.commons.math3.optim.linear.Relationship relationship = null;
-				switch (c.getRelationship()) {
-				case EQUALS:
-					relationship = org.apache.commons.math3.optim.linear.Relationship.EQ;
-					break;
-				case GREATER_OR_EQUALS:
-					relationship = org.apache.commons.math3.optim.linear.Relationship.GEQ;
-					break;
-				case LESS_OR_EQUALS:
-					relationship = org.apache.commons.math3.optim.linear.Relationship.LEQ;
-					break;
-				}
-				result.add(new LinearConstraint(cos, relationship, c.getValue().get()));
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Gets the linear objective function in the form 1*a + 1*b + 1*c + ...
-	 * 
-	 * @param data the Data object
-	 * @return a LinearObjectiveFunction
-	 */
-	public static LinearObjectiveFunction getDefaultObjectiveFunction(Data data) {
-		double[] cos = Solver.getEmptyCoefficients(data);
-		for (int i = 0; i < cos.length; i++) {
-			cos[i] = 1;
-		}
-		return new LinearObjectiveFunction(cos, 0);
-	}
-
-	/**
-	 * Gets an empty coefficients array required for linear solver.
-	 * 
-	 * @param data the Data object
-	 * @return an array of '0' coefficients
-	 */
-	public static double[] getEmptyCoefficients(Data data) {
-		return new double[data.getCoefficients().getNoOfCoefficients()];
 	}
 
 	/**

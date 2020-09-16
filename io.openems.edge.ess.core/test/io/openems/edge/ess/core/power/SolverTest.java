@@ -2,20 +2,14 @@ package io.openems.edge.ess.core.power;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.junit.Test;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.core.power.Solver.TargetDirection;
-import io.openems.edge.ess.power.api.Inverter;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.ess.power.api.SolverStrategy;
-import io.openems.edge.ess.power.api.ThreePhaseInverter;
 
 public class SolverTest {
 
@@ -183,96 +177,6 @@ public class SolverTest {
 		Data data = prepareData(esss);
 
 		assertEquals(esss.length * 4 /* phases + all */ * 2 /* pwr */, data.getCoefficients().getNoOfCoefficients());
-	}
-
-	@Test
-	public void testInvertersSortByWeight() {
-		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy("ess0").soc(50);
-		ManagedSymmetricEssDummy ess1 = new ManagedSymmetricEssDummy("ess1").soc(70);
-		ManagedSymmetricEssDummy ess2 = new ManagedSymmetricEssDummy("ess2").soc(40);
-		ManagedSymmetricEssDummy ess3 = new ManagedSymmetricEssDummy("ess3").soc(70);
-
-		List<Inverter> is = new ArrayList<>();
-		is.add(new ThreePhaseInverter(ess0.id()));
-		is.add(new ThreePhaseInverter(ess1.id()));
-		is.add(new ThreePhaseInverter(ess2.id()));
-		is.add(new ThreePhaseInverter(ess3.id()));
-
-		// TODO change to non-static
-		// Data.invertersUpdateWeights(is);
-		Data.invertersSortByWeights(is);
-
-		assertEquals("ess1", is.get(0).toString());
-		assertEquals("ess3", is.get(1).toString());
-		assertEquals("ess0", is.get(2).toString());
-		assertEquals("ess2", is.get(3).toString());
-	}
-
-	@Test
-	public void testInvertersAdjustSortingByWeights() {
-		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy("ess0").soc(50);
-		ManagedSymmetricEssDummy ess1 = new ManagedSymmetricEssDummy("ess1").soc(70);
-		ManagedSymmetricEssDummy ess2 = new ManagedSymmetricEssDummy("ess2").soc(40);
-		ManagedSymmetricEssDummy ess3 = new ManagedSymmetricEssDummy("ess3").soc(70);
-
-		List<Inverter> is = new ArrayList<>();
-		Inverter inv0 = new ThreePhaseInverter(ess0.id());
-		Inverter inv1 = new ThreePhaseInverter(ess1.id());
-		Inverter inv2 = new ThreePhaseInverter(ess2.id());
-		Inverter inv3 = new ThreePhaseInverter(ess3.id());
-
-		is.add(inv0);
-		is.add(inv1);
-		is.add(inv2);
-		is.add(inv3);
-
-		// TODO change to non-static
-		// Data.invertersUpdateWeights(is);
-		Data.invertersSortByWeights(is);
-
-		assertEquals("ess1", is.get(0).toString());
-		assertEquals("ess3", is.get(1).toString());
-		assertEquals("ess0", is.get(2).toString());
-		assertEquals("ess2", is.get(3).toString());
-
-		// #1 ess3 weight is slightly below ess0 -> no resorting
-		inv3.setWeight(49);
-		Data.invertersAdjustSortingByWeights(is);
-
-		assertEquals("ess1", is.get(0).toString());
-		assertEquals("ess3", is.get(1).toString());
-		assertEquals("ess0", is.get(2).toString());
-		assertEquals("ess2", is.get(3).toString());
-
-		// #2 ess3 weight is clearly below ess0 -> resort
-		inv3.setWeight(35);
-		Data.invertersAdjustSortingByWeights(is);
-
-		assertEquals("ess1", is.get(0).toString());
-		assertEquals("ess0", is.get(1).toString());
-		assertEquals("ess3", is.get(2).toString());
-		assertEquals("ess2", is.get(3).toString());
-	}
-
-	@Test
-	public void testGetTargetDirection() throws Exception {
-		ManagedSymmetricEss[] esss = prepareEssCluster();
-		Data d = prepareData(esss);
-		Solver s = new Solver(d);
-
-		// #1
-		d.addSimpleConstraint("", esss[0].id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0);
-		assertEquals(TargetDirection.KEEP_ZERO, s.getTargetDirection());
-		d.initializeCycle();
-
-		// #2
-		d.addSimpleConstraint("", esss[0].id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -1);
-		assertEquals(TargetDirection.CHARGE, s.getTargetDirection());
-		d.initializeCycle();
-
-		// #3
-		d.addSimpleConstraint("", esss[0].id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 1);
-		assertEquals(TargetDirection.DISCHARGE, s.getTargetDirection());
 	}
 
 	@Test

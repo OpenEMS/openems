@@ -22,6 +22,7 @@ import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
+import io.openems.edge.ess.core.power.data.WeightsUtil;
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
@@ -70,8 +71,8 @@ public class Data {
 			this.inverters.add(inverter);
 		}
 		// Initially sort Inverters
-		this.invertersUpdateWeights(this.inverters);
-		Data.invertersSortByWeights(this.inverters);
+		WeightsUtil.updateWeightsFromSoc(inverters, this.parent.esss);
+		WeightsUtil.sortByWeights(this.inverters);
 		this.coefficients.initialize(this.symmetricMode, this.essIds);
 	}
 
@@ -105,8 +106,8 @@ public class Data {
 		// Remove Constraints of last Cycle
 		this.constraints.clear();
 		// Update sorting of Inverters
-		this.invertersUpdateWeights(this.inverters);
-		Data.invertersAdjustSortingByWeights(this.inverters);
+		WeightsUtil.updateWeightsFromSoc(this.inverters, this.parent.esss);
+		WeightsUtil.adjustSortingByWeights(this.inverters);
 	}
 
 	public void addConstraint(Constraint constraint) {
@@ -385,23 +386,6 @@ public class Data {
 	}
 
 	/**
-	 * Creates Constraints for Sum of P.
-	 * 
-	 * @param relationship the Relationship between P and value
-	 * @param value        the value
-	 * @return Constraint
-	 * @throws OpenemsException
-	 */
-	public Constraint createSumOfPConstraint(Relationship relationship, int value) throws OpenemsException {
-		List<LinearCoefficient> cos = new ArrayList<>();
-		for (Inverter inverter : this.inverters) {
-			cos.add(new LinearCoefficient(this.coefficients.of(inverter.getEssId(), inverter.getPhase(), Pwr.ACTIVE),
-					1));
-		}
-		return new Constraint("Sum of P = 0", cos, relationship, value);
-	}
-
-	/**
 	 * Creates a simple Constraint with only one Coefficient. createSumOfPConstraint
 	 * 
 	 * @param description  a description for the Constraint
@@ -450,59 +434,6 @@ public class Data {
 		}
 		return result;
 	}
-
-	/**
-	 * Sets the weight of each Inverter according to the SoC of its ESS.
-	 * 
-	 * @param inverters a List of inverters
-	 */
-	private void invertersUpdateWeights(List<Inverter> inverters) {
-		for (Inverter inv : inverters) {
-			ManagedSymmetricEss ess = this.parent.getEss(inv.getEssId());
-			inv.setWeight(ess.getSoc().orElse(50));
-		}
-	}
-
-	/**
-	 * Sorts the list of Inverters by their weights descending.
-	 * 
-	 * @param inverters a List of inverters
-	 */
-	protected static void invertersSortByWeights(List<Inverter> inverters) {
-		Collections.sort(inverters, (e1, e2) -> {
-			// first: sort by weight
-			int weightCompare = Integer.compare(e2.getWeight(), e1.getWeight());
-			if (weightCompare != 0) {
-				return weightCompare;
-			}
-			// second: sort by name
-			return e1.toString().compareTo(e2.toString());
-		});
-	}
-
-	/**
-	 * Adjust the sorting of Inverters by weights.
-	 * 
-	 * <p>
-	 * This is different to 'invertersSortByWeights()' in that it tries to avoid
-	 * resorting the entire list all the time. Instead it only adjusts the list
-	 * slightly.
-	 * 
-	 * @param inverters a List of inverters
-	 */
-	public static void invertersAdjustSortingByWeights(List<Inverter> inverters) {
-		for (int i = 0; i < inverters.size() - 1; i++) {
-			for (int j = i; j < inverters.size() - 1; j++) {
-				int weight1 = inverters.get(j).getWeight();
-				int weight2 = inverters.get(j + 1).getWeight();
-				if (weight1 * SORT_FACTOR < weight2) {
-					Collections.swap(inverters, j, j + 1);
-				}
-			}
-		}
-	}
-
-	private static final float SORT_FACTOR = 1.3f;
 
 	protected ManagedSymmetricEss getEss(String essId) {
 		return this.parent.getEss(essId);

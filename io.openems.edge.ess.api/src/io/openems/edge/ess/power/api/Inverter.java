@@ -75,7 +75,7 @@ public abstract class Inverter {
 	 */
 	private int weight = 1;
 
-	public void setWeight(int weight) {
+	public Inverter setWeight(int weight) {
 		if (weight > 100) {
 			this.weight = 100;
 		} else if (weight < 1) {
@@ -83,10 +83,11 @@ public abstract class Inverter {
 		} else {
 			this.weight = weight;
 		}
+		return this;
 	}
 
 	public int getWeight() {
-		return weight;
+		return this.weight;
 	}
 
 	/**
