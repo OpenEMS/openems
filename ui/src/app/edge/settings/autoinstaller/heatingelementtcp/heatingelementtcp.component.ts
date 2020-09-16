@@ -147,6 +147,15 @@ export class HeatingElementTcpInstallerComponent {
         if (property.name == 'Mode') {
           model[property_id] = 'MANUAL_OFF';
         }
+        if (property.name == 'Output Channel Phase L1') {
+          model[property_id] = "io0/Relay4";
+        }
+        if (property.name == 'Output Channel Phase L2') {
+          model[property_id] = "io0/Relay5";
+        }
+        if (property.name == 'Output Channel Phase L3') {
+          model[property_id] = "io0/Relay6";
+        }
       }
     }
     let properties = this.createProperties(fields, model);
