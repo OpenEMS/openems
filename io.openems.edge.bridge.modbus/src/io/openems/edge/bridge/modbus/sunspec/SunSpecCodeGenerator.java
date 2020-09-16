@@ -26,8 +26,8 @@ import com.google.common.base.CaseFormat;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.CheckedFunction;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingFunction;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.XmlUtils;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecCodeGenerator.Point.Symbol;
@@ -298,7 +298,7 @@ public class SunSpecCodeGenerator {
 
 		String scaleFactor = XmlUtils.getAsStringOrElse(attrs, "sf", null);
 		String unitString = XmlUtils.getAsStringOrElse(attrs, "units", "");
-		final CheckedFunction<String, Unit> toUnit = (s) -> {
+		final ThrowingFunction<String, Unit> toUnit = (s) -> {
 			s = s.trim();
 			if (s.contains(" ")) {
 				s = s.substring(0, s.indexOf(" "));

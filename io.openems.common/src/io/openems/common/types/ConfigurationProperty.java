@@ -4,8 +4,8 @@ import java.util.Optional;
 
 import com.google.gson.JsonElement;
 
-import io.openems.common.exceptions.CheckedFunction;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingFunction;
 
 /**
  * Holds the value of a configuration property.
@@ -32,7 +32,7 @@ public class ConfigurationProperty<T> {
 	}
 
 	public static <T> ConfigurationProperty<T> fromJsonElement(Optional<JsonElement> element,
-			CheckedFunction<JsonElement, T> function) throws OpenemsNamedException {
+			ThrowingFunction<JsonElement, T> function) throws OpenemsNamedException {
 		if (element.isPresent()) {
 			if (element.get().isJsonNull()) {
 				return ConfigurationProperty.asNull();

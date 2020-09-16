@@ -7,14 +7,14 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.CheckedRunnable;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingRunnable;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.pvinverter.solarlog.SolarLog.ChannelId;
 
-public class SetPvLimitHandler implements CheckedRunnable {
+public class SetPvLimitHandler implements ThrowingRunnable {
 
 	private final Logger log = LoggerFactory.getLogger(SetPvLimitHandler.class);
 	private final SolarLog parent;

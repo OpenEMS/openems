@@ -1,12 +1,13 @@
 package io.openems.edge.core.cycle;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Stopwatch;
 
 import info.faljse.SDNotify.SDNotify;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -21,8 +22,6 @@ public class CycleWorker extends AbstractWorker {
 	private final Logger log = LoggerFactory.getLogger(CycleWorker.class);
 	private final CycleImpl parent;
 
-	private Instant startTime = null;
-
 	public CycleWorker(CycleImpl parent) {
 		this.parent = parent;
 	}
@@ -34,6 +33,9 @@ public class CycleWorker extends AbstractWorker {
 
 	@Override
 	protected void forever() {
+		// Prepare Cycle-Time measurement
+		Stopwatch stopwatch = Stopwatch.createStarted();
+
 		// Kick Operating System Watchdog
 		String socketName = System.getenv().get("NOTIFY_SOCKET");
 		if (socketName != null && socketName.length() != 0) {
@@ -171,12 +173,10 @@ public class CycleWorker extends AbstractWorker {
 			}
 		}
 
-		// Measure actual cycle time
-		Instant now = Instant.now();
-		if (this.startTime != null) {
-			this.parent._setMeasuredCycleTime(Duration.between(this.startTime, now).toMillis());
-		}
-		this.startTime = now;
+		// Measure actual Cycle-Time
+		long measuredCycleTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+		this.parent.logInfo(this.log, "Measured Cycle-Time [" + measuredCycleTime + "ms]");
+		this.parent._setMeasuredCycleTime(measuredCycleTime);
 	}
 
 }

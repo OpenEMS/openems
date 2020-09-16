@@ -1,4 +1,4 @@
-package io.openems.common.exceptions;
+package io.openems.common.function;
 
 import java.util.function.Function;
 
@@ -6,14 +6,15 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 /**
  * This interface is similar to the java.util interface {@link Function}.
- * Difference is, that it allows the apply() method to throw an
- * {@link OpenemsNamedException}.
+ * Difference is, that it allows the apply() method to throw a defined
+ * {@link Exception}.
  *
  * @param <T> the apply methods argument type
- * @param <T> the apply methods return type
+ * @param <R> the apply methods return type
+ * @param <E> the exception type
  */
 @FunctionalInterface
-public interface CheckedFunction<T, R> {
+public interface ThrowingFunction<T, R> {
 
 	public R apply(T t) throws OpenemsNamedException;
 
