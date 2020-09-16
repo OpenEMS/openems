@@ -47,6 +47,7 @@ public class EvcsClusterTest {
 	private static ChannelAddress evcs0SetPowerRequest = new ChannelAddress("evcs0", "SetChargePowerRequest");
 	private static ChannelAddress evcs0SetChargePowerLimit = new ChannelAddress("evcs0", "SetChargePowerLimit");
 	private static ChannelAddress evcs0MaximumHardwarePower = new ChannelAddress("evcs0", "MaximumHardwarePower");
+	private static ChannelAddress evcs0MinimumHardwarePower = new ChannelAddress("evcs0", "MinimumHardwarePower");
 
 	private static ChannelAddress evcs1Status = new ChannelAddress("evcs1", "Status");
 	private static ChannelAddress evcs1ChargePower = new ChannelAddress("evcs1", "ChargePower");
@@ -54,6 +55,7 @@ public class EvcsClusterTest {
 	private static ChannelAddress evcs1SetPowerRequest = new ChannelAddress("evcs1", "SetChargePowerRequest");
 	private static ChannelAddress evcs1SetChargePowerLimit = new ChannelAddress("evcs1", "SetChargePowerLimit");
 	private static ChannelAddress evcs1MaximumHardwarePower = new ChannelAddress("evcs1", "MaximumHardwarePower");
+	private static ChannelAddress evcs1MinimumHardwarePower = new ChannelAddress("evcs1", "MinimumHardwarePower");
 
 	private static ChannelAddress evcs2Status = new ChannelAddress("evcs2", "Status");
 	private static ChannelAddress evcs2SetPowerRequest = new ChannelAddress("evcs2", "SetChargePowerRequest");
@@ -97,8 +99,6 @@ public class EvcsClusterTest {
 						.input(meterGridActivePowerL2, 0) //
 						.input(meterGridActivePowerL3, 0) //
 						.input(essAllowedDischargePower, 0) //
-						.output(evcs0SetChargePowerLimit, 0)) //
-				.next(new TestCase() //
 						.output(evcsClusterMaximumPowerToDistribute, 21000)) //
 				.next(new TestCase() //
 						.input(sumEssActivePower, -5000) //
@@ -325,6 +325,8 @@ public class EvcsClusterTest {
 						.input(evcs1SetPowerRequest, 15000) //
 						.input(evcs0MaximumPower, 22000) //
 						.input(evcs1MaximumPower, 22000) //
+						.input(evcs0MinimumHardwarePower, 4500) //
+						.input(evcs1MinimumHardwarePower, 4500) //
 						.input(evcs0MaximumHardwarePower, 22000) //
 						.input(evcs1MaximumHardwarePower, 22000) //
 						.input(evcs0Status, Status.CHARGING) //
@@ -434,7 +436,8 @@ public class EvcsClusterTest {
 						.input(evcs1MaximumHardwarePower, 22000) //
 						.input(evcs0Status, Status.CHARGING) //
 						.input(evcs1Status, Status.CHARGING)) //
-				.next(new TestCase().output(evcsClusterMaximumPowerToDistribute, 54000) //
+				.next(new TestCase() //
+						.output(evcsClusterMaximumPowerToDistribute, 54000) //
 						.output(evcs0SetChargePowerLimit, 15000) //
 						.output(evcs1SetChargePowerLimit, 15000)) //
 		;
@@ -480,7 +483,8 @@ public class EvcsClusterTest {
 						.input(evcs1MaximumHardwarePower, 11000) //
 						.input(evcs0Status, Status.CHARGING) //
 						.input(evcs1Status, Status.CHARGING)) //
-				.next(new TestCase().output(evcsClusterMaximumPowerToDistribute, 32000) //
+				.next(new TestCase() //
+						.output(evcsClusterMaximumPowerToDistribute, 32000) //
 						.output(evcs0SetChargePowerLimit, 11000) //
 						.output(evcs1SetChargePowerLimit, 11000)) //
 		;
@@ -526,9 +530,62 @@ public class EvcsClusterTest {
 						.input(evcs1MaximumHardwarePower, 22000) //
 						.input(evcs0Status, Status.CHARGING) //
 						.input(evcs1Status, Status.CHARGING)) //
-				.next(new TestCase().output(evcsClusterMaximumPowerToDistribute, 21000) //
+				.next(new TestCase() //
+						.output(evcsClusterMaximumPowerToDistribute, 21000) //
 						.output(evcs0SetChargePowerLimit, 5000) //
 						.output(evcs1SetChargePowerLimit, 9000)) //
+		;
+	}
+
+	@Test
+	public void clusterDistribution_chargeTest_minimumPower() throws Exception {
+		String[] EVCS_IDS = { "evcs0", "evcs1" };
+		EVCS_TARGET = getEvcsTarget(EVCS_IDS);
+
+		new ComponentTest(new EvcsClusterPeakShaving()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("sum", new DummySum()) //
+				.addReference("addEvcs", EVCS0) //
+				.addReference("addEvcs", EVCS1) //
+				.addReference("addEvcs", EVCS2) //
+				.addReference("addEvcs", EVCS3) //
+				.addReference("addEvcs", EVCS4) //
+				.addReference("meter", METER) //
+				.addReference("ess", ESS) //
+				.activate(MyConfigPeakShaving.create() //
+						.setEssId(ESS.id()) //
+						.setMeterId(METER.id()) //
+						.setHardwarePowerLimit(HARDWARE_POWER_LIMIT_PER_PHASE) //
+						.setEvcsIds(EVCS_IDS) //
+						.setEvcsTarget(EVCS_TARGET) //
+						.build()) //
+				.next(new TestCase() //
+						.input(sumEssActivePower, 0) //
+						.input(meterGridActivePower, 0) //
+						.input(meterGridActivePowerL1, 0) //
+						.input(meterGridActivePowerL2, 0) //
+						.input(meterGridActivePowerL3, 0) //
+						.input(essAllowedDischargePower, 0) //
+						.input(evcs0SetPowerRequest, 15000) //
+						.input(evcs1SetPowerRequest, 15000) //
+						.input(evcs0ChargePower, 0) //
+						.input(evcs1ChargePower, 0) //
+						.input(evcs0MaximumPower, 5000) //
+						.input(evcs1MaximumPower, 9000) //
+						.input(evcs0MaximumHardwarePower, 22000) //
+						.input(evcs1MaximumHardwarePower, 22000) //
+						.input(evcs0Status, Status.READY_FOR_CHARGING) //
+						.input(evcs1Status, Status.READY_FOR_CHARGING)) //
+				.next(new TestCase() //
+						.output(evcsClusterMaximumPowerToDistribute, 21000) //
+						.output(evcs0SetChargePowerLimit, 4500) //
+						.output(evcs1SetChargePowerLimit, 4500)) //
+				.next(new TestCase() //
+						.input(evcs0MinimumHardwarePower, 9000) //
+						.input(evcs1MinimumHardwarePower, 6900) //
+						.output(evcs0SetChargePowerLimit, 9000) //
+						.output(evcs1SetChargePowerLimit, 6900)) //
 		;
 	}
 

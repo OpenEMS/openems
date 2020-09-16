@@ -189,8 +189,8 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 			 * Distributes the available Power to the active EVCSs
 			 */
 			for (ManagedEvcs evcs : activeEvcss) {
-				
-				//int guaranteedPower = evcs.getMinimumPowerChannel().getNextValue().orElse(0); 
+
+				// int guaranteedPower = evcs.getMinimumPowerChannel().getNextValue().orElse(0);
 				int guaranteedPower = evcs.getMinimumPowerChannel().getNextValue().orElse(0);
 
 				// Power left for the this EVCS including its guaranteed power
@@ -231,10 +231,18 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 		}
 	}
 
+	/**
+	 * Results the power that should be guaranteed for one EVCS.
+	 * 
+	 * @param evcs EVCS whose limits should be used.
+	 * @return Guaranteed power that should/can be used.
+	 */
 	private int getGuaranteedPower(Evcs evcs) {
 		int minGuarantee = this.getMinimumChargePowerGuarantee();
+		int minHW = evcs.getMinimumHardwarePower().orElse(minGuarantee);
 		int evcsMaxPower = evcs.getMaximumPower().orElse(evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT));
-		return evcsMaxPower > minGuarantee ? minGuarantee : evcsMaxPower;
+		minGuarantee = evcsMaxPower > minGuarantee ? minGuarantee : evcsMaxPower;
+		return minHW > minGuarantee ? minHW : minGuarantee;
 	}
 
 	/**
