@@ -109,14 +109,22 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException {
 		this.logWarn(this.log, "I do not support querying historic data");
-		return new TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>();
+		return new TreeMap<>();
 	}
 
 	@Override
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
 		this.logWarn(this.log, "I do not support querying historic energy");
-		return null;
+		return new TreeMap<>();
+	}
+
+	@Override
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			throws OpenemsNamedException {
+		this.logWarn(this.log, "I do not support querying historic energy per period");
+		return new TreeMap<>();
 	}
 
 }

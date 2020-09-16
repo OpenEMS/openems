@@ -166,7 +166,14 @@ export class Service implements ErrorHandler {
       let route = activatedRoute.snapshot;
       let edgeId = route.params["edgeId"];
       if (edgeId == null) {
-        resolve(null);
+        // allow modal components to get edge id
+        if (route.url.length == 0) {
+          this.getCurrentEdge().then(edge => {
+            resolve(edge);
+          })
+        } else {
+          resolve(null);
+        }
       }
 
       let subscription: Subscription = null;

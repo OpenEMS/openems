@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.soltaro.SoltaroBattery;
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.controller.IState;
 import io.openems.edge.battery.soltaro.controller.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -17,7 +17,7 @@ public class FullCharge extends BaseState implements IState {
 
 	private int criticalHighCellVoltage;
 
-	public FullCharge(ManagedSymmetricEss ess, SoltaroBattery bms, int criticalHighCellVoltage) {
+	public FullCharge(ManagedSymmetricEss ess, Battery bms, int criticalHighCellVoltage) {
 		super(ess, bms);
 		this.criticalHighCellVoltage = criticalHighCellVoltage;
 	}
@@ -44,7 +44,7 @@ public class FullCharge extends BaseState implements IState {
 
 	@Override
 	public void act() throws OpenemsNamedException {
-		log.info("Set charge power to max");
+		this.log.info("Set charge power to max");
 		chargeEssWithPercentOfMaxPower(MAX_POWER_PERCENT);
 	}
 

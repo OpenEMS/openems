@@ -164,6 +164,14 @@
               ],
               "baseHref": "/",
               "outputPath": "target/edge"
+            },
+            "gitpod": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/gitpod.ts"
+                }
+              ]
             }
           }
         },
@@ -187,6 +195,9 @@
             },
             "edge": {
               "browserTarget": "app:build:edge"
+            },
+            "gitpod": {
+              "browserTarget": "app:build:gitpod"
             }
           }
         },
