@@ -120,6 +120,15 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	@Override
 	public void run() throws OpenemsNamedException {
 
+		/*
+		 * Stop early if charging is disabled
+		 */
+		if (!config.enabledCharging()) {
+			this.evcs.setChargePowerLimit(0);
+			this.resetMinMaxChannels();
+			return;
+		}
+
 		adaptConfigToHardwareLimits();
 
 		this.evcs.setEnergyLimit(config.energySessionLimit());
@@ -138,8 +147,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			case NOT_READY_FOR_CHARGING:
 			case ENERGY_LIMIT_REACHED:
 				this.evcs.setChargePowerRequest(0);
-				this.evcs._setMinimumPower(0);
-				this.evcs._setMaximumPower(null);
+				resetMinMaxChannels();
 				return;
 			case CHARGING_REJECTED:
 			case READY_FOR_CHARGING:
@@ -148,14 +156,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			case CHARGING:
 				break;
 			}
-		}
-
-		/*
-		 * Stop early if charging is disabled
-		 */
-		if (!config.enabledCharging()) {
-			this.evcs.setChargePowerLimit(0);
-			return;
 		}
 
 		int nextChargePower = 0;
@@ -245,6 +245,14 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	}
 
 	/**
+	 * Reseting the minimum and maximum power channels.
+	 */
+	private void resetMinMaxChannels() {
+		evcs._setMinimumPower(0);
+		evcs._setMaximumPower(null);
+	}
+
+	/**
 	 * Adapt the charge limits to the given hardware limits of the EVCS.
 	 */
 	private void adaptConfigToHardwareLimits() {
@@ -317,8 +325,14 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				Controller.getModbusSlaveNatureTable(accessMode));
 	}
 
+	/**
+	 * Updating the configuration property to given value.
+	 * 
+	 * @param targetProperty Property that should be changed
+	 * @param requiredValue  Value that should be set
+	 */
 	public void configUpdate(String targetProperty, Object requiredValue) {
-		// final String targetProperty = property + ".target";
+
 		Configuration c;
 		try {
 			String pid = this.servicePid();

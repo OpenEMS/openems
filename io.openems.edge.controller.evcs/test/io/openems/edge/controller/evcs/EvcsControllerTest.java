@@ -256,4 +256,58 @@ public class EvcsControllerTest {
 						.output(evcs0MaximumPower, null)) //
 		;
 	}
+	
+	@Test
+	public void clusterTestDisabledCharging() throws Exception {
+
+		ENABLE_CHARGING = false;
+		FORCE_CHARGE_MIN_POWER = 3333;
+		CHARGE_MODE = ChargeMode.EXCESS_POWER;
+		PRIORITY = Priority.CAR;
+
+		new ControllerTest(new EvcsController()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("sum", new DummySum()) //
+				.addReference("evcs", EVCS) //
+				.addReference("ess", ESS) //
+				.activate(MyConfig.create() //
+						.setId("ctrlEvcs0") //
+						.setEvcsId(EVCS_ID) //
+						.setEnableCharging(ENABLE_CHARGING) //
+						.setChargeMode(CHARGE_MODE) //
+						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
+						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
+						.setPriority(PRIORITY) //
+						.setEssId(ESS_ID) //
+						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
+						.build()) //
+				.next(new TestCase() //
+						.input(sumEssActivePower, -10000) //
+						.input(evcs0IsClustered, true) //
+						.input(sumGridActivePower, 0) //
+						.input(evcs0ChargePower, 0) //
+						.input(evcs0Status, Status.CHARGING) //
+						.output(evcs0SetChargePowerLimit, 0))
+				.next(new TestCase().input(sumEssActivePower, -6000) //
+						.input(evcs0IsClustered, true) //
+						.input(sumGridActivePower, 0) //
+						.input(evcs0ChargePower, 0) //
+						.input(evcs0Status, Status.NOT_READY_FOR_CHARGING) //
+						.output(evcs0SetChargePowerLimit, 0)) //
+				.next(new TestCase().input(sumEssActivePower, -6000) //
+						.input(evcs0IsClustered, true) //
+						.input(sumGridActivePower, 0) //
+						.input(evcs0ChargePower, 0) //
+						.input(evcs0Status, null) //
+						.output(evcs0SetChargePowerLimit, 0)) //
+				.next(new TestCase().input(sumEssActivePower, -6000) //
+						.input(evcs0IsClustered, true) //
+						.input(sumGridActivePower, 0) //
+						.input(evcs0ChargePower, 0) //
+						.input(evcs0Status, Status.CHARGING_REJECTED) //
+						.output(evcs0SetChargePowerLimit, 0) //
+						.output(evcs0MaximumPower, null)) //
+		;
+	}
 }
