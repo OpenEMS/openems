@@ -32,7 +32,7 @@ public class ConfigurationProperty<T> {
 	}
 
 	public static <T> ConfigurationProperty<T> fromJsonElement(Optional<JsonElement> element,
-			ThrowingFunction<JsonElement, T> function) throws OpenemsNamedException {
+			ThrowingFunction<JsonElement, T, OpenemsNamedException> function) throws OpenemsNamedException {
 		if (element.isPresent()) {
 			if (element.get().isJsonNull()) {
 				return ConfigurationProperty.asNull();

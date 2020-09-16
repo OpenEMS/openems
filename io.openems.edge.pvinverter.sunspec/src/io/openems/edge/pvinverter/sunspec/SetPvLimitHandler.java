@@ -13,7 +13,7 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
-public class SetPvLimitHandler implements ThrowingRunnable {
+public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException> {
 
 	private final AbstractSunSpecPvInverter parent;
 

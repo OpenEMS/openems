@@ -14,7 +14,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.pvinverter.solarlog.SolarLog.ChannelId;
 
-public class SetPvLimitHandler implements ThrowingRunnable {
+public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException> {
 
 	private final Logger log = LoggerFactory.getLogger(SetPvLimitHandler.class);
 	private final SolarLog parent;

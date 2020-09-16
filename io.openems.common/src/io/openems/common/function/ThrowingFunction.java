@@ -2,8 +2,6 @@ package io.openems.common.function;
 
 import java.util.function.Function;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-
 /**
  * This interface is similar to the java.util interface {@link Function}.
  * Difference is, that it allows the apply() method to throw a defined
@@ -14,8 +12,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
  * @param <E> the exception type
  */
 @FunctionalInterface
-public interface ThrowingFunction<T, R> {
+public interface ThrowingFunction<T, R, E extends Exception> {
 
-	public R apply(T t) throws OpenemsNamedException;
+	public R apply(T t) throws E;
 
 }
