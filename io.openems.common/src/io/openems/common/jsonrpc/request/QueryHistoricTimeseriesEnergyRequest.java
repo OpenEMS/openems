@@ -19,7 +19,13 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 
 /**
- * Represents a JSON-RPC Request for 'queryHistoricTimeseriesData'.
+ * Represents a JSON-RPC Request for 'queryHistoricTimeseriesEnergy'.
+ * 
+ * <p>
+ * This Request is for use-cases where you want to get the energy for one period
+ * per Channel, e.g. to show the entire energy over a period as a text. The
+ * energy is calculated by subtracting first value of the period ('fromDate')
+ * from the last value of the period ('toDate').
  * 
  * <pre>
  * {

@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.Context;
@@ -66,7 +65,7 @@ import io.openems.edge.common.taskmanager.Priority;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
 public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implements //
-		ClusterVersionC, SoltaroBattery, SoltaroBatteryVersionC, SoltaroCluster, //
+		ClusterVersionC, SoltaroBatteryVersionC, SoltaroCluster, //
 		Battery, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(ClusterVersionCImpl.class);
@@ -86,7 +85,6 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
-				SoltaroBattery.ChannelId.values(), //
 				SoltaroBatteryVersionC.ChannelId.values(), //
 				SoltaroCluster.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
@@ -221,8 +219,8 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 				/*
 				 * BMS System Running Status Registers
 				 */
-				new FC3ReadRegistersTask(0x1044, Priority.LOW, //
-						m(SoltaroBattery.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
+				new FC3ReadRegistersTask(0x1044, Priority.HIGH, //
+						m(SoltaroCluster.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
 						m(SoltaroCluster.ChannelId.SYSTEM_CURRENT, new UnsignedWordElement(0x1045), //
 								ElementToChannelConverter.SCALE_FACTOR_2),
 						new DummyRegisterElement(0x1046), //

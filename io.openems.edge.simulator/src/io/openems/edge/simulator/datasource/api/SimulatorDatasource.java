@@ -25,9 +25,9 @@ public interface SimulatorDatasource {
 	 * 
 	 * @param <T>       the type
 	 * @param type      the expected type
-	 * @param channelId the Channel-Id
+	 * @param channelId the Channel-Address
 	 * @return the value
 	 */
-	<T> T getValue(OpenemsType type, String channelId);
+	<T> T getValue(OpenemsType type, String channelAddress);
 
 }
