@@ -8,15 +8,41 @@
 
             <ng-container *ngFor="let component of essComponents">
                 <ion-card-content>
-                    <ng-container *ngIf="currentData[component.id + '/HasError'] === 1">
-                        <table class="full_width">
+                    <table class="full_width">
+                        <tr>
+                            <td style="width: 100%">
+                                {{component.alias}}
+                            </td>
+                        </tr>
+                        <ng-container [ngSwitch]="currentData[component.id + '/InverterStatus']">
                             <tr>
-                                <td style="width:100%" *ngIf="component.id == component.alias">{{component.id}}
+                                <td *ngSwitchCase="1">
+                                    Off/Standby
                                 </td>
-                                <td style="width: 100%" *ngIf="component.id != component.alias">
-                                    {{component.alias}}
+                                <td *ngSwitchCase="4">
+                                    Inverter Test
+                                </td>
+                                <td *ngSwitchCase="7">
+                                    PV Power Test
+                                </td>
+                                <td *ngSwitchCase="8">
+                                    Battery Test
+                                </td>
+                                <td *ngSwitchCase="9">
+                                    Iso Test
+                                </td>
+                                <td *ngSwitchCase="10">
+                                    Grid Test
+                                </td>
+                                <td *ngSwitchCase="11">
+                                    Inverter Test
                                 </td>
                             </tr>
+                        </ng-container>
+
+                    </table>
+                    <ng-container *ngIf="currentData[component.id + '/HasError'] === 1; else noError">
+                        <table class="full_width">
                             <tr *ngFor="let error of currentData[component.id + '/ErrorList'] | toarray">
                                 <td style="width: 100%">
                                     <ion-text color="danger">{{ error }}</ion-text>
@@ -24,6 +50,13 @@
                             </tr>
                         </table>
                     </ng-container>
+                    <ng-template #noError>
+                        <table class="full_width">
+                            <tr>
+                                <td class="full_width">Keine Meldungen</td>
+                            </tr>
+                        </table>
+                    </ng-template>
                 </ion-card-content>
             </ng-container>
         </ion-card>
