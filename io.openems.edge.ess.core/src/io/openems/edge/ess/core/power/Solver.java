@@ -699,22 +699,22 @@ public class Solver {
 
 	private TargetDirection activeTargetDirection = null;
 	private int targetDirectionChangedSince = 0;
-	private int lastDisabledInverterIndex = -1;
 
 	/**
 	 * Finds the target Inverters, i.e. the Inverters that are minimally required to
 	 * fulfill all Constraints.
 	 * 
 	 * <p>
-	 * This method therefore removes inverters till it finds a minimum setup. It
-	 * uses an algorithm similarly to binary tree search to find the minimum
-	 * required number of inverters.
+	 * This method therefore tries to remove inverters in order until there is no
+	 * solution anymore. It than re-adds that inverter and returns the solution.
 	 * 
 	 * @param allInverters    a list of all inverters
 	 * @param targetDirection the target direction
 	 * @return a list of target inverters
 	 */
 	private List<Inverter> getTargetInverters(List<Inverter> allInverters, TargetDirection targetDirection) {
+		List<Inverter> disabledInverters = new ArrayList<>();
+
 		// Change target direction only once in a while
 		if (this.activeTargetDirection == null || targetDirectionChangedSince > 100) {
 			if (this.debugMode) {
@@ -732,47 +732,25 @@ public class Solver {
 		// For CHARGE take list as it is; for DISCHARGE reverse it. This prefers
 		// high-weight inverters (e.g. high state-of-charge) on DISCHARGE and low-weight
 		// inverters (e.g. low state-of-charge) on CHARGE.
-		List<Inverter> sortedInverters;
+		List<Inverter> allInvertersTargetDirection;
 		if (this.activeTargetDirection == TargetDirection.DISCHARGE) {
-			sortedInverters = Lists.reverse(allInverters);
+			allInvertersTargetDirection = Lists.reverse(allInverters);
 		} else {
-			sortedInverters = allInverters;
+			allInvertersTargetDirection = allInverters;
 		}
 
-		// currently highest index in the sortedInverters list, that solved successfully
-		int highestSolvedIndex = -1;
-		// currently lowest index in the sortedInverter list, that solved unsuccessfully
-		int lowestUnsolvedIndex = sortedInverters.size();
-		// current index in the binary search
-		int index;
-		if (this.lastDisabledInverterIndex == -1) {
-			// initially: start in the middle
-			index = sortedInverters.size() / 2;
-		} else {
-			// use index from last run as start; if this run is similar to the last run,
-			// solveWithDisabledInverters will be called only twice.
-			index = Math.min(this.lastDisabledInverterIndex, sortedInverters.size() - 1);
-		}
-
-		do {
+		for (Inverter inverter : allInvertersTargetDirection) {
+			disabledInverters.add(inverter);
 			try {
-				this.solveWithDisabledInverters(sortedInverters.subList(0, index + 1));
-				highestSolvedIndex = index;
+				this.solveWithDisabledInverters(disabledInverters);
 			} catch (NoFeasibleSolutionException | UnboundedSolutionException | OpenemsException e) {
-				lowestUnsolvedIndex = index;
+				disabledInverters.remove(inverter);
+				break;
 			}
-			// next binary search index: middle between lowestUnsolvedIndex and
-			// highestSolvedIndex
-			index = (lowestUnsolvedIndex + highestSolvedIndex) / 2;
-
-		} while (lowestUnsolvedIndex - highestSolvedIndex > 1 /* no better solution possible */);
-
-		// keep the last index as a result to improve speed of a similar next run
-		this.lastDisabledInverterIndex = index;
-
+		}
 		// build result
 		List<Inverter> result = new ArrayList<>(allInverters);
-		for (Inverter disabledInverter : sortedInverters.subList(0, index + 1)) {
+		for (Inverter disabledInverter : disabledInverters) {
 			result.remove(disabledInverter);
 		}
 		// get result in the order of preferred usage
