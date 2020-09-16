@@ -323,16 +323,16 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               new ChannelAddress('_sum', 'ProductionActiveEnergy'),
               new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
               new ChannelAddress('_sum', 'GridSellActiveEnergy'),
-              new ChannelAddress('_sum', 'ActiveChargeEnergy'),
-              new ChannelAddress('_sum', 'ActiveDischargeEnergy'),
+              new ChannelAddress('_sum', 'EssActiveChargeEnergy'),
+              new ChannelAddress('_sum', 'EssActiveDischargeEnergy'),
               new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
             ]
             this.service.queryEnergy(this.period.from, this.period.to, kwhChannels).then(response => {
               let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"];
               let kwhGridBuyValue = response.result.data["_sum/GridBuyActiveEnergy"];
               let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
-              let kwhChargeValue = response.result.data["_sum/ActiveChargeEnergy"];
-              let kwhDischargeValue = response.result.data["_sum/ActiveDischargeEnergy"];
+              let kwhChargeValue = response.result.data["_sum/EssActiveChargeEnergy"];
+              let kwhDischargeValue = response.result.data["_sum/EssActiveDischargeEnergy"];
               let kwhConsumptionValue = response.result.data["_sum/ConsumptionActiveEnergy"];
 
               datasets.forEach(dataset => {
