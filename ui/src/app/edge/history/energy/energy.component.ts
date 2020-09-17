@@ -25,6 +25,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
   private static readonly EXCEL_EXTENSION = '.xlsx';
 
+  public chartType: string = "line";
+
   @Input() private period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
@@ -121,6 +123,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.service.getCurrentEdge().then(edge => {
       this.service.getConfig().then(config => {
         if (this.service.periodString != "week" || this.service.isKwhAllowed(edge) == false) {
+          this.chartType = "line";
           this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
@@ -380,6 +383,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             return;
           });
         } else if (this.service.periodString == "week" && this.service.isKwhAllowed(edge) == true) {
+          this.chartType = "bar";
           this.getEnergyChannelAddresses(edge, config).then(channelAddresses => {
             let resolution: number = 3600 // resolution for value per hour
             this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to, channelAddresses, resolution).then(response => {
@@ -389,87 +393,102 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               // convert datasets
               let datasets = [];
 
-              // left and right stack
               // Direct Consumption
+
+              let directConsumptionData: null | number[] = null;
+
               if ('_sum/ProductionActiveEnergy' && '_sum/EssActiveChargeEnergy' && '_sum/GridSellActiveEnergy' in result.data) {
                 let directConsumption = [];
                 result.data['_sum/ProductionActiveEnergy'].forEach((value, index) => {
                   directConsumption.push(value - result.data['_sum/GridSellActiveEnergy'][index] - result.data['_sum/EssActiveChargeEnergy'][index]);
                 });
 
-                let directConsumptionData = directConsumption.map(value => {
+                directConsumptionData = directConsumption.map(value => {
                   if (value == null) {
                     return null
                   } else {
                     return value / 1000; // convert to kWh
                   }
                 });
-
-                datasets.push({
-                  label: "Direktverbrauch",
-                  backgroundColor: 'rgba(128,128,0,1)',
-                  data: directConsumptionData,
-                  stack: "Stack0"
-                })
-
-                datasets.push({
-                  label: "Direktverbrauch",
-                  backgroundColor: 'rgba(128,128,0,1)',
-                  data: directConsumptionData,
-                  stack: "Stack1"
-                })
               }
 
               // left stack
-              if ('_sum/GridSellActiveEnergy' in result.data) {
-                let gridSellData = result.data['_sum/GridSellActiveEnergy'].map(value => {
-                  if (value == null) {
-                    return null
-                  } else {
-                    return value / 1000; // convert to kW
-                  }
-                });
+
+              /*
+               * Direct Consumption
+               */
+              if (directConsumptionData != null) {
                 datasets.push({
-                  label: "Netzeinspeisung",
-                  backgroundColor: 'rgba(0,0,200,1)',
-                  data: gridSellData,
-                  stack: "Stack 0"
+                  label: "Direktverbrauch",
+                  data: directConsumptionData,
+                  stack: "Stack0"
+                })
+                this.colors.push({
+                  backgroundColor: 'rgba(128,128,0,1)'
                 })
               }
 
+              /*
+               * Storage Charge
+               */
               if ('_sum/EssActiveChargeEnergy' in result.data) {
                 let chargeData = result.data['_sum/EssActiveChargeEnergy'].map(value => {
                   if (value == null) {
                     return null
                   } else {
-                    return value / 1000; // convert to kW
+                    return value / 1000; // convert to kWh
                   }
                 });
                 datasets.push({
                   label: "Beladung",
-                  backgroundColor: 'rgba(0,223,0,1)',
                   data: chargeData,
                   stack: "Stack 0"
+                })
+                this.colors.push({
+                  backgroundColor: 'rgba(0,223,0,1)'
+                })
+              }
+
+              /*
+               * Sell to Grid
+               */
+              if ('_sum/GridSellActiveEnergy' in result.data) {
+                let gridSellData = result.data['_sum/GridSellActiveEnergy'].map(value => {
+                  if (value == null) {
+                    return null
+                  } else {
+                    return value / 1000; // convert to kWh
+                  }
+                });
+                datasets.push({
+                  label: "Netzeinspeisung",
+                  data: gridSellData,
+                  stack: "Stack 0"
+                })
+                this.colors.push({
+                  backgroundColor: 'rgba(0,0,200,1)'
                 })
               }
 
               // right stack
-              if ('_sum/GridBuyActiveEnergy' in result.data) {
-                let gridBuyData = result.data['_sum/GridBuyActiveEnergy'].map(value => {
-                  if (value == null) {
-                    return null
-                  } else {
-                    return value / 1000; // convert to kW
-                  }
-                });
+
+              /*
+               * Direct Consumption
+               */
+              if (directConsumptionData != null) {
                 datasets.push({
-                  label: "Netzbezug",
-                  backgroundColor: 'rgba(0,0,0,1)',
-                  data: gridBuyData,
-                  stack: "Stack 1"
+                  label: "Direktverbrauch",
+                  data: directConsumptionData,
+                  stack: "Stack1"
+                })
+                this.colors.push({
+                  backgroundColor: 'rgba(128,128,0,1)'
                 })
               }
 
+              /*
+               * Storage Discharge
+               */
               if ('_sum/EssActiveDischargeEnergy' in result.data) {
                 let dischargeData = result.data['_sum/EssActiveDischargeEnergy'].map(value => {
                   if (value == null) {
@@ -480,16 +499,40 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 });
                 datasets.push({
                   label: "Entladung",
-                  backgroundColor: 'rgba(200,0,0,1)',
                   data: dischargeData,
                   stack: "Stack 1"
                 })
+                this.colors.push({
+                  backgroundColor: 'rgba(200,0,0,1)'
+                })
               }
 
+              /*
+               * Buy from Grid
+               */
+              if ('_sum/GridBuyActiveEnergy' in result.data) {
+                let gridBuyData = result.data['_sum/GridBuyActiveEnergy'].map(value => {
+                  if (value == null) {
+                    return null
+                  } else {
+                    return value / 1000; // convert to kW
+                  }
+                });
+                datasets.push({
+                  label: "Netzbezug",
+                  data: gridBuyData,
+                  stack: "Stack 1"
+                })
+                this.colors.push({
+                  backgroundColor: 'rgba(0,0,0,1)'
+                })
+              }
+              this.datasets = datasets;
+              this.loading = false;
+              this.service.stopSpinner(this.spinnerId);
             })
           })
         }
-
       }).catch(reason => {
         console.error(reason); // TODO error message
         this.initializeChart();
@@ -588,44 +631,52 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   protected setLabel() {
     let translate = this.translate;
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-
-    // adds second y-axis to chart
-    options.scales.yAxes.push({
-      id: 'yAxis2',
-      position: 'right',
-      scaleLabel: {
-        display: true,
-        labelString: "%",
-        padding: -2,
-        fontSize: 11
-      },
-      gridLines: {
-        display: false
-      },
-      ticks: {
-        beginAtZero: true,
-        max: 100,
-        padding: -5,
-        stepSize: 20
-      }
+    let currentEdge;
+    this.service.getCurrentEdge().then(edge => {
+      currentEdge = edge;
     })
-    options.scales.yAxes[0].id = "yAxis1"
-    options.scales.yAxes[0].scaleLabel.labelString = "kW";
-    options.scales.yAxes[0].scaleLabel.padding = -2;
-    options.scales.yAxes[0].scaleLabel.fontSize = 11;
-    options.scales.yAxes[0].ticks.padding = -5;
-    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-      let label = data.datasets[tooltipItem.datasetIndex].label;
-      if (label.split(" ").length > 1) {
-        label = label.split(" ").slice(0, 1).toString();
+    if (this.service.periodString == "week" && this.service.isKwhAllowed(currentEdge) == true) {
+      options.scales.xAxes[0].stacked = true;
+      options.scales.xAxes[0].time.minUnit = 'hour';
+    } else {
+      // adds second y-axis to chart
+      options.scales.yAxes.push({
+        id: 'yAxis2',
+        position: 'right',
+        scaleLabel: {
+          display: true,
+          labelString: "%",
+          padding: -2,
+          fontSize: 11
+        },
+        gridLines: {
+          display: false
+        },
+        ticks: {
+          beginAtZero: true,
+          max: 100,
+          padding: -5,
+          stepSize: 20
+        }
+      })
+      options.scales.yAxes[0].id = "yAxis1"
+      options.scales.yAxes[0].scaleLabel.labelString = "kW";
+      options.scales.yAxes[0].scaleLabel.padding = -2;
+      options.scales.yAxes[0].scaleLabel.fontSize = 11;
+      options.scales.yAxes[0].ticks.padding = -5;
+      options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
+        let label = data.datasets[tooltipItem.datasetIndex].label;
+        if (label.split(" ").length > 1) {
+          label = label.split(" ").slice(0, 1).toString();
 
-      }
+        }
 
-      let value = tooltipItem.yLabel;
-      if (label == translate.instant('General.soc')) {
-        return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-      } else {
-        return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+        let value = tooltipItem.yLabel;
+        if (label == translate.instant('General.soc')) {
+          return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+        } else {
+          return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+        }
       }
     }
     this.options = options;

@@ -76,6 +76,7 @@ export type ChartOptions = {
             }
         }],
         xAxes: [{
+            stacked: boolean,
             type: "time",
             time: {
                 minUnit: string,
@@ -136,6 +137,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
             }
         }],
         xAxes: [{
+            stacked: false,
             type: 'time',
             time: {
                 minUnit: 'hour',
