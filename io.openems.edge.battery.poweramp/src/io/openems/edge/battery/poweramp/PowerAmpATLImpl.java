@@ -27,13 +27,18 @@ import io.openems.edge.battery.poweramp.statemachine.StateMachine;
 import io.openems.edge.battery.poweramp.statemachine.StateMachine.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -86,7 +91,6 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-
 	@Override
 	public void handleEvent(Event event) {
 
@@ -100,7 +104,7 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 			break;
 		}
 	}
-	
+
 	/**
 	 * Handles the State-Machine.
 	 */
@@ -125,21 +129,50 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
 	}
-	
+
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		// TODO implement ModbusProtocol
-		return new ModbusProtocol(this);
+		ModbusProtocol protocol = new ModbusProtocol(this, //
+				new FC6WriteRegisterTask(44000, //
+						m(PowerAmpATL.ChannelId.BMS_CONTROL, new UnsignedWordElement(44000))), //
+				new FC3ReadRegistersTask(44000, Priority.HIGH, //
+						m(PowerAmpATL.ChannelId.BMS_CONTROL, new UnsignedWordElement(44000))), //
+				new FC3ReadRegistersTask(506, Priority.HIGH, //
+						m(new UnsignedWordElement(506)) //
+								.m(PowerAmpATL.ChannelId.BATTERY_RACK_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_1) // [mV]
+								.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]
+								.build(), //
+						m(new UnsignedWordElement(507)) //
+								.m(PowerAmpATL.ChannelId.BATTERY_RACK_CURRENT, ElementToChannelConverter.SCALE_FACTOR_1) // [mV]
+								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]
+								.build(),
+						m(new UnsignedWordElement(508))//
+								.m(PowerAmpATL.ChannelId.BATTERY_RACK_SOC, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.m(Battery.ChannelId.SOC, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.build(), //
+						m(new UnsignedWordElement(509)) //
+								.m(PowerAmpATL.ChannelId.BATTERY_RACK_SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.m(Battery.ChannelId.SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.build(), //
+						m(PowerAmpATL.ChannelId.CELL_VOLTAGE_MIN, new UnsignedWordElement(510)), //
+						m(PowerAmpATL.ChannelId.ID_OF_CELL_VOLTAGE_MIN, new UnsignedWordElement(511)), //
+						m(PowerAmpATL.ChannelId.CELL_VOLTAGE_MAX, new UnsignedWordElement(512)), //
+						m(PowerAmpATL.ChannelId.ID_OF_CELL_VOLTAGE_MAX, new UnsignedWordElement(513)), //
+						m(PowerAmpATL.ChannelId.MIN_TEMPERATURE, new UnsignedWordElement(514)), //
+						m(PowerAmpATL.ChannelId.ID_OF_MIN_TEMPERATURE, new UnsignedWordElement(515)), //
+						m(PowerAmpATL.ChannelId.MAX_TEMPERATURE, new UnsignedWordElement(516)), //
+						m(PowerAmpATL.ChannelId.ID_OF_MAX_TEMPERATURE, new UnsignedWordElement(517)), //
+						m(PowerAmpATL.ChannelId.BATTERY_RACK_DC_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(518))//
+				));//
+		return protocol;
 	}
 
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc() //
-				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
-				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
 				+ "|State:" + this.stateMachine.getCurrentState();
 	}
-	
+
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//

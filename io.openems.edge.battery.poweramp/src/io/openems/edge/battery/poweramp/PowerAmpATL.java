@@ -705,7 +705,7 @@ public interface PowerAmpATL extends Battery, OpenemsComponent, StartStoppable {
 				.text("BMU Sum Voltage")),
 		BMS_CONTROL(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE) //
-				.text("Keep FET Open")),
+				.text("BMS CONTROL(1: Shutdown 0:no action)")),
 		KEEP_FET_OPEN(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Keep FET Open")),

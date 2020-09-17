@@ -13,7 +13,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 			return State.UNDEFINED;
 		}
 
-		if (context.component.getBMSControl() != BMSControl.RUNNING) {
+		if (context.component.getBMSControl() != BMSControl.SWITCH_ON) {
 			return State.UNDEFINED;
 		}
 

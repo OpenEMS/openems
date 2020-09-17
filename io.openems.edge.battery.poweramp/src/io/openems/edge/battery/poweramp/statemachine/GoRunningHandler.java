@@ -1,6 +1,5 @@
 package io.openems.edge.battery.poweramp.statemachine;
 
-import static io.openems.edge.battery.poweramp.enums.BMSControl.RUNNING;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -25,9 +24,9 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		BMSControl BMSControl = context.component.getBMSControl();
+		BMSControl bMSControl = context.component.getBMSControl();
 
-		if (BMSControl == RUNNING) {
+		if (bMSControl == BMSControl.SWITCH_ON) {
 			return State.RUNNING;
 		}
 
