@@ -15,6 +15,7 @@ public class WeightsUtil {
 	 * Sets the weight of each Inverter according to the SoC of its ESS.
 	 * 
 	 * @param inverters a List of inverters
+	 * @param esss      list of {@link ManagedSymmetricEss}s
 	 */
 	public static void updateWeightsFromSoc(List<Inverter> inverters, List<ManagedSymmetricEss> esss) {
 		for (Inverter inv : inverters) {

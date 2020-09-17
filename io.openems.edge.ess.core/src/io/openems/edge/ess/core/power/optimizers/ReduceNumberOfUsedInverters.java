@@ -39,7 +39,7 @@ public class ReduceNumberOfUsedInverters {
 		}
 
 		// Change target direction only once in a while
-		if (this.activeTargetDirection == null || targetDirectionChangedSince > 100) {
+		if (this.activeTargetDirection == null || this.targetDirectionChangedSince > 100) {
 			this.activeTargetDirection = targetDirection;
 		}
 		if (this.activeTargetDirection != targetDirection) {

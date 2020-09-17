@@ -9,8 +9,6 @@ import org.junit.Test;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.core.power.Data;
-import io.openems.edge.ess.core.power.PowerComponent;
-import io.openems.edge.ess.core.power.PowerComponentImpl;
 import io.openems.edge.ess.core.power.solver.LinearConstraintsSolver;
 import io.openems.edge.ess.power.api.Inverter;
 import io.openems.edge.ess.power.api.Phase;
@@ -21,7 +19,6 @@ import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 public class TargetDirectionTest {
 
 	private static DummyManagedSymmetricEss ess0;
-	private static PowerComponent c;
 	private static MyData data;
 
 	public static final LinearConstraintsSolver linearConstraintsSolver = new LinearConstraintsSolver();
@@ -32,8 +29,7 @@ public class TargetDirectionTest {
 				.withAllowedChargePower(-9000) //
 				.withAllowedDischargePower(9000) //
 				.withMaxApparentPower(5000);
-		c = new PowerComponentImpl();
-		data = new MyData(c);
+		data = new MyData();
 		data.addEss(ess0);
 		data.initializeCycle();
 	}
@@ -63,10 +59,6 @@ public class TargetDirectionTest {
 
 	private static class MyData extends Data {
 
-		public MyData(PowerComponent parent) {
-			super(parent);
-		}
-
 		@Override
 		protected synchronized void addEss(ManagedSymmetricEss ess) {
 			super.addEss(ess);
@@ -77,5 +69,9 @@ public class TargetDirectionTest {
 			return super.getInverters();
 		}
 
+		@Override
+		protected synchronized void initializeCycle() {
+			super.initializeCycle();
+		}
 	}
 }

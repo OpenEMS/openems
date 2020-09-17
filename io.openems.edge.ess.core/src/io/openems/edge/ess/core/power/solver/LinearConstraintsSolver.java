@@ -19,8 +19,9 @@ public class LinearConstraintsSolver {
 	/**
 	 * Solves the problem with the given list of LinearConstraints.
 	 * 
-	 * @param constraints a list of LinearConstraints
-	 * @return a solution
+	 * @param coefficients the {@link Coefficients}
+	 * @param constraints  a list of LinearConstraints
+	 * @return a solution as {@link PointValuePair}
 	 * @throws MathIllegalStateException if not solvable
 	 */
 	public static PointValuePair solve(Coefficients coefficients, List<LinearConstraint> constraints)

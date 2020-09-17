@@ -29,9 +29,10 @@ public class AddConstraintsForNotStrictlyDefinedCoefficients {
 	 * Adds Constraints for not strictly defined Coefficients, e.g. if only a P <= X
 	 * is defined, but no P = X.
 	 * 
-	 * @param allInverters   a list of all inverters
-	 * @param allConstraints a list of all Constraints
-	 * @throws OpenemsException
+	 * @param allInverters   a list of all {@link Inverter}s
+	 * @param coefficients   the {@link Coefficients}
+	 * @param allConstraints a list of all {@link Constraint}s
+	 * @throws OpenemsException on error
 	 */
 	public static void apply(List<Inverter> allInverters, Coefficients coefficients, List<Constraint> allConstraints)
 			throws OpenemsException {

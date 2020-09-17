@@ -23,7 +23,7 @@ import io.openems.edge.ess.power.api.Pwr;
 
 public class CalculatePowerExtrema {
 
-	private final static Logger LOG = LoggerFactory.getLogger(CalculatePowerExtrema.class);
+	private static final Logger LOG = LoggerFactory.getLogger(CalculatePowerExtrema.class);
 
 	/**
 	 * Calculates the extrema under the current constraints for the given

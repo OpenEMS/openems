@@ -67,9 +67,10 @@ public class PowerComponentImpl extends AbstractOpenemsComponent
 				OpenemsComponent.ChannelId.values(), //
 				PowerComponent.ChannelId.values() //
 		);
-		this.data = new Data(this);
-		this.solver = new Solver(data);
+		this.data = new Data();
+		this.data.onStaticConstraintsFailed(value -> this._setStaticConstraintsFailed(value));
 
+		this.solver = new Solver(this.data);
 		this.solver.onSolved((isSolved, duration, strategy) -> {
 			this._setNotSolved(!isSolved);
 			this._setSolveDuration(duration);
@@ -234,7 +235,12 @@ public class PowerComponentImpl extends AbstractOpenemsComponent
 		return this.pidFilter;
 	}
 
+	/**
+	 * Is Debug-Mode activated?.
+	 * 
+	 * @return true if is activated
+	 */
 	public boolean isDebugMode() {
-		return debugMode;
+		return this.debugMode;
 	}
 }

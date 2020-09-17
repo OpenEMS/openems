@@ -16,7 +16,8 @@ public class ConstraintSolver {
 	/**
 	 * Solves the problem with the given list of Constraints.
 	 * 
-	 * @param constraints a list of Constraints
+	 * @param coefficients the {@link Coefficients}
+	 * @param constraints  a list of Constraints
 	 * @return a solution
 	 * @throws NoFeasibleSolutionException if not solvable
 	 * @throws UnboundedSolutionException  if not solvable

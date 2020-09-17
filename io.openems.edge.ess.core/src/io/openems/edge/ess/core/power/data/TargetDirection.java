@@ -22,8 +22,12 @@ public enum TargetDirection {
 	 * Gets the TargetDirection of the Problem, i.e. whether it is a DISCHARGE or
 	 * CHARGE problem.
 	 * 
-	 * @return the target direction
-	 * @throws OpenemsException
+	 * @param inverters                  list of {@link Inverter}s
+	 * @param coefficients               the {@link Coefficients}
+	 * @param constraintsForAllInverters {@link Constraint}s for all
+	 *                                   {@link Inverter}s
+	 * @return the {@link TargetDirection}
+	 * @throws OpenemsException on error
 	 */
 	public static TargetDirection from(List<Inverter> inverters, Coefficients coefficients,
 			List<Constraint> constraintsForAllInverters) throws OpenemsException {
@@ -55,10 +59,12 @@ public enum TargetDirection {
 	/**
 	 * Creates Constraints for Sum of P.
 	 * 
-	 * @param relationship the Relationship between P and value
+	 * @param coefficients the {@link Coefficients}
+	 * @param inverters    list of {@link Inverter}s
+	 * @param relationship the {@link Relationship} between P and value
 	 * @param value        the value
-	 * @return Constraint
-	 * @throws OpenemsException
+	 * @return the {@link Constraint}
+	 * @throws OpenemsException on error
 	 */
 	private static Constraint createSumOfPConstraint(List<Inverter> inverters, Coefficients coefficients,
 			Relationship relationship, int value) throws OpenemsException {

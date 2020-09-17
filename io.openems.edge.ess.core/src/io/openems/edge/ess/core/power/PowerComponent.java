@@ -130,4 +130,23 @@ public interface PowerComponent extends OpenemsComponent, EventHandler, Power {
 		this.getSolveStrategyChannel().setNextValue(value);
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#STATIC_CONSTRAINTS_FAILED}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getStaticConstraintsFailedChannel() {
+		return this.channel(ChannelId.STATIC_CONSTRAINTS_FAILED);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#STATIC_CONSTRAINTS_FAILED} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setStaticConstraintsFailed(boolean value) {
+		this.getStaticConstraintsFailedChannel().setNextValue(value);
+	}
+
 }

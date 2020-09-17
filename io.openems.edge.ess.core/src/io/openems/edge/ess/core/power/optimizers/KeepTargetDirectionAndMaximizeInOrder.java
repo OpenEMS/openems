@@ -30,8 +30,7 @@ public class KeepTargetDirectionAndMaximizeInOrder {
 	 * @param targetInverters the target {@link Inverter}s
 	 * @param allConstraints  all active {@link Constraint}s
 	 * @param targetDirection the {@link TargetDirection}
-	 * @return a solution or null
-	 * @return a solution or null
+	 * @return a solution as {@link PointValuePair} or null
 	 * @throws OpenemsException on error
 	 */
 	public static PointValuePair apply(Coefficients coefficients, List<Inverter> allInverters,
@@ -71,8 +70,8 @@ public class KeepTargetDirectionAndMaximizeInOrder {
 			// Create Constraint to force Ess positive/negative/zero according to
 			// targetDirection
 			Constraint c = ConstraintUtil.createSimpleConstraint(coefficients, //
-					inv.toString() + ": Force " + targetDirection.name() //
-					, inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, relationship, 0);
+					inv.toString() + ": Force " + targetDirection.name(), //
+					inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, relationship, 0);
 			constraints.add(c);
 			// Try to solve with Constraint
 			try {

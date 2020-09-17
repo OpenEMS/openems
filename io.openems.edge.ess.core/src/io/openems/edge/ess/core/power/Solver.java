@@ -109,6 +109,15 @@ public class Solver {
 		}
 	}
 
+	/**
+	 * Solve and optimize the equation system.
+	 * 
+	 * <p>
+	 * When finished, this method calls the applyPower() methods of
+	 * {@link ManagedSymmetricEss} or {@link ManagedAsymmetricEss}.
+	 * 
+	 * @param strategy the {@link SolverStrategy} to follow
+	 */
 	public void solve(SolverStrategy strategy) {
 		// measure duration
 		final long startTime = System.nanoTime();
@@ -237,7 +246,7 @@ public class Solver {
 	 * @param allConstraints  a list of all Constraints
 	 * @param strategies      an array of SolverStrategies
 	 * @return a Solution
-	 * @throws OpenemsException
+	 * @throws OpenemsException on error
 	 */
 	private SolveSolution tryStrategies(TargetDirection targetDirection, List<Inverter> allInverters,
 			List<Inverter> targetInverters, List<Constraint> allConstraints, SolverStrategy... strategies)
@@ -329,8 +338,11 @@ public class Solver {
 					}
 				}
 			}
+
 			if (ess instanceof ManagedAsymmetricEss && (invL1 != null || invL2 != null || invL3 != null)) {
-				ManagedAsymmetricEss e = (ManagedAsymmetricEss) ess;
+				/*
+				 * Call applyPower() of ManagedAsymmetricEss
+				 */
 
 				if (invL1 == null) {
 					invL1 = new PowerTuple();
@@ -341,6 +353,8 @@ public class Solver {
 				if (invL3 == null) {
 					invL3 = new PowerTuple();
 				}
+
+				ManagedAsymmetricEss e = (ManagedAsymmetricEss) ess;
 				// set debug channels on Ess
 				e._setDebugSetActivePower(invL1.getActivePower() + invL2.getActivePower() + invL3.getActivePower());
 				e._setDebugSetReactivePower(
@@ -369,6 +383,10 @@ public class Solver {
 				}
 
 			} else if (inv != null) {
+				/*
+				 * Call applyPower() of ManagedSymmetricEss
+				 */
+
 				// set debug channels on Ess
 				ess._setDebugSetActivePower(inv.getActivePower());
 				ess._setDebugSetReactivePower(inv.getReactivePower());

@@ -34,7 +34,7 @@ public class DataTest {
 		DummyMetaEss ess0 = new DummyMetaEss("ess0", powerComponent, ess1, ess2); //
 		esss = Lists.newArrayList(ess0, ess1, ess2);
 
-		data = new Data(powerComponent);
+		data = new Data();
 		for (ManagedSymmetricEss ess : esss) {
 			data.addEss(ess);
 		}
