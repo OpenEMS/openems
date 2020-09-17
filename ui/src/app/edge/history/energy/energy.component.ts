@@ -4,17 +4,16 @@ import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64Pay
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
 import { Component, Input, OnChanges } from '@angular/core';
-import { debounceTime, delay, takeUntil } from 'rxjs/operators';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { EnergyModalComponent } from './modal/modal.component';
 import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
 import { formatNumber } from '@angular/common';
-import { fromEvent, Subject } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
 import { TranslateService } from '@ngx-translate/core';
 import * as FileSaver from 'file-saver';
+import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 
 @Component({
   selector: 'energy',
@@ -37,6 +36,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     private route: ActivatedRoute,
     public modalCtrl: ModalController,
     private websocket: Websocket,
+    private unitpipe: UnitvaluePipe,
   ) {
     super(service, translate);
   }
@@ -102,7 +102,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   }
 
   ngOnInit() {
+    this.spinnerId = "energy-chart";
     this.service.setCurrentComponent('', this.route);
+    this.service.startSpinner(this.spinnerId);
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
     setTimeout(() => this.getChartHeight(), 500);
     this.subscribeChartRefresh()
@@ -114,6 +116,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   protected updateChart() {
     this.loading = true;
+    this.service.startSpinner(this.spinnerId);
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(config => {
@@ -170,7 +173,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 return value / 1000; // convert to kW
               }
             });
-
             datasets.push({
               label: this.translate.instant('General.production'),
               data: productionData,
@@ -315,8 +317,61 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               borderColor: 'rgba(200,0,0,1)',
             })
           }
-          this.datasets = datasets;
-          this.loading = false;
+
+          if (this.service.isKwhAllowed(edge) == true) {
+            let kwhChannels: ChannelAddress[] = [
+              new ChannelAddress('_sum', 'ProductionActiveEnergy'),
+              new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
+              new ChannelAddress('_sum', 'GridSellActiveEnergy'),
+              new ChannelAddress('_sum', 'EssActiveChargeEnergy'),
+              new ChannelAddress('_sum', 'EssActiveDischargeEnergy'),
+              new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
+            ]
+            this.service.queryEnergy(this.period.from, this.period.to, kwhChannels).then(response => {
+              let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"];
+              let kwhGridBuyValue = response.result.data["_sum/GridBuyActiveEnergy"];
+              let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
+              let kwhChargeValue = response.result.data["_sum/EssActiveChargeEnergy"];
+              let kwhDischargeValue = response.result.data["_sum/EssActiveDischargeEnergy"];
+              let kwhConsumptionValue = response.result.data["_sum/ConsumptionActiveEnergy"];
+
+              datasets.forEach(dataset => {
+                switch (dataset.label) {
+                  case this.translate.instant('General.production'): {
+                    dataset.label = this.translate.instant('General.production') + " " + this.unitpipe.transform(kwhProductionValue, "kWh").toString();
+                    break;
+                  }
+                  case this.translate.instant('General.gridBuy'): {
+                    dataset.label = this.translate.instant('General.gridBuy') + " " + this.unitpipe.transform(kwhGridBuyValue, "kWh").toString();
+                    break;
+                  }
+                  case this.translate.instant('General.gridSell'): {
+                    dataset.label = this.translate.instant('General.gridSell') + " " + this.unitpipe.transform(kwhGridSellValue, "kWh").toString();
+                    break;
+                  }
+                  case this.translate.instant('General.chargePower'): {
+                    dataset.label = this.translate.instant('General.chargePower') + " " + this.unitpipe.transform(kwhChargeValue, "kWh").toString();
+                    break;
+                  }
+                  case this.translate.instant('General.dischargePower'): {
+                    dataset.label = this.translate.instant('General.dischargePower') + " " + this.unitpipe.transform(kwhDischargeValue, "kWh").toString()
+                    break;
+                  }
+                  case this.translate.instant('General.consumption'): {
+                    dataset.label = this.translate.instant('General.consumption') + " " + this.unitpipe.transform(kwhConsumptionValue, "kWh").toString()
+                    break;
+                  }
+                }
+              })
+              this.datasets = datasets;
+              this.loading = false;
+              this.service.stopSpinner(this.spinnerId);
+            })
+          } else {
+            this.datasets = datasets;
+            this.loading = false;
+            this.service.stopSpinner(this.spinnerId);
+          }
         }).catch(reason => {
           console.error(reason); // TODO error message
           this.initializeChart();
@@ -424,6 +479,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     options.scales.yAxes[0].ticks.padding = -5;
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
+      if (label.split(" ").length > 1) {
+        label = label.split(" ").slice(0, 1).toString();
+
+      }
+
       let value = tooltipItem.yLabel;
       if (label == translate.instant('General.soc')) {
         return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";

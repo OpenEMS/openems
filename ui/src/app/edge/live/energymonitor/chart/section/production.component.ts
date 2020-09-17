@@ -41,6 +41,15 @@ export class ProductionSectionComponent extends AbstractSection implements OnDes
         this.unitpipe = unitpipe;
     }
 
+    ngOnInit() {
+        if (navigator.vendor.match(/apple/i)) {
+            this.fillRef = "url(" + window.location.origin + window.location.pathname + "#" + this.sectionId + ")"
+        }
+        else {
+            this.fillRef = "url(#" + this.sectionId + ")"
+        }
+    }
+
     toggleAnimation() {
         this.startAnimation = setInterval(() => {
             this.showAnimation = !this.showAnimation;
