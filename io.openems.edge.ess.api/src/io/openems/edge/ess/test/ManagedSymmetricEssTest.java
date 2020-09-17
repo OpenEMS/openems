@@ -8,8 +8,6 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 /**
  * Provides a generic test framework for OpenEMS {@link ManagedSymmetricEss}s.
- * 
- * @see {@link AbstractComponentTest} for implementation details
  */
 public class ManagedSymmetricEssTest extends AbstractComponentTest<ManagedSymmetricEssTest, ManagedSymmetricEss> {
 
