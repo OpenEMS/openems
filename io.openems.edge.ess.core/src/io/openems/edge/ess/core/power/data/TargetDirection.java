@@ -14,11 +14,9 @@ import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
-public class TargetDirectionUtil {
+public enum TargetDirection {
 
-	public enum TargetDirection {
-		KEEP_ZERO, CHARGE, DISCHARGE;
-	}
+	KEEP_ZERO, CHARGE, DISCHARGE;
 
 	/**
 	 * Gets the TargetDirection of the Problem, i.e. whether it is a DISCHARGE or
@@ -62,7 +60,7 @@ public class TargetDirectionUtil {
 	 * @return Constraint
 	 * @throws OpenemsException
 	 */
-	public static Constraint createSumOfPConstraint(List<Inverter> inverters, Coefficients coefficients,
+	private static Constraint createSumOfPConstraint(List<Inverter> inverters, Coefficients coefficients,
 			Relationship relationship, int value) throws OpenemsException {
 		List<LinearCoefficient> cos = new ArrayList<>();
 		for (Inverter inverter : inverters) {

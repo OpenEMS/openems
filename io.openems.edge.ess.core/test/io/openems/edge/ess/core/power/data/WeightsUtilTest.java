@@ -2,8 +2,7 @@ package io.openems.edge.ess.core.power.data;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
@@ -16,7 +15,7 @@ import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
 public class WeightsUtilTest {
 
-	private static LinkedHashMap<String, ManagedSymmetricEss> esss;
+	private static List<ManagedSymmetricEss> esss;
 	private static List<Inverter> inverters;
 	private static DummyManagedSymmetricEss ess0;
 	private static DummyManagedSymmetricEss ess1;
@@ -33,23 +32,13 @@ public class WeightsUtilTest {
 		ess1 = new DummyManagedSymmetricEss("ess1").withSoc(70);
 		ess2 = new DummyManagedSymmetricEss("ess2").withSoc(40);
 		ess3 = new DummyManagedSymmetricEss("ess3").withSoc(70);
-
-		esss = new LinkedHashMap<String, ManagedSymmetricEss>();
-		esss.put("ess0", ess0);
-		esss.put("ess1", ess1);
-		esss.put("ess2", ess2);
-		esss.put("ess3", ess3);
+		esss = Arrays.asList(ess0, ess1, ess2, ess3);
 
 		inverter0 = new ThreePhaseInverter(ess0.id());
 		inverter1 = new ThreePhaseInverter(ess1.id());
 		inverter2 = new ThreePhaseInverter(ess2.id());
 		inverter3 = new ThreePhaseInverter(ess3.id());
-
-		inverters = new ArrayList<>();
-		inverters.add(inverter0);
-		inverters.add(inverter1);
-		inverters.add(inverter2);
-		inverters.add(inverter3);
+		inverters = Arrays.asList(inverter0, inverter1, inverter2, inverter3);
 	}
 
 	@Test

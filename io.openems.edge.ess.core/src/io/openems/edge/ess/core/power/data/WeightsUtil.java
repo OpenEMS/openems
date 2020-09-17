@@ -2,7 +2,6 @@ package io.openems.edge.ess.core.power.data;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Inverter;
@@ -17,14 +16,14 @@ public class WeightsUtil {
 	 * 
 	 * @param inverters a List of inverters
 	 */
-	public static void updateWeightsFromSoc(List<Inverter> inverters, Map<String, ManagedSymmetricEss> esss) {
+	public static void updateWeightsFromSoc(List<Inverter> inverters, List<ManagedSymmetricEss> esss) {
 		for (Inverter inv : inverters) {
-			ManagedSymmetricEss ess = esss.get(inv.getEssId());
-			final int weight;
-			if (ess == null) {
-				weight = DEFAULT_WEIGHT;
-			} else {
-				weight = ess.getSoc().orElse(DEFAULT_WEIGHT);
+			int weight = DEFAULT_WEIGHT;
+			for (ManagedSymmetricEss ess : esss) {
+				if (inv.getEssId().equals(ess.id())) {
+					weight = ess.getSoc().orElse(DEFAULT_WEIGHT);
+					break;
+				}
 			}
 			inv.setWeight(weight);
 		}
@@ -58,13 +57,6 @@ public class WeightsUtil {
 	 * @param inverters a List of inverters
 	 */
 	public static void adjustSortingByWeights(List<Inverter> inverters) {
-		System.out.println("---");
-
-		System.out.println("before");
-		for (int i = 0; i < inverters.size(); i++) {
-			System.out.println(inverters.get(i));
-		}
-
 		for (int i = 1; i < inverters.size(); i++) {
 			for (int j = 0; j < inverters.size() - i; j++) {
 				int weight1 = inverters.get(j).getWeight();
@@ -74,11 +66,6 @@ public class WeightsUtil {
 					Collections.swap(inverters, j, j + 1);
 				}
 			}
-		}
-
-		System.out.println("after");
-		for (int i = 0; i < inverters.size(); i++) {
-			System.out.println(inverters.get(i));
 		}
 	}
 }

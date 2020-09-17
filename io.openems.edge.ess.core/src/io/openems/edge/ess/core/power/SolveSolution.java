@@ -15,11 +15,11 @@ class SolveSolution {
 	}
 
 	public PointValuePair getPoints() {
-		return points;
+		return this.points;
 	}
 
 	public SolverStrategy getSolvedBy() {
-		return solvedBy;
+		return this.solvedBy;
 	}
 
 }

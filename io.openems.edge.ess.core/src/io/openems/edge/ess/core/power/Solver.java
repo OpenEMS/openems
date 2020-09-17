@@ -9,13 +9,8 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.linear.LinearConstraintSet;
-import org.apache.commons.math3.optim.linear.LinearObjectiveFunction;
 import org.apache.commons.math3.optim.linear.NoFeasibleSolutionException;
-import org.apache.commons.math3.optim.linear.PivotSelectionRule;
-import org.apache.commons.math3.optim.linear.SimplexSolver;
 import org.apache.commons.math3.optim.linear.UnboundedSolutionException;
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,23 +19,22 @@ import com.google.common.base.Stopwatch;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingFunction;
-import io.openems.common.utils.IntUtils;
-import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
-import io.openems.edge.ess.core.power.data.LinearSolverUtil;
-import io.openems.edge.ess.core.power.data.TargetDirectionUtil;
-import io.openems.edge.ess.core.power.data.TargetDirectionUtil.TargetDirection;
+import io.openems.edge.ess.core.power.data.InverterPrecision;
+import io.openems.edge.ess.core.power.data.LogUtil;
+import io.openems.edge.ess.core.power.data.TargetDirection;
+import io.openems.edge.ess.core.power.optimizers.AddConstraintsForNotStrictlyDefinedCoefficients;
+import io.openems.edge.ess.core.power.optimizers.KeepAllEqual;
+import io.openems.edge.ess.core.power.optimizers.KeepTargetDirectionAndMaximizeInOrder;
+import io.openems.edge.ess.core.power.optimizers.MoveTowardsTarget;
 import io.openems.edge.ess.core.power.optimizers.Optimizers;
 import io.openems.edge.ess.core.power.solver.ConstraintSolver;
-import io.openems.edge.ess.power.api.Coefficient;
+import io.openems.edge.ess.core.power.solver.PowerTuple;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.DummyInverter;
 import io.openems.edge.ess.power.api.Inverter;
-import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.OnSolved;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.PowerException.Type;
 import io.openems.edge.ess.power.api.Pwr;
@@ -49,14 +43,11 @@ import io.openems.edge.ess.power.api.SolverStrategy;
 
 public class Solver {
 
-	private static final double LEARNING_RATE = 0.1;
-
 	private final Logger log = LoggerFactory.getLogger(Solver.class);
 	private final Data data;
 	private final Optimizers optimizers = new Optimizers();
 
 	private boolean debugMode = PowerComponent.DEFAULT_DEBUG_MODE;
-	private SolverStrategy strategy = PowerComponent.DEFAULT_SOLVER_STRATEGY;
 	private OnSolved onSolvedCallback = (isSolved, duration, strategy) -> {
 	};
 
@@ -96,8 +87,7 @@ public class Solver {
 	 */
 	public void isSolvableOrError() throws OpenemsException {
 		try {
-			ConstraintSolver.solve(this.data.getCoefficients(),
-					this.data.getConstraintsForAllInverters());
+			ConstraintSolver.solve(this.data.getCoefficients(), this.data.getConstraintsForAllInverters());
 		} catch (NoFeasibleSolutionException e) {
 			throw new PowerException(Type.NO_FEASIBLE_SOLUTION);
 		} catch (UnboundedSolutionException e) {
@@ -112,73 +102,14 @@ public class Solver {
 	 */
 	public boolean isSolvable() {
 		try {
-			ConstraintSolver.solve(this.data.getCoefficients(),
-					this.data.getConstraintsForAllInverters());
+			ConstraintSolver.solve(this.data.getCoefficients(), this.data.getConstraintsForAllInverters());
 			return true;
 		} catch (NoFeasibleSolutionException | UnboundedSolutionException | OpenemsException e) {
 			return false;
 		}
 	}
 
-	public double getActivePowerExtrema(String essId, Phase phase, Pwr pwr, GoalType goal) {
-		// prepare objective function
-		int index;
-		try {
-			index = this.data.getCoefficient(essId, phase, pwr).getIndex();
-		} catch (IllegalArgumentException | OpenemsException e) {
-			this.log.error(e.getMessage());
-			return 0d;
-		}
-		double[] cos = LinearSolverUtil.generateEmptyCoefficientsArray(data.getCoefficients().getNoOfCoefficients());
-		cos[index] = 1;
-		LinearObjectiveFunction objectiveFunction = new LinearObjectiveFunction(cos, 0);
-
-		// get Constraints
-		List<Constraint> allConstraints;
-		try {
-			allConstraints = this.data.getConstraintsForAllInverters();
-		} catch (OpenemsException e) {
-			this.log.warn("Unable to get Constraints for all Inverters: " + e.getMessage());
-			return 0;
-		}
-
-		LinearConstraintSet constraints = new LinearConstraintSet(
-				LinearSolverUtil.convertToLinearConstraints(this.data.getCoefficients(), allConstraints));
-
-		SimplexSolver solver = new SimplexSolver();
-		try {
-			PointValuePair solution = solver.optimize(//
-					objectiveFunction, //
-					constraints, //
-					goal, //
-					PivotSelectionRule.BLAND);
-			return solution.getPoint()[index];
-		} catch (UnboundedSolutionException e) {
-			if (this.debugMode) {
-				PowerComponent.debugLogConstraints(this.log, "No Constraints for " + goal.name() + " Active Power.",
-						allConstraints);
-			} else {
-				this.log.warn("No Constraints for " + goal.name() + " Active Power.");
-			}
-
-			if (goal == GoalType.MAXIMIZE) {
-				return Integer.MAX_VALUE;
-			} else {
-				return Integer.MIN_VALUE;
-			}
-		} catch (NoFeasibleSolutionException e) {
-			if (this.debugMode) {
-				PowerComponent.debugLogConstraints(this.log,
-						"Unable to " + goal.name() + " Active Power. Setting it to zero.", allConstraints);
-			} else {
-				this.log.warn("Unable to " + goal.name() + " Active Power. Setting it to zero.");
-			}
-
-			return 0;
-		}
-	}
-
-	public void solve() {
+	public void solve(SolverStrategy strategy) {
 		// measure duration
 		final long startTime = System.nanoTime();
 
@@ -187,7 +118,7 @@ public class Solver {
 			this.onSolvedCallback.accept(true, 0, SolverStrategy.NONE);
 			return;
 		}
-		List<Inverter> allInverters = data.getInverters();
+		List<Inverter> allInverters = this.data.getInverters();
 
 		SolveSolution solution = new SolveSolution(SolverStrategy.NONE, null);
 
@@ -201,7 +132,8 @@ public class Solver {
 
 			// Add Strict constraints if required
 			stopwatch = Stopwatch.createStarted();
-			this.addConstraintsForNotStrictlyDefinedCoefficients(allInverters, allConstraints);
+			AddConstraintsForNotStrictlyDefinedCoefficients.apply(allInverters, this.data.getCoefficients(),
+					allConstraints);
 			System.out.println("addConstraintsForNotStrictlyDefinedCoefficients ["
 					+ stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
@@ -217,7 +149,7 @@ public class Solver {
 
 			// Evaluates whether it is a CHARGE or DISCHARGE problem.
 			stopwatch = Stopwatch.createStarted();
-			targetDirection = TargetDirectionUtil.from(//
+			targetDirection = TargetDirection.from(//
 					this.data.getInverters(), //
 					this.data.getCoefficients(), //
 					this.data.getConstraintsForAllInverters() //
@@ -232,7 +164,7 @@ public class Solver {
 			System.out.println("getTargetInverters [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
 			stopwatch = Stopwatch.createStarted();
-			switch (this.strategy) {
+			switch (strategy) {
 			case UNDEFINED:
 			case ALL_CONSTRAINTS:
 			case NONE:
@@ -258,11 +190,11 @@ public class Solver {
 						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET);
 				break;
 			}
-			System.out.println("strategy [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms] " + this.strategy);
+			System.out.println("strategy [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms] " + strategy);
 
 		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 			if (this.debugMode) {
-				PowerComponent.debugLogConstraints(this.log,
+				LogUtil.debugLogConstraints(this.log,
 						"[" + e.getMessage() + "] Unable to solve under the following constraints:", allConstraints);
 			} else {
 				this.log.warn("Power-Solver: Unable to solve under constraints!");
@@ -280,12 +212,16 @@ public class Solver {
 
 		// Apply final Solution to Inverters
 		if (isSolved) {
+			Map<Inverter, PowerTuple> inverterSolutionMap;
 			try {
-				this.applySolution(this.applyInverterPrecisions(allInverters, solution.getPoints(), targetDirection));
+				inverterSolutionMap = InverterPrecision.apply(this.data.getCoefficients(), allInverters,
+						this.data.getEsss(), solution.getPoints(), targetDirection);
+
 			} catch (OpenemsException e) {
 				this.log.warn("Power-Solver: Applying Inverter Precisions failed: " + e.getMessage());
-				this.applySolution(this.getZeroSolution(allInverters));
+				inverterSolutionMap = this.getZeroSolution(allInverters);
 			}
+			this.applySolution(inverterSolutionMap);
 		} else {
 			this.applySolution(this.getZeroSolution(allInverters));
 		}
@@ -316,15 +252,15 @@ public class Solver {
 				solution = ConstraintSolver.solve(this.data.getCoefficients(), allConstraints);
 				break;
 			case OPTIMIZE_BY_MOVING_TOWARDS_TARGET:
-				solution = this.optimizeByMovingTowardsTarget(targetDirection, allInverters, targetInverters,
-						allConstraints);
+				solution = MoveTowardsTarget.apply(this.data.getCoefficients(), targetDirection, allInverters,
+						targetInverters, allConstraints);
 				break;
 			case OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER:
-				solution = this.optimizeByKeepingTargetDirectionAndMaximizingInOrder(allInverters, targetInverters,
-						allConstraints, targetDirection);
+				solution = KeepTargetDirectionAndMaximizeInOrder.apply(this.data.getCoefficients(), allInverters,
+						targetInverters, allConstraints, targetDirection);
 				break;
 			case OPTIMIZE_BY_KEEPING_ALL_EQUAL:
-				solution = this.optimizeByKeepingAllEqual(allInverters, allConstraints);
+				solution = KeepAllEqual.apply(this.data.getCoefficients(), allInverters, allConstraints);
 				break;
 			}
 
@@ -339,393 +275,6 @@ public class Solver {
 		} else {
 			return new SolveSolution(SolverStrategy.NONE, null);
 		}
-	}
-
-	/**
-	 * Adds Constraints for not strictly defined Coefficients, e.g. if only a P <= X
-	 * is defined, but no P = X.
-	 * 
-	 * @param allInverters   a list of all inverters
-	 * @param allConstraints a list of all Constraints
-	 * @throws OpenemsException
-	 */
-	private void addConstraintsForNotStrictlyDefinedCoefficients(List<Inverter> allInverters,
-			List<Constraint> allConstraints) throws OpenemsException {
-		LinearConstraintSet constraints = new LinearConstraintSet(
-				LinearSolverUtil.convertToLinearConstraints(this.data.getCoefficients(), allConstraints));
-
-		for (Pwr pwr : Pwr.values()) {
-			// prepare objective function
-			double[] cos = LinearSolverUtil
-					.generateEmptyCoefficientsArray(this.data.getCoefficients().getNoOfCoefficients());
-			for (Inverter inv : allInverters) {
-				Coefficient c = this.data.getCoefficient(inv.getEssId(), inv.getPhase(), pwr);
-				cos[c.getIndex()] = 1;
-			}
-			LinearObjectiveFunction objectiveFunction = new LinearObjectiveFunction(cos, 0);
-
-			// get Max value over all relevant Coefficients
-			double max;
-			try {
-				SimplexSolver solver = new SimplexSolver();
-				PointValuePair solution = solver.optimize(//
-						objectiveFunction, //
-						constraints, //
-						GoalType.MAXIMIZE, //
-						PivotSelectionRule.BLAND);
-				max = 0d;
-				for (Inverter inv : allInverters) {
-					Coefficient c = this.data.getCoefficient(inv.getEssId(), inv.getPhase(), pwr);
-					max += solution.getPoint()[c.getIndex()];
-				}
-			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
-				max = Double.MAX_VALUE;
-			}
-			// get Min value over all relevant Coefficients
-			double min;
-			try {
-				SimplexSolver solver = new SimplexSolver();
-				PointValuePair solution = solver.optimize(//
-						objectiveFunction, //
-						constraints, //
-						GoalType.MINIMIZE, //
-						PivotSelectionRule.BLAND);
-				min = 0d;
-				for (Inverter inv : allInverters) {
-					Coefficient c = this.data.getCoefficient(inv.getEssId(), inv.getPhase(), pwr);
-					min += solution.getPoint()[c.getIndex()];
-				}
-			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
-				min = Double.MIN_VALUE;
-			}
-
-			if (min == max) {
-				// Already strictly defined.
-				continue;
-			}
-
-			// find the best value to set for EQUALS constraint
-			double target;
-			if (0 < max && 0 > min) {
-				// set to zero
-				target = 0;
-			} else if (Math.abs(max) < Math.abs(min)) {
-				// set to smallest distance from zero -> max
-				target = max;
-			} else {
-				// set to smallest distance from zero -> min
-				target = min;
-			}
-
-			LinearCoefficient[] lcs = new LinearCoefficient[allInverters.size()];
-			for (int i = 0; i < allInverters.size(); i++) {
-				Inverter inv = allInverters.get(i);
-				Coefficient c = this.data.getCoefficient(inv.getEssId(), inv.getPhase(), pwr);
-				lcs[i] = new LinearCoefficient(c, 1);
-			}
-			Constraint c = new Constraint("Strictly define " + pwr.name(), lcs, Relationship.EQUALS, target);
-			allConstraints.add(c);
-		}
-	}
-
-	/**
-	 * Tries to distribute power equally between inverters
-	 * 
-	 * @param targetInverters
-	 * @param allConstraints
-	 * @return
-	 */
-	private PointValuePair optimizeByKeepingAllEqual(List<Inverter> allInverters, List<Constraint> allConstraints) {
-		try {
-			List<Constraint> constraints = new ArrayList<>(allConstraints);
-			// Create weighted Constraint between first inverter and every other inverter
-			Inverter invA = allInverters.get(0);
-			for (int j = 1; j < allInverters.size(); j++) {
-				Inverter invB = allInverters.get(j);
-				Constraint c = new Constraint(invA.toString() + "|" + invB.toString() + ": distribute equally",
-						new LinearCoefficient[] {
-								new LinearCoefficient(
-										this.data.getCoefficient(invA.getEssId(), invA.getPhase(), Pwr.ACTIVE), 1),
-								new LinearCoefficient(
-										this.data.getCoefficient(invB.getEssId(), invB.getPhase(), Pwr.ACTIVE), -1) },
-						Relationship.EQUALS, 0);
-				constraints.add(c);
-			}
-			return ConstraintSolver.solve(this.data.getCoefficients(), constraints);
-
-		} catch (OpenemsException | NoFeasibleSolutionException | UnboundedSolutionException e) {
-			return null;
-		}
-	}
-
-	/**
-	 * Tries to keep all Target Inverters in the right TargetDirection; then
-	 * maximizes them in order.
-	 * 
-	 * @param allInverters    a list of all inverters
-	 * @param targetInverters a list of target inverters
-	 * @param allConstraints  a list of all Cosntraints
-	 * @param targetDirection the target direction
-	 * @return a solution or null
-	 * @throws OpenemsException
-	 */
-	private PointValuePair optimizeByKeepingTargetDirectionAndMaximizingInOrder(List<Inverter> allInverters,
-			List<Inverter> targetInverters, List<Constraint> allConstraints, TargetDirection targetDirection)
-			throws OpenemsException {
-		List<Constraint> constraints = new ArrayList<>(allConstraints);
-
-		// Add Zero-Constraint for all Inverters that are not Target
-		for (Inverter inv : allInverters) {
-			if (!targetInverters.contains(inv)) {
-				constraints.add(this.data.createSimpleConstraint(inv.toString() + ": is not a target inverter",
-						inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, 0));
-				constraints.add(this.data.createSimpleConstraint(inv.toString() + ": is not a target inverter",
-						inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, Relationship.EQUALS, 0));
-			}
-		}
-
-		PointValuePair result = ConstraintSolver.solve(this.data.getCoefficients(), constraints);
-		PointValuePair thisSolution = null;
-
-		Relationship relationship = Relationship.EQUALS;
-		switch (targetDirection) {
-		case CHARGE:
-			relationship = Relationship.LESS_OR_EQUALS;
-			break;
-		case DISCHARGE:
-			relationship = Relationship.GREATER_OR_EQUALS;
-			break;
-		case KEEP_ZERO:
-			relationship = Relationship.EQUALS;
-			break;
-		}
-
-		for (Inverter inv : targetInverters) {
-			// Create Constraint to force Ess positive/negative/zero according to
-			// targetDirection
-			Constraint c = this.data.createSimpleConstraint(inv.toString() + ": Force " + targetDirection.name(),
-					inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, relationship, 0);
-			constraints.add(c);
-			// Try to solve with Constraint
-			try {
-				thisSolution = ConstraintSolver.solve(this.data.getCoefficients(), constraints);
-				result = thisSolution; // only if solving was successful
-			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
-				// solving failed
-				constraints.remove(c);
-			}
-		}
-
-		if (targetDirection == TargetDirection.KEEP_ZERO && result != null) {
-			return result;
-		}
-
-		// Try maximizing all inverters in order in target direction
-		for (Inverter inv : targetInverters) {
-			GoalType goal;
-			if (targetDirection == TargetDirection.CHARGE) {
-				goal = GoalType.MINIMIZE;
-			} else {
-				goal = GoalType.MAXIMIZE;
-			}
-			double target = this.getActivePowerExtrema(inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, goal);
-			Constraint c = this.data.createSimpleConstraint(inv.toString() + ": Set " + goal.name() + " value",
-					inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, target);
-			constraints.add(c);
-			// Try to solve with Constraint
-			try {
-				thisSolution = ConstraintSolver.solve(this.data.getCoefficients(), constraints);
-				result = thisSolution; // only if solving was successful
-			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
-				// If solving fails: remove the Constraints
-				constraints.remove(c);
-			}
-		}
-
-		return result;
-	}
-
-	/**
-	 * Tries to adjust the weights used in last applyPower() towards the target
-	 * weights using a learning rate. If this fails it tries to start from the
-	 * target weights towards a given existing solution.
-	 *
-	 * @param targetDirection the target direction
-	 * @param allInverters    a list of all inverters
-	 * @param targetInverters a list of target inverters
-	 * @param allConstraints  a list of all Constraints
-	 * @return a solution or null
-	 * @throws OpenemsException
-	 */
-	private PointValuePair optimizeByMovingTowardsTarget(TargetDirection targetDirection, List<Inverter> allInverters,
-			List<Inverter> targetInverters, List<Constraint> allConstraints) throws OpenemsException {
-		// find maxLastActive + maxWeight
-		int maxLastActivePower = 0;
-		int sumWeights = 0;
-		for (Inverter inv : allInverters) {
-			maxLastActivePower = Math.max(Math.abs(inv.getLastActivePower()), maxLastActivePower);
-			sumWeights += Math.abs(inv.getWeight());
-		}
-
-		// create map with normalized last weights
-		Map<Inverter, Double> lastWeights = new HashMap<>();
-		if (maxLastActivePower == 0) {
-			// all lastActivePower are zero -> put weights on targetInverters
-			for (Inverter inv : allInverters) {
-				if (targetInverters.contains(inv)) {
-					lastWeights.put(inv, Double.valueOf(100));
-				} else {
-					lastWeights.put(inv, Double.valueOf(0));
-				}
-			}
-		} else {
-			// at least one weight is != zero -> start normal weighting
-			double normalizeFactor = 100d / maxLastActivePower;
-			for (Inverter inv : allInverters) {
-				lastWeights.put(inv, Math.abs(inv.getLastActivePower() * normalizeFactor));
-			}
-		}
-
-		// create map with target weights
-		Map<Inverter, Integer> targetWeights = new HashMap<>();
-		for (Inverter inv : allInverters) {
-			if (targetInverters.contains(inv)) {
-				switch (targetDirection) {
-				case CHARGE:
-				case KEEP_ZERO:
-					// Invert weights for CHARGE, i.e. give higher weight to low state-of-charge
-					// inverters
-					targetWeights.put(inv, (100 - (inv.getWeight() / sumWeights)));
-					break;
-				case DISCHARGE:
-					targetWeights.put(inv, inv.getWeight() / sumWeights);
-					break;
-				}
-			} else {
-				targetWeights.put(inv, 0);
-			}
-		}
-
-		// create map with learning rates
-		Map<Inverter, Double> learningRates = new HashMap<>();
-		for (Inverter inv : allInverters) {
-			learningRates.put(inv, (targetWeights.get(inv) - lastWeights.get(inv)) * LEARNING_RATE);
-		}
-
-		// create map with next weights (= last weights + learningRates)
-		Map<Inverter, Double> nextWeights = new HashMap<>();
-		for (Inverter inv : allInverters) {
-			nextWeights.put(inv, lastWeights.get(inv) + learningRates.get(inv));
-		}
-
-		// adjust towards target weight till Problem solves
-		for (double i = 0; i < 1 - LEARNING_RATE; i += LEARNING_RATE) {
-			List<Constraint> constraints = new ArrayList<>(allConstraints);
-			List<Inverter> inverters = new ArrayList<>(allInverters);
-
-			// set EQUALS ZERO constraint if next weight is zero + remove Inverter from
-			// inverters
-			for (Entry<Inverter, Double> entry : nextWeights.entrySet()) {
-				if (entry.getValue() == 0) { // might fail... compare double to zero
-					Inverter inv = entry.getKey();
-					Constraint c = this.data.createSimpleConstraint(inv.toString() + ": next weight = 0",
-							inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, 0);
-					constraints.add(c);
-					inverters.remove(inv);
-				}
-			}
-
-			// no inverters left? -> nothing to optimize
-			if (inverters.isEmpty()) {
-				return null;
-			}
-
-			// Create weighted Constraint between first inverter and every other inverter
-			Inverter invA = inverters.get(0);
-			for (int j = 1; j < inverters.size(); j++) {
-				Inverter invB = inverters.get(j);
-				Constraint c = new Constraint(invA.toString() + "|" + invB.toString() + ": Weight",
-						new LinearCoefficient[] {
-								new LinearCoefficient(
-										this.data.getCoefficient(invA.getEssId(), invA.getPhase(), Pwr.ACTIVE),
-										nextWeights.get(invB)),
-								new LinearCoefficient(
-										this.data.getCoefficient(invB.getEssId(), invB.getPhase(), Pwr.ACTIVE),
-										nextWeights.get(invA) * -1) },
-						Relationship.EQUALS, 0);
-				constraints.add(c);
-			}
-
-			try {
-				PointValuePair solution = ConstraintSolver.solve(this.data.getCoefficients(),
-						constraints);
-				return solution;
-			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
-				// Adjust next weights
-				for (Entry<Inverter, Double> entry : nextWeights.entrySet()) {
-					entry.setValue(entry.getValue() + learningRates.get(entry.getKey()));
-				}
-			}
-		}
-
-		// TODO if we reached here, we should try to approach existingWeights in the
-		// same way as above. This could still improve existingSolution.
-		return null;
-	}
-
-	/**
-	 * Rounds each solution value to the Inverter precision; following this logic.
-	 *
-	 * <p>
-	 * On Discharge (Power > 0)
-	 *
-	 * <ul>
-	 * <li>if SoC > 50 %: round up (more discharge)
-	 * <li>if SoC < 50 %: round down (less discharge)
-	 * </ul>
-	 *
-	 * <p>
-	 * On Charge (Power < 0)
-	 *
-	 * <ul>
-	 * <li>if SoC > 50 %: round down (less charge)
-	 * <li>if SoC < 50 %: round up (more discharge)
-	 * </ul>
-	 *
-	 * @param allInverters    a list of all inverters
-	 * @param solution        a solution
-	 * @param targetDirection the target direction
-	 * @return a map of inverters to PowerTuples
-	 * @throws OpenemsException
-	 */
-	// TODO: round value of one inverter, apply constraint, repeat... to further
-	// optimize this
-	private Map<Inverter, PowerTuple> applyInverterPrecisions(List<Inverter> allInverters, PointValuePair solution,
-			TargetDirection targetDirection) throws OpenemsException {
-		Map<Inverter, PowerTuple> result = new HashMap<>();
-		double[] point = solution.getPoint();
-		for (Inverter inv : allInverters) {
-			Round round = Round.TOWARDS_ZERO;
-			String essId = inv.getEssId();
-			ManagedSymmetricEss ess = this.data.getEss(essId);
-			int soc = ess.getSoc().orElse(0);
-			int precision = ess.getPowerPrecision();
-			PowerTuple powerTuple = new PowerTuple();
-			for (Pwr pwr : Pwr.values()) {
-				Coefficient c = this.data.getCoefficient(essId, inv.getPhase(), pwr);
-				double value = point[c.getIndex()];
-				if (value > 0 && soc > 50 || value < 0 && soc < 50) {
-					round = Round.AWAY_FROM_ZERO;
-				}
-				int roundedValue = IntUtils.roundToPrecision((float) value, round, precision);
-				if (roundedValue == -1 || roundedValue == 1) {
-					roundedValue = 0; // avoid unnecessary power settings on rounding 0.xxx to 1
-				}
-				powerTuple.setValue(pwr, roundedValue);
-			}
-			result.put(inv, powerTuple);
-		}
-		return result;
 	}
 
 	private Map<Inverter, PowerTuple> getZeroSolution(List<Inverter> allInverters) {
@@ -746,27 +295,12 @@ public class Solver {
 	 * @param finalSolution a map of inverters to PowerTuples
 	 */
 	private void applySolution(Map<Inverter, PowerTuple> finalSolution) {
-		// Info-Log
-		StringBuilder b = new StringBuilder("Apply Power: ");
-		List<Inverter> inverters = new ArrayList<>(finalSolution.keySet());
-		inverters.sort((i1, i2) -> {
-			return i1.toString().compareTo(i2.toString());
-		});
-		for (Inverter inv : inverters) {
-			if (inv instanceof DummyInverter) {
-				continue;
-			}
-			b.append(inv.toString() + " " + finalSolution.get(inv).toString() + " ");
-		}
-//		log.info(b.toString());
-
 		// store last value inside Inverter
 		finalSolution.forEach((inv, powerTuple) -> {
 			inv.setLastActivePower(powerTuple.getActivePower());
 		});
 
-		for (String essId : this.data.getEssIds()) {
-			ManagedSymmetricEss ess = this.data.getEss(essId);
+		for (ManagedSymmetricEss ess : this.data.getEsss()) {
 			if (ess instanceof MetaEss) {
 				// ignore MetaEss
 				continue;
@@ -777,7 +311,7 @@ public class Solver {
 			PowerTuple invL3 = null;
 			for (Entry<Inverter, PowerTuple> entry : finalSolution.entrySet()) {
 				Inverter i = entry.getKey();
-				if (Objects.equals(essId, i.getEssId())) {
+				if (Objects.equals(ess.id(), i.getEssId())) {
 					PowerTuple pt = entry.getValue();
 					switch (i.getPhase()) {
 					case ALL:
@@ -796,6 +330,8 @@ public class Solver {
 				}
 			}
 			if (ess instanceof ManagedAsymmetricEss && (invL1 != null || invL2 != null || invL3 != null)) {
+				ManagedAsymmetricEss e = (ManagedAsymmetricEss) ess;
+
 				if (invL1 == null) {
 					invL1 = new PowerTuple();
 				}
@@ -806,24 +342,18 @@ public class Solver {
 					invL3 = new PowerTuple();
 				}
 				// set debug channels on Ess
-				ess._setDebugSetActivePower(invL1.getActivePower() + invL2.getActivePower() + invL3.getActivePower());
-				ess._setDebugSetReactivePower(
+				e._setDebugSetActivePower(invL1.getActivePower() + invL2.getActivePower() + invL3.getActivePower());
+				e._setDebugSetReactivePower(
 						invL1.getReactivePower() + invL2.getReactivePower() + invL3.getReactivePower());
-				ess.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L1)
-						.setNextValue(invL1.getActivePower());
-				ess.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L1)
-						.setNextValue(invL1.getReactivePower());
-				ess.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L2)
-						.setNextValue(invL2.getActivePower());
-				ess.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L2)
-						.setNextValue(invL2.getReactivePower());
-				ess.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L3)
-						.setNextValue(invL3.getActivePower());
-				ess.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L3)
-						.setNextValue(invL3.getReactivePower());
+				e._setDebugSetActivePowerL1(invL1.getActivePower());
+				e._setDebugSetActivePowerL2(invL2.getActivePower());
+				e._setDebugSetActivePowerL3(invL3.getActivePower());
+				e._setDebugSetReactivePowerL1(invL1.getReactivePower());
+				e._setDebugSetReactivePowerL2(invL2.getReactivePower());
+				e._setDebugSetReactivePowerL3(invL3.getReactivePower());
 				// apply Power
 				try {
-					((ManagedAsymmetricEss) ess).applyPower(//
+					e.applyPower(//
 							invL1.getActivePower(), invL1.getReactivePower(), //
 							invL2.getActivePower(), invL2.getReactivePower(), //
 							invL3.getActivePower(), invL3.getReactivePower());
@@ -831,8 +361,8 @@ public class Solver {
 					// announce applying power was ok
 					ess._setApplyPowerFailed(false);
 
-				} catch (OpenemsNamedException e) {
-					this.log.warn("Error in Ess [" + ess.id() + "] apply power: " + e.getMessage());
+				} catch (OpenemsNamedException ex) {
+					this.log.warn("Error in Ess [" + ess.id() + "] apply power: " + ex.getMessage());
 
 					// announce running failed
 					ess._setApplyPowerFailed(true);
@@ -840,9 +370,9 @@ public class Solver {
 
 			} else if (inv != null) {
 				// set debug channels on Ess
-				ess.channel(ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER).setNextValue(inv.getActivePower());
-				ess.channel(ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER)
-						.setNextValue(inv.getReactivePower());
+				ess._setDebugSetActivePower(inv.getActivePower());
+				ess._setDebugSetReactivePower(inv.getReactivePower());
+
 				// apply Power
 				try {
 					ess.applyPower(inv.getActivePower(), inv.getReactivePower());
@@ -858,26 +388,12 @@ public class Solver {
 				}
 
 			} else {
-				log.error("No Solution for [" + ess.id() + "] available!");
+				this.log.error("No Solution for [" + ess.id() + "] available!");
 			}
 		}
 	}
 
-	/**
-	 * Activates/deactivates the Debug Mode.
-	 * 
-	 * @param debugMode true to activate
-	 */
 	protected void setDebugMode(boolean debugMode) {
 		this.debugMode = debugMode;
-	}
-
-	/**
-	 * Sets the solver strategy.
-	 * 
-	 * @param strategy the SolverStrategy
-	 */
-	public void setStrategy(SolverStrategy strategy) {
-		this.strategy = strategy;
 	}
 }

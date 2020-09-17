@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -22,6 +20,8 @@ import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
+import io.openems.edge.ess.core.power.data.ApparentPowerConstraintUtil;
+import io.openems.edge.ess.core.power.data.ConstraintUtil;
 import io.openems.edge.ess.core.power.data.WeightsUtil;
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Coefficients;
@@ -41,80 +41,96 @@ public class Data {
 	private final PowerComponent parent;
 
 	/**
-	 * Holds all inverters, Sorted by weight.
+	 * Holds all Inverters, Sorted by weight.
 	 */
 	private final List<Inverter> inverters = new ArrayList<>();
 
 	/**
-	 * Holds all Ess-IDs.
+	 * Holds all Ess.
 	 */
-	private final Set<String> essIds = new HashSet<>();
+	private final List<ManagedSymmetricEss> esss = new ArrayList<>();
 
 	private final List<Constraint> constraints = new CopyOnWriteArrayList<>();
 	private final Coefficients coefficients = new Coefficients();
-
-	private final ApparentPowerConstraintFactory apparentPowerConstraintFactory;
 
 	private boolean symmetricMode = PowerComponent.DEFAULT_SYMMETRIC_MODE;
 
 	public Data(PowerComponent parent) {
 		this.parent = parent;
-		this.apparentPowerConstraintFactory = new ApparentPowerConstraintFactory(this);
 	}
 
+	/**
+	 * Adds a {@link ManagedSymmetricEss}. Called by {@link PowerComponentImpl}.
+	 * 
+	 * @param ess the {@link ManagedSymmetricEss}
+	 */
 	protected synchronized void addEss(ManagedSymmetricEss ess) {
-		// add to Ess map
-		this.essIds.add(ess.id());
-		// create inverters and add them to list
-		EssType essType = this.parent.getEssType(ess.id());
-		for (Inverter inverter : Inverter.of(this.symmetricMode, ess, essType)) {
-			this.inverters.add(inverter);
-		}
-		// Initially sort Inverters
-		WeightsUtil.updateWeightsFromSoc(inverters, this.parent.esss);
-		WeightsUtil.sortByWeights(this.inverters);
-		this.coefficients.initialize(this.symmetricMode, this.essIds);
+		this.esss.add(ess);
+		this.updateInverters();
 	}
 
-	protected synchronized void removeEss(String essId) {
-		// remove from Ess set
-		this.essIds.remove(essId);
-		// remove from Inverters list
-		Iterator<Inverter> iter = this.inverters.iterator();
-		while (iter.hasNext()) {
-			Inverter inverter = iter.next();
-			if (Objects.equals(essId, inverter.getEssId())) {
-				iter.remove();
-			}
-		}
-		this.coefficients.initialize(this.symmetricMode, this.essIds);
+	/**
+	 * Removes a {@link ManagedSymmetricEss}. Called by {@link PowerComponentImpl}.
+	 * 
+	 * @param ess the {@link ManagedSymmetricEss}
+	 */
+	protected synchronized void removeEss(ManagedSymmetricEss ess) {
+		this.esss.remove(ess);
+		this.updateInverters();
 	}
 
 	public synchronized void setSymmetricMode(boolean symmetricMode) {
 		if (this.symmetricMode != symmetricMode) {
 			this.symmetricMode = symmetricMode;
-			this.coefficients.initialize(this.symmetricMode, this.essIds);
+			this.updateInverters();
 			this.initializeCycle(); // because SymmetricEssConstraints need to be renewed
 		}
 	}
 
-	public List<Inverter> getInverters() {
-		return Collections.unmodifiableList(this.inverters);
+	private synchronized void updateInverters() {
+		this.inverters.clear();
+
+		// Create inverters and add them to list
+		for (ManagedSymmetricEss ess : this.esss) {
+			EssType essType = EssType.getEssType(ess);
+			for (Inverter inverter : Inverter.of(this.symmetricMode, ess, essType)) {
+				this.inverters.add(inverter);
+			}
+		}
+
+		// Re-Initialize Coefficients
+		Set<String> essIds = new HashSet<>();
+		for (ManagedSymmetricEss ess : this.esss) {
+			essIds.add(ess.id());
+		}
+		this.coefficients.initialize(this.symmetricMode, essIds);
+
+		// Initially sort Inverters
+		WeightsUtil.updateWeightsFromSoc(this.inverters, this.esss);
+		WeightsUtil.sortByWeights(this.inverters);
 	}
 
 	public synchronized void initializeCycle() {
 		// Remove Constraints of last Cycle
 		this.constraints.clear();
 		// Update sorting of Inverters
-		WeightsUtil.updateWeightsFromSoc(this.inverters, this.parent.esss);
+		WeightsUtil.updateWeightsFromSoc(this.inverters, this.esss);
 		WeightsUtil.adjustSortingByWeights(this.inverters);
 	}
 
-	public void addConstraint(Constraint constraint) {
+	protected List<ManagedSymmetricEss> getEsss() {
+		return esss;
+	}
+
+	protected List<Inverter> getInverters() {
+		return Collections.unmodifiableList(this.inverters);
+	}
+
+	protected void addConstraint(Constraint constraint) {
 		this.constraints.add(constraint);
 	}
 
-	public void removeConstraint(Constraint constraint) {
+	protected void removeConstraint(Constraint constraint) {
 		this.constraints.remove(constraint);
 	}
 
@@ -125,7 +141,8 @@ public class Data {
 			phase = Phase.ALL;
 			value *= 3;
 		}
-		this.constraints.add(this.createSimpleConstraint(description, essId, phase, pwr, relationship, value));
+		this.constraints.add(ConstraintUtil.createSimpleConstraint(this.coefficients, //
+				description, essId, phase, pwr, relationship, value));
 	}
 
 	public Coefficients getCoefficients() {
@@ -193,7 +210,8 @@ public class Data {
 			String essId = inv.getEssId();
 			Phase phase = inv.getPhase();
 			for (Pwr pwr : Pwr.values()) {
-				result.add(this.createSimpleConstraint(essId + ": Disable " + pwr.getSymbol() + phase.getSymbol(),
+				result.add(ConstraintUtil.createSimpleConstraint(this.coefficients, //
+						essId + ": Disable " + pwr.getSymbol() + phase.getSymbol(), //
 						essId, phase, pwr, Relationship.EQUALS, 0));
 			}
 		}
@@ -209,8 +227,7 @@ public class Data {
 	 */
 	public List<Constraint> createGenericEssConstraints() throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();
-		for (String essId : this.essIds) {
-			ManagedSymmetricEss ess = this.parent.getEss(essId);
+		for (ManagedSymmetricEss ess : this.esss) {
 
 			if (ess instanceof MetaEss) {
 				// ignore
@@ -218,13 +235,13 @@ public class Data {
 			}
 
 			// Allowed Charge Power
-			result.add(this.createSimpleConstraint(essId + ": Allowed Charge", //
-					essId, Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, //
+			result.add(ConstraintUtil.createSimpleConstraint(this.coefficients, ess.id() + ": Allowed Charge", //
+					ess.id(), Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, //
 					ess.getAllowedChargePower().orElse(0)));
 
 			// Allowed Charge Power
-			result.add(this.createSimpleConstraint(essId + ": Allowed Discharge", //
-					essId, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, //
+			result.add(ConstraintUtil.createSimpleConstraint(this.coefficients, ess.id() + ": Allowed Discharge", //
+					ess.id(), Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, //
 					ess.getAllowedDischargePower().orElse(0)));
 
 			// Max Apparent Power
@@ -235,12 +252,12 @@ public class Data {
 					if (phase == Phase.ALL) {
 						continue; // do not add Max Apparent Power Constraint for ALL phases
 					}
-					result.addAll(//
-							this.apparentPowerConstraintFactory.getConstraints(essId, phase, maxApparentPowerPerPhase));
+					result.addAll(ApparentPowerConstraintUtil.generateConstraints(this.coefficients, ess.id(), phase,
+							maxApparentPowerPerPhase));
 				}
 			} else {
-				result.addAll(//
-						this.apparentPowerConstraintFactory.getConstraints(essId, Phase.ALL, maxApparentPower));
+				result.addAll(ApparentPowerConstraintUtil.generateConstraints(this.coefficients, ess.id(), Phase.ALL,
+						maxApparentPower));
 			}
 		}
 		return result;
@@ -254,15 +271,13 @@ public class Data {
 	public List<Constraint> createStaticEssConstraints() {
 		List<Constraint> result = new ArrayList<>();
 		boolean isFailed = false;
-		for (String essId : this.essIds) {
-			ManagedSymmetricEss ess = this.parent.getEss(essId);
+		for (ManagedSymmetricEss ess : this.esss) {
 			try {
 				for (Constraint c : ess.getStaticConstraints()) {
 					result.add(c);
 				}
 			} catch (OpenemsNamedException e) {
-				this.parent.logError(this.log,
-						"Setting static contraints for Ess [" + essId + "] failed: " + e.getMessage());
+				this.log.error("Setting static contraints for Ess [" + ess.id() + "] failed: " + e.getMessage());
 				isFailed = true;
 			}
 		}
@@ -278,8 +293,7 @@ public class Data {
 	 */
 	public List<Constraint> createClusterConstraints() throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();
-		for (String essId : this.essIds) {
-			ManagedSymmetricEss ess = this.parent.getEss(essId);
+		for (ManagedSymmetricEss ess : this.esss) {
 			if (ess instanceof MetaEss) {
 				MetaEss e = (MetaEss) ess;
 				if (this.symmetricMode) {
@@ -333,17 +347,17 @@ public class Data {
 			// Symmetric Mode
 		} else {
 			// Asymmetric Mode
-			for (String essId : this.essIds) {
+			for (ManagedSymmetricEss ess : this.esss) {
 				for (Pwr pwr : Pwr.values()) {
 					// creates two constraint of the form
 					// 1*P - 1*L1 - 1*L2 - 1*L3 = 0
 					// 1*Q - 1*L1 - 1*L2 - 1*L3 = 0
-					result.add(new Constraint(essId + ": " + pwr.getSymbol() + "=L1+L2+L3",
+					result.add(new Constraint(ess.id() + ": " + pwr.getSymbol() + "=L1+L2+L3",
 							new LinearCoefficient[] {
-									new LinearCoefficient(this.coefficients.of(essId, Phase.ALL, pwr), 1),
-									new LinearCoefficient(this.coefficients.of(essId, Phase.L1, pwr), -1),
-									new LinearCoefficient(this.coefficients.of(essId, Phase.L2, pwr), -1),
-									new LinearCoefficient(this.coefficients.of(essId, Phase.L3, pwr), -1) //
+									new LinearCoefficient(this.coefficients.of(ess.id(), Phase.ALL, pwr), 1),
+									new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L1, pwr), -1),
+									new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L2, pwr), -1),
+									new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L3, pwr), -1) //
 							}, Relationship.EQUALS, 0));
 				}
 			}
@@ -359,8 +373,7 @@ public class Data {
 	 */
 	public List<Constraint> createSymmetricEssConstraints() throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();
-		for (String essId : this.essIds) {
-			ManagedSymmetricEss ess = this.parent.getEss(essId);
+		for (ManagedSymmetricEss ess : this.esss) {
 			EssType essType = EssType.getEssType(ess);
 			if (!this.symmetricMode && essType == EssType.SYMMETRIC) {
 				/*
@@ -371,11 +384,11 @@ public class Data {
 					// creates two constraint of the form
 					// 1*L1 - 1*L2 = 0
 					// 1*L1 - 1*L3 = 0
-					result.add(new Constraint(essId + ": Symmetric L1/L2", new LinearCoefficient[] { //
+					result.add(new Constraint(ess.id() + ": Symmetric L1/L2", new LinearCoefficient[] { //
 							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L1, pwr), 1), //
 							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L2, pwr), -1) //
 					}, Relationship.EQUALS, 0));
-					result.add(new Constraint(essId + ": Symmetric L1/L3", new LinearCoefficient[] { //
+					result.add(new Constraint(ess.id() + ": Symmetric L1/L3", new LinearCoefficient[] { //
 							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L1, pwr), 1), //
 							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L3, pwr), -1) //
 					}, Relationship.EQUALS, 0));
@@ -383,27 +396,6 @@ public class Data {
 			}
 		}
 		return result;
-	}
-
-	/**
-	 * Creates a simple Constraint with only one Coefficient. createSumOfPConstraint
-	 * 
-	 * @param description  a description for the Constraint
-	 * @param essId        the component ID of Ess
-	 * @param phase        the Phase
-	 * @param pwr          the Pwr
-	 * @param relationship the Relationshipt
-	 * @param value        the value
-	 * @return Constraints
-	 * @throws OpenemsException
-	 */
-	public Constraint createSimpleConstraint(String description, String essId, Phase phase, Pwr pwr,
-			Relationship relationship, double value) throws OpenemsException {
-		return new Constraint(description, //
-				new LinearCoefficient[] { //
-						new LinearCoefficient(this.coefficients.of(essId, phase, pwr), 1) //
-				}, relationship, //
-				value);
 	}
 
 	/**
@@ -425,7 +417,7 @@ public class Data {
 			for (Inverter inv : inverters) {
 				if (inv instanceof DummyInverter) {
 					for (Pwr pwr : Pwr.values()) {
-						result.add(this.createSimpleConstraint(
+						result.add(ConstraintUtil.createSimpleConstraint(this.coefficients, //
 								inv.getEssId() + ": Dummy " + pwr.getSymbol() + inv.getPhase().getSymbol(),
 								inv.getEssId(), inv.getPhase(), pwr, Relationship.EQUALS, 0));
 					}
@@ -436,10 +428,12 @@ public class Data {
 	}
 
 	protected ManagedSymmetricEss getEss(String essId) {
-		return this.parent.getEss(essId);
+		for (ManagedSymmetricEss ess : esss) {
+			if (essId.equals(ess.id())) {
+				return ess;
+			}
+		}
+		return null;
 	}
 
-	public Set<String> getEssIds() {
-		return Collections.unmodifiableSet(this.essIds);
-	}
 }

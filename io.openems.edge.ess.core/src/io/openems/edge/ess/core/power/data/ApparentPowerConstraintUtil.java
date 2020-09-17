@@ -1,20 +1,21 @@
-package io.openems.edge.ess.core.power;
+package io.openems.edge.ess.core.power.data;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
-public class ApparentPowerConstraintFactory {
+public class ApparentPowerConstraintUtil {
 
 	private static final int CIRCLE_SECTIONS_PER_QUARTER = 2; // don't set higher than 90
 
-	private class Point {
+	private static class Point {
 		protected final double x;
 		protected final double y;
 
@@ -29,22 +30,20 @@ public class ApparentPowerConstraintFactory {
 		}
 	}
 
-	private final Data parent;
-
-	public ApparentPowerConstraintFactory(Data parent) {
-		this.parent = parent;
+	private ApparentPowerConstraintUtil() {
 	}
 
-	public List<Constraint> getConstraints(String essId, Phase phase, double apparentPower) throws OpenemsException {
+	public static List<Constraint> generateConstraints(Coefficients coefficients, String essId, Phase phase,
+			double apparentPower) throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();
 
 		if (apparentPower > 0) {
 			// Calculate 'Apparent-Power Circle'
 			double degreeDelta = 90.0 / CIRCLE_SECTIONS_PER_QUARTER;
-			Point p1 = this.getPointOnCircle(apparentPower, 0);
+			Point p1 = getPointOnCircle(apparentPower, 0);
 
 			for (double degree = degreeDelta; Math.floor(degree) <= 360; degree += degreeDelta) {
-				Point p2 = this.getPointOnCircle(apparentPower, degree);
+				Point p2 = getPointOnCircle(apparentPower, degree);
 
 				Relationship relationship;
 				if (Math.floor(degree) <= 180) {
@@ -53,7 +52,7 @@ public class ApparentPowerConstraintFactory {
 					relationship = Relationship.LESS_OR_EQUALS;
 				}
 
-				Constraint constraint = this.getConstraintThroughPoints(essId, phase, p1, p2, relationship);
+				Constraint constraint = getConstraintThroughPoints(coefficients, essId, phase, p1, p2, relationship);
 				result.add(constraint);
 
 				// set p2 -> p1 for next loop
@@ -62,21 +61,21 @@ public class ApparentPowerConstraintFactory {
 
 		} else {
 			// Add Active-/Reactive-Power = 0 constraints
-			result.add(this.parent.createSimpleConstraint(essId + ": Max Apparent Power", essId, phase, Pwr.ACTIVE,
-					Relationship.EQUALS, 0));
-			result.add(this.parent.createSimpleConstraint(essId + ": Max Apparent Power", essId, phase, Pwr.REACTIVE,
-					Relationship.EQUALS, 0));
+			result.add(ConstraintUtil.createSimpleConstraint(coefficients, //
+					essId + ": Max Apparent Power", essId, phase, Pwr.ACTIVE, Relationship.EQUALS, 0));
+			result.add(ConstraintUtil.createSimpleConstraint(coefficients, //
+					essId + ": Max Apparent Power", essId, phase, Pwr.REACTIVE, Relationship.EQUALS, 0));
 		}
 
 		return result;
 	}
 
-	private Point getPointOnCircle(double radius, double degree) {
+	private static Point getPointOnCircle(double radius, double degree) {
 		return new Point(Math.cos(Math.toRadians(degree)) * radius, Math.sin(Math.toRadians(degree)) * radius);
 	}
 
-	private Constraint getConstraintThroughPoints(String essId, Phase phase, Point p1, Point p2,
-			Relationship relationship) throws OpenemsException {
+	private static Constraint getConstraintThroughPoints(Coefficients coefficients, String essId, Phase phase, Point p1,
+			Point p2, Relationship relationship) throws OpenemsException {
 		/**
 		 * Build the LinearConstraint.
 		 * 
@@ -90,8 +89,8 @@ public class ApparentPowerConstraintFactory {
 		double coefficient2 = -1;
 
 		return new Constraint(essId + ": Max Apparent Power", new LinearCoefficient[] { //
-				new LinearCoefficient(this.parent.getCoefficient(essId, phase, Pwr.ACTIVE), coefficient1), //
-				new LinearCoefficient(this.parent.getCoefficient(essId, phase, Pwr.REACTIVE), coefficient2) //
+				new LinearCoefficient(coefficients.of(essId, phase, Pwr.ACTIVE), coefficient1), //
+				new LinearCoefficient(coefficients.of(essId, phase, Pwr.REACTIVE), coefficient2) //
 		}, relationship, constraintValue);
 	}
 }

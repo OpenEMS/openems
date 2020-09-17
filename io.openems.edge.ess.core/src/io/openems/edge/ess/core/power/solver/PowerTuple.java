@@ -1,8 +1,9 @@
-package io.openems.edge.ess.core.power;
+package io.openems.edge.ess.core.power.solver;
 
 import io.openems.edge.ess.power.api.Pwr;
 
-class PowerTuple {
+public class PowerTuple {
+
 	private int activePower = 0;
 	private int reactivePower = 0;
 
@@ -18,11 +19,11 @@ class PowerTuple {
 	}
 
 	public int getActivePower() {
-		return activePower;
+		return this.activePower;
 	}
 
 	public int getReactivePower() {
-		return reactivePower;
+		return this.reactivePower;
 	}
 
 	@Override

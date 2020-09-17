@@ -1,5 +1,7 @@
 package io.openems.edge.ess.test;
 
+import java.util.function.Consumer;
+
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -18,17 +20,26 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 
 	private final Power power;
 
-	public DummyManagedSymmetricEss(String id, Power power) {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				ManagedSymmetricEss.ChannelId.values(), //
-				SymmetricEss.ChannelId.values() //
-		);
+	private int powerPrecision = 1;
+	private Consumer<SymmetricApplyPowerRecord> symmetricApplyPowerCallback = null;
+
+	protected DummyManagedSymmetricEss(String id, Power power,
+			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+		super(firstInitialChannelIds, furtherInitialChannelIds);
 		this.power = power;
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
 		super.activate(null, id, "", true);
+	}
+
+	public DummyManagedSymmetricEss(String id, Power power) {
+		this(id, power, //
+				OpenemsComponent.ChannelId.values(), //
+				ManagedSymmetricEss.ChannelId.values(), //
+				SymmetricEss.ChannelId.values() //
+		);
 	}
 
 	public DummyManagedSymmetricEss(String id) {
@@ -41,12 +52,8 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) {
-	}
-
-	@Override
 	public int getPowerPrecision() {
-		return 1;
+		return this.powerPrecision;
 	}
 
 	public DummyManagedSymmetricEss withSoc(int value) {
@@ -73,4 +80,29 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 		return this;
 	}
 
+	public DummyManagedSymmetricEss withPowerPrecision(int value) {
+		this.powerPrecision = value;
+		return this;
+	}
+
+	@Override
+	public void applyPower(int activePower, int reactivePower) {
+		if (this.symmetricApplyPowerCallback != null) {
+			this.symmetricApplyPowerCallback.accept(new SymmetricApplyPowerRecord(activePower, reactivePower));
+		}
+	}
+
+	public void withSymmetricApplyPowerCallback(Consumer<SymmetricApplyPowerRecord> callback) {
+		this.symmetricApplyPowerCallback = callback;
+	}
+
+	public static class SymmetricApplyPowerRecord {
+		public final int activePower;
+		public final int reactivePower;
+
+		public SymmetricApplyPowerRecord(int activePower, int reactivePower) {
+			this.activePower = activePower;
+			this.reactivePower = reactivePower;
+		}
+	}
 }

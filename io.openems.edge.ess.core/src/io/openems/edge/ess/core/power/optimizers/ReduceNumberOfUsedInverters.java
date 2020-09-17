@@ -8,12 +8,12 @@ import org.apache.commons.math3.optim.PointValuePair;
 import com.google.common.collect.Lists;
 
 import io.openems.common.function.ThrowingFunction;
-import io.openems.edge.ess.core.power.data.TargetDirectionUtil;
+import io.openems.edge.ess.core.power.data.TargetDirection;
 import io.openems.edge.ess.power.api.Inverter;
 
 public class ReduceNumberOfUsedInverters {
 
-	private TargetDirectionUtil.TargetDirection activeTargetDirection = null;
+	private TargetDirection activeTargetDirection = null;
 	private int targetDirectionChangedSince = 0;
 	private int lastLowestTrueIndex = -1;
 
@@ -31,7 +31,7 @@ public class ReduceNumberOfUsedInverters {
 	 *                         a given list of disabled Inverters.
 	 * @return a list of target inverters
 	 */
-	public List<Inverter> apply(List<Inverter> allInverters, TargetDirectionUtil.TargetDirection targetDirection,
+	public List<Inverter> apply(List<Inverter> allInverters, TargetDirection targetDirection,
 			ThrowingFunction<List<Inverter>, PointValuePair, Exception> validateFunction) {
 		// Only zero or one inverters available? No need to optimize.
 		if (allInverters.size() < 2) {
@@ -48,14 +48,15 @@ public class ReduceNumberOfUsedInverters {
 			this.targetDirectionChangedSince = 0;
 		}
 
-		// For CHARGE take list as it is; for DISCHARGE reverse it. This prefers
-		// high-weight inverters (e.g. high state-of-charge) on DISCHARGE and low-weight
+		// Inverters are by default sorted by weight descending. For DISCHARGE take list
+		// as it is; for CHARGE reverse it. This prefers high-weight inverters (e.g.
+		// high state-of-charge) on DISCHARGE and low-weight
 		// inverters (e.g. low state-of-charge) on CHARGE.
 		List<Inverter> sortedInverters;
-		if (this.activeTargetDirection == TargetDirectionUtil.TargetDirection.DISCHARGE) {
-			sortedInverters = Lists.reverse(allInverters);
-		} else {
+		if (this.activeTargetDirection == TargetDirection.DISCHARGE) {
 			sortedInverters = allInverters;
+		} else {
+			sortedInverters = Lists.reverse(allInverters);
 		}
 
 		/**
@@ -141,7 +142,7 @@ public class ReduceNumberOfUsedInverters {
 		}
 
 		// get result in the order of preferred usage
-		if (this.activeTargetDirection == TargetDirectionUtil.TargetDirection.CHARGE) {
+		if (this.activeTargetDirection == TargetDirection.CHARGE) {
 			result = Lists.reverse(result);
 		}
 		return result;
