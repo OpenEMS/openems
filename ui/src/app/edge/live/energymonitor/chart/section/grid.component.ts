@@ -55,6 +55,15 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
         this.unitpipe = unitpipe;
     }
 
+    ngOnInit() {
+        if (navigator.vendor.match(/apple/i)) {
+            this.fillRef = "url(" + window.location.origin + window.location.pathname + "#" + this.sectionId + ")"
+        }
+        else {
+            this.fillRef = "url(#" + this.sectionId + ")"
+        }
+    }
+
     toggleBuyAnimation() {
         this.startAnimation = setInterval(() => {
             this.showBuyAnimation = !this.showBuyAnimation;
