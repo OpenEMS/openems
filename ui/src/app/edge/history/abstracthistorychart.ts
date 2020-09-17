@@ -93,7 +93,7 @@ export abstract class AbstractHistoryChart {
      * @param edge     the current Edge
      * @param ws       the websocket
      */
-    protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date, resolution: number, channelAddresses: ChannelAddress[]): Promise<queryHistoricTimeseriesEnergyPerPeriodResponse> {
+    protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date, channelAddresses: ChannelAddress[], resolution: number): Promise<queryHistoricTimeseriesEnergyPerPeriodResponse> {
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {

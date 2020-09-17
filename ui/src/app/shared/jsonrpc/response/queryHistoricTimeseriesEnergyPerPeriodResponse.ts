@@ -1,7 +1,7 @@
 import { JsonrpcResponseSuccess } from "../base";
 
 export interface Cumulated {
-    [channelAddress: string]: number | null
+    [channelAddress: string]: [number] | null
 }
 
 /**
