@@ -6,15 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.NoFeasibleSolutionException;
 import org.apache.commons.math3.optim.linear.UnboundedSolutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Stopwatch;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -135,16 +132,11 @@ public class Solver {
 		TargetDirection targetDirection = null;
 		try {
 			// Check if the Problem is solvable at all.
-			Stopwatch stopwatch = Stopwatch.createStarted();
 			allConstraints = this.data.getConstraintsForAllInverters();
-			System.out.println("getConstraintsForAllInverters [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
 			// Add Strict constraints if required
-			stopwatch = Stopwatch.createStarted();
 			AddConstraintsForNotStrictlyDefinedCoefficients.apply(allInverters, this.data.getCoefficients(),
 					allConstraints);
-			System.out.println("addConstraintsForNotStrictlyDefinedCoefficients ["
-					+ stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
 			// Print log with currently active EQUALS != 0 Constraints
 			if (this.debugMode) {
@@ -157,22 +149,17 @@ public class Solver {
 			}
 
 			// Evaluates whether it is a CHARGE or DISCHARGE problem.
-			stopwatch = Stopwatch.createStarted();
 			targetDirection = TargetDirection.from(//
 					this.data.getInverters(), //
 					this.data.getCoefficients(), //
 					this.data.getConstraintsForAllInverters() //
 			);
-			System.out.println("getTargetDirection [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
 			// Gets the target-Inverters, i.e. the Inverters that are minimally required to
 			// solve the Problem.
-			stopwatch = Stopwatch.createStarted();
 			List<Inverter> targetInverters = this.optimizers.reduceNumberOfUsedInverters.apply(allInverters,
 					targetDirection, this.solveWithDisabledInverters);
-			System.out.println("getTargetInverters [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
-			stopwatch = Stopwatch.createStarted();
 			switch (strategy) {
 			case UNDEFINED:
 			case ALL_CONSTRAINTS:
@@ -199,7 +186,6 @@ public class Solver {
 						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET);
 				break;
 			}
-			System.out.println("strategy [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms] " + strategy);
 
 		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 			if (this.debugMode) {
