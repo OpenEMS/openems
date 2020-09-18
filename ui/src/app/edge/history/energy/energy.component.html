@@ -12,8 +12,8 @@
     <div [style.height.px]="getChartHeight()">
       <ngx-spinner [name]="spinnerId"></ngx-spinner>
       <ng-container *ngIf="!loading">
-        <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [colors]="colors"
-          [chartType]="chartType"></canvas>
+        <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [chartType]="chartType"
+          [colors]="colors"></canvas>
       </ng-container>
     </div>
   </ion-card-content>

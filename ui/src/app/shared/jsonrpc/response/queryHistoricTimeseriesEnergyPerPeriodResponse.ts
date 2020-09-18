@@ -1,9 +1,5 @@
 import { JsonrpcResponseSuccess } from "../base";
 
-export interface Cumulated {
-    [channelAddress: string]: number[] | null
-}
-
 /**
  * Wraps a JSON-RPC Response for a queryHistoricTimeseriesEnergy.
  * 
@@ -22,7 +18,8 @@ export class queryHistoricTimeseriesEnergyPerPeriodResponse extends JsonrpcRespo
     public constructor(
         public readonly id: string,
         public readonly result: {
-            data: Cumulated;
+            timestamps: string[],
+            data: { [channelAddress: string]: any[] }
         }
     ) {
         super(id, result);

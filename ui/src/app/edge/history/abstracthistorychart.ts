@@ -1,5 +1,6 @@
 import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
-import { ChartOptions, Dataset, EMPTY_DATASET } from './shared';
+import { ChartOptions, EMPTY_DATASET } from './shared';
+import { ChartDataSets } from 'chart.js';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
@@ -23,7 +24,7 @@ export abstract class AbstractHistoryChart {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     protected labels: Date[] = [];
-    protected datasets: Dataset[] = EMPTY_DATASET;
+    protected datasets: ChartDataSets[] = EMPTY_DATASET;
     protected options: ChartOptions;
     protected colors = []
 

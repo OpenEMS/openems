@@ -7,7 +7,7 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { EnergyModalComponent } from './modal/modal.component';
 import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
-import { formatNumber } from '@angular/common';
+import { addDays, subDays } from 'date-fns/esm';
 import { ModalController } from '@ionic/angular';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
@@ -15,6 +15,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as FileSaver from 'file-saver';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
+import { ChartDataSets } from 'chart.js';
 
 @Component({
   selector: 'energy',
@@ -24,6 +25,18 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
   private static readonly EXCEL_EXTENSION = '.xlsx';
+
+  public barChartOptions: any = {
+    responsive: true,
+    scales: {
+      xAxes: [{
+        stacked: true
+      }],
+      yAxes: [{
+        stacked: true
+      }]
+    }
+  };
 
   public chartType: string = "line";
 
@@ -385,13 +398,21 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         } else if (this.service.periodString == "week" && this.service.isKwhAllowed(edge) == true) {
           this.chartType = "bar";
           this.getEnergyChannelAddresses(edge, config).then(channelAddresses => {
-            let resolution: number = 3600 // resolution for value per hour
-            this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to, channelAddresses, resolution).then(response => {
+            let resolution: number = 86400 // resolution for value per day
+            this.queryHistoricTimeseriesEnergyPerPeriod(addDays(this.period.from, 1), this.period.to, channelAddresses, resolution).then(response => {
               let result = (response as queryHistoricTimeseriesEnergyPerPeriodResponse).result;
+              console.log("periodto", result);
               console.log("result", result);
 
               // convert datasets
-              let datasets = [];
+              let datasets: ChartDataSets[] = [];
+
+              // convert labels
+              let labels: Date[] = [];
+              for (let timestamp of result.timestamps) {
+                labels.push(new Date(timestamp));
+              }
+              this.labels = labels;
 
               // Direct Consumption
 
@@ -421,10 +442,13 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 datasets.push({
                   label: "Direktverbrauch",
                   data: directConsumptionData,
+                  borderColor: 'rgba(128,128,0,1)',
+                  backgroundColor: 'rgba(128,128,0,1)',
                   stack: "Stack0"
                 })
                 this.colors.push({
-                  backgroundColor: 'rgba(128,128,0,1)'
+                  borderColor: 'rgba(128,128,0,1)',
+                  backgroundColor: 'rgba(128,128,0,1)',
                 })
               }
 
@@ -442,10 +466,13 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 datasets.push({
                   label: "Beladung",
                   data: chargeData,
-                  stack: "Stack 0"
+                  borderColor: 'rgba(0,223,0,1)',
+                  backgroundColor: 'rgba(0,223,0,1)',
+                  stack: "Stack0"
                 })
                 this.colors.push({
-                  backgroundColor: 'rgba(0,223,0,1)'
+                  borderColor: 'rgba(0,223,0,1)',
+                  backgroundColor: 'rgba(0,223,0,1)',
                 })
               }
 
@@ -463,10 +490,13 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 datasets.push({
                   label: "Netzeinspeisung",
                   data: gridSellData,
-                  stack: "Stack 0"
+                  borderColor: 'rgba(0,0,200,1)',
+                  backgroundColor: 'rgba(0,0,200,1)',
+                  stack: "Stack0"
                 })
                 this.colors.push({
-                  backgroundColor: 'rgba(0,0,200,1)'
+                  borderColor: 'rgba(0,0,200,1)',
+                  backgroundColor: 'rgba(0,0,200,1)',
                 })
               }
 
@@ -479,10 +509,13 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 datasets.push({
                   label: "Direktverbrauch",
                   data: directConsumptionData,
+                  borderColor: 'rgba(128,128,0,1)',
+                  backgroundColor: 'rgba(128,128,0,1)',
                   stack: "Stack1"
                 })
                 this.colors.push({
-                  backgroundColor: 'rgba(128,128,0,1)'
+                  borderColor: 'rgba(128,128,0,1)',
+                  backgroundColor: 'rgba(128,128,0,1)',
                 })
               }
 
@@ -500,10 +533,13 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 datasets.push({
                   label: "Entladung",
                   data: dischargeData,
-                  stack: "Stack 1"
+                  borderColor: 'rgba(200,0,0,1)',
+                  backgroundColor: 'rgba(200,0,0,1)',
+                  stack: "Stack1"
                 })
                 this.colors.push({
-                  backgroundColor: 'rgba(200,0,0,1)'
+                  borderColor: 'rgba(200,0,0,1)',
+                  backgroundColor: 'rgba(200,0,0,1)',
                 })
               }
 
@@ -521,13 +557,18 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 datasets.push({
                   label: "Netzbezug",
                   data: gridBuyData,
-                  stack: "Stack 1"
+                  borderColor: 'rgba(0,0,0,1)',
+                  backgroundColor: 'rgba(0,0,0,1)',
+                  stack: "Stack1"
                 })
                 this.colors.push({
-                  backgroundColor: 'rgba(0,0,0,1)'
+                  borderColor: 'rgba(0,0,0,1)',
+                  backgroundColor: 'rgba(0,0,0,1)',
                 })
               }
               this.datasets = datasets;
+              this.colors = [];
+              console.log("datasets", datasets)
               this.loading = false;
               this.service.stopSpinner(this.spinnerId);
             })
@@ -636,8 +677,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       currentEdge = edge;
     })
     if (this.service.periodString == "week" && this.service.isKwhAllowed(currentEdge) == true) {
+      options.scales.xAxes[0].time.unit = 'day';
+      options.scales.xAxes[0].time.unitStepSize = 1;
       options.scales.xAxes[0].stacked = true;
-      options.scales.xAxes[0].time.minUnit = 'hour';
     } else {
       // adds second y-axis to chart
       options.scales.yAxes.push({
@@ -664,20 +706,20 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       options.scales.yAxes[0].scaleLabel.padding = -2;
       options.scales.yAxes[0].scaleLabel.fontSize = 11;
       options.scales.yAxes[0].ticks.padding = -5;
-      options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-        let label = data.datasets[tooltipItem.datasetIndex].label;
-        if (label.split(" ").length > 1) {
-          label = label.split(" ").slice(0, 1).toString();
+      // options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
+      //   let label = data.datasets[tooltipItem.datasetIndex].label;
+      //   if (label.split(" ").length > 1) {
+      //     label = label.split(" ").slice(0, 1).toString();
 
-        }
+      //   }
 
-        let value = tooltipItem.yLabel;
-        if (label == translate.instant('General.soc')) {
-          return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-        } else {
-          return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
-      }
+      //   let value = tooltipItem.yLabel;
+      //   if (label == translate.instant('General.soc')) {
+      //     return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+      //   } else {
+      //     return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+      //   }
+      // }
     }
     this.options = options;
   }

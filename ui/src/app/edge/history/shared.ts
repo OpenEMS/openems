@@ -79,6 +79,8 @@ export type ChartOptions = {
             stacked: boolean,
             type: "time",
             time: {
+                unit?: string;
+                unitStepSize?: number;
                 minUnit: string,
                 displayFormats: {
                     millisecond: string,
