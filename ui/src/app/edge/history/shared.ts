@@ -56,6 +56,10 @@ export type ChartOptions = {
         intersect: boolean
     },
     scales: {
+        scaleShowValues?: boolean,
+        ticks: {
+            autoSkip?: boolean
+        }
         yAxes: [{
             id?: string,
             position: string,
@@ -72,10 +76,11 @@ export type ChartOptions = {
                 beginAtZero: boolean,
                 max?: number,
                 padding?: number,
-                stepSize?: number
+                stepSize?: number,
             }
         }],
         xAxes: [{
+            offset?: boolean,
             stacked: boolean,
             type: "time",
             time: {
@@ -93,6 +98,14 @@ export type ChartOptions = {
                     quarter: string,
                     year: string
                 }
+            },
+            ticks: {
+                autoSkip?: boolean,
+                beginAtZero?: boolean,
+                autoSkipPadding?: number,
+                stepSize?: number,
+                min?: number,
+                maxTicksLimit?: number
             }
         }]
     },
@@ -128,6 +141,9 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
         intersect: true
     },
     scales: {
+        ticks: {
+
+        },
         yAxes: [{
             position: 'left',
             scaleLabel: {
@@ -139,6 +155,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
             }
         }],
         xAxes: [{
+            ticks: {},
             stacked: false,
             type: 'time',
             time: {

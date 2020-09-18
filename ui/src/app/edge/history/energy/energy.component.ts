@@ -401,8 +401,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             let resolution: number = 86400 // resolution for value per day
             this.queryHistoricTimeseriesEnergyPerPeriod(addDays(this.period.from, 1), this.period.to, channelAddresses, resolution).then(response => {
               let result = (response as queryHistoricTimeseriesEnergyPerPeriodResponse).result;
-              console.log("periodto", result);
-              console.log("result", result);
 
               // convert datasets
               let datasets: ChartDataSets[] = [];
@@ -413,6 +411,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 labels.push(new Date(timestamp));
               }
               this.labels = labels;
+              console.log("labels", labels)
 
               // Direct Consumption
 
@@ -444,7 +443,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                   data: directConsumptionData,
                   borderColor: 'rgba(128,128,0,1)',
                   backgroundColor: 'rgba(128,128,0,1)',
-                  stack: "Stack0"
+                  barPercentage: 0.5,
+                  categoryPercentage: 0.5,
+                  stack: "0"
                 })
                 this.colors.push({
                   borderColor: 'rgba(128,128,0,1)',
@@ -468,7 +469,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                   data: chargeData,
                   borderColor: 'rgba(0,223,0,1)',
                   backgroundColor: 'rgba(0,223,0,1)',
-                  stack: "Stack0"
+                  barPercentage: 0.5,
+                  categoryPercentage: 0.5,
+                  stack: "0"
                 })
                 this.colors.push({
                   borderColor: 'rgba(0,223,0,1)',
@@ -492,7 +495,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                   data: gridSellData,
                   borderColor: 'rgba(0,0,200,1)',
                   backgroundColor: 'rgba(0,0,200,1)',
-                  stack: "Stack0"
+                  barPercentage: 0.5,
+                  categoryPercentage: 0.5,
+                  stack: "0"
                 })
                 this.colors.push({
                   borderColor: 'rgba(0,0,200,1)',
@@ -511,7 +516,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                   data: directConsumptionData,
                   borderColor: 'rgba(128,128,0,1)',
                   backgroundColor: 'rgba(128,128,0,1)',
-                  stack: "Stack1"
+                  barPercentage: 0.5,
+                  categoryPercentage: 0.5,
+                  stack: "1"
                 })
                 this.colors.push({
                   borderColor: 'rgba(128,128,0,1)',
@@ -535,7 +542,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                   data: dischargeData,
                   borderColor: 'rgba(200,0,0,1)',
                   backgroundColor: 'rgba(200,0,0,1)',
-                  stack: "Stack1"
+                  barPercentage: 0.5,
+                  categoryPercentage: 0.5,
+                  stack: "1"
                 })
                 this.colors.push({
                   borderColor: 'rgba(200,0,0,1)',
@@ -559,7 +568,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                   data: gridBuyData,
                   borderColor: 'rgba(0,0,0,1)',
                   backgroundColor: 'rgba(0,0,0,1)',
-                  stack: "Stack1"
+                  barPercentage: 0.5,
+                  categoryPercentage: 0.5,
+                  stack: "1"
                 })
                 this.colors.push({
                   borderColor: 'rgba(0,0,0,1)',
@@ -678,8 +689,16 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     })
     if (this.service.periodString == "week" && this.service.isKwhAllowed(currentEdge) == true) {
       options.scales.xAxes[0].time.unit = 'day';
-      options.scales.xAxes[0].time.unitStepSize = 1;
+      // options.scales.xAxes[0].time.unitStepSize = 1;
       options.scales.xAxes[0].stacked = true;
+      options.scales.xAxes[0].offset = true;
+      options.scales.xAxes[0].ticks.autoSkip = false;
+      options.scales.xAxes[0].ticks.beginAtZero = true;
+      options.scales.ticks.autoSkip = false;
+      options.scales.scaleShowValues = true;
+      options.scales.xAxes[0].ticks.stepSize = 1;
+      options.scales.xAxes[0].ticks.min = 0;
+      options.scales.xAxes[0].ticks.maxTicksLimit = 15;
     } else {
       // adds second y-axis to chart
       options.scales.yAxes.push({
