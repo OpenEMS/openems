@@ -16,32 +16,48 @@
                         </tr>
                         <ng-container [ngSwitch]="currentData[component.id + '/InverterStatus']">
                             <tr>
-                                <td *ngSwitchCase="1">
+                                <td style="width: 35%">Status:</td>
+                                <td style="width: 65%" class="align_right" *ngSwitchCase="0">
+                                    Error
+                                </td>
+                                <td style="width: 65%" class="align_right" *ngSwitchCase="1">
                                     Off/Standby
                                 </td>
-                                <td *ngSwitchCase="4">
+                                <td style="width: 65%" class="align_right" *ngSwitchCase="4">
                                     Inverter Test
                                 </td>
-                                <td *ngSwitchCase="7">
+                                <td style="width: 65%" class="align_right" *ngSwitchCase="7">
                                     PV Power Test
                                 </td>
-                                <td *ngSwitchCase="8">
+                                <td style="width: 65%" class="align_right" *ngSwitchCase="8">
                                     Battery Test
                                 </td>
-                                <td *ngSwitchCase="9">
+                                <td style="width: 65%" class="align_right" *ngSwitchCase="9">
                                     Iso Test
                                 </td>
-                                <td *ngSwitchCase="10">
+                                <td style="width: 65%" class="align_right" *ngSwitchCase="10">
                                     Grid Test
                                 </td>
-                                <td *ngSwitchCase="11">
+                                <td style="width: 65%" class="align_right" *ngSwitchCase="11">
                                     Inverter Test
+                                </td>
+                                <td style="width: 65%" class="align_right" *ngSwitchCase="12">
+                                    Off-Grid / Island
+                                </td>
+                                <td style="width: 65%" class="align_right" *ngSwitchCase="13">
+                                    Grid
+                                </td>
+                                <td style="width: 65%" class="align_right" *ngSwitchCase="14">
+                                    Grid
+                                </td>
+                                <td style="width: 65%" class="align_right" *ngSwitchDefault>
+                                    Undefined
                                 </td>
                             </tr>
                         </ng-container>
 
                     </table>
-                    <ng-container *ngIf="currentData[component.id + '/HasError'] === 1; else noError">
+                    <ng-container *ngIf="currentData[component.id + '/HasError'] === 1">
                         <table class="full_width">
                             <tr *ngFor="let error of currentData[component.id + '/ErrorList'] | toarray">
                                 <td style="width: 100%">
@@ -50,13 +66,6 @@
                             </tr>
                         </table>
                     </ng-container>
-                    <ng-template #noError>
-                        <table class="full_width">
-                            <tr>
-                                <td class="full_width">Keine Meldungen</td>
-                            </tr>
-                        </table>
-                    </ng-template>
                 </ion-card-content>
             </ng-container>
         </ion-card>
