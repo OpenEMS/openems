@@ -1,0 +1,3 @@
+= io.openems.edge.controller.symmetric.delayselltogrid
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.symmetric.delayselltogrid[Source Code icon:github[]]
