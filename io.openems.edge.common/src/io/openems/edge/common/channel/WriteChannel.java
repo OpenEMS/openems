@@ -3,8 +3,8 @@ package io.openems.edge.common.channel;
 import java.util.List;
 import java.util.Optional;
 
-import io.openems.common.exceptions.CheckedConsumer;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingConsumer;
 import io.openems.edge.common.type.TypeUtils;
 
 public interface WriteChannel<T> extends Channel<T> {
@@ -42,7 +42,7 @@ public interface WriteChannel<T> extends Channel<T> {
 		OpenemsNamedException exception = null;
 		// set the write value
 		this._setNextWriteValue(typedValue);
-		for (CheckedConsumer<T> callback : this.getOnSetNextWrites()) {
+		for (ThrowingConsumer<T, OpenemsNamedException> callback : this.getOnSetNextWrites()) {
 			try {
 				callback.accept(typedValue);
 			} catch (OpenemsNamedException e) {
@@ -89,8 +89,8 @@ public interface WriteChannel<T> extends Channel<T> {
 	 * <p>
 	 * The callback can throw an {@link OpenemsNamedException}.
 	 */
-	public void onSetNextWrite(CheckedConsumer<T> callback);
+	public void onSetNextWrite(ThrowingConsumer<T, OpenemsNamedException> callback);
 
-	public List<CheckedConsumer<T>> getOnSetNextWrites();
+	public List<ThrowingConsumer<T, OpenemsNamedException>> getOnSetNextWrites();
 
 }

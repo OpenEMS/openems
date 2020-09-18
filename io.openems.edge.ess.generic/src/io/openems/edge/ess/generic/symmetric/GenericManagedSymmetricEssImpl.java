@@ -30,11 +30,11 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.common.statemachine.StateMachine;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.symmetric.statemachine.Context;
-import io.openems.edge.ess.generic.symmetric.statemachine.State;
+import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine;
+import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Power;
 
@@ -67,7 +67,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 	/**
 	 * Manages the {@link State}s of the StateMachine.
 	 */
-	private final StateMachine<State, Context> stateMachine = new StateMachine<>(State.UNDEFINED);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	/**
 	 * Helper wrapping class to handle everything related to Channels.
@@ -134,7 +134,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 
 		// Initialize 'Start-Stop' Channel
 		this._setStartStop(StartStop.UNDEFINED);
-
+		
 		// Prepare Context
 		Context context = new Context(this, this.battery, this.batteryInverter, this.config);
 

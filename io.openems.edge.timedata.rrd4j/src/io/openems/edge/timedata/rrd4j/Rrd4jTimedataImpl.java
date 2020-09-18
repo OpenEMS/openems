@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -42,6 +41,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.CommonTimedataService;
@@ -119,8 +119,8 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 					continue; // not existing -> abort
 				}
 
-				FetchRequest request = database.createFetchRequest(ConsolFun.AVERAGE, fromTimestamp, toTimeStamp,
-						resolution);
+				ChannelDef chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
+				FetchRequest request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp);
 				FetchData data = request.fetchData();
 				database.close();
 
@@ -158,13 +158,65 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	@Override
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
-		// TODO implement Energy calculation
-		throw new OpenemsException("Unable to query historic Energy " //
-				+ "from [" + fromDate + "] " //
-				+ "to [" + toDate + "] " //
-				+ "for Channels [" + channels.stream().map(ChannelAddress::toString).collect(Collectors.joining(", "))
-				+ "]. " //
-				+ "This method is not implemented.");
+		SortedMap<ChannelAddress, JsonElement> table = new TreeMap<>();
+		long fromTimestamp = fromDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
+		long toTimeStamp = toDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
+
+		RrdDb database = null;
+		try {
+			for (ChannelAddress channelAddress : channels) {
+				Channel<?> channel = this.componentManager.getChannel(channelAddress);
+				database = this.getExistingRrdDb(channel.address());
+				if (database == null) {
+					continue; // not existing -> abort
+				}
+
+				ChannelDef chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
+				FetchRequest request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp);
+				FetchData data = request.fetchData();
+				database.close();
+
+				// Find first and last energy value != null
+				double first = Double.NaN;
+				double last = Double.NaN;
+				for (Double tmp : data.getValues(0)) {
+					if (Double.isNaN(first) && !Double.isNaN(tmp)) {
+						first = tmp;
+					}
+					if (!Double.isNaN(tmp)) {
+						last = tmp;
+					}
+				}
+
+				// Calculate difference between last and first value
+				double value = last - first;
+
+				if (Double.isNaN(value)) {
+					table.put(channelAddress, JsonNull.INSTANCE);
+				} else {
+					table.put(channelAddress, new JsonPrimitive(value));
+				}
+
+			}
+		} catch (IOException | IllegalArgumentException e) {
+			throw new OpenemsException("Unable to read historic data: " + e.getMessage());
+		} finally {
+			if (database != null && !database.isClosed()) {
+				try {
+					database.close();
+				} catch (IOException e) {
+					this.logWarn(this.log, "Unable to close database: " + e.getMessage());
+				}
+			}
+		}
+		return table;
+	}
+
+	@Override
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			throws OpenemsNamedException {
+		throw new NotImplementedException("QueryHistoryEnergyPerPeriod is not implemented for RRD4j");
 	}
 
 	@Override
@@ -345,7 +397,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		case VOLT_AMPERE_HOURS:
 		case VOLT_AMPERE_REACTIVE_HOURS:
 		case KILOVOLT_AMPERE_REACTIVE_HOURS:
-			return new ChannelDef(DsType.GAUGE, Double.NaN, 1, ConsolFun.MAX);
+			return new ChannelDef(DsType.GAUGE, Double.NaN, Double.NaN, ConsolFun.MAX);
 		}
 		throw new IllegalArgumentException("Unhandled Channel unit [" + channelUnit + "]");
 	}
@@ -371,4 +423,5 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 			break;
 		}
 	}
+
 }

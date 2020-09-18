@@ -294,8 +294,10 @@ public interface OpenemsComponent {
 		 */
 		// target component must be enabled
 		StringBuilder targetBuilder = new StringBuilder("(&(enabled=true)");
-		// target component must not be the same as the calling component
-		targetBuilder.append("(!(service.pid=" + pid + "))");
+		if (pid != null && !pid.isEmpty()) {
+			// target component must not be the same as the calling component
+			targetBuilder.append("(!(service.pid=" + pid + "))");
+		}
 		// add filter for given Component-IDs
 		targetBuilder.append("(|");
 		for (String id : ids) {
