@@ -740,7 +740,22 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       //   }
       // }
     }
-    this.options = options;
+    let newOptions = {
+      scaleShowValues: true,
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }],
+        xAxes: [{
+          ticks: {
+            autoSkip: false
+          }
+        }]
+      }
+    }
+    this.options = newOptions;
   }
 
   private getAsymmetric(ids: string[], ignoreIds: string[]): ChannelAddress[] {
