@@ -5,6 +5,7 @@ import { IAngularMyDpOptions, IMyDate, IMyDateRangeModel, CalAnimation } from 'a
 import { PopoverController } from '@ionic/angular';
 import { Service } from '../../shared';
 import { TranslateService } from '@ngx-translate/core';
+import { endOfMonth, endOfYear, startOfMonth, startOfYear } from 'date-fns';
 
 
 @Component({
@@ -72,6 +73,18 @@ export class PickDatePopoverComponent {
             }
             case 'week': {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(startOfWeek(this.TODAY, { weekStartsOn: 1 }), endOfWeek(this.TODAY, { weekStartsOn: 1 })));
+                this.service.periodString = period;
+                this.popoverCtrl.dismiss();
+                break;
+            }
+            case 'month': {
+                this.setDateRange(new DefaultTypes.HistoryPeriod(startOfMonth(this.TODAY), endOfMonth(this.TODAY)));
+                this.service.periodString = period;
+                this.popoverCtrl.dismiss();
+                break;
+            }
+            case 'year': {
+                this.setDateRange(new DefaultTypes.HistoryPeriod(startOfYear(this.TODAY), endOfYear(this.TODAY)));
                 this.service.periodString = period;
                 this.popoverCtrl.dismiss();
                 break;

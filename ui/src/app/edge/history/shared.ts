@@ -2,6 +2,7 @@ import { ChannelAddress } from 'src/app/shared/shared';
 import { DecimalPipe } from '@angular/common';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { startOfDay, endOfDay, differenceInMinutes } from 'date-fns';
+import { ChartData, ChartLegendLabelItem } from 'chart.js';
 
 export interface Dataset {
     label: string;
@@ -39,6 +40,10 @@ export type ChartOptions = {
     responsive?: boolean,
     maintainAspectRatio: boolean,
     legend: {
+        labels: {
+            generateLabels?(chart: Chart): ChartLegendLabelItem[],
+            filter?(legendItem: ChartLegendLabelItem, data: ChartData): any
+        },
         position: "bottom"
     },
     elements: {
@@ -118,6 +123,7 @@ export type ChartOptions = {
 export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
     maintainAspectRatio: false,
     legend: {
+        labels: {},
         position: 'bottom'
     },
     elements: {

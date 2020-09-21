@@ -60,6 +60,12 @@ export class PickDateComponent {
                 }
                 break;
             }
+            case 'month': {
+
+            }
+            case 'year': {
+
+            }
             case 'custom': {
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
                 dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;

@@ -1,5 +1,5 @@
 import { TranslateService } from '@ngx-translate/core';
-import { format, getDay, isSameDay, subDays } from 'date-fns';
+import { endOfMonth, format, getDay, getMonth, getYear, isSameDay, isSameMonth, isSameYear, startOfMonth, startOfWeek, startOfYear, subDays } from 'date-fns';
 import { EdgeConfig } from '../shared';
 
 export module DefaultTypes {
@@ -90,7 +90,7 @@ export module DefaultTypes {
     params?: string[]
   }
 
-  export type PeriodString = 'day' | 'week' | 'custom';
+  export type PeriodString = 'day' | 'week' | 'month' | 'year' | 'custom';
 
   export class HistoryPeriod {
 
@@ -144,7 +144,51 @@ export module DefaultTypes {
       }
       else if (isSameDay(this.from, this.to) && isSameDay(this.from, subDays(new Date(), 1))) {
         return translate.instant('Edge.History.yesterday') + ", " + format(this.from, translate.instant('General.dateFormat'));
-      } else {
+      }
+      else if (isSameMonth(this.from, this.to) && this.from == startOfMonth(this.from) && this.to == endOfMonth(this.to)) {
+        switch (getMonth(this.from) + 1) {
+          case 1: {
+            return translate.instant('General.Month.january') + " " + getYear(this.from);
+          }
+          case 2: {
+            return translate.instant('General.Month.february') + " " + getYear(this.from);
+          }
+          case 3: {
+            return translate.instant('General.Month.march') + " " + getYear(this.from);
+          }
+          case 4: {
+            return translate.instant('General.Month.april') + " " + getYear(this.from);
+          }
+          case 5: {
+            return translate.instant('General.Month.may') + " " + getYear(this.from);
+          }
+          case 6: {
+            return translate.instant('General.Month.june') + " " + getYear(this.from);
+          }
+          case 7: {
+            return translate.instant('General.Month.july') + " " + getYear(this.from);
+          }
+          case 8: {
+            return translate.instant('General.Month.august') + " " + getYear(this.from);
+          }
+          case 9: {
+            return translate.instant('General.Month.september') + " " + getYear(this.from);
+          }
+          case 10: {
+            return translate.instant('General.Month.october') + " " + getYear(this.from);
+          }
+          case 11: {
+            return translate.instant('General.Month.november') + " " + getYear(this.from);
+          }
+          case 12: {
+            return translate.instant('General.Month.december') + " " + getYear(this.from);
+          }
+        }
+      }
+      else if (isSameYear(this.from, this.to) && this.from == startOfYear(this.from) && this.to == startOfYear(this.to)) {
+        return getYear(this.from).toString();
+      }
+      else {
         return translate.instant(
           'General.periodFromTo', {
           value1: format(this.from, translate.instant('General.dateFormatShort')),

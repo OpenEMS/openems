@@ -15,7 +15,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as FileSaver from 'file-saver';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { ChartDataSets } from 'chart.js';
+import { ChartData, ChartDataSets, ChartLegendItem, ChartLegendLabelItem } from 'chart.js';
 import { formatNumber } from '@angular/common';
 
 @Component({
@@ -698,6 +698,17 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       options.scales.xAxes[0].ticks.source = 'data';
       options.scales.xAxes[0].stacked = true;
       options.scales.xAxes[0].offset = true;
+      options.legend.labels = {
+        filter(legendItem: ChartLegendLabelItem, data: ChartData) {
+          let index = legendItem.datasetIndex;
+          let stack = data.datasets[index].stack;
+          if (legendItem.text == "Direktverbrauch" && stack == "1") {
+            return false;
+          } else {
+            return true;
+          }
+        }
+      }
     } else {
       // adds second y-axis to chart
       options.scales.yAxes.push({
