@@ -23,6 +23,8 @@ public interface ComponentManager extends OpenemsComponent, JsonApi {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
 				.text("A configured OpenEMS Component was not activated")), //
+		DUPLICATED_COMPONENT_ID(Doc.of(Level.FAULT) //
+				.text("Configuration has duplicated Component-IDs")), //
 		WAS_OUT_OF_MEMORY(Doc.of(Level.FAULT) //
 				.text("OutOfMemory had happened. Found heap dump files.")),
 		DEFAULT_CONFIGURATION_FAILED(Doc.of(Level.FAULT) //
@@ -66,6 +68,35 @@ public interface ComponentManager extends OpenemsComponent, JsonApi {
 	 */
 	public default void _setConfigNotActivated(Boolean value) {
 		this.getConfigNotActivatedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DUPLICATED_COMPONENT_ID}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getDuplicatedComponentIdChannel() {
+		return this.channel(ChannelId.DUPLICATED_COMPONENT_ID);
+	}
+
+	/**
+	 * Gets the Duplicated Component-ID Fault State. See
+	 * {@link ChannelId#DUPLICATED_COMPONENT_ID}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getDuplicatedComponentId() {
+		return this.getDuplicatedComponentIdChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DUPLICATED_COMPONENT_ID} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDuplicatedComponentId(Boolean value) {
+		this.getDuplicatedComponentIdChannel().setNextValue(value);
 	}
 
 	/**

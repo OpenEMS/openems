@@ -23,7 +23,6 @@ export class EvcsComponent {
   public chargeMode: ChargeMode = null;
 
   constructor(
-    private route: ActivatedRoute,
     private service: Service,
     private websocket: Websocket,
     protected translate: TranslateService,
@@ -32,7 +31,7 @@ export class EvcsComponent {
 
   ngOnInit() {
     // Subscribe to CurrentData
-    this.service.setCurrentComponent('', this.route).then(edge => {
+    this.service.getCurrentEdge().then(edge => {
       this.edge = edge;
       // Gets the Controller & Component for the given EVCS-Component.
       this.service.getConfig().then(config => {

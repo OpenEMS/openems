@@ -31,6 +31,8 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart implemen
     }
 
     ngOnInit() {
+        this.spinnerId = 'production-meter-chart';
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
         this.subscribeChartRefresh()
     }
@@ -41,11 +43,12 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart implemen
 
     protected updateChart() {
         this.loading = true;
+        this.service.startSpinner(this.spinnerId);
+        this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
                     let result = response.result;
-                    this.colors = [];
                     // convert labels
                     let labels: Date[] = [];
                     for (let timestamp of result.timestamps) {
@@ -105,6 +108,7 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart implemen
                     });
                     this.datasets = datasets;
                     this.loading = false;
+                    this.service.stopSpinner(this.spinnerId);
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
