@@ -3,11 +3,23 @@ package io.openems.edge.io.revpi;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanDoc;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
 
 public enum RevPiDioChannelId implements ChannelId {
 
+	/**
+	 * Holds writes to ioX/Out1 for debugging.
+	 * 
+	 * <ul>
+	 * <li>Interface: KunbusRevPiDataIOModule
+	 * <li>Type: Boolean
+	 * <li>Range: On/Off
+	 * </ul>
+	 */
+	DEBUG_OUT1(Doc.of(OpenemsType.BOOLEAN)), //
 	/**
 	 * ioX/Out1.
 	 * 
@@ -17,10 +29,19 @@ public enum RevPiDioChannelId implements ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	OUT_1(Doc.of(OpenemsType.BOOLEAN) //
-			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)), //
-
+	OUT_1(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT1))), //
+	/**
+	 * Holds writes to ioX/Out2 for debugging.
+	 * 
+	 * <ul>
+	 * <li>Interface: KunbusRevPiDataIOModule
+	 * <li>Type: Boolean
+	 * <li>Range: On/Off
+	 * </ul>
+	 */
+	DEBUG_OUT2(Doc.of(OpenemsType.BOOLEAN)), //
 	/**
 	 * ioX/Out2.
 	 * 
@@ -30,10 +51,19 @@ public enum RevPiDioChannelId implements ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	OUT_2(Doc.of(OpenemsType.BOOLEAN) //
-			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)), //
-
+	OUT_2(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT2))), //
+	/**
+	 * Holds writes to ioX/Out3 for debugging.
+	 * 
+	 * <ul>
+	 * <li>Interface: KunbusRevPiDataIOModule
+	 * <li>Type: Boolean
+	 * <li>Range: On/Off
+	 * </ul>
+	 */
+	DEBUG_OUT3(Doc.of(OpenemsType.BOOLEAN)), //
 	/**
 	 * ioX/Out3.
 	 * 
@@ -43,10 +73,19 @@ public enum RevPiDioChannelId implements ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	OUT_3(Doc.of(OpenemsType.BOOLEAN) //
-			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)), //
-
+	OUT_3(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT3))), //
+	/**
+	 * Holds writes to ioX/Out4 for debugging.
+	 * 
+	 * <ul>
+	 * <li>Interface: KunbusRevPiDataIOModule
+	 * <li>Type: Boolean
+	 * <li>Range: On/Off
+	 * </ul>
+	 */
+	DEBUG_OUT4(Doc.of(OpenemsType.BOOLEAN)),
 	/**
 	 * ioX/Out4.
 	 * 
@@ -56,10 +95,19 @@ public enum RevPiDioChannelId implements ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	OUT_4(Doc.of(OpenemsType.BOOLEAN) //
-			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)), //
-
+	OUT_4(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT4))), //
+	/**
+	 * Holds writes to ioX/Out5 for debugging.
+	 * 
+	 * <ul>
+	 * <li>Interface: KunbusRevPiDataIOModule
+	 * <li>Type: Boolean
+	 * <li>Range: On/Off
+	 * </ul>
+	 */
+	DEBUG_OUT5(Doc.of(OpenemsType.BOOLEAN)), //
 	/**
 	 * ioX/Out5.
 	 * 
@@ -69,10 +117,19 @@ public enum RevPiDioChannelId implements ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	OUT_5(Doc.of(OpenemsType.BOOLEAN) //
-			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)), //
-
+	OUT_5(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT5))), //
+	/**
+	 * Holds writes to ioX/Out6 for debugging.
+	 * 
+	 * <ul>
+	 * <li>Interface: KunbusRevPiDataIOModule
+	 * <li>Type: Boolean
+	 * <li>Range: On/Off
+	 * </ul>
+	 */
+	DEBUG_OUT6(Doc.of(OpenemsType.BOOLEAN)), //
 	/**
 	 * ioX/Out6.
 	 * 
@@ -82,10 +139,19 @@ public enum RevPiDioChannelId implements ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	OUT_6(Doc.of(OpenemsType.BOOLEAN) //
-			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)), //
-
+	OUT_6(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT6))), //
+	/**
+	 * Holds writes to ioX/Out7 for debugging.
+	 * 
+	 * <ul>
+	 * <li>Interface: KunbusRevPiDataIOModule
+	 * <li>Type: Boolean
+	 * <li>Range: On/Off
+	 * </ul>
+	 */
+	DEBUG_OUT7(Doc.of(OpenemsType.BOOLEAN)), //
 	/**
 	 * ioX/Out7.
 	 * 
@@ -95,10 +161,19 @@ public enum RevPiDioChannelId implements ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	OUT_7(Doc.of(OpenemsType.BOOLEAN) //
-			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)), //
-
+	OUT_7(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT7))), //
+	/**
+	 * Holds writes to ioX/Out8 for debugging.
+	 * 
+	 * <ul>
+	 * <li>Interface: KunbusRevPiDataIOModule
+	 * <li>Type: Boolean
+	 * <li>Range: On/Off
+	 * </ul>
+	 */
+	DEBUG_OUT8(Doc.of(OpenemsType.BOOLEAN)), //
 	/**
 	 * ioX/Out8.
 	 * 
@@ -108,10 +183,19 @@ public enum RevPiDioChannelId implements ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	OUT_8(Doc.of(OpenemsType.BOOLEAN) //
-			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)), //
-
+	OUT_8(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT8))), //
+	/**
+	 * Holds writes to ioX/Out9 for debugging.
+	 * 
+	 * <ul>
+	 * <li>Interface: KunbusRevPiDataIOModule
+	 * <li>Type: Boolean
+	 * <li>Range: On/Off
+	 * </ul>
+	 */
+	DEBUG_OUT9(Doc.of(OpenemsType.BOOLEAN)), //
 	/**
 	 * ioX/Out9.
 	 * 
@@ -121,10 +205,19 @@ public enum RevPiDioChannelId implements ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	OUT_9(Doc.of(OpenemsType.BOOLEAN) //
-			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)), //
-
+	OUT_9(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT9))), //
+	/**
+	 * Holds writes to ioX/Out10 for debugging.
+	 * 
+	 * <ul>
+	 * <li>Interface: KunbusRevPiDataIOModule
+	 * <li>Type: Boolean
+	 * <li>Range: On/Off
+	 * </ul>
+	 */
+	DEBUG_OUT10(Doc.of(OpenemsType.BOOLEAN)), //
 	/**
 	 * ioX/Out10.
 	 * 
@@ -134,10 +227,19 @@ public enum RevPiDioChannelId implements ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	OUT_10(Doc.of(OpenemsType.BOOLEAN) //
-			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)), //
-
+	OUT_10(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT10))), //
+	/**
+	 * Holds writes to ioX/Out11 for debugging.
+	 * 
+	 * <ul>
+	 * <li>Interface: KunbusRevPiDataIOModule
+	 * <li>Type: Boolean
+	 * <li>Range: On/Off
+	 * </ul>
+	 */
+	DEBUG_OUT11(Doc.of(OpenemsType.BOOLEAN)), //
 	/**
 	 * ioX/Out11.
 	 * 
@@ -147,10 +249,19 @@ public enum RevPiDioChannelId implements ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	OUT_11(Doc.of(OpenemsType.BOOLEAN) //
-			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)), //
-
+	OUT_11(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT11))), //
+	/**
+	 * Holds writes to ioX/Out12 for debugging.
+	 * 
+	 * <ul>
+	 * <li>Interface: KunbusRevPiDataIOModule
+	 * <li>Type: Boolean
+	 * <li>Range: On/Off
+	 * </ul>
+	 */
+	DEBUG_OUT12(Doc.of(OpenemsType.BOOLEAN)), //
 	/**
 	 * ioX/Out12.
 	 * 
@@ -160,10 +271,19 @@ public enum RevPiDioChannelId implements ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	OUT_12(Doc.of(OpenemsType.BOOLEAN) //
-			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)), //
-
+	OUT_12(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT12))), //
+	/**
+	 * Holds writes to ioX/Out13 for debugging.
+	 * 
+	 * <ul>
+	 * <li>Interface: KunbusRevPiDataIOModule
+	 * <li>Type: Boolean
+	 * <li>Range: On/Off
+	 * </ul>
+	 */
+	DEBUG_OUT13(Doc.of(OpenemsType.BOOLEAN)), //
 	/**
 	 * ioX/Out13.
 	 * 
@@ -173,10 +293,19 @@ public enum RevPiDioChannelId implements ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	OUT_13(Doc.of(OpenemsType.BOOLEAN) //
-			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)), //
-
+	OUT_13(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT13))), //
+	/**
+	 * Holds writes to ioX/Out14 for debugging.
+	 * 
+	 * <ul>
+	 * <li>Interface: KunbusRevPiDataIOModule
+	 * <li>Type: Boolean
+	 * <li>Range: On/Off
+	 * </ul>
+	 */
+	DEBUG_OUT14(Doc.of(OpenemsType.BOOLEAN)), //
 	/**
 	 * ioX/Out14.
 	 * 
@@ -186,9 +315,9 @@ public enum RevPiDioChannelId implements ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	OUT_14(Doc.of(OpenemsType.BOOLEAN) //
-			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)), //
+	OUT_14(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT14))), //
 
 	/**
 	 * ioX/In1.
@@ -370,7 +499,7 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	IN_14(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_ONLY)), //
+			.accessMode(AccessMode.READ_ONLY)) //
 	;
 
 	private final Doc doc;
