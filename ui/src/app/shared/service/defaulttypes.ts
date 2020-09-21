@@ -1,5 +1,5 @@
 import { TranslateService } from '@ngx-translate/core';
-import { endOfMonth, format, getDay, getMonth, getYear, isSameDay, isSameMonth, isSameYear, startOfMonth, startOfWeek, startOfYear, subDays } from 'date-fns';
+import { endOfMonth, endOfYear, format, getDay, getMonth, getYear, isSameDay, isSameMonth, isSameYear, startOfMonth, startOfWeek, startOfYear, subDays } from 'date-fns';
 import { EdgeConfig } from '../shared';
 
 export module DefaultTypes {
@@ -100,6 +100,8 @@ export module DefaultTypes {
     ) { }
 
     public getText(translate: TranslateService): string {
+      console.log("isSameMonth(this.from, this.to)", this.from, this.to, "isSameDay(this.from, startOfMonth(this.from))", this.from, startOfMonth(this.from),
+        "isSameDay(this.to, endOfMonth(this.to))", this.to, endOfMonth(this.to))
       if (isSameDay(this.from, this.to) && isSameDay(this.from, new Date())) {
         return translate.instant('Edge.History.today') + ", " + format(new Date(), translate.instant('General.dateFormat'));
       }
@@ -145,7 +147,7 @@ export module DefaultTypes {
       else if (isSameDay(this.from, this.to) && isSameDay(this.from, subDays(new Date(), 1))) {
         return translate.instant('Edge.History.yesterday') + ", " + format(this.from, translate.instant('General.dateFormat'));
       }
-      else if (isSameMonth(this.from, this.to) && this.from == startOfMonth(this.from) && this.to == endOfMonth(this.to)) {
+      else if (isSameMonth(this.from, this.to) && isSameDay(this.from, startOfMonth(this.from)) && isSameDay(this.to, endOfMonth(this.to))) {
         switch (getMonth(this.from) + 1) {
           case 1: {
             return translate.instant('General.Month.january') + " " + getYear(this.from);
@@ -185,7 +187,7 @@ export module DefaultTypes {
           }
         }
       }
-      else if (isSameYear(this.from, this.to) && this.from == startOfYear(this.from) && this.to == startOfYear(this.to)) {
+      else if (isSameYear(this.from, this.to) && isSameDay(this.from, startOfYear(this.from)) && isSameDay(this.to, endOfYear(this.to))) {
         return getYear(this.from).toString();
       }
       else {

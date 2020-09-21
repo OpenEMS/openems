@@ -125,9 +125,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       edge = currentEdge;
     })
 
-    if (service.periodString != "week" || service.isKwhAllowed(edge) == false) {
+    if ((service.periodString != "week" && service.periodString != "month") || service.isKwhAllowed(edge) == false) {
       return false;
-    } else if (service.periodString == "week" && service.isKwhAllowed(edge) == true) {
+    } else if ((service.periodString == "week" || service.periodString == "month") && service.isKwhAllowed(edge) == true) {
       return true;
     } else {
       return false;
@@ -402,7 +402,15 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         } else if (this.isKwhChart(this.service) == true) {
           this.chartType = "bar";
           this.getEnergyChannelAddresses(edge, config).then(channelAddresses => {
-            let resolution: number = 86400 // resolution for value per day
+            let resolution: number = 0 // resolution for value per day
+            switch (this.service.periodString) {
+              case "week": {
+                resolution = 86400;
+              }
+              case "month": {
+                resolution = 2629746;
+              }
+            }
             this.queryHistoricTimeseriesEnergyPerPeriod(addDays(this.period.from, 1), this.period.to, channelAddresses, resolution).then(response => {
               let result = (response as queryHistoricTimeseriesEnergyPerPeriodResponse).result;
 
