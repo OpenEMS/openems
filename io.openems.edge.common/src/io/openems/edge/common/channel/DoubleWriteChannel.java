@@ -3,7 +3,8 @@ package io.openems.edge.common.channel;
 import java.util.List;
 import java.util.Optional;
 
-import io.openems.common.exceptions.CheckedConsumer;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingConsumer;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class DoubleWriteChannel extends DoubleReadChannel implements WriteChannel<Double> {
@@ -34,12 +35,12 @@ public class DoubleWriteChannel extends DoubleReadChannel implements WriteChanne
 	 * onSetNextWrite
 	 */
 	@Override
-	public List<CheckedConsumer<Double>> getOnSetNextWrites() {
+	public List<ThrowingConsumer<Double, OpenemsNamedException>> getOnSetNextWrites() {
 		return super.getOnSetNextWrites();
 	}
 
 	@Override
-	public void onSetNextWrite(CheckedConsumer<Double> callback) {
+	public void onSetNextWrite(ThrowingConsumer<Double, OpenemsNamedException> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
 
