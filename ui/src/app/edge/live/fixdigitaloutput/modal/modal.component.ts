@@ -28,7 +28,10 @@ export class FixDigitalOutputModalComponent {
    */
   updateMode(event: CustomEvent) {
     let oldMode = this.component.properties.isOn;
-    let newMode = event.detail.value;
+    let newMode:boolean = false; 
+    if(event.detail.value === 'true'){
+      newMode = true;
+    }
 
     this.edge.updateComponentConfig(this.websocket, this.component.id, [
       { name: 'isOn', value: newMode }
