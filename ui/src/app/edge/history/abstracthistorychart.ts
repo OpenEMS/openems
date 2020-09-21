@@ -1,5 +1,5 @@
 import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
-import { EMPTY_DATASET } from './shared';
+import { EMPTY_DATASET, ChartOptions } from './shared';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
@@ -8,7 +8,7 @@ import { interval, Subject, fromEvent } from 'rxjs';
 import { takeUntil, debounceTime, delay } from 'rxjs/operators';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
-import { ChartDataSets, ChartOptions } from 'chart.js';
+import { ChartDataSets } from 'chart.js';
 
 
 export abstract class AbstractHistoryChart {
