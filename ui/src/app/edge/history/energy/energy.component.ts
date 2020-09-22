@@ -7,8 +7,8 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { EnergyModalComponent } from './modal/modal.component';
 import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
-import { addDays, subDays } from 'date-fns/esm';
-import { ModalController } from '@ionic/angular';
+import { addDays } from 'date-fns/esm';
+import { ModalController, Platform } from '@ionic/angular';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
 import { TranslateService } from '@ngx-translate/core';
@@ -17,6 +17,8 @@ import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { ChartData, ChartDataSets, ChartLegendItem, ChartLegendLabelItem } from 'chart.js';
 import { formatNumber } from '@angular/common';
+import { debounceTime, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'energy',
@@ -28,6 +30,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   private static readonly EXCEL_EXTENSION = '.xlsx';
 
   public chartType: string = "line";
+
+  private stopOnDestroy: Subject<void> = new Subject<void>();
 
   @Input() private period: DefaultTypes.HistoryPeriod;
 
@@ -42,6 +46,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     public modalCtrl: ModalController,
     private websocket: Websocket,
     private unitpipe: UnitvaluePipe,
+    private platform: Platform
   ) {
     super(service, translate);
   }
@@ -110,24 +115,33 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.spinnerId = "energy-chart";
     this.service.setCurrentComponent('', this.route);
     this.service.startSpinner(this.spinnerId);
+    this.platform.ready().then(() => {
+      this.platform.resize.pipe(takeUntil(this.stopOnDestroy), debounceTime(200)).subscribe(() => {
+        this.updateChart();
+      })
+    })
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
     setTimeout(() => this.getChartHeight(), 500);
     this.subscribeChartRefresh()
   }
 
   ngOnDestroy() {
-    this.unsubscribeChartRefresh()
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
+    this.unsubscribeChartRefresh();
   }
 
+  /**
+   * checks if kWh Chart is allowed to be shown
+   */
   private isKwhChart(service: Service): boolean {
     let edge: Edge | null = null;
     service.getCurrentEdge().then(currentEdge => {
       edge = currentEdge;
     })
 
-    if ((service.periodString != "week" && service.periodString != "month") || service.isKwhAllowed(edge) == false) {
-      return false;
-    } else if ((service.periodString == "week" || service.periodString == "month") && service.isKwhAllowed(edge) == true) {
+    if (service.isKwhAllowed(edge) == true &&
+      ((service.periodString == "week" && service.isSmartphoneResolution == true) || service.periodString == "month")) {
       return true;
     } else {
       return false;
@@ -402,16 +416,17 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         } else if (this.isKwhChart(this.service) == true) {
           this.chartType = "bar";
           this.getEnergyChannelAddresses(edge, config).then(channelAddresses => {
-            let resolution: number = 0 // resolution for value per day
+            let resolution: number = 0
             switch (this.service.periodString) {
               case "week": {
-                resolution = 86400;
+                resolution = 86400; // resolution for value per day
               }
               case "month": {
-                resolution = 2629746;
+                resolution = 86400; // resolution for value per day
               }
             }
             this.queryHistoricTimeseriesEnergyPerPeriod(addDays(this.period.from, 1), this.period.to, channelAddresses, resolution).then(response => {
+              console.log("isSmartPhone", this.service.isSmartphoneResolution)
               let result = (response as queryHistoricTimeseriesEnergyPerPeriodResponse).result;
 
               // convert datasets
@@ -443,6 +458,26 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 });
               }
 
+              let barWidthPercentage = 0;
+              let categoryGapPercentage = 0;
+
+              switch (this.service.periodString) {
+                case "week": {
+                  barWidthPercentage = 0.7;
+                  categoryGapPercentage = 0.4;
+                }
+                case "month": {
+                  if (this.service.isSmartphoneResolution == true) {
+                    barWidthPercentage = 1;
+                    categoryGapPercentage = 0.6;
+                  } else {
+                    barWidthPercentage = 0.9;
+                    categoryGapPercentage = 0.8;
+                  }
+                }
+              }
+
+
               // left stack
 
               /*
@@ -450,16 +485,12 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                */
               if (directConsumptionData != null) {
                 datasets.push({
-                  borderWidth: {
-                    right: 2,
-                    left: 2
-                  },
                   label: "Direktverbrauch",
                   data: directConsumptionData,
-                  borderColor: 'rgba(0,0,0,1)',
+                  borderColor: 'rgba(244,164,96,1)',
                   backgroundColor: 'rgba(244,164,96,0.6)',
-                  barPercentage: 0.7,
-                  categoryPercentage: 0.4,
+                  barPercentage: barWidthPercentage,
+                  categoryPercentage: categoryGapPercentage,
                   stack: "0"
                 })
               }
@@ -476,16 +507,12 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                   }
                 });
                 datasets.push({
-                  borderWidth: {
-                    right: 2,
-                    left: 2
-                  },
                   label: "Beladung",
                   data: chargeData,
-                  borderColor: 'rgba(0,0,0,1)',
+                  borderColor: 'rgba(0,223,0,1)',
                   backgroundColor: 'rgba(0,223,0,0.6)',
-                  barPercentage: 0.7,
-                  categoryPercentage: 0.4,
+                  barPercentage: barWidthPercentage,
+                  categoryPercentage: categoryGapPercentage,
                   stack: "0"
                 })
               }
@@ -502,17 +529,12 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                   }
                 });
                 datasets.push({
-                  borderWidth: {
-                    top: 2,
-                    right: 2,
-                    left: 2
-                  },
                   label: "Netzeinspeisung",
                   data: gridSellData,
-                  borderColor: 'rgba(0,0,0,1)',
+                  borderColor: 'rgba(0,0,200,1)',
                   backgroundColor: 'rgba(0,0,200,0.6)',
-                  barPercentage: 0.7,
-                  categoryPercentage: 0.4,
+                  barPercentage: barWidthPercentage,
+                  categoryPercentage: categoryGapPercentage,
                   stack: "0"
                 })
               }
@@ -524,16 +546,12 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                */
               if (directConsumptionData != null) {
                 datasets.push({
-                  borderWidth: {
-                    right: 2,
-                    left: 2
-                  },
                   label: "Direktverbrauch",
                   data: directConsumptionData,
-                  borderColor: 'rgba(0,0,0,1)',
+                  borderColor: 'rgba(244,164,96,1)',
                   backgroundColor: 'rgba(244,164,96,0.6)',
-                  barPercentage: 0.7,
-                  categoryPercentage: 0.4,
+                  barPercentage: barWidthPercentage,
+                  categoryPercentage: categoryGapPercentage,
                   stack: "1"
                 })
               }
@@ -550,16 +568,12 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                   }
                 });
                 datasets.push({
-                  borderWidth: {
-                    right: 2,
-                    left: 2
-                  },
                   label: "Entladung",
                   data: dischargeData,
-                  borderColor: 'rgba(0,0,0,1)',
+                  borderColor: 'rgba(200,0,0,1)',
                   backgroundColor: 'rgba(200,0,0,0.6)',
-                  barPercentage: 0.7,
-                  categoryPercentage: 0.4,
+                  barPercentage: barWidthPercentage,
+                  categoryPercentage: categoryGapPercentage,
                   stack: "1"
                 })
               }
@@ -576,17 +590,12 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                   }
                 });
                 datasets.push({
-                  borderWidth: {
-                    top: 2,
-                    right: 2,
-                    left: 2
-                  },
                   label: "Netzbezug",
                   data: gridBuyData,
                   borderColor: 'rgba(0,0,0,1)',
                   backgroundColor: 'rgba(0,0,0,0.6)',
-                  barPercentage: 0.7,
-                  categoryPercentage: 0.4,
+                  barPercentage: barWidthPercentage,
+                  categoryPercentage: categoryGapPercentage,
                   stack: "1"
                 })
               }
@@ -699,13 +708,34 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.service.getCurrentEdge().then(edge => {
       currentEdge = edge;
     })
-    if (this.service.periodString == "week" && this.service.isKwhAllowed(currentEdge) == true) {
+    if (this.isKwhChart(this.service) == true) {
+
+      // general
       options.responsive = true;
+      options.layout = {
+        padding: {
+          left: 2,
+          right: 0,
+          top: 0,
+          bottom: 0
+        }
+      }
+
+      // xAxis
       options.scales.xAxes[0].time.unit = 'day';
       options.scales.xAxes[0].bounds = 'ticks';
-      options.scales.xAxes[0].ticks.source = 'data';
       options.scales.xAxes[0].stacked = true;
       options.scales.xAxes[0].offset = true;
+
+      if (this.service.isSmartphoneResolution == true && this.service.periodString != 'week') {
+        options.scales.xAxes[0].ticks.source = 'auto';
+        options.scales.xAxes[0].ticks.maxTicksLimit = 12;
+      } else {
+        options.scales.xAxes[0].ticks.source = 'data';
+      }
+
+      // yAxis
+      options.scales.yAxes[0].scaleLabel.labelString = "kWh";
       options.legend.labels = {
         filter(legendItem: ChartLegendLabelItem, data: ChartData) {
           let index = legendItem.datasetIndex;
@@ -738,6 +768,14 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           stepSize: 20
         }
       })
+      options.layout = {
+        padding: {
+          left: 2,
+          right: 2,
+          top: 0,
+          bottom: 0
+        }
+      }
       options.scales.yAxes[0].id = "yAxis1"
       options.scales.yAxes[0].scaleLabel.labelString = "kW";
       options.scales.yAxes[0].scaleLabel.padding = -2;
@@ -885,7 +923,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   }
 
   public getChartHeight(): number {
-    return window.innerHeight / 2;
+    return this.service.deviceHeight / 2;
   }
 
   async presentModal() {

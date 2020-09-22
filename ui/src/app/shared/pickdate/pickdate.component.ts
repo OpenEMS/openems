@@ -4,7 +4,7 @@ import { DefaultTypes, } from '../service/defaulttypes';
 import { endOfDay, differenceInMilliseconds, addMonths, addYears, endOfMonth, endOfYear, subMonths, subYears } from 'date-fns';
 import { PickDatePopoverComponent } from './popover/popover.component';
 import { PopoverController } from '@ionic/angular';
-import { Service } from '../shared';
+import { Edge, Service } from '../shared';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -16,6 +16,7 @@ export class PickDateComponent {
     public disableArrow: boolean = null;
 
     private changePeriodTimeout = null;
+    private edge: Edge | null = null;
 
     constructor(
         public service: Service,
@@ -25,6 +26,9 @@ export class PickDateComponent {
 
     ngOnInit() {
         this.checkArrowAutomaticForwarding();
+        this.service.getCurrentEdge().then(edge => {
+            this.edge = edge;
+        })
     }
 
     /**
@@ -73,19 +77,19 @@ export class PickDateComponent {
                     this.disableArrow = false;
                 }
             }
-            case 'year': {
-                if (isFuture(addYears(this.service.historyPeriod.from, 1))) {
-                    //waits until next week is reached to set next weeks period
-                    this.forwardToNextYearWhenReached()
-                    this.disableArrow = true;
-                } else {
-                    //disables changing period to next year when next year is reached if current year is not selected
-                    if (this.changePeriodTimeout != null) {
-                        clearTimeout(this.changePeriodTimeout);
-                    }
-                    this.disableArrow = false;
-                }
-            }
+            // case 'year': {
+            //     if (isFuture(addYears(this.service.historyPeriod.from, 1))) {
+            //         //waits until next week is reached to set next weeks period
+            //         this.forwardToNextYearWhenReached()
+            //         this.disableArrow = true;
+            //     } else {
+            //         //disables changing period to next year when next year is reached if current year is not selected
+            //         if (this.changePeriodTimeout != null) {
+            //             clearTimeout(this.changePeriodTimeout);
+            //         }
+            //         this.disableArrow = false;
+            //     }
+            // }
             case 'custom': {
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
                 dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
@@ -145,32 +149,32 @@ export class PickDateComponent {
                 if (isFuture(addMonths(this.service.historyPeriod.from, 2))) {
                     //waits until next week is reached to set next weeks period
                     this.forwardToNextMonthWhenReached();
-                    this.setDateRange(new DefaultTypes.HistoryPeriod(addMonths(this.service.historyPeriod.from, 1), addMonths(endOfMonth(this.service.historyPeriod.to), 1)));
+                    this.setDateRange(new DefaultTypes.HistoryPeriod(addMonths(this.service.historyPeriod.from, 1), endOfMonth(addMonths(this.service.historyPeriod.to, 1))));
                     this.disableArrow = true;
                 } else {
                     //disables changing period to next week when next week is reached if current week is not selected
                     if (this.changePeriodTimeout != null) {
                         clearTimeout(this.changePeriodTimeout);
                     }
-                    this.setDateRange(new DefaultTypes.HistoryPeriod(addMonths(this.service.historyPeriod.from, 1), addMonths(endOfMonth(this.service.historyPeriod.to), 1)));
+                    this.setDateRange(new DefaultTypes.HistoryPeriod(addMonths(this.service.historyPeriod.from, 1), endOfMonth(addMonths(this.service.historyPeriod.to, 1))));
                 }
                 break;
             }
-            case 'year': {
-                if (isFuture(addYears(this.service.historyPeriod.from, 2))) {
-                    //waits until next week is reached to set next weeks period
-                    this.forwardToNextYearWhenReached();
-                    this.setDateRange(new DefaultTypes.HistoryPeriod(addYears(this.service.historyPeriod.from, 1), addYears(endOfYear(this.service.historyPeriod.to), 1)));
-                    this.disableArrow = true;
-                } else {
-                    //disables changing period to next week when next week is reached if current week is not selected
-                    if (this.changePeriodTimeout != null) {
-                        clearTimeout(this.changePeriodTimeout);
-                    }
-                    this.setDateRange(new DefaultTypes.HistoryPeriod(addYears(this.service.historyPeriod.from, 1), addYears(endOfYear(this.service.historyPeriod.to), 1)));
-                }
-                break;
-            }
+            // case 'year': {
+            //     if (isFuture(addYears(this.service.historyPeriod.from, 2))) {
+            //         //waits until next week is reached to set next weeks period
+            //         this.forwardToNextYearWhenReached();
+            //         this.setDateRange(new DefaultTypes.HistoryPeriod(addYears(this.service.historyPeriod.from, 1), addYears(endOfYear(this.service.historyPeriod.to), 1)));
+            //         this.disableArrow = true;
+            //     } else {
+            //         //disables changing period to next week when next week is reached if current week is not selected
+            //         if (this.changePeriodTimeout != null) {
+            //             clearTimeout(this.changePeriodTimeout);
+            //         }
+            //         this.setDateRange(new DefaultTypes.HistoryPeriod(addYears(this.service.historyPeriod.from, 1), addYears(endOfYear(this.service.historyPeriod.to), 1)));
+            //     }
+            //     break;
+            // }
             case 'custom': {
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
                 dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
@@ -206,23 +210,23 @@ export class PickDateComponent {
                 break;
             }
             case 'month': {
-                //disables changing period to next week when next week is reached if current week is not selected
+                //disables changing period to next month when next month is reached if current month is not selected
                 if (this.changePeriodTimeout != null) {
                     clearTimeout(this.changePeriodTimeout);
                 }
                 this.disableArrow = false;
-                this.setDateRange(new DefaultTypes.HistoryPeriod(subMonths(this.service.historyPeriod.from, 1), subMonths(endOfMonth(this.service.historyPeriod.to), 1)));
+                this.setDateRange(new DefaultTypes.HistoryPeriod(subMonths(this.service.historyPeriod.from, 1), endOfMonth(subMonths(this.service.historyPeriod.to, 1))));
                 break;
             }
-            case 'year': {
-                //disables changing period to next week when next week is reached if current week is not selected
-                if (this.changePeriodTimeout != null) {
-                    clearTimeout(this.changePeriodTimeout);
-                }
-                this.disableArrow = false;
-                this.setDateRange(new DefaultTypes.HistoryPeriod(subYears(this.service.historyPeriod.from, 1), subYears(endOfYear(this.service.historyPeriod.to), 1)));
-                break;
-            }
+            // case 'year': {
+            //     //disables changing period to next year when next year is reached if current year is not selected
+            //     if (this.changePeriodTimeout != null) {
+            //         clearTimeout(this.changePeriodTimeout);
+            //     }
+            //     this.disableArrow = false;
+            //     this.setDateRange(new DefaultTypes.HistoryPeriod(subYears(this.service.historyPeriod.from, 1), subYears(endOfYear(this.service.historyPeriod.to), 1)));
+            //     break;
+            // }
             case 'custom': {
                 this.disableArrow = false;
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
@@ -295,11 +299,11 @@ export class PickDateComponent {
                 let endOfMonthTime = endOfMonth(currentDayTime)
                 return differenceInMilliseconds(endOfMonthTime, currentDayTime) + 1000;
             }
-            case 'year': {
-                let currentDayTime = new Date();
-                let endOfYearTime = endOfYear(currentDayTime)
-                return differenceInMilliseconds(endOfYearTime, currentDayTime) + 1000;
-            }
+            // case 'year': {
+            //     let currentDayTime = new Date();
+            //     let endOfYearTime = endOfYear(currentDayTime)
+            //     return differenceInMilliseconds(endOfYearTime, currentDayTime) + 1000;
+            // }
         }
     }
 
@@ -311,6 +315,7 @@ export class PickDateComponent {
             cssClass: 'pickdate-popover',
             componentProps: {
                 setDateRange: this.setDateRange,
+                edge: this.edge
             }
         });
         await popover.present();

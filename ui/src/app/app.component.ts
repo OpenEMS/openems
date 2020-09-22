@@ -36,12 +36,12 @@ export class AppComponent {
     service.setLang(this.service.browserLangToLangTag(navigator.language));
   }
 
-  initializeApp() {
-    this.platform.ready().then(() => {
-      this.statusBar.styleDefault();
-      this.splashScreen.hide();
-    });
-  }
+  // initializeApp() {
+  //   this.platform.ready().then(() => {
+  //     this.statusBar.styleDefault();
+  //     this.splashScreen.hide();
+  //   })
+  // }
 
   ngOnInit() {
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
@@ -58,6 +58,21 @@ export class AppComponent {
       });
       toast.present();
     });
+
+    this.platform.ready().then(() => {
+      this.service.deviceHeight = this.platform.height();
+      this.service.deviceWidth = this.platform.width();
+
+      this.platform.resize.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+        this.service.deviceHeight = this.platform.height();
+        this.service.deviceWidth = this.platform.width();
+        if (this.platform.width() <= 576) {
+          this.service.isSmartphoneResolution = true;
+        } else {
+          this.service.isSmartphoneResolution = false;
+        }
+      })
+    })
   }
 
   ngOnDestroy() {

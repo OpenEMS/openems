@@ -8,7 +8,7 @@
       <ion-icon name="download-outline"></ion-icon>
     </ion-button>
   </ion-item>
-  <ion-card-content>
+  <ion-card-content class="ion-no-padding ion-padding-vertical">
     <div [style.height.px]="getChartHeight()">
       <ngx-spinner [name]="spinnerId"></ngx-spinner>
       <ng-container *ngIf="!loading">

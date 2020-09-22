@@ -37,6 +37,14 @@ export type TooltipItem = {
 }
 
 export type ChartOptions = {
+    layout?: {
+        padding: {
+            left: number,
+            right: number,
+            top: number,
+            bottom: number
+        }
+    }
     responsive?: boolean,
     maintainAspectRatio: boolean,
     legend: {
@@ -62,9 +70,6 @@ export type ChartOptions = {
         intersect: boolean
     },
     scales: {
-        ticks: {
-            autoSkip?: boolean
-        }
         yAxes: [{
             id?: string,
             position: string,
@@ -90,6 +95,7 @@ export type ChartOptions = {
             stacked: boolean,
             type: "time",
             time: {
+                stepSize?: number,
                 unit?: string,
                 minUnit: string,
                 displayFormats: {
@@ -106,6 +112,7 @@ export type ChartOptions = {
             },
             ticks: {
                 source?: string,
+                maxTicksLimit?: number
             }
         }]
     },
@@ -142,9 +149,6 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
         intersect: true
     },
     scales: {
-        ticks: {
-
-        },
         yAxes: [{
             position: 'left',
             scaleLabel: {
@@ -166,7 +170,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
                     second: 'HH:mm:ss a', // 17:20:01
                     minute: 'HH:mm', // 17:20
                     hour: 'HH:[00]', // 17:20
-                    day: 'MMM D', // Sep 4 2015
+                    day: 'D', // Sep 4 2015
                     week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
                     month: 'MMM YYYY', // Sept 2015
                     quarter: '[Q]Q - YYYY', // Q3

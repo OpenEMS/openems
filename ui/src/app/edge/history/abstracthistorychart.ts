@@ -26,7 +26,7 @@ export abstract class AbstractHistoryChart {
 
     protected labels: Date[] = [];
     protected datasets: ChartDataSets[] = EMPTY_DATASET;
-    protected options: ChartOptions;
+    protected options: ChartOptions | null = null;
     protected colors = []
 
     // Colors for Phase 1-3

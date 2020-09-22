@@ -25,6 +25,14 @@ export class Service implements ErrorHandler {
   public notificationEvent: Subject<DefaultTypes.Notification> = new Subject<DefaultTypes.Notification>();
 
   /**
+   * Represents the resolution of used device
+   * Checks if smartphone resolution is used
+   */
+  public deviceHeight: number = 0;
+  public deviceWidth: number = 0;
+  public isSmartphoneResolution: boolean = false;
+
+  /**
    * Holds the currenty selected Page Title.
    */
   public currentPageTitle: string;

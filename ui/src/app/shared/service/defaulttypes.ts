@@ -90,7 +90,7 @@ export module DefaultTypes {
     params?: string[]
   }
 
-  export type PeriodString = 'day' | 'week' | 'month' | 'year' | 'custom';
+  export type PeriodString = 'day' | 'week' | 'month' | 'custom';
 
   export class HistoryPeriod {
 
@@ -100,8 +100,6 @@ export module DefaultTypes {
     ) { }
 
     public getText(translate: TranslateService): string {
-      console.log("isSameMonth(this.from, this.to)", this.from, this.to, "isSameDay(this.from, startOfMonth(this.from))", this.from, startOfMonth(this.from),
-        "isSameDay(this.to, endOfMonth(this.to))", this.to, endOfMonth(this.to))
       if (isSameDay(this.from, this.to) && isSameDay(this.from, new Date())) {
         return translate.instant('Edge.History.today') + ", " + format(new Date(), translate.instant('General.dateFormat'));
       }
@@ -187,9 +185,9 @@ export module DefaultTypes {
           }
         }
       }
-      else if (isSameYear(this.from, this.to) && isSameDay(this.from, startOfYear(this.from)) && isSameDay(this.to, endOfYear(this.to))) {
-        return getYear(this.from).toString();
-      }
+      // else if (isSameYear(this.from, this.to) && isSameDay(this.from, startOfYear(this.from)) && isSameDay(this.to, endOfYear(this.to))) {
+      //   return getYear(this.from).toString();
+      // }
       else {
         return translate.instant(
           'General.periodFromTo', {

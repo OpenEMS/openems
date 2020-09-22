@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { Platform } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -36,7 +37,8 @@ export class IndexComponent {
     public utils: Utils,
     private router: Router,
     private service: Service,
-    private route: ActivatedRoute) {
+    private route: ActivatedRoute
+  ) {
 
     //Forwarding to device index if there is only 1 edge
     service.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
