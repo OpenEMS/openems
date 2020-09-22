@@ -60,7 +60,7 @@
                         <ng-container *ngIf="currentData[component.id + '/HasError'] === 1">
 
                             <tr *ngFor="let error of currentData[component.id + '/ErrorList'] | toarray">
-                                <td style="width: 100%">
+                                <td>
                                     <ion-text color="danger">{{ error }}</ion-text>
                                 </td>
                             </tr>
