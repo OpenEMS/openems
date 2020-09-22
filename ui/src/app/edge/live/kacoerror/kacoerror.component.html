@@ -5,69 +5,74 @@
                 <ion-icon slot="start" name="warning" color="danger"></ion-icon>
                 <ion-label translate>KacoError.Errors</ion-label>
             </ion-item>
+            <ion-card-content>
 
-            <ng-container *ngFor="let component of essComponents">
-                <ion-card-content>
-                    <table class="full_width">
+
+                <table class="full_width">
+                    <ng-container *ngFor="let component of essComponents">
                         <tr>
-                            <td style="width: 100%">
+                            <td>
                                 {{component.alias}}
                             </td>
                         </tr>
-                        <ng-container [ngSwitch]="currentData[component.id + '/InverterStatus']">
-                            <tr>
-                                <td style="width: 35%">Status:</td>
-                                <td style="width: 65%" class="align_right" *ngSwitchCase="0">
+
+                        <tr>
+                            <td style="width: 50%">Status:</td>
+                            <ng-container [ngSwitch]="currentData[component.id + '/InverterStatus']">
+                                <td style="width: 50%" class="align_right" *ngSwitchCase="0">
                                     Error
                                 </td>
-                                <td style="width: 65%" class="align_right" *ngSwitchCase="1">
+                                <td style="width: 50%" class="align_right" *ngSwitchCase="1">
                                     Off/Standby
                                 </td>
-                                <td style="width: 65%" class="align_right" *ngSwitchCase="4">
+                                <td style="width: 50%" class="align_right" *ngSwitchCase="4">
                                     Inverter Test
                                 </td>
-                                <td style="width: 65%" class="align_right" *ngSwitchCase="7">
+                                <td style="width: 50%" class="align_right" *ngSwitchCase="7">
                                     PV Power Test
                                 </td>
-                                <td style="width: 65%" class="align_right" *ngSwitchCase="8">
+                                <td style="width: 50%" class="align_right" *ngSwitchCase="8">
                                     Battery Test
                                 </td>
-                                <td style="width: 65%" class="align_right" *ngSwitchCase="9">
+                                <td style="width: 50%" class="align_right" *ngSwitchCase="9">
                                     Iso Test
                                 </td>
-                                <td style="width: 65%" class="align_right" *ngSwitchCase="10">
+                                <td style="width: 50%" class="align_right" *ngSwitchCase="10">
                                     Grid Test
                                 </td>
-                                <td style="width: 65%" class="align_right" *ngSwitchCase="11">
+                                <td style="width: 50%" class="align_right" *ngSwitchCase="11">
                                     Inverter Test
                                 </td>
-                                <td style="width: 65%" class="align_right" *ngSwitchCase="12">
+                                <td style="width: 50%" class="align_right" *ngSwitchCase="12">
                                     Off-Grid / Island
                                 </td>
-                                <td style="width: 65%" class="align_right" *ngSwitchCase="13">
+                                <td style="width: 50%" class="align_right" *ngSwitchCase="13">
                                     Grid
                                 </td>
-                                <td style="width: 65%" class="align_right" *ngSwitchCase="14">
+                                <td style="width: 50%" class="align_right" *ngSwitchCase="14">
                                     Grid
                                 </td>
-                                <td style="width: 65%" class="align_right" *ngSwitchDefault>
+                                <td style="width: 50%" class="align_right" *ngSwitchDefault>
                                     Undefined
                                 </td>
-                            </tr>
-                        </ng-container>
+                            </ng-container>
+                        </tr>
+                        <ng-container *ngIf="currentData[component.id + '/HasError'] === 1">
 
-                    </table>
-                    <ng-container *ngIf="currentData[component.id + '/HasError'] === 1">
-                        <table class="full_width">
                             <tr *ngFor="let error of currentData[component.id + '/ErrorList'] | toarray">
                                 <td style="width: 100%">
                                     <ion-text color="danger">{{ error }}</ion-text>
                                 </td>
                             </tr>
-                        </table>
+
+                        </ng-container>
+
                     </ng-container>
-                </ion-card-content>
-            </ng-container>
+                </table>
+
+
+            </ion-card-content>
+
         </ion-card>
     </ng-container>
 </ng-container>
