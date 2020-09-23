@@ -49,6 +49,7 @@ export type ChartOptions = {
     responsive?: boolean,
     maintainAspectRatio: boolean,
     legend: {
+        onClick?(event: MouseEvent, legendItem: ChartLegendLabelItem): void
         labels: {
             generateLabels?(chart: Chart): ChartLegendLabelItem[],
             filter?(legendItem: ChartLegendLabelItem, data: ChartData): any,

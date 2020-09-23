@@ -81,7 +81,6 @@ export class PickDatePopoverComponent {
             }
             case 'month': {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(startOfMonth(this.TODAY), endOfMonth(this.TODAY)));
-                console.log("endOfMonth", endOfMonth(this.TODAY))
                 this.service.periodString = period;
                 this.popoverCtrl.dismiss();
                 break;

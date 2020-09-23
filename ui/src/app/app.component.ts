@@ -4,8 +4,6 @@ import { environment } from '../environments';
 import { takeUntil } from 'rxjs/operators';
 import { MenuController, Platform, ToastController, ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { Subject } from 'rxjs';
 
 @Component({
@@ -23,8 +21,6 @@ export class AppComponent {
 
   constructor(
     private platform: Platform,
-    private splashScreen: SplashScreen,
-    private statusBar: StatusBar,
     public menu: MenuController,
     public modalCtrl: ModalController,
     public router: Router,
@@ -62,18 +58,23 @@ export class AppComponent {
     this.platform.ready().then(() => {
       this.service.deviceHeight = this.platform.height();
       this.service.deviceWidth = this.platform.width();
-
+      this.checkSmartphoneResolution();
       this.platform.resize.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
         this.service.deviceHeight = this.platform.height();
         this.service.deviceWidth = this.platform.width();
-        if (this.platform.width() <= 576) {
-          this.service.isSmartphoneResolution = true;
-        } else {
-          this.service.isSmartphoneResolution = false;
-        }
+        this.checkSmartphoneResolution();
       })
     })
   }
+
+  private checkSmartphoneResolution(): void {
+    if (this.platform.width() <= 576) {
+      this.service.isSmartphoneResolution = true;
+    } else if (this.platform.width() > 576) {
+      this.service.isSmartphoneResolution = false;
+    }
+  }
+
 
   ngOnDestroy() {
     this.ngUnsubscribe.next();
