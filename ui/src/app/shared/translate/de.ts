@@ -19,6 +19,7 @@ export const TRANSLATION = {
         currentValue: 'Aktueller Wert',
         dateFormat: 'dd.MM.yyyy', // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
         dateFormatShort: 'dd.MM',
+        directConsumption: 'Direktverbrauch',
         dischargePower: 'Entladung',
         fault: 'Fehler',
         grid: 'Netz',

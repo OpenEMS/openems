@@ -18,6 +18,7 @@ export const TRANSLATION = {
         currentName: 'Aktuální Jméno',
         currentValue: 'Aktuální hodnota',
         dateFormat: 'dd.MM.yyyy', // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
+        directConsumption: 'Přímá spotřeba',
         dischargePower: 'Vybíjecí výkon',
         fault: 'Chyba',
         grid: 'Síť',

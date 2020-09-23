@@ -16,6 +16,7 @@ export const TRANSLATION = {
         cumulative: 'Cumulatieve Waarden',
         currentValue: 'Huidige waarde',
         dateFormat: 'dd-MM-yyyy', // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
+        directConsumption: 'Directe consumptie',
         dischargePower: 'Ontlaad vermogen',
         fault: 'Fout',
         grid: 'Net',

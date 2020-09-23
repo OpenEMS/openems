@@ -18,6 +18,7 @@ export const TRANSLATION = {
         currentName: 'current name',
         currentValue: 'current value',
         dateFormat: 'yyyy-MM-dd', // e.g. German: dd.MM.yyyy (dd = Day, MM = Month, yyyy = Year)
+        directConsumption: 'Direct consumption',
         dischargePower: 'Discharge power',
         fault: 'Fault',
         grid: 'Grid',

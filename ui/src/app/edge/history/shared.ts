@@ -2,7 +2,7 @@ import { ChannelAddress } from 'src/app/shared/shared';
 import { DecimalPipe } from '@angular/common';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { startOfDay, endOfDay, differenceInMinutes } from 'date-fns';
-import { ChartData, ChartLegendLabelItem } from 'chart.js';
+import { ChartData, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
 
 export interface Dataset {
     label: string;
@@ -32,6 +32,7 @@ export type TooltipItem = {
     index: number,
     x: number,
     xLabel: Date,
+    value: number,
     y: number,
     yLabel: number
 }
@@ -50,7 +51,8 @@ export type ChartOptions = {
     legend: {
         labels: {
             generateLabels?(chart: Chart): ChartLegendLabelItem[],
-            filter?(legendItem: ChartLegendLabelItem, data: ChartData): any
+            filter?(legendItem: ChartLegendLabelItem, data: ChartData): any,
+            generateLabels?(chart: Chart): ChartLegendLabelItem[]
         },
         position: "bottom"
     },
@@ -63,6 +65,9 @@ export type ChartOptions = {
         line: {
             borderWidth: number,
             tension: number
+        },
+        rectangle: {
+            borderWidth: number,
         }
     },
     hover: {
@@ -123,6 +128,7 @@ export type ChartOptions = {
         callbacks: {
             label?(tooltipItem: TooltipItem, data: Data): string,
             title?(tooltipItems: TooltipItem[], data: Data): string
+            footer?(item: ChartTooltipItem[], data: ChartData): string | string[]
         }
     }
 }
@@ -142,6 +148,9 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
         line: {
             borderWidth: 2,
             tension: 0.1
+        },
+        rectangle: {
+            borderWidth: 2,
         }
     },
     hover: {
