@@ -37,7 +37,6 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -138,16 +137,12 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 
 	}
 
-	public boolean isSystemRunning() {
-		EnumReadChannel bmsStateChannel = this.channel(BmwBattery.ChannelId.BMS_STATE);
-		BmsState bmsState = bmsStateChannel.value().asEnum();
-		return bmsState == BmsState.OPERATION;
+	public boolean isSystemRunning() {		
+		return getBmsState() == BmsState.OPERATION;
 	}
 
 	public boolean isSystemStopped() {
-		EnumReadChannel bmsStateChannel = this.channel(BmwBattery.ChannelId.BMS_STATE);
-		BmsState bmsState = bmsStateChannel.value().asEnum();
-		return bmsState == BmsState.OFF;
+		return getBmsState() == BmsState.OFF;
 	}
 
 	public void clearError() {
@@ -155,15 +150,12 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		try {
 			clearErrorChannel.setNextWriteValue(true);
 		} catch (OpenemsNamedException e) {
-			// TODO should Fault state channel, but after start stop feature
 			log.error("Error while trying to reset the system!");
 		}
 	}
 
-	public boolean isError() {
-		EnumReadChannel bmsStateChannel = this.channel(BmwBattery.ChannelId.BMS_STATE);
-		BmsState bmsState = bmsStateChannel.value().asEnum();
-		return bmsState == BmsState.ERROR;
+	public boolean isError() {		
+		return getBmsState() == BmsState.ERROR;
 	}
 
 	@Override

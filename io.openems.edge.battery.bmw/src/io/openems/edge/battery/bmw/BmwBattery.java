@@ -2,9 +2,10 @@ package io.openems.edge.battery.bmw;
 
 import org.osgi.service.event.EventHandler;
 
-import io.openems.common.channel.Level;
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.bmw.enums.BmsState;
 import io.openems.edge.battery.bmw.enums.InfoBits;
@@ -12,6 +13,7 @@ import io.openems.edge.battery.bmw.enums.State;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -21,6 +23,24 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
 public interface BmwBattery extends StartStoppable, OpenemsComponent, EventHandler {
+
+	/**
+	 * Gets the Channel for {@link ChannelId#BMS_STATE}.
+	 * 
+	 * @return the Channel
+	 */
+	public default EnumReadChannel getBmsStateChannel() {
+		return this.channel(ChannelId.BMS_STATE);
+	}
+
+	/**
+	 * Gets the {@link StateChannel} for {@link ChannelId#BMS_STATE}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default BmsState getBmsState() {
+		return this.getBmsStateChannel().value().asEnum();
+	}
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
@@ -79,7 +99,7 @@ public interface BmwBattery extends StartStoppable, OpenemsComponent, EventHandl
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
+	 * Gets the Channel for {@link ChannelId#BMS_STATE_COMMAND}.
 	 * 
 	 * @return the Channel
 	 */
@@ -91,7 +111,7 @@ public interface BmwBattery extends StartStoppable, OpenemsComponent, EventHandl
 	 * Writes the value to the Register.
 	 * 
 	 * 
-	 * @param value the next value
+	 * @param value to close contactors or not
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void _setBmwStartStop(Integer value) {
@@ -130,8 +150,7 @@ public interface BmwBattery extends StartStoppable, OpenemsComponent, EventHandl
 		BMS_STATE_COMMAND_CLOSE_PRECHARGE_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 		BMS_STATE_COMMAND_CLOSE_PRECHARGE(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-						ChannelId.BMS_STATE_COMMAND_CLOSE_PRECHARGE_DEBUG)) //
+				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.BMS_STATE_COMMAND_CLOSE_PRECHARGE_DEBUG)) //
 		),
 
 		BMS_STATE_COMMAND_ERROR_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
@@ -143,8 +162,7 @@ public interface BmwBattery extends StartStoppable, OpenemsComponent, EventHandl
 		BMS_STATE_COMMAND_CLOSE_CONTACTOR_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 		BMS_STATE_COMMAND_CLOSE_CONTACTOR(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-						ChannelId.BMS_STATE_COMMAND_CLOSE_CONTACTOR_DEBUG)) //
+				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.BMS_STATE_COMMAND_CLOSE_CONTACTOR_DEBUG)) //
 		),
 
 		BMS_STATE_COMMAND_WAKE_UP_FROM_STOP_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
@@ -157,8 +175,7 @@ public interface BmwBattery extends StartStoppable, OpenemsComponent, EventHandl
 		BMS_STATE_COMMAND_ENABLE_BATTERY_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 		BMS_STATE_COMMAND_ENABLE_BATTERY(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-						ChannelId.BMS_STATE_COMMAND_ENABLE_BATTERY_DEBUG)) //
+				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.BMS_STATE_COMMAND_ENABLE_BATTERY_DEBUG)) //
 		),
 
 		OPERATING_STATE_INVERTER_DEBUG(Doc.of(OpenemsType.INTEGER)), //
@@ -170,8 +187,7 @@ public interface BmwBattery extends StartStoppable, OpenemsComponent, EventHandl
 		DC_LINK_VOLTAGE_DEBUG(Doc.of(OpenemsType.INTEGER)), //
 		DC_LINK_VOLTAGE(new IntegerDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.unit(Unit.VOLT)
-				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(ChannelId.DC_LINK_VOLTAGE_DEBUG)) //
+				.unit(Unit.VOLT).onInit(new IntegerWriteChannel.MirrorToDebugChannel(ChannelId.DC_LINK_VOLTAGE_DEBUG)) //
 		),
 
 		DC_LINK_CURRENT_DEBUG(Doc.of(OpenemsType.INTEGER)), //
@@ -189,8 +205,7 @@ public interface BmwBattery extends StartStoppable, OpenemsComponent, EventHandl
 		OPERATION_MODE_REQUEST_CANCELED_DEBUG(Doc.of(OpenemsType.INTEGER)), //
 		OPERATION_MODE_REQUEST_CANCELED(new IntegerDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(
-						ChannelId.OPERATION_MODE_REQUEST_CANCELED_DEBUG)) //
+				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(ChannelId.OPERATION_MODE_REQUEST_CANCELED_DEBUG)) //
 		),
 
 		CONNECTION_STRATEGY_HIGH_SOC_FIRST_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
@@ -203,8 +218,7 @@ public interface BmwBattery extends StartStoppable, OpenemsComponent, EventHandl
 		CONNECTION_STRATEGY_LOW_SOC_FIRST_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 		CONNECTION_STRATEGY_LOW_SOC_FIRST(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-						ChannelId.CONNECTION_STRATEGY_LOW_SOC_FIRST_DEBUG)) //
+				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.CONNECTION_STRATEGY_LOW_SOC_FIRST_DEBUG)) //
 		),
 
 		SYSTEM_TIME_DEBUG(Doc.of(OpenemsType.INTEGER)), //
