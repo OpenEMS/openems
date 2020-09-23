@@ -65,7 +65,7 @@ public class PowerComponentTest {
 				.withMaxApparentPower(30000) //
 				.withSoc(30);
 
-		final ComponentTest componentTest = new ComponentTest(powerComponent) //
+		ComponentTest componentTest = new ComponentTest(powerComponent) //
 				.addReference("addEss", ess0) //
 				.activate(MyConfig.create() //
 						.setStrategy(SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET) //
@@ -120,7 +120,7 @@ public class PowerComponentTest {
 				.withSoc(60);
 		DummyMetaEss ess0 = new DummyMetaEss("ess0", powerComponent, ess1, ess2); //
 
-		final ComponentTest componentTest = new ComponentTest(powerComponent) //
+		ComponentTest componentTest = new ComponentTest(powerComponent) //
 				.addReference("addEss", ess0) //
 				.addReference("addEss", ess1) //
 				.addReference("addEss", ess2) //
@@ -247,7 +247,7 @@ public class PowerComponentTest {
 				.withSoc(70);
 		DummyMetaEss ess0 = new DummyMetaEss("ess0", powerComponent, ess1, ess2, ess3, ess4, ess5, ess6); //
 
-		final ComponentTest componentTest = new ComponentTest(powerComponent) //
+		ComponentTest componentTest = new ComponentTest(powerComponent) //
 				.addReference("addEss", ess0) //
 				.addReference("addEss", ess1) //
 				.addReference("addEss", ess2) //
@@ -321,7 +321,7 @@ public class PowerComponentTest {
 				.withPowerPrecision(100);
 		DummyMetaEss ess0 = new DummyMetaEss("ess0", powerComponent, ess1, ess2); //
 
-		final ComponentTest componentTest = new ComponentTest(powerComponent) //
+		ComponentTest componentTest = new ComponentTest(powerComponent) //
 				.addReference("addEss", ess0) //
 				.addReference("addEss", ess1) //
 				.addReference("addEss", ess2) //

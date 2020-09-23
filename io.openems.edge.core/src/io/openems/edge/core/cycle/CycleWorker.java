@@ -174,7 +174,9 @@ public class CycleWorker extends AbstractWorker {
 		}
 
 		// Measure actual Cycle-Time
-		this.parent._setMeasuredCycleTime(stopwatch.elapsed(TimeUnit.MILLISECONDS));
+		long measuredCycleTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+		this.parent.logInfo(this.log, "Measured Cycle-Time [" + measuredCycleTime + "ms]");
+		this.parent._setMeasuredCycleTime(measuredCycleTime);
 	}
 
 }

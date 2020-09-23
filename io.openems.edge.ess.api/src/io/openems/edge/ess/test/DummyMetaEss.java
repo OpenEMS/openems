@@ -47,10 +47,6 @@ public class DummyMetaEss extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) {
-	}
-
-	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 			int activePowerL3, int reactivePowerL3) {
 		throw new IllegalArgumentException("DummyMetaEss.applyPower() should never be called.");
@@ -59,6 +55,10 @@ public class DummyMetaEss extends AbstractOpenemsComponent
 	@Override
 	public Power getPower() {
 		return this.power;
+	}
+
+	@Override
+	public void applyPower(int activePower, int reactivePower) {
 	}
 
 	@Override

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.LinearCoefficient;
@@ -27,23 +26,13 @@ public class ApparentPowerConstraintUtil {
 
 		@Override
 		public String toString() {
-			return "Point [x=" + Math.round(this.x) + ", y=" + Math.round(this.y) + "]";
+			return "Point [x=" + Math.round(x) + ", y=" + Math.round(y) + "]";
 		}
 	}
 
 	private ApparentPowerConstraintUtil() {
 	}
 
-	/**
-	 * Generate Constraints for ApparentPower.
-	 * 
-	 * @param coefficients  the {@link Coefficients}
-	 * @param essId         the Id of the {@link ManagedSymmetricEss}
-	 * @param phase         the {@link Phase}
-	 * @param apparentPower the apparent power in [VA]
-	 * @return a list of {@link Constraint}s
-	 * @throws OpenemsException on error
-	 */
 	public static List<Constraint> generateConstraints(Coefficients coefficients, String essId, Phase phase,
 			double apparentPower) throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();

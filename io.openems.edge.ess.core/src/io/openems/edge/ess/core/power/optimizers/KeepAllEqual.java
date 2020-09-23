@@ -21,9 +21,9 @@ public class KeepAllEqual {
 	/**
 	 * Tries to distribute power equally between inverters.
 	 * 
-	 * @param coefficients   the {@link Coefficients}
-	 * @param allInverters   all {@link Inverter}s
-	 * @param allConstraints all active {@link Constraint}s
+	 * @param coefficients    the {@link Coefficients}
+	 * @param targetInverters the target {@link Inverter}s
+	 * @param allConstraints  all active {@link Constraint}s
 	 * @return a solution or null
 	 */
 	public static PointValuePair apply(Coefficients coefficients, List<Inverter> allInverters,

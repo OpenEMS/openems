@@ -43,7 +43,7 @@ public class InverterPrecision {
 	 * @param solution        a {@link PointValuePair} solution
 	 * @param targetDirection the {@link TargetDirection}
 	 * @return a map of inverters to PowerTuples
-	 * @throws OpenemsException on error
+	 * @throws OpenemsException
 	 */
 	// TODO: round value of one inverter, apply constraint, repeat... to further
 	// optimize this

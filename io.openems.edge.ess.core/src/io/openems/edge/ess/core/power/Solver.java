@@ -6,12 +6,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.NoFeasibleSolutionException;
 import org.apache.commons.math3.optim.linear.UnboundedSolutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Stopwatch;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -106,15 +109,6 @@ public class Solver {
 		}
 	}
 
-	/**
-	 * Solve and optimize the equation system.
-	 * 
-	 * <p>
-	 * When finished, this method calls the applyPower() methods of
-	 * {@link ManagedSymmetricEss} or {@link ManagedAsymmetricEss}.
-	 * 
-	 * @param strategy the {@link SolverStrategy} to follow
-	 */
 	public void solve(SolverStrategy strategy) {
 		// measure duration
 		final long startTime = System.nanoTime();
@@ -132,11 +126,16 @@ public class Solver {
 		TargetDirection targetDirection = null;
 		try {
 			// Check if the Problem is solvable at all.
+			Stopwatch stopwatch = Stopwatch.createStarted();
 			allConstraints = this.data.getConstraintsForAllInverters();
+			System.out.println("getConstraintsForAllInverters [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
 			// Add Strict constraints if required
+			stopwatch = Stopwatch.createStarted();
 			AddConstraintsForNotStrictlyDefinedCoefficients.apply(allInverters, this.data.getCoefficients(),
 					allConstraints);
+			System.out.println("addConstraintsForNotStrictlyDefinedCoefficients ["
+					+ stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
 			// Print log with currently active EQUALS != 0 Constraints
 			if (this.debugMode) {
@@ -149,17 +148,22 @@ public class Solver {
 			}
 
 			// Evaluates whether it is a CHARGE or DISCHARGE problem.
+			stopwatch = Stopwatch.createStarted();
 			targetDirection = TargetDirection.from(//
 					this.data.getInverters(), //
 					this.data.getCoefficients(), //
 					this.data.getConstraintsForAllInverters() //
 			);
+			System.out.println("getTargetDirection [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
 			// Gets the target-Inverters, i.e. the Inverters that are minimally required to
 			// solve the Problem.
+			stopwatch = Stopwatch.createStarted();
 			List<Inverter> targetInverters = this.optimizers.reduceNumberOfUsedInverters.apply(allInverters,
 					targetDirection, this.solveWithDisabledInverters);
+			System.out.println("getTargetInverters [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
+			stopwatch = Stopwatch.createStarted();
 			switch (strategy) {
 			case UNDEFINED:
 			case ALL_CONSTRAINTS:
@@ -186,6 +190,7 @@ public class Solver {
 						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET);
 				break;
 			}
+			System.out.println("strategy [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms] " + strategy);
 
 		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 			if (this.debugMode) {
@@ -232,7 +237,7 @@ public class Solver {
 	 * @param allConstraints  a list of all Constraints
 	 * @param strategies      an array of SolverStrategies
 	 * @return a Solution
-	 * @throws OpenemsException on error
+	 * @throws OpenemsException
 	 */
 	private SolveSolution tryStrategies(TargetDirection targetDirection, List<Inverter> allInverters,
 			List<Inverter> targetInverters, List<Constraint> allConstraints, SolverStrategy... strategies)
@@ -324,11 +329,8 @@ public class Solver {
 					}
 				}
 			}
-
 			if (ess instanceof ManagedAsymmetricEss && (invL1 != null || invL2 != null || invL3 != null)) {
-				/*
-				 * Call applyPower() of ManagedAsymmetricEss
-				 */
+				ManagedAsymmetricEss e = (ManagedAsymmetricEss) ess;
 
 				if (invL1 == null) {
 					invL1 = new PowerTuple();
@@ -339,8 +341,6 @@ public class Solver {
 				if (invL3 == null) {
 					invL3 = new PowerTuple();
 				}
-
-				ManagedAsymmetricEss e = (ManagedAsymmetricEss) ess;
 				// set debug channels on Ess
 				e._setDebugSetActivePower(invL1.getActivePower() + invL2.getActivePower() + invL3.getActivePower());
 				e._setDebugSetReactivePower(
@@ -369,10 +369,6 @@ public class Solver {
 				}
 
 			} else if (inv != null) {
-				/*
-				 * Call applyPower() of ManagedSymmetricEss
-				 */
-
 				// set debug channels on Ess
 				ess._setDebugSetActivePower(inv.getActivePower());
 				ess._setDebugSetReactivePower(inv.getReactivePower());

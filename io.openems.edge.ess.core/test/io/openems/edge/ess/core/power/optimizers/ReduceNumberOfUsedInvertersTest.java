@@ -118,7 +118,7 @@ public class ReduceNumberOfUsedInvertersTest {
 
 		@Override
 		public PointValuePair apply(List<Inverter> disabledInverters) throws Exception {
-			if (this.allInverters.size() - disabledInverters.size() < this.requiredNumberOfInverters) {
+			if (allInverters.size() - disabledInverters.size() < this.requiredNumberOfInverters) {
 				throw new Exception("Not solved");
 			} else {
 				return null; // ignored

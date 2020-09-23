@@ -50,7 +50,7 @@ public class LinearSolverUtil {
 	/**
 	 * Gets an empty coefficients array required for linear solver.
 	 * 
-	 * @param length the length of the array
+	 * @param coefficients the Data object
 	 * @return an array of '0' coefficients
 	 */
 	public static double[] generateEmptyCoefficientsArray(int length) {
@@ -60,8 +60,8 @@ public class LinearSolverUtil {
 	/**
 	 * Gets the linear objective function in the form 1*a + 1*b + 1*c + ...
 	 * 
-	 * @param noOfCoefficients the number of coefficients of the objective function
-	 * @return a {@link LinearObjectiveFunction}
+	 * @param data the Data object
+	 * @return a LinearObjectiveFunction
 	 */
 	public static LinearObjectiveFunction getDefaultObjectiveFunction(int noOfCoefficients) {
 		double[] cos = LinearSolverUtil.generateEmptyCoefficientsArray(noOfCoefficients);

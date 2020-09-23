@@ -7,12 +7,6 @@ public class PowerTuple {
 	private int activePower = 0;
 	private int reactivePower = 0;
 
-	/**
-	 * Set a value.
-	 * 
-	 * @param pwr   the {@link Pwr}
-	 * @param value the value
-	 */
 	public void setValue(Pwr pwr, int value) {
 		switch (pwr) {
 		case ACTIVE:
@@ -24,27 +18,17 @@ public class PowerTuple {
 		}
 	}
 
-	/**
-	 * Get the Active-Power value.
-	 * 
-	 * @return value for {@link Pwr#ACTIVE}.
-	 */
 	public int getActivePower() {
 		return this.activePower;
 	}
 
-	/**
-	 * Get the Reactive-Power value.
-	 * 
-	 * @return value for {@link Pwr#REACTIVE}.
-	 */
 	public int getReactivePower() {
 		return this.reactivePower;
 	}
 
 	@Override
 	public String toString() {
-		return "[P=" + this.activePower + ", Q=" + this.reactivePower + "]";
+		return "[P=" + activePower + ", Q=" + reactivePower + "]";
 	}
 
 }

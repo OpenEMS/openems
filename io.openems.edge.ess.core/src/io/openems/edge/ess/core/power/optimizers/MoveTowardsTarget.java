@@ -35,7 +35,8 @@ public class MoveTowardsTarget {
 	 * @param targetInverters the target {@link Inverter}s
 	 * @param allConstraints  all active {@link Constraint}s
 	 * @param targetDirection the {@link TargetDirection}
-	 * @return a solution as {@link PointValuePair} or null
+	 * @return a solution or null
+	 * @return a solution or null
 	 * @throws OpenemsException on error
 	 */
 	public static PointValuePair apply(Coefficients coefficients, TargetDirection targetDirection,
