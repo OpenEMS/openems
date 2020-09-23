@@ -47,7 +47,6 @@ import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailOpenems
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
 import io.openems.common.types.OptionsEnum;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumDoc;
@@ -60,18 +59,17 @@ import io.openems.edge.common.event.EdgeEventConstants;
  * configuration properties changed or Channels changed. If an update was
  * recognized, an event is announced.
  */
-public class EdgeConfigWorker extends AbstractWorker {
+public class EdgeConfigWorker extends ComponentManagerWorker {
 
 	private static final int CYCLE_TIME = 300_000; // in ms
 
 	private final Logger log = LoggerFactory.getLogger(EdgeConfigWorker.class);
-	private final ComponentManagerImpl parent;
 	private final Queue<ConfigurationEvent> events = new ArrayDeque<ConfigurationEvent>();
 
 	private EdgeConfig cache = null;
 
 	public EdgeConfigWorker(ComponentManagerImpl parent) {
-		this.parent = parent;
+		super(parent);
 	}
 
 	@Override
@@ -82,6 +80,8 @@ public class EdgeConfigWorker extends AbstractWorker {
 	/**
 	 * Gets the EdgeConfig object; updates the cache if necessary and publishes a
 	 * CONFIG_UPDATE event on update.
+	 * 
+	 * @return the {@link EdgeConfig}
 	 */
 	public synchronized EdgeConfig getEdgeConfig() {
 		boolean wasConfigUpdated = false;
@@ -118,7 +118,8 @@ public class EdgeConfigWorker extends AbstractWorker {
 		return CYCLE_TIME;
 	}
 
-	public synchronized void handleEvent(ConfigurationEvent event) {
+	@Override
+	public synchronized void configurationEvent(ConfigurationEvent event) {
 		this.events.offer(event);
 		this.triggerNextRun();
 	}
@@ -126,8 +127,7 @@ public class EdgeConfigWorker extends AbstractWorker {
 	/**
 	 * Update the local EdgeConfig cache from event.
 	 * 
-	 * @param config the {@link EdgeConfig}
-	 * @param event  the {@link ConfigurationEvent}
+	 * @param event the {@link ConfigurationEvent}
 	 * @return true if this operation changed the {@link EdgeConfig}
 	 */
 	private boolean updateCacheFromEvent(ConfigurationEvent event) {
@@ -158,6 +158,7 @@ public class EdgeConfigWorker extends AbstractWorker {
 	/**
 	 * Update EdgeConfig Channels.
 	 * 
+	 * @param config the {@link EdgeConfig}
 	 * @return true if this operation changed the {@link EdgeConfig}
 	 */
 	private boolean updateChannels(EdgeConfig config) {
@@ -453,7 +454,10 @@ public class EdgeConfigWorker extends AbstractWorker {
 	 * &lt;/scr:component&gt;
 	 * </pre>
 	 * 
-	 * @return
+	 * @param bundle     the {@link Bundle}
+	 * @param manifest   the {@link Manifest}
+	 * @param factoryPid the Factory-PID
+	 * @return Natures as array of Strings
 	 */
 	private String[] getNatures(Bundle bundle, Manifest manifest, String factoryPid) {
 		try {
@@ -518,7 +522,7 @@ public class EdgeConfigWorker extends AbstractWorker {
 	 * the proper type than {@link JsonUtils#getAsJsonElement(Object)}.
 	 * 
 	 * @param properties the properties
-	 * @param value      the property key
+	 * @param key        the property key
 	 * @return the value as JsonElement
 	 */
 	private static JsonElement getPropertyAsJsonElement(Dictionary<String, Object> properties, String key) {
