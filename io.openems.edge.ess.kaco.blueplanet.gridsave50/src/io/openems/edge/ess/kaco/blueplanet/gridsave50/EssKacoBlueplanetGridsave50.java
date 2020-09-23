@@ -575,7 +575,9 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	static enum Version {
 		VERSION_5_34(40070, 40212, 40822, 40876, 40892, 40930), //
-		VERSION_5_56(40070, 40212, 40888, 40942, 40958, 40996);
+		VERSION_5_56(40070, 40212, 40888, 40942, 40958, 40996), //
+		KACO_92(40070, 40212, 41050, 41104, 0, 41120), //
+		;
 //		VERSION_5_56(40070, 40212, 41050, 41104, 41120, 41136);
 
 		private Version(int sunSpec_103, int sunSpec_121, int sunSpec_64201, int sunSpec_64202, int sunSpec_64203,
@@ -604,7 +606,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		int SUNSPEC_121 = version.sunSpec_121;
 		int SUNSPEC_64201 = version.sunSpec_64201;
 		int SUNSPEC_64202 = version.sunSpec_64202;
-		int SUNSPEC_64203 = version.sunSpec_64203;
+		// int SUNSPEC_64203 = version.sunSpec_64203;
 		int SUNSPEC_64302 = version.sunSpec_64302;
 
 		return new ModbusProtocol(this, //
@@ -661,14 +663,20 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(SUNSPEC_64202 + 13, SUNSPEC_64202 + 14), //
 						m(EssKacoBlueplanetGridsave50.ChannelId.EN_LIMIT, new UnsignedWordElement(SUNSPEC_64202 + 15))), //
-				new FC3ReadRegistersTask(SUNSPEC_64203 + 5, Priority.LOW, //
-						m(EssKacoBlueplanetGridsave50.ChannelId.SOC_SF, new SignedWordElement(SUNSPEC_64203 + 5)), //
-						m(EssKacoBlueplanetGridsave50.ChannelId.SOH_SF, new SignedWordElement(SUNSPEC_64203 + 6)), //
-						m(EssKacoBlueplanetGridsave50.ChannelId.TEMP_SF, new SignedWordElement(SUNSPEC_64203 + 7))), //
-				new FC16WriteRegistersTask(SUNSPEC_64203 + 16, //
-						m(EssKacoBlueplanetGridsave50.ChannelId.BAT_SOC, new UnsignedWordElement(SUNSPEC_64203 + 16)), //
-						m(EssKacoBlueplanetGridsave50.ChannelId.BAT_SOH, new UnsignedWordElement(SUNSPEC_64203 + 17)), //
-						m(EssKacoBlueplanetGridsave50.ChannelId.BAT_TEMP, new SignedWordElement(SUNSPEC_64203 + 18))), //
+				// new FC3ReadRegistersTask(SUNSPEC_64203 + 5, Priority.LOW, //
+				// m(EssKacoBlueplanetGridsave50.ChannelId.SOC_SF, new
+				// SignedWordElement(SUNSPEC_64203 + 5)), //
+				// m(EssKacoBlueplanetGridsave50.ChannelId.SOH_SF, new
+				// SignedWordElement(SUNSPEC_64203 + 6)), //
+				// m(EssKacoBlueplanetGridsave50.ChannelId.TEMP_SF, new
+				// SignedWordElement(SUNSPEC_64203 + 7))), //
+				// new FC16WriteRegistersTask(SUNSPEC_64203 + 16, //
+				// m(EssKacoBlueplanetGridsave50.ChannelId.BAT_SOC, new
+				// UnsignedWordElement(SUNSPEC_64203 + 16)), //
+				// m(EssKacoBlueplanetGridsave50.ChannelId.BAT_SOH, new
+				// UnsignedWordElement(SUNSPEC_64203 + 17)), //
+				// m(EssKacoBlueplanetGridsave50.ChannelId.BAT_TEMP, new
+				// SignedWordElement(SUNSPEC_64203 + 18))), //
 				new FC16WriteRegistersTask(SUNSPEC_64302 + 12, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.COMMAND_ID_REQ, //
 								new SignedWordElement(SUNSPEC_64302 + 12)), //

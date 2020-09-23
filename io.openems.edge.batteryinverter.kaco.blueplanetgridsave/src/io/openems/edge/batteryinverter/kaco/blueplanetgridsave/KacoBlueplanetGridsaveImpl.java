@@ -92,9 +92,9 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_121, Priority.LOW) //
-			.put(KacoSunSpecModel.S_64201, Priority.HIGH) //
-			.put(KacoSunSpecModel.S_64202, Priority.LOW) //
-			.put(KacoSunSpecModel.S_64203, Priority.LOW) //
+			.put(KacoSunSpecModel.S_64201, Priority.HIGH) // Important
+			.put(KacoSunSpecModel.S_64202, Priority.LOW) // Not important
+//			.put(KacoSunSpecModel.S_64203, Priority.LOW) //
 			.put(KacoSunSpecModel.S_64204, Priority.LOW) //
 			.build();
 
@@ -155,13 +155,13 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 		}
 
 		// Set Display Information
-		this.setDisplayInformation(battery);
+//		this.setDisplayInformation(battery);
 
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
 
 		// Trigger the Watchdog
-		this.triggerWatchdog();
+		// this.triggerWatchdog();
 
 		// Set State-Channels
 		this.setStateChannels();
@@ -267,6 +267,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	private void triggerWatchdog() throws OpenemsNamedException {
 		int watchdogSeconds = this.cycle.getCycleTime() / 1000 * KacoBlueplanetGridsave.WATCHDOG_CYCLES;
 		if (Duration.between(this.lastTriggerWatchdog, Instant.now()).getSeconds() > watchdogSeconds / 2) {
+			this.logInfo(this.log, "Setting the watch dog channel: " + watchdogSeconds);
 			IntegerWriteChannel watchdogChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64201.WATCHDOG);
 			watchdogChannel.setNextWriteValue(watchdogSeconds);
 			this.lastTriggerWatchdog = Instant.now();
