@@ -1,4 +1,4 @@
-package io.openems.edge.controller.asymmetric.activepowervoltagecharacteristic;
+package io.openems.edge.controller.asymmetric.powercharacteristic;
 
 import java.util.ArrayList;
 import java.util.Comparator;
