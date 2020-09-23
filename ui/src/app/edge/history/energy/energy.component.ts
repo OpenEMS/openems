@@ -131,7 +131,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.service.startSpinner(this.spinnerId);
     this.platform.ready().then(() => {
       this.platform.resize.pipe(takeUntil(this.stopOnDestroy), debounceTime(200)).subscribe(() => {
-        this.updateChart();
+        if (this.isKwhChart(this.service)) {
+          this.updateChart();
+        }
       })
     })
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
@@ -449,6 +451,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                     data: directConsumptionData,
                     backgroundColor: 'rgba(244,164,96,0.25)',
                     borderColor: 'rgba(244,164,96,1)',
+                    hoverBackgroundColor: 'rgba(244,164,96,0.5)',
+                    hoverBorderColor: 'rgba(244,164,96,1)',
                     barPercentage: barWidthPercentage,
                     categoryPercentage: categoryGapPercentage,
                     stack: "0"
@@ -471,6 +475,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                     data: chargeData,
                     backgroundColor: 'rgba(0,223,0,0.25)',
                     borderColor: 'rgba(0,223,0,1)',
+                    hoverBackgroundColor: 'rgba(0,223,0,0.5)',
+                    hoverBorderColor: 'rgba(0,223,0,1)',
                     barPercentage: barWidthPercentage,
                     categoryPercentage: categoryGapPercentage,
                     stack: "0"
@@ -493,6 +499,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                     data: gridSellData,
                     backgroundColor: 'rgba(0,0,200,0.25)',
                     borderColor: 'rgba(0,0,200,1)',
+                    hoverBackgroundColor: 'rgba(0,0,200,0.5)',
+                    hoverBorderColor: 'rgba(0,0,200,1)',
                     barPercentage: barWidthPercentage,
                     categoryPercentage: categoryGapPercentage,
                     stack: "0"
@@ -510,6 +518,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                     data: directConsumptionData,
                     backgroundColor: 'rgba(244,164,96,0.25)',
                     borderColor: 'rgba(244,164,96,1)',
+                    hoverBackgroundColor: 'rgba(244,164,96,0.5)',
+                    hoverBorderColor: 'rgba244,164,96,1)',
                     barPercentage: barWidthPercentage,
                     categoryPercentage: categoryGapPercentage,
                     stack: "1"
@@ -532,6 +542,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                     data: dischargeData,
                     backgroundColor: 'rgba(200,0,0,0.25)',
                     borderColor: 'rgba(200,0,0,1)',
+                    hoverBackgroundColor: 'rgba(200,0,0,0.5)',
+                    hoverBorderColor: 'rgba(200,0,0,1)',
                     barPercentage: barWidthPercentage,
                     categoryPercentage: categoryGapPercentage,
                     stack: "1"
@@ -554,6 +566,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                     data: gridBuyData,
                     backgroundColor: 'rgba(0,0,0,0.25)',
                     borderColor: 'rgba(0,0,0,1)',
+                    hoverBackgroundColor: 'rgba(0,0,0,0.5)',
+                    hoverBorderColor: 'rgba(0,0,0,1)',
                     barPercentage: barWidthPercentage,
                     categoryPercentage: categoryGapPercentage,
                     stack: "1"
@@ -733,15 +747,54 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       let consumptionLabelText = this.translate.instant('General.consumption');
 
       // legend labels
-      options.legend.labels.filter = function (legendItem: ChartLegendLabelItem, data: ChartData) {
-        console.log("legendItem", legendItem)
-        let index = legendItem.datasetIndex;
-        let stack = data.datasets[index].stack;
-        if (legendItem.text.includes(directConsumptionLabelText) && stack == "1") {
-          return false;
-        } else {
-          return true;
-        }
+      // options.legend.labels.filter = function (legendItem: ChartLegendLabelItem, data: ChartData) {
+      //   console.log("legendItem", legendItem)
+      //   let index = legendItem.datasetIndex;
+      //   let stack = data.datasets[index].stack;
+      //   if (legendItem.text.includes(directConsumptionLabelText) && stack == "1") {
+      //     return false;
+      //   } else {
+      //     return true;
+      //   }
+      // }
+
+      //   interface ChartLegendItem {
+      //     text?: string;
+      //     fillStyle?: string;
+      //     hidden?: boolean;
+      //     index?: number;
+      //     lineCap?: 'butt' | 'round' | 'square';
+      //     lineDash?: number[];
+      //     lineDashOffset?: number;
+      //     lineJoin?: 'bevel' | 'round' | 'miter';
+      //     lineWidth?: number;
+      //     strokeStyle?: string;
+      //     pointStyle?: PointStyle;
+      // }
+
+      // interface ChartLegendLabelItem extends ChartLegendItem {
+      //     datasetIndex?: number;
+      // }
+
+      options.legend.labels.generateLabels = function (chart: Chart) {
+        let chartLegendLabelItems: ChartLegendLabelItem[] = [];
+        chart.data.datasets.forEach((dataset, index) => {
+          let text = dataset.label;
+          let datasetIndex = index;
+          let fillStyle = dataset.backgroundColor.toString();
+          let hidden = false;
+          let lineWidth = 2;
+          let strokeStyle = dataset.borderColor.toString();
+          chartLegendLabelItems.push({
+            text: text,
+            datasetIndex: datasetIndex,
+            fillStyle: fillStyle,
+            hidden: hidden,
+            lineWidth: lineWidth,
+            strokeStyle: strokeStyle
+          })
+        })
+        return chartLegendLabelItems;
       }
 
       // tooltips

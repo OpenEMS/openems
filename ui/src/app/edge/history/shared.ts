@@ -52,7 +52,6 @@ export type ChartOptions = {
         labels: {
             generateLabels?(chart: Chart): ChartLegendLabelItem[],
             filter?(legendItem: ChartLegendLabelItem, data: ChartData): any,
-            generateLabels?(chart: Chart): ChartLegendLabelItem[]
         },
         position: "bottom"
     },
