@@ -5,8 +5,8 @@ Bundle-Version: 1.0.0.${tstamp}
 Export-Package: io.openems.edge.controller.api
 Private-Package: \
 	io.openems.edge.controller.asymmetric.activepowervoltagecharacteristic,\
-	io.openems.edge.controller.asymmetric.reactivepowervoltagecharacteristic
--includeresource: {readme.adoc}
+	io.openems.edge.controller.asymmetric.reactivepowervoltagecharacteristic,\
+	io.openems.edge.controller.asymmetric.powercharacteristic
 
 -buildpath: \
 	${buildpath},\
