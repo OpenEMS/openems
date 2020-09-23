@@ -1,8 +1,5 @@
 package io.openems.edge.controller.asymmetric.reactivepowervoltagecharacteristic;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -17,21 +14,16 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.asymmetric.powercharacteristic.AbstractPowerCharacteristic;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
@@ -44,12 +36,10 @@ import io.openems.edge.meter.api.AsymmetricMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
+public class ReactivePowerVoltageCharacteristic extends AbstractPowerCharacteristic
 		implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ReactivePowerVoltageCharacteristic.class);
-
-	private final Map<Float, Float> powerCharacteristic = new HashMap<>();
 
 	/**
 	 * nominal voltage in [mV].
@@ -118,41 +108,6 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 		super.deactivate();
 	}
 
-	/**
-	 * Initialize the Q by U characteristics.
-	 * 
-	 * <p>
-	 * Parsing JSON then putting the point variables into qByUCharacteristicEquation
-	 * 
-	 * <pre>
-	 * [
-	 *   { "voltageRatio": 0.9,  "percent" : 60 },
-	 *   { "voltageRatio": 0.93, "percent": 0 },
-	 *   { "voltageRatio": 1.07, "percent": 0 },
-	 *   { "voltageRatio": 1.1,  "percent": -60 }
-	 * ]
-	 * </pre>
-	 * 
-	 * 
-	 * @param percentQ the configured Percent-by-Q values
-	 * 
-	 * @throws OpenemsNamedException on error
-	 */
-
-	private void initialize(String powerConf, float gridVoltageRatio) throws OpenemsNamedException {
-		try {
-			JsonArray jPercentQ = JsonUtils.getAsJsonArray(JsonUtils.parse(powerConf));
-			for (JsonElement element : jPercentQ) {
-				float percent = JsonUtils.getAsFloat(element, "percent");
-				float voltageRatio = JsonUtils.getAsFloat(element, "voltageRatio");
-				this.powerCharacteristic.put(voltageRatio, percent);
-			}
-		} catch (NullPointerException e) {
-			throw new OpenemsException("Unable to set values [" + powerConf + "] " + e.getMessage());
-		}
-
-	}
-
 	@Override
 	public void run() throws OpenemsNamedException {
 		AsymmetricMeter gridMeter = this.componentManager.getComponent(this.config.meter_id());
@@ -165,8 +120,8 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 			return;
 		}
 		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(voltageRatio);
-		this.initialize(config.percentQ(), voltageRatio);
-		float valueOfLine = Utils.getValueOfLine(this.powerCharacteristic, voltageRatio);
+		this.voltagePowerMap = this.initialize(config.percentQ());
+		float valueOfLine = this.getValueOfLine(this.voltagePowerMap, voltageRatio);
 		this.channel(ChannelId.PERCENT).setNextValue(valueOfLine);
 		if (valueOfLine == 0) {
 			log.info("Voltage in the Safe Zone; Power will not set in power voltage characteristic controller");
@@ -183,4 +138,5 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 		this.ess.addPowerConstraintAndValidate("ReactivePowerVoltageCharacteristic", Phase.ALL, Pwr.REACTIVE,
 				Relationship.EQUALS, calculatedPower);
 	}
+
 }

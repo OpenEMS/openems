@@ -1,16 +1,31 @@
-package io.openems.edge.controller.asymmetric.activepowervoltagecharacteristic;
+package io.openems.edge.controller.asymmetric.powercharacteristic;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-public class Utils {
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 
-	public static float getValueOfLine(Map<Float, Float> qCharacteristic, float gridVoltageRatio) {
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+
+public abstract class AbstractPowerCharacteristic extends AbstractOpenemsComponent {
+	public Map<Float, Float> voltagePowerMap = new HashMap<>();
+
+	protected AbstractPowerCharacteristic(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+		super(firstInitialChannelIds, furtherInitialChannelIds);
+	}
+
+	public float getValueOfLine(Map<Float, Float> qCharacteristic, float gridVoltageRatio) {
 		float m = 0, t = 0;
 		// find to place of grid voltage ratio
 		Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
@@ -36,7 +51,25 @@ public class Utils {
 		return m * gridVoltageRatio + t;
 	}
 
-	public static Point getSmallerPoint(Map<Float, Float> qCharacteristic, float gridVoltageRatio) {
+	protected class Point {
+		private final float x;
+		private final float y;
+
+		public Point(float x, float y) {
+			this.x = x;
+			this.y = y;
+		}
+
+		public float getX() {
+			return x;
+		}
+
+		public float getY() {
+			return y;
+		}
+	}
+
+	public Point getSmallerPoint(Map<Float, Float> qCharacteristic, float gridVoltageRatio) {
 		Point p;
 		int i = 0;
 		// bubble sort outer loop
@@ -64,7 +97,7 @@ public class Utils {
 		return p;
 	}
 
-	public static Point getGreaterPoint(Map<Float, Float> qCharacteristic, float gridVoltageRatio) {
+	public Point getGreaterPoint(Map<Float, Float> qCharacteristic, float gridVoltageRatio) {
 		Point p;
 		int i = 0;
 		// bubble sort outer loop
@@ -95,21 +128,17 @@ public class Utils {
 		return p;
 	}
 
-	protected static class Point {
-		private final float x;
-		private final float y;
-
-		public Point(float x, float y) {
-			this.x = x;
-			this.y = y;
+	public Map<Float, Float> initialize(String powerVoltConf) throws OpenemsNamedException {
+		try {
+			JsonArray jpowerV = JsonUtils.getAsJsonArray(JsonUtils.parse(powerVoltConf));
+			for (JsonElement element : jpowerV) {
+				Float powerConf = (float) JsonUtils.getAsInt(element, "power");
+				float voltageRatioConf = JsonUtils.getAsFloat(element, "voltageRatio");
+				this.voltagePowerMap.put(voltageRatioConf, powerConf);
+			}
+		} catch (NullPointerException e) {
+			throw new OpenemsException("Unable to set values [" + powerVoltConf + "] " + e.getMessage());
 		}
-
-		public float getX() {
-			return x;
-		}
-
-		public float getY() {
-			return y;
-		}
+		return voltagePowerMap;
 	}
 }
