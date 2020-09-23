@@ -1,11 +1,10 @@
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
 import { Component, OnDestroy } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
-import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
+import { TranslateService } from '@ngx-translate/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-
+import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 
 @Component({
     selector: '[storagesection]',
@@ -53,8 +52,17 @@ export class StorageSectionComponent extends AbstractSection implements OnDestro
         service: Service,
         unitpipe: UnitvaluePipe,
     ) {
-        super('Edge.Index.Energymonitor.Storage', "down", "#009846", translate, service, "Storage");
+        super('Edge.Index.Energymonitor.storage', "down", "#009846", translate, service, "Storage");
         this.unitpipe = unitpipe;
+    }
+
+    ngOnInit() {
+        if (navigator.vendor.match(/apple/i)) {
+            this.fillRef = "url(" + window.location.origin + window.location.pathname + "#" + this.sectionId + ")"
+        }
+        else {
+            this.fillRef = "url(#" + this.sectionId + ")"
+        }
     }
 
     toggleCharge() {
@@ -106,7 +114,7 @@ export class StorageSectionComponent extends AbstractSection implements OnDestro
                 arrowIndicate = 0;
             }
 
-            this.name = this.translate.instant('Edge.Index.Energymonitor.StorageCharge');
+            this.name = this.translate.instant('Edge.Index.Energymonitor.storageCharge');
             super.updateSectionData(
                 sum.storage.effectiveChargePower,
                 sum.storage.powerRatio,
@@ -122,13 +130,13 @@ export class StorageSectionComponent extends AbstractSection implements OnDestro
             } else {
                 arrowIndicate = 0;
             }
-            this.name = this.translate.instant('Edge.Index.Energymonitor.StorageDischarge');
+            this.name = this.translate.instant('Edge.Index.Energymonitor.storageDischarge');
             super.updateSectionData(
                 sum.storage.effectiveDischargePower,
                 sum.storage.powerRatio,
                 arrowIndicate);
         } else {
-            this.name = this.translate.instant('Edge.Index.Energymonitor.Storage')
+            this.name = this.translate.instant('Edge.Index.Energymonitor.storage')
             super.updateSectionData(null, null, null);
         }
 

@@ -34,7 +34,7 @@ public abstract class JsonrpcRequest extends AbstractJsonrpcRequest {
 	}
 
 	public UUID getId() {
-		return id;
+		return this.id;
 	}
 
 	@Override

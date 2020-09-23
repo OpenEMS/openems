@@ -24,6 +24,7 @@ import com.dalsemi.onewire.container.TemperatureContainer;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.onewire.BridgeOnewire;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.thermometer.api.Thermometer;
@@ -65,14 +66,14 @@ public class OneWireThermometer extends AbstractOpenemsComponent implements Ther
 			this.state = container.readDevice();
 			double temp = container.getTemperature(this.state);
 
-			this.getTemperature().setNextValue(temp * 10 /* convert to decidegree */);
-			this.setCommunicationFailed(false);
+			this._setTemperature((int) (temp * 10 /* convert to decidegree */));
+			this._setCommunicationFailed(false);
 
 		} catch (OneWireException | OpenemsException e) {
 			this.logError(this.log, e.getMessage());
 
-			this.getTemperature().setNextValue(null);
-			this.setCommunicationFailed(true);
+			this._setTemperature(null);
+			this._setCommunicationFailed(true);
 		}
 	};
 
@@ -112,14 +113,36 @@ public class OneWireThermometer extends AbstractOpenemsComponent implements Ther
 
 	@Override
 	public String debugLog() {
-		return this.getTemperature().value().asString();
+		return this.getTemperature().asString();
 	}
 
-	private StateChannel getCommunicationFailedChannel() {
+	/**
+	 * Gets the Channel for {@link ThisChannelId#COMMUNICATION_FAILED}.
+	 *
+	 * @return the Channel
+	 */
+	public StateChannel getCommunicationFailedChannel() {
 		return this.channel(ThisChannelId.COMMUNICATION_FAILED);
 	}
 
-	private void setCommunicationFailed(boolean value) {
+	/**
+	 * Gets the Communication Failed Fault State. See
+	 * {@link ThisChannelId#COMMUNICATION_FAILED}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public Value<Boolean> getCommunicationFailed() {
+		return this.getCommunicationFailedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ThisChannelId#COMMUNICATION_FAILED} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public void _setCommunicationFailed(boolean value) {
 		this.getCommunicationFailedChannel().setNextValue(value);
 	}
+
 }

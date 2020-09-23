@@ -1,7 +1,8 @@
 package io.openems.edge.predictor.persistencemodel;
 
 import java.time.Clock;
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -29,9 +30,9 @@ public abstract class AbstractPersistenceModelPredictor extends AbstractOpenemsC
 	private final Clock clock;
 	private boolean executed;
 	private long currentEnergy;
-	LocalDateTime prevHour = LocalDateTime.now();
+	ZonedDateTime prevHour = ZonedDateTime.now().withZoneSameInstant(ZoneOffset.UTC);
 
-	private final TreeMap<LocalDateTime, Integer> hourlyEnergyData = new TreeMap<LocalDateTime, Integer>();
+	private final TreeMap<ZonedDateTime, Integer> hourlyEnergyData = new TreeMap<ZonedDateTime, Integer>();
 
 	protected AbstractPersistenceModelPredictor(Clock clock, String componentId,
 			io.openems.edge.common.channel.ChannelId channelId) {
@@ -87,7 +88,8 @@ public abstract class AbstractPersistenceModelPredictor extends AbstractOpenemsC
 		}
 		long energy = energyOpt.get();
 
-		LocalDateTime currentHour = LocalDateTime.now(this.clock).withNano(0).withMinute(0).withSecond(0);
+		ZonedDateTime currentHour = ZonedDateTime.now(this.clock).withNano(0).withMinute(0).withSecond(0)
+				.withZoneSameInstant(ZoneOffset.UTC);
 
 		if (!executed) {
 			// First time execution - Map is still empty
@@ -116,10 +118,11 @@ public abstract class AbstractPersistenceModelPredictor extends AbstractOpenemsC
 		Integer[] values = new Integer[24];
 		int i = Math.max(0, 24 - this.hourlyEnergyData.size());
 
-		for (Entry<LocalDateTime, Integer> entry : this.hourlyEnergyData.entrySet()) {
+		for (Entry<ZonedDateTime, Integer> entry : this.hourlyEnergyData.entrySet()) {
 			values[i++] = entry.getValue();
 		}
-		LocalDateTime currentHour = LocalDateTime.now(this.clock).withNano(0).withMinute(0).withSecond(0);
+		ZonedDateTime currentHour = ZonedDateTime.now(this.clock).withNano(0).withMinute(0).withSecond(0)
+				.withZoneSameInstant(ZoneOffset.UTC);
 
 		HourlyPrediction hourlyPrediction = new HourlyPrediction(values, currentHour);
 		return hourlyPrediction;

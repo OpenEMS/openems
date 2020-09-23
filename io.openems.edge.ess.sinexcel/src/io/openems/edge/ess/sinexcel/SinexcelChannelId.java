@@ -97,11 +97,6 @@ public enum SinexcelChannelId implements ChannelId {
 	INVOUTCURRENT_L3(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.AMPERE)), //
 
-	ANALOG_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.KILOWATT_HOURS)),
-	ANALOG_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.KILOWATT_HOURS)), //
-
 	TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.DEGREE_CELSIUS)), //
 
@@ -184,7 +179,7 @@ public enum SinexcelChannelId implements ChannelId {
 	STATE_1(Doc.of(Level.WARNING) //
 			.text("DC over Voltage")), //
 	STATE_2(Doc.of(Level.WARNING) //
-			.text("AC disconnect open")), //
+			.text("AC disconnect open")), // TODO: evaluate if this State can be removed
 	STATE_3(Doc.of(Level.WARNING) //
 			.text("DC disconnect open")), //
 	STATE_4(Doc.of(Level.WARNING) //
@@ -227,12 +222,12 @@ public enum SinexcelChannelId implements ChannelId {
 				((StateChannel) channel).onChange((oldValue, newValue) -> {
 					Optional<Boolean> value = newValue.asOptional();
 					if (!value.isPresent()) {
-						self.getGridMode().setNextValue(GridMode.UNDEFINED);
+						self._setGridMode(GridMode.UNDEFINED);
 					} else {
 						if (value.get()) {
-							self.getGridMode().setNextValue(GridMode.ON_GRID);
+							self._setGridMode(GridMode.ON_GRID);
 						} else {
-							self.getGridMode().setNextValue(GridMode.OFF_GRID);
+							self._setGridMode(GridMode.OFF_GRID);
 						}
 					}
 				});

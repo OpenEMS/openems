@@ -1,8 +1,6 @@
 package io.openems.edge.simulator.ess.singlephase.reacting;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDateTime;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -18,8 +16,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -39,26 +35,25 @@ import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.EssSinglePhase.Reacting", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
 public class EssSinglePhase extends AbstractOpenemsComponent
 		implements ManagedSinglePhaseEss, SinglePhaseEss, ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss,
-		SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
-
-	private final Logger log = LoggerFactory.getLogger(EssSinglePhase.class);
+		SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	// Current state of charge.
 	private float soc = 0;
 
-	// Total configured capacity in Wh.
-	private int capacity = 0;
-
-	// Configured max Apparent Power in VA.
-	private int maxApparentPower = 0;
+	private Config config;
 
 	private SinglePhase phase;
 
@@ -84,6 +79,14 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
+
+	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
+
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
@@ -95,14 +98,13 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 			return;
 		}
 
-		this.getSoc().setNextValue(config.initialSoc());
+		this.config = config;
 		this.soc = config.initialSoc();
-		this.capacity = config.capacity();
-		this.maxApparentPower = config.maxApparentPower();
-		this.getMaxApparentPower().setNextValue(config.maxApparentPower());
-		this.getAllowedCharge().setNextValue(this.maxApparentPower * -1);
-		this.getAllowedDischarge().setNextValue(this.maxApparentPower);
-		this.getGridMode().setNextValue(config.gridMode());
+		this._setSoc(config.initialSoc());
+		this._setMaxApparentPower(config.maxApparentPower());
+		this._setAllowedChargePower(config.maxApparentPower() * -1);
+		this._setAllowedDischargePower(config.maxApparentPower());
+		this._setGridMode(config.gridMode());
 	}
 
 	@Deactivate
@@ -125,23 +127,21 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
-			this.updateChannels();
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.calculateEnergy();
 			break;
 		}
 	}
 
-	private void updateChannels() {
-		// nothing to do
-	}
-
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
-				+ "|" + this.getGridMode().value().asOptionString();
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
+				+ "|" + this.getGridModeChannel().value().asOptionString();
 	}
 
 	@Override
@@ -155,50 +155,50 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 		 * calculate State of charge
 		 */
 		float watthours = (float) activePower * this.datasource.getTimeDelta() / 3600;
-		float socChange = watthours / this.capacity;
+		float socChange = watthours / this.config.capacity();
 		this.soc -= socChange;
 		if (this.soc > 100) {
 			this.soc = 100;
 		} else if (this.soc < 0) {
 			this.soc = 0;
 		}
-		this.getSoc().setNextValue(this.soc);
+		this._setSoc(Math.round(this.soc));
 		/*
 		 * Apply Active/Reactive power to simulated channels
 		 */
-		if (soc == 0 && activePower > 0) {
+		if (this.soc == 0 && activePower > 0) {
 			activePower = 0;
 		}
-		if (soc == 100 && activePower < 0) {
+		if (this.soc == 100 && activePower < 0) {
 			activePower = 0;
 		}
 		switch (this.getPhase()) {
 		case L1:
-			this.getActivePowerL1().setNextValue(activePower);
+			this._setActivePowerL1(activePower);
 			break;
 		case L2:
-			this.getActivePowerL2().setNextValue(activePower);
+			this._setActivePowerL2(activePower);
 			break;
 		case L3:
-			this.getActivePowerL3().setNextValue(activePower);
+			this._setActivePowerL3(activePower);
 			break;
 		}
 
-		if (soc == 0 && reactivePower > 0) {
+		if (this.soc == 0 && reactivePower > 0) {
 			reactivePower = 0;
 		}
-		if (soc == 100 && reactivePower < 0) {
+		if (this.soc == 100 && reactivePower < 0) {
 			reactivePower = 0;
 		}
 		switch (this.getPhase()) {
 		case L1:
-			this.getReactivePowerL1().setNextValue(activePower);
+			this._setReactivePowerL1(activePower);
 			break;
 		case L2:
-			this.getReactivePowerL2().setNextValue(activePower);
+			this._setReactivePowerL2(activePower);
 			break;
 		case L3:
-			this.getReactivePowerL3().setNextValue(activePower);
+			this._setReactivePowerL3(activePower);
 			break;
 		}
 
@@ -206,14 +206,14 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 		 * Set AllowedCharge / Discharge based on SoC
 		 */
 		if (this.soc == 100) {
-			this.getAllowedCharge().setNextValue(0);
+			this._setAllowedChargePower(0);
 		} else {
-			this.getAllowedCharge().setNextValue(this.maxApparentPower * -1);
+			this._setAllowedChargePower(this.config.maxApparentPower() * -1);
 		}
 		if (this.soc == 0) {
-			this.getAllowedDischarge().setNextValue(0);
+			this._setAllowedDischargePower(0);
 		} else {
-			this.getAllowedDischarge().setNextValue(this.maxApparentPower);
+			this._setAllowedDischargePower(this.config.maxApparentPower());
 		}
 	}
 
@@ -239,47 +239,34 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 						.build());
 	}
 
-	// These variables are used to calculate the energy
-	LocalDateTime lastPowerValuesTimestamp = null;
-	double lastPowerValue = 0;
-	double accumulatedChargeEnergy = 0;
-	double accumulatedDischargeEnergy = 0;
-
-	private void calculateEnergy() {
-		if (this.lastPowerValuesTimestamp != null) {
-
-			long passedTimeInMilliSeconds = Duration.between(this.lastPowerValuesTimestamp, LocalDateTime.now())
-					.toMillis();
-			this.lastPowerValuesTimestamp = LocalDateTime.now();
-
-			this.logDebug(this.log, "time elpsed in ms: " + passedTimeInMilliSeconds);
-			this.logDebug(this.log, "last power value :" + this.lastPowerValue);
-			double energy = this.lastPowerValue * (passedTimeInMilliSeconds / 1000) / 3600;
-			// calculate energy in watt hours
-
-			log.debug("energy in wh: " + energy);
-
-			if (this.lastPowerValue < 0) {
-				this.accumulatedChargeEnergy = this.accumulatedChargeEnergy + energy;
-				this.getActiveChargeEnergy().setNextValue(accumulatedChargeEnergy);
-			} else if (this.lastPowerValue > 0) {
-				this.accumulatedDischargeEnergy = this.accumulatedDischargeEnergy + energy;
-				this.getActiveDischargeEnergy().setNextValue(accumulatedDischargeEnergy);
-			}
-
-			this.logDebug(this.log, "accumulated charge energy :" + accumulatedChargeEnergy);
-			this.logDebug(this.log, "accumulated discharge energy :" + accumulatedDischargeEnergy);
-
-		} else {
-			this.lastPowerValuesTimestamp = LocalDateTime.now();
-		}
-
-		this.lastPowerValue = this.getActivePower().value().orElse(0);
-	}
-
 	@Override
 	public SinglePhase getPhase() {
 		return this.phase;
 	}
 
+	/**
+	 * Calculate the Energy values from ActivePower.
+	 */
+	private void calculateEnergy() {
+		// Calculate Energy
+		Integer activePower = this.getActivePower().get();
+		if (activePower == null) {
+			// Not available
+			this.calculateChargeEnergy.update(null);
+			this.calculateDischargeEnergy.update(null);
+		} else if (activePower > 0) {
+			// Buy-From-Grid
+			this.calculateChargeEnergy.update(0);
+			this.calculateDischargeEnergy.update(activePower);
+		} else {
+			// Sell-To-Grid
+			this.calculateChargeEnergy.update(activePower * -1);
+			this.calculateDischargeEnergy.update(0);
+		}
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
 }

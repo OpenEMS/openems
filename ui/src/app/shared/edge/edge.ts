@@ -50,8 +50,6 @@ export class Edge {
   /**
    * Gets the Config. If not available yet, it requests it via Websocket.
    * 
-   * Alternatively use Service.getEdgeConfig() which gives you a Promise.
-   * 
    * @param websocket the Websocket connection
    */
   public getConfig(websocket: Websocket): BehaviorSubject<EdgeConfig> {
@@ -71,17 +69,28 @@ export class Edge {
   /**
    * Refresh the config.
    */
-  public refreshConfig(websocket: Websocket): void {
+  private refreshConfig(websocket: Websocket): void {
+    // make sure to send not faster than every 1000 ms
+    if (this.isRefreshConfigBlocked) {
+      return;
+    }
+    // block refreshConfig()
+    this.isRefreshConfigBlocked = true;
+    setTimeout(() => {
+      // unblock refreshConfig()
+      this.isRefreshConfigBlocked = false;
+    }, 1000);
+
     let request = new GetEdgeConfigRequest();
     this.sendRequest(websocket, request).then(response => {
       let edgeConfigResponse = response as GetEdgeConfigResponse;
       this.config.next(new EdgeConfig(this, edgeConfigResponse.result));
     }).catch(reason => {
-      console.warn("refreshConfig got error", reason)
-      // TODO error
+      console.warn("Unable to refresh config", reason)
       this.config.next(new EdgeConfig(this));
     });
   }
+  private isRefreshConfigBlocked: boolean = false;
 
   /**
    * Add Channels to subscription
@@ -129,7 +138,7 @@ export class Edge {
    * 
    * @param websocket the Websocket
    */
-  private sendSubscribeChannels(websocket: Websocket): void {
+  public sendSubscribeChannels(websocket: Websocket): void {
     // make sure to send not faster than every 100 ms
     if (this.subscribeChannelsTimeout == null) {
       this.subscribeChannelsTimeout = setTimeout(() => {

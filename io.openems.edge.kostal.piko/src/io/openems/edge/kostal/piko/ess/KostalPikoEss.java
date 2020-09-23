@@ -85,7 +85,7 @@ public class KostalPikoEss extends AbstractOpenemsComponent implements Symmetric
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString(); //
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString(); //
 	}
 }

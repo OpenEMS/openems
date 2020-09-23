@@ -9,8 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.java_websocket.WebSocket;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
-import org.osgi.service.cm.ConfigurationEvent;
-import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -20,6 +18,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
@@ -34,6 +35,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.user.EdgeUser;
 import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
@@ -45,9 +47,12 @@ import io.openems.edge.timedata.api.Timedata;
 		name = "Controller.Api.Websocket", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = "org.ops4j.pax.logging.appender.name=Controller.Api.Websocket")
+		property = { //
+				"org.ops4j.pax.logging.appender.name=Controller.Api.Websocket", //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CONFIG_UPDATE //
+		})
 public class WebsocketApi extends AbstractOpenemsComponent
-		implements Controller, OpenemsComponent, PaxAppender, ConfigurationListener {
+		implements Controller, OpenemsComponent, PaxAppender, EventHandler {
 
 	public static final String EDGE_ID = "0";
 	public static final String EDGE_COMMENT = "";
@@ -188,10 +193,20 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void configurationEvent(ConfigurationEvent event) {
-		EdgeConfig config = this.componentManager.getEdgeConfig();
-		EdgeConfigNotification message = new EdgeConfigNotification(config);
-		this.server.broadcastMessage(new EdgeRpcNotification(WebsocketApi.EDGE_ID, message));
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CONFIG_UPDATE:
+			if (this.server.getConnections().isEmpty()) {
+				// No Connections? It's not required to build the EdgeConfig.
+				return;
+			}
+			EdgeConfig config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
+			EdgeConfigNotification message = new EdgeConfigNotification(config);
+			this.server.broadcastMessage(new EdgeRpcNotification(WebsocketApi.EDGE_ID, message));
+		}
 	}
 
 	/**

@@ -10,7 +10,8 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.CheckedConsumer;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -26,7 +27,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	 * Holds the number of past values for this Channel that are kept in the
 	 * 'pastValues' variable.
 	 */
-	public final static int NO_OF_PAST_VALUES = 100;
+	public static final int NO_OF_PAST_VALUES = 100;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractReadChannel.class);
 
@@ -53,7 +54,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 		this.activeValue = new Value<T>(this, null);
 
 		// validate Type
-		if (!validateType(channelDoc.getType(), type)) {
+		if (!this.validateType(channelDoc.getType(), type)) {
 			throw new IllegalArgumentException("[" + this.address() + "]: Types do not match. Got [" + type
 					+ "]. Expected [" + channelDoc.getType() + "].");
 		}
@@ -83,7 +84,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 		this.onChangeCallbacks.clear();
 		this.onSetNextValueCallbacks.clear();
 		this.onUpdateCallbacks.clear();
-		if (onSetNextWriteCallbacks != null) {
+		if (this.onSetNextWriteCallbacks != null) {
 			this.onSetNextWriteCallbacks.clear();
 		}
 	}
@@ -100,19 +101,26 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 
 	@Override
 	public OpenemsComponent getComponent() {
-		return parent;
+		return this.parent;
 	}
 
 	@Override
 	public void nextProcessImage() {
 		Value<T> oldValue = this.activeValue;
-		boolean valueHasChanged = !Objects.equals(oldValue, this.nextValue);
+		final boolean valueHasChanged;
+		if (oldValue == null && this.nextValue == null) {
+			valueHasChanged = false;
+		} else if (oldValue == null || this.nextValue == null) {
+			valueHasChanged = true;
+		} else {
+			valueHasChanged = !Objects.equals(oldValue.get(), this.nextValue.get());
+		}
 		this.activeValue = this.nextValue;
 		this.onUpdateCallbacks.forEach(callback -> callback.accept(this.activeValue));
 		if (valueHasChanged) {
 			this.onChangeCallbacks.forEach(callback -> callback.accept(oldValue, this.activeValue));
 		}
-		this.pastValues.put(oldValue.getTimestamp(), oldValue);
+		this.pastValues.put(this.activeValue.getTimestamp(), this.activeValue);
 	}
 
 	@Override
@@ -134,7 +142,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	public void _setNextValue(T value) {
 		this.nextValue = new Value<T>(this, value);
 		if (this.channelDoc.isDebug()) {
-			log.info("Next value for [" + this.address() + "]: " + this.nextValue.asString());
+			this.log.info("Next value for [" + this.address() + "]: " + this.nextValue.asString());
 		}
 		this.onSetNextValueCallbacks.forEach(callback -> callback.accept(this.nextValue));
 	}
@@ -145,28 +153,57 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	}
 
 	@Override
-	public Value<T> value() {
+	public Value<T> value() throws IllegalArgumentException {
+		switch (this.channelDoc.getAccessMode()) {
+		case WRITE_ONLY:
+			throw new IllegalArgumentException("Channel [" + this.channelId + "] is WRITE_ONLY.");
+		case READ_ONLY:
+		case READ_WRITE:
+			break;
+		}
 		return this.activeValue;
 	}
 
 	@Override
 	public String toString() {
-		return "Channel [ID=" + channelId + ", type=" + type + ", activeValue=" + this.activeValue.asString() + "]";
+		return "Channel [" //
+				+ "ID=" + this.channelId + ", " //
+				+ "type=" + this.type + ", " //
+				+ "activeValue=" + this.activeValue.asString() //
+				+ "]";
 	}
 
 	@Override
-	public void onUpdate(Consumer<Value<T>> callback) {
+	public Consumer<Value<T>> onUpdate(Consumer<Value<T>> callback) {
 		this.onUpdateCallbacks.add(callback);
+		return callback;
 	}
 
 	@Override
-	public void onSetNextValue(Consumer<Value<T>> callback) {
+	public void removeOnUpdateCallback(Consumer<Value<?>> callback) {
+		this.onUpdateCallbacks.remove(callback);
+	}
+
+	@Override
+	public Consumer<Value<T>> onSetNextValue(Consumer<Value<T>> callback) {
 		this.onSetNextValueCallbacks.add(callback);
+		return callback;
 	}
 
 	@Override
-	public void onChange(BiConsumer<Value<T>, Value<T>> callback) {
+	public void removeOnSetNextValueCallback(Consumer<?> callback) {
+		this.onSetNextValueCallbacks.remove(callback);
+	}
+
+	@Override
+	public BiConsumer<Value<T>, Value<T>> onChange(BiConsumer<Value<T>, Value<T>> callback) {
 		this.onChangeCallbacks.add(callback);
+		return callback;
+	}
+
+	@Override
+	public void removeOnChangeCallback(BiConsumer<?, ?> callback) {
+		this.onChangeCallbacks.remove(callback);
 	}
 
 	/*
@@ -174,9 +211,9 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	 * 'onSetNextWriteCallbacks' is not final by purpose, because it might be called
 	 * in construction and would not be initialised then.
 	 */
-	private List<CheckedConsumer<T>> onSetNextWriteCallbacks = null;
+	private List<ThrowingConsumer<T, OpenemsNamedException>> onSetNextWriteCallbacks = null;
 
-	protected List<CheckedConsumer<T>> getOnSetNextWrites() {
+	protected List<ThrowingConsumer<T, OpenemsNamedException>> getOnSetNextWrites() {
 		if (this.onSetNextWriteCallbacks == null) {
 			this.onSetNextWriteCallbacks = new CopyOnWriteArrayList<>();
 		}

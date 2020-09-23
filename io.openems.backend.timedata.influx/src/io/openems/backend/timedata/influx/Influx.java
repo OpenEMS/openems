@@ -12,8 +12,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.influxdb.InfluxDBException.FieldTypeConflictException;
 import org.influxdb.dto.Point;
@@ -54,11 +52,13 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 	private final Logger log = LoggerFactory.getLogger(Influx.class);
 	private final Map<String, EdgeCache> edgeCacheMap = new HashMap<>();
+	private final FieldTypeConflictHandler fieldTypeConflictHandler;
 
 	private InfluxConnector influxConnector = null;
 
 	public Influx() {
 		super("Timedata.InfluxDB");
+		this.fieldTypeConflictHandler = new FieldTypeConflictHandler(this);
 	}
 
 	@Reference
@@ -80,13 +80,13 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		this.influxConnector = new InfluxConnector(config.url(), config.port(), config.username(), config.password(),
 				config.database(), config.retentionPolicy(), config.isReadOnly(), //
 				(failedPoints, throwable) -> {
-					String pointsString = StreamSupport.stream(failedPoints.spliterator(), false)
-							.map(Point::lineProtocol).collect(Collectors.joining(","));
-					this.logError(this.log, "Unable to write to InfluxDB. " + throwable.getClass().getSimpleName()
-							+ ": " + throwable.getMessage() + " for " + StringUtils.toShortString(pointsString, 100));
-
 					if (throwable instanceof FieldTypeConflictException) {
-						this.handleFieldTypeConflictException((FieldTypeConflictException) throwable);
+						this.fieldTypeConflictHandler.handleException((FieldTypeConflictException) throwable);
+					} else {
+						this.logError(this.log,
+								"Unable to write to InfluxDB. " + throwable.getClass().getSimpleName() + ": "
+										+ throwable.getMessage() + " for "
+										+ StringUtils.toShortString(failedPoints.toString(), 100));
 					}
 				});
 	}
@@ -228,6 +228,16 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels);
 	}
 
+	@Override
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			throws OpenemsNamedException {
+		// parse the numeric EdgeId
+		Optional<Integer> influxEdgeId = Optional.of(Influx.parseNumberFromName(edgeId));
+
+		return this.influxConnector.queryHistoricEnergyPerPeriod(influxEdgeId, fromDate, toDate, channels, resolution);
+	}
+
 	/**
 	 * Adds the value in the correct data format for InfluxDB.
 	 *
@@ -269,63 +279,6 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		}
 	}
 
-	private final static Pattern FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN = Pattern.compile(
-			"^partial write: field type conflict: input field \"(?<channel>.*)\" on measurement \"data\" is type (?<thisType>\\w+), already exists as type (?<requiredType>\\w+) dropped=\\d+$");
-
-	private final Map<String, BiConsumer<Builder, JsonElement>> specialCaseFieldHandlers = new HashMap<>();
-
-	/**
-	 * Handles a {@link FieldTypeConflictException}; adds special handling for
-	 * fields that already exist in the database.
-	 * 
-	 * @param e the {@link FieldTypeConflictException}
-	 */
-	private void handleFieldTypeConflictException(FieldTypeConflictException e) {
-		Matcher matcher = FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN.matcher(e.getMessage());
-		if (!matcher.find()) {
-			this.logWarn(this.log, "Unable to add special field handler for message [" + e.getMessage() + "]");
-			return;
-		}
-		String field = matcher.group("channel");
-		String thisType = matcher.group("thisType");
-		String requiredType = matcher.group("requiredType");
-
-		BiConsumer<Builder, JsonElement> handler = null;
-		switch (requiredType) {
-		case "string":
-			handler = (builder, value) -> {
-				builder.addField(field, value.toString());
-			};
-			break;
-		case "integer":
-			handler = (builder, jValue) -> {
-				String value = jValue.toString().replace("\"", "");
-				try {
-					builder.addField(field, Long.parseLong(value));
-				} catch (NumberFormatException e1) {
-					if (field.equalsIgnoreCase("false")) {
-						builder.addField(field, 0l);
-					} else if (field.equalsIgnoreCase("true")) {
-						builder.addField(field, 1l);
-					} else {
-						this.logInfo(this.log,
-								"Unable to convert field [" + field + "] value [" + value + "] to integer");
-					}
-				}
-			};
-			break;
-		}
-
-		if (handler == null) {
-			this.logWarn(this.log, "Unable to add special field handler for [" + field + "] from [" + thisType
-					+ "] to [" + requiredType + "]");
-		} else {
-			this.logInfo(this.log,
-					"Add special field handler for [" + field + "] from [" + thisType + "] to [" + requiredType + "]");
-			this.specialCaseFieldHandlers.put(field, handler);
-		}
-	}
-
 	/**
 	 * Handles some special cases for fields.
 	 * 
@@ -339,7 +292,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @return true if field was handled; false otherwise
 	 */
 	private boolean specialCaseFieldHandling(Builder builder, String field, JsonElement value) {
-		BiConsumer<Builder, JsonElement> handler = this.specialCaseFieldHandlers.get(field);
+		BiConsumer<Builder, JsonElement> handler = this.fieldTypeConflictHandler.getHandler(field);
 		if (handler == null) {
 			// no special handling exists for this field
 			return false;
@@ -446,6 +399,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 							new ChannelFormula(Function.PLUS, 9_000), //
 					};
 				case "Pro Hybrid 10-Serie":
+				case "Kostal PIKO + B-Box HV":
 					return new ChannelFormula[] { //
 							new ChannelFormula(Function.PLUS, 10_000), //
 					};
@@ -550,6 +504,16 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			}
 		}
 		return new ChannelFormula[0];
+	}
+
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+
+	@Override
+	protected void logWarn(Logger log, String message) {
+		super.logWarn(log, message);
 	}
 
 }

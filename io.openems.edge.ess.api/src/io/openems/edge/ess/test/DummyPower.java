@@ -12,10 +12,13 @@ import io.openems.edge.ess.power.api.Relationship;
 
 public class DummyPower implements Power {
 
-	private final int maxApparentPower;
-	private final double p;
-	private final double i;
-	private final double d;
+	private final PidFilter pidFilter;
+
+	private int maxApparentPower;
+
+	public DummyPower() {
+		this(Integer.MAX_VALUE);
+	}
 
 	public DummyPower(int maxApparentPower) {
 		this(maxApparentPower, PidFilter.DEFAULT_P, PidFilter.DEFAULT_I, PidFilter.DEFAULT_D);
@@ -27,9 +30,7 @@ public class DummyPower implements Power {
 
 	public DummyPower(int maxApparentPower, double p, double i, double d) {
 		this.maxApparentPower = maxApparentPower;
-		this.p = p;
-		this.i = i;
-		this.d = d;
+		this.pidFilter = new PidFilter(p, i, d);
 	}
 
 	@Override
@@ -53,6 +54,10 @@ public class DummyPower implements Power {
 
 	}
 
+	public void setMaxApparentPower(int maxApparentPower) {
+		this.maxApparentPower = maxApparentPower;
+	}
+
 	@Override
 	public int getMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
 		return this.maxApparentPower;
@@ -69,8 +74,8 @@ public class DummyPower implements Power {
 	}
 
 	@Override
-	public PidFilter buildPidFilter() {
-		return new PidFilter(this.p, this.i, this.d);
+	public PidFilter getPidFilter() {
+		return this.pidFilter;
 	}
 
 }

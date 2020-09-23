@@ -1,11 +1,12 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { fromEvent, Subject } from 'rxjs';
-import { debounceTime, delay, takeUntil } from 'rxjs/operators';
-import { CurrentData } from '../../../../shared/edge/currentdata';
 import { ConsumptionSectionComponent } from './section/consumption.component';
+import { CurrentData } from '../../../../shared/edge/currentdata';
+import { debounceTime, delay, takeUntil } from 'rxjs/operators';
+import { fromEvent, Subject } from 'rxjs';
 import { GridSectionComponent } from './section/grid.component';
 import { ProductionSectionComponent } from './section/production.component';
 import { StorageSectionComponent } from './section/storage.component';
+import { Service } from 'src/app/shared/shared';
 
 @Component({
   selector: 'energymonitor-chart',
@@ -30,21 +31,23 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
 
   @Input()
   set currentData(currentData: CurrentData) {
-    this.loading = false;
+    this.service.stopSpinner("live-energymonitor");
     this.updateCurrentData(currentData);
   }
 
   public translation: string;
   public width: number;
   public height: number;
-  public loading: boolean = true;
   public gridMode: number;
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
-  constructor() { }
+  constructor(
+    private service: Service,
+  ) { }
 
   ngOnInit() {
+    this.service.startSpinner("live-energymonitor");
     // make sure chart is redrawn in the beginning and on window resize
     setTimeout(() => this.updateOnWindowResize(), 500);
     const source = fromEvent(window, 'resize', null, null);

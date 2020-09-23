@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared';
+import { Component } from '@angular/core';
 import { GridModalComponent } from './modal/modal.component';
 import { ModalController } from '@ionic/angular';
 
@@ -25,8 +25,8 @@ export class GridComponent {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
       edge.subscribeChannels(this.websocket, GridComponent.SELECTOR, [
-        // Grid
         new ChannelAddress('_sum', 'GridActivePower'),
+        // channels for modal component, subscribe here for better UX
         new ChannelAddress('_sum', 'GridActivePowerL1'),
         new ChannelAddress('_sum', 'GridActivePowerL2'),
         new ChannelAddress('_sum', 'GridActivePowerL3'),

@@ -2,22 +2,21 @@
     <ion-item mode="md" [class.active]="service.periodString == 'day'" (click)="setPeriod('day')"
         class="ion-text-center" lines="none" button>
         <ion-label translate>
-            Edge.History.Day
+            Edge.History.day
         </ion-label>
     </ion-item>
     <ion-item mode="md" [class.active]="service.periodString == 'week'" (click)="setPeriod('week')"
         class="ion-text-center" lines="none" button>
         <ion-label translate>
-            Edge.History.Week
+            Edge.History.week
         </ion-label>
     </ion-item>
     <ion-item mode="md" [class.active]="service.periodString == 'custom'" (click)="showCustomDate = !showCustomDate"
         class="ion-text-center" lines="none" button>
         <ion-label translate>
-            Edge.History.OtherPeriod
+            Edge.History.otherPeriod
         </ion-label>
     </ion-item>
 </ion-list>
-<my-date-range-picker *ngIf="showCustomDate" [options]="dateRangePickerOptions"
-    (dateRangeChanged)="onDateRangeChanged($event)">
-</my-date-range-picker>
+<input *ngIf="showCustomDate" (dateChanged)="onDateChanged($event.dateRange)" type="hidden" [locale]="locale"
+    angular-mydatepicker name="mydate" [options]="myDpOptions" />

@@ -31,12 +31,6 @@ ion-item.noPadding {
     --ion-safe-area-right: 0.1;
 }
 
-// used in history for better chart visibility
-.wide-modal .modal-wrapper {
-    width: 101%;
-    height: 101%;
-}
-
 mat-card.single {
     margin: 20px;
 }
@@ -53,7 +47,11 @@ mat-card.single_top {
 table.full_width {
     width: 100%;
 }
-  
+
+.bold {
+    font-weight: 600;
+}
+
 td.align_right {
     text-align: right;
 }
@@ -82,7 +80,7 @@ button.activated {
 // 360px is aproximate min. width of mobile devices
 ion-toast.container {
     text-align: center;
-    --max-width: 360px;
+    --min-width: 360px;
 }
 
 .no-scroll {

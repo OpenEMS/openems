@@ -1,12 +1,12 @@
-import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
+import { ActivatedRoute } from '@angular/router';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { formatNumber } from '@angular/common';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'consumptionSingleChart',
@@ -32,15 +32,22 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
 
 
     ngOnInit() {
+        this.spinnerId = "consumption-single-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.setLabel();
+        this.subscribeChartRefresh()
+    }
+
+    ngOnDestroy() {
+        this.unsubscribeChartRefresh()
     }
 
     protected updateChart() {
+        this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getCurrentEdge().then((edge) => {
-                this.service.getConfig().then((config) => {
+            this.service.getCurrentEdge().then(edge => {
+                this.service.getConfig().then(config => {
                     this.colors = [];
                     let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
@@ -67,7 +74,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                             } else {
                                 if (channelAddress.channelId == 'ConsumptionActivePower') {
                                     datasets.push({
-                                        label: this.translate.instant('General.Consumption'),
+                                        label: this.translate.instant('General.consumption'),
                                         data: data,
                                         hidden: false
                                     });
@@ -79,21 +86,21 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                                 if ('_sum/ConsumptionActivePowerL1' && '_sum/ConsumptionActivePowerL2' && '_sum/ConsumptionActivePowerL3' in result.data && this.showPhases == true) {
                                     if (channelAddress.channelId == 'ConsumptionActivePowerL1') {
                                         datasets.push({
-                                            label: this.translate.instant('General.Phase') + ' ' + 'L1',
+                                            label: this.translate.instant('General.phase') + ' ' + 'L1',
                                             data: data
                                         });
                                         this.colors.push(this.phase1Color);
                                     }
                                     if (channelAddress.channelId == 'ConsumptionActivePowerL2') {
                                         datasets.push({
-                                            label: this.translate.instant('General.Phase') + ' ' + 'L2',
+                                            label: this.translate.instant('General.phase') + ' ' + 'L2',
                                             data: data
                                         });
                                         this.colors.push(this.phase2Color);
                                     }
                                     if (channelAddress.channelId == 'ConsumptionActivePowerL3') {
                                         datasets.push({
-                                            label: this.translate.instant('General.Phase') + ' ' + 'L3',
+                                            label: this.translate.instant('General.phase') + ' ' + 'L3',
                                             data: data
                                         });
                                         this.colors.push(this.phase3Color);
@@ -104,6 +111,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                     });
                     this.datasets = datasets;
                     this.loading = false;
+                    this.service.stopSpinner(this.spinnerId);
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();

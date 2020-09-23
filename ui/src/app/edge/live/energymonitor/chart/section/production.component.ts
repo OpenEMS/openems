@@ -1,11 +1,10 @@
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
 import { Component, OnDestroy } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
-import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
+import { TranslateService } from '@ngx-translate/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-
+import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 
 @Component({
     selector: '[productionsection]',
@@ -38,8 +37,17 @@ export class ProductionSectionComponent extends AbstractSection implements OnDes
         service: Service,
         unitpipe: UnitvaluePipe,
     ) {
-        super('General.Production', "up", "#008DD2", translate, service, "Production");
+        super('General.production', "up", "#008DD2", translate, service, "Production");
         this.unitpipe = unitpipe;
+    }
+
+    ngOnInit() {
+        if (navigator.vendor.match(/apple/i)) {
+            this.fillRef = "url(" + window.location.origin + window.location.pathname + "#" + this.sectionId + ")"
+        }
+        else {
+            this.fillRef = "url(#" + this.sectionId + ")"
+        }
     }
 
     toggleAnimation() {

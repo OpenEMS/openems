@@ -1,11 +1,11 @@
-import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
+import { ActivatedRoute } from '@angular/router';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { formatNumber } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'storageESSChart',
@@ -28,22 +28,29 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
         protected service: Service,
         protected translate: TranslateService,
         private route: ActivatedRoute,
-        private websocket: Websocket,
     ) {
         super(service, translate);
     }
 
     ngOnInit() {
+        this.spinnerId = "storage-ess-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
         this.setLabel();
+        this.subscribeChartRefresh();
+    }
+
+    ngOnDestroy() {
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
+        this.service.startSpinner(this.spinnerId);
         this.loading = true;
+        this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getCurrentEdge().then((edge) => {
+            this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
-                    this.colors = [];
                     let result = response.result;
                     // convert labels
                     let labels: Date[] = [];
@@ -68,7 +75,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                             } else {
                                 if (channelAddress.channelId == "ActivePower") {
                                     datasets.push({
-                                        label: this.translate.instant('General.ChargeDischarge'),
+                                        label: this.translate.instant('General.chargeDischarge'),
                                         data: data,
                                         hidden: false
                                     });
@@ -80,21 +87,21 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                                 if (this.componentId + '/ActivePowerL1' && this.componentId + '/ActivePowerL2' && this.componentId + '/ActivePowerL3' in result.data && this.showPhases == true) {
                                     if (channelAddress.channelId == 'ActivePowerL1') {
                                         datasets.push({
-                                            label: this.translate.instant('General.Phase') + ' ' + 'L1',
+                                            label: this.translate.instant('General.phase') + ' ' + 'L1',
                                             data: data
                                         });
                                         this.colors.push(this.phase1Color);
                                     }
                                     if (channelAddress.channelId == 'ActivePowerL2') {
                                         datasets.push({
-                                            label: this.translate.instant('General.Phase') + ' ' + 'L2',
+                                            label: this.translate.instant('General.phase') + ' ' + 'L2',
                                             data: data
                                         });
                                         this.colors.push(this.phase2Color);
                                     }
                                     if (channelAddress.channelId == 'ActivePowerL3') {
                                         datasets.push({
-                                            label: this.translate.instant('General.Phase') + ' ' + 'L3',
+                                            label: this.translate.instant('General.phase') + ' ' + 'L3',
                                             data: data
                                         });
                                         this.colors.push(this.phase3Color);
@@ -105,6 +112,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                     });
                     this.datasets = datasets;
                     this.loading = false;
+                    this.service.stopSpinner(this.spinnerId);
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
@@ -150,16 +158,16 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
             let value = tooltipItem.yLabel;
             // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
             if (value < -0.005) {
-                if (label.includes(translate.instant('General.Phase'))) {
-                    label += ' ' + translate.instant('General.ChargePower');
+                if (label.includes(translate.instant('General.phase'))) {
+                    label += ' ' + translate.instant('General.chargePower');
                 } else {
-                    label = translate.instant('General.ChargePower');
+                    label = translate.instant('General.chargePower');
                 }
             } else if (value > 0.005) {
-                if (label.includes(translate.instant('General.Phase'))) {
-                    label += ' ' + translate.instant('General.DischargePower');
+                if (label.includes(translate.instant('General.phase'))) {
+                    label += ' ' + translate.instant('General.dischargePower');
                 } else {
-                    label = translate.instant('General.DischargePower');
+                    label = translate.instant('General.dischargePower');
                 }
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";

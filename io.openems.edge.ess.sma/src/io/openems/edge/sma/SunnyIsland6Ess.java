@@ -66,7 +66,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 				ManagedSinglePhaseEss.ChannelId.values(), //
 				SiChannelId.values() //
 		);
-		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(SunnyIsland6Ess.MAX_APPARENT_POWER);
+		this._setMaxApparentPower(SunnyIsland6Ess.MAX_APPARENT_POWER);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -1006,12 +1006,12 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
 				+ "|Allowed:"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
-				+ "|" + this.getGridMode().value().asOptionString();
+				+ "|" + this.getGridModeChannel().value().asOptionString();
 	}
 
 	@Override

@@ -1,10 +1,10 @@
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
 import { Component, OnDestroy } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
-import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
+import { TranslateService } from '@ngx-translate/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
+import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 
 @Component({
     selector: '[gridsection]',
@@ -51,8 +51,17 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
         service: Service,
         unitpipe: UnitvaluePipe,
     ) {
-        super('General.Grid', "left", "#1d1d1d", translate, service, "Grid");
+        super('General.grid', "left", "#1d1d1d", translate, service, "Grid");
         this.unitpipe = unitpipe;
+    }
+
+    ngOnInit() {
+        if (navigator.vendor.match(/apple/i)) {
+            this.fillRef = "url(" + window.location.origin + window.location.pathname + "#" + this.sectionId + ")"
+        }
+        else {
+            this.fillRef = "url(#" + this.sectionId + ")"
+        }
     }
 
     toggleBuyAnimation() {
@@ -104,7 +113,7 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
             } else {
                 arrowIndicate = 0;
             }
-            this.name = this.translate.instant('General.GridBuy');
+            this.name = this.translate.instant('General.gridBuy');
             super.updateSectionData(
                 sum.grid.buyActivePower,
                 sum.grid.powerRatio,
@@ -120,13 +129,13 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
             } else {
                 arrowIndicate = 0;
             }
-            this.name = this.translate.instant('General.GridSell');
+            this.name = this.translate.instant('General.gridSell');
             super.updateSectionData(
                 sum.grid.sellActivePower,
                 sum.grid.powerRatio,
                 arrowIndicate);
         } else {
-            this.name = this.translate.instant('General.Grid')
+            this.name = this.translate.instant('General.grid')
             super.updateSectionData(0, null, null);
         }
 

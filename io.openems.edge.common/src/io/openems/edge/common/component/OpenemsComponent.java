@@ -10,8 +10,10 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.internal.StateCollectorChannel;
 import io.openems.edge.common.channel.internal.StateCollectorChannelDoc;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -88,7 +90,14 @@ public interface OpenemsComponent {
 		ComponentContext context = this.getComponentContext();
 		if (context != null) {
 			Dictionary<String, Object> properties = context.getProperties();
+
 			Object servicePid = properties.get("service.factoryPid");
+			if (servicePid != null) {
+				return servicePid.toString();
+			}
+
+			// Singleton?
+			servicePid = properties.get("component.name");
 			if (servicePid != null) {
 				return servicePid.toString();
 			}
@@ -191,8 +200,17 @@ public interface OpenemsComponent {
 	 * 
 	 * @return the StateCollectorChannel
 	 */
-	default StateCollectorChannel getState() {
+	public default StateCollectorChannel getStateChannel() {
 		return this._getChannelAs(ChannelId.STATE, StateCollectorChannel.class);
+	}
+
+	/**
+	 * Gets the Component State {@link Level}.
+	 * 
+	 * @return the StateCollectorChannel
+	 */
+	public default Level getState() {
+		return this.getStateChannel().value().asEnum();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -223,6 +241,20 @@ public interface OpenemsComponent {
 	 */
 	public default String debugLog() {
 		return null;
+	}
+
+	/**
+	 * Does this OpenEMS Component report any Faults?
+	 * 
+	 * <p>
+	 * Evaluates all {@link StateChannel}s and returns true if any Channel with
+	 * {@link Level#FAULT} is set.
+	 * 
+	 * @return true if there is a Fault.
+	 */
+	public default boolean hasFaults() {
+		Level level = this.getState();
+		return level.isAtLeast(Level.FAULT);
 	}
 
 	/**
@@ -262,8 +294,10 @@ public interface OpenemsComponent {
 		 */
 		// target component must be enabled
 		StringBuilder targetBuilder = new StringBuilder("(&(enabled=true)");
-		// target component must not be the same as the calling component
-		targetBuilder.append("(!(service.pid=" + pid + "))");
+		if (pid != null && !pid.isEmpty()) {
+			// target component must not be the same as the calling component
+			targetBuilder.append("(!(service.pid=" + pid + "))");
+		}
 		// add filter for given Component-IDs
 		targetBuilder.append("(|");
 		for (String id : ids) {

@@ -1,5 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 import { format, getDay, isSameDay, subDays } from 'date-fns';
+import { EdgeConfig } from '../shared';
 
 export module DefaultTypes {
 
@@ -23,7 +24,9 @@ export module DefaultTypes {
       // autarchy in percent
       autarchy: number,
       // self consumption in percent
-      selfConsumption: number
+      selfConsumption: number,
+      // state 0: Ok, 1: Info, 2: Warning, 3: Fault
+      state: number
     }, storage: {
       soc: number,
       activePowerL1: number,
@@ -98,54 +101,54 @@ export module DefaultTypes {
 
     public getText(translate: TranslateService): string {
       if (isSameDay(this.from, this.to) && isSameDay(this.from, new Date())) {
-        return translate.instant('Edge.History.Today') + ", " + format(new Date(), translate.instant('General.DateFormat'));
+        return translate.instant('Edge.History.today') + ", " + format(new Date(), translate.instant('General.dateFormat'));
       }
       else if (isSameDay(this.from, this.to) && !isSameDay(this.from, subDays(new Date(), 1))) {
         switch (getDay(this.from)) {
           case 0: {
-            return translate.instant('General.Week.Sunday') + ", " + translate.instant('Edge.History.SelectedDay', {
-              value: format(this.from, translate.instant('General.DateFormat'))
+            return translate.instant('General.Week.sunday') + ", " + translate.instant('Edge.History.selectedDay', {
+              value: format(this.from, translate.instant('General.dateFormat'))
             })
           }
           case 1: {
-            return translate.instant('General.Week.Monday') + ", " + translate.instant('Edge.History.SelectedDay', {
-              value: format(this.from, translate.instant('General.DateFormat'))
+            return translate.instant('General.Week.monday') + ", " + translate.instant('Edge.History.selectedDay', {
+              value: format(this.from, translate.instant('General.dateFormat'))
             })
           }
           case 2: {
-            return translate.instant('General.Week.Tuesday') + ", " + translate.instant('Edge.History.SelectedDay', {
-              value: format(this.from, translate.instant('General.DateFormat'))
+            return translate.instant('General.Week.tuesday') + ", " + translate.instant('Edge.History.selectedDay', {
+              value: format(this.from, translate.instant('General.dateFormat'))
             })
           }
           case 3: {
-            return translate.instant('General.Week.Wednesday') + ", " + translate.instant('Edge.History.SelectedDay', {
-              value: format(this.from, translate.instant('General.DateFormat'))
+            return translate.instant('General.Week.wednesday') + ", " + translate.instant('Edge.History.selectedDay', {
+              value: format(this.from, translate.instant('General.dateFormat'))
             })
           }
           case 4: {
-            return translate.instant('General.Week.Thursday') + ", " + translate.instant('Edge.History.SelectedDay', {
-              value: format(this.from, translate.instant('General.DateFormat'))
+            return translate.instant('General.Week.thursday') + ", " + translate.instant('Edge.History.selectedDay', {
+              value: format(this.from, translate.instant('General.dateFormat'))
             })
           }
           case 5: {
-            return translate.instant('General.Week.Friday') + ", " + translate.instant('Edge.History.SelectedDay', {
-              value: format(this.from, translate.instant('General.DateFormat'))
+            return translate.instant('General.Week.friday') + ", " + translate.instant('Edge.History.selectedDay', {
+              value: format(this.from, translate.instant('General.dateFormat'))
             })
           }
           case 6: {
-            return translate.instant('General.Week.Saturday') + ", " + translate.instant('Edge.History.SelectedDay', {
-              value: format(this.from, translate.instant('General.DateFormat'))
+            return translate.instant('General.Week.saturday') + ", " + translate.instant('Edge.History.selectedDay', {
+              value: format(this.from, translate.instant('General.dateFormat'))
             })
           }
         }
       }
       else if (isSameDay(this.from, this.to) && isSameDay(this.from, subDays(new Date(), 1))) {
-        return translate.instant('Edge.History.Yesterday') + ", " + format(this.from, translate.instant('General.DateFormat'));
+        return translate.instant('Edge.History.yesterday') + ", " + format(this.from, translate.instant('General.dateFormat'));
       } else {
         return translate.instant(
-          'General.PeriodFromTo', {
-          value1: format(this.from, translate.instant('General.DateFormatShort')),
-          value2: format(this.to, translate.instant('General.DateFormat'))
+          'General.periodFromTo', {
+          value1: format(this.from, translate.instant('General.dateFormatShort')),
+          value2: format(this.to, translate.instant('General.dateFormat'))
         })
       }
     }

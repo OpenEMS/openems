@@ -1,105 +1,107 @@
-<ion-grid *ngIf="edge">
-  <ion-row justify-content-left>
+<header></header>
+<ion-content>
+  <ion-grid *ngIf="edge">
+    <ion-row justify-content-left>
 
-    <ion-col size="12" size-sm="4">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-icon slot="start" size="large" color="primary" name="today"></ion-icon>
-          <ion-label>Anlagenprofil</ion-label>
-        </ion-item>
-        <ion-card-content>
-          <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/profile">
-            <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
+      <ion-col size="12" size-sm="4">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="today-outline"></ion-icon>
+            <ion-label translate>Edge.Config.Index.systemProfile</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/profile">
+              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
 
-    <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('owner')">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-icon slot="start" size="large" color="primary" name="list"></ion-icon>
-          <ion-label translate>Edge.Config.Index.Log</ion-label>
-        </ion-item>
-        <ion-card-content>
-          <!-- <ion-item translate>Edge.Config.Index.LiveLog</ion-item> -->
-          <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/systemlog">
-            <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
+      <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('owner')">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="list-outline"></ion-icon>
+            <ion-label translate>Edge.Config.Index.log</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/systemlog">
+              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
 
-    <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('owner')">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-icon slot="start" size="large" color="primary" name="play"></ion-icon>
-          <ion-label translate>Edge.Config.Index.SystemExecute</ion-label>
-        </ion-item>
-        <ion-card-content>
-          <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/systemexecute">
-            <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
+      <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('owner')">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="play-outline"></ion-icon>
+            <ion-label translate>Edge.Config.Index.systemExecute</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/systemexecute">
+              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
 
-    <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('admin')">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-icon slot="start" size="large" color="primary" name="switch"></ion-icon>
-          <ion-label translate>Edge.Config.Index.AdjustComponents</ion-label>
-        </ion-item>
-        <ion-card-content>
-          <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/component.update">
-            <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
+      <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('admin')">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="toggle-outline"></ion-icon>
+            <ion-label translate>Edge.Config.Index.adjustComponents</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/component.update">
+              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
 
-    <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('admin')">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-icon slot="start" size="large" color="primary" name="add"></ion-icon>
-          <ion-label translate>Edge.Config.Index.AddComponents</ion-label>
-        </ion-item>
-        <ion-card-content>
-          <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/component.install">
-            <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
+      <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('admin')">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="add-outline"></ion-icon>
+            <ion-label translate>Edge.Config.Index.addComponents</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/component.install">
+              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
 
-    <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('admin')">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-icon slot="start" size="large" color="primary" name="eye"></ion-icon>
-          <!-- TODO translate -->
-          <ion-label>Channels</ion-label>
-        </ion-item>
-        <ion-card-content>
-          <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/channels">
-            <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
+      <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('admin')">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="eye-outline"></ion-icon>
+            <!-- TODO translate -->
+            <ion-label>Channels</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/channels">
+              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
 
-    <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('admin')">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-icon slot="start" size="large" color="primary" name="globe"></ion-icon>
-          <ion-label>Network Configuration</ion-label>
-        </ion-item>
-        <ion-card-content>
-          <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/network">
-            <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
+      <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('admin')">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="globe-outline"></ion-icon>
+            <ion-label>Network Configuration</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/network">
+              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
 
-  </ion-row>
-</ion-grid>
+    </ion-row>
+  </ion-grid>
+</ion-content>

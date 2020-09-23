@@ -114,6 +114,17 @@ public class JsonUtils {
 		throw OpenemsError.JSON_NO_INTEGER_MEMBER.exception(memberName, jPrimitive.toString().replaceAll("%", "%%"));
 	}
 
+	public static float getAsFloat(JsonElement jElement) throws OpenemsNamedException {
+		JsonPrimitive jPrimitive = getAsPrimitive(jElement);
+		if (jPrimitive.isNumber()) {
+			return jPrimitive.getAsFloat();
+		} else if (jPrimitive.isString()) {
+			String string = jPrimitive.getAsString();
+			return Float.parseFloat(string);
+		}
+		throw OpenemsError.JSON_NO_FLOAT.exception(jPrimitive.toString().replaceAll("%", "%%"));
+	}
+	
 	public static float getAsFloat(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
 		if (jPrimitive.isNumber()) {
@@ -365,6 +376,14 @@ public class JsonUtils {
 		}
 	}
 
+	public static Optional<String> getAsOptionalString(JsonElement jElement) {
+		try {
+			return Optional.of(getAsString(jElement));
+		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
+	}
+
 	public static Optional<String> getAsOptionalString(JsonElement jElement, String memberName) {
 		try {
 			return Optional.of(getAsString(jElement, memberName));
@@ -452,7 +471,6 @@ public class JsonUtils {
 		}
 	}
 
-	@Deprecated
 	public static Object getAsType(Class<?> type, JsonElement j) throws NotImplementedException {
 		try {
 			if (Integer.class.isAssignableFrom(type)) {

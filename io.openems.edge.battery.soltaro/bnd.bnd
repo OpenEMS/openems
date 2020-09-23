@@ -9,7 +9,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.battery.api,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
-	slf4j.api
+	io.openems.edge.controller.api,\
+	io.openems.edge.ess.api
 
 -testpath: \
 	${testpath}

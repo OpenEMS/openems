@@ -2,13 +2,13 @@ import { EdgeConfig } from '../edge/edgeconfig';
 import { Edge } from '../edge/edge';
 
 export enum WidgetClass {
+    'Energymonitor',
     'Autarchy',
     'Selfconsumption',
     'Storage',
     'Grid',
     'Production',
     'Consumption',
-    'Energymonitor'
 }
 
 export enum WidgetNature {
@@ -17,16 +17,19 @@ export enum WidgetNature {
 }
 
 export enum WidgetFactory {
-    'Evcs.Cluster.SelfConsumtion',
-    'Evcs.Cluster.PeakShaving',
-    'Controller.Api.ModbusTcp',
     'Controller.ChannelThreshold',
     'Controller.Io.FixDigitalOutput',
-    'Controller.CHP.SoC'
+    'Controller.IO.ChannelSingleThreshold',
+    'Controller.IO.HeatingElement',
+    'Controller.CHP.SoC',
+    'Controller.Asymmetric.PeakShaving',
+    'Controller.Symmetric.PeakShaving',
+    'Evcs.Cluster.PeakShaving',
+    'Evcs.Cluster.SelfConsumtion',
 }
 
 export class Widget {
-    name: WidgetNature | WidgetFactory;
+    name: WidgetNature | WidgetFactory | String;
     componentId: string
 }
 
@@ -34,7 +37,7 @@ export class Widgets {
 
     public static parseWidgets(edge: Edge, config: EdgeConfig): Widgets {
 
-        let classes: WidgetClass[] = Object.values(WidgetClass) //
+        let classes: String[] = Object.values(WidgetClass) //
             .filter(v => typeof v === 'string')
             .filter(clazz => {
                 if (!edge.isVersionAtLeast('2018.8')) {
@@ -63,13 +66,17 @@ export class Widgets {
         let list: Widget[] = [];
 
         for (let nature of Object.values(WidgetNature).filter(v => typeof v === 'string')) {
-            for (let componentId of config.getComponentIdsImplementingNature(nature)) {
-                list.push({ name: nature, componentId: componentId });
+            for (let componentId of config.getComponentIdsImplementingNature(nature.toString())) {
+                if (config.getComponent(componentId).isEnabled) {
+                    list.push({ name: nature, componentId: componentId });
+                }
             }
         }
         for (let factory of Object.values(WidgetFactory).filter(v => typeof v === 'string')) {
-            for (let componentId of config.getComponentIdsByFactory(factory)) {
-                list.push({ name: factory, componentId: componentId });
+            for (let componentId of config.getComponentIdsByFactory(factory.toString())) {
+                if (config.getComponent(componentId).isEnabled) {
+                    list.push({ name: factory, componentId: componentId });
+                }
             }
         }
 
@@ -101,7 +108,7 @@ export class Widgets {
         /**
          * List of Widget-Classes.
          */
-        public readonly classes: WidgetClass[]
+        public readonly classes: String[]
     ) {
         // fill names
         for (let widget of list) {

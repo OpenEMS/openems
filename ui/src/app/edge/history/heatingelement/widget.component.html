@@ -1,0 +1,44 @@
+<ion-card button routerLink="/device/{{edge.id}}/history/{{componentId}}/heatingelementchart" *ngIf="component && edge">
+  <ion-item lines="full" color="light">
+    <ion-icon slot="start" color="danger" name="flame"></ion-icon>
+    <ion-label>{{ component.alias }}</ion-label>
+  </ion-item>
+  <ng-container *ngIf="component && service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+      <ion-card-content>
+        <table class="full_width">
+          <tr>
+            <td style="width:65%" translate>
+              Edge.History.activeDuration<span>&nbsp;Level 1</span></td>
+            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel1 / 60 > 59">
+              {{ activeTimeOverPeriodLevel1 * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+            </td>
+            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel1 / 60 < 59">
+              {{ activeTimeOverPeriodLevel1 * 1000 | date:'m':'UTC' }}&nbsp;m
+            </td>
+          </tr>
+          <tr>
+            <td style="width:65%" translate>
+              Edge.History.activeDuration<span>&nbsp;Level 2</span></td>
+            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel2 / 60 > 59">
+              {{ activeTimeOverPeriodLevel2 * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+            </td>
+            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel2 / 60 < 59">
+              {{ activeTimeOverPeriodLevel2 * 1000 | date:'m':'UTC' }}&nbsp;m
+            </td>
+          </tr>
+          <tr>
+            <td style="width:65%" translate>
+              Edge.History.activeDuration<span>&nbsp;Level 3</span></td>
+            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel3 / 60 > 59">
+              {{ activeTimeOverPeriodLevel3 * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+            </td>
+            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel3 / 60 < 59">
+              {{ activeTimeOverPeriodLevel3 * 1000 | date:'m':'UTC' }}&nbsp;m
+            </td>
+          </tr>
+        </table>
+      </ion-card-content>
+    </ng-container>
+  </ng-container>
+</ion-card>

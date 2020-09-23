@@ -10,13 +10,11 @@ Private-Package: \
 
 -buildpath: \
 	${buildpath},\
-	com.google.gson,\
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
 	io.openems.edge.ess.api,\
-	io.openems.edge.meter.api,\
-	slf4j.api
+	io.openems.edge.meter.api
 
 -testpath: \
 	${testpath}

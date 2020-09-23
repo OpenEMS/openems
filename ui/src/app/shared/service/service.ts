@@ -1,6 +1,6 @@
 import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { ToastController, ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Cookie } from 'ng2-cookies';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
@@ -15,6 +15,7 @@ import { ChannelAddress } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -50,8 +51,10 @@ export class Service implements ErrorHandler {
 
   constructor(
     private router: Router,
-    public translate: TranslateService,
+    private spinner: NgxSpinnerService,
     private toaster: ToastController,
+    public modalCtrl: ModalController,
+    public translate: TranslateService,
   ) {
     // add language
     translate.addLangs(Language.getLanguages());
@@ -70,11 +73,37 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * Sets the application language
+   * Set the application language
    */
   public setLang(id: LanguageTag) {
     this.translate.use(id);
     // TODO set locale for date-fns: https://date-fns.org/docs/I18n
+  }
+
+  /**
+   * Convert the browser language in Language Tag
+   */
+  public browserLangToLangTag(browserLang: string): LanguageTag {
+    switch (browserLang) {
+      case "de": {
+        return "German" as LanguageTag
+      }
+      case "en": {
+        return "English" as LanguageTag
+      }
+      case "es": {
+        return "Spanish" as LanguageTag
+      }
+      case "nl": {
+        return "Dutch" as LanguageTag
+      }
+      case "cz": {
+        return "Czech" as LanguageTag
+      }
+      default: {
+        return "German" as LanguageTag
+      }
+    }
   }
 
   /**
@@ -137,7 +166,14 @@ export class Service implements ErrorHandler {
       let route = activatedRoute.snapshot;
       let edgeId = route.params["edgeId"];
       if (edgeId == null) {
-        resolve(null);
+        // allow modal components to get edge id
+        if (route.url.length == 0) {
+          this.getCurrentEdge().then(edge => {
+            resolve(edge);
+          })
+        } else {
+          resolve(null);
+        }
       }
 
       let subscription: Subscription = null;
@@ -253,21 +289,115 @@ export class Service implements ErrorHandler {
    * @param ws       the websocket
    */
   public queryEnergy(fromDate: Date, toDate: Date, channels: ChannelAddress[]): Promise<QueryHistoricTimeseriesEnergyResponse> {
-    return new Promise((resolve, reject) => {
-      this.getCurrentEdge().then(edge => {
-        this.getChannelAddresses(edge, channels).then(channelAddresses => {
-          let request = new QueryHistoricTimeseriesEnergyRequest(fromDate, toDate, channelAddresses);
-          edge.sendRequest(this.websocket, request).then(response => {
-            let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
-            if (Object.keys(result.data).length != 0) {
-              resolve(response as QueryHistoricTimeseriesEnergyResponse);
-            } else {
-              reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+    // keep only the date, without time
+    fromDate.setHours(0, 0, 0, 0);
+    toDate.setHours(0, 0, 0, 0);
+    let promise = { resolve: null, reject: null };
+    let response = new Promise<QueryHistoricTimeseriesEnergyResponse>((resolve, reject) => {
+      promise.resolve = resolve;
+      promise.reject = reject;
+    });
+    this.queryEnergyQueue.push(
+      { fromDate: fromDate, toDate: toDate, channels: channels, promises: [promise] }
+    );
+    // try to merge requests within 100 ms
+    if (this.queryEnergyTimeout == null) {
+      this.queryEnergyTimeout = setTimeout(() => {
+
+        this.queryEnergyTimeout = null;
+
+        // merge requests
+        let mergedRequests: {
+          fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[];
+        }[] = [];
+        let request;
+        while (request = this.queryEnergyQueue.pop()) {
+          if (mergedRequests.length == 0) {
+            mergedRequests.push(request);
+          } else {
+            let merged = false;
+            for (let mergedRequest of mergedRequests) {
+              if (mergedRequest.fromDate.valueOf() === request.fromDate.valueOf()
+                && mergedRequest.toDate.valueOf() === request.toDate.valueOf()) {
+                // same date -> merge
+                mergedRequest.promises = mergedRequest.promises.concat(request.promises);
+                for (let newChannel of request.channels) {
+                  let isAlreadyThere = false;
+                  for (let existingChannel of mergedRequest.channels) {
+                    if (existingChannel.channelId == newChannel.channelId && existingChannel.componentId == newChannel.componentId) {
+                      isAlreadyThere = true;
+                      break;
+                    }
+                  }
+                  if (!isAlreadyThere) {
+                    mergedRequest.channels.push(newChannel);
+                  }
+                }
+                merged = true;
+              }
             }
-          }).catch(reason => reject(reason));
-        }).catch(reason => reject(reason));
-      })
-    })
+            if (!merged) {
+              mergedRequests.push(request);
+            }
+          }
+        }
+
+        // send merged requests
+        this.getCurrentEdge().then(edge => {
+          for (let source of mergedRequests) {
+            let request = new QueryHistoricTimeseriesEnergyRequest(source.fromDate, source.toDate, source.channels);
+            edge.sendRequest(this.websocket, request).then(response => {
+              let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
+              if (Object.keys(result.data).length != 0) {
+                for (let promise of source.promises) {
+                  promise.resolve(response as QueryHistoricTimeseriesEnergyResponse);
+                }
+              } else {
+                for (let promise of source.promises) {
+                  promise.reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                }
+              }
+            }).catch(reason => {
+              for (let promise of source.promises) {
+                promise.reject(reason);
+              }
+            });
+          }
+        });
+      }, 100);
+    }
+    return response;
+  }
+
+  private queryEnergyQueue: {
+    fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
+  }[] = [];
+  private queryEnergyTimeout: any = null;
+
+
+  /**
+   * Start NGX-Spinner
+   * 
+   * Spinner will appear inside html tag only
+   * 
+   * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
+   * 
+   * @param selector selector for specific spinner
+   */
+  public startSpinner(selector: string) {
+    this.spinner.show(selector, {
+      type: 'ball-clip-rotate-multiple',
+      fullScreen: false,
+      bdColor: "rgba(0,0,0,0.5)"
+    });
+  }
+
+  /**
+   * Stop NGX-Spinner
+   * @param selector selector for specific spinner
+   */
+  public stopSpinner(selector: string) {
+    this.spinner.hide(selector);
   }
 
   public async toast(message: string, level: 'success' | 'warning' | 'danger') {
@@ -284,11 +414,7 @@ export class Service implements ErrorHandler {
    * checks if fems is allowed to show kWh
    */
   public isKwhAllowed(edge: Edge): boolean {
-    if (edge && ['fems7', 'fems66', 'fems566', 'fems888'].includes(edge.id)) {
-      return true;
-    } else {
-      return false;
-    }
+    return false;
   }
 
   /**

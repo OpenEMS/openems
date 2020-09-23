@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, Websocket, EdgeConfig } from '../../../shared/shared';
-import { ProductionModalComponent } from './modal/modal.component';
+import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
+import { ProductionModalComponent } from './modal/modal.component';
 
 @Component({
     selector: 'production',
@@ -14,43 +14,44 @@ export class ProductionComponent {
 
     public config: EdgeConfig = null;
     public edge: Edge = null;
-    public productionMeterComponents: EdgeConfig.Component[] = null;
-    public chargerComponents: EdgeConfig.Component[] = null;
+    public productionMeterComponents: EdgeConfig.Component[] = [];
+    public chargerComponents: EdgeConfig.Component[] = [];
 
     constructor(
-        public service: Service,
-        private websocket: Websocket,
         private route: ActivatedRoute,
+        private websocket: Websocket,
         public modalCtrl: ModalController,
+        public service: Service,
     ) { }
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
-        })
-        this.service.getConfig().then(config => {
-            this.config = config;
-            let channels = [];
-            this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").filter(component => component.isEnabled);
-            for (let component of this.chargerComponents) {
+            this.service.getConfig().then(config => {
+                this.config = config;
+                let channels = [];
+                this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").filter(component => component.isEnabled);
+                for (let component of this.chargerComponents) {
+                    channels.push(
+                        new ChannelAddress(component.id, 'ActualPower'),
+                    )
+                }
+                this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.isEnabled && config.isProducer(component));
+                for (let component of this.productionMeterComponents) {
+                    channels.push(
+                        new ChannelAddress(component.id, 'ActivePower')
+                    );
+                }
                 channels.push(
-                    new ChannelAddress(component.id, 'ActualPower'),
+                    new ChannelAddress('_sum', 'ProductionActivePower'),
+                    new ChannelAddress('_sum', 'ProductionAcActivePower'),
+                    // channels for modal component, subscribe here for better UX
+                    new ChannelAddress('_sum', 'ProductionAcActivePowerL1'),
+                    new ChannelAddress('_sum', 'ProductionAcActivePowerL2'),
+                    new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
                 )
-            }
-            this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.isEnabled && config.isProducer(component));
-            for (let component of this.productionMeterComponents) {
-                channels.push(
-                    new ChannelAddress(component.id, 'ActivePower')
-                );
-            }
-            channels.push(
-                new ChannelAddress('_sum', 'ProductionActivePower'),
-                new ChannelAddress('_sum', 'ProductionAcActivePower'),
-                new ChannelAddress('_sum', 'ProductionAcActivePowerL1'),
-                new ChannelAddress('_sum', 'ProductionAcActivePowerL2'),
-                new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
-            )
-            this.edge.subscribeChannels(this.websocket, ProductionComponent.SELECTOR, channels);
+                this.edge.subscribeChannels(this.websocket, ProductionComponent.SELECTOR, channels);
+            })
         })
     };
 

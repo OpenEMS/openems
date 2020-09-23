@@ -1,9 +1,11 @@
 package io.openems.common.websocket;
 
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.java_websocket.WebSocket;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -23,22 +25,29 @@ public interface OnOpen {
 
 	/**
 	 * Get field from the 'cookie' field in the handshake.
-	 *
+	 * 
+	 * <p>
+	 * Per <a href=
+	 * "https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2">specification</a>
+	 * all variants of 'cookie' are accepted.
+	 * 
 	 * @param handshake the Handshake
 	 * @param fieldname the field name
 	 * @return value as optional
 	 */
 	public static Optional<String> getFieldFromHandshakeCookie(JsonObject handshake, String fieldname) {
-		Optional<String> cookieOpt = JsonUtils.getAsOptionalString(handshake, "Cookie");
-		if (!cookieOpt.isPresent()) {
-			return Optional.empty();
-		}
-		String cookie = cookieOpt.get();
-		for (String cookieVariable : cookie.split("; ")) {
-			String[] keyValue = cookieVariable.split("=");
-			if (keyValue.length == 2) {
-				if (keyValue[0].equals(fieldname)) {
-					return Optional.ofNullable(keyValue[1]);
+		for (Entry<String, JsonElement> entry : handshake.entrySet()) {
+			if (entry.getKey().equalsIgnoreCase("cookie")) {
+				Optional<String> cookieOpt = JsonUtils.getAsOptionalString(entry.getValue());
+				if (cookieOpt.isPresent()) {
+					for (String cookieVariable : cookieOpt.get().split("; ")) {
+						String[] keyValue = cookieVariable.split("=");
+						if (keyValue.length == 2) {
+							if (keyValue[0].equals(fieldname)) {
+								return Optional.ofNullable(keyValue[1]);
+							}
+						}
+					}
 				}
 			}
 		}

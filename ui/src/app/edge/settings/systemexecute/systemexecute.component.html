@@ -1,117 +1,120 @@
-<ion-grid>
+<header></header>
+<ion-content>
+  <ion-grid>
 
-  <!-- input command -->
-  <ion-row class="ion-justify-content-center">
-    <ion-col size="12" size-md="6">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-icon slot="start" name="code-working" color="primary"></ion-icon>
-          <ion-label>System Execute</ion-label>
-        </ion-item>
+    <!-- input command -->
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="6">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
+            <ion-label>System Execute</ion-label>
+          </ion-item>
 
-        <ion-card-content>
-          <form
-            (ngSubmit)="send(username.value, password.value, timeoutSeconds.value, runInBackground.checked, command.value)">
-            <ion-item>
-              <ion-label>Username</ion-label>
-              <ion-input type="text" placeholder="Username" value="root" #username></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-label>Password</ion-label>
-              <ion-input type="password" placeholder="Password" #password></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-label>Timeout</ion-label>
-              <ion-input type="number" placeholder="Timeout" value="5" #timeoutSeconds></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-label>Run in background</ion-label>
-              <ion-toggle value="5" #runInBackground></ion-toggle>
-            </ion-item>
-            <ion-item>
-              <ion-label>Command</ion-label>
-              <ion-input type="text" placeholder="Command" #command></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-button type="submit" slot="end" color="light">
-                <ion-icon slot="icon-only" name="send"></ion-icon>
-              </ion-button>
-            </ion-item>
-          </form>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
-  </ion-row>
-
-  <!-- show last output -->
-  <ion-row class="ion-justify-content-center" *ngIf="stdout.length > 0 || stderr.length > 0 || loading">
-    <ion-col size="12">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-icon slot="start" name="code-working" color="primary"></ion-icon>
-          <ion-label>Latest output</ion-label>
-        </ion-item>
-        <ion-card-content>
-          <ngx-loading [show]="loading"></ngx-loading>
-          <ng-container *ngIf="!loading">
-            <ion-item-group *ngIf="stdout.length > 0">
-              <ion-item-divider>
-                <ion-label>Output</ion-label>
-              </ion-item-divider>
-              <ion-item style="font-family: monospace">
-                <pre><ng-container *ngFor="let line of stdout">{{ line }}<br/></ng-container></pre>
+          <ion-card-content>
+            <form
+              (ngSubmit)="send(username.value, password.value, timeoutSeconds.value, runInBackground.checked, command.value)">
+              <ion-item>
+                <ion-label>Username</ion-label>
+                <ion-input type="text" placeholder="Username" value="root" #username></ion-input>
               </ion-item>
-            </ion-item-group>
-            <ion-item-group *ngIf="stderr.length > 0">
-              <ion-item-divider>
-                <ion-label>Error</ion-label>
-              </ion-item-divider>
-              <ion-item style="font-family: monospace">
-                <pre><ng-container *ngFor="let line of stderr">{{ line }}<br/></ng-container></pre>
+              <ion-item>
+                <ion-label>Password</ion-label>
+                <ion-input type="password" placeholder="Password" #password></ion-input>
               </ion-item>
-            </ion-item-group>
-          </ng-container>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
-  </ion-row>
+              <ion-item>
+                <ion-label>Timeout</ion-label>
+                <ion-input type="number" placeholder="Timeout" value="5" #timeoutSeconds></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label>Run in background</ion-label>
+                <ion-toggle value="5" #runInBackground></ion-toggle>
+              </ion-item>
+              <ion-item>
+                <ion-label>Command</ion-label>
+                <ion-input type="text" placeholder="Command" #command></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-button type="submit" slot="end" color="light">
+                  <ion-icon slot="icon-only" name="send-outline"></ion-icon>
+                </ion-button>
+              </ion-item>
+            </form>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
 
-  <!-- show command log -->
-  <ion-row class="ion-justify-content-center" *ngIf="commandLogs.length > 0">
-    <ion-col size="12" size-md="6">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-icon slot="start" name="code-working" color="primary"></ion-icon>
-          <ion-label>Last commands</ion-label>
-        </ion-item>
+    <!-- show last output -->
+    <ion-row class="ion-justify-content-center" *ngIf="stdout.length > 0 || stderr.length > 0 || loading">
+      <ion-col size="12">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
+            <ion-label>Latest output</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-progress-bar *ngIf="loading" type="indeterminate"></ion-progress-bar>
+            <ng-container *ngIf="!loading">
+              <ion-item-group *ngIf="stdout.length > 0">
+                <ion-item-divider>
+                  <ion-label>Output</ion-label>
+                </ion-item-divider>
+                <ion-item style="font-family: monospace">
+                  <pre><ng-container *ngFor="let line of stdout">{{ line }}<br/></ng-container></pre>
+                </ion-item>
+              </ion-item-group>
+              <ion-item-group *ngIf="stderr.length > 0">
+                <ion-item-divider>
+                  <ion-label>Error</ion-label>
+                </ion-item-divider>
+                <ion-item style="font-family: monospace">
+                  <pre><ng-container *ngFor="let line of stderr">{{ line }}<br/></ng-container></pre>
+                </ion-item>
+              </ion-item-group>
+            </ng-container>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
 
-        <ion-card-content>
-          <table class="full_width">
-            <tr style="text-align: left">
-              <th>Username</th>
-              <th>Password</th>
-              <th>Timeout</th>
-              <th>Run in background</th>
-              <th>Command</th>
-              <th></th>
-            </tr>
-            <tr *ngFor="let l of commandLogs">
-              <td>{{ l.username }}</td>
-              <td>{{ l.password }}</td>
-              <td>{{ l.timeoutSeconds }}</td>
-              <td>{{ l.runInBackground }}</td>
-              <td>{{ l.command }}</td>
-              <td>
-                <button mat-raised-button
-                  (click)="username.value = l.username; password.value = l.password; timeoutSeconds.value = l.timeoutSeconds; runInBackground.value = l.runInBackground; command.value = l.command"
-                  class="btn btn-default">
-                  <span>Repeat</span>
-                </button>
-              </td>
-            </tr>
-          </table>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
-  </ion-row>
-</ion-grid>
+    <!-- show command log -->
+    <ion-row class="ion-justify-content-center" *ngIf="commandLogs.length > 0">
+      <ion-col size="12" size-md="6">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
+            <ion-label>Last commands</ion-label>
+          </ion-item>
+
+          <ion-card-content>
+            <table class="full_width">
+              <tr style="text-align: left">
+                <th>Username</th>
+                <th>Password</th>
+                <th>Timeout</th>
+                <th>Run in background</th>
+                <th>Command</th>
+                <th></th>
+              </tr>
+              <tr *ngFor="let l of commandLogs">
+                <td>{{ l.username }}</td>
+                <td>{{ l.password }}</td>
+                <td>{{ l.timeoutSeconds }}</td>
+                <td>{{ l.runInBackground }}</td>
+                <td>{{ l.command }}</td>
+                <td>
+                  <button mat-raised-button
+                    (click)="username.value = l.username; password.value = l.password; timeoutSeconds.value = l.timeoutSeconds; runInBackground.value = l.runInBackground; command.value = l.command"
+                    class="btn btn-default">
+                    <span>Repeat</span>
+                  </button>
+                </td>
+              </tr>
+            </table>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

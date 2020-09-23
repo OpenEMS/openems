@@ -20,7 +20,7 @@ public class OpenemsConstants {
 	 * 
 	 * This is usually the number of the sprint within the year
 	 */
-	public final static short VERSION_MINOR = 4;
+	public final static short VERSION_MINOR = 20;
 
 	/**
 	 * The patch version of OpenEMS.
@@ -54,7 +54,7 @@ public class OpenemsConstants {
 	 * 
 	 * Note: this should be max. 32 ASCII characters long
 	 */
-	public final static String MANUFACTURER_MODEL = "";
+	public final static String MANUFACTURER_MODEL = "OpenEMS";
 
 	/**
 	 * The options of the device
@@ -92,6 +92,7 @@ public class OpenemsConstants {
 	public final static String META_ID = "_meta";
 	public final static String SUM_ID = "_sum";
 	public final static String HOST_ID = "_host";
+	public final static String SIMULATOR_ID = "_simulator";
 
 	public final static String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
 

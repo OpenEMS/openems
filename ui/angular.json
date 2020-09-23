@@ -13,6 +13,13 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "allowedCommonJsDependencies": [
+              "ng2-cookies",
+              "util",
+              "chart.js",
+              "file-saver"
+            ],
+            "aot": true,
             "outputPath": "www",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -51,8 +58,7 @@
             ],
             "scripts": [
               "node_modules/chart.js/dist/Chart.min.js"
-            ],
-            "es5BrowserSupport": true
+            ]
           },
           "configurations": {
             "backend": {
@@ -79,10 +85,20 @@
                   "type": "initial",
                   "maximumWarning": "2mb",
                   "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
                 }
               ]
             },
             "backend-dev-local": {
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -91,6 +107,12 @@
               ]
             },
             "backend-local-server": {
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -99,6 +121,12 @@
               ]
             },
             "backend-dev-live": {
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -121,6 +149,10 @@
                   "type": "initial",
                   "maximumWarning": "2mb",
                   "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
                 }
               ],
               "serviceWorker": true,
@@ -132,6 +164,14 @@
               ],
               "baseHref": "/",
               "outputPath": "target/edge"
+            },
+            "gitpod": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/gitpod.ts"
+                }
+              ]
             }
           }
         },
@@ -155,6 +195,9 @@
             },
             "edge": {
               "browserTarget": "app:build:edge"
+            },
+            "gitpod": {
+              "browserTarget": "app:build:gitpod"
             }
           }
         },
@@ -259,7 +302,8 @@
   },
   "defaultProject": "app",
   "cli": {
-    "defaultCollection": "@ionic/angular-toolkit"
+    "defaultCollection": "@ionic/angular-toolkit",
+    "analytics": false
   },
   "schematics": {
     "@ionic/angular-toolkit:component": {

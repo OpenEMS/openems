@@ -1,16 +1,15 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, Edge, Service } from '../../../shared/shared';
-import { SelfconsumptionModalComponent } from './modal/modal.component';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: SelfconsumptionWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class SelfconsumptionWidgetComponent implements OnInit, OnChanges {
+export class SelfconsumptionWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
@@ -22,47 +21,45 @@ export class SelfconsumptionWidgetComponent implements OnInit, OnChanges {
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-        public modalCtrl: ModalController,
-    ) { }
+    ) {
+        super(service);
+    }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(response => {
-            this.edge = response;
+        this.service.setCurrentComponent('', this.route).then(edge => {
+            this.edge = edge;
         });
+        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
+        this.unsubscribeWidgetRefresh()
     }
 
     ngOnChanges() {
         this.updateValues();
     };
 
-    updateValues() {
-        let channels: ChannelAddress[] = [
-            new ChannelAddress('_sum', 'GridSellActiveEnergy'),
-            new ChannelAddress('_sum', 'ProductionActiveEnergy'),
-            new ChannelAddress('_sum', 'EssActiveDischargeEnergy')
-        ];
-        this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
-            this.service.getConfig().then(() => {
-                let result = response.result;
-                this.selfconsumptionValue = CurrentData.calculateSelfConsumption(result.data['_sum/GridSellActiveEnergy'],
-                    result.data['_sum/ProductionActiveEnergy'], result.data['_sum/EssActiveDischargeEnergy']);
-            }).catch(reason => {
-                console.error(reason); // TODO error message
+    protected updateValues() {
+        this.service.getConfig().then(config => {
+            this.getChannelAddresses(this.edge, config).then(channels => {
+                this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
+                    let result = response.result;
+                    this.selfconsumptionValue = CurrentData.calculateSelfConsumption(result.data['_sum/GridSellActiveEnergy'],
+                        result.data['_sum/ProductionActiveEnergy'], result.data['_sum/EssActiveDischargeEnergy']);
+                })
             });
-        }).catch(reason => {
-            console.error(reason); // TODO error message
-        });
-    };
+        })
+    }
 
-    async presentModal() {
-        const modal = await this.modalCtrl.create({
-            component: SelfconsumptionModalComponent,
-            cssClass: 'wide-modal'
+    protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
+        return new Promise((resolve) => {
+            let channels: ChannelAddress[] = [
+                new ChannelAddress('_sum', 'GridSellActiveEnergy'),
+                new ChannelAddress('_sum', 'ProductionActiveEnergy'),
+                new ChannelAddress('_sum', 'EssActiveDischargeEnergy')
+            ];
+            resolve(channels);
         });
-        return await modal.present();
     }
 }
-

@@ -1,9 +1,9 @@
-import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
-import { TranslateService } from '@ngx-translate/core';
-import { ModalController } from '@ionic/angular';
+import { Component, Input } from '@angular/core';
 import { EvcsModalComponent } from './modal/modal.page';
+import { ModalController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 
@@ -25,28 +25,14 @@ export class EvcsComponent {
   constructor(
     private service: Service,
     private websocket: Websocket,
-    private route: ActivatedRoute,
     protected translate: TranslateService,
-    public modalController: ModalController
+    public modalController: ModalController,
   ) { }
 
   ngOnInit() {
     // Subscribe to CurrentData
-    this.service.setCurrentComponent('', this.route).then(edge => {
+    this.service.getCurrentEdge().then(edge => {
       this.edge = edge;
-      edge.subscribeChannels(this.websocket, EvcsComponent.SELECTOR + this.componentId, [
-        // Evcs
-        new ChannelAddress(this.componentId, 'ChargePower'),
-        new ChannelAddress(this.componentId, 'HardwarePowerLimit'),
-        new ChannelAddress(this.componentId, 'Phases'),
-        new ChannelAddress(this.componentId, 'Plug'),
-        new ChannelAddress(this.componentId, 'Status'),
-        new ChannelAddress(this.componentId, 'State'),
-        new ChannelAddress(this.componentId, 'EnergySession'),
-        new ChannelAddress(this.componentId, 'MinimumHardwarePower'),
-        new ChannelAddress(this.componentId, 'MaximumHardwarePower')
-      ]);
-
       // Gets the Controller & Component for the given EVCS-Component.
       this.service.getConfig().then(config => {
         let controllers = config.getComponentsByFactory("Controller.Evcs");
@@ -58,6 +44,20 @@ export class EvcsComponent {
           }
         }
       });
+      edge.subscribeChannels(this.websocket, EvcsComponent.SELECTOR + this.componentId, [
+        // Evcs
+        new ChannelAddress(this.componentId, 'ChargePower'),
+        new ChannelAddress(this.componentId, 'Phases'),
+        new ChannelAddress(this.componentId, 'Plug'),
+        new ChannelAddress(this.componentId, 'Status'),
+        new ChannelAddress(this.componentId, 'State'),
+        new ChannelAddress(this.componentId, 'EnergySession'),
+        // channels for modal component, subscribe here for better UX
+        new ChannelAddress(this.componentId, 'MinimumHardwarePower'),
+        new ChannelAddress(this.componentId, 'MaximumHardwarePower'),
+        new ChannelAddress(this.componentId, 'SetChargePowerLimit')
+      ]);
+
     });
   }
 
@@ -69,10 +69,9 @@ export class EvcsComponent {
    * 
    */
   getState(state: number, plug: number) {
-
     if (this.controller != null) {
       if (this.controller.properties.enabledCharging != null && this.controller.properties.enabledCharging == false) {
-        return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.chargingStationDeactivated');
       }
     }
     let chargeState = state;
@@ -80,29 +79,29 @@ export class EvcsComponent {
 
     if (chargePlug == null) {
       if (chargeState == null) {
-        return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.notCharging');
       }
     } else if (chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
-      return this.translate.instant('Edge.Index.Widgets.EVCS.CableNotConnected');
+      return this.translate.instant('Edge.Index.Widgets.EVCS.cableNotConnected');
     }
     switch (chargeState) {
       case ChargeState.STARTING:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.Starting');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.starting');
       case ChargeState.UNDEFINED:
       case ChargeState.ERROR:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.Error');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.error');
       case ChargeState.READY_FOR_CHARGING:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.ReadyForCharging');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.readyForCharging');
       case ChargeState.NOT_READY_FOR_CHARGING:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.NotReadyForCharging');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.notReadyForCharging');
       case ChargeState.AUTHORIZATION_REJECTED:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.notCharging');
       case ChargeState.CHARGING:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.Charging');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.charging');
       case ChargeState.ENERGY_LIMIT_REACHED:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.ChargeLimitReached');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.chargeLimitReached');
       case ChargeState.CHARGING_FINISHED:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.CarFull');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.carFull');
     }
   }
 

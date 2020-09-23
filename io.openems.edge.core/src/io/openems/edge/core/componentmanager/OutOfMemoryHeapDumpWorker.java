@@ -8,60 +8,61 @@ import java.util.Comparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.worker.AbstractWorker;
-import io.openems.edge.common.component.ComponentManager;
-
 /**
  * This Worker constantly checks for heap-dump files in /usr/lib/openems
  * directory. Those get created on OutOfMemory-Errors. All but the latest
  * heap-dump file are deleted and the
  * {@link ComponentManagerImpl.ChannelId#WAS_OUT_OF_MEMORY} StateChannel is set.
  */
-public class OutOfMemoryHeapDumpWorker extends AbstractWorker {
+public class OutOfMemoryHeapDumpWorker extends ComponentManagerWorker {
 
-	private final static int CYCLE_TIME = 300_000; // in ms
+	private static final int CYCLE_TIME = 300_000; // in ms
 
 	private final Logger log = LoggerFactory.getLogger(OutOfMemoryHeapDumpWorker.class);
 
-	private final ComponentManagerImpl parent;
-
 	public OutOfMemoryHeapDumpWorker(ComponentManagerImpl parent) {
-		this.parent = parent;
+		super(parent);
 	}
 
 	@Override
 	protected void forever() {
+		boolean foundhprof = false;
+
 		File currentWorkingDir = Paths.get("").toAbsolutePath().toFile();
 		File[] files = currentWorkingDir.listFiles();
-		Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
+		// From the docs: 'files' is null if this abstract pathname does not denote a
+		// directory, or if an I/O error occurs.
+		if (files != null) {
 
-		boolean foundhprof = false;
-		for (File file : files) {
-			String filename = file.getName();
+			Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
 
-			// delete 'core' files
-			if (filename.equals("core")) {
-				// delete core files
-				this.delete(file);
-				continue;
-			}
+			for (File file : files) {
+				String filename = file.getName();
 
-			// delete all but the first *.hprof files
-			if (filename.endsWith(".hprof")) {
-				if (!foundhprof) {
-					foundhprof = true;
-				} else {
+				// delete 'core' files
+				if (filename.equals("core")) {
+					// delete core files
+					this.delete(file);
+					continue;
+				}
+
+				// delete all but the first *.hprof files
+				if (filename.endsWith(".hprof")) {
+					if (!foundhprof) {
+						foundhprof = true;
+					} else {
+						this.delete(file);
+					}
+				}
+
+				// delete all *.log files
+				if (filename.endsWith(".log")) {
 					this.delete(file);
 				}
 			}
-
-			// delete all *.log files
-			if (filename.endsWith(".log")) {
-				this.delete(file);
-			}
 		}
 
-		this.parent.channel(ComponentManager.ChannelId.WAS_OUT_OF_MEMORY).setNextValue(foundhprof);
+		this.parent._setWasOutOfMemory(foundhprof);
 	}
 
 	private void delete(File file) {

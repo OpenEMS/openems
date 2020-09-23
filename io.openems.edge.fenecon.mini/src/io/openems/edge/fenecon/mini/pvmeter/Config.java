@@ -3,7 +3,7 @@ package io.openems.edge.fenecon.mini.pvmeter;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "FENECON Mini PV-Meter", //
 		description = "The pv-meter implementation of a FENECON Mini.")
 @interface Config {

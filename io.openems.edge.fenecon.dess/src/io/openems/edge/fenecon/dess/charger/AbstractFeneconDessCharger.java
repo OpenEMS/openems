@@ -48,13 +48,13 @@ public abstract class AbstractFeneconDessCharger extends AbstractOpenemsModbusCo
 						new DummyRegisterElement(offset + 3, offset + 4),
 						m(EssDcCharger.ChannelId.ACTUAL_ENERGY,
 								new UnsignedDoublewordElement(offset + 5).wordOrder(WordOrder.MSWLSW),
-								ElementToChannelConverter.SCALE_FACTOR_3)) //
+								ElementToChannelConverter.SCALE_FACTOR_2)) //
 		);
 	}
 
 	@Override
 	public String debugLog() {
-		return "P:" + this.getActualPower().value().asString();
+		return "P:" + this.getActualPower().asString();
 	}
 
 	protected abstract int getOffset();

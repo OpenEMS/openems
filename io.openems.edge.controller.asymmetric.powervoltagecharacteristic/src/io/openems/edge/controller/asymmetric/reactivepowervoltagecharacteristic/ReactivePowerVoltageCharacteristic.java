@@ -25,16 +25,18 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.AsymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -52,6 +54,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 	/**
 	 * nominal voltage in [mV].
 	 */
+	private float voltageRatio;
 	private float nominalVoltage;
 	private Config config;
 	private int power = 0;
@@ -60,10 +63,13 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 	protected ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private SymmetricMeter meter;
+	private AsymmetricMeter meter;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private ManagedSymmetricEss ess;
+
+	@Reference
+	protected ComponentManager componentManager;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
@@ -72,6 +78,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 		VOLTAGE_RATIO(Doc.of(OpenemsType.DOUBLE))//
 
 		;
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -148,8 +155,11 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
+		AsymmetricMeter gridMeter = this.componentManager.getComponent(this.config.meter_id());
 		int calculatedPower = 0;
-		float voltageRatio = this.meter.getVoltage().value().orElse(0) / this.nominalVoltage;
+		Channel<Integer> gridLineVoltage;
+		gridLineVoltage = gridMeter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L1);
+		this.voltageRatio = gridLineVoltage.value().orElse(0) / this.nominalVoltage;
 		if (voltageRatio == 0) {
 			log.info("Voltage Ratio is 0 ");
 			return;
@@ -163,7 +173,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 			this.channel(ChannelId.CALCULATED_POWER).setNextValue(-1);
 			return;
 		}
-		Value<Integer> apparentPower = this.ess.getMaxApparentPower().value();
+		Value<Integer> apparentPower = this.ess.getMaxApparentPower();
 		if (!apparentPower.isDefined() || apparentPower.get() == 0) {
 			return;
 		}

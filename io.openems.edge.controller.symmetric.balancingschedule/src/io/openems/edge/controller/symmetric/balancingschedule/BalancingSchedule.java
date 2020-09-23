@@ -1,65 +1,29 @@
 package io.openems.edge.controller.symmetric.balancingschedule;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import io.openems.common.exceptions.InvalidValueException;
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
-import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest.GridConnSchedule;
-import io.openems.common.session.User;
-import io.openems.common.utils.JsonUtils;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.meter.api.SymmetricMeter;
 
-@Designate(ocd = Config.class, factory = true)
-@Component( //
-		name = "Controller.Symmetric.BalancingSchedule", //
-		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class BalancingSchedule extends AbstractOpenemsComponent implements Controller, OpenemsComponent, JsonApi {
-
-	private final Logger log = LoggerFactory.getLogger(BalancingSchedule.class);
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	private List<GridConnSchedule> schedule = new ArrayList<>();
+public interface BalancingSchedule extends Controller, OpenemsComponent, JsonApi {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
+		NO_ACTIVE_SETPOINT(Doc.of(Level.INFO) //
+				.text("No active Set-Point given")), //
+		SCHEDULE_PARSE_FAILED(Doc.of(Level.FAULT) //
+				.text("Unable to parse Schedule")), //
+
+		GRID_ACTIVE_POWER_SET_POINT(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Target Active-Power Setpoint at the grid connection point"));
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -72,128 +36,99 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 		}
 	}
 
-	public BalancingSchedule() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				Controller.ChannelId.values(), //
-				ChannelId.values() //
-		);
-	}
-
-	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled());
-		// update filter for 'ess'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
-		}
-		// update filter for 'meter'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "meter", config.meter_id())) {
-			return;
-		}
-		// parse Schedule
-		try {
-			if (!config.schedule().trim().isEmpty()) {
-				JsonElement scheduleElement = JsonUtils.parse(config.schedule());
-				JsonArray scheduleArray = JsonUtils.getAsJsonArray(scheduleElement);
-				this.applySchedule(scheduleArray);
-			}
-		} catch (OpenemsNamedException e) {
-			this.logError(log, "Unable to parse Schedule: " + e.getMessage());
-		}
-	}
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private ManagedSymmetricEss ess;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private SymmetricMeter meter;
-
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
+	/**
+	 * Gets the Channel for {@link ChannelId#NO_ACTIVE_SETPOINT}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getNoActiveSetpointChannel() {
+		return this.channel(ChannelId.NO_ACTIVE_SETPOINT);
 	}
 
 	/**
-	 * Calculates required charge/discharge power
+	 * Gets the Run-Failed State. See {@link ChannelId#NO_ACTIVE_SETPOINT}.
 	 * 
-	 * @throws InvalidValueException
+	 * @return the Channel {@link Value}
 	 */
-	private int calculateRequiredPower(int offset) {
-		return this.meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
-				+ this.ess.getActivePower().value().orElse(0) /* current charge/discharge Ess */
-				- offset; /* the offset given by the schedule */
-	}
-
-	@Override
-	public void run() throws OpenemsException {
-		/*
-		 * Get the current grid connection setpoint from the schedule
-		 */
-		Optional<Integer> gridConnSetPointOpt = this.getGridConnSetPoint();
-		if (!gridConnSetPointOpt.isPresent()) {
-			this.logWarn(log, "No valid grid connection Set-Point existing in Schedule.");
-			return;
-		}
-		int gridConnSetPoint = gridConnSetPointOpt.get();
-
-		/*
-		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
-		 */
-		GridMode gridMode = this.ess.getGridMode().value().asEnum();
-		if (gridMode.isUndefined()) {
-			this.logWarn(this.log, "Grid-Mode is [" + gridMode + "]");
-		}
-		if (gridMode != GridMode.ON_GRID) {
-			return;
-		}
-		/*
-		 * Calculates required charge/discharge power
-		 */
-		int calculatedPower = this.calculateRequiredPower(gridConnSetPoint);
-
-		// adjust value so that it fits into Min/MaxActivePower
-		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
-
-		/*
-		 * set result
-		 */
-		this.ess.addPowerConstraintAndValidate("Balancing P", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
-				calculatedPower); //
-		this.ess.addPowerConstraintAndValidate("Balancing Q", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
-	}
-
-	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest message)
-			throws OpenemsNamedException {
-		SetGridConnScheduleRequest request = SetGridConnScheduleRequest.from(message);
-		this.schedule = request.getSchedule();
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), new JsonObject()));
+	public default Value<Boolean> getNoActiveSetpoint() {
+		return this.getNoActiveSetpointChannel().value();
 	}
 
 	/**
-	 * Parses the Schedule and applies it to this Controller
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#NO_ACTIVE_SETPOINT} Channel.
 	 * 
-	 * @param j
-	 * @throws OpenemsNamedException
+	 * @param value the next value
 	 */
-	private void applySchedule(JsonArray j) throws OpenemsNamedException {
-		this.schedule = SetGridConnScheduleRequest.GridConnSchedule.from(j);
+	public default void _setNoActiveSetpoint(boolean value) {
+		this.getNoActiveSetpointChannel().setNextValue(value);
 	}
 
 	/**
-	 * Gets the currently valid GridConnSetPoint
+	 * Gets the Channel for {@link ChannelId#SCHEDULE_PARSE_FAILED}.
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
-	private Optional<Integer> getGridConnSetPoint() {
-		long now = System.currentTimeMillis() / 1000; // in seconds
-		for (GridConnSchedule e : this.schedule) {
-			if (now > e.getStartTimestamp() && now < e.getStartTimestamp() + e.getDuration()) {
-				// -> this entry is valid!
-				return Optional.ofNullable(e.getActivePowerSetPoint());
-			}
-		}
-		return Optional.empty();
+	public default StateChannel getScheduleParseFailedChannel() {
+		return this.channel(ChannelId.SCHEDULE_PARSE_FAILED);
+	}
+
+	/**
+	 * Gets the Run-Failed State. See {@link ChannelId#SCHEDULE_PARSE_FAILED}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getScheduleParseFailed() {
+		return this.getScheduleParseFailedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#SCHEDULE_PARSE_FAILED} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setScheduleParseFailed(boolean value) {
+		this.getScheduleParseFailedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_ACTIVE_POWER_SET_POINT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getGridActivePowerSetPointChannel() {
+		return this.channel(ChannelId.GRID_ACTIVE_POWER_SET_POINT);
+	}
+
+	/**
+	 * Gets the Active Power Limit in [W]. See
+	 * {@link ChannelId#GRID_ACTIVE_POWER_SET_POINT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getGridActivePowerSetPoint() {
+		return this.getGridActivePowerSetPointChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_ACTIVE_POWER_SET_POINT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridActivePowerSetPoint(Integer value) {
+		this.getGridActivePowerSetPointChannel().setNextValue(value);
+	}
+
+	/**
+	 * Sets the Active Power Limit in [W]. See
+	 * {@link ChannelId#GRID_ACTIVE_POWER_SET_POINT}.
+	 * 
+	 * @return the Channel
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setGridActivePowerSetPoint(Integer value) throws OpenemsNamedException {
+		this.getGridActivePowerSetPointChannel().setNextWriteValue(value);
 	}
 }

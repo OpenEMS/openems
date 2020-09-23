@@ -10,7 +10,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
 	io.openems.edge.ess.api,\
-	slf4j.api
+	io.openems.edge.timedata.api
 
 -testpath: \
 	${testpath}

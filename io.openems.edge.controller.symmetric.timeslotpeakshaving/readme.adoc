@@ -1,0 +1,7 @@
+= Symmetric Timeslot Peak-Shaving
+
+Applies peak-shaving within a configured timeslot at the grid using a symmetric energy storage system. Outside of the timeslot the battery recharges. 
+
+This Controller can be used for "Atypische Netznutzung" applications in Germany, e.g. "Hochlastzeitfenster".
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.symmetric.timeslotpeakshaving[Source Code icon:github[]]
