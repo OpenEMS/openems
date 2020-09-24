@@ -294,6 +294,12 @@ public enum EssChannelId implements ChannelId {
 
 	BATTERY_PROTOCOL(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+	
+	BMS_ALLOWED_CHARGE(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)), //
+	
+	BMS_ALLOWED_DISCHARGE(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)), //
 
 	// Setting Parameter
 	USER_PASSWORD1(Doc.of(OpenemsType.STRING) //

@@ -34,6 +34,7 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -197,6 +198,10 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(35182), //
 						m(EssChannelId.P_BATTERY1, new SignedWordElement(35183)), //
 						m(EssChannelId.BATTERY_MODE, new UnsignedWordElement(35184))), //
+
+				new FC3ReadRegistersTask(37102, Priority.HIGH, //
+						m(EssChannelId.BMS_ALLOWED_CHARGE, new UnsignedWordElement(37102)), //
+						m(EssChannelId.BMS_ALLOWED_DISCHARGE, new SignedWordElement(37104))), //
 
 				new FC3ReadRegistersTask(35185, Priority.LOW, //
 						m(EssChannelId.WARNING_CODE, new UnsignedWordElement(35185)), //
@@ -383,18 +388,29 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		final PowerModeEms nextPowerMode;
 
 		System.out.println("Active power:" + activePower);
+
+		IntegerReadChannel allowedCharge = this.channel(EssChannelId.BMS_ALLOWED_CHARGE);
+		Integer allowedChargePower = allowedCharge.value().get();
+
+		IntegerReadChannel allowedDischarge = this.channel(EssChannelId.BMS_ALLOWED_CHARGE);
+		Integer allowedDischargePower = allowedDischarge.value().get();
+		
+		System.out.println("Allowed Charge power: " + allowedChargePower + " Allowed Discharge Power: " + allowedDischargePower);
+
 		if (this.config.readOnlyMode()) {
 			// Read-Only-Mode: fall-back to internal self-consumption optimization
 			nextPowerMode = PowerModeEms.AUTO;
 			activePower = 0;
 		} else {
-			if (activePower <= 0) {
+			if (activePower < 0) {
 				// ActivePower is negative or zero -> CHARGE
+				System.out.println(" Setting Charging");
 				nextPowerMode = PowerModeEms.CHARGE_BAT;
 
 			} else {
 				// ActivePower is positive -> DISCHARGE
-				nextPowerMode = PowerModeEms.DISCHARGE_PV;
+				System.out.println(" Setting Discharging");
+				nextPowerMode = PowerModeEms.EXPORT_AC;
 			}
 		}
 
@@ -473,25 +489,25 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		Integer allowedDischarge = null;
 
 		if (soc == null) {
-			
+
 			allowedCharge = 0;
 			allowedDischarge = 0;
-			
+
 		} else if (soc == 100) {
-			
+
 			allowedDischarge = maxBatteryPower + productionPower;
 			allowedCharge = 0;
-			
+
 		} else if (soc >= 50) {
-			
+
 			allowedDischarge = maxBatteryPower + productionPower;
 			allowedCharge = maxBatteryPower - productionPower;
-			
+
 		} else if (soc >= 0) {
-			
+
 			allowedDischarge = productionPower;
 			allowedCharge = maxBatteryPower - productionPower;
-			
+
 		}
 
 		// to avoid charging when production is greater than maximum battery power.
