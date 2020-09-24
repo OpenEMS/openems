@@ -14,8 +14,8 @@ export class ProductionComponent {
 
     public config: EdgeConfig = null;
     public edge: Edge = null;
-    public productionMeterComponents: EdgeConfig.Component[] = null;
-    public chargerComponents: EdgeConfig.Component[] = null;
+    public productionMeterComponents: EdgeConfig.Component[] = [];
+    public chargerComponents: EdgeConfig.Component[] = [];
 
     constructor(
         private route: ActivatedRoute,

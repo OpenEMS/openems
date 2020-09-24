@@ -1,6 +1,6 @@
 import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { ToastController, ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Cookie } from 'ng2-cookies';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
@@ -15,6 +15,7 @@ import { ChannelAddress } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -50,8 +51,10 @@ export class Service implements ErrorHandler {
 
   constructor(
     private router: Router,
-    public translate: TranslateService,
+    private spinner: NgxSpinnerService,
     private toaster: ToastController,
+    public modalCtrl: ModalController,
+    public translate: TranslateService,
   ) {
     // add language
     translate.addLangs(Language.getLanguages());
@@ -70,11 +73,37 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * Sets the application language
+   * Set the application language
    */
   public setLang(id: LanguageTag) {
     this.translate.use(id);
     // TODO set locale for date-fns: https://date-fns.org/docs/I18n
+  }
+
+  /**
+   * Convert the browser language in Language Tag
+   */
+  public browserLangToLangTag(browserLang: string): LanguageTag {
+    switch (browserLang) {
+      case "de": {
+        return "German" as LanguageTag
+      }
+      case "en": {
+        return "English" as LanguageTag
+      }
+      case "es": {
+        return "Spanish" as LanguageTag
+      }
+      case "nl": {
+        return "Dutch" as LanguageTag
+      }
+      case "cz": {
+        return "Czech" as LanguageTag
+      }
+      default: {
+        return "German" as LanguageTag
+      }
+    }
   }
 
   /**
@@ -275,6 +304,8 @@ export class Service implements ErrorHandler {
     if (this.queryEnergyTimeout == null) {
       this.queryEnergyTimeout = setTimeout(() => {
 
+        this.queryEnergyTimeout = null;
+
         // merge requests
         let mergedRequests: {
           fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[];
@@ -342,6 +373,32 @@ export class Service implements ErrorHandler {
     fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
   }[] = [];
   private queryEnergyTimeout: any = null;
+
+
+  /**
+   * Start NGX-Spinner
+   * 
+   * Spinner will appear inside html tag only
+   * 
+   * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
+   * 
+   * @param selector selector for specific spinner
+   */
+  public startSpinner(selector: string) {
+    this.spinner.show(selector, {
+      type: 'ball-clip-rotate-multiple',
+      fullScreen: false,
+      bdColor: "rgba(0,0,0,0.5)"
+    });
+  }
+
+  /**
+   * Stop NGX-Spinner
+   * @param selector selector for specific spinner
+   */
+  public stopSpinner(selector: string) {
+    this.spinner.hide(selector);
+  }
 
   public async toast(message: string, level: 'success' | 'warning' | 'danger') {
     const toast = await this.toaster.create({
