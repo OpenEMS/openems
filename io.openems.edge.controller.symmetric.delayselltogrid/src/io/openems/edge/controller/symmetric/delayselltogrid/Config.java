@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
 		name = "Controller Delay-Sell-To-Grid Symmetric", //
-		description = "Calculate power peaks and discharges the battery in high consumption periods.")
+		description = "Calculate power peaks and discharges the battery in high consumption periods or calculates the exceeds charge power to charge the battery.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

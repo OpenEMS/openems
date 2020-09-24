@@ -9,7 +9,6 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.meter.test.DummySymmetricMeter;
 
 public class DelaySellToGridTest {
