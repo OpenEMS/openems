@@ -6,7 +6,7 @@ import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './.
 import { Component, Input, OnChanges } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { EnergyModalComponent } from './modal/modal.component';
-import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
+import { differenceInDays, format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
 import { addDays } from 'date-fns/esm';
 import { ModalController, Platform } from '@ionic/angular';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
@@ -151,8 +151,30 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
    * checks if kWh Chart is allowed to be shown
    */
   private isKwhChart(service: Service): boolean {
-    if (service.isKwhAllowed(this.edge) == true &&
-      (service.periodString == "week" || service.periodString == "month")) {
+    console.log("differnce", differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from))
+    if (service.isKwhAllowed(this.edge) == true && this.isAboveEqualDateRangeWeek() == true) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * checks if time difference in days is one week or higher
+   */
+  private isAboveEqualDateRangeWeek(): boolean {
+    if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 6) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * checks if time difference in days is lower than one week
+   */
+  private isBelowDateRangeWeek(): boolean {
+    if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) < 6) {
       return true;
     } else {
       return false;
@@ -378,15 +400,22 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             this.getEnergyChannelAddresses(config).then(channelAddresses => {
               let resolution: number = 0
 
-              // TODO: year
-              switch (this.service.periodString) {
-                case "week": {
-                  resolution = 86400; // resolution for value per day
-                }
-                case "month": {
-                  resolution = 86400; // resolution for value per day
-                }
-              }
+              // TODO: year + change resolution dynamically when year is ready
+              // otherwise resolution would be 'value per day' anyway
+              // switch (this.service.periodString) {
+              //   case "custom": {
+              //     resolution = 86400; // resolution for value per day
+              //   }
+              //   case "week": {
+              //     resolution = 86400; // resolution for value per day
+              //   }
+              //   case "month": {
+              //     resolution = 86400; // resolution for value per day
+              //   }
+              // }
+
+              resolution = 86400; // resolution for value per day
+
 
               this.queryHistoricTimeseriesEnergyPerPeriod(addDays(this.period.from, 1), this.period.to, channelAddresses, resolution).then(response => {
                 let result = (response as queryHistoricTimeseriesEnergyPerPeriodResponse).result;
@@ -425,6 +454,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 let categoryGapPercentage = 0;
 
                 switch (this.service.periodString) {
+                  case "custom": {
+                    barWidthPercentage = 0.7;
+                    categoryGapPercentage = 0.4;
+                  }
                   case "week": {
                     barWidthPercentage = 0.7;
                     categoryGapPercentage = 0.4;
@@ -662,7 +695,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         charge: this.translate.instant('General.chargePower'),
         discharge: this.translate.instant('General.dischargePower'),
         consumption: this.translate.instant('General.consumption'),
-        directConsumption: this.translate.instant('General.directConsumption')
+        directConsumption: this.translate.instant('General.selfConsumption')
       }
 
       // Generate kWh labels
@@ -732,7 +765,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       options.scales.xAxes[0].stacked = true;
       options.scales.xAxes[0].offset = true;
 
-      if (this.service.isSmartphoneResolution == true && this.service.periodString != 'week') {
+      if (this.service.isSmartphoneResolution == true && this.isBelowDateRangeWeek() == false) {
         options.scales.xAxes[0].ticks.source = 'auto';
         options.scales.xAxes[0].ticks.maxTicksLimit = 12;
       } else {
@@ -741,9 +774,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
       // yAxis
       options.scales.yAxes[0].scaleLabel.labelString = "kWh";
+      options.scales.yAxes[0].scaleLabel.padding = -2;
+      options.scales.yAxes[0].scaleLabel.fontSize = 11;
 
       // this.translate is not available in legend methods
-      let directConsumptionLabelText = this.translate.instant('General.directConsumption');
+      let directConsumptionLabelText = this.translate.instant('General.selfConsumption');
       let productionLabelText = this.translate.instant('General.production');
       let consumptionLabelText = this.translate.instant('General.consumption');
       let gridBuyLabelText = this.translate.instant('General.gridBuy');
@@ -800,7 +835,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             })
           }
         })
-        console.log("order", chartLegendLabelItemsOrder)
         chartLegendLabelItems.sort(function (a, b) {
           return chartLegendLabelItemsOrder.indexOf(a.text) - chartLegendLabelItemsOrder.indexOf(b.text);
         });
@@ -898,6 +932,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           bottom: 0
         }
       }
+      //x-axis
+      options
+
+      //y-axis
       options.scales.yAxes[0].id = "yAxis1"
       options.scales.yAxes[0].scaleLabel.labelString = "kW";
       options.scales.yAxes[0].scaleLabel.padding = -2;

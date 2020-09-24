@@ -3,8 +3,8 @@ import { Edge } from '../edge/edge';
 
 export enum WidgetClass {
     'Energymonitor',
-    'Autarchy',
     'Selfconsumption',
+    'Autarchy',
     'Storage',
     'Grid',
     'Production',
