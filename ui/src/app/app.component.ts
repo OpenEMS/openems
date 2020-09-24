@@ -204,4 +204,8 @@ export class AppComponent {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
   }
+
+  public doLogout() {
+    this.websocket.logOut();
+  }
 }

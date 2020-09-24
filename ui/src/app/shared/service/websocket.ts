@@ -384,12 +384,13 @@ export class Websocket {
   }
 
   public logOut() {
-    this.router.navigate(['/']).then(() => {
-      this.socket = null;
-      this.status = "waiting for authentication";
-      this.service.removeToken();
 
-    });
+    this.socket = null;
+    this.status = "waiting for authentication";
+    this.service.removeToken();
+    this.service.initialize();
+    this.router.navigate(['/index']);
+
   }
 
 }

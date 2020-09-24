@@ -136,6 +136,11 @@
             <ion-label translate>Menu.edgeSettings</ion-label>
           </ion-item>
         </nav>
+        <nav *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'online'">
+          <ion-item lines="inset" routerLink="/" (click)="menu.close(); doLogout();">
+            <ion-label translate>Menu.logout</ion-label>
+          </ion-item>
+        </nav>
       </ion-list>
     </ion-content>
   </ion-menu>
