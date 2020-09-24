@@ -40,7 +40,7 @@ public class DelaySellToGrid extends AbstractOpenemsComponent implements Control
 
 	@Reference
 	protected ConfigurationAdmin cm;
-	
+
 	@Reference
 	protected Power power;
 
@@ -48,7 +48,7 @@ public class DelaySellToGrid extends AbstractOpenemsComponent implements Control
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
-	
+
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private SymmetricMeter meter;
 
@@ -78,7 +78,7 @@ public class DelaySellToGrid extends AbstractOpenemsComponent implements Control
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		
+
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "meter", config.meter_id())) {
 			return;
 		}
@@ -107,23 +107,25 @@ public class DelaySellToGrid extends AbstractOpenemsComponent implements Control
 		}
 
 		int productionPower = meter.getActivePower().orElse(0);
-		int calculatedPower = calculatePower(productionPower, this.config.delaySellToGridPower());
-		
-	
+		int calculatedPower = calculatePower(productionPower, this.config.delaySellToGridPower(),
+				this.config.chargePower());
 
 		/*
 		 * set result
 		 */
-		ess.setActivePowerEqualsWithPid(calculatedPower);
-		ess.setReactivePowerEquals(0);
+		this.ess.setActivePowerEquals(calculatedPower);
+		this.ess.setReactivePowerEquals(0);
+
 	}
 
-	protected static int calculatePower(int productionPower, int delaySellToGridPower) {
+	protected static int calculatePower(int productionPower, int delaySellToGridPower, int chargePower) {
 		int calculatedPower = 0;
-		if (productionPower <= delaySellToGridPower) {			
-			calculatedPower = productionPower -= delaySellToGridPower;
+		if (productionPower <= delaySellToGridPower) {
+			calculatedPower = productionPower - delaySellToGridPower;
 			calculatedPower = Math.abs(calculatedPower);
-		} 
+		} else if (productionPower >= chargePower) {
+			calculatedPower = productionPower - chargePower;
+		}
 		return calculatedPower;
 	}
 }

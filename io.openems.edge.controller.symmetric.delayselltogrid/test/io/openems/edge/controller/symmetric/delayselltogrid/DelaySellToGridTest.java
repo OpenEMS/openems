@@ -19,12 +19,14 @@ public class DelaySellToGridTest {
 		private final String ess_id;
 		private final String meter_id;
 		private final int delaySellToGridPower;
+		private final int chargePower;
 
-		public MyConfig(String id, String ess_id, String meter_id, int delaySellToGridPower) {
+		public MyConfig(String id, String ess_id, String meter_id, int delaySellToGridPower, int chargePower) {
 			super(Config.class, id);
 			this.ess_id = ess_id;
 			this.meter_id = meter_id;
 			this.delaySellToGridPower = delaySellToGridPower;
+			this.chargePower = chargePower;
 		}
 
 		@Override
@@ -41,6 +43,11 @@ public class DelaySellToGridTest {
 		public int delaySellToGridPower() {
 			return this.delaySellToGridPower;
 		}
+
+		@Override
+		public int chargePower() {
+			return this.chargePower;
+		}
 	}
 
 	ChannelAddress essActivePower = new ChannelAddress("ess0", "ActivePower");
@@ -50,19 +57,30 @@ public class DelaySellToGridTest {
 	@Test
 	public void test() throws Exception {
 
-		MyConfig myconfig = new MyConfig("ctrl1", "ess0", "meter1", 500_000);
+		MyConfig myconfig = new MyConfig("ctrl1", "ess0", "meter1", 500_000, 12_500_000);
 
 		new ControllerTest(new DelaySellToGrid()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
-				.addReference("ess", new DummyManagedSymmetricEss("ess0", new DummyPower(30000))) //
+				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.addReference("meter", new DummySymmetricMeter("meter1"))//
 				.activate(myconfig) //
-				.next( //
-						new TestCase() //
-								.input(essActivePower, 0) //
-								.input(meter1ActivePower, 490_000) //
-								.output(essSetPower, 10000)) //
+				.next(new TestCase() //
+						.input(essActivePower, 0) //
+						.input(meter1ActivePower, 490_000) //
+						.output(essSetPower, 10_000))//
+				.next(new TestCase() //
+						.input(essActivePower, 0) //
+						.input(meter1ActivePower, 14_000_000) //
+						.output(essSetPower, 1_500_000)) //
+				.next(new TestCase() //
+						.input(essActivePower, 10_000) //
+						.input(meter1ActivePower, 14_000_000) //
+						.output(essSetPower, 1_500_000)) //
+				.next(new TestCase() //
+						.input(essActivePower, 20_000) //
+						.input(meter1ActivePower, 1_000_000) //
+						.output(essSetPower, 0)) //
 		;
 	}
 }

@@ -25,6 +25,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Delay Sell To Grid power", description = "Pv power under this value is considered a peak and cover to this value.")
 	int delaySellToGridPower();
+	
+
+	@AttributeDefinition(name = "Charge Power Start Point", description = "Pv power above this value starts to charge the system.")
+	int chargePower();
 
 	String webconsole_configurationFactory_nameHint() default "Controller Delay Sell To Grid Symmetric [{id}]";
 }
