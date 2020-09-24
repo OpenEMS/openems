@@ -131,7 +131,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.service.startSpinner(this.spinnerId);
     this.platform.ready().then(() => {
       this.platform.resize.pipe(takeUntil(this.stopOnDestroy), debounceTime(200)).subscribe(() => {
-        this.updateChart();
+        if (this.isKwhChart(this.service)) {
+          this.updateChart();
+        }
       })
     })
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
@@ -150,7 +152,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
    */
   private isKwhChart(service: Service): boolean {
     if (service.isKwhAllowed(this.edge) == true &&
-      ((service.periodString == "week" && service.isSmartphoneResolution == true) || service.periodString == "month")) {
+      (service.periodString == "week" || service.periodString == "month")) {
       return true;
     } else {
       return false;
@@ -740,20 +742,49 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       // yAxis
       options.scales.yAxes[0].scaleLabel.labelString = "kWh";
 
-      // used for filter method
-      // this.translate is not available in filter method
+      // this.translate is not available in legend methods
       let directConsumptionLabelText = this.translate.instant('General.directConsumption');
       let productionLabelText = this.translate.instant('General.production');
       let consumptionLabelText = this.translate.instant('General.consumption');
+      let gridBuyLabelText = this.translate.instant('General.gridBuy');
+      let gridSellLabelText = this.translate.instant('General.gridSell');
+      let chargeLabelText = this.translate.instant('General.chargePower');
+      let dischargeLabelText = this.translate.instant('General.dischargePower');
 
       // legend labels
       options.legend.labels.generateLabels = function (chart: Chart) {
         let chartLegendLabelItems: ChartLegendLabelItem[] = [];
+        let chartLegendLabelItemsOrder = [
+          gridBuyLabelText,
+          gridSellLabelText,
+          directConsumptionLabelText,
+          chargeLabelText,
+          dischargeLabelText
+        ]
+
+        // set correct value (label + total kWh) for reorder
         chart.data.datasets.forEach((dataset, datasetIndex) => {
+
+          if (dataset.label.includes(gridBuyLabelText)) {
+            chartLegendLabelItemsOrder[0] = dataset.label;
+          }
+          if (dataset.label.includes(gridSellLabelText)) {
+            chartLegendLabelItemsOrder[1] = dataset.label;
+          }
+          if (dataset.label.includes(directConsumptionLabelText)) {
+            chartLegendLabelItemsOrder[2] = dataset.label;
+          }
+          if (dataset.label.includes(chargeLabelText)) {
+            chartLegendLabelItemsOrder[3] = dataset.label;
+          }
+          if (dataset.label.includes(dischargeLabelText)) {
+            chartLegendLabelItemsOrder[4] = dataset.label;
+          }
+
           let text = dataset.label;
           let index = datasetIndex;
           let fillStyle = dataset.backgroundColor.toString();
-          let hidden = chart.getDatasetMeta(datasetIndex).hidden || isNaN(dataset.data[datasetIndex] as number);
+          let hidden = chart.getDatasetMeta(datasetIndex).hidden;
           let lineWidth = 2;
           let strokeStyle = dataset.borderColor.toString();
           if (text.includes(directConsumptionLabelText) && dataset.stack == "1") {
@@ -769,6 +800,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             })
           }
         })
+        console.log("order", chartLegendLabelItemsOrder)
+        chartLegendLabelItems.sort(function (a, b) {
+          return chartLegendLabelItemsOrder.indexOf(a.text) - chartLegendLabelItemsOrder.indexOf(b.text);
+        });
         return chartLegendLabelItems;
       }
 
@@ -808,7 +843,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         })
         chart.update();
       }
-
 
       // tooltips
       options.tooltips.mode = 'x';

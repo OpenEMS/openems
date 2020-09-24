@@ -58,20 +58,28 @@ export class AppComponent {
     this.platform.ready().then(() => {
       this.service.deviceHeight = this.platform.height();
       this.service.deviceWidth = this.platform.width();
-      this.checkSmartphoneResolution();
+      this.checkSmartphoneResolution(true);
       this.platform.resize.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
         this.service.deviceHeight = this.platform.height();
         this.service.deviceWidth = this.platform.width();
-        this.checkSmartphoneResolution();
+        this.checkSmartphoneResolution(false);
       })
     })
   }
 
-  private checkSmartphoneResolution(): void {
-    if (this.platform.width() <= 576) {
-      this.service.isSmartphoneResolution = true;
-    } else if (this.platform.width() > 576) {
-      this.service.isSmartphoneResolution = false;
+  private checkSmartphoneResolution(init: boolean): void {
+    if (init == true) {
+      if (this.platform.width() <= 576) {
+        this.service.isSmartphoneResolution = true;
+      } else if (this.platform.width() > 576) {
+        this.service.isSmartphoneResolution = false;
+      }
+    } else {
+      if (this.platform.width() <= 576 && this.service.isSmartphoneResolution == false) {
+        this.service.isSmartphoneResolution = true;
+      } else if (this.platform.width() > 576 && this.service.isSmartphoneResolution == true) {
+        this.service.isSmartphoneResolution = false;
+      }
     }
   }
 
