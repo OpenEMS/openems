@@ -133,6 +133,9 @@ public class DbUtils {
 			String serial = j.get("bp_serial").getAsString();
 			String mac = j.get("bp_mac").getAsString();
 			edges = checkNewUser(serial, mac);
+			if(edges == null) {
+				throw new OpenemsException("No valid User");
+			}
 			role = "owner";
 			updateNewUser(userid, edges, role);
 		}
