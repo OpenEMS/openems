@@ -33,10 +33,19 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
 
 
     ngOnInit() {
+        this.spinnerId = "storage-charger-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
+        this.subscribeChartRefresh()
+    }
+
+    ngOnDestroy() {
+        this.unsubscribeChartRefresh()
     }
 
     protected updateChart() {
+        this.service.startSpinner(this.spinnerId);
+        this.colors = [];
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             let result = response.result;
@@ -73,6 +82,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
             })
             this.datasets = datasets;
             this.loading = false;
+            this.service.stopSpinner(this.spinnerId);
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

@@ -70,6 +70,7 @@ import io.openems.edge.ess.power.api.Relationship;
 		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 		})
+// TODO should implement HybridEss
 public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent implements EssFeneconCommercial40,
 		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
@@ -102,7 +103,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				ManagedSymmetricEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.getCapacity().setNextValue(NET_CAPACITY);
+		this._setCapacity(NET_CAPACITY);
 	}
 
 	@Override
@@ -167,7 +168,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				.onInit(channel -> { //
 					// on each Update to the channel -> set the ALLOWED_CHARGE_POWER value with a
 					// delta of max 500
-					channel.onChange((oldValue, newValue) -> {
+					channel.onUpdate(newValue -> {
 						IntegerReadChannel currentValueChannel = channel.getComponent()
 								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
 						Optional<Integer> originalValue = newValue.asOptional();
@@ -189,8 +190,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				.onInit(channel -> { //
 					// on each Update to the channel -> set the ALLOWED_DISCHARGE_POWER value with a
 					// delta of max 500
-					channel.onChange((oldValue, newValue) -> {
-
+					channel.onUpdate(newValue -> {
 						IntegerReadChannel currentValueChannel = channel.getComponent()
 								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
 						Optional<Integer> originalValue = newValue.asOptional();
@@ -1618,12 +1618,12 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
 				+ "|Allowed:"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
-				+ "|" + this.getGridMode().value().asOptionString();
+				+ "|" + this.getGridModeChannel().value().asOptionString();
 	}
 
 	@Override

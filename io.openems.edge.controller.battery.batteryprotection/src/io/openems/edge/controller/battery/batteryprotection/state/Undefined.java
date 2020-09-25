@@ -33,6 +33,6 @@ public class Undefined extends BaseState implements IState {
 
 	@Override
 	public void act() {
-		log.info("Nothing to do!");
+		this.log.info("Nothing to do!");
 	}
 }

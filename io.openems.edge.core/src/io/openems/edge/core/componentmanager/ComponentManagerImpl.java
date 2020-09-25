@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -25,6 +26,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.component.runtime.ServiceComponentRuntime;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.metatype.MetaTypeService;
 import org.slf4j.Logger;
@@ -46,14 +48,13 @@ import io.openems.common.session.Role;
 import io.openems.common.session.User;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 
-@Component( //
+@Component(//
 		name = "Core.ComponentManager", //
 		immediate = true, //
 		property = { //
@@ -63,9 +64,7 @@ import io.openems.edge.common.jsonapi.JsonApi;
 public class ComponentManagerImpl extends AbstractOpenemsComponent
 		implements ComponentManager, OpenemsComponent, JsonApi, ConfigurationListener {
 
-	private final OsgiValidateWorker osgiValidateWorker;
-	private final OutOfMemoryHeapDumpWorker outOfMemoryHeapDumpWorker;
-	private final DefaultConfigurationWorker defaultConfigurationWorker;
+	private final List<ComponentManagerWorker> workers = new ArrayList<>();
 	private final EdgeConfigWorker edgeConfigWorker;
 
 	protected BundleContext bundleContext;
@@ -81,6 +80,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	@Reference
 	protected EventAdmin eventAdmin;
+
+	@Reference
+	protected ServiceComponentRuntime serviceComponentRuntime;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
@@ -99,10 +101,10 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				OpenemsComponent.ChannelId.values(), //
 				ComponentManager.ChannelId.values() //
 		);
-		this.osgiValidateWorker = new OsgiValidateWorker(this);
-		this.outOfMemoryHeapDumpWorker = new OutOfMemoryHeapDumpWorker(this);
-		this.defaultConfigurationWorker = new DefaultConfigurationWorker(this);
-		this.edgeConfigWorker = new EdgeConfigWorker(this);
+		this.workers.add(new OsgiValidateWorker(this));
+		this.workers.add(new OutOfMemoryHeapDumpWorker(this));
+		this.workers.add(new DefaultConfigurationWorker(this));
+		this.workers.add(this.edgeConfigWorker = new EdgeConfigWorker(this));
 	}
 
 	@Activate
@@ -111,34 +113,18 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		this.bundleContext = bundleContext;
 
-		// Start OSGi Validate Worker
-		this.osgiValidateWorker.activate(this.id());
-
-		// Start the Out-Of-Memory Worker
-		this.outOfMemoryHeapDumpWorker.activate(this.id());
-
-		// Start the Default-Configuration Worker
-		this.defaultConfigurationWorker.activate(this.id());
-
-		// Start the EdgeConfig Worker
-		this.edgeConfigWorker.activate(this.id());
+		for (ComponentManagerWorker worker : this.workers) {
+			worker.activate(this.id());
+		}
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 
-		// Stop OSGi Validate Worker
-		this.osgiValidateWorker.deactivate();
-
-		// Stop the Out-Of-Memory Worker
-		this.outOfMemoryHeapDumpWorker.deactivate();
-
-		// Stop the Default-Configuration Worker
-		this.defaultConfigurationWorker.deactivate();
-
-		// Stop the EdgeConfig Worker
-		this.edgeConfigWorker.deactivate();
+		for (ComponentManagerWorker worker : this.workers) {
+			worker.deactivate();
+		}
 	}
 
 	@Override
@@ -151,12 +137,20 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		return Collections.unmodifiableList(this.allComponents);
 	}
 
-	protected StateChannel configNotActivatedChannel() {
-		return this.channel(ComponentManager.ChannelId.CONFIG_NOT_ACTIVATED);
-	}
-
-	protected StateChannel defaultConfigurationFailed() {
-		return this.channel(ComponentManager.ChannelId.DEFAULT_CONFIGURATION_FAILED);
+	@Override
+	public String debugLog() {
+		final List<String> logs = new ArrayList<String>();
+		for (ComponentManagerWorker worker : this.workers) {
+			String message = worker.debugLog();
+			if (message != null) {
+				logs.add(message);
+			}
+		}
+		if (logs.isEmpty()) {
+			return null;
+		} else {
+			return String.join("|", logs);
+		}
 	}
 
 	@Override
@@ -413,11 +407,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void configurationEvent(ConfigurationEvent event) {
-		// trigger update of EdgeConfig
-		this.edgeConfigWorker.handleEvent(event);
-
-		// trigger immediate validation on configuration event
-		this.osgiValidateWorker.triggerNextRun();
+		for (ComponentManagerWorker worker : this.workers) {
+			worker.configurationEvent(event);
+		}
 	}
 
 	@Override

@@ -30,14 +30,22 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
 
 
     ngOnInit() {
+        this.spinnerId = 'grid-chart';
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
+        this.subscribeChartRefresh()
+    }
+
+    ngOnDestroy() {
+        this.unsubscribeChartRefresh()
     }
 
     protected updateChart() {
         this.loading = true;
+        this.service.startSpinner(this.spinnerId);
+        this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             let result = response.result;
-            this.colors = [];
             // convert labels
             let labels: Date[] = [];
             for (let timestamp of result.timestamps) {
@@ -133,7 +141,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
             }
             this.datasets = datasets;
             this.loading = false;
-
+            this.service.stopSpinner(this.spinnerId);
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

@@ -41,7 +41,7 @@ public class TestLimit {
 		componentManager.initBms();
 		bms = componentManager.getComponent(Creator.BMS_ID);
 		sut = new Limit(ess, bms, config.warningLowCellVoltage(), config.criticalLowCellVoltage(),
-				config.criticalHighCellVoltage(), config.warningSoC(), config.criticalSoC(), config.lowTemperature(),
+				config.criticalHighCellVoltage(), config.warningSoC(), config.lowTemperature(),
 				config.highTemperature(), config.unusedTime());
 	}
 

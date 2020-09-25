@@ -28,11 +28,20 @@ export class ProductionTotalDcChartComponent extends AbstractHistoryChart implem
     }
 
     ngOnInit() {
+        this.spinnerId = 'production-total-dc-chart';
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
+        this.subscribeChartRefresh()
+    }
+
+    ngOnDestroy() {
+        this.unsubscribeChartRefresh()
     }
 
     protected updateChart() {
+        this.service.startSpinner(this.spinnerId);
         this.loading = true;
+        this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             let result = response.result;
             // convert labels
@@ -66,7 +75,7 @@ export class ProductionTotalDcChartComponent extends AbstractHistoryChart implem
             })
             this.datasets = datasets;
             this.loading = false;
-
+            this.service.stopSpinner(this.spinnerId);
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

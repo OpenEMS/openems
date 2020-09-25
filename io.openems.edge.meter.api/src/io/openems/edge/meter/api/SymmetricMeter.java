@@ -9,6 +9,9 @@ import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.LongReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -200,93 +203,351 @@ public interface SymmetricMeter extends OpenemsComponent {
 				.channel(10, ChannelId.ACTIVE_PRODUCTION_ENERGY, ModbusType.FLOAT32) //
 				.channel(12, ChannelId.ACTIVE_CONSUMPTION_ENERGY, ModbusType.FLOAT32) //
 				.channel(14, ChannelId.VOLTAGE, ModbusType.FLOAT32) //
-				.channel(16, ChannelId.CURRENT, ModbusType.FLOAT32) //				
+				.channel(16, ChannelId.CURRENT, ModbusType.FLOAT32) //
 				.build();
 	}
-	
-	/**
-	 * Gets the Active Power in [W]. Negative values for Consumption; positive for
-	 * Production
-	 * 
-	 * @return the Channel
-	 */
-	default Channel<Integer> getActivePower() {
-		return this.channel(ChannelId.ACTIVE_POWER);
-	}
 
 	/**
-	 * Gets the Reactive Power in [var]. Negative values for Consumption; positive
-	 * for Production.
-	 * 
+	 * Gets the Channel for {@link ChannelId#FREQUENCY}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Integer> getReactivePower() {
-		return this.channel(ChannelId.REACTIVE_POWER);
-	}
-
-	/**
-	 * Gets the Production Active Energy in [Wh]. This relates to positive
-	 * ACTIVE_POWER.
-	 * 
-	 * @return the Channel
-	 */
-	default Channel<Long> getActiveProductionEnergy() {
-		return this.channel(ChannelId.ACTIVE_PRODUCTION_ENERGY);
-	}
-
-	/**
-	 * Gets the Frequency in [mHz]. FREQUENCY
-	 * 
-	 * @return the Channel
-	 */
-	default Channel<Integer> getFrequency() {
+	public default IntegerReadChannel getFrequencyChannel() {
 		return this.channel(ChannelId.FREQUENCY);
 	}
 
 	/**
-	 * Gets the Voltage in [mV].
-	 * 
-	 * @return the Channel
+	 * Gets the Frequency in [mHz]. See {@link ChannelId#FREQUENCY}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-
-	default Channel<Integer> getVoltage() {
-		return this.channel(ChannelId.VOLTAGE);
+	public default Value<Integer> getFrequency() {
+		return this.getFrequencyChannel().value();
 	}
 
 	/**
-	 * Gets the Consumption Active Energy in [Wh]. This relates to negative
-	 * ACTIVE_POWER.
-	 * 
-	 * @return the Channel
+	 * Internal method to set the 'nextValue' on {@link ChannelId#FREQUENCY}
+	 * Channel.
+	 *
+	 * @param value the next value
 	 */
-	default Channel<Long> getActiveConsumptionEnergy() {
-		return this.channel(ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+	public default void _setFrequency(Integer value) {
+		this.getFrequencyChannel().setNextValue(value);
 	}
 
 	/**
-	 * Gets the Minimum Ever Active Power.
-	 * 
+	 * Internal method to set the 'nextValue' on {@link ChannelId#FREQUENCY}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setFrequency(int value) {
+		this.getFrequencyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MIN_ACTIVE_POWER}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Integer> getMinActivePower() {
+	public default IntegerReadChannel getMinActivePowerChannel() {
 		return this.channel(ChannelId.MIN_ACTIVE_POWER);
 	}
 
 	/**
-	 * Gets the Maximum Ever Active Power.
-	 * 
+	 * Gets the Minimum Ever Active Power in [W]. See
+	 * {@link ChannelId#MIN_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMinActivePower() {
+		return this.getMinActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MIN_ACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMinActivePower(Integer value) {
+		this.getMinActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MIN_ACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMinActivePower(int value) {
+		this.getMinActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_ACTIVE_POWER}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Integer> getMaxActivePower() {
+	public default IntegerReadChannel getMaxActivePowerChannel() {
 		return this.channel(ChannelId.MAX_ACTIVE_POWER);
 	}
-	
+
 	/**
-	 * Gets the Current in [mA].
-	 * 
+	 * Gets the Maximum Ever Active Power in [W]. See
+	 * {@link ChannelId#MAX_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaxActivePower() {
+		return this.getMaxActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_ACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxActivePower(Integer value) {
+		this.getMaxActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_ACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxActivePower(int value) {
+		this.getMaxActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Integer> getCurrent(){
+	public default IntegerReadChannel getActivePowerChannel() {
+		return this.channel(ChannelId.ACTIVE_POWER);
+	}
+
+	/**
+	 * Gets the Active Power in [W]. Negative values for Consumption (power that is
+	 * 'leaving the system', e.g. feed-to-grid); positive for Production (power that
+	 * is 'entering the system'). See {@link ChannelId#ACTIVE_POWER}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getActivePower() {
+		return this.getActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePower(Integer value) {
+		this.getActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePower(int value) {
+		this.getActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getReactivePowerChannel() {
+		return this.channel(ChannelId.REACTIVE_POWER);
+	}
+
+	/**
+	 * Gets the Reactive Power in [var]. See {@link ChannelId#REACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getReactivePower() {
+		return this.getReactivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setReactivePower(Integer value) {
+		this.getReactivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setReactivePower(int value) {
+		this.getReactivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_PRODUCTION_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getActiveProductionEnergyChannel() {
+		return this.channel(ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	}
+
+	/**
+	 * Gets the Active Production Energy in [Wh]. This relates to positive
+	 * ACTIVE_POWER. See {@link ChannelId#ACTIVE_PRODUCTION_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getActiveProductionEnergy() {
+		return this.getActiveProductionEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_PRODUCTION_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActiveProductionEnergy(Long value) {
+		this.getActiveProductionEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_PRODUCTION_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActiveProductionEnergy(long value) {
+		this.getActiveProductionEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getActiveConsumptionEnergyChannel() {
+		return this.channel(ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+	}
+
+	/**
+	 * Gets the Active Consumption Energy in [Wh]. This relates to negative
+	 * ACTIVE_POWER. See {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getActiveConsumptionEnergy() {
+		return this.getActiveConsumptionEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActiveConsumptionEnergy(Long value) {
+		this.getActiveConsumptionEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActiveConsumptionEnergy(long value) {
+		this.getActiveConsumptionEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#VOLTAGE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getVoltageChannel() {
+		return this.channel(ChannelId.VOLTAGE);
+	}
+
+	/**
+	 * Gets the Voltage in [mV]. See {@link ChannelId#VOLTAGE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getVoltage() {
+		return this.getVoltageChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setVoltage(Integer value) {
+		this.getVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setVoltage(int value) {
+		this.getVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CURRENT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getCurrentChannel() {
 		return this.channel(ChannelId.CURRENT);
+	}
+
+	/**
+	 * Gets the Current in [mA]. See {@link ChannelId#CURRENT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getCurrent() {
+		return this.getCurrentChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setCurrent(Integer value) {
+		this.getCurrentChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setCurrent(int value) {
+		this.getCurrentChannel().setNextValue(value);
 	}
 }

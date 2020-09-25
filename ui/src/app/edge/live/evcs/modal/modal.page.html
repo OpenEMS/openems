@@ -1,16 +1,28 @@
 <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
     <ion-header>
         <ion-toolbar class="ion-justify-content-center" color="primary">
-            <ion-title>
-                {{ evcsComponent.alias }}
+            <ion-title *ngIf="evcsComponent.alias == evcsComponent.id" translate>
+                Edge.Index.Widgets.EVCS.ChargingStation
+            </ion-title>
+            <ion-title *ngIf="evcsComponent.alias != evcsComponent.id">
+                {{evcsComponent.alias}}
             </ion-title>
             <ion-buttons slot="end">
+                <ion-button (click)="presentModal()">
+                    <ion-icon [color]="evcsComponent.properties['minHwCurrent'] == 10000 ? 'success' : ''"
+                        name="car-outline"></ion-icon>
+                </ion-button>
+                <ion-button target="_blank"
+                    href="https://openems.github.io/openems.io/openems/latest/edge/controller.html#_evcs">
+                    <ion-icon name="help-circle-outline"></ion-icon>
+                </ion-button>
                 <ion-button (click)="modalCtrl.dismiss()">
                     <ion-icon name="close-outline"></ion-icon>
                 </ion-button>
             </ion-buttons>
         </ion-toolbar>
     </ion-header>
+
     <ion-content>
         <ng-container *ngIf="currentData[componentId + '/State'] != 3">
             <ion-card-content class="underline">
@@ -181,7 +193,7 @@
                     </ion-card-content>
                 </ng-container>
                 <ng-container *ngIf="chargeMode == 'FORCE_CHARGE'">
-                    <ion-card-content class="underline">
+                    <ion-card-content *ngIf="getNumberOfPhasesOrThree() as numberOfPhases" class="underline">
                         <!--Force Charge settings-->
                         <table class="full_width">
                             <tr>
@@ -195,7 +207,8 @@
                         </table>
                         <table class="full_width">
                             <tr>
-                                <ion-range style="width: 100%" (ionChange)="updateForceMinPower($event, controller)"
+                                <ion-range style="width: 100%"
+                                    (ionChange)="updateForceMinPower($event, controller, numberOfPhases)"
                                     min="{{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) }}"
                                     max="{{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) }}"
                                     color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="500"
@@ -273,7 +286,6 @@
                 <td>
                     <ul>
                         <li translate>Edge.Index.Widgets.EVCS.NoConnection.help1</li>
-                        <li translate>Edge.Index.Widgets.EVCS.NoConnection.help1_1</li>
                     </ul>
                 </td>
             </tr>

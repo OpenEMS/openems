@@ -2,7 +2,6 @@ import { addDays, getDate, getMonth, getYear, subDays, startOfWeek, endOfWeek } 
 import { Component, Input } from '@angular/core';
 import { DefaultTypes } from '../../service/defaulttypes';
 import { IAngularMyDpOptions, IMyDate, IMyDateRangeModel, CalAnimation } from 'angular-mydatepicker';
-import { isFuture } from 'date-fns';
 import { PopoverController } from '@ionic/angular';
 import { Service } from '../../shared';
 import { TranslateService } from '@ngx-translate/core';
@@ -15,15 +14,13 @@ import { TranslateService } from '@ngx-translate/core';
 export class PickDatePopoverComponent {
 
 
-    @Input() public disableArrow: boolean;
+    @Input() private setDateRange: (period: DefaultTypes.HistoryPeriod) => void;
 
-    public readonly TODAY = new Date();
-    public readonly YESTERDAY = subDays(new Date(), 1);
-    public readonly TOMORROW = addDays(new Date(), 1);
-    public activePeriod: DefaultTypes.PeriodString = this.service.periodString;
-    public showCustomDate: boolean = false;
+    private readonly TODAY = new Date();
+    private readonly TOMORROW = addDays(new Date(), 1);
 
     public locale: string = 'de';
+    public showCustomDate: boolean = false;
 
     myDpOptions: IAngularMyDpOptions = {
         stylesData: {
@@ -44,6 +41,7 @@ export class PickDatePopoverComponent {
         disableUntil: { day: 1, month: 1, year: 2013 }, // TODO start with date since the edge is available
         inline: true,
         selectorHeight: '225px',
+        selectorWidth: '251px',
         showWeekNumbers: true,
     };
 
@@ -69,28 +67,16 @@ export class PickDatePopoverComponent {
             case 'day': {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(this.TODAY, this.TODAY));
                 this.service.periodString = period;
-                this.disableArrow = true;
-                this.popoverCtrl.dismiss(this.disableArrow);
+                this.popoverCtrl.dismiss();
                 break;
             }
             case 'week': {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(startOfWeek(this.TODAY, { weekStartsOn: 1 }), endOfWeek(this.TODAY, { weekStartsOn: 1 })));
                 this.service.periodString = period;
-                this.disableArrow = true;
-                this.popoverCtrl.dismiss(this.disableArrow);
+                this.popoverCtrl.dismiss();
                 break;
             }
         }
-    }
-
-    /**
-     * Sets the current time period.
-     * 
-     * @param fromDate the starting date
-     * @param toDate   the end date
-     */
-    public setDateRange(period: DefaultTypes.HistoryPeriod) {
-        this.service.historyPeriod = period;
     }
 
     /**
@@ -99,20 +85,13 @@ export class PickDatePopoverComponent {
      * @param date the 'Date'
      * @returns the 'IMyDate'
      */
-    public toIMyDate(date: Date): IMyDate {
+    private toIMyDate(date: Date): IMyDate {
         return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) }
     }
 
-    onDateChanged(event: IMyDateRangeModel) {
+    public onDateChanged(event: IMyDateRangeModel) {
         this.service.historyPeriod = new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate);
         this.service.periodString = 'custom';
-        let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
-        dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
-        if (isFuture(addDays(this.service.historyPeriod.to, dateDistance * 2))) {
-            this.disableArrow = true;
-        } else {
-            this.disableArrow = false;
-        }
-        this.popoverCtrl.dismiss(this.disableArrow);
+        this.popoverCtrl.dismiss();
     }
 }

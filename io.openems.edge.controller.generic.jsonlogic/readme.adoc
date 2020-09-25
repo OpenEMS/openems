@@ -1,0 +1,60 @@
+= Generic JsonLogic
+
+The JsonLogic-Controller is a very generic Controller that allows the definition of a complex logic as a configuration at runtime, e.g. via Apache Felix Web Console. 
+
+It is based on the JsonLogic specification (http://jsonlogic.com[jsonlogic.com]). Logics can be defined by a rule:
+
+[source,json]
+----
+{
+   "if":[
+      {
+         "<":[
+            {
+               "var":"_sum/EssSoc"
+            },
+            50
+         ]
+      },
+      [
+         [
+            "ess0/SetActivePowerEquals",
+            5000
+         ]
+      ],
+      [
+         [
+            "ess0/SetActivePowerEquals",
+            -2000
+         ]
+      ]
+   ]
+}
+----
+
+The input data that is referenced via `var` is automatically provided from OpenEMS Channels - e.g. as
+
+[source,json]
+----
+{
+   "_sum/EssSoc": 40
+}
+----
+
+This example would result in:
+
+[source,json]
+----
+[
+    "ess0/SetActivePowerEquals",
+    5000
+]
+----
+
+i.e. the Controller will require a set-point of 5000 W discharge on ess0.
+
+It is also possible to write to multiple channels, by adding more arrays to the result.
+
+Try yourself: http://jsonlogic.com/play.html[http://jsonlogic.com/play.html]
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.generic.jsonlogic[Source Code icon:github[]]

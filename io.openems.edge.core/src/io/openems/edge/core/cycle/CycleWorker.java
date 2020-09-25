@@ -1,17 +1,17 @@
 package io.openems.edge.core.cycle;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Stopwatch;
+
 import info.faljse.SDNotify.SDNotify;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.worker.AbstractWorker;
-import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
@@ -21,8 +21,6 @@ public class CycleWorker extends AbstractWorker {
 
 	private final Logger log = LoggerFactory.getLogger(CycleWorker.class);
 	private final CycleImpl parent;
-
-	private Instant startTime = null;
 
 	public CycleWorker(CycleImpl parent) {
 		this.parent = parent;
@@ -35,6 +33,9 @@ public class CycleWorker extends AbstractWorker {
 
 	@Override
 	protected void forever() {
+		// Prepare Cycle-Time measurement
+		Stopwatch stopwatch = Stopwatch.createStarted();
+
 		// Kick Operating System Watchdog
 		String socketName = System.getenv().get("NOTIFY_SOCKET");
 		if (socketName != null && socketName.length() != 0) {
@@ -107,14 +108,14 @@ public class CycleWorker extends AbstractWorker {
 								controller.run();
 
 								// announce running was ok
-								controller.getRunFailed().setNextValue(false);
+								controller._setRunFailed(false);
 
 							} catch (OpenemsNamedException e) {
 								this.parent.logWarn(this.log,
 										"Error in Controller [" + controller.id() + "]: " + e.getMessage());
 
 								// announce running failed
-								controller.getRunFailed().setNextValue(true);
+								controller._setRunFailed(true);
 
 							} catch (Exception e) {
 								this.parent.logWarn(this.log, "Error in Controller [" + controller.id() + "]. "
@@ -124,24 +125,24 @@ public class CycleWorker extends AbstractWorker {
 									e.printStackTrace();
 								}
 								// announce running failed
-								controller.getRunFailed().setNextValue(true);
+								controller._setRunFailed(true);
 							}
 						}
 
 						// announce running was ok or not ok.
-						scheduler.getRunFailed().setNextValue(schedulerHasError);
+						scheduler._setRunFailed(schedulerHasError);
 
 					} catch (Exception e) {
 						this.parent.logWarn(this.log, "Error in Scheduler [" + scheduler.id() + "]: " + e.getMessage());
 
 						// announce running failed
-						scheduler.getRunFailed().setNextValue(true);
+						scheduler._setRunFailed(true);
 					}
 				}
 			}
 
 			// announce ignoring disabled Controllers.
-			this.parent.channel(Cycle.ChannelId.IGNORE_DISABLED_CONTROLLER).setNextValue(hasDisabledController);
+			this.parent._setIgnoreDisabledController(hasDisabledController);
 
 			/*
 			 * Trigger AFTER_CONTROLLERS event
@@ -172,13 +173,8 @@ public class CycleWorker extends AbstractWorker {
 			}
 		}
 
-		// Measure actual cycle time
-		Instant now = Instant.now();
-		if (this.startTime != null) {
-			this.parent.channel(Cycle.ChannelId.MEASURED_CYCLE_TIME)
-					.setNextValue(Duration.between(this.startTime, now).toMillis());
-		}
-		this.startTime = now;
+		// Measure actual Cycle-Time
+		this.parent._setMeasuredCycleTime(stopwatch.elapsed(TimeUnit.MILLISECONDS));
 	}
 
 }

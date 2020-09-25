@@ -29,11 +29,20 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
     }
 
     ngOnInit() {
+        this.spinnerId = 'production-total-chart';
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
+        this.subscribeChartRefresh()
+    }
+
+    ngOnDestroy() {
+        this.unsubscribeChartRefresh()
     }
 
     protected updateChart() {
+        this.service.startSpinner(this.spinnerId);
         this.loading = true;
+        this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
@@ -159,6 +168,7 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                     });
                     this.datasets = datasets;
                     this.loading = false;
+                    this.service.stopSpinner(this.spinnerId);
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();

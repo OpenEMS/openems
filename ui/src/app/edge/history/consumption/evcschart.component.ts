@@ -31,10 +31,18 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
 
 
     ngOnInit() {
+        this.spinnerId = "consumption-evcs-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
+        this.subscribeChartRefresh()
+    }
+
+    ngOnDestroy() {
+        this.unsubscribeChartRefresh()
     }
 
     protected updateChart() {
+        this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.colors = [];
@@ -73,6 +81,7 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
             })
             this.datasets = datasets;
             this.loading = false;
+            this.service.stopSpinner(this.spinnerId);
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

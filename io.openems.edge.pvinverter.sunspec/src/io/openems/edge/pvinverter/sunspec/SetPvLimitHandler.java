@@ -4,16 +4,16 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
-import io.openems.common.exceptions.CheckedRunnable;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecModel.S123_WMaxLim_Ena;
+import io.openems.common.function.ThrowingRunnable;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S123_WMaxLim_Ena;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
-public class SetPvLimitHandler implements CheckedRunnable {
+public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException> {
 
 	private final AbstractSunSpecPvInverter parent;
 
@@ -36,13 +36,13 @@ public class SetPvLimitHandler implements CheckedRunnable {
 
 		try {
 			// Get Power Limitation WriteChannel
-			wMaxLimPctChannel = this.parent.getSunSpecChannelOrError(SunSpecModel.S123.W_MAX_LIM_PCT);
+			wMaxLimPctChannel = this.parent.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_PCT);
 
 			// Get Continuous power output capability of the inverter (WRtg)
-			wRtgChannel = this.parent.getSunSpecChannelOrError(SunSpecModel.S120.W_RTG);
+			wRtgChannel = this.parent.getSunSpecChannelOrError(DefaultSunSpecModel.S120.W_RTG);
 
 			// Get Power Limitation Enabled WriteChannel
-			wMaxLimEnaChannel = this.parent.getSunSpecChannelOrError(SunSpecModel.S123.W_MAX_LIM_ENA);
+			wMaxLimEnaChannel = this.parent.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_ENA);
 
 		} catch (OpenemsNamedException e) {
 			// Unable to get required Channels,...
@@ -76,7 +76,7 @@ public class SetPvLimitHandler implements CheckedRunnable {
 
 			// Get Power Limitation Timeout Channel
 			IntegerReadChannel wMaxLimPctRvrtTmsChannel = this.parent
-					.getSunSpecChannelOrError(SunSpecModel.S123.W_MAX_LIM_PCT_RVRT_TMS);
+					.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_PCT_RVRT_TMS);
 			int wMaxLimPctRvrtTms = wMaxLimPctRvrtTmsChannel.value().orElse(0);
 
 			if (

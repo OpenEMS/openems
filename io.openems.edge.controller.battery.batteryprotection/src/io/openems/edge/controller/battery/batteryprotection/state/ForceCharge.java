@@ -17,16 +17,14 @@ public class ForceCharge extends BaseState implements IState {
 	private int chargePowerPercent;
 	private int chargingTime;
 	private int reachableMinCellVoltage;
-	private int warningSoC;
 	private LocalDateTime startTime = null;
 
 	public ForceCharge(ManagedSymmetricEss ess, Battery bms, int chargePowerPercent, int chargingTime,
-			int reachableMinCellVoltage, int warningSoC) {
+			int reachableMinCellVoltage) {
 		super(ess, bms);
 		this.chargePowerPercent = chargePowerPercent;
 		this.chargingTime = chargingTime;
 		this.reachableMinCellVoltage = reachableMinCellVoltage;
-		this.warningSoC = warningSoC;
 	}
 
 	@Override
@@ -48,7 +46,7 @@ public class ForceCharge extends BaseState implements IState {
 			this.startTime = LocalDateTime.now();
 		}
 
-		if ( (isMinCellVoltageReached() && isWarningSoCReached()) || isChargingTimeOver()) {
+		if (this.isMinCellVoltageReached() || this.isChargingTimeOver()) {
 			this.resetStartTime();
 			return State.CHECK;
 		}
@@ -56,16 +54,12 @@ public class ForceCharge extends BaseState implements IState {
 		return State.FORCE_CHARGE;
 	}
 
-	private boolean isWarningSoCReached() {
-		return getBmsSoC() >= warningSoC;
-	}
-
 	private boolean isMinCellVoltageReached() {
-		return getBmsMinCellVoltage() >= reachableMinCellVoltage;
+		return getBmsMinCellVoltage() > reachableMinCellVoltage;
 	}
 
 	private boolean isChargingTimeOver() {
-		return this.startTime.plusSeconds(chargingTime).isBefore(LocalDateTime.now());
+		return this.startTime.plusSeconds(this.chargingTime).isBefore(LocalDateTime.now());
 	}
 
 	private void resetStartTime() {
@@ -75,7 +69,7 @@ public class ForceCharge extends BaseState implements IState {
 
 	@Override
 	public void act() throws OpenemsNamedException {
-		log.info("act");
-		chargeEssWithPercentOfMaxPower(chargePowerPercent);
+		this.log.info("act");
+		chargeEssWithPercentOfMaxPower(this.chargePowerPercent);
 	}
 }

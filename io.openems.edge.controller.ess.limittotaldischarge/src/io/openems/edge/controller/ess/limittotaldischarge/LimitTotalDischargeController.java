@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -92,9 +93,20 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 		this.essId = config.ess_id();
 		this.minSoc = config.minSoc();
 		this.forceChargeSoc = config.forceChargeSoc();
-		if (config.forceChargePower() > 0) {
+
+		// Parse Force-Charge-Power
+		int forceChargePower;
+		try {
+			forceChargePower = config.forceChargePower();
+		} catch (Exception e) {
+			// happens if optional configuration parameter is not given.
+			forceChargePower = 0;
+		}
+		if (forceChargePower > 0) {
 			// apply configured force charge power if it is was set and it is greater than 0
 			this.forceChargePower = Optional.of(config.forceChargePower());
+		} else {
+			this.forceChargePower = Optional.empty();
 		}
 
 		// Force-Charge-SoC must be smaller than Min-SoC
@@ -116,8 +128,8 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.essId);
 
 		// Set to normal state and return if SoC is not available
-		Optional<Integer> socOpt = ess.getSoc().value().asOptional();
-		if (!socOpt.isPresent()) {
+		Value<Integer> socOpt = ess.getSoc();
+		if (!socOpt.isDefined()) {
 			this.state = State.NORMAL;
 			return;
 		}
@@ -188,11 +200,12 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 		// adjust value so that it fits into Min/MaxActivePower
 		if (calculatedPower != null) {
-			calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+			calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
+					calculatedPower);
 		}
 
 		// Apply Force-Charge if it was set
-		ess.getSetActivePowerLessOrEquals().setNextWriteValue(calculatedPower);
+		ess.setActivePowerLessOrEquals(calculatedPower);
 
 		// store current state in StateMachine channel
 		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);

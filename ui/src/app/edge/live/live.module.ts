@@ -1,3 +1,4 @@
+import { AdministrationComponent } from './evcs/modal/administration/administration.component';
 import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmetricpeakshaving.component';
 import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
 import { AutarchyComponent } from './autarchy/autarchy.component';
@@ -6,7 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.component';
 import { ChpSocComponent } from './chpsoc/chpsoc.component';
-import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
+import { ChpsocModalComponent } from './chpsoc/modal/modal.component';
 import { ConsumptionComponent } from './consumption/consumption.component';
 import { ConsumptionModalComponent } from './consumption/modal/modal.component';
 import { EnergymonitorModule } from './energymonitor/energymonitor.module';
@@ -19,6 +20,8 @@ import { FixDigitalOutputComponent } from './fixdigitaloutput/fixdigitaloutput.c
 import { FixDigitalOutputModalComponent } from './fixdigitaloutput/modal/modal.component';
 import { GridComponent } from './grid/grid.component';
 import { GridModalComponent } from './grid/modal/modal.component';
+import { HeatingElementComponent } from './heatingelement/heatingelement.component';
+import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
 import { InfoComponent } from './info/info.component';
 import { LiveComponent } from './live.component';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
@@ -35,8 +38,6 @@ import { StorageComponent } from './storage/storage.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetricpeakshaving.component';
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
-import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
-import { HeatingElementComponent } from './heatingelement/heatingelement.component';
 
 @NgModule({
   imports: [
@@ -46,9 +47,9 @@ import { HeatingElementComponent } from './heatingelement/heatingelement.compone
     SharedModule,
   ],
   entryComponents: [
+    AdministrationComponent,
     AsymmetricPeakshavingModalComponent,
     AutarchyModalComponent,
-    ChpsocModalComponent,
     ChpsocModalComponent,
     ConsumptionModalComponent,
     EvcsModalComponent,
@@ -64,6 +65,7 @@ import { HeatingElementComponent } from './heatingelement/heatingelement.compone
     SymmetricPeakshavingModalComponent,
   ],
   declarations: [
+    AdministrationComponent,
     AsymmetricPeakshavingComponent,
     AsymmetricPeakshavingModalComponent,
     AutarchyComponent,

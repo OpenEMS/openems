@@ -41,26 +41,26 @@ public class Check extends BaseState implements IState {
 		// FORCE_CHARGE: cell voltage is under limit
 
 		if (isNextStateUndefined()) {
-			resetStartSoc();
+			this.resetStartSoc();
 			return State.UNDEFINED;
 		}
 
-		if (startSoC == UNDEFINED_VALUE) {
-			startSoC = getBmsSoC();
+		if (this.startSoC == UNDEFINED_VALUE) {
+			this.startSoC = getBmsSoC();
 		}
 
 		if (getBmsMinCellVoltage() < criticalLowCellVoltage) {
-			resetStartSoc();
+			this.resetStartSoc();
 			return State.FORCE_CHARGE;
 		}
 
-		if (bmsNeedsFullCharge(unusedTime)) {
-			resetStartSoc();
+		if (bmsNeedsFullCharge(this.unusedTime)) {
+			this.resetStartSoc();
 			return State.FULL_CHARGE;
 		}
 
-		if (hasSoCIncreasedEnough()) {
-			resetStartSoc();
+		if (this.hasSoCIncreasedEnough()) {
+			this.resetStartSoc();
 			return State.NORMAL;
 		}
 
@@ -69,7 +69,7 @@ public class Check extends BaseState implements IState {
 
 	@Override
 	public void act() throws OpenemsNamedException {
-		log.info("deny discharging");
+		this.log.info("deny discharging");
 		denyDischarge();
 	}
 
@@ -80,7 +80,7 @@ public class Check extends BaseState implements IState {
 	}
 
 	private void resetStartSoc() {
-		startSoC = -1;
+		this.startSoC = -1;
 	}
 
 }

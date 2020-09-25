@@ -26,9 +26,9 @@ import com.google.common.base.CaseFormat;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.CheckedFunction;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.ThrowingFunction;
 import io.openems.common.utils.XmlUtils;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecCodeGenerator.Point.Symbol;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint.PointCategory;
@@ -298,7 +298,7 @@ public class SunSpecCodeGenerator {
 
 		String scaleFactor = XmlUtils.getAsStringOrElse(attrs, "sf", null);
 		String unitString = XmlUtils.getAsStringOrElse(attrs, "units", "");
-		final CheckedFunction<String, Unit> toUnit = (s) -> {
+		final ThrowingFunction<String, Unit, OpenemsNamedException> toUnit = (s) -> {
 			s = s.trim();
 			if (s.contains(" ")) {
 				s = s.substring(0, s.indexOf(" "));
@@ -935,8 +935,8 @@ public class SunSpecCodeGenerator {
 
 		@Override
 		public String toString() {
-			return "Model [id=" + id + ", len=" + len + ", name=" + name + ", points=" + points + ", label=" + label
-					+ ", description=" + description + ", notes=" + notes + "]";
+			return "Model [id=" + this.id + ", len=" + this.len + ", name=" + this.name + ", points=" + this.points
+					+ ", label=" + this.label + ", description=" + this.description + ", notes=" + this.notes + "]";
 		}
 
 	}
@@ -994,10 +994,11 @@ public class SunSpecCodeGenerator {
 
 		@Override
 		public String toString() {
-			return "Point [id=" + id + ", len=" + len + ", offset=" + offset + ", type=" + type + ", scaleFactor="
-					+ scaleFactor.orElse("") + ", unit=" + unit + ", access=" + accessMode + ", mandatory=" + mandatory
-					+ ", category=" + category + ", symbols=" + Arrays.toString(symbols) + ", label=" + label
-					+ ", description=" + description + ", notes=" + notes + "]";
+			return "Point [id=" + this.id + ", len=" + this.len + ", offset=" + this.offset + ", type=" + this.type
+					+ ", scaleFactor=" + this.scaleFactor.orElse("") + ", unit=" + this.unit + ", access="
+					+ this.accessMode + ", mandatory=" + this.mandatory + ", category=" + this.category + ", symbols="
+					+ Arrays.toString(this.symbols) + ", label=" + this.label + ", description=" + this.description
+					+ ", notes=" + this.notes + "]";
 		}
 
 		/**

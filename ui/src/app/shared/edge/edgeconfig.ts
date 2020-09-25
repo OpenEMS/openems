@@ -127,9 +127,11 @@ export class EdgeConfig {
     public getFactoriesByNature(natureId: string): EdgeConfig.Factory[] {
         let result = [];
         let nature = this.natures[natureId];
-        for (let factoryId of nature.factoryIds) {
-            if (factoryId in this.factories) {
-                result.push(this.factories[factoryId])
+        if (nature) {
+            for (let factoryId of nature.factoryIds) {
+                if (factoryId in this.factories) {
+                    result.push(this.factories[factoryId])
+                }
             }
         }
         return result;
@@ -396,6 +398,22 @@ export class EdgeConfig {
                 });
                 result.push({ category: item.category, factories: factories.sort((a, b) => a.id.localeCompare(b.id)) })
             }
+        })
+        return result;
+    }
+
+    /**
+     * Returns the corresponding icon for a given factory
+     */
+    public getFactoryIcon(factory: EdgeConfig.Factory): string {
+        // default icon, if no icons are found
+        let result = "stats-chart-outline";
+        this.listAvailableFactories().forEach(availableFactories => {
+            availableFactories.factories.forEach(availableFactory => {
+                if (factory == availableFactory) {
+                    result = availableFactories.category.icon;
+                }
+            })
         })
         return result;
     }

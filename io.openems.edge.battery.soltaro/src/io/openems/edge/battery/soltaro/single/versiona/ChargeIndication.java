@@ -4,9 +4,9 @@ import io.openems.common.types.OptionsEnum;
 
 public enum ChargeIndication implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	STANDING(0, "Standing"), //
-	DISCHARGING(1, "Discharging"), //
-	CHARGING(2, "Charging");
+	STANDBY(0, "Standby"), //
+	DISCHARGE(1, "Dischare"), //
+	CHARGE(2, "Charge");
 
 	private int value;
 	private String name;
@@ -18,12 +18,12 @@ public enum ChargeIndication implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

@@ -4,9 +4,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.SymmetricEss;
 
@@ -18,23 +16,24 @@ public enum ProChannelId implements io.openems.edge.common.channel.ChannelId {
 				// on each update set Grid-Mode channel
 				channel.onChange((oldValue, newValue) -> {
 					SystemState systemState = newValue.asEnum();
-					EnumReadChannel gridMode = channel.getComponent().channel(SymmetricEss.ChannelId.GRID_MODE);
+					SymmetricEss parent = (SymmetricEss) channel.getComponent();
 					switch (systemState) {
 					case STANDBY:
 					case START:
 					case FAULT:
-						gridMode.setNextValue(GridMode.ON_GRID);
+						parent._setGridMode(GridMode.ON_GRID);
 						break;
 					case START_OFF_GRID:
 					case OFF_GRID_PV:
-						gridMode.setNextValue(GridMode.OFF_GRID);
+						parent._setGridMode(GridMode.OFF_GRID);
 						break;
 					case UNDEFINED:
-						gridMode.setNextValue(GridMode.UNDEFINED);
+						parent._setGridMode(GridMode.UNDEFINED);
 						break;
 					}
 				});
 			})), //
+
 	CONTROL_MODE(Doc.of(ControlMode.values())), //
 	BATTERY_GROUP_STATE(Doc.of(BatteryGroupState.values())), //
 	PCS_OPERATION_STATE(Doc.of(PcsOperationState.values())), //
@@ -43,9 +42,9 @@ public enum ProChannelId implements io.openems.edge.common.channel.ChannelId {
 	SET_WORK_STATE(Doc.of(SetWorkState.values()) //
 			.accessMode(AccessMode.WRITE_ONLY)), //
 	SETUP_MODE(Doc.of(SetupMode.values()) //
-			.accessMode(AccessMode.WRITE_ONLY)), //
+			.accessMode(AccessMode.READ_WRITE)), //
 	PCS_MODE(Doc.of(PcsMode.values()) //
-			.accessMode(AccessMode.WRITE_ONLY)), //
+			.accessMode(AccessMode.READ_WRITE)), //
 
 	// IntegerWriteChannels
 	SET_ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
@@ -114,17 +113,8 @@ public enum ProChannelId implements io.openems.edge.common.channel.ChannelId {
 			.unit(Unit.MILLIHERTZ)), //
 	FREQUENCY_L3(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.MILLIHERTZ)), //
-	@SuppressWarnings("unchecked")
 	SINGLE_PHASE_ALLOWED_APPARENT(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT_AMPERE) //
-			.onInit(channel -> { //
-				// on each update -> update MaxApparentPower to 3 x Single Phase Apparent Power
-				((Channel<Integer>) channel).onChange((oldValue, newValue) -> {
-					channel.getComponent().channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER)
-							.setNextValue(newValue.orElse(0) * 3);
-				});
-			})), //
-
+			.unit(Unit.VOLT_AMPERE)), //
 	BATTERY_VOLTAGE_SECTION_1(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.MILLIVOLT)), //
 	BATTERY_VOLTAGE_SECTION_2(Doc.of(OpenemsType.INTEGER) //
@@ -547,7 +537,9 @@ public enum ProChannelId implements io.openems.edge.common.channel.ChannelId {
 	STATE_176(Doc.of(Level.INFO) //
 			.text("ExternalPVCurrentZeroDriftErrorL3")), //
 	STATE_177(Doc.of(Level.INFO) //
-			.text("ExternalGridCurrentZeroDriftErrorL3"));
+			.text("ExternalGridCurrentZeroDriftErrorL3")), //
+	LOCAL_MODE(Doc.of(Level.WARNING) //
+			.text("System is in Local-Mode, Remote-Mode is required!"));
 
 	private final Doc doc;
 

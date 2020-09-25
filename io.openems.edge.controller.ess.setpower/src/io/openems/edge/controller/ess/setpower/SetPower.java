@@ -93,9 +93,9 @@ public class SetPower extends AbstractOpenemsComponent implements Controller, Op
         System.out.println("Required power: "+ requiredPower);
 
 		if (config.use_pid()) {
-			ess.getSetActivePowerEqualsWithPid().setNextWriteValue(requiredPower);
+			ess.setActivePowerEqualsWithPid(requiredPower);
 		} else {
-			ess.getSetActivePowerEquals().setNextWriteValue(requiredPower);
+			ess.setActivePowerEqualsWithPid(requiredPower);
 		}
 	}
 }

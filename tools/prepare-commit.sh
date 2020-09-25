@@ -78,19 +78,23 @@ EOT
 				fi
 
 				# Verify bnd.bnd file
-				if [ -f "${D}/bnd.bnd" ] && [ ! "${D}" = "io.openems.wrapper" ]; then
+				if [ -f "${D}/bnd.bnd" ]; then
 					start=$(grep -n '${buildpath},' "${D}/bnd.bnd" | grep -Eo '^[^:]+' | head -n1)
 					end=$(grep -n 'testpath' "${D}/bnd.bnd" | grep -Eo '^[^:]+' | head -n1)
-					(
-						head -n $start "${D}/bnd.bnd"; # before 'buildpath'
-						head -n$(expr $end - 2) "${D}/bnd.bnd" | tail -n$(expr $end - $start - 2) | sort; # the 'buildpath'
-						tail -n +$(expr $end - 1) "${D}/bnd.bnd" # after 'buildpath'
-					) > "${D}/bnd.bnd.new"
-					if [ $? -eq 0 ]; then
-						mv "${D}/bnd.bnd.new" "${D}/bnd.bnd"
+					if [ -z "$start" -a -z "$end" ]; then
+						:
 					else
-						echo "Unable to sort buildpath in ${D}/bnd.bnd"
-						exit 1
+						(
+							head -n $start "${D}/bnd.bnd"; # before 'buildpath'
+							head -n$(expr $end - 2) "${D}/bnd.bnd" | tail -n$(expr $end - $start - 2) | sort; # the 'buildpath'
+							tail -n +$(expr $end - 1) "${D}/bnd.bnd" # after 'buildpath'
+						) > "${D}/bnd.bnd.new"
+						if [ $? -eq 0 ]; then
+							mv "${D}/bnd.bnd.new" "${D}/bnd.bnd"
+						else
+							echo "Unable to sort buildpath in ${D}/bnd.bnd"
+							exit 1
+						fi
 					fi
 				fi
 				;;
@@ -106,6 +110,7 @@ echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j1',\\" >> "$bndru
 echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
 for D in io.openems.edge.*; do
 	if [[ "$D" == *api ]]; then
 		continue # ignore api bundle
@@ -130,6 +135,7 @@ echo "	bnd.identity;id='org.osgi.service.jdbc',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
 for D in io.openems.backend.*; do
 	if [[ "$D" == *api ]]; then
 		continue # ignore api bundle

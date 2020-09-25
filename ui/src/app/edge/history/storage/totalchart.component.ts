@@ -28,10 +28,19 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
     }
 
     ngOnInit() {
+        this.spinnerId = "storage-total-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
+        this.subscribeChartRefresh();
+    }
+
+    ngOnDestroy() {
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
+        this.service.startSpinner(this.spinnerId);
+        this.colors = [];
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
@@ -165,6 +174,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                     });
                     this.datasets = datasets;
                     this.loading = false;
+                    this.service.stopSpinner(this.spinnerId);
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();

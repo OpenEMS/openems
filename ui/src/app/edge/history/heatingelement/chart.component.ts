@@ -31,81 +31,55 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   }
 
   ngOnInit() {
+    this.spinnerId = 'heatingelement-chart';
+    this.service.startSpinner(this.spinnerId);
     this.service.setCurrentComponent('', this.route);
-    this.setLabel();
+    this.setLabel()
+    this.subscribeChartRefresh()
+  }
+
+  ngOnDestroy() {
+    this.unsubscribeChartRefresh()
   }
 
   protected updateChart() {
+    this.service.startSpinner(this.spinnerId);
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getCurrentEdge().then(() => {
-        this.service.getConfig().then(config => {
-          let result = (response as QueryHistoricTimeseriesDataResponse).result;
-          // convert labels
-          let labels: Date[] = [];
-          for (let timestamp of result.timestamps) {
-            labels.push(new Date(timestamp));
-          }
-          this.labels = labels;
+        let result = (response as QueryHistoricTimeseriesDataResponse).result;
+        // convert labels
+        let labels: Date[] = [];
+        for (let timestamp of result.timestamps) {
+          labels.push(new Date(timestamp));
+        }
+        this.labels = labels;
 
-          // convert datasets
-          let datasets = [];
-          let outputChannel1 = ChannelAddress.fromString(config.getComponentProperties(this.component.id)['outputChannelAddress1'])
-          let outputChannel2 = ChannelAddress.fromString(config.getComponentProperties(this.component.id)['outputChannelAddress1'])
-          let outputChannel3 = ChannelAddress.fromString(config.getComponentProperties(this.component.id)['outputChannelAddress1'])
+        // convert datasets
+        let datasets = [];
+        let level = this.component.id + '/Level';
 
-          for (let channel in result.data) {
-            if (channel == outputChannel1.toString()) {
-              let data = result.data[channel].map(value => {
-                if (value == null) {
-                  return null
-                } else {
-                  return value * 100; // convert to % [0,100]
-                }
-              });
-              datasets.push({
-                label: this.translate.instant('General.phase') + ' L1',
-                data: data
-              });
-              this.colors.push(this.phase1Color);
+        if (level in result.data) {
+          let levelData = result.data[level].map(value => {
+            if (value == null) {
+              return null
+            } else {
+              return value
             }
-            if (channel == outputChannel2.toString()) {
-              let data = result.data[channel].map(value => {
-                if (value == null) {
-                  return null
-                } else {
-                  return value * 100; // convert to % [0,100]
-                }
-              });
-              datasets.push({
-                label: this.translate.instant('General.phase') + ' L2',
-                data: data
-              });
-              this.colors.push(this.phase2Color);
-            }
-            if (channel == outputChannel3.toString()) {
-              let data = result.data[channel].map(value => {
-                if (value == null) {
-                  return null
-                } else {
-                  return value * 100; // convert to % [0,100]
-                }
-              });
-              datasets.push({
-                label: this.translate.instant('General.phase') + ' L3',
-                data: data
-              });
-              this.colors.push(this.phase3Color);
-            }
-          }
-          this.datasets = datasets;
-          this.loading = false;
-        }).catch(reason => {
-          console.error(reason); // TODO error message
-          this.initializeChart();
-          return;
-        });
+          })
+          datasets.push({
+            label: 'Level',
+            data: levelData,
+          });
+          this.colors.push({
+            backgroundColor: 'rgba(200,0,0,0.05)',
+            borderColor: 'rgba(200,0,0,1)',
+          })
+        }
+        this.datasets = datasets;
+        this.loading = false;
+        this.service.stopSpinner(this.spinnerId);
       }).catch(reason => {
         console.error(reason); // TODO error message
         this.initializeChart();
@@ -120,23 +94,24 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
-      const outputChannel1 = ChannelAddress.fromString(config.getComponentProperties(this.component.id)['outputChannelAddress1']);
-      const outputChannel2 = ChannelAddress.fromString(config.getComponentProperties(this.component.id)['outputChannelAddress2']);
-      const outputChannel3 = ChannelAddress.fromString(config.getComponentProperties(this.component.id)['outputChannelAddress3']);
-      let channeladdresses = [outputChannel1, outputChannel2, outputChannel3];
+      let levels = new ChannelAddress(this.component.id, 'Level')
+      let channeladdresses = [levels];
       resolve(channeladdresses);
     });
   }
 
   protected setLabel() {
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
+    options.scales.yAxes[0].id = 'yAxis1'
+    options.scales.yAxes[0].scaleLabel.labelString = 'Level';
+    options.scales.yAxes[0].ticks.beginAtZero = true;
+    options.scales.yAxes[0].ticks.max = 3;
+    options.scales.yAxes[0].ticks.stepSize = 1;
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
+      return label + ": " + formatNumber(value, 'de', '1.0-1'); // TODO get locale dynamically
     }
-    options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
   }
 

@@ -23,11 +23,11 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
-import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -39,28 +39,27 @@ import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.internal.AbstractReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Bms.Soltaro.SingleRack.VersionA", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
 public class SingleRack extends AbstractOpenemsModbusComponent
-		implements Battery, SoltaroBattery, OpenemsComponent, EventHandler, ModbusSlave {
+		implements Battery, OpenemsComponent, EventHandler, ModbusSlave {
 
 	// Default values for the battery ranges
 	public static final int DISCHARGE_MIN_V = 696;
@@ -68,8 +67,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	public static final int DISCHARGE_MAX_A = 0;
 	public static final int CHARGE_MAX_A = 0;
 
-	protected final static int SYSTEM_ON = 1;
-	protected final static int SYSTEM_OFF = 0;
+	protected static final int SYSTEM_ON = 1;
+	protected static final int SYSTEM_OFF = 0;
 
 	private final Logger log = LoggerFactory.getLogger(SingleRack.class);
 
@@ -97,13 +96,14 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	public SingleRack() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				SingleRack.ChannelId.values() //
 		);
-		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(SingleRack.CHARGE_MAX_A);
-		this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(SingleRack.CHARGE_MAX_V);
-		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(SingleRack.DISCHARGE_MAX_A);
-		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE).setNextValue(SingleRack.DISCHARGE_MIN_V);
+		this._setChargeMaxCurrent(SingleRack.CHARGE_MAX_A);
+		this._setChargeMaxVoltage(SingleRack.CHARGE_MAX_V);
+		this._setDischargeMaxCurrent(SingleRack.DISCHARGE_MAX_A);
+		this._setDischargeMinVoltage(SingleRack.DISCHARGE_MIN_V);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -118,8 +118,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 		this.batteryState = config.batteryState();
-		this.getCapacity().setNextValue(config.capacity() * 1000);
-		initializeCallbacks();
+		this._setCapacity(config.capacity() * 1000);
+		this.initializeCallbacks();
 	}
 
 	@Deactivate
@@ -133,17 +133,21 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 			switch (cc) {
 			case CONNECTION_INITIATING:
-				this.channel(Battery.ChannelId.READY_FOR_WORKING).setNextValue(false);
+				// TODO start stop is not implemented;
+				this._setStartStop(StartStop.UNDEFINED);
 				break;
 			case CUT_OFF:
-				this.channel(Battery.ChannelId.READY_FOR_WORKING).setNextValue(false);
-				isStopping = false;
+				// TODO start stop is not implemented;
+				this._setStartStop(StartStop.UNDEFINED);
+				this.isStopping = false;
 				break;
 			case ON_GRID:
-				this.channel(Battery.ChannelId.READY_FOR_WORKING).setNextValue(true);
+				// TODO start stop is not implemented; mark as started if 'readyForWorking'
+				this._setStartStop(StartStop.START);
 				break;
 			case UNDEFINED:
-				this.channel(Battery.ChannelId.READY_FOR_WORKING).setNextValue(false);
+				this._setStartStop(StartStop.UNDEFINED);
+//				this.channel(Battery.ChannelId.READY_FOR_WORKING).setNextValue(false);
 				break;
 			}
 		});
@@ -157,7 +161,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		switch (event.getTopic()) {
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			handleBatteryState();
+			this.handleBatteryState();
 			break;
 		}
 	}
@@ -165,34 +169,30 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	private void handleBatteryState() {
 		switch (this.batteryState) {
 		case DEFAULT:
-			handleStateMachine();
+			this.handleStateMachine();
 			break;
 		case OFF:
-			stopSystem();
+			this.stopSystem();
 			break;
 		case ON:
-			startSystem();
-			break;
-		case CONFIGURE:
-			log.error("Not possible with version A of the Soltaro batteries!");
-		case OVER_CONTROLLED:
+			this.startSystem();
 			break;
 		}
 	}
 
 	private void handleStateMachine() {
-		log.info("SingleRack.handleStateMachine(): State: " + this.getStateMachineState());
+		this.log.info("SingleRackVersionBImpl.handleStateMachine(): State: " + this.getStateMachineState());
 		boolean readyForWorking = false;
 		switch (this.getStateMachineState()) {
 		case ERROR:
-			stopSystem();
-			errorDelayIsOver = LocalDateTime.now().plusSeconds(config.errorLevel2Delay());
-			setStateMachineState(State.ERRORDELAY);
+			this.stopSystem();
+			this.errorDelayIsOver = LocalDateTime.now().plusSeconds(this.config.errorLevel2Delay());
+			this.setStateMachineState(State.ERRORDELAY);
 			break;
 
 		case ERRORDELAY:
-			if (LocalDateTime.now().isAfter(errorDelayIsOver)) {
-				errorDelayIsOver = null;
+			if (LocalDateTime.now().isAfter(this.errorDelayIsOver)) {
+				this.errorDelayIsOver = null;
 				if (this.isError()) {
 					this.setStateMachineState(State.ERROR);
 				} else {
@@ -203,28 +203,28 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		case INIT:
 			if (this.isSystemRunning()) {
 				this.setStateMachineState(State.RUNNING);
-				unsuccessfulStarts = 0;
-				startAttemptTime = null;
+				this.unsuccessfulStarts = 0;
+				this.startAttemptTime = null;
 			} else {
-				if (startAttemptTime.plusSeconds(config.maxStartTime()).isBefore(LocalDateTime.now())) {
-					startAttemptTime = null;
-					unsuccessfulStarts++;
+				if (this.startAttemptTime.plusSeconds(this.config.maxStartTime()).isBefore(LocalDateTime.now())) {
+					this.startAttemptTime = null;
+					this.unsuccessfulStarts++;
 					this.stopSystem();
 					this.setStateMachineState(State.STOPPING);
-					if (unsuccessfulStarts >= config.maxStartAppempts()) {
-						errorDelayIsOver = LocalDateTime.now().plusSeconds(config.startUnsuccessfulDelay());
+					if (this.unsuccessfulStarts >= this.config.maxStartAppempts()) {
+						this.errorDelayIsOver = LocalDateTime.now().plusSeconds(this.config.startUnsuccessfulDelay());
 						this.setStateMachineState(State.ERRORDELAY);
-						unsuccessfulStarts = 0;
+						this.unsuccessfulStarts = 0;
 					}
 				}
 			}
 			break;
 		case OFF:
-			log.debug("in case 'OFF'; try to start the system");
+			this.log.debug("in case 'OFF'; try to start the system");
 			this.startSystem();
-			log.debug("set state to 'INIT'");
+			this.log.debug("set state to 'INIT'");
 			this.setStateMachineState(State.INIT);
-			startAttemptTime = LocalDateTime.now();
+			this.startAttemptTime = LocalDateTime.now();
 			break;
 		case RUNNING:
 			if (this.isError()) {
@@ -232,18 +232,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			} else if (!this.isSystemRunning()) {
 				this.setStateMachineState(State.UNDEFINED);
 			} else {
-//				// if minimal cell voltage is lower than configured minimal cell voltage, then
-//				// force system to charge
-//				IntegerReadChannel minCellVoltageChannel = this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE);
-//				Optional<Integer> minCellVoltageOpt = minCellVoltageChannel.value().asOptional();
-//				if (minCellVoltageOpt.isPresent()) {
-//					int minCellVoltage = minCellVoltageOpt.get();
-//					if (minCellVoltage < this.config.minimalCellVoltage()) {
-//						// set the discharge current negative to force the system to charge
-//						// TODO check if this is working!
-//						this.getDischargeMaxCurrent().setNextValue((-1) * this.getChargeMaxCurrent().value().get());
-//					}
-//				}
 				readyForWorking = true;
 				this.setStateMachineState(State.RUNNING);
 			}
@@ -291,25 +279,30 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			}
 			break;
 		case ERROR_HANDLING:
-			// Currently this state cannot be handled
-			break;		
+			// Cannot handle errors
+			break;
 		}
 
-		this.getReadyForWorking().setNextValue(readyForWorking);
+		// TODO start stop is not implemented; mark as started if 'readyForWorking'
+		this._setStartStop(readyForWorking ? StartStop.START : StartStop.UNDEFINED);
+	}
+
+	private boolean isError() {
+		return this.isAlarmLevel2Error();
 	}
 
 	private boolean isAlarmLevel2Error() {
-		return (readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)
-				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)
-				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CHA_CURRENT_HIGH)
-				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_LOW)
-				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW)
-				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH)
-				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH)
-				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW)
-				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_INSULATION_LOW)
-				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)
-				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW));
+		return (this.readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)
+				|| this.readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)
+				|| this.readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CHA_CURRENT_HIGH)
+				|| this.readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_LOW)
+				|| this.readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW)
+				|| this.readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH)
+				|| this.readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH)
+				|| this.readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW)
+				|| this.readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_INSULATION_LOW)
+				|| this.readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)
+				|| this.readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW));
 	}
 
 	private boolean isSystemRunning() {
@@ -325,10 +318,10 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	}
 
 	/**
-	 * Checks whether system has an undefined state
+	 * Checks whether system has an undefined state.
 	 */
 	private boolean isSystemStatePending() {
-		return !isSystemRunning() && !isSystemStopped();
+		return !this.isSystemRunning() && !this.isSystemStopped();
 	}
 
 	private boolean readValueFromBooleanChannel(ChannelId channelId) {
@@ -338,7 +331,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	}
 
 	public State getStateMachineState() {
-		return state;
+		return this.state;
 	}
 
 	public void setStateMachineState(State state) {
@@ -347,22 +340,22 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	}
 
 	public String getModbusBridgeId() {
-		return modbusBridgeId;
+		return this.modbusBridgeId;
 	}
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value() //
-				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
-				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value()
+		return "SoC:" + this.getSoc() //
+				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
+				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent()
 				+ "|Running: " + this.isSystemRunning()
-				+ "|U: " + this.getVoltage().value()
-				+ "|I: " + this.getCurrent().value()
+				+ "|U: " + this.getVoltage()
+				+ "|I: " + this.getCurrent()
 				;
 	}
 
 	private void startSystem() {
-		if (isStopping) {
+		if (this.isStopping) {
 			return;
 		}
 
@@ -378,7 +371,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		try {
 			contactorControlChannel.setNextWriteValue(SYSTEM_ON);
 		} catch (OpenemsNamedException e) {
-			log.error("Error while trying to start system\n" + e.getMessage());
+			this.log.error("Error while trying to start system\n" + e.getMessage());
 		}
 	}
 
@@ -394,9 +387,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 		try {
 			contactorControlChannel.setNextWriteValue(SYSTEM_OFF);
-			isStopping = true;
+			this.isStopping = true;
 		} catch (OpenemsNamedException e) {
-			log.error("Error while trying to stop system\n" + e.getMessage());
+			this.log.error("Error while trying to stop system\n" + e.getMessage());
 		}
 	}
 
@@ -411,13 +404,13 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 		// EnumReadChannels
 		CLUSTER_RUN_STATE(Doc.of(ClusterRunState.values())), //
-		CLUSTER_1_CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
 
 		// EnumWriteChannels
 		BMS_CONTACTOR_CONTROL(Doc.of(ContactorControl.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		// IntegerReadChannels
+		CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
 		SYSTEM_OVER_VOLTAGE_PROTECTION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
 		SYSTEM_UNDER_VOLTAGE_PROTECTION(Doc.of(OpenemsType.INTEGER) //
@@ -1136,8 +1129,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x2100), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.CURRENT, new SignedWordElement(0x2101), //
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(SingleRack.ChannelId.CLUSTER_1_CHARGE_INDICATION, new UnsignedWordElement(0x2102)), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(SingleRack.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x2102)), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), //
 						m(Battery.ChannelId.SOH, new UnsignedWordElement(0x2104)), //
 						m(SingleRack.ChannelId.CLUSTER_1_MAX_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2105)), //
@@ -1508,59 +1501,14 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Battery.getModbusSlaveNatureTable(accessMode));
 	}
 
 	@Override
-	public void start() {
-		startSystem();
-	}
-
-	@Override
-	public void stop() {
-		stopSystem();
-	}
-
-	@Override
-	public boolean isRunning() {
-		return isSystemRunning();
-	}
-
-	@Override
-	public boolean isStopped() {
-		return isSystemStopped();
-	}
-
-	@Override
-	public boolean isError() {
-		return isAlarmLevel2Error();
-	}
-
-	@Override
-	public boolean isUndefined() {
-		for (Channel<?> c : channels()) {
-			if (isApiChannel(c)) {
-				if (c instanceof AbstractReadChannel<?,?> && !(c instanceof WriteChannel<?>) ) {
-					if (!c.value().isDefined()) {
-						System.out.println("Channel " + c + " is not defined!");
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-	
-private boolean isApiChannel(Channel<?> c) {
-		
-		for (io.openems.edge.common.channel.ChannelId id : Battery.ChannelId.values()) {
-			if (id.equals(c.channelId())) {
-				return true;
-			}
-		}
-		
-		return false;
+	public void setStartStop(StartStop value) throws OpenemsNamedException {
+		// TODO start stop is not implemented
+		throw new NotImplementedException("Start Stop is not implemented for Soltaro SingleRackVersionBImpl Version B");
 	}
 }

@@ -41,7 +41,7 @@ public class TestForceCharge {
 		bms.setMinimalCellVoltage(config.criticalLowCellVoltage() - 1);
 		bms.setSoc(config.criticalSoC() - 1);
 		sut = new ForceCharge(ess, bms, config.chargePowerPercent(), config.chargingTime(),
-				config.forceChargeReachableMinCellVoltage(), config.warningSoC());
+				config.forceChargeReachableMinCellVoltage());
 	}
 
 	@Test
@@ -118,7 +118,7 @@ public class TestForceCharge {
 			fail(e.getMessage());
 		}
 
-		int actual = ess.getSetActivePowerLessOrEquals().getNextWriteValue().get();
+		int actual = ess.getSetActivePowerLessOrEqualsChannel().getNextWriteValue().get();
 
 		// According to the dummy config 20% of -10000 (neg. values for charge are
 		// expected)

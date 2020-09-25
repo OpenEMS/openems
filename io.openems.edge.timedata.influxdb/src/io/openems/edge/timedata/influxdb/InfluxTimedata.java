@@ -127,6 +127,15 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 
 			this.componentManager.getEnabledComponents().stream().filter(c -> c.isEnabled()).forEach(component -> {
 				component.channels().forEach(channel -> {
+					switch (channel.channelDoc().getAccessMode()) {
+					case WRITE_ONLY:
+						// ignore Write-Only-Channels
+						return;
+					case READ_ONLY:
+					case READ_WRITE:
+						break;
+					}
+
 					Optional<?> valueOpt = channel.value().asOptional();
 					if (!valueOpt.isPresent()) {
 						// ignore not available channels
@@ -196,8 +205,18 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 	}
 
 	@Override
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			throws OpenemsNamedException {
+		// ignore edgeId as Points are also written without Edge-ID
+		Optional<Integer> influxEdgeId = Optional.empty();
+		return this.influxConnector.queryHistoricEnergyPerPeriod(influxEdgeId, fromDate, toDate, channels, resolution);
+	}
+
+	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
 		// TODO implement this method
 		return CompletableFuture.completedFuture(Optional.empty());
 	}
+
 }

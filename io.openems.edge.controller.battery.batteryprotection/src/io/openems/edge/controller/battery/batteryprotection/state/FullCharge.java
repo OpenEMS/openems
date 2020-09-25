@@ -44,7 +44,7 @@ public class FullCharge extends BaseState implements IState {
 
 	@Override
 	public void act() throws OpenemsNamedException {
-		log.info("Set charge power to max");
+		this.log.info("Set charge power to max");
 		chargeEssWithPercentOfMaxPower(MAX_POWER_PERCENT);
 	}
 

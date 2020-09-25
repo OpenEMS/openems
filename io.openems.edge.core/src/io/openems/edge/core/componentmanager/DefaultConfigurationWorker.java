@@ -25,14 +25,13 @@ import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.worker.AbstractWorker;
 
 /**
  * This Worker checks if certain OpenEMS-Components are configured and - if not
  * - configures them. It is used to make sure a set of standard components are
  * always activated by default on a deployed energy management system.
  */
-public class DefaultConfigurationWorker extends AbstractWorker {
+public class DefaultConfigurationWorker extends ComponentManagerWorker {
 
 	/**
 	 * Time to wait before doing the check. This allows the system to completely
@@ -41,15 +40,15 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	private static final int INITIAL_WAIT_TIME = 5_000; // in ms
 
 	private final Logger log = LoggerFactory.getLogger(DefaultConfigurationWorker.class);
-	private final ComponentManagerImpl parent;
 
 	public DefaultConfigurationWorker(ComponentManagerImpl parent) {
-		this.parent = parent;
+		super(parent);
 	}
 
 	/**
 	 * Creates all default configurations.
 	 * 
+	 * @param existingConfigs already existing {@link Config}s
 	 * @return true on error, false if default configuration was successfully
 	 *         applied
 	 */
@@ -63,7 +62,6 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 		"org.ops4j.pax.logging".equals(c.pid))) {
 			// Adding Configuration manually, because this is not a OpenEMS Configuration
 			try {
-				Configuration config = this.parent.cm.getConfiguration("org.ops4j.pax.logging", null);
 				Hashtable<String, Object> log4j = new Hashtable<>();
 				log4j.put("log4j.rootLogger", "INFO, CONSOLE, osgi:*");
 				log4j.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
@@ -71,6 +69,7 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 				log4j.put("log4j.appender.CONSOLE.layout.ConversionPattern",
 						"%d{ISO8601} [%-8.8t] %-5p [%-30.30c] %m%n");
 				log4j.put("log4j.logger.org.eclipse.osgi", "WARN");
+				Configuration config = this.parent.cm.getConfiguration("org.ops4j.pax.logging", null);
 				config.update(log4j);
 			} catch (IOException e) {
 				this.parent.logError(this.log, "Unable to create Default Logging configuration: " + e.getMessage());
@@ -122,10 +121,17 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	protected void forever() {
 		List<Config> existingConfigs = this.readConfigs();
 
-		boolean defaultConfigurationFailed = this.createDefaultConfigurations(existingConfigs);
+		boolean defaultConfigurationFailed;
+		try {
+			defaultConfigurationFailed = this.createDefaultConfigurations(existingConfigs);
+		} catch (Exception e) {
+			this.parent.logError(this.log, "Unable to create default configuration: " + e.getMessage());
+			e.printStackTrace();
+			defaultConfigurationFailed = true;
+		}
 
 		// Set DefaultConfigurationFailed channel value
-		this.parent.defaultConfigurationFailed().setNextValue(defaultConfigurationFailed);
+		this.parent._setDefaultConfigurationFailed(defaultConfigurationFailed);
 
 		// Execute this worker only once
 		this.deactivate();
@@ -134,7 +140,7 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	/**
 	 * Reads all currently active configurations.
 	 * 
-	 * @return
+	 * @return a list of currently active {@link Config}s
 	 */
 	private List<Config> readConfigs() {
 		List<Config> result = new ArrayList<Config>();
@@ -205,7 +211,6 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	 * @param defaultConfigurationFailed the result of the last configuration,
 	 *                                   updated on error
 	 * @param componentId                the Component-ID
-	 * @return false on success; true on error or if lastResult was already true
 	 */
 	protected void deleteConfiguration(AtomicBoolean defaultConfigurationFailed, String componentId) {
 		try {
@@ -234,17 +239,19 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 				componentId = null;
 			}
 			String pid = config.getPid();
-			return new Config(config.getFactoryPid(), componentId, pid);
+			return new Config(config.getFactoryPid(), componentId, pid, properties);
 		}
 
 		protected final String factoryPid;
 		protected final Optional<String> componentId;
 		protected final String pid;
+		protected final Dictionary<String, Object> properties;
 
-		private Config(String factoryPid, String componentId, String pid) {
+		private Config(String factoryPid, String componentId, String pid, Dictionary<String, Object> properties) {
 			this.factoryPid = factoryPid;
 			this.componentId = Optional.ofNullable(componentId);
 			this.pid = pid;
+			this.properties = properties;
 		}
 	}
 

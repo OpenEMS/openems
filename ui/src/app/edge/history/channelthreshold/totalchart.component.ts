@@ -29,10 +29,18 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
   }
 
   ngOnInit() {
+    this.spinnerId = "channelthreshold-total-chart";
+    this.service.startSpinner(this.spinnerId);
     this.service.setCurrentComponent('', this.route);
+    this.subscribeChartRefresh()
+  }
+
+  ngOnDestroy() {
+    this.unsubscribeChartRefresh()
   }
 
   protected updateChart() {
+    this.service.startSpinner(this.spinnerId);
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -80,6 +88,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
         }
         this.datasets = datasets;
         this.loading = false;
+        this.service.stopSpinner(this.spinnerId);
       })
     }).catch(reason => {
       console.error(reason); // TODO error message

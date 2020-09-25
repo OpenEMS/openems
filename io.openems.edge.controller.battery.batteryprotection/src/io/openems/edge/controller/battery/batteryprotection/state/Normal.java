@@ -69,7 +69,7 @@ public class Normal extends BaseState implements IState {
 			return State.LIMIT;
 		}
 
-		if (bmsNeedsFullCharge(unusedTime)) {
+		if (bmsNeedsFullCharge(this.unusedTime)) {
 			return State.FULL_CHARGE;
 		}
 

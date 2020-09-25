@@ -2,6 +2,10 @@
     <ion-toolbar class="ion-justify-content-center" color="primary">
         <ion-title>{{ component.alias }}</ion-title>
         <ion-buttons slot="end">
+            <ion-button target="_blank"
+                href="https://openems.github.io/openems.io/openems/latest/edge/controller.html#_io_fix_digital_output">
+                <ion-icon name="help-circle-outline"></ion-icon>
+            </ion-button>
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close-outline"></ion-icon>
             </ion-button>
@@ -18,7 +22,9 @@
                 </td>
             </tr>
         </table>
-        <ion-segment (ionChange)="updateMode($event)" value="{{ component.properties['isOn'] }}" scrollable="false">
+        <!-- ngIf prevents ionChange to trigger on init -->
+        <ion-segment *ngIf="component" (ionChange)="updateMode($event)" value="{{ component.properties['isOn'] }}"
+            scrollable="false">
             <ion-segment-button value="true">
                 <ion-label translate>
                     General.on

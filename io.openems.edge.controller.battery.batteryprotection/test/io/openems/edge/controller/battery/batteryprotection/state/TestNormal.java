@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-//import io.openems.edge.battery.soltaro.ChargeIndication;
 import io.openems.edge.controller.battery.batteryprotection.Config;
 import io.openems.edge.controller.battery.batteryprotection.IState;
 import io.openems.edge.controller.battery.batteryprotection.State;
@@ -53,54 +52,43 @@ public class TestNormal {
 		assertEquals(State.NORMAL, next);
 	}
 
-//	@Test
-//	public final void testGetNextStateNormalNoChargingValuesPresent() {
-//		// writing two times causes past values in the channel
-//		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGE);
-//		bms.getChargeIndication().nextProcessImage();
-//		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGE);
-//		bms.getChargeIndication().nextProcessImage();
-//
-//		State next = sut.getNextState();
-//		assertEquals(State.NORMAL, next);
-//
-//		try {
-//			Thread.sleep(1000 * config.unusedTime() + 500);
-//		} catch (InterruptedException e) {
-//			fail();
-//		}
-//
-//		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGE);
-//		bms.getChargeIndication().nextProcessImage();
-//
-//		// Waiting long enough means that the last charge or discharge action is too
-//		// long away, but there are no values, so state should be normal
-//		next = sut.getNextState();
-//		assertEquals(State.NORMAL, next);
-//	}
-//
-//	@Test
-//	public final void testGetNextStateNormalNoChargingValuePresent() {
-//		// writing two times causes past values in the channel
-//		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGE);
-//		bms.getChargeIndication().nextProcessImage();
-//		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGE);
-//		bms.getChargeIndication().nextProcessImage();
-//
-//		State next = sut.getNextState();
-//		assertEquals(State.NORMAL, next);
-//
-//		try {
-//			Thread.sleep(1000 * config.unusedTime() + 500);
-//		} catch (InterruptedException e) {
-//			fail();
-//		}
-//
-//		// Waiting long enough means that the last charge or discharge action is too
-//		// long away, but there are no values, so state should be normal
-//		next = sut.getNextState();
-//		assertEquals(State.NORMAL, next);
-//	}
+	@Test
+	public final void testGetNextStateNormalNoChargingValuesPresent() {
+		// writing two times causes past values in the channel
+
+		State next = sut.getNextState();
+		assertEquals(State.NORMAL, next);
+
+		try {
+			Thread.sleep(1000 * config.unusedTime() + 500);
+		} catch (InterruptedException e) {
+			fail();
+		}
+
+		// Waiting long enough means that the last charge or discharge action is too
+		// long away, but there are no values, so state should be normal
+		next = sut.getNextState();
+		assertEquals(State.NORMAL, next);
+	}
+
+	@Test
+	public final void testGetNextStateNormalNoChargingValuePresent() {
+		// writing two times causes past values in the channel
+
+		State next = sut.getNextState();
+		assertEquals(State.NORMAL, next);
+
+		try {
+			Thread.sleep(1000 * config.unusedTime() + 500);
+		} catch (InterruptedException e) {
+			fail();
+		}
+
+		// Waiting long enough means that the last charge or discharge action is too
+		// long away, but there are no values, so state should be normal
+		next = sut.getNextState();
+		assertEquals(State.NORMAL, next);
+	}
 
 //	@Test
 //	public final void testGetNextStateFullCharge() {

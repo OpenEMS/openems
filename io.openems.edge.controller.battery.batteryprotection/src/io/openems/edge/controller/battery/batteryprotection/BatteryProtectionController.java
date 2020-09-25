@@ -10,16 +10,16 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.controller.battery.batteryprotection.state.StateController;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.battery.batteryprotection.state.StateController;
 import io.openems.edge.ess.api.SymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.Battery.Protection", //
+		name = "Controller.Soltaro.Batteryhandling", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -33,9 +33,9 @@ public class BatteryProtectionController extends AbstractOpenemsComponent implem
 
 	public BatteryProtectionController() {
 		super(//
-				OpenemsComponent.ChannelId.values() //
-				, Controller.ChannelId.values() //
-				, io.openems.edge.controller.battery.batteryprotection.ChannelId.values() //
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				io.openems.edge.controller.battery.batteryprotection.ChannelId.values() //
 		);
 	}
 
@@ -45,7 +45,7 @@ public class BatteryProtectionController extends AbstractOpenemsComponent implem
 
 		this.checkConfiguration(config);
 		this.config = config;
-		StateController.init(componentManager, config);
+		StateController.init(this.componentManager, config);
 		this.stateObject = StateController.getStateObject(State.UNDEFINED);
 	}
 
@@ -69,23 +69,22 @@ public class BatteryProtectionController extends AbstractOpenemsComponent implem
 		SymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 
 		this.channel(io.openems.edge.controller.battery.batteryprotection.ChannelId.MIN_CELL_VOLTAGE)
-				.setNextValue(ess.getMinCellVoltage().value());
+				.setNextValue(ess.getMinCellVoltage());
 		this.channel(io.openems.edge.controller.battery.batteryprotection.ChannelId.MAX_CELL_VOLTAGE)
-				.setNextValue(ess.getMaxCellVoltage().value());
+				.setNextValue(ess.getMaxCellVoltage());
 		this.channel(io.openems.edge.controller.battery.batteryprotection.ChannelId.MIN_CELL_TEMPERATURE)
-				.setNextValue(ess.getMinCellTemperature().value());
+				.setNextValue(ess.getMinCellTemperature());
 		this.channel(io.openems.edge.controller.battery.batteryprotection.ChannelId.MAX_CELL_TEMPERATURE)
-				.setNextValue(ess.getMaxCellTemperature().value());
-		this.channel(io.openems.edge.controller.battery.batteryprotection.ChannelId.ESS_POWER)
-				.setNextValue(ess.getActivePower().value());
+				.setNextValue(ess.getMaxCellTemperature());
+		this.channel(io.openems.edge.controller.battery.batteryprotection.ChannelId.ESS_POWER).setNextValue(ess.getActivePower());
 		this.channel(io.openems.edge.controller.battery.batteryprotection.ChannelId.ESS_SOC) //
-				.setNextValue(ess.getSoc().value());
+				.setNextValue(ess.getSoc());
 	}
 
 	@Override
 	public String debugLog() {
-		State currentState = stateObject.getState();
-		State nextState = stateObject.getNextState();
+		State currentState = this.stateObject.getState();
+		State nextState = this.stateObject.getNextState();
 		if (currentState == nextState) {
 			return "State:" + currentState.getName();
 		} else {

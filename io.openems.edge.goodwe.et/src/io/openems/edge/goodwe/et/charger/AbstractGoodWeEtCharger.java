@@ -36,7 +36,7 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 
 	@Override
 	public final String debugLog() {
-		return "L:" + this.getActualPower().value().asString();
+		return "L:" + this.getActualPower().asString();
 	}
 
 	protected abstract int getStartAddress();
