@@ -1,5 +1,6 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 
+import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
@@ -12,7 +13,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String modbusId = null;
 
 		private Builder() {
-
 		}
 
 		public Builder setId(String id) {
@@ -58,7 +58,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String Modbus_target() {
-		return "";
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
 
 }

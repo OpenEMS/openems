@@ -1,5 +1,6 @@
 package io.openems.edge.controller.symmetric.selfconsumption;
 
+import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
@@ -58,7 +59,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String ess_target() {
-		return "(&(enabled=true)(!(service.pid=" + this.id() + "))(|(id=" + this.ess_id() + ")))";
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
 	}
 
 	@Override
@@ -68,7 +69,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String meter_target() {
-		return "(&(enabled=true)(!(service.pid=" + this.id() + "))(|(id=" + this.meter_id() + ")))";
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.meter_id());
 	}
 
 	@Override
