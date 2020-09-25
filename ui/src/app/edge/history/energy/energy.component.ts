@@ -15,9 +15,8 @@ import { TranslateService } from '@ngx-translate/core';
 import * as FileSaver from 'file-saver';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
+import { ChartData, ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
 import { formatNumber } from '@angular/common';
-import { debounceTime, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 
@@ -742,8 +741,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       options.scales.xAxes[0].bounds = 'ticks';
       options.scales.xAxes[0].stacked = true;
       options.scales.xAxes[0].offset = true;
-
-      if (this.service.isSmartphoneResolution == true && differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 25) {
+      console.log("bra", differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from))
+      if (this.service.isSmartphoneResolution == true && differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 20) {
         options.scales.xAxes[0].ticks.source = 'auto';
         options.scales.xAxes[0].ticks.maxTicksLimit = 12;
       } else {
@@ -869,6 +868,24 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         return label + ": " + formatNumber(value, 'de', '1.0-2') + " kWh";
       }
 
+      options.tooltips.itemSort = function (a: ChartTooltipItem, b: ChartTooltipItem) {
+        return b.datasetIndex - a.datasetIndex
+      }
+
+      options.tooltips.callbacks.afterTitle = function (item: ChartTooltipItem[], data: ChartData) {
+        let totalValue = item.reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
+        let isProduction: boolean | null = null;
+        item.forEach(item => {
+          if (item.datasetIndex == 0 || item.datasetIndex == 1 || item.datasetIndex == 2) {
+            isProduction = true;
+          } else if (item.datasetIndex == 3 || item.datasetIndex == 4 || item.datasetIndex == 5) {
+            isProduction = false;
+          }
+        })
+        return isProduction == true ? productionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh" :
+          consumptionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh";
+      }
+
       options.tooltips.callbacks.footer = function (item: ChartTooltipItem[]) {
         let totalValue = item.reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
         let isProduction: boolean | null = null;
@@ -879,7 +896,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             isProduction = false;
           }
         })
-        return isProduction == true ? productionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh" : consumptionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh";
+        return isProduction == true ? productionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh" :
+          consumptionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh";
       }
     } else {
       // adds second y-axis to chart

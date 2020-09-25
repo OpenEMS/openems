@@ -125,9 +125,11 @@ export type ChartOptions = {
         mode: string,
         intersect: boolean,
         axis: string,
+        itemSort?(itemA: ChartTooltipItem, itemB: ChartTooltipItem, data?: ChartData): number,
         callbacks: {
             label?(tooltipItem: TooltipItem, data: Data): string,
-            title?(tooltipItems: TooltipItem[], data: Data): string
+            title?(tooltipItems: TooltipItem[], data: Data): string,
+            afterTitle?(item: ChartTooltipItem[], data: ChartData): string | string[],
             footer?(item: ChartTooltipItem[], data: ChartData): string | string[]
         }
     }
