@@ -29,6 +29,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
@@ -137,6 +138,85 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 						m(PowerAmpATL.ChannelId.BMS_CONTROL, new UnsignedWordElement(44000))), //
 				new FC3ReadRegistersTask(44000, Priority.HIGH, //
 						m(PowerAmpATL.ChannelId.BMS_CONTROL, new UnsignedWordElement(44000))), //
+				new FC3ReadRegistersTask(500, Priority.LOW, //
+						m(new BitsWordElement(500, this) //
+								.bit(0, PowerAmpATL.ChannelId.RACK_PRE_ALARM_CELL_OVER_VOLTAGE) //
+								.bit(1, PowerAmpATL.ChannelId.RACK_PRE_ALARM_CELL_UNDER_VOLTAGE) //
+								.bit(2, PowerAmpATL.ChannelId.RACK_PRE_ALARM_OVER_CHARGING_CURRENT) //
+								.bit(3, PowerAmpATL.ChannelId.RACK_PRE_ALARM_OVER_DISCHARGING_CURRENT) //
+								.bit(4, PowerAmpATL.ChannelId.RACK_PRE_ALARM_OVER_TEMPERATURE) //
+								.bit(5, PowerAmpATL.ChannelId.RACK_PRE_ALARM_UNDER_TEMPERATURE) //
+								.bit(6, PowerAmpATL.ChannelId.RACK_PRE_ALARM_CELL_VOLTAGE_DIFFERENCE) //
+								.bit(7, PowerAmpATL.ChannelId.RACK_PRE_ALARM_BCU_TEMP_DIFFERENCE) //
+								.bit(8, PowerAmpATL.ChannelId.RACK_PRE_ALARM_UNDER_SOC) //
+								.bit(9, PowerAmpATL.ChannelId.RACK_PRE_ALARM_UNDER_SOH) //
+								.bit(10, PowerAmpATL.ChannelId.RACK_PRE_ALARM_OVER_CHARGING_POWER) //
+								.bit(11, PowerAmpATL.ChannelId.RACK_PRE_ALARM_OVER_DISCHARGING_POWER) //
+						), //
+						m(new BitsWordElement(501, this) //
+								.bit(0, PowerAmpATL.ChannelId.RACK_LEVEL_1_CELL_OVER_VOLTAGE) //
+								.bit(1, PowerAmpATL.ChannelId.RACK_LEVEL_1_CELL_UNDER_VOLTAGE) //
+								.bit(2, PowerAmpATL.ChannelId.RACK_LEVEL_1_OVER_CHARGING_CURRENT) //
+								.bit(3, PowerAmpATL.ChannelId.RACK_LEVEL_1_OVER_DISCHARGING_CURRENT) //
+								.bit(4, PowerAmpATL.ChannelId.RACK_LEVEL_1_OVER_TEMPERATURE) //
+								.bit(5, PowerAmpATL.ChannelId.RACK_LEVEL_1_UNDER_TEMPERATURE) //
+								.bit(6, PowerAmpATL.ChannelId.RACK_LEVEL_1_CELL_VOLTAGE_DIFFERENCE) //
+								.bit(7, PowerAmpATL.ChannelId.RACK_LEVEL_1_BCU_TEMP_DIFFERENCE) //
+								.bit(8, PowerAmpATL.ChannelId.RACK_LEVEL_1_UNDER_SOC) //
+								.bit(9, PowerAmpATL.ChannelId.RACK_LEVEL_1_UNDER_SOH) //
+								.bit(10, PowerAmpATL.ChannelId.RACK_LEVEL_1_OVER_CHARGING_POWER) //
+								.bit(11, PowerAmpATL.ChannelId.RACK_LEVEL_1_OVER_DISCHARGING_POWER) //
+						), //
+						m(new BitsWordElement(502, this) //
+								.bit(0, PowerAmpATL.ChannelId.RACK_LEVEL_2_CELL_OVER_VOLTAGE) //
+								.bit(1, PowerAmpATL.ChannelId.RACK_LEVEL_2_CELL_UNDER_VOLTAGE) //
+								.bit(2, PowerAmpATL.ChannelId.RACK_LEVEL_2_OVER_CHARGING_CURRENT) //
+								.bit(3, PowerAmpATL.ChannelId.RACK_LEVEL_2_OVER_DISCHARGING_CURRENT) //
+								.bit(4, PowerAmpATL.ChannelId.RACK_LEVEL_2_OVER_TEMPERATURE) //
+								.bit(5, PowerAmpATL.ChannelId.RACK_LEVEL_2_UNDER_TEMPERATURE) //
+								.bit(6, PowerAmpATL.ChannelId.RACK_LEVEL_2_CELL_VOLTAGE_DIFFERENCE) //
+								.bit(7, PowerAmpATL.ChannelId.RACK_LEVEL_2_BCU_TEMP_DIFFERENCE) //
+								.bit(8, PowerAmpATL.ChannelId.RACK_LEVEL_2_CELL_TEMPERATURE_DIFFERENCE) //
+								.bit(9, PowerAmpATL.ChannelId.RACK_LEVEL_2_INTERNAL_COMMUNICATION) //
+								.bit(10, PowerAmpATL.ChannelId.RACK_LEVEL_2_EXTERNAL_COMMUNICATION) //
+								.bit(11, PowerAmpATL.ChannelId.RACK_LEVEL_2_PRE_CHARGE_FAIL) //
+								.bit(12, PowerAmpATL.ChannelId.RACK_LEVEL_2_PARALLEL_FAIL) //
+								.bit(13, PowerAmpATL.ChannelId.RACK_LEVEL_2_SYSTEM_FAIL) //
+								.bit(14, PowerAmpATL.ChannelId.RACK_LEVEL_2_HARDWARE_FAIL)), //
+						m(new BitsWordElement(502, this) //
+								.bit(0, PowerAmpATL.ChannelId.ALARM_POSITION_BCU_1) //
+								.bit(1, PowerAmpATL.ChannelId.ALARM_POSITION_BCU_2) //
+								.bit(2, PowerAmpATL.ChannelId.ALARM_POSITION_BCU_3) //
+								.bit(3, PowerAmpATL.ChannelId.ALARM_POSITION_BCU_4) //
+								.bit(4, PowerAmpATL.ChannelId.ALARM_POSITION_BCU_5) //
+								.bit(5, PowerAmpATL.ChannelId.ALARM_POSITION_BCU_6) //
+								.bit(6, PowerAmpATL.ChannelId.ALARM_POSITION_BCU_7) //
+								.bit(7, PowerAmpATL.ChannelId.ALARM_POSITION_BCU_8) //
+								.bit(8, PowerAmpATL.ChannelId.ALARM_POSITION_BCU_9) //
+								.bit(9, PowerAmpATL.ChannelId.ALARM_POSITION_BCU_10)), //
+						m(new BitsWordElement(503, this) //
+								.bit(0, PowerAmpATL.ChannelId.WARNING_POSITION_BCU_1) //
+								.bit(1, PowerAmpATL.ChannelId.WARNING_POSITION_BCU_2) //
+								.bit(2, PowerAmpATL.ChannelId.WARNING_POSITION_BCU_3) //
+								.bit(3, PowerAmpATL.ChannelId.WARNING_POSITION_BCU_4) //
+								.bit(4, PowerAmpATL.ChannelId.WARNING_POSITION_BCU_5) //
+								.bit(5, PowerAmpATL.ChannelId.WARNING_POSITION_BCU_6) //
+								.bit(6, PowerAmpATL.ChannelId.WARNING_POSITION_BCU_7) //
+								.bit(7, PowerAmpATL.ChannelId.WARNING_POSITION_BCU_8) //
+								.bit(8, PowerAmpATL.ChannelId.WARNING_POSITION_BCU_9) //
+								.bit(9, PowerAmpATL.ChannelId.WARNING_POSITION_BCU_10)), //
+						m(new BitsWordElement(504, this) //
+								.bit(0, PowerAmpATL.ChannelId.FAULT_BCU_1_POSITION) //
+								.bit(1, PowerAmpATL.ChannelId.FAULT_BCU_2_POSITION) //
+								.bit(2, PowerAmpATL.ChannelId.FAULT_BCU_3_POSITION) //
+								.bit(3, PowerAmpATL.ChannelId.FAULT_BCU_4_POSITION) //
+								.bit(4, PowerAmpATL.ChannelId.FAULT_BCU_5_POSITION) //
+								.bit(5, PowerAmpATL.ChannelId.FAULT_BCU_6_POSITION) //
+								.bit(6, PowerAmpATL.ChannelId.FAULT_BCU_7_POSITION) //
+								.bit(7, PowerAmpATL.ChannelId.FAULT_BCU_8_POSITION) //
+								.bit(8, PowerAmpATL.ChannelId.FAULT_BCU_9_POSITION) //
+								.bit(9, PowerAmpATL.ChannelId.FAULT_BCU_10_POSITION))//
+				), //
 				new FC3ReadRegistersTask(506, Priority.HIGH, //
 						m(new UnsignedWordElement(506)) //
 								.m(PowerAmpATL.ChannelId.BATTERY_RACK_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_1) // [mV]
@@ -162,7 +242,112 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 						m(PowerAmpATL.ChannelId.ID_OF_MIN_TEMPERATURE, new UnsignedWordElement(515)), //
 						m(PowerAmpATL.ChannelId.MAX_TEMPERATURE, new UnsignedWordElement(516)), //
 						m(PowerAmpATL.ChannelId.ID_OF_MAX_TEMPERATURE, new UnsignedWordElement(517)), //
-						m(PowerAmpATL.ChannelId.BATTERY_RACK_DC_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(518))//
+						m(PowerAmpATL.ChannelId.BATTERY_RACK_DC_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(518)), //
+						m(PowerAmpATL.ChannelId.BATTERY_RACK_DC_DISCHARGE_CURRENT_LIMIT, new UnsignedWordElement(519)), //
+						m(PowerAmpATL.ChannelId.MAX_DC_CHARGE_CURRENT_LIMIT_PER_BCU, new UnsignedWordElement(520)), //
+						m(PowerAmpATL.ChannelId.MAX_DC_DISCHARGE_CURRENT_LIMIT_PER_BCU, new UnsignedWordElement(521)), //
+						m(PowerAmpATL.ChannelId.RACK_NUMBER_OF_BATTERY_BCU, new UnsignedWordElement(522)), //
+						m(PowerAmpATL.ChannelId.RACK_NUMBER_OF_CELLS_IN_SERIES_PER_MODULE,
+								new UnsignedWordElement(523)), //
+						m(PowerAmpATL.ChannelId.RACK_MAX_CELL_VOLTAGE_LIMIT, new UnsignedWordElement(524)), //
+						m(PowerAmpATL.ChannelId.RACK_MIN_CELL_VOLTAGE_LIMIT, new UnsignedWordElement(525)), //
+						m(PowerAmpATL.ChannelId.RACK_MIN_CELL_VOLTAGE_LIMIT, new UnsignedWordElement(525)), //
+						m(new BitsWordElement(526, this) //
+								.bit(0, PowerAmpATL.ChannelId.RACK_HW_AFE_COMMUNICATION_FAULT) //
+								.bit(1, PowerAmpATL.ChannelId.RACK_HW_ACTOR_DRIVER_FAULT) //
+								.bit(2, PowerAmpATL.ChannelId.RACK_HW_EEPROM_COMMUNICATION_FAULT) //
+								.bit(3, PowerAmpATL.ChannelId.RACK_HW_VOLTAGE_DETECT_FAULT) //
+								.bit(4, PowerAmpATL.ChannelId.RACK_HW_TEMPERATURE_DETECT_FAULT) //
+								.bit(5, PowerAmpATL.ChannelId.RACK_HW_CURRENT_DETECT_FAULT) //
+								.bit(6, PowerAmpATL.ChannelId.RACK_HW_ACTOR_NOT_CLOSE) //
+								.bit(7, PowerAmpATL.ChannelId.RACK_HW_ACTOR_NOT_OPEN) //
+								.bit(8, PowerAmpATL.ChannelId.RACK_HW_FUSE_BROKEN)), //
+						m(new BitsWordElement(527, this) //
+								.bit(0, PowerAmpATL.ChannelId.RACK_SYSTEM_AFE_OVER_TEMPERATURE) //
+								.bit(1, PowerAmpATL.ChannelId.RACK_SYSTEM_AFE_UNDER_TEMPERATURE) //
+								.bit(2, PowerAmpATL.ChannelId.RACK_SYSTEM_AFE_OVER_VOLTAGE) //
+								.bit(3, PowerAmpATL.ChannelId.RACK_SYSTEM_AFE_UNDER_VOLTAGE) //
+								.bit(4, PowerAmpATL.ChannelId.RACK_SYSTEM_HIGH_TEMPERATURE_PERMANENT_FAILURE) //
+								.bit(5, PowerAmpATL.ChannelId.RACK_SYSTEM_LOW_TEMPERATURE_PERMANENT_FAILURE) //
+								.bit(6, PowerAmpATL.ChannelId.RACK_SYSTEM_HIGH_CELL_VOLTAGE_PERMANENT_FAILURE) //
+								.bit(7, PowerAmpATL.ChannelId.RACK_SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE) //
+								.bit(8, PowerAmpATL.ChannelId.RACK_SYSTEM_SHORT_CIRCUIT)), //
+						m(PowerAmpATL.ChannelId.UPPER_VOLTAGE, new UnsignedWordElement(528))), //
+				new FC3ReadRegistersTask(10002, Priority.HIGH, //
+						m(new BitsWordElement(10002, this) //
+								.bit(0, PowerAmpATL.ChannelId.BCU_STATUS_ALARM) //
+								.bit(1, PowerAmpATL.ChannelId.BCU_STATUS_WARNING) //
+								.bit(2, PowerAmpATL.ChannelId.BCU_STATUS_FAULT) //
+								.bit(3, PowerAmpATL.ChannelId.BCU_STATUS_PFET) //
+								.bit(4, PowerAmpATL.ChannelId.BCU_STATUS_CFET) //
+								.bit(5, PowerAmpATL.ChannelId.BCU_STATUS_DFET) //
+								.bit(6, PowerAmpATL.ChannelId.BCU_STATUS_BATTERY_IDLE) //
+								.bit(7, PowerAmpATL.ChannelId.BCU_STATUS_BATTERY_CHARGING) //
+								.bit(8, PowerAmpATL.ChannelId.BCU_STATUS_BATTERY_DISCHARGING)), //
+						m(new BitsWordElement(10003, this) //
+								.bit(0, PowerAmpATL.ChannelId.BCU_PRE_ALARM_CELL_OVER_VOLTAGE) //
+								.bit(1, PowerAmpATL.ChannelId.BCU_PRE_ALARM_CELL_UNDER_VOLTAGE) //
+								.bit(2, PowerAmpATL.ChannelId.BCU_PRE_ALARM_OVER_CHARGING_CURRENT) //
+								.bit(3, PowerAmpATL.ChannelId.BCU_PRE_ALARM_OVER_DISCHARGING_CURRENT) //
+								.bit(4, PowerAmpATL.ChannelId.BCU_PRE_ALARM_OVER_TEMPERATURE) //
+								.bit(5, PowerAmpATL.ChannelId.BCU_PRE_ALARM_UNDER_TEMPERATURE) //
+								.bit(6, PowerAmpATL.ChannelId.BCU_PRE_ALARM_CELL_VOLTAGE_DIFFERENCE) //
+								.bit(7, PowerAmpATL.ChannelId.BCU_PRE_ALARM_BCU_TEMP_DIFFERENCE) //
+								.bit(8, PowerAmpATL.ChannelId.BCU_PRE_ALARM_UNDER_SOC) //
+								.bit(9, PowerAmpATL.ChannelId.BCU_PRE_ALARM_UNDER_SOH) //
+								.bit(10, PowerAmpATL.ChannelId.BCU_PRE_ALARM_OVER_CHARGING_POWER) //
+								.bit(11, PowerAmpATL.ChannelId.BCU_PRE_ALARM_OVER_DISCHARGING_POWER) //
+						), //
+						m(new BitsWordElement(10004, this) //
+								.bit(0, PowerAmpATL.ChannelId.BCU_LEVEL_1_CELL_OVER_VOLTAGE) //
+								.bit(1, PowerAmpATL.ChannelId.BCU_LEVEL_1_CELL_UNDER_VOLTAGE) //
+								.bit(2, PowerAmpATL.ChannelId.BCU_LEVEL_1_OVER_CHARGING_CURRENT) //
+								.bit(3, PowerAmpATL.ChannelId.BCU_LEVEL_1_OVER_DISCHARGING_CURRENT) //
+								.bit(4, PowerAmpATL.ChannelId.BCU_LEVEL_1_OVER_TEMPERATURE) //
+								.bit(5, PowerAmpATL.ChannelId.BCU_LEVEL_1_UNDER_TEMPERATURE) //
+								.bit(6, PowerAmpATL.ChannelId.BCU_LEVEL_1_CELL_VOLTAGE_DIFFERENCE) //
+								.bit(7, PowerAmpATL.ChannelId.BCU_LEVEL_1_BCU_TEMP_DIFFERENCE) //
+								.bit(8, PowerAmpATL.ChannelId.BCU_LEVEL_1_UNDER_SOC) //
+								.bit(9, PowerAmpATL.ChannelId.BCU_LEVEL_1_UNDER_SOH) //
+								.bit(10, PowerAmpATL.ChannelId.BCU_LEVEL_1_OVER_CHARGING_POWER) //
+								.bit(11, PowerAmpATL.ChannelId.BCU_LEVEL_1_OVER_DISCHARGING_POWER) //
+						), //
+						m(new BitsWordElement(10005, this) //
+								.bit(0, PowerAmpATL.ChannelId.BCU_LEVEL_2_CELL_OVER_VOLTAGE) //
+								.bit(1, PowerAmpATL.ChannelId.BCU_LEVEL_2_CELL_UNDER_VOLTAGE) //
+								.bit(2, PowerAmpATL.ChannelId.BCU_LEVEL_2_OVER_CHARGING_CURRENT) //
+								.bit(3, PowerAmpATL.ChannelId.BCU_LEVEL_2_OVER_DISCHARGING_CURRENT) //
+								.bit(4, PowerAmpATL.ChannelId.BCU_LEVEL_2_OVER_TEMPERATURE) //
+								.bit(5, PowerAmpATL.ChannelId.BCU_LEVEL_2_UNDER_TEMPERATURE) //
+								.bit(6, PowerAmpATL.ChannelId.BCU_LEVEL_2_CELL_VOLTAGE_DIFFERENCE) //
+								.bit(7, PowerAmpATL.ChannelId.BCU_LEVEL_2_BCU_TEMP_DIFFERENCE) //
+								.bit(8, PowerAmpATL.ChannelId.BCU_LEVEL_2_TEMPERATURE_DIFFERENCE) //
+								.bit(9, PowerAmpATL.ChannelId.BCU_LEVEL_2_INTERNAL_COMMUNICATION) //
+								.bit(10, PowerAmpATL.ChannelId.BCU_LEVEL_2_EXTERNAL_COMMUNICATION) //
+								.bit(11, PowerAmpATL.ChannelId.BCU_LEVEL_2_PRECHARGE_FAIL) //
+								.bit(12, PowerAmpATL.ChannelId.BCU_LEVEL_2_PARALLEL_FAIL) //
+								.bit(13, PowerAmpATL.ChannelId.BCU_LEVEL_2_SYSTEM_FAIL) //
+								.bit(14, PowerAmpATL.ChannelId.BCU_LEVEL_2_HARDWARE_FAIL)), //
+						m(new BitsWordElement(10006, this) //
+								.bit(0, PowerAmpATL.ChannelId.BCU_HW_AFE_COMMUNICAITON_FAULT) //
+								.bit(1, PowerAmpATL.ChannelId.BCU_HW_ACTOR_DRIVER_FAULT) //
+								.bit(2, PowerAmpATL.ChannelId.BCU_HW_EEPROM_COMMUNICATION_FAULT) //
+								.bit(3, PowerAmpATL.ChannelId.BCU_HW_VOLTAGE_DETECT_FAULT) //
+								.bit(4, PowerAmpATL.ChannelId.BCU_HW_TEMPERATURE_DETECT_FAULT) //
+								.bit(5, PowerAmpATL.ChannelId.BCU_HW_CURRENT_DETECT_FAULT) //
+								.bit(6, PowerAmpATL.ChannelId.BCU_HW_ACTOR_NOT_CLOSE) //
+								.bit(7, PowerAmpATL.ChannelId.BCU_HW_ACTOR_NOT_OPEN) //
+								.bit(8, PowerAmpATL.ChannelId.BCU_HW_FUSE_BROKEN)), //
+						m(new BitsWordElement(10007, this) //
+								.bit(0, PowerAmpATL.ChannelId.BCU_SYSTEM_AFE_OVER_TEMPERATURE) //
+								.bit(1, PowerAmpATL.ChannelId.BCU_SYSTEM_AFE_UNDER_TEMPERATURE) //
+								.bit(2, PowerAmpATL.ChannelId.BCU_SYSTEM_AFE_OVER_VOLTAGE) //
+								.bit(3, PowerAmpATL.ChannelId.BCU_SYSTEM_AFE_UNDER_VOLTAGE) //
+								.bit(4, PowerAmpATL.ChannelId.BCU_SYSTEM_HIGH_TEMPERATURE_PERMANENT_FAILURE) //
+								.bit(5, PowerAmpATL.ChannelId.BCU_SYSTEM_LOW_TEMPERATURE_PERMANENT_FAILURE) //
+								.bit(6, PowerAmpATL.ChannelId.BCU_SYSTEM_HIGH_CELL_VOLTAGE_PERMANENT_FAILURE) //
+								.bit(7, PowerAmpATL.ChannelId.BCU_SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE) //
+								.bit(8, PowerAmpATL.ChannelId.BCU_SYSTEM_SHORT_CIRCUIT)) //
 				));//
 		return protocol;
 	}

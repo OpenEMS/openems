@@ -121,23 +121,211 @@ public interface PowerAmpATL extends Battery, OpenemsComponent, StartStoppable {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// EnumWriteChannels
-		RACK_ALARM_FLAGS(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Rack Alarm Flags")), //
-		RACK_WARNING_FLAGS(Doc.of(OpenemsType.BOOLEAN) //
+		RACK_PRE_ALARM_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Rack Cell Over Voltage Alarm")), //
+		RACK_PRE_ALARM_CELL_UNDER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Cell Under Voltage Alarm")), //
+		RACK_PRE_ALARM_OVER_CHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Over Charging Current Alarm")), //
+		RACK_PRE_ALARM_OVER_DISCHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Over Discharging Current Alarm")), //
+		RACK_PRE_ALARM_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Over Temperature Alarm")), //
+		RACK_PRE_ALARM_UNDER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Under Temperature Alarm")), //
+		RACK_PRE_ALARM_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Cell VOltage Difference Alarm")), //
+		RACK_PRE_ALARM_BCU_TEMP_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack BCU Temp Difference Alarm")), //
+		RACK_PRE_ALARM_UNDER_SOC(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Under SOC Alarm")), //
+		RACK_PRE_ALARM_UNDER_SOH(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Under SOH Alarm")), //
+		RACK_PRE_ALARM_OVER_CHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Over Charging Alarm")), //
+		RACK_PRE_ALARM_OVER_DISCHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Over Discharging Alarm")), //
+		RACK_LEVEL_1_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Rack Cell Over Voltage warning")), //
+		RACK_LEVEL_1_CELL_UNDER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Cell Under Voltage warning")), //
+		RACK_LEVEL_1_OVER_CHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Over Charging Current warning")), //
+		RACK_LEVEL_1_OVER_DISCHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Over Discharging Current warning")), //
+		RACK_LEVEL_1_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Over Temperature warning")), //
+		RACK_LEVEL_1_UNDER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Under Temperature warning")), //
+		RACK_LEVEL_1_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Cell VOltage Difference warning")), //
+		RACK_LEVEL_1_BCU_TEMP_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack BCU Temp Difference warning")), //
+		RACK_LEVEL_1_UNDER_SOC(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Under SOC warning")), //
+		RACK_LEVEL_1_UNDER_SOH(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Under SOH warning")), //
+		RACK_LEVEL_1_OVER_CHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Over Charging warning")), //
+		RACK_LEVEL_1_OVER_DISCHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Over Discharging warning")), //
+		RACK_LEVEL_2_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Cell Over Voltage Fault")), //
+		RACK_LEVEL_2_CELL_UNDER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Cell Under Voltage Fault")), //
+		RACK_LEVEL_2_OVER_CHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Over Charging Current Fault")), //
+		RACK_LEVEL_2_OVER_DISCHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Over Discharging Current Fault")), //
+		RACK_LEVEL_2_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Over Temperature Fault")), //
+		RACK_LEVEL_2_UNDER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Under Temperature Fault")), //
+		RACK_LEVEL_2_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Cell Voltage Difference Fault")), //
+		RACK_LEVEL_2_BCU_TEMP_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack BCU Temp Difference Fault")), //
+		RACK_LEVEL_2_CELL_TEMPERATURE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Cell Temperature Difference Fault")), //
+		RACK_LEVEL_2_INTERNAL_COMMUNICATION(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Internal Communication Fault")), //
+		RACK_LEVEL_2_EXTERNAL_COMMUNICATION(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack External Communication Fault")), //
+		RACK_LEVEL_2_PRE_CHARGE_FAIL(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Pre Charge Fault")), //
+		RACK_LEVEL_2_PARALLEL_FAIL(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Parallel Fault")), //
+		RACK_LEVEL_2_SYSTEM_FAIL(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack System Fault")), //
+		RACK_LEVEL_2_HARDWARE_FAIL(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Rack Hardware Fault")), //
+		ALARM_POSITION_BCU_1(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
-				.text("Rack Warning Flags")), //
-		RACK_FAULT_FLAGS(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Alarm BCU 1 Position ")), //
+		ALARM_POSITION_BCU_2(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
-				.text("Rack Fault Flags")), //
-		ALARM_BCU_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Alarm BCU 2 Position ")), //
+		ALARM_POSITION_BCU_3(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
-				.text("Alarm BCU Position ")), //
-		WARNING_BCU_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Alarm BCU 3 Position ")), //
+		ALARM_POSITION_BCU_4(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
-				.text("Warning BCU Position ")), //
-		FAULT_BCU_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Alarm BCU 4 Position ")), //
+		ALARM_POSITION_BCU_5(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
-				.text("Fault BCU Position ")), //
+				.text("Alarm BCU 5 Position ")), //
+		ALARM_POSITION_BCU_6(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Alarm BCU 6 Position ")), //
+		ALARM_POSITION_BCU_7(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Alarm BCU 7 Position ")), //
+		ALARM_POSITION_BCU_8(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Alarm BCU 8 Position ")), //
+		ALARM_POSITION_BCU_9(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Alarm BCU 9 Position ")), //
+		ALARM_POSITION_BCU_10(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Alarm BCU 10 Position ")), //
+		WARNING_POSITION_BCU_1(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Warning BCU 1 Position ")), //
+		WARNING_POSITION_BCU_2(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Warning BCU 2 Position ")), //
+		WARNING_POSITION_BCU_3(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Warning BCU 3 Position ")), //
+		WARNING_POSITION_BCU_4(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Warning BCU 4 Position ")), //
+		WARNING_POSITION_BCU_5(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Warning BCU 5 Position ")), //
+		WARNING_POSITION_BCU_6(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Warning BCU 6 Position ")), //
+		WARNING_POSITION_BCU_7(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Warning BCU 7 Position ")), //
+		WARNING_POSITION_BCU_8(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Warning BCU 8 Position ")), //
+		WARNING_POSITION_BCU_9(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Warning BCU 9 Position ")), //
+		WARNING_POSITION_BCU_10(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Warning BCU 10 Position ")), //
+		FAULT_BCU_1_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Fault BCU 1 Position ")), //
+		FAULT_BCU_2_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Fault BCU 2 Position ")), //
+		FAULT_BCU_3_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Fault BCU 3 Position ")), //
+		FAULT_BCU_4_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Fault BCU 4 Position ")), //
+		FAULT_BCU_5_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Fault BCU 5 Position ")), //
+		FAULT_BCU_6_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Fault BCU 6 Position ")), //
+		FAULT_BCU_7_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Fault BCU 7 Position ")), //
+		FAULT_BCU_8_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Fault BCU 8 Position ")), //
+		FAULT_BCU_9_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Fault BCU 9 Position ")), //
+		FAULT_BCU_10_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Fault BCU 10 Position ")), //
 		BATTERY_RACK_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT) //
 				.accessMode(AccessMode.READ_WRITE) //
@@ -295,7 +483,7 @@ public interface PowerAmpATL extends Battery, OpenemsComponent, StartStoppable {
 		BCU_STATUS_CFET(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Status Charge FET On/Off")),
-		BCU_STATUS_DEFT(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_STATUS_DFET(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Status Discharge FET On/Off")),
 		BCU_STATUS_BATTERY_IDLE(Doc.of(OpenemsType.BOOLEAN) //
@@ -307,118 +495,121 @@ public interface PowerAmpATL extends Battery, OpenemsComponent, StartStoppable {
 		BCU_STATUS_BATTERY_DISCHARGING(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Status Battery Discharging")),
-		BCU_ALARM_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_PRE_ALARM_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Alarm Cell Over Voltage")),
-		BCU_ALARM_CELL_UNDER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_PRE_ALARM_CELL_UNDER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Alarm Cell Under Voltage")),
-		BCU_ALARM_CELL_OVER_CHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_PRE_ALARM_OVER_CHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Alarm Over Charging Current")),
-		BCU_ALARM_CELL_OVER_DISCHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_PRE_ALARM_OVER_DISCHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Alarm Over Discharging Current")),
-		BCU_ALARM_CELL_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_PRE_ALARM_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Alarm Over Temperature")),
-		BCU_ALARM_CELL_UNDER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_PRE_ALARM_UNDER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Alarm Under Temperature")),
-		BCU_ALARM_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_PRE_ALARM_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Alarm Cell Voltage Difference")),
-		BCU_ALARM_BCU_TEMP_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_PRE_ALARM_BCU_TEMP_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Alarm BCU Temperature Difference")),
-		BCU_ALARM_UNDER_SOC(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_PRE_ALARM_UNDER_SOC(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Alarm Under SOC")),
-		BCU_ALARM_UNDER_SOH(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_PRE_ALARM_UNDER_SOH(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Alarm Under SOH")),
-		BCU_ALARM_OVER_CHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_PRE_ALARM_OVER_CHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Alarm Over Charging Power")),
-		BCU_ALARM_OVER_DISCHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_PRE_ALARM_OVER_DISCHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Alarm Over Discharging Power")),
-		BCU_WARNING_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_1_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Warning Cell Over Voltage")),
-		BCU_WARNING_CELL_UNDER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_1_CELL_UNDER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Warning Cell Under Voltage")),
-		BCU_WARNING_CELL_OVER_CHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_1_OVER_CHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Warning Over Charging Current")),
-		BCU_WARNING_CELL_OVER_DISCHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_1_OVER_DISCHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Warning Over Discharging Current")),
-		BCU_WARNING_CELL_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_1_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Warning Over Temperature")),
-		BCU_WARNING_CELL_UNDER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_1_UNDER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Warning Under Temperature")),
-		BCU_WARNING_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_1_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Warning Cell Voltage Difference")),
-		BCU_WARNING_BCU_TEMP_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_1_BCU_TEMP_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Warning BCU Temperature Difference")),
-		BCU_WARNING_UNDER_SOC(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_1_UNDER_SOC(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Warning Under SOC")),
-		BCU_WARNING_UNDER_SOH(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_1_UNDER_SOH(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Warning Under SOH")),
-		BCU_WARNING_OVER_CHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_1_OVER_CHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Warning Over Charging Power")),
-		BCU_WARNING_OVER_DISCHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_1_OVER_DISCHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Warning Over Discharging Power")),
-		BCU_FAULT_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_2_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Fault Cell Over Voltage")),
-		BCU_FAULT_CELL_UNDER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_2_CELL_UNDER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Fault Cell Under Voltage")),
-		BCU_FAULT_CELL_OVER_CHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_2_OVER_CHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Fault Over Charging Current")),
-		BCU_FAULT_CELL_OVER_DISCHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_2_OVER_DISCHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Fault Over Discharging Current")),
-		BCU_FAULT_CELL_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_2_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Fault Over Temperature")),
-		BCU_FAULT_CELL_UNDER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_2_UNDER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Fault Under Temperature")),
-		BCU_FAULT_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_2_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Fault Cell Voltage Difference")),
-		BCU_FAULT_BCU_TEMP_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_2_BCU_TEMP_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Fault BCU Temperature Difference")),
-		BCU_FAULT_INTERNAL_COMMUNICATION(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_2_TEMPERATURE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("BCU Fault BCU Temperature Difference")),
+		BCU_LEVEL_2_INTERNAL_COMMUNICATION(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Fault Internal Communication")),
-		BCU_FAULT_EXTERNAL_COMMUNICATION(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_2_EXTERNAL_COMMUNICATION(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Fault External Communication")),
-		BCU_FAULT_PRECHARGE_FAIL(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_2_PRECHARGE_FAIL(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Fault Pre-Charge Fail")),
-		BCU_FAULT_PARALLEL_FAIL(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_2_PARALLEL_FAIL(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Fault Parallel Fail")),
-		BCU_FAULT_SYSTEM_FAULT(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_2_SYSTEM_FAIL(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Fault System Fault")),
-		BCU_FAULT_HARDWARE_FAULT(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_LEVEL_2_HARDWARE_FAIL(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Fault Hardware Fault")),
 		BCU_HW_AFE_COMMUNICAITON_FAULT(Doc.of(OpenemsType.BOOLEAN) //
@@ -433,7 +624,7 @@ public interface PowerAmpATL extends Battery, OpenemsComponent, StartStoppable {
 		BCU_HW_VOLTAGE_DETECT_FAULT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU HW Voltage Detect Fault")),
-		BCU_HW_TEMPERATURE_DETECT(Doc.of(OpenemsType.BOOLEAN) //
+		BCU_HW_TEMPERATURE_DETECT_FAULT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU HW Temperaure Detect Fault")),
 		BCU_HW_CURRENT_DETECT_FAULT(Doc.of(OpenemsType.BOOLEAN) //
@@ -449,8 +640,11 @@ public interface PowerAmpATL extends Battery, OpenemsComponent, StartStoppable {
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU HW Fuse Broken Fault ")),
 		BCU_SYSTEM_AFE_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE) //
+				.accessMode(AccessMode.READ_WRITE)//
 				.text("BCU System AFE Over Temperature Fault")),
+		BCU_SYSTEM_AFE_UNDER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("BCU System AFE Under Temperature Fault")),
 		BCU_SYSTEM_AFE_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU System AFE Over Voltage Fault")),
@@ -466,6 +660,9 @@ public interface PowerAmpATL extends Battery, OpenemsComponent, StartStoppable {
 		BCU_SYSTEM_HIGH_CELL_VOLTAGE_PERMANENT_FAILURE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU System High Cell Voltage Permanent Fault")),
+		BCU_SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("BCU System Low Cell Voltage Permanent Fault")),
 		BCU_SYSTEM_LOW_CELL_VOLTAGE_FAILURE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU System Low Cell Voltage Permanent Fault")),
@@ -708,7 +905,7 @@ public interface PowerAmpATL extends Battery, OpenemsComponent, StartStoppable {
 				.text("BMS CONTROL(1: Shutdown 0:no action)")),
 		KEEP_FET_OPEN(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE) //
-				.text("Keep FET Open")),
+				.text("Keep FET Open (Disconnect the relay; 1:Keep open , 0: normal operation)")),
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
 		RUN_FAILED(Doc.of(Level.FAULT) //
@@ -730,6 +927,5 @@ public interface PowerAmpATL extends Battery, OpenemsComponent, StartStoppable {
 			return this.doc;
 		}
 	}
-
 
 }
