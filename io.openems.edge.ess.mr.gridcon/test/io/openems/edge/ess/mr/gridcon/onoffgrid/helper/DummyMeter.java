@@ -7,18 +7,16 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 public class DummyMeter extends AbstractOpenemsComponent implements SymmetricMeter {
 
-	public static final Object DEFAULT_VOLTAGE = 230_000;
-	public static final Object DEFAULT_FREQUENCY = 50_000;
+	public static final int DEFAULT_VOLTAGE = 230_000;
+	public static final int DEFAULT_FREQUENCY = 50_000;
 
 	public DummyMeter() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values() //
 		);
-		this.getFrequency().setNextValue(DEFAULT_FREQUENCY);
-		this.getVoltage().setNextValue(DEFAULT_VOLTAGE);
-		this.getFrequency().nextProcessImage();
-		this.getVoltage().nextProcessImage();
+		this._setFrequency(DEFAULT_FREQUENCY);
+		this._setVoltage(DEFAULT_VOLTAGE);
 	}
 
 	@Override

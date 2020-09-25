@@ -127,7 +127,7 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 	public VoltageInRange isVoltageInRange() {
 		try {
 			SymmetricMeter meter = manager.getComponent(meterId);
-			double voltage = meter.getVoltage().value().get() / 1000;
+			double voltage = meter.getVoltage().get() / 1000;
 			if (voltage > DecisionTableCondition.LOWER_VOLTAGE && voltage < DecisionTableCondition.UPPER_VOLTAGE) {
 				return VoltageInRange.TRUE;
 			} else {

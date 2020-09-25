@@ -1,4 +1,4 @@
-package io.openems.edge.ess.mr.gridcon.ongrid;
+package io.openems.edge.ess.mr.gridcon.onoffgrid;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -22,17 +22,19 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.mr.gridcon.EssGridcon;
 import io.openems.edge.ess.mr.gridcon.StateController;
-import io.openems.edge.ess.mr.gridcon.state.ongrid.OnGridState;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableConditionImpl;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.OnOffGridState;
 import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "MR.Gridcon.Ongrid", //
+		name = "MR.Gridcon.OnOffgrid", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		}) //
-public class EssGridConOnGrid extends EssGridcon
+public class EssGridconOnOffGrid extends EssGridcon
 		implements ManagedSymmetricEss, SymmetricEss, ModbusSlave, OpenemsComponent, EventHandler {
 
 	@Reference
@@ -42,14 +44,14 @@ public class EssGridConOnGrid extends EssGridcon
 	private Power power;
 	private Config config;
 
-	public EssGridConOnGrid() {
-		super(io.openems.edge.ess.mr.gridcon.ongrid.ChannelId.values());
+	public EssGridconOnOffGrid() {
+		super(io.openems.edge.ess.mr.gridcon.onoffgrid.ChannelId.values());
 	}
 
 	@Activate
 	void activate(ComponentContext context, Config c) throws OpenemsNamedException {
 		this.config = c;
-		EssGridConOnGrid.super.activate(context, c.id(), c.alias(), c.enabled(), c.gridcon_id(), c.bms_a_id(),
+		EssGridconOnOffGrid.super.activate(context, c.id(), c.alias(), c.enabled(), c.gridcon_id(), c.bms_a_id(),
 				c.bms_b_id(), c.bms_c_id(), c.offsetCurrent());
 		this.checkConfiguration(config);
 	}
@@ -65,8 +67,26 @@ public class EssGridConOnGrid extends EssGridcon
 	}
 
 	protected void calculateGridMode() throws IllegalArgumentException, OpenemsNamedException {
-		GridMode gridMode = GridMode.ON_GRID;
-		getGridMode().setNextValue(gridMode);
+		// TODO
+		GridMode gridMode = GridMode.UNDEFINED;
+
+		if (this.stateObject != null) {
+			if (//
+			OnOffGridState.ON_GRID_MODE == this.stateObject.getState()//
+			) {
+				gridMode = GridMode.ON_GRID;
+			} else if (OnOffGridState.OFF_GRID_MODE == this.stateObject.getState()) {
+				gridMode = GridMode.OFF_GRID;
+			}
+		}
+
+		_setGridMode(gridMode);
+	}
+
+	@Override
+	protected void writeStateMachineToChannel() {
+		this.channel(io.openems.edge.ess.mr.gridcon.onoffgrid.ChannelId.STATE_MACHINE)
+				.setNextValue(this.stateObject.getState());
 	}
 
 	protected void checkConfiguration(Config config) throws OpenemsException {
@@ -85,18 +105,41 @@ public class EssGridConOnGrid extends EssGridcon
 
 	@Override
 	protected io.openems.edge.ess.mr.gridcon.StateObject getFirstStateObjectUndefined() {
-		return StateController.getStateObject(OnGridState.UNDEFINED);
+		return StateController.getStateObject(OnOffGridState.UNDEFINED);
 	}
 
 	@Override
 	protected void initializeStateController(String gridconPcs, String b1, String b2, String b3) {
-		StateController.initOnGrid(componentManager, gridconPcs, b1, b2, b3, config.enableIpu1(), config.enableIpu2(),
-				config.enableIpu3(), config.parameterSet(), config.outputHardReset(), config.offsetCurrent());
-	}
-
-	@Override
-	protected void writeStateMachineToChannel() {
-		this.channel(io.openems.edge.ess.mr.gridcon.ongrid.ChannelId.STATE_MACHINE)
-				.setNextValue(this.stateObject.getState());
+		DecisionTableCondition tableCondition = new DecisionTableConditionImpl(componentManager, gridconPcs,
+				config.meter_id(), config.inputNaProtection1(), config.inputNaProtection2(),
+				config.inputSyncDeviceBridge(), config.isNaProtection1Inverted(), config.isNaProtection2Inverted(),
+				config.isInputSyncDeviceBridgeInverted());
+		StateController.initDecisionTableCondition(tableCondition);
+		StateController.initOnOffGrid(//
+				componentManager, //
+				gridconPcs, //
+				b1, //
+				b2, //
+				b3, //
+				config.enableIpu1(), //
+				config.enableIpu2(), //
+				config.enableIpu3(), //
+				config.parameterSet(), //
+				config.inputNaProtection1(), //
+				config.isNaProtection1Inverted(), //
+				config.inputNaProtection2(), //
+				config.isNaProtection2Inverted(), //
+				config.inputSyncDeviceBridge(), //
+				config.isInputSyncDeviceBridgeInverted(), //
+				config.outputSyncDeviceBridge(), //
+				config.isOutputSyncDeviceBridgeInverted(), //
+				config.outputHardReset(), //
+				config.isOutputHardResetInverted(), //
+				config.targetFrequencyOnGrid(), //
+				config.targetFrequencyOffGrid(), //
+				config.meter_id(), //
+				config.deltaFrequency(), //
+				config.deltaVoltage(), //
+				config.offsetCurrent());
 	}
 }

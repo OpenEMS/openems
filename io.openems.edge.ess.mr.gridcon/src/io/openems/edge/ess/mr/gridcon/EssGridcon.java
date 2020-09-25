@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.battery.soltaro.SoltaroBattery;
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -142,48 +142,48 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		float minCellTemperature = Float.MAX_VALUE;
 		float maxCellTemperature = Float.MIN_VALUE;
 
-		if (getBattery1() != null && !getBattery1().isUndefined()) {
-			minCellVoltage = Math.min(minCellVoltage, getBattery1().getMinCellVoltage().value().get());
-			maxCellVoltage = Math.max(maxCellVoltage, getBattery1().getMaxCellVoltage().value().get());
-			minCellTemperature = Math.min(minCellTemperature, getBattery1().getMinCellTemperature().value().get());
-			maxCellTemperature = Math.max(maxCellTemperature, getBattery1().getMaxCellTemperature().value().get());
+		if (getBattery1() != null && !Helper.isUndefined(getBattery1())) {
+			minCellVoltage = Math.min(minCellVoltage, getBattery1().getMinCellVoltage().get());
+			maxCellVoltage = Math.max(maxCellVoltage, getBattery1().getMaxCellVoltage().get());
+			minCellTemperature = Math.min(minCellTemperature, getBattery1().getMinCellTemperature().get());
+			maxCellTemperature = Math.max(maxCellTemperature, getBattery1().getMaxCellTemperature().get());
 		}
 
-		if (getBattery2() != null && !getBattery2().isUndefined()) {
-			minCellVoltage = Math.min(minCellVoltage, getBattery2().getMinCellVoltage().value().get());
-			maxCellVoltage = Math.max(maxCellVoltage, getBattery2().getMaxCellVoltage().value().get());
-			minCellTemperature = Math.min(minCellTemperature, getBattery2().getMinCellTemperature().value().get());
-			maxCellTemperature = Math.max(maxCellTemperature, getBattery2().getMaxCellTemperature().value().get());
+		if (getBattery2() != null && !Helper.isUndefined(getBattery2())) {
+			minCellVoltage = Math.min(minCellVoltage, getBattery2().getMinCellVoltage().get());
+			maxCellVoltage = Math.max(maxCellVoltage, getBattery2().getMaxCellVoltage().get());
+			minCellTemperature = Math.min(minCellTemperature, getBattery2().getMinCellTemperature().get());
+			maxCellTemperature = Math.max(maxCellTemperature, getBattery2().getMaxCellTemperature().get());
 		}
 
-		if (getBattery3() != null && !getBattery3().isUndefined()) {
-			minCellVoltage = Math.min(minCellVoltage, getBattery3().getMinCellVoltage().value().get());
-			maxCellVoltage = Math.max(maxCellVoltage, getBattery3().getMaxCellVoltage().value().get());
-			minCellTemperature = Math.min(minCellTemperature, getBattery3().getMinCellTemperature().value().get());
-			maxCellTemperature = Math.max(maxCellTemperature, getBattery3().getMaxCellTemperature().value().get());
+		if (getBattery3() != null && !Helper.isUndefined(getBattery3())) {
+			minCellVoltage = Math.min(minCellVoltage, getBattery3().getMinCellVoltage().get());
+			maxCellVoltage = Math.max(maxCellVoltage, getBattery3().getMaxCellVoltage().get());
+			minCellTemperature = Math.min(minCellTemperature, getBattery3().getMinCellTemperature().get());
+			maxCellTemperature = Math.max(maxCellTemperature, getBattery3().getMaxCellTemperature().get());
 		}
 
 		int minCellVoltageMilliVolt = (int) (minCellVoltage * 1000);
 		int maxCellVoltageMilliVolt = (int) (maxCellVoltage * 1000);
 
-		getMinCellVoltage().setNextValue(minCellVoltageMilliVolt);
-		getMaxCellVoltage().setNextValue(maxCellVoltageMilliVolt);
-		getMinCellTemperature().setNextValue(minCellTemperature);
-		getMaxCellTemperature().setNextValue(maxCellTemperature);
+		_setMinCellVoltage(minCellVoltageMilliVolt);
+		_setMaxCellVoltage(maxCellVoltageMilliVolt);
+		_setMinCellTemperature((int) minCellTemperature);
+		_setMaxCellTemperature((int) maxCellTemperature);
 
 	}
 
 	private void calculateMaxApparentPower() {
 		int maxPower = (int) getGridconPcs().getMaxApparentPower();
-		getMaxApparentPower().setNextValue(maxPower);
+		_setMaxApparentPower(maxPower);
 	}
 
 	protected void calculateActiveAndReactivePower() {
 		float activePower = getGridconPcs().getActivePower();
-		getActivePower().setNextValue(activePower);
+		_setActivePower((int) activePower);
 
 		float reactivePower = getGridconPcs().getReactivePower();
-		getReactivePower().setNextValue(reactivePower);
+		_setReactivePower((int) reactivePower);
 	}
 
 	@Override
@@ -222,29 +222,29 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	 * Handles Battery data, i.e. setting allowed charge/discharge power.
 	 */
 	protected void calculateAllowedPower() {
-		double allowedCharge = 0;
-		double allowedDischarge = 0;
+		double allowedChargePower = 0;
+		double allowedDischargePower = 0;
 
 		int offset = (int) Math.ceil(Math.abs(this.offsetCurrent));
 
-		for (SoltaroBattery battery : getBatteries()) {
-			Integer maxChargeCurrent = Math.min(MAX_CURRENT_PER_STRING, battery.getChargeMaxCurrent().value().get());
+		for (Battery battery : getBatteries()) {
+			Integer maxChargeCurrent = Math.min(MAX_CURRENT_PER_STRING, battery.getChargeMaxCurrent().get());
 			maxChargeCurrent = maxChargeCurrent - offset; // Reduce the max power by the value for the offset current
 			maxChargeCurrent = Math.max(maxChargeCurrent, 0);
-			allowedCharge += battery.getVoltage().value().get() * maxChargeCurrent * -1;
+			allowedChargePower += battery.getVoltage().get() * maxChargeCurrent * -1;
 
 			Integer maxDischargeCurrent = Math.min(MAX_CURRENT_PER_STRING,
-					battery.getDischargeMaxCurrent().value().get());
+					battery.getDischargeMaxCurrent().get());
 			maxDischargeCurrent = maxDischargeCurrent - offset; // Reduce the max power by the value for the offset current
 			maxDischargeCurrent = Math.max(maxDischargeCurrent, 0);
-			allowedDischarge += battery.getVoltage().value().get() * maxDischargeCurrent;
+			allowedDischargePower += battery.getVoltage().get() * maxDischargeCurrent;
 		}
 
-		allowedCharge = (allowedCharge * (1 + getGridconPcs().getEfficiencyLossChargeFactor()));
-		allowedDischarge = (allowedDischarge * (1 - getGridconPcs().getEfficiencyLossDischargeFactor()));
+		allowedChargePower = (allowedChargePower * (1 + getGridconPcs().getEfficiencyLossChargeFactor()));
+		allowedDischargePower = (allowedDischargePower * (1 - getGridconPcs().getEfficiencyLossDischargeFactor()));
 
-		getAllowedCharge().setNextValue(allowedCharge);
-		getAllowedDischarge().setNextValue(allowedDischarge);
+		_setAllowedChargePower((int) allowedChargePower);
+		_setAllowedDischargePower((int) allowedDischargePower);
 	}
 
 	protected abstract void calculateGridMode() throws IllegalArgumentException, OpenemsNamedException;
@@ -256,12 +256,12 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	protected void calculateSoc() {
 		float sumTotalCapacity = 0;
 		float sumCurrentCapacity = 0;
-		for (SoltaroBattery b : getBatteries()) {
-			Optional<Integer> totalCapacityOpt = b.getCapacity().value().asOptional();
-			Optional<Integer> socOpt = b.getSoc().value().asOptional();
+		for (Battery b : getBatteries()) {
+			Optional<Integer> totalCapacityOpt = b.getCapacity().asOptional();
+			Optional<Integer> socOpt = b.getSoc().asOptional();
 			if (!totalCapacityOpt.isPresent() || !socOpt.isPresent()) {
 				// if at least one Battery has no valid value -> set UNDEFINED
-				getSoc().setNextValue(null);
+				_setSoc(null);
 				return;
 			}
 			float totalCapacity = totalCapacityOpt.get();
@@ -270,19 +270,19 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 			sumCurrentCapacity += totalCapacity * soc / 100.0;
 		}
 		int soc = Math.round(sumCurrentCapacity * 100 / sumTotalCapacity);
-		getSoc().setNextValue(soc);
+		_setSoc(soc);
 	}
 
 	protected void calculateCapacity() {
 		float sumTotalCapacity = 0;
 
-		for (SoltaroBattery b : getBatteries()) {
-			Optional<Integer> totalCapacityOpt = b.getCapacity().value().asOptional();
+		for (Battery b : getBatteries()) {
+			Optional<Integer> totalCapacityOpt = b.getCapacity().asOptional();
 			float totalCapacity = totalCapacityOpt.orElse(0);
 			sumTotalCapacity += totalCapacity;
 		}
 
-		getCapacity().setNextValue(sumTotalCapacity);
+ 		_setCapacity((int) sumTotalCapacity);
 	}
 
 	@Override
@@ -296,17 +296,17 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	 * 
 	 * @return a collection of Batteries; guaranteed to be not-null.
 	 */
-	protected Collection<SoltaroBattery> getBatteries() {
-		Collection<SoltaroBattery> batteries = new ArrayList<>();
-		if (getBattery1() != null && !getBattery1().isUndefined()) {
+	protected Collection<Battery> getBatteries() {
+		Collection<Battery> batteries = new ArrayList<>();
+		if (getBattery1() != null && !Helper.isUndefined(getBattery1())) {
 			batteries.add(getBattery1());
 		}
 
-		if (getBattery2() != null && !getBattery2().isUndefined()) {
+		if (getBattery2() != null && !Helper.isUndefined(getBattery2())) {
 			batteries.add(getBattery2());
 		}
 
-		if (getBattery3() != null && !getBattery3().isUndefined()) {
+		if (getBattery3() != null && !Helper.isUndefined(getBattery3())) {
 			batteries.add(getBattery3());
 		}
 		return batteries;
@@ -316,15 +316,15 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		return getComponent(gridconId);
 	}
 
-	SoltaroBattery getBattery1() {
+	Battery getBattery1() {
 		return getComponent(bmsAId);
 	}
 
-	SoltaroBattery getBattery2() {
+	Battery getBattery2() {
 		return getComponent(bmsBId);
 	}
 
-	SoltaroBattery getBattery3() {
+	Battery getBattery3() {
 		return getComponent(bmsCId);
 	}
 
@@ -337,4 +337,8 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		}
 		return component;
 	}
+	
+	
+
 }
+

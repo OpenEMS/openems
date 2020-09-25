@@ -1,7 +1,6 @@
 package io.openems.edge.ess.mr.gridcon;
 
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.common.startstop.StartStop;
 
 public class WeightingHelper {
 
@@ -70,30 +69,25 @@ public class WeightingHelper {
 		if (battery == null) {
 			return false;
 		}
-//		return !battery.isUndefined() && isRunning(battery);
-		return isRunning(battery);
+		return !Helper.isUndefined(battery) && Helper.isRunning(battery);
 	}
 
 	public static int getStringControlMode(Battery battery1, Battery battery2, Battery battery3) {
 		int weightingMode = 0;
 		
-		boolean useBatteryStringA = (battery1 != null && isRunning(battery1));
+		boolean useBatteryStringA = (battery1 != null && Helper.isRunning(battery1));
 		if (useBatteryStringA) {
 			weightingMode = weightingMode + 1; // battA = 1 (2^0)
 		}
-		boolean useBatteryStringB = (battery2 != null && isRunning(battery2));
+		boolean useBatteryStringB = (battery2 != null && Helper.isRunning(battery2));
 		if (useBatteryStringB) {
 			weightingMode = weightingMode + 8; // battB = 8 (2^3)
 		}
-		boolean useBatteryStringC = (battery3 != null && isRunning(battery3));
+		boolean useBatteryStringC = (battery3 != null && Helper.isRunning(battery3));
 		if (useBatteryStringC) {
 			weightingMode = weightingMode + 64; // battC = 64 (2^6)
 		}
 
 		return weightingMode;
-	}
-
-	private static boolean isRunning(Battery battery) {
-		return battery.getStartStop() == StartStop.START;
 	}
 }

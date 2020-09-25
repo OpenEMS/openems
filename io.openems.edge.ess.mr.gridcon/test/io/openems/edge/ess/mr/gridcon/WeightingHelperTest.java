@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import io.openems.edge.battery.soltaro.SoltaroBattery;
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.ess.mr.gridcon.WeightingHelper;
 import io.openems.edge.ess.mr.gridcon.helper.DummyBattery;
 
@@ -19,7 +19,7 @@ public class WeightingHelperTest {
 	@Test
 	public final void testIsBatteryReady() {
 
-		SoltaroBattery b = null;
+		Battery b = null;
 		// should return false if there is no battery
 		boolean result = WeightingHelper.isBatteryReady(b);
 		assertFalse(result);
@@ -30,19 +30,19 @@ public class WeightingHelperTest {
 		assertFalse(result);
 
 		// should return true if battery is running
-		b.start();
+		Helper.startBattery(b);
 		result = WeightingHelper.isBatteryReady(b);
 		assertTrue(result);
 
 		// should return false if battery is stopped
-		b.stop();
+		Helper.stopBattery(b);		
 		result = WeightingHelper.isBatteryReady(b);
 		assertFalse(result);
 	}
 
 	@Test
 	public final void testGetWeightingForCharge() {
-		SoltaroBattery b = null;
+		Battery b = null;
 		// should be '0' is battery is not there or not working
 		double result = WeightingHelper.getWeightingForCharge(b);
 		assertEquals(0, result, DELTA);
@@ -51,21 +51,21 @@ public class WeightingHelperTest {
 		result = WeightingHelper.getWeightingForCharge(b);
 		assertEquals(0, result, DELTA);
 
-		b.start();
+		Helper.startBattery(b);
 		result = WeightingHelper.getWeightingForCharge(b);
 		double expected = DummyBattery.DEFAULT_MAX_CHARGE_CURRENT * DummyBattery.DEFAULT_VOLTAGE;
 
 		assertNotEquals(0, result, DELTA);
 		assertEquals(expected, result, DELTA);
 
-		b.stop();
+		Helper.stopBattery(b);	
 		result = WeightingHelper.getWeightingForCharge(b);
 		assertEquals(0, result, DELTA);
 	}
 
 	@Test
 	public final void testGetWeightingForDischarge() {
-		SoltaroBattery b = null;
+		Battery b = null;
 		// should be '0' is battery is not there or not working
 		double result = WeightingHelper.getWeightingForDischarge(b);
 		assertEquals(0, result, DELTA);
@@ -74,14 +74,14 @@ public class WeightingHelperTest {
 		result = WeightingHelper.getWeightingForDischarge(b);
 		assertEquals(0, result, DELTA);
 
-		b.start();
+		Helper.startBattery(b);
 		result = WeightingHelper.getWeightingForDischarge(b);
 		double expected = DummyBattery.DEFAULT_MAX_DISCHARGE_CURRENT * DummyBattery.DEFAULT_VOLTAGE;
 
 		assertNotEquals(0, result, DELTA);
 		assertEquals(expected, result, DELTA);
 
-		b.stop();
+		Helper.stopBattery(b);	
 		result = WeightingHelper.getWeightingForDischarge(b);
 		assertEquals(0, result, DELTA);
 	}

@@ -126,12 +126,12 @@ public class TestAdjustParameter {
 				float delta = 0.001f;
 				
 				float actualFrequency = gridconPCS.getSetFrequency();
-				float expectedFrequency = meter.getFrequency().value().get() / 1000 +  Creator.DELTA_FREQUENCY;
+				float expectedFrequency = meter.getFrequency().get() / 1000 +  Creator.DELTA_FREQUENCY;
 				
 				assertEquals(expectedFrequency, actualFrequency, delta);
 				
 				float actualVoltage = gridconPCS.getSetVoltage();
-				float expectedVoltage = meter.getVoltage().value().get() / 1000  +  Creator.DELTA_VOLTAGE;
+				float expectedVoltage = meter.getVoltage().get() / 1000  +  Creator.DELTA_VOLTAGE;
 				
 				assertEquals(expectedVoltage, actualVoltage, delta);
 				

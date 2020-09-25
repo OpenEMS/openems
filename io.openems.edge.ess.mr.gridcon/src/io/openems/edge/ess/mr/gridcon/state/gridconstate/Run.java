@@ -8,6 +8,7 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
 import io.openems.edge.ess.mr.gridcon.GridconPcsImpl;
+import io.openems.edge.ess.mr.gridcon.Helper;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.StateObject;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
@@ -81,18 +82,18 @@ public class Run extends BaseState implements StateObject {
 
 	private void checkBatteries() {
 		if (getBattery1() != null) {
-			if (!getBattery1().isRunning() && !getBattery1().isError()) {
-				getBattery1().start();
+			if (!Helper.isRunning(getBattery1()) && !Helper.isAlarmLevel2Error(getBattery1())) {
+				Helper.startBattery(getBattery1());
 			}
 		}
 		if (getBattery2() != null) {
-			if (!getBattery2().isRunning() && !getBattery2().isError()) {
-				getBattery2().start();
+			if (!Helper.isRunning(getBattery2()) && !Helper.isAlarmLevel2Error(getBattery2())) {
+				Helper.startBattery(getBattery2());
 			}
 		}
 		if (getBattery3() != null) {
-			if (!getBattery3().isRunning() && !getBattery3().isError()) {
-				getBattery3().start();
+			if (!Helper.isRunning(getBattery3()) && !Helper.isAlarmLevel2Error(getBattery3())) {
+				Helper.startBattery(getBattery3());
 			}
 		}
 	}
@@ -179,7 +180,7 @@ public class Run extends BaseState implements StateObject {
 	}
 
 	private int getMaxCellVoltage(Battery battery) {
-		return battery.getMaxCellVoltage().value().orElse(Integer.MIN_VALUE);
+		return battery.getMaxCellVoltage().orElse(Integer.MIN_VALUE);
 	}
 
 	private void setRunParameters() {

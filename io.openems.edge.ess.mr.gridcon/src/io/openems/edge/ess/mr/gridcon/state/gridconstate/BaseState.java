@@ -5,10 +5,11 @@ import java.util.BitSet;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.battery.soltaro.SoltaroBattery;
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
+import io.openems.edge.ess.mr.gridcon.Helper;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.StateObject;
 import io.openems.edge.ess.mr.gridcon.WeightingHelper;
@@ -51,13 +52,13 @@ public abstract class BaseState implements StateObject {
 		boolean undefined = true;
 
 		if (getBattery1() != null) {
-			undefined = undefined && getBattery1().isUndefined();
+			undefined = undefined && Helper.isUndefined(getBattery1());
 		}
 		if (getBattery2() != null) {
-			undefined = undefined && getBattery2().isUndefined();
+			undefined = undefined && Helper.isUndefined(getBattery2());
 		}
 		if (getBattery3() != null) {
-			undefined = undefined && getBattery3().isUndefined();
+			undefined = undefined && Helper.isUndefined(getBattery3());
 		}
 
 		return !undefined;
@@ -78,15 +79,15 @@ public abstract class BaseState implements StateObject {
 			return true;
 		}
 
-		if (getBattery1() != null && getBattery1().isError()) {
+		if (getBattery1() != null && Helper.isAlarmLevel2Error(getBattery1())) {
 			return true;
 		}
 
-		if (getBattery2() != null && getBattery2().isError()) {
+		if (getBattery2() != null && Helper.isAlarmLevel2Error(getBattery2())) {
 			return true;
 		}
 
-		if (getBattery3() != null && getBattery3().isError()) {
+		if (getBattery3() != null && Helper.isAlarmLevel2Error(getBattery3())) {
 			return true;
 		}
 
@@ -102,33 +103,21 @@ public abstract class BaseState implements StateObject {
 	}
 
 	protected void startBatteries() {
-		if (getBattery1() != null) {
-			if (!getBattery1().isRunning()) {
-				getBattery1().start();
-			}
-		}
-		if (getBattery2() != null) {
-			if (!getBattery2().isRunning()) {
-				getBattery2().start();
-			}
-		}
-		if (getBattery3() != null) {
-			if (!getBattery3().isRunning()) {
-				getBattery3().start();
-			}
-		}
+		Helper.startBattery(getBattery1());
+		Helper.startBattery(getBattery2());
+		Helper.startBattery(getBattery3());
 	}
 
 	protected boolean isBatteriesStarted() {
 		boolean running = true;
 		if (getBattery1() != null) {
-			running = running && getBattery1().isRunning();
+			running = running && Helper.isRunning(getBattery1());
 		}
 		if (getBattery2() != null) {
-			running = running && getBattery2().isRunning();
+			running = running && Helper.isRunning(getBattery2());
 		}
 		if (getBattery3() != null) {
-			running = running && getBattery3().isRunning();
+			running = running && Helper.isRunning(getBattery3());
 		}
 		return running;
 	}
@@ -194,15 +183,15 @@ public abstract class BaseState implements StateObject {
 		}
 	}
 
-	SoltaroBattery getBattery1() {
+	Battery getBattery1() {
 		return getComponent(battery1Id);
 	}
 
-	SoltaroBattery getBattery2() {
+	Battery getBattery2() {
 		return getComponent(battery2Id);
 	}
 
-	SoltaroBattery getBattery3() {
+	Battery getBattery3() {
 		return getComponent(battery3Id);
 	}
 

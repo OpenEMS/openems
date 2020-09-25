@@ -13,7 +13,7 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.session.User;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
-import io.openems.edge.battery.soltaro.SoltaroBattery;
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -22,9 +22,9 @@ import io.openems.edge.ess.mr.gridcon.GridconPcs;
 
 public class DummyComponentManager implements ComponentManager {
 
-	private SoltaroBattery bms1 = createBms();
-	private SoltaroBattery bms2 = createBms();
-	private SoltaroBattery bms3 = createBms();
+	private Battery bms1 = createBms();
+	private Battery bms2 = createBms();
+	private Battery bms3 = createBms();
 	private GridconPcs gridconPcs = createGridconPcs();
 	private EssGridcon ess = createEss();
 	private DummyIo io0 = createIo();
@@ -69,7 +69,7 @@ public class DummyComponentManager implements ComponentManager {
 		return new DummyGridcon();
 	}
 
-	private SoltaroBattery createBms() {
+	private Battery createBms() {
 		return new DummyBattery();
 	}
 
