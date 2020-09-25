@@ -30,6 +30,8 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
   }
 
   ngOnInit() {
+    this.spinnerId = 'fixdigitaloutput-single-chart';
+    this.service.startSpinner(this.spinnerId);
     this.service.setCurrentComponent('', this.route);
     this.subscribeChartRefresh()
   }
@@ -39,6 +41,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
   }
 
   protected updateChart() {
+    this.service.startSpinner(this.spinnerId);
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -72,6 +75,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
       }
       this.datasets = datasets;
       this.loading = false;
+      this.service.stopSpinner(this.spinnerId);
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart(reason);

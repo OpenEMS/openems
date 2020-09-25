@@ -1,0 +1,46 @@
+image:
+  file: .gitpod.Dockerfile
+
+tasks:
+  - init: |
+      touch /tmp/.gradle-lock
+      ./gradlew build buildBackend -x test
+      rm /tmp/.gradle-lock
+    command: java 
+      -Dfelix.cm.dir=$(pwd)/tools/docker/openems-backend/config.d
+      -jar build/openems-backend.jar
+  - init: |
+      sleep 10 && while [ -f /tmp/.gradle-lock ]; do sleep 1; done
+      ./gradlew build buildEdge -x test
+    command: java 
+      -Dfelix.cm.dir=$(pwd)/tools/docker/openems-edge/config.d
+      -Dopenems.data.dir=$(pwd)/tools/docker/openems-edge/data
+      -jar build/openems-edge.jar
+  - init: cd ui && npm install
+    command: ng serve 
+      -c gitpod
+      --host 0.0.0.0
+      --disable-host-check
+
+ports:
+  # Backend
+  - port: 8075 # Backend-to-Backend JSON/REST Api
+    onOpen: ignore
+  - port: 8076 # Backend-to-Backend JSON/Websocket Api
+    onOpen: ignore
+  - port: 8079 # Apache Felix Web Console
+    onOpen: ignore
+  - port: 8081 # Edge-Websocket
+    onOpen: ignore
+  - port: 8082 # UI-Websocket
+    onOpen: ignore
+  # Edge
+  - port: 8080 # Apache Felix Web Console
+    onOpen: ignore
+  - port: 8084 # JSON/REST Api
+    onOpen: ignore
+  - port: 8085 # JSON/Websocket Api
+    onOpen: ignore
+  # UI
+  - port: 4200
+    onOpen: open-browser

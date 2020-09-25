@@ -30,7 +30,7 @@ export class PickDateComponent {
     /**
      * checks if arrow has to be disabled/enabled and if automatic forwarding is needed dependend on the date
      */
-    private checkArrowAutomaticForwarding() {
+    public checkArrowAutomaticForwarding() {
         switch (this.service.periodString) {
             case 'day': {
                 if (isFuture(addDays(this.service.historyPeriod.from, 1))) {

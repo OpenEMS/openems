@@ -1,4 +1,3 @@
-import 'hammerjs';
 import { appRoutingProviders } from './../app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
@@ -18,17 +17,17 @@ import { IsclassPipe } from './pipe/isclass/isclass.pipe';
 import { KeysPipe } from './pipe/keys/keys.pipe';
 import { Language } from './translate/language';
 import { NgModule } from '@angular/core';
-import { NgxLoadingModule } from 'ngx-loading';
+import { NgxSpinnerModule } from "ngx-spinner";
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
 import { PickDateComponent } from './pickdate/pickdate.component';
 import { RouterModule } from '@angular/router';
 import { Service } from './service/service';
 import { SignPipe } from './pipe/sign/sign.pipe';
-import { ToasterModule, ToasterService } from 'angular2-toaster';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { UnitvaluePipe } from './pipe/unitvalue/unitvalue.pipe';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
+import { HeaderComponent } from './header/header.component';
 
 @NgModule({
   imports: [
@@ -37,10 +36,9 @@ import { Websocket } from './service/websocket';
     CommonModule,
     FormsModule,
     IonicModule,
-    NgxLoadingModule,
+    NgxSpinnerModule,
     ReactiveFormsModule,
     RouterModule,
-    ToasterModule,
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: Language }
     }),
@@ -60,6 +58,7 @@ import { Websocket } from './service/websocket';
     EvcsModalComponent,
     HeatingElementComponent,
     HeatingElementModalComponent,
+    HeaderComponent,
     PercentageBarComponent,
     PickDateComponent,
   ],
@@ -79,10 +78,9 @@ import { Websocket } from './service/websocket';
     FormlyModule,
     FormsModule,
     IonicModule,
-    NgxLoadingModule,
+    NgxSpinnerModule,
     ReactiveFormsModule,
     RouterModule,
-    ToasterModule,
     TranslateModule,
     // components
     ChartOptionsComponent,
@@ -90,6 +88,7 @@ import { Websocket } from './service/websocket';
     EvcsModalComponent,
     HeatingElementComponent,
     HeatingElementModalComponent,
+    HeaderComponent,
     PercentageBarComponent,
     PickDateComponent,
   ],
@@ -97,7 +96,6 @@ import { Websocket } from './service/websocket';
     appRoutingProviders,
     DecimalPipe,
     Service,
-    ToasterService,
     UnitvaluePipe,
     Utils,
     Websocket,
