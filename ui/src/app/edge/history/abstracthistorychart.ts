@@ -11,6 +11,7 @@ export abstract class AbstractHistoryChart {
 
 
     public loading: boolean = true;
+    public spinnerId: string = "";
 
     //observable is used to fetch new chart data every 5 minutes
     private refreshChartData = interval(300000);
@@ -41,7 +42,8 @@ export abstract class AbstractHistoryChart {
     constructor(
         protected service: Service,
         protected translate: TranslateService
-    ) { }
+    ) {
+    }
 
     /**
      * Gets the ChannelAdresses that should be queried.
@@ -112,12 +114,14 @@ export abstract class AbstractHistoryChart {
 
     /**
      * Initializes empty chart on error
+     * @param spinnerSelector to stop spinner
      */
     protected initializeChart() {
         EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData')
         this.datasets = EMPTY_DATASET;
         this.labels = [];
         this.loading = false;
+        this.service.stopSpinner(this.spinnerId);
     }
 
     /**
