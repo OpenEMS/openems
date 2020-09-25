@@ -65,21 +65,44 @@ public class DelaySellToGridTest {
 				.addReference("meter", new DummySymmetricMeter("meter1"))//
 				.activate(myconfig) //
 				.next(new TestCase() //
-						.input(essActivePower, 0) //
 						.input(meter1ActivePower, 490_000) //
 						.output(essSetPower, 10_000))//
 				.next(new TestCase() //
-						.input(essActivePower, 0) //
 						.input(meter1ActivePower, 14_000_000) //
 						.output(essSetPower, 1_500_000)) //
 				.next(new TestCase() //
-						.input(essActivePower, 10_000) //
-						.input(meter1ActivePower, 14_000_000) //
-						.output(essSetPower, 1_500_000)) //
+						.input(meter1ActivePower, 14_400_000) //
+						.output(essSetPower, 1_900_000)) //
 				.next(new TestCase() //
-						.input(essActivePower, 20_000) //
-						.input(meter1ActivePower, 1_000_000) //
+						.input(meter1ActivePower, 10_000_000) //
 						.output(essSetPower, 0)) //
-		;
+				.next(new TestCase() //
+						.input(meter1ActivePower, 12_500_001) //
+						.output(essSetPower, 1)) //
+				.next(new TestCase() //
+						.input(meter1ActivePower, 10_500_000) //
+						.output(essSetPower, 0)) //
+				.next(new TestCase() //
+						.input(meter1ActivePower, 6_000_000) //
+						.output(essSetPower, 0)) //
+				.next(new TestCase() //
+						.input(meter1ActivePower, 2_000_000) //
+						.output(essSetPower, 0)) //
+				.next(new TestCase() //
+						.input(meter1ActivePower, 499_999) //
+						.output(essSetPower, 1)) //
+				.next(new TestCase() //
+						.input(meter1ActivePower, 100_000) //
+						.output(essSetPower, 400_000)) //
+				.next(new TestCase() //
+						.input(meter1ActivePower, 0) //
+						.output(essSetPower, 500_000)) //
+				.next(new TestCase() //
+						.input(meter1ActivePower, 490_000) //
+						.output(essSetPower, 10_000)) //
+				.next(new TestCase() //
+						.input(meter1ActivePower, 600_000) //
+						.output(essSetPower, 0)) //
+				;
 	}
 }
