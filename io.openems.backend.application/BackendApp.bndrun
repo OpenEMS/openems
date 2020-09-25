@@ -5,7 +5,7 @@
 -resolve.effective: active
 
 -runproperties: \
-	org.osgi.service.http.port=8079,\
+	org.osgi.service.http.port=9079,\
 	felix.cm.dir=c:/openems-backend-conf
 
 -runsystempackages: \
@@ -51,7 +51,6 @@
 	io.openems.backend.uiwebsocket.energydepot;version='[1.0.0,1.0.1)',\
 	io.openems.common;version='[1.0.0,1.0.1)',\
 	io.openems.shared.influxdb;version='[1.0.0,1.0.1)',\
-	io.openems.wrapper.fastexcel;version='[0.10.17,0.10.18)',\
 	io.openems.wrapper.influxdb-java;version='[2.17.0,2.17.1)',\
 	io.openems.wrapper.opczip;version='[1.2.0,1.2.1)',\
 	org.apache.commons.commons-fileupload;version='[1.4.0,1.4.1)',\
@@ -70,4 +69,5 @@
 	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.5,2.0.6)',\
 	org.osgi.service.jdbc;version='[1.0.0,1.0.1)',\
 	org.osgi.util.function;version='[1.1.0,1.1.1)',\
-	org.osgi.util.promise;version='[1.1.1,1.1.2)'
+	org.osgi.util.promise;version='[1.1.1,1.1.2)',\
+	io.openems.wrapper.fastexcel;version='[0.10.18,0.10.19)'
