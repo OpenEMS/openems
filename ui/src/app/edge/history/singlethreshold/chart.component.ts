@@ -30,6 +30,8 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
   }
 
   ngOnInit() {
+    this.spinnerId = "singlethreshold-chart";
+    this.service.startSpinner(this.spinnerId);
     this.service.setCurrentComponent('', this.route);
     this.subscribeChartRefresh()
   }
@@ -39,6 +41,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
   }
 
   protected updateChart() {
+    this.service.startSpinner(this.spinnerId);
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -162,6 +165,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
         }
         this.datasets = datasets;
         this.loading = false;
+        this.service.stopSpinner(this.spinnerId);
       }).catch(reason => {
         console.error(reason); // TODO error message
         this.initializeChart(reason);

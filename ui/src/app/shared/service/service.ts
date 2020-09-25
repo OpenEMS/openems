@@ -1,12 +1,15 @@
 import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { ModalController, ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Cookie } from 'ng2-cookies';
+import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
+import { JsonrpcResponseError } from '../jsonrpc/base';
+import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { Edges } from '../jsonrpc/shared';
 import { ChannelAddress } from '../shared';
@@ -14,8 +17,6 @@ import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { AdvertWidgets, Widgets } from '../type/widget';
 import { DefaultTypes } from './defaulttypes';
-import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
-import { JsonrpcResponseError } from '../jsonrpc/base';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -51,8 +52,10 @@ export class Service implements ErrorHandler {
 
   constructor(
     private router: Router,
-    public translate: TranslateService,
+    private spinner: NgxSpinnerService,
     private toaster: ToastController,
+    public modalCtrl: ModalController,
+    public translate: TranslateService,
   ) {
     // add language
     translate.addLangs(Language.getLanguages());
@@ -71,7 +74,7 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * Sets the application language
+   * Set the application language
    */
   public setLang(id: LanguageTag) {
     this.translate.use(id);
@@ -81,12 +84,37 @@ export class Service implements ErrorHandler {
   /**
    * Returns the configured language for docs.fenecon.de
    */
-
   public getDocsLang(): string {
     if (this.translate.currentLang == "German") {
       return "de";
     } else {
       return "en";
+    }
+  }
+
+  /**
+   * Convert the browser language in Language Tag
+   */
+  public browserLangToLangTag(browserLang: string): LanguageTag {
+    switch (browserLang) {
+      case "de": {
+        return "German" as LanguageTag
+      }
+      case "en": {
+        return "English" as LanguageTag
+      }
+      case "es": {
+        return "Spanish" as LanguageTag
+      }
+      case "nl": {
+        return "Dutch" as LanguageTag
+      }
+      case "cz": {
+        return "Czech" as LanguageTag
+      }
+      default: {
+        return "German" as LanguageTag
+      }
     }
   }
 
@@ -149,7 +177,6 @@ export class Service implements ErrorHandler {
       // Get Edge-ID. If not existing -> resolve null
       let route = activatedRoute.snapshot;
       let edgeId = route.params["edgeId"];
-
       if (edgeId == null) {
         // allow modal components to get edge id
         if (route.url.length == 0) {
@@ -358,6 +385,32 @@ export class Service implements ErrorHandler {
     fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
   }[] = [];
   private queryEnergyTimeout: any = null;
+
+
+  /**
+   * Start NGX-Spinner
+   * 
+   * Spinner will appear inside html tag only
+   * 
+   * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
+   * 
+   * @param selector selector for specific spinner
+   */
+  public startSpinner(selector: string) {
+    this.spinner.show(selector, {
+      type: 'ball-clip-rotate-multiple',
+      fullScreen: false,
+      bdColor: "rgba(0,0,0,0.5)"
+    });
+  }
+
+  /**
+   * Stop NGX-Spinner
+   * @param selector selector for specific spinner
+   */
+  public stopSpinner(selector: string) {
+    this.spinner.hide(selector);
+  }
 
   public async toast(message: string, level: 'success' | 'warning' | 'danger') {
     const toast = await this.toaster.create({

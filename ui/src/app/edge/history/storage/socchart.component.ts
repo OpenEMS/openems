@@ -29,6 +29,8 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
 
 
     ngOnInit() {
+        this.spinnerId = "storage-single-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
         this.subscribeChartRefresh();
     }
@@ -39,6 +41,8 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
 
     protected updateChart() {
         this.loading = true;
+        this.service.startSpinner(this.spinnerId);
+        this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
@@ -95,6 +99,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                     });
                     this.datasets = datasets;
                     this.loading = false;
+                    this.service.stopSpinner(this.spinnerId);
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart(reason);

@@ -53,7 +53,8 @@
                                         <ng-container
                                             *ngIf="address.componentId == item.id && address.channelId != 'State'">
                                             <ng-container *ngIf="currentData.channel[address.toString()] == 1">
-                                                <ion-label *ngIf="item.channels[address.channelId]['text'].length != 0">
+                                                <ion-label class="ion-text-wrap"
+                                                    *ngIf="item.channels[address.channelId]['text'].length != 0">
                                                     <ng-container
                                                         [ngSwitch]="item.channels[address.channelId]['level']">
                                                         <ion-text *ngSwitchCase="'INFO'" color="success" translate>
@@ -68,7 +69,8 @@
                                                     </ng-container>
                                                     {{ item.channels[address.channelId]['text'] }}
                                                 </ion-label>
-                                                <ion-label *ngIf="item.channels[address.channelId]['text'].length == 0">
+                                                <ion-label class="ion-text-wrap"
+                                                    *ngIf="item.channels[address.channelId]['text'].length == 0">
                                                     <ng-container
                                                         [ngSwitch]="item.channels[address.channelId]['level']">
                                                         <ion-text *ngSwitchCase="'INFO'" color="success" translate>

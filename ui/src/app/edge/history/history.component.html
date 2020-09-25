@@ -1,30 +1,11 @@
-<ion-grid *ngIf="isTimedataAvailable && widgets">
-  <ion-row>
-    <!-- Energymonitor Chart -->
-    <ion-col size="12">
-      <energy [period]="service.historyPeriod" [style.height]="energyChartHeight"></energy>
-    </ion-col>
-
-    <ion-col size="12" size-lg="4" size-xl="4" *ngIf="edge && service.isKwhAllowed(edge)">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-avatar slot="start">
-            <img src="assets/img/kwh.png">
-          </ion-avatar>
-          <ion-label>Info: Energiedaten</ion-label>
-        </ion-item>
-        <ion-card-content>
-          <table class="full_width">
-            <tr>
-              <td>
-                Wir beginnen damit, die Energiewerte (kWh) bei unseren Systemen zur Verfügung zu stellen. Hierbei kann
-                es leider systembedingt anfangs zu fehlerhaften Anzeigen kommen.
-              </td>
-            </tr>
-          </table>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
+<header></header>
+<ion-content>
+  <ion-grid *ngIf="isTimedataAvailable && widgets">
+    <ion-row>
+      <!-- Energymonitor Chart -->
+      <ion-col size="12">
+        <energy [period]="service.historyPeriod" [style.height]="energyChartHeight"></energy>
+      </ion-col>
 
     <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
       <ion-col *ngSwitchCase="'Storage'" size="12" size-lg="4" size-xl="2">
@@ -76,6 +57,27 @@
         </chpsocWidget>
       </ion-col>
     </ng-container>
+
+    <ion-col size="12" size-lg="4" size-xl="4" *ngIf="edge && service.isKwhAllowed(edge)">
+      <ion-card>
+        <ion-item lines="full" color="light">
+          <ion-avatar slot="start">
+            <img src="assets/img/kwh.png">
+          </ion-avatar>
+          <ion-label>Info: Energiedaten</ion-label>
+        </ion-item>
+        <ion-card-content>
+          <table class="full_width">
+            <tr>
+              <td>
+                Wir beginnen damit, die Energiewerte (kWh) bei unseren Systemen zur Verfügung zu stellen. Hierbei kann
+                es leider systembedingt anfangs zu fehlerhaften Anzeigen kommen.
+              </td>
+            </tr>
+          </table>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
   </ion-row>
 </ion-grid>
 
@@ -85,7 +87,7 @@
       <ion-card>
         <ion-item lines="full" color="light">
           <ion-icon slot="start" size="large" color="warning" name="information-circle-outline"></ion-icon>
-          <ion-label text-wrap>Historische Daten sind derzeit lokal nicht verfügbar</ion-label>
+          <ion-label class="ion-text-wrap">Historische Daten sind derzeit lokal nicht verfügbar</ion-label>
         </ion-item>
         <ion-card-content>
           <p>Bitte verwenden Sie das FENECON Online-Monitoring auf <a href="http://www.fenecon.de"

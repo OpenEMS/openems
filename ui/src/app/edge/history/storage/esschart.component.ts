@@ -33,6 +33,8 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     }
 
     ngOnInit() {
+        this.spinnerId = "storage-ess-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
         this.setLabel();
         this.subscribeChartRefresh();
@@ -43,11 +45,12 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     }
 
     protected updateChart() {
+        this.service.startSpinner(this.spinnerId);
         this.loading = true;
+        this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
-                    this.colors = [];
                     let result = response.result;
                     // convert labels
                     let labels: Date[] = [];
@@ -109,6 +112,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                     });
                     this.datasets = datasets;
                     this.loading = false;
+                    this.service.stopSpinner(this.spinnerId);
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart(reason);

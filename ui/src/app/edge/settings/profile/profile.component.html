@@ -1,51 +1,53 @@
-<ion-grid *ngIf="config">
-  <ion-row class="ion-justify-content-center">
+<header></header>
+<ion-content>
+  <ion-grid *ngIf="config">
+    <ion-row class="ion-justify-content-center">
 
-    <ion-col size="12" size-md="6" *ngIf="edge">
-      <ion-card>
-        <ion-item color="light" lines="full">
-          <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
-          <ion-label>Allgemeine Daten</ion-label>
-        </ion-item>
+      <ion-col size="12" size-md="6" *ngIf="edge">
+        <ion-card>
+          <ion-item color="light" lines="full">
+            <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
+            <ion-label>Allgemeine Daten</ion-label>
+          </ion-item>
 
-        <ion-card-content>
-          <ion-list>
-            <ion-item *ngIf="env.backend === 'OpenEMS Backend'">
-              <ion-label>Edge-ID</ion-label>
-              {{ edge.id }}
-            </ion-item>
-            <ion-item *ngIf="edge.comment">
-              <ion-label>Kommentar</ion-label>
-              {{ edge.comment }}
-            </ion-item>
-            <ion-item *ngIf="edge.producttype">
-              <ion-label>Product-Typ</ion-label>
-              {{ edge.producttype }}
-            </ion-item>
-            <ion-item>
-              <ion-label>OpenEMS-Edge Version</ion-label>
-              {{ edge.version }}
-            </ion-item>
-            <ion-item>
-              <ion-label>Rolle</ion-label>
-              {{ edge.getRoleString() }}
-            </ion-item>
-          </ion-list>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
+          <ion-card-content>
+            <ion-list>
+              <ion-item *ngIf="env.backend === 'OpenEMS Backend'">
+                <ion-label>Edge-ID</ion-label>
+                {{ edge.id }}
+              </ion-item>
+              <ion-item *ngIf="edge.comment">
+                <ion-label>Kommentar</ion-label>
+                {{ edge.comment }}
+              </ion-item>
+              <ion-item *ngIf="edge.producttype">
+                <ion-label>Product-Typ</ion-label>
+                {{ edge.producttype }}
+              </ion-item>
+              <ion-item>
+                <ion-label>OpenEMS-Edge Version</ion-label>
+                {{ edge.version }}
+              </ion-item>
+              <ion-item>
+                <ion-label>Rolle</ion-label>
+                {{ edge.getRoleString() }}
+              </ion-item>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
 
-  </ion-row>
-  <ion-row class="ion-justify-content-center">
+    </ion-row>
+    <ion-row class="ion-justify-content-center">
 
-    <ion-col size="12" size-md="6" *ngIf="components != null">
-      <ion-card>
-        <ion-item color="light" lines="full">
-          <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
-          <ion-label>Konfiguration</ion-label>
-        </ion-item>
+      <ion-col size="12" size-md="6" *ngIf="components != null">
+        <ion-card>
+          <ion-item color="light" lines="full">
+            <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
+            <ion-label>Konfiguration</ion-label>
+          </ion-item>
 
-        <ion-card-content>
+          <ion-card-content>
 
           <ion-list>
             <ng-container *ngFor="let category of components">
@@ -128,6 +130,7 @@
                           href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_cloud_websocketjson_api"
                           translate>General.manual</ion-button>
                       </ion-text>
+                      <ion-icon name="arrow-dropdown-outline"></ion-icon>
                     </ng-container>
                   </ng-container>
                 </ion-label>
@@ -135,9 +138,10 @@
             </ng-container>
           </ion-list>
 
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
 
-  </ion-row>
-</ion-grid>
+    </ion-row>
+  </ion-grid>
+</ion-content>
