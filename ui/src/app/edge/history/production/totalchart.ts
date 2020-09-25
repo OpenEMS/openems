@@ -32,7 +32,6 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
         this.spinnerId = 'production-total-chart';
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh()
     }
 
     ngOnDestroy() {

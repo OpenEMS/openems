@@ -33,7 +33,6 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
         this.spinnerId = "consumption-other-chart";
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh()
     }
 
     ngOnDestroy() {

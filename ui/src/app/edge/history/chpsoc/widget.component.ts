@@ -35,7 +35,6 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
                 this.component = config.getComponent(this.componentId);
             })
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {

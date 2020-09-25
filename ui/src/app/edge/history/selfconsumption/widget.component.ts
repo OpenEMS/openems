@@ -29,7 +29,6 @@ export class SelfconsumptionWidgetComponent extends AbstractHistoryWidget implem
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {

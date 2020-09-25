@@ -32,7 +32,6 @@ export class ProductionComponent extends AbstractHistoryWidget implements OnInit
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {

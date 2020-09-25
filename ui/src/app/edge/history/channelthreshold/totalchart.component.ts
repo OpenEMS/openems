@@ -32,7 +32,6 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
     this.spinnerId = "channelthreshold-total-chart";
     this.service.startSpinner(this.spinnerId);
     this.service.setCurrentComponent('', this.route);
-    this.subscribeChartRefresh()
   }
 
   ngOnDestroy() {

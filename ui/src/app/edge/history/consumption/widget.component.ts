@@ -31,7 +31,6 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {

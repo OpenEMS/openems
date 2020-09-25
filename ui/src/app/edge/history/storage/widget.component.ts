@@ -32,7 +32,6 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {

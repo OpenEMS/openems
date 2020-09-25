@@ -31,6 +31,7 @@ export class Service implements ErrorHandler {
   public deviceHeight: number = 0;
   public deviceWidth: number = 0;
   public isSmartphoneResolution: boolean = false;
+  public isSmartphoneResolutionSubject: Subject<boolean> = new Subject<boolean>();
 
   /**
    * Holds the currenty selected Page Title.

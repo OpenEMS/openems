@@ -33,7 +33,6 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
     this.spinnerId = "singlethreshold-chart";
     this.service.startSpinner(this.spinnerId);
     this.service.setCurrentComponent('', this.route);
-    this.subscribeChartRefresh()
   }
 
   ngOnDestroy() {

@@ -70,14 +70,18 @@ export class AppComponent {
   private checkSmartphoneResolution(init: boolean): void {
     if (init == true) {
       if (this.platform.width() <= 576) {
+        this.service.isSmartphoneResolutionSubject.next(true);
         this.service.isSmartphoneResolution = true;
       } else if (this.platform.width() > 576) {
+        this.service.isSmartphoneResolutionSubject.next(false);
         this.service.isSmartphoneResolution = false;
       }
     } else {
       if (this.platform.width() <= 576 && this.service.isSmartphoneResolution == false) {
+        this.service.isSmartphoneResolutionSubject.next(true);
         this.service.isSmartphoneResolution = true;
       } else if (this.platform.width() > 576 && this.service.isSmartphoneResolution == true) {
+        this.service.isSmartphoneResolutionSubject.next(false);
         this.service.isSmartphoneResolution = false;
       }
     }

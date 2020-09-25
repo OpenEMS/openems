@@ -37,7 +37,6 @@ export class ChanneltresholdWidgetComponent extends AbstractHistoryWidget implem
                 this.component = config.getComponent(this.componentId);
             })
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {

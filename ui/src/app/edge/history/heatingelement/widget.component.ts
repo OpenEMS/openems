@@ -38,7 +38,6 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
                 this.component = config.getComponent(this.componentId);
             });
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {

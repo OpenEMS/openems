@@ -130,7 +130,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.service.setCurrentComponent('', this.route);
     this.service.startSpinner(this.spinnerId);
     this.platform.ready().then(() => {
-      this.platform.resize.pipe(takeUntil(this.stopOnDestroy), debounceTime(200)).subscribe(() => {
+      this.service.isSmartphoneResolutionSubject.subscribe(value => {
         if (this.isKwhChart(this.service)) {
           this.updateChart();
         }
@@ -138,7 +138,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     })
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
     setTimeout(() => this.getChartHeight(), 500);
-    this.subscribeChartRefresh()
   }
 
   ngOnDestroy() {
@@ -151,30 +150,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
    * checks if kWh Chart is allowed to be shown
    */
   private isKwhChart(service: Service): boolean {
-    console.log("differnce", differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from))
-    if (service.isKwhAllowed(this.edge) == true && this.isAboveEqualDateRangeWeek() == true) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * checks if time difference in days is one week or higher
-   */
-  private isAboveEqualDateRangeWeek(): boolean {
-    if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 6) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * checks if time difference in days is lower than one week
-   */
-  private isBelowDateRangeWeek(): boolean {
-    if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) < 6) {
+    if (service.isKwhAllowed(this.edge) == true &&
+      differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 6) {
       return true;
     } else {
       return false;
@@ -398,10 +375,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           } else if (this.isKwhChart(this.service) == true) {
             this.chartType = "bar";
             this.getEnergyChannelAddresses(config).then(channelAddresses => {
-              let resolution: number = 0
+              // let resolution: number = 0
 
               // TODO: year + change resolution dynamically when year is ready
               // otherwise resolution would be 'value per day' anyway
+
               // switch (this.service.periodString) {
               //   case "custom": {
               //     resolution = 86400; // resolution for value per day
@@ -414,7 +392,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               //   }
               // }
 
-              resolution = 86400; // resolution for value per day
+              let resolution = 86400; // resolution for value per day
 
 
               this.queryHistoricTimeseriesEnergyPerPeriod(addDays(this.period.from, 1), this.period.to, channelAddresses, resolution).then(response => {
@@ -765,7 +743,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       options.scales.xAxes[0].stacked = true;
       options.scales.xAxes[0].offset = true;
 
-      if (this.service.isSmartphoneResolution == true && this.isBelowDateRangeWeek() == false) {
+      if (this.service.isSmartphoneResolution == true && differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 25) {
         options.scales.xAxes[0].ticks.source = 'auto';
         options.scales.xAxes[0].ticks.maxTicksLimit = 12;
       } else {

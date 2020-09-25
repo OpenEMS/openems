@@ -31,7 +31,6 @@ export class AutarchyWidgetComponent extends AbstractHistoryWidget implements On
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
-        this.subscribeWidgetRefresh();
     }
 
     ngOnDestroy() {

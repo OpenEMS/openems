@@ -29,7 +29,6 @@ export class GridComponent extends AbstractHistoryWidget implements OnInit, OnCh
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {

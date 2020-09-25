@@ -32,7 +32,6 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
         this.spinnerId = "storage-single-chart";
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh();
     }
 
     ngOnDestroy() {

@@ -37,7 +37,6 @@ export class FixDigitalOutputWidgetComponent extends AbstractHistoryWidget imple
                 this.component = config.getComponent(this.componentId);
             })
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {

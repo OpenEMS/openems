@@ -10,7 +10,7 @@ export abstract class AbstractHistoryWidget {
     //observable is used to fetch new widget data every 5 minutes
     private refreshWidgetData = interval(300000);
 
-    private ngUnsubscribe: Subject<void> = new Subject<void>();
+    private ngUnsubscribe: Subject<void> | null = null;
 
     constructor(
         protected service: Service,
@@ -29,8 +29,10 @@ export abstract class AbstractHistoryWidget {
      * Unsubscribes to 5 minute Interval Observable
      */
     protected unsubscribeWidgetRefresh() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
+        if (this.ngUnsubscribe.isStopped == false) {
+            this.ngUnsubscribe.next();
+            this.ngUnsubscribe.complete();
+        }
     }
 
     /**
@@ -49,6 +51,12 @@ export abstract class AbstractHistoryWidget {
                         let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses);
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             let result = (response as QueryHistoricTimeseriesDataResponse).result;
+                            if (this.checkAllowanceWidgetRefresh(new Date(result.timestamps[result.timestamps.length - 1])) == true) {
+                                this.ngUnsubscribe = new Subject<void>();
+                                this.subscribeWidgetRefresh();
+                            } else {
+                                this.unsubscribeWidgetRefresh();
+                            }
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
                                 resolve(response as QueryHistoricTimeseriesDataResponse);
                             } else {
@@ -59,6 +67,23 @@ export abstract class AbstractHistoryWidget {
                 })
             });
         });
+    }
+
+    /**
+     * checks if widget is allowed to be refreshed
+     * is only allowed if last timestamp in query is current date
+     * 
+     * @param lastTimestamp last timestamp form query
+     */
+    protected checkAllowanceWidgetRefresh(lastTimestamp: Date): boolean {
+        let currentDate = new Date();
+        let allowRefresh: boolean = false;
+        if (currentDate.getDay() == lastTimestamp.getDay()) {
+            allowRefresh = true;
+        } else {
+            allowRefresh = false;
+        }
+        return allowRefresh;
     }
 
     /**
