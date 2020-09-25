@@ -29,6 +29,8 @@ public class ChpSocTest {
 						.setId(CTRL_ID) //
 						.setInputChannelAddress(ESS_SOC.toString()) //
 						.setOutputChannelAddress(IO_OUTPUT0.toString()) //
+						.setLowThreshold(15) //
+						.setHighThreshold(85) //
 						.setMode(Mode.AUTOMATIC) //
 						.setInvert(false).build())
 				.next(new TestCase() //
