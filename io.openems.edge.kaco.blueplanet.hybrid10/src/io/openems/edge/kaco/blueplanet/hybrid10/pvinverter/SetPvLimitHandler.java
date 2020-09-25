@@ -9,13 +9,13 @@ import org.slf4j.LoggerFactory;
 
 import com.ed.data.Settings;
 
-import io.openems.common.exceptions.CheckedRunnable;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingRunnable;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.kaco.blueplanet.hybrid10.BpConstants;
 
-public class SetPvLimitHandler implements CheckedRunnable {
+public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException> {
 
 	private final Logger log = LoggerFactory.getLogger(SetPvLimitHandler.class);
 	private final BpPvInverterImpl parent;
