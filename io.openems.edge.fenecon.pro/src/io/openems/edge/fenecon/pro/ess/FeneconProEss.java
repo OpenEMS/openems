@@ -30,9 +30,11 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -46,20 +48,22 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Fenecon.Pro.Ess", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE })
-
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
 public class FeneconProEss extends AbstractOpenemsModbusComponent implements SymmetricEss, AsymmetricEss,
 		ManagedAsymmetricEss, ManagedSymmetricEss, OpenemsComponent, ModbusSlave, EventHandler {
 
+	protected static final int MAX_APPARENT_POWER = 9000;
+
+	private static final int UNIT_ID = 4;
+
 	private final Logger log = LoggerFactory.getLogger(FeneconProEss.class);
-
-	protected final static int MAX_APPARENT_POWER = 9000;
-	private final static int UNIT_ID = 4;
-
 	private final MaxApparentPowerHandler maxApparentPowerHandler = new MaxApparentPowerHandler(this);
 
 	private String modbusBridgeId;
@@ -113,7 +117,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 	}
 
 	public String getModbusBridgeId() {
-		return modbusBridgeId;
+		return this.modbusBridgeId;
 	}
 
 	@Override
@@ -145,8 +149,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 									} else {
 										return value;
 									}
-								}, //
-									// channel -> element
+								}, // channel -> element
 								value -> value)), //
 						m(ProChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
@@ -506,45 +509,60 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 			return;
 		}
 		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.updateChannels();
+			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.activateRemoteMode();
 			this.maxApparentPowerHandler.calculateMaxApparentPower();
+			break;
 		}
 	}
 
 	/**
-	 * Activates the Remote-Mode
+	 * Update Channels on TOPIC_CYCLE_BEFORE_PROCESS_IMAGE.
+	 */
+	private void updateChannels() {
+		// Update Local-Mode Warning Channel
+		EnumReadChannel controlModeChannel = this.channel(ProChannelId.CONTROL_MODE);
+		ControlMode controlMode = controlModeChannel.getNextValue().asEnum();
+		StateChannel localModeChannel = this.channel(ProChannelId.LOCAL_MODE);
+		localModeChannel.setNextValue(controlMode == ControlMode.LOCAL);
+	}
+
+	/**
+	 * Activates the Remote-Mode.
 	 */
 	private void activateRemoteMode() {
 		try {
 			if (this.getPcsMode() != PcsMode.REMOTE) {
 				// If Mode is not "Remote"
-				this.logWarn(log, "PCS-Mode is not 'Remote'. It's [" + this.getPcsMode() + "]");
+				this.logWarn(this.log, "PCS-Mode is not 'Remote'. It's [" + this.getPcsMode() + "]");
 				if (this.getSetupMode() == SetupMode.OFF) {
 					// Activate SetupMode
-					this.logInfo(log, "Activating Setup-Mode");
+					this.logInfo(this.log, "Activating Setup-Mode");
 					this.getSetupModeChannel().setNextWriteValue(SetupMode.ON);
 				} else {
 					// Set Mode to "Remote"
-					this.logInfo(log, "Setting PCS-Mode to 'Remote'");
+					this.logInfo(this.log, "Setting PCS-Mode to 'Remote'");
 					this.getPcsModeChannel().setNextWriteValue(PcsMode.REMOTE);
 				}
 			} else {
 				// If Mode is "Remote" and SetupMode is active
 				if (this.getSetupMode() == SetupMode.ON) {
 					// Deactivate SetupMode
-					this.logInfo(log, "Deactivating Setup-Mode");
+					this.logInfo(this.log, "Deactivating Setup-Mode");
 					this.getSetupModeChannel().setNextWriteValue(SetupMode.OFF);
 				}
 			}
 		} catch (OpenemsNamedException e) {
-			this.logError(log, "Unable to activate Remote-Mode: " + e.getMessage());
+			this.logError(this.log, "Unable to activate Remote-Mode: " + e.getMessage());
 		}
 	}
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				AsymmetricEss.getModbusSlaveNatureTable(accessMode), //

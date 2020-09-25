@@ -48,7 +48,7 @@ public @interface Config {
 	@AttributeDefinition(name = "High temperature [°C]", description = "If max cell temperature is above this temperature charging/discharging is stopped.")
 	int highTemperature() default 60;
 
-	@AttributeDefinition(name = "ForceCharge Power Percent [%]", description = "The charge power in percent from the maximum output of the ess", required = false)
+	@AttributeDefinition(name = "ForceCharge Power Percent [%]", description = "The charge power in percent from the maximum output of the ess")
 	int chargePowerPercent() default 20;
 
 	@AttributeDefinition(name = "ForceCharge Power Time [s]", description = "Defines how long force charging is executed in seconds")

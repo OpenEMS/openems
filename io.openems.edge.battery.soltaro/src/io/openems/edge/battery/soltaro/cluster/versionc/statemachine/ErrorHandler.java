@@ -5,6 +5,7 @@ import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
+import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class ErrorHandler extends StateHandler<State, Context> {

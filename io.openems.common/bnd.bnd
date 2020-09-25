@@ -6,9 +6,10 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.wrapper.fastexcel,\
+	io.openems.wrapper.opczip,\
 	Java-WebSocket;version=1.4.1,\
 	org.ops4j.pax.logging.pax-logging-api,\
-
+	
 -testpath: \
 	${testpath}
 

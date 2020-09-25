@@ -181,7 +181,13 @@ export const TRANSLATION = {
                     status: 'Status',
                     totalCharge: 'Carga total',
                     totalChargingPower: 'Potencia de carga total',
+                    unknown: 'Desconocido',
                     unplugged: 'No conectado',
+                    Administration: {
+                        carAdministration: 'Administración de automóviles',
+                        customCarInfo: 'Si este es el caso, su automóvil solo puede cargarse de manera eficiente desde una determinada salida. Con este botón, esto se incluye en sus opciones de configuración, así como en la carga automática.',
+                        renaultZoe: '¿Se carga principalmente un Renault Zoe en esta estación de carga?'
+                    },
                     NoConnection: {
                         description: 'No se pudo conectar a la estación de carga.',
                         help1_1: 'La IP de la estación de carga aparece cuando se enciende nuevamente',

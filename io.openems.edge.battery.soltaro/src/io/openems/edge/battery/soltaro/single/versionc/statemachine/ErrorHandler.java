@@ -5,6 +5,7 @@ import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
+import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class ErrorHandler extends StateHandler<State, Context> {

@@ -1,5 +1,4 @@
 import { ActivatedRoute } from '@angular/router';
-import { AutarchyModalComponent } from './modal/modal.component';
 import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
@@ -32,11 +31,11 @@ export class AutarchyWidgetComponent extends AbstractHistoryWidget implements On
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
-        this.subscribeWidgetRefresh()
+        this.subscribeWidgetRefresh();
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -62,14 +61,6 @@ export class AutarchyWidgetComponent extends AbstractHistoryWidget implements On
             ];
             resolve(channels);
         });
-    }
-
-    async presentModal() {
-        const modal = await this.modalCtrl.create({
-            component: AutarchyModalComponent,
-            cssClass: 'wide-modal'
-        });
-        return await modal.present();
     }
 }
 

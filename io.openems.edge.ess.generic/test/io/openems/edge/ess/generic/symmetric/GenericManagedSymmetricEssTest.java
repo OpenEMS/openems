@@ -10,7 +10,7 @@ import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.ess.generic.symmetric.statemachine.State;
+import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 
 public class GenericManagedSymmetricEssTest {
 

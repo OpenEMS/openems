@@ -1,10 +1,8 @@
 import { ActivatedRoute } from '@angular/router';
 import { calculateActiveTimeOverPeriod } from '../shared';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { FixDigitalOutputModalComponent } from './modal/modal.component';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ModalController } from '@ionic/angular';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
@@ -15,7 +13,7 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 export class FixDigitalOutputWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() private componentId: string;
+    @Input() public componentId: string;
     private config: EdgeConfig = null;
     public component: EdgeConfig.Component = null;
 
@@ -27,7 +25,6 @@ export class FixDigitalOutputWidgetComponent extends AbstractHistoryWidget imple
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-        public modalCtrl: ModalController,
     ) {
         super(service);
     }
@@ -69,17 +66,4 @@ export class FixDigitalOutputWidgetComponent extends AbstractHistoryWidget imple
             resolve(channeladdresses);
         });
     }
-
-    async presentModal() {
-        const modal = await this.modalCtrl.create({
-            component: FixDigitalOutputModalComponent,
-            cssClass: 'wide-modal',
-            componentProps: {
-                component: this.component,
-                config: this.config
-            }
-        });
-        return await modal.present();
-    }
 }
-
