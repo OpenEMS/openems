@@ -1,6 +1,5 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
-import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
