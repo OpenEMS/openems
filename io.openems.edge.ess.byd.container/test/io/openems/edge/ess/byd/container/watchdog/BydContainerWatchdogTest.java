@@ -1,6 +1,5 @@
 package io.openems.edge.ess.byd.container.watchdog;
 
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
