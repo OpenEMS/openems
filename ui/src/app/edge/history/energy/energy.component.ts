@@ -126,6 +126,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     })
   }
 
+
   ngOnInit() {
     this.spinnerId = "energy-chart";
     this.service.setCurrentComponent('', this.route);
