@@ -1,7 +1,6 @@
 package io.openems.edge.controller.ess.hybrid.surplusfeedtogrid;
 
 import io.openems.common.utils.ConfigUtils;
-import io.openems.common.utils.ConfigUtilsTest;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
@@ -12,7 +11,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String essId = null;
 
 		private Builder() {
-
 		}
 
 		public Builder setId(String id) {
