@@ -62,6 +62,12 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 		return this;
 	}
 
+	public DummyManagedSymmetricEss withCapacity(int value) {
+		this._setCapacity(value);
+		this.getCapacityChannel().nextProcessImage();
+		return this;
+	}
+
 	public DummyManagedSymmetricEss withMaxApparentPower(int value) {
 		this._setMaxApparentPower(value);
 		this.getMaxApparentPowerChannel().nextProcessImage();

@@ -32,7 +32,8 @@ public class ChpSocTest {
 						.setLowThreshold(15) //
 						.setHighThreshold(85) //
 						.setMode(Mode.AUTOMATIC) //
-						.setInvert(false).build())
+						.setInvert(false) //
+						.build())
 				.next(new TestCase() //
 						.input(ESS_SOC, 14) //
 						.output(IO_OUTPUT0, true)) //
