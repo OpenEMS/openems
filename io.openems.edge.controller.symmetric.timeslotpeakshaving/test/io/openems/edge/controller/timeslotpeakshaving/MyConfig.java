@@ -7,24 +7,24 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public String essId;
-		public String meterId;
-		public String startDate;
-		public String endDate;
-		public String endTime;
-		public boolean monday;
-		public boolean tuesday;
-		public boolean wednesday;
-		public boolean thursday;
-		public boolean friday;
-		public boolean saturday;
-		public boolean sunday;
-		public int peakShavingPower;
-		public int rechargePower;
-		public String slowChargeStartTime;
-		public int slowChargePower;
-		public int hysteresisSoc;
-		public String startTime;
+		private String essId;
+		private String meterId;
+		private String startDate;
+		private String endDate;
+		private String endTime;
+		private boolean monday;
+		private boolean tuesday;
+		private boolean wednesday;
+		private boolean thursday;
+		private boolean friday;
+		private boolean saturday;
+		private boolean sunday;
+		private int peakShavingPower;
+		private int rechargePower;
+		private String slowChargeStartTime;
+		private int slowChargePower;
+		private int hysteresisSoc;
+		private String startTime;
 
 		private Builder() {
 		}
