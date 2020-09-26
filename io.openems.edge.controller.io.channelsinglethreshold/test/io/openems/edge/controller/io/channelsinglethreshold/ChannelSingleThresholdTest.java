@@ -12,14 +12,14 @@ import io.openems.edge.io.test.DummyInputOutput;
 
 public class ChannelSingleThresholdTest {
 
-	private final static String CTRL_ID = "ctrl0";
-	private final static ChannelAddress CTRL_AWAITING_HYSTERESIS = new ChannelAddress(CTRL_ID, "AwaitingHysteresis");
+	private static final String CTRL_ID = "ctrl0";
+	private static final ChannelAddress CTRL_AWAITING_HYSTERESIS = new ChannelAddress(CTRL_ID, "AwaitingHysteresis");
 
-	private final static String ESS_ID = "ess0";
-	private final static ChannelAddress ESS_SOC = new ChannelAddress(ESS_ID, "Soc");
+	private static final String ESS_ID = "ess0";
+	private static final ChannelAddress ESS_SOC = new ChannelAddress(ESS_ID, "Soc");
 
-	private final static String IO_ID = "io0";
-	private final static ChannelAddress IO_INPUT_OUTPUT0 = new ChannelAddress(IO_ID, "InputOutput0");
+	private static final String IO_ID = "io0";
+	private static final ChannelAddress IO_INPUT_OUTPUT0 = new ChannelAddress(IO_ID, "InputOutput0");
 
 	@Test
 	public void test() throws Exception {
@@ -41,11 +41,6 @@ public class ChannelSingleThresholdTest {
 						.input(ESS_SOC, 50) //
 						.output(IO_INPUT_OUTPUT0, false) //
 						.output(CTRL_AWAITING_HYSTERESIS, false)); //
-		// TODO this test requires a mocked clock for Channel.setNextValue()
-//				.next(new TestCase() //
-//						.timeleap(clock, 71, ChronoUnit.SECONDS) //
-//						.input(input0, 71) //
-//						.output(output0, true).output(ctrl0AwaitingHysteresis, false)) //
 	}
 
 }

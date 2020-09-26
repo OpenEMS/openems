@@ -57,44 +57,103 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 		return this.powerPrecision;
 	}
 
+	/**
+	 * Set {@link SymmetricEss.ChannelId#SOC} of this
+	 * {@link DummyManagedSymmetricEss}.
+	 * 
+	 * @param value the state-of-charge
+	 * @return myself
+	 */
 	public DummyManagedSymmetricEss withSoc(int value) {
 		this._setSoc(value);
 		this.getSocChannel().nextProcessImage();
 		return this;
 	}
 
+	/**
+	 * Set {@link SymmetricEss.ChannelId#CAPACITY} of this
+	 * {@link DummyManagedSymmetricEss}. *
+	 * 
+	 * @param value the capacity
+	 * @return myself
+	 */
 	public DummyManagedSymmetricEss withCapacity(int value) {
 		this._setCapacity(value);
 		this.getCapacityChannel().nextProcessImage();
 		return this;
 	}
 
+	/**
+	 * Set {@link SymmetricEss.ChannelId#GRID_MODE} of this
+	 * {@link DummyManagedSymmetricEss}. *
+	 * 
+	 * @param value the {@link GridMode}
+	 * @return myself
+	 */
 	public DummyManagedSymmetricEss withGridMode(GridMode value) {
 		this._setGridMode(value);
 		this.getGridModeChannel().nextProcessImage();
 		return this;
 	}
 
+	/**
+	 * Set {@link SymmetricEss.ChannelId#MAX_APPARENT_POWER} of this
+	 * {@link DummyManagedSymmetricEss}. *
+	 * 
+	 * @param value the max apparent power
+	 * @return myself
+	 */
 	public DummyManagedSymmetricEss withMaxApparentPower(int value) {
 		this._setMaxApparentPower(value);
 		this.getMaxApparentPowerChannel().nextProcessImage();
 		return this;
 	}
 
+	/**
+	 * Set {@link ManagedSymmetricEss.ChannelId#ALLOWED_CHARGE_POWER} of this
+	 * {@link DummyManagedSymmetricEss}. *
+	 * 
+	 * @param value the allowed charge power
+	 * @return myself
+	 */
 	public DummyManagedSymmetricEss withAllowedChargePower(int value) {
 		this._setAllowedChargePower(value);
 		this.getAllowedChargePowerChannel().nextProcessImage();
 		return this;
 	}
 
+	/**
+	 * Set {@link ManagedSymmetricEss.ChannelId#ALLOWED_DISCHARGE_POWER} of this
+	 * {@link DummyManagedSymmetricEss}. *
+	 * 
+	 * @param value the allowed discharge power
+	 * @return myself
+	 */
 	public DummyManagedSymmetricEss withAllowedDischargePower(int value) {
 		this._setAllowedDischargePower(value);
 		this.getAllowedDischargePowerChannel().nextProcessImage();
 		return this;
 	}
 
+	/**
+	 * Set Power Precision of this {@link DummyManagedSymmetricEss}.
+	 * 
+	 * @param value the power precision
+	 * @return myself
+	 */
 	public DummyManagedSymmetricEss withPowerPrecision(int value) {
 		this.powerPrecision = value;
+		return this;
+	}
+
+	/**
+	 * Set callback for applyPower() of this {@link DummyManagedSymmetricEss}.
+	 * 
+	 * @param callback the callback
+	 * @return myself
+	 */
+	public DummyManagedSymmetricEss withSymmetricApplyPowerCallback(Consumer<SymmetricApplyPowerRecord> callback) {
+		this.symmetricApplyPowerCallback = callback;
 		return this;
 	}
 
@@ -103,10 +162,6 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 		if (this.symmetricApplyPowerCallback != null) {
 			this.symmetricApplyPowerCallback.accept(new SymmetricApplyPowerRecord(activePower, reactivePower));
 		}
-	}
-
-	public void withSymmetricApplyPowerCallback(Consumer<SymmetricApplyPowerRecord> callback) {
-		this.symmetricApplyPowerCallback = callback;
 	}
 
 	public static class SymmetricApplyPowerRecord {

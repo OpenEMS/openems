@@ -17,10 +17,10 @@ import io.openems.edge.predictor.api.HourlyPrediction;
 
 public class ProductionPredictorTest {
 
-	private final static String CTRL_ID = "ctrl0";
+	private static final String CTRL_ID = "ctrl0";
 
-	private final static String SUM_ID = "_sum";
-	private final static ChannelAddress SUM_PRODUCTION_ACTIVE_ENERGY = new ChannelAddress(SUM_ID,
+	private static final String SUM_ID = "_sum";
+	private static final ChannelAddress SUM_PRODUCTION_ACTIVE_ENERGY = new ChannelAddress(SUM_ID,
 			"ProductionActiveEnergy");
 
 	@Test

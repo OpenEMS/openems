@@ -1,6 +1,6 @@
 package io.openems.common.utils;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -13,8 +13,6 @@ public class ConfigUtilsTest {
 
 	@Test
 	public void testGenerateReferenceTargetFilter() {
-		System.out.println("(&(enabled=true)(!(service.pid=" + PID + "))(|(id=" + CTRL0_ID + ")))");
-		System.out.println(ConfigUtils.generateReferenceTargetFilter(PID, CTRL0_ID));
 		assertEquals(//
 				"(&(enabled=true)(!(service.pid=" + PID + "))(|(id=" + CTRL0_ID + ")))", //
 				ConfigUtils.generateReferenceTargetFilter(PID, CTRL0_ID));

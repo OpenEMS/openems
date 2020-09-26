@@ -1,4 +1,4 @@
-package io.openems.edge.controller.symmetric.selfconsumption;
+package io.openems.edge.controller.symmetric.selltogridlimit;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;

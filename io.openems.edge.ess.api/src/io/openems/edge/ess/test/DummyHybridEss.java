@@ -75,17 +75,30 @@ public class DummyHybridEss extends AbstractOpenemsComponent
 		return 1;
 	}
 
-	public DummyHybridEss withSurplusPower(Integer surplusPower) {
-		this._setSurplusPower(surplusPower);
+	/**
+	 * Set {@link ChannelId#SURPLUS_POWER} of this {@link DummyHybridEss}.
+	 * 
+	 * @param value the surplus power
+	 * @return myself
+	 */
+	public DummyHybridEss withSurplusPower(Integer value) {
+		this._setSurplusPower(value);
 		this.getSurplusPowerChannel().nextProcessImage();
 		return this;
 	}
 
-	public DummyHybridEss withMaxApparentPower(int maxApparentPower) {
-		this._setMaxApparentPower(maxApparentPower);
+	/**
+	 * Set {@link SymmetricEss.ChannelId#MAX_APPARENT_POWER} of this
+	 * {@link DummyHybridEss}.
+	 * 
+	 * @param value the max apparent power
+	 * @return myself
+	 */
+	public DummyHybridEss withMaxApparentPower(int value) {
+		this._setMaxApparentPower(value);
 		this.getMaxApparentPowerChannel().nextProcessImage();
 		if (this.power instanceof DummyPower) {
-			((DummyPower) this.power).setMaxApparentPower(maxApparentPower);
+			((DummyPower) this.power).setMaxApparentPower(value);
 		}
 		return this;
 	}

@@ -10,14 +10,14 @@ import io.openems.edge.ess.test.DummyHybridEss;
 
 public class SurplusFeedToGridControllerImplTest {
 
-	private final static String CTRL_ID = "ctrl0";
+	private static final String CTRL_ID = "ctrl0";
 
-	private final static ChannelAddress CTRL_SURPLUS_FEED_TO_GRID_IS_LIMITED = new ChannelAddress(CTRL_ID,
+	private static final ChannelAddress CTRL_SURPLUS_FEED_TO_GRID_IS_LIMITED = new ChannelAddress(CTRL_ID,
 			"SurplusFeedToGridIsLimited");
 
-	private final static String ESS_ID = "ess0";
+	private static final String ESS_ID = "ess0";
 
-	private final static ChannelAddress ESS_SET_ACTIVE_POWER_GREATER_OR_EQUALS = new ChannelAddress(ESS_ID,
+	private static final ChannelAddress ESS_SET_ACTIVE_POWER_GREATER_OR_EQUALS = new ChannelAddress(ESS_ID,
 			"SetActivePowerGreaterOrEquals");
 
 	@Test

@@ -15,24 +15,24 @@ import io.openems.edge.evcs.test.DummyManagedEvcs;
 
 public class EvcsControllerTest {
 
-	private final static String SUM_ID = "_sum";
-	private final static ChannelAddress SUM_GRID_ACTIVE_POWER = new ChannelAddress(SUM_ID, "GridActivePower");
-	private final static ChannelAddress SUM_ESS_ACTIVE_POWER = new ChannelAddress(SUM_ID, "EssActivePower");
+	private static final String SUM_ID = "_sum";
+	private static final ChannelAddress SUM_GRID_ACTIVE_POWER = new ChannelAddress(SUM_ID, "GridActivePower");
+	private static final ChannelAddress SUM_ESS_ACTIVE_POWER = new ChannelAddress(SUM_ID, "EssActivePower");
 
-	private final static String CTRL_ID = "ctrl0";
+	private static final String CTRL_ID = "ctrl0";
 
-	private final static String ESS_ID = "ess0";
-	private final static ChannelAddress ESS_ALLOWED_CHARGE_POWER = new ChannelAddress(ESS_ID, "AllowedChargePower");
+	private static final String ESS_ID = "ess0";
+	private static final ChannelAddress ESS_ALLOWED_CHARGE_POWER = new ChannelAddress(ESS_ID, "AllowedChargePower");
 
-	private final static String EVCS_ID = "evcs0";
-	private final static ChannelAddress EVCS_CHARGE_POWER = new ChannelAddress(EVCS_ID, "ChargePower");
-	private final static ChannelAddress EVCS_SET_CHARGE_POWER_LIMIT = new ChannelAddress(EVCS_ID,
+	private static final String EVCS_ID = "evcs0";
+	private static final ChannelAddress EVCS_CHARGE_POWER = new ChannelAddress(EVCS_ID, "ChargePower");
+	private static final ChannelAddress EVCS_SET_CHARGE_POWER_LIMIT = new ChannelAddress(EVCS_ID,
 			"SetChargePowerLimit");
-	private final static ChannelAddress EVCS_SET_CHARGE_POWER_REQUEST = new ChannelAddress(EVCS_ID,
+	private static final ChannelAddress EVCS_SET_CHARGE_POWER_REQUEST = new ChannelAddress(EVCS_ID,
 			"SetChargePowerRequest");
-	private final static ChannelAddress EVCS_MAXIMUM_POWER = new ChannelAddress(EVCS_ID, "MaximumPower");
-	private final static ChannelAddress EVCS_IS_CLUSTERED = new ChannelAddress(EVCS_ID, "IsClustered");
-	private final static ChannelAddress EVCS_STATUS = new ChannelAddress(EVCS_ID, "Status");
+	private static final ChannelAddress EVCS_MAXIMUM_POWER = new ChannelAddress(EVCS_ID, "MaximumPower");
+	private static final ChannelAddress EVCS_IS_CLUSTERED = new ChannelAddress(EVCS_ID, "IsClustered");
+	private static final ChannelAddress EVCS_STATUS = new ChannelAddress(EVCS_ID, "Status");
 
 	@Test
 	public void excessChargeTest1() throws Exception {
@@ -65,7 +65,7 @@ public class EvcsControllerTest {
 
 	// TODO needs fix by Sebastian Asen
 	// @Test
-	public void excessChargeTest2() throws Exception {
+	protected void excessChargeTest2() throws Exception {
 		new ControllerTest(new EvcsController()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //

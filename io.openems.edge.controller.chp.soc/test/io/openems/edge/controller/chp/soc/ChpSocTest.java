@@ -11,13 +11,13 @@ import io.openems.edge.io.test.DummyInputOutput;
 
 public class ChpSocTest {
 
-	private final static String CTRL_ID = "ctrl0";
+	private static final String CTRL_ID = "ctrl0";
 
-	private final static String ESS_ID = "ess0";
-	private final static ChannelAddress ESS_SOC = new ChannelAddress(ESS_ID, "Soc");
+	private static final String ESS_ID = "ess0";
+	private static final ChannelAddress ESS_SOC = new ChannelAddress(ESS_ID, "Soc");
 
-	private final static String IO_ID = "io0";
-	private final static ChannelAddress IO_OUTPUT0 = new ChannelAddress(IO_ID, "InputOutput0");
+	private static final String IO_ID = "io0";
+	private static final ChannelAddress IO_OUTPUT0 = new ChannelAddress(IO_ID, "InputOutput0");
 
 	@Test
 	public void test() throws Exception {

@@ -13,18 +13,18 @@ import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
-public class DelayChargeTest {
+public class DelayChargeControllerTest {
 
-	private final static String CTRL_ID = "ctrl0";
-	private final static ChannelAddress CTRL_CHARGE_POWER_LIMIT = new ChannelAddress(CTRL_ID, "ChargePowerLimit");
+	private static final String CTRL_ID = "ctrl0";
+	private static final ChannelAddress CTRL_CHARGE_POWER_LIMIT = new ChannelAddress(CTRL_ID, "ChargePowerLimit");
 
-	private final static String ESS_ID = "ess0";
+	private static final String ESS_ID = "ess0";
 
 	@Test
 	public void test() throws Exception {
 		// Initialize mocked Clock
 		final TimeLeapClock clock = new TimeLeapClock(
-				Instant.ofEpochMilli(1546300800000l /* Tuesday, 1. January 2019 00:00:00 */), ZoneId.of("UTC"));
+				Instant.ofEpochMilli(1546300800000L /* Tuesday, 1. January 2019 00:00:00 */), ZoneId.of("UTC"));
 		new ControllerTest(new DelayChargeController()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addComponent(new DummyManagedSymmetricEss(ESS_ID) //

@@ -1,4 +1,4 @@
-package io.openems.edge.controller.symmetric.selfconsumption;
+package io.openems.edge.controller.symmetric.selltogridlimit;
 
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;

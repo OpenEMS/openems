@@ -11,14 +11,14 @@ import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
-public class LimitTotalDischargeTest {
+public class LimitTotalDischargeControllerTest {
 
-	private final static String CTRL_ID = "ctrl0";
-	private final static ChannelAddress CTRL_AWAITING_HYSTERESIS = new ChannelAddress(CTRL_ID, "AwaitingHysteresis");
+	private static final String CTRL_ID = "ctrl0";
+	private static final ChannelAddress CTRL_AWAITING_HYSTERESIS = new ChannelAddress(CTRL_ID, "AwaitingHysteresis");
 
-	private final static String ESS_ID = "ess0";
-	private final static ChannelAddress ESS_SOC = new ChannelAddress(ESS_ID, "Soc");
-	private final static ChannelAddress ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS = new ChannelAddress(ESS_ID,
+	private static final String ESS_ID = "ess0";
+	private static final ChannelAddress ESS_SOC = new ChannelAddress(ESS_ID, "Soc");
+	private static final ChannelAddress ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS = new ChannelAddress(ESS_ID,
 			"SetActivePowerLessOrEquals");
 
 	@Test

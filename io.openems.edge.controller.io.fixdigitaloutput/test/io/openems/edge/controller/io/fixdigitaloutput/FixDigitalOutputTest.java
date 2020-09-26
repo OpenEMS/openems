@@ -10,10 +10,10 @@ import io.openems.edge.io.test.DummyInputOutput;
 
 public class FixDigitalOutputTest {
 
-	private final static String CTRL_ID = "ctrl0";
+	private static final String CTRL_ID = "ctrl0";
 
-	private final static String IO_ID = "io0";
-	private final static ChannelAddress IO_INPUT_OUTPUT0 = new ChannelAddress(IO_ID, "InputOutput0");
+	private static final String IO_ID = "io0";
+	private static final ChannelAddress IO_INPUT_OUTPUT0 = new ChannelAddress(IO_ID, "InputOutput0");
 
 	@Test
 	public void testOn() throws Exception {

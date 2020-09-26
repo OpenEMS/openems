@@ -15,18 +15,18 @@ import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.meter.test.DummySymmetricMeter;
 
-public class ControllerTimeslotPeakshavingTest {
+public class TimeslotPeakshavingTest {
 
-	private final static String CTRL_ID = "ctrl0";
+	private static final String CTRL_ID = "ctrl0";
 
-	private final static String ESS_ID = "ess0";
-	private final static ChannelAddress ESS_SOC = new ChannelAddress(ESS_ID, "Soc");
-	private final static ChannelAddress ESS_ACTIVE_POWER = new ChannelAddress(ESS_ID, "ActivePower");
-	private final static ChannelAddress ESS_SET_ACTIVE_POWER_EQUALS = new ChannelAddress(ESS_ID,
+	private static final String ESS_ID = "ess0";
+	private static final ChannelAddress ESS_SOC = new ChannelAddress(ESS_ID, "Soc");
+	private static final ChannelAddress ESS_ACTIVE_POWER = new ChannelAddress(ESS_ID, "ActivePower");
+	private static final ChannelAddress ESS_SET_ACTIVE_POWER_EQUALS = new ChannelAddress(ESS_ID,
 			"SetActivePowerEquals");
 
-	private final static String METER_ID = "meter0";
-	private final static ChannelAddress METER_ACTIVE_POWER = new ChannelAddress(METER_ID, "ActivePower");
+	private static final String METER_ID = "meter0";
+	private static final ChannelAddress METER_ACTIVE_POWER = new ChannelAddress(METER_ID, "ActivePower");
 
 	@Test
 	public void test() throws Exception {
