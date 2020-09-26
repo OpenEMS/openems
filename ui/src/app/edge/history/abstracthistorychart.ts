@@ -18,7 +18,7 @@ export abstract class AbstractHistoryChart {
     public spinnerId: string = "";
 
     //observable is used to fetch new chart data every 5 minutes
-    private refreshChartData = interval(300000);
+    private refreshChartData = interval(30000);
     //observable is used to refresh chart height dependend on the window size
     private refreshChartHeight = fromEvent(window, 'resize', null, null);
 
@@ -159,7 +159,7 @@ export abstract class AbstractHistoryChart {
      * Unsubscribes to 5 minute Interval Observable and Window Resize Observable
      */
     protected unsubscribeChartRefresh() {
-        if (this.ngUnsubscribe.isStopped == false) {
+        if (this.ngUnsubscribe.isStopped == false && this.ngUnsubscribe != null) {
             this.ngUnsubscribe.next();
             this.ngUnsubscribe.complete();
         }

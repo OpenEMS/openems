@@ -1,24 +1,26 @@
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ActivatedRoute } from '@angular/router';
+import { addDays } from 'date-fns/esm';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
+import { ChartData, ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
 import { Component, Input, OnChanges } from '@angular/core';
+import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { EnergyModalComponent } from './modal/modal.component';
 import { differenceInDays, format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
-import { addDays } from 'date-fns/esm';
+import { EnergyModalComponent } from './modal/modal.component';
+import { formatNumber } from '@angular/common';
 import { ModalController, Platform } from '@ionic/angular';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
-import { TranslateService } from '@ngx-translate/core';
-import * as FileSaver from 'file-saver';
-import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { ChartData, ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
-import { formatNumber } from '@angular/common';
-import { Subject } from 'rxjs';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
+import { Subject } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
+import * as FileSaver from 'file-saver';
+import { takeUntil } from 'rxjs/operators';
 
 type EnergyChartLabels = {
   production: string,
@@ -129,7 +131,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.service.setCurrentComponent('', this.route);
     this.service.startSpinner(this.spinnerId);
     this.platform.ready().then(() => {
-      this.service.isSmartphoneResolutionSubject.subscribe(value => {
+      this.service.isSmartphoneResolutionSubject.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
         if (this.isKwhChart(this.service)) {
           this.updateChart();
         }
@@ -741,7 +743,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       options.scales.xAxes[0].bounds = 'ticks';
       options.scales.xAxes[0].stacked = true;
       options.scales.xAxes[0].offset = true;
-      console.log("bra", differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from))
       if (this.service.isSmartphoneResolution == true && differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 20) {
         options.scales.xAxes[0].ticks.source = 'auto';
         options.scales.xAxes[0].ticks.maxTicksLimit = 12;
@@ -756,6 +757,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
       // this.translate is not available in legend methods
       let directConsumptionLabelText = this.translate.instant('General.selfConsumption');
+      let autarchyLabelText = this.translate.instant('General.autarchy');
       let productionLabelText = this.translate.instant('General.production');
       let consumptionLabelText = this.translate.instant('General.consumption');
       let gridBuyLabelText = this.translate.instant('General.gridBuy');
@@ -873,6 +875,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       }
 
       options.tooltips.callbacks.afterTitle = function (item: ChartTooltipItem[], data: ChartData) {
+
         let totalValue = item.reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
         let isProduction: boolean | null = null;
         item.forEach(item => {
@@ -886,18 +889,33 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           consumptionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh";
       }
 
-      options.tooltips.callbacks.footer = function (item: ChartTooltipItem[]) {
-        let totalValue = item.reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
+      options.tooltips.callbacks.footer = function (item: ChartTooltipItem[], data: ChartData) {
         let isProduction: boolean | null = null;
+
+        let sellToGridValue: number | null = null;
+        let buyFromGridValue: number | null = null;
+        let dischargeValue: number | null = null;
+        let totalValue = item.reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
+
         item.forEach(item => {
           if (item.datasetIndex == 0 || item.datasetIndex == 1 || item.datasetIndex == 2) {
             isProduction = true;
+            if (item.datasetIndex == 2) {
+              sellToGridValue = <number>item.yLabel;
+            }
+            if (dischargeValue == null) {
+              dischargeValue = <number>data.datasets[4].data[item.index];
+            }
           } else if (item.datasetIndex == 3 || item.datasetIndex == 4 || item.datasetIndex == 5) {
+            if (item.datasetIndex == 5) {
+              buyFromGridValue = <number>item.yLabel;
+            }
             isProduction = false;
           }
         })
-        return isProduction == true ? productionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh" :
-          consumptionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh";
+        return isProduction == true ? directConsumptionLabelText + ' ' +
+          formatNumber(CurrentData.calculateSelfConsumption(sellToGridValue, totalValue, dischargeValue), 'de', '1.0-0') + " %" :
+          autarchyLabelText + ' ' + formatNumber(CurrentData.calculateAutarchy(buyFromGridValue, totalValue), 'de', '1.0-0') + " %";
       }
     } else {
       // adds second y-axis to chart
