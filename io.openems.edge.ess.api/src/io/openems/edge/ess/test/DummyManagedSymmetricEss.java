@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -65,6 +66,12 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 	public DummyManagedSymmetricEss withCapacity(int value) {
 		this._setCapacity(value);
 		this.getCapacityChannel().nextProcessImage();
+		return this;
+	}
+
+	public DummyManagedSymmetricEss withGridMode(GridMode value) {
+		this._setGridMode(value);
+		this.getGridModeChannel().nextProcessImage();
 		return this;
 	}
 
