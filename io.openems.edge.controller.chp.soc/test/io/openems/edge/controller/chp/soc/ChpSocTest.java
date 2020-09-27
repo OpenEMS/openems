@@ -60,8 +60,7 @@ public class ChpSocTest {
 						.output(IO_OUTPUT0, true)) //
 				.next(new TestCase() //
 						.input(ESS_SOC, 45) //
-						.output(IO_OUTPUT0, true)) //
-				.run();
+						.output(IO_OUTPUT0, true));
 	}
 
 }

@@ -103,7 +103,6 @@ public class EvcsClusterPeakShavingTest {
 						.input(METER_ACTIVE_POWER_L2, 3000) //
 						.input(METER_ACTIVE_POWER_L3, 3000) //
 						.output(EVCS0_SET_CHARGE_POWER_LIMIT, 22000) //
-						.output(EVCS1_SET_CHARGE_POWER_LIMIT, 22000))
-				.run();
+						.output(EVCS1_SET_CHARGE_POWER_LIMIT, 22000));
 	}
 }

@@ -93,8 +93,7 @@ public class PeakshavingTest {
 				.next(new TestCase() //
 						.input(ESS_ACTIVE_POWER, 20377) //
 						.input(GRID_ACTIVE_POWER, 120000 - 20377) //
-						.output(ESS_SET_ACTIVE_POWER_EQUALS, 19772)) //
-				.run();
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, 19772)); //
 	}
 
 	@Test
@@ -133,7 +132,6 @@ public class PeakshavingTest {
 						.input(GRID_ACTIVE_POWER_L1, 20000 - 8981 / 3) //
 						.input(GRID_ACTIVE_POWER_L2, 40000 - 8981 / 3) //
 						.input(GRID_ACTIVE_POWER_L3, 10000 - 8981 / 3) //
-						.output(ESS_SET_ACTIVE_POWER_EQUALS, 19651)) //
-				.run();
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, 19651)); //
 	}
 }

@@ -59,8 +59,7 @@ public class EvcsControllerTest {
 						.input(SUM_ESS_ACTIVE_POWER, -6000) //
 						.input(SUM_GRID_ACTIVE_POWER, 0) //
 						.input(EVCS_CHARGE_POWER, 0) //
-						.output(EVCS_SET_CHARGE_POWER_LIMIT, 6000)) //
-				.run();
+						.output(EVCS_SET_CHARGE_POWER_LIMIT, 6000)); //
 	}
 
 	// TODO needs fix by Sebastian Asen

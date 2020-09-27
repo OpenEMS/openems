@@ -89,8 +89,7 @@ public class PeakshavingTest {
 				.next(new TestCase() //
 						.input(ESS_ACTIVE_POWER, 20377) //
 						.input(METER_ACTIVE_POWER, 120000 - 20377) //
-						.output(ESS_SET_ACTIVE_POWER_EQUALS, 19767)) //
-				.run();
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, 19767)); //
 	}
 
 }
