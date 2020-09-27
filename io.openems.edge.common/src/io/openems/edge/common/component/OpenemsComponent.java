@@ -123,7 +123,7 @@ public interface OpenemsComponent {
 	 * @param channelName the Channel-ID as a string
 	 * @return the Channel or null
 	 */
-	@Deprecated
+	@Deprecated()
 	public Channel<?> _channel(String channelName);
 
 	/**
