@@ -119,7 +119,7 @@ public class NrcMeter extends AbstractOpenemsComponent
 		/*
 		 * get and store Simulated Active Power
 		 */
-		Integer simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER, this.id() + "/ActivePower");
+		Integer simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER, "ActivePower");
 		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
 		this._setActivePower(simulatedActivePower);
 
