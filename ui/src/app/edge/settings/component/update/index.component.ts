@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Service, Utils, EdgeConfig } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
@@ -13,7 +13,7 @@ interface MyCategorizedComponents extends CategorizedComponents {
   selector: IndexComponent.SELECTOR,
   templateUrl: './index.component.html'
 })
-export class IndexComponent implements OnInit {
+export class IndexComponent {
 
   private static readonly SELECTOR = "indexComponentUpdate";
 
@@ -29,7 +29,7 @@ export class IndexComponent implements OnInit {
   ) {
   }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.adjustComponents'), this.route);
     this.service.getConfig().then(config => {
       this.config = config;
