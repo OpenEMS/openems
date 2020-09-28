@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Edge, Service, Utils } from '../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
@@ -7,7 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
   selector: 'settings',
   templateUrl: './settings.component.html'
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent {
 
   public edge: Edge = null
 
@@ -19,7 +19,7 @@ export class SettingsComponent implements OnInit {
   ) {
   }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     this.service.setCurrentComponent(this.translate.instant('Menu.edgeSettings'), this.route).then(edge => {
       this.edge = edge
     });

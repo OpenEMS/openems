@@ -1,5 +1,5 @@
 import { ActivatedRoute } from '@angular/router';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Edge, Service, Utils, Widgets, EdgeConfig } from '../../shared/shared';
 import { AdvertWidgets } from 'src/app/shared/type/widget';
 
@@ -7,7 +7,7 @@ import { AdvertWidgets } from 'src/app/shared/type/widget';
   selector: 'live',
   templateUrl: './live.component.html'
 })
-export class LiveComponent implements OnInit {
+export class LiveComponent {
 
   public edge: Edge = null
   public config: EdgeConfig = null;
@@ -20,8 +20,7 @@ export class LiveComponent implements OnInit {
     protected utils: Utils,
   ) {
   }
-
-  ngOnInit() {
+  ionViewWillEnter() {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
     });
