@@ -147,7 +147,12 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				essActiveChargeEnergy.addValue(ess.getActiveChargeEnergyChannel());
 				essActiveDischargeEnergy.addValue(ess.getActiveDischargeEnergyChannel());
 				essCapacity.addValue(ess.getCapacityChannel());
-				essAmpereHour.addValue(ess.channel("BmsAmpereHours"));
+				
+				try {
+					essAmpereHour.addValue(ess.channel("BmsAmpereHours"));
+				} catch (IllegalArgumentException e1) {
+					
+				}
 
 
 				if (ess instanceof AsymmetricEss) {
