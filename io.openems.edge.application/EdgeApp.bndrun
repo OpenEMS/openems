@@ -54,6 +54,7 @@
 	bnd.identity;id='io.openems.edge.controller.debug.log',\
 	bnd.identity;id='io.openems.edge.controller.ess.acisland',\
 	bnd.identity;id='io.openems.edge.controller.ess.delaycharge',\
+	bnd.identity;id='io.openems.edge.controller.ess.delayedselltogrid',\
 	bnd.identity;id='io.openems.edge.controller.ess.hybrid.surplusfeedtogrid',\
 	bnd.identity;id='io.openems.edge.controller.ess.limittotaldischarge',\
 	bnd.identity;id='io.openems.edge.controller.ess.mindischargeperiod',\
@@ -72,7 +73,6 @@
 	bnd.identity;id='io.openems.edge.controller.pvinverter.selltogridlimit',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancing',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancingschedule',\
-	bnd.identity;id='io.openems.edge.controller.symmetric.delayselltogrid',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.fixreactivepower',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.limitactivepower',\
@@ -175,6 +175,7 @@
 	io.openems.edge.controller.debug.log;version=snapshot,\
 	io.openems.edge.controller.ess.acisland;version=snapshot,\
 	io.openems.edge.controller.ess.delaycharge;version=snapshot,\
+	io.openems.edge.controller.ess.delayedselltogrid;version=snapshot,\
 	io.openems.edge.controller.ess.hybrid.surplusfeedtogrid;version=snapshot,\
 	io.openems.edge.controller.ess.limittotaldischarge;version=snapshot,\
 	io.openems.edge.controller.ess.mindischargeperiod;version=snapshot,\
@@ -193,7 +194,6 @@
 	io.openems.edge.controller.pvinverter.selltogridlimit;version=snapshot,\
 	io.openems.edge.controller.symmetric.balancing;version=snapshot,\
 	io.openems.edge.controller.symmetric.balancingschedule;version=snapshot,\
-	io.openems.edge.controller.symmetric.delayselltogrid;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixreactivepower;version=snapshot,\
 	io.openems.edge.controller.symmetric.limitactivepower;version=snapshot,\
