@@ -79,15 +79,15 @@ public abstract class BaseState implements StateObject {
 			return true;
 		}
 
-		if (getBattery1() != null && Helper.isAlarmLevel2Error(getBattery1())) {
+		if (getBattery1() != null && Helper.isError(getBattery1())) {
 			return true;
 		}
 
-		if (getBattery2() != null && Helper.isAlarmLevel2Error(getBattery2())) {
+		if (getBattery2() != null && Helper.isError(getBattery2())) {
 			return true;
 		}
 
-		if (getBattery3() != null && Helper.isAlarmLevel2Error(getBattery3())) {
+		if (getBattery3() != null && Helper.isError(getBattery3())) {
 			return true;
 		}
 

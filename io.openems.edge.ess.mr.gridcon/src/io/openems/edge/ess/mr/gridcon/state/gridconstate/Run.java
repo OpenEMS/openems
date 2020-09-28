@@ -82,17 +82,17 @@ public class Run extends BaseState implements StateObject {
 
 	private void checkBatteries() {
 		if (getBattery1() != null) {
-			if (!Helper.isRunning(getBattery1()) && !Helper.isAlarmLevel2Error(getBattery1())) {
+			if (!Helper.isRunning(getBattery1()) && !Helper.isError(getBattery1())) {
 				Helper.startBattery(getBattery1());
 			}
 		}
 		if (getBattery2() != null) {
-			if (!Helper.isRunning(getBattery2()) && !Helper.isAlarmLevel2Error(getBattery2())) {
+			if (!Helper.isRunning(getBattery2()) && !Helper.isError(getBattery2())) {
 				Helper.startBattery(getBattery2());
 			}
 		}
 		if (getBattery3() != null) {
-			if (!Helper.isRunning(getBattery3()) && !Helper.isAlarmLevel2Error(getBattery3())) {
+			if (!Helper.isRunning(getBattery3()) && !Helper.isError(getBattery3())) {
 				Helper.startBattery(getBattery3());
 			}
 		}
