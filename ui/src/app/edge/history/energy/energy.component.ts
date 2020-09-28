@@ -142,18 +142,26 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     setTimeout(() => this.getChartHeight(), 500);
   }
 
+  // ngOnDestroy() {
+  //   this.stopOnDestroy.next();
+  //   this.stopOnDestroy.complete();
+  //   console.log("FEUER")
+  //   this.unsubscribeChartRefresh();
+  // }
   ngOnDestroy() {
-    this.stopOnDestroy.next();
-    this.stopOnDestroy.complete();
-    this.unsubscribeChartRefresh();
+    console.log("onDestroy")
+  }
+  ionViewDidLeave() {
+    console.log("ionViewDidLeave")
   }
 
   /**
    * checks if kWh Chart is allowed to be shown
    */
   private isKwhChart(service: Service): boolean {
+    let currentDate = new Date();
     if (service.isKwhAllowed(this.edge) == true &&
-      differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 6) {
+      differenceInDays(currentDate, this.service.historyPeriod.from) >= 6) {
       return true;
     } else {
       return false;

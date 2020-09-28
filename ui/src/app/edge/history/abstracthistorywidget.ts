@@ -4,13 +4,14 @@ import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/reque
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { Service, ChannelAddress, Edge, EdgeConfig } from 'src/app/shared/shared';
 import { takeUntil } from 'rxjs/operators';
+import { isAfter } from 'date-fns';
 
 export abstract class AbstractHistoryWidget {
 
     //observable is used to fetch new widget data every 5 minutes
     private refreshWidgetData = interval(300000);
 
-    private ngUnsubscribe: Subject<void> | null = null;
+    private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     constructor(
         protected service: Service,
@@ -51,10 +52,9 @@ export abstract class AbstractHistoryWidget {
                         let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses);
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             let result = (response as QueryHistoricTimeseriesDataResponse).result;
-                            if (this.checkAllowanceWidgetRefresh(new Date(result.timestamps[result.timestamps.length - 1])) == true) {
-                                this.ngUnsubscribe = new Subject<void>();
+                            if (this.checkAllowanceWidgetRefresh() == true) {
                                 this.subscribeWidgetRefresh();
-                            } else {
+                            } else if (this.checkAllowanceWidgetRefresh() == false) {
                                 this.unsubscribeWidgetRefresh();
                             }
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
@@ -75,10 +75,10 @@ export abstract class AbstractHistoryWidget {
      * 
      * @param lastTimestamp last timestamp form query
      */
-    protected checkAllowanceWidgetRefresh(lastTimestamp: Date): boolean {
+    protected checkAllowanceWidgetRefresh(): boolean {
         let currentDate = new Date();
         let allowRefresh: boolean = false;
-        if (currentDate.getDay() == lastTimestamp.getDay()) {
+        if (isAfter(this.service.historyPeriod.from.getDate(), currentDate.getDate()) || currentDate.getDate() == this.service.historyPeriod.from.getDate()) {
             allowRefresh = true;
         } else {
             allowRefresh = false;

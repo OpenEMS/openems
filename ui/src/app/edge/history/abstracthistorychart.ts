@@ -9,6 +9,7 @@ import { takeUntil, debounceTime, delay } from 'rxjs/operators';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { ChartDataSets } from 'chart.js';
+import { addDays, addWeeks, endOfWeek, isAfter, isBefore, isFuture, subDays, subWeeks } from 'date-fns/esm';
 
 
 export abstract class AbstractHistoryChart {
@@ -18,11 +19,12 @@ export abstract class AbstractHistoryChart {
     public spinnerId: string = "";
 
     //observable is used to fetch new chart data every 5 minutes
-    private refreshChartData = interval(30000);
+    private refreshChartData = interval(15000);
     //observable is used to refresh chart height dependend on the window size
     private refreshChartHeight = fromEvent(window, 'resize', null, null);
 
-    private ngUnsubscribe: Subject<void> | null = null;
+    private ngUnsubscribe: Subject<void> = new Subject<void>();
+
 
     protected labels: Date[] = [];
     protected datasets: ChartDataSets[] = EMPTY_DATASET;
@@ -75,10 +77,9 @@ export abstract class AbstractHistoryChart {
                         let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses);
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             let result = (response as QueryHistoricTimeseriesDataResponse).result;
-                            if (this.checkAllowanceChartRefresh(new Date(result.timestamps[result.timestamps.length - 1])) == true) {
-                                this.ngUnsubscribe = new Subject<void>();
+                            if (this.checkAllowanceChartRefresh() == true) {
                                 this.subscribeChartRefresh();
-                            } else {
+                            } else if (this.checkAllowanceChartRefresh() == false) {
                                 this.unsubscribeChartRefresh();
                             }
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
@@ -110,10 +111,9 @@ export abstract class AbstractHistoryChart {
                     edge.sendRequest(this.service.websocket, request).then(response => {
                         let result = (response as QueryHistoricTimeseriesDataResponse).result;
                         if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
-                            if (this.checkAllowanceChartRefresh(new Date(result.timestamps[result.timestamps.length - 1])) == true) {
-                                this.ngUnsubscribe = new Subject<void>();
+                            if (this.checkAllowanceChartRefresh() == true) {
                                 this.subscribeChartRefresh();
-                            } else {
+                            } else if (this.checkAllowanceChartRefresh() == false) {
                                 this.unsubscribeChartRefresh();
                             }
                             resolve(response as queryHistoricTimeseriesEnergyPerPeriodResponse);
@@ -132,10 +132,10 @@ export abstract class AbstractHistoryChart {
      * 
      * @param lastTimestamp last timestamp form query
      */
-    protected checkAllowanceChartRefresh(lastTimestamp: Date): boolean {
+    protected checkAllowanceChartRefresh(): boolean {
         let currentDate = new Date();
         let allowRefresh: boolean = false;
-        if (currentDate.getDay() == lastTimestamp.getDay()) {
+        if (isAfter(this.service.historyPeriod.from.getDate(), currentDate.getDate()) || currentDate.getDate() == this.service.historyPeriod.from.getDate()) {
             allowRefresh = true;
         } else {
             allowRefresh = false;
@@ -147,7 +147,9 @@ export abstract class AbstractHistoryChart {
      * Subscribes to 5 minute Interval Observable and Window Resize Observable to fetch new data and resize chart if needed
      */
     protected subscribeChartRefresh() {
+        console.log("subscribed!")
         this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+            console.log("updateSubscribe")
             this.updateChart()
         })
         this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
@@ -159,9 +161,11 @@ export abstract class AbstractHistoryChart {
      * Unsubscribes to 5 minute Interval Observable and Window Resize Observable
      */
     protected unsubscribeChartRefresh() {
-        if (this.ngUnsubscribe.isStopped == false && this.ngUnsubscribe != null) {
+        console.log("unsubscribed!")
+        if (this.ngUnsubscribe.isStopped == false) {
             this.ngUnsubscribe.next();
             this.ngUnsubscribe.complete();
+            this.ngUnsubscribe = null;
         }
     }
 
