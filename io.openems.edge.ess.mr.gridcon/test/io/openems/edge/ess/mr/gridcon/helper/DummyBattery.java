@@ -19,7 +19,6 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery {
 	public static int DEFAULT_MAX_DISCHARGE_CURRENT = 60;
 	
 	private boolean running = false;
-	private boolean error = false;
 
 	public DummyBattery(//
 	) { //
@@ -159,7 +158,6 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery {
 
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
-		// TODO Auto-generated method stub
-		
+		_setStartStop(value);
 	}
 }
