@@ -346,4 +346,13 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 		return shortBuf.getShort();
 	}
+
+	/**
+	 * Gets the Modbus Bridge.
+	 * 
+	 * @return the {@link BridgeModbus}
+	 */
+	public BridgeModbus getModbusBridge() {
+		return this.modbus.get();
+	}
 }

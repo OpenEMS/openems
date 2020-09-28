@@ -9,7 +9,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.ess.mr.gridcon.WeightingHelper;
 import io.openems.edge.ess.mr.gridcon.helper.DummyBattery;
 
 public class WeightingHelperTest {
@@ -35,7 +34,7 @@ public class WeightingHelperTest {
 		assertTrue(result);
 
 		// should return false if battery is stopped
-		Helper.stopBattery(b);		
+		Helper.stopBattery(b);
 		result = WeightingHelper.isBatteryReady(b);
 		assertFalse(result);
 	}
@@ -58,7 +57,7 @@ public class WeightingHelperTest {
 		assertNotEquals(0, result, DELTA);
 		assertEquals(expected, result, DELTA);
 
-		Helper.stopBattery(b);	
+		Helper.stopBattery(b);
 		result = WeightingHelper.getWeightingForCharge(b);
 		assertEquals(0, result, DELTA);
 	}
@@ -81,7 +80,7 @@ public class WeightingHelperTest {
 		assertNotEquals(0, result, DELTA);
 		assertEquals(expected, result, DELTA);
 
-		Helper.stopBattery(b);	
+		Helper.stopBattery(b);
 		result = WeightingHelper.getWeightingForDischarge(b);
 		assertEquals(0, result, DELTA);
 	}
@@ -223,38 +222,38 @@ public class WeightingHelperTest {
 		expected = new Float[] { 0f, maxPower, 0f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
-		
+
 		// three batteries all started different voltages and current
-				b1 = new DummyBattery();
-				b2 = new DummyBattery();
-				b3 = new DummyBattery();
-				
-				int b1Voltage = 650;
-				int b1maxCurrent = 80;
-				
-				int b2Voltage = 700;
-				int b2maxCurrent = 80;
-				
-				int b3Voltage = 800;
-				int b3maxCurrent = 30;
-				
-				float maxPower1 = b1Voltage * b1maxCurrent;
-				float maxPower2 = b2Voltage * b2maxCurrent;
-				float maxPower3 = b3Voltage * b3maxCurrent;
-			
-				b1.setVoltage(b1Voltage);
-				b1.setMaximalChargeCurrent(b1maxCurrent);
-				b2.setVoltage(b2Voltage);
-				b2.setMaximalChargeCurrent(b2maxCurrent);
-				b3.setVoltage(b3Voltage);
-				b3.setMaximalChargeCurrent(b3maxCurrent);
-				
-				b1.start();
-				b2.start();
-				b3.start();
-				expected = new Float[] { maxPower1, maxPower2, maxPower3 };
-				actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
-				assertArrayEquals(expected, actual);
+		b1 = new DummyBattery();
+		b2 = new DummyBattery();
+		b3 = new DummyBattery();
+
+		int b1Voltage = 650;
+		int b1maxCurrent = 80;
+
+		int b2Voltage = 700;
+		int b2maxCurrent = 80;
+
+		int b3Voltage = 800;
+		int b3maxCurrent = 30;
+
+		float maxPower1 = b1Voltage * b1maxCurrent;
+		float maxPower2 = b2Voltage * b2maxCurrent;
+		float maxPower3 = b3Voltage * b3maxCurrent;
+
+		b1.setVoltage(b1Voltage);
+		b1.setMaximalChargeCurrent(b1maxCurrent);
+		b2.setVoltage(b2Voltage);
+		b2.setMaximalChargeCurrent(b2maxCurrent);
+		b3.setVoltage(b3Voltage);
+		b3.setMaximalChargeCurrent(b3maxCurrent);
+
+		b1.start();
+		b2.start();
+		b3.start();
+		expected = new Float[] { maxPower1, maxPower2, maxPower3 };
+		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
+		assertArrayEquals(expected, actual);
 	}
 
 	@Test
@@ -292,105 +291,105 @@ public class WeightingHelperTest {
 		expected = new Float[] { 0f, maxPower, 0f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
-		
+
 		// three batteries all started different voltages and current
-				b1 = new DummyBattery();
-				b2 = new DummyBattery();
-				b3 = new DummyBattery();
-				
-				int b1Voltage = 650;
-				int b1maxCurrent = 80;
-				
-				int b2Voltage = 700;
-				int b2maxCurrent = 80;
-				
-				int b3Voltage = 800;
-				int b3maxCurrent = 30;
-				
-				float maxPower1 = b1Voltage * b1maxCurrent;
-				float maxPower2 = b2Voltage * b2maxCurrent;
-				float maxPower3 = b3Voltage * b3maxCurrent;
-			
-				b1.setVoltage(b1Voltage);
-				b1.setMaximalDischargeCurrent(b1maxCurrent);
-				b2.setVoltage(b2Voltage);
-				b2.setMaximalDischargeCurrent(b2maxCurrent);
-				b3.setVoltage(b3Voltage);
-				b3.setMaximalDischargeCurrent(b3maxCurrent);
-				
-				b1.start();
-				b2.start();
-				b3.start();
-				expected = new Float[] { maxPower1, maxPower2, maxPower3 };
-				actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
-				assertArrayEquals(expected, actual);
+		b1 = new DummyBattery();
+		b2 = new DummyBattery();
+		b3 = new DummyBattery();
+
+		int b1Voltage = 650;
+		int b1maxCurrent = 80;
+
+		int b2Voltage = 700;
+		int b2maxCurrent = 80;
+
+		int b3Voltage = 800;
+		int b3maxCurrent = 30;
+
+		float maxPower1 = b1Voltage * b1maxCurrent;
+		float maxPower2 = b2Voltage * b2maxCurrent;
+		float maxPower3 = b3Voltage * b3maxCurrent;
+
+		b1.setVoltage(b1Voltage);
+		b1.setMaximalDischargeCurrent(b1maxCurrent);
+		b2.setVoltage(b2Voltage);
+		b2.setMaximalDischargeCurrent(b2maxCurrent);
+		b3.setVoltage(b3Voltage);
+		b3.setMaximalDischargeCurrent(b3maxCurrent);
+
+		b1.start();
+		b2.start();
+		b3.start();
+		expected = new Float[] { maxPower1, maxPower2, maxPower3 };
+		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
+		assertArrayEquals(expected, actual);
 	}
-	
+
 	@Test
 	public final void testGetStringControlMode() {
 		DummyBattery b1 = null;
 		DummyBattery b2 = null;
 		DummyBattery b3 = null;
-				
+
 		int expected = 0;
-		int actual = WeightingHelper.getStringControlMode(b1, b2, b3);		
+		int actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
-		
+
 		b2 = new DummyBattery();
 		expected = 0;
-		actual = WeightingHelper.getStringControlMode(b1, b2, b3);		
-		
+		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
+
 		b2.start();
 		expected = 8;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
-		
+
 		b2.stop();
 		expected = 0;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
-		
+
 		b1 = new DummyBattery();
 		expected = 0;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
-		
+
 		b1.start();
 		expected = 1;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
-		
+
 		b2.start();
 		expected = 9;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
-		
+
 		b3 = new DummyBattery();
 		b1.stop();
 		b2.stop();
 		expected = 0;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
-		
+
 		b3.start();
 		expected = 64;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
-		
+
 		b1.start();
 		expected = 65;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
-		
+
 		b2.start();
 		expected = 73;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
-		
+
 		b1.stop();
 		expected = 72;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
 	}
-	
+
 }

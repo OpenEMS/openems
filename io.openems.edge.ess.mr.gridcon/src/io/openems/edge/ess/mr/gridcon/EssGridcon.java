@@ -22,7 +22,6 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId0;
@@ -55,7 +54,6 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
-				Controller.ChannelId.values(), //
 				ErrorCodeChannelId0.values(), //
 				ErrorCodeChannelId1.values(), //
 				otherChannelIds //
@@ -233,9 +231,9 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 			maxChargeCurrent = Math.max(maxChargeCurrent, 0);
 			allowedChargePower += battery.getVoltage().get() * maxChargeCurrent * -1;
 
-			Integer maxDischargeCurrent = Math.min(MAX_CURRENT_PER_STRING,
-					battery.getDischargeMaxCurrent().get());
-			maxDischargeCurrent = maxDischargeCurrent - offset; // Reduce the max power by the value for the offset current
+			Integer maxDischargeCurrent = Math.min(MAX_CURRENT_PER_STRING, battery.getDischargeMaxCurrent().get());
+			maxDischargeCurrent = maxDischargeCurrent - offset; // Reduce the max power by the value for the offset
+																// current
 			maxDischargeCurrent = Math.max(maxDischargeCurrent, 0);
 			allowedDischargePower += battery.getVoltage().get() * maxDischargeCurrent;
 		}
@@ -282,7 +280,7 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 			sumTotalCapacity += totalCapacity;
 		}
 
- 		_setCapacity((int) sumTotalCapacity);
+		_setCapacity((int) sumTotalCapacity);
 	}
 
 	@Override
@@ -337,8 +335,5 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		}
 		return component;
 	}
-	
-	
 
 }
-

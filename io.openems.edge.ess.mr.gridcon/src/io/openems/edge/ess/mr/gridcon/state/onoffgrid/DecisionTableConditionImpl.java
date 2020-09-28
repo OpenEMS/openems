@@ -102,7 +102,7 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 		try {
 			AbstractOpenemsModbusComponent meter = manager.getComponent(meterId);
 
-			BridgeModbus modbusBridge = meter.getModbus();
+			BridgeModbus modbusBridge = meter.getModbusBridge();
 
 			StateChannel slaveCommunicationFailedChannel = modbusBridge
 					.channel(BridgeModbus.ChannelId.SLAVE_COMMUNICATION_FAILED);
