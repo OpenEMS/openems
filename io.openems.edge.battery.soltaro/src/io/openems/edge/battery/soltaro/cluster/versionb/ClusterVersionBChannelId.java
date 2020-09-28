@@ -128,4 +128,3 @@ public enum ClusterVersionBChannelId implements io.openems.edge.common.channel.C
 		return this.doc;
 	}
 }
-

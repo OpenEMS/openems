@@ -10,7 +10,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
 import io.openems.edge.battery.soltaro.cluster.enums.RunningState;
-import io.openems.edge.battery.soltaro.cluster.enums.ChargeIndication;
+import io.openems.edge.battery.soltaro.ChargeIndication;
 import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;

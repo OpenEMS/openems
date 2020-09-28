@@ -1,4 +1,4 @@
-package io.openems.edge.battery.soltaro.single.versiona;
+package io.openems.edge.battery.soltaro;
 
 import io.openems.common.types.OptionsEnum;
 

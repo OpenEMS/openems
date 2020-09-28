@@ -12,6 +12,7 @@ import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
+import io.openems.edge.battery.soltaro.ChargeIndication;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
@@ -282,7 +283,7 @@ public class SingleRack {
 		this.addEntry(map, KEY_VOLTAGE, new IntegerDoc().unit(Unit.MILLIVOLT));
 		this.addEntry(map, KEY_CURRENT, new IntegerDoc().unit(Unit.MILLIAMPERE));
 
-		this.addEntry(map, KEY_CHARGE_INDICATION, Doc.of(Enums.ChargeIndication.values()));
+		this.addEntry(map, KEY_CHARGE_INDICATION, Doc.of(ChargeIndication.values()));
 		this.addEntry(map, KEY_SOC, new IntegerDoc().unit(Unit.PERCENT));
 		this.addEntry(map, KEY_SOH, new IntegerDoc().unit(Unit.PERCENT));
 		this.addEntry(map, KEY_MAX_CELL_VOLTAGE_ID, new IntegerDoc().unit(Unit.NONE));

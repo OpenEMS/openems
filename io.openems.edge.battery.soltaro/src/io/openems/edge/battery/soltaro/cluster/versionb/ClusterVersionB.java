@@ -373,16 +373,16 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 		return b && !this.isSystemRunning() && !this.isSystemStopped();
 	}
 
-	@Override
-	public String debugLog() {
-		return "SoC:" + this.getSoc() //
-				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
-				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent()
-				+ "|Running: " + this.isSystemRunning()
-				+ "|U: " + this.getVoltage()
-				+ "|I: " + this.getCurrent()
-				;
-	}
+	 @Override
+		public String debugLog() {
+			return "SoC:" + this.getSoc() //
+					+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
+					+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent()
+					+ "|Running: " + this.isSystemRunning()
+					+ "|U: " + this.getVoltage()
+					+ "|I: " + this.getCurrent()
+					;
+		}
 
 	private void sleepSystem() {
 		// Write sleep and reset to all racks
@@ -550,15 +550,16 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 				new FC3ReadRegistersTask(0x1044, Priority.LOW, //
 						m(SoltaroCluster.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
 						m(SoltaroCluster.ChannelId.SYSTEM_CURRENT, new UnsignedWordElement(0x1045), //
-								ElementToChannelConverter.SCALE_FACTOR_2), // TODO Check if scale factor is correct						new DummyRegisterElement(0x1046), //
+								ElementToChannelConverter.SCALE_FACTOR_2), // TODO Check if scale factor is correct
+						new DummyRegisterElement(0x1046), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1047)) //
 								.onUpdateCallback(val -> {
 									this.recalculateSoc();
 								}), //
 						m(SoltaroCluster.ChannelId.SYSTEM_RUNNING_STATE, new UnsignedWordElement(0x1048)), //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x1049), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-				),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
+
 				new FC3ReadRegistersTask(0x104A, Priority.HIGH, //
 						m(SoltaroCluster.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x104A)), //
 						new DummyRegisterElement(0x104B, 0x104D), //
@@ -675,15 +676,14 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 		}
 		this._setMaxCellVoltage(max);
 	}
-	
-	protected void recalculateMinCellVoltage() {
 
-		int minCellVoltage = Integer.MAX_VALUE;
+	protected void recalculateMinCellVoltage() {
+		int min = Integer.MAX_VALUE;
 
 		for (SingleRack rack : this.racks.values()) {
-			minCellVoltage = Math.min(minCellVoltage, rack.getMinimalCellVoltage());
+			min = Math.min(min, rack.getMinimalCellVoltage());
 		}
-		this._setMinCellVoltage(minCellVoltage);
+		this._setMinCellVoltage(min);
 	}
 
 	protected void recalculateMaxCellTemperature() {

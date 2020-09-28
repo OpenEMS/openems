@@ -6,7 +6,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.single.versionc.enums.ChargeIndication;
+import io.openems.edge.battery.soltaro.ChargeIndication;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.enums.EmsBaudrate;
 import io.openems.edge.battery.soltaro.single.versionc.enums.AutoSetFunction;

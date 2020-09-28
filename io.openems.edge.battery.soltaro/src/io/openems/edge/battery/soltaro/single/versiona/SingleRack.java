@@ -28,6 +28,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
+import io.openems.edge.battery.soltaro.ChargeIndication;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -59,7 +60,7 @@ import io.openems.edge.common.taskmanager.Priority;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
 public class SingleRack extends AbstractOpenemsModbusComponent
-		implements Battery, OpenemsComponent, EventHandler, ModbusSlave {
+		implements Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	// Default values for the battery ranges
 	public static final int DISCHARGE_MIN_V = 696;
@@ -138,16 +139,14 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				break;
 			case CUT_OFF:
 				// TODO start stop is not implemented;
-				this._setStartStop(StartStop.UNDEFINED);
+				this._setStartStop(StartStop.STOP);
 				this.isStopping = false;
 				break;
 			case ON_GRID:
 				// TODO start stop is not implemented; mark as started if 'readyForWorking'
 				this._setStartStop(StartStop.START);
 				break;
-			case UNDEFINED:
-				this._setStartStop(StartStop.UNDEFINED);
-//				this.channel(Battery.ChannelId.READY_FOR_WORKING).setNextValue(false);
+			default:
 				break;
 			}
 		});
