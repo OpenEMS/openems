@@ -19,7 +19,7 @@ export abstract class AbstractHistoryChart {
     public spinnerId: string = "";
 
     //observable is used to fetch new chart data every 5 minutes
-    private refreshChartData = interval(15000);
+    private refreshChartData = interval(600000);
     //observable is used to refresh chart height dependend on the window size
     private refreshChartHeight = fromEvent(window, 'resize', null, null);
 
@@ -77,11 +77,6 @@ export abstract class AbstractHistoryChart {
                         let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses);
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             let result = (response as QueryHistoricTimeseriesDataResponse).result;
-                            if (this.checkAllowanceChartRefresh() == true) {
-                                this.subscribeChartRefresh();
-                            } else if (this.checkAllowanceChartRefresh() == false) {
-                                this.unsubscribeChartRefresh();
-                            }
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
                                 resolve(response as QueryHistoricTimeseriesDataResponse);
                             } else {
@@ -111,11 +106,6 @@ export abstract class AbstractHistoryChart {
                     edge.sendRequest(this.service.websocket, request).then(response => {
                         let result = (response as QueryHistoricTimeseriesDataResponse).result;
                         if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
-                            if (this.checkAllowanceChartRefresh() == true) {
-                                this.subscribeChartRefresh();
-                            } else if (this.checkAllowanceChartRefresh() == false) {
-                                this.unsubscribeChartRefresh();
-                            }
                             resolve(response as queryHistoricTimeseriesEnergyPerPeriodResponse);
                         } else {
                             reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
@@ -128,9 +118,7 @@ export abstract class AbstractHistoryChart {
 
     /**
      * checks if chart is allowed to be refreshed
-     * is only allowed if last timestamp in query is current date
      * 
-     * @param lastTimestamp last timestamp form query
      */
     protected checkAllowanceChartRefresh(): boolean {
         let currentDate = new Date();
@@ -147,11 +135,11 @@ export abstract class AbstractHistoryChart {
      * Subscribes to 5 minute Interval Observable and Window Resize Observable to fetch new data and resize chart if needed
      */
     protected subscribeChartRefresh() {
-        console.log("subscribed!")
+        console.log("before SUB", this.ngUnsubscribe)
         this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-            console.log("updateSubscribe")
             this.updateChart()
         })
+        console.log("after SUB", this.ngUnsubscribe)
         this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
             this.getChartHeight();
         });
@@ -161,12 +149,8 @@ export abstract class AbstractHistoryChart {
      * Unsubscribes to 5 minute Interval Observable and Window Resize Observable
      */
     protected unsubscribeChartRefresh() {
-        console.log("unsubscribed!")
-        if (this.ngUnsubscribe.isStopped == false) {
-            this.ngUnsubscribe.next();
-            this.ngUnsubscribe.complete();
-            this.ngUnsubscribe = null;
-        }
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     /**

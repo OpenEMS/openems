@@ -140,19 +140,15 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     })
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
     setTimeout(() => this.getChartHeight(), 500);
+    if (this.checkAllowanceChartRefresh() == true) {
+      this.subscribeChartRefresh();
+    }
   }
 
-  // ngOnDestroy() {
-  //   this.stopOnDestroy.next();
-  //   this.stopOnDestroy.complete();
-  //   console.log("FEUER")
-  //   this.unsubscribeChartRefresh();
-  // }
   ngOnDestroy() {
-    console.log("onDestroy")
-  }
-  ionViewDidLeave() {
-    console.log("ionViewDidLeave")
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
+    this.unsubscribeChartRefresh();
   }
 
   /**
@@ -407,6 +403,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
               this.queryHistoricTimeseriesEnergyPerPeriod(addDays(this.period.from, 1), this.period.to, channelAddresses, resolution).then(response => {
                 let result = (response as queryHistoricTimeseriesEnergyPerPeriodResponse).result;
+                console.log("newestresult", result)
 
                 // convert datasets
                 let datasets: ChartDataSets[] = [];
@@ -422,20 +419,20 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
                 let directConsumptionData: null | number[] = null;
 
-                if ('_sum/ProductionActiveEnergy' && '_sum/EssActiveChargeEnergy' && '_sum/GridSellActiveEnergy' in result.data) {
-                  let directConsumption = [];
-                  result.data['_sum/ProductionActiveEnergy'].forEach((value, index) => {
-                    directConsumption.push(value - result.data['_sum/GridSellActiveEnergy'][index] - result.data['_sum/EssActiveChargeEnergy'][index]);
-                  });
-
-                  directConsumptionData = directConsumption.map(value => {
-                    if (value == null) {
-                      return null
-                    } else {
-                      return value / 1000; // convert to kWh
-                    }
-                  });
-                }
+                // if ('_sum/ProductionActiveEnergy' && '_sum/EssDcChargeEnergy' && '_sum/GridSellActiveEnergy' in result.data) {
+                //   let directConsumption = [];
+                //   result.data['_sum/ProductionActiveEnergy'].forEach((value, index) => {
+                //     directConsumption.push(value - result.data['_sum/GridSellActiveEnergy'][index] - result.data['_sum/EssDcChargeEnergy'][index]);
+                //   });
+                //   console.log("JAWOLLJA")
+                //   directConsumptionData = directConsumption.map(value => {
+                //     if (value == null) {
+                //       return null
+                //     } else {
+                //       return value / 1000; // convert to kWh
+                //     }
+                //   });
+                // }
 
                 // style for stacked + grouped bar chart
                 let barWidthPercentage = 0;
@@ -484,8 +481,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 /*
                  * Storage Charge
                  */
-                if ('_sum/EssActiveChargeEnergy' in result.data) {
-                  let chargeData = result.data['_sum/EssActiveChargeEnergy'].map(value => {
+                if ('_sum/EssDcChargeEnergy' in result.data) {
+                  let chargeData = result.data['_sum/EssDcChargeEnergy'].map(value => {
                     if (value == null) {
                       return null
                     } else {
@@ -554,8 +551,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 /*
                  * Storage Discharge
                  */
-                if ('_sum/EssActiveDischargeEnergy' in result.data) {
-                  let dischargeData = result.data['_sum/EssActiveDischargeEnergy'].map(value => {
+                if ('_sum/EssDcDischargeEnergy' in result.data) {
+                  let dischargeData = result.data['_sum/EssDcDischargeEnergy'].map(value => {
                     if (value == null) {
                       return null
                     } else {
@@ -632,8 +629,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             result.push(new ChannelAddress('_sum', 'GridSellActiveEnergy'));
             break;
           case 'Storage':
-            result.push(new ChannelAddress('_sum', 'EssActiveChargeEnergy'))
-            result.push(new ChannelAddress('_sum', 'EssActiveDischargeEnergy'));
+            result.push(new ChannelAddress('_sum', 'EssDcChargeEnergy'))
+            result.push(new ChannelAddress('_sum', 'EssDcDischargeEnergy'));
             break;
           case 'Production':
             result.push(
@@ -691,10 +688,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         this.getEnergyChannelAddresses(this.config).then(channelAddresses => {
           this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
             let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
-            if ('_sum/ProductionActiveEnergy' in result.data) {
-              let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"];
-              labels.production += " " + this.unitpipe.transform(kwhProductionValue, "kWh").toString();
-            }
+            console.log("result.data", result.data)
+            // if ('_sum/ProductionActiveEnergy' in result.data) {
+            //   let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"];
+            //   labels.production += " " + this.unitpipe.transform(kwhProductionValue, "kWh").toString();
+            // }
             if ('_sum/GridBuyActiveEnergy' in result.data) {
               let kwhGridBuyValue = response.result.data["_sum/GridBuyActiveEnergy"];
               labels.gridBuy += " " + this.unitpipe.transform(kwhGridBuyValue, "kWh").toString();
@@ -703,25 +701,25 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
               labels.gridSell += " " + this.unitpipe.transform(kwhGridSellValue, "kWh").toString();
             }
-            if ('_sum/EssActiveChargeEnergy' in result.data) {
-              let kwhChargeValue = response.result.data["_sum/EssActiveChargeEnergy"];
+            if ('_sum/EssDcChargeEnergy' in result.data) {
+              let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
               labels.charge += " " + this.unitpipe.transform(kwhChargeValue, "kWh").toString();
             }
-            if ('_sum/EssActiveDischargeEnergy' in result.data) {
-              let kwhDischargeValue = response.result.data["_sum/EssActiveDischargeEnergy"];
+            if ('_sum/EssDcDischargeEnergy' in result.data) {
+              let kwhDischargeValue = response.result.data["_sum/EssDcDischargeEnergy"];
               labels.discharge += " " + this.unitpipe.transform(kwhDischargeValue, "kWh").toString();
             }
             if ('_sum/ConsumptionActiveEnergy' in result.data) {
               let kwhConsumptionValue = response.result.data["_sum/ConsumptionActiveEnergy"];
               labels.consumption += " " + this.unitpipe.transform(kwhConsumptionValue, "kWh").toString();
             }
-            if ('_sum/ProductionActiveEnergy' && '_sum/EssActiveChargeEnergy' && '_sum/GridSellActiveEnergy' in result.data) {
-              let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"]
-              let kwhChargeValue = response.result.data["_sum/EssActiveChargeEnergy"];
-              let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
-              let directConsumptionValue = kwhProductionValue - kwhGridSellValue - kwhChargeValue;
-              labels.directConsumption += " " + this.unitpipe.transform(directConsumptionValue, "kWh").toString();
-            }
+            // if ('_sum/ProductionActiveEnergy' && '_sum/EssDcChargeEnergy' && '_sum/GridSellActiveEnergy' in result.data) {
+            //   let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"]
+            //   let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
+            //   let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
+            //   let directConsumptionValue = kwhProductionValue - kwhGridSellValue - kwhChargeValue;
+            //   labels.directConsumption += " " + this.unitpipe.transform(directConsumptionValue, "kWh").toString();
+            // }
             resolve(labels)
           })
         })
@@ -883,49 +881,51 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         return b.datasetIndex - a.datasetIndex
       }
 
-      options.tooltips.callbacks.afterTitle = function (item: ChartTooltipItem[], data: ChartData) {
+      // options.tooltips.callbacks.afterTitle = function (item: ChartTooltipItem[], data: ChartData) {
 
-        let totalValue = item.reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
-        let isProduction: boolean | null = null;
-        item.forEach(item => {
-          if (item.datasetIndex == 0 || item.datasetIndex == 1 || item.datasetIndex == 2) {
-            isProduction = true;
-          } else if (item.datasetIndex == 3 || item.datasetIndex == 4 || item.datasetIndex == 5) {
-            isProduction = false;
-          }
-        })
-        return isProduction == true ? productionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh" :
-          consumptionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh";
-      }
+      //   let totalValue = item.reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
+      //   let isProduction: boolean | null = null;
+      //   item.forEach(item => {
+      //     if (item.datasetIndex == 0 || item.datasetIndex == 1 || item.datasetIndex == 2) {
+      //       isProduction = true;
+      //     } else if (item.datasetIndex == 3 || item.datasetIndex == 4 || item.datasetIndex == 5) {
+      //       isProduction = false;
+      //     }
+      //   })
+      //   return null
+      // return isProduction == true ? productionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh" :
+      //   consumptionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh";
+      // }
 
-      options.tooltips.callbacks.footer = function (item: ChartTooltipItem[], data: ChartData) {
-        let isProduction: boolean | null = null;
+      // options.tooltips.callbacks.footer = function (item: ChartTooltipItem[], data: ChartData) {
+      //   let isProduction: boolean | null = null;
 
-        let sellToGridValue: number | null = null;
-        let buyFromGridValue: number | null = null;
-        let dischargeValue: number | null = null;
-        let totalValue = item.reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
+      //   let sellToGridValue: number | null = null;
+      //   let buyFromGridValue: number | null = null;
+      //   let dischargeValue: number | null = null;
+      //   let totalValue = item.reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
 
-        item.forEach(item => {
-          if (item.datasetIndex == 0 || item.datasetIndex == 1 || item.datasetIndex == 2) {
-            isProduction = true;
-            if (item.datasetIndex == 2) {
-              sellToGridValue = <number>item.yLabel;
-            }
-            if (dischargeValue == null) {
-              dischargeValue = <number>data.datasets[4].data[item.index];
-            }
-          } else if (item.datasetIndex == 3 || item.datasetIndex == 4 || item.datasetIndex == 5) {
-            if (item.datasetIndex == 5) {
-              buyFromGridValue = <number>item.yLabel;
-            }
-            isProduction = false;
-          }
-        })
-        return isProduction == true ? directConsumptionLabelText + ' ' +
-          formatNumber(CurrentData.calculateSelfConsumption(sellToGridValue, totalValue, dischargeValue), 'de', '1.0-0') + " %" :
-          autarchyLabelText + ' ' + formatNumber(CurrentData.calculateAutarchy(buyFromGridValue, totalValue), 'de', '1.0-0') + " %";
-      }
+      //   item.forEach(item => {
+      //     if (item.datasetIndex == 0 || item.datasetIndex == 1 || item.datasetIndex == 2) {
+      //       isProduction = true;
+      //       if (item.datasetIndex == 2) {
+      //         sellToGridValue = <number>item.yLabel;
+      //       }
+      //       if (dischargeValue == null) {
+      //         dischargeValue = <number>data.datasets[4].data[item.index];
+      //       }
+      //     } else if (item.datasetIndex == 3 || item.datasetIndex == 4 || item.datasetIndex == 5) {
+      //       if (item.datasetIndex == 5) {
+      //         buyFromGridValue = <number>item.yLabel;
+      //       }
+      //       isProduction = false;
+      //     }
+      //   })
+      //   return null
+      // return isProduction == true ? directConsumptionLabelText + ' ' +
+      //   formatNumber(CurrentData.calculateSelfConsumption(sellToGridValue, totalValue, dischargeValue), 'de', '1.0-0') + " %" :
+      //   autarchyLabelText + ' ' + formatNumber(CurrentData.calculateAutarchy(buyFromGridValue, totalValue), 'de', '1.0-0') + " %";
+      // }
     } else {
       // adds second y-axis to chart
       options.scales.yAxes.push({

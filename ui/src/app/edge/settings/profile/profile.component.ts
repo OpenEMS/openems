@@ -30,7 +30,7 @@ export class ProfileComponent {
     private translate: TranslateService,
   ) { }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.systemProfile'), this.route).then(edge => {
       this.edge = edge;
       this.service.getConfig().then(config => {
