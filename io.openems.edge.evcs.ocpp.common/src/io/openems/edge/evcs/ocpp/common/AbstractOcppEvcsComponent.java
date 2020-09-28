@@ -72,9 +72,9 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 			if (this.sessionId == null) {
 				return;
 			}
-			if (this.getStatus().equals(Status.CHARGING_FINISHED)) {
-				this.resetMeasuredChannelValues();
-			}
+			
+			this.checkCurrentState();
+
 			writeHandler.run();
 			break;
 		}
@@ -134,12 +134,38 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		return this.sessionId;
 	};
 
+	/**
+	 * Reset the measured channel values and the charge power.
+	 */
 	private void resetMeasuredChannelValues() {
 		for (MeasuringEvcs.ChannelId c : MeasuringEvcs.ChannelId.values()) {
 			Channel<?> channel = this.channel(c);
 			channel.setNextValue(null);
 		}
 		this._setChargePower(0);
+	}
+
+	/**
+	 * Check the current state and resets the measured values.
+	 */
+	private void checkCurrentState() {
+		Status state = this.getStatus();
+		switch (state) {
+		case CHARGING:
+			break;
+		case CHARGING_FINISHED:
+			this.resetMeasuredChannelValues();
+			break;
+		case CHARGING_REJECTED:
+		case ENERGY_LIMIT_REACHED:
+		case ERROR:
+		case NOT_READY_FOR_CHARGING:
+		case READY_FOR_CHARGING:
+		case STARTING:
+		case UNDEFINED:
+			this._setChargePower(0);
+			break;
+		}
 	}
 
 	public ChargingProperty getLastChargingProperty() {

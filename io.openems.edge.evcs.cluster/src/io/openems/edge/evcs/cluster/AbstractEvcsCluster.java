@@ -196,6 +196,8 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 				// Power left for the this EVCS including its guaranteed power
 				final int powerLeft = totalPowerLeftMinusGuarantee + guaranteedPower;
 
+				int maximumHardwareLimit = evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT);
+
 				int nextChargePower;
 				Optional<Integer> requestedPower = evcs.getSetChargePowerRequestChannel().getNextWriteValue();
 
@@ -205,26 +207,33 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 							"Requested power ( for " + evcs.alias() + "): " + requestedPower.get());
 					nextChargePower = requestedPower.get();
 				} else {
-					nextChargePower = evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT);
+					nextChargePower = maximumHardwareLimit;
 				}
 
-				// It should not be charged more than possible for the current EV
-				int maxPower = evcs.getMaximumPower()
-						.orElse(evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT));
-				nextChargePower = nextChargePower > maxPower ? maxPower : nextChargePower;
+				// Total power should be only reduced by the maximum power, that EV is charging.
+				int maximumChargePower = evcs.getMaximumPower().orElse(nextChargePower);
+
+				nextChargePower = nextChargePower > maximumHardwareLimit ? maximumHardwareLimit : nextChargePower;
 
 				// Checks if there is enough power left and sets the charge power
-				if (nextChargePower < powerLeft) {
-					evcs.setChargePowerLimit(nextChargePower);
-					totalPowerLeftMinusGuarantee = totalPowerLeftMinusGuarantee - (nextChargePower - guaranteedPower);
-					this.logInfoInDebugmode(this.log,
-							"Charge power: " + nextChargePower + "; Power left: " + totalPowerLeftMinusGuarantee);
+				if (maximumChargePower < powerLeft) {
+					totalPowerLeftMinusGuarantee = totalPowerLeftMinusGuarantee
+							- (maximumChargePower - guaranteedPower);
 				} else {
-					evcs.setChargePowerLimit(powerLeft);
+					nextChargePower = powerLeft;
 					totalPowerLeftMinusGuarantee = 0;
-					this.logInfoInDebugmode(this.log,
-							"Power Left: " + totalPowerLeftMinusGuarantee + " ; Charge power: " + powerLeft);
 				}
+
+				/**
+				 * Set the next charge power of the EVCS
+				 */
+				if (nextChargePower > evcs.getChargePower().orElse(0)) {
+					evcs.setChargePowerLimitWithPid(nextChargePower);
+				} else {
+					evcs.setChargePowerLimit(nextChargePower);
+				}
+				this.logInfoInDebugmode(this.log, "Next charge power: " + nextChargePower + "; Max charge power: "
+						+ maximumChargePower + "; Power left: " + totalPowerLeftMinusGuarantee);
 			}
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();

@@ -378,8 +378,8 @@ public class EvcsClusterTest {
 						.input(evcs2Status, Status.CHARGING) //
 						.input(evcs3Status, Status.CHARGING) //
 						.input(evcs4Status, Status.CHARGING) //
-						.input(evcs0MaximumPower, 22000) //
-						.input(evcs1MaximumPower, 22000) //
+						.input(evcs0MaximumPower, null) //
+						.input(evcs1MaximumPower, null) //
 						.input(evcs0MaximumHardwarePower, 22000) //
 						.input(evcs1MaximumHardwarePower, 22000) //
 						.input(evcs0ChargePower, 0) //
@@ -532,8 +532,8 @@ public class EvcsClusterTest {
 						.input(evcs1Status, Status.CHARGING)) //
 				.next(new TestCase() //
 						.output(evcsClusterMaximumPowerToDistribute, 21000) //
-						.output(evcs0SetChargePowerLimit, 5000) //
-						.output(evcs1SetChargePowerLimit, 9000)) //
+						.output(evcs0SetChargePowerLimit, 15000) //
+						.output(evcs1SetChargePowerLimit, 15000)) //
 		;
 	}
 

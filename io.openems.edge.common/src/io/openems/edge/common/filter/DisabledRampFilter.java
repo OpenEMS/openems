@@ -11,5 +11,4 @@ public class DisabledRampFilter extends RampFilter {
 	public int applyRampFilter(int input, int target) {
 		return this.applyLowHighLimits(target);
 	}
-
 }

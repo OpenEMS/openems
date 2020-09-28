@@ -49,7 +49,7 @@ import io.openems.edge.evcs.api.Status;
 public class EvcsController extends AbstractOpenemsComponent implements Controller, OpenemsComponent, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(EvcsController.class);
-	private static final int CHARGE_POWER_BUFFER = 100;
+	private static final int CHARGE_POWER_BUFFER = 200;
 	private static final double DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT = 0.10; // 10%
 
 	private final ChargingLowerThanTargetHandler chargingLowerThanTargetHandler;
@@ -104,7 +104,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
-		this.evcs._setMaximumPower(this.evcs.getMaximumHardwarePower().orElse(22800));
+		this.evcs._setMaximumPower(null);
 	}
 
 	@Override
@@ -211,32 +211,37 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		}
 
 		/**
-		 * Distribute next charge power on EVCS.
+		 * Calculates the maximum Power of the Car.
 		 */
-		if (isClustered) {
-			if (nextChargePower != 0) {
+		if (nextChargePower != 0) {
 
-				int chargePower = this.evcs.getChargePower().orElse(0);
+			int chargePower = this.evcs.getChargePower().orElse(0);
 
-				// Check difference of the current charging and the previous charging target
-				if (this.chargingLowerThanTargetHandler.isLower(this.evcs)) {
-					if (chargePower <= this.evcs.getMinimumHardwarePower().orElse(1380)) {
-						nextChargePower = 0;
-					} else {
-						nextChargePower = (chargePower + CHARGE_POWER_BUFFER);
-						this.evcs._setMaximumPower(nextChargePower);
+			/**
+			 * Check the difference of the current charge power and the previous charging target
+			 */
+			if (this.chargingLowerThanTargetHandler.isLower(this.evcs)) {
+				
+				Integer maximumPower = this.chargingLowerThanTargetHandler.getMaximumChargePower();
+				if (maximumPower != null) {
+					this.evcs._setMaximumPower(maximumPower + CHARGE_POWER_BUFFER);
+					this.logDebug(this.log,
+							"Maximum Charge Power of the EV reduced to" + maximumPower + " W plus buffer");
+				}
+			} else {
+				int currMax = this.evcs.getMaximumPower().orElse(0);
 
-						this.logDebug(this.log, "Set a lower charging target of " + nextChargePower + " W");
-					}
-				} else {
-					int currMax = this.evcs.getMaximumPower().orElse(0);
-
-					if (chargePower > currMax * (1 + DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT)) {
-						this.evcs._setMaximumPower(this.evcs.getMaximumHardwarePower().getOrError());
-					}
+				/**
+				 * If the charge power would increases again above the current maximum power, it
+				 * resets the maximum Power.
+				 */
+				if (chargePower > currMax * (1 + DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT)) {
+					this.evcs._setMaximumPower(null);
 				}
 			}
+		}
 
+		if (isClustered) {
 			this.evcs.setChargePowerRequest(nextChargePower);
 		} else {
 			this.evcs.setChargePowerLimit(nextChargePower);
@@ -264,9 +269,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				maxHW = (int) Math.ceil(maxHW / 100.0) * 100;
 				if (config.defaultChargeMinPower() > maxHW) {
 					configUpdate("defaultChargeMinPower", maxHW);
-				}
-				if (config.forceChargeMinPower() * this.evcs.getPhases().orElse(3) > maxHW) {
-					configUpdate("forceChargeMinPower", maxHW / 3);
 				}
 			}
 		}

@@ -106,6 +106,7 @@ public class EvcsControllerTest {
 						.input(sumGridActivePower, -40000) //
 						.input(evcs0ChargePower, 5000) //
 						.input(essAllowedChargePower, 30000) //
+						.input(evcs0MaximumHardwarePower, 22080) //
 						.output(evcs0SetChargePowerLimit, 20000))
 
 		;

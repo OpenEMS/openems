@@ -11,7 +11,7 @@ import io.openems.edge.common.filter.RampFilter;
 @interface Config {
 
 	@AttributeDefinition(name = "Enable Slow Power Increase Filter", description = "Enables the Slow Power Increase Filter with the settings for the increasing rate below")
-	boolean enableSlowIncrease() default true;
+	boolean enableSlowIncrease() default false;
 
 	@AttributeDefinition(name = "Rate of increase", description = "The rate of increase between 0 and 1.")
 	double increaseRate() default RampFilter.DEFAULT_INCREASE_RATE;
