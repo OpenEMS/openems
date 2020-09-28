@@ -1,4 +1,4 @@
-package io.openems.edge.controller.symmetric.delayselltogrid;
+package io.openems.edge.controller.ess.delayedselltogrid;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -27,13 +27,13 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "Controller.Symmetric.DelaySellToGrid", //
+		name = "Controller.Ess.DelayedSellToGrid", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class DelaySellToGrid extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
+public class DelayedSellToGrid extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	private final Logger log = LoggerFactory.getLogger(DelaySellToGrid.class);
+	private final Logger log = LoggerFactory.getLogger(DelayedSellToGrid.class);
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -66,7 +66,7 @@ public class DelaySellToGrid extends AbstractOpenemsComponent implements Control
 		}
 	}
 
-	public DelaySellToGrid() {
+	public DelayedSellToGrid() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
@@ -106,10 +106,9 @@ public class DelaySellToGrid extends AbstractOpenemsComponent implements Control
 			return;
 		}
 
-		int productionPower = meter.getActivePower().orElse(0);
-		int calculatedPower = calculatePower(productionPower, this.config.delaySellToGridPower(),
+		int gridPower = meter.getActivePower().orElse(0);
+		int calculatedPower = calculatePower(gridPower, this.config.delayedSellToGridPower(),
 				this.config.chargePower());
-
 		/*
 		 * set result
 		 */
@@ -118,13 +117,13 @@ public class DelaySellToGrid extends AbstractOpenemsComponent implements Control
 
 	}
 
-	protected static int calculatePower(int productionPower, int delaySellToGridPower, int chargePower) {
+	protected static int calculatePower(int gridPower, int delayedSellToGridPower, int chargePower) {
 		int calculatedPower = 0;
-		if (productionPower <= delaySellToGridPower) {
-			calculatedPower = productionPower - delaySellToGridPower;
+		if (gridPower <= delayedSellToGridPower) {
+			calculatedPower = gridPower - delayedSellToGridPower;
 			calculatedPower = Math.abs(calculatedPower);
-		} else if (productionPower >= chargePower) {
-			calculatedPower = productionPower - chargePower;
+		} else if (gridPower >= chargePower) {
+			calculatedPower = gridPower - chargePower;
 		}
 		return calculatedPower;
 	}
