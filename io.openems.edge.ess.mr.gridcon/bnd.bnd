@@ -7,8 +7,6 @@ Bundle-Version: 1.0.0.${tstamp}
 	${buildpath},\
 	io.openems.common,\
 	io.openems.edge.battery.api,\
-	io.openems.edge.battery.soltaro,\
-	io.openems.edge.battery.bydcommercial,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
