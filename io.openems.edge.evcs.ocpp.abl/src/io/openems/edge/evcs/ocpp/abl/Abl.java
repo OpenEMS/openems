@@ -15,12 +15,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import eu.chargetime.ocpp.NotConnectedException;
-import eu.chargetime.ocpp.OccurenceConstraintException;
-import eu.chargetime.ocpp.UnsupportedFeatureException;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.model.core.ChangeConfigurationRequest;
 import eu.chargetime.ocpp.model.core.DataTransferRequest;
@@ -47,8 +42,6 @@ import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
 public class Abl extends AbstractOcppEvcsComponent
 		implements Evcs, MeasuringEvcs, ManagedEvcs, OpenemsComponent, EventHandler {
-
-	private final Logger log = LoggerFactory.getLogger(Abl.class);
 
 	// Default value for the hardware limit
 	private static final Integer DEFAULT_HARDWARE_LIMIT = 22080;
@@ -109,37 +102,16 @@ public class Abl extends AbstractOcppEvcsComponent
 		return this.config.connectorId();
 	}
 
-	private int dynamicMaximumHardwarePower = 0;
-
 	@Override
 	public Integer getConfiguredMaximumHardwarePower() {
-		if (this.sessionId == null || this.ocppServer == null) {
-			return this.config.maxHwPower();
-		}
-		DataTransferRequest request = new DataTransferRequest("ABL");
-		request.setMessageId("GetLimit");
-		request.setData(this.config.limitId());
-
-		try {
-			this.ocppServer.send(this.sessionId, request).whenComplete((confirmation, throwable) -> {
-
-				dynamicMaximumHardwarePower = Integer.valueOf(confirmation.toString());
-				this.logInfo(log, confirmation.toString());
-			});
-			return dynamicMaximumHardwarePower;
-		} catch (OccurenceConstraintException e) {
-			e.printStackTrace();
-		} catch (UnsupportedFeatureException e) {
-			e.printStackTrace();
-		} catch (NotConnectedException e) {
-			e.printStackTrace();
-		}
-		return this.config.maxHwPower();
+		//TODO: Set dynamically. Problem: No phases calculation possible.
+		return (int)(this.config.maxHwCurrent()/1000.0) * 230 * 3;
 	}
 
 	@Override
 	public Integer getConfiguredMinimumHardwarePower() {
-		return this.config.minHwPower();
+		//TODO: Set dynamically. Problem: No phases calculation possible.
+		return (int)(this.config.minHwCurrent()/1000.0) * 230 * 3;
 	}
 
 	@Override
@@ -181,7 +153,7 @@ public class Abl extends AbstractOcppEvcsComponent
 		requests.add(setMeterValueSampleInterval);
 
 		ChangeConfigurationRequest setMeterValueSampledData = new ChangeConfigurationRequest("MeterValuesSampledData",
-				"Energy.Active.Import.Register,Current.Import,Voltage,Power.Active.Import,");
+				"Energy.Active.Import.Register,Current.Import,Voltage,Power.Active.Import,Temperature");
 		requests.add(setMeterValueSampledData);
 
 		return requests;
@@ -198,7 +170,7 @@ public class Abl extends AbstractOcppEvcsComponent
 		TriggerMessageRequest requestStatus = new TriggerMessageRequest(TriggerMessageRequestType.StatusNotification);
 		requestStatus.setConnectorId(this.getConfiguredConnectorId());
 		requests.add(requestStatus);
-
+		
 		ChangeConfigurationRequest setMeterValueSampledData = new ChangeConfigurationRequest("MeterValuesSampledData",
 				"Energy.Active.Import.Register,Current.Import,Voltage,Power.Active.Import,Temperature");
 		requests.add(setMeterValueSampledData);
@@ -209,5 +181,10 @@ public class Abl extends AbstractOcppEvcsComponent
 	@Override
 	public EvcsPower getEvcsPower() {
 		return this.evcsPower;
+	}
+
+	@Override
+	public boolean returnsSessionEnergy() {
+		return false;
 	}
 }

@@ -145,4 +145,9 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 		return this.evcsPower;
 	}
 
+	@Override
+	public boolean returnsSessionEnergy() {
+		return true;
+	}
+
 }

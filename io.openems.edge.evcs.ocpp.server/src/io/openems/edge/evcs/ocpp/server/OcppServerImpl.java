@@ -1,7 +1,7 @@
 package io.openems.edge.evcs.ocpp.server;
 
 import java.net.UnknownHostException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,11 +88,14 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 		if (!(evcs instanceof AbstractOcppEvcsComponent)) {
 			return;
 		}
+		this.logDebug(this.log, "Adding Evcs "+ evcs.alias());
 		AbstractOcppEvcsComponent ocppEvcs = (AbstractOcppEvcsComponent) evcs;
-		List<AbstractOcppEvcsComponent> presentEvcss = this.ocppEvcss.get(ocppEvcs.getConfiguredOcppId());
+		List<AbstractOcppEvcsComponent> presentEvcss = ocppEvcss.get(ocppEvcs.getConfiguredOcppId());
+
 		if (presentEvcss == null) {
-			this.ocppEvcss.put(ocppEvcs.getConfiguredOcppId(), Arrays.asList(ocppEvcs));
-			presentEvcss = Arrays.asList(ocppEvcs);
+			List<AbstractOcppEvcsComponent> initEvcssArr = new ArrayList<AbstractOcppEvcsComponent>();
+			initEvcssArr.add(ocppEvcs);
+			ocppEvcss.put(ocppEvcs.getConfiguredOcppId(), initEvcssArr);
 		} else {
 			presentEvcss.add(ocppEvcs);
 		}
@@ -116,7 +119,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 		if (!(evcs instanceof AbstractOcppEvcsComponent)) {
 			return;
 		}
-
+		this.logDebug(this.log, "Removing Evcs "+ evcs.alias());
 		AbstractOcppEvcsComponent ocppEvcs = (AbstractOcppEvcsComponent) evcs;
 		List<AbstractOcppEvcsComponent> evcss = this.activeEvcsSessions.get(ocppEvcs.getSessionId());
 		if (evcss != null) {

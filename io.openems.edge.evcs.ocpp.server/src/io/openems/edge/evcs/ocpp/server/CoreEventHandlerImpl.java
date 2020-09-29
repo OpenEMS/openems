@@ -1,6 +1,7 @@
 package io.openems.edge.evcs.ocpp.server;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,7 @@ import eu.chargetime.ocpp.model.core.ValueFormat;
 import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.ocpp.common.ChargeSession;
 import io.openems.edge.evcs.ocpp.common.ChargingProperty;
 import io.openems.edge.evcs.ocpp.common.OcppInformations;
 
@@ -99,8 +101,6 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			return new MeterValuesConfirmation();
 		}
 
-		evcs._setStatus(Status.CHARGING);
-
 		/*
 		 * Set the channels depending on the meter values
 		 */
@@ -162,8 +162,20 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 									.contains(OcppInformations.CORE_METER_VALUES_POWER_ACTIVE_IMPORT)) {
 								this.setPowerDependingOnEnergy(evcs, (Double) correctValue, meterValue.getTimestamp());
 							}
-							// Some Evcss responding the session Energy and other the total Energy.
-							evcs._setEnergySession((int) Math.round((Double) correctValue));
+
+							int sessionEnergy = (int) Math.round((Double) correctValue);
+							if (evcs.returnsSessionEnergy()) {
+								evcs._setEnergySession(sessionEnergy);
+							} else {
+								if (evcs.getSessionStart() == null) {
+									break;
+								}
+								if (evcs.getSessionStart().getTime() != null) {
+									evcs.getSessionStart().setEnergy(sessionEnergy);
+								}
+								evcs._setEnergySession(sessionEnergy - evcs.getSessionStart().getEnergy());
+								// End of Session can not be calculated if there is no status message charging finished.
+							}
 							break;
 
 						case CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_REGISTER:
@@ -183,6 +195,15 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 								val = this.multipliedByThousand(val);
 							}
 							correctValue = (int) Math.round(Double.valueOf(val));
+							if ((int) correctValue > 0) {
+								evcs._setStatus(Status.CHARGING);
+								if (evcs.getSessionStart() == null) {
+									evcs.setSessionStart(
+											new ChargeSession(Instant.now(this.parent.componentManager.getClock())));
+								}
+							} else {
+								evcs.setSessionStart(null);
+							}
 							break;
 
 						case CORE_METER_VALUES_POWER_REACTIVE_EXPORT:
@@ -259,6 +280,11 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			evcsStatus = Status.ERROR;
 			break;
 		}
+		
+		if(ocppStatus != ChargePointStatus.Unavailable) {
+			evcs._setChargingstationCommunicationFailed(false);
+		}
+		
 		if (evcsStatus != null) {
 			evcs._setStatus(evcsStatus);
 		}
