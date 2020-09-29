@@ -8,14 +8,13 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
 import io.openems.edge.ess.mr.gridcon.GridconPcsImpl;
+import io.openems.edge.ess.mr.gridcon.GridconSettings;
 import io.openems.edge.ess.mr.gridcon.Helper;
 import io.openems.edge.ess.mr.gridcon.IState;
-import io.openems.edge.ess.mr.gridcon.StateObject;
-import io.openems.edge.ess.mr.gridcon.enums.Mode;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 
-public class Run extends BaseState implements StateObject {
+public class Run extends BaseState {
 
 	private final Logger log = LoggerFactory.getLogger(Run.class);
 	private boolean enableIpu1;
@@ -58,7 +57,7 @@ public class Run extends BaseState implements StateObject {
 	}
 
 	@Override
-	public void act() {
+	public void act(GridconSettings settings) {
 		log.info("run() -> Set all parameters to gridcon!");
 
 		// sometimes link voltage can be too low unrecognized by gridcon, i.e. no error
@@ -67,7 +66,7 @@ public class Run extends BaseState implements StateObject {
 		// function
 
 		checkBatteries();
-		setRunParameters();
+		setRunParameters(settings);
 		setStringWeighting();
 		setOffsetCurrent();
 		setStringControlMode();
@@ -183,7 +182,7 @@ public class Run extends BaseState implements StateObject {
 		return battery.getMaxCellVoltage().orElse(Integer.MIN_VALUE);
 	}
 
-	private void setRunParameters() {
+	private void setRunParameters(GridconSettings settings) {
 		getGridconPcs().setEnableIpu1(enableIpu1);
 		getGridconPcs().setEnableIpu2(enableIpu2);
 		getGridconPcs().setEnableIpu3(enableIpu3);
@@ -192,12 +191,10 @@ public class Run extends BaseState implements StateObject {
 		getGridconPcs().enableDcDc();
 		getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
 
-		getGridconPcs().setSyncApproval(true);
-		getGridconPcs().setBlackStartApproval(false);
-		getGridconPcs().setModeSelection(Mode.CURRENT_CONTROL);
+		getGridconPcs().setMode(settings.getMode());
+		getGridconPcs().setU0(settings.getU0());
+		getGridconPcs().setF0(settings.getF0());
 		getGridconPcs().setParameterSet(parameterSet);
-		getGridconPcs().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
-		getGridconPcs().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
 		getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
 		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
 

@@ -42,7 +42,7 @@ public class TestUndefined {
 	public final void testAct() {
 		try {
 			//nothing should happen
-			sut.act();
+			sut.act(null);
 		} catch (Exception e) {
 			fail();
 		}

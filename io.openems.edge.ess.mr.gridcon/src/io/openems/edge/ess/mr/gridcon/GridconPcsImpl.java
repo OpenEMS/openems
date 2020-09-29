@@ -168,7 +168,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL, c.isSyncApproval());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING,
 				c.isShortCircuitHandling());
-		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION, c.getModeSelection().value);
+		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION, c.getMode().value);
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_TRIGGER_SIA, c.isTriggerSia());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION,
 				c.isHarmonicCompensation());
@@ -979,7 +979,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 
 	@Override
 	public boolean isCommunicationBroken() {
-
+	
 		String modbusId = this.modbusId;
 		ComponentManager manager = this.componentManager;
 		AbstractModbusBridge modbusBridge = null;
@@ -1071,18 +1071,8 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 	}
 
 	@Override
-	public void setModeSelection(Mode modeSelection) {
-		Commands.getCommands().setModeSelection(modeSelection);
-	}
-
-	@Override
-	public void setSyncApproval(boolean b) {
-		Commands.getCommands().setSyncApproval(b);
-	}
-
-	@Override
-	public void setBlackStartApproval(boolean b) {
-		Commands.getCommands().setBlackstartApproval(b);
+	public void setMode(Mode mode) {
+		Commands.getCommands().setMode(mode);
 	}
 
 	@Override

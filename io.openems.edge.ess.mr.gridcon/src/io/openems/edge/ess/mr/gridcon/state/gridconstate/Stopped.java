@@ -6,13 +6,12 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
+import io.openems.edge.ess.mr.gridcon.GridconSettings;
 import io.openems.edge.ess.mr.gridcon.IState;
-import io.openems.edge.ess.mr.gridcon.StateObject;
-import io.openems.edge.ess.mr.gridcon.enums.Mode;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 
-public class Stopped extends BaseState implements StateObject {
+public class Stopped extends BaseState {
 
 	private final Logger log = LoggerFactory.getLogger(Stopped.class);
 
@@ -53,10 +52,10 @@ public class Stopped extends BaseState implements StateObject {
 	}
 
 	@Override
-	public void act() {
+	public void act(GridconSettings settings) {
 		log.info("Start batteries and gridcon!");
 
-		startSystem();
+		startSystem(settings);
 		setStringWeighting();
 		setStringControlMode();
 		setDateAndTime();
@@ -69,26 +68,26 @@ public class Stopped extends BaseState implements StateObject {
 		}
 	}
 
-	private void startSystem() {
+	private void startSystem(GridconSettings settings) {
 
 		if (!isBatteriesStarted()) {
 			System.out.println("Batteries are not started, start batteries and keep system stopped!");
 			startBatteries();
-			keepSystemStopped();
+			keepSystemStopped(settings);
 			return;
 		}
 
 		if (isBatteriesStarted()) {
 
 			if (!getGridconPcs().isDcDcStarted()) {
-				startDcDc();
+				startDcDc(settings);
 				return;
 			}
-			enableIpus();
+			enableIpus(settings);
 		}
 	}
 
-	private void keepSystemStopped() {
+	private void keepSystemStopped(GridconSettings settings) {
 		getGridconPcs().setEnableIpu1(false);
 		getGridconPcs().setEnableIpu2(false);
 		getGridconPcs().setEnableIpu3(false);
@@ -98,11 +97,9 @@ public class Stopped extends BaseState implements StateObject {
 		getGridconPcs().setPlay(false);
 		getGridconPcs().setAcknowledge(false);
 
-		getGridconPcs().setSyncApproval(true);
-		getGridconPcs().setBlackStartApproval(false);
-		getGridconPcs().setModeSelection(Mode.CURRENT_CONTROL);
-		getGridconPcs().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
-		getGridconPcs().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
+		getGridconPcs().setMode(settings.getMode());
+		getGridconPcs().setU0(settings.getU0());
+		getGridconPcs().setF0(settings.getF0());
 		getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
 		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
 		getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
@@ -123,7 +120,7 @@ public class Stopped extends BaseState implements StateObject {
 		}
 	}
 
-	private void enableIpus() {
+	private void enableIpus(GridconSettings settings) {
 		getGridconPcs().setEnableIpu1(enableIpu1);
 		getGridconPcs().setEnableIpu2(enableIpu2);
 		getGridconPcs().setEnableIpu3(enableIpu3);
@@ -132,11 +129,9 @@ public class Stopped extends BaseState implements StateObject {
 		getGridconPcs().setPlay(false);
 		getGridconPcs().setAcknowledge(false);
 
-		getGridconPcs().setSyncApproval(true);
-		getGridconPcs().setBlackStartApproval(false);
-		getGridconPcs().setModeSelection(Mode.CURRENT_CONTROL);
-		getGridconPcs().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
-		getGridconPcs().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
+		getGridconPcs().setMode(settings.getMode());
+		getGridconPcs().setU0(settings.getU0());
+		getGridconPcs().setF0(settings.getF0());
 		getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
 		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
 		getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
@@ -157,7 +152,7 @@ public class Stopped extends BaseState implements StateObject {
 		}
 	}
 
-	private void startDcDc() {
+	private void startDcDc(GridconSettings settings) {
 		getGridconPcs().setEnableIpu1(false);
 		getGridconPcs().setEnableIpu2(false);
 		getGridconPcs().setEnableIpu3(false);
@@ -166,11 +161,9 @@ public class Stopped extends BaseState implements StateObject {
 		getGridconPcs().setPlay(true);
 		getGridconPcs().setAcknowledge(false);
 
-		getGridconPcs().setSyncApproval(true);
-		getGridconPcs().setBlackStartApproval(false);
-		getGridconPcs().setModeSelection(Mode.CURRENT_CONTROL);
-		getGridconPcs().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
-		getGridconPcs().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
+		getGridconPcs().setMode(settings.getMode());
+		getGridconPcs().setU0(settings.getU0());
+		getGridconPcs().setF0(settings.getF0());
 		getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
 		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
 		getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);

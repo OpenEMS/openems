@@ -62,16 +62,15 @@ public interface GridconPcs {
 
 	void setParameterSet(ParameterSet set1);
 
-	void setModeSelection(Mode currentControl);
+		//	void setShortCircuitHAndling(boolean b);
 
-	void setSyncApproval(boolean b);
-
-	void setBlackStartApproval(boolean b);
-
-	//	void setShortCircuitHAndling(boolean b);
+	// ------ Methods that are important for 'grid situation'
+	void setMode(Mode mode); // the mode indicates blackstart or sync approval 
+	//void setSyncApproval(boolean b);
+	//void setBlackStartApproval(boolean b);
 	void setU0(float voltageFactor);
-
 	void setF0(float frequencyFactor);
+	// ----------------------------------------------
 
 	void setPControlMode(PControlMode activePowerControl);
 

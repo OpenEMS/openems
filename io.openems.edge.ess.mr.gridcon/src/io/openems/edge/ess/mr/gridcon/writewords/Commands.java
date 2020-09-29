@@ -35,7 +35,7 @@ public class Commands {
 	private Boolean blackstartApproval = false;
 	private Boolean syncApproval = false;
 	private Boolean shortCircuitHandling = false;
-	private Mode modeSelection = Mode.CURRENT_CONTROL;
+	private Mode mode = null; //Mode.CURRENT_CONTROL;
 	private Boolean triggerSia = false;
 	private Boolean harmonicCompensation = false;
 	private Boolean parameterSet1 = false;
@@ -84,10 +84,6 @@ public class Commands {
 		this.enableIpu4 = enable;
 	}
 
-	public Boolean isBlackstartApproval() {
-		return blackstartApproval;
-	}
-
 	public Boolean getPlayBit() {
 		return playBit;
 	}
@@ -120,28 +116,40 @@ public class Commands {
 		this.stopBit1st = stopBit1st;
 	}
 
-	public void setBlackstartApproval(Boolean blackstartApproval) {
-		this.blackstartApproval = blackstartApproval;
+	public Boolean isBlackstartApproval() {
+		return blackstartApproval;
 	}
+	
+//	public void setBlackstartApproval(Boolean blackstartApproval) {
+//		this.blackstartApproval = blackstartApproval;
+//	}
 
 	public Boolean isSyncApproval() {
 		return syncApproval;
 	}
 
-	public void setSyncApproval(Boolean syncApproval) {
-		this.syncApproval = syncApproval;
-	}
+//	public void setSyncApproval(Boolean syncApproval) {
+//		this.syncApproval = syncApproval;
+//	}
 
 	public Boolean isShortCircuitHandling() {
 		return shortCircuitHandling;
 	}
 
-	public Mode getModeSelection() {
-		return modeSelection;
+	public Mode getMode() {
+		return mode;
 	}
 
-	public void setModeSelection(Mode modeSelection) {
-		this.modeSelection = modeSelection;
+	/*
+	 * This is the only method that is reachable from outside to set the mode
+	 */
+	public void setMode(Mode mode) {
+		this.mode = mode;
+
+		boolean isSyncApproval = (mode == Mode.CURRENT_CONTROL);
+		
+		this.syncApproval = isSyncApproval;			
+		this.blackstartApproval = !isSyncApproval;
 	}
 
 	public Boolean isTriggerSia() {
@@ -248,7 +256,7 @@ public class Commands {
 				+ ", enableIpu4=" + enableIpu4 + ", playBit=" + playBit + ", readyAndStopBit2nd=" + readyAndStopBit2nd
 				+ ", acknowledgeBit=" + acknowledgeBit + ", stopBit1st=" + stopBit1st + ", blackstartApproval="
 				+ blackstartApproval + ", syncApproval=" + syncApproval + ", shortCircuitHandling="
-				+ shortCircuitHandling + ", modeSelection=" + modeSelection + ", triggerSia=" + triggerSia
+				+ shortCircuitHandling + ", mode=" + mode + ", triggerSia=" + triggerSia
 				+ ", harmonicCompensation=" + harmonicCompensation + ", parameterSet1=" + parameterSet1
 				+ ", parameterSet2=" + parameterSet2 + ", parameterSet3=" + parameterSet3 + ", parameterSet4="
 				+ parameterSet4 + ", errorCodeFeedback=" + errorCodeFeedback + ", parameterU0=" + parameterU0
@@ -290,7 +298,7 @@ public class Commands {
 		set.set(4, isBlackstartApproval());
 		set.set(5, isSyncApproval());
 		set.set(6, isShortCircuitHandling());
-		set.set(7, modeSelection.value);
+		set.set(7, mode.value);
 		set.set(8, isTriggerSia());
 		set.set(9, isHarmonicCompensation());
 		set.set(10, isParameterSet1());

@@ -3,6 +3,7 @@ package io.openems.edge.ess.mr.gridcon.state.onoffgrid;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
+import io.openems.edge.ess.mr.gridcon.GridconSettings;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.WeightingHelper;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
@@ -52,9 +53,9 @@ public class OffGrid extends BaseState {
 		float factor = targetFrequencyOffgrid / GridconPcs.DEFAULT_GRID_FREQUENCY;
 		getGridconPcs().setF0(factor);
 
-		getGridconPcs().setBlackStartApproval(true);
-		getGridconPcs().setSyncApproval(false);
-		getGridconPcs().setModeSelection(Mode.VOLTAGE_CONTROL);
+//		getGridconPcs().setBlackStartApproval(true);
+//		getGridconPcs().setSyncApproval(false);
+		getGridconPcs().setMode(Mode.VOLTAGE_CONTROL);
 
 		// Set weighting to strings, use a fix value for active power because in
 		// off grid mode it is always discharging
@@ -71,6 +72,12 @@ public class OffGrid extends BaseState {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public GridconSettings getGridconSettings() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -70,12 +70,12 @@ public class EssGridconOnOffGrid extends EssGridcon
 		// TODO
 		GridMode gridMode = GridMode.UNDEFINED;
 
-		if (this.stateObject != null) {
+		if (this.mainStateObject != null) {
 			if (//
-			OnOffGridState.ON_GRID_MODE == this.stateObject.getState()//
+			OnOffGridState.ON_GRID_MODE == this.mainStateObject.getState()//
 			) {
 				gridMode = GridMode.ON_GRID;
-			} else if (OnOffGridState.OFF_GRID_MODE == this.stateObject.getState()) {
+			} else if (OnOffGridState.OFF_GRID_MODE == this.mainStateObject.getState()) {
 				gridMode = GridMode.OFF_GRID;
 			}
 		}
@@ -86,7 +86,7 @@ public class EssGridconOnOffGrid extends EssGridcon
 	@Override
 	protected void writeStateMachineToChannel() {
 		this.channel(io.openems.edge.ess.mr.gridcon.onoffgrid.ChannelId.STATE_MACHINE)
-				.setNextValue(this.stateObject.getState());
+				.setNextValue(this.mainStateObject.getState());
 	}
 
 	protected void checkConfiguration(Config config) throws OpenemsException {
@@ -104,8 +104,8 @@ public class EssGridconOnOffGrid extends EssGridcon
 	}
 
 	@Override
-	protected io.openems.edge.ess.mr.gridcon.StateObject getFirstStateObjectUndefined() {
-		return StateController.getStateObject(OnOffGridState.UNDEFINED);
+	protected io.openems.edge.ess.mr.gridcon.StateObject getFirstGeneralStateObjectUndefined() {
+		return StateController.getGeneralStateObject(OnOffGridState.UNDEFINED);
 	}
 
 	@Override

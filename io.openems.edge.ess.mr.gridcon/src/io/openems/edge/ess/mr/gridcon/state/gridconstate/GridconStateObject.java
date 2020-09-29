@@ -1,8 +1,10 @@
-package io.openems.edge.ess.mr.gridcon;
+package io.openems.edge.ess.mr.gridcon.state.gridconstate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.ess.mr.gridcon.GridconSettings;
+import io.openems.edge.ess.mr.gridcon.IState;
 
-public interface StateObject {
+public interface GridconStateObject {
 	/**
 	 * Returns the corresponding state.
 	 * 
@@ -24,11 +26,6 @@ public interface StateObject {
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
-	void act() throws OpenemsNamedException;
+	void act(GridconSettings gridconSettings) throws OpenemsNamedException;
 
-	/**
-	 * 
-	 * @return the relevant settings for the gridcon 
-	 */
-	GridconSettings getGridconSettings();
 }

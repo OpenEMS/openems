@@ -11,16 +11,15 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
+import io.openems.edge.ess.mr.gridcon.GridconSettings;
 import io.openems.edge.ess.mr.gridcon.IState;
-import io.openems.edge.ess.mr.gridcon.StateObject;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId0;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId1;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorDoc;
-import io.openems.edge.ess.mr.gridcon.enums.Mode;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 
-public class Error extends BaseState implements StateObject {
+public class Error extends BaseState {
 
 	// TODO hard restart zeit für jeden durchlauf mit einem faktor z.b. 2
 	// multiplizieren -->
@@ -77,7 +76,7 @@ public class Error extends BaseState implements StateObject {
 	}
 
 	@Override
-	public void act() {
+	public void act(GridconSettings settings) {
 		log.info("Handle Errors!");
 
 		setStringWeighting();
@@ -86,7 +85,7 @@ public class Error extends BaseState implements StateObject {
 
 		if (!isBatteriesStarted()) {
 			System.out.println("In error --> start batteries");
-			keepSystemStopped();
+			keepSystemStopped(settings);
 			startBatteries();
 			try {
 				getGridconPcs().doWriteTasks();
@@ -140,13 +139,13 @@ public class Error extends BaseState implements StateObject {
 
 		switch (errorHandlingState) {
 		case START:
-			doStartErrorHandling();
+			doStartErrorHandling(settings);
 			break;
 		case READING_ERRORS:
 			doReadErrors();
 			break;
 		case ACKNOWLEDGE:
-			doAcknowledge();
+			doAcknowledge(settings);
 			break;
 		case WAITING:
 			doWait();
@@ -184,7 +183,7 @@ public class Error extends BaseState implements StateObject {
 		}
 	}
 
-	private void keepSystemStopped() {
+	private void keepSystemStopped(GridconSettings settings) {
 		System.out.println("Keep system stopped!");
 		getGridconPcs().setEnableIpu1(false);
 		getGridconPcs().setEnableIpu2(false);
@@ -195,11 +194,9 @@ public class Error extends BaseState implements StateObject {
 		getGridconPcs().setPlay(false);
 		getGridconPcs().setAcknowledge(false);
 
-		getGridconPcs().setSyncApproval(true);
-		getGridconPcs().setBlackStartApproval(false);
-		getGridconPcs().setModeSelection(Mode.CURRENT_CONTROL);
-		getGridconPcs().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
-		getGridconPcs().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
+		getGridconPcs().setMode(settings.getMode());
+		getGridconPcs().setU0(settings.getU0());
+		getGridconPcs().setF0(settings.getF0());
 		getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
 		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
 		getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
@@ -225,7 +222,7 @@ public class Error extends BaseState implements StateObject {
 				- getGridconPcs().getDcLinkPositiveVoltage() > MAX_ALLOWED_DELTA_LINK_VOLTAGE;
 	}
 
-	private void doStartErrorHandling() {
+	private void doStartErrorHandling(GridconSettings settings) {
 		System.out.println("doStartErrorHandling");
 		// Error Count = anzahl der Fehler
 		// Error code = aktueller fehler im channel
@@ -236,7 +233,7 @@ public class Error extends BaseState implements StateObject {
 		errorCount = getGridconPcs().getErrorCount();
 		errorHandlingState = ErrorHandlingState.READING_ERRORS;
 		// getGridconPCS().setStop(true);
-		keepSystemStopped();
+		keepSystemStopped(settings);
 	}
 
 	private void doReadErrors() {
@@ -278,7 +275,7 @@ public class Error extends BaseState implements StateObject {
 		}
 	}
 
-	private void doAcknowledge() {
+	private void doAcknowledge(GridconSettings settings) {
 		System.out.println("doAcknowledge");
 		errorsAcknowledged = LocalDateTime.now();
 		errorHandlingState = ErrorHandlingState.WAITING;
@@ -293,11 +290,9 @@ public class Error extends BaseState implements StateObject {
 		getGridconPcs().setPlay(false);
 		getGridconPcs().setAcknowledge(true);
 
-		getGridconPcs().setSyncApproval(true);
-		getGridconPcs().setBlackStartApproval(false);
-		getGridconPcs().setModeSelection(Mode.CURRENT_CONTROL);
-		getGridconPcs().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
-		getGridconPcs().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
+		getGridconPcs().setMode(settings.getMode());
+		getGridconPcs().setU0(settings.getU0());
+		getGridconPcs().setF0(settings.getF0());
 		getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
 		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
 		getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);

@@ -2,6 +2,7 @@ package io.openems.edge.ess.mr.gridcon.state.onoffgrid;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.ess.mr.gridcon.GridconSettings;
 import io.openems.edge.ess.mr.gridcon.IState;
 
 public class WaitForDevices extends BaseState {
@@ -40,6 +41,12 @@ public class WaitForDevices extends BaseState {
 	public void act() throws OpenemsNamedException {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public GridconSettings getGridconSettings() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -4,10 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.ess.mr.gridcon.GridconSettings;
 import io.openems.edge.ess.mr.gridcon.IState;
-import io.openems.edge.ess.mr.gridcon.StateObject;
 
-public class Undefined extends BaseState implements StateObject {
+public class Undefined extends BaseState {
 
 	private final Logger log = LoggerFactory.getLogger(Undefined.class);
 
@@ -45,7 +45,7 @@ public class Undefined extends BaseState implements StateObject {
 	}
 
 	@Override
-	public void act() {
+	public void act(GridconSettings settings) {
 		log.info("undefined.act() -> Nothing to do!");
 	}
 }

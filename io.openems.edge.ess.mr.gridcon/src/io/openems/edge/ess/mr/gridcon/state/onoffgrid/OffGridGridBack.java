@@ -3,6 +3,7 @@ package io.openems.edge.ess.mr.gridcon.state.onoffgrid;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
+import io.openems.edge.ess.mr.gridcon.GridconSettings;
 import io.openems.edge.ess.mr.gridcon.IState;
 
 public class OffGridGridBack extends BaseState {
@@ -55,6 +56,12 @@ public class OffGridGridBack extends BaseState {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public GridconSettings getGridconSettings() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

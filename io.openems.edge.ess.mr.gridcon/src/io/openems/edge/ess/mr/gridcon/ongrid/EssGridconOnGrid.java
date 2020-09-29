@@ -84,8 +84,8 @@ public class EssGridconOnGrid extends EssGridcon
 	}
 
 	@Override
-	protected io.openems.edge.ess.mr.gridcon.StateObject getFirstStateObjectUndefined() {
-		return StateController.getStateObject(OnGridState.UNDEFINED);
+	protected io.openems.edge.ess.mr.gridcon.StateObject getFirstGeneralStateObjectUndefined() {
+		return StateController.getGeneralStateObject(OnGridState.UNDEFINED);
 	}
 
 	@Override
@@ -97,6 +97,6 @@ public class EssGridconOnGrid extends EssGridcon
 	@Override
 	protected void writeStateMachineToChannel() {
 		this.channel(io.openems.edge.ess.mr.gridcon.ongrid.ChannelId.STATE_MACHINE)
-				.setNextValue(this.stateObject.getState());
+				.setNextValue(this.mainStateObject.getState());
 	}
 }
