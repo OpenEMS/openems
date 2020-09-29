@@ -135,11 +135,9 @@ export abstract class AbstractHistoryChart {
      * Subscribes to 5 minute Interval Observable and Window Resize Observable to fetch new data and resize chart if needed
      */
     protected subscribeChartRefresh() {
-        console.log("before SUB", this.ngUnsubscribe)
         this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             this.updateChart()
         })
-        console.log("after SUB", this.ngUnsubscribe)
         this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
             this.getChartHeight();
         });
