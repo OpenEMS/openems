@@ -10,29 +10,28 @@ import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.meter.test.DummySymmetricMeter;
 
-public class DelayedSellToGridTest {
+public class DelayedSellToGridImplTest {
 
 	private static final String CTRL_ID = "ctrlDelayedSellToGrid0";
 	private static final String ESS_ID = "ess0";
 	private static final String METER_ID = "meter0";
-	private static final ChannelAddress ESS_ACTIVE_POWER = new ChannelAddress(ESS_ID, "SetActivePowerEquals"); 
+	private static final ChannelAddress ESS_ACTIVE_POWER = new ChannelAddress(ESS_ID, "SetActivePowerEquals");
 	private static final ChannelAddress METER_ACTIVE_POWER = new ChannelAddress(METER_ID, "ActivePower");
 
 	@Test
 	public void test() throws Exception {
 
-		new ControllerTest(new DelayedSellToGrid())//
+		new ControllerTest(new DelayedSellToGridImpl())//
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
-				
 				.addReference("meter", new DummySymmetricMeter(METER_ID)) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
 				.activate(MyConfig.create()//
 						.setId(CTRL_ID)//
 						.setEssId(ESS_ID)//
 						.setMeterId(METER_ID)//
-						.setChargePower(12_500_000)//
-						.setDelayedSellToGridPower(500_000).build())//
+						.setSellToGridPowerLimit(12_500_000)//
+						.setContinuousSellToGridPower(500_000).build())//
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, 490_000) //
 						.output(ESS_ACTIVE_POWER, 10_000))//

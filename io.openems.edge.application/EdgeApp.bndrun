@@ -135,7 +135,8 @@
 	bnd.identity;id='io.openems.edge.solaredge',\
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
-	bnd.identity;id='io.openems.edge.timedata.rrd4j'
+	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
+
 -runbundles: \
 	Java-WebSocket;version='[1.5.1,1.5.2)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\

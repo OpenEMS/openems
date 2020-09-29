@@ -9,9 +9,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String essId;
 		private String meterId;
-		private String schedule;
-		private int delayedSellToGridPower;
-		private int chargePower;
+		private int sellToGridPowerLimit;
+		private int continuousSellToGridPower;
 
 		private Builder() {
 
@@ -32,20 +31,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		
-		public Builder setChargePower(int chargePower) {
-			this.chargePower = chargePower;
+		public Builder setContinuousSellToGridPower(int continuousSellToGridPower) {
+			this.continuousSellToGridPower = continuousSellToGridPower;
 			return this;
 		}
 
-		
-		public Builder setDelayedSellToGridPower(int delayedSellToGridPower) {
-			this.delayedSellToGridPower= delayedSellToGridPower;
-			return this;
-		}
-
-		public Builder setSchedule(String schedule) {
-			this.schedule = schedule;
+		public Builder setSellToGridPowerLimit(int sellToGridPowerLimit) {
+			this.sellToGridPowerLimit = sellToGridPowerLimit;
 			return this;
 		}
 
@@ -54,6 +46,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		}
 	}
 
+	/**
+	 * Create a Config builder.
+	 * 
+	 * @return a {@link Builder}
+	 */
 	public static Builder create() {
 		return new Builder();
 	}
@@ -71,13 +68,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int delayedSellToGridPower() {
-		return this.builder.delayedSellToGridPower;
+	public int sellToGridPowerLimit() {
+		return this.builder.sellToGridPowerLimit;
 	}
 
 	@Override
-	public int chargePower() {
-		return this.builder.chargePower;
+	public int continuousSellToGridPower() {
+		return this.builder.continuousSellToGridPower;
 	}
 
 	@Override

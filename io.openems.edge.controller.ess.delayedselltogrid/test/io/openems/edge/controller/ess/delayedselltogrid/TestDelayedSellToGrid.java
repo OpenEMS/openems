@@ -13,7 +13,7 @@ public class TestDelayedSellToGrid {
 		int chargePower = 12_500_000;
 
 		int expected = 10_000;
-		int actual = DelayedSellToGrid.calculatePower(meterPower, delayedSellToGridPower, chargePower);
+		int actual = DelayedSellToGridImpl.calculatePower(meterPower, delayedSellToGridPower, chargePower);
 
 		assertEquals(expected, actual);
 	}
@@ -25,7 +25,7 @@ public class TestDelayedSellToGrid {
 		int chargePower = 12_500_000;
 
 		int expected = 0;
-		int actual = DelayedSellToGrid.calculatePower(meterPower, delayedSellToGridPower, chargePower);
+		int actual = DelayedSellToGridImpl.calculatePower(meterPower, delayedSellToGridPower, chargePower);
 
 		assertEquals(expected, actual);
 	}
@@ -37,7 +37,7 @@ public class TestDelayedSellToGrid {
 		int chargePower = 12_500_000;
 
 		int expected = 0;
-		int actual = DelayedSellToGrid.calculatePower(meterPower, delayedSellToGridPower, chargePower);
+		int actual = DelayedSellToGridImpl.calculatePower(meterPower, delayedSellToGridPower, chargePower);
 
 		assertEquals(expected, actual);
 	}
@@ -49,7 +49,7 @@ public class TestDelayedSellToGrid {
 		int chargePower = 12_500_000;
 
 		int expected = 0;
-		int actual = DelayedSellToGrid.calculatePower(productionPower, delayedSellToGridPower, chargePower);
+		int actual = DelayedSellToGridImpl.calculatePower(productionPower, delayedSellToGridPower, chargePower);
 
 		assertEquals(expected, actual);
 	}
@@ -61,7 +61,7 @@ public class TestDelayedSellToGrid {
 		int chargePower = 12_500_000;
 
 		int expected = 7_000_000;
-		int actual = DelayedSellToGrid.calculatePower(meterPower, delayedSellToGridPower, chargePower);
+		int actual = DelayedSellToGridImpl.calculatePower(meterPower, delayedSellToGridPower, chargePower);
 
 		assertEquals(expected, actual);
 	}
@@ -73,7 +73,7 @@ public class TestDelayedSellToGrid {
 		int chargePower = 12_500_000;
 
 		int expected = 27_313;
-		int actual = DelayedSellToGrid.calculatePower(meterPower, delayedSellToGridPower, chargePower);
+		int actual = DelayedSellToGridImpl.calculatePower(meterPower, delayedSellToGridPower, chargePower);
 
 		assertEquals(expected, actual);
 	}
@@ -85,7 +85,7 @@ public class TestDelayedSellToGrid {
 		int chargePower = 12_500_000;
 
 		int expected = 0;
-		int actual = DelayedSellToGrid.calculatePower(meterPower, delayedSellToGridPower, chargePower);
+		int actual = DelayedSellToGridImpl.calculatePower(meterPower, delayedSellToGridPower, chargePower);
 
 		assertEquals(expected, actual);
 	}
@@ -97,7 +97,7 @@ public class TestDelayedSellToGrid {
 		int chargePower = 12_500_000;
 
 		int expected = 0;
-		int actual = DelayedSellToGrid.calculatePower(meterPower, delayedSellToGridPower, chargePower);
+		int actual = DelayedSellToGridImpl.calculatePower(meterPower, delayedSellToGridPower, chargePower);
 
 		assertEquals(expected, actual);
 	}
@@ -109,7 +109,7 @@ public class TestDelayedSellToGrid {
 		int chargePower = 1_500_000;
 
 		int expected = 0;
-		int actual = DelayedSellToGrid.calculatePower(meterPower, delayedSellToGridPower, chargePower);
+		int actual = DelayedSellToGridImpl.calculatePower(meterPower, delayedSellToGridPower, chargePower);
 
 		assertEquals(expected, actual);
 	}
@@ -121,7 +121,7 @@ public class TestDelayedSellToGrid {
 		int chargePower = 1_743_126;
 
 		int expected = 3_359_282;
-		int actual = DelayedSellToGrid.calculatePower(meterPower, delayedSellToGridPower, chargePower);
+		int actual = DelayedSellToGridImpl.calculatePower(meterPower, delayedSellToGridPower, chargePower);
 
 		assertEquals(expected, actual);
 	}

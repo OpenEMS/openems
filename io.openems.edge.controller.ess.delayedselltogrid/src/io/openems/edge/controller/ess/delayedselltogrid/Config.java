@@ -3,10 +3,11 @@ package io.openems.edge.controller.ess.delayedselltogrid;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
-		name = "Controller Ess Delayed-Sell-To-Grid ", //
-		description = "This controller discharges the battery with the amount of difference between meter power configured \"delayedSellToGridPower\" when meter active power less than. "
-				+ "		This behaviour can be inverse direction(charging the battery) when meter active power exceeds the \"chargePower\" limit.")
+@ObjectClassDefinition(//
+		name = "Controller Ess Delayed Sell-To-Grid ", //
+		description = "Controls an energy storage system so, that it delays the sell-to-grid power e.g. of a photovoltaics system. "
+				+ "It charges the battery, when sell-to-grid power exceeds the configured \"Sell-To-Grid power limit\" "
+				+ "and discharges when sell-to-grid power is falling below \"Continuous Sell-To-Grid power\".")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -24,11 +25,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of the Grid-Meter.")
 	String meter_id();
 
-	@AttributeDefinition(name = "Delayed Sell To Grid power", description = "The limit at which the discharge event begins...")
-	int delayedSellToGridPower();
-	
-	@AttributeDefinition(name = "Charge Power Start Point", description = "The limit at which the charge event begins....")
-	int chargePower();
+	@AttributeDefinition(name = "Sell-To-Grid power limit", description = "Charge the battery when this limit is exceeded.")
+	int sellToGridPowerLimit();
 
-	String webconsole_configurationFactory_nameHint() default "Controller Ess Delayed Sell To Grid [{id}]";
+	@AttributeDefinition(name = "Continuous Sell-To-Grid power", description = "Discharge the battery when the sell-to-grid power falls below this limit.")
+	int continuousSellToGridPower();
+
+	String webconsole_configurationFactory_nameHint() default "Controller Ess Delayed Sell-To-Grid [{id}]";
 }
