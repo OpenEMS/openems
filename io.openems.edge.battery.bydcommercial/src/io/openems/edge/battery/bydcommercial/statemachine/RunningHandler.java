@@ -1,13 +1,14 @@
 package io.openems.edge.battery.bydcommercial.statemachine;
 
 import io.openems.edge.battery.bydcommercial.PreChargeControl;
-import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.Context;
+import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.statemachine.StateHandler;
 
-public class Running extends State.Handler {
+public class RunningHandler extends StateHandler<State, Context> {
 
 	@Override
-	public State getNextState(Context context) {
+	public State runAndGetNextState(Context context) {
 		if (context.component.hasFaults()) {
 			return State.UNDEFINED;
 		}

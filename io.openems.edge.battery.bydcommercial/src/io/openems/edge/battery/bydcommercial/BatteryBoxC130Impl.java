@@ -1,5 +1,7 @@
 package io.openems.edge.battery.bydcommercial;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -18,10 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.bydcommercial.statemachine.Context;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine;
+import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -50,6 +53,12 @@ import io.openems.edge.common.taskmanager.Priority;
 public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 		implements BatteryBoxC130, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
+	private static final float CAPACITY_PER_MODULE = 6.9f;
+
+	private static final int MIN_ALLOWED_VOLTAGE_PER_MODULE = 34;
+
+	private static final int MAX_ALLOWED_VOLTAGE_PER_MODULE = 42;
+
 	private final Logger log = LoggerFactory.getLogger(BatteryBoxC130Impl.class);
 
 	@Reference
@@ -58,7 +67,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 	/**
 	 * Manages the {@link State}s of the StateMachine.
 	 */
-	private final StateMachine stateMachine = new StateMachine();
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private Config config;
 
@@ -81,6 +90,16 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
+		
+		
+		int max_voltage = this.config.numberOfSlaves() * MAX_ALLOWED_VOLTAGE_PER_MODULE;
+		_setChargeMaxVoltage(max_voltage);
+		
+		int min_voltage = this.config.numberOfSlaves() * MIN_ALLOWED_VOLTAGE_PER_MODULE;
+		_setDischargeMinVoltage(min_voltage);
+		
+		int capacity = (int) (this.config.numberOfSlaves() * CAPACITY_PER_MODULE);
+		_setCapacity(capacity);
 	}
 
 	@Deactivate
@@ -109,7 +128,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		StateMachine.Context context = new StateMachine.Context(this, this.config);
+		Context context = new Context(this, this.config);
 
 		// Call the StateMachine
 		try {
@@ -614,9 +633,33 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
+
 	@Override
-	public void setStartStop(StartStop value) throws OpenemsNamedException {
-		// TODO start stop is not implemented
-		throw new NotImplementedException("Start Stop is not implemented for Soltaro SingleRack Version B");
+	public void setStartStop(StartStop value) {
+		if (this.startStopTarget.getAndSet(value) != value) {
+			// Set only if value changed
+			this.stateMachine.forceNextState(State.UNDEFINED);
+		}
+	}
+
+	@Override
+	public StartStop getStartStopTarget() {
+		switch (this.config.startStop()) {
+		case AUTO:
+			// read StartStop-Channel
+			return this.startStopTarget.get();
+
+		case START:
+			// force START
+			return StartStop.START;
+
+		case STOP:
+			// force STOP
+			return StartStop.STOP;
+		}
+
+		assert false;
+		return StartStop.UNDEFINED; // can never happen
 	}
 }

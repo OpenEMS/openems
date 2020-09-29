@@ -11,6 +11,7 @@ import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.startstop.StartStop;
 
 public interface BatteryBoxC130 extends Battery, OpenemsComponent {
 
@@ -26,29 +27,68 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent {
 		this.getPreChargeControlChannel().setNextWriteValue(preChargeControl);
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
+	 * 
+	 * @return the Channel
+	 */
 	public default StateChannel getMaxStartAttemptsChannel() {
 		return this.channel(ChannelId.MAX_START_ATTEMPTS);
 	}
 
+	/**
+	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_START_ATTEMPTS}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
 	public default Value<Boolean> getMaxStartAttempts() {
 		return this.getMaxStartAttemptsChannel().value();
 	}
 
-	public default void setMaxStartAttempts(boolean isMaxStartAttempts) throws OpenemsNamedException {
-		this.getMaxStartAttemptsChannel().setNextValue(isMaxStartAttempts);
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_START_ATTEMPTS} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setMaxStartAttempts(Boolean value) {
+		this.getMaxStartAttemptsChannel().setNextValue(value);
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_STOP_ATTEMPTS}.
+	 * 
+	 * @return the Channel
+	 */
 	public default StateChannel getMaxStopAttemptsChannel() {
 		return this.channel(ChannelId.MAX_STOP_ATTEMPTS);
 	}
 
+	/**
+	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_STOP_ATTEMPTS}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
 	public default Value<Boolean> getMaxStopAttempts() {
 		return this.getMaxStopAttemptsChannel().value();
 	}
 
-	public default void setMaxStopAttempts(boolean isMaxStopAttempts) throws OpenemsNamedException {
-		this.getMaxStopAttemptsChannel().setNextValue(isMaxStopAttempts);
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_STOP_ATTEMPTS}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setMaxStopAttempts(Boolean value) {
+		this.getMaxStopAttemptsChannel().setNextValue(value);
 	}
+	
+	/**
+	 * Gets the target Start/Stop mode from config or StartStop-Channel.
+	 * 
+	 * @return {@link StartStop}
+	 */
+	public StartStop getStartStopTarget();
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// EnumReadChannels
