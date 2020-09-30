@@ -423,7 +423,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                   result.data['_sum/ProductionActiveEnergy'].forEach((value, index) => {
                     directConsumption.push(value - result.data['_sum/GridSellActiveEnergy'][index] - result.data['_sum/EssDcChargeEnergy'][index]);
                   });
-                  console.log("JAWOLLJA")
                   directConsumptionData = directConsumption.map(value => {
                     if (value == null) {
                       return null
@@ -687,31 +686,33 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         this.getEnergyChannelAddresses(this.config).then(channelAddresses => {
           this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
             let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
-            if ('_sum/ProductionActiveEnergy' in result.data) {
+            if ('_sum/ProductionActiveEnergy' in result.data && response.result.data["_sum/ProductionActiveEnergy"] != null) {
               let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"];
               labels.production += " " + this.unitpipe.transform(kwhProductionValue, "kWh").toString();
             }
-            if ('_sum/GridBuyActiveEnergy' in result.data) {
+            if ('_sum/GridBuyActiveEnergy' in result.data && response.result.data["_sum/GridBuyActiveEnergy"] != null) {
               let kwhGridBuyValue = response.result.data["_sum/GridBuyActiveEnergy"];
               labels.gridBuy += " " + this.unitpipe.transform(kwhGridBuyValue, "kWh").toString();
             }
-            if ('_sum/GridSellActiveEnergy' in result.data) {
+            if ('_sum/GridSellActiveEnergy' in result.data && response.result.data["_sum/GridSellActiveEnergy"] != null) {
               let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
               labels.gridSell += " " + this.unitpipe.transform(kwhGridSellValue, "kWh").toString();
             }
-            if ('_sum/EssDcChargeEnergy' in result.data) {
+            if ('_sum/EssDcChargeEnergy' in result.data && response.result.data["_sum/EssDcChargeEnergy"] != null) {
               let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
               labels.charge += " " + this.unitpipe.transform(kwhChargeValue, "kWh").toString();
             }
-            if ('_sum/EssDcDischargeEnergy' in result.data) {
+            if ('_sum/EssDcDischargeEnergy' in result.data && response.result.data["_sum/EssDcDischargeEnergy"] != null) {
               let kwhDischargeValue = response.result.data["_sum/EssDcDischargeEnergy"];
               labels.discharge += " " + this.unitpipe.transform(kwhDischargeValue, "kWh").toString();
             }
-            if ('_sum/ConsumptionActiveEnergy' in result.data) {
+            if ('_sum/ConsumptionActiveEnergy' in result.data && response.result.data["_sum/ConsumptionActiveEnergy"] != null) {
               let kwhConsumptionValue = response.result.data["_sum/ConsumptionActiveEnergy"];
               labels.consumption += " " + this.unitpipe.transform(kwhConsumptionValue, "kWh").toString();
             }
-            if ('_sum/ProductionActiveEnergy' in result.data && '_sum/EssDcChargeEnergy' in result.data && '_sum/GridSellActiveEnergy' in result.data) {
+            if ('_sum/ProductionActiveEnergy' in result.data && '_sum/EssDcChargeEnergy' in result.data && '_sum/GridSellActiveEnergy' in result.data
+              && response.result.data["_sum/ProductionActiveEnergy"] != null && response.result.data["_sum/EssDcChargeEnergy"] != null
+              && response.result.data["_sum/GridSellActiveEnergy"]) {
               let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"]
               let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
               let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
@@ -809,19 +810,22 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           if (text.includes(directConsumptionLabelText) && dataset.stack == "1") {
             //skip ChartLegendLabelItem
           } else {
-            chartLegendLabelItems.push({
-              text: text,
-              datasetIndex: index,
-              fillStyle: fillStyle,
-              hidden: hidden,
-              lineWidth: lineWidth,
-              strokeStyle: strokeStyle,
-            })
+            if (text.split(" ").length > 1) {
+              chartLegendLabelItems.push({
+                text: text,
+                datasetIndex: index,
+                fillStyle: fillStyle,
+                hidden: hidden,
+                lineWidth: lineWidth,
+                strokeStyle: strokeStyle,
+              })
+            }
           }
         })
         chartLegendLabelItems.sort(function (a, b) {
           return chartLegendLabelItemsOrder.indexOf(a.text) - chartLegendLabelItemsOrder.indexOf(b.text);
         });
+        console.log("chartLegendLabelItems", chartLegendLabelItems)
         return chartLegendLabelItems;
       }
 
@@ -867,12 +871,14 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
         let value = tooltipItem.value;
         let label = data.datasets[tooltipItem.datasetIndex].label;
-        console.log("LABEL", label.split(" ").slice(0, 1)[1])
-        if (label.split(" ").length > 1) {
-          label = label.split(" ").slice(0, 1).toString();
+        if (isNaN(value) == false) {
+          if (label.split(" ").length > 1) {
+            label = label.split(" ").slice(0, 1).toString();
+          }
+          return label + ": " + formatNumber(value, 'de', '1.0-2') + " kWh";
+        } else {
+          return null;
         }
-
-        return label + ": " + formatNumber(value, 'de', '1.0-2') + " kWh";
       }
 
       options.tooltips.itemSort = function (a: ChartTooltipItem, b: ChartTooltipItem) {
