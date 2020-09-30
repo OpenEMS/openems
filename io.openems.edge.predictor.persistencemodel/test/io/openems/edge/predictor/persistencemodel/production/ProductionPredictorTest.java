@@ -2,63 +2,54 @@ package io.openems.edge.predictor.persistencemodel.production;
 
 import static org.junit.Assert.assertEquals;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
-import java.util.HashMap;
 
 import org.junit.Test;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.event.Event;
 
-import io.openems.common.OpenemsConstants;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.LongReadChannel;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.sum.Sum;
+import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.sum.DummySum;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
+import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.predictor.api.HourlyPrediction;
 
 public class ProductionPredictorTest {
 
+	private static final String CTRL_ID = "ctrl0";
+
+	private static final String SUM_ID = "_sum";
+	private static final ChannelAddress SUM_PRODUCTION_ACTIVE_ENERGY = new ChannelAddress(SUM_ID,
+			"ProductionActiveEnergy");
+
 	@Test
-	public void test() {
-		TimeLeapClock clock = new TimeLeapClock();
-		ProductionPredictor predictor = new ProductionPredictor(clock);
-		DummyComponentManager componentManager = new DummyComponentManager();
-		predictor.componentManager = componentManager;
-		SimulatedSum sum = new SimulatedSum();
-		componentManager.addComponent(sum);
-		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, new HashMap<>());
-
-		sum.productionActiveEnergy.setNextValue(1000);
-		sum.productionActiveEnergy.nextProcessImage();
-		predictor.handleEvent(event);
-
-		clock.leap(1, ChronoUnit.MINUTES);
-		sum.productionActiveEnergy.setNextValue(1100);
-		sum.productionActiveEnergy.nextProcessImage();
-		predictor.handleEvent(event);
-
-		clock.leap(1, ChronoUnit.HOURS);
-		sum.productionActiveEnergy.setNextValue(2000);
-		sum.productionActiveEnergy.nextProcessImage();
-		predictor.handleEvent(event);
-
-		clock.leap(1, ChronoUnit.HOURS);
-		sum.productionActiveEnergy.setNextValue(4000);
-		sum.productionActiveEnergy.nextProcessImage();
-		predictor.handleEvent(event);
-
-		clock.leap(1, ChronoUnit.HOURS);
-		sum.productionActiveEnergy.setNextValue(5500);
-		sum.productionActiveEnergy.nextProcessImage();
-		predictor.handleEvent(event);
+	public void test() throws Exception {
+		final TimeLeapClock clock = new TimeLeapClock();
+		final ProductionPredictor predictor = new ProductionPredictor();
+		new ComponentTest(predictor) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addComponent(new DummySum()) //
+				.activate(MyConfig.create() //
+						.setId(CTRL_ID) //
+						.build())
+				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_ENERGY, 1000))
+				.next(new TestCase() //
+						.timeleap(clock, 1, ChronoUnit.MINUTES) //
+						.input(SUM_PRODUCTION_ACTIVE_ENERGY, 1100))
+				.next(new TestCase() //
+						.timeleap(clock, 1, ChronoUnit.HOURS) //
+						.input(SUM_PRODUCTION_ACTIVE_ENERGY, 2000))
+				.next(new TestCase() //
+						.timeleap(clock, 1, ChronoUnit.HOURS) //
+						.input(SUM_PRODUCTION_ACTIVE_ENERGY, 4000))
+				.next(new TestCase() //
+						.timeleap(clock, 1, ChronoUnit.HOURS) //
+						.input(SUM_PRODUCTION_ACTIVE_ENERGY, 5500));
 
 		HourlyPrediction p = predictor.get24hPrediction();
-		assertEquals(p.getStart(), LocalDateTime.now(clock).withNano(0).withMinute(0).withSecond(0));
+		assertEquals(p.getStart(), ZonedDateTime.now(clock).withNano(0).withMinute(0).withSecond(0));
 
 		Integer[] v = p.getValues();
 		assertEquals(v.length, 24);
@@ -87,47 +78,6 @@ public class ProductionPredictorTest {
 		assertEquals(Integer.valueOf(1000), v[21]);
 		assertEquals(Integer.valueOf(2000), v[22]);
 		assertEquals(Integer.valueOf(1500), v[23]);
-	}
-
-	private static class SimulatedSum implements OpenemsComponent {
-
-		protected final LongReadChannel productionActiveEnergy;
-
-		public SimulatedSum() {
-			this.productionActiveEnergy = Sum.ChannelId.PRODUCTION_ACTIVE_ENERGY.doc().createChannelInstance(this,
-					Sum.ChannelId.PRODUCTION_ACTIVE_ENERGY);
-		}
-
-		@Override
-		public String id() {
-			return OpenemsConstants.SUM_ID;
-		}
-
-		@Override
-		public String alias() {
-			return OpenemsConstants.SUM_ID;
-		}
-
-		@Override
-		public boolean isEnabled() {
-			return true;
-		}
-
-		@Override
-		public ComponentContext getComponentContext() {
-			return null;
-		}
-
-		@Override
-		public Channel<?> _channel(String channelName) {
-			return this.productionActiveEnergy;
-		}
-
-		@Override
-		public Collection<Channel<?>> channels() {
-			return null;
-		}
-
 	}
 
 }

@@ -73,12 +73,14 @@ public class KacoBlueplanetGridsaveTest {
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.REQUESTED_STATE.getChannelId());
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.CURRENT_STATE.getChannelId());
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.WATCHDOG.getChannelId());
+		addChannel.invoke(sut, KacoSunSpecModel.S64201.W_SET_PCT.getChannelId());
 
 		test.activate(MyConfig.create() //
 				.setId(BATTERY_INVERTER_ID) //
 				.setStartStopConfig(StartStopConfig.START) //
 				.setModbusId(MODBUS_ID).build()) //
 				.next(new TestCase() //
+						.input(CURRENT_STATE, S64201CurrentState.OFF) //
 						.output(STATE_MACHINE, State.UNDEFINED)) //
 				.next(new TestCase() //
 						.output(STATE_MACHINE, State.GO_RUNNING)) //

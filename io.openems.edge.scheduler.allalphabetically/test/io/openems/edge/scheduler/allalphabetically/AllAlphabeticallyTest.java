@@ -2,67 +2,53 @@ package io.openems.edge.scheduler.allalphabetically;
 
 import static org.junit.Assert.assertEquals;
 
-import java.lang.annotation.Annotation;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
+import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.test.DummyController;
+import io.openems.edge.scheduler.api.Scheduler;
 
 public class AllAlphabeticallyTest {
 
+	private static final String SCHEDULER_ID = "scheduler0";
+
+	private static final String CTRL0_ID = "ctrl0";
+	private static final String CTRL1_ID = "ctrl1";
+	private static final String CTRL2_ID = "ctrl2";
+	private static final String CTRL3_ID = "ctrl3";
+	private static final String CTRL4_ID = "ctrl4";
+
 	@Test
-	public void test() throws OpenemsNamedException {
-		AllAlphabetically s = new AllAlphabetically();
-		s.componentManager = new DummyComponentManager() //
-				.addComponent(new DummyController("c1")) //
-				.addComponent(new DummyController("c2")) //
-				.addComponent(new DummyController("c3")) //
-				.addComponent(new DummyController("c4")) //
-				.addComponent(new DummyController("c5"));
+	public void test() throws Exception {
+		final AllAlphabetically sut = new AllAlphabetically();
+		new ComponentTest(sut) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addComponent(new DummyController(CTRL0_ID)) //
+				.addComponent(new DummyController(CTRL1_ID)) //
+				.addComponent(new DummyController(CTRL2_ID)) //
+				.addComponent(new DummyController(CTRL3_ID)) //
+				.addComponent(new DummyController(CTRL4_ID)) //
+				.activate(MyConfig.create() //
+						.setId(SCHEDULER_ID) //
+						.setControllersIds(CTRL2_ID, CTRL1_ID) //
+						.build())
+				.next(new TestCase());
 
-		s.activate(null, new Config() {
+		assertEquals(//
+				Arrays.asList(CTRL2_ID, CTRL1_ID, CTRL0_ID, CTRL3_ID, CTRL4_ID), //
+				getControllerIds(sut));
+	}
 
-			@Override
-			public Class<? extends Annotation> annotationType() {
-				return null;
-			}
-
-			@Override
-			public String webconsole_configurationFactory_nameHint() {
-				return null;
-			}
-
-			@Override
-			public String id() {
-				return "scheduler0";
-			}
-
-			@Override
-			public String alias() {
-				return "";
-			}
-
-			@Override
-			public boolean enabled() {
-				return true;
-			}
-
-			@Override
-			public String[] controllers_ids() {
-				return new String[] { "c3", "c2" };
-			}
-		});
-
-		LinkedHashSet<Controller> cs = s.getControllers();
-		Iterator<Controller> iter = cs.iterator();
-		assertEquals("c3", iter.next().id());
-		assertEquals("c2", iter.next().id());
-		assertEquals("c1", iter.next().id());
-		assertEquals("c4", iter.next().id());
-		assertEquals("c5", iter.next().id());
+	private static List<String> getControllerIds(Scheduler scheduler) throws OpenemsNamedException {
+		return scheduler.getControllers().stream() //
+				.map(c -> c.id()) //
+				.collect(Collectors.toList());
 	}
 }

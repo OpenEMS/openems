@@ -783,6 +783,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	 * @return the {@link io.openems.edge.common.channel.ChannelId}
 	 */
 	private final io.openems.edge.common.channel.ChannelId rack(Rack rack, RackChannel rackChannel) {
+		@SuppressWarnings("deprecation")
 		Channel<?> existingChannel = this._channel(rackChannel.toChannelIdString(rack));
 		if (existingChannel != null) {
 			return existingChannel.channelId();
