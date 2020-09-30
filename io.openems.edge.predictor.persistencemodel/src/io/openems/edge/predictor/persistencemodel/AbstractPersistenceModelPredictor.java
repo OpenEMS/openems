@@ -1,6 +1,5 @@
 package io.openems.edge.predictor.persistencemodel;
 
-import java.time.Clock;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Map.Entry;
@@ -27,26 +26,19 @@ public abstract class AbstractPersistenceModelPredictor extends AbstractOpenemsC
 	private final Logger log = LoggerFactory.getLogger(AbstractPersistenceModelPredictor.class);
 
 	private final ChannelAddress channelAddress;
-	private final Clock clock;
 	private boolean executed;
 	private long currentEnergy;
 	ZonedDateTime prevHour = ZonedDateTime.now().withZoneSameInstant(ZoneOffset.UTC);
 
 	private final TreeMap<ZonedDateTime, Integer> hourlyEnergyData = new TreeMap<ZonedDateTime, Integer>();
 
-	protected AbstractPersistenceModelPredictor(Clock clock, String componentId,
+	protected AbstractPersistenceModelPredictor(String componentId,
 			io.openems.edge.common.channel.ChannelId channelId) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				PredictorChannelId.values() //
 		);
 		this.channelAddress = new ChannelAddress(componentId, channelId.id());
-		this.clock = clock;
-	}
-
-	protected AbstractPersistenceModelPredictor(String componentId,
-			io.openems.edge.common.channel.ChannelId channelId) {
-		this(Clock.systemDefaultZone(), componentId, channelId);
 	}
 
 	protected abstract ComponentManager getComponentManager();
@@ -88,8 +80,8 @@ public abstract class AbstractPersistenceModelPredictor extends AbstractOpenemsC
 		}
 		long energy = energyOpt.get();
 
-		ZonedDateTime currentHour = ZonedDateTime.now(this.clock).withNano(0).withMinute(0).withSecond(0)
-				.withZoneSameInstant(ZoneOffset.UTC);
+		ZonedDateTime currentHour = ZonedDateTime.now(this.getComponentManager().getClock()).withNano(0).withMinute(0)
+				.withSecond(0).withZoneSameInstant(ZoneOffset.UTC);
 
 		if (!executed) {
 			// First time execution - Map is still empty
@@ -121,8 +113,8 @@ public abstract class AbstractPersistenceModelPredictor extends AbstractOpenemsC
 		for (Entry<ZonedDateTime, Integer> entry : this.hourlyEnergyData.entrySet()) {
 			values[i++] = entry.getValue();
 		}
-		ZonedDateTime currentHour = ZonedDateTime.now(this.clock).withNano(0).withMinute(0).withSecond(0)
-				.withZoneSameInstant(ZoneOffset.UTC);
+		ZonedDateTime currentHour = ZonedDateTime.now(this.getComponentManager().getClock()).withNano(0).withMinute(0)
+				.withSecond(0).withZoneSameInstant(ZoneOffset.UTC);
 
 		HourlyPrediction hourlyPrediction = new HourlyPrediction(values, currentHour);
 		return hourlyPrediction;
