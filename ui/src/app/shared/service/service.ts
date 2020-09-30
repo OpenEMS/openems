@@ -1,6 +1,6 @@
 import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { ToastController, ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { Cookie } from 'ng2-cookies';
@@ -18,6 +18,7 @@ import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { LoadingController } from '@ionic/angular';
 import { DefaultTypes } from './defaulttypes';
+import { NgxSpinnerService } from 'ngx-spinner';
 import { ExecuteSystemCommandRequest } from '../jsonrpc/request/executeCommandRequest';
 import { ComponentJsonApiRequest } from '../jsonrpc/request/componentJsonApiRequest';
 import { ExecuteSystemCommandResponse } from '../jsonrpc/response/executeSystemCommandResponse';
@@ -65,11 +66,13 @@ export class Service implements ErrorHandler {
 
   constructor(
     private router: Router,
-    public translate: TranslateService,
-    private http: HttpClient,
+    private spinner: NgxSpinnerService,
     private toaster: ToastController,
+    public modalCtrl: ModalController,
+    public translate: TranslateService,
     public spinnerDialog: SpinnerDialog,
-    public loadingController: LoadingController
+    public loadingController: LoadingController,
+    private http: HttpClient
   ) {
     // add language
     translate.addLangs(Language.getLanguages());
@@ -88,11 +91,78 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * Sets the application language
+   * Set the application language
    */
   public setLang(id: LanguageTag) {
     this.translate.use(id);
     // TODO set locale for date-fns: https://date-fns.org/docs/I18n
+  }
+
+  /**
+   * Convert the browser language in Language Tag
+   */
+  public browserLangToLangTag(browserLang: string): LanguageTag {
+    switch (browserLang) {
+      case "de": {
+        return "German" as LanguageTag
+      }
+      case "en": {
+        return "English" as LanguageTag
+      }
+      case "es": {
+        return "Spanish" as LanguageTag
+      }
+      case "nl": {
+        return "Dutch" as LanguageTag
+      }
+      case "cz": {
+        return "Czech" as LanguageTag
+      }
+      default: {
+        return "German" as LanguageTag
+      }
+    }
+  }
+
+  /**
+   * Gets the token from the cookie
+   */
+  public getToken(): string {
+    return Cookie.get("token");
+  }
+
+  /**
+   * Sets the token in the cookie
+   */
+  public setToken(token: string) {
+    Cookie.set("token", token);
+  }
+
+  /**
+   * Removes the token from the cookie
+   */
+  public removeToken() {
+    Cookie.delete("token");
+  }
+
+  /**
+   * Shows a nofication using toastr
+   */
+  public notify(notification: DefaultTypes.Notification) {
+    this.notificationEvent.next(notification);
+  }
+
+  /**
+   * Handles an application error
+   */
+  public handleError(error: any) {
+    console.error(error);
+    // TODO: show notification
+    // let notification: Notification = {
+    //     type: "error",
+    //     message: error
+    // };
+    // this.notify(notification);
   }
 
   /**
@@ -218,48 +288,6 @@ export class Service implements ErrorHandler {
     this.edges.next(newEdges);
   }
 
-
-  /**
-   * Gets the token from the cookie
-   */
-  public getToken(): string {
-    return Cookie.get("token");
-  }
-
-
-  /**
-   * Sets the token in the cookie
-   */
-  public setToken(token: string) {
-    Cookie.set("token", token);
-  }
-
-  /**
-   * Removes the token from the cookie
-   */
-  public removeToken() {
-    Cookie.delete("token");
-  }
-
-  /**
-   * Shows a nofication using toastr
-   */
-  public notify(notification: DefaultTypes.Notification) {
-    this.notificationEvent.next(notification);
-  }
-
-  /**
-   * Handles an application error
-   */
-  public handleError(error: any) {
-    console.error(error);
-    // let notification: Notification = {
-    //     type: "error",
-    //     message: error
-    // };
-    // this.notify(notification);
-  }
-
   /**
    * Gets the ChannelAdresses for cumulated values that should be queried.
    * 
@@ -294,6 +322,8 @@ export class Service implements ErrorHandler {
     // try to merge requests within 100 ms
     if (this.queryEnergyTimeout == null) {
       this.queryEnergyTimeout = setTimeout(() => {
+
+        this.queryEnergyTimeout = null;
 
         // merge requests
         let mergedRequests: {
@@ -362,6 +392,32 @@ export class Service implements ErrorHandler {
     fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
   }[] = [];
   private queryEnergyTimeout: any = null;
+
+
+  /**
+   * Start NGX-Spinner
+   * 
+   * Spinner will appear inside html tag only
+   * 
+   * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
+   * 
+   * @param selector selector for specific spinner
+   */
+  public startSpinner(selector: string) {
+    this.spinner.show(selector, {
+      type: 'ball-clip-rotate-multiple',
+      fullScreen: false,
+      bdColor: "rgba(0,0,0,0.5)"
+    });
+  }
+
+  /**
+   * Stop NGX-Spinner
+   * @param selector selector for specific spinner
+   */
+  public stopSpinner(selector: string) {
+    this.spinner.hide(selector);
+  }
 
   public async toast(message: string, level: 'success' | 'warning' | 'danger') {
     const toast = await this.toaster.create({

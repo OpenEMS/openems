@@ -18,6 +18,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -93,13 +94,19 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 	}
 
 	@Modified
-	void modified(Config config) {
+	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		super.modified(context, OpenemsConstants.CYCLE_ID, "Core.Cycle", true);
 		Config oldConfig = this.config;
 		this.config = config;
 		// make sure the worker starts if it had been stopped
 		if (oldConfig.cycleTime() <= 0 && oldConfig.cycleTime() != config.cycleTime()) {
 			this.worker.triggerNextRun();
 		}
+	}
+
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 
 	@Override

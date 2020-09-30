@@ -35,14 +35,6 @@ import io.openems.common.types.ChannelAddress;
  */
 public class QueryHistoricTimeseriesDataResponse extends JsonrpcResponseSuccess {
 
-	public static class EdgeInfo {
-		protected final boolean online;
-
-		public EdgeInfo(boolean online) {
-			this.online = online;
-		}
-	}
-
 	private final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table;
 
 	public QueryHistoricTimeseriesDataResponse(SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table) {

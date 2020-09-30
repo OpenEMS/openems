@@ -10,7 +10,8 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.CheckedConsumer;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -210,9 +211,9 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	 * 'onSetNextWriteCallbacks' is not final by purpose, because it might be called
 	 * in construction and would not be initialised then.
 	 */
-	private List<CheckedConsumer<T>> onSetNextWriteCallbacks = null;
+	private List<ThrowingConsumer<T, OpenemsNamedException>> onSetNextWriteCallbacks = null;
 
-	protected List<CheckedConsumer<T>> getOnSetNextWrites() {
+	protected List<ThrowingConsumer<T, OpenemsNamedException>> getOnSetNextWrites() {
 		if (this.onSetNextWriteCallbacks == null) {
 			this.onSetNextWriteCallbacks = new CopyOnWriteArrayList<>();
 		}

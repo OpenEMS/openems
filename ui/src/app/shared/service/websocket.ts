@@ -389,6 +389,7 @@ export class Websocket {
     this.status = "waiting for authentication";
     this.service.removeToken();
     this.service.initialize();
+    this.connect();
     this.router.navigate(['/index']);
 
   }

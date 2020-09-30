@@ -4,7 +4,6 @@ import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ModalController } from '@ionic/angular';
-import { StorageModalComponent } from './modal/modal.component';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
@@ -19,11 +18,11 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
 
     public data: Cumulated = null;
     public edge: Edge = null;
+    public essComponents: EdgeConfig.Component[] = [];
 
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-        public modalCtrl: ModalController,
 
     ) {
         super(service);
@@ -57,20 +56,19 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let channels: ChannelAddress[] = [
-                //new ChannelAddress('_sum', 'EssActiveChargeEnergy'),
-                //new ChannelAddress('_sum', 'EssActiveDischargeEnergy'),
+                new ChannelAddress('_sum', 'EssActiveChargeEnergy'),
+                new ChannelAddress('_sum', 'EssActiveDischargeEnergy'),
                 new ChannelAddress('_sum', 'EssAmpereHours')
             ];
+            this.essComponents = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && component.isEnabled);
+            this.essComponents.forEach(component => {
+                channels.push(
+                    new ChannelAddress(component.id, 'ActiveChargeEnergy'),
+                    new ChannelAddress(component.id, 'ActiveDischargeEnergy'),
+                    new ChannelAddress(component.id, 'BmsAmpereHours'),
+                )
+            })
             resolve(channels);
         });
     }
-
-    async presentModal() {
-        const modal = await this.modalCtrl.create({
-            component: StorageModalComponent,
-            cssClass: 'wide-modal',
-        });
-        return await modal.present();
-    }
 }
-
