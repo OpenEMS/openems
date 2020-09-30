@@ -12,7 +12,6 @@ import io.openems.edge.ess.mr.gridcon.GridconSettings;
 import io.openems.edge.ess.mr.gridcon.Helper;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
-import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 
 public class Run extends BaseState {
 
@@ -21,16 +20,17 @@ public class Run extends BaseState {
 	private boolean enableIpu2;
 	private boolean enableIpu3;
 	private float offsetCurrent;
-	private ParameterSet parameterSet;
+//	private ParameterSet parameterSet;
 
 	public Run(ComponentManager manager, String gridconPcsId, String b1Id, String b2Id, String b3Id, boolean enableIpu1,
-			boolean enableIpu2, boolean enableIpu3, ParameterSet parameterSet, String hardRestartRelayAdress,
+			boolean enableIpu2, boolean enableIpu3, // ParameterSet parameterSet, 
+			String hardRestartRelayAdress,
 			float offsetCurrent) {
 		super(manager, gridconPcsId, b1Id, b2Id, b3Id, hardRestartRelayAdress);
 		this.enableIpu1 = enableIpu1;
 		this.enableIpu2 = enableIpu2;
 		this.enableIpu3 = enableIpu3;
-		this.parameterSet = parameterSet;
+//		this.parameterSet = parameterSet;
 		this.offsetCurrent = offsetCurrent;
 	}
 
@@ -194,7 +194,7 @@ public class Run extends BaseState {
 		getGridconPcs().setMode(settings.getMode());
 		getGridconPcs().setU0(settings.getU0());
 		getGridconPcs().setF0(settings.getF0());
-		getGridconPcs().setParameterSet(parameterSet);
+//		getGridconPcs().setParameterSet(parameterSet);
 		getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
 		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
 

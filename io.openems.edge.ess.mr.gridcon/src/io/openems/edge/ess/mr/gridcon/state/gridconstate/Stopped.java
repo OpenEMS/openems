@@ -9,7 +9,6 @@ import io.openems.edge.ess.mr.gridcon.GridconPcs;
 import io.openems.edge.ess.mr.gridcon.GridconSettings;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
-import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 
 public class Stopped extends BaseState {
 
@@ -18,16 +17,16 @@ public class Stopped extends BaseState {
 	private boolean enableIpu1;
 	private boolean enableIpu2;
 	private boolean enableIpu3;
-	private ParameterSet parameterSet;
+//	private ParameterSet parameterSet;
 
 	public Stopped(ComponentManager manager, String gridconPcsId, String b1Id, String b2Id, String b3Id,
-			boolean enableIpu1, boolean enableIpu2, boolean enableIpu3, ParameterSet parameterSet,
+			boolean enableIpu1, boolean enableIpu2, boolean enableIpu3, // ParameterSet parameterSet,
 			String hardRestartRelayAdress) {
 		super(manager, gridconPcsId, b1Id, b2Id, b3Id, hardRestartRelayAdress);
 		this.enableIpu1 = enableIpu1;
 		this.enableIpu2 = enableIpu2;
 		this.enableIpu3 = enableIpu3;
-		this.parameterSet = parameterSet;
+//		this.parameterSet = parameterSet;
 	}
 
 	@Override
@@ -104,7 +103,7 @@ public class Stopped extends BaseState {
 		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
 		getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
 
-		getGridconPcs().setParameterSet(parameterSet);
+//		getGridconPcs().setParameterSet(parameterSet);
 		float maxPower = GridconPcs.MAX_POWER_PER_INVERTER;
 		if (enableIpu1) {
 			getGridconPcs().setPMaxChargeIpu1(maxPower);
@@ -136,7 +135,7 @@ public class Stopped extends BaseState {
 		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
 		getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
 
-		getGridconPcs().setParameterSet(parameterSet);
+//		getGridconPcs().setParameterSet(parameterSet);
 		float maxPower = GridconPcs.MAX_POWER_PER_INVERTER;
 		if (enableIpu1) {
 			getGridconPcs().setPMaxChargeIpu1(maxPower);
@@ -168,7 +167,7 @@ public class Stopped extends BaseState {
 		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
 		getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
 
-		getGridconPcs().setParameterSet(parameterSet);
+//		getGridconPcs().setParameterSet(parameterSet);
 		float maxPower = GridconPcs.MAX_POWER_PER_INVERTER;
 		if (enableIpu1) {
 			getGridconPcs().setPMaxChargeIpu1(maxPower);

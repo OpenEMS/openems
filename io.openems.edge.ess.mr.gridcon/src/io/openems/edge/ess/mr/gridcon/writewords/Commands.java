@@ -2,6 +2,7 @@ package io.openems.edge.ess.mr.gridcon.writewords;
 
 import java.util.BitSet;
 
+import io.openems.edge.ess.mr.gridcon.enums.BalancingMode;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
 
 public class Commands {
@@ -38,10 +39,11 @@ public class Commands {
 	private Mode mode = null; //Mode.CURRENT_CONTROL;
 	private Boolean triggerSia = false;
 	private Boolean harmonicCompensation = false;
-	private Boolean parameterSet1 = false;
-	private Boolean parameterSet2 = false;
-	private Boolean parameterSet3 = false;
-	private Boolean parameterSet4 = false;
+	private BalancingMode balancingMode = BalancingMode.DISABLED;
+//	private Boolean parameterSet1 = false;
+//	private Boolean parameterSet2 = false;
+//	private Boolean parameterSet3 = false;
+//	private Boolean parameterSet4 = false;
 
 	// 32562
 	private Integer errorCodeFeedback = 0;
@@ -159,38 +161,46 @@ public class Commands {
 	public Boolean isHarmonicCompensation() {
 		return harmonicCompensation;
 	}
-
-	public Boolean isParameterSet1() {
-		return parameterSet1;
+	
+	public BalancingMode getBalancingMode() {
+		return balancingMode;
 	}
 
-	public void setParameterSet1(Boolean parameterSet1) {
-		this.parameterSet1 = parameterSet1;
+	public void setBalancingMode(BalancingMode balancingMode) {
+		this.balancingMode = balancingMode;
 	}
 
-	public Boolean isParameterSet2() {
-		return parameterSet2;
-	}
-
-	public void setParameterSet2(Boolean parameterSet2) {
-		this.parameterSet2 = parameterSet2;
-	}
-
-	public Boolean isParameterSet3() {
-		return parameterSet3;
-	}
-
-	public void setParameterSet3(Boolean parameterSet3) {
-		this.parameterSet3 = parameterSet3;
-	}
-
-	public Boolean isParameterSet4() {
-		return parameterSet4;
-	}
-
-	public void setParameterSet4(Boolean parameterSet4) {
-		this.parameterSet4 = parameterSet4;
-	}
+//	public Boolean isParameterSet1() {
+//		return parameterSet1;
+//	}
+//
+//	public void setParameterSet1(Boolean parameterSet1) {
+//		this.parameterSet1 = parameterSet1;
+//	}
+//
+//	public Boolean isParameterSet2() {
+//		return parameterSet2;
+//	}
+//
+//	public void setParameterSet2(Boolean parameterSet2) {
+//		this.parameterSet2 = parameterSet2;
+//	}
+//
+//	public Boolean isParameterSet3() {
+//		return parameterSet3;
+//	}
+//
+//	public void setParameterSet3(Boolean parameterSet3) {
+//		this.parameterSet3 = parameterSet3;
+//	}
+//
+//	public Boolean isParameterSet4() {
+//		return parameterSet4;
+//	}
+//
+//	public void setParameterSet4(Boolean parameterSet4) {
+//		this.parameterSet4 = parameterSet4;
+//	}
 
 	public Integer getErrorCodeFeedback() {
 		return errorCodeFeedback;
@@ -250,6 +260,20 @@ public class Commands {
 		this.syncTime = syncTime;
 	}
 
+//	@Override
+//	public String toString() {
+//		return "Commands [enableIpu1=" + enableIpu1 + ", enableIpu2=" + enableIpu2 + ", enableIpu3=" + enableIpu3
+//				+ ", enableIpu4=" + enableIpu4 + ", playBit=" + playBit + ", readyAndStopBit2nd=" + readyAndStopBit2nd
+//				+ ", acknowledgeBit=" + acknowledgeBit + ", stopBit1st=" + stopBit1st + ", blackstartApproval="
+//				+ blackstartApproval + ", syncApproval=" + syncApproval + ", shortCircuitHandling="
+//				+ shortCircuitHandling + ", mode=" + mode + ", triggerSia=" + triggerSia
+//				+ ", harmonicCompensation=" + harmonicCompensation + ", parameterSet1=" + parameterSet1
+//				+ ", parameterSet2=" + parameterSet2 + ", parameterSet3=" + parameterSet3 + ", parameterSet4="
+//				+ parameterSet4 + ", errorCodeFeedback=" + errorCodeFeedback + ", parameterU0=" + parameterU0
+//				+ ", parameterF0=" + parameterF0 + ", parameterQref=" + parameterQref + ", parameterPref="
+//				+ parameterPref + ", syncDate=" + syncDate + ", syncTime=" + syncTime + "]\n" + getHexRepresentation();
+//	}
+	
 	@Override
 	public String toString() {
 		return "Commands [enableIpu1=" + enableIpu1 + ", enableIpu2=" + enableIpu2 + ", enableIpu3=" + enableIpu3
@@ -257,9 +281,8 @@ public class Commands {
 				+ ", acknowledgeBit=" + acknowledgeBit + ", stopBit1st=" + stopBit1st + ", blackstartApproval="
 				+ blackstartApproval + ", syncApproval=" + syncApproval + ", shortCircuitHandling="
 				+ shortCircuitHandling + ", mode=" + mode + ", triggerSia=" + triggerSia
-				+ ", harmonicCompensation=" + harmonicCompensation + ", parameterSet1=" + parameterSet1
-				+ ", parameterSet2=" + parameterSet2 + ", parameterSet3=" + parameterSet3 + ", parameterSet4="
-				+ parameterSet4 + ", errorCodeFeedback=" + errorCodeFeedback + ", parameterU0=" + parameterU0
+				+ ", harmonicCompensation=" + harmonicCompensation + "balancingMode=" + balancingMode
+				+ ", errorCodeFeedback=" + errorCodeFeedback + ", parameterU0=" + parameterU0
 				+ ", parameterF0=" + parameterF0 + ", parameterQref=" + parameterQref + ", parameterPref="
 				+ parameterPref + ", syncDate=" + syncDate + ", syncTime=" + syncTime + "]\n" + getHexRepresentation();
 	}
@@ -301,10 +324,12 @@ public class Commands {
 		set.set(7, mode.value);
 		set.set(8, isTriggerSia());
 		set.set(9, isHarmonicCompensation());
-		set.set(10, isParameterSet1());
-		set.set(11, isParameterSet2());
-		set.set(12, isParameterSet3());
-		set.set(13, isParameterSet4());
+		set.set(10, getBalancingMode().isBit1());
+		set.set(11, getBalancingMode().isBit2());
+//		set.set(10, isParameterSet1());
+//		set.set(11, isParameterSet2());
+//		set.set(12, isParameterSet3());
+//		set.set(13, isParameterSet4());
 
 		long val = 0;
 		long[] l = set.toLongArray();

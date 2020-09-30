@@ -1,9 +1,10 @@
 package io.openems.edge.ess.mr.gridcon;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.ess.mr.gridcon.enums.BalancingMode;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
-import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
+//import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 
 /**
  * Describes functions of the gridcon pcs system.
@@ -60,7 +61,9 @@ public interface GridconPcs {
 
 	void disableDcDc();
 
-	void setParameterSet(ParameterSet set1);
+//	void setParameterSet(ParameterSet set1);
+	
+	void setBalancingMode(BalancingMode balancingMode);
 
 		//	void setShortCircuitHAndling(boolean b);
 

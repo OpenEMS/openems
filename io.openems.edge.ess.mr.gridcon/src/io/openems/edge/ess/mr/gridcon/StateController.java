@@ -24,7 +24,7 @@ public class StateController {
 			boolean enableI1, //
 			boolean enableI2, //
 			boolean enableI3, //
-			ParameterSet parameterSet, //
+//			ParameterSet parameterSet, //
 			String hardRestartRelayAdress, //
 			float offsetCurrent) {
 
@@ -34,15 +34,15 @@ public class StateController {
 
 		gridconStateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.STOPPED,
 				new io.openems.edge.ess.mr.gridcon.state.gridconstate.Stopped(manager, gridconPcs, b1, b2, b3,
-						enableI1, enableI2, enableI3, parameterSet, hardRestartRelayAdress));
+						enableI1, enableI2, enableI3, /* parameterSet,*/ hardRestartRelayAdress));
 		gridconStateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.RUN,
 				new io.openems.edge.ess.mr.gridcon.state.gridconstate.Run(manager, gridconPcs, b1, b2, b3, enableI1,
-						enableI2, enableI3, parameterSet, hardRestartRelayAdress, offsetCurrent));
+						enableI2, enableI3, /* parameterSet,*/ hardRestartRelayAdress, offsetCurrent));
 		gridconStateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED, 
 				new io.openems.edge.ess.mr.gridcon.state.gridconstate.Undefined(manager, gridconPcs, b1, b2, b3, hardRestartRelayAdress));
 		gridconStateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.ERROR,
 				new io.openems.edge.ess.mr.gridcon.state.gridconstate.Error(manager, gridconPcs, b1, b2, b3, enableI1,
-						enableI2, enableI3, parameterSet, hardRestartRelayAdress));
+						enableI2, enableI3, /* parameterSet,*/ hardRestartRelayAdress));
 
 		generalStateObjects.put(io.openems.edge.ess.mr.gridcon.state.ongrid.OnGridState.UNDEFINED,
 				new io.openems.edge.ess.mr.gridcon.state.ongrid.Undefined());

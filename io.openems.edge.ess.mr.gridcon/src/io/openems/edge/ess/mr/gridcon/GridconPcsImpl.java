@@ -38,12 +38,12 @@ import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.ess.mr.gridcon.enums.BalancingMode;
 import io.openems.edge.ess.mr.gridcon.enums.CcuState;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
-import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 import io.openems.edge.ess.mr.gridcon.enums.StatusIpuStateMachine;
 import io.openems.edge.ess.mr.gridcon.writewords.CcuParameters1;
 import io.openems.edge.ess.mr.gridcon.writewords.CcuParameters2;
@@ -106,6 +106,8 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
 				config.modbus_id());
+		
+		this.setBalancingMode(config.balancing_mode());
 	}
 
 	@Deactivate
@@ -172,10 +174,14 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_TRIGGER_SIA, c.isTriggerSia());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION,
 				c.isHarmonicCompensation());
-		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET, c.isParameterSet1());
-		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET, c.isParameterSet2());
-		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET, c.isParameterSet3());
-		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET, c.isParameterSet4());
+		
+		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_BALANCING_MODE_BIT_1, c.getBalancingMode().isBit1());
+		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_BALANCING_MODE_BIT_2, c.getBalancingMode().isBit2());
+		
+//		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET, c.isParameterSet1());
+//		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET, c.isParameterSet2());
+//		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET, c.isParameterSet3());
+//		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET, c.isParameterSet4());
 
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ENABLE_IPU_1, c.isEnableIpu1());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ENABLE_IPU_2, c.isEnableIpu2());
@@ -335,11 +341,8 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 
 								.bit(8, GridConChannelId.COMMAND_CONTROL_WORD_TRIGGER_SIA) //
 								.bit(9, GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION) //
-								.bit(10, GridConChannelId.COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET) //
-								.bit(11, GridConChannelId.COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET) //
-
-								.bit(12, GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET) //
-								.bit(13, GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET) //
+								.bit(10, GridConChannelId.COMMAND_CONTROL_WORD_BALANCING_MODE_BIT_1) //
+								.bit(11, GridConChannelId.COMMAND_CONTROL_WORD_BALANCING_MODE_BIT_2) //
 						), //
 						m(new BitsWordElement(Commands.COMMANDS_ADRESS + 1, this) //
 								.bit(12, GridConChannelId.COMMAND_CONTROL_WORD_ENABLE_IPU_4) //
@@ -1044,31 +1047,36 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 	}
 
 	@Override
-	public void setParameterSet(ParameterSet set) {
-		boolean set1 = false;
-		boolean set2 = false;
-		boolean set3 = false;
-		boolean set4 = false;
-		switch (set) {
-		case SET_1:
-			set1 = true;
-			break;
-		case SET_2:
-			set2 = true;
-			break;
-		case SET_3:
-			set3 = true;
-			break;
-		case SET_4:
-			set4 = true;
-			break;
-		}
-
-		Commands.getCommands().setParameterSet1(set1);
-		Commands.getCommands().setParameterSet2(set2);
-		Commands.getCommands().setParameterSet3(set3);
-		Commands.getCommands().setParameterSet4(set4);
+	public void setBalancingMode(BalancingMode balancingMode) {
+		Commands.getCommands().setBalancingMode(balancingMode);
 	}
+	
+//	@Override
+//	public void setParameterSet(ParameterSet set) {
+//		boolean set1 = false;
+//		boolean set2 = false;
+//		boolean set3 = false;
+//		boolean set4 = false;
+//		switch (set) {
+//		case SET_1:
+//			set1 = true;
+//			break;
+//		case SET_2:
+//			set2 = true;
+//			break;
+//		case SET_3:
+//			set3 = true;
+//			break;
+//		case SET_4:
+//			set4 = true;
+//			break;
+//		}
+//
+//		Commands.getCommands().setParameterSet1(set1);
+//		Commands.getCommands().setParameterSet2(set2);
+//		Commands.getCommands().setParameterSet3(set3);
+//		Commands.getCommands().setParameterSet4(set4);
+//	}
 
 	@Override
 	public void setMode(Mode mode) {
@@ -1356,4 +1364,6 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 		}
 		return undefined;
 	}
+
+
 }

@@ -3,8 +3,6 @@ package io.openems.edge.ess.mr.gridcon.ongrid;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
-
 @ObjectClassDefinition(//
 		name = "ESS Gridcon On Grid", //
 		description = "ESS MR Gridcon PCS on grid variant" //
@@ -44,8 +42,8 @@ public @interface Config {
 	@AttributeDefinition(name = "Offset Current", description = "An offset current is put on the rack with the highest cell voltage")
 	float offsetCurrent() default 0;
 
-	@AttributeDefinition(name = "Parameter Set", description = "Parameter Set")
-	ParameterSet parameterSet() default ParameterSet.SET_1;
+//	@AttributeDefinition(name = "Parameter Set", description = "Parameter Set")
+//	ParameterSet parameterSet() default ParameterSet.SET_1;
 
 	@AttributeDefinition(name = "Output Gridcon Hard Reset", description = "Output for hard reset for gridcon")
 	String outputHardReset() default "io0/DigitalOutputM1C2";

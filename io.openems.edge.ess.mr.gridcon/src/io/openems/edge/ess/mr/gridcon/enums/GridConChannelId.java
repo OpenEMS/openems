@@ -196,6 +196,16 @@ public enum GridConChannelId implements ChannelId {
 			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET_DEBUG))),
+	COMMAND_CONTROL_WORD_BALANCING_MODE_BIT_1_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_BALANCING_MODE_BIT_1(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.COMMAND_CONTROL_WORD_BALANCING_MODE_BIT_1_DEBUG))),
+	COMMAND_CONTROL_WORD_BALANCING_MODE_BIT_2_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_BALANCING_MODE_BIT_2(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.COMMAND_CONTROL_WORD_BALANCING_MODE_BIT_2_DEBUG))),	
 	COMMAND_CONTROL_WORD_DISABLE_IPU_4_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 	COMMAND_CONTROL_WORD_ENABLE_IPU_4(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //

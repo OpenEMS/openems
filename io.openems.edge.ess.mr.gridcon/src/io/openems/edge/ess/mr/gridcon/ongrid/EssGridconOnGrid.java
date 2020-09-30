@@ -91,7 +91,7 @@ public class EssGridconOnGrid extends EssGridcon
 	@Override
 	protected void initializeStateController(String gridconPcs, String b1, String b2, String b3) {
 		StateController.initOnGrid(componentManager, gridconPcs, b1, b2, b3, config.enableIpu1(), config.enableIpu2(),
-				config.enableIpu3(), config.parameterSet(), config.outputHardReset(), config.offsetCurrent());
+				config.enableIpu3(), /*config.parameterSet(),*/ config.outputHardReset(), config.offsetCurrent());
 	}
 
 	@Override

@@ -3,9 +3,9 @@ package io.openems.edge.ess.mr.gridcon.helper;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
+import io.openems.edge.ess.mr.gridcon.enums.BalancingMode;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
-import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 
 public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 
@@ -109,11 +109,11 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 		
 	}
 
-	@Override
-	public void setParameterSet(ParameterSet set1) {
-		// TODO Auto-generated method stub
-		
-	}
+//	@Override
+//	public void setParameterSet(ParameterSet set1) {
+//		// TODO Auto-generated method stub
+//		
+//	}
 
 	@Override
 	public void setU0(float onGridVoltageFactor) {
@@ -307,6 +307,12 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 
 	@Override
 	public void setMode(Mode mode) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setBalancingMode(BalancingMode balancingMode) {
 		// TODO Auto-generated method stub
 		
 	}
