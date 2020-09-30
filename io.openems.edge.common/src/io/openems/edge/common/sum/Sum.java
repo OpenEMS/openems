@@ -45,6 +45,20 @@ public interface Sum extends OpenemsComponent {
 				.unit(Unit.WATT) //
 				.text(OpenemsConstants.POWER_DOC_TEXT)),
 		/**
+		 * Reactive Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: var
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * </ul>
+		 */
+		ESS_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.text(OpenemsConstants.POWER_DOC_TEXT) //
+		),
+		/**
 		 * Ess: Active Power L1.
 		 * 
 		 * <ul>
@@ -533,7 +547,8 @@ public interface Sum extends OpenemsComponent {
 				.channel(1, ChannelId.ESS_ACTIVE_POWER, ModbusType.FLOAT32) //
 				.float32Reserved(3) // ChannelId.ESS_MIN_ACTIVE_POWER
 				.float32Reserved(5) // ChannelId.ESS_MAX_ACTIVE_POWER
-				.float32Reserved(7) // ChannelId.ESS_REACTIVE_POWER
+				.channel(7, ChannelId.ESS_REACTIVE_POWER, ModbusType.FLOAT32) //
+				//.float32Reserved(7) // ChannelId.ESS_REACTIVE_POWER
 				.float32Reserved(9) // ChannelId.ESS_MIN_REACTIVE_POWER
 				.float32Reserved(11) // ChannelId.ESS_MAX_REACTIVE_POWER
 				.channel(13, ChannelId.GRID_ACTIVE_POWER, ModbusType.FLOAT32) //
