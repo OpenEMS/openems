@@ -18,9 +18,8 @@ export abstract class AbstractHistoryChart {
     public loading: boolean = true;
     public spinnerId: string = "";
 
-    //observable is used to fetch new chart data every 5 minutes
-    // private refreshChartData = interval(600000);
-    private refreshChartData = interval(10000);
+    //observable is used to fetch new chart data every 10 minutes
+    private refreshChartData = interval(600000);
 
     //observable is used to refresh chart height dependend on the window size
     private refreshChartHeight = fromEvent(window, 'resize', null, null);
@@ -136,7 +135,7 @@ export abstract class AbstractHistoryChart {
     }
 
     /**
-     * Subscribes to 5 minute Interval Observable and Window Resize Observable to fetch new data and resize chart if needed
+     * Subscribes to 10 minute Interval Observable and Window Resize Observable to fetch new data and resize chart if needed
      */
     protected subscribeChartRefresh() {
         if (this.checkAllowanceChartRefresh() == true) {
@@ -162,7 +161,7 @@ export abstract class AbstractHistoryChart {
                 this.ngUnsubscribe.isStopped = false;
             }
             this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-                this.updateChart()
+                this.updateChart();
             })
             this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
                 this.getChartHeight();
