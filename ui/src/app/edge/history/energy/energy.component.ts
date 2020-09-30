@@ -825,7 +825,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         chartLegendLabelItems.sort(function (a, b) {
           return chartLegendLabelItemsOrder.indexOf(a.text) - chartLegendLabelItemsOrder.indexOf(b.text);
         });
-        console.log("chartLegendLabelItems", chartLegendLabelItems)
         return chartLegendLabelItems;
       }
 
