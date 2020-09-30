@@ -42,6 +42,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   }
 
   protected updateChart() {
+    this.autoSubscribeChartRefresh();
     this.service.startSpinner(this.spinnerId);
     this.colors = [];
     this.loading = true;

@@ -40,6 +40,7 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.colors = [];

@@ -40,6 +40,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
   }
 
   protected updateChart() {
+    this.autoSubscribeChartRefresh();
     this.service.startSpinner(this.spinnerId);
     this.colors = [];
     this.loading = true;

@@ -39,6 +39,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.loading = true;
         this.service.startSpinner(this.spinnerId);
         this.colors = [];

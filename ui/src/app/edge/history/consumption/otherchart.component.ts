@@ -40,6 +40,7 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {

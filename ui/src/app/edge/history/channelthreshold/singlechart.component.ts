@@ -40,6 +40,7 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
   }
 
   protected updateChart() {
+    this.autoSubscribeChartRefresh();
     this.service.startSpinner(this.spinnerId);
     this.colors = [];
     this.loading = true;

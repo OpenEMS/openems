@@ -44,6 +44,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.colors = [];

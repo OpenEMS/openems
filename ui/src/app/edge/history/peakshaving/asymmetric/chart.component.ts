@@ -40,6 +40,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.colors = [];

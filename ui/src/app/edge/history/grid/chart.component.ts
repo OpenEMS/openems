@@ -40,6 +40,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.loading = true;
         this.service.startSpinner(this.spinnerId);
         this.colors = [];

@@ -40,6 +40,7 @@ export class ProductionChargerChartComponent extends AbstractHistoryChart implem
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.colors = [];

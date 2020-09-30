@@ -1,15 +1,15 @@
 import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
+import { ChartDataSets } from 'chart.js';
 import { EMPTY_DATASET, ChartOptions } from './shared';
+import { interval, Subject, fromEvent } from 'rxjs';
+import { isAfter } from 'date-fns/esm';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
-import { TranslateService } from '@ngx-translate/core';
-import { interval, Subject, fromEvent } from 'rxjs';
-import { takeUntil, debounceTime, delay } from 'rxjs/operators';
-import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
-import { ChartDataSets } from 'chart.js';
-import { addDays, addWeeks, endOfWeek, isAfter, isBefore, isFuture, subDays, subWeeks } from 'date-fns/esm';
+import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
+import { takeUntil, debounceTime, delay } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 
 export abstract class AbstractHistoryChart {
@@ -19,7 +19,9 @@ export abstract class AbstractHistoryChart {
     public spinnerId: string = "";
 
     //observable is used to fetch new chart data every 5 minutes
-    private refreshChartData = interval(600000);
+    // private refreshChartData = interval(600000);
+    private refreshChartData = interval(10000);
+
     //observable is used to refresh chart height dependend on the window size
     private refreshChartHeight = fromEvent(window, 'resize', null, null);
 
@@ -30,6 +32,8 @@ export abstract class AbstractHistoryChart {
     protected datasets: ChartDataSets[] = EMPTY_DATASET;
     protected options: ChartOptions | null = null;
     protected colors = []
+    // prevents subscribing more than once
+    protected hasSubscribed: boolean = false;
 
     // Colors for Phase 1-3
     protected phase1Color = {
@@ -123,7 +127,7 @@ export abstract class AbstractHistoryChart {
     protected checkAllowanceChartRefresh(): boolean {
         let currentDate = new Date();
         let allowRefresh: boolean = false;
-        if (isAfter(this.service.historyPeriod.from.getDate(), currentDate.getDate()) || currentDate.getDate() == this.service.historyPeriod.from.getDate()) {
+        if (isAfter(this.service.historyPeriod.to, currentDate) || currentDate.getDate() == this.service.historyPeriod.from.getDate()) {
             allowRefresh = true;
         } else {
             allowRefresh = false;
@@ -135,18 +139,47 @@ export abstract class AbstractHistoryChart {
      * Subscribes to 5 minute Interval Observable and Window Resize Observable to fetch new data and resize chart if needed
      */
     protected subscribeChartRefresh() {
-        this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-            this.updateChart()
-        })
-        this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
-            this.getChartHeight();
-        });
+        if (this.checkAllowanceChartRefresh() == true) {
+            if (this.ngUnsubscribe.isStopped == true) {
+                this.ngUnsubscribe.isStopped = false;
+            }
+            this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+                this.updateChart()
+            })
+            this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
+                this.getChartHeight();
+            });
+        }
+    }
+
+    /**
+     * Subscribe to Chart Refresh if allowed
+     * Unsubscribe to Chart Refresh if necessary
+     */
+    protected autoSubscribeChartRefresh() {
+        if (this.hasSubscribed == false) {
+            if (this.checkAllowanceChartRefresh() == true) {
+                if (this.ngUnsubscribe.isStopped == true) {
+                    this.ngUnsubscribe.isStopped = false;
+                }
+                this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+                    this.updateChart()
+                })
+                this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
+                    this.getChartHeight();
+                });
+                this.hasSubscribed = true;
+            }
+        } else if (this.hasSubscribed == true && this.checkAllowanceChartRefresh() == false) {
+            this.unsubscribeChartRefresh();
+        }
     }
 
     /**
      * Unsubscribes to 5 minute Interval Observable and Window Resize Observable
      */
     protected unsubscribeChartRefresh() {
+        this.hasSubscribed = false;
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
     }

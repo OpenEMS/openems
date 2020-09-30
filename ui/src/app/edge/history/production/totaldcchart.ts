@@ -38,6 +38,7 @@ export class ProductionTotalDcChartComponent extends AbstractHistoryChart implem
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.colors = [];

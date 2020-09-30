@@ -39,6 +39,7 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
   }
 
   protected updateChart() {
+    this.autoSubscribeChartRefresh();
     this.service.startSpinner(this.spinnerId);
     this.colors = [];
     this.loading = true;

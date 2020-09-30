@@ -140,12 +140,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     })
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
     setTimeout(() => this.getChartHeight(), 500);
-    if (this.checkAllowanceChartRefresh() == true) {
-      this.subscribeChartRefresh();
-    }
+    // this.subscribeChartRefresh();
   }
 
   ngOnDestroy() {
+    console.log("ONDESTROY")
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
     this.unsubscribeChartRefresh();
@@ -165,8 +164,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   }
 
   protected updateChart() {
+    console.log("UPDATECHART")
     this.loading = true;
     this.service.startSpinner(this.spinnerId);
+    this.autoSubscribeChartRefresh();
     this.service.getCurrentEdge().then(edge => {
       this.service.getConfig().then(config => {
         this.edge = edge;

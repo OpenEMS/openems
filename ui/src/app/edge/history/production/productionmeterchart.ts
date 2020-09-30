@@ -41,6 +41,7 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart implemen
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.loading = true;
         this.service.startSpinner(this.spinnerId);
         this.colors = [];
