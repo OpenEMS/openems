@@ -316,4 +316,58 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public float getVoltageU1U2() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float getVoltageU2U3() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float getVoltageU3U1() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float getCurrentIL1() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float getCurrentIL2() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float getCurrentIL3() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float getPowerP() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float getPowerQ() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float getFrequency() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

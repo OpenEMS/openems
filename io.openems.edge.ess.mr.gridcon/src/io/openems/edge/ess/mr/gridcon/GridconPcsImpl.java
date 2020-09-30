@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.EventConstants;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,7 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.mr.gridcon.enums.BalancingMode;
 import io.openems.edge.ess.mr.gridcon.enums.CcuState;
@@ -55,7 +57,9 @@ import io.openems.edge.ess.mr.gridcon.writewords.IpuParameter;
 @Component(//
 		name = "MR.Gridcon", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE) //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE } //
+)
 public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, GridconPcs {
 
 	private static final String NAME_PART_INVERTER_2 = "INVERTER2";
@@ -1363,6 +1367,60 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 			}
 		}
 		return undefined;
+	}
+
+	@Override
+	public float getVoltageU1U2() {
+		FloatReadChannel c = this.channel(GridConChannelId.CCU_VOLTAGE_U12); 
+		return c.value().orElse(0f);
+	}
+
+	@Override
+	public float getVoltageU2U3() {
+		FloatReadChannel c = this.channel(GridConChannelId.CCU_VOLTAGE_U23); 
+		return c.value().orElse(0f);
+	}
+
+	@Override
+	public float getVoltageU3U1() {
+		FloatReadChannel c = this.channel(GridConChannelId.CCU_VOLTAGE_U31); 
+		return c.value().orElse(0f);
+	}
+
+	@Override
+	public float getCurrentIL1() {
+		FloatReadChannel c = this.channel(GridConChannelId.CCU_CURRENT_IL1); 
+		return c.value().orElse(0f);
+	}
+
+	@Override
+	public float getCurrentIL2() {
+		FloatReadChannel c = this.channel(GridConChannelId.CCU_CURRENT_IL2); 
+		return c.value().orElse(0f);
+	}
+
+	@Override
+	public float getCurrentIL3() {
+		FloatReadChannel c = this.channel(GridConChannelId.CCU_CURRENT_IL3); 
+		return c.value().orElse(0f);
+	}
+
+	@Override
+	public float getPowerP() {
+		FloatReadChannel c = this.channel(GridConChannelId.CCU_POWER_P); 
+		return c.value().orElse(0f);
+	}
+
+	@Override
+	public float getPowerQ() {
+		FloatReadChannel c = this.channel(GridConChannelId.CCU_POWER_Q); 
+		return c.value().orElse(0f);
+	}
+
+	@Override
+	public float getFrequency() {
+		FloatReadChannel c = this.channel(GridConChannelId.CCU_FREQUENCY); 
+		return c.value().orElse(0f);
 	}
 
 

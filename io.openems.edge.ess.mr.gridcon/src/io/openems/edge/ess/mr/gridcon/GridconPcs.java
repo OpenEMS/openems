@@ -124,6 +124,20 @@ public interface GridconPcs {
 	double getEfficiencyLossChargeFactor();
 
 	double getEfficiencyLossDischargeFactor();
+	
+	// CCU Values
+	float getVoltageU1U2();
+	float getVoltageU2U3();
+	float getVoltageU3U1();
+	
+	float getCurrentIL1();
+	float getCurrentIL2();
+	float getCurrentIL3();
+	
+	float getPowerP();
+	float getPowerQ();
+	
+	float getFrequency();
 
 	// Gridcon is undefined if not all relevant gridcon values are set
 	boolean isUndefined();
