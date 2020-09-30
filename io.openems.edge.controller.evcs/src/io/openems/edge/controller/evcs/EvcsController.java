@@ -1,7 +1,6 @@
 package io.openems.edge.controller.evcs;
 
 import java.io.IOException;
-import java.time.Clock;
 import java.util.Dictionary;
 
 import org.osgi.service.cm.Configuration;
@@ -97,17 +96,13 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		}
 	}
 
-	public EvcsController() {
-		this(Clock.systemDefaultZone());
-	}
-
-	protected EvcsController(Clock clock) {
+	protected EvcsController() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.chargingLowerThanTargetHandler = new ChargingLowerThanTargetHandler(clock);
+		this.chargingLowerThanTargetHandler = new ChargingLowerThanTargetHandler(this);
 	}
 
 	@Activate

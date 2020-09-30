@@ -49,7 +49,7 @@ public class TestController {
 //					.next(new TestCase() //
 //							.input(ctrl0MinCellVoltage, config.criticalLowCellVoltage() - 1) //
 //							.output(ctrl0State, State.FORCE_CHARGE.getValue())) //
-					.run();
+			;
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}

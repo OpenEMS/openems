@@ -1,5 +1,6 @@
 package io.openems.edge.controller.symmetric.balancingschedule;
 
+import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
@@ -40,6 +41,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		}
 	}
 
+	/**
+	 * Create a Config builder.
+	 * 
+	 * @return a {@link Builder}
+	 */
 	public static Builder create() {
 		return new Builder();
 	}
@@ -68,12 +74,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String ess_target() {
-		return "(&(enabled=true)(!(service.pid=ctrl0))(|(id=" + this.ess_id() + ")))";
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
 	}
 
 	@Override
 	public String meter_target() {
-		return "(&(enabled=true)(!(service.pid=ctrl0))(|(id=" + this.meter_id() + ")))";
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.meter_id());
 	}
 
 }
