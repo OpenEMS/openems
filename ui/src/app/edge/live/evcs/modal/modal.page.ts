@@ -41,6 +41,7 @@ export class EvcsModalComponent implements OnInit {
         this.chargeMode = 'OFF';
       }
     }
+    this.oldNumberOfPhases = this.getNumberOfPhasesOrThree();
   }
 
   /**
@@ -173,7 +174,6 @@ export class EvcsModalComponent implements OnInit {
    * @param event
    */
   updateForceMinPower(event: CustomEvent, currentController: EdgeConfig.Component, numberOfPhases: number) {
-
     if (numberOfPhases != this.oldNumberOfPhases) {
       this.oldNumberOfPhases = numberOfPhases;
       return;
@@ -295,8 +295,8 @@ export class EvcsModalComponent implements OnInit {
         currentController.properties['defaultChargeMinPower'] = newMinChargePower;
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
         currentController.properties['defaultChargeMinPower'] = oldMinChargePower;
+        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
       });
     }

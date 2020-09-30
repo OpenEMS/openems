@@ -1,6 +1,5 @@
 package io.openems.edge.scheduler.daily;
 
-import java.time.Clock;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -29,10 +28,13 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.scheduler.api.Scheduler;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Scheduler.Daily", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Scheduler.Daily", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class DailyScheduler extends AbstractOpenemsComponent implements Scheduler, OpenemsComponent {
 
-	private final Clock clock;
 	private final TreeMap<LocalTime, List<String>> controllerSchedule = new TreeMap<>();
 
 	@Reference
@@ -54,17 +56,12 @@ public class DailyScheduler extends AbstractOpenemsComponent implements Schedule
 		}
 	}
 
-	public DailyScheduler() {
-		this(Clock.systemDefaultZone());
-	}
-
-	protected DailyScheduler(Clock clock) {
+	protected DailyScheduler() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Scheduler.ChannelId.values(), //
 				ThisChannelId.values() //
 		);
-		this.clock = clock;
 	}
 
 	@Activate
@@ -105,7 +102,8 @@ public class DailyScheduler extends AbstractOpenemsComponent implements Schedule
 		}
 
 		// add "Daily Schedule" Controllers
-		Entry<LocalTime, List<String>> scheduledIds = this.controllerSchedule.lowerEntry(LocalTime.now(this.clock));
+		Entry<LocalTime, List<String>> scheduledIds = this.controllerSchedule
+				.lowerEntry(LocalTime.now(this.componentManager.getClock()));
 		if (scheduledIds == null) {
 			// No entry found -> take the one with highest time, i.e. the one before
 			// midnight.

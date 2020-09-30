@@ -47,6 +47,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		}
 	}
 
+	/**
+	 * Create a Config builder.
+	 * 
+	 * @return a {@link Builder}
+	 */
 	public static Builder create() {
 		return new Builder();
 	}
@@ -76,11 +81,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public GridMode gridMode() {
 		return this.builder.gridMode;
-	}
-
-	@Override
-	public String datasource_target() {
-		return "";
 	}
 
 }

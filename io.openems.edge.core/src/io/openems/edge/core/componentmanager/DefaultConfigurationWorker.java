@@ -25,14 +25,13 @@ import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.worker.AbstractWorker;
 
 /**
  * This Worker checks if certain OpenEMS-Components are configured and - if not
  * - configures them. It is used to make sure a set of standard components are
  * always activated by default on a deployed energy management system.
  */
-public class DefaultConfigurationWorker extends AbstractWorker {
+public class DefaultConfigurationWorker extends ComponentManagerWorker {
 
 	/**
 	 * Time to wait before doing the check. This allows the system to completely
@@ -41,15 +40,15 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	private static final int INITIAL_WAIT_TIME = 5_000; // in ms
 
 	private final Logger log = LoggerFactory.getLogger(DefaultConfigurationWorker.class);
-	private final ComponentManagerImpl parent;
 
 	public DefaultConfigurationWorker(ComponentManagerImpl parent) {
-		this.parent = parent;
+		super(parent);
 	}
 
 	/**
 	 * Creates all default configurations.
 	 * 
+	 * @param existingConfigs already existing {@link Config}s
 	 * @return true on error, false if default configuration was successfully
 	 *         applied
 	 */
@@ -141,7 +140,7 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	/**
 	 * Reads all currently active configurations.
 	 * 
-	 * @return
+	 * @return a list of currently active {@link Config}s
 	 */
 	private List<Config> readConfigs() {
 		List<Config> result = new ArrayList<Config>();
@@ -212,7 +211,6 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	 * @param defaultConfigurationFailed the result of the last configuration,
 	 *                                   updated on error
 	 * @param componentId                the Component-ID
-	 * @return false on success; true on error or if lastResult was already true
 	 */
 	protected void deleteConfiguration(AtomicBoolean defaultConfigurationFailed, String componentId) {
 		try {
