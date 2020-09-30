@@ -25,9 +25,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.byd.container.EssFeneconBydContainer;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -55,8 +52,7 @@ public class BydContainerWatchdog extends AbstractOpenemsComponent
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		WATCHDOG(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.WRITE_ONLY)),
-		IS_TIMEOUT(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.WRITE_ONLY));
+				.accessMode(AccessMode.WRITE_ONLY));
 
 		private final Doc doc;
 
@@ -89,8 +85,8 @@ public class BydContainerWatchdog extends AbstractOpenemsComponent
 		IntegerWriteChannel channel = this.channel(ChannelId.WATCHDOG);
 		Optional<Integer> value = channel.getNextWriteValueAndReset();
 
-		// Check if Watchdog has been triggered in time. 
-		// Timeout is configured in Modbus-TCP-Api Controller.		
+		// Check if Watchdog has been triggered in time.
+		// Timeout is configured in Modbus-TCP-Api Controller.
 		if (value.isPresent()) {
 			// No Timeout
 
@@ -107,8 +103,8 @@ public class BydContainerWatchdog extends AbstractOpenemsComponent
 
 			} else {
 				// setting the active and reactive power to zero
-				ess.addPowerConstraintAndValidate("BydContainerWatchdog", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0);
-				ess.addPowerConstraintAndValidate("BydContainerWatchdog", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
+				ess.setActivePowerEquals(0);
+				ess.setReactivePowerEquals(0);
 			}
 		}
 	}
@@ -125,12 +121,13 @@ public class BydContainerWatchdog extends AbstractOpenemsComponent
 	/**
 	 * Helper function to set the configuration based on the watchdog value.
 	 *
-	 * @param value true to set readonly flag on, false to set the readonly flag off;
-	 * @param pid pid of the Ess             
+	 * @param value true to set readonly flag on, false to set the readonly flag
+	 *              off;
+	 * @param pid   pid of the Ess
 	 * @throws OpenemsNamedException on error
 	 * 
 	 */
 	private void setConfig(Boolean value, String pid) throws OpenemsNamedException {
 		OpenemsComponent.updateConfigurationProperty(this.cm, pid, "readonly", value);
-	}	
+	}
 }

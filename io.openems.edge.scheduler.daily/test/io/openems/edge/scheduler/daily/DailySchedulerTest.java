@@ -2,126 +2,86 @@ package io.openems.edge.scheduler.daily;
 
 import static org.junit.Assert.assertEquals;
 
-import java.lang.annotation.Annotation;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
+import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.TimeLeapClock;
-import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.test.DummyController;
+import io.openems.edge.scheduler.api.Scheduler;
 
 public class DailySchedulerTest {
 
+	private static final String SCHEDULER_ID = "scheduler0";
+
+	private static final String CTRL0_ID = "ctrl0";
+	private static final String CTRL1_ID = "ctrl1";
+	private static final String CTRL2_ID = "ctrl2";
+	private static final String CTRL3_ID = "ctrl3";
+	private static final String CTRL4_ID = "ctrl4";
+
 	@Test
-	public void test() throws OpenemsNamedException {
-		TimeLeapClock clock = new TimeLeapClock(
-				LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC),
-				ZoneOffset.UTC);
+	public void test() throws Exception {
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final DailyScheduler sut = new DailyScheduler();
+		ComponentTest test = new ComponentTest(sut) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addComponent(new DummyController(CTRL0_ID)) //
+				.addComponent(new DummyController(CTRL1_ID)) //
+				.addComponent(new DummyController(CTRL2_ID)) //
+				.addComponent(new DummyController(CTRL3_ID)) //
+				.addComponent(new DummyController(CTRL4_ID)) //
+				.activate(MyConfig.create() //
+						.setId(SCHEDULER_ID) //
+						.setAlwaysRunBeforeControllerIds(CTRL2_ID).setControllerScheduleJson(JsonUtils.buildJsonArray() //
+								.add(JsonUtils.buildJsonObject() //
+										.addProperty("time", "08:00:00") //
+										.add("controllers", JsonUtils.buildJsonArray() //
+												.add(CTRL0_ID) //
+												.build()) //
+										.build()) //
+								.add(JsonUtils.buildJsonObject() //
+										.addProperty("time", "13:45:00") //
+										.add("controllers", JsonUtils.buildJsonArray() //
+												.add(CTRL4_ID) //
+												.build()) //
+										.build()) //
+								.build().toString())
+						.setAlwaysRunAfterControllerIds(CTRL3_ID, CTRL1_ID) //
+						.build()); //
 
-		DailyScheduler s = new DailyScheduler(clock);
-		s.componentManager = new DummyComponentManager() //
-				.addComponent(new DummyController("c1")) //
-				.addComponent(new DummyController("c2")) //
-				.addComponent(new DummyController("c3")) //
-				.addComponent(new DummyController("c4")) //
-				.addComponent(new DummyController("c5"));
+		test.next(new TestCase("00:00")); //
+		assertEquals(//
+				Arrays.asList(CTRL2_ID, CTRL4_ID, CTRL3_ID, CTRL1_ID), //
+				getControllerIds(sut));
 
-		s.activate(null, new Config() {
+		test.next(new TestCase("12:00") //
+				.timeleap(clock, 12, ChronoUnit.HOURS)); //
+		assertEquals(//
+				Arrays.asList(CTRL2_ID, CTRL0_ID, CTRL3_ID, CTRL1_ID), //
+				getControllerIds(sut));
 
-			@Override
-			public Class<? extends Annotation> annotationType() {
-				return null;
-			}
+		test.next(new TestCase("14:00") //
+				.timeleap(clock, 12, ChronoUnit.HOURS)); //
+		assertEquals(//
+				Arrays.asList(CTRL2_ID, CTRL4_ID, CTRL3_ID, CTRL1_ID), //
+				getControllerIds(sut));
+	}
 
-			@Override
-			public String webconsole_configurationFactory_nameHint() {
-				return null;
-			}
-
-			@Override
-			public String id() {
-				return "scheduler0";
-			}
-
-			@Override
-			public String alias() {
-				return "";
-			}
-
-			@Override
-			public boolean enabled() {
-				return true;
-			}
-
-			@Override
-			public String[] alwaysRunBeforeController_ids() {
-				return new String[] { "c3" };
-			}
-
-			@Override
-			public String controllerScheduleJson() {
-				return "[" //
-						+ "  {" //
-						+ "    \"time\": \"08:00:00\"," //
-						+ "    \"controllers\": [" //
-						+ "      \"c1\"" //
-						+ "    ]" //
-						+ "  },  {" //
-						+ "    \"time\": \"13:45:00\"," //
-						+ "    \"controllers\": [\"c5\"]" //
-						+ "  }" //
-						+ "]";
-			}
-
-			@Override
-			public String[] alwaysRunAfterController_ids() {
-				return new String[] { "c4", "c2" };
-			}
-		});
-
-		{
-			/*
-			 * 00:00
-			 */
-			LinkedHashSet<Controller> cs = s.getControllers();
-			Iterator<Controller> iter = cs.iterator();
-			assertEquals("c3", iter.next().id());
-			assertEquals("c5", iter.next().id());
-			assertEquals("c4", iter.next().id());
-			assertEquals("c2", iter.next().id());
-		}
-
-		{
-			/*
-			 * 12:00
-			 */
-			clock.leap(12, ChronoUnit.HOURS);
-			LinkedHashSet<Controller> cs = s.getControllers();
-			Iterator<Controller> iter = cs.iterator();
-			assertEquals("c3", iter.next().id());
-			assertEquals("c1", iter.next().id());
-			assertEquals("c4", iter.next().id());
-			assertEquals("c2", iter.next().id());
-		}
-
-		{
-			/*
-			 * 14:00
-			 */
-			clock.leap(2, ChronoUnit.HOURS);
-			LinkedHashSet<Controller> cs = s.getControllers();
-			Iterator<Controller> iter = cs.iterator();
-			assertEquals("c3", iter.next().id());
-			assertEquals("c5", iter.next().id());
-			assertEquals("c4", iter.next().id());
-			assertEquals("c2", iter.next().id());
-		}
+	private static List<String> getControllerIds(Scheduler scheduler) throws OpenemsNamedException {
+		return scheduler.getControllers().stream() //
+				.map(c -> c.id()) //
+				.collect(Collectors.toList());
 	}
 
 }

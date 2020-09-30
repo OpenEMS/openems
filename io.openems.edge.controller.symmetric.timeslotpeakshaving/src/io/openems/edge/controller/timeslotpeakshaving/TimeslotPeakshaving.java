@@ -1,6 +1,5 @@
 package io.openems.edge.controller.timeslotpeakshaving;
 
-import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -43,7 +42,6 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	public static final String DATE_FORMAT = "dd.MM.yyyy";
 
 	private final Logger log = LoggerFactory.getLogger(TimeslotPeakshaving.class);
-	private final Clock clock;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -75,17 +73,12 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		}
 	}
 
-	public TimeslotPeakshaving() {
-		this(Clock.systemDefaultZone());
-	}
-
-	protected TimeslotPeakshaving(Clock clock) {
+	protected TimeslotPeakshaving() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.clock = clock;
 	}
 
 	@Activate
@@ -139,7 +132,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	private Integer getPower(ManagedSymmetricEss ess, SymmetricMeter meter)
 			throws OpenemsException, IllegalArgumentException {
 
-		LocalDateTime now = LocalDateTime.now(this.clock);
+		LocalDateTime now = LocalDateTime.now(this.componentManager.getClock());
 
 		boolean stateChanged;
 		Integer power = null;
