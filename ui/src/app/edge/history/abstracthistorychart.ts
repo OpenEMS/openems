@@ -157,19 +157,17 @@ export abstract class AbstractHistoryChart {
      * Unsubscribe to Chart Refresh if necessary
      */
     protected autoSubscribeChartRefresh() {
-        if (this.hasSubscribed == false) {
-            if (this.checkAllowanceChartRefresh() == true) {
-                if (this.ngUnsubscribe.isStopped == true) {
-                    this.ngUnsubscribe.isStopped = false;
-                }
-                this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-                    this.updateChart()
-                })
-                this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
-                    this.getChartHeight();
-                });
-                this.hasSubscribed = true;
+        if (this.hasSubscribed == false && this.checkAllowanceChartRefresh() == true) {
+            if (this.ngUnsubscribe.isStopped == true) {
+                this.ngUnsubscribe.isStopped = false;
             }
+            this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+                this.updateChart()
+            })
+            this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
+                this.getChartHeight();
+            });
+            this.hasSubscribed = true;
         } else if (this.hasSubscribed == true && this.checkAllowanceChartRefresh() == false) {
             this.unsubscribeChartRefresh();
         }
