@@ -451,14 +451,6 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	}
 
 	/**
-	 * TODO: remove: Test-Cases are now executed directly on adding via
-	 * {@link #next(TestCase)}.
-	 */
-	public void run() {
-
-	}
-
-	/**
 	 * If the 'system-under-test' is a {@link EventHandler} call the
 	 * {@link EventHandler#handleEvent(Event)} method.
 	 * 
