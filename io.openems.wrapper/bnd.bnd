@@ -13,4 +13,4 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	info.faljse:SDNotify;version=1.3,\
 	org.influxdb:influxdb-java;version=2.17,\
 	org.dhatim:fastexcel;version=0.10.18,\
-	org.msgpack:msgpack-core;version=0.8.20
+	org.msgpack:msgpack-core;version=0.8.21
