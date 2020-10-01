@@ -64,7 +64,6 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
 			return;
 		}
@@ -95,6 +94,8 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 		int gridPower = this.meter.getActivePower().orElse(0);
 		int calculatedPower = calculatePower(gridPower, this.config.continuousSellToGridPower(),
 				this.config.sellToGridPowerLimit());
+		this.channel(DelayedSellToGrid.ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
+
 		/*
 		 * set result
 		 */
@@ -105,12 +106,33 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 
 	protected static int calculatePower(int gridPower, int continuousSellToGridPower, int sellToGridPowerLimit) {
 		int calculatedPower = 0;
-		if (gridPower <= continuousSellToGridPower) {
-			calculatedPower = gridPower - continuousSellToGridPower;
-			calculatedPower = Math.abs(calculatedPower);
-		} else if (gridPower >= sellToGridPowerLimit) {
-			calculatedPower = gridPower - sellToGridPowerLimit;
+		switch (getState(gridPower, continuousSellToGridPower, sellToGridPowerLimit)) {
+		case ABOVE_SELL_TO_GRID_LIMIT:
+			calculatedPower = gridPower + sellToGridPowerLimit;
+			break;
+		case UNDER_CONTINUOUS_SELL_TO_GRID:
+			calculatedPower = continuousSellToGridPower - Math.abs(gridPower);
+			break;
+		case UNDEFINED:
+		case BETWEEN_CONTINUOUS_SELL_TO_GRID_AND_SELL_TO_GRID_LIMIT:
+			calculatedPower = 0;
+			break;
 		}
 		return calculatedPower;
+	}
+
+	private static State getState(int gridPower, int continuousSellToGridPower, int sellToGridPowerLimit) {
+		if (-gridPower > sellToGridPowerLimit) {
+			return State.ABOVE_SELL_TO_GRID_LIMIT;
+		}
+
+		if (-gridPower < continuousSellToGridPower) {
+			return State.UNDER_CONTINUOUS_SELL_TO_GRID;
+		}
+
+		if (-gridPower < sellToGridPowerLimit && -gridPower > continuousSellToGridPower) {
+			return State.BETWEEN_CONTINUOUS_SELL_TO_GRID_AND_SELL_TO_GRID_LIMIT;
+		}
+		return State.UNDEFINED;
 	}
 }
