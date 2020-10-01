@@ -196,7 +196,11 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0, c.getParameterU0());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_F0, c.getParameterF0());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_Q_REF, c.getParameterQref());
-		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_P_REF, c.getParameterPref());
+		
+		float pRef = c.getParameterPref();
+		System.out.println("Write PRef '" + pRef + "' To Channel");
+		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_P_REF, pRef);
+		
 		this.writeValueToChannel(GridConChannelId.COMMAND_TIME_SYNC_DATE, c.getSyncDate());
 		this.writeValueToChannel(GridConChannelId.COMMAND_TIME_SYNC_TIME, c.getSyncTime());
 	}
@@ -1372,37 +1376,37 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 	@Override
 	public float getVoltageU1U2() {
 		FloatReadChannel c = this.channel(GridConChannelId.CCU_VOLTAGE_U12); 
-		return c.value().orElse(0f);
+		return c.value().orElse(0f) * DEFAULT_GRID_VOLTAGE;
 	}
 
 	@Override
 	public float getVoltageU2U3() {
 		FloatReadChannel c = this.channel(GridConChannelId.CCU_VOLTAGE_U23); 
-		return c.value().orElse(0f);
+		return c.value().orElse(0f) * DEFAULT_GRID_VOLTAGE;
 	}
 
 	@Override
 	public float getVoltageU3U1() {
 		FloatReadChannel c = this.channel(GridConChannelId.CCU_VOLTAGE_U31); 
-		return c.value().orElse(0f);
+		return c.value().orElse(0f) * DEFAULT_GRID_VOLTAGE;
 	}
 
 	@Override
 	public float getCurrentIL1() {
 		FloatReadChannel c = this.channel(GridConChannelId.CCU_CURRENT_IL1); 
-		return c.value().orElse(0f);
+		return c.value().orElse(0f) * this.inverterCount.getCount() * 60;
 	}
 
 	@Override
 	public float getCurrentIL2() {
 		FloatReadChannel c = this.channel(GridConChannelId.CCU_CURRENT_IL2); 
-		return c.value().orElse(0f);
+		return c.value().orElse(0f) * this.inverterCount.getCount() * 60;
 	}
 
 	@Override
 	public float getCurrentIL3() {
 		FloatReadChannel c = this.channel(GridConChannelId.CCU_CURRENT_IL3); 
-		return c.value().orElse(0f);
+		return c.value().orElse(0f) * this.inverterCount.getCount() * 60;
 	}
 
 	@Override
