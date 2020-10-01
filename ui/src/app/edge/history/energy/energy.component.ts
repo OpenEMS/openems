@@ -412,6 +412,28 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 }
                 this.labels = labels;
 
+                // Production
+
+
+                if ('_sum/ProductionActiveEnergy' in result.data) {
+                  let productionData = result.data['_sum/ProductionActiveEnergy'].map(value => {
+                    if (value == null) {
+                      return null
+                    } else {
+                      return value / 1000; // convert to kW
+                    }
+                  });
+
+                  datasets.push({
+                    label: chartLabels.production,
+                    data: productionData,
+                    hidden: true,
+                    hideInLegendAndTooltip: true,
+                    backgroundColor: 'rgba(244,164,96,0.25)',
+                    borderColor: 'rgba(244,164,96,1)',
+                  });
+                }
+
                 // Direct Consumption
 
                 let directConsumptionData: null | number[] = null;
@@ -824,6 +846,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         chartLegendLabelItems.sort(function (a, b) {
           return chartLegendLabelItemsOrder.indexOf(a.text) - chartLegendLabelItemsOrder.indexOf(b.text);
         });
+        console.log("chartLegendLabelItems", chartLegendLabelItems)
         return chartLegendLabelItems;
       }
 
@@ -884,7 +907,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       }
 
       options.tooltips.callbacks.afterTitle = function (item: ChartTooltipItem[], data: ChartData) {
-        if (data.datasets.length == 6) {
+        if (data.datasets.length >= 6) {
           let totalValue = item.reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
           let isProduction: boolean | null = null;
           item.forEach(item => {
@@ -901,37 +924,37 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         }
       }
 
-      options.tooltips.callbacks.footer = function (item: ChartTooltipItem[], data: ChartData) {
-        if (data.datasets.length == 6) {
-          let isProduction: boolean | null = null;
-          let sellToGridValue: number | null = null;
-          let buyFromGridValue: number | null = null;
-          let dischargeValue: number | null = null;
-          let totalValue = item.reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
+      // options.tooltips.callbacks.footer = function (item: ChartTooltipItem[], data: ChartData) {
+      //   if (data.datasets.length == 6) {
+      //     let isProduction: boolean | null = null;
+      //     let sellToGridValue: number | null = null;
+      //     let buyFromGridValue: number | null = null;
+      //     let dischargeValue: number | null = null;
+      //     let totalValue = item.reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
 
-          item.forEach(item => {
-            if (item.datasetIndex == 0 || item.datasetIndex == 1 || item.datasetIndex == 2) {
-              isProduction = true;
-              if (item.datasetIndex == 2) {
-                sellToGridValue = <number>item.yLabel;
-              }
-              if (dischargeValue == null) {
-                dischargeValue = <number>data.datasets[4].data[item.index];
-              }
-            } else if (item.datasetIndex == 3 || item.datasetIndex == 4 || item.datasetIndex == 5) {
-              if (item.datasetIndex == 5) {
-                buyFromGridValue = <number>item.yLabel;
-              }
-              isProduction = false;
-            }
-          })
-          return isProduction == true ? selfConsumptionLabelText + ' ' +
-            formatNumber(CurrentData.calculateSelfConsumption(sellToGridValue, totalValue), 'de', '1.0-0') + " %" :
-            autarchyLabelText + ' ' + formatNumber(CurrentData.calculateAutarchy(buyFromGridValue, totalValue), 'de', '1.0-0') + " %";
-        } else {
-          return null
-        }
-      }
+      //     item.forEach(item => {
+      //       if (item.datasetIndex == 0 || item.datasetIndex == 1 || item.datasetIndex == 2) {
+      //         isProduction = true;
+      //         if (item.datasetIndex == 2) {
+      //           sellToGridValue = <number>item.yLabel;
+      //         }
+      //         if (dischargeValue == null) {
+      //           dischargeValue = <number>data.datasets[4].data[item.index];
+      //         }
+      //       } else if (item.datasetIndex == 3 || item.datasetIndex == 4 || item.datasetIndex == 5) {
+      //         if (item.datasetIndex == 5) {
+      //           buyFromGridValue = <number>item.yLabel;
+      //         }
+      //         isProduction = false;
+      //       }
+      //     })
+      //     return isProduction == true ? selfConsumptionLabelText + ' ' +
+      //       formatNumber(CurrentData.calculateSelfConsumption(sellToGridValue, totalValue), 'de', '1.0-0') + " %" :
+      //       autarchyLabelText + ' ' + formatNumber(CurrentData.calculateAutarchy(buyFromGridValue, totalValue), 'de', '1.0-0') + " %";
+      //   } else {
+      //     return null
+      //   }
+      // }
     } else {
       // adds second y-axis to chart
       options.scales.yAxes.push({
