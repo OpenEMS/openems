@@ -32,43 +32,56 @@ public class DelayedSellToGridImplTest {
 						.setSellToGridPowerLimit(12_500_000)//
 						.setContinuousSellToGridPower(500_000).build())//
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -490_000) //
+						.input(METER_ACTIVE_POWER, -490_000)) //
+				.next(new TestCase()//
 						.output(ESS_ACTIVE_POWER, 10_000))//
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -14_000_000) //
+						.input(METER_ACTIVE_POWER, -14_000_000))//
+				.next(new TestCase() //
 						.output(ESS_ACTIVE_POWER, -1_500_000)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -14_400_000) //
+						.input(METER_ACTIVE_POWER, -14_400_000)) //
+				.next(new TestCase() //
 						.output(ESS_ACTIVE_POWER, -1_900_000)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -10_000_000) //
+						.input(METER_ACTIVE_POWER, -10_000_000))//
+				.next(new TestCase() //
 						.output(ESS_ACTIVE_POWER, 0)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -12_500_001) //
+						.input(METER_ACTIVE_POWER, -12_500_001)) //
+				.next(new TestCase() //
 						.output(ESS_ACTIVE_POWER, -1)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -10_500_000) //
+						.input(METER_ACTIVE_POWER, -10_500_000))//
+				.next(new TestCase() //
 						.output(ESS_ACTIVE_POWER, 0)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -6_000_000) //
+						.input(METER_ACTIVE_POWER, -6_000_000))//
+				.next(new TestCase() //
 						.output(ESS_ACTIVE_POWER, 0)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -2_000_000) //
+						.input(METER_ACTIVE_POWER, -2_000_000))//
+				.next(new TestCase() //
 						.output(ESS_ACTIVE_POWER, 0)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -499_999) //
+						.input(METER_ACTIVE_POWER, -499_999))//
+				.next(new TestCase() //
 						.output(ESS_ACTIVE_POWER, 1)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -100_000) //
+						.input(METER_ACTIVE_POWER, -100_000))//
+				.next(new TestCase() //
 						.output(ESS_ACTIVE_POWER, 400_000)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, 0) //
+						.input(METER_ACTIVE_POWER, 0))//
+				.next(new TestCase() //
 						.output(ESS_ACTIVE_POWER, 500_000)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -490_000) //
+						.input(METER_ACTIVE_POWER, -490_000))//
+				.next(new TestCase() //
 						.output(ESS_ACTIVE_POWER, 10_000)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -600_000) //
+						.input(METER_ACTIVE_POWER, -600_000))//
+				.next(new TestCase() //
 						.output(ESS_ACTIVE_POWER, 0)) //
 		;
 	}

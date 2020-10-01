@@ -34,6 +34,7 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 		implements DelayedSellToGrid, Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(DelayedSellToGridImpl.class);
+	private State state = State.UNDEFINED;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -90,46 +91,46 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 		case OFF_GRID:
 			return;
 		}
-
+		int calculatedPower;
 		int gridPower = this.meter.getActivePower().orElse(0);
-		int calculatedPower = calculatePower(gridPower, this.config.continuousSellToGridPower(),
-				this.config.sellToGridPowerLimit());
-		this.channel(DelayedSellToGrid.ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
-
-		/*
-		 * set result
-		 */
-		this.ess.setActivePowerEquals(calculatedPower);
-		this.ess.setReactivePowerEquals(0);
-
-	}
-
-	protected static int calculatePower(int gridPower, int continuousSellToGridPower, int sellToGridPowerLimit) {
-		int calculatedPower = 0;
-		switch (getState(gridPower, continuousSellToGridPower, sellToGridPowerLimit)) {
+		switch (this.state) {
+		case UNDEFINED:
+			this.state = getState(gridPower, this.config.continuousSellToGridPower(),
+					this.config.sellToGridPowerLimit());
+			break;
 		case ABOVE_SELL_TO_GRID_LIMIT:
-			calculatedPower = gridPower + sellToGridPowerLimit;
+			calculatedPower = gridPower + this.config.sellToGridPowerLimit();
+			this.channel(DelayedSellToGrid.ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
+			this.setResult(calculatedPower);
+			this.state = State.UNDEFINED;
 			break;
 		case UNDER_CONTINUOUS_SELL_TO_GRID:
-			calculatedPower = continuousSellToGridPower - Math.abs(gridPower);
+			calculatedPower = this.config.continuousSellToGridPower() - Math.abs(gridPower);
+			this.channel(DelayedSellToGrid.ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
+			this.setResult(calculatedPower);
+			this.state = State.UNDEFINED;
 			break;
-		case UNDEFINED:
 		case BETWEEN_CONTINUOUS_SELL_TO_GRID_AND_SELL_TO_GRID_LIMIT:
 			calculatedPower = 0;
+			this.channel(DelayedSellToGrid.ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
+			this.setResult(calculatedPower);
+			this.state = State.UNDEFINED;
 			break;
 		}
-		return calculatedPower;
+	}
+
+	protected void setResult(int calculatedPower) throws OpenemsNamedException {
+		this.ess.setActivePowerEquals(calculatedPower);
+		this.ess.setReactivePowerEquals(0);
 	}
 
 	private static State getState(int gridPower, int continuousSellToGridPower, int sellToGridPowerLimit) {
 		if (-gridPower > sellToGridPowerLimit) {
 			return State.ABOVE_SELL_TO_GRID_LIMIT;
 		}
-
 		if (-gridPower < continuousSellToGridPower) {
 			return State.UNDER_CONTINUOUS_SELL_TO_GRID;
 		}
-
 		if (-gridPower < sellToGridPowerLimit && -gridPower > continuousSellToGridPower) {
 			return State.BETWEEN_CONTINUOUS_SELL_TO_GRID_AND_SELL_TO_GRID_LIMIT;
 		}
