@@ -138,17 +138,19 @@ export abstract class AbstractHistoryChart {
      * Subscribes to 10 minute Interval Observable and Window Resize Observable to fetch new data and resize chart if needed
      */
     protected subscribeChartRefresh() {
-        if (this.checkAllowanceChartRefresh() == true) {
-            if (this.ngUnsubscribe.isStopped == true) {
-                this.ngUnsubscribe.isStopped = false;
-            }
-            this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-                this.updateChart()
-            })
-            this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
-                this.getChartHeight();
-            });
-        }
+        // XXX DISABLED XXX
+
+        // if (this.checkAllowanceChartRefresh() == true) {
+        //     if (this.ngUnsubscribe.isStopped == true) {
+        //         this.ngUnsubscribe.isStopped = false;
+        //     }
+        //     this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+        //         this.updateChart()
+        //     })
+        //     this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
+        //         this.getChartHeight();
+        //     });
+        // }
     }
 
     /**
@@ -156,29 +158,33 @@ export abstract class AbstractHistoryChart {
      * Unsubscribe to Chart Refresh if necessary
      */
     protected autoSubscribeChartRefresh() {
-        if (this.hasSubscribed == false && this.checkAllowanceChartRefresh() == true) {
-            if (this.ngUnsubscribe.isStopped == true) {
-                this.ngUnsubscribe.isStopped = false;
-            }
-            this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-                this.updateChart();
-            })
-            this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
-                this.getChartHeight();
-            });
-            this.hasSubscribed = true;
-        } else if (this.hasSubscribed == true && this.checkAllowanceChartRefresh() == false) {
-            this.unsubscribeChartRefresh();
-        }
+        // XXX DISABLED XXX
+
+        // if (this.hasSubscribed == false && this.checkAllowanceChartRefresh() == true) {
+        //     if (this.ngUnsubscribe.isStopped == true) {
+        //         this.ngUnsubscribe.isStopped = false;
+        //     }
+        //     this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+        //         this.updateChart();
+        //     })
+        //     this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
+        //         this.getChartHeight();
+        //     });
+        //     this.hasSubscribed = true;
+        // } else if (this.hasSubscribed == true && this.checkAllowanceChartRefresh() == false) {
+        //     this.unsubscribeChartRefresh();
+        // }
     }
 
     /**
      * Unsubscribes to 5 minute Interval Observable and Window Resize Observable
      */
     protected unsubscribeChartRefresh() {
-        this.hasSubscribed = false;
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
+        // XXX DISABLED XXX
+
+        // this.hasSubscribed = false;
+        // this.ngUnsubscribe.next();
+        // this.ngUnsubscribe.complete();
     }
 
     /**

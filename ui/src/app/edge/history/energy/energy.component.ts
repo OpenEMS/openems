@@ -676,7 +676,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         charge: this.translate.instant('General.chargePower'),
         discharge: this.translate.instant('General.dischargePower'),
         consumption: this.translate.instant('General.consumption'),
-        directConsumption: this.translate.instant('General.selfConsumption')
+        directConsumption: this.translate.instant('General.directConsumption')
       }
 
       // Generate kWh labels
@@ -760,7 +760,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       options.scales.yAxes[0].scaleLabel.fontSize = 11;
 
       // this.translate is not available in legend methods
-      let directConsumptionLabelText = this.translate.instant('General.selfConsumption');
+      let directConsumptionLabelText = this.translate.instant('General.directConsumption');
+      let selfConsumptionLabelText = this.translate.instant('General.selfConsumption');
       let autarchyLabelText = this.translate.instant('General.autarchy');
       let productionLabelText = this.translate.instant('General.production');
       let consumptionLabelText = this.translate.instant('General.consumption');
@@ -924,8 +925,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               isProduction = false;
             }
           })
-          return isProduction == true ? directConsumptionLabelText + ' ' +
-            formatNumber(CurrentData.calculateSelfConsumption(sellToGridValue, totalValue, dischargeValue), 'de', '1.0-0') + " %" :
+          return isProduction == true ? selfConsumptionLabelText + ' ' +
+            formatNumber(CurrentData.calculateSelfConsumption(sellToGridValue, totalValue), 'de', '1.0-0') + " %" :
             autarchyLabelText + ' ' + formatNumber(CurrentData.calculateAutarchy(buyFromGridValue, totalValue), 'de', '1.0-0') + " %";
         } else {
           return null

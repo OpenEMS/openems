@@ -120,7 +120,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
                 if (value == null) {
                     return null
                 } else {
-                    return CurrentData.calculateSelfConsumption(sellToGridData[index], value, dischargeData[index]);
+                    return CurrentData.calculateSelfConsumption(sellToGridData[index], value);
                 }
             })
 

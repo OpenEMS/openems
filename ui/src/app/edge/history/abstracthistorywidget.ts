@@ -21,19 +21,23 @@ export abstract class AbstractHistoryWidget {
      * Subscribes to 5 minute Interval Observable to update data in Flat Widget
      */
     protected subscribeWidgetRefresh() {
-        this.refreshWidgetData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-            this.updateValues()
-        })
+        // XXX DISABLED XXX
+
+        // this.refreshWidgetData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+        // this.updateValues()
+        // })
     }
 
     /**
      * Unsubscribes to 5 minute Interval Observable
      */
     protected unsubscribeWidgetRefresh() {
-        if (this.ngUnsubscribe.isStopped == false) {
-            this.ngUnsubscribe.next();
-            this.ngUnsubscribe.complete();
-        }
+        // XXX DISABLED XXX
+
+        // if (this.ngUnsubscribe.isStopped == false) {
+        //     this.ngUnsubscribe.next();
+        // this.ngUnsubscribe.complete();
+        // }
     }
 
     /**

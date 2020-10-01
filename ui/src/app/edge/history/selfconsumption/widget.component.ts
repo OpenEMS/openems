@@ -45,7 +45,7 @@ export class SelfconsumptionWidgetComponent extends AbstractHistoryWidget implem
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
                     let result = response.result;
                     this.selfconsumptionValue = CurrentData.calculateSelfConsumption(result.data['_sum/GridSellActiveEnergy'],
-                        result.data['_sum/ProductionActiveEnergy'], result.data['_sum/EssActiveDischargeEnergy']);
+                        result.data['_sum/ProductionActiveEnergy']);
                 })
             });
         })
