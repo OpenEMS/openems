@@ -41,7 +41,7 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 
 			} else {
 				// Trying to switch on
-				context.component.setPowerCircuitControl(PowerCircuitControl.SWITCH_ON);
+				context.component.setPowerCircuitControl(PowerCircuitControl.PRE_CHARGING_1);
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
 				return State.GO_RUNNING;
