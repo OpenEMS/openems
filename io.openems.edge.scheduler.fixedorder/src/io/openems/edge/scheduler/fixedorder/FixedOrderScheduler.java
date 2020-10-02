@@ -1,10 +1,9 @@
-package io.openems.edge.scheduler.daily;
+package io.openems.edge.scheduler.fixedorder;
 
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.scheduler.api.Scheduler;
 
-public interface DailyScheduler extends Scheduler, OpenemsComponent {
+public interface FixedOrderScheduler extends Scheduler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

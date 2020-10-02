@@ -1,12 +1,10 @@
-package io.openems.edge.timedata.influxdb;
-
-import org.osgi.service.event.EventHandler;
+package io.openems.edge.scheduler.allalphabetically;
 
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.scheduler.api.Scheduler;
 
-public interface InfluxTimedata extends Timedata, OpenemsComponent, EventHandler {
+public interface AllAlphabeticallyScheduler extends Scheduler, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -21,5 +19,4 @@ public interface InfluxTimedata extends Timedata, OpenemsComponent, EventHandler
 			return this.doc;
 		}
 	}
-
 }
