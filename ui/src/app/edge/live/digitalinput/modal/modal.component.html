@@ -20,7 +20,8 @@
                         </tr>
                         <ng-container *ngFor="let channel of (component.channels | keys)">
                             <ng-container *ngIf="channel.value['accessMode'] === 'RO'">
-                                <ng-container *ngIf="channel.key !== 'State' && !channel.key.includes('_Property')">
+                                <ng-container
+                                    *ngIf="channel.value.type == 'BOOLEAN' && channel.key !== '_PropertyEnabled'">
                                     <tr>
                                         <td style="width:65%">{{ channel.key }}</td>
                                         <td style="width:36%" class="align_right">
