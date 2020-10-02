@@ -133,9 +133,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.service.startSpinner(this.spinnerId);
     this.platform.ready().then(() => {
       this.service.isSmartphoneResolutionSubject.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
-        if (this.isKwhChart(this.service)) {
-          this.updateChart();
-        }
+        this.updateChart();
       })
     })
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
@@ -152,9 +150,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
    * checks if kWh Chart is allowed to be shown
    */
   private isKwhChart(service: Service): boolean {
-    let currentDate = new Date();
     if (service.isKwhAllowed(this.edge) == true &&
-      differenceInDays(currentDate, this.service.historyPeriod.from) >= 6) {
+      differenceInDays(service.historyPeriod.to, service.historyPeriod.from) > 6 && service.isSmartphoneResolution == false) {
+      return true;
+    } else if (service.isKwhAllowed(this.edge) == true &&
+      differenceInDays(service.historyPeriod.to, service.historyPeriod.from) > 0 && service.isSmartphoneResolution == true) {
       return true;
     } else {
       return false;
