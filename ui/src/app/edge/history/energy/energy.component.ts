@@ -413,8 +413,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 this.labels = labels;
 
                 // Production
-
-
                 if ('_sum/ProductionActiveEnergy' in result.data) {
                   let productionData = result.data['_sum/ProductionActiveEnergy'].map(value => {
                     if (value == null) {
@@ -429,13 +427,34 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                     data: productionData,
                     hidden: true,
                     hideInLegendAndTooltip: true,
-                    backgroundColor: 'rgba(244,164,96,0.25)',
-                    borderColor: 'rgba(244,164,96,1)',
+                    backgroundColor: 'rgba(45,143,171,0.25)',
+                    borderColor: 'rgba(45,143,171,1)',
+                  });
+                }
+
+                // Consumption
+                if ('_sum/ConsumptionActiveEnergy' in result.data) {
+                  /*
+                  * Consumption
+                   */
+                  let consumptionData = result.data['_sum/ConsumptionActiveEnergy'].map(value => {
+                    if (value == null) {
+                      return null
+                    } else {
+                      return value / 1000; // convert to kW
+                    }
+                  });
+                  datasets.push({
+                    label: chartLabels.consumption,
+                    data: consumptionData,
+                    hidden: true,
+                    hideInLegendAndTooltip: true,
+                    backgroundColor: 'rgba(253,197,7,0.25)',
+                    borderColor: 'rgba(253,197,7,1)',
                   });
                 }
 
                 // Direct Consumption
-
                 let directConsumptionData: null | number[] = null;
 
                 if ('_sum/ProductionActiveEnergy' in result.data && '_sum/EssDcChargeEnergy' in result.data && '_sum/GridSellActiveEnergy' in result.data) {
@@ -796,30 +815,38 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       options.legend.labels.generateLabels = function (chart: Chart) {
         let chartLegendLabelItems: ChartLegendLabelItem[] = [];
         let chartLegendLabelItemsOrder = [
-          gridBuyLabelText,
+          productionLabelText,
           gridSellLabelText,
-          directConsumptionLabelText,
           chargeLabelText,
+          directConsumptionLabelText,
+          consumptionLabelText,
+          gridBuyLabelText,
           dischargeLabelText
         ]
 
         // set correct value (label + total kWh) for reorder
         chart.data.datasets.forEach((dataset, datasetIndex) => {
 
-          if (dataset.label.includes(gridBuyLabelText)) {
+          if (dataset.label.includes(productionLabelText)) {
             chartLegendLabelItemsOrder[0] = dataset.label;
           }
           if (dataset.label.includes(gridSellLabelText)) {
             chartLegendLabelItemsOrder[1] = dataset.label;
           }
-          if (dataset.label.includes(directConsumptionLabelText)) {
+          if (dataset.label.includes(chargeLabelText)) {
             chartLegendLabelItemsOrder[2] = dataset.label;
           }
-          if (dataset.label.includes(chargeLabelText)) {
+          if (dataset.label.includes(directConsumptionLabelText)) {
             chartLegendLabelItemsOrder[3] = dataset.label;
           }
-          if (dataset.label.includes(dischargeLabelText)) {
+          if (dataset.label.includes(consumptionLabelText)) {
             chartLegendLabelItemsOrder[4] = dataset.label;
+          }
+          if (dataset.label.includes(gridBuyLabelText)) {
+            chartLegendLabelItemsOrder[5] = dataset.label;
+          }
+          if (dataset.label.includes(dischargeLabelText)) {
+            chartLegendLabelItemsOrder[6] = dataset.label;
           }
 
           let text = dataset.label;
@@ -846,12 +873,12 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         chartLegendLabelItems.sort(function (a, b) {
           return chartLegendLabelItemsOrder.indexOf(a.text) - chartLegendLabelItemsOrder.indexOf(b.text);
         });
-        console.log("chartLegendLabelItems", chartLegendLabelItems)
         return chartLegendLabelItems;
       }
 
       // used to hide both Direct Consumption legend Items by clicking one
       options.legend.onClick = function (event: MouseEvent, legendItem: ChartLegendLabelItem) {
+
         let chart: Chart = this.chart;
         let legendItemIndex = legendItem.datasetIndex;
         let datasets = chart.data.datasets;
@@ -880,7 +907,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               meta.hidden = meta.hidden === null ?
                 !datasets[firstDirectConsumptionStackDatasetIndex].hidden && !datasets[secondDirectConsumptionStackDatasetIndex].hidden : null;
             })
-          } else if (legendItemIndex == datasetIndex) {
+          } else if (legendItemIndex == datasetIndex && legendItem.text.split(" ")[0] != productionLabelText
+            && legendItem.text.split(" ")[0] != consumptionLabelText) {
             meta.hidden = meta.hidden === null ? !datasets[datasetIndex].hidden : null;
           }
         })
@@ -907,7 +935,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       }
 
       options.tooltips.callbacks.afterTitle = function (item: ChartTooltipItem[], data: ChartData) {
-        if (data.datasets.length >= 6) {
+        if (item.length == 3) {
           let totalValue = item.reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
           let isProduction: boolean | null = null;
           item.forEach(item => {
