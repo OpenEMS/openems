@@ -15,13 +15,12 @@
             <ng-container *ngFor="let component of ioComponents">
                 <ion-card-content>
                     <table class="full_width">
-                        <tr>
+                        <tr class="underline">
                             <td style="width: 100%;">{{ component.alias}}</td>
                         </tr>
                         <ng-container *ngFor="let channel of (component.channels | keys)">
-
                             <ng-container *ngIf="channel.value['accessMode'] === 'RO'">
-                                <ng-container *ngIf="channel.key !== 'State' && channel.key !== '_PropertyEnabled'">
+                                <ng-container *ngIf="channel.key !== 'State' && !channel.key.includes('_Property')">
                                     <tr>
                                         <td style="width:65%">{{ channel.key }}</td>
                                         <td style="width:36%" class="align_right">
