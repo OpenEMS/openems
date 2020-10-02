@@ -109,6 +109,10 @@
               class="ion-no-padding">
               <awattar></awattar>
             </ion-col>
+
+            <ion-col *ngSwitchCase="'io.openems.edge.io.api.DigitalInput'" size="12" size-lg="6" class="ion-no-padding">
+              <digitalinput></digitalinput>
+            </ion-col>
           </ng-container>
 
           <ion-col *ngIf="this.edge.id == 'fems66'" size="12" size-lg="6" class="ion-no-padding">
