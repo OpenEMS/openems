@@ -3,33 +3,9 @@ package io.openems.edge.ess.mr.gridcon.writewords;
 public class IpuParameter {
 
 	// 32624, 32656, 32688
-	private IpuParameter() {
+	public IpuParameter() {
 	}
 
-	private static IpuParameter instanceIpu1Parameter;
-	private static IpuParameter instanceIpu2Parameter;
-	private static IpuParameter instanceIpu3Parameter;
-
-	public static IpuParameter getIpu1Parameter() {
-		if (instanceIpu1Parameter == null) {
-			instanceIpu1Parameter = new IpuParameter();
-		}
-		return instanceIpu1Parameter;
-	}
-
-	public static IpuParameter getIpu2Parameter() {
-		if (instanceIpu2Parameter == null) {
-			instanceIpu2Parameter = new IpuParameter();
-		}
-		return instanceIpu2Parameter;
-	}
-
-	public static IpuParameter getIpu3Parameter() {
-		if (instanceIpu3Parameter == null) {
-			instanceIpu3Parameter = new IpuParameter();
-		}
-		return instanceIpu3Parameter;
-	}
 
 	private float dcVoltageSetpoint = 0f;
 	private float dcCurrentSetpoint = 0f;

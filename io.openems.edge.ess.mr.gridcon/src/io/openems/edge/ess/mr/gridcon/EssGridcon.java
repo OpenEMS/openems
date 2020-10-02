@@ -52,6 +52,8 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	protected abstract ComponentManager getComponentManager();
 
 	private final Logger log = LoggerFactory.getLogger(EssGridcon.class);
+	
+	protected final StateController stateController = new StateController();
 
 	public EssGridcon(io.openems.edge.common.channel.ChannelId[] otherChannelIds) {
 		super(//
@@ -82,7 +84,7 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	}
 
 	private GridconStateObject getFirstGridconStateObjectUndefined() {
-		return StateController.getGridconStateObject(GridconState.UNDEFINED);
+		return stateController.getGridconStateObject(GridconState.UNDEFINED);
 	}
 
 	protected abstract StateObject getFirstGeneralStateObjectUndefined();
@@ -114,12 +116,12 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 				
 				// Execute state machine for general handling				
 				IState nextMainState = this.mainStateObject.getNextState();
-				StateObject nextMainStateObject = StateController.getGeneralStateObject(nextMainState);
+				StateObject nextMainStateObject = stateController.getGeneralStateObject(nextMainState);
 
 				System.out.println("  ----- CURRENT STATE:" + this.mainStateObject.getState().getName());
 				System.out.println("  ----- NEXT STATE:" + nextMainStateObject.getState().getName());
 				System.out.println("Conditional: ");
-				StateController.printCondition();
+				stateController.printCondition();
 
 				this.mainStateObject = nextMainStateObject;
 
@@ -130,7 +132,7 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 				
 				
 				IState nextGridconState = this.gridconStateObject.getNextState();
-				GridconStateObject nextGridconStateObject = StateController.getGridconStateObject(nextGridconState);				
+				GridconStateObject nextGridconStateObject = stateController.getGridconStateObject(nextGridconState);				
 				this.gridconStateObject = nextGridconStateObject;
 				this.gridconStateObject.act(gridconSettings);
 				

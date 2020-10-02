@@ -5,17 +5,8 @@ public class DcDcParameter {
 	public static int DC_DC_ADRESS = 32720;
 
 	// 32720
-	private DcDcParameter() {
+	public DcDcParameter() {
 
-	}
-
-	private static DcDcParameter instance;
-
-	public static DcDcParameter getDcdcParameter() {
-		if (instance == null) {
-			instance = new DcDcParameter();
-		}
-		return instance;
 	}
 
 	private float dcVoltageSetpoint = 0f;

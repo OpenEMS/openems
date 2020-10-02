@@ -7,20 +7,13 @@ import io.openems.edge.ess.mr.gridcon.enums.Mode;
 
 public class Commands {
 
-	private static Commands instance;
 
 	public static int COMMANDS_ADRESS = 32560;
 
-	private Commands() {
+	public Commands() {
 
 	}
 
-	public static Commands getCommands() {
-		if (instance == null) {
-			instance = new Commands();
-		}
-		return instance;
-	}
 
 	// 32560
 	private Boolean enableIpu1 = false;

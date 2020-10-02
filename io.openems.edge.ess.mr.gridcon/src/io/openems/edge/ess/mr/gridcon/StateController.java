@@ -10,12 +10,16 @@ import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition;
 
 public class StateController {
 
-	private static Map<IState, StateObject> generalStateObjects;
-	private static Map<IState, GridconStateObject> gridconStateObjects;
+	private Map<IState, StateObject> generalStateObjects;
+	private Map<IState, GridconStateObject> gridconStateObjects;
 
-	private static DecisionTableCondition condition;
+	private DecisionTableCondition condition;
 
-	public static void initOnGrid(//
+	public StateController() {
+		
+	}
+	
+	public void initOnGrid(//
 			ComponentManager manager, //
 			String gridconPcs, //
 			String b1, //
@@ -52,19 +56,19 @@ public class StateController {
 				new io.openems.edge.ess.mr.gridcon.state.ongrid.OnGrid());
 	}
 
-	public static StateObject getGeneralStateObject(IState state) {
+	public StateObject getGeneralStateObject(IState state) {
 		return generalStateObjects.get(state);
 	}
 	
-	public static GridconStateObject getGridconStateObject(IState state) {
+	public GridconStateObject getGridconStateObject(IState state) {
 		return gridconStateObjects.get(state);
 	}
 
-	public static void initDecisionTableCondition(DecisionTableCondition tableCondition) {
+	public void initDecisionTableCondition(DecisionTableCondition tableCondition) {
 		condition = tableCondition;
 	}
 
-	public static void initOnOffGrid(ComponentManager manager, String gridconPcs, String b1, String b2, String b3,
+	public void initOnOffGrid(ComponentManager manager, String gridconPcs, String b1, String b2, String b3,
 			boolean enableIpu1, boolean enableIpu2, boolean enableIpu3, ParameterSet parameterSet,
 			String inputNaProtection1, boolean na1Inverted, String inputNaProtection2, boolean na2Inverted,
 			String inputSyncDeviceBridge, boolean inputSyncDeviceBridgeInverted, String outputSyncDeviceBridge,
@@ -76,7 +80,7 @@ public class StateController {
 		
 	}
 
-	public static void printCondition() {
+	public void printCondition() {
 		System.out.println("condition: \n" + condition);
 	}
 

@@ -21,7 +21,6 @@ import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.mr.gridcon.EssGridcon;
-import io.openems.edge.ess.mr.gridcon.StateController;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableConditionImpl;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.OnOffGridState;
@@ -105,7 +104,7 @@ public class EssGridconOnOffGrid extends EssGridcon
 
 	@Override
 	protected io.openems.edge.ess.mr.gridcon.StateObject getFirstGeneralStateObjectUndefined() {
-		return StateController.getGeneralStateObject(OnOffGridState.UNDEFINED);
+		return stateController.getGeneralStateObject(OnOffGridState.UNDEFINED);
 	}
 
 	@Override
@@ -114,8 +113,8 @@ public class EssGridconOnOffGrid extends EssGridcon
 				config.meter_id(), config.inputNaProtection1(), config.inputNaProtection2(),
 				config.inputSyncDeviceBridge(), config.isNaProtection1Inverted(), config.isNaProtection2Inverted(),
 				config.isInputSyncDeviceBridgeInverted());
-		StateController.initDecisionTableCondition(tableCondition);
-		StateController.initOnOffGrid(//
+		stateController.initDecisionTableCondition(tableCondition);
+		stateController.initOnOffGrid(//
 				componentManager, //
 				gridconPcs, //
 				b1, //

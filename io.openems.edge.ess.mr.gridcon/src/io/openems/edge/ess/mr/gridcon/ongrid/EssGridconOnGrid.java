@@ -21,7 +21,6 @@ import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.mr.gridcon.EssGridcon;
-import io.openems.edge.ess.mr.gridcon.StateController;
 import io.openems.edge.ess.mr.gridcon.state.ongrid.OnGridState;
 import io.openems.edge.ess.power.api.Power;
 
@@ -85,12 +84,12 @@ public class EssGridconOnGrid extends EssGridcon
 
 	@Override
 	protected io.openems.edge.ess.mr.gridcon.StateObject getFirstGeneralStateObjectUndefined() {
-		return StateController.getGeneralStateObject(OnGridState.UNDEFINED);
+		return stateController.getGeneralStateObject(OnGridState.UNDEFINED);
 	}
 
 	@Override
 	protected void initializeStateController(String gridconPcs, String b1, String b2, String b3) {
-		StateController.initOnGrid(componentManager, gridconPcs, b1, b2, b3, config.enableIpu1(), config.enableIpu2(),
+		stateController.initOnGrid(componentManager, gridconPcs, b1, b2, b3, config.enableIpu1(), config.enableIpu2(),
 				config.enableIpu3(), /*config.parameterSet(),*/ config.outputHardReset(), config.offsetCurrent());
 	}
 

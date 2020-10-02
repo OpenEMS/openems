@@ -4,17 +4,9 @@ public class CcuParameters1 {
 
 	public static final int CCU_PARAMETERS_1_ADRESS = 32592;
 
-	private CcuParameters1() {
+	public CcuParameters1() {
 	}
 
-	private static CcuParameters1 instance;
-
-	public static CcuParameters1 getCcuParameters1() {
-		if (instance == null) {
-			instance = new CcuParameters1();
-		}
-		return instance;
-	}
 
 	private float uByQDroopMainLower = 0f;
 	private float uByQDroopMainUpper = 0f;

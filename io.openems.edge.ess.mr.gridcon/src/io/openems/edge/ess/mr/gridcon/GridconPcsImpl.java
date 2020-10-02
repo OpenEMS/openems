@@ -87,12 +87,27 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 
 	private double efficiencyLossDischargeFactor;
 	private double efficiencyLossChargeFactor;
-
+	
+	private final Commands commands;
+	private final CcuParameters1 ccuParameters1;
+	private final CcuParameters2 ccuParameters2;
+	private final IpuParameter ipu1Parameter;
+	private final IpuParameter ipu2Parameter;
+	private final IpuParameter ipu3Parameter;
+	private final DcDcParameter dcDcParameter;
+	
 	public GridconPcsImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				GridConChannelId.values() //
 		);
+		commands = new Commands();
+		ccuParameters1 = new CcuParameters1();
+		ccuParameters2 = new CcuParameters2();
+		ipu1Parameter = new IpuParameter();
+		ipu2Parameter = new IpuParameter();
+		ipu3Parameter = new IpuParameter();
+		dcDcParameter = new DcDcParameter();
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -158,13 +173,13 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 		float activePowerFactor = (-1) * activePower / maxApparentPower;
 		float reactivePowerFactor = (-1) * reactivePower / maxApparentPower;
 
-		Commands.getCommands().setParameterPref(activePowerFactor);
-		Commands.getCommands().setParameterQref(reactivePowerFactor);
+		this.commands.setParameterPref(activePowerFactor);
+		this.commands.setParameterQref(reactivePowerFactor);
 	}
 
 	protected void writeCommands() throws IllegalArgumentException, OpenemsNamedException {
 
-		Commands c = Commands.getCommands();
+		Commands c = this.commands;
 
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, c.getPlayBit());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_READY, c.getReadyAndStopBit2nd());
@@ -198,7 +213,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_Q_REF, c.getParameterQref());
 		
 		float pRef = c.getParameterPref();
-		System.out.println("Write PRef '" + pRef + "' To Channel");
+		this.logInfo(log, "Write PRef '" + pRef + "' To Channel");
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_P_REF, pRef);
 		
 		this.writeValueToChannel(GridConChannelId.COMMAND_TIME_SYNC_DATE, c.getSyncDate());
@@ -206,7 +221,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 	}
 
 	protected void writeCcuParameters1() throws IllegalArgumentException, OpenemsNamedException {
-		CcuParameters1 ccpw = CcuParameters1.getCcuParameters1();
+		CcuParameters1 ccpw = ccuParameters1;
 
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN_LOWER, ccpw.getuByQDroopMainLower());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN_UPPER, ccpw.getuByQDroopMainUpper());
@@ -222,7 +237,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 	}
 
 	protected void writeCcuParameters2() throws IllegalArgumentException, OpenemsNamedException {
-		CcuParameters2 ccpw = CcuParameters2.getCcuParameters2();
+		CcuParameters2 ccpw = ccuParameters2;
 		
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN_LOWER, ccpw.getpByFDroopMainLower());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN_UPPER, ccpw.getpByFDroopMainUpper());
@@ -240,7 +255,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 	}
 
 	protected void writeIpuInverter1ControlCommand() throws IllegalArgumentException, OpenemsNamedException {
-		IpuParameter iicw = IpuParameter.getIpu1Parameter();
+		IpuParameter iicw = ipu1Parameter;
 		
 		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_VOLTAGE_SETPOINT, iicw.getDcVoltageSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_CURRENT_SETPOINT, iicw.getDcCurrentSetpoint());
@@ -253,7 +268,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 	}
 
 	protected void writeIpuInverter2ControlCommand() throws IllegalArgumentException, OpenemsNamedException {
-		IpuParameter iicw = IpuParameter.getIpu2Parameter();
+		IpuParameter iicw = ipu2Parameter;
 
 		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_DC_VOLTAGE_SETPOINT, iicw.getDcVoltageSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_DC_CURRENT_SETPOINT, iicw.getDcCurrentSetpoint());
@@ -266,7 +281,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 	}
 
 	protected void writeIpuInverter3ControlCommand() throws IllegalArgumentException, OpenemsNamedException {
-		IpuParameter iicw = IpuParameter.getIpu3Parameter();
+		IpuParameter iicw = ipu3Parameter;
 
 		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_DC_VOLTAGE_SETPOINT, iicw.getDcVoltageSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_DC_CURRENT_SETPOINT, iicw.getDcCurrentSetpoint());
@@ -279,7 +294,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 	}
 
 	protected void writeDcDcControlCommandWord() throws IllegalArgumentException, OpenemsNamedException {
-		DcDcParameter dcc = DcDcParameter.getDcdcParameter();
+		DcDcParameter dcc = dcDcParameter;
 
 		System.out.println("DC DC control command:\n" + dcc.toString());
 
@@ -951,7 +966,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 
 	@Override
 	public void setErrorCodeFeedback(int errorCodeFeedback) {
-		Commands.getCommands().setErrorCodeFeedback(errorCodeFeedback);
+		this.commands.setErrorCodeFeedback(errorCodeFeedback);
 	}
 
 	@Override
@@ -1013,13 +1028,13 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 	public void setEnableIpu1(boolean enabled) {
 		switch (inverterCount) {
 		case ONE:
-			Commands.getCommands().setEnableIpu1(enabled);
+			this.commands.setEnableIpu1(enabled);
 			break;
 		case TWO:
-			Commands.getCommands().setEnableIpu1(enabled);
+			this.commands.setEnableIpu1(enabled);
 			break;
 		case THREE:
-			Commands.getCommands().setEnableIpu1(enabled);
+			this.commands.setEnableIpu1(enabled);
 			break;
 		}
 	}
@@ -1031,10 +1046,10 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 			System.out.println("Not allowed, there is only one inverters!");
 			break;
 		case TWO:
-			Commands.getCommands().setEnableIpu2(enabled);
+			this.commands.setEnableIpu2(enabled);
 			break;
 		case THREE:
-			Commands.getCommands().setEnableIpu2(enabled);
+			this.commands.setEnableIpu2(enabled);
 			break;
 		}
 	}
@@ -1049,14 +1064,14 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 			System.out.println("Not allowed, there are only two inverters!");
 			break;
 		case THREE:
-			Commands.getCommands().setEnableIpu3(enabled);
+			this.commands.setEnableIpu3(enabled);
 			break;
 		}
 	}
 
 	@Override
 	public void setBalancingMode(BalancingMode balancingMode) {
-		Commands.getCommands().setBalancingMode(balancingMode);
+		this.commands.setBalancingMode(balancingMode);
 	}
 	
 //	@Override
@@ -1080,118 +1095,118 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 //			break;
 //		}
 //
-//		Commands.getCommands().setParameterSet1(set1);
-//		Commands.getCommands().setParameterSet2(set2);
-//		Commands.getCommands().setParameterSet3(set3);
-//		Commands.getCommands().setParameterSet4(set4);
+//		this.commands.setParameterSet1(set1);
+//		this.commands.setParameterSet2(set2);
+//		this.commands.setParameterSet3(set3);
+//		this.commands.setParameterSet4(set4);
 //	}
 
 	@Override
 	public void setMode(Mode mode) {
-		Commands.getCommands().setMode(mode);
+		this.commands.setMode(mode);
 	}
 
 	@Override
 	public void setU0(float onGridVoltageFactor) {
-		Commands.getCommands().setParameterU0(onGridVoltageFactor);
+		this.commands.setParameterU0(onGridVoltageFactor);
 	}
 
 	@Override
 	public void setF0(float onGridFrequencyFactor) {
-		Commands.getCommands().setParameterF0(onGridFrequencyFactor);
+		this.commands.setParameterF0(onGridFrequencyFactor);
 	}
 
 	@Override
 	public void setPControlMode(PControlMode pControlMode) {
-		CcuParameters2.getCcuParameters2().setpControlMode(pControlMode);
+		ccuParameters2.setpControlMode(pControlMode);
 	}
 
 	@Override
 	public void setQLimit(float qLimit) {
-		CcuParameters1.getCcuParameters1().setqLimit(qLimit);
+		ccuParameters1.setqLimit(qLimit);
 	}
 
 	@Override
 	public void setPMaxChargeIpu1(float maxPower) {
-		IpuParameter.getIpu1Parameter().setpMaxCharge(maxPower);
+		ipu1Parameter.setpMaxCharge(maxPower);
 	}
 
 	@Override
 	public void setPMaxDischargeIpu1(float maxPower) {
-		IpuParameter.getIpu1Parameter().setpMaxDischarge(maxPower);
+		ipu1Parameter.setpMaxDischarge(maxPower);
 	}
 
 	@Override
 	public void setPMaxChargeIpu2(float maxPower) {
-		IpuParameter.getIpu2Parameter().setpMaxCharge(maxPower);
+		ipu2Parameter.setpMaxCharge(maxPower);
 	}
 
 	@Override
 	public void setPMaxDischargeIpu2(float maxPower) {
-		IpuParameter.getIpu2Parameter().setpMaxDischarge(maxPower);
+		ipu2Parameter.setpMaxDischarge(maxPower);
 	}
 
 	@Override
 	public void setPMaxChargeIpu3(float maxPower) {
-		IpuParameter.getIpu3Parameter().setpMaxCharge(maxPower);
+		ipu3Parameter.setpMaxCharge(maxPower);
 	}
 
 	@Override
 	public void setPMaxDischargeIpu3(float maxPower) {
-		IpuParameter.getIpu3Parameter().setpMaxDischarge(maxPower);
+		ipu3Parameter.setpMaxDischarge(maxPower);
 	}
 
 	@Override
 	public void setDcLinkVoltage(float dcLinkVoltageSetpoint) {
-		DcDcParameter.getDcdcParameter().setDcVoltageSetpoint(dcLinkVoltageSetpoint);
+		dcDcParameter.setDcVoltageSetpoint(dcLinkVoltageSetpoint);
 	}
 
 	@Override
 	public void setWeightStringA(Float weight) {
-		DcDcParameter.getDcdcParameter().setWeightStringA(weight);
+		dcDcParameter.setWeightStringA(weight);
 	}
 
 	@Override
 	public void setWeightStringB(Float weight) {
-		DcDcParameter.getDcdcParameter().setWeightStringB(weight);
+		dcDcParameter.setWeightStringB(weight);
 	}
 
 	@Override
 	public void setWeightStringC(Float weight) {
-		DcDcParameter.getDcdcParameter().setWeightStringC(weight);
+		dcDcParameter.setWeightStringC(weight);
 	}
 
 	@Override
 	public void setStringControlMode(int stringControlMode) {
-		DcDcParameter.getDcdcParameter().setStringControlMode(stringControlMode);
+		dcDcParameter.setStringControlMode(stringControlMode);
 	}
 
 	@Override
 	public void setIRefStringA(Float current) {
-		DcDcParameter.getDcdcParameter().setiRefStringA(current);
+		dcDcParameter.setiRefStringA(current);
 	}
 
 	@Override
 	public void setIRefStringB(Float current) {
-		DcDcParameter.getDcdcParameter().setiRefStringB(current);
+		dcDcParameter.setiRefStringB(current);
 	}
 
 	@Override
 	public void setIRefStringC(Float current) {
-		DcDcParameter.getDcdcParameter().setiRefStringC(current);
+		dcDcParameter.setiRefStringC(current);
 	}
 
 	@Override
 	public void enableDcDc() {
 		switch (inverterCount) {
 		case ONE:
-			Commands.getCommands().setEnableIpu2(true);
+			this.commands.setEnableIpu2(true);
 			break;
 		case TWO:
-			Commands.getCommands().setEnableIpu3(true);
+			this.commands.setEnableIpu3(true);
 			break;
 		case THREE:
-			Commands.getCommands().setEnableIpu4(true);
+			this.commands.setEnableIpu4(true);
 			break;
 		}
 	}
@@ -1200,13 +1215,13 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 	public void disableDcDc() {
 		switch (inverterCount) {
 		case ONE:
-			Commands.getCommands().setEnableIpu2(false);
+			this.commands.setEnableIpu2(false);
 			break;
 		case TWO:
-			Commands.getCommands().setEnableIpu3(false);
+			this.commands.setEnableIpu3(false);
 			break;
 		case THREE:
-			Commands.getCommands().setEnableIpu4(false);
+			this.commands.setEnableIpu4(false);
 			break;
 		}
 	}
@@ -1218,12 +1233,12 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 
 	@Override
 	public void setSyncDate(int date) {
-		Commands.getCommands().setSyncDate(date);
+		this.commands.setSyncDate(date);
 	}
 
 	@Override
 	public void setSyncTime(int time) {
-		Commands.getCommands().setSyncTime(time);
+		this.commands.setSyncTime(time);
 	}
 
 	private <T> void writeValueToChannel(GridConChannelId channelId, T value)
@@ -1263,8 +1278,8 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 
 	@Override
 	public void setStop(boolean stop) {
-		Commands.getCommands().setStopBit1st(stop);
-		Commands.getCommands().setReadyAndStopBit2nd(stop);
+		this.commands.setStopBit1st(stop);
+		this.commands.setReadyAndStopBit2nd(stop);
 		if (stop) { // only one command should be executed!
 			System.out.println("only one command should be executed!");
 			setPlay(false);
@@ -1274,7 +1289,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 
 	@Override
 	public void setAcknowledge(boolean acknowledge) {
-		Commands.getCommands().setAcknowledgeBit(acknowledge);
+		this.commands.setAcknowledgeBit(acknowledge);
 		if (acknowledge) { // only one command should be executed!
 			System.out.println("only one command should be executed!");
 			setStop(false);
@@ -1284,7 +1299,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 
 	@Override
 	public void setPlay(boolean play) {
-		Commands.getCommands().setPlayBit(play);
+		this.commands.setPlayBit(play);
 		if (play) { // only one command should be executed!
 			System.out.println("only one command should be executed!");
 			setStop(false);

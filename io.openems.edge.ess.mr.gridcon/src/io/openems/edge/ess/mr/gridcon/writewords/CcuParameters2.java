@@ -6,16 +6,7 @@ public class CcuParameters2 {
 
 	public static final int CCU_PARAMETERS_2_ADRESS = 32784;
 
-	private CcuParameters2() {
-	}
-
-	private static CcuParameters2 instance;
-
-	public static CcuParameters2 getCcuParameters2() {
-		if (instance == null) {
-			instance = new CcuParameters2();
-		}
-		return instance;
+	public CcuParameters2() {
 	}
 
 	private float pByFDroopMainLower = 0f;
@@ -38,10 +29,6 @@ public class CcuParameters2 {
 
 	public void setpControlMode(PControlMode pControlMode) {
 		this.pControlMode = pControlMode;
-	}
-
-	public static CcuParameters2 getInstance() {
-		return instance;
 	}
 
 	public float getpByFDroopMainLower() {
