@@ -5,7 +5,7 @@
 -resolve.effective: active
 
 -runproperties: \
-	org.osgi.service.http.port=9079,\
+	org.osgi.service.http.port=8079,\
 	felix.cm.dir=c:/openems-backend-conf
 
 -runsystempackages: \
@@ -35,24 +35,6 @@
 	com.google.gson;version='[2.8.5,2.8.6)',\
 	com.google.guava;version='[29.0.0,29.0.1)',\
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
-	io.openems.backend.application;version='[1.0.0,1.0.1)',\
-	io.openems.backend.b2brest;version='[1.0.0,1.0.1)',\
-	io.openems.backend.b2bwebsocket;version='[1.0.0,1.0.1)',\
-	io.openems.backend.common;version='[1.0.0,1.0.1)',\
-	io.openems.backend.core;version='[1.0.0,1.0.1)',\
-	io.openems.backend.edgewebsocket.api;version='[1.0.0,1.0.1)',\
-	io.openems.backend.edgewebsocket.impl;version='[1.0.0,1.0.1)',\
-	io.openems.backend.metadata.api;version='[1.0.0,1.0.1)',\
-	io.openems.backend.metadata.wordpress;version='[1.0.0,1.0.1)',\
-	io.openems.backend.timedata.api;version='[1.0.0,1.0.1)',\
-	io.openems.backend.timedata.dummy;version='[1.0.0,1.0.1)',\
-	io.openems.backend.timedata.influx;version='[1.0.0,1.0.1)',\
-	io.openems.backend.uiwebsocket.api;version='[1.0.0,1.0.1)',\
-	io.openems.backend.uiwebsocket.energydepot;version='[1.0.0,1.0.1)',\
-	io.openems.common;version='[1.0.0,1.0.1)',\
-	io.openems.shared.influxdb;version='[1.0.0,1.0.1)',\
-	io.openems.wrapper.influxdb-java;version='[2.17.0,2.17.1)',\
-	io.openems.wrapper.opczip;version='[1.2.0,1.2.1)',\
 	org.apache.commons.commons-fileupload;version='[1.4.0,1.4.1)',\
 	org.apache.commons.io;version='[2.6.0,2.6.1)',\
 	org.apache.felix.configadmin;version='[1.9.18,1.9.19)',\
@@ -70,4 +52,22 @@
 	org.osgi.service.jdbc;version='[1.0.0,1.0.1)',\
 	org.osgi.util.function;version='[1.1.0,1.1.1)',\
 	org.osgi.util.promise;version='[1.1.1,1.1.2)',\
-	io.openems.wrapper.fastexcel;version='[0.10.18,0.10.19)'
+	io.openems.backend.application;version=snapshot,\
+	io.openems.backend.b2brest;version=snapshot,\
+	io.openems.backend.b2bwebsocket;version=snapshot,\
+	io.openems.backend.common;version=snapshot,\
+	io.openems.backend.core;version=snapshot,\
+	io.openems.backend.edgewebsocket.api;version=snapshot,\
+	io.openems.backend.edgewebsocket.impl;version=snapshot,\
+	io.openems.backend.metadata.api;version=snapshot,\
+	io.openems.backend.metadata.wordpress;version=snapshot,\
+	io.openems.backend.timedata.api;version=snapshot,\
+	io.openems.backend.timedata.dummy;version=snapshot,\
+	io.openems.backend.timedata.influx;version=snapshot,\
+	io.openems.backend.uiwebsocket.api;version=snapshot,\
+	io.openems.backend.uiwebsocket.energydepot;version=snapshot,\
+	io.openems.common;version=snapshot,\
+	io.openems.shared.influxdb;version=snapshot,\
+	io.openems.wrapper.fastexcel;version=snapshot,\
+	io.openems.wrapper.influxdb-java;version=snapshot,\
+	io.openems.wrapper.opczip;version=snapshot
