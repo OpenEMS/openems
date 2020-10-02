@@ -97,11 +97,15 @@
                 <asymmetricpeakshaving [componentId]="widget.componentId"></asymmetricpeakshaving>
               </ion-col>
 
-              <ion-col *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'" size="12" size-lg="6"
-                class="ion-no-padding">
-                <singlethreshold [componentId]="widget.componentId"></singlethreshold>
-              </ion-col>
-            </ng-container>
+            <ion-col *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'" size="12" size-lg="6"
+              class="ion-no-padding">
+              <singlethreshold [componentId]="widget.componentId"></singlethreshold>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'io.openems.edge.io.api.DigitalInput'" size="12" size-lg="6" class="ion-no-padding">
+              <digitalinput></digitalinput>
+            </ion-col>
+          </ng-container>
 
             <!-- <ion-col size="12" size-lg="12">
             <info></info>
