@@ -91,30 +91,30 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 		case OFF_GRID:
 			return;
 		}
+		
 		int calculatedPower;
 		int gridPower = this.meter.getActivePower().orElse(0);
 		switch (this.state) {
-		case UNDEFINED:
-			this.state = getState(gridPower, this.config.continuousSellToGridPower(),
-					this.config.sellToGridPowerLimit());
-			break;
 		case ABOVE_SELL_TO_GRID_LIMIT:
 			calculatedPower = gridPower + this.config.sellToGridPowerLimit();
 			this.channel(DelayedSellToGrid.ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
 			this.setResult(calculatedPower);
-			this.state = State.UNDEFINED;
+			this.changeState(
+					getState(gridPower, this.config.continuousSellToGridPower(), this.config.sellToGridPowerLimit()));
 			break;
 		case UNDER_CONTINUOUS_SELL_TO_GRID:
 			calculatedPower = this.config.continuousSellToGridPower() - Math.abs(gridPower);
 			this.channel(DelayedSellToGrid.ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
 			this.setResult(calculatedPower);
-			this.state = State.UNDEFINED;
+			this.changeState(
+					getState(gridPower, this.config.continuousSellToGridPower(), this.config.sellToGridPowerLimit()));
 			break;
-		case BETWEEN_CONTINUOUS_SELL_TO_GRID_AND_SELL_TO_GRID_LIMIT:
+		case UNDEFINED:
 			calculatedPower = 0;
 			this.channel(DelayedSellToGrid.ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
 			this.setResult(calculatedPower);
-			this.state = State.UNDEFINED;
+			this.changeState(
+					getState(gridPower, this.config.continuousSellToGridPower(), this.config.sellToGridPowerLimit()));
 			break;
 		}
 	}
@@ -124,16 +124,31 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 		this.ess.setReactivePowerEquals(0);
 	}
 
-	private static State getState(int gridPower, int continuousSellToGridPower, int sellToGridPowerLimit) {
+	/**
+	 * Changes the state updated, to avoid too quick changes.
+	 * 
+	 * @param nextState the target state
+	 * @return whether the state was changed
+	 */
+	private boolean changeState(State nextState) {
+		if (this.state != nextState) {
+			this.state = nextState;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private State getState(int gridPower, int continuousSellToGridPower, int sellToGridPowerLimit) {
 		if (-gridPower > sellToGridPowerLimit) {
+			this.channel(DelayedSellToGrid.ChannelId.STATE_MACHINE).setNextValue(State.ABOVE_SELL_TO_GRID_LIMIT);
 			return State.ABOVE_SELL_TO_GRID_LIMIT;
 		}
 		if (-gridPower < continuousSellToGridPower) {
+			this.channel(DelayedSellToGrid.ChannelId.STATE_MACHINE).setNextValue(State.UNDER_CONTINUOUS_SELL_TO_GRID);
 			return State.UNDER_CONTINUOUS_SELL_TO_GRID;
 		}
-		if (-gridPower < sellToGridPowerLimit && -gridPower > continuousSellToGridPower) {
-			return State.BETWEEN_CONTINUOUS_SELL_TO_GRID_AND_SELL_TO_GRID_LIMIT;
-		}
+		this.channel(DelayedSellToGrid.ChannelId.STATE_MACHINE).setNextValue(State.UNDEFINED);
 		return State.UNDEFINED;
 	}
 }

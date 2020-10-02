@@ -11,6 +11,8 @@ public interface DelayedSellToGrid extends Controller, OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)//
+				.text("Calculated Power")), //
+		STATE_MACHINE(Doc.of(State.values())//
 				.text("Calculated Power"))//
 		;
 
