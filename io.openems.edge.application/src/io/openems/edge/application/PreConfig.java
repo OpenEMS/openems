@@ -335,7 +335,7 @@ public class PreConfig {
 				grid.put("enabled", true);
 				grid.put("core.id", "kacoCore0");
 				grid.put("id", "meter0");
-				grid.put("alias", "Vectis");
+				grid.put("alias", "hy-switch");
 				// grid.put("external", false);
 				factory.update(grid);
 
