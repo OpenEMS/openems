@@ -201,7 +201,6 @@ public class EvcsControllerTest {
 
 		assertEquals(12000,
 				(int) (Integer) cm.getConfiguration("ctrlEvcs0").getProperties().get("defaultChargeMinPower"));
-		assertEquals(4000, (int) (Integer) cm.getConfiguration("ctrlEvcs0").getProperties().get("forceChargeMinPower"));
 	}
 
 	@Test

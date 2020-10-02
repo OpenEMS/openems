@@ -49,7 +49,6 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 		public Doc doc() {
 			return this.doc;
 		}
-
 	}
 
 	@Override

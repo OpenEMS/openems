@@ -120,23 +120,27 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	@Override
 	public void run() throws OpenemsNamedException {
 
+		boolean isClustered = this.evcs.getIsClustered().orElse(false);
+
 		/*
 		 * Stop early if charging is disabled
 		 */
-		if (!config.enabledCharging()) {
+		if (!this.config.enabledCharging()) {
 			this.evcs.setChargePowerLimit(0);
-			this.resetMinMaxChannels();
+			if (isClustered) {
+				this.evcs.setChargePowerRequest(0);
+				this.resetMinMaxChannels();
+			}
 			return;
 		}
 
 		adaptConfigToHardwareLimits();
 
-		this.evcs.setEnergyLimit(config.energySessionLimit());
+		this.evcs.setEnergyLimit(this.config.energySessionLimit());
 
 		/*
 		 * Sets a fixed request of 0 if the Charger is not ready
 		 */
-		boolean isClustered = this.evcs.getIsClustered().orElse(false);
 		if (isClustered) {
 
 			Status status = this.evcs.getStatus();
@@ -218,10 +222,11 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			int chargePower = this.evcs.getChargePower().orElse(0);
 
 			/**
-			 * Check the difference of the current charge power and the previous charging target
+			 * Check the difference of the current charge power and the previous charging
+			 * target
 			 */
 			if (this.chargingLowerThanTargetHandler.isLower(this.evcs)) {
-				
+
 				Integer maximumPower = this.chargingLowerThanTargetHandler.getMaximumChargePower();
 				if (maximumPower != null) {
 					this.evcs._setMaximumPower(maximumPower + CHARGE_POWER_BUFFER);
