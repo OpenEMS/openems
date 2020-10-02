@@ -162,6 +162,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   }
 
   protected updateChart() {
+    console.log("this.period", this.period)
     this.loading = true;
     this.service.startSpinner(this.spinnerId);
     this.autoSubscribeChartRefresh();
@@ -399,8 +400,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               let resolution = 86400; // resolution for value per day
 
 
-              this.queryHistoricTimeseriesEnergyPerPeriod(addDays(this.period.from, 1), this.period.to, channelAddresses, resolution).then(response => {
+              this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to, channelAddresses, resolution).then(response => {
                 let result = (response as queryHistoricTimeseriesEnergyPerPeriodResponse).result;
+                console.log("this.from", this.period.from)
+                console.log("this.to", this.period.to)
+                console.log("result", result)
 
                 // convert datasets
                 let datasets: ChartDataSets[] = [];
