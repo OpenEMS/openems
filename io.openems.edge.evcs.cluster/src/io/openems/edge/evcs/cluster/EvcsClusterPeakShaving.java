@@ -183,6 +183,10 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 		long maxAvailableStoragePower = 0;
 
 		maxEssDischarge = this.ess.getAllowedDischargePower().orElse(0);
+		if (this.config.enable_secure_ess_discharge()) {
+			maxEssDischarge = this.getSecureEssDischargePower(maxEssDischarge);
+			this.channel(AbstractEvcsCluster.ChannelId.USED_ESS_MAXIMUM_DISCHARGE_POWER).setNextValue(maxEssDischarge);
+		}
 		// TODO: Should I use power component here
 
 		// TODO: Calculate the available ESS charge power, depending on a specific ESS
@@ -206,6 +210,28 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 		allowedChargePower = allowedChargePower > 0 ? allowedChargePower : 0;
 		return allowedChargePower;
 
+	}
+
+	/**
+	 * Calculate the reduced maximum discharge power.
+	 * 
+	 * @param maxEssDischarge original maximum ess discharge power
+	 * @return reduced ess discharge power
+	 */
+	private int getSecureEssDischargePower(int maxEssDischarge) {
+		int soc = this.ess.getSoc().orElse(0);
+		int startSoc = this.config.ess_secure_discharge_soc();
+		int minSoc = this.config.ess_secure_discharge_min_soc();
+		double factor = 1.0 / (startSoc - minSoc);
+
+		if (soc >= startSoc) {
+			return maxEssDischarge;
+		}
+		if (soc <= minSoc) {
+			return (int) (maxEssDischarge * factor);
+		}
+		factor = factor * (startSoc - soc);
+		return (int) (maxEssDischarge - (maxEssDischarge * factor));
 	}
 
 	/**
