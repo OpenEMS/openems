@@ -20,7 +20,7 @@ import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.scheduler.api.Scheduler;
 
-public class DailySchedulerTest {
+public class DailySchedulerImplTest {
 
 	private static final String SCHEDULER_ID = "scheduler0";
 
@@ -33,7 +33,7 @@ public class DailySchedulerTest {
 	@Test
 	public void test() throws Exception {
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final DailyScheduler sut = new DailyScheduler();
+		final DailyScheduler sut = new DailySchedulerImpl();
 		ComponentTest test = new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addComponent(new DummyController(CTRL0_ID)) //
