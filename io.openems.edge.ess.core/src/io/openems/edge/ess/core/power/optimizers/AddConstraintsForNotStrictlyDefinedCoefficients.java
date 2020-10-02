@@ -130,8 +130,7 @@ public class AddConstraintsForNotStrictlyDefinedCoefficients {
 			// Add all individual Constraints; and remove one after the other if solving
 			// fails
 			allConstraints.addAll(newConstraints);
-			Constraint constraint;
-			while ((constraint = newConstraints.pop()) != null) {
+			for (Constraint constraint : newConstraints) {
 				try {
 					ConstraintSolver.solve(coefficients, allConstraints);
 					break;
