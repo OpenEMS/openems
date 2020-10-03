@@ -34,7 +34,7 @@ public class FixedOrderSchedulerImpl extends AbstractOpenemsComponent implements
 
 	private Config config;
 
-	protected FixedOrderSchedulerImpl() {
+	public FixedOrderSchedulerImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Scheduler.ChannelId.values(), //
@@ -45,6 +45,7 @@ public class FixedOrderSchedulerImpl extends AbstractOpenemsComponent implements
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.config = config;
 	}
 
 	@Deactivate
