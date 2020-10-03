@@ -41,10 +41,10 @@ public class ChannelHandler {
 	public void activate(Battery battery) {
 		this.<Integer>addListener(battery, Battery.ChannelId.SOC, (oldValue, newValue) -> {
 			this.parent._setSoc(newValue.get());
-			this.parent.channel(SinexcelChannelId.BAT_SOC).setNextValue(newValue.get());
+			this.parent.channel(EssSinexcel.ChannelId.BAT_SOC).setNextValue(newValue.get());
 		});
 		this.<Integer>addListener(battery, Battery.ChannelId.VOLTAGE, (oldValue, newValue) -> {
-			this.parent.channel(SinexcelChannelId.BAT_VOLTAGE).setNextValue(newValue.get());
+			this.parent.channel(EssSinexcel.ChannelId.BAT_VOLTAGE).setNextValue(newValue.get());
 		});
 		this.<Integer>addListener(battery, Battery.ChannelId.MIN_CELL_VOLTAGE, (oldValue, newValue) -> {
 			this.parent._setMinCellVoltage(newValue.get());
