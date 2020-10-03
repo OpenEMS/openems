@@ -19,9 +19,9 @@ public class ChargingLowerThanTargetHandler {
 	private static final int CHECK_CHARGING_TARGET_DIFFERENCE_TIME = 30; // sec
 	private LocalDateTime lastChargingCheck = LocalDateTime.now();
 
-	private final EvcsController parent;
+	private final EvcsControllerImpl parent;
 
-	public ChargingLowerThanTargetHandler(EvcsController parent) {
+	public ChargingLowerThanTargetHandler(EvcsControllerImpl parent) {
 		this.parent = parent;
 	}
 
