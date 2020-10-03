@@ -36,6 +36,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -286,7 +287,7 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 	}
 
 	public boolean stateOnOff() {
-		StateChannel v = this.channel(EssSinexcel.ChannelId.STATE_18);
+		BooleanReadChannel v = this.channel(EssSinexcel.ChannelId.STATE_18);
 		Optional<Boolean> stateOff = v.getNextValue().asOptional();
 		return stateOff.isPresent() && stateOff.get();
 	}
