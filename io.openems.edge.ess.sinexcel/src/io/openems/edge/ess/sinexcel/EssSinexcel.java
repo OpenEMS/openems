@@ -8,10 +8,10 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.sum.GridMode;
@@ -224,9 +224,9 @@ public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHan
 		STATE_19(Doc.of(OpenemsType.BOOLEAN) //
 				.text("On Grid") //
 				.onInit(c -> { //
-					StateChannel channel = (StateChannel) c;
+					BooleanReadChannel channel = (BooleanReadChannel) c;
 					EssSinexcel self = (EssSinexcel) channel.getComponent();
-					((StateChannel) channel).onChange((oldValue, newValue) -> {
+					channel.onChange((oldValue, newValue) -> {
 						Optional<Boolean> value = newValue.asOptional();
 						if (!value.isPresent()) {
 							self._setGridMode(GridMode.UNDEFINED);
