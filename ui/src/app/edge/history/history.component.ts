@@ -57,7 +57,6 @@ export class HistoryComponent implements OnInit {
         this.isTimedataAvailable = false;
       }
     });
-    console.log("onInitHistoryPeriod", this.service.historyPeriod)
   }
 
   // checks arrows when ChartPage is closed

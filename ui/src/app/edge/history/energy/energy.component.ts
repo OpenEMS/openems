@@ -162,7 +162,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   }
 
   protected updateChart() {
-    console.log("this.period", this.period)
     this.loading = true;
     this.service.startSpinner(this.spinnerId);
     this.autoSubscribeChartRefresh();
@@ -400,12 +399,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               let resolution = 86400; // resolution for value per day
 
 
-              this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to, channelAddresses, resolution).then(response => {
+              this.queryHistoricTimeseriesEnergyPerPeriod(addDays(this.period.from, 1), this.period.to, channelAddresses, resolution).then(response => {
                 let result = (response as queryHistoricTimeseriesEnergyPerPeriodResponse).result;
-                console.log("this.from", this.period.from)
-                console.log("this.to", this.period.to)
-                console.log("result", result)
-
                 // convert datasets
                 let datasets: ChartDataSets[] = [];
 
@@ -416,47 +411,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 }
                 this.labels = labels;
 
-                // Production
-                if ('_sum/ProductionActiveEnergy' in result.data) {
-                  let productionData = result.data['_sum/ProductionActiveEnergy'].map(value => {
-                    if (value == null) {
-                      return null
-                    } else {
-                      return value / 1000; // convert to kW
-                    }
-                  });
-
-                  datasets.push({
-                    label: chartLabels.production,
-                    data: productionData,
-                    hidden: true,
-                    hideInLegendAndTooltip: true,
-                    backgroundColor: 'rgba(45,143,171,0.25)',
-                    borderColor: 'rgba(45,143,171,1)',
-                  });
-                }
-
-                // Consumption
-                if ('_sum/ConsumptionActiveEnergy' in result.data) {
-                  /*
-                  * Consumption
-                   */
-                  let consumptionData = result.data['_sum/ConsumptionActiveEnergy'].map(value => {
-                    if (value == null) {
-                      return null
-                    } else {
-                      return value / 1000; // convert to kW
-                    }
-                  });
-                  datasets.push({
-                    label: chartLabels.consumption,
-                    data: consumptionData,
-                    hidden: true,
-                    hideInLegendAndTooltip: true,
-                    backgroundColor: 'rgba(253,197,7,0.25)',
-                    borderColor: 'rgba(253,197,7,1)',
-                  });
-                }
 
                 // Direct Consumption
                 let directConsumptionData: null | number[] = null;
@@ -567,6 +521,55 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                     categoryPercentage: categoryGapPercentage,
                     stack: "0"
                   })
+                }
+
+                // Production
+                if ('_sum/ProductionActiveEnergy' in result.data) {
+                  let productionData = result.data['_sum/ProductionActiveEnergy'].map(value => {
+                    if (value == null) {
+                      return null
+                    } else {
+                      return value / 1000; // convert to kW
+                    }
+                  });
+
+                  datasets.push({
+                    label: chartLabels.production,
+                    data: productionData,
+                    hidden: true,
+                    hideInLegendAndTooltip: true,
+                    backgroundColor: 'rgba(45,143,171,0.25)',
+                    borderColor: 'rgba(45,143,171,1)',
+                    hoverBackgroundColor: 'rgba(45,143,171,0.5)',
+                    hoverBorderColor: 'rgba(45,143,171,1)',
+                    barPercentage: barWidthPercentage,
+                    categoryPercentage: categoryGapPercentage,
+                    stack: "2"
+                  });
+                }
+
+                // Consumption
+                if ('_sum/ConsumptionActiveEnergy' in result.data) {
+                  let consumptionData = result.data['_sum/ConsumptionActiveEnergy'].map(value => {
+                    if (value == null) {
+                      return null
+                    } else {
+                      return value / 1000; // convert to kW
+                    }
+                  });
+                  datasets.push({
+                    label: chartLabels.consumption,
+                    data: consumptionData,
+                    hidden: true,
+                    hideInLegendAndTooltip: true,
+                    backgroundColor: 'rgba(253,197,7,0.25)',
+                    borderColor: 'rgba(253,197,7,1)',
+                    hoverBackgroundColor: 'rgba(253,197,7,0.5)',
+                    hoverBorderColor: 'rgba(253,197,7,1)',
+                    barPercentage: barWidthPercentage,
+                    categoryPercentage: categoryGapPercentage,
+                    stack: "3"
+                  });
                 }
 
                 // right stack
@@ -889,6 +892,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
         let firstDirectConsumptionStackDatasetIndex: null | number = null;
         let secondDirectConsumptionStackDatasetIndex: null | number = null;
+        let productionStackDatasetIndex: null | number = null;
+        let consumptionStackDatasetIndex: null | number = null;
 
         chart.data.datasets.forEach((value, index) => {
           if (datasets[index].label.includes(directConsumptionLabelText) && datasets[index].stack == "0") {
@@ -896,6 +901,12 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           }
           if (datasets[index].label.includes(directConsumptionLabelText) && datasets[index].stack == "1") {
             secondDirectConsumptionStackDatasetIndex = index;
+          }
+          if (datasets[index].label.includes(productionLabelText)) {
+            productionStackDatasetIndex = index;
+          }
+          if (datasets[index].label.includes(consumptionLabelText)) {
+            consumptionStackDatasetIndex = index;
           }
         })
 
@@ -907,12 +918,12 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           ]
           if (legendItemIndex == datasetIndex &&
             (datasetIndex == firstDirectConsumptionStackDatasetIndex || datasetIndex == secondDirectConsumptionStackDatasetIndex)) {
+            // hide/show both directConsumption bars
             directConsumptionMetaArr.forEach(meta => {
               meta.hidden = meta.hidden === null ?
                 !datasets[firstDirectConsumptionStackDatasetIndex].hidden && !datasets[secondDirectConsumptionStackDatasetIndex].hidden : null;
             })
-          } else if (legendItemIndex == datasetIndex && legendItem.text.split(" ")[0] != productionLabelText
-            && legendItem.text.split(" ")[0] != consumptionLabelText) {
+          } else if (legendItemIndex == datasetIndex) {
             meta.hidden = meta.hidden === null ? !datasets[datasetIndex].hidden : null;
           }
         })

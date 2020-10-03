@@ -31,6 +31,12 @@ export class PickDateComponent {
         })
     }
 
+    ngOnDestroy() {
+        if (this.changePeriodTimeout != null) {
+            clearTimeout(this.changePeriodTimeout);
+        }
+    }
+
     /**
      * checks if arrow has to be disabled/enabled and if automatic forwarding is needed dependend on the date
      */
@@ -66,7 +72,7 @@ export class PickDateComponent {
             }
             case 'month': {
                 if (isFuture(addMonths(this.service.historyPeriod.from, 1))) {
-                    //waits until next week is reached to set next weeks period
+                    //waits until next month is reached to set next months period
                     this.forwardToNextMonthWhenReached()
                     this.disableArrow = true;
                 } else {
@@ -147,7 +153,7 @@ export class PickDateComponent {
             }
             case 'month': {
                 if (isFuture(addMonths(this.service.historyPeriod.from, 2))) {
-                    //waits until next week is reached to set next weeks period
+                    //waits until next month is reached to set next months period
                     this.forwardToNextMonthWhenReached();
                     this.setDateRange(new DefaultTypes.HistoryPeriod(addMonths(this.service.historyPeriod.from, 1), endOfMonth(addMonths(this.service.historyPeriod.to, 1))));
                     this.disableArrow = true;
@@ -261,10 +267,13 @@ export class PickDateComponent {
      * changes history period date and text when next week is reached
      */
     private forwardToNextMonthWhenReached() {
-        this.changePeriodTimeout = setTimeout(() => {
-            this.setDateRange(new DefaultTypes.HistoryPeriod(new Date(), endOfMonth(new Date())));
-            this.service.historyPeriod.getText(this.translate);
-        }, this.millisecondsUntilnextPeriod());
+        // 2147483647 (32 bit int) is setTimeout max value
+        if (this.millisecondsUntilnextPeriod() < 2147483647) {
+            this.changePeriodTimeout = setTimeout(() => {
+                this.setDateRange(new DefaultTypes.HistoryPeriod(new Date(), endOfMonth(new Date())));
+                this.service.historyPeriod.getText(this.translate);
+            }, this.millisecondsUntilnextPeriod());
+        }
     }
 
     /**
