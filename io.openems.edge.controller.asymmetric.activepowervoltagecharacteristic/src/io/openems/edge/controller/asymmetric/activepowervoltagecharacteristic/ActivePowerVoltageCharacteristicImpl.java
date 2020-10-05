@@ -109,6 +109,48 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractPowerCharacter
 		super.deactivate();
 	}
 
+	/**
+	 * Initialize the P by U characteristics.
+	 *
+	 * <p>
+	 * Gets EssID and according to that " componentId / device ", it will "point
+	 * out/ indicate/assign" on which power line connected.// Numbers will be
+	 * recursive after L3/ess3.See ess4...
+	 *
+	 * <pre>
+	 * [
+	 *  { "ess0"    : Ess Cluster}
+	 *  { "ess1"    : power line : 1}},
+	 *  { "ess2"    : power line : 2}},
+	 *  { "ess3"    : power line : 3}},
+	 *  { "ess4"    : power line : 1}},
+	 *  ......
+	 * ]
+	 * </pre>
+	 * 
+	 * @param percentQ the configured Percent-by-Q values
+	 * 
+	 * @throws OpenemsNamedException on error
+	 */
+	private essId getEssId() {
+		String[] parts = this.config.ess_id().split("ess");
+		String part2 = parts[1];
+		int essIdInt = Integer.parseInt(part2);
+
+		if (this.config.ess_id().equals("ess0")) {
+			return essId.ess0;
+		} else if (this.config.ess_id().equals("ess1") || ((essIdInt % 3) == 1)) {
+			return essId.ess1;
+		} else if (this.config.ess_id().equals("ess2") || ((essIdInt % 3) == 2)) {
+			return essId.ess2;
+		}
+		return essId.ess3;
+	}
+
+	private enum essId {
+		ess0, ess1, ess2, ess3
+	}
+
 	@Override
 	public void run() throws OpenemsNamedException {
 		GridMode gridMode = this.ess.getGridMode();
@@ -122,17 +164,33 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractPowerCharacter
 		case OFF_GRID:
 			return;
 		}
-		
-		if (this.lastSetPowerTime.isAfter(LocalDateTime.now(super.clock).minusSeconds(this.config.waitForHysteresis()))) {
+
+		AsymmetricMeter gridMeter = componentManager.getComponent(this.config.meter_id());
+		Channel<Integer> gridLineVoltage;
+		switch (this.getEssId()) {
+		case ess0:
+			this.log.info("\n'ess0' assumed as a essCluster by this controller.\n"
+					+ "Each ess number related with power line, ex: ess1 == L1 ");
+			return;
+		case ess1:
+			gridLineVoltage = gridMeter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L1);
+			this.voltageRatio = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
+			break;
+		case ess2:
+			gridLineVoltage = gridMeter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L2);
+			this.voltageRatio = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
+			break;
+		case ess3:
+			gridLineVoltage = gridMeter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L3);
+			this.voltageRatio = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
+			break;
+		}
+		if (this.lastSetPowerTime
+				.isAfter(LocalDateTime.now(super.clock).minusSeconds(this.config.waitForHysteresis()))) {
 			return;
 		}
 		lastSetPowerTime = LocalDateTime.now(super.clock);
-		
-		AsymmetricMeter gridMeter = componentManager.getComponent(this.config.meter_id());
-		Channel<Integer> gridLineVoltage = gridMeter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L1);
-
-		this.voltageRatio = gridLineVoltage.value().orElse(0) / this.config.nominalVoltage()*1000;
-//		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.voltageRatio);
+		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.voltageRatio);
 		if (this.voltageRatio == 0) {
 			log.info("Voltage Ratio is 0");
 			return;
@@ -141,7 +199,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractPowerCharacter
 		if (power == null) {
 			return;
 		}
-//		this.channel(ChannelId.CALCULATED_POWER).setNextValue(power);
+		this.channel(ChannelId.CALCULATED_POWER).setNextValue(power);
 		this.ess.setActivePowerEquals(power);
 		this.ess.setReactivePowerEquals(0);
 	}
