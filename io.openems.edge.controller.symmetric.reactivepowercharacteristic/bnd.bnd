@@ -1,10 +1,10 @@
-Bundle-Name: OpenEMS Edge Controller Asymmetric Active Power Voltage Characteristics
+Bundle-Name: OpenEMS Edge Controller Symmetric Reactive Power Voltage Characteristics
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Export-Package: io.openems.edge.controller.api
 Private-Package: \
-	io.openems.edge.controller.asymmetric.activepowervoltagecharacteristic
+	io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic
 
 -buildpath: \
 	${buildpath},\
