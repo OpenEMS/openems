@@ -453,6 +453,31 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                   }
                 }
 
+                // Production
+                if ('_sum/ProductionActiveEnergy' in result.data) {
+                  let productionData = result.data['_sum/ProductionActiveEnergy'].map(value => {
+                    if (value == null) {
+                      return null
+                    } else {
+                      return value / 1000; // convert to kW
+                    }
+                  });
+
+                  datasets.push({
+                    label: chartLabels.production,
+                    data: productionData,
+                    hidden: true,
+                    hideInLegendAndTooltip: true,
+                    backgroundColor: 'rgba(45,143,171,0.25)',
+                    borderColor: 'rgba(45,143,171,1)',
+                    hoverBackgroundColor: 'rgba(45,143,171,0.5)',
+                    hoverBorderColor: 'rgba(45,143,171,1)',
+                    barPercentage: barWidthPercentage,
+                    categoryPercentage: categoryGapPercentage,
+                    stack: "PRODUCTION"
+                  });
+                }
+
                 // left stack
 
                 /*
@@ -523,55 +548,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                   })
                 }
 
-                // Production
-                if ('_sum/ProductionActiveEnergy' in result.data) {
-                  let productionData = result.data['_sum/ProductionActiveEnergy'].map(value => {
-                    if (value == null) {
-                      return null
-                    } else {
-                      return value / 1000; // convert to kW
-                    }
-                  });
-
-                  datasets.push({
-                    label: chartLabels.production,
-                    data: productionData,
-                    hidden: true,
-                    hideInLegendAndTooltip: true,
-                    backgroundColor: 'rgba(45,143,171,0.25)',
-                    borderColor: 'rgba(45,143,171,1)',
-                    hoverBackgroundColor: 'rgba(45,143,171,0.5)',
-                    hoverBorderColor: 'rgba(45,143,171,1)',
-                    barPercentage: barWidthPercentage,
-                    categoryPercentage: categoryGapPercentage,
-                    stack: "2"
-                  });
-                }
-
-                // Consumption
-                if ('_sum/ConsumptionActiveEnergy' in result.data) {
-                  let consumptionData = result.data['_sum/ConsumptionActiveEnergy'].map(value => {
-                    if (value == null) {
-                      return null
-                    } else {
-                      return value / 1000; // convert to kW
-                    }
-                  });
-                  datasets.push({
-                    label: chartLabels.consumption,
-                    data: consumptionData,
-                    hidden: true,
-                    hideInLegendAndTooltip: true,
-                    backgroundColor: 'rgba(253,197,7,0.25)',
-                    borderColor: 'rgba(253,197,7,1)',
-                    hoverBackgroundColor: 'rgba(253,197,7,0.5)',
-                    hoverBorderColor: 'rgba(253,197,7,1)',
-                    barPercentage: barWidthPercentage,
-                    categoryPercentage: categoryGapPercentage,
-                    stack: "3"
-                  });
-                }
-
                 // right stack
 
                 /*
@@ -640,6 +616,30 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                     categoryPercentage: categoryGapPercentage,
                     stack: "1"
                   })
+                }
+
+                // Consumption
+                if ('_sum/ConsumptionActiveEnergy' in result.data) {
+                  let consumptionData = result.data['_sum/ConsumptionActiveEnergy'].map(value => {
+                    if (value == null) {
+                      return null
+                    } else {
+                      return value / 1000; // convert to kW
+                    }
+                  });
+                  datasets.push({
+                    label: chartLabels.consumption,
+                    data: consumptionData,
+                    hidden: true,
+                    hideInLegendAndTooltip: true,
+                    backgroundColor: 'rgba(253,197,7,0.25)',
+                    borderColor: 'rgba(253,197,7,1)',
+                    hoverBackgroundColor: 'rgba(253,197,7,0.5)',
+                    hoverBorderColor: 'rgba(253,197,7,1)',
+                    barPercentage: barWidthPercentage,
+                    categoryPercentage: categoryGapPercentage,
+                    stack: "CONSUMPTION"
+                  });
                 }
                 this.datasets = datasets;
                 this.colors = [];
@@ -846,13 +846,13 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           if (dataset.label.includes(directConsumptionLabelText)) {
             chartLegendLabelItemsOrder[3] = dataset.label;
           }
-          if (dataset.label.includes(consumptionLabelText)) {
+          if (dataset.label.includes(gridBuyLabelText)) {
             chartLegendLabelItemsOrder[4] = dataset.label;
           }
-          if (dataset.label.includes(gridBuyLabelText)) {
+          if (dataset.label.includes(dischargeLabelText)) {
             chartLegendLabelItemsOrder[5] = dataset.label;
           }
-          if (dataset.label.includes(dischargeLabelText)) {
+          if (dataset.label.includes(consumptionLabelText)) {
             chartLegendLabelItemsOrder[6] = dataset.label;
           }
 
@@ -892,8 +892,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
         let firstDirectConsumptionStackDatasetIndex: null | number = null;
         let secondDirectConsumptionStackDatasetIndex: null | number = null;
-        let productionStackDatasetIndex: null | number = null;
-        let consumptionStackDatasetIndex: null | number = null;
 
         chart.data.datasets.forEach((value, index) => {
           if (datasets[index].label.includes(directConsumptionLabelText) && datasets[index].stack == "0") {
@@ -901,12 +899,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           }
           if (datasets[index].label.includes(directConsumptionLabelText) && datasets[index].stack == "1") {
             secondDirectConsumptionStackDatasetIndex = index;
-          }
-          if (datasets[index].label.includes(productionLabelText)) {
-            productionStackDatasetIndex = index;
-          }
-          if (datasets[index].label.includes(consumptionLabelText)) {
-            consumptionStackDatasetIndex = index;
           }
         })
 
