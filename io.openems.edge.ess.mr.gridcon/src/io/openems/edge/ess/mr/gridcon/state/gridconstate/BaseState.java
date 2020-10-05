@@ -4,9 +4,7 @@ import java.time.LocalDateTime;
 import java.util.BitSet;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
 import io.openems.edge.ess.mr.gridcon.Helper;
@@ -181,13 +179,14 @@ public abstract class BaseState implements GridconStateObject {
 	}
 
 	protected void setHardRestartRelay(boolean val) {
-		try {
-			ChannelAddress address = ChannelAddress.fromString(this.hardRestartRelayAdress);
-			BooleanWriteChannel outputHardResetChannel = this.manager.getChannel(address);
-			outputHardResetChannel.setNextWriteValue(val);
-		} catch (OpenemsNamedException e) {
-			System.out.println("Failed to set the hard reset");
-		}
+		System.out.println("Currently do not do this to avoid damage of SD card");
+//		try {
+//			ChannelAddress address = ChannelAddress.fromString(this.hardRestartRelayAdress);
+//			BooleanWriteChannel outputHardResetChannel = this.manager.getChannel(address);
+//			outputHardResetChannel.setNextWriteValue(val);
+//		} catch (OpenemsNamedException e) {
+//			System.out.println("Failed to set the hard reset");
+//		}
 	}
 
 	Battery getBattery1() {
