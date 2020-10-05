@@ -128,6 +128,21 @@ public enum GridConChannelId implements ChannelId {
 	DCDC_MEASUREMENTS_ACCUMULATED_DC_UTILIZATION(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)),
 	DCDC_MEASUREMENTS_RESERVE_1(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 	DCDC_MEASUREMENTS_RESERVE_2(Doc.of(OpenemsType.FLOAT).unit(Unit.PERCENT)),
+	
+	GRID_MEASUREMENT_I_L1(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
+	GRID_MEASUREMENT_I_L2(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
+	GRID_MEASUREMENT_I_L3(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
+	GRID_MEASUREMENT_I_LN(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
+	
+	GRID_MEASUREMENT_P_L1(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
+	GRID_MEASUREMENT_P_L2(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
+	GRID_MEASUREMENT_P_L3(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
+	GRID_MEASUREMENT_P_SUM(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
+	
+	GRID_MEASUREMENT_Q_L1(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT_AMPERE_REACTIVE)), //
+	GRID_MEASUREMENT_Q_L2(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT_AMPERE_REACTIVE)), //
+	GRID_MEASUREMENT_Q_L3(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT_AMPERE_REACTIVE)), //
+	GRID_MEASUREMENT_Q_SUM(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 
 	COMMAND_CONTROL_WORD_PLAY_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 	COMMAND_CONTROL_WORD_PLAY(new BooleanDoc() //
@@ -171,31 +186,6 @@ public enum GridConChannelId implements ChannelId {
 			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_TRIGGER_SIA_DEBUG))),
-	COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
-	COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION(new BooleanDoc() //
-			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-					GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION_DEBUG))),
-	COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
-	COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET(new BooleanDoc() //
-			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-					GridConChannelId.COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET_DEBUG))),
-	COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
-	COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET(new BooleanDoc() //
-			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-					GridConChannelId.COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET_DEBUG))),
-	COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
-	COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET(new BooleanDoc() //
-			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-					GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET_DEBUG))),
-	COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
-	COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET(new BooleanDoc() //
-			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-					GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET_DEBUG))),
 	COMMAND_CONTROL_WORD_BALANCING_MODE_BIT_1_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 	COMMAND_CONTROL_WORD_BALANCING_MODE_BIT_1(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
@@ -206,6 +196,26 @@ public enum GridConChannelId implements ChannelId {
 			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_BALANCING_MODE_BIT_2_DEBUG))),	
+	COMMAND_CONTROL_WORD_FUNDAMENTAL_FREQUENCY_MODE_BIT_1_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_FUNDAMENTAL_FREQUENCY_MODE_BIT_1(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.COMMAND_CONTROL_WORD_FUNDAMENTAL_FREQUENCY_MODE_BIT_1_DEBUG))),
+	COMMAND_CONTROL_WORD_FUNDAMENTAL_FREQUENCY_MODE_BIT_2_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_FUNDAMENTAL_FREQUENCY_MODE_BIT_2(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.COMMAND_CONTROL_WORD_FUNDAMENTAL_FREQUENCY_MODE_BIT_2_DEBUG))),
+	COMMAND_CONTROL_WORD_HARMONIC_COMPENSATION_MODE_BIT_1_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_HARMONIC_COMPENSATION_MODE_BIT_1(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.COMMAND_CONTROL_WORD_HARMONIC_COMPENSATION_MODE_BIT_1_DEBUG))),
+	COMMAND_CONTROL_WORD_HARMONIC_COMPENSATION_MODE_BIT_2_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_HARMONIC_COMPENSATION_MODE_BIT_2(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.COMMAND_CONTROL_WORD_HARMONIC_COMPENSATION_MODE_BIT_2_DEBUG))),
 	COMMAND_CONTROL_WORD_DISABLE_IPU_4_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 	COMMAND_CONTROL_WORD_ENABLE_IPU_4(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
@@ -415,6 +425,17 @@ public enum GridConChannelId implements ChannelId {
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.CONTROL_PARAMETER_P_CONTROL_LIM_ONE_DEBUG))),
 
+	CONTROL_PARAMETER_COS_PHI_SETPOINT_1_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
+	CONTROL_PARAMETER_COS_PHI_SETPOINT_1(new FloatDoc() //
+			.accessMode(AccessMode.READ_WRITE)
+			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.CONTROL_PARAMETER_COS_PHI_SETPOINT_1_DEBUG))),
+	CONTROL_PARAMETER_COS_PHI_SETPOINT_2_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
+	CONTROL_PARAMETER_COS_PHI_SETPOINT_2(new FloatDoc() //
+			.accessMode(AccessMode.READ_WRITE)
+			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.CONTROL_PARAMETER_COS_PHI_SETPOINT_2_DEBUG))),
+	
 	INVERTER_1_CONTROL_DC_VOLTAGE_SETPOINT_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
 	INVERTER_1_CONTROL_DC_VOLTAGE_SETPOINT(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)

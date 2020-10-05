@@ -4,6 +4,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
 import io.openems.edge.ess.mr.gridcon.enums.BalancingMode;
+import io.openems.edge.ess.mr.gridcon.enums.FundamentalFrequencyMode;
+import io.openems.edge.ess.mr.gridcon.enums.HarmonicCompensationMode;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 
@@ -318,56 +320,87 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 	}
 
 	@Override
-	public float getVoltageU1U2() {
+	public void setFundamentalFrequencyMode(FundamentalFrequencyMode fundamentalFrequencyMode) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setHarmonicCompensationMode(HarmonicCompensationMode harmonicCompensationMode) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public float getCurrentL1() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getVoltageU2U3() {
+	public float getCurrentL2() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getVoltageU3U1() {
+	public float getCurrentL3() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getCurrentIL1() {
+	public float getCurrentLN() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getCurrentIL2() {
+	public float getActivePowerL1() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getCurrentIL3() {
+	public float getActivePowerL2() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getPowerP() {
+	public float getActivePowerL3() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getPowerQ() {
+	public float getActivePowerSum() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getFrequency() {
+	public float getReactivePowerL1() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	@Override
+	public float getReactivePowerL2() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float getReactivePowerL3() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float getReactivePowerSum() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

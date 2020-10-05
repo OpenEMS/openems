@@ -3,6 +3,8 @@ package io.openems.edge.ess.mr.gridcon.writewords;
 import java.util.BitSet;
 
 import io.openems.edge.ess.mr.gridcon.enums.BalancingMode;
+import io.openems.edge.ess.mr.gridcon.enums.FundamentalFrequencyMode;
+import io.openems.edge.ess.mr.gridcon.enums.HarmonicCompensationMode;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
 
 public class Commands {
@@ -31,8 +33,9 @@ public class Commands {
 	private Boolean shortCircuitHandling = false;
 	private Mode mode = null; //Mode.CURRENT_CONTROL;
 	private Boolean triggerSia = false;
-	private Boolean harmonicCompensation = false;
 	private BalancingMode balancingMode = BalancingMode.DISABLED;
+	private FundamentalFrequencyMode fundamentalFrequencyMode = FundamentalFrequencyMode.DISABLED;
+	private HarmonicCompensationMode harmonicCompensationMode = HarmonicCompensationMode.DISABLED;
 //	private Boolean parameterSet1 = false;
 //	private Boolean parameterSet2 = false;
 //	private Boolean parameterSet3 = false;
@@ -151,16 +154,28 @@ public class Commands {
 		return triggerSia;
 	}
 
-	public Boolean isHarmonicCompensation() {
-		return harmonicCompensation;
-	}
-	
 	public BalancingMode getBalancingMode() {
 		return balancingMode;
 	}
 
 	public void setBalancingMode(BalancingMode balancingMode) {
 		this.balancingMode = balancingMode;
+	}
+	
+	public FundamentalFrequencyMode getFundamentalFrequencyMode() {
+		return fundamentalFrequencyMode;
+	}
+
+	public void setFundamentalFrequencyMode(FundamentalFrequencyMode fundamentalFrequencyMode) {
+		this.fundamentalFrequencyMode = fundamentalFrequencyMode;
+	}
+
+	public HarmonicCompensationMode getHarmonicCompensationMode() {
+		return harmonicCompensationMode;
+	}
+
+	public void setHarmonicCompensationMode(HarmonicCompensationMode harmonicCompensationMode) {
+		this.harmonicCompensationMode = harmonicCompensationMode;
 	}
 
 //	public Boolean isParameterSet1() {
@@ -212,12 +227,10 @@ public class Commands {
 	}
 
 	public Float getParameterF0() {
-		System.out.println("in Command.getParameterF0: " + parameterF0);
 		return parameterF0;
 	}
 
 	public void setParameterF0(Float parameterF0) {
-		System.out.println("in Command.setParameterF0: " + parameterF0);
 		this.parameterF0 = parameterF0;
 	}
 
@@ -253,20 +266,6 @@ public class Commands {
 		this.syncTime = syncTime;
 	}
 
-//	@Override
-//	public String toString() {
-//		return "Commands [enableIpu1=" + enableIpu1 + ", enableIpu2=" + enableIpu2 + ", enableIpu3=" + enableIpu3
-//				+ ", enableIpu4=" + enableIpu4 + ", playBit=" + playBit + ", readyAndStopBit2nd=" + readyAndStopBit2nd
-//				+ ", acknowledgeBit=" + acknowledgeBit + ", stopBit1st=" + stopBit1st + ", blackstartApproval="
-//				+ blackstartApproval + ", syncApproval=" + syncApproval + ", shortCircuitHandling="
-//				+ shortCircuitHandling + ", mode=" + mode + ", triggerSia=" + triggerSia
-//				+ ", harmonicCompensation=" + harmonicCompensation + ", parameterSet1=" + parameterSet1
-//				+ ", parameterSet2=" + parameterSet2 + ", parameterSet3=" + parameterSet3 + ", parameterSet4="
-//				+ parameterSet4 + ", errorCodeFeedback=" + errorCodeFeedback + ", parameterU0=" + parameterU0
-//				+ ", parameterF0=" + parameterF0 + ", parameterQref=" + parameterQref + ", parameterPref="
-//				+ parameterPref + ", syncDate=" + syncDate + ", syncTime=" + syncTime + "]\n" + getHexRepresentation();
-//	}
-	
 	@Override
 	public String toString() {
 		return "Commands [enableIpu1=" + enableIpu1 + ", enableIpu2=" + enableIpu2 + ", enableIpu3=" + enableIpu3
@@ -274,7 +273,9 @@ public class Commands {
 				+ ", acknowledgeBit=" + acknowledgeBit + ", stopBit1st=" + stopBit1st + ", blackstartApproval="
 				+ blackstartApproval + ", syncApproval=" + syncApproval + ", shortCircuitHandling="
 				+ shortCircuitHandling + ", mode=" + mode + ", triggerSia=" + triggerSia
-				+ ", harmonicCompensation=" + harmonicCompensation + "balancingMode=" + balancingMode
+				+ ",fundamentalFrequencyMode=" + fundamentalFrequencyMode
+				+ ",balancingMode=" + balancingMode
+				+ ",harmonicCompensationMode=" + harmonicCompensationMode
 				+ ", errorCodeFeedback=" + errorCodeFeedback + ", parameterU0=" + parameterU0
 				+ ", parameterF0=" + parameterF0 + ", parameterQref=" + parameterQref + ", parameterPref="
 				+ parameterPref + ", syncDate=" + syncDate + ", syncTime=" + syncTime + "]\n" + getHexRepresentation();
@@ -316,9 +317,12 @@ public class Commands {
 		set.set(6, isShortCircuitHandling());
 		set.set(7, mode.value);
 		set.set(8, isTriggerSia());
-		set.set(9, isHarmonicCompensation());
-		set.set(10, getBalancingMode().isBit1());
-		set.set(11, getBalancingMode().isBit2());
+		set.set(9, fundamentalFrequencyMode.isBit1());
+		set.set(10, fundamentalFrequencyMode.isBit2());		
+		set.set(11, getBalancingMode().isBit1());
+		set.set(12, getBalancingMode().isBit2());
+		set.set(13, harmonicCompensationMode.isBit1());
+		set.set(14, harmonicCompensationMode.isBit2());
 //		set.set(10, isParameterSet1());
 //		set.set(11, isParameterSet2());
 //		set.set(12, isParameterSet3());

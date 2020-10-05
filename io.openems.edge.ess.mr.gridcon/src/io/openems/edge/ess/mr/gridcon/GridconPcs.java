@@ -2,9 +2,10 @@ package io.openems.edge.ess.mr.gridcon;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.ess.mr.gridcon.enums.BalancingMode;
+import io.openems.edge.ess.mr.gridcon.enums.FundamentalFrequencyMode;
+import io.openems.edge.ess.mr.gridcon.enums.HarmonicCompensationMode;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
-//import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 
 /**
  * Describes functions of the gridcon pcs system.
@@ -64,6 +65,8 @@ public interface GridconPcs {
 //	void setParameterSet(ParameterSet set1);
 	
 	void setBalancingMode(BalancingMode balancingMode);
+	void setFundamentalFrequencyMode(FundamentalFrequencyMode fundamentalFrequencyMode);
+	void setHarmonicCompensationMode(HarmonicCompensationMode harmonicCompensationMode);
 
 		//	void setShortCircuitHAndling(boolean b);
 
@@ -125,19 +128,20 @@ public interface GridconPcs {
 
 	double getEfficiencyLossDischargeFactor();
 	
-	// CCU Values
-	float getVoltageU1U2();
-	float getVoltageU2U3();
-	float getVoltageU3U1();
+	// Grid Measurement Values	
+	float getCurrentL1();
+	float getCurrentL2();
+	float getCurrentL3();
+	float getCurrentLN();
 	
-	float getCurrentIL1();
-	float getCurrentIL2();
-	float getCurrentIL3();
-	
-	float getPowerP();
-	float getPowerQ();
-	
-	float getFrequency();
+	float getActivePowerL1();
+	float getActivePowerL2();
+	float getActivePowerL3();
+	float getActivePowerSum();
+	float getReactivePowerL1();
+	float getReactivePowerL2();
+	float getReactivePowerL3();
+	float getReactivePowerSum();
 
 	// Gridcon is undefined if not all relevant gridcon values are set
 	boolean isUndefined();

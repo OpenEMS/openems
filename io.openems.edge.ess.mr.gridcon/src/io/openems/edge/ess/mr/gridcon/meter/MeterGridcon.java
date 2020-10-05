@@ -108,20 +108,22 @@ public class MeterGridcon extends AbstractOpenemsComponent
 			if (gridconPcs == null) {
 				return;
 			}
-			
-			_setVoltageL1((int) (gridconPcs.getVoltageU1U2() * 1000.0));
-			_setVoltageL2((int) (gridconPcs.getVoltageU2U3() * 1000.0));
-			_setVoltageL3((int) (gridconPcs.getVoltageU3U1() * 1000.0));
-			
-			_setCurrentL1((int) (gridconPcs.getCurrentIL1() * 1000.0));
-			_setCurrentL2((int) (gridconPcs.getCurrentIL2() * 1000.0));
-			_setCurrentL3((int) (gridconPcs.getCurrentIL3() * 1000.0));
+						
+			_setCurrentL1((int) (gridconPcs.getCurrentL1() * 1000.0));
+			_setCurrentL2((int) (gridconPcs.getCurrentL2() * 1000.0));
+			_setCurrentL3((int) (gridconPcs.getCurrentL3() * 1000.0));
+			_setCurrent((int) (gridconPcs.getCurrentLN() * 1000.0));
 
-			_setActivePower((int) (gridconPcs.getPowerP() * 1000.0));
-			_setReactivePower((int) (gridconPcs.getPowerQ() * 1000.0));			
-
-			_setFrequency((int) (gridconPcs.getFrequency() * 1000.0));			
+			_setActivePowerL1((int) (gridconPcs.getActivePowerL1()));
+			_setActivePowerL2((int) (gridconPcs.getActivePowerL2()));
+			_setActivePowerL3((int) (gridconPcs.getActivePowerL3()));
+			_setActivePower((int) (gridconPcs.getActivePowerSum()));
 			
+			_setReactivePowerL1((int) (gridconPcs.getReactivePowerL1()));
+			_setReactivePowerL2((int) (gridconPcs.getReactivePowerL2()));
+			_setReactivePowerL3((int) (gridconPcs.getReactivePowerL3()));
+			_setReactivePower((int) (gridconPcs.getReactivePowerSum()));			
+
 		} catch (OpenemsNamedException e) {		
 			System.out.println("Error while reading meter values from gridcon!\n" + e.getMessage());
 		}
