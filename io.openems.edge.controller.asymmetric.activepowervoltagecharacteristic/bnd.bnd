@@ -4,9 +4,7 @@ Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Export-Package: io.openems.edge.controller.api
 Private-Package: \
-	io.openems.edge.controller.asymmetric.activepowervoltagecharacteristic,\
-	io.openems.edge.controller.asymmetric.reactivepowervoltagecharacteristic,\
-	io.openems.edge.controller.asymmetric.powercharacteristic
+	io.openems.edge.controller.asymmetric.activepowervoltagecharacteristic
 
 -buildpath: \
 	${buildpath},\

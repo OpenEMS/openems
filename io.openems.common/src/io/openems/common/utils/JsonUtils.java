@@ -27,8 +27,8 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 
 public class JsonUtils {
 
@@ -724,6 +724,11 @@ public class JsonUtils {
 			j.addProperty(property, value);
 			return this;
 		}
+		
+		public JsonObjectBuilder addProperty(String property, double value) {
+			j.addProperty(property, value);
+			return this;
+		}
 
 		public JsonObjectBuilder addPropertyIfNotNull(String property, String value) {
 			if (value != null) {
@@ -747,6 +752,13 @@ public class JsonUtils {
 		}
 
 		public JsonObjectBuilder addPropertyIfNotNull(String property, Boolean value) {
+			if (value != null) {
+				j.addProperty(property, value);
+			}
+			return this;
+		}
+
+		public JsonObjectBuilder addPropertyIfNotNull(String property, Double value) {
 			if (value != null) {
 				j.addProperty(property, value);
 			}

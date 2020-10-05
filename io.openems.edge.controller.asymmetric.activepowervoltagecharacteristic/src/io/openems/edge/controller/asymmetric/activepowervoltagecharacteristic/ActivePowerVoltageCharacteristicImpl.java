@@ -24,12 +24,10 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.powercharacteristic.AbstractPowerCharacteristic;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.asymmetric.powercharacteristic.AbstractPowerCharacteristic;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.AsymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -38,13 +36,10 @@ import io.openems.edge.meter.api.AsymmetricMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ActivePowerVoltageCharacteristic extends AbstractPowerCharacteristic
+public class ActivePowerVoltageCharacteristicImpl extends AbstractPowerCharacteristic
 		implements Controller, OpenemsComponent {
 
-	private final Logger log = LoggerFactory.getLogger(ActivePowerVoltageCharacteristic.class);
-
-//	public static final String GREEN = "\u001B[32m";
-	private static final int WAIT_FOR_HYSTERESIS = 20;
+	private final Logger log = LoggerFactory.getLogger(ActivePowerVoltageCharacteristicImpl.class);
 
 	private LocalDateTime lastSetPowerTime = LocalDateTime.MIN;
 
@@ -52,8 +47,6 @@ public class ActivePowerVoltageCharacteristic extends AbstractPowerCharacteristi
 	 * nominal voltage in [mV].
 	 */
 	private float voltageRatio;
-	private float nominalVoltage;
-	private String powerConfig;
 	private Config config;
 
 	@Reference
@@ -90,11 +83,11 @@ public class ActivePowerVoltageCharacteristic extends AbstractPowerCharacteristi
 		}
 	}
 
-	public ActivePowerVoltageCharacteristic() {
+	public ActivePowerVoltageCharacteristicImpl() {
 		super();
 	}
 
-	public ActivePowerVoltageCharacteristic(Clock clock) {
+	public ActivePowerVoltageCharacteristicImpl(Clock clock) {
 		super(clock);
 	}
 
@@ -109,8 +102,6 @@ public class ActivePowerVoltageCharacteristic extends AbstractPowerCharacteristi
 			return;
 		}
 		this.config = config;
-		this.powerConfig = config.powerVoltConfig();
-		this.nominalVoltage = config.nominalVoltage() * 1000;
 	}
 
 	@Deactivate
@@ -120,33 +111,38 @@ public class ActivePowerVoltageCharacteristic extends AbstractPowerCharacteristi
 
 	@Override
 	public void run() throws OpenemsNamedException {
-
-		AsymmetricMeter gridMeter = componentManager.getComponent(this.config.meter_id());
-		Channel<Integer> gridLineVoltage = gridMeter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L1);
-
-		if (this.lastSetPowerTime.isAfter(LocalDateTime.now(super.clock).minusSeconds(WAIT_FOR_HYSTERESIS))) {
+		GridMode gridMode = this.ess.getGridMode();
+		if (gridMode.isUndefined()) {
+			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
+		}
+		switch (gridMode) {
+		case ON_GRID:
+		case UNDEFINED:
+			break;
+		case OFF_GRID:
+			return;
+		}
+		
+		if (this.lastSetPowerTime.isAfter(LocalDateTime.now(super.clock).minusSeconds(this.config.waitForHysteresis()))) {
 			return;
 		}
 		lastSetPowerTime = LocalDateTime.now(super.clock);
+		
+		AsymmetricMeter gridMeter = componentManager.getComponent(this.config.meter_id());
+		Channel<Integer> gridLineVoltage = gridMeter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L1);
 
-		this.voltageRatio = gridLineVoltage.value().orElse(0) / this.nominalVoltage;
-		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.voltageRatio);
-
+		this.voltageRatio = gridLineVoltage.value().orElse(0) / this.config.nominalVoltage()*1000;
+//		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.voltageRatio);
 		if (this.voltageRatio == 0) {
 			log.info("Voltage Ratio is 0");
 			return;
 		}
-
-		int calculatedPower = 0;
-
-		Integer power = super.getPowerLine(this.powerConfig, this.voltageRatio);
+		Integer power = getPowerLine(this.config.powerVoltConfig(), this.voltageRatio);
 		if (power == null) {
 			return;
 		}
-		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, power);
-		this.channel(ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
-		this.ess.addPowerConstraintAndValidate("ActivePowerVoltageCharacteristic", Phase.ALL, Pwr.ACTIVE,
-				Relationship.EQUALS, calculatedPower);
+//		this.channel(ChannelId.CALCULATED_POWER).setNextValue(power);
+		this.ess.setActivePowerEquals(power);
+		this.ess.setReactivePowerEquals(0);
 	}
-
 }
