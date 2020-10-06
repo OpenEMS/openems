@@ -28,17 +28,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.api.Status;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//

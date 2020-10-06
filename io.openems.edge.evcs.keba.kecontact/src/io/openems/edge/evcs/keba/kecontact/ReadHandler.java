@@ -1,5 +1,12 @@
 package io.openems.edge.evcs.keba.kecontact;
 
+import java.math.BigInteger;
+import java.util.Optional;
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -8,11 +15,6 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
-import java.util.Optional;
-import java.util.function.Consumer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Handles replys to Report Querys sent by {@link ReadWorker}.
@@ -65,6 +67,13 @@ public class ReadHandler implements Consumer<String> {
 					setString(KebaChannelId.SERIAL, jsonMessage, "Serial");
 					setString(KebaChannelId.FIRMWARE, jsonMessage, "Firmware");
 					setInt(KebaChannelId.COM_MODULE, jsonMessage, "COM-module");
+
+					Optional<String> dipSwitch1 = JsonUtils.getAsOptionalString(jsonMessage, "DIP-Sw1");
+					Optional<String> dipSwitch2 = JsonUtils.getAsOptionalString(jsonMessage, "DIP-Sw2");
+
+					if (dipSwitch1.isPresent() && dipSwitch2.isPresent()) {
+						checkDipSwitchSettings(dipSwitch1.get(), dipSwitch2.get());
+					}
 
 				} else if (id.equals("2")) {
 					/*
@@ -240,6 +249,70 @@ public class ReadHandler implements Consumer<String> {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Sets the associated channels depending on the dip-switches.
+	 * 
+	 * @param dipSwitch1 Block one with eight dip-switches
+	 * @param dipSwitch2 Block two with eight dip-switches
+	 */
+	private void checkDipSwitchSettings(String dipSwitch1, String dipSwitch2) {
+		dipSwitch1 = hexStringToBinaryString(dipSwitch1);
+		dipSwitch2 = hexStringToBinaryString(dipSwitch2);
+
+		this.parent.channel(KebaChannelId.DIP_SWITCH_1).setNextValue(dipSwitch1);
+		this.parent.channel(KebaChannelId.DIP_SWITCH_2).setNextValue(dipSwitch2);
+		
+		boolean setState = false;
+		boolean hasStaticIp = false;
+
+		// Set Channel for the communication
+		setState = dipSwitch1.charAt(2) == '1' ? false : true;
+		setnextStateChannelValue(KebaChannelId.DIP_SWITCH_ERROR_1_3_NOT_SET_FOR_COMM, setState);
+
+		// Is IP static or dynamic
+		int staticIpSum = Integer.parseInt(dipSwitch2.substring(0, 4));
+		hasStaticIp = staticIpSum > 0 ? true : false;
+
+		if (hasStaticIp) {
+			// Set Channel for "static IP dip-switch not set"
+			setState = dipSwitch2.charAt(5) == '1' ? false : true;
+			setnextStateChannelValue(KebaChannelId.DIP_SWITCH_ERROR_2_6_NOT_SET_FOR_STATIC_IP, setState);
+
+		} else {
+			// Set Channel for "static IP dip-switch wrongly set"
+			setState = dipSwitch2.charAt(5) == '1' ? true : false;
+			setnextStateChannelValue(KebaChannelId.DIP_SWITCH_ERROR_2_6_SET_FOR_DYNAMIC_IP, setState);
+		}
+
+		// Set Channel for "Master-Slave communication set"
+		setState = dipSwitch2.charAt(4) == '1' ? true : false;
+		setnextStateChannelValue(KebaChannelId.DIP_SWITCH_INFO_2_5_SET_FOR_MASTER_SLAVE_COMM, setState);
+
+		// Set Channel for "installation mode set"
+		setState = dipSwitch2.charAt(7) == '1' ? true : false;
+		setnextStateChannelValue(KebaChannelId.DIP_SWITCH_INFO_2_8_SET_FOR_INSTALLATION, setState);
+	}
+
+	/**
+	 * Set the next value of a KebaChannelId state channel.
+	 * 
+	 * @param channel Channel that needs to be set
+	 * @param bool    Value that will be set
+	 */
+	private void setnextStateChannelValue(KebaChannelId channel, boolean bool) {
+		this.parent.channel(channel).setNextValue(bool);
+	}
+
+	public String hexStringToBinaryString(String dipSwitches) {
+		dipSwitches = dipSwitches.replace("0x", "");
+		String binaryString = new BigInteger(dipSwitches, 16).toString(2);
+		int length = binaryString.length();
+		for (int i = 0; i < 8 - length; i++) {
+			binaryString = "0" + binaryString;
+		}
+		return binaryString;
 	}
 
 	private void set(KebaChannelId channelId, Object value) {

@@ -376,6 +376,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		return this.alias;
 	}
 
+	@Deprecated()
 	@Override
 	public Channel<?> _channel(String channelName) {
 		Channel<?> channel = this.channels.get(channelName);

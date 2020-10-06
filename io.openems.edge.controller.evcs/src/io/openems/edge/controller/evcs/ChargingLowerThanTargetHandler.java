@@ -1,6 +1,5 @@
 package io.openems.edge.controller.evcs;
 
-import java.time.Clock;
 import java.time.LocalDateTime;
 
 import io.openems.common.exceptions.InvalidValueException;
@@ -21,10 +20,10 @@ public class ChargingLowerThanTargetHandler {
 	private LocalDateTime lastChargingCheck = LocalDateTime.now();
 	private Integer maximumChargePower = null; // W
 
-	private final Clock clock;
+	private final EvcsControllerImpl parent;
 
-	public ChargingLowerThanTargetHandler(Clock clock) {
-		this.clock = clock;
+	public ChargingLowerThanTargetHandler(EvcsControllerImpl parent) {
+		this.parent = parent;
 	}
 
 	/**
@@ -38,7 +37,7 @@ public class ChargingLowerThanTargetHandler {
 	 */
 	protected boolean isLower(ManagedEvcs evcs) throws InvalidValueException {
 		if (this.lastChargingCheck.plusSeconds(CHECK_CHARGING_TARGET_DIFFERENCE_TIME)
-				.isBefore(LocalDateTime.now(this.clock))) {
+				.isBefore(LocalDateTime.now(this.parent.componentManager.getClock()))) {
 			if (this.isChargingLowerThanTarget(evcs)) {
 
 				this.outOfRangeCounter++;
