@@ -13,7 +13,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class PickDateComponent {
 
-    public disableArrow: boolean = null;
+    public disableArrow: boolean | null = null;
 
     private changePeriodTimeout = null;
     private edge: Edge | null = null;
@@ -82,6 +82,7 @@ export class PickDateComponent {
                     }
                     this.disableArrow = false;
                 }
+                break;
             }
             // case 'year': {
             //     if (isFuture(addYears(this.service.historyPeriod.from, 1))) {
