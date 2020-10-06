@@ -54,7 +54,7 @@ public class DelayedSellToGridImplTest {
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -10_000_000))//
 				.next(new TestCase() //
-						.output(STATE_MACHINE, State.UNDEFINED)//
+						.output(STATE_MACHINE, State.DO_NOTHING)//
 						.output(ESS_ACTIVE_POWER, 0)) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -12_500_001)) //
@@ -64,17 +64,17 @@ public class DelayedSellToGridImplTest {
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -10_500_000))//
 				.next(new TestCase() //
-						.output(STATE_MACHINE, State.UNDEFINED)//
+						.output(STATE_MACHINE, State.DO_NOTHING)//
 						.output(ESS_ACTIVE_POWER, 0)) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -6_000_000))//
 				.next(new TestCase() //
-						.output(STATE_MACHINE, State.UNDEFINED)//
+						.output(STATE_MACHINE, State.DO_NOTHING)//
 						.output(ESS_ACTIVE_POWER, 0)) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -2_000_000))//
 				.next(new TestCase() //
-						.output(STATE_MACHINE, State.UNDEFINED)//
+						.output(STATE_MACHINE, State.DO_NOTHING)//
 						.output(ESS_ACTIVE_POWER, 0)) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -499_999))//
@@ -99,8 +99,9 @@ public class DelayedSellToGridImplTest {
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -600_000))//
 				.next(new TestCase() //
-						.output(STATE_MACHINE, State.UNDEFINED)//
+						.output(STATE_MACHINE, State.DO_NOTHING)//
 						.output(ESS_ACTIVE_POWER, 0)) //
 		;
 	}
+
 }

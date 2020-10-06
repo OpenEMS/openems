@@ -3,7 +3,7 @@ package io.openems.edge.controller.ess.delayedselltogrid;
 import io.openems.common.types.OptionsEnum;
 
 public enum State implements OptionsEnum {
-	UNDEFINED(-1, "Undefined"), //
+	DO_NOTHING(-1, "DO_NOTHING"), //
 	ABOVE_SELL_TO_GRID_LIMIT(0, "Above Sell To Grid Limit"), //
 	UNDER_CONTINUOUS_SELL_TO_GRID(1, "Under Continuous Sell To Grid")//
 	;
@@ -28,6 +28,6 @@ public enum State implements OptionsEnum {
 
 	@Override
 	public OptionsEnum getUndefined() {
-		return UNDEFINED;
+		return DO_NOTHING;
 	}
 }
