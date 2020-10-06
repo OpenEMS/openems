@@ -32,7 +32,7 @@ import io.openems.edge.meter.api.AsymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.Symmetric.ActivePowerVoltageCharacteristic", //
+		name = "Controller.Asymmetric.ActivePowerVoltageCharacteristic", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
