@@ -1,3 +1,0 @@
-= io.openems.edge.controller.symmetric.reactivepowercharacteristic
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.symmetric.reactivepowercharacteristic[Source Code icon:github[]]
