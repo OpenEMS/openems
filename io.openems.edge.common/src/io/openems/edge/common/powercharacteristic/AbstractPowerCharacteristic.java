@@ -105,9 +105,7 @@ public abstract class AbstractPowerCharacteristic extends AbstractOpenemsCompone
 		} catch (NullPointerException e) {
 			throw new OpenemsException("Unable to set values [" + powerConfig + "] " + e.getMessage());
 		}
-
 		return voltagePowerMap;
-
 	}
 
 	public Integer getPowerLine(String powerConfig, float ratio) throws OpenemsNamedException {
@@ -124,7 +122,6 @@ public abstract class AbstractPowerCharacteristic extends AbstractOpenemsCompone
 		Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
 		Map<Float, Float> map = qCharacteristic.entrySet().stream().sorted(valueComparator)
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-		System.out.println(map);
 		List<Float> voltageList = new ArrayList<Float>(map.keySet());
 		List<Float> powerList = new ArrayList<Float>(map.values());
 		// if the grid voltage ratio in the list, return that point
