@@ -70,7 +70,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		super.setModbus(modbus);
 	}
 
-	private State state = State.UNDEFINED;
+	//private State state = State.UNDEFINED;
 
 	/**
 	 * Manages the {@link State}s of the StateMachine.
@@ -171,7 +171,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		return "SoC:" + this.getSoc() //
 				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
 				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
-				+ "|State:" + this.state.asCamelCase();
+				+ "|State:" + this.stateMachine.getCurrentState();
 	}
 
 	@Override
@@ -345,7 +345,10 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
-		// TODO Auto-generated method stub
+		if (this.startStopTarget.getAndSet(value) != value) {
+			// Set only if value changed
+			this.stateMachine.forceNextState(State.UNDEFINED);
+		}
 	}
 
 	@Override

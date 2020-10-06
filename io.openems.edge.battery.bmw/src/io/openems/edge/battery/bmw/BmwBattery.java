@@ -9,7 +9,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.bmw.enums.BmsState;
 import io.openems.edge.battery.bmw.enums.InfoBits;
-import io.openems.edge.battery.bmw.enums.State;
+import io.openems.edge.battery.bmw.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Doc;
