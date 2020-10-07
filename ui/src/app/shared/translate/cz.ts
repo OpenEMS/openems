@@ -11,6 +11,7 @@ export const TRANSLATION = {
         changeFailed: 'Změna se nezdařila',
         chargeDischarge: 'Debetní/vybíjení',
         chargePower: 'Nabíjecí výkon',
+        componentCount: 'Počet komponentů',
         componentInactive: 'Komponenta je neaktivní!',
         connectionLost: 'Spojení ztraceno. Pokouší se znovu připojit.',
         consumption: 'Spotřeba',
@@ -18,6 +19,7 @@ export const TRANSLATION = {
         currentName: 'Aktuální Jméno',
         currentValue: 'Aktuální hodnota',
         dateFormat: 'dd.MM.yyyy', // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
+        digitalInputs: 'Digitální vstupy',
         directConsumption: 'Přímá spotřeba',
         dischargePower: 'Vybíjecí výkon',
         fault: 'Chyba',

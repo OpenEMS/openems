@@ -56,11 +56,6 @@ export abstract class AbstractHistoryWidget {
                         let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses);
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             let result = (response as QueryHistoricTimeseriesDataResponse).result;
-                            if (this.checkAllowanceWidgetRefresh() == true) {
-                                this.subscribeWidgetRefresh();
-                            } else if (this.checkAllowanceWidgetRefresh() == false) {
-                                this.unsubscribeWidgetRefresh();
-                            }
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
                                 resolve(response as QueryHistoricTimeseriesDataResponse);
                             } else {
@@ -75,9 +70,6 @@ export abstract class AbstractHistoryWidget {
 
     /**
      * checks if widget is allowed to be refreshed
-     * is only allowed if last timestamp in query is current date
-     * 
-     * @param lastTimestamp last timestamp form query
      */
     protected checkAllowanceWidgetRefresh(): boolean {
         let currentDate = new Date();

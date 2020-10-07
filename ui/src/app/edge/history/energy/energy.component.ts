@@ -6,7 +6,6 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../
 import { ChartData, ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
 import { Component, Input, OnChanges } from '@angular/core';
-import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { differenceInDays, format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
 import { EnergyModalComponent } from './modal/modal.component';

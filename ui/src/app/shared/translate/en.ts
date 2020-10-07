@@ -11,6 +11,7 @@ export const TRANSLATION = {
         changeFailed: 'Change failed',
         chargeDischarge: 'Charge/Discharge power',
         chargePower: 'Charge power',
+        componentCount: 'Number of components',
         componentInactive: 'Component is not active!',
         connectionLost: 'Connection lost. Trying to reconnect.',
         consumption: 'Consumption',
@@ -18,6 +19,7 @@ export const TRANSLATION = {
         currentName: 'current name',
         currentValue: 'current value',
         dateFormat: 'yyyy-MM-dd', // e.g. German: dd.MM.yyyy (dd = Day, MM = Month, yyyy = Year)
+        digitalInputs: 'Digital Inputs',
         directConsumption: 'Direct consumption',
         dischargePower: 'Discharge power',
         fault: 'Fault',

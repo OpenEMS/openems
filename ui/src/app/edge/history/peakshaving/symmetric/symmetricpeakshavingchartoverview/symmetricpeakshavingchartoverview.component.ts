@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: SymmetricPeakshavingChartOverviewComponent.SELECTOR,
-    templateUrl: './symmetricpeakshavingchart.component.html'
+    templateUrl: './symmetricpeakshavingchartoverview.component.html'
 })
 export class SymmetricPeakshavingChartOverviewComponent {
 

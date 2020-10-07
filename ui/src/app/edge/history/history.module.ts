@@ -54,7 +54,7 @@ import { StorageESSChartComponent } from './storage/esschart.component';
 import { StorageSingleChartComponent } from './storage/singlechart.component';
 import { StorageTotalChartComponent } from './storage/totalchart.component';
 import { SymmetricPeakshavingChartComponent } from './peakshaving/symmetric/chart.component';
-import { SymmetricPeakshavingChartOverviewComponent } from './peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchart.component';
+import { SymmetricPeakshavingChartOverviewComponent } from './peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component';
 import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/widget.component';
 
 @NgModule({
@@ -65,7 +65,6 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     EnergyModalComponent,
   ],
   declarations: [
-    AsymmetricPeakshavingChartComponent,
     AsymmetricPeakshavingChartComponent,
     AsymmetricPeakshavingChartOverviewComponent,
     AsymmetricPeakshavingWidgetComponent,
