@@ -52,7 +52,7 @@ public class DelayChargeController extends AbstractOpenemsComponent implements C
 		}
 	}
 
-	protected DelayChargeController() {
+	public DelayChargeController() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //

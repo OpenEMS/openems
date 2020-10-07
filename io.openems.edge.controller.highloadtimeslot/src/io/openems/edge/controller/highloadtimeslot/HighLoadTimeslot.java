@@ -70,7 +70,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 		}
 	}
 
-	protected HighLoadTimeslot() {
+	public HighLoadTimeslot() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //

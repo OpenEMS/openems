@@ -13,7 +13,7 @@ import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.test.DummyManagedEvcs;
 
-public class EvcsControllerTest {
+public class EvcsControllerImplTest {
 
 	private static final String SUM_ID = "_sum";
 	private static final ChannelAddress SUM_GRID_ACTIVE_POWER = new ChannelAddress(SUM_ID, "GridActivePower");
@@ -36,7 +36,7 @@ public class EvcsControllerTest {
 
 	@Test
 	public void excessChargeTest1() throws Exception {
-		new ControllerTest(new EvcsController()) //
+		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -65,7 +65,7 @@ public class EvcsControllerTest {
 	// TODO needs fix by Sebastian Asen
 	// @Test
 	protected void excessChargeTest2() throws Exception {
-		new ControllerTest(new EvcsController()) //
+		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -96,7 +96,7 @@ public class EvcsControllerTest {
 	@Test
 	public void clusterTest() throws Exception {
 		final ComponentManager componentManager = new DummyComponentManager();
-		new ControllerTest(new EvcsController()) //
+		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
