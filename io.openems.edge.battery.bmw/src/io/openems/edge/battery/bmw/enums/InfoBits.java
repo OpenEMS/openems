@@ -4,7 +4,7 @@ import io.openems.common.types.OptionsEnum;
 
 public enum InfoBits implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	
+
 	;
 
 	private final int value;
