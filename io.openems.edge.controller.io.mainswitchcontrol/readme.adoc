@@ -1,0 +1,3 @@
+= io.openems.edge.controller.io.mainswitchcontrol
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.io.mainswitchcontrol[Source Code icon:github[]]
