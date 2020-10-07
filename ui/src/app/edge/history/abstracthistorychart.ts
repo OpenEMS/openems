@@ -8,7 +8,6 @@ import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { takeUntil, debounceTime, delay } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 
@@ -135,30 +134,11 @@ export abstract class AbstractHistoryChart {
     }
 
     /**
-     * Subscribes to 10 minute Interval Observable and Window Resize Observable to fetch new data and resize chart if needed
-     */
-    protected subscribeChartRefresh() {
-        // XXX DISABLED XXX
-
-        // if (this.checkAllowanceChartRefresh() == true) {
-        //     if (this.ngUnsubscribe.isStopped == true) {
-        //         this.ngUnsubscribe.isStopped = false;
-        //     }
-        //     this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-        //         this.updateChart()
-        //     })
-        //     this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
-        //         this.getChartHeight();
-        //     });
-        // }
-    }
-
-    /**
      * Subscribe to Chart Refresh if allowed
      * Unsubscribe to Chart Refresh if necessary
      */
     protected autoSubscribeChartRefresh() {
-        // XXX DISABLED XXX
+        // XXX disabled to reduce server load
 
         // if (this.hasSubscribed == false && this.checkAllowanceChartRefresh() == true) {
         //     if (this.ngUnsubscribe.isStopped == true) {
@@ -177,10 +157,10 @@ export abstract class AbstractHistoryChart {
     }
 
     /**
-     * Unsubscribes to 5 minute Interval Observable and Window Resize Observable
+     * Unsubscribes to 10 minute Interval Observable and Window Resize Observable
      */
     protected unsubscribeChartRefresh() {
-        // XXX DISABLED XXX
+        // XXX disabled to reduce server load
 
         // this.hasSubscribed = false;
         // this.ngUnsubscribe.next();
