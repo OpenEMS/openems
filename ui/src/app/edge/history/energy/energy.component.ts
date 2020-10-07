@@ -959,6 +959,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         }
       }
 
+      options.tooltips.callbacks.title = function (tooltipItems: TooltipItem[], data: Data): string {
+        let date = new Date(tooltipItems[0].xLabel);
+        return date.toLocaleDateString();
+      }
+
       // options.tooltips.callbacks.footer = function (item: ChartTooltipItem[], data: ChartData) {
       //   if (data.datasets.length == 6) {
       //     let isProduction: boolean | null = null;
