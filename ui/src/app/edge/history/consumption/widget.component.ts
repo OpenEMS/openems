@@ -19,6 +19,7 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
     public edge: Edge = null;
     public evcsComponents: EdgeConfig.Component[] = null;
     public consumptionMeterComponents: EdgeConfig.Component[] = null;
+    public totalOtherEnergy: number | null = null;
 
     constructor(
         public service: Service,
@@ -46,6 +47,16 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
             this.getChannelAddresses(this.edge, config).then(channels => {
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
                     this.data = response.result.data;
+
+                    //calculate other power
+                    let otherEnergy: number = 0;
+                    this.evcsComponents.forEach(component => {
+                        otherEnergy += this.data[component.id + '/EnergyTotal'];
+                    })
+                    this.consumptionMeterComponents.forEach(component => {
+                        otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'];
+                    })
+                    this.totalOtherEnergy = response.result.data["_sum/ConsumptionActiveEnergy"] - otherEnergy;
                 })
             });
         })
@@ -88,7 +99,7 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
     }
 
     public hasOtherPowerOnly(): boolean {
-        if (this.data["_sum/ConsumptionActiveEnergy"] == this.getTotalOtherEnergy()) {
+        if (this.data["_sum/ConsumptionActiveEnergy"] == this.totalOtherEnergy) {
             return true;
         } else {
             return false;

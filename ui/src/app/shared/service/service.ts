@@ -95,19 +95,19 @@ export class Service implements ErrorHandler {
   public browserLangToLangTag(browserLang: string): LanguageTag {
     switch (browserLang) {
       case "de": {
-        return "German" as LanguageTag
+        return LanguageTag.DE
       }
       case "en": {
-        return "English" as LanguageTag
+        return LanguageTag.EN
       }
       case "es": {
-        return "Spanish" as LanguageTag
+        return LanguageTag.ES
       }
       case "nl": {
-        return "Dutch" as LanguageTag
+        return LanguageTag.NL
       }
       case "cz": {
-        return "Czech" as LanguageTag
+        return LanguageTag.CZ
       }
       default: {
         return "German" as LanguageTag

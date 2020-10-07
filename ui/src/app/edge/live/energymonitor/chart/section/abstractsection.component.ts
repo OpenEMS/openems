@@ -164,6 +164,19 @@ export abstract class AbstractSection {
     }
 
     /**
+     * attr.fill="{{ fillRef }}" hast to be specific if using Safari (IOS Browser)
+     * otherwise Energymonitor wont be displayed correctly
+     */
+    protected adjustFillRefbyBrowser(): void {
+        if (navigator.vendor.match(/apple/i)) {
+            this.fillRef = "url(" + window.location.origin + window.location.pathname + "#" + this.sectionId + ")"
+        }
+        else {
+            this.fillRef = "url(#" + this.sectionId + ")"
+        }
+    }
+
+    /**
      * Gets the Start-Angle in Degree
      */
     protected abstract getStartAngle(): number;

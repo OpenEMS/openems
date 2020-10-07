@@ -1,4 +1,5 @@
 import { AsymmetricPeakshavingChartComponent } from './peakshaving/asymmetric/chart.component';
+import { AsymmetricPeakshavingChartOverviewComponent } from './peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component';
 import { AsymmetricPeakshavingWidgetComponent } from './peakshaving/asymmetric/widget.component';
 import { AutarchyChartComponent } from './autarchy/chart.component';
 import { AutarchyChartOverviewComponent } from './autarchy/autarchychartoverview/autarchychartoverview.component';
@@ -55,7 +56,6 @@ import { StorageTotalChartComponent } from './storage/totalchart.component';
 import { SymmetricPeakshavingChartComponent } from './peakshaving/symmetric/chart.component';
 import { SymmetricPeakshavingChartOverviewComponent } from './peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchart.component';
 import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/widget.component';
-import { AsymmetricPeakshavingChartOverviewComponent } from './peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component';
 
 @NgModule({
   imports: [
@@ -67,8 +67,8 @@ import { AsymmetricPeakshavingChartOverviewComponent } from './peakshaving/asymm
   declarations: [
     AsymmetricPeakshavingChartComponent,
     AsymmetricPeakshavingChartComponent,
-    AsymmetricPeakshavingWidgetComponent,
     AsymmetricPeakshavingChartOverviewComponent,
+    AsymmetricPeakshavingWidgetComponent,
     AutarchyChartComponent,
     AutarchyChartOverviewComponent,
     AutarchyWidgetComponent,
