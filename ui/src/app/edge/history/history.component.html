@@ -8,51 +8,51 @@
       </ion-col>
 
       <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
-        <ion-col *ngSwitchCase="'Storage'" size="12" size-lg="4" size-xl="2">
+        <ion-col *ngSwitchCase="'Storage'" size="12" size-md="6" size-lg="4" size-xl="3">
           <storageWidget [period]="service.historyPeriod"></storageWidget>
         </ion-col>
-        <ion-col *ngSwitchCase="'Production'" size="12" size-lg="4" size-xl="2">
+        <ion-col *ngSwitchCase="'Production'" size="12" size-md="6" size-lg="4" size-xl="3">
           <productionWidget [period]="service.historyPeriod"></productionWidget>
         </ion-col>
-        <ion-col *ngSwitchCase="'Grid'" size="12" size-lg="4" size-xl="2">
+        <ion-col *ngSwitchCase="'Grid'" size="12" size-md="6" size-lg="4" size-xl="3">
           <gridWidget [period]="service.historyPeriod"></gridWidget>
         </ion-col>
-        <ion-col *ngSwitchCase="'Consumption'" size="12" size-lg="4" size-xl="2">
+        <ion-col *ngSwitchCase="'Consumption'" size="12" size-md="6" size-lg="4" size-xl="3">
           <consumptionWidget [period]="service.historyPeriod"></consumptionWidget>
         </ion-col>
-        <ion-col *ngSwitchCase="'Selfconsumption'" size="12" size-lg="4" size-xl="2">
+        <ion-col *ngSwitchCase="'Selfconsumption'" size="12" size-md="6" size-lg="4" size-xl="3">
           <selfconsumptionWidget [period]="service.historyPeriod"></selfconsumptionWidget>
         </ion-col>
-        <ion-col *ngSwitchCase="'Autarchy'" size="12" size-lg="4" size-xl="2">
+        <ion-col *ngSwitchCase="'Autarchy'" size="12" size-md="6" size-lg="4" size-xl="3">
           <autarchyWidget [period]="service.historyPeriod"></autarchyWidget>
         </ion-col>
       </ng-container>
       <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
-        <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.ChannelThreshold'">
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.ChannelThreshold'">
           <channelthresholdWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
           </channelthresholdWidget>
         </ion-col>
-        <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.Io.FixDigitalOutput'">
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Io.FixDigitalOutput'">
           <fixDigitalOutputWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
           </fixDigitalOutputWidget>
         </ion-col>
-        <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.Symmetric.PeakShaving'">
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Symmetric.PeakShaving'">
           <symmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
           </symmetricPeakshavingWidget>
         </ion-col>
-        <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.Asymmetric.PeakShaving'">
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Asymmetric.PeakShaving'">
           <asymmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
           </asymmetricPeakshavingWidget>
         </ion-col>
-        <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'">
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'">
           <singlethresholdWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
           </singlethresholdWidget>
         </ion-col>
-        <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.IO.HeatingElement'">
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.IO.HeatingElement'">
           <heatingelementWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
           </heatingelementWidget>
         </ion-col>
-        <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.CHP.SoC'">
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.CHP.SoC'">
           <chpsocWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
           </chpsocWidget>
         </ion-col>

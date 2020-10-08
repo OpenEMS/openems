@@ -11,6 +11,7 @@ export const TRANSLATION = {
         changeFailed: 'Change failed',
         chargeDischarge: 'Charge/Discharge power',
         chargePower: 'Charge power',
+        componentCount: 'Number of components',
         componentInactive: 'Component is not active!',
         connectionLost: 'Connection lost. Trying to reconnect.',
         consumption: 'Consumption',
@@ -18,6 +19,7 @@ export const TRANSLATION = {
         currentName: 'current name',
         currentValue: 'current value',
         dateFormat: 'yyyy-MM-dd', // e.g. German: dd.MM.yyyy (dd = Day, MM = Month, yyyy = Year)
+        digitalInputs: 'Digital Inputs',
         dischargePower: 'Discharge power',
         fault: 'Fault',
         grid: 'Grid',
@@ -85,12 +87,12 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'About OpenEMS UI',
-        edgeSettings: 'FEMS Settings',
+        edgeSettings: 'OpenEMS Edge Settings',
         generalSettings: 'General Settings',
         index: 'Index',
         logout: 'Sign Out',
         menu: 'Menu',
-        overview: 'FEMS Overview',
+        overview: 'OpenEMS Edge Overview',
     },
     Index: {
         allConnected: 'All connections established.',
