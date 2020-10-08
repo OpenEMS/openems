@@ -1,9 +1,8 @@
 import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, ToastController } from '@ionic/angular';
+import { ToastController, ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Cookie } from 'ng2-cookies';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
 import { Edge } from '../edge/edge';
@@ -17,6 +16,7 @@ import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { AdvertWidgets, Widgets } from '../type/widget';
 import { DefaultTypes } from './defaulttypes';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -423,7 +423,7 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * checks if fems is allowed to show kWh
+   * Checks if this Edge is allowed to show kWh values
    */
   public isKwhAllowed(edge: Edge): boolean {
     if (!edge) {
@@ -464,7 +464,6 @@ export class Service implements ErrorHandler {
     }
     return false;
   }
-
 
 
   /**
