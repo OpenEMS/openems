@@ -12,7 +12,7 @@ public enum CcuState implements OptionsEnum {
 	GO_IDLE_CURRENTLY_NOT_WORKING(4, "GO_IDLE"), // = 4, // System changes STATE_IDLE
 	CHARGED_CURRENTLY_NOT_WORKING(5, "CHARGED"), // = 5, // IPU StateObject
 	READY_CURRENTLY_NOT_WORKING(6, "READY"), // = 6, // IPU StateObject
-	RUN_CURRENTLY_NOT_WORKING(7, "RUN"), // = 7, // IPU StateObject
+	RUN(7, "RUN"), // = 7, // IPU StateObject
 	ERROR(8, "ERROR"), // = 8, // System in ErrorState
 	PAUSE_CURRENTLY_NOT_WORKING(9, "PAUSE"), // = 9, // System Pause, Maincontactor closed, IGBTs are switching"
 	SYNC_TO_V(10, "SYNC_TO_V"), // = 10, System synchronized to net

@@ -12,13 +12,16 @@ import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
  *
  */
 public interface GridconPcs {
-
+	
 	public static final int MAX_POWER_PER_INVERTER = 42_000;
 	public static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
 	public static final float Q_LIMIT = 1f;
 	public static final int POWER_PRECISION_WATT = 1; // 100 TODO estimated value;
 	public static final float DEFAULT_GRID_FREQUENCY = 50;
 	public static final float DEFAULT_GRID_VOLTAGE = 230;
+	
+	public static final Float NOMINAL_CURRENT_PER_UNIT = 60f;
+	public static final Float NOMINAL_POWER_PER_UNIT = (float) MAX_POWER_PER_INVERTER;
 
 	float getMaxApparentPower();
 
@@ -138,10 +141,16 @@ public interface GridconPcs {
 	float getActivePowerL2();
 	float getActivePowerL3();
 	float getActivePowerSum();
+	
 	float getReactivePowerL1();
 	float getReactivePowerL2();
 	float getReactivePowerL3();
 	float getReactivePowerSum();
+	
+	float getApparentPowerL1();
+	float getApparentPowerL2();
+	float getApparentPowerL3();
+	float getApparentPowerSum();
 
 	// Gridcon is undefined if not all relevant gridcon values are set
 	boolean isUndefined();

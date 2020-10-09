@@ -10,7 +10,9 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.FloatDoc;
 import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.LongDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.LongWriteChannel;
 
 /**
  * This enum holds every possible channel id for a gridcon.
@@ -134,10 +136,10 @@ public enum GridConChannelId implements ChannelId {
 	GRID_MEASUREMENT_I_L3(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 	GRID_MEASUREMENT_I_LN(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 	
-	GRID_MEASUREMENT_P_L1(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
-	GRID_MEASUREMENT_P_L2(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
-	GRID_MEASUREMENT_P_L3(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
-	GRID_MEASUREMENT_P_SUM(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
+	GRID_MEASUREMENT_S_L1(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
+	GRID_MEASUREMENT_S_L2(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
+	GRID_MEASUREMENT_S_L3(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
+	GRID_MEASUREMENT_S_SUM(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
 	
 	GRID_MEASUREMENT_Q_L1(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 	GRID_MEASUREMENT_Q_L2(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT_AMPERE_REACTIVE)), //
@@ -236,10 +238,10 @@ public enum GridConChannelId implements ChannelId {
 			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1_DEBUG))),
-	COMMAND_ERROR_CODE_FEEDBACK_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), //
-	COMMAND_ERROR_CODE_FEEDBACK(new IntegerDoc() //
+	COMMAND_ERROR_CODE_FEEDBACK_DEBUG(Doc.of(OpenemsType.LONG).unit(Unit.NONE)), //
+	COMMAND_ERROR_CODE_FEEDBACK(new LongDoc() //
 			.accessMode(AccessMode.READ_WRITE)
-			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(GridConChannelId.COMMAND_ERROR_CODE_FEEDBACK_DEBUG))),
+			.onInit(new LongWriteChannel.MirrorToDebugChannel(GridConChannelId.COMMAND_ERROR_CODE_FEEDBACK_DEBUG))),
 
 	COMMAND_CONTROL_PARAMETER_U0_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
 	/**

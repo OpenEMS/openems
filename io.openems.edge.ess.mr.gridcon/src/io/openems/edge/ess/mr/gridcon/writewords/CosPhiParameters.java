@@ -2,7 +2,7 @@ package io.openems.edge.ess.mr.gridcon.writewords;
 
 public class CosPhiParameters {
 
-	public static int COS_PHI_ADDRESS = 32752;
+	public static final int COS_PHI_ADDRESS = 32752;
 
 	public CosPhiParameters() {
 

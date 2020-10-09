@@ -66,9 +66,12 @@ import io.openems.edge.ess.mr.gridcon.writewords.IpuParameter;
 public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, GridconPcs {
 
 	private static final int START_ADDRESS_GRID_MEASUREMENTS = 33456; // TODO CHECK if it is varible
-	private static final int START_ADDRESS_DCDC_MEASUREMENTS_WITH_TWO_IPUS = 33552;
-	private static final int START_ADDRESS_DCDC_MEASUREMENTS_WITH_ONE_IPU = 33520;
-	private static final int START_ADDRESS_DCDC_MEASUREMENTS_WITH_THREE_IPUS = 33584;
+	
+	private static final int START_ADDRESS_DCDC_MEASUREMENTS = 33488;
+//	private static final int START_ADDRESS_DCDC_MEASUREMENTS_WITH_ONE_IPU = 33520;
+//	private static final int START_ADDRESS_DCDC_MEASUREMENTS_WITH_TWO_IPUS = 33552;
+//	private static final int START_ADDRESS_DCDC_MEASUREMENTS_WITH_THREE_IPUS = 33584;
+	
 	private static final int START_ADDRESS_DCDC_STATE_WITH_TWO_IPUS = 33232;
 	private static final int START_ADDRESS_DCDC_STATE_WITH_ONE_IPU = 33200;
 	private static final int START_ADDRESS_DCDC_STATE_WITH_THREE_IPUS = 33264;
@@ -173,7 +176,34 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 		CcuState state = ((EnumReadChannel) this.channel(GridConChannelId.CCU_STATE)).value().asEnum();
 		IntegerReadChannel errorCountChannel = this.channel(GridConChannelId.CCU_ERROR_COUNT);
 		int errorCount = errorCountChannel.value().orElse(-1);
-		return "Gridcon CCU state: " + state + "; Error count: " + errorCount + "; Active Power: " + getActivePower();
+		return "Gridcon CCU state: " + state + "; Error count: " + errorCount + "; Active Power: " + getActivePower() + getGridMeasureMents();
+		
+	}
+
+	private String getGridMeasureMents() {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("\ngetCurrentL1(): " +getCurrentL1());
+		sb.append("\ngetCurrentL2(): " +getCurrentL2());
+		sb.append("\ngetCurrentL3(): " +getCurrentL3());
+		sb.append("\ngetCurrentLN(): " +getCurrentLN());
+		
+		sb.append("\ngetApparentPowerL1(): " +getApparentPowerL1());
+		sb.append("\ngetApparentPowerL2(): " +getApparentPowerL2());
+		sb.append("\ngetApparentPowerL3(): " +getApparentPowerL3());
+		sb.append("\ngetApparentPowerSum(): " +getApparentPowerSum());
+		
+		sb.append("\ngetActivePowerL1(): " +getActivePowerL1());
+		sb.append("\ngetActivePowerL2(): " +getActivePowerL2());
+		sb.append("\ngetActivePowerL3(): " +getActivePowerL3());
+		sb.append("\ngetActivePowerSum(): " +getActivePowerSum());
+		
+		sb.append("\ngetReactivePowerL1(): " +getReactivePowerL1());
+		sb.append("\ngetReactivePowerL2(): " +getReactivePowerL2());
+		sb.append("\ngetReactivePowerL3(): " +getReactivePowerL3());
+		sb.append("\ngetReactivePowerSum(): " +getReactivePowerSum());
+
+		return sb.toString();
 	}
 
 	@Override
@@ -525,18 +555,15 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 										.wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.CONTROL_PARAMETER_P_U_MAX_DISCHARGE,
 								new FloatDoublewordElement(CcuParameters2.CCU_PARAMETERS_2_ADRESS + 18)
-										.wordOrder(WordOrder.LSWMSW)) //						
-				), 
-				
-				new FC16WriteRegistersTask(CcuParameters2.CCU_PARAMETERS_2_ADRESS + 20, //
-						m(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_MODE,
-								new UnsignedDoublewordElement(CcuParameters2.CCU_PARAMETERS_2_ADRESS + 26)
+										.wordOrder(WordOrder.LSWMSW)), //						
+							m(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_MODE,
+								new UnsignedDoublewordElement(CcuParameters2.CCU_PARAMETERS_2_ADRESS + 20)
 								.wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_LIM_TWO,
-								new FloatDoublewordElement(CcuParameters2.CCU_PARAMETERS_2_ADRESS + 28)
+								new FloatDoublewordElement(CcuParameters2.CCU_PARAMETERS_2_ADRESS + 22)
 								.wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_LIM_ONE,
-								new FloatDoublewordElement(CcuParameters2.CCU_PARAMETERS_2_ADRESS + 30)
+								new FloatDoublewordElement(CcuParameters2.CCU_PARAMETERS_2_ADRESS + 24)
 								.wordOrder(WordOrder.LSWMSW)) //
 				),
 				
@@ -838,16 +865,14 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 			
 
 			int startAddressDcDcState = START_ADDRESS_DCDC_STATE_WITH_THREE_IPUS;
-			int startAddressDcdcMeasurements = START_ADDRESS_DCDC_MEASUREMENTS_WITH_THREE_IPUS;
+			int startAddressDcdcMeasurements = START_ADDRESS_DCDC_MEASUREMENTS;
 			int startAddressGridMeasurements = START_ADDRESS_GRID_MEASUREMENTS;
 			switch (this.inverterCount) {
 			case ONE:
 				startAddressDcDcState = START_ADDRESS_DCDC_STATE_WITH_ONE_IPU;
-				startAddressDcdcMeasurements = START_ADDRESS_DCDC_MEASUREMENTS_WITH_ONE_IPU;
 				break;
 			case TWO:
 				startAddressDcDcState = START_ADDRESS_DCDC_STATE_WITH_TWO_IPUS;
-				startAddressDcdcMeasurements = START_ADDRESS_DCDC_MEASUREMENTS_WITH_TWO_IPUS;
 				break;
 			case THREE:
 				// default
@@ -855,7 +880,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 			}
 
 			result.addTasks(					
-					new FC3ReadRegistersTask(startAddressGridMeasurements, Priority.LOW,
+					new FC3ReadRegistersTask(startAddressGridMeasurements, Priority.HIGH,
 							m(GridConChannelId.GRID_MEASUREMENT_I_L1,
 									new FloatDoublewordElement(startAddressGridMeasurements).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.GRID_MEASUREMENT_I_L2,
@@ -864,22 +889,22 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 									new FloatDoublewordElement(startAddressGridMeasurements + 4).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.GRID_MEASUREMENT_I_LN,
 									new FloatDoublewordElement(startAddressGridMeasurements + 6).wordOrder(WordOrder.LSWMSW)), //
-							m(GridConChannelId.GRID_MEASUREMENT_P_L1,
-									new FloatDoublewordElement(startAddressGridMeasurements + 8).wordOrder(WordOrder.LSWMSW)), //
-							m(GridConChannelId.GRID_MEASUREMENT_P_L2,
-									new FloatDoublewordElement(startAddressGridMeasurements + 10).wordOrder(WordOrder.LSWMSW)), //
-							m(GridConChannelId.GRID_MEASUREMENT_P_L3,
-									new FloatDoublewordElement(startAddressGridMeasurements + 12).wordOrder(WordOrder.LSWMSW)), //
-							m(GridConChannelId.GRID_MEASUREMENT_P_SUM,
-									new FloatDoublewordElement(startAddressGridMeasurements + 14).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.GRID_MEASUREMENT_Q_L1,
-									new FloatDoublewordElement(startAddressGridMeasurements + 16).wordOrder(WordOrder.LSWMSW)), //
+									new FloatDoublewordElement(startAddressGridMeasurements + 8).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.GRID_MEASUREMENT_Q_L2,
-									new FloatDoublewordElement(startAddressGridMeasurements + 18).wordOrder(WordOrder.LSWMSW)), //
+									new FloatDoublewordElement(startAddressGridMeasurements + 10).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.GRID_MEASUREMENT_Q_L3,
-									new FloatDoublewordElement(startAddressGridMeasurements + 20).wordOrder(WordOrder.LSWMSW)), //
+									new FloatDoublewordElement(startAddressGridMeasurements + 12).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.GRID_MEASUREMENT_Q_SUM,
-									new FloatDoublewordElement(startAddressGridMeasurements + 22).wordOrder(WordOrder.LSWMSW)) //
+									new FloatDoublewordElement(startAddressGridMeasurements + 14).wordOrder(WordOrder.LSWMSW)), //
+							m(GridConChannelId.GRID_MEASUREMENT_S_L1,
+									new FloatDoublewordElement(startAddressGridMeasurements + 16).wordOrder(WordOrder.LSWMSW)), //
+							m(GridConChannelId.GRID_MEASUREMENT_S_L2,
+									new FloatDoublewordElement(startAddressGridMeasurements + 18).wordOrder(WordOrder.LSWMSW)), //
+							m(GridConChannelId.GRID_MEASUREMENT_S_L3,
+									new FloatDoublewordElement(startAddressGridMeasurements + 20).wordOrder(WordOrder.LSWMSW)), //
+							m(GridConChannelId.GRID_MEASUREMENT_S_SUM,
+									new FloatDoublewordElement(startAddressGridMeasurements + 22).wordOrder(WordOrder.LSWMSW)) //							
 					)					
 			);
 			
@@ -1310,7 +1335,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 
 	@Override
 	public boolean isRunning() {
-		return getCcuState() == CcuState.COMPENSATOR;
+		return getCcuState() == CcuState.RUN || getCcuState() == CcuState.COMPENSATOR;
 	}
 
 	@Override
@@ -1448,73 +1473,107 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 	@Override
 	public float getCurrentL1() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_I_L1); 
-		return c.value().orElse(0f);
+		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_CURRENT_PER_UNIT;
 	}
 
 	@Override
 	public float getCurrentL2() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_I_L2); 
-		return c.value().orElse(0f);
+		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_CURRENT_PER_UNIT;
 	}
 
 	@Override
 	public float getCurrentL3() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_I_L3); 
-		return c.value().orElse(0f);	
+		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_CURRENT_PER_UNIT;	
 	}
 
 	@Override
 	public float getCurrentLN() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_I_LN); 
-		return c.value().orElse(0f);	
+		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_CURRENT_PER_UNIT;	
 	}
 
 	@Override
 	public float getActivePowerL1() {
-		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_P_L1); 
-		return c.value().orElse(0f);	
+		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_S_L1);
+		float s = c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+		float p = (float) Math.sqrt(s * s - getReactivePowerL1() * getReactivePowerL1());
+		return p;
 	}
 
 	@Override
 	public float getActivePowerL2() {
-		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_P_L2); 
-		return c.value().orElse(0f);	
+		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_S_L1);
+		float s = c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+		float p = (float) Math.sqrt(s * s - getReactivePowerL2() * getReactivePowerL2());
+		return p;
 	}	
 
 	@Override
 	public float getActivePowerL3() {
-		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_P_L3); 
-		return c.value().orElse(0f);	
+		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_S_L1);
+		float s = c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+		float p = (float) Math.sqrt(s * s - getReactivePowerL3() * getReactivePowerL3());
+		return p;
+
 	}	
 
 	@Override
 	public float getActivePowerSum() {
-		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_P_SUM); 
-		return c.value().orElse(0f);	
+		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_S_L1);
+		float s = c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+		float p = (float) Math.sqrt(s * s - getReactivePowerSum() * getReactivePowerSum());
+		return p;
+
 	}
 
 	@Override
 	public float getReactivePowerL1() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_Q_L1); 
-		return c.value().orElse(0f);
+		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
 	}
 
 	@Override
 	public float getReactivePowerL2() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_Q_L2); 
-		return c.value().orElse(0f);
+		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
 	}
 
 	@Override
 	public float getReactivePowerL3() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_Q_L3); 
-		return c.value().orElse(0f);
+		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
 	}
 
 	@Override
 	public float getReactivePowerSum() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_Q_SUM); 
-		return c.value().orElse(0f);
+		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+	}
+
+	@Override
+	public float getApparentPowerL1() {
+		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_S_L1);
+		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+	}
+
+	@Override
+	public float getApparentPowerL2() {
+		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_S_L2);
+		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+	}
+
+	@Override
+	public float getApparentPowerL3() {
+		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_S_L3);
+		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+	}
+
+	@Override
+	public float getApparentPowerSum() {
+		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_S_SUM);
+		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
 	}
 
 }

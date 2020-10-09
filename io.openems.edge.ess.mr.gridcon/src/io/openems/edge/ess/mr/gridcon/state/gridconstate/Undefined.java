@@ -1,5 +1,7 @@
 package io.openems.edge.ess.mr.gridcon.state.gridconstate;
 
+import java.time.LocalDateTime;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +12,9 @@ import io.openems.edge.ess.mr.gridcon.IState;
 public class Undefined extends BaseState {
 
 	private final Logger log = LoggerFactory.getLogger(Undefined.class);
+
+	private int timeSecondsToWaitWhenUndefined = 70;
+	private LocalDateTime lastMethodCall;
 
 	public Undefined(ComponentManager manager, String gridconPcsId, String b1Id, String b2Id, String b3Id,
 			String hardRestartRelayAdress) {
@@ -25,23 +30,36 @@ public class Undefined extends BaseState {
 	public IState getNextState() {
 		// According to the state machine the next state can be STOPPED, ERROR, RUN or
 		// UNDEFINED
-		if (isNextStateUndefined()) {
-			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED;
+
+		io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState stateToReturn = io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED;
+
+		if (lastMethodCall == null) {
+			lastMethodCall = LocalDateTime.now();
 		}
 
-		if (isNextStateError()) {
-			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.ERROR;
+		if (lastMethodCall.plusSeconds(timeSecondsToWaitWhenUndefined).isBefore(LocalDateTime.now())) {
+
+			if (isNextStateUndefined()) {
+				stateToReturn = io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED;
+			}
+
+			if (isNextStateError()) {
+				stateToReturn = io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.ERROR;
+			}
+
+			if (isNextStateRunning()) {
+				stateToReturn = io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.RUN;
+			}
+
+			if (isNextStateStopped()) {
+				stateToReturn = io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.STOPPED;
+			}
+		}
+		if (stateToReturn != io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED) {
+			lastMethodCall = null;
 		}
 
-		if (isNextStateRunning()) {
-			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.RUN;
-		}
-
-		if (isNextStateStopped()) {
-			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.STOPPED;
-		}
-
-		return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED;
+		return stateToReturn;
 	}
 
 	@Override

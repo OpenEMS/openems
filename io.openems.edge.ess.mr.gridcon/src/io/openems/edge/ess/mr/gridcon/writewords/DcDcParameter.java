@@ -2,7 +2,7 @@ package io.openems.edge.ess.mr.gridcon.writewords;
 
 public class DcDcParameter {
 
-	public static int DC_DC_ADRESS = 32720;
+	public static final int DC_DC_ADRESS = 32720;
 
 	// 32720
 	public DcDcParameter() {
