@@ -16,7 +16,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
@@ -29,6 +28,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.types.OpenemsType;
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -57,6 +57,8 @@ public class BackendApi extends AbstractOpenemsComponent
 
 	protected final BackendWorker worker = new BackendWorker(this);
 
+	protected final ResendHistoricData historicData = new ResendHistoricData(this);
+
 	protected final ApiWorker apiWorker = new ApiWorker();
 
 	private final Logger log = LoggerFactory.getLogger(BackendApi.class);
@@ -66,16 +68,22 @@ public class BackendApi extends AbstractOpenemsComponent
 	protected boolean debug = false;
 
 	// Used for SubscribeSystemLogRequests
-	private boolean isSystemLogSubscribed = false;
+	protected boolean isSystemLogSubscribed = false;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
+	@Reference(policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	protected Timedata timedata;
 
 	@Reference
 	protected ComponentManager componentManager;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
+		SUCCESSFULLY_SENT(Doc.of(OpenemsType.BOOLEAN) //
+				.text(" sending to Backend was successful ")), //
+		LAST_RESEND_DATA(Doc.of(OpenemsType.LONG) //
+				.text("last timestamp data sent to backend")),
+		BACKEND_CONNECTED(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Connected to the backend."));
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -136,6 +144,9 @@ public class BackendApi extends AbstractOpenemsComponent
 
 		// Activate worker
 		this.worker.activate(config.id());
+
+		// Activate Historic Data Resend;
+		this.historicData.activate(config.id());
 	}
 
 	@Deactivate
@@ -196,6 +207,7 @@ public class BackendApi extends AbstractOpenemsComponent
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.worker.triggerNextRun();
+			this.historicData.triggerNextRun();
 			break;
 
 		case EdgeEventConstants.TOPIC_CONFIG_UPDATE:

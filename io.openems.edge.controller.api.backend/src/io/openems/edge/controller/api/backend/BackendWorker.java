@@ -26,6 +26,7 @@ import io.openems.edge.common.type.slidingvalue.LatestSlidingValue;
 import io.openems.edge.common.type.slidingvalue.LongSlidingValue;
 import io.openems.edge.common.type.slidingvalue.ShortSlidingValue;
 import io.openems.edge.common.type.slidingvalue.SlidingValue;
+import io.openems.edge.controller.api.backend.BackendApi.ChannelId;
 
 class BackendWorker extends AbstractCycleWorker {
 
@@ -140,6 +141,9 @@ class BackendWorker extends AbstractCycleWorker {
 			}
 
 			canSendFromCache = wasSent;
+
+			// Update the successful_sent Channel
+			this.parent.channel(ChannelId.SUCCESSFULLY_SENT).setNextValue(wasSent);
 		} else {
 			canSendFromCache = true;
 		}

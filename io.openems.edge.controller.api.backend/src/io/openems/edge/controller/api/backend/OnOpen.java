@@ -8,6 +8,8 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.types.EdgeConfig;
+import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.controller.api.backend.BackendApi.ChannelId;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
@@ -21,6 +23,12 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 	@Override
 	public void run(WebSocket ws, JsonObject handshake) {
 		this.parent.logInfo(this.log, "Connected to OpenEMS Backend");
+
+		this.parent.channel(ChannelId.BACKEND_CONNECTED).setNextValue(true);
+
+		BooleanReadChannel status = this.parent.channel(ChannelId.BACKEND_CONNECTED);
+
+		log.info("Backend Connected Channel: " + status.getNextValue().get());
 
 		// Immediately send Config
 		EdgeConfig config = this.parent.componentManager.getEdgeConfig();
