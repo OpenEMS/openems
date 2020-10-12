@@ -6,7 +6,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -31,6 +30,9 @@ class ResendHistoricData extends AbstractCycleWorker {
 
 	private BackendApi parent;
 
+	// Counts the number of Cycles till data is sent to Backend.
+	private int cycleCount = 0;
+
 	public ResendHistoricData(BackendApi parent) {
 		this.parent = parent;
 	}
@@ -48,6 +50,18 @@ class ResendHistoricData extends AbstractCycleWorker {
 	@Override
 	protected void forever() throws Throwable {
 
+		// Increase CycleCount
+		if (++this.cycleCount < this.parent.noOfCycles) {
+			// Stop here if not reached CycleCount
+			return;
+		}
+
+		/*
+		 * Reached CycleCount -> Send data
+		 */
+		// Reset CycleCount
+		this.cycleCount = 0;
+
 		BooleanReadChannel connectionStatus = this.parent.channel(ChannelId.BACKEND_CONNECTED);
 
 		log.info("Backend Connected Channel: " + connectionStatus.getNextValue().get());
@@ -59,126 +73,72 @@ class ResendHistoricData extends AbstractCycleWorker {
 
 	private void resendHistoricData() throws OpenemsNamedException {
 
+		// Time stamp last time when the data was resent to the backend.
+		LongReadChannel lastResendtimeStamp = this.parent.channel(ChannelId.LAST_RESEND_DATA);
+ 
 		ZonedDateTime fromDate;
 		ZonedDateTime toDate = ZonedDateTime.now();
 
-		LongReadChannel lastResendData = this.parent.channel(ChannelId.LAST_RESEND_DATA);
+		//check if it is the first time the logic is working.
+		if (lastResendtimeStamp.value().get() == null) {
 
-		// store the channels that need to be queried.
-		TreeSet<ChannelAddress> channels = new TreeSet<>();
+			log.info("last Sent data is Null, and executing for the very forst time");
+
+			fromDate = ZonedDateTime.of(2020, 07, 01, 00, 00, 00, 00, ZoneId.of("UTC"));
+		} else {
+			Instant istant = Instant.ofEpochMilli(lastResendtimeStamp.value().get());
+			fromDate = ZonedDateTime.ofInstant(istant, ZoneId.of("UTC"));
+		}
+
+		/*
+		 * Query all the data from July 1st till now.. Experimenting for now, later we
+		 * change the from date
+		 */
+		queryHistoricData(fromDate, toDate);
+
+	}
+
+	private void queryHistoricData(ZonedDateTime fromDate, ZonedDateTime toDate) throws OpenemsNamedException {
 
 		// Prepare message values and create JSON-RPC notification
 		TimestampedDataNotification message = new TimestampedDataNotification();
 
-		if (lastResendData.value().get() == null) {
+		//
+		List<TimestampedDataNotification> messageList = new ArrayList<>();
 
-			log.info("last Sent data is Null, and executing for the very forst time");
+		// store the channels that need to be queried.
+		TreeSet<ChannelAddress> channels = new TreeSet<>();
 
-			// Executing for the first time.
-			fromDate = ZonedDateTime.of(2020, 07, 01, 00, 00, 00, 00, ZoneId.of("UTC"));
-			// toDate = ZonedDateTime.of(2020, 07, 14, 11, 00, 00, 00, ZoneId.of("UTC"));
+		// Stores all the channels we want values. We are now concentrating only on
+		// certain values.
+		channels = this.getAddresses();
 
-			// Stores all the channels we want values. We are now concentrating only on
-			// certain values.
-			channels = this.getAddresses();
+		this.parent.timedata.queryHistoricData(null, fromDate, toDate, channels, 10).entrySet() //
+				.forEach(entry -> {
+					SortedMap<ChannelAddress, JsonElement> values = new TreeMap<>();
 
-			/*
-			 * Query all the data from July 1st till now.. Experimenting for now, later we
-			 * change the from date
-			 */
-
-			this.parent.timedata.queryHistoricData("query", fromDate, toDate, channels, 10).entrySet()
-					.forEach(entry -> {
-						SortedMap<ChannelAddress, JsonElement> values = new TreeMap<>();
-						entry.getValue().entrySet().forEach(entryMap -> {
-
-							// Check for null and send only non null values.
-							if (!entryMap.getValue().isJsonNull()) {
-								values.put(entryMap.getKey(), entryMap.getValue());
-								long timestamp = entry.getKey().toLocalDateTime().toInstant(ZoneOffset.UTC)
-										.toEpochMilli();
-								message.add(timestamp, values);
-//									log.info(" timestamp " + timestamp + " Values " + values);
-							}
-						});
+					entry.getValue().entrySet().forEach(valueEntry -> {
+						if (!valueEntry.getValue().isJsonNull()) {
+							values.put(valueEntry.getKey(), valueEntry.getValue());
+							long timestamp = entry.getKey() //
+									.toLocalDateTime() //
+									.toInstant(ZoneOffset.UTC) //
+									.toEpochMilli();
+							message.add(timestamp, values);
+						}
 					});
+
+					if (message.getData().size() > 24) {
+						messageList.add(message);
+						message.getData().clear();
+					}
+				});
+
+		for (TimestampedDataNotification data : messageList) {
+
 			// Send the JsonRPC request
-			this.sendMessage(message);
+			this.sendMessage(data);
 
-		} else {
-
-			/**
-			 * extract the values from queried data only during the time when the
-			 * successfully sent is false
-			 */
-			BooleanReadChannel successfullySentChannel = this.parent.channel(ChannelId.SUCCESSFULLY_SENT);
-
-			// List of blocks of timestamps when successfully sent is false.
-			List<Map<ZonedDateTime, Boolean>> successfullyNotSent = new ArrayList<>();
-
-			// add the successfullySentChannel channel that need to be queried from last
-			// resend data timestamp.
-			channels.add(successfullySentChannel.address());
-
-			Instant istant = Instant.ofEpochMilli(lastResendData.value().get());
-			fromDate = ZonedDateTime.ofInstant(istant, ZoneId.of("UTC"));
-
-			// Get the blocks of time when successfully sent is false.
-			Map<ZonedDateTime, Boolean> notSentList = new TreeMap<>();
-
-			// Query the data for the succesfully sent channel to extract the false sent
-			// values later.
-			this.parent.timedata.queryHistoricData(null, fromDate, toDate, channels, 10).entrySet() //
-					.forEach(entry -> {
-						entry.getValue().entrySet().forEach(valueEntry -> {
-							if (!valueEntry.getValue().isJsonNull()) {
-								if (valueEntry.getValue().getAsBoolean() == false) {
-									notSentList.put(entry.getKey(), valueEntry.getValue().getAsBoolean());
-								} else {
-									if (!notSentList.isEmpty()) {
-										successfullyNotSent.add(notSentList);
-										notSentList.clear();
-									}
-								}
-							}
-						});
-					});
-
-			// Stores all the channels we want values. We are now concentrating only on
-			// certain values.
-			// Note: It repalces the channels stored before (Successfully Sent).
-			channels = this.getAddresses();
-
-			for (Map<ZonedDateTime, Boolean> entry : successfullyNotSent) {
-
-				// Each entry has a block of timestamps.
-
-				// first Key -> start time of the time block.
-				ZonedDateTime from = (ZonedDateTime) entry.entrySet().toArray()[0];
-
-				// last key -> end time of the end block.
-				ZonedDateTime to = (ZonedDateTime) entry.entrySet().toArray()[entry.size() - 1];
-
-				// get the Historic Data of that certain block.
-				this.parent.timedata.queryHistoricData(null, from, to, channels, 10).entrySet()
-						.forEach(historicEntry -> {
-							SortedMap<ChannelAddress, JsonElement> values = new TreeMap<>();
-							historicEntry.getValue().entrySet().forEach(entryMap -> {
-
-								// Check for null and send only non null values.
-								if (!entryMap.getValue().isJsonNull()) {
-									values.put(entryMap.getKey(), entryMap.getValue());
-									long timestamp = historicEntry.getKey() //
-											.toLocalDateTime() //
-											.toInstant(ZoneOffset.UTC) //
-											.toEpochMilli();
-									message.add(timestamp, values);
-								}
-							});
-							// Send the JsonRPC request
-							this.sendMessage(message);
-						});
-			}
 		}
 	}
 
@@ -218,6 +178,7 @@ class ResendHistoricData extends AbstractCycleWorker {
 	 * Send the Json Rpc message.
 	 * 
 	 * @param message
+	 * @param toDate
 	 */
 	private void sendMessage(TimestampedDataNotification message) {
 		if (!message.getData().isEmpty()) {
@@ -226,9 +187,8 @@ class ResendHistoricData extends AbstractCycleWorker {
 			boolean sent = this.parent.websocket.sendMessage(message);
 			log.info("Sent_________________________________________________");
 			if (sent) {
-				this.parent.channel(ChannelId.LAST_RESEND_DATA).setNextValue(Instant.now().toEpochMilli());
+				this.parent.channel(ChannelId.LAST_RESEND_DATA).setNextValue(message.getData().rowKeySet().first());
 			}
 		}
 	}
-
 }
