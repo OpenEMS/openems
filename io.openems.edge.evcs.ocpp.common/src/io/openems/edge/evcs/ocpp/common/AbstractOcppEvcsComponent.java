@@ -33,10 +33,10 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	protected OcppServer ocppServer = null;
 
 	protected UUID sessionId = null;
-	
-	private ChargeSession sessionStart;
-	
-	private ChargeSession sessionEnd;
+
+	private ChargeSessionStamp sessionStart = new ChargeSessionStamp();
+
+	private ChargeSessionStamp sessionEnd = new ChargeSessionStamp();
 
 	protected AbstractOcppEvcsComponent(OcppProfileType[] profileTypes,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
@@ -76,7 +76,7 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 			if (this.sessionId == null) {
 				return;
 			}
-			
+
 			this.checkCurrentState();
 
 			writeHandler.run();
@@ -114,7 +114,7 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	public abstract Integer getConfiguredMinimumHardwarePower();
 
 	public abstract boolean returnsSessionEnergy();
-	
+
 	/**
 	 * Required requests that should be sent after a connection was established.
 	 * 
@@ -182,20 +182,12 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		this.lastChargingProperty = chargingProperty;
 	}
 
-	public ChargeSession getSessionStart() {
+	public ChargeSessionStamp getSessionStart() {
 		return sessionStart;
 	}
 
-	public void setSessionStart(ChargeSession sessionStart) {
-		this.sessionStart = sessionStart;
-	}
-
-	public ChargeSession getSessionEnd() {
+	public ChargeSessionStamp getSessionEnd() {
 		return sessionEnd;
-	}
-
-	public void setSessionEnd(ChargeSession sessionEnd) {
-		this.sessionEnd = sessionEnd;
 	}
 
 	@Override

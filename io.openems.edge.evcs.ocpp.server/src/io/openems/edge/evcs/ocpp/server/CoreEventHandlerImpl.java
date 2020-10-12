@@ -35,10 +35,8 @@ import eu.chargetime.ocpp.model.core.StatusNotificationRequest;
 import eu.chargetime.ocpp.model.core.StopTransactionConfirmation;
 import eu.chargetime.ocpp.model.core.StopTransactionRequest;
 import eu.chargetime.ocpp.model.core.ValueFormat;
-import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
-import io.openems.edge.evcs.ocpp.common.ChargeSession;
 import io.openems.edge.evcs.ocpp.common.ChargingProperty;
 import io.openems.edge.evcs.ocpp.common.OcppInformations;
 
@@ -161,21 +159,30 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 							if (!evcs.getSupportedMeasurements()
 									.contains(OcppInformations.CORE_METER_VALUES_POWER_ACTIVE_IMPORT)) {
 								this.setPowerDependingOnEnergy(evcs, (Double) correctValue, meterValue.getTimestamp());
+								// TODO: Currently not working with session energy values
 							}
 
-							int sessionEnergy = (int) Math.round((Double) correctValue);
-							if (evcs.returnsSessionEnergy()) {
-								evcs._setEnergySession(sessionEnergy);
-							} else {
-								if (evcs.getSessionStart() == null) {
-									break;
-								}
-								if (evcs.getSessionStart().getTime() != null) {
-									evcs.getSessionStart().setEnergy(sessionEnergy);
-								}
-								evcs._setEnergySession(sessionEnergy - evcs.getSessionStart().getEnergy());
-								// End of Session can not be calculated if there is no status message charging finished.
+							long energy = (long) Math.round((Double) correctValue);
+							if (!evcs.getSessionStart().isChargeSessionStampPresent()) {
+								break;
 							}
+
+							int sessionEnergy = 0;
+							long totalEnergy = 0;
+
+							/*
+							 * Calculating the energy in this session and in total for the given energy
+							 * value.
+							 */
+							if (evcs.returnsSessionEnergy()) {
+								sessionEnergy = (int) energy;
+								totalEnergy = evcs.getSessionStart().getEnergy() + energy;
+							} else {
+								sessionEnergy = (int) (energy - evcs.getSessionStart().getEnergy());
+								totalEnergy = energy;
+							}
+							evcs._setEnergySession(sessionEnergy);
+							evcs._setActiveConsumptionEnergy(totalEnergy);
 							break;
 
 						case CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_REGISTER:
@@ -195,14 +202,19 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 								val = this.multipliedByThousand(val);
 							}
 							correctValue = (int) Math.round(Double.valueOf(val));
+
+							/*
+							 * Sets the start and end session stamp depending on the the current power.
+							 */
+							Instant now = Instant.now(this.parent.componentManager.getClock());
+							long currEnergy = evcs.getActiveConsumptionEnergy().orElse(0L);
 							if ((int) correctValue > 0) {
 								evcs._setStatus(Status.CHARGING);
-								if (evcs.getSessionStart() == null) {
-									evcs.setSessionStart(
-											new ChargeSession(Instant.now(this.parent.componentManager.getClock())));
-								}
+								evcs.getSessionStart().setChargeSessionStampIfNotPresent(now, currEnergy);
+								evcs.getSessionEnd().resetChargeSessionStampIfPresent();
 							} else {
-								evcs.setSessionStart(null);
+								evcs.getSessionStart().resetChargeSessionStampIfPresent();
+								evcs.getSessionEnd().setChargeSessionStampIfNotPresent(now, currEnergy);
 							}
 							break;
 
@@ -238,7 +250,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			StatusNotificationRequest request) {
 
 		this.logDebug("Handle StatusNotificationRequest: " + request);
-		MeasuringEvcs evcs = this.getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
+		AbstractOcppEvcsComponent evcs = this.getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
 		if (evcs == null) {
 			return new StatusNotificationConfirmation();
 		}
@@ -255,12 +267,25 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			break;
 		case Charging:
 			evcsStatus = Status.CHARGING;
+
+			// Reset the end charge session stamp
+			evcs.getSessionEnd().resetChargeSessionStampIfPresent();
+
+			// Set the start charge session stamp
+			evcs.getSessionStart().setChargeSessionStampIfNotPresent(
+					Instant.now(this.parent.componentManager.getClock()), evcs.getActiveConsumptionEnergy().orElse(0L));
 			break;
 		case Faulted:
 			evcsStatus = Status.ERROR;
 			break;
 		case Finishing:
 			evcsStatus = Status.CHARGING_FINISHED;
+
+			// Reset the start charge session stamp
+			evcs.getSessionStart().resetChargeSessionStampIfPresent();
+
+			evcs.getSessionEnd().setChargeSessionStampIfNotPresent(Instant.now(this.parent.componentManager.getClock()),
+					evcs.getActiveConsumptionEnergy().orElse(0L));
 			break;
 		case Preparing:
 			evcsStatus = Status.READY_FOR_CHARGING;
@@ -280,11 +305,11 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			evcsStatus = Status.ERROR;
 			break;
 		}
-		
-		if(ocppStatus != ChargePointStatus.Unavailable) {
+
+		if (ocppStatus != ChargePointStatus.Unavailable) {
 			evcs._setChargingstationCommunicationFailed(false);
 		}
-		
+
 		if (evcsStatus != null) {
 			evcs._setStatus(evcsStatus);
 		}

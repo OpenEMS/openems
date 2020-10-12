@@ -177,17 +177,17 @@ public class ReadHandler implements Consumer<String> {
 					int currentSum = currentL1.value().orElse(0) + currentL2.value().orElse(0)
 							+ currentL3.value().orElse(0);
 
-					if (currentSum > 100) {
+					if (currentSum > 300) {
 
 						int phases = 0;
 
-						if (currentL1.value().orElse(0) > 100) {
+						if (currentL1.value().orElse(0) >= 100) {
 							phases += 1;
 						}
-						if (currentL2.value().orElse(0) > 100) {
+						if (currentL2.value().orElse(0) >= 100) {
 							phases += 1;
 						}
-						if (currentL3.value().orElse(0) > 100) {
+						if (currentL3.value().orElse(0) >= 100) {
 							phases += 1;
 						}
 						this.parent._setPhases(phases);

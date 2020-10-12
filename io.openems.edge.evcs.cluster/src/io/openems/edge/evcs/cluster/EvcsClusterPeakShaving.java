@@ -188,19 +188,24 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 			this.channel(AbstractEvcsCluster.ChannelId.USED_ESS_MAXIMUM_DISCHARGE_POWER).setNextValue(maxEssDischarge);
 		}
 		// TODO: Should I use power component here
-
 		// TODO: Calculate the available ESS charge power, depending on a specific ESS
 		// component (e.g. If there is a ESS cluster)
+		
+		// Calculate maximum ess power
 		long essDischargePower = this.sum.getEssActivePower().orElse(0);
 		int essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
-
 		maxAvailableStoragePower = maxEssDischarge - (essDischargePower - essActivePowerDC);
+		this.channel(AbstractEvcsCluster.ChannelId.MAXIMUM_AVAILABLE_ESS_POWER).setNextValue(maxAvailableStoragePower);
 
+		// Calculate maximum grid power
 		int gridPower = getGridPower();
+		int maxAvailableGridPower = (this.config.hardwarePowerLimitPerPhase() * DEFAULT_PHASES) - gridPower;
+		this.channel(AbstractEvcsCluster.ChannelId.MAXIMUM_AVAILABLE_GRID_POWER).setNextValue(maxAvailableGridPower);
+		
+		// Current evcs charge power
 		int evcsCharge = this.getChargePower().orElse(0);
 
-		allowedChargePower = (int) (evcsCharge + maxAvailableStoragePower
-				+ (this.config.hardwarePowerLimitPerPhase() * DEFAULT_PHASES) - gridPower);
+		allowedChargePower = (int) (evcsCharge + maxAvailableStoragePower + maxAvailableGridPower);
 
 		this.logInfoInDebugmode(log, "Calculation of the maximum charge Power: EVCS Charge [" + evcsCharge
 				+ "]  +  Max. available storage power [" + maxAvailableStoragePower
@@ -209,7 +214,6 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 
 		allowedChargePower = allowedChargePower > 0 ? allowedChargePower : 0;
 		return allowedChargePower;
-
 	}
 
 	/**

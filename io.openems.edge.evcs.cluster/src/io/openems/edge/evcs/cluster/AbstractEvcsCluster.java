@@ -38,6 +38,10 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		MAXIMUM_POWER_TO_DISTRIBUTE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT).text("Maximum power to distribute, for all given Evcss.")),
+		MAXIMUM_AVAILABLE_ESS_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT).text("Maximum available ess power.")), 
+		MAXIMUM_AVAILABLE_GRID_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT).text("Maximum available grid power.")),
 		USED_ESS_MAXIMUM_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT).text("Dynamic maximum discharge power, that could be limited by us to ensure the possibillity to discharge the battery."));
 
@@ -156,6 +160,7 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 					case UNDEFINED:
 					case NOT_READY_FOR_CHARGING:
 					case ENERGY_LIMIT_REACHED:
+						managedEvcs.setChargePowerLimit(0);
 						break;
 					case READY_FOR_CHARGING:
 
