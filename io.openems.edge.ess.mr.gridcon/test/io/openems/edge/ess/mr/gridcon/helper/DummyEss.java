@@ -403,4 +403,28 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 		return 0;
 	}
 
+	@Override
+	public float getApparentPowerL1() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float getApparentPowerL2() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float getApparentPowerL3() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float getApparentPowerSum() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

@@ -136,10 +136,11 @@ public enum GridConChannelId implements ChannelId {
 	GRID_MEASUREMENT_I_L3(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 	GRID_MEASUREMENT_I_LN(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 	
-	GRID_MEASUREMENT_S_L1(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
-	GRID_MEASUREMENT_S_L2(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
-	GRID_MEASUREMENT_S_L3(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
-	GRID_MEASUREMENT_S_SUM(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
+	GRID_MEASUREMENT_P_L1(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
+	GRID_MEASUREMENT_P_L2(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
+	GRID_MEASUREMENT_P_L3(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
+
+	GRID_MEASUREMENT_S_SUM(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT_AMPERE)), //
 	
 	GRID_MEASUREMENT_Q_L1(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 	GRID_MEASUREMENT_Q_L2(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT_AMPERE_REACTIVE)), //

@@ -109,6 +109,7 @@ public class MeterGridcon extends AbstractOpenemsComponent
 				return;
 			}
 						
+			
 			_setCurrentL1((int) (gridconPcs.getCurrentL1() * 1000.0));
 			_setCurrentL2((int) (gridconPcs.getCurrentL2() * 1000.0));
 			_setCurrentL3((int) (gridconPcs.getCurrentL3() * 1000.0));
@@ -122,7 +123,7 @@ public class MeterGridcon extends AbstractOpenemsComponent
 			_setReactivePowerL1((int) (gridconPcs.getReactivePowerL1()));
 			_setReactivePowerL2((int) (gridconPcs.getReactivePowerL2()));
 			_setReactivePowerL3((int) (gridconPcs.getReactivePowerL3()));
-			_setReactivePower((int) (gridconPcs.getReactivePowerSum()));			
+			_setReactivePower((int) (gridconPcs.getReactivePowerSum()));
 
 		} catch (OpenemsNamedException e) {		
 			System.out.println("Error while reading meter values from gridcon!\n" + e.getMessage());

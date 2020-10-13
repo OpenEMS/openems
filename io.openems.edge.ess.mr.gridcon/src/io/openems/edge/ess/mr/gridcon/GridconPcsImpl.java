@@ -176,34 +176,8 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 		CcuState state = ((EnumReadChannel) this.channel(GridConChannelId.CCU_STATE)).value().asEnum();
 		IntegerReadChannel errorCountChannel = this.channel(GridConChannelId.CCU_ERROR_COUNT);
 		int errorCount = errorCountChannel.value().orElse(-1);
-		return "Gridcon CCU state: " + state + "; Error count: " + errorCount + "; Active Power: " + getActivePower() + getGridMeasureMents();
+		return "Gridcon CCU state: " + state + "; Error count: " + errorCount + "; Active Power: " + getActivePower();
 		
-	}
-
-	private String getGridMeasureMents() {
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("\ngetCurrentL1(): " +getCurrentL1());
-		sb.append("\ngetCurrentL2(): " +getCurrentL2());
-		sb.append("\ngetCurrentL3(): " +getCurrentL3());
-		sb.append("\ngetCurrentLN(): " +getCurrentLN());
-		
-		sb.append("\ngetApparentPowerL1(): " +getApparentPowerL1());
-		sb.append("\ngetApparentPowerL2(): " +getApparentPowerL2());
-		sb.append("\ngetApparentPowerL3(): " +getApparentPowerL3());
-		sb.append("\ngetApparentPowerSum(): " +getApparentPowerSum());
-		
-		sb.append("\ngetActivePowerL1(): " +getActivePowerL1());
-		sb.append("\ngetActivePowerL2(): " +getActivePowerL2());
-		sb.append("\ngetActivePowerL3(): " +getActivePowerL3());
-		sb.append("\ngetActivePowerSum(): " +getActivePowerSum());
-		
-		sb.append("\ngetReactivePowerL1(): " +getReactivePowerL1());
-		sb.append("\ngetReactivePowerL2(): " +getReactivePowerL2());
-		sb.append("\ngetReactivePowerL3(): " +getReactivePowerL3());
-		sb.append("\ngetReactivePowerSum(): " +getReactivePowerSum());
-
-		return sb.toString();
 	}
 
 	@Override
@@ -897,11 +871,11 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 									new FloatDoublewordElement(startAddressGridMeasurements + 12).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.GRID_MEASUREMENT_Q_SUM,
 									new FloatDoublewordElement(startAddressGridMeasurements + 14).wordOrder(WordOrder.LSWMSW)), //
-							m(GridConChannelId.GRID_MEASUREMENT_S_L1,
+							m(GridConChannelId.GRID_MEASUREMENT_P_L1,
 									new FloatDoublewordElement(startAddressGridMeasurements + 16).wordOrder(WordOrder.LSWMSW)), //
-							m(GridConChannelId.GRID_MEASUREMENT_S_L2,
+							m(GridConChannelId.GRID_MEASUREMENT_P_L2,
 									new FloatDoublewordElement(startAddressGridMeasurements + 18).wordOrder(WordOrder.LSWMSW)), //
-							m(GridConChannelId.GRID_MEASUREMENT_S_L3,
+							m(GridConChannelId.GRID_MEASUREMENT_P_L3,
 									new FloatDoublewordElement(startAddressGridMeasurements + 20).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.GRID_MEASUREMENT_S_SUM,
 									new FloatDoublewordElement(startAddressGridMeasurements + 22).wordOrder(WordOrder.LSWMSW)) //							
@@ -1496,36 +1470,25 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 
 	@Override
 	public float getActivePowerL1() {
-		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_S_L1);
-		float s = c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
-		float p = (float) Math.sqrt(s * s - getReactivePowerL1() * getReactivePowerL1());
-		return p;
+		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_P_L1);
+		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
 	}
 
 	@Override
 	public float getActivePowerL2() {
-		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_S_L1);
-		float s = c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
-		float p = (float) Math.sqrt(s * s - getReactivePowerL2() * getReactivePowerL2());
-		return p;
+		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_P_L2);
+		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
 	}	
 
 	@Override
 	public float getActivePowerL3() {
-		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_S_L1);
-		float s = c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
-		float p = (float) Math.sqrt(s * s - getReactivePowerL3() * getReactivePowerL3());
-		return p;
-
+		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_P_L3);
+		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
 	}	
 
 	@Override
 	public float getActivePowerSum() {
-		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_S_L1);
-		float s = c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
-		float p = (float) Math.sqrt(s * s - getReactivePowerSum() * getReactivePowerSum());
-		return p;
-
+		return getActivePowerL1() + getActivePowerL2() + getActivePowerL3();
 	}
 
 	@Override
@@ -1554,26 +1517,22 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 
 	@Override
 	public float getApparentPowerL1() {
-		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_S_L1);
-		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+		return (float) Math.sqrt(getActivePowerL1() * getActivePowerL1() + getReactivePowerL1() * getReactivePowerL1());
 	}
 
 	@Override
 	public float getApparentPowerL2() {
-		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_S_L2);
-		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+		return (float) Math.sqrt(getActivePowerL2() * getActivePowerL2() + getReactivePowerL2() * getReactivePowerL2());
 	}
 
 	@Override
 	public float getApparentPowerL3() {
-		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_S_L3);
-		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+		return (float) Math.sqrt(getActivePowerL3() * getActivePowerL3() + getReactivePowerL3() * getReactivePowerL3());
 	}
 
 	@Override
 	public float getApparentPowerSum() {
-		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_S_SUM);
-		return c.value().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+		return (float) Math.sqrt(getActivePowerSum() * getActivePowerSum() + getReactivePowerSum() * getReactivePowerSum());
 	}
 
 }
