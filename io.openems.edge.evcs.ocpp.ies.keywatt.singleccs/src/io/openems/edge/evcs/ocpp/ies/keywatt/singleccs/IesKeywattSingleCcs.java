@@ -38,7 +38,10 @@ import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
 		name = "Evcs.Ocpp.IesKeywattSingle", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
 public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 		implements Evcs, ManagedEvcs, MeasuringEvcs, OpenemsComponent, EventHandler {
 

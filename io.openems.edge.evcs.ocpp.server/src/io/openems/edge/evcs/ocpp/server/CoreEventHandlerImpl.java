@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -207,14 +208,21 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 							 * Sets the start and end session stamp depending on the the current power.
 							 */
 							Instant now = Instant.now(this.parent.componentManager.getClock());
-							long currEnergy = evcs.getActiveConsumptionEnergy().orElse(0L);
+
 							if ((int) correctValue > 0) {
 								evcs._setStatus(Status.CHARGING);
-								evcs.getSessionStart().setChargeSessionStampIfNotPresent(now, currEnergy);
-								evcs.getSessionEnd().resetChargeSessionStampIfPresent();
-							} else {
-								evcs.getSessionStart().resetChargeSessionStampIfPresent();
-								evcs.getSessionEnd().setChargeSessionStampIfNotPresent(now, currEnergy);
+							}
+							
+							// Has to provide a not null energy value
+							Optional<Long> currEnergy = evcs.getActiveConsumptionEnergy().asOptional();
+							if (currEnergy.isPresent()) {
+								if ((int) correctValue > 0) {
+									evcs.getSessionStart().setChargeSessionStampIfNotPresent(now, currEnergy.get());
+									evcs.getSessionEnd().resetChargeSessionStampIfPresent();
+								} else {
+									evcs.getSessionStart().resetChargeSessionStampIfPresent();
+									evcs.getSessionEnd().setChargeSessionStampIfNotPresent(now, currEnergy.get());
+								}
 							}
 							break;
 

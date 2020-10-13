@@ -39,7 +39,10 @@ import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
 		name = "Evcs.Ocpp.Abl", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
 public class Abl extends AbstractOcppEvcsComponent
 		implements Evcs, MeasuringEvcs, ManagedEvcs, OpenemsComponent, EventHandler {
 
@@ -104,14 +107,14 @@ public class Abl extends AbstractOcppEvcsComponent
 
 	@Override
 	public Integer getConfiguredMaximumHardwarePower() {
-		//TODO: Set dynamically. Problem: No phases calculation possible.
-		return (int)(this.config.maxHwCurrent()/1000.0) * 230 * 3;
+		// TODO: Set dynamically. Problem: No phases calculation possible.
+		return (int) (this.config.maxHwCurrent() / 1000.0) * 230 * 3;
 	}
 
 	@Override
 	public Integer getConfiguredMinimumHardwarePower() {
-		//TODO: Set dynamically. Problem: No phases calculation possible.
-		return (int)(this.config.minHwCurrent()/1000.0) * 230 * 3;
+		// TODO: Set dynamically. Problem: No phases calculation possible.
+		return (int) (this.config.minHwCurrent() / 1000.0) * 230 * 3;
 	}
 
 	@Override
@@ -170,7 +173,7 @@ public class Abl extends AbstractOcppEvcsComponent
 		TriggerMessageRequest requestStatus = new TriggerMessageRequest(TriggerMessageRequestType.StatusNotification);
 		requestStatus.setConnectorId(this.getConfiguredConnectorId());
 		requests.add(requestStatus);
-		
+
 		ChangeConfigurationRequest setMeterValueSampledData = new ChangeConfigurationRequest("MeterValuesSampledData",
 				"Energy.Active.Import.Register,Current.Import,Voltage,Power.Active.Import,Temperature");
 		requests.add(setMeterValueSampledData);
