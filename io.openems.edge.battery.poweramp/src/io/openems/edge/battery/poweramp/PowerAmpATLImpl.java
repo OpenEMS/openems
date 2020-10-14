@@ -183,7 +183,7 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 								.bit(12, PowerAmpATL.ChannelId.RACK_LEVEL_2_PARALLEL_FAIL) //
 								.bit(13, PowerAmpATL.ChannelId.RACK_LEVEL_2_SYSTEM_FAIL) //
 								.bit(14, PowerAmpATL.ChannelId.RACK_LEVEL_2_HARDWARE_FAIL)), //
-						m(new BitsWordElement(502, this) //
+						m(new BitsWordElement(503, this) //
 								.bit(0, PowerAmpATL.ChannelId.ALARM_POSITION_BCU_1) //
 								.bit(1, PowerAmpATL.ChannelId.ALARM_POSITION_BCU_2) //
 								.bit(2, PowerAmpATL.ChannelId.ALARM_POSITION_BCU_3) //
@@ -194,7 +194,7 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 								.bit(7, PowerAmpATL.ChannelId.ALARM_POSITION_BCU_8) //
 								.bit(8, PowerAmpATL.ChannelId.ALARM_POSITION_BCU_9) //
 								.bit(9, PowerAmpATL.ChannelId.ALARM_POSITION_BCU_10)), //
-						m(new BitsWordElement(503, this) //
+						m(new BitsWordElement(504, this) //
 								.bit(0, PowerAmpATL.ChannelId.WARNING_POSITION_BCU_1) //
 								.bit(1, PowerAmpATL.ChannelId.WARNING_POSITION_BCU_2) //
 								.bit(2, PowerAmpATL.ChannelId.WARNING_POSITION_BCU_3) //
@@ -205,17 +205,17 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 								.bit(7, PowerAmpATL.ChannelId.WARNING_POSITION_BCU_8) //
 								.bit(8, PowerAmpATL.ChannelId.WARNING_POSITION_BCU_9) //
 								.bit(9, PowerAmpATL.ChannelId.WARNING_POSITION_BCU_10)), //
-						m(new BitsWordElement(504, this) //
-								.bit(0, PowerAmpATL.ChannelId.FAULT_BCU_1_POSITION) //
-								.bit(1, PowerAmpATL.ChannelId.FAULT_BCU_2_POSITION) //
-								.bit(2, PowerAmpATL.ChannelId.FAULT_BCU_3_POSITION) //
-								.bit(3, PowerAmpATL.ChannelId.FAULT_BCU_4_POSITION) //
-								.bit(4, PowerAmpATL.ChannelId.FAULT_BCU_5_POSITION) //
-								.bit(5, PowerAmpATL.ChannelId.FAULT_BCU_6_POSITION) //
-								.bit(6, PowerAmpATL.ChannelId.FAULT_BCU_7_POSITION) //
-								.bit(7, PowerAmpATL.ChannelId.FAULT_BCU_8_POSITION) //
-								.bit(8, PowerAmpATL.ChannelId.FAULT_BCU_9_POSITION) //
-								.bit(9, PowerAmpATL.ChannelId.FAULT_BCU_10_POSITION))//
+						m(new BitsWordElement(505, this) //
+								.bit(0, PowerAmpATL.ChannelId.FAULT_POSITION_BCU_1) //
+								.bit(1, PowerAmpATL.ChannelId.FAULT_POSITION_BCU_2) //
+								.bit(2, PowerAmpATL.ChannelId.FAULT_POSITION_BCU_3) //
+								.bit(3, PowerAmpATL.ChannelId.FAULT_POSITION_BCU_4) //
+								.bit(4, PowerAmpATL.ChannelId.FAULT_POSITION_BCU_5) //
+								.bit(5, PowerAmpATL.ChannelId.FAULT_POSITION_BCU_6) //
+								.bit(6, PowerAmpATL.ChannelId.FAULT_POSITION_BCU_7) //
+								.bit(7, PowerAmpATL.ChannelId.FAULT_POSITION_BCU_8) //
+								.bit(8, PowerAmpATL.ChannelId.FAULT_POSITION_BCU_9) //
+								.bit(9, PowerAmpATL.ChannelId.FAULT_POSITION_BCU_10))//
 				), //
 				new FC3ReadRegistersTask(506, Priority.HIGH, //
 						m(new UnsignedWordElement(506)) //
@@ -250,7 +250,6 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 						m(PowerAmpATL.ChannelId.RACK_NUMBER_OF_CELLS_IN_SERIES_PER_MODULE,
 								new UnsignedWordElement(523)), //
 						m(PowerAmpATL.ChannelId.RACK_MAX_CELL_VOLTAGE_LIMIT, new UnsignedWordElement(524)), //
-						m(PowerAmpATL.ChannelId.RACK_MIN_CELL_VOLTAGE_LIMIT, new UnsignedWordElement(525)), //
 						m(PowerAmpATL.ChannelId.RACK_MIN_CELL_VOLTAGE_LIMIT, new UnsignedWordElement(525)), //
 						m(new BitsWordElement(526, this) //
 								.bit(0, PowerAmpATL.ChannelId.RACK_HW_AFE_COMMUNICATION_FAULT) //
@@ -354,8 +353,7 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc() //
-				+ "|State:" + this.stateMachine.getCurrentState();
+		return "SoC:" + this.getSoc() ;
 	}
 
 	@Override

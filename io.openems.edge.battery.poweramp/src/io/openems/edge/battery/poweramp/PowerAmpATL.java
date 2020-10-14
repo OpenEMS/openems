@@ -296,34 +296,34 @@ public interface PowerAmpATL extends Battery, OpenemsComponent, StartStoppable {
 		WARNING_POSITION_BCU_10(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Warning BCU 10 Position ")), //
-		FAULT_BCU_1_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+		FAULT_POSITION_BCU_1(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Fault BCU 1 Position ")), //
-		FAULT_BCU_2_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+		FAULT_POSITION_BCU_2(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Fault BCU 2 Position ")), //
-		FAULT_BCU_3_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+		FAULT_POSITION_BCU_3(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Fault BCU 3 Position ")), //
-		FAULT_BCU_4_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+		FAULT_POSITION_BCU_4(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Fault BCU 4 Position ")), //
-		FAULT_BCU_5_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+		FAULT_POSITION_BCU_5(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Fault BCU 5 Position ")), //
-		FAULT_BCU_6_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+		FAULT_POSITION_BCU_6(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Fault BCU 6 Position ")), //
-		FAULT_BCU_7_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+		FAULT_POSITION_BCU_7(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Fault BCU 7 Position ")), //
-		FAULT_BCU_8_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+		FAULT_POSITION_BCU_8(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Fault BCU 8 Position ")), //
-		FAULT_BCU_9_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+		FAULT_POSITION_BCU_9(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Fault BCU 9 Position ")), //
-		FAULT_BCU_10_POSITION(Doc.of(OpenemsType.BOOLEAN) //
+		FAULT_POSITION_BCU_10(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Fault BCU 10 Position ")), //
 		BATTERY_RACK_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
