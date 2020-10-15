@@ -60,8 +60,7 @@ public class ChannelHandler {
 			Value<Integer> dischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue();
 			Value<Integer> voltage = battery.getVoltageChannel().getNextValue();
 
-			if (voltage.isDefined() && dischargeMaxCurrent.isDefined() && chargeMaxCurrent.isDefined()
-					&& voltage.isDefined()) {
+			if (voltage.isDefined() && dischargeMaxCurrent.isDefined() && chargeMaxCurrent.isDefined()) {
 				this.parent._setAllowedChargePower(//
 						(int) (chargeMaxCurrent.get() * voltage.get() * -1));
 				this.parent._setAllowedDischargePower(//
