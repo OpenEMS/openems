@@ -1,5 +1,7 @@
 package io.openems.edge.ess.generic.symmetric;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -36,7 +38,10 @@ import io.openems.edge.ess.generic.symmetric.statemachine.Context;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -192,15 +197,18 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 	 */
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
-		OpenemsNamedException error = null;
 
+		OpenemsNamedException error = null;
+		List<Constraint> result = new ArrayList<Constraint>();
+
+		// Get BatteryInverterConstraints
 		BatteryInverterConstraint[] constraints = this.batteryInverter.getStaticConstraints();
-		Constraint[] result = new Constraint[constraints.length];
+
 		for (int i = 0; i < constraints.length; i++) {
 			BatteryInverterConstraint c = constraints[i];
 			try {
-				result[i] = this.power.createSimpleConstraint(c.description, this, c.phase, c.pwr, c.relationship,
-						c.value);
+				result.add(this.power.createSimpleConstraint(c.description, this, c.phase, c.pwr, c.relationship,
+						c.value));
 			} catch (OpenemsException e) {
 				// catch errors here, so that remaining Constraints are still applied;
 				// exception is thrown again later
@@ -212,9 +220,17 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 		if (error != null) {
 			throw error; // if any error happened, throw the last one
 		}
-		return result;
-	}
 
+		// If the GenericEss is not in State "STARTED" block ACTIVE and REACTIVE Power!
+		if (!this.isStarted()) {
+			result.add(this.createPowerConstraint("ActivePower Contraint ESS not Started", Phase.ALL, Pwr.ACTIVE,
+					Relationship.EQUALS, 0));
+			result.add(this.createPowerConstraint("ReactivePower Contraint ESS not Started", Phase.ALL, Pwr.REACTIVE,
+					Relationship.EQUALS, 0));
+		}
+		return result.toArray(new Constraint[] {});
+	}
+	
 	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
 
 	@Override
