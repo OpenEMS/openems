@@ -1,16 +1,15 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/shared';
-import { FormGroup, FormControl } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: ComponentUpdateComponent.SELECTOR,
   templateUrl: './update.component.html'
 })
-export class ComponentUpdateComponent implements OnInit {
+export class ComponentUpdateComponent {
 
   private static readonly SELECTOR = "componentUpdate";
 
@@ -32,7 +31,7 @@ export class ComponentUpdateComponent implements OnInit {
   ) {
   }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.adjustComponents'), this.route).then(edge => {
       this.edge = edge;
     });
@@ -76,11 +75,18 @@ export class ComponentUpdateComponent implements OnInit {
     for (let controlKey in this.form.controls) {
       let control = this.form.controls[controlKey];
       if (control.dirty) {
+        let value = control.value;
+        // Input Model returns number variable as string
+        this.fields.forEach(field => {
+          if (field.templateOptions.type == "number" && field.key == controlKey) {
+            value = parseFloat(control.value);
+          }
+        })
         let property_id = controlKey.replace('_', '.');
-        properties.push({ name: property_id, value: control.value });
+        properties.push({ name: property_id, value: value });
       }
     }
-    this.edge.updateComponentConfig(this.websocket, this.componentId, properties).then(response => {
+    this.edge.updateComponentConfig(this.websocket, this.componentId, properties).then(() => {
       this.form.markAsPristine();
       this.service.toast("Successfully updated " + this.componentId + ".", 'success');
     }).catch(reason => {
@@ -89,7 +95,7 @@ export class ComponentUpdateComponent implements OnInit {
   }
 
   public delete() {
-    this.edge.deleteComponentConfig(this.websocket, this.componentId).then(response => {
+    this.edge.deleteComponentConfig(this.websocket, this.componentId).then(() => {
       this.form.markAsPristine();
       this.service.toast("Successfully deleted " + this.componentId + ".", 'success');
     }).catch(reason => {
