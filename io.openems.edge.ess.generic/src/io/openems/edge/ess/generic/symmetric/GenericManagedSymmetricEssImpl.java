@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
@@ -198,7 +197,6 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
 
-		OpenemsNamedException error = null;
 		List<Constraint> result = new ArrayList<Constraint>();
 
 		// Get BatteryInverterConstraints
@@ -206,19 +204,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 
 		for (int i = 0; i < constraints.length; i++) {
 			BatteryInverterConstraint c = constraints[i];
-			try {
-				result.add(this.power.createSimpleConstraint(c.description, this, c.phase, c.pwr, c.relationship,
-						c.value));
-			} catch (OpenemsException e) {
-				// catch errors here, so that remaining Constraints are still applied;
-				// exception is thrown again later
-				e.printStackTrace();
-				error = e;
-			}
-		}
-
-		if (error != null) {
-			throw error; // if any error happened, throw the last one
+			result.add(this.power.createSimpleConstraint(c.description, this, c.phase, c.pwr, c.relationship, c.value));
 		}
 
 		// If the GenericEss is not in State "STARTED" block ACTIVE and REACTIVE Power!
@@ -228,9 +214,9 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 			result.add(this.createPowerConstraint("ReactivePower Contraint ESS not Started", Phase.ALL, Pwr.REACTIVE,
 					Relationship.EQUALS, 0));
 		}
-		return result.toArray(new Constraint[] {});
+		return result.toArray(new Constraint[result.size()]);
 	}
-	
+
 	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
 
 	@Override
