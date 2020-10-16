@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
@@ -49,6 +50,8 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
@@ -67,8 +70,9 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter implements KacoBlueplanetGridsave,
-		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, TimedataProvider, StartStoppable {
+public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
+		implements KacoBlueplanetGridsave, ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent,
+		TimedataProvider, StartStoppable, ModbusSlave {
 
 	private static final int UNIT_ID = 1;
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
@@ -176,7 +180,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 		this.calculateEnergy();
 
 		// Trigger the Watchdog
-		this.triggerWatchdog();
+		//this.triggerWatchdog();
 
 		// Set State-Channels
 		this.setStateChannels();
@@ -272,21 +276,21 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 		batTempChannel.setNextWriteValue(battery.getMaxCellTemperature().get());
 	}
 
-	private Instant lastTriggerWatchdog = Instant.MIN;
-
-	/**
-	 * Triggers the Watchdog after half of the WATCHDOG_CYCLES passed.
-	 * 
-	 * @throws OpenemsNamedException on error
-	 */
-	private void triggerWatchdog() throws OpenemsNamedException {
-		int watchdogSeconds = this.cycle.getCycleTime() / 1000 * KacoBlueplanetGridsave.WATCHDOG_CYCLES;
-		if (Duration.between(this.lastTriggerWatchdog, Instant.now()).getSeconds() > watchdogSeconds / 2) {
-			IntegerWriteChannel watchdogChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64201.WATCHDOG);
-			watchdogChannel.setNextWriteValue(watchdogSeconds);
-			this.lastTriggerWatchdog = Instant.now();
-		}
-	}
+//	private Instant lastTriggerWatchdog = Instant.MIN;
+//
+//	/**
+//	 * Triggers the Watchdog after half of the WATCHDOG_CYCLES passed.
+//	 * 
+//	 * @throws OpenemsNamedException on error
+//	 */
+//	private void triggerWatchdog() throws OpenemsNamedException {
+//		int watchdogSeconds = this.cycle.getCycleTime() / 1000 * KacoBlueplanetGridsave.WATCHDOG_CYCLES;
+//		if (Duration.between(this.lastTriggerWatchdog, Instant.now()).getSeconds() > watchdogSeconds / 2) {
+//			IntegerWriteChannel watchdogChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64201.WATCHDOG);
+//			watchdogChannel.setNextWriteValue(watchdogSeconds);
+//			this.lastTriggerWatchdog = Instant.now();
+//		}
+//	}
 
 	/**
 	 * Sets the State-Channels, e.g. Warnings and Faults.
@@ -456,5 +460,14 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricBatteryInverter.getModbusSlaveNatureTable(accessMode) //
+		);
 	}
 }
