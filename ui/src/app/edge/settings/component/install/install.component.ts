@@ -91,8 +91,15 @@ export class ComponentInstallComponent implements OnInit {
         // ignore 'null' values
         continue;
       }
+      let value = control.value;
+      // input field returns number variable as string
+      this.fields.forEach(field => {
+        if (field.templateOptions.type == "number" && field.key == controlKey) {
+          value = parseFloat(control.value);
+        }
+      })
       let property_id = controlKey.replace('_', '.');
-      properties.push({ name: property_id, value: control.value });
+      properties.push({ name: property_id, value: value });
     }
 
     this.edge.createComponentConfig(this.websocket, this.factoryId, properties).then(response => {

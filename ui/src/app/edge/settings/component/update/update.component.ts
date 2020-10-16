@@ -76,7 +76,7 @@ export class ComponentUpdateComponent {
       let control = this.form.controls[controlKey];
       if (control.dirty) {
         let value = control.value;
-        // Input Model returns number variable as string
+        // input field returns number variable as string
         this.fields.forEach(field => {
           if (field.templateOptions.type == "number" && field.key == controlKey) {
             value = parseFloat(control.value);
