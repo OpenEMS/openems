@@ -68,6 +68,7 @@
 	bnd.identity;id='io.openems.edge.controller.io.channelsinglethreshold',\
 	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
 	bnd.identity;id='io.openems.edge.controller.io.heatingelement',\
+	bnd.identity;id='io.openems.edge.controller.io.mainswitchcontrol',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.fixpowerlimit',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.selltogridlimit',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancing',\
@@ -189,6 +190,7 @@
 	io.openems.edge.controller.io.channelsinglethreshold;version=snapshot,\
 	io.openems.edge.controller.io.fixdigitaloutput;version=snapshot,\
 	io.openems.edge.controller.io.heatingelement;version=snapshot,\
+	io.openems.edge.controller.io.mainswitchcontrol;version=snapshot,\
 	io.openems.edge.controller.pvinverter.fixpowerlimit;version=snapshot,\
 	io.openems.edge.controller.pvinverter.selltogridlimit;version=snapshot,\
 	io.openems.edge.controller.symmetric.balancing;version=snapshot,\
