@@ -153,7 +153,7 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
     }
 
     protected getImagePath(): string {
-        if (this.gridMode == 0 || this.gridMode == 2) {
+        if (this.gridMode == 2) {
             return "offgrid.png"
         } else {
             return "grid.png"
