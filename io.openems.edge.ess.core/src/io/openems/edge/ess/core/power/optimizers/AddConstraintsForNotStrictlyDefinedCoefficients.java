@@ -120,11 +120,16 @@ public class AddConstraintsForNotStrictlyDefinedCoefficients {
 								new LinearCoefficient(c, 1) },
 						Relationship.EQUALS, target / allInverters.size()));
 			}
+
+			// No new strictly defined constraints? Stop early
+			if (newConstraints.isEmpty()) {
+				return;
+			}
+
 			// Add all individual Constraints; and remove one after the other if solving
 			// fails
 			allConstraints.addAll(newConstraints);
-			Constraint constraint;
-			while ((constraint = newConstraints.pop()) != null) {
+			for (Constraint constraint : newConstraints) {
 				try {
 					ConstraintSolver.solve(coefficients, allConstraints);
 					break;

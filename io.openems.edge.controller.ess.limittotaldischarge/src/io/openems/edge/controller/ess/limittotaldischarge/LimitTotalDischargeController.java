@@ -69,7 +69,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 		}
 	}
 
-	protected LimitTotalDischargeController() {
+	public LimitTotalDischargeController() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //

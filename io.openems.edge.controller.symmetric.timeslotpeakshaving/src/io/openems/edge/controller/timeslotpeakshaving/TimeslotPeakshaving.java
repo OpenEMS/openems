@@ -73,7 +73,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		}
 	}
 
-	protected TimeslotPeakshaving() {
+	public TimeslotPeakshaving() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //

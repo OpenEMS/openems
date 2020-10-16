@@ -60,8 +60,6 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 		IntegerReadChannel maxApparentPowerChannel = context.component
 				.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER);
-//		IntegerReadChannel maxApparentPowerChannel = context.component
-//				.channel(RefuStore88kChannelId.W_RTG);
 		int maxApparentPower = maxApparentPowerChannel.value().getOrError();
 
 		int wSetPct = 0;
@@ -84,36 +82,6 @@ public class RunningHandler extends StateHandler<State, Context> {
 		varMaxLimPctChannel.setNextWriteValue(varSetPct);
 		varMaxLim_EnaChannel.setNextWriteValue(VArPctEna.ENABLED);
 	}
-
-//	private boolean checkIfPowerIsAllowed(Context context) {
-//
-//		// If the battery system is not ready no power can be applied!
-//		if (context.battery.getStartStop() != StartStop.START) {
-//			return false;
-//		}
-//
-//		// Read important Channels from battery
-//		int optV = context.battery.getVoltage().orElse(0);
-//		int disMaxA = context.battery.getDischargeMaxCurrent().orElse(0);
-//		int chaMaxA = context.battery.getChargeMaxCurrent().orElse(0);
-//
-//		// Calculate absolute Value allowedCharge and allowed Discharge from battery
-//		double absAllowedCharge = Math.abs((chaMaxA * optV) / (EFFICIENCY_FACTOR));
-//		double absAllowedDischarge = Math.abs((disMaxA * optV) * (EFFICIENCY_FACTOR));
-//
-//		// Determine allowedCharge and allowedDischarge from Inverter
-//		if (absAllowedCharge > MAX_APPARENT_POWER) {
-//			this.getAllowedCharge().setNextValue(MAX_APPARENT_POWER * -1);
-//		} else {
-//			this.getAllowedCharge().setNextValue(absAllowedCharge * -1);
-//		}
-//
-//		if (absAllowedDischarge > MAX_APPARENT_POWER) {
-//			this.getAllowedDischarge().setNextValue(MAX_APPARENT_POWER);
-//		} else {
-//			this.getAllowedDischarge().setNextValue(absAllowedDischarge);
-//		}
-//	}
 
 	/**
 	 * 
