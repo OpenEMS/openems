@@ -1,7 +1,5 @@
 package io.openems.edge.predictor.persistencemodel.production;
 
-import java.time.Clock;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -35,10 +33,6 @@ public class ProductionPredictor extends AbstractPersistenceModelPredictor
 
 	public ProductionPredictor() {
 		super(OpenemsConstants.SUM_ID, Sum.ChannelId.PRODUCTION_ACTIVE_ENERGY);
-	}
-
-	public ProductionPredictor(Clock clock) {
-		super(clock, OpenemsConstants.SUM_ID, Sum.ChannelId.PRODUCTION_ACTIVE_ENERGY);
 	}
 
 	@Activate

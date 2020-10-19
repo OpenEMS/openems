@@ -1,6 +1,5 @@
 package io.openems.edge.controller.ess.delaycharge;
 
-import java.time.Clock;
 import java.time.LocalDateTime;
 
 import org.osgi.service.component.ComponentContext;
@@ -33,8 +32,6 @@ public class DelayChargeController extends AbstractOpenemsComponent implements C
 	@Reference
 	protected ComponentManager componentManager;
 
-	private final Clock clock;
-
 	private Config config = null;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -56,16 +53,11 @@ public class DelayChargeController extends AbstractOpenemsComponent implements C
 	}
 
 	public DelayChargeController() {
-		this(Clock.systemDefaultZone());
-	}
-
-	protected DelayChargeController(Clock clock) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.clock = clock;
 	}
 
 	@Activate
@@ -119,7 +111,7 @@ public class DelayChargeController extends AbstractOpenemsComponent implements C
 	}
 
 	private int currentSecondOfDay() {
-		LocalDateTime now = LocalDateTime.now(this.clock);
+		LocalDateTime now = LocalDateTime.now(this.componentManager.getClock());
 		return now.getHour() * 3600 + now.getMinute() * 60 + now.getSecond();
 	}
 
