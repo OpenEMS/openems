@@ -4,10 +4,11 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.bydcommercial.PreChargeControl;
-import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.Context;
+import io.openems.edge.battery.bydcommercial.PowerCircuitControl;
+import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
+import io.openems.edge.common.statemachine.StateHandler;
 
-public class ErrorHandling extends State.Handler {
+public class ErrorHandler extends StateHandler<State, Context> {
 
 	private Instant entryAt = Instant.MIN;
 
@@ -16,17 +17,17 @@ public class ErrorHandling extends State.Handler {
 		this.entryAt = Instant.now();
 
 		// Try to stop system
-		context.component.setPreChargeControl(PreChargeControl.SWITCH_OFF);
+		context.component._setPowerCircuitControl(PowerCircuitControl.SWITCH_OFF);
 	}
 
 	@Override
 	protected void onExit(Context context) throws OpenemsNamedException {
-		context.component.setMaxStartAttempts(false);
-		context.component.setMaxStopAttempts(false);
+		context.component._setMaxStartAttempts(false);
+		context.component._setMaxStopAttempts(false);
 	}
 
 	@Override
-	public State getNextState(Context context) {
+	public State runAndGetNextState(Context context) {
 		System.out.println("Stuck in ERROR_HANDLING: " + context.component.getStateChannel().listStates());
 
 		if (Duration.between(this.entryAt, Instant.now()).getSeconds() > 120) {
@@ -34,7 +35,7 @@ public class ErrorHandling extends State.Handler {
 			return State.UNDEFINED;
 		}
 
-		return State.ERROR_HANDLING;
+		return State.ERROR;
 	}
 
 }
