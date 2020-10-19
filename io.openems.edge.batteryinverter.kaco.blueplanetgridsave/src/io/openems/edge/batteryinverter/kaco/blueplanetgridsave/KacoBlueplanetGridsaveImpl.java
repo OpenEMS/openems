@@ -1,7 +1,5 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -110,7 +108,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 			.put(DefaultSunSpecModel.S_121, Priority.LOW) //
 			.put(KacoSunSpecModel.S_64201, Priority.HIGH) //
 			.put(KacoSunSpecModel.S_64202, Priority.LOW) //
-			.put(KacoSunSpecModel.S_64203, Priority.LOW) //
+		//	.put(KacoSunSpecModel.S_64203, Priority.LOW) //
 			.put(KacoSunSpecModel.S_64204, Priority.LOW) //
 			.build();
 
@@ -171,7 +169,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 		}
 
 		// Set Display Information
-		this.setDisplayInformation(battery);
+	//	this.setDisplayInformation(battery);
 
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
@@ -466,7 +464,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				SymmetricBatteryInverter.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricBatteryInverter.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
