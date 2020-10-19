@@ -1,5 +1,6 @@
 package io.openems.edge.evcs.keba.kecontact;
 
+import io.openems.common.channel.Debounce;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
@@ -16,6 +17,9 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	SERIAL(Doc.of(OpenemsType.STRING).text("Serial number")), //
 	FIRMWARE(Doc.of(OpenemsType.STRING).text("Firmware version")), //
 	COM_MODULE(Doc.of(OpenemsType.STRING).text("Communication module is installed; KeContact P30 only")),
+	DIP_SWITCH_1(Doc.of(OpenemsType.STRING).text("The first eight dip switch settings as binary")),
+	DIP_SWITCH_2(Doc.of(OpenemsType.STRING).text("The second eight dip switch settings as binary")),
+
 	/*
 	 * Report 2
 	 */
@@ -56,7 +60,23 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 			.text("Total power consumption (persistent) without current loading session. "
 					+ "Is summed up after each completed charging session")), //
 
-	CHARGINGSTATION_STATE_ERROR(Doc.of(Level.WARNING));
+	DIP_SWITCH_ERROR_1_3_NOT_SET_FOR_COMM(Doc.of(Level.FAULT) //
+			.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
+			.text("Dip-Switch 1.3. for communication must be on")), //
+	DIP_SWITCH_ERROR_2_6_NOT_SET_FOR_STATIC_IP(Doc.of(Level.FAULT) //
+			.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
+			.text("A static ip is configured. The Dip-Switch 2.6. must be on")), //
+	DIP_SWITCH_ERROR_2_6_SET_FOR_DYNAMIC_IP(Doc.of(Level.FAULT) //
+			.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
+			.text("A dynamic ip is configured. Ether the Dip-Switch 2.6. must be off or a static ip has to be configured")), //
+	DIP_SWITCH_INFO_2_5_SET_FOR_MASTER_SLAVE_COMM(Doc.of(Level.INFO) //
+			.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
+			.text("Master-Slave communication is configured. If this is a normal KEBA that should be not controlled by a KEBA x-series, Dip-Switch 2.5. should be off")), //
+	DIP_SWITCH_INFO_2_8_SET_FOR_INSTALLATION(Doc.of(Level.WARNING) //
+			.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
+			.text("Installation mode is configured. If the installation has finished, Dip-Switch 2.8. should be off")), //
+	CHARGINGSTATION_STATE_ERROR(Doc.of(Level.WARNING) //
+			.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE));
 
 	private final Doc doc;
 
