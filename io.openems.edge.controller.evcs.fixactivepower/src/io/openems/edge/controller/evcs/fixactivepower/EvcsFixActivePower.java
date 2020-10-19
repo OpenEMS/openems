@@ -1,6 +1,5 @@
 package io.openems.edge.controller.evcs.fixactivepower;
 
-import java.time.Clock;
 import java.time.LocalDateTime;
 
 import org.osgi.service.component.ComponentContext;
@@ -20,22 +19,20 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.evcs.api.ManagedEvcs;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.Evcs.FixActivePower", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Controller.Evcs.FixActivePower", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class EvcsFixActivePower extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private static final int RUN_EVERY_MINUTES = 1;
-
-	private final Clock clock;
 
 	private LocalDateTime lastRun = LocalDateTime.MIN;
 	private Config config;
 
 	@Reference
 	protected ComponentManager componentManager;
-
-	public EvcsFixActivePower() {
-		this(Clock.systemDefaultZone());
-	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -51,13 +48,12 @@ public class EvcsFixActivePower extends AbstractOpenemsComponent implements Cont
 		}
 	}
 
-	protected EvcsFixActivePower(Clock clock) {
+	public EvcsFixActivePower() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.clock = clock;
 	}
 
 	@Activate
@@ -74,9 +70,10 @@ public class EvcsFixActivePower extends AbstractOpenemsComponent implements Cont
 
 	@Override
 	public void run() throws OpenemsNamedException {
+		LocalDateTime now = LocalDateTime.now(this.componentManager.getClock());
 
 		// Execute only every ... minutes
-		if (this.lastRun.plusMinutes(RUN_EVERY_MINUTES).isAfter(LocalDateTime.now(this.clock))) {
+		if (this.lastRun.plusMinutes(RUN_EVERY_MINUTES).isAfter(now)) {
 			return;
 		}
 
@@ -84,7 +81,7 @@ public class EvcsFixActivePower extends AbstractOpenemsComponent implements Cont
 
 		// set charge power
 		evcs.setChargePowerLimit(this.config.power());
-		this.lastRun = LocalDateTime.now(this.clock);
+		this.lastRun = now;
 
 	}
 

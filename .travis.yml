@@ -6,7 +6,7 @@ matrix:
       jdk:
        - openjdk8
       script:
-       - ./gradlew build -x test
+       - ./gradlew build
        - ./gradlew buildAggregatedJavadocs --continue
        - ./gradlew buildAntoraDocs --continue
       deploy:

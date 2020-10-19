@@ -1,0 +1,4 @@
+eclipse.preferences.version=1
+encoding//src/io/openems/edge/scheduler/fixedorder/FixedOrderScheduler.java=UTF-8
+encoding//src/io/openems/edge/scheduler/fixedorder/FixedOrderSchedulerImpl.java=UTF-8
+encoding/bnd.bnd=UTF-8
