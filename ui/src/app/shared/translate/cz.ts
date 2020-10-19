@@ -87,12 +87,12 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'About OpenEMS UI',
-        edgeSettings: 'FEMS Předvolby',
+        edgeSettings: 'OpenEMS Edge Předvolby',
         generalSettings: 'Obecné Nastavení',
         index: 'Přehled',
         logout: 'Odhlásit',
         menu: 'Menu',
-        overview: 'FEMS Přehled',
+        overview: 'OpenEMS Edge Přehled',
     },
     Index: {
         allConnected: 'Všechna připojení aktivní.',

@@ -13,53 +13,36 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.ApiWorker;
-import io.openems.edge.controller.api.rest.readonly.RestApiReadOnly;
+import io.openems.edge.controller.api.rest.readonly.RestApiReadOnlyImpl;
 import io.openems.edge.timedata.api.Timedata;
 
-public abstract class AbstractRestApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
+public abstract class AbstractRestApi extends AbstractOpenemsComponent
+		implements RestApi, Controller, OpenemsComponent {
 
 	public static final boolean DEFAULT_DEBUG_MODE = true;
 
 	protected final ApiWorker apiWorker = new ApiWorker();
 
-	private final Logger log = LoggerFactory.getLogger(RestApiReadOnly.class);
+	private final Logger log = LoggerFactory.getLogger(RestApiReadOnlyImpl.class);
 	private final String implementationName;
 
 	private Server server = null;
 	private boolean isDebugModeEnabled = DEFAULT_DEBUG_MODE;
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
-
-	public AbstractRestApi(String implementationName) {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				Controller.ChannelId.values(), //
-				ChannelId.values() //
-		);
+	public AbstractRestApi(String implementationName, io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+		super(firstInitialChannelIds, furtherInitialChannelIds);
 		this.implementationName = implementationName;
 	}
 
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
-			boolean isDebugModeEnabled, int apiTimeout, int port) throws OpenemsException {
+			boolean isDebugModeEnabled, int apiTimeout, int port) {
 		super.activate(context, id, alias, enabled);
 		this.isDebugModeEnabled = isDebugModeEnabled;
 
@@ -80,8 +63,12 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent implement
 			this.server.addBean(new ConnectionLimit(5, this.server));
 			this.server.start();
 			this.logInfo(this.log, this.implementationName + " started on port [" + port + "].");
+			this._setUnableToStart(false);
+
 		} catch (Exception e) {
-			throw new OpenemsException(this.implementationName + " failed on port [" + port + "].", e);
+			this.logError(this.log,
+					"Unable to start " + this.implementationName + " on port [" + port + "]: " + e.getMessage());
+			this._setUnableToStart(true);
 		}
 	}
 

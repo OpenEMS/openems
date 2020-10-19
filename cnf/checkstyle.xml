@@ -194,6 +194,16 @@
     </module>
     <module name="CommentsIndentation"/>
     <module name="SuppressionCommentFilter"/>
+    <module name="JavadocMethod"/>
+    <module name="JavadocMissingWhitespaceAfterAsterisk"/>
+    <module name="JavadocStyle">
+      <property name="tokens" value="ANNOTATION_DEF,ANNOTATION_FIELD_DEF,CLASS_DEF,CTOR_DEF,ENUM_CONSTANT_DEF,ENUM_DEF,INTERFACE_DEF,METHOD_DEF,VARIABLE_DEF"/>
+    </module>
+    <module name="MissingJavadocMethod">
+      <property name="allowedAnnotations" value="Before,Test,After,Override"/>
+      <property name="ignoreMethodNamesRegex" value="doc"/>
+      <property name="tokens" value="METHOD_DEF,ANNOTATION_FIELD_DEF"/>
+    </module>
   </module>
   <module name="LineLength">
     <property name="severity" value="ignore"/>

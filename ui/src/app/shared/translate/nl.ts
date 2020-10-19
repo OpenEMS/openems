@@ -83,12 +83,12 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'Over OpenEMS UI',
-        edgeSettings: 'FEMS instellingen',
+        edgeSettings: 'OpenEMS Edge instellingen',
         generalSettings: 'Algemene instellingen',
         index: 'Overzicht',
         logout: 'Uitloggen',
         menu: 'Menu',
-        overview: 'FEMS overzicht',
+        overview: 'OpenEMS Edge overzicht',
     },
     Index: {
         allConnected: 'Alle verbindingen gemaakt.',
