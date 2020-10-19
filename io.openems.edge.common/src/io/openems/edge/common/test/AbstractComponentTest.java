@@ -133,8 +133,11 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 * Applies the values for input channels.
 		 * 
 		 * @param components Referenced components
+		 * @throws OpenemsNamedException    on error
+		 * @throws IllegalArgumentException on error
 		 */
-		protected void applyInputs(Map<String, OpenemsComponent> components) {
+		protected void applyInputs(Map<String, OpenemsComponent> components)
+				throws IllegalArgumentException, OpenemsNamedException {
 			for (ChannelValue input : this.inputs) {
 				OpenemsComponent component = components.get(input.address.getComponentId());
 				if (component == null) {
@@ -145,6 +148,9 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				Channel<?> channel = component.channel(input.address.getChannelId());
 				channel.setNextValue(input.getValue());
 				channel.nextProcessImage();
+				if (channel instanceof WriteChannel<?>) {
+					((WriteChannel<?>) channel).setNextWriteValueFromObject(input.getValue());
+				}
 			}
 		}
 
@@ -172,6 +178,9 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 					Value<?> value = channel.getNextValue();
 					got = value.orElse(null);
 					gotText = value.asOptionString();
+					if (gotText.isEmpty()) {
+						gotText = Objects.toString(got);
+					}
 				}
 				if (!Objects.equals(expected, got)) {
 					throw new Exception("On TestCase [" + this.description + "]: " //
@@ -285,6 +294,14 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 * @throws Exception on error
 	 */
 	public SELF activate(AbstractComponentConfig config) throws Exception {
+		// Add the configuration to ConfigurationAdmin
+		for (Object object : this.references) {
+			if (object instanceof DummyConfigurationAdmin) {
+				DummyConfigurationAdmin cm = (DummyConfigurationAdmin) object;
+				cm.addConfig(config);
+			}
+		}
+
 		int configChangeCount = this.getConfigChangeCount();
 		this.callActivate(config);
 
@@ -328,7 +345,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 				if (ComponentContext.class.isAssignableFrom(parameter.getType())) {
 					// ComponentContext
-					arg = null; // TODO create DummyComponentContext
+					arg = DummyComponentContext.from(config);
 
 				} else if (parameter.getType().isInstance(config)) {
 					// Config
@@ -410,25 +427,27 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 */
 	public SELF next(TestCase testCase) throws Exception {
 		testCase.applyTimeLeap();
+		this.onBeforeProcessImage();
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE);
+		for (Channel<?> channel : this.getSut().channels()) {
+			channel.nextProcessImage();
+		}
 		testCase.applyInputs(this.components);
+		this.onAfterProcessImage();
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE);
+		this.onBeforeControllers();
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS);
-		this.executeController();
+		this.onExecuteControllers();
+		this.onAfterControllers();
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS);
+		this.onBeforeWrite();
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE);
+		this.onExecuteWrite();
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE);
+		this.onAfterWrite();
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE);
 		testCase.validateOutputs(this.components);
 		return this.self();
-	}
-
-	/**
-	 * TODO: remove: Test-Cases are now executed directly on adding via
-	 * {@link #next(TestCase)}.
-	 */
-	public void run() {
-
 	}
 
 	/**
@@ -447,12 +466,76 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	}
 
 	/**
-	 * Executes the Controller logic if SUT is a Controller. This method is executed
-	 * after TOPIC_CYCLE_BEFORE_CONTROLLERS and before
+	 * This method is executed before the
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_PROCESS_IMAGE event.
+	 * 
+	 * @throws OpenemsNamedException on error
+	 */
+	protected void onBeforeProcessImage() throws OpenemsNamedException {
+	}
+
+	/**
+	 * This method is executed before the
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_PROCESS_IMAGE event.
+	 * 
+	 * @throws OpenemsNamedException on error
+	 */
+	protected void onAfterProcessImage() throws OpenemsNamedException {
+	}
+
+	/**
+	 * This method is executed before the
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_CONTROLLERS event.
+	 * 
+	 * @throws OpenemsNamedException on error
+	 */
+	protected void onBeforeControllers() throws OpenemsNamedException {
+	}
+
+	/**
+	 * This method is executed after TOPIC_CYCLE_BEFORE_CONTROLLERS and before
 	 * TOPIC_CYCLE_AFTER_CONTROLLERS.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
-	protected void executeController() throws OpenemsNamedException {
+	protected void onExecuteControllers() throws OpenemsNamedException {
 	}
+
+	/**
+	 * This method is executed before the
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_CONTROLLERS event.
+	 * 
+	 * @throws OpenemsNamedException on error
+	 */
+	protected void onAfterControllers() throws OpenemsNamedException {
+	}
+
+	/**
+	 * This method is executed before the
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_WRITE event.
+	 * 
+	 * @throws OpenemsNamedException on error
+	 */
+	protected void onBeforeWrite() throws OpenemsNamedException {
+	}
+
+	/**
+	 * This method is executed before the
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_EXECUTE_WRITE event.
+	 * 
+	 * @throws OpenemsNamedException on error
+	 */
+	protected void onExecuteWrite() throws OpenemsNamedException {
+	}
+
+	/**
+	 * This method is executed before
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_WRITE.
+	 * 
+	 * @throws OpenemsNamedException on error
+	 */
+	protected void onAfterWrite() {
+
+	}
+
 }

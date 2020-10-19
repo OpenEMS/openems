@@ -26,8 +26,8 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.CheckedConsumer;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ConfigurationProperty;
 import io.openems.common.utils.StringUtils;
@@ -231,8 +231,8 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	 * @param callback the callback that should get called
 	 * @throws OpenemsNamedException on error
 	 */
-	private static void onMatchString(Pattern pattern, String line, CheckedConsumer<String> callback)
-			throws OpenemsNamedException {
+	private static void onMatchString(Pattern pattern, String line,
+			ThrowingConsumer<String, OpenemsNamedException> callback) throws OpenemsNamedException {
 		Matcher matcher = pattern.matcher(line);
 		if (matcher.find() && matcher.groupCount() > 0) {
 			callback.accept(matcher.group(1));
@@ -247,8 +247,8 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	 * @param callback the callback that should get called
 	 * @throws OpenemsNamedException on error
 	 */
-	private static void onMatchInet4Address(Pattern pattern, String line, CheckedConsumer<Inet4Address> callback)
-			throws OpenemsNamedException {
+	private static void onMatchInet4Address(Pattern pattern, String line,
+			ThrowingConsumer<Inet4Address, OpenemsNamedException> callback) throws OpenemsNamedException {
 		onMatchString(pattern, line, property -> {
 			try {
 				callback.accept((Inet4Address) Inet4Address.getByName(property));

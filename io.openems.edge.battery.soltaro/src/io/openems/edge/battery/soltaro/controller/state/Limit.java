@@ -3,7 +3,7 @@ package io.openems.edge.battery.soltaro.controller.state;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.battery.soltaro.SoltaroBattery;
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.controller.IState;
 import io.openems.edge.battery.soltaro.controller.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -22,7 +22,7 @@ public class Limit extends BaseState implements IState {
 
 	public Limit(//
 			ManagedSymmetricEss ess, //
-			SoltaroBattery bms, //
+			Battery bms, //
 			int warningLowCellVoltage, //
 			int criticalLowCellVoltage, //
 			int criticalHighCellVoltage, //
@@ -62,7 +62,7 @@ public class Limit extends BaseState implements IState {
 			return State.FORCE_CHARGE;
 		}
 
-		if (bmsNeedsFullCharge(unusedTime)) {
+		if (bmsNeedsFullCharge(this.unusedTime)) {
 			return State.FULL_CHARGE;
 		}
 
@@ -81,7 +81,7 @@ public class Limit extends BaseState implements IState {
 
 	@Override
 	public void act() {
-		log.info("act");
+		this.log.info("act");
 		// Deny further discharging or charging
 
 		if (getBmsMinCellTemperature() <= lowTemperature || getBmsMaxCellTemperature() >= highTemperature) {

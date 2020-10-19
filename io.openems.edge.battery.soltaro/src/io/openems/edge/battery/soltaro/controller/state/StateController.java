@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.soltaro.SoltaroBattery;
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.controller.Config;
 import io.openems.edge.battery.soltaro.controller.IState;
 import io.openems.edge.battery.soltaro.controller.State;
@@ -19,7 +19,7 @@ public class StateController {
 		stateObjects = new HashMap<State, IState>();
 
 		ManagedSymmetricEss ess;
-		SoltaroBattery bms;
+		Battery bms;
 
 		ess = componentManager.getComponent(c.ess_id());
 		bms = componentManager.getComponent(c.bms_id());

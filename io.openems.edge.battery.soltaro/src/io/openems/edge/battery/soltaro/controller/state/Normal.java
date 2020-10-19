@@ -1,6 +1,6 @@
 package io.openems.edge.battery.soltaro.controller.state;
 
-import io.openems.edge.battery.soltaro.SoltaroBattery;
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.controller.IState;
 import io.openems.edge.battery.soltaro.controller.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -16,7 +16,7 @@ public class Normal extends BaseState implements IState {
 
 	public Normal(//
 			ManagedSymmetricEss ess, //
-			SoltaroBattery bms, //
+			Battery bms, //
 			int warningLowCellVoltage, //
 			int criticalHighCellVoltage, //
 			int warningSoC, //
@@ -69,7 +69,7 @@ public class Normal extends BaseState implements IState {
 			return State.LIMIT;
 		}
 
-		if (bmsNeedsFullCharge(unusedTime)) {
+		if (bmsNeedsFullCharge(this.unusedTime)) {
 			return State.FULL_CHARGE;
 		}
 

@@ -8,7 +8,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201CurrentState;
-import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.State;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -73,12 +73,14 @@ public class KacoBlueplanetGridsaveTest {
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.REQUESTED_STATE.getChannelId());
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.CURRENT_STATE.getChannelId());
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.WATCHDOG.getChannelId());
+		addChannel.invoke(sut, KacoSunSpecModel.S64201.W_SET_PCT.getChannelId());
 
 		test.activate(MyConfig.create() //
 				.setId(BATTERY_INVERTER_ID) //
 				.setStartStopConfig(StartStopConfig.START) //
 				.setModbusId(MODBUS_ID).build()) //
 				.next(new TestCase() //
+						.input(CURRENT_STATE, S64201CurrentState.OFF) //
 						.output(STATE_MACHINE, State.UNDEFINED)) //
 				.next(new TestCase() //
 						.output(STATE_MACHINE, State.GO_RUNNING)) //

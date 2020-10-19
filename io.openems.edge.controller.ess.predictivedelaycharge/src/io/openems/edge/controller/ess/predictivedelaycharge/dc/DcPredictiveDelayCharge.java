@@ -1,7 +1,5 @@
 package io.openems.edge.controller.ess.predictivedelaycharge.dc;
 
-import java.time.Clock;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -46,14 +44,10 @@ public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge imple
 		super();
 	}
 
-	public DcPredictiveDelayCharge(Clock clock) {
-		super(clock);
-	}
-
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.meter_id(),
-				config.noOfBufferHours());
+				config.noOfBufferHours(), config.debugMode());
 		this.config = config;
 	}
 
@@ -85,6 +79,11 @@ public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge imple
 						Relationship.GREATER_OR_EQUALS, calculatedPower);
 			}
 		}
+	}
+
+	@Override
+	protected ComponentManager getComponentManager() {
+		return this.componentManager;
 	}
 
 }

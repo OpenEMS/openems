@@ -45,7 +45,7 @@ public class BatteryHandlingController extends AbstractOpenemsComponent implemen
 
 		this.checkConfiguration(config);
 		this.config = config;
-		StateController.init(componentManager, config);
+		StateController.init(this.componentManager, config);
 		this.stateObject = StateController.getStateObject(State.UNDEFINED);
 	}
 
@@ -83,8 +83,8 @@ public class BatteryHandlingController extends AbstractOpenemsComponent implemen
 
 	@Override
 	public String debugLog() {
-		State currentState = stateObject.getState();
-		State nextState = stateObject.getNextState();
+		State currentState = this.stateObject.getState();
+		State nextState = this.stateObject.getNextState();
 		if (currentState == nextState) {
 			return "State:" + currentState.getName();
 		} else {

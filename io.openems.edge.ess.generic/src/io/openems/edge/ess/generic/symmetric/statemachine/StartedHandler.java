@@ -2,6 +2,7 @@ package io.openems.edge.ess.generic.symmetric.statemachine;
 
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
+import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 
 public class StartedHandler extends StateHandler<State, Context> {
 

@@ -10,12 +10,14 @@ export const TRANSLATION = {
         changeFailed: 'Cambio fallido',
         chargeDischarge: 'Débito/Descarga',
         chargePower: 'Carga',
+        componentCount: 'Numero de componentes',
         componentInactive: 'El componente está inactivo!',
         connectionLost: 'Conexión perdida. Intentando reconectar.',
         consumption: 'Consumo',
         cumulative: 'Valores Acumulativos',
         currentValue: 'Valor actual',
         dateFormat: 'dd.MM.yyyy', // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
+        digitalInputs: 'Entradas digitales',
         dischargePower: 'Descarga',
         fault: 'Error',
         grid: 'Red',
@@ -81,12 +83,12 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'Sobre OpenEMS-UI',
-        edgeSettings: 'Configuración FEMS',
+        edgeSettings: 'Configuración OpenEMS Edge',
         generalSettings: 'Configuración general',
         index: 'Visión general',
         logout: 'Desuscribirse',
         menu: 'Menú',
-        overview: 'estudio FEMS',
+        overview: 'estudio OpenEMS Edge',
     },
     Index: {
         allConnected: 'Todas las conexiones establecidas.',
@@ -181,6 +183,7 @@ export const TRANSLATION = {
                     status: 'Status',
                     totalCharge: 'Carga total',
                     totalChargingPower: 'Potencia de carga total',
+                    unknown: 'Desconocido',
                     unplugged: 'No conectado',
                     Administration: {
                         carAdministration: 'Administración de automóviles',

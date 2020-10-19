@@ -670,7 +670,7 @@ public enum EssChannelId implements ChannelId {
 
 	// BMS_STATUS(), //
 	STATE_79(Doc.of(Level.INFO).text("force to charge")), //
-	STATE_80(Doc.of(Level.INFO).text("Stop charging")), //
+	STATE_80(Doc.of(Level.INFO).text("Stop charging")), // TODO can be removed?
 	STATE_81(Doc.of(Level.INFO).text("Stop discharging"));
 
 	private final Doc doc;

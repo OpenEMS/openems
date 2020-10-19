@@ -7,8 +7,6 @@ import io.openems.edge.controller.api.Controller;
 
 /**
  * Provides a generic test framework for OpenEMS {@link Controller}s.
- * 
- * @see {@link AbstractComponentTest} for implementation details
  */
 public class ControllerTest extends AbstractComponentTest<ControllerTest, Controller> {
 
@@ -20,7 +18,7 @@ public class ControllerTest extends AbstractComponentTest<ControllerTest, Contro
 	}
 
 	@Override
-	protected void executeController() throws OpenemsNamedException {
+	protected void onExecuteControllers() throws OpenemsNamedException {
 		this.getSut().run();
 	}
 
