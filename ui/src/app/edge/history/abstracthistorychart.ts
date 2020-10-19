@@ -1,30 +1,26 @@
-import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
+import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets } from 'chart.js';
-import { EMPTY_DATASET, ChartOptions } from './shared';
-import { interval, Subject, fromEvent } from 'rxjs';
-import { isAfter } from 'date-fns/esm';
+import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
+import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
-import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
-import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { TranslateService } from '@ngx-translate/core';
+import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
+import { ChartOptions, EMPTY_DATASET } from './shared';
 
-
+// NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
-
 
     public loading: boolean = true;
     public spinnerId: string = "";
 
     //observable is used to fetch new chart data every 10 minutes
-    private refreshChartData = interval(600000);
+    // private refreshChartData = interval(600000);
 
     //observable is used to refresh chart height dependend on the window size
-    private refreshChartHeight = fromEvent(window, 'resize', null, null);
+    // private refreshChartHeight = fromEvent(window, 'resize', null, null);
 
-    private ngUnsubscribe: Subject<void> = new Subject<void>();
-
+    // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     protected labels: Date[] = [];
     protected datasets: ChartDataSets[] = EMPTY_DATASET;
@@ -122,16 +118,16 @@ export abstract class AbstractHistoryChart {
      * checks if chart is allowed to be refreshed
      * 
      */
-    protected checkAllowanceChartRefresh(): boolean {
-        let currentDate = new Date();
-        let allowRefresh: boolean = false;
-        if (isAfter(this.service.historyPeriod.to, currentDate) || currentDate.getDate() == this.service.historyPeriod.from.getDate()) {
-            allowRefresh = true;
-        } else {
-            allowRefresh = false;
-        }
-        return allowRefresh;
-    }
+    // protected checkAllowanceChartRefresh(): boolean {
+    //     let currentDate = new Date();
+    //     let allowRefresh: boolean = false;
+    //     if (isAfter(this.service.historyPeriod.to, currentDate) || currentDate.getDate() == this.service.historyPeriod.from.getDate()) {
+    //         allowRefresh = true;
+    //     } else {
+    //         allowRefresh = false;
+    //     }
+    //     return allowRefresh;
+    // }
 
     /**
      * Subscribe to Chart Refresh if allowed

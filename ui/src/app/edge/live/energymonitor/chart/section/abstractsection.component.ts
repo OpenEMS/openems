@@ -1,7 +1,7 @@
-import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
-import { Service } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import * as d3 from 'd3';
+import { Service } from 'src/app/shared/shared';
+import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 
 export type Ratio = 'Only Positive [0,1]' | 'Negative and Positive [-1,1]';
 
@@ -164,7 +164,7 @@ export abstract class AbstractSection {
     }
 
     /**
-     * attr.fill="{{ fillRef }}" hast to be specific if using Safari (IOS Browser)
+     * attr.fill="{{ fillRef }}" has to be specific if using Safari (IOS Browser)
      * otherwise Energymonitor wont be displayed correctly
      */
     protected adjustFillRefbyBrowser(): void {

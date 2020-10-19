@@ -1,17 +1,15 @@
-import { interval, Subject } from 'rxjs';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { Service, ChannelAddress, Edge, EdgeConfig } from 'src/app/shared/shared';
-import { takeUntil } from 'rxjs/operators';
-import { isAfter } from 'date-fns';
+import { ChannelAddress, Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 
+// NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryWidget {
 
     //observable is used to fetch new widget data every 5 minutes
-    private refreshWidgetData = interval(600000);
+    // private refreshWidgetData = interval(600000);
 
-    private ngUnsubscribe: Subject<void> = new Subject<void>();
+    // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     constructor(
         protected service: Service,
@@ -71,16 +69,16 @@ export abstract class AbstractHistoryWidget {
     /**
      * checks if widget is allowed to be refreshed
      */
-    protected checkAllowanceWidgetRefresh(): boolean {
-        let currentDate = new Date();
-        let allowRefresh: boolean = false;
-        if (isAfter(this.service.historyPeriod.from.getDate(), currentDate.getDate()) || currentDate.getDate() == this.service.historyPeriod.from.getDate()) {
-            allowRefresh = true;
-        } else {
-            allowRefresh = false;
-        }
-        return allowRefresh;
-    }
+    // protected checkAllowanceWidgetRefresh(): boolean {
+    //     let currentDate = new Date();
+    //     let allowRefresh: boolean = false;
+    //     if (isAfter(this.service.historyPeriod.from.getDate(), currentDate.getDate()) || currentDate.getDate() == this.service.historyPeriod.from.getDate()) {
+    //         allowRefresh = true;
+    //     } else {
+    //         allowRefresh = false;
+    //     }
+    //     return allowRefresh;
+    // }
 
     /**
      * Gets the ChannelAdresses that should be queried.

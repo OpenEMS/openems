@@ -1,8 +1,9 @@
 import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastController, ModalController } from '@ionic/angular';
+import { ModalController, ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Cookie } from 'ng2-cookies';
+import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
 import { Edge } from '../edge/edge';
@@ -15,7 +16,6 @@ import { ChannelAddress } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
-import { NgxSpinnerService } from 'ngx-spinner';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -94,24 +94,12 @@ export class Service implements ErrorHandler {
    */
   public browserLangToLangTag(browserLang: string): LanguageTag {
     switch (browserLang) {
-      case "de": {
-        return LanguageTag.DE
-      }
-      case "en": {
-        return LanguageTag.EN
-      }
-      case "es": {
-        return LanguageTag.ES
-      }
-      case "nl": {
-        return LanguageTag.NL
-      }
-      case "cz": {
-        return LanguageTag.CZ
-      }
-      default: {
-        return "German" as LanguageTag
-      }
+      case "de": return LanguageTag.DE;
+      case "en": return LanguageTag.EN;
+      case "es": return LanguageTag.ES;
+      case "nl": return LanguageTag.NL;
+      case "cz": return LanguageTag.CZ;
+      default: return LanguageTag.DE;
     }
   }
 

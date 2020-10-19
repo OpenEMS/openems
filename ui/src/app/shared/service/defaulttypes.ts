@@ -1,6 +1,5 @@
 import { TranslateService } from '@ngx-translate/core';
-import { endOfMonth, endOfYear, format, getDay, getMonth, getYear, isSameDay, isSameMonth, isSameYear, startOfMonth, startOfWeek, startOfYear, subDays } from 'date-fns';
-import { EdgeConfig } from '../shared';
+import { endOfMonth, format, getDay, getMonth, getYear, isSameDay, isSameMonth, startOfMonth, subDays } from 'date-fns';
 
 export module DefaultTypes {
 
@@ -100,100 +99,76 @@ export module DefaultTypes {
     ) { }
 
     public getText(translate: TranslateService): string {
-      if (isSameDay(this.from, this.to) && isSameDay(this.from, new Date())) {
-        return translate.instant('Edge.History.today') + ", " + format(new Date(), translate.instant('General.dateFormat'));
-      }
-      else if (isSameDay(this.from, this.to) && !isSameDay(this.from, subDays(new Date(), 1))) {
-        switch (getDay(this.from)) {
-          case 0: {
-            return translate.instant('General.Week.sunday') + ", " + translate.instant('Edge.History.selectedDay', {
-              value: format(this.from, translate.instant('General.dateFormat'))
-            })
-          }
-          case 1: {
-            return translate.instant('General.Week.monday') + ", " + translate.instant('Edge.History.selectedDay', {
-              value: format(this.from, translate.instant('General.dateFormat'))
-            })
-          }
-          case 2: {
-            return translate.instant('General.Week.tuesday') + ", " + translate.instant('Edge.History.selectedDay', {
-              value: format(this.from, translate.instant('General.dateFormat'))
-            })
-          }
-          case 3: {
-            return translate.instant('General.Week.wednesday') + ", " + translate.instant('Edge.History.selectedDay', {
-              value: format(this.from, translate.instant('General.dateFormat'))
-            })
-          }
-          case 4: {
-            return translate.instant('General.Week.thursday') + ", " + translate.instant('Edge.History.selectedDay', {
-              value: format(this.from, translate.instant('General.dateFormat'))
-            })
-          }
-          case 5: {
-            return translate.instant('General.Week.friday') + ", " + translate.instant('Edge.History.selectedDay', {
-              value: format(this.from, translate.instant('General.dateFormat'))
-            })
-          }
-          case 6: {
-            return translate.instant('General.Week.saturday') + ", " + translate.instant('Edge.History.selectedDay', {
-              value: format(this.from, translate.instant('General.dateFormat'))
-            })
-          }
+      if (isSameDay(this.from, this.to)) {
+        if (isSameDay(this.from, new Date())) {
+          // Selected TODAY
+          return translate.instant('Edge.History.today') + ", " + format(new Date(), translate.instant('General.dateFormat'));
+
+        } else if (isSameDay(this.from, subDays(new Date(), 1))) {
+          // Selected YESTERDAY
+          return translate.instant('Edge.History.yesterday') + ", " + format(this.from, translate.instant('General.dateFormat'));
+
+        } else {
+          // Selected one single day
+          return HistoryPeriod.getTranslatedDayString(translate, this.from) + ", " + translate.instant('Edge.History.selectedDay', {
+            value: format(this.from, translate.instant('General.dateFormat'))
+          });
         }
-      }
-      else if (isSameDay(this.from, this.to) && isSameDay(this.from, subDays(new Date(), 1))) {
-        return translate.instant('Edge.History.yesterday') + ", " + format(this.from, translate.instant('General.dateFormat'));
-      }
-      else if (isSameMonth(this.from, this.to) && isSameDay(this.from, startOfMonth(this.from)) && isSameDay(this.to, endOfMonth(this.to))) {
-        switch (getMonth(this.from) + 1) {
-          case 1: {
-            return translate.instant('General.Month.january') + " " + getYear(this.from);
-          }
-          case 2: {
-            return translate.instant('General.Month.february') + " " + getYear(this.from);
-          }
-          case 3: {
-            return translate.instant('General.Month.march') + " " + getYear(this.from);
-          }
-          case 4: {
-            return translate.instant('General.Month.april') + " " + getYear(this.from);
-          }
-          case 5: {
-            return translate.instant('General.Month.may') + " " + getYear(this.from);
-          }
-          case 6: {
-            return translate.instant('General.Month.june') + " " + getYear(this.from);
-          }
-          case 7: {
-            return translate.instant('General.Month.july') + " " + getYear(this.from);
-          }
-          case 8: {
-            return translate.instant('General.Month.august') + " " + getYear(this.from);
-          }
-          case 9: {
-            return translate.instant('General.Month.september') + " " + getYear(this.from);
-          }
-          case 10: {
-            return translate.instant('General.Month.october') + " " + getYear(this.from);
-          }
-          case 11: {
-            return translate.instant('General.Month.november') + " " + getYear(this.from);
-          }
-          case 12: {
-            return translate.instant('General.Month.december') + " " + getYear(this.from);
-          }
-        }
-      }
-      // else if (isSameYear(this.from, this.to) && isSameDay(this.from, startOfYear(this.from)) && isSameDay(this.to, endOfYear(this.to))) {
-      //   return getYear(this.from).toString();
-      // }
-      else {
+
+      } else if (isSameMonth(this.from, this.to) && isSameDay(this.from, startOfMonth(this.from)) && isSameDay(this.to, endOfMonth(this.to))) {
+        // Selected one month
+        return HistoryPeriod.getTranslatedMonthString(translate, this.from) + " " + getYear(this.from);
+
+        // else if (isSameYear(this.from, this.to) && isSameDay(this.from, startOfYear(this.from)) && isSameDay(this.to, endOfYear(this.to))) {
+        //   return getYear(this.from).toString();
+        // }
+      } else {
         return translate.instant(
           'General.periodFromTo', {
           value1: format(this.from, translate.instant('General.dateFormatShort')),
           value2: format(this.to, translate.instant('General.dateFormat'))
         })
+      }
+    }
+
+    /**
+     * Returns a translated weekday name.
+     * 
+     * @param translate the TranslateService
+     * @param date the Date
+     */
+    private static getTranslatedDayString(translate: TranslateService, date: Date): string {
+      switch (getDay(date)) {
+        case 0: return translate.instant('General.Week.sunday');
+        case 1: return translate.instant('General.Week.monday');
+        case 2: return translate.instant('General.Week.tuesday');
+        case 3: return translate.instant('General.Week.wednesday');
+        case 4: return translate.instant('General.Week.thursday');
+        case 5: return translate.instant('General.Week.friday');
+        case 6: return translate.instant('General.Week.saturday');
+      }
+    }
+
+    /**
+     * Returns a translated month name.
+     * 
+     * @param translate the TranslateService
+     * @param date the Date
+     */
+    private static getTranslatedMonthString(translate: TranslateService, date: Date): string {
+      switch (getMonth(date) + 1) {
+        case 1: return translate.instant('General.Month.january');
+        case 2: return translate.instant('General.Month.february');
+        case 3: return translate.instant('General.Month.march');
+        case 4: return translate.instant('General.Month.april');
+        case 5: return translate.instant('General.Month.may');
+        case 6: return translate.instant('General.Month.june');
+        case 7: return translate.instant('General.Month.july');
+        case 8: return translate.instant('General.Month.august');
+        case 9: return translate.instant('General.Month.september');
+        case 10: return translate.instant('General.Month.october');
+        case 11: return translate.instant('General.Month.november');
+        case 12: return translate.instant('General.Month.december');
       }
     }
   }

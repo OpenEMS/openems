@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { Service, Websocket } from './shared/shared';
-import { environment } from '../environments';
-import { takeUntil } from 'rxjs/operators';
-import { MenuController, Platform, ToastController, ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
 import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { environment } from '../environments';
+import { Service, Websocket } from './shared/shared';
 
 @Component({
   selector: 'app-root',
@@ -28,16 +28,8 @@ export class AppComponent {
     public toastController: ToastController,
     public websocket: Websocket,
   ) {
-    // this.initializeApp();
     service.setLang(this.service.browserLangToLangTag(navigator.language));
   }
-
-  // initializeApp() {
-  //   this.platform.ready().then(() => {
-  //     this.statusBar.styleDefault();
-  //     this.splashScreen.hide();
-  //   })
-  // }
 
   ngOnInit() {
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
