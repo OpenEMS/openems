@@ -88,12 +88,12 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'Über OpenEMS UI',
-        edgeSettings: 'FEMS Einstellungen',
+        edgeSettings: 'OpenEMS Edge Einstellungen',
         generalSettings: 'Allgemeine Einstellungen',
         index: 'Übersicht',
         logout: 'Abmelden',
         menu: 'Menü',
-        overview: 'FEMS Übersicht',
+        overview: 'OpenEMS Edge Übersicht',
     },
     Index: {
         allConnected: 'Alle Verbindungen hergestellt.',
