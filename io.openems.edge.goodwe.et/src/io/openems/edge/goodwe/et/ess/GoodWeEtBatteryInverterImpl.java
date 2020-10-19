@@ -34,7 +34,6 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -504,12 +503,12 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 			allowedDischarge = maxBatteryPower + productionPower;
 			allowedCharge = 0;
 
-		} else if (soc >= 50) {
+		} else if (soc > 0) {
 
 			allowedDischarge = maxBatteryPower + productionPower;
 			allowedCharge = maxBatteryPower;
 
-		} else if (soc >= 0) {
+		} else if (soc == 0) {
 
 			allowedDischarge = productionPower;
 			allowedCharge = maxBatteryPower;
