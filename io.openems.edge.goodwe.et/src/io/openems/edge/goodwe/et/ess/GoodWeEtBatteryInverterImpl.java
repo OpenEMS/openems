@@ -497,8 +497,6 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 		/*
 		 * Calculate AC Energy
 		 */
-<<<<<<< HEAD
-=======
 		if (activePower == null) {
 			// Not available
 			this.calculateAcChargeEnergy.update(null);
@@ -516,7 +514,6 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 		/*
 		 * Update Allowed charge and Allowed discharge
 		 */
->>>>>>> develop
 		Integer soc = this.getSoc().get();
 		Integer maxBatteryPower = this.config.maxBateryPower();
 
