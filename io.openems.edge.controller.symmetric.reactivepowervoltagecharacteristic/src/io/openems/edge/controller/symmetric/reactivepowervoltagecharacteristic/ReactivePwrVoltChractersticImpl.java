@@ -104,8 +104,7 @@ public class ReactivePwrVoltChractersticImpl extends AbstractPowerCharacteristic
 	@Override
 	public void run() throws OpenemsNamedException {
 		Channel<Integer> gridLineVoltage = this.meter.channel(SymmetricMeter.ChannelId.VOLTAGE);
-//		this.voltageRatio = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
-		this.voltageRatio = 0.91f;
+		this.voltageRatio = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
 		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.voltageRatio);
 		if (this.voltageRatio == 0) {
 			log.info("Voltage Ratio is 0");
