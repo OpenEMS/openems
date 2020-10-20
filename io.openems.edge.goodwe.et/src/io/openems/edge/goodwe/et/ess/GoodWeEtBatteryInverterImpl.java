@@ -405,12 +405,12 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 			activePower = 0;
 		} else {
 			if (activePower < 0) {
-				// ActivePower is negative or zero -> CHARGE
+				// ActivePower is negative -> CHARGE
 				System.out.println(" Setting Charging");
 				nextPowerMode = PowerModeEms.CHARGE_BAT;
 
 			} else {
-				// ActivePower is positive -> DISCHARGE
+				// ActivePower is positive or zero -> DISCHARGE
 				System.out.println(" Setting Discharging");
 				Integer soc = this.getSoc().get();
 				if (soc == 100 || activePower == 0) {
