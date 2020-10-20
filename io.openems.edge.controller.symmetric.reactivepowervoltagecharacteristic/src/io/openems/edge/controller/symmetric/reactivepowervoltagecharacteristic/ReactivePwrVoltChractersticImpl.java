@@ -1,5 +1,8 @@
 package io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -39,6 +42,8 @@ public class ReactivePwrVoltChractersticImpl extends AbstractPowerCharacteristic
 		implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ReactivePwrVoltChractersticImpl.class);
+
+	private LocalDateTime lastSetPowerTime = LocalDateTime.MIN;
 
 	private float voltageRatio;
 	private Config config;
@@ -99,7 +104,8 @@ public class ReactivePwrVoltChractersticImpl extends AbstractPowerCharacteristic
 	@Override
 	public void run() throws OpenemsNamedException {
 		Channel<Integer> gridLineVoltage = this.meter.channel(SymmetricMeter.ChannelId.VOLTAGE);
-		this.voltageRatio = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
+//		this.voltageRatio = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
+		this.voltageRatio = 0.91f;
 		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.voltageRatio);
 		if (this.voltageRatio == 0) {
 			log.info("Voltage Ratio is 0");
@@ -111,6 +117,14 @@ public class ReactivePwrVoltChractersticImpl extends AbstractPowerCharacteristic
 		if (power == null) {
 			return;
 		}
+
+		// Do NOT change Set Power If it Does not exceed the hysteresis time
+		Clock clock = this.componentManager.getClock();
+		if (this.lastSetPowerTime.isAfter(LocalDateTime.now(clock).minusSeconds(this.config.waitForHysteresis()))) {
+			return;
+		}
+		lastSetPowerTime = LocalDateTime.now(clock);
+
 		Value<Integer> apparentPower = this.ess.getMaxApparentPower();
 		if (!apparentPower.isDefined() || apparentPower.get() == 0) {
 			return;
