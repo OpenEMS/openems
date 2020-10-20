@@ -211,10 +211,6 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 						m(EssChannelId.P_BATTERY1, new SignedWordElement(35183)), //
 						m(EssChannelId.BATTERY_MODE, new UnsignedWordElement(35184))), //
 
-//				new FC3ReadRegistersTask(37102, Priority.HIGH, //
-//						m(EssChannelId.BMS_ALLOWED_CHARGE, new UnsignedWordElement(37102)), //
-//						m(EssChannelId.BMS_ALLOWED_DISCHARGE, new SignedWordElement(37104))), //
-
 				new FC3ReadRegistersTask(35185, Priority.LOW, //
 						m(EssChannelId.WARNING_CODE, new UnsignedWordElement(35185)), //
 						m(EssChannelId.SAFETY_COUNTRY, new UnsignedWordElement(35186)), //
