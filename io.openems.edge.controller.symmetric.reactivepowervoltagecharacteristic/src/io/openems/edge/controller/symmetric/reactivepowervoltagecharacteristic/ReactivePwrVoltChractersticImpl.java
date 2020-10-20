@@ -1,8 +1,5 @@
 package io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;
 
-import java.time.Clock;
-import java.time.LocalDateTime;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -42,7 +39,6 @@ public class ReactivePwrVoltChractersticImpl extends AbstractPowerCharacteristic
 		implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ReactivePwrVoltChractersticImpl.class);
-	private LocalDateTime lastSetPowerTime = LocalDateTime.MIN;
 
 	private float voltageRatio;
 	private Config config;
@@ -79,11 +75,7 @@ public class ReactivePwrVoltChractersticImpl extends AbstractPowerCharacteristic
 	}
 
 	public ReactivePwrVoltChractersticImpl() {
-		super();
-	}
-
-	public ReactivePwrVoltChractersticImpl(Clock clock) {
-		super(clock);
+		super(Controller.ChannelId.values(), ChannelId.values());
 	}
 
 	@Activate
@@ -106,20 +98,13 @@ public class ReactivePwrVoltChractersticImpl extends AbstractPowerCharacteristic
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		SymmetricMeter gridMeter = this.componentManager.getComponent(this.config.meter_id());
-		Channel<Integer> gridLineVoltage = gridMeter.channel(SymmetricMeter.ChannelId.VOLTAGE);
+		Channel<Integer> gridLineVoltage = this.meter.channel(SymmetricMeter.ChannelId.VOLTAGE);
 		this.voltageRatio = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
 		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.voltageRatio);
 		if (this.voltageRatio == 0) {
 			log.info("Voltage Ratio is 0");
 			return;
 		}
-
-		if (this.lastSetPowerTime
-				.isAfter(LocalDateTime.now(super.clock).minusSeconds(this.config.waitForHysteresis()))) {
-			return;
-		}
-		lastSetPowerTime = LocalDateTime.now(super.clock);
 
 		int calculatedPower = 0;
 		Integer power = super.getPowerLine(this.config.powerVoltConfig(), this.voltageRatio);
@@ -136,7 +121,6 @@ public class ReactivePwrVoltChractersticImpl extends AbstractPowerCharacteristic
 		// lower voltage[compare to nominal voltage])
 		Integer setPower = (int) (-apparentPower.orElse(0) * power * 0.01);
 		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.REACTIVE, setPower);
-
 		this.channel(ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
 		this.ess.setReactivePowerEquals(calculatedPower);
 	}

@@ -1,6 +1,5 @@
 package io.openems.edge.common.powercharacteristic;
 
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -18,39 +17,15 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public abstract class AbstractPowerCharacteristic extends AbstractOpenemsComponent implements OpenemsComponent {
 
-	public final Clock clock;
-
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
-
-	protected AbstractPowerCharacteristic() {
-		this(Clock.systemDefaultZone());
-	}
-
-	protected AbstractPowerCharacteristic(Clock clock) {
+	protected AbstractPowerCharacteristic(io.openems.edge.common.channel.ChannelId[]... channelId) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				ChannelId.values()//
-		);
-		this.clock = clock;
+				channelId);
 	}
 
 	protected void activate(ComponentContext context, String id, String alias) {

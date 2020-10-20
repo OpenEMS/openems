@@ -1,8 +1,5 @@
 package io.openems.edge.controller.asymmetric.activepowervoltagecharacteristic;
 
-import java.time.Clock;
-import java.time.LocalDateTime;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -40,8 +37,6 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractPowerCharacter
 		implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ActivePowerVoltageCharacteristicImpl.class);
-
-	private LocalDateTime lastSetPowerTime = LocalDateTime.MIN;
 
 	/**
 	 * nominal voltage in [mV].
@@ -81,11 +76,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractPowerCharacter
 	}
 
 	public ActivePowerVoltageCharacteristicImpl() {
-		super();
-	}
-
-	public ActivePowerVoltageCharacteristicImpl(Clock clock) {
-		super(clock);
+		super(Controller.ChannelId.values(), ChannelId.values());
 	}
 
 	@Activate
@@ -182,12 +173,8 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractPowerCharacter
 			this.voltageRatio = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
 			break;
 		}
+
 		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.voltageRatio);
-		if (this.lastSetPowerTime
-				.isAfter(LocalDateTime.now(super.clock).minusSeconds(this.config.waitForHysteresis()))) {
-			return;
-		}
-		lastSetPowerTime = LocalDateTime.now(super.clock);
 		if (this.voltageRatio == 0) {
 			log.info("Voltage Ratio is 0");
 			return;
