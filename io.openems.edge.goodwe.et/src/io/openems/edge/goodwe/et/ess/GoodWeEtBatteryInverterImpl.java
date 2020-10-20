@@ -516,7 +516,7 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 //				"Allowed Charge power: " + allowedChargePower + " Allowed Discharge Power: " + allowedDischargePower);
 
 		Integer soc = this.getSoc().get();
-		Integer maxBatteryPower = this.config.maxBateryPower();
+		Integer maxBatteryPower = this.config.maxBatteryPower();
 
 		Integer allowedCharge = null;
 		Integer allowedDischarge = null;
