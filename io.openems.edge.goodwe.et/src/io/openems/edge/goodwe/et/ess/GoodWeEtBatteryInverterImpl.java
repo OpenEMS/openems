@@ -506,12 +506,6 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 		 * Update Allowed charge and Allowed discharge
 		 */
 
-//		IntegerReadChannel allowedCharge = this.channel(EssChannelId.BMS_ALLOWED_CHARGE);
-//		Integer allowedChargePower = allowedCharge.value().get();
-//
-//		IntegerReadChannel allowedDischarge = this.channel(EssChannelId.BMS_ALLOWED_CHARGE);
-//		Integer allowedDischargePower = allowedDischarge.value().get();
-//
 //		System.out.println(
 //				"Allowed Charge power: " + allowedChargePower + " Allowed Discharge Power: " + allowedDischargePower);
 
