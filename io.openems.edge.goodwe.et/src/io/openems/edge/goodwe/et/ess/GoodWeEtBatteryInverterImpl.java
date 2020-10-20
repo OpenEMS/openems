@@ -399,15 +399,6 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 
 		System.out.println("Active power:" + activePower);
 
-//		IntegerReadChannel allowedCharge = this.channel(EssChannelId.BMS_ALLOWED_CHARGE);
-//		Integer allowedChargePower = allowedCharge.value().get();
-//
-//		IntegerReadChannel allowedDischarge = this.channel(EssChannelId.BMS_ALLOWED_CHARGE);
-//		Integer allowedDischargePower = allowedDischarge.value().get();
-//
-//		System.out.println(
-//				"Allowed Charge power: " + allowedChargePower + " Allowed Discharge Power: " + allowedDischargePower);
-
 		if (this.config.readOnlyMode()) {
 			// Read-Only-Mode: fall-back to internal self-consumption optimization
 			nextPowerMode = PowerModeEms.AUTO;
@@ -514,11 +505,25 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 		/*
 		 * Update Allowed charge and Allowed discharge
 		 */
+
+//		IntegerReadChannel allowedCharge = this.channel(EssChannelId.BMS_ALLOWED_CHARGE);
+//		Integer allowedChargePower = allowedCharge.value().get();
+//
+//		IntegerReadChannel allowedDischarge = this.channel(EssChannelId.BMS_ALLOWED_CHARGE);
+//		Integer allowedDischargePower = allowedDischarge.value().get();
+//
+//		System.out.println(
+//				"Allowed Charge power: " + allowedChargePower + " Allowed Discharge Power: " + allowedDischargePower);
+
 		Integer soc = this.getSoc().get();
 		Integer maxBatteryPower = this.config.maxBateryPower();
 
 		Integer allowedCharge = null;
 		Integer allowedDischarge = null;
+
+		if (productionPower == null) {
+			productionPower = 0;
+		}
 
 		if (soc == null) {
 
