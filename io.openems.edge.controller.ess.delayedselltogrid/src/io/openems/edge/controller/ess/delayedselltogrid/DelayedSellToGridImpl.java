@@ -34,6 +34,7 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 		implements DelayedSellToGrid, Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(DelayedSellToGridImpl.class);
+	private State state = State.DO_NOTHING;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -64,7 +65,6 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
 			return;
 		}
@@ -92,25 +92,83 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 			return;
 		}
 
+		int calculatedPower = 0;
 		int gridPower = this.meter.getActivePower().orElse(0);
-		int calculatedPower = calculatePower(gridPower, this.config.continuousSellToGridPower(),
-				this.config.sellToGridPowerLimit());
-		/*
-		 * set result
-		 */
-		this.ess.setActivePowerEquals(calculatedPower);
-		this.ess.setReactivePowerEquals(0);
 
+		boolean stateChanged;
+
+		do {
+			stateChanged = false;
+			switch (this.state) {
+			case ABOVE_SELL_TO_GRID_LIMIT:
+				if (-gridPower < this.config.continuousSellToGridPower()) {
+					stateChanged = this.changeState(State.UNDER_CONTINUOUS_SELL_TO_GRID);
+					break;
+				}
+				if (-gridPower > this.config.continuousSellToGridPower()
+						&& -gridPower < this.config.sellToGridPowerLimit()) {
+					stateChanged = this.changeState(State.DO_NOTHING);
+					break;
+				}
+				calculatedPower = gridPower + this.config.sellToGridPowerLimit();
+				break;
+
+			case DO_NOTHING:
+				if (-gridPower > this.config.sellToGridPowerLimit()) {
+					stateChanged = this.changeState(State.ABOVE_SELL_TO_GRID_LIMIT);
+					break;
+				}
+				if (-gridPower < this.config.continuousSellToGridPower()) {
+					stateChanged = this.changeState(State.UNDER_CONTINUOUS_SELL_TO_GRID);
+					break;
+				}
+
+				calculatedPower = 0;
+				break;
+
+			case UNDER_CONTINUOUS_SELL_TO_GRID:
+				if (-gridPower > this.config.sellToGridPowerLimit()) {
+					stateChanged = this.changeState(State.ABOVE_SELL_TO_GRID_LIMIT);
+					break;
+				}
+
+				if (-gridPower > this.config.continuousSellToGridPower()
+						&& -gridPower < this.config.sellToGridPowerLimit()) {
+					stateChanged = this.changeState(State.DO_NOTHING);
+					break;
+				}
+				calculatedPower = this.config.continuousSellToGridPower() - Math.abs(gridPower);
+				break;
+			}
+		} while (stateChanged);
+
+		// Set calculate power channel
+		this.channel(DelayedSellToGrid.ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
+
+		// Set the power
+		this.setResult(calculatedPower);
+
+		// set the State machine
+		this.channel(DelayedSellToGrid.ChannelId.STATE_MACHINE).setNextValue(this.state);
 	}
 
-	protected static int calculatePower(int gridPower, int continuousSellToGridPower, int sellToGridPowerLimit) {
-		int calculatedPower = 0;
-		if (gridPower <= continuousSellToGridPower) {
-			calculatedPower = gridPower - continuousSellToGridPower;
-			calculatedPower = Math.abs(calculatedPower);
-		} else if (gridPower >= sellToGridPowerLimit) {
-			calculatedPower = gridPower - sellToGridPowerLimit;
+	protected void setResult(int calculatedPower) throws OpenemsNamedException {
+		this.ess.setActivePowerEquals(calculatedPower);
+		this.ess.setReactivePowerEquals(0);
+	}
+
+	/**
+	 * Changes the state updated, to avoid too quick changes.
+	 * 
+	 * @param nextState the target state
+	 * @return whether the state was changed
+	 */
+	private boolean changeState(State nextState) {
+		if (this.state != nextState) {
+			this.state = nextState;
+			return true;
+		} else {
+			return false;
 		}
-		return calculatedPower;
 	}
 }

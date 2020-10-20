@@ -48,7 +48,7 @@ public class EvcsFixActivePower extends AbstractOpenemsComponent implements Cont
 		}
 	}
 
-	protected EvcsFixActivePower() {
+	public EvcsFixActivePower() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //

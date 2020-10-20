@@ -27,7 +27,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String uri() default "ws://localhost:8081";
 
 	@AttributeDefinition(name = "No. of Cycles", description = "How many Cycles till data is sent to OpenEMS Backend.")
-	int noOfCycles() default BackendApi.DEFAULT_NO_OF_CYCLES;
+	int noOfCycles() default BackendApiImpl.DEFAULT_NO_OF_CYCLES;
 
 	@AttributeDefinition(name = "Proxy Address", description = "The IP address or hostname of the proxy server.")
 	String proxyAddress() default "";

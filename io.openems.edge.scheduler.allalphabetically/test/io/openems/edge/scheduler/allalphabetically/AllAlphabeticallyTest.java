@@ -27,7 +27,7 @@ public class AllAlphabeticallyTest {
 
 	@Test
 	public void test() throws Exception {
-		final AllAlphabetically sut = new AllAlphabetically();
+		final AllAlphabeticallyScheduler sut = new AllAlphabeticallySchedulerImpl();
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummyController(CTRL0_ID)) //

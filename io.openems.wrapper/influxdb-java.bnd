@@ -8,8 +8,8 @@ Include-Resource: \
 	@converter-moshi-2.9.0.jar,\
 	@influxdb-java-2.17.jar,\
 	@logging-interceptor-3.14.9.jar,\
-	@moshi-1.10.0.jar,\
-	@msgpack-core-0.8.20.jar,\
+	@moshi-1.11.0.jar,\
+	@msgpack-core-0.8.21.jar,\
 	@okhttp-3.14.9.jar,\
 	@okio-1.17.2.jar,\
 	@retrofit-2.8.1.jar
