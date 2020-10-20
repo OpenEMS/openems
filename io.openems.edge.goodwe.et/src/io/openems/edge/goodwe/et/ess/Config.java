@@ -27,8 +27,8 @@ import io.openems.edge.goodwe.et.GoodWeEtConstants;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
 	String modbus_id() default "modbus0";
-	
-	@AttributeDefinition(name = "Capacity", description = "Capacity of the battery in Wh")
+
+	@AttributeDefinition(name = "Capacity", description = "Capacity of the battery in [Wh]")
 	int capacity() default 9_000;
 
 	@AttributeDefinition(name = "Maximum power", description = "Maximum charge/discharge power in [W]")
