@@ -29,7 +29,9 @@ Import-Package: \
 	kotlin.coroutines;resolution:=optional,\
 	kotlin.coroutines.intrinsics;resolution:=optional,\
 	kotlin.coroutines.jvm.internal;resolution:=optional,\
+	kotlin.jvm;resolution:=optional,\
 	kotlin.jvm.functions;resolution:=optional,\
+	kotlin.reflect;resolution:=optional,\
 	kotlinx.coroutines;resolution:=optional,\
 	*
 	
