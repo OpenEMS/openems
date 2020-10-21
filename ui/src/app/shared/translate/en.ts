@@ -103,10 +103,10 @@ export const TRANSLATION = {
         toEnergymonitor: 'To Energymonitor...',
     },
     Login: {
-        Title: "Login",
-        Preamble: "Please enter your password or submit the default value to login as a guest.",
-        PasswordLabel: "Password",
-        PasswordPlaceholder: "Password",
+        title: "Login",
+        preamble: "Please enter your password or submit the default value to login as a guest.",
+        passwordLabel: "Password",
+        passwordPlaceholder: "Password",
     },
     Edge: {
         Index: {

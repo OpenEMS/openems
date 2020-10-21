@@ -8,18 +8,18 @@
         <ion-card *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'waiting for authentication'">
           <ion-item color="primary" lines="full">
             <ion-icon slot="start" name="contact-outline"></ion-icon>
-            <ion-label translate>Login.Title</ion-label>
+            <ion-label translate>Login.title</ion-label>
           </ion-item>
 
           <ion-card-content>
             <form (ngSubmit)="doLogin(password.value)">
               <div class="ion-padding">
                 <ion-item>
-                  <ion-text class="ion-text-wrap" color="medium" translate>Login.Preamble</ion-text>
+                  <ion-text class="ion-text-wrap" color="medium" translate>Login.preamble</ion-text>
                 </ion-item>
                 <ion-item>
-                  <ion-label position="floating" translate>Login.PasswordLabel</ion-label>
-                  <ion-input #password required type="password" [placeholder]="'Login.PasswordPlaceholder' | translate" value="user"></ion-input>
+                  <ion-label position="floating" translate>Login.passwordLabel</ion-label>
+                  <ion-input #password required type="password" [placeholder]="'Login.passwordPlaceholder' | translate" value="user"></ion-input>
                 </ion-item>
                 <ion-button class="ion-float-right" type="submit">
                   <ion-icon slot="icon-only" name="log-in-outline"></ion-icon>
