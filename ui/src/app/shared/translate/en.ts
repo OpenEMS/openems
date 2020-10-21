@@ -97,10 +97,17 @@ export const TRANSLATION = {
     },
     Index: {
         allConnected: 'All connections established.',
+        connectionInProgress: 'Establishing connection...',
         connectionFailed: 'Connection to {{value}} failed.', // value = name of websocket
         connectionSuccessful: 'Successfully connected to {{value}}.', // value = name of websocket
         isOffline: 'OpenEMS is offline!',
         toEnergymonitor: 'To Energymonitor...',
+    },
+    Login: {
+        title: "Login",
+        preamble: "Please enter your password or submit the default value to login as a guest.",
+        passwordLabel: "Password",
+        passwordPlaceholder: "Password",
     },
     Edge: {
         Index: {
