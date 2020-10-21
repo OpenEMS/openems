@@ -1,15 +1,15 @@
-import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/shared';
+import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: ComponentUpdateComponent.SELECTOR,
   templateUrl: './update.component.html'
 })
-export class ComponentUpdateComponent {
+export class ComponentUpdateComponent implements OnInit {
 
   private static readonly SELECTOR = "componentUpdate";
 
@@ -31,7 +31,7 @@ export class ComponentUpdateComponent {
   ) {
   }
 
-  ionViewWillEnter() {
+  ngOnInit() {
     this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.adjustComponents'), this.route).then(edge => {
       this.edge = edge;
     });
@@ -75,15 +75,8 @@ export class ComponentUpdateComponent {
     for (let controlKey in this.form.controls) {
       let control = this.form.controls[controlKey];
       if (control.dirty) {
-        let value = control.value;
-        // input field returns number variable as string
-        this.fields.forEach(field => {
-          if (field.templateOptions.type == "number" && field.key == controlKey) {
-            value = parseFloat(control.value);
-          }
-        })
         let property_id = controlKey.replace('_', '.');
-        properties.push({ name: property_id, value: value });
+        properties.push({ name: property_id, value: control.value });
       }
     }
     this.edge.updateComponentConfig(this.websocket, this.componentId, properties).then(() => {

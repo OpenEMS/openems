@@ -1,8 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/shared';
+import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -91,15 +91,8 @@ export class ComponentInstallComponent implements OnInit {
         // ignore 'null' values
         continue;
       }
-      let value = control.value;
-      // input field returns number variable as string
-      this.fields.forEach(field => {
-        if (field.templateOptions.type == "number" && field.key == controlKey) {
-          value = parseFloat(control.value);
-        }
-      })
       let property_id = controlKey.replace('_', '.');
-      properties.push({ name: property_id, value: value });
+      properties.push({ name: property_id, value: control.value });
     }
 
     this.edge.createComponentConfig(this.websocket, this.factoryId, properties).then(response => {

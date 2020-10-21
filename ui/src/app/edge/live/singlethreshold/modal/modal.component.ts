@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { Service, Edge, EdgeConfig, ChannelAddress, Websocket } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
-import { Validators, FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
 
 type mode = 'ON' | 'AUTOMATIC' | 'OFF';
 type inputMode = 'SOC' | 'GRIDSELL' | 'GRIDBUY' | 'PRODUCTION' | 'OTHER'
@@ -183,41 +183,7 @@ export class SinglethresholdModalComponent {
     }
   }
 
-  /**
-   * Sets the correct data type for Edge
-   * if not used values would be transmitted to edge as a string
-   */
-  private setCorrectDataType(): void {
-    let correctTypeArr = [
-      "minimumSwitchingTime",
-      "invert",
-      "switchedLoadPower",
-      "threshold"
-    ]
-
-    correctTypeArr.forEach(control => {
-      if (this.formGroup.controls[control].dirty) {
-        switch (control) {
-          case "minimumSwitchingTime":
-            this.formGroup.controls[control].setValue(parseInt(this.formGroup.controls[control].value, 10));
-            break;
-          case "invert":
-            this.formGroup.controls['invert'].setValue(this.formGroup.controls['invert'].value.toLowerCase() === 'true');
-            break;
-          case "switchedLoadPower":
-            this.formGroup.controls[control].setValue(parseInt(this.formGroup.controls[control].value, 10));
-            break;
-          case "threshold":
-            this.formGroup.controls[control].setValue(parseInt(this.formGroup.controls[control].value, 10));
-            break;
-        }
-      }
-    })
-  }
-
   public applyChanges(): void {
-    this.setCorrectDataType();
-
     if (this.minimumSwitchingTime.valid && this.threshold.valid && this.switchedLoadPower.valid) {
       if (this.threshold.value > this.switchedLoadPower.value) {
         let updateComponentArray = [];

@@ -47,7 +47,7 @@ export class SymmetricPeakshavingModalComponent {
                 let updateComponentArray = [];
                 Object.keys(this.formGroup.controls).forEach((element, index) => {
                     if (this.formGroup.controls[element].dirty) {
-                        updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: parseInt(this.formGroup.controls[element].value, 10) })
+                        updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
                     }
                 })
                 if (this.edge != null) {
