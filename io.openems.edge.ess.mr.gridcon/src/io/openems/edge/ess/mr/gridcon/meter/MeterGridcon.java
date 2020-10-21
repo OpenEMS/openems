@@ -34,7 +34,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		name = "Meter.Gridcon", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE } //
+		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE } //
 )
 public class MeterGridcon extends AbstractOpenemsComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, ModbusSlave, EventHandler {
@@ -95,7 +95,7 @@ public class MeterGridcon extends AbstractOpenemsComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			fillChannels();
 			break;
 		}
@@ -110,20 +110,20 @@ public class MeterGridcon extends AbstractOpenemsComponent
 			}
 						
 			
-			_setCurrentL1((int) (gridconPcs.getCurrentL1() * 1000.0));
-			_setCurrentL2((int) (gridconPcs.getCurrentL2() * 1000.0));
-			_setCurrentL3((int) (gridconPcs.getCurrentL3() * 1000.0));
-			_setCurrent((int) (gridconPcs.getCurrentLN() * 1000.0));
+			_setCurrentL1((int) (gridconPcs.getCurrentL1Grid() * 1000.0));
+			_setCurrentL2((int) (gridconPcs.getCurrentL2Grid() * 1000.0));
+			_setCurrentL3((int) (gridconPcs.getCurrentL3Grid() * 1000.0));
+			_setCurrent((int) (gridconPcs.getCurrentLNGrid() * 1000.0)); //TODO correct?! ;)
 
-			_setActivePowerL1((int) (gridconPcs.getActivePowerL1()));
-			_setActivePowerL2((int) (gridconPcs.getActivePowerL2()));
-			_setActivePowerL3((int) (gridconPcs.getActivePowerL3()));
-			_setActivePower((int) (gridconPcs.getActivePowerSum()));
+			_setActivePowerL1((int) (gridconPcs.getActivePowerL1Grid()));
+			_setActivePowerL2((int) (gridconPcs.getActivePowerL2Grid()));
+			_setActivePowerL3((int) (gridconPcs.getActivePowerL3Grid()));
+			_setActivePower((int) (gridconPcs.getActivePowerSumGrid()));
 			
-			_setReactivePowerL1((int) (gridconPcs.getReactivePowerL1()));
-			_setReactivePowerL2((int) (gridconPcs.getReactivePowerL2()));
-			_setReactivePowerL3((int) (gridconPcs.getReactivePowerL3()));
-			_setReactivePower((int) (gridconPcs.getReactivePowerSum()));
+			_setReactivePowerL1((int) (gridconPcs.getReactivePowerL1Grid()));
+			_setReactivePowerL2((int) (gridconPcs.getReactivePowerL2Grid()));
+			_setReactivePowerL3((int) (gridconPcs.getReactivePowerL3Grid()));
+			_setReactivePower((int) (gridconPcs.getReactivePowerSumGrid()));
 
 		} catch (OpenemsNamedException e) {		
 			System.out.println("Error while reading meter values from gridcon!\n" + e.getMessage());

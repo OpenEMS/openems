@@ -332,99 +332,101 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 	}
 
 	@Override
-	public float getCurrentL1() {
+	public float getCurrentL1Grid() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getCurrentL2() {
+	public float getCurrentL2Grid() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getCurrentL3() {
+	public float getCurrentL3Grid() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getCurrentLN() {
+	public float getCurrentLNGrid() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getActivePowerL1() {
+	public float getActivePowerL1Grid() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getActivePowerL2() {
+	public float getActivePowerL2Grid() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getActivePowerL3() {
+	public float getActivePowerL3Grid() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getActivePowerSum() {
+	public float getActivePowerSumGrid() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getReactivePowerL1() {
+	public float getReactivePowerL1Grid() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getReactivePowerL2() {
+	public float getReactivePowerL2Grid() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getReactivePowerL3() {
+	public float getReactivePowerL3Grid() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getReactivePowerSum() {
+	public float getReactivePowerSumGrid() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getApparentPowerL1() {
+	public float getApparentPowerL1Grid() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getApparentPowerL2() {
+	public float getApparentPowerL2Grid() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getApparentPowerL3() {
+	public float getApparentPowerL3Grid() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float getApparentPowerSum() {
+	public float getApparentPowerSumGrid() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	
 
 }

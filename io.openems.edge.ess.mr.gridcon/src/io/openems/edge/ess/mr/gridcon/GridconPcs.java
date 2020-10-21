@@ -132,25 +132,25 @@ public interface GridconPcs {
 	double getEfficiencyLossDischargeFactor();
 	
 	// Grid Measurement Values	
-	float getCurrentL1();
-	float getCurrentL2();
-	float getCurrentL3();
-	float getCurrentLN();
+	float getCurrentL1Grid();
+	float getCurrentL2Grid();
+	float getCurrentL3Grid();
+	float getCurrentLNGrid();
 	
-	float getActivePowerL1();
-	float getActivePowerL2();
-	float getActivePowerL3();
-	float getActivePowerSum();
+	float getActivePowerL1Grid();
+	float getActivePowerL2Grid();
+	float getActivePowerL3Grid();
+	float getActivePowerSumGrid();
 	
-	float getReactivePowerL1();
-	float getReactivePowerL2();
-	float getReactivePowerL3();
-	float getReactivePowerSum();
+	float getReactivePowerL1Grid();
+	float getReactivePowerL2Grid();
+	float getReactivePowerL3Grid();
+	float getReactivePowerSumGrid();
 	
-	float getApparentPowerL1();
-	float getApparentPowerL2();
-	float getApparentPowerL3();
-	float getApparentPowerSum();
+	float getApparentPowerL1Grid();
+	float getApparentPowerL2Grid();
+	float getApparentPowerL3Grid();
+	float getApparentPowerSumGrid();
 
 	// Gridcon is undefined if not all relevant gridcon values are set
 	boolean isUndefined();
