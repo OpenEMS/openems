@@ -21,6 +21,7 @@ export const TRANSLATION = {
         dateFormat: 'dd.MM.yyyy', // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
         dateFormatShort: 'dd.MM',
         digitalInputs: 'Digitaleingänge',
+        directConsumption: 'Direktverbrauch',
         dischargePower: 'Entladung',
         fault: 'Fehler',
         grid: 'Netz',

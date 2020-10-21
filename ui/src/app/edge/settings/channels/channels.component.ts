@@ -1,7 +1,6 @@
-import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
-import { IGNORE_NATURES } from '../component/shared/shared';
+import { Component } from '@angular/core';
 import { SetChannelVaLueRequest } from 'src/app/shared/jsonrpc/request/setChannelValueRequest';
 
 @Component({

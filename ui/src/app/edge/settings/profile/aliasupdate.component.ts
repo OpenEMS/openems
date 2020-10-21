@@ -1,8 +1,8 @@
+import { ActivatedRoute } from '@angular/router';
 import { Component } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
 import { EdgeConfig, Edge, Websocket, Service } from 'src/app/shared/shared';
 import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'aliasupdate',

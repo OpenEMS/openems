@@ -1,10 +1,10 @@
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ModalController } from '@ionic/angular';
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: AutarchyWidgetComponent.SELECTOR,
@@ -31,7 +31,6 @@ export class AutarchyWidgetComponent extends AbstractHistoryWidget implements On
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
-        this.subscribeWidgetRefresh();
     }
 
     ngOnDestroy() {

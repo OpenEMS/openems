@@ -1,27 +1,25 @@
-import { Edges } from "../shared";
 import { JsonrpcResponseSuccess } from "../base";
 
 /**
- * Wraps a JSON-RPC Response for a AuthenticateWithPasswordRequest.
+ * Wraps a JSON-RPC Response for a queryHistoricTimeseriesEnergy.
  * 
  * <pre>
  * {
  *   "jsonrpc": "2.0",
  *   "id": UUID,
  *   "result": {
- *     "token": UUID,
- *     "edges": shared.Edges
- *   }
+ *     "data": Cumulated
+ *     }
  * }
  * </pre>
  */
-export class AuthenticateWithPasswordResponse extends JsonrpcResponseSuccess {
+export class queryHistoricTimeseriesEnergyPerPeriodResponse extends JsonrpcResponseSuccess {
 
     public constructor(
         public readonly id: string,
         public readonly result: {
-            token: string,
-            edges: Edges
+            timestamps: string[],
+            data: { [channelAddress: string]: any[] }
         }
     ) {
         super(id, result);

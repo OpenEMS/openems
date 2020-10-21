@@ -1,4 +1,5 @@
 import { ChannelAddress } from 'src/app/shared/shared';
+import { ChartData, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
 import { DecimalPipe } from '@angular/common';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { startOfDay, endOfDay, differenceInMinutes } from 'date-fns';
@@ -31,13 +32,28 @@ export type TooltipItem = {
     index: number,
     x: number,
     xLabel: Date,
+    value: number,
     y: number,
     yLabel: number
 }
 
 export type ChartOptions = {
+    layout?: {
+        padding: {
+            left: number,
+            right: number,
+            top: number,
+            bottom: number
+        }
+    }
+    responsive?: boolean,
     maintainAspectRatio: boolean,
     legend: {
+        onClick?(event: MouseEvent, legendItem: ChartLegendLabelItem): void
+        labels: {
+            generateLabels?(chart: Chart): ChartLegendLabelItem[],
+            filter?(legendItem: ChartLegendLabelItem, data: ChartData): any,
+        },
         position: "bottom"
     },
     elements: {
@@ -49,6 +65,9 @@ export type ChartOptions = {
         line: {
             borderWidth: number,
             tension: number
+        },
+        rectangle: {
+            borderWidth: number,
         }
     },
     hover: {
@@ -72,12 +91,17 @@ export type ChartOptions = {
                 beginAtZero: boolean,
                 max?: number,
                 padding?: number,
-                stepSize?: number
+                stepSize?: number,
             }
         }],
         xAxes: [{
+            bounds?: string,
+            offset?: boolean,
+            stacked: boolean,
             type: "time",
             time: {
+                stepSize?: number,
+                unit?: string,
                 minUnit: string,
                 displayFormats: {
                     millisecond: string,
@@ -90,6 +114,10 @@ export type ChartOptions = {
                     quarter: string,
                     year: string
                 }
+            },
+            ticks: {
+                source?: string,
+                maxTicksLimit?: number
             }
         }]
     },
@@ -97,9 +125,12 @@ export type ChartOptions = {
         mode: string,
         intersect: boolean,
         axis: string,
+        itemSort?(itemA: ChartTooltipItem, itemB: ChartTooltipItem, data?: ChartData): number,
         callbacks: {
             label?(tooltipItem: TooltipItem, data: Data): string,
-            title?(tooltipItems: TooltipItem[], data: Data): string
+            title?(tooltipItems: TooltipItem[], data: Data): string,
+            afterTitle?(item: ChartTooltipItem[], data: ChartData): string | string[],
+            footer?(item: ChartTooltipItem[], data: ChartData): string | string[]
         }
     }
 }
@@ -107,6 +138,7 @@ export type ChartOptions = {
 export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
     maintainAspectRatio: false,
     legend: {
+        labels: {},
         position: 'bottom'
     },
     elements: {
@@ -118,6 +150,9 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
         line: {
             borderWidth: 2,
             tension: 0.1
+        },
+        rectangle: {
+            borderWidth: 2,
         }
     },
     hover: {
@@ -136,6 +171,8 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
             }
         }],
         xAxes: [{
+            ticks: {},
+            stacked: false,
             type: 'time',
             time: {
                 minUnit: 'hour',
@@ -144,7 +181,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
                     second: 'HH:mm:ss a', // 17:20:01
                     minute: 'HH:mm', // 17:20
                     hour: 'HH:[00]', // 17:20
-                    day: 'll', // Sep 4 2015
+                    day: 'D', // Sep 4 2015
                     week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
                     month: 'MMM YYYY', // Sept 2015
                     quarter: '[Q]Q - YYYY', // Q3
