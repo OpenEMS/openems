@@ -80,7 +80,11 @@ public class ReactivePwrVoltChractersticImpl extends AbstractPowerCharacteristic
 	}
 
 	public ReactivePwrVoltChractersticImpl() {
-		super(Controller.ChannelId.values(), ChannelId.values());
+		super(//
+				Controller.ChannelId.values(), //
+				OpenemsComponent.ChannelId.values(), //
+				ChannelId.values()//
+		);
 	}
 
 	@Activate

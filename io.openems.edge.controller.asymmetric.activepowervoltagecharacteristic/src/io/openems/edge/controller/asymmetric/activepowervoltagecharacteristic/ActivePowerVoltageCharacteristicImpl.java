@@ -80,13 +80,16 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractPowerCharacter
 		}
 	}
 
-	public ActivePowerVoltageCharacteristicImpl() {
-		super(Controller.ChannelId.values(), ChannelId.values());
-	}
+		public ActivePowerVoltageCharacteristicImpl() {
+			super(//
+					Controller.ChannelId.values(), //
+					OpenemsComponent.ChannelId.values(), //
+					ChannelId.values()//
+			);
+		}
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
 			return;

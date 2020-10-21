@@ -22,10 +22,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public abstract class AbstractPowerCharacteristic extends AbstractOpenemsComponent implements OpenemsComponent {
 
-	protected AbstractPowerCharacteristic(io.openems.edge.common.channel.ChannelId[]... channelId) {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				channelId);
+	protected AbstractPowerCharacteristic(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
 	protected void activate(ComponentContext context, String id, String alias) {
