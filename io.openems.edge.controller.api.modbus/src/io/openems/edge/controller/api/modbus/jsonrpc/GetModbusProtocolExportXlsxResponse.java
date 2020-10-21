@@ -53,72 +53,64 @@ public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 	private static byte[] generatePayload(TreeMap<Integer, String> components, TreeMap<Integer, ModbusRecord> records)
 			throws OpenemsException {
 		byte[] payload = new byte[0];
-		Workbook wb = null;
 		Worksheet ws = null;
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		try {
-			try {
-				wb = new Workbook(os, "OpenEMS Modbus-TCP", "1.0");
-				ws = wb.newWorksheet("Modbus-Table");
+			try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+				Workbook wb = null;
+				try {
+					wb = new Workbook(os, "OpenEMS Modbus-TCP", "1.0");
+					ws = wb.newWorksheet("Modbus-Table");
 
-				ws.width(COL_ADDRESS, 10);
-				ws.width(COL_DESCRIPTION, 25);
-				ws.width(COL_TYPE, 10);
-				ws.width(COL_VALUE, 35);
-				ws.width(COL_UNIT, 20);
-				ws.width(COL_ACCESS, 10);
-				// Add headers
-				addSheetHeader(wb, ws);
-				// Create Sheet
-				int nextRow = 1;
-				for (Entry<Integer, ModbusRecord> entry : records.entrySet()) {
-					int address = entry.getKey();
+					ws.width(COL_ADDRESS, 10);
+					ws.width(COL_DESCRIPTION, 25);
+					ws.width(COL_TYPE, 10);
+					ws.width(COL_VALUE, 35);
+					ws.width(COL_UNIT, 20);
+					ws.width(COL_ACCESS, 10);
+					// Add headers
+					addSheetHeader(wb, ws);
+					// Create Sheet
+					int nextRow = 1;
+					for (Entry<Integer, ModbusRecord> entry : records.entrySet()) {
+						int address = entry.getKey();
 
-					String component = components.get(address);
-					if (address == 0 || component != null) {
-						if (address == 0) {
-							// Add the global header row
-							addComponentHeader(ws, "Header", nextRow);
+						String component = components.get(address);
+						if (address == 0 || component != null) {
+							if (address == 0) {
+								// Add the global header row
+								addComponentHeader(ws, "Header", nextRow);
+							} else {
+								// Add Component-Header-Row
+								addComponentHeader(ws, component, nextRow);
+							}
+							nextRow++;
+						}
+
+						// Add a Record-Row
+						ModbusRecord record = entry.getValue();
+						if (nextRow % 2 == 0) {
+							addRecord(ws, address, record, nextRow);
 						} else {
-							// Add Component-Header-Row
-							addComponentHeader(ws, component, nextRow);
+							addRecord(ws, address, record, nextRow);
 						}
 						nextRow++;
 					}
-
-					// Add a Record-Row
-					ModbusRecord record = entry.getValue();
-					if (nextRow % 2 == 0) {
-						addRecord(ws, address, record, nextRow);
-					} else {
-						addRecord(ws, address, record, nextRow);
-					}
-					nextRow++;
-				}
-				// Shading alternative Rows
-				ws.range(1, 0, nextRow, 5).style().borderStyle("thin").shadeAlternateRows(Color.GRAY1).set();
-				// Add undefined values sheet
-				addUndefinedSheet(wb);
-				payload = os.toByteArray();
-			} finally {
-				try {
+					// Shading alternative Rows
+					ws.range(1, 0, nextRow, 5).style().borderStyle("thin").shadeAlternateRows(Color.GRAY1).set();
+					// Add undefined values sheet
+					addUndefinedSheet(wb);
+				} finally {
 					if (wb != null) {
 						wb.finish();
 					}
-				} finally {
-					if (os != null) {
-						try {
-							os.flush();
-						} finally {
-							os.close();
-						}
-					}
 				}
+				os.flush();
+				payload = os.toByteArray();
+				return payload;
 			}
 		} catch (IOException e) {
 			throw new OpenemsException("Unable to generate Xlsx payload: " + e.getMessage());
 		}
-		return payload;
 	}
 
 	private static void addSheetHeader(Workbook workbook, Worksheet sheet) {
