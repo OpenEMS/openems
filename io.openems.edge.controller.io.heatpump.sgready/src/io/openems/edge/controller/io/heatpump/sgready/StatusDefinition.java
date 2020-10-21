@@ -9,30 +9,33 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
  * Stores information about the time, it was switched on and provides an method
  * to set this state.
  */
-public class StateDefinition {
+public class StatusDefinition {
 
 	private final Status status;
 	private final HeatPumpImpl parent;
 	private final CalculateActiveTime calculateActiveTime;
 
-	public StateDefinition(HeatPumpImpl parent, Status status, HeatPump.ChannelId activeTimeChannelId) {
+	public StatusDefinition(HeatPumpImpl parent, Status status, HeatPump.ChannelId activeTimeChannelId) {
 		this.parent = parent;
 		this.status = status;
 		this.calculateActiveTime = new CalculateActiveTime(this.parent, this.parent, this.parent, activeTimeChannelId);
 	}
 
 	/**
-	 * Switch the corresponding relay outputs to set the present state and sets the active state.
+	 * Switch on the state/it's referring relays.
+	 * <p>
+	 * 
+	 * Forward its state to the parent changeState method, to set the corresponding
+	 * relay outputs and the present state, if the state is not already active.
 	 * 
 	 * @throws OpenemsNamedException
 	 * @throws IllegalArgumentException
 	 */
 	protected void switchOn() throws IllegalArgumentException, OpenemsNamedException {
-		if(isActive()) {
+		if (isActive()) {
 			return;
 		}
-		this.parent.setOutputs(status.getOutput1(), status.getOutput2());
-		this.parent.stateChanged(this.status);
+		this.parent.changeState(this.status);
 	}
 
 	/**

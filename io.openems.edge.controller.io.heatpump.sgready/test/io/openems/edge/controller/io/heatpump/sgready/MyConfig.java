@@ -11,7 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String outputChannel1;
 		private String outputChannel2;
 		private Mode mode;
-		private Status manualState;
+		private Status manualState = Status.REGULAR;
 		private boolean automaticRecommendationCtrlEnabled;
 		private int automaticRecommendationSurplusPower;
 		private boolean automaticForceOnCtrlEnabled;

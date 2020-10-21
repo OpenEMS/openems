@@ -51,18 +51,18 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 
 	protected Status activeState = Status.UNDEFINED;
 
-	protected Instant lastStateChange;
+	protected Instant lastStateChange = Instant.MIN;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
-	private final StateDefinition lockState = new StateDefinition(this, Status.LOCK,
+	private final StatusDefinition lockState = new StatusDefinition(this, Status.LOCK,
 			HeatPump.ChannelId.LOCK_STATE_TIME);
-	private final StateDefinition regularState = new StateDefinition(this, Status.REGULAR,
+	private final StatusDefinition regularState = new StatusDefinition(this, Status.REGULAR,
 			HeatPump.ChannelId.REGULAR_STATE_TIME);
-	private final StateDefinition recommState = new StateDefinition(this, Status.RECOMMENDATION,
+	private final StatusDefinition recommState = new StatusDefinition(this, Status.RECOMMENDATION,
 			HeatPump.ChannelId.RECOMMENDATION_STATE_TIME);
-	private final StateDefinition forceOnState = new StateDefinition(this, Status.FORCE_ON,
+	private final StatusDefinition forceOnState = new StatusDefinition(this, Status.FORCE_ON,
 			HeatPump.ChannelId.FORCE_ON_STATE_TIME);
 
 	@Reference
@@ -126,17 +126,32 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	/**
+	 * Automatic mode.
+	 * <p>
+	 * 
+	 * Sets the digital outputs and the state depending on the surplus or grid-buy
+	 * power.
+	 * 
+	 * @throws IllegalArgumentException
+	 * @throws OpenemsNamedException
+	 */
 	private void modeAutomatic() throws IllegalArgumentException, OpenemsNamedException {
-		
-		if(this.lastStateChange.plusSeconds(this.config.minimumSwitchingTime()).isAfter(Instant.now(this.componentManager.getClock()))) {
+
+		// Detect if hysteresis is active, depending on the minimum switching time
+		if (this.lastStateChange.plusSeconds(this.config.minimumSwitchingTime())
+				.isAfter(Instant.now(this.componentManager.getClock()))) {
 			this._setAwaitingHysteresis(true);
 			return;
 		}
 		this._setAwaitingHysteresis(false);
-		
+
+		// Different modes and their limitations can be enabled and disabled by the user
 		boolean recommCtrlEnabled = this.config.automaticRecommendationCtrlEnabled();
 		boolean forceOnCtrlEnabled = this.config.automaticForceOnCtrlEnabled();
 		boolean lockCtrlEnabled = this.config.automaticLockCtrlEnabled();
+
+		// Values to calculate the surplus/grid-buy power
 		int gridActivePower = getGridActivePowerOrZero();
 		int soc = getEssSocOrZero();
 		int essDischargePower = getEssDischargePowerOrZero();
@@ -153,7 +168,7 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 
 		// Check conditions for lock mode (Lock mode is not depending on the
 		// essDischarge Power)
-		if (lockCtrlEnabled && gridActivePower < this.config.automaticLockGridBuyPower()
+		if (lockCtrlEnabled && gridActivePower > this.config.automaticLockGridBuyPower()
 				&& soc < this.config.automaticLockSoc()) {
 			this.lockState.switchOn();
 			return;
@@ -175,6 +190,36 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 		// No conditions fulfilled
 		this.regularState.switchOn();
 
+	}
+
+	/**
+	 * Manual mode.
+	 * 
+	 * <p>
+	 * Sets the digital outputs and the state depending on a fix user input.
+	 * 
+	 * @throws IllegalArgumentException
+	 * @throws OpenemsNamedException
+	 */
+	private void modeManual() throws IllegalArgumentException, OpenemsNamedException {
+		Status state = this.config.manualState();
+		switch (state) {
+		case FORCE_ON:
+			this.forceOnState.switchOn();
+			break;
+		case LOCK:
+			this.lockState.switchOn();
+			break;
+		case RECOMMENDATION:
+			this.recommState.switchOn();
+			break;
+		case REGULAR:
+			this.regularState.switchOn();
+			break;
+		case UNDEFINED:
+			this.regularState.switchOn();
+			break;
+		}
 	}
 
 	private int getEssDischargePowerOrZero() {
@@ -209,27 +254,6 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 		}
 		stateChannel.setNextValue(true);
 		return 0;
-	}
-
-	private void modeManual() throws IllegalArgumentException, OpenemsNamedException {
-		Status state = this.config.manualState();
-		switch (state) {
-		case FORCE_ON:
-			this.forceOnState.switchOn();
-			break;
-		case LOCK:
-			this.lockState.switchOn();
-			break;
-		case RECOMMENDATION:
-			this.recommState.switchOn();
-			break;
-		case REGULAR:
-			this.regularState.switchOn();
-			break;
-		case UNDEFINED:
-			this.regularState.switchOn();
-			break;
-		}
 	}
 
 	/**
@@ -283,11 +307,18 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Sets the active status and the lastStateChange set point.
+	 * Change of a state.
+	 * <p>
+	 * 
+	 * Sets the digital outputs, the currently active status and the lastStateChange
+	 * time set point.
 	 * 
 	 * @param status New active status
+	 * @throws OpenemsNamedException
+	 * @throws IllegalArgumentException
 	 */
-	public void stateChanged(Status status) {
+	public void changeState(Status status) throws IllegalArgumentException, OpenemsNamedException {
+		this.setOutputs(status.getOutput1(), status.getOutput2());
 		this._setStatus(status);
 		this.activeState = status;
 		this.lastStateChange = Instant.now(this.componentManager.getClock());

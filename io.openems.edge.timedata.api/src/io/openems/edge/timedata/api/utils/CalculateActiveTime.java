@@ -63,9 +63,6 @@ public class CalculateActiveTime {
 	 */
 	private long continuousTime = 0L;
 
-
-	// TODO: maybe not used private ZonedDateTime lastNow;
-
 	public CalculateActiveTime(TimedataProvider timedataProvider, ComponentManagerProvider componentManagerProvider,
 			OpenemsComponent component, ChannelId channelId) {
 		this.componentManagerProvider = componentManagerProvider;
@@ -80,22 +77,21 @@ public class CalculateActiveTime {
 	 * @param isActive boolean if the corresponding channel should be updated.
 	 */
 	public void update(boolean isActive) {
-		if (isActive) {
-			switch (this.state) {
-			case TIMEDATA_QUERY_NOT_STARTED:
-				this.initializeActiveTimeFromTimedata();
-				break;
 
-			case TIMEDATA_QUERY_IS_RUNNING:
-				// Wait for result
-				break;
+		switch (this.state) {
+		case TIMEDATA_QUERY_NOT_STARTED:
+			this.initializeActiveTimeFromTimedata();
+			break;
 
-			case CALCULATE_TIME_OPERATION:
-				this.calculateActiveTime();
-				break;
-			}
+		case TIMEDATA_QUERY_IS_RUNNING:
+			// Wait for result
+			break;
 
+		case CALCULATE_TIME_OPERATION:
+			this.calculateActiveTime(isActive);
+			break;
 		}
+
 		// Keep last data for next run
 		this.lastTimestamp = Instant.now(componentManagerProvider.getComponentManager().getClock());
 		this.lastIsAcitve = isActive;
@@ -131,25 +127,22 @@ public class CalculateActiveTime {
 
 	/**
 	 * Calculate the active time.
+	 * 
+	 * @param isActive
 	 */
-	private void calculateActiveTime() {
-		if (this.lastTimestamp == null || this.lastIsAcitve == null || (!this.lastIsAcitve) || this.lastStoredActiveTime == null) {
-			// Data is not available
+	private void calculateActiveTime(boolean isActive) {
+		if (this.lastTimestamp != null && this.lastStoredActiveTime != null && lastIsAcitve && isActive) {
 
-		} else {
 			Clock clock = componentManagerProvider.getComponentManager().getClock();
 			// Calculate duration since last value
 			long duration /* [msec] */ = Duration.between(this.lastTimestamp, Instant.now(clock)).toMillis();
 
-			// Calculate energy since last run in [Wmsec]
-			//long continuousEnergy /* [Wmsec] */ = this.lastPower /* [W] */ * duration /* [msec] */;
-
 			// Add to continuous cumulated time
-			this.continuousTime  += duration;
-			
+			this.continuousTime += duration;
+
 			// Update last active time if 1 second passed
 			if (this.continuousTime > 1_000 /* 1 sec */) {
-				this.lastStoredActiveTime += this.continuousTime / 3_600_000;
+				this.lastStoredActiveTime += this.continuousTime / 1_000;
 				this.continuousTime %= 1000;
 			}
 		}
