@@ -1,9 +1,9 @@
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: HeatingelementWidgetComponent.SELECTOR,

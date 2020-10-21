@@ -1,25 +1,25 @@
-import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges } from '@angular/core';
+import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController, Platform } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { ChartData, ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
-import { differenceInDays, format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
 import { addDays } from 'date-fns/esm';
-import * as FileSaver from 'file-saver';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
+import { ChartData, ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
+import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
+import { Component, Input, OnChanges } from '@angular/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { differenceInDays, format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
+import { EnergyModalComponent } from './modal/modal.component';
+import { formatNumber } from '@angular/common';
+import { ModalController, Platform } from '@ionic/angular';
+import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
-import { EnergyModalComponent } from './modal/modal.component';
+import * as FileSaver from 'file-saver';
 
 type EnergyChartLabels = {
   production: string,

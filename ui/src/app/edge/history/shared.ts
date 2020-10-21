@@ -1,8 +1,8 @@
 import { ChannelAddress } from 'src/app/shared/shared';
+import { ChartData, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
 import { DecimalPipe } from '@angular/common';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { startOfDay, endOfDay, differenceInMinutes } from 'date-fns';
-import { ChartData, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
 
 export interface Dataset {
     label: string;

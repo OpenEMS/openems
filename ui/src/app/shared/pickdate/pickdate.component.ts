@@ -1,10 +1,10 @@
 import { addDays, addWeeks, endOfWeek, isFuture, subDays, subWeeks } from 'date-fns/esm';
 import { Component } from '@angular/core';
 import { DefaultTypes, } from '../service/defaulttypes';
-import { endOfDay, differenceInMilliseconds, addMonths, addYears, endOfMonth, endOfYear, subMonths, subYears } from 'date-fns';
+import { Edge, Service } from '../shared';
+import { endOfDay, differenceInMilliseconds, addMonths, endOfMonth, endOfYear, subMonths } from 'date-fns';
 import { PickDatePopoverComponent } from './popover/popover.component';
 import { PopoverController } from '@ionic/angular';
-import { Edge, Service } from '../shared';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -277,15 +277,6 @@ export class PickDateComponent {
         }
     }
 
-    /**
-     * changes history period date and text when next week is reached
-     */
-    private forwardToNextYearWhenReached() {
-        this.changePeriodTimeout = setTimeout(() => {
-            this.setDateRange(new DefaultTypes.HistoryPeriod(new Date(), endOfYear(new Date())));
-            this.service.historyPeriod.getText(this.translate);
-        }, this.millisecondsUntilnextPeriod());
-    }
 
     /**
      * calculates the milliseconds until next period (Day|Week) will occour

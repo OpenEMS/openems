@@ -1,21 +1,21 @@
-import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, ToastController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { Cookie } from 'ng2-cookies';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
-import { filter, first, map } from 'rxjs/operators';
+import { ChannelAddress } from '../shared';
+import { Cookie } from 'ng2-cookies';
+import { DefaultTypes } from './defaulttypes';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
+import { Edges } from '../jsonrpc/shared';
+import { ErrorHandler, Injectable } from '@angular/core';
+import { filter, first, map } from 'rxjs/operators';
 import { JsonrpcResponseError } from '../jsonrpc/base';
+import { Language, LanguageTag } from '../translate/language';
+import { ModalController, ToastController } from '@ionic/angular';
+import { NgxSpinnerService } from 'ngx-spinner';
 import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { Edges } from '../jsonrpc/shared';
-import { ChannelAddress } from '../shared';
-import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
-import { DefaultTypes } from './defaulttypes';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
 export class Service implements ErrorHandler {

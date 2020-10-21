@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { environment } from '../environments';
 import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
+import { Router } from '@angular/router';
+import { Service, Websocket } from './shared/shared';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { environment } from '../environments';
-import { Service, Websocket } from './shared/shared';
 
 @Component({
   selector: 'app-root',

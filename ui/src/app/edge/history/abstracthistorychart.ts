@@ -1,12 +1,12 @@
-import { TranslateService } from '@ngx-translate/core';
+import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
 import { ChartDataSets } from 'chart.js';
-import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
-import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
+import { ChartOptions, EMPTY_DATASET } from './shared';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
-import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
-import { ChartOptions, EMPTY_DATASET } from './shared';
+import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
+import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
+import { TranslateService } from '@ngx-translate/core';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {

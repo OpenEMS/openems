@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
+import { Component } from '@angular/core';
 import { Service, Utils, EdgeConfig } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
-import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
 
 interface MyCategorizedComponents extends CategorizedComponents {
   isNatureClicked?: Boolean,
