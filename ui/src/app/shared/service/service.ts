@@ -411,7 +411,7 @@ export class Service implements ErrorHandler {
    * Checks if this Edge is allowed to show kWh values
    */
   public isKwhAllowed(edge: Edge): boolean {
-    return true;
+    return false;
   }
 
   /**

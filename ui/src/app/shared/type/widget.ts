@@ -3,8 +3,8 @@ import { EdgeConfig } from '../edge/edgeconfig';
 
 export enum WidgetClass {
     'Energymonitor',
-    'Selfconsumption',
     'Autarchy',
+    'Selfconsumption',
     'Storage',
     'Grid',
     'Production',

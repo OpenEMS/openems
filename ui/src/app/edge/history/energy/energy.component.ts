@@ -113,7 +113,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.service.startSpinner(this.spinnerId);
     this.platform.ready().then(() => {
       this.service.isSmartphoneResolutionSubject.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
-        this.updateChart();
+        if (this.service.isKwhAllowed(this.edge)) {
+          this.updateChart();
+        }
       })
     })
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
@@ -359,23 +361,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           } else if (this.isKwhChart(this.service) == true) {
             this.chartType = "bar";
             this.getEnergyChannelAddresses(config).then(channelAddresses => {
-              // let resolution: number = 0
-
-              // TODO: year + change resolution dynamically when year is ready
-              // otherwise resolution would be 'value per day' anyway
-
-              // switch (this.service.periodString) {
-              //   case "custom": {
-              //     resolution = 86400; // resolution for value per day
-              //   }
-              //   case "week": {
-              //     resolution = 86400; // resolution for value per day
-              //   }
-              //   case "month": {
-              //     resolution = 86400; // resolution for value per day
-              //   }
-              // }
-
               let resolution = 86400; // resolution for value per day
 
 
@@ -789,8 +774,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
       // this.translate is not available in legend methods
       let directConsumptionLabelText = this.translate.instant('General.directConsumption');
-      let selfConsumptionLabelText = this.translate.instant('General.selfConsumption');
-      let autarchyLabelText = this.translate.instant('General.autarchy');
       let productionLabelText = this.translate.instant('General.production');
       let consumptionLabelText = this.translate.instant('General.consumption');
       let gridBuyLabelText = this.translate.instant('General.gridBuy');
@@ -943,38 +926,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         let date = new Date(tooltipItems[0].xLabel);
         return date.toLocaleDateString();
       }
-
-      // options.tooltips.callbacks.footer = function (item: ChartTooltipItem[], data: ChartData) {
-      //   if (data.datasets.length == 6) {
-      //     let isProduction: boolean | null = null;
-      //     let sellToGridValue: number | null = null;
-      //     let buyFromGridValue: number | null = null;
-      //     let dischargeValue: number | null = null;
-      //     let totalValue = item.reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
-
-      //     item.forEach(item => {
-      //       if (item.datasetIndex == 0 || item.datasetIndex == 1 || item.datasetIndex == 2) {
-      //         isProduction = true;
-      //         if (item.datasetIndex == 2) {
-      //           sellToGridValue = <number>item.yLabel;
-      //         }
-      //         if (dischargeValue == null) {
-      //           dischargeValue = <number>data.datasets[4].data[item.index];
-      //         }
-      //       } else if (item.datasetIndex == 3 || item.datasetIndex == 4 || item.datasetIndex == 5) {
-      //         if (item.datasetIndex == 5) {
-      //           buyFromGridValue = <number>item.yLabel;
-      //         }
-      //         isProduction = false;
-      //       }
-      //     })
-      //     return isProduction == true ? selfConsumptionLabelText + ' ' +
-      //       formatNumber(CurrentData.calculateSelfConsumption(sellToGridValue, totalValue), 'de', '1.0-0') + " %" :
-      //       autarchyLabelText + ' ' + formatNumber(CurrentData.calculateAutarchy(buyFromGridValue, totalValue), 'de', '1.0-0') + " %";
-      //   } else {
-      //     return null
-      //   }
-      // }
     } else {
       // adds second y-axis to chart
       options.scales.yAxes.push({
