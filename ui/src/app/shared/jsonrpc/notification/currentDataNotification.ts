@@ -1,5 +1,4 @@
 import { JsonrpcNotification } from "../base";
-import { UUID } from "angular2-uuid";
 
 /**
  * Represents a JSON-RPC Notification for sending the current data of all

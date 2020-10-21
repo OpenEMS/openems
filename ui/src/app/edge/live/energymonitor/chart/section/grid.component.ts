@@ -56,12 +56,7 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
     }
 
     ngOnInit() {
-        if (navigator.vendor.match(/apple/i)) {
-            this.fillRef = "url(" + window.location.origin + window.location.pathname + "#" + this.sectionId + ")"
-        }
-        else {
-            this.fillRef = "url(#" + this.sectionId + ")"
-        }
+        this.adjustFillRefbyBrowser();
     }
 
     toggleBuyAnimation() {
@@ -153,7 +148,7 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
     }
 
     protected getImagePath(): string {
-        if (this.gridMode == 0 || this.gridMode == 2) {
+        if (this.gridMode == 2) {
             return "offgrid.png"
         } else {
             return "grid.png"

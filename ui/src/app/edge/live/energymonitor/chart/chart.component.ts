@@ -5,8 +5,8 @@ import { debounceTime, delay, takeUntil } from 'rxjs/operators';
 import { fromEvent, Subject } from 'rxjs';
 import { GridSectionComponent } from './section/grid.component';
 import { ProductionSectionComponent } from './section/production.component';
-import { StorageSectionComponent } from './section/storage.component';
 import { Service } from 'src/app/shared/shared';
+import { StorageSectionComponent } from './section/storage.component';
 
 @Component({
   selector: 'energymonitor-chart',
