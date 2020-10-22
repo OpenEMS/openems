@@ -138,7 +138,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 
 		// Initialize 'Start-Stop' Channel
 		this._setStartStop(StartStop.UNDEFINED);
-		
+
 		// Prepare Context
 		Context context = new Context(this, this.battery, this.batteryInverter, this.config);
 
