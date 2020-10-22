@@ -209,7 +209,15 @@ public interface OpenemsComponent {
 	 * @return the StateCollectorChannel
 	 */
 	public default StateCollectorChannel getStateChannel() {
-		return this._getChannelAs(ChannelId.STATE, StateCollectorChannel.class);
+		try {
+			return this._getChannelAs(ChannelId.STATE, StateCollectorChannel.class);
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException(//
+					"Class [" + this.getClass().getCanonicalName() + "] does not have a Channel 'State'. " //
+							+ "\nMake sure to pass the 'OpenemsComponent.ChannelId.values()' as first parameter " //
+							+ "in the AbstractOpenemsComponent constructor.",
+					e);
+		}
 	}
 
 	/**

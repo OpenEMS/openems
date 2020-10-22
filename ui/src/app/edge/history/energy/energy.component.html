@@ -15,7 +15,7 @@
     <ngx-spinner [name]="spinnerId"></ngx-spinner>
     <ng-container *ngIf="!loading">
       <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [colors]="colors"
-        chartType="line"></canvas>
+        [chartType]="chartType"></canvas>
     </ng-container>
   </div>
 </ng-template>

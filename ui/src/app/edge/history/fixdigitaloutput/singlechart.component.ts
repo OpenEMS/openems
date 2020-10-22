@@ -33,7 +33,6 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
     this.spinnerId = 'fixdigitaloutput-single-chart';
     this.service.startSpinner(this.spinnerId);
     this.service.setCurrentComponent('', this.route);
-    this.subscribeChartRefresh()
   }
 
   ngOnDestroy() {
@@ -41,6 +40,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
   }
 
   protected updateChart() {
+    this.autoSubscribeChartRefresh();
     this.service.startSpinner(this.spinnerId);
     this.colors = [];
     this.loading = true;

@@ -37,7 +37,6 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
         this.setLabel();
-        this.subscribeChartRefresh();
     }
 
     ngOnDestroy() {
@@ -45,6 +44,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.colors = [];
