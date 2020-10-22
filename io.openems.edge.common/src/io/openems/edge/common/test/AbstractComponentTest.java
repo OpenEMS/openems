@@ -182,6 +182,9 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 						gotText = Objects.toString(got);
 					}
 				}
+				if (got instanceof OptionsEnum) {
+					gotText = ((OptionsEnum) got).getName();
+				}
 				if (!Objects.equals(expected, got)) {
 					throw new Exception("On TestCase [" + this.description + "]: " //
 							+ "expected [" + output.value + "] " //

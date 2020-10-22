@@ -49,6 +49,8 @@ import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.goodwe.et.charger.AbstractGoodWeEtCharger;
+import io.openems.edge.goodwe.et.ess.applypower.ApplyPowerStateMachine;
+import io.openems.edge.goodwe.et.ess.applypower.Context;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -82,6 +84,9 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	private final Set<AbstractGoodWeEtCharger> chargers = new HashSet<>();
+
+	private final ApplyPowerStateMachine applyPowerStateMachine = new ApplyPowerStateMachine(
+			ApplyPowerStateMachine.State.UNDEFINED);
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -391,49 +396,98 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		final PowerModeEms nextPowerMode;
+		int pvProduction = getPvProduction();
+		int soc = this.getSoc().orElse(0);
+		ApplyPowerStateMachine.State state = ApplyPowerStateMachine.evaluateState(config.readOnlyMode(), pvProduction,
+				soc, activePower);
 
-		System.out.println("Active power:" + activePower);
+		// Store the current State
+		this.channel(EssChannelId.APPLY_POWER_STATE_MACHINE).setNextValue(state);
 
-		if (this.config.readOnlyMode()) {
-			// Read-Only-Mode: fall-back to internal self-consumption optimization
-			nextPowerMode = PowerModeEms.AUTO;
-			activePower = 0;
-		} else {
-			if (activePower < 0) {
-				// ActivePower is negative -> CHARGE
-				System.out.println(" Setting Charging");
-				nextPowerMode = PowerModeEms.CHARGE_BAT;
+		// Prepare Context
+		Context context = new Context(this, pvProduction, activePower);
 
-			} else {
-				// ActivePower is positive or zero -> DISCHARGE
-				System.out.println(" Setting Discharging");
-				Integer soc = this.getSoc().get();
-				if (soc == 100 || activePower == 0) {
-					nextPowerMode = PowerModeEms.EXPORT_AC;
-				} else {
-					nextPowerMode = PowerModeEms.DISCHARGE_PV;
-				}
-			}
-		}
+		this.applyPowerStateMachine.forceNextState(state);
+		this.applyPowerStateMachine.run(context); // apply the force next state
+		this.applyPowerStateMachine.run(context); // execute correct handler
 
-		// Set the PowerMode and PowerSet
 		IntegerWriteChannel emsPowerSetChannel = this.channel(EssChannelId.EMS_POWER_SET);
-
-		Integer essPowerSet = emsPowerSetChannel.value().get();
-		if (essPowerSet == null || activePower != essPowerSet) {
-			// Set to new power mode only if the previous activePower is different or
-			// undefined
-			emsPowerSetChannel.setNextWriteValue(Math.abs(activePower));
-		}
+		emsPowerSetChannel.setNextWriteValue(context.getEssPowerSet());
 
 		EnumWriteChannel emsPowerModeChannel = this.channel(EssChannelId.EMS_POWER_MODE);
-		PowerModeEms emsPowerMode = emsPowerModeChannel.value().asEnum();
-		if (emsPowerMode != nextPowerMode) {
-			// Set to new power mode only if the previous mode is different
-			emsPowerModeChannel.setNextWriteValue(nextPowerMode);
-		}
-		// TODO : Add Reactive Power Register
+		emsPowerModeChannel.setNextWriteValue(context.getNextPowerMode());
+
+//		final PowerModeEms nextPowerMode;
+//		final Integer essPowerSet;
+//
+//		System.out.println("Active power:" + activePower);
+//
+//		if (this.config.readOnlyMode()) {
+//			// Read-Only-Mode: fall-back to internal self-consumption optimization
+//
+//
+//		} else {
+//			int pvProduction = getPvProduction();
+//			int soc = this.getSoc().orElse(0);
+//
+//			if (soc > 99) {
+//				// battery is full
+//				if (activePower > 0) {
+//					// Set-Point is positive -> take power either from pv or battery
+//					if (activePower > pvProduction) {
+//						// Senario 5
+//						essPowerSet = activePower - pvProduction;
+//						nextPowerMode = PowerModeEms.DISCHARGE_BAT;
+//
+//					} else {
+//						// Senario 6
+//						essPowerSet = pvProduction - activePower;
+//						nextPowerMode = PowerModeEms.EXPORT_AC;
+//					}
+//				} else {
+//					// Set-Point is negative or zero -> this should never happen and should be
+//					// restricted by allowed charge power
+//					essPowerSet = 0;
+//					nextPowerMode = PowerModeEms.EXPORT_AC; // curtail PV to zero
+//				}
+//
+//			} else if (soc < 1) {
+//				// battery is empty
+//				// TODO define when battery is empty
+//				if (activePower > 0) {
+//					// Set-Point is positive -> 'discharge' the pv production
+//					essPowerSet = pvProduction - activePower; // TODO define
+//					nextPowerMode = PowerModeEms.CHARGE_BAT; // TODO define
+//
+//				} else {
+//					// Set-Point is negative or zero -> 'charge' from pv production and grid
+//					essPowerSet = pvProduction - activePower; // TODO define
+//					nextPowerMode = PowerModeEms.CHARGE_BAT; // TODO define
+//				}
+//
+//			} else {
+//				// battery is neither empty nor full
+//				if (activePower > 0) {
+//					// Set-Point is positive
+//					if (activePower > pvProduction) {
+//						// Scenario 2
+//						essPowerSet = pvProduction - activePower;
+//						nextPowerMode = PowerModeEms.CHARGE_BAT;
+//					} else {
+//						// Scenario 1
+//						essPowerSet = activePower - pvProduction;
+//						nextPowerMode = PowerModeEms.DISCHARGE_PV;
+//					}
+//
+//				} else {
+//					// Set-Point is negative or zero
+//					// Scenario 3
+//					essPowerSet = pvProduction - activePower;
+//					nextPowerMode = PowerModeEms.CHARGE_BAT;
+//				}
+//			}
+//		}
+
 	}
 
 	@Override
@@ -586,6 +640,20 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 		if (productionPower == null || productionPower < 100) {
 			return null;
 		}
+		return productionPower;
+	}
+
+	/**
+	 * Gets the PV production. Returns 0 if the PV production is not available.
+	 * 
+	 * @return production power
+	 */
+	private int getPvProduction() {
+		int productionPower = 0;
+		for (AbstractGoodWeEtCharger charger : this.chargers) {
+			productionPower = TypeUtils.sum(productionPower, charger.getActualPower().get());
+		}
+
 		return productionPower;
 	}
 

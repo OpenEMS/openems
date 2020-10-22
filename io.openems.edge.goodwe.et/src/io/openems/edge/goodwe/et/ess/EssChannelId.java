@@ -6,8 +6,11 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.goodwe.et.ess.applypower.ApplyPowerStateMachine;
 
 public enum EssChannelId implements ChannelId {
+	APPLY_POWER_STATE_MACHINE(Doc.of(ApplyPowerStateMachine.State.values())),
+
 	MODBUS_PROTOCOL_VERSION(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
 	RATED_POWER(Doc.of(OpenemsType.INTEGER) //
