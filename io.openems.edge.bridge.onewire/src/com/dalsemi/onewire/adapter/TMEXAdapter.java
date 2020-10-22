@@ -282,7 +282,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	/**
 	 * Retrieve a list of the platform appropriate port names for this adapter. A
 	 * port must be selected with the method 'selectPort' before any other
-	 * communication methods can be used. Using a communcation method before
+	 * communication methods can be used. Using a communication method before
 	 * 'selectPort' will result in a <code>OneWireException</code> exception.
 	 *
 	 * @return enumeration of type <code>String</code> that contains the port names
@@ -301,12 +301,12 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * Specify a platform appropriate port name for this adapter. Note that even
 	 * though the port has been selected, it's ownership may be relinquished if it
 	 * is not currently held in a 'exclusive' block. This class will then try to
-	 * re-aquire the port when needed. If the port cannot be re-aquired ehen the
+	 * re-acquire the port when needed. If the port cannot be re-acquired ehen the
 	 * exception <code>PortInUseException</code> will be thrown.
 	 *
 	 * @param portName name of the target port, retrieved from getPortNames()
 	 *
-	 * @return <code>true</code> if the port was aquired, <code>false</code> if the
+	 * @return <code>true</code> if the port was acquired, <code>false</code> if the
 	 *         port is not available.
 	 *
 	 * @throws OneWireIOException If port does not exist, or unable to communicate
@@ -576,7 +576,7 @@ public class TMEXAdapter extends DSPortAdapter {
 
 	/**
 	 * Selects the specified iButton or 1-Wire device by broadcasting its address.
-	 * This operation is refered to a 'MATCH ROM' operation in the iButton and
+	 * This operation is referred to a 'MATCH ROM' operation in the iButton and
 	 * 1-Wire device data sheets. This does not affect the 'current' device state
 	 * information used in searches (findNextDevice...).
 	 *
@@ -654,7 +654,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @param blocking <code>true</code> if want to block waiting for an excluse
 	 *                 access to the adapter
 	 * @return <code>true</code> if blocking was false and a exclusive session with
-	 *         the adapter was aquired
+	 *         the adapter was acquired
 	 *
 	 * @throws OneWireException on a setup error with the 1-Wire adapter
 	 */
@@ -687,7 +687,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	/**
 	 * Gets a bit from the 1-Wire Network.
 	 *
-	 * @return the bit value recieved from the the 1-Wire Network.
+	 * @return the bit value received from the the 1-Wire Network.
 	 *
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
@@ -958,12 +958,12 @@ public class TMEXAdapter extends DSPortAdapter {
 	 *
 	 * @param speed
 	 *                     <ul>
-	 *                     <li>0 (SPEED_REGULAR) set to normal communciation speed
-	 *                     <li>1 (SPEED_FLEX) set to flexible communciation speed
+	 *                     <li>0 (SPEED_REGULAR) set to normal communication speed
+	 *                     <li>1 (SPEED_FLEX) set to flexible communication speed
 	 *                     used for long lines
-	 *                     <li>2 (SPEED_OVERDRIVE) set to normal communciation speed
+	 *                     <li>2 (SPEED_OVERDRIVE) set to normal communication speed
 	 *                     to overdrive
-	 *                     <li>3 (SPEED_HYPERDRIVE) set to normal communciation
+	 *                     <li>3 (SPEED_HYPERDRIVE) set to normal communication
 	 *                     speed to hyperdrive
 	 *                     <li>>3 future speeds
 	 *                     </ul>
@@ -1081,7 +1081,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	private native int dataByte_Native(int byteValue) throws OneWireIOException, OneWireException;
 
 	/**
-	 * Get the TMEX main and porttype version strings concatinated
+	 * Get the TMEX main and porttype version strings concatenated
 	 *
 	 * @return string containing the TMEX version
 	 */
