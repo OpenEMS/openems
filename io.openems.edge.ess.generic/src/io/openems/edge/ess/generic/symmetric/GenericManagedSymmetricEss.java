@@ -1,15 +1,22 @@
 package io.openems.edge.ess.generic.symmetric;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 
-public interface GenericManagedSymmetricEss extends ManagedSymmetricEss, StartStoppable {
+public interface GenericManagedSymmetricEss extends ManagedSymmetricEss, StartStoppable, ModbusSlave  {
 
 	/**
 	 * Retry set-command after x Seconds, e.g. for starting battery or
@@ -46,6 +53,19 @@ public interface GenericManagedSymmetricEss extends ManagedSymmetricEss, StartSt
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+	
+	@Override
+	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				StartStoppable.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(GenericManagedSymmetricEss.class, accessMode, 100) //
+						.channel(0, GenericManagedSymmetricEss.ChannelId.STATE_MACHINE, ModbusType.UINT16) //
+						.build());
+
 	}
 
 	/**

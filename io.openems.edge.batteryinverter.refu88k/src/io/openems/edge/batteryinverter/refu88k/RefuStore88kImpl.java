@@ -75,9 +75,9 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 	protected static final double EFFICIENCY_FACTOR = 0.98;
 
 	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
-			SymmetricBatteryInverter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+			SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
-			SymmetricBatteryInverter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+			SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	@Reference
 	private Power power;

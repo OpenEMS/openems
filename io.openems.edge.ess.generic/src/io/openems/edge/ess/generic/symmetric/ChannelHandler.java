@@ -87,10 +87,10 @@ public class ChannelHandler {
 		 * Battery-Inverter
 		 */
 		this.<Long>addCopyListener(batteryInverter, //
-				SymmetricBatteryInverter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY, //
 				SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
 		this.<Long>addCopyListener(batteryInverter, //
-				SymmetricBatteryInverter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
 				SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 		this.<Long>addCopyListener(batteryInverter, //
 				SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, //

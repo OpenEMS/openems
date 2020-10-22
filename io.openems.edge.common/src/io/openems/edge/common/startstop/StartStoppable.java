@@ -1,10 +1,13 @@
 package io.openems.edge.common.startstop;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 
 /**
  * Declares an OpenEMS Component as being able to get started and stopped.
@@ -59,6 +62,18 @@ public interface StartStoppable extends OpenemsComponent {
 		}
 	}
 
+	/**
+	 * Addition of the start / stop channel in modbus slave table 
+	 * 
+	 * @param accessMode the {@link AccessMode}
+	 * @return
+	 */
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(StartStoppable.class, accessMode, 10) //
+				.channel(0, ChannelId.START_STOP, ModbusType.UINT16) //
+				.build();
+	}
+	
 	/**
 	 * Gets the Channel for {@link ChannelId#START_STOP}.
 	 * 

@@ -53,7 +53,6 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
@@ -83,11 +82,11 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	private volatile Timedata timedata = null;
 
 	private final Logger log = LoggerFactory.getLogger(KacoBlueplanetGridsaveImpl.class);
-
+	
 	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
-			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+			SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
-			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
+			SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	/**
 	 * Manages the {@link State}s of the StateMachine.
