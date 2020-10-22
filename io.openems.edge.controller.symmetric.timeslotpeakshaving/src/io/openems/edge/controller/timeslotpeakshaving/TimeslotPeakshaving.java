@@ -112,7 +112,6 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * Applies the power on the Ess.
 	 * 
 	 * @param ess      {@link ManagedSymmetricEss} where the power needs to be set
-	 * @param pidOutput the power to be set on ess, or null to set no power
 	 * @throws OpenemsNamedException on error
 	 */
 	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
