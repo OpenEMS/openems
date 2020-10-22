@@ -111,6 +111,13 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 
 	}
 
+	/**
+	 * Gets the {@link ModbusSlaveNatureTable} for {@link SymmetricBatteryInverter}
+	 * used by the Modbus/TCP Slave API.
+	 * 
+	 * @param accessMode the {@link AccessMode}
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(SymmetricBatteryInverter.class, accessMode, 100) //
 				.channel(0, ChannelId.GRID_MODE, ModbusType.UINT16) //

@@ -57,7 +57,7 @@ public interface GenericManagedSymmetricEss extends ManagedSymmetricEss, StartSt
 
 	@Override
 	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //

@@ -13,12 +13,10 @@ import io.openems.edge.common.modbusslave.ModbusType;
  * Declares an OpenEMS Component as being able to get started and stopped.
  * 
  * <p>
- * 
  * A device or service inside OpenEMS that implements this OpenEMS Nature can be
  * started or stopped.
  * 
  * <p>
- * 
  * Implementing this Nature also requires the Component to have a configuration
  * property "startStop" of type {@link StartStopConfig} that overrides the logic
  * of the {@link StartStoppable#setStartStop(StartStop)} method:
@@ -40,7 +38,7 @@ public interface StartStoppable extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
-		 * Start/Stop
+		 * Start/Stop.
 		 * 
 		 * <ul>
 		 * <li>Interface: StartStoppable
@@ -63,10 +61,11 @@ public interface StartStoppable extends OpenemsComponent {
 	}
 
 	/**
-	 * Addition of the start / stop channel in modbus slave table
+	 * Gets the {@link ModbusSlaveNatureTable} for {@link StartStoppable} used by
+	 * the Modbus/TCP Slave API.
 	 * 
 	 * @param accessMode the {@link AccessMode}
-	 * @return
+	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(StartStoppable.class, accessMode, 10) //
@@ -94,7 +93,7 @@ public interface StartStoppable extends OpenemsComponent {
 	}
 
 	/**
-	 * Is this device or service started?
+	 * Is this device or service started?.
 	 * 
 	 * <ul>
 	 * <li>true - if (and only if) {@link ChannelId#START_STOP} is
@@ -110,7 +109,7 @@ public interface StartStoppable extends OpenemsComponent {
 	}
 
 	/**
-	 * Is this device or service stopped?
+	 * Is this device or service stopped?.
 	 * 
 	 * <ul>
 	 * <li>true - if (and only if) {@link ChannelId#START_STOP} is

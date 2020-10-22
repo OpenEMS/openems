@@ -62,7 +62,7 @@ public class ChannelHandler {
 
 			if (voltage.isDefined() && dischargeMaxCurrent.isDefined() && chargeMaxCurrent.isDefined()) {
 				// efficiency factor is not considered in chargeMaxCurrent (DC Power > AC Power)
-				this.parent._setAllowedChargePower( //
+				this.parent._setAllowedChargePower(//
 						(int) (chargeMaxCurrent.get() * voltage.get() * -1));
 				this.parent._setAllowedDischargePower(//
 						(int) (dischargeMaxCurrent.get() * voltage.get() * efficiencyFactor));
