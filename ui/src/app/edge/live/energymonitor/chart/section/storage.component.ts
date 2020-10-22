@@ -57,12 +57,7 @@ export class StorageSectionComponent extends AbstractSection implements OnDestro
     }
 
     ngOnInit() {
-        if (navigator.vendor.match(/apple/i)) {
-            this.fillRef = "url(" + window.location.origin + window.location.pathname + "#" + this.sectionId + ")"
-        }
-        else {
-            this.fillRef = "url(#" + this.sectionId + ")"
-        }
+        this.adjustFillRefbyBrowser();
     }
 
     toggleCharge() {

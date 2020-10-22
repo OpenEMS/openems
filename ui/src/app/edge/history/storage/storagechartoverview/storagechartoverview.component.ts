@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
-import { EdgeConfig, Service, Utils, Edge } from '../../../../shared/shared';
 import { ActivatedRoute } from '@angular/router';
+import { Component } from '@angular/core';
+import { EdgeConfig, Service, Utils, Edge } from '../../../../shared/shared';
 
 @Component({
     selector: StorageChartOverviewComponent.SELECTOR,

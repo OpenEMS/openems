@@ -20,6 +20,7 @@ export const TRANSLATION = {
         currentValue: 'current value',
         dateFormat: 'yyyy-MM-dd', // e.g. German: dd.MM.yyyy (dd = Day, MM = Month, yyyy = Year)
         digitalInputs: 'Digital Inputs',
+        directConsumption: 'Direct consumption',
         dischargePower: 'Discharge power',
         fault: 'Fault',
         grid: 'Grid',
@@ -87,19 +88,26 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'About OpenEMS UI',
-        edgeSettings: 'FEMS Settings',
+        edgeSettings: 'OpenEMS Edge Settings',
         generalSettings: 'General Settings',
         index: 'Index',
         logout: 'Sign Out',
         menu: 'Menu',
-        overview: 'FEMS Overview',
+        overview: 'OpenEMS Edge Overview',
     },
     Index: {
         allConnected: 'All connections established.',
+        connectionInProgress: 'Establishing connection...',
         connectionFailed: 'Connection to {{value}} failed.', // value = name of websocket
         connectionSuccessful: 'Successfully connected to {{value}}.', // value = name of websocket
         isOffline: 'OpenEMS is offline!',
         toEnergymonitor: 'To Energymonitor...',
+    },
+    Login: {
+        title: "Login",
+        preamble: "Please enter your password or submit the default value to login as a guest.",
+        passwordLabel: "Password",
+        passwordPlaceholder: "Password",
     },
     Edge: {
         Index: {

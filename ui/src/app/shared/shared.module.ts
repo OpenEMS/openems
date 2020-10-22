@@ -8,6 +8,7 @@ import { FormlyIonicModule } from '@ngx-formly/ionic';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
+import { HeaderComponent } from './header/header.component';
 import { IonicModule } from '@ionic/angular';
 import { IsclassPipe } from './pipe/isclass/isclass.pipe';
 import { KeysPipe } from './pipe/keys/keys.pipe';
@@ -23,7 +24,6 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { UnitvaluePipe } from './pipe/unitvalue/unitvalue.pipe';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
-import { HeaderComponent } from './header/header.component';
 
 @NgModule({
   imports: [

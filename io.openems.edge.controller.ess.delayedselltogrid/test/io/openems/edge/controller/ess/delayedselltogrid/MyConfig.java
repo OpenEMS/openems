@@ -40,7 +40,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.sellToGridPowerLimit = sellToGridPowerLimit;
 			return this;
 		}
-
+		
 		public MyConfig build() {
 			return new MyConfig(this);
 		}

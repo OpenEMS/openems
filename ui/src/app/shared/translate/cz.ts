@@ -20,6 +20,7 @@ export const TRANSLATION = {
         currentValue: 'Aktuální hodnota',
         dateFormat: 'dd.MM.yyyy', // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         digitalInputs: 'Digitální vstupy',
+        directConsumption: 'Přímá spotřeba',
         dischargePower: 'Vybíjecí výkon',
         fault: 'Chyba',
         grid: 'Síť',
@@ -86,12 +87,12 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'About OpenEMS UI',
-        edgeSettings: 'FEMS Předvolby',
+        edgeSettings: 'OpenEMS Edge Předvolby',
         generalSettings: 'Obecné Nastavení',
         index: 'Přehled',
         logout: 'Odhlásit',
         menu: 'Menu',
-        overview: 'FEMS Přehled',
+        overview: 'OpenEMS Edge Přehled',
     },
     Index: {
         allConnected: 'Všechna připojení aktivní.',
