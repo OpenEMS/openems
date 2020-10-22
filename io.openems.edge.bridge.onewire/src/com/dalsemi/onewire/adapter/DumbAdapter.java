@@ -152,7 +152,7 @@ public class DumbAdapter extends DSPortAdapter {
 	/**
 	 * Retrieves a list of the platform appropriate port names for this adapter. A
 	 * port must be selected with the method 'selectPort' before any other
-	 * communication methods can be used. Using a communcation method before
+	 * communication methods can be used. Using a communication method before
 	 * 'selectPort' will result in a <code>OneWireException</code> exception.
 	 *
 	 * @return <code>Enumeration</code> of type <code>String</code> that contains
@@ -950,12 +950,12 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @param speed
 	 *              <ul>
-	 *              <li>0 (SPEED_REGULAR) set to normal communciation speed
-	 *              <li>1 (SPEED_FLEX) set to flexible communciation speed used for
+	 *              <li>0 (SPEED_REGULAR) set to normal communication speed
+	 *              <li>1 (SPEED_FLEX) set to flexible communication speed used for
 	 *              long lines
-	 *              <li>2 (SPEED_OVERDRIVE) set to normal communciation speed to
+	 *              <li>2 (SPEED_OVERDRIVE) set to normal communication speed to
 	 *              overdrive
-	 *              <li>3 (SPEED_HYPERDRIVE) set to normal communciation speed to
+	 *              <li>3 (SPEED_HYPERDRIVE) set to normal communication speed to
 	 *              hyperdrive
 	 *              <li>>3 future speeds
 	 *              </ul>

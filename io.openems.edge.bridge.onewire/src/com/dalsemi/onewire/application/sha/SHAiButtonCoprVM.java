@@ -1061,8 +1061,8 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 *
 	 * @param function          the SHA function code
 	 * @param shaSecret         the secret used in SHA caclulation
-	 * @param shaPage           the 32-byte page used in SHA caculation
-	 * @param scratchpad        the 32-byte scratchpad data used in SHA caculation.
+	 * @param shaPage           the 32-byte page used in SHA calculation
+	 * @param scratchpad        the 32-byte scratchpad data used in SHA calculation.
 	 *                          MAC is returned in this buffer starting at offset 8,
 	 *                          unless the function is COMPUTE_FIRST_SECRET or
 	 *                          COMPUTE_NEXT_SECRET, when the 4-byte parts E and D

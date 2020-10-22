@@ -195,7 +195,7 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 *
 	 * @param coprBindCode The Coprocessor Bind Code without the information.
 	 * @param fileName     The file name from the Coprocessor.
-	 * @param fileNameExt  The file extenstion from the Coprocessor
+	 * @param fileNameExt  The file extension from the Coprocessor
 	 * @param owc          The DS1963S iButton that this object will refer to.
 	 * @param formatDevice If <code>true</code>, the TMEX filesystem will be
 	 *                     formatted before the account service file is created.
@@ -318,7 +318,7 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 *
 	 * @param coprBindCode The Coprocessor Bind Code without the information.
 	 * @param fileName     The file name from the Coprocessor.
-	 * @param fileNameExt  The file extenstion from the Coprocessor
+	 * @param fileNameExt  The file extension from the Coprocessor
 	 * @param authCopr     The SHAiButtonCopr used to generate the
 	 *                     write-authorization MAC for the copy-scratchpad command
 	 *                     of the DS1961S.
@@ -351,13 +351,13 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 
 	/**
 	 * <P>
-	 * Creates a mostly unitialized SHAiButtonUser object. This constructor merely
+	 * Creates a mostly uninitialized SHAiButtonUser object. This constructor merely
 	 * copies the coprocessors 7 byte binding code into a local cache and stores the
 	 * name of the account service file used for all user iButtons.
 	 * </P>
 	 *
 	 * <P>
-	 * Since this constructor leaves data unitialized, you should be very careful
+	 * Since this constructor leaves data uninitialized, you should be very careful
 	 * with the use of it. It is expected that after calling this constructor, the
 	 * user will call <code>setiButton</code> to finish the initialization process.
 	 * On memory-starved platforms, this should help optimize memory usage.
@@ -397,7 +397,7 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 * Modifies this SHA iButton so that it refers to another DS1961S container.
 	 * This function only copies the reference to the OneWireContainer, copes the
 	 * reference to it's 1-Wire address, and then asserts that the iButton contains
-	 * a valid acccount info file associated with the system.
+	 * a valid account info file associated with the system.
 	 * </P>
 	 *
 	 * @param owc The <code>OneWireContainer33</code> this object will refer to.
