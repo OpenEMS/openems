@@ -76,10 +76,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		MAX_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE)), //
 		/**
-		 * Active Production Energy.
-		 * 
-		 * <p>
-		 * The discharge energy.
+		 * Active Charge Energy.
 		 * 
 		 * <ul>
 		 * <li>Interface: SymmetricBatteryInverter
@@ -87,13 +84,10 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG) //
+		ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
-		 * Active Consumption Energy.
-		 * 
-		 * <p>
-		 * The charge energy.
+		 * Active Discharge Energy.
 		 * 
 		 * <ul>
 		 * <li>Interface: SymmetricBatteryInverter
@@ -101,8 +95,8 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS)),;
+		ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS));
 
 		private final Doc doc;
 
@@ -269,81 +263,81 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#ACTIVE_PRODUCTION_ENERGY}.
-	 * 
+	 * Gets the Channel for {@link ChannelId#ACTIVE_CHARGE_ENERGY}.
+	 *
 	 * @return the Channel
 	 */
-	public default LongReadChannel getActiveProductionEnergyChannel() {
-		return this.channel(ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	public default LongReadChannel getActiveChargeEnergyChannel() {
+		return this.channel(ChannelId.ACTIVE_CHARGE_ENERGY);
 	}
 
 	/**
-	 * Gets the Active Production Energy in [Wh], i.e. the discharge energy. Range
-	 * "&gt;= 0". See {@link ChannelId#ACTIVE_PRODUCTION_ENERGY}.
-	 * 
+	 * Gets the Active Charge Energy in [Wh]. See
+	 * {@link ChannelId#ACTIVE_CHARGE_ENERGY}.
+	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Long> getActiveProductionEnergy() {
-		return this.getActiveProductionEnergyChannel().value();
+	public default Value<Long> getActiveChargeEnergy() {
+		return this.getActiveChargeEnergyChannel().value();
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#ACTIVE_PRODUCTION_ENERGY} Channel.
-	 * 
+	 * {@link ChannelId#ACTIVE_CHARGE_ENERGY} Channel.
+	 *
 	 * @param value the next value
 	 */
-	public default void _setActiveProductionEnergy(Long value) {
-		this.getActiveProductionEnergyChannel().setNextValue(value);
+	public default void _setActiveChargeEnergy(Long value) {
+		this.getActiveChargeEnergyChannel().setNextValue(value);
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#ACTIVE_PRODUCTION_ENERGY} Channel.
-	 * 
+	 * {@link ChannelId#ACTIVE_CHARGE_ENERGY} Channel.
+	 *
 	 * @param value the next value
 	 */
-	public default void _setActiveProductionEnergy(long value) {
-		this.getActiveProductionEnergyChannel().setNextValue(value);
+	public default void _setActiveChargeEnergy(long value) {
+		this.getActiveChargeEnergyChannel().setNextValue(value);
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY}.
-	 * 
+	 * Gets the Channel for {@link ChannelId#ACTIVE_DISCHARGE_ENERGY}.
+	 *
 	 * @return the Channel
 	 */
-	public default LongReadChannel getActiveConsumptionEnergyChannel() {
-		return this.channel(ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+	public default LongReadChannel getActiveDischargeEnergyChannel() {
+		return this.channel(ChannelId.ACTIVE_DISCHARGE_ENERGY);
 	}
 
 	/**
-	 * Gets the Active Consumption Energy in [Wh], i.e. the charge energy. Range
-	 * "&gt;= 0". See {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY}.
-	 * 
+	 * Gets the Active Discharge Energy in [Wh]. See
+	 * {@link ChannelId#ACTIVE_DISCHARGE_ENERGY}.
+	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Long> getActiveConsumptionEnergy() {
-		return this.getActiveConsumptionEnergyChannel().value();
+	public default Value<Long> getActiveDischargeEnergy() {
+		return this.getActiveDischargeEnergyChannel().value();
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY} Channel.
-	 * 
+	 * {@link ChannelId#ACTIVE_DISCHARGE_ENERGY} Channel.
+	 *
 	 * @param value the next value
 	 */
-	public default void _setActiveConsumptionEnergy(Long value) {
-		this.getActiveConsumptionEnergyChannel().setNextValue(value);
+	public default void _setActiveDischargeEnergy(Long value) {
+		this.getActiveDischargeEnergyChannel().setNextValue(value);
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY} Channel.
-	 * 
+	 * {@link ChannelId#ACTIVE_DISCHARGE_ENERGY} Channel.
+	 *
 	 * @param value the next value
 	 */
-	public default void _setActiveConsumptionEnergy(long value) {
-		this.getActiveConsumptionEnergyChannel().setNextValue(value);
+	public default void _setActiveDischargeEnergy(long value) {
+		this.getActiveDischargeEnergyChannel().setNextValue(value);
 	}
 
 }

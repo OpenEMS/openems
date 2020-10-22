@@ -29,6 +29,7 @@ import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -52,7 +53,7 @@ import io.openems.edge.ess.power.api.Relationship;
 		} //
 )
 public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent implements GenericManagedSymmetricEss,
-		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, StartStoppable {
+		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	@Reference
 	private Power power;
@@ -138,7 +139,6 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 
 		// Initialize 'Start-Stop' Channel
 		this._setStartStop(StartStop.UNDEFINED);
-		
 		// Prepare Context
 		Context context = new Context(this, this.battery, this.batteryInverter, this.config);
 

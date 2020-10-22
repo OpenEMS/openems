@@ -128,14 +128,14 @@ public class Solver {
 			// Check if the Problem is solvable at all.
 			Stopwatch stopwatch = Stopwatch.createStarted();
 			allConstraints = this.data.getConstraintsForAllInverters();
-			System.out.println("getConstraintsForAllInverters [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
+			//System.out.println("getConstraintsForAllInverters [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
 			// Add Strict constraints if required
 			stopwatch = Stopwatch.createStarted();
 			AddConstraintsForNotStrictlyDefinedCoefficients.apply(allInverters, this.data.getCoefficients(),
 					allConstraints);
-			System.out.println("addConstraintsForNotStrictlyDefinedCoefficients ["
-					+ stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
+			//System.out.println("addConstraintsForNotStrictlyDefinedCoefficients ["
+				//	+ stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
 			// Print log with currently active EQUALS != 0 Constraints
 			if (this.debugMode) {
@@ -154,14 +154,14 @@ public class Solver {
 					this.data.getCoefficients(), //
 					this.data.getConstraintsForAllInverters() //
 			);
-			System.out.println("getTargetDirection [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
+			//System.out.println("getTargetDirection [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
 			// Gets the target-Inverters, i.e. the Inverters that are minimally required to
 			// solve the Problem.
 			stopwatch = Stopwatch.createStarted();
 			List<Inverter> targetInverters = this.optimizers.reduceNumberOfUsedInverters.apply(allInverters,
 					targetDirection, this.solveWithDisabledInverters);
-			System.out.println("getTargetInverters [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
+			//System.out.println("getTargetInverters [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 
 			stopwatch = Stopwatch.createStarted();
 			switch (strategy) {

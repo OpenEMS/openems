@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 
-import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
@@ -48,13 +47,10 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
-import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
@@ -70,7 +66,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 )
 public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 		implements KacoBlueplanetGridsave, ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent,
-		TimedataProvider, StartStoppable, ModbusSlave {
+		TimedataProvider, StartStoppable {
 
 	private static final int UNIT_ID = 1;
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
@@ -87,9 +83,9 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 	private final Logger log = LoggerFactory.getLogger(KacoBlueplanetGridsaveImpl.class);
 
 	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
-			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+			SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
-			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
+			SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	/**
 	 * Manages the {@link State}s of the StateMachine.
@@ -108,7 +104,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 			.put(DefaultSunSpecModel.S_121, Priority.LOW) //
 			.put(KacoSunSpecModel.S_64201, Priority.HIGH) //
 			.put(KacoSunSpecModel.S_64202, Priority.LOW) //
-		//	.put(KacoSunSpecModel.S_64203, Priority.LOW) //
+			// .put(KacoSunSpecModel.S_64203, Priority.LOW) //
 			.put(KacoSunSpecModel.S_64204, Priority.LOW) //
 			.build();
 
@@ -169,7 +165,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 		}
 
 		// Set Display Information
-	//	this.setDisplayInformation(battery);
+		// this.setDisplayInformation(battery);
 
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
@@ -178,7 +174,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 		this.calculateEnergy();
 
 		// Trigger the Watchdog
-		//this.triggerWatchdog();
+		// this.triggerWatchdog();
 
 		// Set State-Channels
 		this.setStateChannels();
@@ -253,26 +249,26 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 		enLimitChannel.setNextWriteValue(S64202EnLimit.ACTIVATE);
 	}
 
-	/**
-	 * Sets the information that is shown on the Display, like State-of-Charge,
-	 * State-of-Health and Max-Cell-Temperature.
-	 * 
-	 * @param battery the linked {@link Battery}
-	 * @throws OpenemsNamedException on error
-	 */
-	private void setDisplayInformation(Battery battery) throws OpenemsNamedException {
-		// State-of-Charge
-		IntegerWriteChannel batSocChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_SOC_0);
-		batSocChannel.setNextWriteValue(battery.getSoc().get());
-
-		// State-of-Health
-		IntegerWriteChannel batSohChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_SOH_0);
-		batSohChannel.setNextWriteValue(battery.getSoh().get());
-
-		// Max-Cell-Temperature
-		IntegerWriteChannel batTempChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_TEMP_0);
-		batTempChannel.setNextWriteValue(battery.getMaxCellTemperature().get());
-	}
+//	/**
+//	 * Sets the information that is shown on the Display, like State-of-Charge,
+//	 * State-of-Health and Max-Cell-Temperature.
+//	 * 
+//	 * @param battery the linked {@link Battery}
+//	 * @throws OpenemsNamedException on error
+//	 */
+//	private void setDisplayInformation(Battery battery) throws OpenemsNamedException {
+//		// State-of-Charge
+//		IntegerWriteChannel batSocChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_SOC_0);
+//		batSocChannel.setNextWriteValue(battery.getSoc().get());
+//
+//		// State-of-Health
+//		IntegerWriteChannel batSohChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_SOH_0);
+//		batSohChannel.setNextWriteValue(battery.getSoh().get());
+//
+//		// Max-Cell-Temperature
+//		IntegerWriteChannel batTempChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_TEMP_0);
+//		batTempChannel.setNextWriteValue(battery.getMaxCellTemperature().get());
+//	}
 
 //	private Instant lastTriggerWatchdog = Instant.MIN;
 //
@@ -460,12 +456,5 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 		return this.timedata;
 	}
 
-	@Override
-	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricBatteryInverter.getModbusSlaveNatureTable(accessMode), //
-				ManagedSymmetricBatteryInverter.getModbusSlaveNatureTable(accessMode) //
-		);
-	}
+
 }

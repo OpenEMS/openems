@@ -672,6 +672,45 @@ public interface Sum extends OpenemsComponent {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#ESS_REACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getEssReactivePowerChannel() {
+		return this.channel(ChannelId.ESS_REACTIVE_POWER);
+	}
+
+	/**
+	 * Gets the Sum of all Energy Storage System Reactive Power in [var]. 
+	 * {@link ChannelId#ESS_REACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getEssReactivePower() {
+		return this.getEssReactivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ESS_REACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssReactivePower(Integer value) {
+		this.getEssReactivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ESS_REACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssReactivePower(int value) {
+		this.getEssReactivePowerChannel().setNextValue(value);
+	}
+	
+	/**
 	 * Gets the Channel for {@link ChannelId#ESS_ACTIVE_POWER_L1}.
 	 *
 	 * @return the Channel

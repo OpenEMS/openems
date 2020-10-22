@@ -95,6 +95,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		final CalculateIntegerSum essActivePowerL1 = new CalculateIntegerSum();
 		final CalculateIntegerSum essActivePowerL2 = new CalculateIntegerSum();
 		final CalculateIntegerSum essActivePowerL3 = new CalculateIntegerSum();
+
+		final CalculateIntegerSum essReactivePower = new CalculateIntegerSum();
+
 		final CalculateIntegerSum essMaxApparentPower = new CalculateIntegerSum();
 		final CalculateGridMode essGridMode = new CalculateGridMode();
 		final CalculateLongSum essActiveChargeEnergy = new CalculateLongSum();
@@ -140,6 +143,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				}
 				essSoc.addValue(ess.getSocChannel());
 				essActivePower.addValue(ess.getActivePowerChannel());
+				essReactivePower.addValue(ess.getReactivePowerChannel());
 				essMaxApparentPower.addValue(ess.getMaxApparentPowerChannel());
 				essGridMode.addValue(ess.getGridModeChannel());
 				essActiveChargeEnergy.addValue(ess.getActiveChargeEnergyChannel());
@@ -151,6 +155,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					essActivePowerL1.addValue(e.getActivePowerL1Channel());
 					essActivePowerL2.addValue(e.getActivePowerL2Channel());
 					essActivePowerL3.addValue(e.getActivePowerL3Channel());
+
 				} else {
 					essActivePowerL1.addValue(ess.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
 					essActivePowerL2.addValue(ess.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
@@ -263,6 +268,10 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this._setEssActivePowerL2(essActivePowerL2Sum);
 		Integer essActivePowerL3Sum = essActivePowerL3.calculate();
 		this._setEssActivePowerL3(essActivePowerL3Sum);
+
+		Integer essReactivePowerSum = essReactivePower.calculate();
+		this._setEssReactivePower(essReactivePowerSum);
+
 		Integer essMaxApparentPowerSum = essMaxApparentPower.calculate();
 		this._setEssMaxApparentPower(essMaxApparentPowerSum);
 		this._setGridMode(essGridMode.calculate());
