@@ -2,8 +2,8 @@ import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Edge, EdgeConfig, Service, Widgets } from '../../shared/shared';
 import { environment } from '../../../environments/environment';
-import { TranslateService } from '@ngx-translate/core';
 import { HeaderComponent } from 'src/app/shared/header/header.component';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'history',

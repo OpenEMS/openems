@@ -32,7 +32,6 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
         this.spinnerId = 'production-single-chart';
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh()
     }
 
     ngOnDestroy() {
@@ -40,6 +39,7 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.colors = [];
@@ -109,17 +109,17 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
                     this.service.stopSpinner(this.spinnerId);
                 }).catch(reason => {
                     console.error(reason); // TODO error message
-                    this.initializeChart(reason);
+                    this.initializeChart();
                     return;
                 });
             }).catch(reason => {
                 console.error(reason); // TODO error message
-                this.initializeChart(reason);
+                this.initializeChart();
                 return;
             });
         }).catch(reason => {
             console.error(reason); // TODO error message
-            this.initializeChart(reason);
+            this.initializeChart();
             return;
         });
     }

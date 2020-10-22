@@ -1,10 +1,10 @@
+import { ActivatedRoute } from '@angular/router';
 import { Component } from '@angular/core';
 import { Service, EdgeConfig, Edge } from '../../../../../shared/shared';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: SymmetricPeakshavingChartOverviewComponent.SELECTOR,
-    templateUrl: './symmetricpeakshavingchart.component.html'
+    templateUrl: './symmetricpeakshavingchartoverview.component.html'
 })
 export class SymmetricPeakshavingChartOverviewComponent {
 

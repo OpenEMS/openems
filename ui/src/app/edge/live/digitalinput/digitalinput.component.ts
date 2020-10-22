@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-import { Edge, EdgeConfig, Service, Websocket, ChannelAddress } from 'src/app/shared/shared';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { ModalController } from '@ionic/angular';
+import { Component } from '@angular/core';
 import { DigitalInputModalComponent } from './modal/modal.component';
+import { Edge, EdgeConfig, Service, Websocket, ChannelAddress } from 'src/app/shared/shared';
+import { ModalController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'digitalinput',

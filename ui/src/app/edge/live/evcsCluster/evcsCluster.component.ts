@@ -5,7 +5,6 @@ import { ModalComponentEvcsCluster } from './modal/evcsCluster-modal.page';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 
-
 @Component({
   selector: EvcsClusterComponent.SELECTOR,
   templateUrl: './evcsCluster.component.html'

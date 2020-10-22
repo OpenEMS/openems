@@ -1,7 +1,7 @@
-import { WebSocketSubject } from "rxjs/webSocket";
+import { EdgeRpcRequest } from "../jsonrpc/request/edgeRpcRequest";
 import { environment as env } from '../../../environments';
 import { JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
-import { EdgeRpcRequest } from "../jsonrpc/request/edgeRpcRequest";
+import { WebSocketSubject } from "rxjs/webSocket";
 
 export class WsData {
 

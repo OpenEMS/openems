@@ -33,7 +33,6 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
         this.spinnerId = 'symmetricpeakshaving-chart';
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh()
     }
 
     ngOnDestroy() {
@@ -41,6 +40,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.colors = [];
@@ -179,12 +179,12 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                 this.service.stopSpinner(this.spinnerId);
             }).catch(reason => {
                 console.error(reason); // TODO error message
-                this.initializeChart(reason);
+                this.initializeChart();
                 return;
             });
         }).catch(reason => {
             console.error(reason); // TODO error message
-            this.initializeChart(reason);
+            this.initializeChart();
             return;
         });
     }

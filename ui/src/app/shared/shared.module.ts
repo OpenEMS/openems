@@ -4,14 +4,11 @@ import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
 import { ChartsModule } from 'ng2-charts';
 import { ClassnamePipe } from './pipe/classname/classname.pipe';
 import { CommonModule, DecimalPipe } from '@angular/common';
-import { EvcsComponent } from '../edge/live/evcs/evcs.component';
-import { EvcsModalComponent } from '../edge/live/evcs/modal/modal.page';
 import { FormlyIonicModule } from '@ngx-formly/ionic';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
-import { HeatingElementComponent } from '../edge/live/heatingelement/heatingelement.component';
-import { HeatingElementModalComponent } from '../edge/live/heatingelement/modal/modal.component';
+import { HeaderComponent } from './header/header.component';
 import { IonicModule } from '@ionic/angular';
 import { IsclassPipe } from './pipe/isclass/isclass.pipe';
 import { KeysPipe } from './pipe/keys/keys.pipe';
@@ -27,7 +24,6 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { UnitvaluePipe } from './pipe/unitvalue/unitvalue.pipe';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
-import { HeaderComponent } from './header/header.component';
 
 @NgModule({
   imports: [
@@ -43,7 +39,6 @@ import { HeaderComponent } from './header/header.component';
       loader: { provide: TranslateLoader, useClass: Language }
     }),
   ],
-  // EVCS- and HeatingelementComponent is being used by autoinstaller
   declarations: [
     // pipes
     ClassnamePipe,
@@ -54,10 +49,6 @@ import { HeaderComponent } from './header/header.component';
     UnitvaluePipe,
     // components
     ChartOptionsComponent,
-    EvcsComponent,
-    EvcsModalComponent,
-    HeatingElementComponent,
-    HeatingElementModalComponent,
     HeaderComponent,
     PercentageBarComponent,
     PickDateComponent,
@@ -84,10 +75,6 @@ import { HeaderComponent } from './header/header.component';
     TranslateModule,
     // components
     ChartOptionsComponent,
-    EvcsComponent,
-    EvcsModalComponent,
-    HeatingElementComponent,
-    HeatingElementModalComponent,
     HeaderComponent,
     PercentageBarComponent,
     PickDateComponent,

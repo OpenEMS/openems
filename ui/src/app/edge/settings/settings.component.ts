@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Component } from '@angular/core';
 import { Edge, Service, Utils } from '../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 

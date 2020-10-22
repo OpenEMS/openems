@@ -18,6 +18,7 @@ export const TRANSLATION = {
         currentValue: 'Huidige waarde',
         dateFormat: 'dd-MM-yyyy', // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         digitalInputs: 'Digitale Ingangen',
+        directConsumption: 'Directe consumptie',
         dischargePower: 'Ontlaad vermogen',
         fault: 'Fout',
         grid: 'Net',
