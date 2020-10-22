@@ -71,7 +71,7 @@ public class ChannelHandler {
 				this.parent._setAllowedDischargePower(0);
 			}
 		};
-		
+
 		this.addListener(battery, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, allowedChargeDischargeCallback);
 		this.addListener(battery, Battery.ChannelId.DISCHARGE_MAX_CURRENT, allowedChargeDischargeCallback);
 		this.addListener(battery, Battery.ChannelId.CHARGE_MAX_VOLTAGE, allowedChargeDischargeCallback);

@@ -16,7 +16,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 
-public interface GenericManagedSymmetricEss extends ManagedSymmetricEss, StartStoppable, ModbusSlave  {
+public interface GenericManagedSymmetricEss extends ManagedSymmetricEss, StartStoppable, ModbusSlave {
 
 	/**
 	 * Retry set-command after x Seconds, e.g. for starting battery or
@@ -54,7 +54,7 @@ public interface GenericManagedSymmetricEss extends ManagedSymmetricEss, StartSt
 			return this.doc;
 		}
 	}
-	
+
 	@Override
 	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //

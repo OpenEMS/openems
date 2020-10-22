@@ -63,7 +63,7 @@ public interface StartStoppable extends OpenemsComponent {
 	}
 
 	/**
-	 * Addition of the start / stop channel in modbus slave table 
+	 * Addition of the start / stop channel in modbus slave table
 	 * 
 	 * @param accessMode the {@link AccessMode}
 	 * @return
@@ -73,7 +73,7 @@ public interface StartStoppable extends OpenemsComponent {
 				.channel(0, ChannelId.START_STOP, ModbusType.UINT16) //
 				.build();
 	}
-	
+
 	/**
 	 * Gets the Channel for {@link ChannelId#START_STOP}.
 	 * 

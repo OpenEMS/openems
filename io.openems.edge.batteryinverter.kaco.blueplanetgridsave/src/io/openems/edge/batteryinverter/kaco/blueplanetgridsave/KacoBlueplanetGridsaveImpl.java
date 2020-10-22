@@ -82,7 +82,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	private volatile Timedata timedata = null;
 
 	private final Logger log = LoggerFactory.getLogger(KacoBlueplanetGridsaveImpl.class);
-	
+
 	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
