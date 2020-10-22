@@ -79,7 +79,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * Active Charge Energy.
 		 * 
 		 * <ul>
-		 * <li>Interface: Ess Symmetric
+		 * <li>Interface: SymmetricBatteryInverter
 		 * <li>Type: Integer
 		 * <li>Unit: Wh
 		 * </ul>
@@ -90,7 +90,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * Active Discharge Energy.
 		 * 
 		 * <ul>
-		 * <li>Interface: Ess Symmetric
+		 * <li>Interface: SymmetricBatteryInverter
 		 * <li>Type: Integer
 		 * <li>Unit: Wh
 		 * </ul>
