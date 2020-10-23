@@ -255,7 +255,7 @@ public class SerialService implements SerialPortEventListener {
 			throw new IOException("Port In Use (" + comPortName + ")");
 		}
 
-		// try to aquire the port
+		// try to acquire the port
 		try {
 			// get the port object
 			serialPort = (SerialPort) port_id.open("Maxim Integrated Products", 2000);
@@ -427,7 +427,7 @@ public class SerialService implements SerialPortEventListener {
 	 * @param blocking <code>true</code> if want to block waiting for an excluse
 	 *                 access to the adapter
 	 * @return <code>true</code> if blocking was false and a exclusive session with
-	 *         the adapter was aquired
+	 *         the adapter was acquired
 	 *
 	 */
 	public boolean beginExclusive(boolean blocking) {
@@ -485,7 +485,7 @@ public class SerialService implements SerialPortEventListener {
 	 * has not yet been relinquished. This is private and non blocking
 	 * <p>
 	 *
-	 * @return <code>true</code> a exclusive session with the adapter was aquired
+	 * @return <code>true</code> a exclusive session with the adapter was acquired
 	 *
 	 * @throws IOException
 	 */
