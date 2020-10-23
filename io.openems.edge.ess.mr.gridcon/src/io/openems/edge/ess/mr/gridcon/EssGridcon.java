@@ -102,14 +102,16 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 			return;
 		}
 		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			calculateActiveAndReactivePower();
+			calculateMaxApparentPower();
+			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			try {
 				// prepare calculated Channels
 				calculateSoc();
 				calculateCapacity();
 				calculateGridMode();
-				calculateActiveAndReactivePower();
-				calculateMaxApparentPower();
 				calculateAllowedPower();
 				calculateBatteryValues();
 

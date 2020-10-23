@@ -182,83 +182,81 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 				"; Error count: " + 
 				errorCount + 
 				"; Active Power: " + 
-				getActivePower() + 
-				"\nGrid Measurements: \n" +
-				getGridMeasurements()
+				getActivePower() 
 		;
 		
 	}
 
-	private String getGridMeasurements() {
-		StringBuilder s = new StringBuilder();
-		
-		s.append("Current L1: ");
-		s.append(getCurrentL1Grid());
-		s.append("\n");
-		
-		s.append("Current L2: ");
-		s.append(getCurrentL2Grid());
-		s.append("\n");
-		
-		s.append("Current L3: ");
-		s.append(getCurrentL3Grid());
-		s.append("\n");
-		
-		s.append("Current N: ");
-		s.append(getCurrentLNGrid());
-		s.append("\n");
-		
-		s.append("Active Power L1: ");
-		s.append(getActivePowerL1Grid());
-		s.append("\n");
-		
-		s.append("Active Power L2: ");
-		s.append(getActivePowerL2Grid());
-		s.append("\n");
-		
-		s.append("Active Power L3: ");
-		s.append(getActivePowerL3Grid());
-		s.append("\n");
-		
-		s.append("Active Power Sum: ");
-		s.append(getActivePowerSumGrid());
-		s.append("\n");
-		
-		s.append("Reactive Power L1: ");
-		s.append(getReactivePowerL1Grid());
-		s.append("\n");
-		
-		s.append("Reactive Power L2: ");
-		s.append(getReactivePowerL2Grid());
-		s.append("\n");
-		
-		s.append("Reactive Power L3: ");
-		s.append(getReactivePowerL3Grid());
-		s.append("\n");
-		
-		s.append("Reactive Power Sum: ");
-		s.append(getReactivePowerSumGrid());
-		s.append("\n");
-		
-		s.append("Apparent Power L1: ");
-		s.append(getApparentPowerL1Grid());
-		s.append("\n");
-		
-		s.append("Apparent Power L2: ");
-		s.append(getApparentPowerL2Grid());
-		s.append("\n");
-		
-		s.append("Apparent Power L3: ");
-		s.append(getApparentPowerL3Grid());
-		s.append("\n");
-		
-		s.append("Apparent Power Sum: ");
-		s.append(getApparentPowerSumGrid());
-		s.append("\n");
-		
-		
-		return s.toString();
-	}
+//	private String getGridMeasurements() {
+//		StringBuilder s = new StringBuilder();
+//		
+//		s.append("Current L1: ");
+//		s.append(getCurrentL1Grid());
+//		s.append("\n");
+//		
+//		s.append("Current L2: ");
+//		s.append(getCurrentL2Grid());
+//		s.append("\n");
+//		
+//		s.append("Current L3: ");
+//		s.append(getCurrentL3Grid());
+//		s.append("\n");
+//		
+//		s.append("Current N: ");
+//		s.append(getCurrentLNGrid());
+//		s.append("\n");
+//		
+//		s.append("Active Power L1: ");
+//		s.append(getActivePowerL1Grid());
+//		s.append("\n");
+//		
+//		s.append("Active Power L2: ");
+//		s.append(getActivePowerL2Grid());
+//		s.append("\n");
+//		
+//		s.append("Active Power L3: ");
+//		s.append(getActivePowerL3Grid());
+//		s.append("\n");
+//		
+//		s.append("Active Power Sum: ");
+//		s.append(getActivePowerSumGrid());
+//		s.append("\n");
+//		
+//		s.append("Reactive Power L1: ");
+//		s.append(getReactivePowerL1Grid());
+//		s.append("\n");
+//		
+//		s.append("Reactive Power L2: ");
+//		s.append(getReactivePowerL2Grid());
+//		s.append("\n");
+//		
+//		s.append("Reactive Power L3: ");
+//		s.append(getReactivePowerL3Grid());
+//		s.append("\n");
+//		
+//		s.append("Reactive Power Sum: ");
+//		s.append(getReactivePowerSumGrid());
+//		s.append("\n");
+//		
+//		s.append("Apparent Power L1: ");
+//		s.append(getApparentPowerL1Grid());
+//		s.append("\n");
+//		
+//		s.append("Apparent Power L2: ");
+//		s.append(getApparentPowerL2Grid());
+//		s.append("\n");
+//		
+//		s.append("Apparent Power L3: ");
+//		s.append(getApparentPowerL3Grid());
+//		s.append("\n");
+//		
+//		s.append("Apparent Power Sum: ");
+//		s.append(getApparentPowerSumGrid());
+//		s.append("\n");
+//		
+//		
+//		return s.toString();
+//	}
 
 	@Override
 	public void setPower(int activePower, int reactivePower) {
@@ -282,6 +280,8 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 	protected void writeCommands() throws IllegalArgumentException, OpenemsNamedException {
 
 		Commands c = this.commands;
+		
+		System.out.println("Balancing mode is --> " + c.getBalancingMode() + " <--");
 
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, c.getPlayBit());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_READY, c.getReadyAndStopBit2nd());
