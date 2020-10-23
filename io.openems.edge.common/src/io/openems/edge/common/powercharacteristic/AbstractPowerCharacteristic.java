@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import org.osgi.service.component.ComponentContext;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
@@ -25,25 +23,6 @@ public abstract class AbstractPowerCharacteristic extends AbstractOpenemsCompone
 	protected AbstractPowerCharacteristic(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
-	}
-
-	protected void activate(ComponentContext context, String id, String alias) {
-		throw new IllegalArgumentException("Use the other activate method");
-	}
-
-	/**
-	 * Abstract activator.
-	 * 
-	 * @param context         the Bundle context
-	 * @param id              the Component-ID
-	 * @param alias           the Component Alias
-	 * @param enabled         is the Component enabled?
-	 * @param meterId         the Meter-ID
-	 * @param noOfBufferHours the number of buffer hours to make sure the battery
-	 *                        still charges full, even on prediction errors
-	 */
-	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
-		super.activate(context, id, alias, enabled);
 	}
 
 	/**

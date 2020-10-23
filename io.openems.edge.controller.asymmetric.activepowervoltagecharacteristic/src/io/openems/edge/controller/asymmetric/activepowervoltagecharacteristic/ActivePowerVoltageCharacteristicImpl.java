@@ -82,8 +82,8 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractPowerCharacter
 
 		public ActivePowerVoltageCharacteristicImpl() {
 			super(//
-					Controller.ChannelId.values(), //
 					OpenemsComponent.ChannelId.values(), //
+					Controller.ChannelId.values(), //
 					ChannelId.values()//
 			);
 		}
