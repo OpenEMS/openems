@@ -14,14 +14,14 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 	private final Logger log = LoggerFactory.getLogger(WebsocketClient.class);
 
-	private final BackendApi parent;
+	private final BackendApiImpl parent;
 	private final OnOpen onOpen;
 	private final OnRequest onRequest;
 	private final OnNotification onNotification;
 	private final OnError onError;
 	private final OnClose onClose;
 
-	protected WebsocketClient(BackendApi parent, String name, URI serverUri, Map<String, String> httpHeaders,
+	protected WebsocketClient(BackendApiImpl parent, String name, URI serverUri, Map<String, String> httpHeaders,
 			Proxy proxy) {
 		super(name, serverUri, httpHeaders, proxy);
 		this.parent = parent;
@@ -30,7 +30,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 		this.onNotification = new OnNotification(parent);
 		this.onError = new OnError(parent);
 		this.onClose = (ws, code, reason, remote) -> {
-			log.error("Disconnected from OpenEMS Backend [" + serverUri.toString() + //
+			this.log.error("Disconnected from OpenEMS Backend [" + serverUri.toString() + //
 			(proxy != AbstractWebsocketClient.NO_PROXY ? " via Proxy" : "") + "]");
 		};
 	}
@@ -47,7 +47,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 	@Override
 	public OnNotification getOnNotification() {
-		return onNotification;
+		return this.onNotification;
 	}
 
 	@Override

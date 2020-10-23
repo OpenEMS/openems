@@ -33,7 +33,6 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
         this.spinnerId = "storage-single-chart";
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh();
     }
 
     ngOnDestroy() {
@@ -41,6 +40,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.service.startSpinner(this.spinnerId);
         this.colors = [];
         this.loading = true;
@@ -163,17 +163,17 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                     this.service.stopSpinner(this.spinnerId);
                 }).catch(reason => {
                     console.error(reason); // TODO error message
-                    this.initializeChart(reason);
+                    this.initializeChart();
                     return;
                 });
             }).catch(reason => {
                 console.error(reason); // TODO error message
-                this.initializeChart(reason);
+                this.initializeChart();
                 return;
             });
         }).catch(reason => {
             console.error(reason); // TODO error message
-            this.initializeChart(reason);
+            this.initializeChart();
             return;
         });
     }

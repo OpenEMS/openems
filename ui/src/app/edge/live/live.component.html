@@ -9,15 +9,15 @@
         </ion-col>
       </ng-container>
 
-    <!-- Widgets -->
-    <ion-col size="12" size-md="8" size-lg="6" class="ion-no-padding">
-      <ion-grid class="ion-no-padding">
-        <ion-row>
-          <ion-col *ngIf="service.isPartnerAllowed(edge)" size="12" size-lg="6" class="ion-no-padding">
-            <partner></partner>
-          </ion-col>
-          <!-- Regular Widgets -->
-          <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
+      <!-- Widgets -->
+      <ion-col size="12" size-md="8" size-lg="6" class="ion-no-padding">
+        <ion-grid class="ion-no-padding">
+          <ion-row>
+            <ion-col *ngIf="service.isPartnerAllowed(edge)" size="12" size-lg="6" class="ion-no-padding">
+              <partner></partner>
+            </ion-col>
+            <!-- Regular Widgets -->
+            <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
 
               <ion-col *ngSwitchCase="'Autarchy'" size="12" size-lg="6" class="ion-no-padding">
                 <autarchy></autarchy>
@@ -100,31 +100,32 @@
                 <asymmetricpeakshaving [componentId]="widget.componentId"></asymmetricpeakshaving>
               </ion-col>
 
-            <ion-col *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'" size="12" size-lg="6"
-              class="ion-no-padding">
-              <singlethreshold [componentId]="widget.componentId"></singlethreshold>
+              <ion-col *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'" size="12" size-lg="6"
+                class="ion-no-padding">
+                <singlethreshold [componentId]="widget.componentId"></singlethreshold>
+              </ion-col>
+
+              <ion-col *ngSwitchCase="'Controller.Symmetric.DynamicDischarge'" size="12" size-lg="6"
+                class="ion-no-padding">
+                <awattar></awattar>
+              </ion-col>
+
+              <ion-col *ngSwitchCase="'io.openems.edge.io.api.DigitalInput'" size="12" size-lg="6"
+                class="ion-no-padding">
+                <digitalinput></digitalinput>
+              </ion-col>
+            </ng-container>
+
+            <ion-col *ngIf="this.edge.id == 'fems66'" size="12" size-lg="6" class="ion-no-padding">
+              <awattar-advert></awattar-advert>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Controller.Symmetric.DynamicDischarge'" size="12" size-lg="6"
-              class="ion-no-padding">
-              <awattar></awattar>
+            <ion-col size="12" size-lg="6" class="ion-no-padding"
+              *ngIf="service.isAdvertAllowed(edge, advertWidgets, widgets)">
+              <advertisement [advertWidgets]="advertWidgets"></advertisement>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'io.openems.edge.io.api.DigitalInput'" size="12" size-lg="6" class="ion-no-padding">
-              <digitalinput></digitalinput>
-            </ion-col>
-          </ng-container>
-
-          <ion-col *ngIf="this.edge.id == 'fems66'" size="12" size-lg="6" class="ion-no-padding">
-            <awattar-advert></awattar-advert>
-          </ion-col>
-
-          <ion-col size="12" size-lg="6" class="ion-no-padding"
-            *ngIf="service.isAdvertAllowed(edge, advertWidgets, widgets)">
-            <advertisement [advertWidgets]="advertWidgets"></advertisement>
-          </ion-col>
-
-          <!-- <ion-col size="12" size-lg="12">
+            <!-- <ion-col size="12" size-lg="12">
             <info></info>
           </ion-col> -->
 

@@ -33,7 +33,6 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
         this.spinnerId = 'grid-chart';
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh()
     }
 
     ngOnDestroy() {
@@ -41,6 +40,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.loading = true;
         this.service.startSpinner(this.spinnerId);
         this.colors = [];
@@ -144,7 +144,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
             this.service.stopSpinner(this.spinnerId);
         }).catch(reason => {
             console.error(reason); // TODO error message
-            this.initializeChart(reason);
+            this.initializeChart();
             return;
         });
     }

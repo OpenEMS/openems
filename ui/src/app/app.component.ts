@@ -1,12 +1,10 @@
 import { Component } from '@angular/core';
-import { Service, Websocket } from './shared/shared';
 import { environment } from '../environments';
-import { takeUntil } from 'rxjs/operators';
-import { MenuController, Platform, ToastController, ModalController } from '@ionic/angular';
+import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
+import { Service, Websocket } from './shared/shared';
 import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -23,8 +21,6 @@ export class AppComponent {
 
   constructor(
     private platform: Platform,
-    private splashScreen: SplashScreen,
-    private statusBar: StatusBar,
     public menu: MenuController,
     public modalCtrl: ModalController,
     public router: Router,
@@ -32,15 +28,7 @@ export class AppComponent {
     public toastController: ToastController,
     public websocket: Websocket,
   ) {
-    // this.initializeApp();
     service.setLang(this.service.browserLangToLangTag(navigator.language));
-  }
-
-  initializeApp() {
-    this.platform.ready().then(() => {
-      this.statusBar.styleDefault();
-      this.splashScreen.hide();
-    });
   }
 
   ngOnInit() {
@@ -58,6 +46,37 @@ export class AppComponent {
       });
       toast.present();
     });
+
+    this.platform.ready().then(() => {
+      this.service.deviceHeight = this.platform.height();
+      this.service.deviceWidth = this.platform.width();
+      this.checkSmartphoneResolution(true);
+      this.platform.resize.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+        this.service.deviceHeight = this.platform.height();
+        this.service.deviceWidth = this.platform.width();
+        this.checkSmartphoneResolution(false);
+      })
+    })
+  }
+
+  private checkSmartphoneResolution(init: boolean): void {
+    if (init == true) {
+      if (this.platform.width() <= 576) {
+        this.service.isSmartphoneResolution = true;
+        this.service.isSmartphoneResolutionSubject.next(true);
+      } else if (this.platform.width() > 576) {
+        this.service.isSmartphoneResolution = false;
+        this.service.isSmartphoneResolutionSubject.next(false);
+      }
+    } else {
+      if (this.platform.width() <= 576 && this.service.isSmartphoneResolution == false) {
+        this.service.isSmartphoneResolution = true;
+        this.service.isSmartphoneResolutionSubject.next(true);
+      } else if (this.platform.width() > 576 && this.service.isSmartphoneResolution == true) {
+        this.service.isSmartphoneResolution = false;
+        this.service.isSmartphoneResolutionSubject.next(false);
+      }
+    }
   }
 
   ngOnDestroy() {

@@ -333,7 +333,7 @@ public class OneWireAccessProvider {
 	 *
 	 * @return <code>DSPortAdapter</code> if adapter present
 	 *
-	 * @throws OneWireIOException when communcation with the adapter fails
+	 * @throws OneWireIOException when communication with the adapter fails
 	 * @throws OneWireException   when the port or adapter not present
 	 */
 	public static DSPortAdapter getAdapter(String adapterName, String portName)
@@ -414,7 +414,7 @@ public class OneWireAccessProvider {
 	 *
 	 * @return <code>DSPortAdapter</code> if default adapter present
 	 *
-	 * @throws OneWireIOException when communcation with the adapter fails
+	 * @throws OneWireIOException when communication with the adapter fails
 	 * @throws OneWireException   when the port or adapter not present
 	 */
 	public static DSPortAdapter getDefaultAdapter() throws OneWireIOException, OneWireException {
