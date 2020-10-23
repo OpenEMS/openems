@@ -154,4 +154,8 @@ public interface GridconPcs {
 
 	// Gridcon is undefined if not all relevant gridcon values are set
 	boolean isUndefined();
+
+	void setCosPhiSetPoint1(float cosPhiSetPoint1);
+
+	void setCosPhiSetPoint2(float cosPhiSetPoint2);
 }

@@ -1616,4 +1616,14 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements Op
 		return (float) Math.sqrt(getActivePowerSumGrid() * getActivePowerSumGrid() + getReactivePowerSumGrid() * getReactivePowerSumGrid());
 	}
 
+	@Override
+	public void setCosPhiSetPoint1(float cosPhiSetPoint1) {
+		this.cosPhiParameters.setCosPhiSetPoint1(cosPhiSetPoint1);
+	}
+
+	@Override
+	public void setCosPhiSetPoint2(float cosPhiSetPoint2) {
+		this.cosPhiParameters.setCosPhiSetPoint2(cosPhiSetPoint2);		
+	}
+
 }

@@ -1,4 +1,4 @@
-package io.openems.edge.ess.mr.gridcon.controller;
+package io.openems.edge.ess.mr.gridcon.controller.fundamentalfrequency;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -15,10 +15,11 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
+import io.openems.edge.ess.mr.gridcon.enums.FundamentalFrequencyMode;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.MR.SetBalancing", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class SetBalancing extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
+@Component(name = "Controller.MR.FundamentalFrequency", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+public class FundamentalFrequency extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -39,7 +40,7 @@ public class SetBalancing extends AbstractOpenemsComponent implements Controller
 		}
 	}
 
-	public SetBalancing() {
+	public FundamentalFrequency() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
@@ -62,7 +63,12 @@ public class SetBalancing extends AbstractOpenemsComponent implements Controller
 	public void run() throws OpenemsNamedException {
 		GridconPcs gridcon = this.componentManager.getComponent(this.config.gridcon_id());
 
-		gridcon.setBalancingMode(config.balancingMode());
+		gridcon.setFundamentalFrequencyMode(config.fundamentalFrequencyMode());
+		
+		if (config.fundamentalFrequencyMode() == FundamentalFrequencyMode.PFC_COS_PHI) {
+			gridcon.setCosPhiSetPoint1(config.cosPhiSetPoint1());
+			gridcon.setCosPhiSetPoint2(config.cosPhiSetPoint2());
+		}
 	}
 
 }

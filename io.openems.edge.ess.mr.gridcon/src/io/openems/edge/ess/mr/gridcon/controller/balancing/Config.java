@@ -1,4 +1,4 @@
-package io.openems.edge.ess.mr.gridcon.controller;
+package io.openems.edge.ess.mr.gridcon.controller.balancing;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
