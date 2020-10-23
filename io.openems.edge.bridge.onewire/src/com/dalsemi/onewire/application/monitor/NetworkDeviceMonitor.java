@@ -157,7 +157,7 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 	public void search(Vector<Long> arrivals, Vector<Long> departures) throws OneWireException, OneWireIOException {
 		synchronized (sync_flag) {
 			try {
-				// aquire the adapter
+				// acquire the adapter
 				adapter.beginExclusive(true);
 
 				// setup the search

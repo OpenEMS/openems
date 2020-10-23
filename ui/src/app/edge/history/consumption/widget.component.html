@@ -40,9 +40,9 @@
                     </ng-container>
                     <tr>
                         <td style="width:65%" translate>General.otherConsumption</td>
-                        <ng-container *ngIf="getTotalOtherEnergy() as otherPower">
-                            <td style="width:35%" class="align_right" *ngIf="otherPower > 0">
-                                {{ otherPower  | unitvalue:'kWh' }}
+                        <ng-container *ngIf="totalOtherEnergy != null && totalOtherEnergy > 0">
+                            <td style="width:35%" class="align_right">
+                                {{ totalOtherEnergy  | unitvalue:'kWh' }}
                             </td>
                         </ng-container>
                     </tr>

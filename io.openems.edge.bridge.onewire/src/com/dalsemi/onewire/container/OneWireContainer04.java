@@ -610,7 +610,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 		// check if need to write control register
 		if (Bit.arrayReadBit(CONTROL_OFFSET, BITMAP_OFFSET, state) == 1) {
 
-			// write normaly
+			// write Normally
 			clock.write(CONTROL_OFFSET, state, CONTROL_OFFSET, 1);
 
 			// check if any write-protect bits set

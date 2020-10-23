@@ -180,8 +180,8 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 			this.setStateMachineState(State.ERRORDELAY);
 			break;
 		case ERRORDELAY:
-			// If we are in the error delay time, the system is resetted, this can help
-			// handling the rrors
+			// If we are in the error delay time, the system is reset, this can help
+			// handling the errors
 			if (LocalDateTime.now().isAfter(this.errorDelayIsOver)) {
 				this.errorDelayIsOver = null;
 				this.resetDone = false;

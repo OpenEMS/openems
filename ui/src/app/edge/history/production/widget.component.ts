@@ -1,9 +1,9 @@
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: ProductionComponent.SELECTOR,
@@ -32,7 +32,6 @@ export class ProductionComponent extends AbstractHistoryWidget implements OnInit
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
