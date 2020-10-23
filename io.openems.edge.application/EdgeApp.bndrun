@@ -166,4 +166,5 @@
 	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.5,2.0.6)',\
 	org.osgi.util.function;version='[1.1.0,1.1.1)',\
 	org.osgi.util.promise;version='[1.1.1,1.1.2)',\
-	rrd4j;version='[3.7.0,3.7.1)'
+	rrd4j;version='[3.7.0,3.7.1)',\
+	org.apache.commons.codec;version='[1.11.0,1.11.1)'
