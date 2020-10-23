@@ -1,9 +1,9 @@
+import { AdministrationComponent } from './administration/administration.component';
 import { Component, OnInit, Input } from '@angular/core';
 import { EvcsPopoverComponent } from './popover/popover.page';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Websocket, Service, EdgeConfig, Edge } from 'src/app/shared/shared';
-import { AdministrationComponent } from './administration/administration.component';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER' | 'OFF';
 type Priority = 'CAR' | 'STORAGE';

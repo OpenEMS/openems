@@ -33,7 +33,7 @@ class BackendWorker extends AbstractCycleWorker {
 
 	// private final Logger log = LoggerFactory.getLogger(BackendWorker.class);
 
-	private final BackendApi parent;
+	private final BackendApiImpl parent;
 
 	// Counts the number of Cycles till data is sent to Backend.
 	private int cycleCount = 0;
@@ -51,7 +51,7 @@ class BackendWorker extends AbstractCycleWorker {
 	// is set to 'false', it sends all values once.
 	private final AtomicBoolean sendChangedValuesOnly = new AtomicBoolean(false);
 
-	protected BackendWorker(BackendApi parent) {
+	protected BackendWorker(BackendApiImpl parent) {
 		this.parent = parent;
 	}
 
@@ -128,12 +128,12 @@ class BackendWorker extends AbstractCycleWorker {
 			message.add(timestamp, sendValues);
 
 			// reset cycleTime to default
-			resetNoOfCycles();
+			this.resetNoOfCycles();
 
 			boolean wasSent = this.parent.websocket.sendMessage(message);
 			if (!wasSent) {
 				// increase cycleTime
-				increaseNoOfCycles();
+				this.increaseNoOfCycles();
 
 				// cache data for later
 				this.unsent.add(message);

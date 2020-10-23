@@ -11,6 +11,7 @@ import org.dhatim.fastexcel.Workbook;
 import org.dhatim.fastexcel.Worksheet;
 
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.response.Base64PayloadResponse;
 import io.openems.edge.common.modbusslave.ModbusRecord;
 import io.openems.edge.common.modbusslave.ModbusRecordFloat32;
@@ -38,7 +39,7 @@ import io.openems.edge.common.modbusslave.ModbusType;
 public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 
 	public GetModbusProtocolExportXlsxResponse(UUID id, TreeMap<Integer, String> components,
-			TreeMap<Integer, ModbusRecord> records) {
+			TreeMap<Integer, ModbusRecord> records) throws OpenemsException {
 		super(id, generatePayload(components, records));
 	}
 
@@ -49,63 +50,70 @@ public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 	private static final int COL_UNIT = 4;
 	private static final int COL_ACCESS = 5;
 
-	private static byte[] generatePayload(TreeMap<Integer, String> components, TreeMap<Integer, ModbusRecord> records) {
+	private static byte[] generatePayload(TreeMap<Integer, String> components, TreeMap<Integer, ModbusRecord> records)
+			throws OpenemsException {
 		byte[] payload = new byte[0];
-		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-			Workbook wb = new Workbook(os, "OpenEMS Modbus-TCP", "1.0");
-			Worksheet ws = wb.newWorksheet("Modbus-Table");
+		Worksheet ws = null;
+		try {
+			try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+				Workbook wb = null;
+				try {
+					wb = new Workbook(os, "OpenEMS Modbus-TCP", "1.0");
+					ws = wb.newWorksheet("Modbus-Table");
 
-			ws.width(COL_ADDRESS, 10);
-			ws.width(COL_DESCRIPTION, 25);
-			ws.width(COL_TYPE, 10);
-			ws.width(COL_VALUE, 35);
-			ws.width(COL_UNIT, 20);
-			ws.width(COL_ACCESS, 10);
-			// Add headers
-			addSheetHeader(wb, ws);
-			// Create Sheet
-			int nextRow = 1;
-			for (Entry<Integer, ModbusRecord> entry : records.entrySet()) {
-				int address = entry.getKey();
+					ws.width(COL_ADDRESS, 10);
+					ws.width(COL_DESCRIPTION, 25);
+					ws.width(COL_TYPE, 10);
+					ws.width(COL_VALUE, 35);
+					ws.width(COL_UNIT, 20);
+					ws.width(COL_ACCESS, 10);
+					// Add headers
+					addSheetHeader(wb, ws);
+					// Create Sheet
+					int nextRow = 1;
+					for (Entry<Integer, ModbusRecord> entry : records.entrySet()) {
+						int address = entry.getKey();
 
-				String component = components.get(address);
-				if (address == 0 || component != null) {
-					if (address == 0) {
-						// Add the global header row
-						addComponentHeader(ws, "Header", nextRow);
-					} else {
-						// Add Component-Header-Row
-						addComponentHeader(ws, component, nextRow);
+						String component = components.get(address);
+						if (address == 0 || component != null) {
+							if (address == 0) {
+								// Add the global header row
+								addComponentHeader(ws, "Header", nextRow);
+							} else {
+								// Add Component-Header-Row
+								addComponentHeader(ws, component, nextRow);
+							}
+							nextRow++;
+						}
+
+						// Add a Record-Row
+						ModbusRecord record = entry.getValue();
+						if (nextRow % 2 == 0) {
+							addRecord(ws, address, record, nextRow);
+						} else {
+							addRecord(ws, address, record, nextRow);
+						}
+						nextRow++;
 					}
-					nextRow++;
+					// Shading alternative Rows
+					ws.range(1, 0, nextRow, 5).style().borderStyle("thin").shadeAlternateRows(Color.GRAY1).set();
+					// Add undefined values sheet
+					addUndefinedSheet(wb);
+				} finally {
+					if (wb != null) {
+						wb.finish();
+					}
 				}
-
-				// Add a Record-Row
-				ModbusRecord record = entry.getValue();
-				if (nextRow % 2 == 0) {
-					addRecord(ws, address, record, nextRow);
-				} else {
-					addRecord(ws, address, record, nextRow);
-				}
-				nextRow++;
+				os.flush();
+				payload = os.toByteArray();
+				return payload;
 			}
-			// Shading alternative Rows
-			ws.range(1, 0, nextRow, 5).style().borderStyle("thin").shadeAlternateRows(Color.GRAY1).set();
-			// Add undefined values sheet
-			addUndefinedSheet(wb);
-			wb.finish();
-			os.flush();
-			payload = os.toByteArray();
-			os.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new OpenemsException("Unable to generate Xlsx payload: " + e.getMessage());
 		}
-		return payload;
 	}
 
-	public static void addSheetHeader(Workbook workbook, Worksheet sheet) {
-
+	private static void addSheetHeader(Workbook workbook, Worksheet sheet) {
 		sheet.value(0, COL_ADDRESS, "Address");
 		sheet.value(0, COL_DESCRIPTION, "Description");
 		sheet.value(0, COL_TYPE, "Type");
@@ -115,12 +123,12 @@ public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 		sheet.style(0, 0).bold().fillColor(Color.GRAY5).borderStyle("thin");
 	}
 
-	public static void addComponentHeader(Worksheet sheet, String title, int rowCount) {
+	private static void addComponentHeader(Worksheet sheet, String title, int rowCount) {
 		sheet.value(rowCount, 0, title);
 		sheet.style(rowCount, 0).bold().fillColor(Color.GRAY10).borderStyle("thin");
 	}
 
-	public static void addRecord(Worksheet sheet, int address, ModbusRecord record, int rowCount) {
+	private static void addRecord(Worksheet sheet, int address, ModbusRecord record, int rowCount) {
 		sheet.value(rowCount, COL_ADDRESS, address);
 		sheet.value(rowCount, COL_DESCRIPTION, record.getName());
 		sheet.value(rowCount, COL_TYPE, record.getType().toString());
@@ -135,7 +143,7 @@ public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 	/**
 	 * Add Sheet to describe UNDEFINED values.
 	 * 
-	 * @param workbook the Workbook
+	 * @param wb the Workbook
 	 */
 	private static void addUndefinedSheet(Workbook wb) {
 		Worksheet ws = wb.newWorksheet("Undefined values");
