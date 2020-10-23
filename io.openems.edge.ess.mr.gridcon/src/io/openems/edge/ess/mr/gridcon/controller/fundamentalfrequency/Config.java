@@ -25,10 +25,10 @@ import io.openems.edge.ess.mr.gridcon.enums.FundamentalFrequencyMode;
 	@AttributeDefinition(name = "Fundamental Frequency mode", description = "Fundamental Frequency Mode for Gridon")
 	FundamentalFrequencyMode fundamentalFrequencyMode() default FundamentalFrequencyMode.DISABLED;
 
-	@AttributeDefinition(name = "Cos Phi Set Point 1", description = "Cos Phi Set Point 1", max = "1", min = "-1")
+	@AttributeDefinition(name = "Cos Phi Set Point 1, positive=inductive, negative=capacitive", description = "Cos Phi Set Point 1, positive=inductive, negative=capacitive", max = "1", min = "-1")
 	float cosPhiSetPoint1() default 0.9f;
 
-	@AttributeDefinition(name = "Cos Phi Set Point 2", description = "Cos Phi Set Point 2", max = "1", min = "-1")
+	@AttributeDefinition(name = "Cos Phi Set Point 2, positive=inductive, negative=capacitive", description = "Cos Phi Set Point 2, positive=inductive, negative=capacitive", max = "1", min = "-1")
 	float cosPhiSetPoint2() default 0.95f;
 
 	
