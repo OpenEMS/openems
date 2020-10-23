@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../environments';
 import { LanguageTag, Language } from '../shared/translate/language';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Service, Edge } from '../shared/shared';
 import { Alerts } from '../shared/service/alerts';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'settings',

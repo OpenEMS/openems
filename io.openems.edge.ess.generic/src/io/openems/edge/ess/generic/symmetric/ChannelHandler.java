@@ -54,19 +54,21 @@ public class ChannelHandler {
 		final Consumer<Value<Integer>> allowedChargeDischargeCallback = (value) -> {
 			// TODO: find proper efficiency factor to calculate AC Charge/Discharge limits
 			// from DC
-			final double efficiencyFactor = 0.9;
+			final double efficiencyFactor = 0.95;
 
-			Value<Integer> dischargeMinVoltage = battery.getDischargeMinVoltageChannel().getNextValue();
-			Value<Integer> dischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue();
 			Value<Integer> chargeMaxCurrent = battery.getChargeMaxCurrentChannel().getNextValue();
-			Value<Integer> chargeMaxVoltage = battery.getChargeMaxVoltageChannel().getNextValue();
+			Value<Integer> dischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue();
+			Value<Integer> voltage = battery.getVoltageChannel().getNextValue();
 
-			if (dischargeMinVoltage.isDefined() && dischargeMaxCurrent.isDefined() && chargeMaxCurrent.isDefined()
-					&& chargeMaxVoltage.isDefined()) {
+			if (voltage.isDefined() && dischargeMaxCurrent.isDefined() && chargeMaxCurrent.isDefined()) {
+				// efficiency factor is not considered in chargeMaxCurrent (DC Power > AC Power)
 				this.parent._setAllowedChargePower(//
-						(int) (chargeMaxCurrent.get() * chargeMaxVoltage.get() * -1 * efficiencyFactor));
+						(int) (chargeMaxCurrent.get() * voltage.get() * -1));
 				this.parent._setAllowedDischargePower(//
-						(int) (dischargeMaxCurrent.get() * dischargeMinVoltage.get() * efficiencyFactor));
+						(int) (dischargeMaxCurrent.get() * voltage.get() * efficiencyFactor));
+			} else {
+				this.parent._setAllowedChargePower(0);
+				this.parent._setAllowedDischargePower(0);
 			}
 		};
 
@@ -85,10 +87,10 @@ public class ChannelHandler {
 		 * Battery-Inverter
 		 */
 		this.<Long>addCopyListener(batteryInverter, //
-				SymmetricBatteryInverter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY, //
 				SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
 		this.<Long>addCopyListener(batteryInverter, //
-				SymmetricBatteryInverter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
 				SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 		this.<Long>addCopyListener(batteryInverter, //
 				SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, //

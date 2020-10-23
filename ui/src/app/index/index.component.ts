@@ -1,13 +1,13 @@
-import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { environment } from '../../environments';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
 import { AuthenticateWithPasswordResponse } from '../shared/jsonrpc/response/authenticateWithPasswordResponse';
+import { Component } from '@angular/core';
 import { Edge, Service, Utils, Websocket } from '../shared/shared';
+import { environment } from '../../environments';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { HttpClient, HttpHeaders, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Alerts } from '../shared/service/alerts';

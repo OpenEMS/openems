@@ -1,24 +1,24 @@
 import { BehaviorSubject, Subject } from 'rxjs';
+import { ChannelAddress } from '../type/channeladdress';
 import { cmp } from 'semver-compare-multi';
-import { environment as env } from '../../../environments';
-import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
-import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
-import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
-import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
 import { CreateComponentConfigRequest } from '../jsonrpc/request/createComponentConfigRequest';
+import { CurrentData } from './currentdata';
+import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
 import { DeleteComponentConfigRequest } from '../jsonrpc/request/deleteComponentConfigRequest';
+import { EdgeConfig } from './edgeconfig';
+import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
 import { EdgeRpcRequest } from '../jsonrpc/request/edgeRpcRequest';
+import { environment as env } from '../../../environments';
 import { GetEdgeConfigRequest } from '../jsonrpc/request/getEdgeConfigRequest';
+import { GetEdgeConfigResponse } from '../jsonrpc/response/getEdgeConfigResponse';
+import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
+import { Role } from '../type/role';
 import { SubscribeChannelsRequest } from '../jsonrpc/request/subscribeChannelsRequest';
 import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
-import { UpdateComponentConfigRequest } from '../jsonrpc/request/updateComponentConfigRequest';
-import { GetEdgeConfigResponse } from '../jsonrpc/response/getEdgeConfigResponse';
-import { Websocket } from '../service/websocket';
-import { ChannelAddress } from '../type/channeladdress';
-import { Role } from '../type/role';
 import { SystemLog } from '../type/systemlog';
-import { CurrentData } from './currentdata';
-import { EdgeConfig } from './edgeconfig';
+import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
+import { UpdateComponentConfigRequest } from '../jsonrpc/request/updateComponentConfigRequest';
+import { Websocket } from '../service/websocket';
 
 export class Edge {
 
@@ -291,12 +291,12 @@ export class Edge {
   }
 
   /**
-	 * Evaluates whether the current Role is equal or more privileged than the
-	 * given Role.
-	 * 
-	 * @param role     the compared Role
-	 * @return true if the current Role is equal or more privileged than the given Role
-	 */
+   * Evaluates whether the current Role is equal or more privileged than the
+   * given Role.
+   * 
+   * @param role     the compared Role
+   * @return true if the current Role is equal or more privileged than the given Role
+   */
   public roleIsAtLeast(role: Role | string): boolean {
     return Role.isAtLeast(this.role, role);
   }

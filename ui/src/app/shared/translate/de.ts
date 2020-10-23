@@ -21,6 +21,7 @@ export const TRANSLATION = {
         dateFormat: 'dd.MM.yyyy', // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
         dateFormatShort: 'dd.MM',
         digitalInputs: 'Digitaleingänge',
+        directConsumption: 'Direktverbrauch',
         dischargePower: 'Entladung',
         fault: 'Fehler',
         grid: 'Netz',
@@ -97,6 +98,7 @@ export const TRANSLATION = {
     },
     Index: {
         allConnected: 'Alle Verbindungen hergestellt.',
+        connectionInProgress: 'Verbindung wird aufgebaut...',
         connectionFailed: 'Verbindung zu {{value}} getrennt.', // value = name of websocket
         connectionSuccessful: 'Verbindung zu {{value}} hergestellt.', // value = name of websocket
         isOffline: 'OpenEMS ist offline!',
@@ -113,6 +115,12 @@ export const TRANSLATION = {
         ConnectedAs: "Angemeldet als:",
         MoreDevices: "Es sind weitere Geräte vorhanden... Bitte Filter enger setzen.",
         SaveLogin: "Login Daten speichern"
+    },
+    Login: {
+        title: "Login",
+        preamble: "Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",
+        passwordLabel: "Passwort",
+        passwordPlaceholder: "Passwort",
     },
     Edge: {
         Index: {

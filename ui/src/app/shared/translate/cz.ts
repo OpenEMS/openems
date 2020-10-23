@@ -20,6 +20,7 @@ export const TRANSLATION = {
         currentValue: 'Aktuální hodnota',
         dateFormat: 'dd.MM.yyyy', // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         digitalInputs: 'Digitální vstupy',
+        directConsumption: 'Přímá spotřeba',
         dischargePower: 'Vybíjecí výkon',
         fault: 'Chyba',
         grid: 'Síť',
