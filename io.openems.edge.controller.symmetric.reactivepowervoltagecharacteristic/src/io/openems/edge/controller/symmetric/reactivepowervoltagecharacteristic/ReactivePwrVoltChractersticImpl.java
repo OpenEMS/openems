@@ -25,7 +25,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.powercharacteristic.AbstractPowerCharacteristic;
+import io.openems.edge.common.function.AbstractRampFunction;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
@@ -38,7 +38,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ReactivePwrVoltChractersticImpl extends AbstractPowerCharacteristic
+public class ReactivePwrVoltChractersticImpl extends AbstractRampFunction
 		implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ReactivePwrVoltChractersticImpl.class);

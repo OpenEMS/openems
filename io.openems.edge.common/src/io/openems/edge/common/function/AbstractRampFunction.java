@@ -1,4 +1,4 @@
-package io.openems.edge.common.powercharacteristic;
+package io.openems.edge.common.function;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,33 +18,12 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public abstract class AbstractPowerCharacteristic extends AbstractOpenemsComponent implements OpenemsComponent {
+public abstract class AbstractRampFunction extends AbstractOpenemsComponent implements OpenemsComponent {
 
-	protected AbstractPowerCharacteristic(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+	protected AbstractRampFunction(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
-
-	/**
-	 * Initialize the P by U characteristics.
-	 *
-	 * <p>
-	 * Parsing JSON then putting the point variables into pByUCharacteristicEquation
-	 *
-	 * <pre>
-	 * [
-	 *  { "voltageRatio": 0.9, 		"power" : -4000 }},
-	 *  { "voltageRatio": 0.93,		"power": -1000 }},
-	 *  { "voltageRatio": 1.07,		"power": 0}},
-	 *  { "voltageRatio": 1.1, 		"power": 1000 } }
-	 * ]
-	 * </pre>
-	 * 
-	 * @param percentQ the configured Percent-by-Q values
-	 * @return
-	 * 
-	 * @throws OpenemsNamedException on error
-	 */
 
 	private Map<Float, Float> initialize(String powerConfig) throws OpenemsNamedException {
 		Map<Float, Float> voltagePowerMap = new HashMap<>();

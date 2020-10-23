@@ -24,7 +24,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.powercharacteristic.AbstractPowerCharacteristic;
+import io.openems.edge.common.function.AbstractRampFunction;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -36,8 +36,7 @@ import io.openems.edge.meter.api.AsymmetricMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ActivePowerVoltageCharacteristicImpl extends AbstractPowerCharacteristic
-		implements Controller, OpenemsComponent {
+public class ActivePowerVoltageCharacteristicImpl extends AbstractRampFunction implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ActivePowerVoltageCharacteristicImpl.class);
 
@@ -80,13 +79,13 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractPowerCharacter
 		}
 	}
 
-		public ActivePowerVoltageCharacteristicImpl() {
-			super(//
-					OpenemsComponent.ChannelId.values(), //
-					Controller.ChannelId.values(), //
-					ChannelId.values()//
-			);
-		}
+	public ActivePowerVoltageCharacteristicImpl() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values()//
+		);
+	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
@@ -197,7 +196,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractPowerCharacter
 			return;
 		}
 		lastSetPowerTime = LocalDateTime.now(clock);
-		
+
 		this.channel(ChannelId.CALCULATED_POWER).setNextValue(power);
 		this.ess.setActivePowerEquals(power);
 		this.ess.setReactivePowerEquals(0);
