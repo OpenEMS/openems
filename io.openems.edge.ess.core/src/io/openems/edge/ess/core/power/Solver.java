@@ -140,7 +140,7 @@ public class Solver {
 
 			// Print log with currently active EQUALS != 0 Constraints
 			if (this.debugMode) {
-				this.log.info("Currently active EQUALS contraints");
+				this.log.info("Currently active EQUALS constraints");
 				for (Constraint c : allConstraints) {
 					if (c.getRelationship() == Relationship.EQUALS && c.getValue().orElse(0d) != 0d) {
 						this.log.info("- " + c.toString());

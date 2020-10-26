@@ -96,10 +96,10 @@ class MemoryCache {
 	// -------- Variables
 	// --------
 
-	/** Field owd - 1-Wire container that containes this memory to cache */
+	/** Field owd - 1-Wire container that contains this memory to cache */
 	private OneWireContainer[] owd;
 
-	/** Field cache - 2 dimentional array to contain the cache */
+	/** Field cache - 2 dimensional array to contain the cache */
 	private byte[][] cache;
 
 	/** Field len - array of lengths of packets found */
@@ -402,7 +402,7 @@ class MemoryCache {
 	 * @return the number byte in the packet
 	 *
 	 * @throws OneWireException   when the adapter is not setup properly
-	 * @throws OneWireIOException when an 1-Wire IO error occures
+	 * @throws OneWireIOException when an 1-Wire IO error occurs
 	 */
 	public int readPagePacket(int page, byte[] readBuf, int offset) throws OneWireIOException, OneWireException {
 
@@ -732,7 +732,7 @@ class MemoryCache {
 	 * Flush the pages written back to the 1-Wire device.
 	 *
 	 * @throws OneWireException   when the adapter is not setup properly
-	 * @throws OneWireIOException when an 1-Wire IO error occures
+	 * @throws OneWireIOException when an 1-Wire IO error occurs
 	 */
 	public void sync() throws OneWireIOException, OneWireException {
 		int page, log;

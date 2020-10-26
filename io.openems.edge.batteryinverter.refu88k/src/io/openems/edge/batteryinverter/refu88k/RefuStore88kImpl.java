@@ -47,12 +47,13 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -64,7 +65,7 @@ import io.openems.edge.ess.power.api.Relationship;
 
 )
 public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements ManagedSymmetricBatteryInverter,
-		SymmetricBatteryInverter, OpenemsComponent, RefuStore88k, StartStoppable {
+		SymmetricBatteryInverter, OpenemsComponent, RefuStore88k, TimedataProvider, StartStoppable {
 
 	private final Logger log = LoggerFactory.getLogger(RefuStore88kImpl.class);
 	private Config config;
@@ -73,11 +74,19 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 	private int MAX_APPARENT_POWER = 0;
 	protected static final double EFFICIENCY_FACTOR = 0.98;
 
+	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY);
+
 	@Reference
 	private Power power;
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	/**
 	 * Manages the {@link State}s of the StateMachine.
@@ -87,8 +96,8 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 	public RefuStore88kImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricEss.ChannelId.values(), //
-				ManagedSymmetricEss.ChannelId.values(), //
+				SymmetricBatteryInverter.ChannelId.values(), //
+				ManagedSymmetricBatteryInverter.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				RefuStore88kChannelId.values() //
 		);
@@ -127,39 +136,6 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 		super.deactivate();
 	}
 
-//	/**
-//	 * 
-//	 * Checks all conditions if applying power is allowed!
-//	 * 
-//	 */
-//	private void checkIfPowerIsAllowed() {
-//
-//		// If the battery system is not ready no power can be applied!
-//		this.isPowerAllowed = battery.getStartStop() == StartStop.START;
-//
-//		// Read important Channels from battery
-//		int optV = battery.getVoltage().orElse(0);
-//		int disMaxA = battery.getDischargeMaxCurrent().orElse(0);
-//		int chaMaxA = battery.getChargeMaxCurrent().orElse(0);
-//
-//		// Calculate absolute Value allowedCharge and allowed Discharge from battery
-//		double absAllowedCharge = Math.abs((chaMaxA * optV) / (EFFICIENCY_FACTOR));
-//		double absAllowedDischarge = Math.abs((disMaxA * optV) * (EFFICIENCY_FACTOR));
-//
-//		// Determine allowedCharge and allowedDischarge from Inverter
-//		if (absAllowedCharge > MAX_APPARENT_POWER) {
-//			this._setAllowedChargePower(MAX_APPARENT_POWER * -1);
-//		} else {
-//			this._setAllowedChargePower((int) (absAllowedCharge * -1));
-//		}
-//
-//		if (absAllowedDischarge > MAX_APPARENT_POWER) {
-//			this._setAllowedDischargePower(MAX_APPARENT_POWER);
-//		} else {
-//			this._setAllowedDischargePower((int) absAllowedDischarge);
-//		}
-//	}
-
 	@Override
 	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
 		// Store the current State
@@ -170,6 +146,9 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
+
+		// Calculate the Energy values from ActivePower.
+		this.calculateEnergy();
 
 		// Prepare Context
 		Context context = new Context(this, battery, this.config, setActivePower, setReactivePower);
@@ -275,7 +254,8 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 						m(RefuStore88kChannelId.PH_VPH_C, new UnsignedWordElement(SUNSPEC_103 + 12), // 40082
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(RefuStore88kChannelId.V_SF, new UnsignedWordElement(SUNSPEC_103 + 13)), // 40083
-						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(SUNSPEC_103 + 14), // 40084 //
+						m(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, new SignedWordElement(SUNSPEC_103 + 14), // 40084
+																													// //
 								ElementToChannelConverter.SCALE_FACTOR_1), // REFUStore88KChannelId.W//
 						m(RefuStore88kChannelId.W_SF, new SignedWordElement(SUNSPEC_103 + 15)), // 40085
 						m(RefuStore88kChannelId.HZ, new SignedWordElement(SUNSPEC_103 + 16), // 40086
@@ -284,7 +264,8 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 						m(RefuStore88kChannelId.VA, new SignedWordElement(SUNSPEC_103 + 18), // 40088
 								ElementToChannelConverter.SCALE_FACTOR_1),
 						m(RefuStore88kChannelId.VA_SF, new SignedWordElement(SUNSPEC_103 + 19)), // 40089
-						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(SUNSPEC_103 + 20), // 40090 //
+						m(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, new SignedWordElement(SUNSPEC_103 + 20), // 40090
+																														// //
 								ElementToChannelConverter.SCALE_FACTOR_1), // REFUStore88KChannelId.VA_R
 						m(RefuStore88kChannelId.VA_R_SF, new SignedWordElement(SUNSPEC_103 + 21)), // 40091
 						new DummyRegisterElement(SUNSPEC_103 + 22, SUNSPEC_103 + 23),
@@ -308,7 +289,7 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 						m(RefuStore88kChannelId.TMP_SF, new UnsignedWordElement(SUNSPEC_103 + 37)), // 40107
 						m(RefuStore88kChannelId.ST, new UnsignedWordElement(SUNSPEC_103 + 38)), // 40108
 						m(RefuStore88kChannelId.ST_VND, new UnsignedWordElement(SUNSPEC_103 + 39)), // 40109
-						m(new BitsWordElement(SUNSPEC_103 + 41, this) //
+						m(new BitsWordElement(SUNSPEC_103 + 40, this) //
 								.bit(0, RefuStore88kChannelId.OTHER_ALARM) //
 								.bit(1, RefuStore88kChannelId.OTHER_WARNING) //
 						), //
@@ -330,7 +311,6 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 								.bit(14, RefuStore88kChannelId.MEMORY_LOSS) //
 								.bit(15, RefuStore88kChannelId.HW_TEST_FAILURE) //
 						), //
-//				
 						m(RefuStore88kChannelId.EVT_2, new UnsignedDoublewordElement(SUNSPEC_103 + 42)), // 40112
 						m(RefuStore88kChannelId.EVT_VND_1, new UnsignedDoublewordElement(SUNSPEC_103 + 44)), // 40114
 						m(RefuStore88kChannelId.EVT_VND_2, new UnsignedDoublewordElement(SUNSPEC_103 + 46)), // 40116
@@ -341,14 +321,14 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 						m(RefuStore88kChannelId.ID_120, new UnsignedWordElement(SUNSPEC_120)), // 40122
 						m(RefuStore88kChannelId.L_120, new UnsignedWordElement(SUNSPEC_120 + 1)), // 40123
 						m(RefuStore88kChannelId.DER_TYP, new UnsignedWordElement(SUNSPEC_120 + 2)), // 40124
-//						m(RefuStore88kChannelId.W_RTG, new UnsignedWordElement(SUNSPEC_120 + 3), // 40125
-//								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER,
-								new UnsignedWordElement(SUNSPEC_120 + 3), // 40125
+						m(RefuStore88kChannelId.W_RTG, new UnsignedWordElement(SUNSPEC_120 + 3), // 40125
 								ElementToChannelConverter.SCALE_FACTOR_1),
 						m(RefuStore88kChannelId.W_RTG_SF, new UnsignedWordElement(SUNSPEC_120 + 4)), // 40126
-						m(RefuStore88kChannelId.VA_RTG, new UnsignedWordElement(SUNSPEC_120 + 5), // 40127
-								ElementToChannelConverter.SCALE_FACTOR_1),
+
+						m(new UnsignedWordElement(SUNSPEC_120 + 5))
+								.m(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER,
+										ElementToChannelConverter.SCALE_FACTOR_1)
+								.m(RefuStore88kChannelId.VA_RTG, ElementToChannelConverter.SCALE_FACTOR_1).build(),
 						m(RefuStore88kChannelId.VA_RTG_SF, new UnsignedWordElement(SUNSPEC_120 + 6)), // 40128
 						m(RefuStore88kChannelId.VAR_RTG_Q1, new SignedWordElement(SUNSPEC_120 + 7), // 40129
 								ElementToChannelConverter.SCALE_FACTOR_1),
@@ -468,12 +448,11 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 
 	@Override
 	public String debugLog() {
-		return "State: " + this.channel(RefuStore88kChannelId.ST).value().asOptionString() //
-				+ " | Active Power: " + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString() //
-				+ " | Reactive Power: " + this.channel(SymmetricEss.ChannelId.REACTIVE_POWER).value().asString() //
-				+ " | DC Voltage: " + this.channel(RefuStore88kChannelId.DCV).value().asString() //
-				+ " | Statemachine: " + this.stateMachine.getCurrentState() //
-		;
+		return "P:" + this.getActivePower().asString() //
+				+ "|Q:" + this.getReactivePower().asString() //
+				+ "|DC:" + this.channel(RefuStore88kChannelId.DCV).value().asString() //
+				+ "|" + this.channel(RefuStore88kChannelId.ST).value().asOptionString() //
+				+ "|" + this.stateMachine.getCurrentState().asCamelCase();
 	}
 
 	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
@@ -504,5 +483,31 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 
 		assert false;
 		return StartStop.UNDEFINED; // can never happen
+	}
+
+	/**
+	 * Calculate the Energy values from ActivePower.
+	 */
+	private void calculateEnergy() {
+		// Calculate Energy
+		Integer activePower = this.getActivePower().get();
+		if (activePower == null) {
+			// Not available
+			this.calculateChargeEnergy.update(null);
+			this.calculateDischargeEnergy.update(null);
+		} else if (activePower > 0) {
+			// Buy-From-Grid
+			this.calculateChargeEnergy.update(0);
+			this.calculateDischargeEnergy.update(activePower);
+		} else {
+			// Sell-To-Grid
+			this.calculateChargeEnergy.update(activePower * -1);
+			this.calculateDischargeEnergy.update(0);
+		}
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }

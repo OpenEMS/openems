@@ -1,6 +1,6 @@
+import { ActivatedRoute } from '@angular/router';
 import { Component } from '@angular/core';
 import { EdgeConfig, Service, Edge } from '../../../../shared/shared';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: ConsumptionChartOverviewComponent.SELECTOR,

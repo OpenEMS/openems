@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { Edge, Service } from '../shared/shared';
 import { ActivatedRoute } from '@angular/router';
+import { Component } from '@angular/core';
+import { Edge, Service } from '../shared/shared';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'about',

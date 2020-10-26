@@ -1,4 +1,3 @@
-import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 import { Component, Input } from '@angular/core';
 import { EvcsModalComponent } from './modal/modal.page';

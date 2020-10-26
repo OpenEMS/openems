@@ -1,7 +1,7 @@
+import { ActivatedRoute } from '@angular/router';
 import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Service, Edge } from '../../../../shared/shared';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: AutarchyChartOverviewComponent.SELECTOR,

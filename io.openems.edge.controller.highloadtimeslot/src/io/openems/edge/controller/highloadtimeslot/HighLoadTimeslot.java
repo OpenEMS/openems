@@ -1,6 +1,5 @@
 package io.openems.edge.controller.highloadtimeslot;
 
-import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,7 +44,6 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	protected ComponentManager componentManager;
 
 	private final Logger log = LoggerFactory.getLogger(HighLoadTimeslot.class);
-	private final Clock clock;
 
 	private String essId;
 	private LocalDate startDate;
@@ -73,16 +71,11 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	}
 
 	public HighLoadTimeslot() {
-		this(Clock.systemDefaultZone());
-	}
-
-	protected HighLoadTimeslot(Clock clock) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.clock = clock;
 	}
 
 	@Activate
@@ -121,7 +114,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	 * @return
 	 */
 	private int getPower(ManagedSymmetricEss ess) {
-		LocalDateTime now = LocalDateTime.now(this.clock);
+		LocalDateTime now = LocalDateTime.now(this.componentManager.getClock());
 		if (this.isHighLoadTimeslot(now)) {
 			/*
 			 * We are in a High-Load period -> discharge

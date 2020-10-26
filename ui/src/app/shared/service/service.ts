@@ -1,21 +1,21 @@
-import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastController, ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { Cookie } from 'ng2-cookies';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
-import { filter, first, map } from 'rxjs/operators';
+import { ChannelAddress } from '../shared';
+import { Cookie } from 'ng2-cookies';
+import { DefaultTypes } from './defaulttypes';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
+import { Edges } from '../jsonrpc/shared';
+import { ErrorHandler, Injectable } from '@angular/core';
+import { filter, first, map } from 'rxjs/operators';
 import { JsonrpcResponseError } from '../jsonrpc/base';
+import { Language, LanguageTag } from '../translate/language';
+import { ModalController, ToastController } from '@ionic/angular';
+import { NgxSpinnerService } from 'ngx-spinner';
 import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { Edges } from '../jsonrpc/shared';
-import { ChannelAddress } from '../shared';
-import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
-import { DefaultTypes } from './defaulttypes';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -23,6 +23,15 @@ export class Service implements ErrorHandler {
   public static readonly TIMEOUT = 15_000;
 
   public notificationEvent: Subject<DefaultTypes.Notification> = new Subject<DefaultTypes.Notification>();
+
+  /**
+   * Represents the resolution of used device
+   * Checks if smartphone resolution is used
+   */
+  public deviceHeight: number = 0;
+  public deviceWidth: number = 0;
+  public isSmartphoneResolution: boolean = false;
+  public isSmartphoneResolutionSubject: Subject<boolean> = new Subject<boolean>();
 
   /**
    * Holds the currenty selected Page Title.
@@ -85,24 +94,12 @@ export class Service implements ErrorHandler {
    */
   public browserLangToLangTag(browserLang: string): LanguageTag {
     switch (browserLang) {
-      case "de": {
-        return "German" as LanguageTag
-      }
-      case "en": {
-        return "English" as LanguageTag
-      }
-      case "es": {
-        return "Spanish" as LanguageTag
-      }
-      case "nl": {
-        return "Dutch" as LanguageTag
-      }
-      case "cz": {
-        return "Czech" as LanguageTag
-      }
-      default: {
-        return "German" as LanguageTag
-      }
+      case "de": return LanguageTag.DE;
+      case "en": return LanguageTag.EN;
+      case "es": return LanguageTag.ES;
+      case "nl": return LanguageTag.NL;
+      case "cz": return LanguageTag.CZ;
+      default: return LanguageTag.DE;
     }
   }
 
@@ -411,7 +408,7 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * checks if fems is allowed to show kWh
+   * Checks if this Edge is allowed to show kWh values
    */
   public isKwhAllowed(edge: Edge): boolean {
     return false;

@@ -1,9 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/shared';
-import { FormGroup, FormControl } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { ToastController } from '@ionic/angular';
+import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -80,7 +79,7 @@ export class ComponentUpdateComponent implements OnInit {
         properties.push({ name: property_id, value: control.value });
       }
     }
-    this.edge.updateComponentConfig(this.websocket, this.componentId, properties).then(response => {
+    this.edge.updateComponentConfig(this.websocket, this.componentId, properties).then(() => {
       this.form.markAsPristine();
       this.service.toast("Successfully updated " + this.componentId + ".", 'success');
     }).catch(reason => {
@@ -89,7 +88,7 @@ export class ComponentUpdateComponent implements OnInit {
   }
 
   public delete() {
-    this.edge.deleteComponentConfig(this.websocket, this.componentId).then(response => {
+    this.edge.deleteComponentConfig(this.websocket, this.componentId).then(() => {
       this.form.markAsPristine();
       this.service.toast("Successfully deleted " + this.componentId + ".", 'success');
     }).catch(reason => {

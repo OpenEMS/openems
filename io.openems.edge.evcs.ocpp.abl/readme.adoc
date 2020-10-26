@@ -1,7 +1,7 @@
 = ABL Charging Station
 
 This component implements the ABL EMH 3 series charging station, which is controlled and read out using the OCPP protocol.
-It provides specific informations for the AbstractOcppEvcsComponent.
+It provides specific information for the AbstractOcppEvcsComponent.
 
 Implemented Natures:
 * Evcs (Electric Vehicle Charging Station)

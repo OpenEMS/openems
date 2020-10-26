@@ -359,7 +359,7 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	/**
 	 * Retrieves a list of the platform appropriate port names for this adapter. A
 	 * port must be selected with the method 'selectPort' before any other
-	 * communication methods can be used. Using a communcation method before
+	 * communication methods can be used. Using a communication method before
 	 * 'selectPort' will result in a <code>OneWireException</code> exception.
 	 *
 	 * @return <code>Enumeration</code> of type <code>String</code> that contains
@@ -493,7 +493,7 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * Specifies a platform appropriate port name for this adapter. Note that even
 	 * though the port has been selected, it's ownership may be relinquished if it
 	 * is not currently held in a 'exclusive' block. This class will then try to
-	 * re-aquire the port when needed. If the port cannot be re-aquired ehen the
+	 * re-acquire the port when needed. If the port cannot be re-acquired ehen the
 	 * exception <code>PortInUseException</code> will be thrown.
 	 *
 	 * @param portName Address to connect this NetAdapter to, in the form of
@@ -501,7 +501,7 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 *                 where 6161 is the port number to connect to. The use of
 	 *                 NetAdapter.DEFAULT_PORT is recommended.
 	 *
-	 * @return <code>true</code> if the port was aquired, <code>false</code> if the
+	 * @return <code>true</code> if the port was acquired, <code>false</code> if the
 	 *         port is not available.
 	 *
 	 * @throws OneWireIOException If port does not exist, or unable to communicate
@@ -1140,7 +1140,7 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @param blocking <code>true</code> if want to block waiting for an excluse
 	 *                 access to the adapter
 	 * @return <code>true</code> if blocking was false and a exclusive session with
-	 *         the adapter was aquired
+	 *         the adapter was acquired
 	 *
 	 * @throws OneWireException on a setup error with the 1-Wire adapter
 	 */
@@ -1188,7 +1188,7 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * has not yet been relinquished. This is private and non blocking
 	 * <p>
 	 *
-	 * @return <code>true</code> a exclusive session with the adapter was aquired
+	 * @return <code>true</code> a exclusive session with the adapter was acquired
 	 *
 	 * @throws OneWireException
 	 */
@@ -1317,7 +1317,7 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	/**
 	 * Gets a bit from the 1-Wire Network.
 	 *
-	 * @return the bit value recieved from the the 1-Wire Network.
+	 * @return the bit value received from the the 1-Wire Network.
 	 *
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
@@ -1732,12 +1732,12 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 *
 	 * @param speed
 	 *              <ul>
-	 *              <li>0 (SPEED_REGULAR) set to normal communciation speed
-	 *              <li>1 (SPEED_FLEX) set to flexible communciation speed used for
+	 *              <li>0 (SPEED_REGULAR) set to normal communication speed
+	 *              <li>1 (SPEED_FLEX) set to flexible communication speed used for
 	 *              long lines
-	 *              <li>2 (SPEED_OVERDRIVE) set to normal communciation speed to
+	 *              <li>2 (SPEED_OVERDRIVE) set to normal communication speed to
 	 *              overdrive
-	 *              <li>3 (SPEED_HYPERDRIVE) set to normal communciation speed to
+	 *              <li>3 (SPEED_HYPERDRIVE) set to normal communication speed to
 	 *              hyperdrive
 	 *              <li>>3 future speeds
 	 *              </ul>

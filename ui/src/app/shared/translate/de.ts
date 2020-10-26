@@ -11,6 +11,7 @@ export const TRANSLATION = {
         changeFailed: 'Änderung fehlgeschlagen',
         chargeDischarge: 'Be-/Entladung',
         chargePower: 'Beladung',
+        componentCount: 'Anzahl Komponenten',
         componentInactive: 'Komponente ist inaktiv!',
         connectionLost: 'Verbindung unterbrochen. Versuche die Verbindung wiederherzustellen.',
         consumption: 'Verbrauch',
@@ -19,6 +20,8 @@ export const TRANSLATION = {
         currentValue: 'Aktueller Wert',
         dateFormat: 'dd.MM.yyyy', // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
         dateFormatShort: 'dd.MM',
+        digitalInputs: 'Digitaleingänge',
+        directConsumption: 'Direktverbrauch',
         dischargePower: 'Entladung',
         fault: 'Fehler',
         grid: 'Netz',
@@ -86,19 +89,26 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'Über OpenEMS UI',
-        edgeSettings: 'FEMS Einstellungen',
+        edgeSettings: 'OpenEMS Edge Einstellungen',
         generalSettings: 'Allgemeine Einstellungen',
         index: 'Übersicht',
         logout: 'Abmelden',
         menu: 'Menü',
-        overview: 'FEMS Übersicht',
+        overview: 'OpenEMS Edge Übersicht',
     },
     Index: {
         allConnected: 'Alle Verbindungen hergestellt.',
+        connectionInProgress: 'Verbindung wird aufgebaut...',
         connectionFailed: 'Verbindung zu {{value}} getrennt.', // value = name of websocket
         connectionSuccessful: 'Verbindung zu {{value}} hergestellt.', // value = name of websocket
         isOffline: 'OpenEMS ist offline!',
         toEnergymonitor: 'Zum Energiemonitor...',
+    },
+    Login: {
+        title: "Login",
+        preamble: "Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",
+        passwordLabel: "Passwort",
+        passwordPlaceholder: "Passwort",
     },
     Edge: {
         Index: {
