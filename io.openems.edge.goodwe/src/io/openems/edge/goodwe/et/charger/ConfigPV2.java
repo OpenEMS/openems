@@ -3,7 +3,7 @@ package io.openems.edge.goodwe.et.charger;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.goodwe.et.GoodWeEtConstants;
+import io.openems.edge.goodwe.et.GoodWeConstants;
 
 @ObjectClassDefinition(//
 		name = "GoodWe ET Charger PV2", //
@@ -26,7 +26,7 @@ public @interface ConfigPV2 {
 	String Ess_target() default "";
 
 	@AttributeDefinition(name = "Modbus Unit-id", description = "Unit-id")
-	int unit_id() default GoodWeEtConstants.DEFAULT_UNIT_ID;
+	int unit_id() default GoodWeConstants.DEFAULT_UNIT_ID;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";

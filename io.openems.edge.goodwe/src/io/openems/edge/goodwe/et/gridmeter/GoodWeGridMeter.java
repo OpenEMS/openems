@@ -35,14 +35,14 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "GoodWe.ET.Grid-Meter", //
+		name = "GoodWe.Grid-Meter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 				"type=GRID" //
 		})
-public class GoodWeEtGridMeter extends AbstractOpenemsModbusComponent
+public class GoodWeGridMeter extends AbstractOpenemsModbusComponent
 		implements AsymmetricMeter, SymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	@Reference
@@ -61,7 +61,7 @@ public class GoodWeEtGridMeter extends AbstractOpenemsModbusComponent
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
-	public GoodWeEtGridMeter() {
+	public GoodWeGridMeter() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //

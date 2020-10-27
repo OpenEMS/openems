@@ -3,7 +3,7 @@ package io.openems.edge.goodwe.et.ess;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.goodwe.et.GoodWeEtConstants;
+import io.openems.edge.goodwe.et.GoodWeConstants;
 
 @ObjectClassDefinition(//
 		name = "GoodWe ET Battery-Inverter", //
@@ -23,7 +23,7 @@ import io.openems.edge.goodwe.et.GoodWeEtConstants;
 	boolean readOnlyMode() default true;
 
 	@AttributeDefinition(name = "Modbus Unit-id", description = "Unit-id")
-	int unit_id() default GoodWeEtConstants.DEFAULT_UNIT_ID;
+	int unit_id() default GoodWeConstants.DEFAULT_UNIT_ID;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
 	String modbus_id() default "modbus0";

@@ -61,7 +61,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "GoodWe.ET.Battery-Inverter", //
+		name = "GoodWe.Ess", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
@@ -70,8 +70,6 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 		HybridEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(GoodWeEtBatteryInverterImpl.class);
-
-	protected EnumWriteChannel setEmsPowerMode;
 
 	private Config config;
 

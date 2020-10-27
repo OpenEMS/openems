@@ -9,8 +9,8 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
-import io.openems.edge.goodwe.et.GoodWeEtConstants;
-import io.openems.edge.goodwe.et.charger.GoodWeEtChargerPv1;
+import io.openems.edge.goodwe.et.GoodWeConstants;
+import io.openems.edge.goodwe.et.charger.GoodWeChargerPv1;
 
 public class GoodWeEtBatteryInverterImplTest {
 
@@ -29,7 +29,7 @@ public class GoodWeEtBatteryInverterImplTest {
 
 	@Test
 	public void testEt() throws Exception {
-		GoodWeEtChargerPv1 charger = new GoodWeEtChargerPv1();
+		GoodWeChargerPv1 charger = new GoodWeChargerPv1();
 		new ComponentTest(charger) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -37,7 +37,7 @@ public class GoodWeEtBatteryInverterImplTest {
 						.setId(CHARGER_ID) //
 						.setEssId(ESS_ID) //
 						.setModbusId(MODBUS_ID) //
-						.setUnitId(GoodWeEtConstants.DEFAULT_UNIT_ID) //
+						.setUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.build());
 
 		GoodWeEtBatteryInverterImpl ess = new GoodWeEtBatteryInverterImpl();
@@ -50,7 +50,7 @@ public class GoodWeEtBatteryInverterImplTest {
 				.activate(MyConfig.create() //
 						.setId(ESS_ID) //
 						.setModbusId(MODBUS_ID) //
-						.setUnitId(GoodWeEtConstants.DEFAULT_UNIT_ID) //
+						.setUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setCapacity(9_000) //
 						.setMaxBatteryPower(5_200) //
 						.setReadOnlyMode(false) //
@@ -110,7 +110,7 @@ public class GoodWeEtBatteryInverterImplTest {
 				.activate(MyConfig.create() //
 						.setId(ESS_ID) //
 						.setModbusId(MODBUS_ID) //
-						.setUnitId(GoodWeEtConstants.DEFAULT_UNIT_ID) //
+						.setUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setCapacity(9_000) //
 						.setMaxBatteryPower(5_200) //
 						.setReadOnlyMode(false) //
