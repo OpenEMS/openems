@@ -79,7 +79,7 @@ public class WriteModeHandler extends StateHandler<State, Context> {
 			}
 		} else {
 			// charge
-			p *= 1;
+			p *= -1;
 			if (p < 75) {
 				return 200;
 			} else {
