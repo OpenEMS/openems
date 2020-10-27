@@ -11,6 +11,8 @@ import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 import io.openems.edge.goodwe.et.GoodWeConstants;
 import io.openems.edge.goodwe.et.charger.GoodWeChargerPv1;
+import io.openems.edge.goodwe.et.ess.enums.GoodweType;
+import io.openems.edge.goodwe.et.ess.enums.PowerModeEms;
 
 public class GoodWeEtBatteryInverterImplTest {
 
@@ -40,7 +42,7 @@ public class GoodWeEtBatteryInverterImplTest {
 						.setUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.build());
 
-		GoodWeEtBatteryInverterImpl ess = new GoodWeEtBatteryInverterImpl();
+		GoodWeEssImpl ess = new GoodWeEssImpl();
 		ess.addCharger(charger);
 		new ManagedSymmetricEssTest(ess) //
 				.addReference("power", new DummyPower()) //
@@ -102,7 +104,7 @@ public class GoodWeEtBatteryInverterImplTest {
 
 	@Test
 	public void testBt() throws Exception {
-		GoodWeEtBatteryInverterImpl ess = new GoodWeEtBatteryInverterImpl();
+		GoodWeEssImpl ess = new GoodWeEssImpl();
 		new ManagedSymmetricEssTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //

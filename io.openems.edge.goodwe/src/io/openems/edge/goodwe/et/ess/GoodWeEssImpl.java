@@ -38,7 +38,6 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
@@ -55,6 +54,8 @@ import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.goodwe.et.charger.AbstractGoodWeEtCharger;
 import io.openems.edge.goodwe.et.ess.applypower.ApplyPowerStateMachine;
 import io.openems.edge.goodwe.et.ess.applypower.Context;
+import io.openems.edge.goodwe.et.ess.enums.BatteryMode;
+import io.openems.edge.goodwe.et.ess.enums.GoodweType;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -66,10 +67,10 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 ) //
-public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent implements GoodWeEtBatteryInverter,
-		HybridEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler {
+public class GoodWeEssImpl extends AbstractOpenemsModbusComponent implements GoodWeEss, HybridEss, ManagedSymmetricEss,
+		SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler {
 
-	private final Logger log = LoggerFactory.getLogger(GoodWeEtBatteryInverterImpl.class);
+	private final Logger log = LoggerFactory.getLogger(GoodWeEssImpl.class);
 
 	private Config config;
 
@@ -110,13 +111,13 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 		super.deactivate();
 	}
 
-	public GoodWeEtBatteryInverterImpl() throws OpenemsNamedException {
+	public GoodWeEssImpl() throws OpenemsNamedException {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				HybridEss.ChannelId.values(), //
-				EssChannelId.values() //
+				GoodWeEss.ChannelId.values() //
 		);
 	}
 
@@ -131,8 +132,8 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 				new FC3ReadRegistersTask(35001, Priority.ONCE, //
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(35001)), //
 						new DummyRegisterElement(35002), //
-						m(EssChannelId.SERIAL_NUMBER, new StringWordElement(35003, 8)), //
-						m(EssChannelId.GOODWE_TYPE, new StringWordElement(35011, 5),
+						m(GoodWeEss.ChannelId.SERIAL_NUMBER, new StringWordElement(35003, 8)), //
+						m(GoodWeEss.ChannelId.GOODWE_TYPE, new StringWordElement(35011, 5),
 								new ElementToChannelConverter((value) -> {
 									String stringValue = TypeUtils.<String>getAsType(OpenemsType.STRING, value);
 									switch (stringValue) {
@@ -149,17 +150,17 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 								}))), //
 
 				new FC3ReadRegistersTask(35111, Priority.LOW, //
-						m(EssChannelId.V_PV3, new UnsignedWordElement(35111),
+						m(GoodWeEss.ChannelId.V_PV3, new UnsignedWordElement(35111),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(EssChannelId.I_PV3, new UnsignedWordElement(35112),
+						m(GoodWeEss.ChannelId.I_PV3, new UnsignedWordElement(35112),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(35113, 35114), //
-						m(EssChannelId.V_PV4, new UnsignedWordElement(35115),
+						m(GoodWeEss.ChannelId.V_PV4, new UnsignedWordElement(35115),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(EssChannelId.I_PV4, new UnsignedWordElement(35116),
+						m(GoodWeEss.ChannelId.I_PV4, new UnsignedWordElement(35116),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(35117, 35118), //
-						m(EssChannelId.PV_MODE, new UnsignedDoublewordElement(35119))), //
+						m(GoodWeEss.ChannelId.PV_MODE, new UnsignedDoublewordElement(35119))), //
 
 				new FC3ReadRegistersTask(35136, Priority.HIGH, //
 						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(35136), //
@@ -178,70 +179,70 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 									return GridMode.UNDEFINED;
 								}))), //
 				new FC3ReadRegistersTask(35138, Priority.LOW, //
-						m(EssChannelId.TOTAL_INV_POWER, new SignedWordElement(35138)), //
+						m(GoodWeEss.ChannelId.TOTAL_INV_POWER, new SignedWordElement(35138)), //
 						new DummyRegisterElement(35139), //
-						m(EssChannelId.AC_ACTIVE_POWER, new SignedWordElement(35140), //
+						m(GoodWeEss.ChannelId.AC_ACTIVE_POWER, new SignedWordElement(35140), //
 								ElementToChannelConverter.INVERT), //
 						new DummyRegisterElement(35141), //
-						m(EssChannelId.AC_REACTIVE_POWER, new SignedWordElement(35142), //
+						m(GoodWeEss.ChannelId.AC_REACTIVE_POWER, new SignedWordElement(35142), //
 								ElementToChannelConverter.INVERT), //
 						new DummyRegisterElement(35143), //
-						m(EssChannelId.AC_APPARENT_POWER, new SignedWordElement(35144), //
+						m(GoodWeEss.ChannelId.AC_APPARENT_POWER, new SignedWordElement(35144), //
 								ElementToChannelConverter.INVERT), //
-						m(EssChannelId.BACK_UP_V_LOAD_R, new UnsignedWordElement(35145), //
+						m(GoodWeEss.ChannelId.BACK_UP_V_LOAD_R, new UnsignedWordElement(35145), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(EssChannelId.BACK_UP_I_LOAD_R, new UnsignedWordElement(35146),
+						m(GoodWeEss.ChannelId.BACK_UP_I_LOAD_R, new UnsignedWordElement(35146),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(EssChannelId.BACK_UP_F_LOAD_R, new UnsignedWordElement(35147),
+						m(GoodWeEss.ChannelId.BACK_UP_F_LOAD_R, new UnsignedWordElement(35147),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(EssChannelId.LOAD_MODE_R, new UnsignedWordElement(35148)), //
+						m(GoodWeEss.ChannelId.LOAD_MODE_R, new UnsignedWordElement(35148)), //
 						new DummyRegisterElement(35149), //
-						m(EssChannelId.BACK_UP_P_LOAD_R, new SignedWordElement(35150)), //
-						m(EssChannelId.BACK_UP_V_LOAD_S, new UnsignedWordElement(35151),
+						m(GoodWeEss.ChannelId.BACK_UP_P_LOAD_R, new SignedWordElement(35150)), //
+						m(GoodWeEss.ChannelId.BACK_UP_V_LOAD_S, new UnsignedWordElement(35151),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(EssChannelId.BACK_UP_I_LOAD_S, new UnsignedWordElement(35152),
+						m(GoodWeEss.ChannelId.BACK_UP_I_LOAD_S, new UnsignedWordElement(35152),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(EssChannelId.BACK_UP_F_LOAD_S, new UnsignedWordElement(35153),
+						m(GoodWeEss.ChannelId.BACK_UP_F_LOAD_S, new UnsignedWordElement(35153),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(EssChannelId.LOAD_MODE_S, new UnsignedWordElement(35154)), //
+						m(GoodWeEss.ChannelId.LOAD_MODE_S, new UnsignedWordElement(35154)), //
 						new DummyRegisterElement(35155), //
-						m(EssChannelId.BACK_UP_P_LOAD_S, new SignedWordElement(35156)), //
-						m(EssChannelId.BACK_UP_V_LOAD_T, new UnsignedWordElement(35157),
+						m(GoodWeEss.ChannelId.BACK_UP_P_LOAD_S, new SignedWordElement(35156)), //
+						m(GoodWeEss.ChannelId.BACK_UP_V_LOAD_T, new UnsignedWordElement(35157),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(EssChannelId.BACK_UP_I_LOAD_T, new UnsignedWordElement(35158),
+						m(GoodWeEss.ChannelId.BACK_UP_I_LOAD_T, new UnsignedWordElement(35158),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(EssChannelId.BACK_UP_F_LOAD_T, new UnsignedWordElement(35159),
+						m(GoodWeEss.ChannelId.BACK_UP_F_LOAD_T, new UnsignedWordElement(35159),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(EssChannelId.LOAD_MODE_T, new UnsignedWordElement(35160)), //
+						m(GoodWeEss.ChannelId.LOAD_MODE_T, new UnsignedWordElement(35160)), //
 						new DummyRegisterElement(35161), //
-						m(EssChannelId.BACK_UP_P_LOAD_T, new SignedWordElement(35162)), //
+						m(GoodWeEss.ChannelId.BACK_UP_P_LOAD_T, new SignedWordElement(35162)), //
 						new DummyRegisterElement(35163), //
-						m(EssChannelId.P_LOAD_R, new SignedWordElement(35164)), //
+						m(GoodWeEss.ChannelId.P_LOAD_R, new SignedWordElement(35164)), //
 						new DummyRegisterElement(35165), //
-						m(EssChannelId.P_LOAD_S, new SignedWordElement(35166)), //
+						m(GoodWeEss.ChannelId.P_LOAD_S, new SignedWordElement(35166)), //
 						new DummyRegisterElement(35167), //
-						m(EssChannelId.P_LOAD_T, new SignedWordElement(35168)), //
+						m(GoodWeEss.ChannelId.P_LOAD_T, new SignedWordElement(35168)), //
 						new DummyRegisterElement(35169), //
-						m(EssChannelId.TOTAL_BACK_UP_LOAD, new SignedWordElement(35170)), //
+						m(GoodWeEss.ChannelId.TOTAL_BACK_UP_LOAD, new SignedWordElement(35170)), //
 						new DummyRegisterElement(35171), //
-						m(EssChannelId.TOTAL_LOAD_POWER, new SignedWordElement(35172)), //
-						m(EssChannelId.UPS_LOAD_PERCENT, new UnsignedWordElement(35173),
+						m(GoodWeEss.ChannelId.TOTAL_LOAD_POWER, new SignedWordElement(35172)), //
+						m(GoodWeEss.ChannelId.UPS_LOAD_PERCENT, new UnsignedWordElement(35173),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
 
 				new FC3ReadRegistersTask(35180, Priority.HIGH, //
-						m(EssChannelId.V_BATTERY1, new UnsignedWordElement(35180),
+						m(GoodWeEss.ChannelId.V_BATTERY1, new UnsignedWordElement(35180),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(EssChannelId.I_BATTERY1, new SignedWordElement(35181),
+						m(GoodWeEss.ChannelId.I_BATTERY1, new SignedWordElement(35181),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(35182), //
-						m(EssChannelId.P_BATTERY1, new SignedWordElement(35183)), //
-						m(EssChannelId.BATTERY_MODE, new UnsignedWordElement(35184))), //
+						m(GoodWeEss.ChannelId.P_BATTERY1, new SignedWordElement(35183)), //
+						m(GoodWeEss.ChannelId.BATTERY_MODE, new UnsignedWordElement(35184))), //
 
 				new FC3ReadRegistersTask(35185, Priority.LOW, //
-						m(EssChannelId.WARNING_CODE, new UnsignedWordElement(35185)), //
-						m(EssChannelId.SAFETY_COUNTRY, new UnsignedWordElement(35186)), //
-						m(EssChannelId.WORK_MODE, new UnsignedWordElement(35187)), //
-						m(EssChannelId.OPERATION_MODE, new UnsignedDoublewordElement(35188))), //
+						m(GoodWeEss.ChannelId.WARNING_CODE, new UnsignedWordElement(35185)), //
+						m(GoodWeEss.ChannelId.SAFETY_COUNTRY, new UnsignedWordElement(35186)), //
+						m(GoodWeEss.ChannelId.WORK_MODE, new UnsignedWordElement(35187)), //
+						m(GoodWeEss.ChannelId.OPERATION_MODE, new UnsignedDoublewordElement(35188))), //
 
 				new FC3ReadRegistersTask(35206, Priority.LOW, //
 						m(HybridEss.ChannelId.DC_CHARGE_ENERGY, new UnsignedDoublewordElement(35206), //
@@ -251,23 +252,23 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 								ElementToChannelConverter.SCALE_FACTOR_2)), //
 
 				new FC3ReadRegistersTask(36003, Priority.LOW, //
-						m(EssChannelId.B_METER_COMMUNICATE_STATUS, new UnsignedWordElement(36003)), //
-						m(EssChannelId.METER_COMMUNICATE_STATUS, new UnsignedWordElement(36004))), //
+						m(GoodWeEss.ChannelId.B_METER_COMMUNICATE_STATUS, new UnsignedWordElement(36003)), //
+						m(GoodWeEss.ChannelId.METER_COMMUNICATE_STATUS, new UnsignedWordElement(36004))), //
 
 				new FC3ReadRegistersTask(37001, Priority.LOW,
-						m(EssChannelId.BATTERY_TYPE_INDEX, new UnsignedWordElement(37001)), //
-						m(EssChannelId.BMS_STATUS, new UnsignedWordElement(37002)), //
-						m(EssChannelId.BMS_PACK_TEMPERATURE, new UnsignedWordElement(37003),
+						m(GoodWeEss.ChannelId.BATTERY_TYPE_INDEX, new UnsignedWordElement(37001)), //
+						m(GoodWeEss.ChannelId.BMS_STATUS, new UnsignedWordElement(37002)), //
+						m(GoodWeEss.ChannelId.BMS_PACK_TEMPERATURE, new UnsignedWordElement(37003),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(EssChannelId.BMS_CHARGE_IMAX, new UnsignedWordElement(37004)), //
-						m(EssChannelId.BMS_DISCHARGE_IMAX, new UnsignedWordElement(37005))), //
+						m(GoodWeEss.ChannelId.BMS_CHARGE_IMAX, new UnsignedWordElement(37004)), //
+						m(GoodWeEss.ChannelId.BMS_DISCHARGE_IMAX, new UnsignedWordElement(37005))), //
 
 				new FC3ReadRegistersTask(37007, Priority.HIGH, //
 						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(37007), new ElementToChannelConverter(
 								// element -> channel
 								value -> {
 									// Set SoC to undefined if there is No Battery
-									EnumReadChannel batteryModeChannel = this.channel(EssChannelId.BATTERY_MODE);
+									EnumReadChannel batteryModeChannel = this.channel(GoodWeEss.ChannelId.BATTERY_MODE);
 									BatteryMode batteryMode = batteryModeChannel.value().asEnum();
 									if (batteryMode == BatteryMode.NO_BATTERY || batteryMode == BatteryMode.UNDEFINED) {
 										return null;
@@ -278,152 +279,152 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 								// channel -> element
 								value -> value))), //
 				new FC3ReadRegistersTask(37008, Priority.LOW, //
-						m(EssChannelId.BMS_SOH, new UnsignedWordElement(37008)), //
-						m(EssChannelId.BMS_BATTERY_STRINGS, new UnsignedWordElement(37009))), //
+						m(GoodWeEss.ChannelId.BMS_SOH, new UnsignedWordElement(37008)), //
+						m(GoodWeEss.ChannelId.BMS_BATTERY_STRINGS, new UnsignedWordElement(37009))), //
 
 				new FC16WriteRegistersTask(47000, //
-						m(EssChannelId.APP_MODE_INDEX, new UnsignedWordElement(47000)), //
-						m(EssChannelId.METER_CHECK_VALUE, new UnsignedWordElement(47001)), //
-						m(EssChannelId.WMETER_CONNECT_CHECK_FLAG, new UnsignedWordElement(47002))), //
+						m(GoodWeEss.ChannelId.APP_MODE_INDEX, new UnsignedWordElement(47000)), //
+						m(GoodWeEss.ChannelId.METER_CHECK_VALUE, new UnsignedWordElement(47001)), //
+						m(GoodWeEss.ChannelId.WMETER_CONNECT_CHECK_FLAG, new UnsignedWordElement(47002))), //
 
 				new FC3ReadRegistersTask(47000, Priority.LOW, //
-						m(EssChannelId.APP_MODE_INDEX, new UnsignedWordElement(47000)), //
-						m(EssChannelId.METER_CHECK_VALUE, new UnsignedWordElement(47001)), //
-						m(EssChannelId.WMETER_CONNECT_CHECK_FLAG, new UnsignedWordElement(47002))), //
+						m(GoodWeEss.ChannelId.APP_MODE_INDEX, new UnsignedWordElement(47000)), //
+						m(GoodWeEss.ChannelId.METER_CHECK_VALUE, new UnsignedWordElement(47001)), //
+						m(GoodWeEss.ChannelId.WMETER_CONNECT_CHECK_FLAG, new UnsignedWordElement(47002))), //
 
 				new FC16WriteRegistersTask(47500, //
-						m(EssChannelId.STOP_SOC_PROTECT, new UnsignedWordElement(47500)), //
+						m(GoodWeEss.ChannelId.STOP_SOC_PROTECT, new UnsignedWordElement(47500)), //
 						new DummyRegisterElement(47501, 47508), //
-						m(EssChannelId.FEED_POWER_ENABLE, new UnsignedWordElement(47509)), //
-						m(EssChannelId.FEED_POWER_PARA, new UnsignedWordElement(47510)), //
-						m(EssChannelId.EMS_POWER_MODE, new UnsignedWordElement(47511)), //
-						m(EssChannelId.EMS_POWER_SET, new UnsignedWordElement(47512))), //
+						m(GoodWeEss.ChannelId.FEED_POWER_ENABLE, new UnsignedWordElement(47509)), //
+						m(GoodWeEss.ChannelId.FEED_POWER_PARA, new UnsignedWordElement(47510)), //
+						m(GoodWeEss.ChannelId.EMS_POWER_MODE, new UnsignedWordElement(47511)), //
+						m(GoodWeEss.ChannelId.EMS_POWER_SET, new UnsignedWordElement(47512))), //
 
 				new FC16WriteRegistersTask(47531, //
-						m(EssChannelId.SOC_START_TO_FORCE_CHARGE, new UnsignedWordElement(47531)), //
-						m(EssChannelId.SOC_STOP_TO_FORCE_CHARGE, new UnsignedWordElement(47532)), //
-						m(EssChannelId.CLEAR_ALL_ECONOMIC_MODE, new UnsignedWordElement(47533))), //
+						m(GoodWeEss.ChannelId.SOC_START_TO_FORCE_CHARGE, new UnsignedWordElement(47531)), //
+						m(GoodWeEss.ChannelId.SOC_STOP_TO_FORCE_CHARGE, new UnsignedWordElement(47532)), //
+						m(GoodWeEss.ChannelId.CLEAR_ALL_ECONOMIC_MODE, new UnsignedWordElement(47533))), //
 
 				new FC3ReadRegistersTask(47500, Priority.LOW,
-						m(EssChannelId.STOP_SOC_PROTECT, new UnsignedWordElement(47500)), //
+						m(GoodWeEss.ChannelId.STOP_SOC_PROTECT, new UnsignedWordElement(47500)), //
 						new DummyRegisterElement(47501, 47508), //
-						m(EssChannelId.FEED_POWER_ENABLE, new UnsignedWordElement(47509)), //
-						m(EssChannelId.FEED_POWER_PARA, new UnsignedWordElement(47510))), //
+						m(GoodWeEss.ChannelId.FEED_POWER_ENABLE, new UnsignedWordElement(47509)), //
+						m(GoodWeEss.ChannelId.FEED_POWER_PARA, new UnsignedWordElement(47510))), //
 
 				new FC3ReadRegistersTask(47511, Priority.HIGH,
-						m(EssChannelId.EMS_POWER_MODE, new UnsignedWordElement(47511)), //
-						m(EssChannelId.EMS_POWER_SET, new UnsignedWordElement(47512))), //
+						m(GoodWeEss.ChannelId.EMS_POWER_MODE, new UnsignedWordElement(47511)), //
+						m(GoodWeEss.ChannelId.EMS_POWER_SET, new UnsignedWordElement(47512))), //
 
 				new FC3ReadRegistersTask(47531, Priority.LOW,
-						m(EssChannelId.SOC_START_TO_FORCE_CHARGE, new UnsignedWordElement(47531)), //
-						m(EssChannelId.SOC_STOP_TO_FORCE_CHARGE, new UnsignedWordElement(47532))), //
+						m(GoodWeEss.ChannelId.SOC_START_TO_FORCE_CHARGE, new UnsignedWordElement(47531)), //
+						m(GoodWeEss.ChannelId.SOC_STOP_TO_FORCE_CHARGE, new UnsignedWordElement(47532))), //
 
 				new FC16WriteRegistersTask(47900, //
-						m(EssChannelId.BMS_VERSION, new UnsignedWordElement(47900)), //
-						m(EssChannelId.BATT_STRINGS_RS485, new UnsignedWordElement(47901)), //
-						m(EssChannelId.WBMS_BAT_CHARGE_VMAX, new UnsignedWordElement(47902)), //
-						m(EssChannelId.WBMS_BAT_CHARGE_IMAX, new UnsignedWordElement(47903)), //
-						m(EssChannelId.WBMS_BAT_DISCHARGE_VMIN, new UnsignedWordElement(47904)), //
-						m(EssChannelId.WBMS_BAT_DISCHARGE_IMAX, new UnsignedWordElement(47905)), //
-						m(EssChannelId.WBMS_BAT_VOLTAGE, new UnsignedWordElement(47906)), //
-						m(EssChannelId.WBMS_BAT_CURRENT, new UnsignedWordElement(47907)), //
-						m(EssChannelId.WBMS_BAT_SOC, new UnsignedWordElement(47908)), //
-						m(EssChannelId.WBMS_BAT_SOH, new UnsignedWordElement(47909)), //
-						m(EssChannelId.WBMS_BAT_TEMPERATURE, new UnsignedWordElement(47910)), //
+						m(GoodWeEss.ChannelId.BMS_VERSION, new UnsignedWordElement(47900)), //
+						m(GoodWeEss.ChannelId.BATT_STRINGS_RS485, new UnsignedWordElement(47901)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_CHARGE_VMAX, new UnsignedWordElement(47902)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_CHARGE_IMAX, new UnsignedWordElement(47903)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_DISCHARGE_VMIN, new UnsignedWordElement(47904)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_DISCHARGE_IMAX, new UnsignedWordElement(47905)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_VOLTAGE, new UnsignedWordElement(47906)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_CURRENT, new UnsignedWordElement(47907)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_SOC, new UnsignedWordElement(47908)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_SOH, new UnsignedWordElement(47909)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_TEMPERATURE, new UnsignedWordElement(47910)), //
 						m(new BitsWordElement(47911, this) //
-								.bit(0, EssChannelId.STATE_58) //
-								.bit(1, EssChannelId.STATE_59) //
-								.bit(2, EssChannelId.STATE_60) //
-								.bit(3, EssChannelId.STATE_61) //
-								.bit(4, EssChannelId.STATE_62) //
-								.bit(5, EssChannelId.STATE_63) //
-								.bit(6, EssChannelId.STATE_64) //
-								.bit(7, EssChannelId.STATE_65) //
-								.bit(8, EssChannelId.STATE_66) //
-								.bit(9, EssChannelId.STATE_67) //
-								.bit(10, EssChannelId.STATE_68) //
-								.bit(11, EssChannelId.STATE_69)), //
+								.bit(0, GoodWeEss.ChannelId.STATE_58) //
+								.bit(1, GoodWeEss.ChannelId.STATE_59) //
+								.bit(2, GoodWeEss.ChannelId.STATE_60) //
+								.bit(3, GoodWeEss.ChannelId.STATE_61) //
+								.bit(4, GoodWeEss.ChannelId.STATE_62) //
+								.bit(5, GoodWeEss.ChannelId.STATE_63) //
+								.bit(6, GoodWeEss.ChannelId.STATE_64) //
+								.bit(7, GoodWeEss.ChannelId.STATE_65) //
+								.bit(8, GoodWeEss.ChannelId.STATE_66) //
+								.bit(9, GoodWeEss.ChannelId.STATE_67) //
+								.bit(10, GoodWeEss.ChannelId.STATE_68) //
+								.bit(11, GoodWeEss.ChannelId.STATE_69)), //
 						new DummyRegisterElement(47912), //
 						m(new BitsWordElement(47913, this) //
-								.bit(0, EssChannelId.STATE_42) //
-								.bit(1, EssChannelId.STATE_43) //
-								.bit(2, EssChannelId.STATE_44) //
-								.bit(3, EssChannelId.STATE_45) //
-								.bit(4, EssChannelId.STATE_46) //
-								.bit(5, EssChannelId.STATE_47) //
-								.bit(6, EssChannelId.STATE_48) //
-								.bit(7, EssChannelId.STATE_49) //
-								.bit(8, EssChannelId.STATE_50) //
-								.bit(9, EssChannelId.STATE_51) //
-								.bit(10, EssChannelId.STATE_52) //
-								.bit(11, EssChannelId.STATE_53) //
-								.bit(12, EssChannelId.STATE_54) //
-								.bit(13, EssChannelId.STATE_55) //
-								.bit(14, EssChannelId.STATE_56) //
-								.bit(15, EssChannelId.STATE_57)), //
+								.bit(0, GoodWeEss.ChannelId.STATE_42) //
+								.bit(1, GoodWeEss.ChannelId.STATE_43) //
+								.bit(2, GoodWeEss.ChannelId.STATE_44) //
+								.bit(3, GoodWeEss.ChannelId.STATE_45) //
+								.bit(4, GoodWeEss.ChannelId.STATE_46) //
+								.bit(5, GoodWeEss.ChannelId.STATE_47) //
+								.bit(6, GoodWeEss.ChannelId.STATE_48) //
+								.bit(7, GoodWeEss.ChannelId.STATE_49) //
+								.bit(8, GoodWeEss.ChannelId.STATE_50) //
+								.bit(9, GoodWeEss.ChannelId.STATE_51) //
+								.bit(10, GoodWeEss.ChannelId.STATE_52) //
+								.bit(11, GoodWeEss.ChannelId.STATE_53) //
+								.bit(12, GoodWeEss.ChannelId.STATE_54) //
+								.bit(13, GoodWeEss.ChannelId.STATE_55) //
+								.bit(14, GoodWeEss.ChannelId.STATE_56) //
+								.bit(15, GoodWeEss.ChannelId.STATE_57)), //
 						new DummyRegisterElement(47914), //
 						m(new BitsWordElement(47915, this) //
-								.bit(0, EssChannelId.STATE_79) //
-								.bit(1, EssChannelId.STATE_80) //
-								.bit(2, EssChannelId.STATE_81))), //
+								.bit(0, GoodWeEss.ChannelId.STATE_79) //
+								.bit(1, GoodWeEss.ChannelId.STATE_80) //
+								.bit(2, GoodWeEss.ChannelId.STATE_81))), //
 
 				new FC3ReadRegistersTask(47902, Priority.LOW, //
-						m(EssChannelId.WBMS_BAT_CHARGE_VMAX, new UnsignedWordElement(47902)), //
-						m(EssChannelId.WBMS_BAT_CHARGE_IMAX, new UnsignedWordElement(47903)), //
-						m(EssChannelId.WBMS_BAT_DISCHARGE_VMIN, new UnsignedWordElement(47904)), //
-						m(EssChannelId.WBMS_BAT_DISCHARGE_IMAX, new UnsignedWordElement(47905)), //
-						m(EssChannelId.WBMS_BAT_VOLTAGE, new UnsignedWordElement(47906)), //
-						m(EssChannelId.WBMS_BAT_CURRENT, new UnsignedWordElement(47907)), //
-						m(EssChannelId.WBMS_BAT_SOC, new UnsignedWordElement(47908)), //
-						m(EssChannelId.WBMS_BAT_SOH, new UnsignedWordElement(47909)), //
-						m(EssChannelId.WBMS_BAT_TEMPERATURE, new UnsignedWordElement(47910)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_CHARGE_VMAX, new UnsignedWordElement(47902)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_CHARGE_IMAX, new UnsignedWordElement(47903)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_DISCHARGE_VMIN, new UnsignedWordElement(47904)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_DISCHARGE_IMAX, new UnsignedWordElement(47905)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_VOLTAGE, new UnsignedWordElement(47906)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_CURRENT, new UnsignedWordElement(47907)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_SOC, new UnsignedWordElement(47908)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_SOH, new UnsignedWordElement(47909)), //
+						m(GoodWeEss.ChannelId.WBMS_BAT_TEMPERATURE, new UnsignedWordElement(47910)), //
 						m(new BitsWordElement(47911, this) //
-								.bit(0, EssChannelId.STATE_58) //
-								.bit(1, EssChannelId.STATE_59) //
-								.bit(2, EssChannelId.STATE_60) //
-								.bit(3, EssChannelId.STATE_61) //
-								.bit(4, EssChannelId.STATE_62) //
-								.bit(5, EssChannelId.STATE_63) //
-								.bit(6, EssChannelId.STATE_64) //
-								.bit(7, EssChannelId.STATE_65) //
-								.bit(8, EssChannelId.STATE_66) //
-								.bit(9, EssChannelId.STATE_67) //
-								.bit(10, EssChannelId.STATE_68) //
-								.bit(11, EssChannelId.STATE_69)), //
+								.bit(0, GoodWeEss.ChannelId.STATE_58) //
+								.bit(1, GoodWeEss.ChannelId.STATE_59) //
+								.bit(2, GoodWeEss.ChannelId.STATE_60) //
+								.bit(3, GoodWeEss.ChannelId.STATE_61) //
+								.bit(4, GoodWeEss.ChannelId.STATE_62) //
+								.bit(5, GoodWeEss.ChannelId.STATE_63) //
+								.bit(6, GoodWeEss.ChannelId.STATE_64) //
+								.bit(7, GoodWeEss.ChannelId.STATE_65) //
+								.bit(8, GoodWeEss.ChannelId.STATE_66) //
+								.bit(9, GoodWeEss.ChannelId.STATE_67) //
+								.bit(10, GoodWeEss.ChannelId.STATE_68) //
+								.bit(11, GoodWeEss.ChannelId.STATE_69)), //
 						new DummyRegisterElement(47912), //
 						m(new BitsWordElement(47913, this) //
-								.bit(0, EssChannelId.STATE_42) //
-								.bit(1, EssChannelId.STATE_43) //
-								.bit(2, EssChannelId.STATE_44) //
-								.bit(3, EssChannelId.STATE_45) //
-								.bit(4, EssChannelId.STATE_46) //
-								.bit(5, EssChannelId.STATE_47) //
-								.bit(6, EssChannelId.STATE_48) //
-								.bit(7, EssChannelId.STATE_49) //
-								.bit(8, EssChannelId.STATE_50) //
-								.bit(9, EssChannelId.STATE_51) //
-								.bit(10, EssChannelId.STATE_52) //
-								.bit(11, EssChannelId.STATE_53) //
-								.bit(12, EssChannelId.STATE_54) //
-								.bit(13, EssChannelId.STATE_55) //
-								.bit(14, EssChannelId.STATE_56) //
-								.bit(15, EssChannelId.STATE_57)), //
+								.bit(0, GoodWeEss.ChannelId.STATE_42) //
+								.bit(1, GoodWeEss.ChannelId.STATE_43) //
+								.bit(2, GoodWeEss.ChannelId.STATE_44) //
+								.bit(3, GoodWeEss.ChannelId.STATE_45) //
+								.bit(4, GoodWeEss.ChannelId.STATE_46) //
+								.bit(5, GoodWeEss.ChannelId.STATE_47) //
+								.bit(6, GoodWeEss.ChannelId.STATE_48) //
+								.bit(7, GoodWeEss.ChannelId.STATE_49) //
+								.bit(8, GoodWeEss.ChannelId.STATE_50) //
+								.bit(9, GoodWeEss.ChannelId.STATE_51) //
+								.bit(10, GoodWeEss.ChannelId.STATE_52) //
+								.bit(11, GoodWeEss.ChannelId.STATE_53) //
+								.bit(12, GoodWeEss.ChannelId.STATE_54) //
+								.bit(13, GoodWeEss.ChannelId.STATE_55) //
+								.bit(14, GoodWeEss.ChannelId.STATE_56) //
+								.bit(15, GoodWeEss.ChannelId.STATE_57)), //
 						new DummyRegisterElement(47914), //
 						m(new BitsWordElement(47915, this) //
-								.bit(0, EssChannelId.STATE_79) //
-								.bit(1, EssChannelId.STATE_80) //
-								.bit(2, EssChannelId.STATE_81))));
+								.bit(0, GoodWeEss.ChannelId.STATE_79) //
+								.bit(1, GoodWeEss.ChannelId.STATE_80) //
+								.bit(2, GoodWeEss.ChannelId.STATE_81))));
 	}
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		int pvProduction = getPvProduction();
 		int soc = this.getSoc().orElse(0);
-		ApplyPowerStateMachine.State state = ApplyPowerStateMachine.evaluateState(this.getDeviceType(),
+		ApplyPowerStateMachine.State state = ApplyPowerStateMachine.evaluateState(this.getGoodweType(),
 				config.readOnlyMode(), pvProduction, soc, activePower);
 
 		// Store the current State
-		this.channel(EssChannelId.APPLY_POWER_STATE_MACHINE).setNextValue(state);
+		this.channel(GoodWeEss.ChannelId.APPLY_POWER_STATE_MACHINE).setNextValue(state);
 
 		// Prepare Context
 		Context context = new Context(this, pvProduction, activePower);
@@ -432,10 +433,10 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 		this.applyPowerStateMachine.run(context); // apply the force next state
 		this.applyPowerStateMachine.run(context); // execute correct handler
 
-		IntegerWriteChannel emsPowerSetChannel = this.channel(EssChannelId.EMS_POWER_SET);
+		IntegerWriteChannel emsPowerSetChannel = this.channel(GoodWeEss.ChannelId.EMS_POWER_SET);
 		emsPowerSetChannel.setNextWriteValue(context.getEssPowerSet());
 
-		EnumWriteChannel emsPowerModeChannel = this.channel(EssChannelId.EMS_POWER_MODE);
+		EnumWriteChannel emsPowerModeChannel = this.channel(GoodWeEss.ChannelId.EMS_POWER_MODE);
 		emsPowerModeChannel.setNextWriteValue(context.getNextPowerMode());
 	}
 
@@ -475,7 +476,7 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 		/*
 		 * Update ActivePower from P_BATTERY1 and chargers ACTUAL_POWER
 		 */
-		final Channel<Integer> batteryPower = this.channel(EssChannelId.P_BATTERY1);
+		final Channel<Integer> batteryPower = this.channel(GoodWeEss.ChannelId.P_BATTERY1);
 		Integer activePower = batteryPower.getNextValue().get();
 		Integer productionPower = null;
 		for (AbstractGoodWeEtCharger charger : this.chargers) {
@@ -604,24 +605,6 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 		}
 
 		return productionPower;
-	}
-
-	/**
-	 * Gets the Channel for {@link EssChannelId#GOODWE_TYPE}.
-	 *
-	 * @return the Channel
-	 */
-	private Channel<GoodweType> getDeviceTypeChannel() {
-		return this.channel(EssChannelId.GOODWE_TYPE);
-	}
-
-	/**
-	 * Gets the Device Type. See {@link EssChannelId#GOODWE_TYPE}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	private GoodweType getDeviceType() {
-		return this.getDeviceTypeChannel().value().asEnum();
 	}
 
 }

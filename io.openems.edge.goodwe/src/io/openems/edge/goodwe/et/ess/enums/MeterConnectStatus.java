@@ -1,17 +1,19 @@
-package io.openems.edge.goodwe.et.ess;
+package io.openems.edge.goodwe.et.ess.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum GridMode implements OptionsEnum {
+public enum MeterConnectStatus implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	OFF_GRID(0, "Loss, inverter disconnects to Grid"), //
-	ON_GRID(1, "OK, inverter connects to Grid"), //
-	FAULT(2, "Fault,something is wrong"); //
+	NOT_CHECKED(0, "Not Checked"), //
+	CORRECT(1, "connect correctly"), //
+	REVERSE(2, "connect reverse"), //
+	INCORRRECT(3, "connect incorrectly"), //
+	FAULT(4, "Fault,fault mode,something is in fault mode"); //
 
 	private final int value;
 	private final String option;
 
-	private GridMode(int value, String option) {
+	private MeterConnectStatus(int value, String option) {
 		this.value = value;
 		this.option = option;
 	}

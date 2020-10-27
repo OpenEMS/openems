@@ -20,7 +20,7 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.goodwe.et.ess.GoodWeEtBatteryInverter;
+import io.openems.edge.goodwe.et.ess.GoodWeEss;
 
 @Designate(ocd = ConfigPV1.class, factory = true)
 @Component(//
@@ -34,7 +34,7 @@ public class GoodWeChargerPv1 extends AbstractGoodWeEtCharger implements EssDcCh
 	protected ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private GoodWeEtBatteryInverter ess;
+	private GoodWeEss ess;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {

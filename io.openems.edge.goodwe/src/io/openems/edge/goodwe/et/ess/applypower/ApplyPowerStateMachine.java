@@ -3,7 +3,7 @@ package io.openems.edge.goodwe.et.ess.applypower;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.statemachine.AbstractStateMachine;
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.goodwe.et.ess.GoodweType;
+import io.openems.edge.goodwe.et.ess.enums.GoodweType;
 
 public class ApplyPowerStateMachine extends AbstractStateMachine<ApplyPowerStateMachine.State, Context> {
 
@@ -106,14 +106,14 @@ public class ApplyPowerStateMachine extends AbstractStateMachine<ApplyPowerState
 	 * @param activePowerSetPoint
 	 * @return
 	 */
-	public static State evaluateState(GoodweType deviceType, boolean readOnlyMode, int pvProduction, int soc,
+	public static State evaluateState(GoodweType goodweType, boolean readOnlyMode, int pvProduction, int soc,
 			int activePowerSetPoint) {
 		if (readOnlyMode) {
 			// Read-Only-Mode: fall-back to internal self-consumption optimization
 			return State.READ_ONLY;
 
 		} else {
-			switch (deviceType) {
+			switch (goodweType) {
 			case GOODWE_10K_BT:
 				if (activePowerSetPoint > 0) {
 					// Set-Point is positive

@@ -1,16 +1,16 @@
-package io.openems.edge.goodwe.et.ess;
+package io.openems.edge.goodwe.et.ess.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum GoodweType implements OptionsEnum {
+public enum MeterCommunicateStatus implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	GOODWE_10K_BT(1, "GoodWe GW10K-BT"), //
-	GOODWE_10K_ET(2, "GoodWe GW10K-ET");
+	NG(0, "NG"), //
+	OK(1, "OK"); //
 
 	private final int value;
 	private final String option;
 
-	private GoodweType(int value, String option) {
+	private MeterCommunicateStatus(int value, String option) {
 		this.value = value;
 		this.option = option;
 	}
