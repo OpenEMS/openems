@@ -36,6 +36,7 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent {
 
 	private MeterType meterType = MeterType.PRODUCTION;
+	private boolean inverted;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -56,7 +57,7 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
-
+		this.inverted = config.invert();
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 	}
@@ -83,11 +84,11 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(3000 - offset, Priority.HIGH,
 						m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(3000 - offset),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.inverted)),
 						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(3002 - offset),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.inverted)),
 						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(3004 - offset),
-								ElementToChannelConverter.SCALE_FACTOR_3)),
+								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.inverted))),
 				new FC4ReadInputRegistersTask(3028 - offset, Priority.LOW,
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(3028 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3),
@@ -96,20 +97,27 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(3032 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3)),
 				new FC4ReadInputRegistersTask(3054 - offset, Priority.HIGH,
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(3054 - offset)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(3056 - offset)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(3058 - offset)),
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(3060 - offset)),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(3054 - offset),
+								ElementToChannelConverter.INVERT_IF_TRUE(inverted)),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(3056 - offset),
+								ElementToChannelConverter.INVERT_IF_TRUE(inverted)),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(3058 - offset),
+								ElementToChannelConverter.INVERT_IF_TRUE(inverted)),
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(3060 - offset),
+								ElementToChannelConverter.INVERT_IF_TRUE(inverted)),
 						new DummyRegisterElement(3062 - offset, 3067 - offset),
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(3068 - offset))),
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(3068 - offset),
+								ElementToChannelConverter.INVERT_IF_TRUE(inverted))),
 				new FC4ReadInputRegistersTask(3110 - offset, Priority.LOW,
 						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3110 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3)),
 				new FC4ReadInputRegistersTask(3208 - offset, Priority.LOW,
 						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
-								new UnsignedQuadruplewordElement(3208 - offset)),
+								new UnsignedQuadruplewordElement(3208 - offset),
+								ElementToChannelConverter.INVERT_IF_TRUE(inverted)),
 						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
-								new UnsignedQuadruplewordElement(3212 - offset))));
+								new UnsignedQuadruplewordElement(3212 - offset),
+								ElementToChannelConverter.INVERT_IF_TRUE(inverted))));
 	}
 
 	@Override
