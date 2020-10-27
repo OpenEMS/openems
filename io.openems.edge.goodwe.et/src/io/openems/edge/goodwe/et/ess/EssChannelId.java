@@ -18,8 +18,8 @@ public enum EssChannelId implements ChannelId {
 	AC_OUTPUT_TYPE(Doc.of(OutputTypeAC.values())), //
 	SERIAL_NUMBER(Doc.of(OpenemsType.STRING) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
-	DEVICE_TYPE(Doc.of(OpenemsType.STRING) //
-			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
+	GOODWE_TYPE(Doc.of(GoodweType.values()) //
+			.accessMode(AccessMode.READ_ONLY)),
 	DSP1_SOFTWARE_VERSION(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
 	DSP2_SOFTWARE_VERSION(Doc.of(OpenemsType.INTEGER) //

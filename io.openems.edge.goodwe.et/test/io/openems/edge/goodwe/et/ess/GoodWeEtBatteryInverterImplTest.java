@@ -17,6 +17,7 @@ public class GoodWeEtBatteryInverterImplTest {
 	private static final String MODBUS_ID = "modbus0";
 
 	private static final String ESS_ID = "ess0";
+	private static final ChannelAddress ESS_GOODWE_TYPE = new ChannelAddress(ESS_ID, "GoodweType");
 	private static final ChannelAddress ESS_SET_ACTIVE_POWER_EQUALS = new ChannelAddress(ESS_ID,
 			"SetActivePowerEquals");
 	private static final ChannelAddress ESS_SOC = new ChannelAddress(ESS_ID, "Soc");
@@ -27,7 +28,7 @@ public class GoodWeEtBatteryInverterImplTest {
 	private static final ChannelAddress CHARGER_ACTUAL_POWER = new ChannelAddress(CHARGER_ID, "ActualPower");
 
 	@Test
-	public void test() throws Exception {
+	public void testEt() throws Exception {
 		GoodWeEtChargerPv1 charger = new GoodWeEtChargerPv1();
 		new ComponentTest(charger) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -55,6 +56,7 @@ public class GoodWeEtBatteryInverterImplTest {
 						.setReadOnlyMode(false) //
 						.build()) //
 				.next(new TestCase("Scenario 1: (set-point is positive && set-point is lower than pv production)") //
+						.input(ESS_GOODWE_TYPE, GoodweType.GOODWE_10K_ET) //
 						.input(CHARGER_ACTUAL_POWER, 5_000) //
 						.input(ESS_SOC, 50) //
 						.input(ESS_SET_ACTIVE_POWER_EQUALS, 3_000) //
@@ -95,6 +97,35 @@ public class GoodWeEtBatteryInverterImplTest {
 						.input(ESS_SET_ACTIVE_POWER_EQUALS, 3_000) //
 						.output(ESS_EMS_POWER_MODE, PowerModeEms.EXPORT_AC) //
 						.output(ESS_EMS_POWER_SET, 3_000)) //
+		;
+	}
+
+	@Test
+	public void testBt() throws Exception {
+		GoodWeEtBatteryInverterImpl ess = new GoodWeEtBatteryInverterImpl();
+		new ManagedSymmetricEssTest(ess) //
+				.addReference("power", new DummyPower()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.activate(MyConfig.create() //
+						.setId(ESS_ID) //
+						.setModbusId(MODBUS_ID) //
+						.setUnitId(GoodWeEtConstants.DEFAULT_UNIT_ID) //
+						.setCapacity(9_000) //
+						.setMaxBatteryPower(5_200) //
+						.setReadOnlyMode(false) //
+						.build()) //
+				.next(new TestCase("Scenario 1: (set-point is positive)") //
+						.input(ESS_GOODWE_TYPE, GoodweType.GOODWE_10K_BT) //
+						.input(ESS_SOC, 50) //
+						.input(ESS_SET_ACTIVE_POWER_EQUALS, 3_000) //
+						.output(ESS_EMS_POWER_MODE, PowerModeEms.DISCHARGE_BAT) //
+						.output(ESS_EMS_POWER_SET, 3000)) //
+				.next(new TestCase("Scenario 2: (set-point is negative)") //
+						.input(ESS_SOC, 50) //
+						.input(ESS_SET_ACTIVE_POWER_EQUALS, -4000) //
+						.output(ESS_EMS_POWER_MODE, PowerModeEms.CHARGE_BAT) //
+						.output(ESS_EMS_POWER_SET, 4000)) //
 		;
 	}
 

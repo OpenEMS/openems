@@ -17,6 +17,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
@@ -27,6 +29,7 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
@@ -35,6 +38,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
@@ -64,6 +68,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 ) //
 public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent implements GoodWeEtBatteryInverter,
 		HybridEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler {
+
+	private final Logger log = LoggerFactory.getLogger(GoodWeEtBatteryInverterImpl.class);
 
 	protected EnumWriteChannel setEmsPowerMode;
 
@@ -125,7 +131,24 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 		return new ModbusProtocol(this, //
 
 				new FC3ReadRegistersTask(35001, Priority.ONCE, //
-						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(35001))), //
+						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(35001)), //
+						new DummyRegisterElement(35002), //
+						m(EssChannelId.SERIAL_NUMBER, new StringWordElement(35003, 8)), //
+						m(EssChannelId.GOODWE_TYPE, new StringWordElement(35011, 5),
+								new ElementToChannelConverter((value) -> {
+									String stringValue = TypeUtils.<String>getAsType(OpenemsType.STRING, value);
+									switch (stringValue) {
+									case "GW10K-BT":
+										this.logInfo(this.log, "Identified GoodWe GW10K-BT");
+										return GoodweType.GOODWE_10K_BT;
+									case "GW10K-ET":
+										this.logInfo(this.log, "Identified GoodWe GW10K-ET");
+										return GoodweType.GOODWE_10K_ET;
+									default:
+										this.logError(this.log, "Unable to identify GoodWe [" + stringValue + "]");
+										return GoodweType.UNDEFINED;
+									}
+								}))), //
 
 				new FC3ReadRegistersTask(35111, Priority.LOW, //
 						m(EssChannelId.V_PV3, new UnsignedWordElement(35111),
@@ -398,8 +421,8 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		int pvProduction = getPvProduction();
 		int soc = this.getSoc().orElse(0);
-		ApplyPowerStateMachine.State state = ApplyPowerStateMachine.evaluateState(config.readOnlyMode(), pvProduction,
-				soc, activePower);
+		ApplyPowerStateMachine.State state = ApplyPowerStateMachine.evaluateState(this.getDeviceType(),
+				config.readOnlyMode(), pvProduction, soc, activePower);
 
 		// Store the current State
 		this.channel(EssChannelId.APPLY_POWER_STATE_MACHINE).setNextValue(state);
@@ -416,78 +439,6 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 
 		EnumWriteChannel emsPowerModeChannel = this.channel(EssChannelId.EMS_POWER_MODE);
 		emsPowerModeChannel.setNextWriteValue(context.getNextPowerMode());
-
-//		final PowerModeEms nextPowerMode;
-//		final Integer essPowerSet;
-//
-//		System.out.println("Active power:" + activePower);
-//
-//		if (this.config.readOnlyMode()) {
-//			// Read-Only-Mode: fall-back to internal self-consumption optimization
-//
-//
-//		} else {
-//			int pvProduction = getPvProduction();
-//			int soc = this.getSoc().orElse(0);
-//
-//			if (soc > 99) {
-//				// battery is full
-//				if (activePower > 0) {
-//					// Set-Point is positive -> take power either from pv or battery
-//					if (activePower > pvProduction) {
-//						// Senario 5
-//						essPowerSet = activePower - pvProduction;
-//						nextPowerMode = PowerModeEms.DISCHARGE_BAT;
-//
-//					} else {
-//						// Senario 6
-//						essPowerSet = pvProduction - activePower;
-//						nextPowerMode = PowerModeEms.EXPORT_AC;
-//					}
-//				} else {
-//					// Set-Point is negative or zero -> this should never happen and should be
-//					// restricted by allowed charge power
-//					essPowerSet = 0;
-//					nextPowerMode = PowerModeEms.EXPORT_AC; // curtail PV to zero
-//				}
-//
-//			} else if (soc < 1) {
-//				// battery is empty
-//				// TODO define when battery is empty
-//				if (activePower > 0) {
-//					// Set-Point is positive -> 'discharge' the pv production
-//					essPowerSet = pvProduction - activePower; // TODO define
-//					nextPowerMode = PowerModeEms.CHARGE_BAT; // TODO define
-//
-//				} else {
-//					// Set-Point is negative or zero -> 'charge' from pv production and grid
-//					essPowerSet = pvProduction - activePower; // TODO define
-//					nextPowerMode = PowerModeEms.CHARGE_BAT; // TODO define
-//				}
-//
-//			} else {
-//				// battery is neither empty nor full
-//				if (activePower > 0) {
-//					// Set-Point is positive
-//					if (activePower > pvProduction) {
-//						// Scenario 2
-//						essPowerSet = pvProduction - activePower;
-//						nextPowerMode = PowerModeEms.CHARGE_BAT;
-//					} else {
-//						// Scenario 1
-//						essPowerSet = activePower - pvProduction;
-//						nextPowerMode = PowerModeEms.DISCHARGE_PV;
-//					}
-//
-//				} else {
-//					// Set-Point is negative or zero
-//					// Scenario 3
-//					essPowerSet = pvProduction - activePower;
-//					nextPowerMode = PowerModeEms.CHARGE_BAT;
-//				}
-//			}
-//		}
-
 	}
 
 	@Override
@@ -655,6 +606,24 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 		}
 
 		return productionPower;
+	}
+
+	/**
+	 * Gets the Channel for {@link EssChannelId#GOODWE_TYPE}.
+	 *
+	 * @return the Channel
+	 */
+	private Channel<GoodweType> getDeviceTypeChannel() {
+		return this.channel(EssChannelId.GOODWE_TYPE);
+	}
+
+	/**
+	 * Gets the Device Type. See {@link EssChannelId#GOODWE_TYPE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	private GoodweType getDeviceType() {
+		return this.getDeviceTypeChannel().value().asEnum();
 	}
 
 }
