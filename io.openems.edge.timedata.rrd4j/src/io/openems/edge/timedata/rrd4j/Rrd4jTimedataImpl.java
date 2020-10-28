@@ -216,7 +216,39 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException {
-		throw new NotImplementedException("QueryHistoryEnergyPerPeriod is not implemented for RRD4j");
+		// throw new NotImplementedException("QueryHistoryEnergyPerPeriod is not
+		// implemented for RRD4j");
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
+
+		ZoneId timezone = fromDate.getZone();
+
+		long fromTimestamp = fromDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
+		long toTimeStamp = toDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
+
+		long nextStamp = fromTimestamp + resolution;
+		long timeStamp = fromTimestamp;
+
+		while (nextStamp <= toTimeStamp) {
+
+			Instant timestampInstantFrom = Instant.ofEpochSecond(timeStamp);
+			ZonedDateTime dateTimeFrom = ZonedDateTime.ofInstant(timestampInstantFrom, ZoneOffset.UTC)
+					.withZoneSameInstant(timezone);
+
+			Instant timestampInstantTo = Instant.ofEpochSecond(nextStamp);
+			ZonedDateTime dateTimeTo = ZonedDateTime.ofInstant(timestampInstantTo, ZoneOffset.UTC)
+					.withZoneSameInstant(timezone);
+
+			SortedMap<ChannelAddress, JsonElement> tableRow = this.queryHistoricEnergy(null, dateTimeFrom, dateTimeTo,
+					channels);
+
+			table.put(dateTimeFrom, tableRow);
+
+			timeStamp = nextStamp;
+			nextStamp += resolution;
+		}
+
+		return table;
+
 	}
 
 	@Override
