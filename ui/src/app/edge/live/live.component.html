@@ -1,6 +1,7 @@
 <header></header>
 <ion-content>
   <ion-grid [hidden]="!edge.subscribeChannelsSuccessful" *ngIf="edge && edge.isOnline">
+    <kacoupdate></kacoupdate>
     <ion-row class="ion-justify-content-center" *ngIf="widgets">
       <!-- Energymonitor -->
       <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
@@ -40,6 +41,9 @@
                 <consumption></consumption>
               </ion-col>
 
+              <ion-col *ngSwitchCase="'KacoError'" size="12" size-lg="6" class="ion-no-padding">
+                <kacoerror></kacoerror>
+              </ion-col>
 
             </ng-container>
 
