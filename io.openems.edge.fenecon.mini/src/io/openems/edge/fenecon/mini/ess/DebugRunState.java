@@ -2,22 +2,16 @@ package io.openems.edge.fenecon.mini.ess;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum PcsMode implements OptionsEnum {
+public enum DebugRunState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	EMERGENCY(0, "Emergency"), //
-	CONSUMERS_PEAK_PATTERN(1, "Consumers Peak Pattern"), //
-	ECONOMIC(2, "Economic"), //
-	ECO(3, "Eco"), //
-	DEBUG(4, "Debug"), //
-	SMOOTH_PV(5, "Smooth PV"), //
-	REMOTE(6, "Remote"), //
-	RIYUAN(7, "Riyuan"), //
-	TIMING(8, "Timing");
+	FORBID(0, "Forbid"), //
+	CHARGE(1, "Charge"), //
+	DISCHARGE(2, "Discharge"); //
 
 	private final int value;
 	private final String name;
 
-	private PcsMode(int value, String name) {
+	private DebugRunState(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
