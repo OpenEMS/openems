@@ -29,6 +29,7 @@ import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
+import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyPerPeriodRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesExportXlxsRequest;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
@@ -39,6 +40,7 @@ import io.openems.common.jsonrpc.request.UpdateSoftwareRequest;
 import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
+import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyPerPeriodResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
@@ -115,6 +117,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			resultFuture = this.handleQueryHistoricEnergyRequest(QueryHistoricTimeseriesEnergyRequest.from(request));
 			break;
 
+		case QueryHistoricTimeseriesEnergyPerPeriodRequest.METHOD:
+			resultFuture = this.handleQueryHistoricEnergyPerPeriodRequest(
+					QueryHistoricTimeseriesEnergyPerPeriodRequest.from(request));
+			break;
+
 		case QueryHistoricTimeseriesExportXlxsRequest.METHOD:
 			resultFuture = this.handleQueryHistoricTimeseriesExportXlxsRequest(user,
 					QueryHistoricTimeseriesExportXlxsRequest.from(request));
@@ -174,7 +181,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		JsonObject result = new JsonObject();
 		int success = 0;
 		int error = 0;
-		
+
 		WebSocket ws = wsData.getWebsocket();
 
 		OpenemsComponent kacoUpdateComponent = this.parent.componentManager.getComponent("_kacoUpdate");
@@ -185,7 +192,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		try {
 
 			if (hasUpdate != 2) {
-				
+
 				KacoUpdateHandler.updateUI(parent, ws);
 				success++;
 				hasUpdate--;
@@ -198,14 +205,14 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			try {
 				KacoUpdateHandler.uiRestore(parent, ws);
 			} catch (IOException e1) {
-				
+
 				this.log.error(e1.getMessage(), e1);
 			}
 		}
 		try {
 
 			if (hasUpdate > 1) {
-				
+
 				KacoUpdateHandler.updateEdge(ws, parent);
 				success += 2;
 				hasUpdate -= 2;
@@ -314,6 +321,18 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {
 		return CompletableFuture.completedFuture(this.parent.getTimedata()
 				.handleQueryHistoricTimeseriesExportXlxsRequest(null /* ignore Edge-ID */, request));
+	}
+
+	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyPerPeriodRequest(
+			QueryHistoricTimeseriesEnergyPerPeriodRequest request) throws OpenemsNamedException {
+
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data = this.parent.getTimedata()
+				.queryHistoricEnergyPerPeriod(//
+						null, request.getFromDate(), request.getToDate(), request.getChannels(),
+						request.getResolution());
+
+		return CompletableFuture
+				.completedFuture(new QueryHistoricTimeseriesEnergyPerPeriodResponse(request.getId(), data));
 	}
 
 	/**

@@ -74,7 +74,7 @@ public class QueryHistoricTimeseriesEnergyPerPeriodResponse extends JsonrpcRespo
 			}
 		}
 		result.add("data", data);
-
+		//System.err.println(data.getAsString());
 		return result;
 	}
 

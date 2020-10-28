@@ -18,12 +18,12 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
 import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
 import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.timedata.api.Timedata;
 import io.openems.backend.uiwebsocket.api.UiWebsocket;
-import io.openems.backend.uiwebsocket.energydepot.WsData;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
@@ -38,6 +38,9 @@ public class UiWebsocketKaco extends AbstractOpenemsBackendComponent implements 
 	// private final Logger log = LoggerFactory.getLogger(UiWebsocket.class);
 
 	protected WebsocketServer server = null;
+
+	@Reference
+	protected volatile JsonRpcRequestHandler jsonRpcRequestHandler;
 
 	@Reference
 	protected volatile Metadata metadata;
@@ -107,8 +110,16 @@ public class UiWebsocketKaco extends AbstractOpenemsBackendComponent implements 
 	@Override
 	public void send(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException {
 		List<WsData> wsDatas = this.getWsDatasForEdgeId(edgeId);
+		OpenemsNamedException exception = null;
 		for (WsData wsData : wsDatas) {
-			wsData.send(notification);
+			try {
+				wsData.send(notification);
+			} catch (OpenemsNamedException e) {
+				exception = e;
+			}
+		}
+		if (exception != null) {
+			throw exception;
 		}
 	}
 
@@ -163,4 +174,5 @@ public class UiWebsocketKaco extends AbstractOpenemsBackendComponent implements 
 		}
 		return result;
 	}
+
 }

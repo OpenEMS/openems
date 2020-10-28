@@ -1,5 +1,7 @@
 package io.openems.backend.uiwebsocket.energydepot;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -10,17 +12,20 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
-	private final SubscribedChannelsWorker subscribedChannelsWorker;
+	private final UiWebsocketKaco parent;
+	private final Map<String, SubscribedChannelsWorker> subscribedChannelsWorkers = new HashMap<>();
 	private Optional<String> userId = Optional.empty();
 	private Optional<UUID> token = Optional.empty();
 
 	public WsData(UiWebsocketKaco parent) {
-		this.subscribedChannelsWorker = new SubscribedChannelsWorker(parent, this);
+		this.parent = parent;
 	}
 
 	@Override
-	public void dispose() {
-		this.subscribedChannelsWorker.dispose();
+	public synchronized void dispose() {
+		for (SubscribedChannelsWorker subscribedChannelsWorker : this.subscribedChannelsWorkers.values()) {
+			subscribedChannelsWorker.dispose();
+		}
 	}
 
 	public synchronized void setUserId(String userId) {
@@ -33,7 +38,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * @return the User-ID or Optional.Empty if the User was not authenticated.
 	 */
 	public synchronized Optional<String> getUserId() {
-		return userId;
+		return this.userId;
 	}
 
 	/**
@@ -57,7 +62,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	public Optional<UUID> getToken() {
-		return token;
+		return this.token;
 	}
 
 	/**
@@ -77,10 +82,16 @@ public class WsData extends io.openems.common.websocket.WsData {
 	/**
 	 * Gets the SubscribedChannelsWorker to take care of subscribe to CurrentData.
 	 * 
+	 * @param edgeId the Edge-ID
 	 * @return the SubscribedChannelsWorker
 	 */
-	public SubscribedChannelsWorker getSubscribedChannelsWorker() {
-		return subscribedChannelsWorker;
+	public synchronized SubscribedChannelsWorker getSubscribedChannelsWorker(String edgeId) {
+		SubscribedChannelsWorker result = this.subscribedChannelsWorkers.get(edgeId);
+		if (result == null) {
+			result = new SubscribedChannelsWorker(this.parent, edgeId, this);
+			this.subscribedChannelsWorkers.put(edgeId, result);
+		}
+		return result;
 	}
 
 	@Override
@@ -91,7 +102,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 		} else {
 			tokenString = "UNKNOWN";
 		}
-		return "UiWebsocket.WsData [userId=" + userId.orElse("UNKNOWN") + ", token=" + tokenString + "]";
+		return "UiWebsocket.WsData [userId=" + this.userId.orElse("UNKNOWN") + ", token=" + tokenString + "]";
 	}
-
 }

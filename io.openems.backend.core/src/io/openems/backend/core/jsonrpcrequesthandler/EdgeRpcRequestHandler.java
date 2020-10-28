@@ -55,9 +55,10 @@ public class EdgeRpcRequestHandler {
 			EdgeRpcRequest edgeRpcRequest) throws OpenemsNamedException {
 		String edgeId = edgeRpcRequest.getEdgeId();
 		JsonrpcRequest request = edgeRpcRequest.getPayload();
+		
 		User user = backendUser.getAsCommonUser(edgeId);
 		user.assertRoleIsAtLeast(EdgeRpcRequest.METHOD, Role.GUEST);
-
+		
 		CompletableFuture<JsonrpcResponseSuccess> resultFuture;
 		switch (request.getMethod()) {
 

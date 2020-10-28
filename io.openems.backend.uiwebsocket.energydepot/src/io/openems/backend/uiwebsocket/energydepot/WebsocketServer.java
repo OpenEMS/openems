@@ -7,7 +7,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.websocket.AbstractWebsocketServer;
-import io.openems.common.websocket.OnInternalError;
 
 public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
@@ -19,7 +18,6 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnNotification onNotification;
 	private final OnError onError;
 	private final OnClose onClose;
-	private final OnInternalError onInternalError;
 
 	public WebsocketServer(UiWebsocketKaco parent, String name, int port) {
 		super(name, port);
@@ -29,20 +27,11 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 		this.onNotification = new OnNotification(parent);
 		this.onError = new OnError(parent);
 		this.onClose = new OnClose(parent);
-		this.onInternalError = (ex, wsDataString) -> {
-			log.info("OnInternalError for " + wsDataString + ". " + ex.getClass() + ": " + ex.getMessage());
-			ex.printStackTrace();
-		};
 	}
 
 	@Override
 	protected WsData createWsData() {
 		return new WsData(this.parent);
-	}
-
-	@Override
-	protected OnInternalError getOnInternalError() {
-		return this.onInternalError;
 	}
 
 	@Override
@@ -78,13 +67,12 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	}
 
 	@Override
-	protected void logWarn(Logger log, String message) {
-		this.parent.logWarn(log, message);
+	protected void logInfo(Logger log, String message) {
+		this.parent.logInfo(log, message);
 	}
 
 	@Override
-	protected void logInfo(Logger log, String message) {
-		this.parent.logInfo(log, message);
-		
+	protected void logWarn(Logger log, String message) {
+		this.parent.logWarn(log, message);
 	}
 }
