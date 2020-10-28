@@ -99,7 +99,6 @@ export abstract class AbstractHistoryChart {
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
-                    this.setLabel(config);
                     let request = new queryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution);
                     edge.sendRequest(this.service.websocket, request).then(response => {
                         let result = (response as QueryHistoricTimeseriesDataResponse).result;

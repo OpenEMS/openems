@@ -47,7 +47,6 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
             this.getChannelAddresses(this.edge, config).then(channels => {
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
                     this.data = response.result.data;
-
                     //calculate other power
                     let otherEnergy: number = 0;
                     this.evcsComponents.forEach(component => {
@@ -57,6 +56,8 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                         otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'];
                     })
                     this.totalOtherEnergy = response.result.data["_sum/ConsumptionActiveEnergy"] - otherEnergy;
+                }).catch(() => {
+                    this.data = null;
                 })
             });
         })
