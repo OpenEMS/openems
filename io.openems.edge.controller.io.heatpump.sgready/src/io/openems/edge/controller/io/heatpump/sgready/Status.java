@@ -40,7 +40,6 @@ public enum Status implements OptionsEnum {
 	private final boolean output1;
 	private final boolean output2;
 
-	
 	private Status(int value, boolean output1, boolean output2, String name) {
 		this.value = value;
 		this.name = name;
@@ -57,7 +56,7 @@ public enum Status implements OptionsEnum {
 	public String getName() {
 		return this.name;
 	}
-	
+
 	public boolean getOutput1() {
 		return this.output1;
 	}
@@ -65,7 +64,7 @@ public enum Status implements OptionsEnum {
 	public boolean getOutput2() {
 		return this.output2;
 	}
-	
+
 	@Override
 	public OptionsEnum getUndefined() {
 		return Status.UNDEFINED;

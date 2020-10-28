@@ -37,7 +37,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.io.openems.edge.controller.io.heatpump", //
+		name = "Controller.Io.HeatPump.SgReady", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
@@ -53,9 +53,10 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 
 	protected Instant lastStateChange = Instant.MIN;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
-
+	/*
+	 * Status definitions for each state. Storing meta data, are responsible for the
+	 * time calculation activation of that state.
+	 */
 	private final StatusDefinition lockState = new StatusDefinition(this, Status.LOCK,
 			HeatPump.ChannelId.LOCK_STATE_TIME);
 	private final StatusDefinition regularState = new StatusDefinition(this, Status.REGULAR,
@@ -66,10 +67,13 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 			HeatPump.ChannelId.FORCE_ON_STATE_TIME);
 
 	@Reference
-	protected ComponentManager componentManager;
+	protected Sum sum;
 
 	@Reference
-	protected Sum sum;
+	protected ComponentManager componentManager;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	public HeatPumpImpl() {
 		super(//

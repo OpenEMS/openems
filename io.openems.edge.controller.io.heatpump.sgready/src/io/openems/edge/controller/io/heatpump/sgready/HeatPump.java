@@ -13,17 +13,18 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface HeatPump extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATUS(Doc.of(Status.values()) //
-				.text("Current State")),
+
+		STATUS(Doc.of(Status.values()). //
+				text("Current State")), //
 		AWAITING_HYSTERESIS(Doc.of(OpenemsType.BOOLEAN)), //
-		REGULAR_STATE_TIME(Doc.of(OpenemsType.LONG)//
-				.unit(Unit.SECONDS)), //
+		REGULAR_STATE_TIME(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.CUMULATED_SECONDS)), //
 		RECOMMENDATION_STATE_TIME(Doc.of(OpenemsType.LONG)//
-				.unit(Unit.SECONDS)), //
+				.unit(Unit.CUMULATED_SECONDS)), //
 		FORCE_ON_STATE_TIME(Doc.of(OpenemsType.LONG)//
-				.unit(Unit.SECONDS)), //
+				.unit(Unit.CUMULATED_SECONDS)), //
 		LOCK_STATE_TIME(Doc.of(OpenemsType.LONG)//
-				.unit(Unit.SECONDS)), //
+				.unit(Unit.CUMULATED_SECONDS)), //
 		GRID_ACTIVE_POWER_NOT_PRESENT(Doc.of(Level.WARNING) //
 				.text("There is no grid active power present.")),
 		STATE_OF_CHARGE_NOT_PRESENT(Doc.of(Level.WARNING) //
