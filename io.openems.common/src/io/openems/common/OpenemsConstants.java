@@ -107,16 +107,16 @@ public class OpenemsConstants {
 	public final static String PROPERTY_LAST_CHANGE_BY = "_lastChangeBy";
 	public final static String PROPERTY_LAST_CHANGE_AT = "_lastChangeAt";
 
-	private static final String OPENEMS_DATA_DIR = "openems.data.dir";
+	public final static String OPENEMS_DATA_DIR_KEY = "io.openems.data.dir";
 
 	/**
-	 * Gets the path of the OpenEMS Data Directory, configured by "openems.data.dir"
+	 * Gets the path of the OpenEMS Data Directory, configured by "io.openems.data.dir"
 	 * command line parameter.
 	 * 
 	 * @return the path of the OpenEMS Data Directory
 	 */
 	public final static String getOpenemsDataDir() {
-		return Optional.ofNullable(System.getProperty(OPENEMS_DATA_DIR)).orElse("");
+		return Optional.ofNullable(System.getProperty(OPENEMS_DATA_DIR_KEY)).orElse("");
 	}
 
 }
