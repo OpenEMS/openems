@@ -100,11 +100,11 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 		 * Create Controller.Api.Modbus.ReadOnly
 		 */
 		if (existingConfigs.stream().noneMatch(c -> //
-		// Check if either "Controller.Api.Rest.ReadOnly" or
-		// "Controller.Api.Rest.ReadWrite" exist
+		// Check if either "Controller.Api.ModbusTcp.ReadOnly" or
+		// "Controller.Api.ModbusTcp.ReadWrite" exist
 		"Controller.Api.ModbusTcp.ReadOnly".equals(c.factoryPid)
 				|| "Controller.Api.ModbusTcp.ReadWrite".equals(c.factoryPid))) {
-			// if not -> create configuration for "Controller.Api.Rest.ReadOnly"
+			// if not -> create configuration for "Controller.Api.ModbusTcp.ReadOnly"
 			this.createConfiguration(defaultConfigurationFailed, "Controller.Api.ModbusTcp.ReadOnly", Arrays.asList(//
 					new Property("id", "ctrlApiModbusTcp0"), //
 					new Property("alias", ""), //
