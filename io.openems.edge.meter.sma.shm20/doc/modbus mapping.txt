@@ -1,0 +1,34 @@
+OpenEMS Symmetric Meter Properties and Mapping to SMA Modbus Registers:
+
+OpenEMS Channel ID		SMA Modbus Channel Name		Modbus specific parameters			Conversion
+-------------------------	---------------------------	--------------------------------------------	---------------------
+ACTIVE_CONSUMPTION_ENERGY	Metering.GridMs.TotWhIn		(Modbus 30581, u32, FIX0, metered in 'Wh')
+ACTIVE_PRODUCTION_ENERGY	Metering.GridMs.TotWhOut	(Modbus 30583, u32, FIX0, metered in 'Wh')
+
+ACTIVE_POWER			SUBSTRACTION
+				Metering.GridMs.TotWOut -	(Modbus 30867, s32, FIX0, metered in 'W')
+				Metering.GridMs.TotWIn		(Modbus 30865, s32, FIX0, metered in 'W')
+
+VOLTAGE				AVERAGE										MULTIPLY BY 1000 to convert to Millivolt internally
+				[ Metering.GridMs.PhV.phsA +	(Modbus 31253, u32, FIX2, metered in 'V')
+				  Metering.GridMs.PhV.phsB +	(Modbus 31255, u32, FIX2, metered in 'V')
+				  Metering.GridMs.PhV.phsC ]	(Modbus 31257, u32, FIX2, metered in 'V')
+				DIVIDED BY 3
+
+REACTIVE_POWER			Metering.GridMs.TotVAr 		(Modbus 31277, s32, FIX0, metered in 'VAr')
+
+CURRENT				SUM										MULTIPLY BY 1000 to convert to Milliampere internally
+				Metering.GridMs.A.phsA +	(Modbus 31435, s32, FIX3, metered in 'A')
+				Metering.GridMs.A.phsB +	(Modbus 31437, s32, FIX3, metered in 'A')
+				Metering.GridMs.A.phsC		(Modbus 31439, s32, FIX3, metered in 'A')
+
+FREQUENCY			Metering.GridMs.Hz 		(Modbus 31447, u32, FIX2, metered in 'Hz')	MULTIPLY BY 1000 to convert to Millihertz internally
+
+MAX_ACTIVE_POWER		not available			-						automatically derived by OpenEMS from ACTIVE_POWER 
+MIN_ACTIVE_POWER		not available			-						automatically derived by OpenEMS from ACTIVE_POWER
+
+=======================
+
+u32:	Unsigned Integer 32 bit (Doubleword)
+s32: 	Signed Integer 32 bit (Doubleword)
+FIXn:	Decimal Number, commercially rounded, n decimal places 
