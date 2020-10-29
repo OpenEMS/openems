@@ -18,6 +18,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
@@ -90,7 +91,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 					new Property("id", "ctrlApiRest0"), //
 					new Property("alias", ""), //
 					new Property("enabled", true), //
-					new Property("port", 8084), //
+					new Property("port", OpenemsConstants.getApiRestPort()), //
 					new Property("debugMode", false) //
 			));
 		}
@@ -108,7 +109,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 					new Property("id", "ctrlApiModbusTcp0"), //
 					new Property("alias", ""), //
 					new Property("enabled", true), //
-					new Property("port", 502), //
+					new Property("port", OpenemsConstants.getApiModbusTcpPort()), //
 					new Property("component.ids", JsonUtils.buildJsonArray().add("_sum").build()), //
 					new Property("maxConcurrentConnections", 5) //
 			));

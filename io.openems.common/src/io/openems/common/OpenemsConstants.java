@@ -108,6 +108,8 @@ public class OpenemsConstants {
 	public final static String PROPERTY_LAST_CHANGE_AT = "_lastChangeAt";
 
 	public final static String OPENEMS_DATA_DIR_KEY = "io.openems.data.dir";
+	public final static String API_REST_PORT_KEY = "io.openems.api.rest.port";
+	public final static String API_MODBUS_TCP_PORT_KEY = "io.openems.api.modbustcp.port";
 
 	/**
 	 * Gets the path of the OpenEMS Data Directory, configured by "io.openems.data.dir"
@@ -117,6 +119,26 @@ public class OpenemsConstants {
 	 */
 	public final static String getOpenemsDataDir() {
 		return Optional.ofNullable(System.getProperty(OPENEMS_DATA_DIR_KEY)).orElse("");
+	}
+
+	/**
+	 * Gets the port of the Controller Api Rest, configured by "io.openems.api.rest.port"
+	 * command line parameter.
+	 * 
+	 * @return the port of the Controller Api Rest
+	 */
+	public final static int getApiRestPort() {
+		return Integer.parseInt(System.getProperty(API_REST_PORT_KEY, "8084"));
+	}
+
+	/**
+	 * Gets the port of the Controller Api ModbusTcp, configured by "io.openems.api.modbustcp.port"
+	 * command line parameter.
+	 * 
+	 * @return the port of the Controller Api ModbusTcp
+	 */
+	public final static int getApiModbusTcpPort() {
+		return Integer.parseInt(System.getProperty(API_MODBUS_TCP_PORT_KEY, "502"));
 	}
 
 }
