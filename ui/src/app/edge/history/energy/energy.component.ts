@@ -45,8 +45,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   private edge: Edge | null = null;
   private config: EdgeConfig | null = null;
 
-  private receivedKwhValues: boolean | null = null;
-
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
   @Input() private period: DefaultTypes.HistoryPeriod;
