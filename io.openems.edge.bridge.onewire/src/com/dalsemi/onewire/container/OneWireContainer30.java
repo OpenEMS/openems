@@ -791,9 +791,9 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	}
 
 	/**
-	 * Returns the latch state of the Programmable Input/Ouput pin on the DS2760.
+	 * Returns the latch state of the Programmable Input/Output pin on the DS2760.
 	 *
-	 * @return state of the Programmable Input/Ouput pin
+	 * @return state of the Programmable Input/Output pin
 	 *
 	 * @throws OneWireIOException Error reading data
 	 * @throws OneWireException   Could not find part

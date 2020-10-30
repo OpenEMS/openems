@@ -227,7 +227,7 @@ export class CurrentData {
         + (result.consumption.activePower > 0 ? result.consumption.activePower : 0)
       );
       result.system.autarchy = CurrentData.calculateAutarchy(result.grid.buyActivePower, result.consumption.activePower);
-      result.system.selfConsumption = CurrentData.calculateSelfConsumption(result.grid.sellActivePower, result.production.activePower, result.storage.effectiveDischargePower);
+      result.system.selfConsumption = CurrentData.calculateSelfConsumption(result.grid.sellActivePower, result.production.activePower);
       // State
       result.system.state = c['_sum/State'];
     }
@@ -247,7 +247,7 @@ export class CurrentData {
       ), 0)
   }
 
-  public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number, storageDischargeActivePower: number): number {
+  public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number): number {
     if (productionActivePower == 0) {
       return null;
     }
@@ -258,10 +258,7 @@ export class CurrentData {
             1 - (
               Utils.divideSafely(
                 Utils.orElse(sellToGrid, 0), (
-                Utils.addSafely(
-                  Math.max(Utils.orElse(productionActivePower, 0), 0),
-                  Utils.orElse(storageDischargeActivePower, 0)
-                )
+                Math.max(Utils.orElse(productionActivePower, 0), 0)
               )
               )
             )

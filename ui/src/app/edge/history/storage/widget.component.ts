@@ -1,11 +1,9 @@
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ModalController } from '@ionic/angular';
-import { StorageModalComponent } from './modal/modal.component';
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: StorageComponent.SELECTOR,
@@ -19,11 +17,11 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
 
     public data: Cumulated = null;
     public edge: Edge = null;
+    public essComponents: EdgeConfig.Component[] = [];
 
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-        public modalCtrl: ModalController,
 
     ) {
         super(service);
@@ -33,7 +31,6 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
@@ -58,18 +55,16 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
         return new Promise((resolve) => {
             let channels: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'EssActiveChargeEnergy'),
-                new ChannelAddress('_sum', 'EssActiveDischargeEnergy')
+                new ChannelAddress('_sum', 'EssActiveDischargeEnergy'),
             ];
+            this.essComponents = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && component.isEnabled);
+            this.essComponents.forEach(component => {
+                channels.push(
+                    new ChannelAddress(component.id, 'ActiveChargeEnergy'),
+                    new ChannelAddress(component.id, 'ActiveDischargeEnergy'),
+                )
+            })
             resolve(channels);
         });
     }
-
-    async presentModal() {
-        const modal = await this.modalCtrl.create({
-            component: StorageModalComponent,
-            cssClass: 'wide-modal',
-        });
-        return await modal.present();
-    }
 }
-

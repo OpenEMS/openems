@@ -5,7 +5,6 @@ import { ModalComponentEvcsCluster } from './modal/evcsCluster-modal.page';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 
-
 @Component({
   selector: EvcsClusterComponent.SELECTOR,
   templateUrl: './evcsCluster.component.html'
@@ -101,6 +100,7 @@ export class EvcsClusterComponent {
   ngOnDestroy() {
     if (this.edge != null) {
       this.edge.unsubscribeChannels(this.websocket, EvcsClusterComponent.SELECTOR + this.componentId);
+      this.edge.unsubscribeChannels(this.websocket, "evcs");
     }
   }
 

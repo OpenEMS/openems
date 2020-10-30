@@ -194,7 +194,7 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 		this.logInfoInDebugmode(log, "Calculation of the maximum charge Power: EVCS Charge [" + evcsCharge
 				+ "]  +  Max. available storage power [" + maxAvailableStoragePower
 				+ "]  +  ( Configured Hardware Limit * 3 [" + this.config.hardwarePowerLimitPerPhase() * DEFAULT_PHASES
-				+ "]  -  Maxium of all three phases * 3 [" + gridPower + "]");
+				+ "]  -  Maximum of all three phases * 3 [" + gridPower + "]");
 
 		allowedChargePower = allowedChargePower > 0 ? allowedChargePower : 0;
 		return allowedChargePower;

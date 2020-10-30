@@ -41,6 +41,10 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnDe
         this.unitpipe = unitpipe;
     }
 
+    ngOnInit() {
+        this.adjustFillRefbyBrowser();
+    }
+
     toggleAnimation() {
         this.startAnimation = setInterval(() => {
             this.showAnimation = !this.showAnimation;

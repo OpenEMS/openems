@@ -30,8 +30,9 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
 
 
     ngOnInit() {
+        this.spinnerId = "consumption-other-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh()
     }
 
     ngOnDestroy() {
@@ -39,6 +40,8 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
+        this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getConfig().then(config => {
@@ -88,6 +91,7 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
                 }
                 this.datasets = datasets;
                 this.loading = false;
+                this.service.stopSpinner(this.spinnerId);
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();

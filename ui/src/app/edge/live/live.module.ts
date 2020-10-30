@@ -1,3 +1,4 @@
+import { AdministrationComponent } from './evcs/modal/administration/administration.component';
 import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmetricpeakshaving.component';
 import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
 import { AutarchyComponent } from './autarchy/autarchy.component';
@@ -9,6 +10,8 @@ import { ChpSocComponent } from './chpsoc/chpsoc.component';
 import { ChpsocModalComponent } from './chpsoc/modal/modal.component';
 import { ConsumptionComponent } from './consumption/consumption.component';
 import { ConsumptionModalComponent } from './consumption/modal/modal.component';
+import { DigitalInputComponent } from './digitalinput/digitalinput.component';
+import { DigitalInputModalComponent } from './digitalinput/modal/modal.component';
 import { EnergymonitorModule } from './energymonitor/energymonitor.module';
 import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';
 import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
@@ -46,6 +49,7 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     SharedModule,
   ],
   entryComponents: [
+    AdministrationComponent,
     AsymmetricPeakshavingModalComponent,
     AutarchyModalComponent,
     ChpsocModalComponent,
@@ -61,8 +65,11 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     SinglethresholdModalComponent,
     StorageModalComponent,
     SymmetricPeakshavingModalComponent,
+    DigitalInputComponent,
+    DigitalInputModalComponent,
   ],
   declarations: [
+    AdministrationComponent,
     AsymmetricPeakshavingComponent,
     AsymmetricPeakshavingModalComponent,
     AutarchyComponent,
@@ -98,6 +105,8 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     StorageModalComponent,
     SymmetricPeakshavingComponent,
     SymmetricPeakshavingModalComponent,
+    DigitalInputComponent,
+    DigitalInputModalComponent,
   ]
 })
 export class LiveModule { }

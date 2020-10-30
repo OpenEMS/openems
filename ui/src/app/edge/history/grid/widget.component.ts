@@ -1,11 +1,9 @@
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { GridModalComponent } from './modal/modal.component';
-import { ModalController } from '@ionic/angular';
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: GridComponent.SELECTOR,
@@ -23,16 +21,14 @@ export class GridComponent extends AbstractHistoryWidget implements OnInit, OnCh
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-        public modalCtrl: ModalController,
     ) {
         super(service);
     }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(response => {
-            this.edge = response;
+        this.service.setCurrentComponent('', this.route).then(edge => {
+            this.edge = edge;
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
@@ -61,13 +57,5 @@ export class GridComponent extends AbstractHistoryWidget implements OnInit, OnCh
             ];
             resolve(channels);
         });
-    }
-
-    async presentModal() {
-        const modal = await this.modalCtrl.create({
-            component: GridModalComponent,
-            cssClass: 'wide-modal'
-        });
-        return await modal.present();
     }
 }

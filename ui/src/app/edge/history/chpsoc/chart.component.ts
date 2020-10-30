@@ -30,8 +30,9 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
 
 
     ngOnInit() {
+        this.spinnerId = "chpsoc-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh()
     }
 
     ngOnDestroy() {
@@ -39,6 +40,8 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
+        this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
@@ -123,6 +126,7 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                     }
                     this.datasets = datasets;
                     this.loading = false;
+                    this.service.stopSpinner(this.spinnerId);
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();

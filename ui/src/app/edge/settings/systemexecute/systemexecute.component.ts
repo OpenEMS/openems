@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { Service, Utils, Websocket } from '../../../shared/shared';
+import { Component, OnInit } from '@angular/core';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { ExecuteSystemCommandRequest } from 'src/app/shared/jsonrpc/request/executeCommandRequest';
 import { ExecuteSystemCommandResponse } from 'src/app/shared/jsonrpc/response/executeSystemCommandResponse';
+import { Service, Utils, Websocket } from '../../../shared/shared';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: SystemExecuteComponent.SELECTOR,

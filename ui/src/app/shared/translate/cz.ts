@@ -11,6 +11,7 @@ export const TRANSLATION = {
         changeFailed: 'Změna se nezdařila',
         chargeDischarge: 'Debetní/vybíjení',
         chargePower: 'Nabíjecí výkon',
+        componentCount: 'Počet komponentů',
         componentInactive: 'Komponenta je neaktivní!',
         connectionLost: 'Spojení ztraceno. Pokouší se znovu připojit.',
         consumption: 'Spotřeba',
@@ -18,6 +19,8 @@ export const TRANSLATION = {
         currentName: 'Aktuální Jméno',
         currentValue: 'Aktuální hodnota',
         dateFormat: 'dd.MM.yyyy', // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
+        digitalInputs: 'Digitální vstupy',
+        directConsumption: 'Přímá spotřeba',
         dischargePower: 'Vybíjecí výkon',
         fault: 'Chyba',
         grid: 'Síť',
@@ -84,12 +87,12 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'About OpenEMS UI',
-        edgeSettings: 'FEMS Předvolby',
+        edgeSettings: 'OpenEMS Edge Předvolby',
         generalSettings: 'Obecné Nastavení',
         index: 'Přehled',
         logout: 'Odhlásit',
         menu: 'Menu',
-        overview: 'FEMS Přehled',
+        overview: 'OpenEMS Edge Přehled',
     },
     Index: {
         allConnected: 'Všechna připojení aktivní.',
@@ -184,7 +187,13 @@ export const TRANSLATION = {
                     status: 'Postavení',
                     totalCharge: 'Celkový poplatek',
                     totalChargingPower: 'Celkový nabíjecí výkon',
+                    unknown: 'Neznámý',
                     unplugged: 'Odpojena',
+                    Administration: {
+                        carAdministration: 'Správa aut',
+                        customCarInfo: 'V takovém případě lze vaše vozidlo načíst efektivně pouze z určitého výkonu. Toto tlačítko je součástí vašich možností konfigurace a také automatického načítání.',
+                        renaultZoe: 'Je na této nabíjecí stanici naložen hlavně Renault Zoe?'
+                    },
                     NoConnection: {
                         description: 'Nelze jej připojit k nabíjecí stanici.',
                         help1_1: 'Při opětovném zapnutí se objeví IP nabíjecí stanice',

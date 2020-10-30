@@ -18,6 +18,7 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.channel.Doc;
@@ -94,6 +95,17 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 		 * See Modbus definition PDF-file in doc directory and
 		 * https://www.galoz.co.il/wp-content/uploads/2014/11/EM341-Modbus.pdf
 		 */
+
+		final SymmetricMeter.ChannelId energyChannelId300053;
+		final SymmetricMeter.ChannelId energyChannelId300079;
+		if (this.config.invert()) {
+			energyChannelId300053 = SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
+			energyChannelId300079 = SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
+		} else {
+			energyChannelId300053 = SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
+			energyChannelId300079 = SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
+		}
+
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(300001 - offset, Priority.LOW, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1,
@@ -163,7 +175,18 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER,
 								new SignedDoublewordElement(300045 - offset).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter
-										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert()))));
+										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert()))),
+
+				new FC4ReadInputRegistersTask(300052 - offset, Priority.LOW, //
+						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(300052 - offset),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(energyChannelId300053,
+								new SignedDoublewordElement(300053 - offset).wordOrder(WordOrder.LSWMSW),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						new DummyRegisterElement(300055 - offset, 300078 - offset), //
+						m(energyChannelId300079,
+								new SignedDoublewordElement(300079 - offset).wordOrder(WordOrder.LSWMSW),
+								ElementToChannelConverter.SCALE_FACTOR_2)));
 	}
 
 	@Override
