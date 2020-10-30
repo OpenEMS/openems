@@ -181,7 +181,6 @@ public abstract class BaseState implements GridconStateObject {
 	}
 
 	protected void setHardRestartRelay(boolean val) {
-		System.out.println("Currently do not do this to avoid damage of SD card");
 		try {
 			ChannelAddress address = ChannelAddress.fromString(this.hardRestartRelayAdress);
 			BooleanWriteChannel outputHardResetChannel = this.manager.getChannel(address);

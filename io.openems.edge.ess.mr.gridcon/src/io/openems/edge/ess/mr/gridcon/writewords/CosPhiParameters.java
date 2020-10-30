@@ -8,8 +8,8 @@ public class CosPhiParameters {
 
 	}
 
-	private float cosPhiSetPoint1 = 0f;
-	private float cosPhiSetPoint2 = 0f;
+	private float cosPhiSetPoint1 = 1f;
+	private float cosPhiSetPoint2 = 1f;
 
 	public float getCosPhiSetPoint1() {
 		return cosPhiSetPoint1;

@@ -26,9 +26,9 @@ public class Error extends BaseState {
 	//
 
 	private static final long WAITING_TIME_ERRORS = 20;
-	private static final long WAITING_TIME_HARD_RESTART = 45;
+	private static final long WAITING_TIME_HARD_RESTART = 70;
 	private static final float MAX_ALLOWED_DELTA_LINK_VOLTAGE = 20;
-	private static final long COMMUNICATION_TIMEOUT = 60;
+	private static final long COMMUNICATION_TIMEOUT = 70; //After 70 seconds gridcon should be ready
 	private final Logger log = LoggerFactory.getLogger(Error.class);
 
 	private boolean enableIpu1;
@@ -89,10 +89,8 @@ public class Error extends BaseState {
 			try {
 				getGridconPcs().doWriteTasks();
 			} catch (OpenemsNamedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-//			return;
 		}
 		
 		if (getGridconPcs().isCommunicationBroken() && errorHandlingState == null) {
