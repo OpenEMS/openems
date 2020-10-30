@@ -16,7 +16,6 @@ export class AppComponent {
   public backUrl: string | boolean = '/';
   public enableSideMenu: boolean;
   public currentPage: 'EdgeSettings' | 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
-  public isSystemLogEnabled: boolean = false;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(

@@ -45,6 +45,7 @@ export class Service implements ErrorHandler {
   public isSmartphoneResolution: boolean = false;
   public isSmartphoneResolutionSubject: Subject<boolean> = new Subject<boolean>();
 
+
   /**
    * Holds the currenty selected Page Title.
    */
@@ -73,6 +74,8 @@ export class Service implements ErrorHandler {
   private auth: string;
 
   loader: any;
+
+  public isSystemLogEnabled: boolean = false;
 
   constructor(
     private router: Router,
@@ -509,6 +512,14 @@ export class Service implements ErrorHandler {
 
         })
     });
+  }
+
+  public isLogEnabled(): boolean {
+    return this.isSystemLogEnabled;
+  }
+
+  public toggleLog() {
+    this.isSystemLogEnabled = !this.isSystemLogEnabled;
   }
 
 }

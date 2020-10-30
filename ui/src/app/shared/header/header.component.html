@@ -53,7 +53,7 @@
             </ng-container>
           </ng-container>
           <ng-container *ngIf="env.debugMode && edge.roleIsAtLeast('owner')">
-            <ion-button (click)="isSystemLogEnabled = !isSystemLogEnabled">
+            <ion-button (click)="service.toggleLog()">
               <ion-icon name="bug-outline"></ion-icon>
             </ion-button>
           </ng-container>
