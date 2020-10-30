@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
@@ -67,17 +68,18 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		);
 	}
 
+	@Activate
 	public void activate(ComponentContext context, String id, String alias, boolean enabled, String gridconId,
 			String bmsA, String bmsB, String bmsC, float offsetCurrent) throws OpenemsNamedException {
 
 		super.activate(context, id, alias, enabled);
-
+		
 		this.gridconId = gridconId;
 		this.bmsAId = bmsA;
 		this.bmsBId = bmsB;
 		this.bmsCId = bmsC;
 		this.offsetCurrent = offsetCurrent;
-
+		
 		initializeStateController(gridconId, bmsA, bmsB, bmsC);
 		mainStateObject = getFirstGeneralStateObjectUndefined();
 		gridconStateObject = getFirstGridconStateObjectUndefined();
@@ -101,6 +103,12 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		if (!isEnabled()) {
 			return;
 		}
+		
+		if (getGridconPcs() == null) {
+			log.error("Gridcon Component with ID [" + this.gridconId + "] is not found!");
+			return;
+		}
+		
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			calculateActiveAndReactivePower();
@@ -208,9 +216,7 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsException {
-		if (!getGridconPcs().isRunning()) {
-			log.warn("CCU State not running!!");
-
+		if (getGridconPcs() == null || !getGridconPcs().isRunning()) {
 			return new Constraint[] {
 					createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
 					createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
