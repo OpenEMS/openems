@@ -6,10 +6,12 @@
 
         <!-- Waiting for authentication -->
         <ion-card *ngIf="websocket.status == 'waiting for authentication'">
-          <ion-item color="primary" lines="full">
-            <ion-icon slot="start" name="contact-outline"></ion-icon>
-            <ion-label>Login</ion-label>
-          </ion-item>
+          <ion-card-header color="primary">
+            <ion-card-title>
+              <ion-icon class="ion-padding-end" name="person-outline">
+              </ion-icon>Login
+            </ion-card-title>
+          </ion-card-header>
 
           <!-- Regular Login -->
           <ion-card-content *ngIf="env.backend === 'OpenEMS Edge'">
@@ -33,23 +35,22 @@
 
           <!-- Backend Login -->
           <ion-card-content *ngIf="env.backend === 'OpenEMS Backend'">
-            <form (ngSubmit)="doLogin({ username: username.value, password: password.value})">
-              <div class="ion-padding">
-                <ion-item>
-                  <ion-label position="floating">E-Mail/Benutzername</ion-label>
-                  <ion-input #username required type="input" placeholder="username"></ion-input>
-                </ion-item>
-                <ion-item>
-                  <ion-label position="floating">Passwort</ion-label>
-                  <ion-input #password required type="password" placeholder="Passwort"></ion-input>
-                </ion-item>
-                <ion-button class="ion-float-right" type="submit">
-                  <ion-icon slot="icon-only" name="log-in-outline"></ion-icon>
-                </ion-button>
-                <!-- <ion-button class="ion-float-right">
-                <ion-label>Passwort zurücksetzen</ion-label>
-              </ion-button> -->
-              </div>
+            <form (keydown.enter)="doLogin({ username: username.value, password: password.value})"
+              (ngSubmit)="doLogin({ username: username.value, password: password.value})">
+              <ion-item>
+                <ion-label position="floating">E-Mail</ion-label>
+                <ion-input #username required type="input"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="floating">Passwort</ion-label>
+                <ion-input #password required type="password"></ion-input>
+              </ion-item>
+              <hr>
+              <ion-button expand="block" type="submit">
+                Login
+                <ion-icon name="log-in-outline"></ion-icon>
+              </ion-button>
+              <ion-label color="primary">Passwort zurücksetzen</ion-label>
             </form>
           </ion-card-content>
 
