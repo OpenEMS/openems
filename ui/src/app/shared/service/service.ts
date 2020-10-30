@@ -111,6 +111,7 @@ export class Service implements ErrorHandler {
       case "es": return LanguageTag.ES;
       case "nl": return LanguageTag.NL;
       case "cz": return LanguageTag.CZ;
+      case "fr": return LanguageTag.FR;
       default: return LanguageTag.DE;
     }
   }
