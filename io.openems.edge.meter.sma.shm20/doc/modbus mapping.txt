@@ -1,26 +1,38 @@
-OpenEMS Symmetric Meter Properties and Mapping to SMA Modbus Registers:
+OpenEMS Meter Properties and Mapping to SMA Modbus Registers:
 
-OpenEMS Channel ID		SMA Modbus Channel Name		Modbus specific parameters			Conversion
+OpenEMS Channel ID		SMA Modbus Channel Name		Modbus source or formula			Conversion
 -------------------------	---------------------------	--------------------------------------------	---------------------
 ACTIVE_CONSUMPTION_ENERGY	Metering.GridMs.TotWhIn		(Modbus 30581, u32, FIX0, metered in 'Wh')
 ACTIVE_PRODUCTION_ENERGY	Metering.GridMs.TotWhOut	(Modbus 30583, u32, FIX0, metered in 'Wh')
 
-ACTIVE_POWER			SUBSTRACTION
-				Metering.GridMs.TotWOut -	(Modbus 30867, s32, FIX0, metered in 'W')
-				Metering.GridMs.TotWIn		(Modbus 30865, s32, FIX0, metered in 'W')
+ACTIVE_CONSUMPTION_POWER	Metering.GridMs.TotWIn		(Modbus 30865, s32, FIX0, metered in 'W')
+ACTIVE_PRODUCTION_POWER 	Metering.GridMs.TotWOut 	(Modbus 30867, s32, FIX0, metered in 'W')
 
-VOLTAGE				AVERAGE										MULTIPLY BY 1000 to convert to Millivolt internally
-				[ Metering.GridMs.PhV.phsA +	(Modbus 31253, u32, FIX2, metered in 'V')
-				  Metering.GridMs.PhV.phsB +	(Modbus 31255, u32, FIX2, metered in 'V')
-				  Metering.GridMs.PhV.phsC ]	(Modbus 31257, u32, FIX2, metered in 'V')
-				DIVIDED BY 3
+ACTIVE_POWER			FORMULA				ACTIVE_CONSUMPTION_POWER - ACTIVE_PRODUDCTION_POWER
+VOLTAGE				FORMULA				AVERAGE(VOLTAGE-L1/L2/L3)
+
+VOLTAGE_L1			Metering.GridMs.PhV.phsA	(Modbus 31253, u32, FIX2, metered in 'V')	MULTIPLY BY 1000 to convert to Millivolt internally
+VOLTAGE_L2 			Metering.GridMs.PhV.phsB	(Modbus 31255, u32, FIX2, metered in 'V')	MULTIPLY BY 1000 to convert to Millivolt internally
+VOLTAGE_L3			Metering.GridMs.PhV.phsC	(Modbus 31257, u32, FIX2, metered in 'V')	MULTIPLY BY 1000 to convert to Millivolt internally
+
+ACTICE_PRODUCTION_POWER_L1	Metering.GridMs.W.phsA		(Modbus 31259, u32, FIX0, metered in 'W')
+ACTICE_PRODUCTION_POWER_L2	Metering.GridMs.W.phsB		(Modbus 31261, u32, FIX0, metered in 'W')
+ACTICE_PRODUCTION_POWER_L3	Metering.GridMs.W.phsC		(Modbus 31263, u32, FIX0, metered in 'W')
+
+ACTICE_CONSUMPTION_POWER_L1	Metering.GridMs.WIn.phsA	(Modbus 31265, u32, FIX0, metered in 'W')
+ACTICE_CONSUMPTION_POWER_L2	Metering.GridMs.WIn.phsB	(Modbus 31267, u32, FIX0, metered in 'W')
+ACTICE_CONSUMPTION_POWER_L3	Metering.GridMs.WIn.phsC	(Modbus 31269, u32, FIX0, metered in 'W')
+
+REACTIVE_POWER_L1		Metering.GridMs.VAr.phsA	(Modbus 31271, s32, FIX0, metered in 'VAr')
+REACTIVE_POWER_L2		Metering.GridMs.VAr.phsB	(Modbus 31273, s32, FIX0, metered in 'VAr')
+REACTIVE_POWER_L3		Metering.GridMs.VAr.phsC	(Modbus 31275, s32, FIX0, metered in 'VAr')
 
 REACTIVE_POWER			Metering.GridMs.TotVAr 		(Modbus 31277, s32, FIX0, metered in 'VAr')
 
-CURRENT				SUM										MULTIPLY BY 1000 to convert to Milliampere internally
-				Metering.GridMs.A.phsA +	(Modbus 31435, s32, FIX3, metered in 'A')
-				Metering.GridMs.A.phsB +	(Modbus 31437, s32, FIX3, metered in 'A')
-				Metering.GridMs.A.phsC		(Modbus 31439, s32, FIX3, metered in 'A')
+CURRENT				FORMULA				SUM(CURRENT-L1/L2/L3)
+CURRENT_L1			Metering.GridMs.A.phsA		(Modbus 31435, s32, FIX3, metered in 'A')	MULTIPLY BY 1000 to convert to Milliampere internally
+CURRENT_L2			Metering.GridMs.A.phsB 		(Modbus 31437, s32, FIX3, metered in 'A')	MULTIPLY BY 1000 to convert to Milliampere internally
+CURRENT_L3			Metering.GridMs.A.phsC		(Modbus 31439, s32, FIX3, metered in 'A')	MULTIPLY BY 1000 to convert to Milliampere internally
 
 FREQUENCY			Metering.GridMs.Hz 		(Modbus 31447, u32, FIX2, metered in 'Hz')	MULTIPLY BY 1000 to convert to Millihertz internally
 

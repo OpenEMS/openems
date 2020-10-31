@@ -7,10 +7,22 @@ import io.openems.edge.common.channel.Doc;
 public interface MeterSmaShm20 {
 	
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		REACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.KILOWATT_HOURS)), //
-		REACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.KILOWATT_HOURS)), //
+		ACTIVE_PRODUCTION_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		ACTIVE_CONSUMPTION_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		ACTIVE_CONSUMPTION_POWER_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		ACTIVE_CONSUMPTION_POWER_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		ACTIVE_CONSUMPTION_POWER_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		ACTIVE_PRODUCTION_POWER_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		ACTIVE_PRODUCTION_POWER_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		ACTIVE_PRODUCTION_POWER_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //		
 		;
 
 		private final Doc doc;
