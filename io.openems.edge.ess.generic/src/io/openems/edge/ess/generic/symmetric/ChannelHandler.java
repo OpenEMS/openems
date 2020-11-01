@@ -62,7 +62,7 @@ public class ChannelHandler {
 
 			if (voltage.isDefined() && dischargeMaxCurrent.isDefined() && chargeMaxCurrent.isDefined()) {
 				// efficiency factor is not considered in chargeMaxCurrent (DC Power > AC Power)
-				this.parent._setAllowedChargePower( //
+				this.parent._setAllowedChargePower(//
 						(int) (chargeMaxCurrent.get() * voltage.get() * -1));
 				this.parent._setAllowedDischargePower(//
 						(int) (dischargeMaxCurrent.get() * voltage.get() * efficiencyFactor));
@@ -71,7 +71,7 @@ public class ChannelHandler {
 				this.parent._setAllowedDischargePower(0);
 			}
 		};
-		
+
 		this.addListener(battery, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, allowedChargeDischargeCallback);
 		this.addListener(battery, Battery.ChannelId.DISCHARGE_MAX_CURRENT, allowedChargeDischargeCallback);
 		this.addListener(battery, Battery.ChannelId.CHARGE_MAX_VOLTAGE, allowedChargeDischargeCallback);
@@ -87,10 +87,10 @@ public class ChannelHandler {
 		 * Battery-Inverter
 		 */
 		this.<Long>addCopyListener(batteryInverter, //
-				SymmetricBatteryInverter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY, //
 				SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
 		this.<Long>addCopyListener(batteryInverter, //
-				SymmetricBatteryInverter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
 				SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 		this.<Long>addCopyListener(batteryInverter, //
 				SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, //

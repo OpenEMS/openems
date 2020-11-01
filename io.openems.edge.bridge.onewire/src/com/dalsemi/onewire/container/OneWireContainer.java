@@ -350,12 +350,12 @@ public class OneWireContainer {
 	 *
 	 * @param newSpeed
 	 *                 <ul>
-	 *                 <li>0 (SPEED_REGULAR) set to normal communciation speed
-	 *                 <li>1 (SPEED_FLEX) set to flexible communciation speed used
+	 *                 <li>0 (SPEED_REGULAR) set to normal communication speed
+	 *                 <li>1 (SPEED_FLEX) set to flexible communication speed used
 	 *                 for long lines
-	 *                 <li>2 (SPEED_OVERDRIVE) set to normal communciation speed to
+	 *                 <li>2 (SPEED_OVERDRIVE) set to normal communication speed to
 	 *                 overdrive
-	 *                 <li>3 (SPEED_HYPERDRIVE) set to normal communciation speed to
+	 *                 <li>3 (SPEED_HYPERDRIVE) set to normal communication speed to
 	 *                 hyperdrive
 	 *                 <li>>3 future speeds
 	 *                 </ul>
@@ -461,7 +461,7 @@ public class OneWireContainer {
 	/**
 	 * Go to the specified speed for this container. This method uses the containers
 	 * selected speed (method setSpeed(speed, fallback)) and will optionally fall
-	 * back to a slower speed if communciation failed. Only call this method once to
+	 * back to a slower speed if communication failed. Only call this method once to
 	 * get the device into the desired speed as long as the device is still
 	 * responding.
 	 *

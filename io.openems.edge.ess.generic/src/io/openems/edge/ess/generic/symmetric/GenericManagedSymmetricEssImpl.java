@@ -138,7 +138,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 
 		// Initialize 'Start-Stop' Channel
 		this._setStartStop(StartStop.UNDEFINED);
-		
+
 		// Prepare Context
 		Context context = new Context(this, this.battery, this.batteryInverter, this.config);
 
@@ -209,9 +209,9 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 
 		// If the GenericEss is not in State "STARTED" block ACTIVE and REACTIVE Power!
 		if (!this.isStarted()) {
-			result.add(this.createPowerConstraint("ActivePower Contraint ESS not Started", Phase.ALL, Pwr.ACTIVE,
+			result.add(this.createPowerConstraint("ActivePower Constraint ESS not Started", Phase.ALL, Pwr.ACTIVE,
 					Relationship.EQUALS, 0));
-			result.add(this.createPowerConstraint("ReactivePower Contraint ESS not Started", Phase.ALL, Pwr.REACTIVE,
+			result.add(this.createPowerConstraint("ReactivePower Constraint ESS not Started", Phase.ALL, Pwr.REACTIVE,
 					Relationship.EQUALS, 0));
 		}
 		return result.toArray(new Constraint[result.size()]);

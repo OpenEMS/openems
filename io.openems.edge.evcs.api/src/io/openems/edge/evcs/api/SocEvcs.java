@@ -30,7 +30,7 @@ public interface SocEvcs extends Evcs {
 				.unit(Unit.PERCENT) //
 				.accessMode(AccessMode.READ_ONLY));
 
-		// TODO: If there are EVCSs with more informations maybe a Channel
+		// TODO: If there are EVCSs with more information maybe a Channel
 		// TIME_TILL_CHARGING_FINISHED is possible
 
 		private final Doc doc;

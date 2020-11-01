@@ -31,7 +31,6 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
         this.spinnerId = "storage-total-chart";
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh();
     }
 
     ngOnDestroy() {
@@ -39,6 +38,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.service.startSpinner(this.spinnerId);
         this.colors = [];
         this.loading = true;

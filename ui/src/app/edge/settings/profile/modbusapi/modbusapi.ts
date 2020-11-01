@@ -1,8 +1,8 @@
-import * as FileSaver from 'file-saver';
-import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
-import { Service } from 'src/app/shared/shared';
+import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { GetModbusProtocolExportXlsxRequest } from './getModbusProtocolExportXlsxRequest';
+import { Service } from 'src/app/shared/shared';
+import * as FileSaver from 'file-saver';
 
 export class ModbusApiUtil {
 

@@ -68,5 +68,31 @@ testpath: \
 	slf4j.simple,\
     \${junit}
 
+# OpenEMS Eclipse IDE Workingsets
+-workingset =  \
+	Backend;member=${filter;${p};io.openems.backend.*},\
+	Common;member=${filter;${p};io.openems.common|io.openems.shared.influxdb|io.openems.wrapper|io.openems.edge.simulator},\
+	Edge_Common_Inverter;member=${filter;${p};io.openems.edge.core|io.openems.edge.application|io.openems.edge.common},\
+	Edge_Battery_Inverter;member=${filter;${p};io.openems.edge.batteryinverter.*},\
+	Edge_Bridge;member=${filter;${p};io.openems.edge.bridge.*},\
+	Edge_Battery;member=${filter;${p};io.openems.edge.battery.*},\
+	Edge_Controller_Api;member=${filter;${p};io.openems.edge.controller.api.*},\
+	Edge_Controller_Debug;member=${filter;${p};io.openems.edge.controller.debug.*},\
+	Edge_Controller_Ess;member=${filter;${p};io.openems.edge.controller.asymmetric.*|io.openems.edge.controller.symmetric.*|io.openems.edge.controller.ess.*},\
+	Edge_Controller_Evcs;member=${filter;${p};io.openems.edge.controller.evcs.*},\
+	Edge_Controller_Generic;member=${filter;${p};io.openems.edge.controller.generic.*},\
+	Edge_Controller_IO;member=${filter;${p};io.openems.edge.controller.io.*},\
+	Edge_Controller_PVinverter;member=${filter;${p};io.openems.edge.controller.pvinverter.*},\
+	Edge_Ess;member=${filter;${p};io.openems.edge.ess.*},\
+	Edge_Evcs;member=${filter;${p};io.openems.edge.evcs.*|io.openems.wrapper.eu.chargetime.ocpp},\
+	Edge_Multiple;member=${filter;${p};io.openems.edge.fenecon.*|io.openems.edge.goodwe.et|io.openems.edge.kostal.piko|io.openems.edge.tesla.*|io.openems.edge.solaredge},\
+	Edge_IO;member=${filter;${p};io.openems.edge.io.*|io.openems.edge.controller.channelthreshold|io.openems.edge.controller.chp.*|io.openems.edge.controller.highloadtimeslot},\
+	Edge_Meter;member=${filter;${p};io.openems.edge.meter.*},\
+	Edge_Predictor;member=${filter;${p};io.openems.edge.predictor.*},\
+	Edge_PVinverter;member=${filter;${p};io.openems.edge.pvinverter.*},\
+	Edge_Scheduler;member=${filter;${p};io.openems.edge.scheduler.*},\
+	Edge_Thermometer;member=${filter;${p};io.openems.edge.onewire.thermometer|io.openems.edge.thermometer.*},\
+	Edge_Timedata;member=${filter;${p};io.openems.edge.timedata.*},\
+
 javac.source: 1.8
 javac.target: 1.8
