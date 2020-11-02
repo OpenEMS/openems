@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -48,9 +49,11 @@ public class Ess1Streetscooter extends AbstractEssStreetscooter
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, Config1 config1) {
-		super.activate(context, config1.id(), config1.alias(), config1.enabled(), config1.readonly(), UNIT_ID, this.cm,
-				"Modbus", config1.modbus_id());
+	protected void activate(ComponentContext context, Config1 config1) throws OpenemsException {
+		if (super.activate(context, config1.id(), config1.alias(), config1.enabled(), config1.readonly(), UNIT_ID,
+				this.cm, "Modbus", config1.modbus_id())) {
+			return;
+		}
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

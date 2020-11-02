@@ -64,8 +64,8 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		this.powerHandler = new PowerHandler(this);
 	}
 
-	protected void activate(ComponentContext context, String id, String alias, boolean enabled, boolean readonly,
-			int unitId, ConfigurationAdmin cm, String modbusReference, String modbusId) {
+	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, boolean readonly,
+			int unitId, ConfigurationAdmin cm, String modbusReference, String modbusId) throws OpenemsException {
 		this.readonly = readonly;
 
 		if (readonly) {
@@ -73,7 +73,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 			this._setMaxApparentPower(0);
 		}
 
-		super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId);
+		return super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId);
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		int batteryInfoStartAddress = BATTERY_INFO_START_ADDRESS + getAddressOffsetForBattery();
 		int inverterInfoStartAddress = INVERTER_INFO_START_ADDRESS + getAddressOffsetForInverter();
 

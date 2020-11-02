@@ -11,4 +11,5 @@ Bundle-License: Proprietary (for now)
 	io.openems.edge.meter.api
 
 -testpath: \
-	${testpath}
+	${testpath},\
+	com.ghgande.j2mod

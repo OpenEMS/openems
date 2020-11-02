@@ -76,8 +76,10 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
 		this.phase = config.phase();
 		SinglePhaseEss.initializeCopyPhaseChannel(this, this.phase);
 	}
@@ -106,7 +108,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		ModbusProtocol protocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(30051, Priority.ONCE, //
 						m(SiChannelId.DEVICE_CLASS, new UnsignedDoublewordElement(30051)), //

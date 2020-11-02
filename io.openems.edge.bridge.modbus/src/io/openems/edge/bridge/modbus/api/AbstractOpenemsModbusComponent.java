@@ -103,9 +103,10 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 *                        'config.modbus_id()'
 	 * @return true if the target filter was updated. You may use it to abort the
 	 *         activate() method.
+	 * @throws OpenemsException on error
 	 */
 	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
-			ConfigurationAdmin cm, String modbusReference, String modbusId) {
+			ConfigurationAdmin cm, String modbusReference, String modbusId) throws OpenemsException {
 		super.activate(context, id, alias, enabled);
 		// update filter for 'Modbus'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Modbus", modbusId)) {
@@ -160,7 +161,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		}
 	}
 
-	private ModbusProtocol getModbusProtocol(int unitId) {
+	private ModbusProtocol getModbusProtocol(int unitId) throws OpenemsException {
 		ModbusProtocol protocol = this.protocol;
 		if (protocol != null) {
 			return protocol;
@@ -173,8 +174,9 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * Defines the Modbus protocol.
 	 * 
 	 * @return the ModbusProtocol
+	 * @throws OpenemsException on error
 	 */
-	protected abstract ModbusProtocol defineModbusProtocol();
+	protected abstract ModbusProtocol defineModbusProtocol() throws OpenemsException;
 
 	/**
 	 * Maps an Element to one or more ModbusChannels using converters, that convert
