@@ -217,26 +217,27 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 								.bit(8, PowerAmpATL.ChannelId.FAULT_POSITION_BCU_9) //
 								.bit(9, PowerAmpATL.ChannelId.FAULT_POSITION_BCU_10))//
 				), //
+
 				new FC3ReadRegistersTask(506, Priority.HIGH, //
 						m(new UnsignedWordElement(506)) //
 								.m(PowerAmpATL.ChannelId.BATTERY_RACK_VOLTAGE,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [mV]
-								.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) // [V]
+								.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]
 								.build(), //
 						m(new UnsignedWordElement(507)) //
 								.m(PowerAmpATL.ChannelId.BATTERY_RACK_CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [mV]
-								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.DIRECT_1_TO_1) // [V]
+								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]
 								.build(),
 						m(new UnsignedWordElement(508))//
 								.m(PowerAmpATL.ChannelId.BATTERY_RACK_SOC,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [%]
-								.m(Battery.ChannelId.SOC, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.m(Battery.ChannelId.SOC, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [%]
 								.build(), //
 						m(new UnsignedWordElement(509)) //
 								.m(PowerAmpATL.ChannelId.BATTERY_RACK_SOH,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [%]
-								.m(Battery.ChannelId.SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.m(Battery.ChannelId.SOH, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [%]
 								.build(), //
 						m(PowerAmpATL.ChannelId.CELL_VOLTAGE_MIN, new UnsignedWordElement(510)),
 						m(PowerAmpATL.ChannelId.ID_OF_CELL_VOLTAGE_MIN, new UnsignedWordElement(511)), //
@@ -250,12 +251,12 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 						m(new UnsignedWordElement(518)) //
 								.m(PowerAmpATL.ChannelId.MAX_CHARGE_CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-								.m(Battery.ChannelId.CHARGE_MAX_CURRENT, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.m(Battery.ChannelId.CHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [%]
 								.build(), //
 						m(new UnsignedWordElement(518)) //
 								.m(PowerAmpATL.ChannelId.MAX_DISCHARGE_CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1)
-								.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [%]
 								.build(), //
 						m(PowerAmpATL.ChannelId.MAX_DC_CHARGE_CURRENT_LIMIT_PER_BCU, new UnsignedWordElement(520), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
