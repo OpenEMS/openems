@@ -13,4 +13,4 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -testpath: \
 	${testpath},\
-	com.ghgande.j2mod;version=2.5.5
+	com.ghgande.j2mod
