@@ -110,10 +110,12 @@ public class MoveTowardsTarget {
 			for (Entry<Inverter, Double> entry : nextWeights.entrySet()) {
 				if (entry.getValue() == 0) { // might fail... compare double to zero
 					Inverter inv = entry.getKey();
-					Constraint c = ConstraintUtil.createSimpleConstraint(coefficients, //
-							inv.toString() + ": next weight = 0", //
-							inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, 0);
-					constraints.add(c);
+					constraints.add(ConstraintUtil.createSimpleConstraint(coefficients, //
+							inv.toString() + ": ActivePower next weight = 0", //
+							inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, 0));
+					constraints.add(ConstraintUtil.createSimpleConstraint(coefficients, //
+							inv.toString() + ": ReactivePower next weight = 0", //
+							inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, Relationship.EQUALS, 0));
 					inverters.remove(inv);
 				}
 			}
@@ -127,14 +129,20 @@ public class MoveTowardsTarget {
 			Inverter invA = inverters.get(0);
 			for (int j = 1; j < inverters.size(); j++) {
 				Inverter invB = inverters.get(j);
-				Constraint c = new Constraint(invA.toString() + "|" + invB.toString() + ": Weight",
+				constraints.add(new Constraint(invA.toString() + "|" + invB.toString() + ": ActivePower Weight",
 						new LinearCoefficient[] {
 								new LinearCoefficient(coefficients.of(invA.getEssId(), invA.getPhase(), Pwr.ACTIVE),
 										nextWeights.get(invB)),
 								new LinearCoefficient(coefficients.of(invB.getEssId(), invB.getPhase(), Pwr.ACTIVE),
 										nextWeights.get(invA) * -1) },
-						Relationship.EQUALS, 0);
-				constraints.add(c);
+						Relationship.EQUALS, 0));
+				constraints.add(new Constraint(invA.toString() + "|" + invB.toString() + ": ReactivePower Weight",
+						new LinearCoefficient[] {
+								new LinearCoefficient(coefficients.of(invA.getEssId(), invA.getPhase(), Pwr.REACTIVE),
+										nextWeights.get(invB)),
+								new LinearCoefficient(coefficients.of(invB.getEssId(), invB.getPhase(), Pwr.REACTIVE),
+										nextWeights.get(invA) * -1) },
+						Relationship.EQUALS, 0));
 			}
 
 			try {
