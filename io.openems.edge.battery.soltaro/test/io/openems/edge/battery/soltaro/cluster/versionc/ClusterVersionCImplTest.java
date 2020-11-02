@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import io.openems.edge.battery.soltaro.ModuleType;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 
@@ -21,6 +22,7 @@ public class ClusterVersionCImplTest {
 						.setId(BATTERY_ID) //
 						.setModbusId(MODBUS_ID) //
 						.setModuleType(ModuleType.MODULE_3_5_KWH) //
+						.setStartStop(StartStopConfig.AUTO) //
 						.setNumberOfSlaves(0) //
 						.setRack1Used(false) //
 						.setRack2Used(false) //
