@@ -219,38 +219,61 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 				), //
 				new FC3ReadRegistersTask(506, Priority.HIGH, //
 						m(new UnsignedWordElement(506)) //
-								.m(PowerAmpATL.ChannelId.BATTERY_RACK_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_1) // [mV]
-								.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]
+								.m(PowerAmpATL.ChannelId.BATTERY_RACK_VOLTAGE,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [mV]
+								.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) // [V]
 								.build(), //
 						m(new UnsignedWordElement(507)) //
-								.m(PowerAmpATL.ChannelId.BATTERY_RACK_CURRENT, ElementToChannelConverter.SCALE_FACTOR_1) // [mV]
-								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]
+								.m(PowerAmpATL.ChannelId.BATTERY_RACK_CURRENT,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [mV]
+								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.DIRECT_1_TO_1) // [V]
 								.build(),
 						m(new UnsignedWordElement(508))//
-								.m(PowerAmpATL.ChannelId.BATTERY_RACK_SOC, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.m(PowerAmpATL.ChannelId.BATTERY_RACK_SOC,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [%]
 								.m(Battery.ChannelId.SOC, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
 								.build(), //
 						m(new UnsignedWordElement(509)) //
-								.m(PowerAmpATL.ChannelId.BATTERY_RACK_SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.m(PowerAmpATL.ChannelId.BATTERY_RACK_SOH,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [%]
 								.m(Battery.ChannelId.SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
 								.build(), //
-						m(PowerAmpATL.ChannelId.CELL_VOLTAGE_MIN, new UnsignedWordElement(510)), //
+						m(PowerAmpATL.ChannelId.CELL_VOLTAGE_MIN, new UnsignedWordElement(510)),
 						m(PowerAmpATL.ChannelId.ID_OF_CELL_VOLTAGE_MIN, new UnsignedWordElement(511)), //
 						m(PowerAmpATL.ChannelId.CELL_VOLTAGE_MAX, new UnsignedWordElement(512)), //
 						m(PowerAmpATL.ChannelId.ID_OF_CELL_VOLTAGE_MAX, new UnsignedWordElement(513)), //
-						m(PowerAmpATL.ChannelId.MIN_TEMPERATURE, new UnsignedWordElement(514)), //
+						m(PowerAmpATL.ChannelId.MIN_TEMPERATURE, new UnsignedWordElement(514), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(PowerAmpATL.ChannelId.ID_OF_MIN_TEMPERATURE, new UnsignedWordElement(515)), //
 						m(PowerAmpATL.ChannelId.MAX_TEMPERATURE, new UnsignedWordElement(516)), //
 						m(PowerAmpATL.ChannelId.ID_OF_MAX_TEMPERATURE, new UnsignedWordElement(517)), //
-						m(PowerAmpATL.ChannelId.BATTERY_RACK_DC_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(518)), //
-						m(PowerAmpATL.ChannelId.BATTERY_RACK_DC_DISCHARGE_CURRENT_LIMIT, new UnsignedWordElement(519)), //
-						m(PowerAmpATL.ChannelId.MAX_DC_CHARGE_CURRENT_LIMIT_PER_BCU, new UnsignedWordElement(520)), //
-						m(PowerAmpATL.ChannelId.MAX_DC_DISCHARGE_CURRENT_LIMIT_PER_BCU, new UnsignedWordElement(521)), //
+						m(new UnsignedWordElement(518)) //
+								.m(PowerAmpATL.ChannelId.MAX_CHARGE_CURRENT,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.m(Battery.ChannelId.CHARGE_MAX_CURRENT, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.build(), //
+						m(new UnsignedWordElement(518)) //
+								.m(PowerAmpATL.ChannelId.MAX_DISCHARGE_CURRENT,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1)
+								.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.build(), //
+						m(PowerAmpATL.ChannelId.MAX_DC_CHARGE_CURRENT_LIMIT_PER_BCU, new UnsignedWordElement(520), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(PowerAmpATL.ChannelId.MAX_DC_DISCHARGE_CURRENT_LIMIT_PER_BCU, new UnsignedWordElement(521), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(PowerAmpATL.ChannelId.RACK_NUMBER_OF_BATTERY_BCU, new UnsignedWordElement(522)), //
 						m(PowerAmpATL.ChannelId.RACK_NUMBER_OF_CELLS_IN_SERIES_PER_MODULE,
 								new UnsignedWordElement(523)), //
-						m(PowerAmpATL.ChannelId.RACK_MAX_CELL_VOLTAGE_LIMIT, new UnsignedWordElement(524)), //
-						m(PowerAmpATL.ChannelId.RACK_MIN_CELL_VOLTAGE_LIMIT, new UnsignedWordElement(525)), //
+						m(new UnsignedWordElement(524)) //
+								.m(PowerAmpATL.ChannelId.RACK_MAX_CELL_VOLTAGE_LIMIT,
+										ElementToChannelConverter.DIRECT_1_TO_1)
+								.m(Battery.ChannelId.MAX_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.build(), //
+						m(new UnsignedWordElement(525)) //
+								.m(PowerAmpATL.ChannelId.RACK_MAX_CELL_VOLTAGE_LIMIT,
+										ElementToChannelConverter.DIRECT_1_TO_1)
+								.m(Battery.ChannelId.MAX_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.build(), //
 						m(new BitsWordElement(526, this) //
 								.bit(0, PowerAmpATL.ChannelId.RACK_HW_AFE_COMMUNICATION_FAULT) //
 								.bit(1, PowerAmpATL.ChannelId.RACK_HW_ACTOR_DRIVER_FAULT) //
@@ -272,7 +295,7 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 								.bit(7, PowerAmpATL.ChannelId.RACK_SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE) //
 								.bit(8, PowerAmpATL.ChannelId.RACK_SYSTEM_SHORT_CIRCUIT)), //
 						m(PowerAmpATL.ChannelId.UPPER_VOLTAGE, new UnsignedWordElement(528))), //
-				new FC3ReadRegistersTask(10002, Priority.HIGH, //
+				new FC3ReadRegistersTask(10002, Priority.LOW, //
 						m(new BitsWordElement(10002, this) //
 								.bit(0, PowerAmpATL.ChannelId.BCU_STATUS_ALARM) //
 								.bit(1, PowerAmpATL.ChannelId.BCU_STATUS_WARNING) //
@@ -346,14 +369,41 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 								.bit(5, PowerAmpATL.ChannelId.BCU_SYSTEM_LOW_TEMPERATURE_PERMANENT_FAILURE) //
 								.bit(6, PowerAmpATL.ChannelId.BCU_SYSTEM_HIGH_CELL_VOLTAGE_PERMANENT_FAILURE) //
 								.bit(7, PowerAmpATL.ChannelId.BCU_SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE) //
-								.bit(8, PowerAmpATL.ChannelId.BCU_SYSTEM_SHORT_CIRCUIT)) //
+								.bit(8, PowerAmpATL.ChannelId.BCU_SYSTEM_SHORT_CIRCUIT)), //
+						m(PowerAmpATL.ChannelId.BCU_SOC, new UnsignedWordElement(10008), // [%]
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(PowerAmpATL.ChannelId.BCU_SOH, new UnsignedWordElement(10009), // [%]
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(PowerAmpATL.ChannelId.BCU_VOLTAGE, new UnsignedWordElement(10010), // [V]
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(PowerAmpATL.ChannelId.BCU_CURRENT, new UnsignedWordElement(10011), // [A]
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(PowerAmpATL.ChannelId.BCU_MIN_CELL_VOLTAGE, new UnsignedWordElement(10012)), // [mV]
+						m(PowerAmpATL.ChannelId.BCU_MAX_CELL_VOLTAGE, new UnsignedWordElement(10013)), // [mV]
+						m(PowerAmpATL.ChannelId.BCU_AVARAGE_CELL_VOLTAGE, new UnsignedWordElement(10014)), //
+						m(PowerAmpATL.ChannelId.BCU_MAX_CHARGE_CURRENT, new UnsignedWordElement(10015)), //
+						m(PowerAmpATL.ChannelId.BCU_MIN_CHARGE_CURRENT, new UnsignedWordElement(10016)), //
+						m(PowerAmpATL.ChannelId.BMS_SERIAL_NUMBER, new UnsignedWordElement(10017)), //
+						m(PowerAmpATL.ChannelId.NO_OF_CYCLES, new UnsignedWordElement(10018)), //
+						m(PowerAmpATL.ChannelId.DESIGN_CAPACITY, new UnsignedWordElement(10019), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
+						m(new UnsignedWordElement(10020)) //
+								.m(PowerAmpATL.ChannelId.USEABLE_CAPACITY,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [mV]
+								.m(Battery.ChannelId.CAPACITY, ElementToChannelConverter.DIRECT_1_TO_1) // [V]
+								.build(), //
+						m(PowerAmpATL.ChannelId.REMAINING_CAPACITY, new UnsignedWordElement(10021), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
+						m(PowerAmpATL.ChannelId.BCU_MAX_CELL_VOLTAGE_LIMIT, new UnsignedWordElement(10022)), //
+						m(PowerAmpATL.ChannelId.BCU_MIN_CELL_VOLTAGE_LIMIT, new UnsignedWordElement(10023)), //
+						m(PowerAmpATL.ChannelId.BMU_NUMBER, new UnsignedWordElement(10024)) //
 				));//
 		return protocol;
 	}
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc() ;
+		return "SoC:" + this.getSoc();
 	}
 
 	@Override

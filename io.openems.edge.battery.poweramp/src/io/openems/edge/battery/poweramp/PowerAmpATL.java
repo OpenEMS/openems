@@ -372,14 +372,14 @@ public interface PowerAmpATL extends Battery, OpenemsComponent, StartStoppable {
 		ID_OF_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Id. (Max Temp)")), //
-		BATTERY_RACK_DC_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER) //
+		MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE) //
 				.accessMode(AccessMode.READ_WRITE) //
-				.text("Max Charge Current")), //
-		BATTERY_RACK_DC_DISCHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.text("Battery Rack DC Charge Current Limit")), //
+		MAX_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE) //
 				.accessMode(AccessMode.READ_WRITE) //
-				.text("Max Discharge Current")),
+				.text("Battery Rack DC Discharge Current Limit")),
 		MAX_DC_CHARGE_CURRENT_LIMIT_PER_BCU(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE) //
 				.accessMode(AccessMode.READ_WRITE) //
@@ -697,14 +697,14 @@ public interface PowerAmpATL extends Battery, OpenemsComponent, StartStoppable {
 				.unit(Unit.MILLIVOLT) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Avarage Of All Cell Voltages")),
-		BCU_DC_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER) //
+		BCU_MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU DC Charge Current Limit")),
-		BCU_DC_DISCHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER) //
+		BCU_MIN_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE) //
 				.accessMode(AccessMode.READ_WRITE) //
-				.text("BCU Minimum Discharge Current")),
+				.text("BCU DC Discharge Current Limit")),
 		BMS_SERIAL_NUMBER(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BMS Serial Number")),
@@ -727,6 +727,10 @@ public interface PowerAmpATL extends Battery, OpenemsComponent, StartStoppable {
 				.unit(Unit.MILLIVOLT) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Max Cell Voltage Limit")),
+		BCU_MIN_CELL_VOLTAGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("BCU Min Cell Voltage Limit")),
 		BMU_NUMBER(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Bmu Number")),
@@ -927,5 +931,4 @@ public interface PowerAmpATL extends Battery, OpenemsComponent, StartStoppable {
 			return this.doc;
 		}
 	}
-
 }
