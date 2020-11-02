@@ -68,12 +68,12 @@ public class Ess0Streetscooter extends AbstractEssStreetscooter
 	}
 
 	@Override
-	protected int getAdressOffsetForBattery() {
+	protected int getAddressOffsetForBattery() {
 		return BATTERY_0_ADDRESS_OFFSET;
 	}
 
 	@Override
-	protected int getAdressOffsetForInverter() {
+	protected int getAddressOffsetForInverter() {
 		return INVERTER_0_ADDRESS_OFFSET;
 	}
 
