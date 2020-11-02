@@ -434,7 +434,7 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 						m(EssSinexcel.ChannelId.DC_VOLTAGE, new UnsignedWordElement(0x0257),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						new DummyRegisterElement(0x0258, 0x0259), //
-						m(EssSinexcel.ChannelId.SINEXCEL_STATE, new UnsignedWordElement(0x0260))), //
+						m(EssSinexcel.ChannelId.SINEXCEL_STATE, new UnsignedWordElement(0x025A))), //
 
 				new FC3ReadRegistersTask(0x032D, Priority.LOW,
 						m(EssSinexcel.ChannelId.LOWER_VOLTAGE_LIMIT, new UnsignedWordElement(0x032D), //

@@ -11,4 +11,5 @@ Bundle-License: https://opensource.org/licenses/EPL-2.0
 	io.openems.edge.meter.api
 
 -testpath: \
-	${testpath}
+	${testpath},\
+	com.ghgande.j2mod

@@ -31,7 +31,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.Weidmueller.525", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class MeterWeidmueller525 extends AbstractOpenemsModbusComponent
-		implements SymmetricMeter, OpenemsComponent, ModbusSlave {
+		implements AsymmetricMeter, SymmetricMeter, OpenemsComponent, ModbusSlave {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
@@ -42,6 +42,7 @@ public class MeterWeidmueller525 extends AbstractOpenemsModbusComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
+				AsymmetricMeter.ChannelId.values(), //
 				WeidmuellerChannelId.values() //
 		);
 	}
@@ -74,7 +75,7 @@ public class MeterWeidmueller525 extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(102, Priority.HIGH, //
+				new FC3ReadRegistersTask(19000, Priority.HIGH, //
 						m(new FloatDoublewordElement(19000)) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
