@@ -159,7 +159,7 @@ import io.openems.edge.meter.api.MeterType;
 	@AttributeDefinition(name = "Meter-Type", description = "Grid, Production (=default), Consumption") // <5>
 	MeterType type() default MeterType.PRODUCTION; // <6>
 
-	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
+	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0"; // <7>
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
@@ -233,7 +233,7 @@ public MeterSimulated() {
 	);
 }
 ----
-. Finally we need to delare the modbus protocol of the simulated meter inside the `defineModbusProtocol` method. Replace the existing method
+. Finally we need to declare the modbus protocol of the simulated meter inside the `defineModbusProtocol` method. Replace the existing method
 +
 [source,java]
 ----
@@ -413,7 +413,7 @@ Using this principle a complete Modbus table consisting of multiple register blo
 
 === Start the device simulator
 
-To start the device simulator, open the btn:[io.openems.edge.bridge.modbus] project and navigate to the btn:[test] -> btn:[io.openems.edge.brige.modbus] folder. There you find the btn:[ModbusSlaveSimulator.java] file. Right-click that file and select btn:[Run As] -> btn:[Java Application].
+To start the device simulator, open the btn:[io.openems.edge.bridge.modbus] project and navigate to the btn:[test] -> btn:[io.openems.edge.bridge.modbus] folder. There you find the btn:[ModbusSlaveSimulator.java] file. Right-click that file and select btn:[Run As] -> btn:[Java Application].
 
 [NOTE]
 ====

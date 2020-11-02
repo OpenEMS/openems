@@ -66,7 +66,7 @@ package com.dalsemi.onewire.container;
  *                                       (byte)0x01, (byte)0x02, (byte)0x03);</pre></code>
  * </OL>
  * 
- * <H3>Additonal information</H3>
+ * <H3>Additional information</H3>
  * <DL>
  * <DD><A HREF="http://www.opencard.org"> http://www.opencard.org</A>
  * </DL>
