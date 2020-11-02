@@ -40,6 +40,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -103,7 +104,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	private ScheduledFuture<?> configFuture = null;
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id())) {
 			return;
@@ -117,7 +118,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 				Document doc = Wago.downloadConfigXml(this.ipAddress, config.username(), config.password());
 				this.modules.addAll(this.parseXml(doc));
 				this.createProtocolFromModules(this.modules);
-			} catch (SAXException | IOException | ParserConfigurationException e) {
+			} catch (SAXException | IOException | ParserConfigurationException | OpenemsException e) {
 				e.printStackTrace();
 			}
 		}, 2, TimeUnit.SECONDS);
@@ -214,8 +215,9 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	 * Takes a list of FieldbusModules and adds Modbus tasks to the protocol.
 	 * 
 	 * @param modules lit of {@link FieldbusModule}s
+	 * @throws OpenemsException
 	 */
-	private void createProtocolFromModules(List<FieldbusModule> modules) {
+	private void createProtocolFromModules(List<FieldbusModule> modules) throws OpenemsException {
 		List<AbstractModbusElement<?>> readElements0 = new ArrayList<>();
 		List<AbstractModbusElement<?>> readElements512 = new ArrayList<>();
 		for (FieldbusModule module : modules) {
@@ -249,7 +251,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		this.protocol = new ModbusProtocol(this);
 		return protocol;
 	}

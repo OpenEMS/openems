@@ -238,7 +238,7 @@ public MeterSimulated() {
 [source,java]
 ----
 @Override
-protected ModbusProtocol defineModbusProtocol() {
+protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 	// TODO implement ModbusProtocol
 	return new ModbusProtocol(this);
 }
@@ -249,7 +249,7 @@ with
 [source,java]
 ----
 @Override
-protected ModbusProtocol defineModbusProtocol() {
+protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 	return new ModbusProtocol(this, //
 			new FC3ReadRegistersTask(1000, Priority.HIGH,
 					m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(1000))));
@@ -351,7 +351,7 @@ public class MeterSimulated extends AbstractOpenemsModbusComponent // <6>
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() { // <14>
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException { // <14>
 		return new ModbusProtocol(this, // <15>
 				new FC3ReadRegistersTask(1000, Priority.HIGH, // <16>
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(1000)))); // <17>
