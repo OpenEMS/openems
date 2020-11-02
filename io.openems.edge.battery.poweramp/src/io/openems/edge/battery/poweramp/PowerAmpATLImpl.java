@@ -253,7 +253,7 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.m(Battery.ChannelId.CHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [%]
 								.build(), //
-						m(new UnsignedWordElement(518)) //
+						m(new UnsignedWordElement(519)) //
 								.m(PowerAmpATL.ChannelId.MAX_DISCHARGE_CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1)
 								.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [%]
