@@ -17,7 +17,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
     @Input() private period: DefaultTypes.HistoryPeriod;
     @Input() private showPhases: boolean;
 
-    // referene to the Utils method to access via html
+    // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
     ngOnChanges() {

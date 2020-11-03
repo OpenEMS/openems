@@ -1140,7 +1140,7 @@ public class USerialAdapter extends DSPortAdapter {
 	 * has not yet been relinquished.
 	 * <p>
 	 *
-	 * @param blocking <code>true</code> if want to block waiting for an excluse
+	 * @param blocking <code>true</code> if want to block waiting for exclusive
 	 *                 access to the adapter
 	 * @return <code>true</code> if blocking was false and a exclusive session with
 	 *         the adapter was acquired
@@ -1959,7 +1959,7 @@ public class USerialAdapter extends DSPortAdapter {
 	// --------
 
 	/**
-	 * Peform a search using the oneWire state provided
+	 * Perform a search using the oneWire state provided
 	 *
 	 * @param mState current OneWire state used to do the search
 	 *
@@ -2442,7 +2442,7 @@ public class USerialAdapter extends DSPortAdapter {
 		 * Enumeration com_enum = CommPortIdentifier.getPortIdentifiers();
 		 * CommPortIdentifier port_id; SerialService serial_instance;
 		 * 
-		 * // loop throught all of the serial port elements while
+		 * // loop through all of the serial port elements while
 		 * (com_enum.hasMoreElements()) {
 		 * 
 		 * // get the next com port port_id = ( CommPortIdentifier )
@@ -2458,7 +2458,7 @@ public class USerialAdapter extends DSPortAdapter {
 		 * port_id.getName()); } }
 		 */
 
-		// check properties to see if max baud set manualy
+		// check properties to see if max baud set manually
 		maxBaud = 115200;
 
 		String max_baud_str = OneWireAccessProvider.getProperty("onewire.serial.maxbaud");

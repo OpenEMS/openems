@@ -134,7 +134,7 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 *                           installation on user buttons.
 	 * @param l_bindCode         the binding code used to finalize secret
 	 *                           installation on user buttons.
-	 * @param l_auxData          any auxilliary or miscellaneous data to be stored
+	 * @param l_auxData          any auxiliary or miscellaneous data to be stored
 	 *                           on the coprocessor.
 	 * @param l_initialSignature the 20-byte initial MAC placed in user account data
 	 *                           before generating actual MAC.
@@ -1060,7 +1060,7 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 * </p>
 	 *
 	 * @param function          the SHA function code
-	 * @param shaSecret         the secret used in SHA caclulation
+	 * @param shaSecret         the secret used in SHA calculation
 	 * @param shaPage           the 32-byte page used in SHA calculation
 	 * @param scratchpad        the 32-byte scratchpad data used in SHA calculation.
 	 *                          MAC is returned in this buffer starting at offset 8,

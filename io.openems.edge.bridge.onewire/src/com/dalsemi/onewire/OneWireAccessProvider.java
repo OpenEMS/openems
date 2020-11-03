@@ -267,7 +267,7 @@ public class OneWireAccessProvider {
 			System.err.println();
 		}
 
-		// try PDK adapater
+		// try PDK adapter
 		try {
 			adapter_class = Class.forName("com.dalsemi.onewire.adapter.PDKAdapterUSB");
 			adapter_instance = (DSPortAdapter) adapter_class.newInstance();
@@ -426,7 +426,7 @@ public class OneWireAccessProvider {
 	}
 
 	/**
-	 * Gets the specfied onewire property. Looks for the property in the following
+	 * Gets the specified onewire property. Looks for the property in the following
 	 * locations:
 	 * <p>
 	 * <ul>

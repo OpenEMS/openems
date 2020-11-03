@@ -220,7 +220,7 @@ class UPacketBuilder {
 
 		packet.returnLength = 0;
 
-		// reset the return cound
+		// reset the return count
 		totalReturnLength = 0;
 	}
 
@@ -382,7 +382,7 @@ class UPacketBuilder {
 	 */
 	public int dataByte(char dataByteValue) {
 
-		// contruct a temporary array of characters of length 1
+		// construct a temporary array of characters of length 1
 		// to use the dataBytes method
 		char[] temp_char_array = new char[1];
 

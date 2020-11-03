@@ -43,7 +43,7 @@ import com.dalsemi.onewire.utils.CRC16;
 public class MemoryBankScratchCRCPW extends MemoryBankScratchEx {
 
 	/**
-	 * The Password container to acces the 8 byte passwords
+	 * The Password container to access the 8 byte passwords
 	 */
 	protected PasswordContainer ibPass = null;
 
@@ -84,7 +84,7 @@ public class MemoryBankScratchCRCPW extends MemoryBankScratchEx {
 	 * @param page         page number to read
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -109,7 +109,7 @@ public class MemoryBankScratchCRCPW extends MemoryBankScratchEx {
 	 * @param page         page number to read
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.

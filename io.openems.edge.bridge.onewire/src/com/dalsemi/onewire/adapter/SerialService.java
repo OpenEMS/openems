@@ -298,7 +298,7 @@ public class SerialService implements SerialPortEventListener {
 
 			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
 			if (DEBUG)
-				System.out.println("SerialService.openPort: Port Openend (" + comPortName + ")");
+				System.out.println("SerialService.openPort: Port Opened (" + comPortName + ")");
 			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
 		} catch (Exception e) {
 			// close the port if we have an object
@@ -424,7 +424,7 @@ public class SerialService implements SerialPortEventListener {
 	 * has not yet been relinquished.
 	 * <p>
 	 *
-	 * @param blocking <code>true</code> if want to block waiting for an excluse
+	 * @param blocking <code>true</code> if want to block waiting for exclusive
 	 *                 access to the adapter
 	 * @return <code>true</code> if blocking was false and a exclusive session with
 	 *         the adapter was acquired
