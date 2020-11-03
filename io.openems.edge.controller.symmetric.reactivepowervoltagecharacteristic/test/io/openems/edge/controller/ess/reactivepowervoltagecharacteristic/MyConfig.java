@@ -1,10 +1,11 @@
-package io.openems.edge.controller.asymmetric.activepowervoltagecharacteristic;
+package io.openems.edge.controller.ess.reactivepowervoltagecharacteristic;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.JsonUtils.JsonArrayBuilder;
 import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.edge.controller.ess.reactivepowervoltagecharacteristic.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -119,4 +120,4 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public String meter_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.meter_id());
 	}
-}
+}// }

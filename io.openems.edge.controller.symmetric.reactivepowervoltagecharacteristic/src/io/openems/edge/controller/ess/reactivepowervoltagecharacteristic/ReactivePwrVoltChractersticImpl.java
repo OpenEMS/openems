@@ -1,4 +1,4 @@
-package io.openems.edge.controller.asymmetric.activepowervoltagecharacteristic;
+package io.openems.edge.controller.ess.reactivepowervoltagecharacteristic;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -22,29 +22,28 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.function.AbstractRampFunction;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.Asymmetric.ActivePowerVoltageCharacteristic", //
+		name = "Controller.Ess.ReactivePowerVoltageCharacteristic", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ActivePowerVoltageCharacteristicImpl extends AbstractRampFunction implements Controller, OpenemsComponent {
+public class ReactivePwrVoltChractersticImpl extends AbstractRampFunction implements Controller, OpenemsComponent {
 
-	private final Logger log = LoggerFactory.getLogger(ActivePowerVoltageCharacteristicImpl.class);
+	private final Logger log = LoggerFactory.getLogger(ReactivePwrVoltChractersticImpl.class);
 
 	private LocalDateTime lastSetPowerTime = LocalDateTime.MIN;
 
-	/**
-	 * nominal voltage in [mV].
-	 */
 	private float voltageRatio;
 	private Config config;
 
@@ -52,7 +51,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractRampFunction i
 	protected ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private AsymmetricMeter meter;
+	private SymmetricMeter meter;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private ManagedSymmetricEss ess;
@@ -64,7 +63,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractRampFunction i
 
 		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		PERCENT(Doc.of(OpenemsType.FLOAT).unit(Unit.PERCENT)), //
-		VOLTAGE_RATIO(Doc.of(OpenemsType.DOUBLE)), //
+		VOLTAGE_RATIO(Doc.of(OpenemsType.DOUBLE))//
 		;
 
 		private final Doc doc;
@@ -79,7 +78,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractRampFunction i
 		}
 	}
 
-	public ActivePowerVoltageCharacteristicImpl() {
+	public ReactivePwrVoltChractersticImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
@@ -104,88 +103,18 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractRampFunction i
 		super.deactivate();
 	}
 
-	/**
-	 * Initialize the P by U characteristics.
-	 *
-	 * <p>
-	 * Gets EssID and according to that " componentId / device ", it will "point
-	 * out/ indicate/assign" on which power line connected.// Numbers will be
-	 * recursive after L3/ess3.See ess4...
-	 *
-	 * <pre>
-	 * [
-	 *  { "ess0"    : Ess Cluster}
-	 *  { "ess1"    : power line : 1}},
-	 *  { "ess2"    : power line : 2}},
-	 *  { "ess3"    : power line : 3}},
-	 *  { "ess4"    : power line : 1}},
-	 *  ......
-	 * ]
-	 * </pre>
-	 * 
-	 * @param percentQ the configured Percent-by-Q values
-	 * 
-	 * @throws OpenemsNamedException on error
-	 */
-	private essId getEssId() {
-		String[] parts = this.config.ess_id().split("ess");
-		String part2 = parts[1];
-		int essIdInt = Integer.parseInt(part2);
-		if (this.config.ess_id().equals("ess0")) {
-			return essId.ess0;
-		} else if (this.config.ess_id().equals("ess1") || ((essIdInt % 3) == 1)) {
-			return essId.ess1;
-		} else if (this.config.ess_id().equals("ess2") || ((essIdInt % 3) == 2)) {
-			return essId.ess2;
-		}
-		return essId.ess3;
-	}
-
-	private enum essId {
-		ess0, ess1, ess2, ess3
-	}
-
 	@Override
 	public void run() throws OpenemsNamedException {
-		GridMode gridMode = this.ess.getGridMode();
-		if (gridMode.isUndefined()) {
-			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
-		}
-		switch (gridMode) {
-		case ON_GRID:
-		case UNDEFINED:
-			break;
-		case OFF_GRID:
-			return;
-		}
-
-		Channel<Integer> gridLineVoltage;
-		switch (this.getEssId()) {
-		case ess0:
-			this.log.info("\n'ess0' assumed as a essCluster by this controller.\n"
-					+ "Each ess number related with power line, ex: ess1 == L1 ");
-			return;
-		case ess1:
-			gridLineVoltage = this.meter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L1);
-			this.voltageRatio = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
-			break;
-		case ess2:
-			gridLineVoltage = this.meter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L2);
-			this.voltageRatio = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
-			break;
-		case ess3:
-			gridLineVoltage = this.meter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L3);
-			this.voltageRatio = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
-			break;
-		}
-
+		Channel<Integer> gridLineVoltage = this.meter.channel(SymmetricMeter.ChannelId.VOLTAGE);
+		this.voltageRatio = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
 		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.voltageRatio);
 		if (this.voltageRatio == 0) {
 			log.info("Voltage Ratio is 0");
 			return;
 		}
 
-		Integer power = getPowerLine(this.config.powerVoltConfig(), this.voltageRatio);
+		int calculatedPower = 0;
+		Integer power = super.getPowerLine(this.config.powerVoltConfig(), this.voltageRatio);
 		if (power == null) {
 			return;
 		}
@@ -197,8 +126,17 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractRampFunction i
 		}
 		lastSetPowerTime = LocalDateTime.now(clock);
 
-		this.channel(ChannelId.CALCULATED_POWER).setNextValue(power);
-		this.ess.setActivePowerEquals(power);
-		this.ess.setReactivePowerEquals(0);
+		Value<Integer> apparentPower = this.ess.getMaxApparentPower();
+		if (!apparentPower.isDefined() || apparentPower.get() == 0) {
+			return;
+		}
+
+		// Current version has inverse behaviour of Active Power Voltage Characteristic
+		// Charges with Reactive Power (in Active was discharging for
+		// lower voltage[compare to nominal voltage])
+		Integer setPower = (int) (apparentPower.orElse(0) * power * 0.01);
+		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.REACTIVE, setPower);
+		this.channel(ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
+		this.ess.setReactivePowerEquals(calculatedPower);
 	}
 }
