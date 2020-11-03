@@ -38,8 +38,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ReactivePwrVoltChractersticImpl extends AbstractRampFunction
-		implements Controller, OpenemsComponent {
+public class ReactivePwrVoltChractersticImpl extends AbstractRampFunction implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ReactivePwrVoltChractersticImpl.class);
 
@@ -81,15 +80,14 @@ public class ReactivePwrVoltChractersticImpl extends AbstractRampFunction
 
 	public ReactivePwrVoltChractersticImpl() {
 		super(//
-				Controller.ChannelId.values(), //
 				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
 				ChannelId.values()//
 		);
 	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
@@ -136,7 +134,7 @@ public class ReactivePwrVoltChractersticImpl extends AbstractRampFunction
 		// Current version has inverse behaviour of Active Power Voltage Characteristic
 		// Charges with Reactive Power (in Active was discharging for
 		// lower voltage[compare to nominal voltage])
-		Integer setPower = (int) (-apparentPower.orElse(0) * power * 0.01);
+		Integer setPower = (int) (apparentPower.orElse(0) * power * 0.01);
 		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.REACTIVE, setPower);
 		this.channel(ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
 		this.ess.setReactivePowerEquals(calculatedPower);

@@ -1,13 +1,8 @@
 package io.openems.edge.common.function;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
+import java.util.TreeMap;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -16,17 +11,16 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
 
-public abstract class AbstractRampFunction extends AbstractOpenemsComponent implements OpenemsComponent {
+public abstract class AbstractRampFunction extends AbstractOpenemsComponent {
 
 	protected AbstractRampFunction(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
-	private Map<Float, Float> initialize(String powerConfig) throws OpenemsNamedException {
-		Map<Float, Float> voltagePowerMap = new HashMap<>();
+	private TreeMap<Float, Float> initialize(String powerConfig) throws OpenemsNamedException {
+		TreeMap<Float, Float> voltagePowerMap = new TreeMap<>();
 		try {
 			JsonArray jpowerV = JsonUtils.getAsJsonArray(JsonUtils.parse(powerConfig));
 			for (JsonElement element : jpowerV) {
@@ -41,21 +35,15 @@ public abstract class AbstractRampFunction extends AbstractOpenemsComponent impl
 	}
 
 	public Integer getPowerLine(String powerConfig, float ratio) throws OpenemsNamedException {
-
-		Map<Float, Float> voltagePowerMap = this.initialize(powerConfig);
+		TreeMap<Float, Float> voltagePowerMap = this.initialize(powerConfig);
 		float linePowerValue = this.getValueOfLine(voltagePowerMap, ratio);
-
 		return (int) linePowerValue;
 	}
 
-	private float getValueOfLine(Map<Float, Float> qCharacteristic, float gridVoltageRatio) {
+	private float getValueOfLine(TreeMap<Float, Float> qCharacteristic, float gridVoltageRatio) {
 		float m = 0, t = 0;
-		// find to place of grid voltage ratio
-		Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
-		Map<Float, Float> map = qCharacteristic.entrySet().stream().sorted(valueComparator)
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-		List<Float> voltageList = new ArrayList<Float>(map.keySet());
-		List<Float> powerList = new ArrayList<Float>(map.values());
+		List<Float> voltageList = new ArrayList<Float>(qCharacteristic.keySet());
+		List<Float> powerList = new ArrayList<Float>(qCharacteristic.values());
 		// if the grid voltage ratio in the list, return that point
 		for (int i = 0; i < voltageList.size(); i++) {
 			if (voltageList.get(i) == gridVoltageRatio) {
@@ -73,16 +61,12 @@ public abstract class AbstractRampFunction extends AbstractOpenemsComponent impl
 		return m * gridVoltageRatio + t;
 	}
 
-	private Point getSmallerPoint(Map<Float, Float> qCharacteristic, float gridVoltageRatio) {
+	private Point getSmallerPoint(TreeMap<Float, Float> qCharacteristic, float gridVoltageRatio) {
 		Point p;
 		int i = 0;
-		// bubble sort outer loop
 		qCharacteristic.put(gridVoltageRatio, (float) 0);
-		Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
-		Map<Float, Float> map = qCharacteristic.entrySet().stream().sorted(valueComparator)
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-		List<Float> voltageList = new ArrayList<Float>(map.keySet());
-		List<Float> percentList = new ArrayList<Float>(map.values());
+		List<Float> voltageList = new ArrayList<Float>(qCharacteristic.keySet());
+		List<Float> percentList = new ArrayList<Float>(qCharacteristic.values());
 		if (voltageList.get(2) == gridVoltageRatio) {
 			p = new Point(gridVoltageRatio, 0);
 			qCharacteristic.remove(gridVoltageRatio, (float) 0);
@@ -101,17 +85,13 @@ public abstract class AbstractRampFunction extends AbstractOpenemsComponent impl
 		return p;
 	}
 
-	private Point getGreaterPoint(Map<Float, Float> qCharacteristic, float gridVoltageRatio) {
+	private Point getGreaterPoint(TreeMap<Float, Float> qCharacteristic, float gridVoltageRatio) {
 		Point p;
 		int i = 0;
-		// bubble sort outer loop
 		// 0 random number, just to fill value
 		qCharacteristic.put(gridVoltageRatio, (float) 0);
-		Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
-		Map<Float, Float> map = qCharacteristic.entrySet().stream().sorted(valueComparator)
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-		List<Float> voltageList = new ArrayList<Float>(map.keySet());
-		List<Float> percentList = new ArrayList<Float>(map.values());
+		List<Float> voltageList = new ArrayList<Float>(qCharacteristic.keySet());
+		List<Float> percentList = new ArrayList<Float>(qCharacteristic.values());
 		if (voltageList.get(2) == gridVoltageRatio) {
 			qCharacteristic.remove(gridVoltageRatio, (float) 0);
 			p = new Point(gridVoltageRatio, 0);
@@ -120,7 +100,6 @@ public abstract class AbstractRampFunction extends AbstractOpenemsComponent impl
 		while (voltageList.get(i) != gridVoltageRatio) {
 			i++;
 		}
-
 		// if its the last element it will be equal the size of list
 		if ((i + 1) >= voltageList.size()) {
 			qCharacteristic.remove(gridVoltageRatio, (float) 0);
