@@ -83,12 +83,12 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 		ModbusProtocol modbusProtocol = new ModbusProtocol(this,
 				// Consumption and Production Energy
 				new FC3ReadRegistersTask(30581, Priority.HIGH, //
-						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(30581)),
-						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(30583))),
+						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(30581)),
+						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(30583))),
 				// Power Readings
 				new FC3ReadRegistersTask(30865, Priority.HIGH, //
-						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER, new SignedDoublewordElement(30865)),
-						m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER, new SignedDoublewordElement(30867))),
+						m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER, new SignedDoublewordElement(30865)),
+						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER, new SignedDoublewordElement(30867))),
 				// Voltage, Power and Reactive Power
 				new FC3ReadRegistersTask(31253, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(31253),
@@ -97,12 +97,12 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_3),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(31257),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L1, new UnsignedDoublewordElement(31259)),
-						m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L2, new UnsignedDoublewordElement(31261)),
-						m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L3, new UnsignedDoublewordElement(31263)),
-						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L1, new UnsignedDoublewordElement(31265)),
-						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L2, new UnsignedDoublewordElement(31267)),
-						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L3, new UnsignedDoublewordElement(31269)),
+						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L1, new UnsignedDoublewordElement(31259)),
+						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L2, new UnsignedDoublewordElement(31261)),
+						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L3, new UnsignedDoublewordElement(31263)),
+						m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L1, new UnsignedDoublewordElement(31265)),
+						m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L2, new UnsignedDoublewordElement(31267)),
+						m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L3, new UnsignedDoublewordElement(31269)),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(31271)),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(31273)),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(31275)),
@@ -200,7 +200,7 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 			Value<Integer> consValue = this.consChannel.getNextValue();
 			final Integer result;
 			if (prodValue.isDefined() && consValue.isDefined()) {
-				result = consValue.get() - prodValue.get();
+				result = prodValue.get() - consValue.get();
 			} else {
 				result = null;
 			}
