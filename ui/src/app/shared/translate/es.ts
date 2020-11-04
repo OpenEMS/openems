@@ -90,6 +90,8 @@ export const TRANSLATION = {
         logout: 'Desuscribirse',
         menu: 'Menú',
         overview: 'estudio OpenEMS Edge',
+        settings: 'Ajustes',
+        user: 'Usuario',
     },
     Index: {
         allConnected: 'Todas las conexiones establecidas.',

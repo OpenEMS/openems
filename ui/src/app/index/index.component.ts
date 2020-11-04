@@ -52,7 +52,7 @@ export class IndexComponent {
     })
   }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     this.service.setCurrentComponent('', this.route);
   }
 

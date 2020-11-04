@@ -94,6 +94,8 @@ export const TRANSLATION = {
         logout: 'Sign Out',
         menu: 'Menu',
         overview: 'OpenEMS Edge Overview',
+        settings: 'Settings',
+        user: 'User',
     },
     Index: {
         allConnected: 'All connections established.',

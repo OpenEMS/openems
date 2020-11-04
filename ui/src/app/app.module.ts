@@ -1,4 +1,3 @@
-import { AboutModule } from './about/about.module';
 import { AngularMyDatePickerModule } from 'angular-mydatepicker';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -19,7 +18,6 @@ import { registerLocaleData } from '@angular/common';
 import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
 import { RouteReuseStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { SettingsModule } from './settings/settings.module';
 import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.module';
 import { SharedModule } from './shared/shared.module';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
@@ -28,6 +26,7 @@ import { StatusSingleComponent } from './shared/status/single/status.component';
 import { SystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import localDE from '@angular/common/locales/de';
+import { UserModule } from './userprofile/user.module';
 
 @NgModule({
   declarations: [
@@ -45,7 +44,6 @@ import localDE from '@angular/common/locales/de';
     PickDatePopoverComponent,
   ],
   imports: [
-    AboutModule,
     AngularMyDatePickerModule,
     AppRoutingModule,
     BrowserAnimationsModule,
@@ -62,13 +60,13 @@ import localDE from '@angular/common/locales/de';
         { name: 'repeat', component: RepeatTypeComponent },
       ],
     }),
-    IonicModule.forRoot(),
     IndexModule,
-    SettingsModule,
+    IonicModule.forRoot(),
     SharedModule,
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: Language }
     }),
+    UserModule,
   ],
   providers: [
     SplashScreen,

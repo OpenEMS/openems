@@ -71,7 +71,7 @@ export class HeaderComponent {
         let urlArray = url.split('/');
         let file = urlArray.pop();
 
-        if (file == 'settings' || file == 'about' || urlArray.length > 3) {
+        if (file == 'user' || urlArray.length > 3) {
             // disable side-menu; show back-button instead
             this.enableSideMenu = false;
         } else {
@@ -87,9 +87,9 @@ export class HeaderComponent {
             return;
         }
 
-        // set backUrl for general settings when an Edge had been selected before
+        // set backUrl for user when an Edge had been selected before
         let currentEdge: Edge = this.service.currentEdge.value;
-        if (url === '/settings' && currentEdge != null) {
+        if (url === '/user' && currentEdge != null) {
             this.backUrl = '/device/' + currentEdge.id + "/live"
             return;
         }
