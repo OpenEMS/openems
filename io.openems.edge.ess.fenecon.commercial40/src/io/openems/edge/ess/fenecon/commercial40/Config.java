@@ -20,7 +20,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Read-Only mode", description = "Enables Read-Only mode")
 	boolean readOnlyMode() default false;
 
-	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
+	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
 
 	@AttributeDefinition(name = "Power limit on PowerDecreaseCausedByOvertemperature error; '0' to disable power limit logic", description = "")

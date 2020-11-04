@@ -35,7 +35,7 @@ import com.dalsemi.onewire.OneWireException;
 import com.dalsemi.onewire.utils.CRC8;
 
 /**
- * The LSerialAdapter class implememts the DSPortAdapter interface for a legacy
+ * The LSerialAdapter class implements the DSPortAdapter interface for a legacy
  * 1-Wire serial interface adapters such as the DS9097.
  * <p>
  *
@@ -217,7 +217,7 @@ public class LSerialAdapter extends DSPortAdapter {
 	 */
 	boolean searchOnlyAlarmingButtons;
 
-	/** Flag to indicate next search will not be preceeded by a 1-Wire reset */
+	/** Flag to indicate next search will not be preceded by a 1-Wire reset */
 	private boolean skipResetOnSearch = false;
 
 	/** Flag to indicate next search will be a 'first' */
@@ -288,7 +288,7 @@ public class LSerialAdapter extends DSPortAdapter {
 	/**
 	 * Retrieve a list of the platform appropriate port names for this adapter. A
 	 * port must be selected with the method 'selectPort' before any other
-	 * communication methods can be used. Using a communcation method before
+	 * communication methods can be used. Using a communication method before
 	 * 'selectPort' will result in a <code>OneWireException</code> exception.
 	 *
 	 * @return enumeration of type <code>String</code> that contains the port names
@@ -301,12 +301,12 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * Specify a platform appropriate port name for this adapter. Note that even
 	 * though the port has been selected, it's ownership may be relinquished if it
 	 * is not currently held in a 'exclusive' block. This class will then try to
-	 * re-aquire the port when needed. If the port cannot be re-aquired ehen the
+	 * re-acquire the port when needed. If the port cannot be re-acquired ehen the
 	 * exception <code>PortInUseException</code> will be thrown.
 	 *
 	 * @param newPortName name of the target port, retrieved from getPortNames()
 	 *
-	 * @return <code>true</code> if the port was aquired, <code>false</code> if the
+	 * @return <code>true</code> if the port was acquired, <code>false</code> if the
 	 *         port is not available.
 	 *
 	 * @throws OneWireIOException If port does not exist, or unable to communicate
@@ -589,10 +589,10 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * has not yet been relinquished.
 	 * <p>
 	 *
-	 * @param blocking <code>true</code> if want to block waiting for an excluse
+	 * @param blocking <code>true</code> if want to block waiting for exclusive
 	 *                 access to the adapter
 	 * @return <code>true</code> if blocking was false and a exclusive session with
-	 *         the adapter was aquired
+	 *         the adapter was acquired
 	 *
 	 * @throws OneWireException on a setup error with the 1-Wire adapter
 	 */
@@ -700,7 +700,7 @@ public class LSerialAdapter extends DSPortAdapter {
 	/**
 	 * Gets a bit from the 1-Wire Network.
 	 *
-	 * @return the bit value recieved from the the 1-Wire Network.
+	 * @return the bit value received from the the 1-Wire Network.
 	 *
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
@@ -1137,7 +1137,7 @@ public class LSerialAdapter extends DSPortAdapter {
 	 *
 	 * @param rawBlock character array of raw communication
 	 *
-	 * @return byte array of data recieved
+	 * @return byte array of data received
 	 */
 	private byte[] interpretRecvBlock(char[] rawBlock) {
 		int shift_byte = 0, bit_cnt = 0, byte_cnt = 0;
@@ -1176,7 +1176,7 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * Enumeration com_enum = CommPortIdentifier.getPortIdentifiers();
 	 * CommPortIdentifier port_id; SerialService serial_instance;
 	 * 
-	 * // loop throught all of the serial port elements while
+	 * // loop through all of the serial port elements while
 	 * (com_enum.hasMoreElements()) {
 	 * 
 	 * // get the next com port port_id = (CommPortIdentifier)

@@ -120,7 +120,7 @@ class MemoryBankAD implements PagedMemoryBank {
 
 	/**
 	 * Starting physical address in memory bank. Needed for different types of
-	 * memory in the same logical memory bank. This can be used to seperate them
+	 * memory in the same logical memory bank. This can be used to separate them
 	 * into two virtual memory banks. Example: DS2406 status page has mixed EPROM
 	 * and Volatile RAM.
 	 */
@@ -293,7 +293,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	/**
 	 * Query to get Maximum data page length in bytes for a packet read or written
 	 * in the current memory bank. See the 'ReadPagePacket()' and
-	 * 'WritePagePacket()' methods. This method is only usefull if the current
+	 * 'WritePagePacket()' methods. This method is only useful if the current
 	 * memory bank is general purpose memory.
 	 *
 	 * @return max packet page length in bytes in current memory bank
@@ -384,12 +384,12 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * readPageCRC(). readPageCRC() however is not supported on all memory types,
 	 * see 'hasPageAutoCRC()'. If neither is an option then this method could be
 	 * called more then once to at least verify that the same thing is read
-	 * consistantly.
+	 * consistently.
 	 *
 	 * @param startAddr    starting physical address
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new read()
-	 *                     continious where the last one led off and it is inside a
+	 *                     continuous where the last one led off and it is inside a
 	 *                     'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to place read data into
 	 * @param offset       offset into readBuf to place data
@@ -513,12 +513,12 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * readPageCRC(). readPageCRC() however is not supported on all memory types,
 	 * see 'hasPageAutoCRC()'. If neither is an option then this method could be
 	 * called more then once to at least verify that the same thing is read
-	 * consistantly.
+	 * consistently.
 	 *
 	 * @param page         page number to read packet from
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new readPage()
-	 *                     continious where the last one led off and it is inside a
+	 *                     continuous where the last one led off and it is inside a
 	 *                     'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to place read data into
 	 * @param offset       offset into readBuf to place data
@@ -541,13 +541,13 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * provide the CRC as in readPageCRC(). readPageCRC() however is not supported
 	 * on all memory types, see 'hasPageAutoCRC()'. If neither is an option then
 	 * this method could be called more then once to at least verify that the same
-	 * thing is read consistantly. See the method 'hasExtraInfo()' for a description
+	 * thing is read consistently. See the method 'hasExtraInfo()' for a description
 	 * of the optional extra information some devices have.
 	 *
 	 * @param page         page number to read packet from
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new readPage()
-	 *                     continious where the last one led off and it is inside a
+	 *                     continuous where the last one led off and it is inside a
 	 *                     'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to place read data into
 	 * @param offset       offset into readBuf to place data
@@ -579,7 +579,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @param page         page number to read packet from
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -626,7 +626,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @param page         page number to read packet from
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -688,7 +688,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @param page         page number to read
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -756,7 +756,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @param page         page number to read
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -793,7 +793,7 @@ class MemoryBankAD implements PagedMemoryBank {
 				// attempt to set the correct speed and verify device present
 				ib.doSpeed();
 
-				// no execptions so clear flag
+				// no exceptions so clear flag
 				doSetSpeed = false;
 			}
 		}

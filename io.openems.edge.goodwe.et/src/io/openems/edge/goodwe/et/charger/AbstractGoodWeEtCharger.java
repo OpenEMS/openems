@@ -1,5 +1,6 @@
 package io.openems.edge.goodwe.et.charger;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -22,7 +23,7 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		int startAddress = this.getStartAddress();
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(startAddress, Priority.HIGH, //

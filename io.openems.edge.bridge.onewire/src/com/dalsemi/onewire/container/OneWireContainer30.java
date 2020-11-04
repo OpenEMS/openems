@@ -156,13 +156,13 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	public static final byte DC_PIN_STATE_FLAG = 4;
 
 	/**
-	 * PROTECTION REGISTER FLAG: Reseting this flag will disable charging regardless
+	 * PROTECTION REGISTER FLAG: Resetting this flag will disable charging regardless
 	 * of cell or pack conditions. Accessed with <CODE>getFlag()/setFlag()</CODE>.
 	 */
 	public static final byte CHARGE_ENABLE_FLAG = 2;
 
 	/**
-	 * PROTECTION REGISTER FLAG: Reseting this flag will disable discharging.
+	 * PROTECTION REGISTER FLAG: Resetting this flag will disable discharging.
 	 * Accessed with <CODE>getFlag()/setFlag()</CODE>.
 	 */
 	public static final byte DISCHARGE_ENABLE_FLAG = 1;
@@ -671,7 +671,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	public void setFlag(int memAddr, byte flagToSet, boolean flagValue) throws OneWireIOException, OneWireException {
 
 		// the desired default value for the status register flags has to be
-		// set in a seperate register for some reason, so I treat it specially.
+		// set in a separate register for some reason, so I treat it specially.
 		if (memAddr == STATUS_REGISTER)
 			memAddr = 49;
 
@@ -778,7 +778,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @param on state of the PIO pin to set
 	 *
-	 * @throws OneWireIOException Error writting data
+	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find part
 	 */
 
@@ -791,9 +791,9 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	}
 
 	/**
-	 * Returns the latch state of the Programmable Input/Ouput pin on the DS2760.
+	 * Returns the latch state of the Programmable Input/Output pin on the DS2760.
 	 *
-	 * @return state of the Programmable Input/Ouput pin
+	 * @return state of the Programmable Input/Output pin
 	 *
 	 * @throws OneWireIOException Error reading data
 	 * @throws OneWireException   Could not find part
@@ -807,7 +807,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * overcurrent flags. Each time a violation occurs, these flags stay set until
 	 * reset. This method resets all 4 flags.
 	 *
-	 * @throws OneWireIOException Error writting data
+	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find part
 	 */
 	public void clearConditions() throws OneWireIOException, OneWireException {
@@ -902,7 +902,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @param state   current state of this device returned from
 	 *                <CODE>readDevice()</CODE>
 	 *
-	 * @throws OneWireIOException Error writting data
+	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find device
 	 */
 	public void doADConvert(int channel, byte[] state) throws OneWireIOException, OneWireException {
@@ -926,7 +926,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @param state     current state of the device returned from
 	 *                  <CODE>readDevice()</CODE>
 	 *
-	 * @throws OneWireIOException Error writting data
+	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Device does not support multi-channel reading
 	 */
 	public void doADConvert(boolean[] doConvert, byte[] state) throws OneWireIOException, OneWireException {
@@ -944,7 +944,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return voltage values for all channels
 	 *
-	 * @throws OneWireIOException Error writting data
+	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Device does not support multi-channel reading
 	 */
 	public double[] getADVoltage(byte[] state) throws OneWireIOException, OneWireException {
@@ -1260,7 +1260,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @param state device state
 	 *
-	 * @throws OneWireIOException Error writting data
+	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find device
 	 */
 	public void doTemperatureConvert(byte[] state) throws OneWireIOException, OneWireException {
@@ -1308,7 +1308,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return alarm trip temperature in degrees C
 	 *
-	 * @throws OneWireException Device does not support temerature alarms
+	 * @throws OneWireException Device does not support temperature alarms
 	 */
 	public double getTemperatureAlarm(int alarmType, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have temperature alarms");
@@ -1340,7 +1340,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @param alarmValue high/low temperature trip value in degrees C
 	 * @param state      device state
 	 *
-	 * @throws OneWireIOException Error writting data
+	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Device does not support temperature alarms
 	 */
 	public void setTemperatureAlarm(int alarmType, double alarmValue, byte[] state)
@@ -1356,7 +1356,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @param resolution temperature resolution in degrees C
 	 * @param state      device state
 	 *
-	 * @throws OneWireIOException Error writting data
+	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find device
 	 */
 	public void setTemperatureResolution(double resolution, byte[] state) throws OneWireException, OneWireIOException {
@@ -1409,7 +1409,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @param state device state
 	 *
-	 * @throws OneWireIOException Error writting data
+	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find device
 	 */
 	public void writeDevice(byte[] state) throws OneWireIOException, OneWireException {

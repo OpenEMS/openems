@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -66,12 +67,14 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
 		this.invert = config.invert();
 
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
 	}
 
 	@Deactivate
@@ -98,7 +101,7 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		/*
 		 * We are using the FLOAT registers from the modbus table, because they are all
 		 * reachable within one ReadMultipleRegistersRequest.

@@ -251,7 +251,7 @@ public interface MemoryBank {
 	 * It is recommended that the data contain some kind of checking (CRC) like in
 	 * the <CODE> readPagePacket </CODE> method in the
 	 * {@link com.dalsemi.onewire.container.PagedMemoryBank PagedMemoryBank}
-	 * interface. Some 1-Wire devices provide thier own CRC as in
+	 * interface. Some 1-Wire devices provide their own CRC as in
 	 * <CODE> readPageCRC </CODE> also found in the
 	 * {@link com.dalsemi.onewire.container.PagedMemoryBank PagedMemoryBank}
 	 * interface. The <CODE> readPageCRC </CODE> method is not supported on all

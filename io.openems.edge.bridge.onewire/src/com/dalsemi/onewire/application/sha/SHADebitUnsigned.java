@@ -276,7 +276,7 @@ public class SHADebitUnsigned extends SHATransaction {
 	 * </P>
 	 *
 	 * <P>
-	 * You can set the value of the intial account balance by calling
+	 * You can set the value of the initial account balance by calling
 	 * <code>transaction.setParameter(SHADebit.INITIAL_AMOUNT,10000)</code> where
 	 * the value of the units is in cents (i.e. 10000 = $100).
 	 * </P>

@@ -265,7 +265,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		// Create map with configuration attributes
 		Dictionary<String, Object> properties = new Hashtable<>();
 		for (Property property : request.getProperties()) {
-			properties.put(property.getName(), JsonUtils.getAsBestType(property.getValue()));
+			Object value = JsonUtils.getAsBestType(property.getValue());
+			if (value instanceof Object[] && ((Object[]) value).length == 0) {
+				value = new String[0];
+			}
+			properties.put(property.getName(), value);
 		}
 
 		// Update Configuration
