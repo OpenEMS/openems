@@ -464,11 +464,17 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public <T> T getValue(OpenemsType type, String channelAddress) {
+	public <T> T getValue(OpenemsType type, ChannelAddress channelAddress) {
 		if (this.currentSimulation == null) {
 			return null;
 		}
-		return TypeUtils.getAsType(type, this.currentSimulation.request.profiles.get(channelAddress).getCurrentValue());
+		// First: try full ChannelAddress
+		Profile profile = this.currentSimulation.request.profiles.get(channelAddress.toString());
+		if (profile == null) {
+			// Not found: try Channel-ID only (without Component-ID)
+			profile = this.currentSimulation.request.profiles.get(channelAddress.getChannelId());
+		}
+		return TypeUtils.getAsType(type, profile.getCurrentValue());
 	}
 
 	@Override
