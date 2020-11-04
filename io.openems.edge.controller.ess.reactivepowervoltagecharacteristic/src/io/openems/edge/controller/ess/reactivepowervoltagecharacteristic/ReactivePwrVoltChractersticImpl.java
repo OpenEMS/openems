@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
@@ -114,7 +115,8 @@ public class ReactivePwrVoltChractersticImpl extends AbstractRampFunction implem
 		}
 
 		int calculatedPower = 0;
-		Integer power = super.getLineValue(this.config.powerVoltConfig(), this.voltageRatio);
+		Integer power = getLineValue(JsonUtils.getAsJsonArray(//
+				JsonUtils.parse(this.config.powerVoltConfig())), this.voltageRatio);
 		if (power == null) {
 			return;
 		}

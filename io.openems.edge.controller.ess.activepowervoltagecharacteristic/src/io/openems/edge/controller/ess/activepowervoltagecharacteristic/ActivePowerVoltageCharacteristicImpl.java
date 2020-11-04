@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.ComponentManager;
@@ -104,7 +105,6 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractRampFunction i
 		super.deactivate();
 	}
 
-
 	@Override
 	public void run() throws OpenemsNamedException {
 		GridMode gridMode = this.ess.getGridMode();
@@ -126,8 +126,8 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractRampFunction i
 			log.info("Voltage Ratio is 0");
 			return;
 		}
-
-		Integer power = getLineValue(this.config.powerVoltConfig(), this.voltageRatio);
+		Integer power = getLineValue(JsonUtils.getAsJsonArray(//
+				JsonUtils.parse(this.config.powerVoltConfig())), this.voltageRatio);
 		if (power == null) {
 			return;
 		}
