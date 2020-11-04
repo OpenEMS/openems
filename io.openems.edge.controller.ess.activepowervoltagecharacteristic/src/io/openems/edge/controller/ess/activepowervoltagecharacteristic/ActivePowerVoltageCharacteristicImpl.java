@@ -104,7 +104,6 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 		this.config = config;
 	}
 
-	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -127,15 +126,17 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 		}
 
 		Channel<Integer> gridLineVoltage = this.meter.channel(SymmetricMeter.ChannelId.VOLTAGE);
+		// Reference point is the voltage ratio which is required in order to find
+		// the line value
 		this.referencePoint = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
+		// Store the reference point in the channel voltage_ratio
 		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.referencePoint);
+		// In case of no meter data, to avoid to get min power value,
+		// it has to return here
 		if (this.referencePoint == 0) {
 			this.log.info("Voltage Ratio is 0");
 			return;
 		}
-		Integer power = this.getLineValue(JsonUtils.getAsJsonArray(//
-				JsonUtils.parse(this.config.lineConfig())), this.referencePoint).intValue();
-
 		// Do NOT change Set Power If it Does not exceed the hysteresis time
 		Clock clock = this.componentManager.getClock();
 		if (this.lastSetPowerTime.isAfter(LocalDateTime.now(clock).minusSeconds(this.config.waitForHysteresis()))) {
@@ -143,11 +144,34 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 		}
 		this.lastSetPowerTime = LocalDateTime.now(clock);
 
+		// getLineValue method: Calculates the line value based on the slope between
+		// greater and smaller point which referred by referencePoint.
+		Integer power = this.getLineValue(JsonUtils.getAsJsonArray(//
+				JsonUtils.parse(this.config.lineConfig())), this.referencePoint).intValue();
 		this.channel(ChannelId.CALCULATED_POWER).setNextValue(power);
 		this.ess.setActivePowerEquals(power);
 		this.ess.setReactivePowerEquals(0);
 	}
 
+	/**
+	 * Parse Line
+	 *
+	 * <p>
+	 * Pars the given JSON line format to xCoord and yCoord parameters.
+	 *
+	 * <pre>
+	 * [
+	 *  { "xCoord": 0.9,         "yCoord":-4000}},
+	 *  { "xCoord": 0.93,        "yCoord":-1000}},
+	 *  { "xCoord": 1.07,        "yCoord":1000}},
+	 *  { "xCoord": 1.1,         "yCoord":4000}}
+	 * ]
+	 * </pre>
+	 *
+	 * @param lineConfig the configured x and y coordinates values
+	 * @return lineMap
+	 * @throws OpenemsNamedException on error
+	 */
 	@Override
 	public TreeMap<Float, Float> parseLine(JsonArray lineConfig) throws OpenemsNamedException {
 		TreeMap<Float, Float> lineMap = new TreeMap<>();
@@ -159,6 +183,18 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 		return lineMap;
 	}
 
+	/**
+	 * Get Line Value
+	 *
+	 * <p>
+	 * getLineValue method: Calculates the line value based on the slope between
+	 * greater and smaller point which referred by referencePoint.
+	 *
+	 * @param lineConfig     the configured x and y coordinates values
+	 * @param referencePoint indicates the point of the value to be used.
+	 * @return (m * referencePoint + t) equals to indicated point value
+	 * @throws OpenemsNamedException on error
+	 */
 	@Override
 	public Float getLineValue(JsonArray lineConfig, float referencePoint) throws OpenemsNamedException {
 		TreeMap<Float, Float> lineMap = this.parseLine(lineConfig);

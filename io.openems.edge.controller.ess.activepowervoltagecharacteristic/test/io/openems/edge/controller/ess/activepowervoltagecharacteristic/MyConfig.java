@@ -2,10 +2,7 @@ package io.openems.edge.controller.ess.activepowervoltagecharacteristic;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.JsonUtils.JsonArrayBuilder;
 import io.openems.edge.common.test.AbstractComponentConfig;
-import io.openems.edge.controller.ess.activepowervoltagecharacteristic.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

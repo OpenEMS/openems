@@ -3,7 +3,7 @@ package io.openems.edge.controller.ess.activepowervoltagecharacteristic;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Voltage Active Power Characteristic", //
 		description = "Defines a power voltage characteristic for storage system.")
 @interface Config {

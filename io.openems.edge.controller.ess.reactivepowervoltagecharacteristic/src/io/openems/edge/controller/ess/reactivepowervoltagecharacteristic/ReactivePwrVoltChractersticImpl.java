@@ -106,7 +106,6 @@ public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent
 		this.config = config;
 	}
 
-	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -114,29 +113,34 @@ public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
+		// Reference point is the voltage ratio which is required in order to find
+		// the line value
 		Channel<Integer> gridLineVoltage = this.meter.channel(SymmetricMeter.ChannelId.VOLTAGE);
 		this.referencePoint = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
+		// Store the reference point in the channel voltage_ratio
 		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.referencePoint);
+		// In case of no meter data, to avoid to get min power value,
+		// it has to return here
 		if (this.referencePoint == 0) {
 			this.log.info("Voltage Ratio is 0");
 			return;
 		}
-
-		// Do NOT change Set Power If it Does not exceed the hysteresis time
+		// Do NOT update Set Power:
+		// If lastSetPowerTime Does not exceed the hysteresis time
 		Clock clock = this.componentManager.getClock();
 		if (this.lastSetPowerTime.isAfter(LocalDateTime.now(clock).minusSeconds(this.config.waitForHysteresis()))) {
 			return;
 		}
 		this.lastSetPowerTime = LocalDateTime.now(clock);
-
+		// Gets required maxApparentPower
+		// which is used in calculation of reactive power:
+		// Otherwise should not calcula the reactive power and has to return here
 		Value<Integer> apparentPower = this.ess.getMaxApparentPower();
 		if (!apparentPower.isDefined() || apparentPower.get() == 0) {
 			return;
 		}
-
-		// Current version has inverse behaviour of Active Power Voltage Characteristic
-		// Charges with Reactive Power (in Active was discharging for
-		// lower voltage[compare to nominal voltage])
+		// getLineValue method: Calculates the line value based on the slope between
+		// greater and smaller point which referred by referencePoint.
 		Integer power = this.getLineValue(JsonUtils.getAsJsonArray(//
 				JsonUtils.parse(this.config.lineConfig())), this.referencePoint).intValue();
 		Integer setPower = (int) (apparentPower.orElse(0) * power * 0.01);
@@ -146,6 +150,25 @@ public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent
 		this.ess.setReactivePowerEquals(calculatedPower);
 	}
 
+	/**
+	 * Parse Line
+	 *
+	 * <p>
+	 * Pars the given JSON line format to xCoord and yCoord parameters.
+	 *
+	 * <pre>
+	 * [
+	 *  { "xCoord": 0.9,         "yCoord":60}},
+	 *  { "xCoord": 0.93,        "yCoord":0}},
+	 *  { "xCoord": 1.07,        "yCoord":0}},
+	 *  { "xCoord": 1.1,         "yCoord":-60}}
+	 * ]
+	 * </pre>
+	 *
+	 * @param lineConfig the configured x and y coordinates values
+	 * @return lineMap
+	 * @throws OpenemsNamedException on error
+	 */
 	@Override
 	public TreeMap<Float, Float> parseLine(JsonArray lineConfig) throws OpenemsNamedException {
 		TreeMap<Float, Float> lineMap = new TreeMap<>();
@@ -157,6 +180,18 @@ public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent
 		return lineMap;
 	}
 
+	/**
+	 * Get Line Value
+	 *
+	 * <p>
+	 * getLineValue method: Calculates the line value based on the slope between
+	 * greater and smaller point which referred by referencePoint.
+	 *
+	 * @param lineConfig     the configured x and y coordinates values
+	 * @param referencePoint indicates the point of the value to be used.
+	 * @return (m * referencePoint + t) equals to indicated point value
+	 * @throws OpenemsNamedException on error
+	 */
 	@Override
 	public Float getLineValue(JsonArray lineConfig, float referencePoint) throws OpenemsNamedException {
 		TreeMap<Float, Float> lineMap = this.parseLine(lineConfig);
