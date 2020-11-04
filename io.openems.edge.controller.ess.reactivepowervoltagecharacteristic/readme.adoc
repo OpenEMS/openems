@@ -1,8 +1,6 @@
-# io.openems.edge.controller.symmetirc.powervoltagecharacteristic Provider
+= Ess Rective Power Voltage Characteristic
 
-${Bundle-Description}
+** This controller sets reactive power to the system in order to keep the grid voltage within an acceptable range.
+** The force to be applied; It is the value indicates in the multi-line graph by taking as reference the ratio of network voltage to nominal voltage.
 
-## Example
-
-## References
-
+https://github.com/OpenEMS/openems/tree/feature/develop/io.openems.edge.controller.ess.reactivepowervoltagecharacteristic[Source Code icon:github[]]
