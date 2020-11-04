@@ -40,28 +40,28 @@ public class CharacteristicImplTest {
 						.setWaitForHysteresis(5)//
 						.setPowerVoltConfig(JsonUtils.buildJsonArray()//
 								.add(JsonUtils.buildJsonObject()//
-										.addProperty("voltageRatio", 0.95) //
-										.addProperty("power", 4000) //
+										.addProperty("xCoord", 0.95) //
+										.addProperty("yCoord", 4000) //
 										.build()) //
 								.add(JsonUtils.buildJsonObject()//
-										.addProperty("voltageRatio", 0.98) //
-										.addProperty("power", 1000) //
+										.addProperty("xCoord", 0.98) //
+										.addProperty("yCoord", 1000) //
 										.build()) //
 								.add(JsonUtils.buildJsonObject()//
-										.addProperty("voltageRatio", 0.98001) //
-										.addProperty("power", 0) //
+										.addProperty("xCoord", 0.98001) //
+										.addProperty("yCoord", 0) //
 										.build()) //
 								.add(JsonUtils.buildJsonObject()//
-										.addProperty("voltageRatio", 1.02999) //
-										.addProperty("power", 0) //
+										.addProperty("xCoord", 1.02999) //
+										.addProperty("yCoord", 0) //
 										.build()) //
 								.add(JsonUtils.buildJsonObject()//
-										.addProperty("voltageRatio", 1.03) //
-										.addProperty("power", -1000) //
+										.addProperty("xCoord", 1.03) //
+										.addProperty("yCoord", -1000) //
 										.build()) //
 								.add(JsonUtils.buildJsonObject()//
-										.addProperty("voltageRatio", 1.05) //
-										.addProperty("power", -4000) //
+										.addProperty("xCoord", 1.05) //
+										.addProperty("yCoord", -4000) //
 										.build() //
 								).build().toString() //
 						).build()) //

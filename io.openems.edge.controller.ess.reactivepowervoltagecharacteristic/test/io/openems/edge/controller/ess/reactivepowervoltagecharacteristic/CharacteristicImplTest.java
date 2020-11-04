@@ -41,20 +41,20 @@ public class CharacteristicImplTest {
 						.setWaitForHysteresis(5)//
 						.setPowerVoltConfig(JsonUtils.buildJsonArray()//
 								.add(JsonUtils.buildJsonObject()//
-										.addProperty("voltageRatio", 0.9) //
-										.addProperty("power", 60) //
+										.addProperty("xCoord", 0.9) //
+										.addProperty("yCoord", 60) //
 										.build()) //
 								.add(JsonUtils.buildJsonObject()//
-										.addProperty("voltageRatio", 0.93) //
-										.addProperty("power", 0) //
+										.addProperty("xCoord", 0.93) //
+										.addProperty("yCoord", 0) //
 										.build()) //
 								.add(JsonUtils.buildJsonObject()//
-										.addProperty("voltageRatio", 1.07) //
-										.addProperty("power", 0) //
+										.addProperty("xCoord", 1.07) //
+										.addProperty("yCoord", 0) //
 										.build()) //
 								.add(JsonUtils.buildJsonObject()//
-										.addProperty("voltageRatio", 1.1) //
-										.addProperty("power", -60) //
+										.addProperty("xCoord", 1.1) //
+										.addProperty("yCoord", -60) //
 										.build() //
 								).build().toString() //
 						).build()) //

@@ -17,31 +17,31 @@ public abstract class AbstractRampFunction extends AbstractOpenemsComponent {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
-	private static TreeMap<Float, Float> parseLine(JsonArray powerConfig) throws OpenemsNamedException {
-		TreeMap<Float, Float> voltagePowerMap = new TreeMap<>();
-		for (JsonElement element : powerConfig) {
-			Float powerConfValue = (float) JsonUtils.getAsInt(element, "power");
-			float voltageRatioConfValue = JsonUtils.getAsFloat(element, "voltageRatio");
-			voltagePowerMap.put(voltageRatioConfValue, powerConfValue);
+	private static TreeMap<Float, Float> parseLine(JsonArray lineConfig) throws OpenemsNamedException {
+		TreeMap<Float, Float> lineMap = new TreeMap<>();
+		for (JsonElement element : lineConfig) {
+			Float xCoordValue = JsonUtils.getAsFloat(element, "xCoord");
+			Float yCoordValue = JsonUtils.getAsFloat(element, "yCoord");
+			lineMap.put(xCoordValue, yCoordValue);
 		}
-		return voltagePowerMap;
+		return lineMap;
 	}
 
-	public Float getLineValue(JsonArray powerConfig, float ratio) throws OpenemsNamedException {
-		TreeMap<Float, Float> voltagePowerMap = parseLine(powerConfig);
-		Entry<Float, Float> floorEntry = voltagePowerMap.floorEntry(ratio);
-		Entry<Float, Float> ceilingEntry = voltagePowerMap.ceilingEntry(ratio);
-		// In case of ratio is smaller than floorEntry key
+	public Float getLineValue(JsonArray lineConfig, float referencePoint) throws OpenemsNamedException {
+		TreeMap<Float, Float> lineMap = parseLine(lineConfig);
+		Entry<Float, Float> floorEntry = lineMap.floorEntry(referencePoint);
+		Entry<Float, Float> ceilingEntry = lineMap.ceilingEntry(referencePoint);
+		// In case of referencePoint is smaller than floorEntry key
 		try {
-			if (floorEntry.getKey().equals(ratio)) {
+			if (floorEntry.getKey().equals(referencePoint)) {
 				return floorEntry.getValue().floatValue();
 			}
 		} catch (NullPointerException e) {
 			return ceilingEntry.getValue().floatValue();
 		}
-		// In case of ratio is bigger than ceilingEntry key
+		// In case of referencePoint is bigger than ceilingEntry key
 		try {
-			if (ceilingEntry.getKey().equals(ratio)) {
+			if (ceilingEntry.getKey().equals(referencePoint)) {
 				return ceilingEntry.getValue().floatValue();
 			}
 		} catch (NullPointerException e) {
@@ -50,6 +50,6 @@ public abstract class AbstractRampFunction extends AbstractOpenemsComponent {
 
 		Float m = (ceilingEntry.getValue() - floorEntry.getValue()) / (ceilingEntry.getKey() - floorEntry.getKey());
 		Float t = floorEntry.getValue() - m * floorEntry.getKey();
-		return m * ratio + t;
+		return m * referencePoint + t;
 	}
 }

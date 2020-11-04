@@ -45,7 +45,7 @@ public class ReactivePwrVoltChractersticImpl extends AbstractRampFunction implem
 
 	private LocalDateTime lastSetPowerTime = LocalDateTime.MIN;
 
-	private float voltageRatio;
+	private float referencePoint;//Voltage Ratio
 	private Config config;
 
 	@Reference
@@ -107,16 +107,16 @@ public class ReactivePwrVoltChractersticImpl extends AbstractRampFunction implem
 	@Override
 	public void run() throws OpenemsNamedException {
 		Channel<Integer> gridLineVoltage = this.meter.channel(SymmetricMeter.ChannelId.VOLTAGE);
-		this.voltageRatio = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
-		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.voltageRatio);
-		if (this.voltageRatio == 0) {
+		this.referencePoint = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
+		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.referencePoint);
+		if (this.referencePoint == 0) {
 			log.info("Voltage Ratio is 0");
 			return;
 		}
 
 		int calculatedPower = 0;
 		Integer power = getLineValue(JsonUtils.getAsJsonArray(//
-				JsonUtils.parse(this.config.powerVoltConfig())), this.voltageRatio).intValue();
+				JsonUtils.parse(this.config.lineConfig())), this.referencePoint).intValue();
 
 		// Do NOT change Set Power If it Does not exceed the hysteresis time
 		Clock clock = this.componentManager.getClock();

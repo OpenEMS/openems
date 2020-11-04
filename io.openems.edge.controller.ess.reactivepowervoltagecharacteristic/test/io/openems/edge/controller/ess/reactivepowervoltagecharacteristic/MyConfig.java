@@ -97,7 +97,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String powerVoltConfig() {
+	public String lineConfig() {
 		return this.builder.powerVoltConfig;
 	}
 
