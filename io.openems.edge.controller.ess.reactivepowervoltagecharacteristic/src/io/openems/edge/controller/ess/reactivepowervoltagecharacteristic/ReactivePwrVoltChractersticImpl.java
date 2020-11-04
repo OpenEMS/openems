@@ -116,10 +116,7 @@ public class ReactivePwrVoltChractersticImpl extends AbstractRampFunction implem
 
 		int calculatedPower = 0;
 		Integer power = getLineValue(JsonUtils.getAsJsonArray(//
-				JsonUtils.parse(this.config.powerVoltConfig())), this.voltageRatio);
-		if (power == null) {
-			return;
-		}
+				JsonUtils.parse(this.config.powerVoltConfig())), this.voltageRatio).intValue();
 
 		// Do NOT change Set Power If it Does not exceed the hysteresis time
 		Clock clock = this.componentManager.getClock();

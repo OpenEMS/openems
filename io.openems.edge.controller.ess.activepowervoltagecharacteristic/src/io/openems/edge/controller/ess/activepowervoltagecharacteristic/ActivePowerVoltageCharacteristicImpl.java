@@ -127,10 +127,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractRampFunction i
 			return;
 		}
 		Integer power = getLineValue(JsonUtils.getAsJsonArray(//
-				JsonUtils.parse(this.config.powerVoltConfig())), this.voltageRatio);
-		if (power == null) {
-			return;
-		}
+				JsonUtils.parse(this.config.powerVoltConfig())), this.voltageRatio).intValue();
 
 		// Do NOT change Set Power If it Does not exceed the hysteresis time
 		Clock clock = this.componentManager.getClock();

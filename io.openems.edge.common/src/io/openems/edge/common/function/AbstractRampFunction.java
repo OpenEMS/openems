@@ -32,30 +32,30 @@ public abstract class AbstractRampFunction extends AbstractOpenemsComponent {
 		return voltagePowerMap;
 	}
 
-	public Integer getLineValue(JsonArray powerConfig, float ratio) throws OpenemsNamedException {
+	public Float getLineValue(JsonArray powerConfig, float ratio) throws OpenemsNamedException {
 		TreeMap<Float, Float> voltagePowerMap = parseLine(powerConfig);
 		Entry<Float, Float> floorEntry = voltagePowerMap.floorEntry(ratio);
 		Entry<Float, Float> ceilingEntry = voltagePowerMap.ceilingEntry(ratio);
-		// In case of ratio is smaller than floorEntry key 
+		// In case of ratio is smaller than floorEntry key
 		try {
 			if (floorEntry.getKey().equals(ratio)) {
-				return floorEntry.getValue().intValue();
+				return floorEntry.getValue().floatValue();
 			}
 		} catch (NullPointerException e) {
-			return ceilingEntry.getValue().intValue();
+			return ceilingEntry.getValue().floatValue();
 		}
-		//In case of ratio is bigger than ceilingEntry key
+		// In case of ratio is bigger than ceilingEntry key
 		try {
 			if (ceilingEntry.getKey().equals(ratio)) {
-				return ceilingEntry.getValue().intValue();
+				return ceilingEntry.getValue().floatValue();
 			}
 		} catch (NullPointerException e) {
-			return floorEntry.getValue().intValue();
+			return floorEntry.getValue().floatValue();
 		}
 
-		float m = (float) ((ceilingEntry.getValue() - floorEntry.getValue())
-				/ (ceilingEntry.getKey() - floorEntry.getKey()));
-		float t = (float) (floorEntry.getValue() - m * floorEntry.getKey());
-		return (int) (m * ratio + t);
+		Float m = (ceilingEntry.getValue() - floorEntry.getValue())
+				/ (ceilingEntry.getKey() - floorEntry.getKey());
+		Float t = floorEntry.getValue() - m * floorEntry.getKey();
+		return m * ratio + t;
 	}
 }
