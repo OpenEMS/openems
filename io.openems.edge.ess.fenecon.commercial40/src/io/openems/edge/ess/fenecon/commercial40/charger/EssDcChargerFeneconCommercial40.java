@@ -16,6 +16,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -93,9 +94,11 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 	private EssFeneconCommercial40 ess;
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm, "Modbus",
-				this.ess.getModbusBridgeId());
+	void activate(ComponentContext context, Config config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm,
+				"Modbus", this.ess.getModbusBridgeId())) {
+			return;
+		}
 
 		// update filter for 'Ess'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
@@ -247,7 +250,7 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC16WriteRegistersTask(0x0503, //
 						m(ChannelId.SET_PV_POWER_LIMIT, new UnsignedWordElement(0x0503),

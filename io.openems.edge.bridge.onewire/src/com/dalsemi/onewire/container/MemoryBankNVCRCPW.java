@@ -89,7 +89,7 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 	 * @param page         page number to read
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -112,7 +112,7 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 	 * @param page         page number to read
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -232,12 +232,12 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 	 * readPageCRC(). readPageCRC() however is not supported on all memory types,
 	 * see 'hasPageAutoCRC()'. If neither is an option then this method could be
 	 * called more then once to at least verify that the same thing is read
-	 * consistantly.
+	 * consistently.
 	 *
 	 * @param startAddr    starting physical address
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new read()
-	 *                     continious where the last one led off and it is inside a
+	 *                     continuous where the last one led off and it is inside a
 	 *                     'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to place read data into
 	 * @param offset       offset into readBuf to place data

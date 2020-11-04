@@ -720,7 +720,7 @@ public class DumbAdapter extends DSPortAdapter {
 	/**
 	 * This method does nothing in <code>DumbAdapter</code>.
 	 *
-	 * @param blocking <code>true</code> if want to block waiting for an excluse
+	 * @param blocking <code>true</code> if want to block waiting for exclusive
 	 *                 access to the adapter
 	 * @return <code>true</code>
 	 */

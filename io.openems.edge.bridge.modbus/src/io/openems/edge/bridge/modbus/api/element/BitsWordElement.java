@@ -34,7 +34,7 @@ public class BitsWordElement extends UnsignedWordElement {
 	private final AbstractOpenemsModbusComponent component;
 
 	/*
-	 * Holds the ChannelWrapper. 'null' if not explicitely defined!
+	 * Holds the ChannelWrapper. 'null' if not explicitly defined!
 	 */
 	private final ChannelWrapper[] channels = new ChannelWrapper[16];
 
