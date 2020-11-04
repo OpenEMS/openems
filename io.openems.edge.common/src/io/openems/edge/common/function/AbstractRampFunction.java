@@ -18,7 +18,7 @@ public abstract class AbstractRampFunction extends AbstractOpenemsComponent {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
-	private TreeMap<Float, Float> parseLine(String powerConfig) throws OpenemsNamedException {
+	private static TreeMap<Float, Float> parseLine(String powerConfig) throws OpenemsNamedException {
 		TreeMap<Float, Float> voltagePowerMap = new TreeMap<>();
 		try {
 			JsonArray jpowerV = JsonUtils.getAsJsonArray(JsonUtils.parse(powerConfig));
@@ -34,7 +34,7 @@ public abstract class AbstractRampFunction extends AbstractOpenemsComponent {
 	}
 
 	public Integer getLineValue(String powerConfig, float ratio) throws OpenemsNamedException {
-		TreeMap<Float, Float> voltagePowerMap = this.parseLine(powerConfig);
+		TreeMap<Float, Float> voltagePowerMap = parseLine(powerConfig);
 		Entry<Float, Float> floorEntry = voltagePowerMap.floorEntry(ratio);
 		Entry<Float, Float> ceilingEntry = voltagePowerMap.ceilingEntry(ratio);
 		// In case of ratio is smaller than floorEntry key 
