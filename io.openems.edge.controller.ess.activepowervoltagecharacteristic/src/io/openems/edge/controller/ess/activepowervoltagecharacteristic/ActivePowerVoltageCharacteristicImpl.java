@@ -2,6 +2,8 @@ package io.openems.edge.controller.ess.activepowervoltagecharacteristic;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -17,15 +19,19 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.function.AbstractRampFunction;
+import io.openems.edge.common.linecharacteristic.PolyLine;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -37,7 +43,8 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ActivePowerVoltageCharacteristicImpl extends AbstractRampFunction implements Controller, OpenemsComponent {
+public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsComponent
+		implements PolyLine, Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ActivePowerVoltageCharacteristicImpl.class);
 
@@ -126,7 +133,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractRampFunction i
 			log.info("Voltage Ratio is 0");
 			return;
 		}
-		Integer power = getLineValue(JsonUtils.getAsJsonArray(//
+		Integer power = this.getLineValue(JsonUtils.getAsJsonArray(//
 				JsonUtils.parse(this.config.lineConfig())), this.referencePoint).intValue();
 
 		// Do NOT change Set Power If it Does not exceed the hysteresis time
@@ -139,5 +146,43 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractRampFunction i
 		this.channel(ChannelId.CALCULATED_POWER).setNextValue(power);
 		this.ess.setActivePowerEquals(power);
 		this.ess.setReactivePowerEquals(0);
+	}
+
+	@Override
+	public TreeMap<Float, Float> parseLine(JsonArray lineConfig) throws OpenemsNamedException {
+		TreeMap<Float, Float> lineMap = new TreeMap<>();
+		for (JsonElement element : lineConfig) {
+			Float xCoordValue = JsonUtils.getAsFloat(element, "xCoord");
+			Float yCoordValue = JsonUtils.getAsFloat(element, "yCoord");
+			lineMap.put(xCoordValue, yCoordValue);
+		}
+		return lineMap;
+	}
+
+	@Override
+	public Float getLineValue(JsonArray lineConfig, float referencePoint) throws OpenemsNamedException {
+		TreeMap<Float, Float> lineMap = parseLine(lineConfig);
+		Entry<Float, Float> floorEntry = lineMap.floorEntry(referencePoint);
+		Entry<Float, Float> ceilingEntry = lineMap.ceilingEntry(referencePoint);
+		// In case of referencePoint is smaller than floorEntry key
+		try {
+			if (floorEntry.getKey().equals(referencePoint)) {
+				return floorEntry.getValue().floatValue();
+			}
+		} catch (NullPointerException e) {
+			return ceilingEntry.getValue().floatValue();
+		}
+		// In case of referencePoint is bigger than ceilingEntry key
+		try {
+			if (ceilingEntry.getKey().equals(referencePoint)) {
+				return ceilingEntry.getValue().floatValue();
+			}
+		} catch (NullPointerException e) {
+			return floorEntry.getValue().floatValue();
+		}
+
+		Float m = (ceilingEntry.getValue() - floorEntry.getValue()) / (ceilingEntry.getKey() - floorEntry.getKey());
+		Float t = floorEntry.getValue() - m * floorEntry.getKey();
+		return m * referencePoint + t;
 	}
 }
