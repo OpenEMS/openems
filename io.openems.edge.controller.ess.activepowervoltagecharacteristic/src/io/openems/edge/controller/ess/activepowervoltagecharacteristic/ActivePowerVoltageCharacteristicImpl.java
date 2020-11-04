@@ -1,4 +1,4 @@
-package io.openems.edge.controller.ess.reactivepowervoltagecharacteristic;
+package io.openems.edge.controller.ess.activepowervoltagecharacteristic;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -22,28 +22,29 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.function.AbstractRampFunction;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.Ess.ReactivePowerVoltageCharacteristic", //
+		name = "Controller.Ess.ActivePowerVoltageCharacteristic", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ReactivePwrVoltChractersticImpl extends AbstractRampFunction implements Controller, OpenemsComponent {
+public class ActivePowerVoltageCharacteristicImpl extends AbstractRampFunction implements Controller, OpenemsComponent {
 
-	private final Logger log = LoggerFactory.getLogger(ReactivePwrVoltChractersticImpl.class);
+	private final Logger log = LoggerFactory.getLogger(ActivePowerVoltageCharacteristicImpl.class);
 
 	private LocalDateTime lastSetPowerTime = LocalDateTime.MIN;
 
+	/**
+	 * nominal voltage in [mV].
+	 */
 	private float voltageRatio;
 	private Config config;
 
@@ -63,7 +64,7 @@ public class ReactivePwrVoltChractersticImpl extends AbstractRampFunction implem
 
 		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		PERCENT(Doc.of(OpenemsType.FLOAT).unit(Unit.PERCENT)), //
-		VOLTAGE_RATIO(Doc.of(OpenemsType.DOUBLE))//
+		VOLTAGE_RATIO(Doc.of(OpenemsType.DOUBLE)), //
 		;
 
 		private final Doc doc;
@@ -78,7 +79,7 @@ public class ReactivePwrVoltChractersticImpl extends AbstractRampFunction implem
 		}
 	}
 
-	public ReactivePwrVoltChractersticImpl() {
+	public ActivePowerVoltageCharacteristicImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
@@ -103,8 +104,21 @@ public class ReactivePwrVoltChractersticImpl extends AbstractRampFunction implem
 		super.deactivate();
 	}
 
+
 	@Override
 	public void run() throws OpenemsNamedException {
+		GridMode gridMode = this.ess.getGridMode();
+		if (gridMode.isUndefined()) {
+			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
+		}
+		switch (gridMode) {
+		case ON_GRID:
+		case UNDEFINED:
+			break;
+		case OFF_GRID:
+			return;
+		}
+
 		Channel<Integer> gridLineVoltage = this.meter.channel(SymmetricMeter.ChannelId.VOLTAGE);
 		this.voltageRatio = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
 		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.voltageRatio);
@@ -113,8 +127,7 @@ public class ReactivePwrVoltChractersticImpl extends AbstractRampFunction implem
 			return;
 		}
 
-		int calculatedPower = 0;
-		Integer power = super.getPowerLine(this.config.powerVoltConfig(), this.voltageRatio);
+		Integer power = getLineValue(this.config.powerVoltConfig(), this.voltageRatio);
 		if (power == null) {
 			return;
 		}
@@ -126,17 +139,8 @@ public class ReactivePwrVoltChractersticImpl extends AbstractRampFunction implem
 		}
 		lastSetPowerTime = LocalDateTime.now(clock);
 
-		Value<Integer> apparentPower = this.ess.getMaxApparentPower();
-		if (!apparentPower.isDefined() || apparentPower.get() == 0) {
-			return;
-		}
-
-		// Current version has inverse behaviour of Active Power Voltage Characteristic
-		// Charges with Reactive Power (in Active was discharging for
-		// lower voltage[compare to nominal voltage])
-		Integer setPower = (int) (apparentPower.orElse(0) * power * 0.01);
-		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.REACTIVE, setPower);
-		this.channel(ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
-		this.ess.setReactivePowerEquals(calculatedPower);
+		this.channel(ChannelId.CALCULATED_POWER).setNextValue(power);
+		this.ess.setActivePowerEquals(power);
+		this.ess.setReactivePowerEquals(0);
 	}
 }

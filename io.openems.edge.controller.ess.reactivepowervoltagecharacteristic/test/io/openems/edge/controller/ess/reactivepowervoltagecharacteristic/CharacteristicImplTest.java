@@ -12,7 +12,6 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.TimeLeapClock;
-import io.openems.edge.controller.ess.reactivepowervoltagecharacteristic.ReactivePwrVoltChractersticImpl;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.meter.test.DummySymmetricMeter;
@@ -68,17 +67,17 @@ public class CharacteristicImplTest {
 						.timeleap(clock, 5, ChronoUnit.SECONDS)//
 						.input(METER_VOLTAGE, 216_000) // [mV]
 						.input(MAX_APPARENT_POWER, 10_000) // [VA]
-						.output(ESS_REACTIVE_POWER, -6000))//
+						.output(ESS_REACTIVE_POWER,6000))//
 				.next(new TestCase("Third Input")//
 						.timeleap(clock, 5, ChronoUnit.SECONDS)//
 						.input(METER_VOLTAGE, 220_000) // [mV]
 						.input(MAX_APPARENT_POWER, 10_000) // [VA]
-						.output(ESS_REACTIVE_POWER, -2600))//
+						.output(ESS_REACTIVE_POWER, 2600))//
 				.next(new TestCase()//
 						.timeleap(clock, 5, ChronoUnit.SECONDS)//
 						.input(METER_VOLTAGE, 223_000) // [mV]
 						.input(MAX_APPARENT_POWER, 10_000) // [VA]
-						.output(ESS_REACTIVE_POWER, -100))//
+						.output(ESS_REACTIVE_POWER, 100))//
 				.next(new TestCase()//
 						.timeleap(clock, 5, ChronoUnit.SECONDS)//
 						.input(METER_VOLTAGE, 223_200) // [mV]
@@ -93,12 +92,12 @@ public class CharacteristicImplTest {
 						.timeleap(clock, 5, ChronoUnit.SECONDS)//
 						.input(METER_VOLTAGE, 260_000) // [mV]
 						.input(MAX_APPARENT_POWER, 10_000) // [VA]
-						.output(ESS_REACTIVE_POWER, 2600))//
+						.output(ESS_REACTIVE_POWER, -2600))//
 				.next(new TestCase()//
 						.timeleap(clock, 5, ChronoUnit.SECONDS)//
 						.input(METER_VOLTAGE, 264_000) // [mV]
 						.input(MAX_APPARENT_POWER, 10_000) // [VA]
-						.output(ESS_REACTIVE_POWER, 6000))//
+						.output(ESS_REACTIVE_POWER, -6000))//
 		;
 	}
 }
