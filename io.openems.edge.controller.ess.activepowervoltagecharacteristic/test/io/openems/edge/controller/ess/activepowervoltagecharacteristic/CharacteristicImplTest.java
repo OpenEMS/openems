@@ -103,8 +103,11 @@ public class CharacteristicImplTest {
 				.next(new TestCase("Fourth Input, \"Power: 0 \"") //
 						.timeleap(clock, 5, ChronoUnit.SECONDS).input(METER_VOLTAGE, 225_000)// [mV]
 						.output(ESS_ACTIVE_POWER, 4000))//
-				.next(new TestCase("Fourth Input, \"Power: 0 \"") //
+				.next(new TestCase("Smaller then Min Key, \"Power: 0 \"") //
 						.timeleap(clock, 5, ChronoUnit.SECONDS).input(METER_VOLTAGE, 255_000)// [mV]
+						.output(ESS_ACTIVE_POWER, -4000))//
+				.next(new TestCase("Bigger than Max Key, \"Power: 0 \"") //
+						.timeleap(clock, 5, ChronoUnit.SECONDS).input(METER_VOLTAGE, 270_000)// [mV]
 						.output(ESS_ACTIVE_POWER, -4000))//
 		;
 	}
