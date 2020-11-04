@@ -41,7 +41,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Component(//
 		name = "Controller.Ess.ActivePowerVoltageCharacteristic", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = ConfigurationPolicy.REQUIRE//
 )
 public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsComponent
 		implements PolyLine, Controller, OpenemsComponent {
@@ -50,9 +50,6 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 
 	private LocalDateTime lastSetPowerTime = LocalDateTime.MIN;
 
-	/**
-	 * nominal voltage in [mV].
-	 */
 	private float referencePoint; // Voltage Ratio
 	private Config config;
 
@@ -98,15 +95,16 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "meter", config.meter_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
 			return;
 		}
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -124,13 +122,15 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 			break;
 		case OFF_GRID:
 			return;
+		default:
+			break;
 		}
 
 		Channel<Integer> gridLineVoltage = this.meter.channel(SymmetricMeter.ChannelId.VOLTAGE);
 		this.referencePoint = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
 		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.referencePoint);
 		if (this.referencePoint == 0) {
-			log.info("Voltage Ratio is 0");
+			this.log.info("Voltage Ratio is 0");
 			return;
 		}
 		Integer power = this.getLineValue(JsonUtils.getAsJsonArray(//
@@ -141,7 +141,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 		if (this.lastSetPowerTime.isAfter(LocalDateTime.now(clock).minusSeconds(this.config.waitForHysteresis()))) {
 			return;
 		}
-		lastSetPowerTime = LocalDateTime.now(clock);
+		this.lastSetPowerTime = LocalDateTime.now(clock);
 
 		this.channel(ChannelId.CALCULATED_POWER).setNextValue(power);
 		this.ess.setActivePowerEquals(power);
@@ -161,7 +161,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 
 	@Override
 	public Float getLineValue(JsonArray lineConfig, float referencePoint) throws OpenemsNamedException {
-		TreeMap<Float, Float> lineMap = parseLine(lineConfig);
+		TreeMap<Float, Float> lineMap = this.parseLine(lineConfig);
 		Entry<Float, Float> floorEntry = lineMap.floorEntry(referencePoint);
 		Entry<Float, Float> ceilingEntry = lineMap.ceilingEntry(referencePoint);
 		// In case of referencePoint is smaller than floorEntry key

@@ -97,15 +97,16 @@ public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "meter", config.meter_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
 			return;
 		}
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -117,20 +118,16 @@ public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent
 		this.referencePoint = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
 		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.referencePoint);
 		if (this.referencePoint == 0) {
-			log.info("Voltage Ratio is 0");
+			this.log.info("Voltage Ratio is 0");
 			return;
 		}
-
-		int calculatedPower = 0;
-		Integer power = getLineValue(JsonUtils.getAsJsonArray(//
-				JsonUtils.parse(this.config.lineConfig())), this.referencePoint).intValue();
 
 		// Do NOT change Set Power If it Does not exceed the hysteresis time
 		Clock clock = this.componentManager.getClock();
 		if (this.lastSetPowerTime.isAfter(LocalDateTime.now(clock).minusSeconds(this.config.waitForHysteresis()))) {
 			return;
 		}
-		lastSetPowerTime = LocalDateTime.now(clock);
+		this.lastSetPowerTime = LocalDateTime.now(clock);
 
 		Value<Integer> apparentPower = this.ess.getMaxApparentPower();
 		if (!apparentPower.isDefined() || apparentPower.get() == 0) {
@@ -140,8 +137,11 @@ public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent
 		// Current version has inverse behaviour of Active Power Voltage Characteristic
 		// Charges with Reactive Power (in Active was discharging for
 		// lower voltage[compare to nominal voltage])
+		Integer power = this.getLineValue(JsonUtils.getAsJsonArray(//
+				JsonUtils.parse(this.config.lineConfig())), this.referencePoint).intValue();
 		Integer setPower = (int) (apparentPower.orElse(0) * power * 0.01);
-		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.REACTIVE, setPower);
+		int calculatedPower = this.ess.getPower().fitValueIntoMinMaxPower(this.id(), this.ess, Phase.ALL, Pwr.REACTIVE,
+				setPower);
 		this.channel(ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
 		this.ess.setReactivePowerEquals(calculatedPower);
 	}
@@ -159,28 +159,28 @@ public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent
 
 	@Override
 	public Float getLineValue(JsonArray lineConfig, float referencePoint) throws OpenemsNamedException {
-			TreeMap<Float, Float> lineMap = parseLine(lineConfig);
-			Entry<Float, Float> floorEntry = lineMap.floorEntry(referencePoint);
-			Entry<Float, Float> ceilingEntry = lineMap.ceilingEntry(referencePoint);
-			// In case of referencePoint is smaller than floorEntry key
-			try {
-				if (floorEntry.getKey().equals(referencePoint)) {
-					return floorEntry.getValue().floatValue();
-				}
-			} catch (NullPointerException e) {
-				return ceilingEntry.getValue().floatValue();
-			}
-			// In case of referencePoint is bigger than ceilingEntry key
-			try {
-				if (ceilingEntry.getKey().equals(referencePoint)) {
-					return ceilingEntry.getValue().floatValue();
-				}
-			} catch (NullPointerException e) {
+		TreeMap<Float, Float> lineMap = this.parseLine(lineConfig);
+		Entry<Float, Float> floorEntry = lineMap.floorEntry(referencePoint);
+		Entry<Float, Float> ceilingEntry = lineMap.ceilingEntry(referencePoint);
+		// In case of referencePoint is smaller than floorEntry key
+		try {
+			if (floorEntry.getKey().equals(referencePoint)) {
 				return floorEntry.getValue().floatValue();
 			}
-
-			Float m = (ceilingEntry.getValue() - floorEntry.getValue()) / (ceilingEntry.getKey() - floorEntry.getKey());
-			Float t = floorEntry.getValue() - m * floorEntry.getKey();
-			return m * referencePoint + t;
+		} catch (NullPointerException e) {
+			return ceilingEntry.getValue().floatValue();
 		}
+		// In case of referencePoint is bigger than ceilingEntry key
+		try {
+			if (ceilingEntry.getKey().equals(referencePoint)) {
+				return ceilingEntry.getValue().floatValue();
+			}
+		} catch (NullPointerException e) {
+			return floorEntry.getValue().floatValue();
+		}
+
+		Float m = (ceilingEntry.getValue() - floorEntry.getValue()) / (ceilingEntry.getKey() - floorEntry.getKey());
+		Float t = floorEntry.getValue() - m * floorEntry.getKey();
+		return m * referencePoint + t;
+	}
 }
