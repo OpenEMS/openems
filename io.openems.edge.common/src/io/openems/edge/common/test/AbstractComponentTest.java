@@ -170,7 +170,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 						.channel(output.address.getChannelId());
 				Object got;
 				if (channel instanceof WriteChannel) {
-					got = ((WriteChannel<?>) channel).getNextWriteValue().orElse(null);
+					got = ((WriteChannel<?>) channel).getNextWriteValueAndReset().orElse(null);
 				} else {
 					Value<?> value = channel.getNextValue();
 					got = value.orElse(null);

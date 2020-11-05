@@ -51,7 +51,6 @@ public class KeepTargetDirectionAndMaximizeInOrder {
 		}
 
 		PointValuePair result = ConstraintSolver.solve(coefficients, constraints);
-		PointValuePair thisSolution = null;
 
 		Relationship relationship = Relationship.EQUALS;
 		switch (targetDirection) {
@@ -69,18 +68,14 @@ public class KeepTargetDirectionAndMaximizeInOrder {
 		for (Inverter inv : targetInverters) {
 			// Create Constraint to force Ess positive/negative/zero according to
 			// targetDirection
-			Constraint c = ConstraintUtil.createSimpleConstraint(coefficients, //
-					inv.toString() + ": Force " + targetDirection.name(), //
-					inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, relationship, 0);
-			constraints.add(c);
-			// Try to solve with Constraint
-			try {
-				thisSolution = ConstraintSolver.solve(coefficients, constraints);
-				result = thisSolution; // only if solving was successful
-			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
-				// solving failed
-				constraints.remove(c);
-			}
+			result = addContraintIfProblemStillSolves(result, constraints, coefficients,
+					ConstraintUtil.createSimpleConstraint(coefficients, //
+							inv.toString() + ": Force ActivePower " + targetDirection.name(), //
+							inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, relationship, 0));
+			result = addContraintIfProblemStillSolves(result, constraints, coefficients,
+					ConstraintUtil.createSimpleConstraint(coefficients, //
+							inv.toString() + ": Force ReactivePower " + targetDirection.name(), //
+							inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, relationship, 0));
 		}
 
 		if (targetDirection == TargetDirection.KEEP_ZERO && result != null) {
@@ -95,23 +90,45 @@ public class KeepTargetDirectionAndMaximizeInOrder {
 			} else {
 				goal = GoalType.MAXIMIZE;
 			}
-			double target = CalculatePowerExtrema.from(coefficients, allConstraints, inv.getEssId(), inv.getPhase(),
-					Pwr.ACTIVE, goal);
-			Constraint c = ConstraintUtil.createSimpleConstraint(coefficients, //
-					inv.toString() + ": Set " + goal.name() + " value", //
-					inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, target);
-			constraints.add(c);
-			// Try to solve with Constraint
-			try {
-				thisSolution = ConstraintSolver.solve(coefficients, constraints);
-				result = thisSolution; // only if solving was successful
-			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
-				// If solving fails: remove the Constraints
-				constraints.remove(c);
-			}
+
+			double activePowerTarget = CalculatePowerExtrema.from(coefficients, allConstraints, inv.getEssId(),
+					inv.getPhase(), Pwr.ACTIVE, goal);
+			result = addContraintIfProblemStillSolves(result, constraints, coefficients,
+					ConstraintUtil.createSimpleConstraint(coefficients, //
+							inv.toString() + ": Set ActivePower " + goal.name() + " value", //
+							inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, activePowerTarget));
+
+			double reactivePowerTarget = CalculatePowerExtrema.from(coefficients, allConstraints, inv.getEssId(),
+					inv.getPhase(), Pwr.REACTIVE, goal);
+			result = addContraintIfProblemStillSolves(result, constraints, coefficients,
+					ConstraintUtil.createSimpleConstraint(coefficients, //
+							inv.toString() + ": Set ReactivePower " + goal.name() + " value", //
+							inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, Relationship.EQUALS, reactivePowerTarget));
 		}
 
 		return result;
+	}
+
+	/**
+	 * Add Constraint only if the problem still solves with the Constraint.
+	 * 
+	 * @param lastResult   the last result
+	 * @param constraints  the list of {@link Constraint}s
+	 * @param coefficients the {@link Coefficients}
+	 * @param c            the {@link Constraint} to be added
+	 * @return new solution on success; last result on error
+	 */
+	private static PointValuePair addContraintIfProblemStillSolves(PointValuePair lastResult,
+			List<Constraint> constraints, Coefficients coefficients, Constraint c) {
+		constraints.add(c);
+		// Try to solve with Constraint
+		try {
+			return ConstraintSolver.solve(coefficients, constraints); // only if solving was successful
+		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
+			// solving failed
+			constraints.remove(c);
+			return lastResult;
+		}
 	}
 
 }

@@ -118,6 +118,7 @@
 	bnd.identity;id='io.openems.edge.meter.microcare.sdm630',\
 	bnd.identity;id='io.openems.edge.meter.pqplus.umd97',\
 	bnd.identity;id='io.openems.edge.meter.schneider.acti9.smartlink',\
+	bnd.identity;id='io.openems.edge.meter.sma.shm20',\
 	bnd.identity;id='io.openems.edge.meter.socomec',\
 	bnd.identity;id='io.openems.edge.meter.sunspec',\
 	bnd.identity;id='io.openems.edge.meter.virtual',\
@@ -236,6 +237,7 @@
 	io.openems.edge.kaco.blueplanet.hybrid10;version=snapshot,\
 	io.openems.edge.kostal.piko;version=snapshot,\
 	io.openems.edge.meter.abb;version=snapshot,\
+	io.openems.edge.meter.api;version=snapshot,\
 	io.openems.edge.meter.artemes.am2;version=snapshot,\
 	io.openems.edge.meter.bcontrol.em300;version=snapshot,\
 	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot,\
@@ -244,6 +246,7 @@
 	io.openems.edge.meter.microcare.sdm630;version=snapshot,\
 	io.openems.edge.meter.pqplus.umd97;version=snapshot,\
 	io.openems.edge.meter.schneider.acti9.smartlink;version=snapshot,\
+	io.openems.edge.meter.sma.shm20;version=snapshot,\
 	io.openems.edge.meter.socomec;version=snapshot,\
 	io.openems.edge.meter.sunspec;version=snapshot,\
 	io.openems.edge.meter.virtual;version=snapshot,\

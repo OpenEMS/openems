@@ -1869,7 +1869,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		// check to see if the Oscillator is enabled.
 		byte[] state = readDevice();
 		if (isClockRunning(state)) {
-			// if the osciallator is not enabled, start it
+			// if the oscillator is not enabled, start it
 			setClockRunEnable(true, state);
 			writeDevice(state);
 			// and give it the required time

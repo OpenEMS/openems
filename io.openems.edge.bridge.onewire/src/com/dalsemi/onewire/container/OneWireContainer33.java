@@ -53,7 +53,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * in EPROM-emulation mode ("write to 0", page0)
  * <LI>unique, fatory-lasered and tested 64-bit registration number (8-bit
  * family code + 48-bit serial number + 8-bit CRC tester) assures absolute
- * traceablity because no two parts are alike.
+ * traceability because no two parts are alike.
  * <LI>Built-in multidrop controller ensures compatibility with other 1-Wire net
  * products.
  * <LI>Reduces control, address, data and power to a single data pin.
@@ -354,7 +354,7 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * Retrieve the Maxim Integrated Products part number of the iButton as a
 	 * string. For example 'DS1992'.
 	 *
-	 * @return string represetation of the iButton name.
+	 * @return string representation of the iButton name.
 	 */
 	public String getName() {
 		return "DS1961S";
@@ -374,7 +374,7 @@ public class OneWireContainer33 extends OneWireContainer {
 	/**
 	 * Retrieve a short description of the function of the iButton type.
 	 *
-	 * @return string represetation of the function description.
+	 * @return string representation of the function description.
 	 */
 	public String getDescription() {
 		return "1K-Bit protected 1-Wire EEPROM with SHA-1 Engine.";

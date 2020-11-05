@@ -104,7 +104,7 @@ import com.dalsemi.onewire.utils.Convert;
  * <li>NetAdapter.MulticastEnabled=true</li>
  * </ul>
  * The port used and the multicast group used for multicast sockets can also be
- * changed. The group however, must fall withing a valid range. For more
+ * changed. The group however, must fall within a valid range. For more
  * information about multicast sockets in Java, see the Java tutorial on
  * networking at <A HREF="http://java.sun.com/docs/books/tutorial/">
  * http://java.sun.com/docs/books/tutorial/</A>. Change the defaults in the
@@ -259,7 +259,7 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * equal to RET_SUCCESS, then it tries to create an appropriate error message.
 	 * If it is RET_FAILURE, it reads a string representing the error message. If it
 	 * is neither, it wraps an error message indicating that an unspecified error
-	 * occurred and attemps a reconnect.
+	 * occurred and attempts a reconnect.
 	 */
 	private void checkReturnValue(Connection conn) throws IOException, OneWireException, OneWireIOException {
 		byte retVal = conn.input.readByte();
@@ -1137,7 +1137,7 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * they want to ensure exclusive use. If it is not called around several methods
 	 * then it will be called inside each method.
 	 *
-	 * @param blocking <code>true</code> if want to block waiting for an excluse
+	 * @param blocking <code>true</code> if want to block waiting for exclusive
 	 *                 access to the adapter
 	 * @return <code>true</code> if blocking was false and a exclusive session with
 	 *         the adapter was acquired

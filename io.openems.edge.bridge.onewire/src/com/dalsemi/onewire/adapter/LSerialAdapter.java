@@ -217,7 +217,7 @@ public class LSerialAdapter extends DSPortAdapter {
 	 */
 	boolean searchOnlyAlarmingButtons;
 
-	/** Flag to indicate next search will not be preceeded by a 1-Wire reset */
+	/** Flag to indicate next search will not be preceded by a 1-Wire reset */
 	private boolean skipResetOnSearch = false;
 
 	/** Flag to indicate next search will be a 'first' */
@@ -589,7 +589,7 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * has not yet been relinquished.
 	 * <p>
 	 *
-	 * @param blocking <code>true</code> if want to block waiting for an excluse
+	 * @param blocking <code>true</code> if want to block waiting for exclusive
 	 *                 access to the adapter
 	 * @return <code>true</code> if blocking was false and a exclusive session with
 	 *         the adapter was acquired
@@ -1176,7 +1176,7 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * Enumeration com_enum = CommPortIdentifier.getPortIdentifiers();
 	 * CommPortIdentifier port_id; SerialService serial_instance;
 	 * 
-	 * // loop throught all of the serial port elements while
+	 * // loop through all of the serial port elements while
 	 * (com_enum.hasMoreElements()) {
 	 * 
 	 * // get the next com port port_id = (CommPortIdentifier)

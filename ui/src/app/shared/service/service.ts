@@ -280,7 +280,7 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * Gets the ChannelAdresses for cumulated values that should be queried.
+   * Gets the ChannelAddresses for cumulated values that should be queried.
    * 
    * @param edge the current Edge
    */
