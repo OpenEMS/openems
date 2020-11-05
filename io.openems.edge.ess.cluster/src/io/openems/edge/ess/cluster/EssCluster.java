@@ -159,20 +159,13 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 				activePowerL3.addValue(e.getActivePowerL3Channel());
 				reactivePowerL3.addValue(e.getReactivePowerL3Channel());
 			}
-		}
 
-		// Setting the allowed charge and discharge power
-		for (String essId : this.config.ess_ids()) {
-			ManagedSymmetricEss ess;
-			try {
-				ess = this.componentManager.getComponent(essId);
-			} catch (OpenemsNamedException e) {
-				this.logError(this.log, e.getMessage());
-				continue;
+			// Calculate allowed charge and discharge power
+			if (ess instanceof ManagedSymmetricEss) {
+				ManagedSymmetricEss e = (ManagedSymmetricEss) ess;
+				allowedChargePower.addValue(e.getAllowedChargePowerChannel());
+				allowedDischargePower.addValue(e.getAllowedDischargePowerChannel());
 			}
-
-			allowedChargePower.addValue(ess.getAllowedChargePowerChannel());
-			allowedDischargePower.addValue(ess.getAllowedDischargePowerChannel());
 		}
 
 		// Set values
