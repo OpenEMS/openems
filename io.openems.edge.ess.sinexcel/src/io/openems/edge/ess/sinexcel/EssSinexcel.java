@@ -342,7 +342,7 @@ public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHan
 		STATE_70(Doc.of(Level.WARNING) //
 				.text("DC relay short-circuit")), //
 		STATE_71(Doc.of(Level.WARNING) //
-				.text("DC realy short open")), //
+				.text("DC relay short open")), //
 		STATE_72(Doc.of(Level.WARNING) //
 				.text("Battery power over load")), //
 		STATE_73(Doc.of(Level.FAULT) //

@@ -16,7 +16,7 @@ export class FixDigitalOutputChartOverviewComponent {
     public showTotal: boolean = null;
     public fixDigitalOutputComponents: string[] = [];
 
-    // referene to the Utils method to access via html
+    // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
     constructor(

@@ -1,4 +1,4 @@
-﻿Level;Device;;Trigger;;;Identification;;;;;;;Parameters;;;;;;;;;;Kommentar
+Level;Device;;Trigger;;;Identification;;;;;;;Parameters;;;;;;;;;;Kommentar
 ;;;;;;;;;;;;;Condition;;;;;;Reaction;;;;
 ;Model / Manufacturer;Type;Source;Register / Module;Bit;Code;;;;Namespace;Enumerator;Text;Scope;Type;Trigger;;Acknowledge;;Dera-ting;Auto Ack. / Restart;Level;Target;
 ;;;;;;Main;M;B;Full;;;;;;Level;Delay;Level;Delay;;;;;
@@ -1078,7 +1078,7 @@ Software;MR;Software;Sharc;Measurements;11;0x01;0;0;0x01000B;ERROR_CODES::SW;PQM
 Software;MR;;;;12;0x01;0;0;0x01000C;ERROR_CODES::SW;PQM_PACKET_MISSING;Measurement packet missing;Blackfin;Extern;;;;;;;WARNING;SYSTEM;not implemented
 Software;MR;;;;13;0x01;0;0;0x01000D;ERROR_CODES::SW;PQM_INVALID_DATA;Invalid measurement data;Blackfin;Extern;;;;;;;WARNING;SYSTEM;not implemented
 Software;MR;Software;Sharc;Userinterface;14;0x01;0;0;0x01000E;ERROR_CODES::SW;RTDS_SOFTWARE;Warning: RTDS Version - Do not use on real hardware;SHARC;Extern;;;;;;;INFO;SYSTEM;
-Software;MR;Software;Sharc / Blackfin;;15;0x01;0;0;0x01000F;ERROR_CODES::SW;ARRAY_OVERFLOW;Array oveflow;Common;Extern;;;;;;;SHUTDOWN;SYSTEM;Acknowledge not possible
+Software;MR;Software;Sharc / Blackfin;;15;0x01;0;0;0x01000F;ERROR_CODES::SW;ARRAY_OVERFLOW;Array overflow;Common;Extern;;;;;;;SHUTDOWN;SYSTEM;Acknowledge not possible
 Software;MR;Software;Sharc;;16;0x01;0;0;0x010010;ERROR_CODES::SW;AUTONOM_TEST_SW;Warning: AUTONOM TEST SW ( Autostart );SHARC;Extern;;;;;;;INFO;SYSTEM;
 Software;MR;Software;Sharc;AutarsysFacade;17;0x01;0;0;0x010011;ERROR_CODES::SW;NO_BLACKSTART_OR_SYNC_ENABLED;no Blackstart or SyncV enabled;SHARC;Extern;;;;;;;SHUTDOWN;SYSTEM;
 Software;MR;Software;Sharc;AutarsysFacade;18;0x01;0;0;0x010012;ERROR_CODES::SW;SYNC_V_AND_BLACKSTART_ENABLED;sycnV and Blackstart enabled;SHARC;Extern;;;;;;;SHUTDOWN;SYSTEM;
@@ -1086,7 +1086,7 @@ Software;MR;Software;Sharc;AutarsysFacade;19;0x01;0;0;0x010013;ERROR_CODES::SW;V
 Software;MR;Software;Sharc;AutarsysFacade;20;0x01;0;0;0x010014;ERROR_CODES::SW;VOLTAGE_SYNC_NOT_SUCCEDDED;voltage sync not succedded;SHARC;Extern;;;;;;;SHUTDOWN;SYSTEM;
 Software;MR;Software;Sharc;AutarsysFacade;21;0x01;0;0;0x010015;ERROR_CODES::SW;VOLTAGE_NOT_OK_FOR_SYNC_V;voltage not ok for sync V;SHARC;Extern;;;;;;;SHUTDOWN;SYSTEM;
 Software;MR;Software;Sharc;AutarsysFacade;22;0x01;0;0;0x010016;ERROR_CODES::SW;GENERATOR_CONNECTED_WRONG_PHASE;generator connected wrong phase;SHARC;Extern;;;;;;;SHUTDOWN;SYSTEM;
-Software;MR;Software;Sharc;AutarsysFacade;23;0x01;0;0;0x010017;ERROR_CODES::SW;FRT_FAULT;FRT Error occured;SHARC;Extern;;;;;;;SHUTDOWN;SYSTEM;
+Software;MR;Software;Sharc;AutarsysFacade;23;0x01;0;0;0x010017;ERROR_CODES::SW;FRT_FAULT;FRT Error occurred;SHARC;Extern;;;;;;;SHUTDOWN;SYSTEM;
 Software;MR;Software;Sharc;AutarsysFacade;24;0x01;0;0;0x010018;ERROR_CODES::SW;IDC_OVERCURRENT;DC-Link Overcurrent;Blackfin;HIGH;140;0;;;;;SHUTDOWN;SYSTEM;
 Software;MR;Software;Sharc / Blackfin;Measurements;00;0x03;0;0;0x030000;ERROR_CODES::PQM::CFG;SUMMANDS_OVERFLOW;Summands overflow;SHARC;Extern;;;;;;;SHUTDOWN;SYSTEM;
 Software;MR;Software;Sharc / Blackfin;Measurements;01;0x03;0;0;0x030001;ERROR_CODES::PQM::CFG;CYCLIC_CONFIG;Cyclic current sum configuration;SHARC;Extern;;;;;;;SHUTDOWN;SYSTEM;

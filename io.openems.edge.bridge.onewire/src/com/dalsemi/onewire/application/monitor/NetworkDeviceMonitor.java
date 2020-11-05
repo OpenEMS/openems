@@ -196,7 +196,7 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 					while (search_result) {
 						// get the 1-Wire address
 						Long longAddress = new Long(adapter.getAddressAsLong());
-						// check if the device allready exists in our hashtable
+						// check if the device already exists in our hashtable
 						if (!deviceAddressHash.containsKey(longAddress)) {
 							OneWireContainer owc = getDeviceContainer(adapter, longAddress);
 							// check to see if it's a switch and if we are supposed

@@ -27,7 +27,7 @@ export enum WidgetFactory {
     'Controller.Symmetric.PeakShaving',
     'Controller.Symmetric.DynamicDischarge',
     'Evcs.Cluster.PeakShaving',
-    'Evcs.Cluster.SelfConsumtion',
+    'Evcs.Cluster.SelfConsumption',
 }
 
 export class Widget {

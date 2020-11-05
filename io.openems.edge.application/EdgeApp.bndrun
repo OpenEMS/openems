@@ -237,6 +237,7 @@
 	io.openems.edge.kaco.blueplanet.hybrid10;version=snapshot,\
 	io.openems.edge.kostal.piko;version=snapshot,\
 	io.openems.edge.meter.abb;version=snapshot,\
+	io.openems.edge.meter.api;version=snapshot,\
 	io.openems.edge.meter.artemes.am2;version=snapshot,\
 	io.openems.edge.meter.bcontrol.em300;version=snapshot,\
 	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot,\
