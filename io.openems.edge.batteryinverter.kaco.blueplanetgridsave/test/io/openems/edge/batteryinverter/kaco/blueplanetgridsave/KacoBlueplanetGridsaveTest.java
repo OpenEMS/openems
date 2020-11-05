@@ -95,7 +95,9 @@ public class KacoBlueplanetGridsaveTest {
 		test.activate(MyConfig.create() //
 				.setId(BATTERY_INVERTER_ID) //
 				.setStartStopConfig(StartStopConfig.START) //
-				.setModbusId(MODBUS_ID).build()); //
+				.setModbusId(MODBUS_ID) //
+				.setActivateWatchdog(false) //
+				.build()); //
 	}
 
 	@Test

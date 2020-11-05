@@ -115,6 +115,10 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 		final CalculateIntegerSum capacity = new CalculateIntegerSum();
 		final CalculateGridMode gridMode = new CalculateGridMode();
 		final CalculateIntegerSum activePower = new CalculateIntegerSum();
+
+		final CalculateIntegerSum allowedChargePower = new CalculateIntegerSum();
+		final CalculateIntegerSum allowedDischargePower = new CalculateIntegerSum();
+
 		final CalculateIntegerSum reactivePower = new CalculateIntegerSum();
 		final CalculateIntegerSum maxApparentPower = new CalculateIntegerSum();
 		final CalculateLongSum activeChargeEnergy = new CalculateLongSum();
@@ -140,6 +144,7 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 			capacity.addValue(ess.getCapacityChannel());
 			gridMode.addValue(ess.getGridModeChannel());
 			activePower.addValue(ess.getActivePowerChannel());
+
 			reactivePower.addValue(ess.getReactivePowerChannel());
 			maxApparentPower.addValue(ess.getMaxApparentPowerChannel());
 			activeChargeEnergy.addValue(ess.getActiveChargeEnergyChannel());
@@ -154,6 +159,13 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 				activePowerL3.addValue(e.getActivePowerL3Channel());
 				reactivePowerL3.addValue(e.getReactivePowerL3Channel());
 			}
+
+			// Calculate allowed charge and discharge power
+			if (ess instanceof ManagedSymmetricEss) {
+				ManagedSymmetricEss e = (ManagedSymmetricEss) ess;
+				allowedChargePower.addValue(e.getAllowedChargePowerChannel());
+				allowedDischargePower.addValue(e.getAllowedDischargePowerChannel());
+			}
 		}
 
 		// Set values
@@ -165,6 +177,9 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 		this._setMaxApparentPower(maxApparentPower.calculate());
 		this._setActiveChargeEnergy(activeChargeEnergy.calculate());
 		this._setActiveDischargeEnergy(activeDischargeEnergy.calculate());
+
+		this._setAllowedChargePower(allowedChargePower.calculate());
+		this._setAllowedDischargePower(allowedDischargePower.calculate());
 
 		this._setActivePowerL1(activePowerL1.calculate());
 		this._setReactivePowerL1(reactivePowerL1.calculate());
