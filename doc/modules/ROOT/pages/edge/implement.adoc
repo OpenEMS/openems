@@ -174,7 +174,7 @@ import io.openems.edge.meter.api.MeterType;
 ----
 <1> The *@ObjectClassDefinition* annotation defines this file as a Meta Type Resource for OSGi configuration admin. Use it to set a _name_ and _description_ for this OpenEMS Component.
 // TODO add screenshot that shows how the strings are used in Apache
-<2> The *id* configuration parameter sets the OpenEMS Component-ID (see xref:coreconcepts.adoc[Channel Adress]). _Note_: A *default* ID 'meter0' is defined. It is good practice to define such an ID here, as it simplifies configuration in the UI.
+<2> The *id* configuration parameter sets the OpenEMS Component-ID (see xref:coreconcepts.adoc[Channel Address]). _Note_: A *default* ID 'meter0' is defined. It is good practice to define such an ID here, as it simplifies configuration in the UI.
 <3> The *alias* configuration parameter sets the human-readable name of this OpenEMS Component. If no alias is configured, the Component-ID is used instead.
 <4> The *enabled* parameter provides a _soft_ way of deactivating an OpenEMS Component programmatically.
 <5> The *@AttributeDefinition* annotation provides meta information about a configuration parameter like _name_ and _description_.
