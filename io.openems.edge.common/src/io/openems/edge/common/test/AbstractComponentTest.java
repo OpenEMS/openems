@@ -171,7 +171,6 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				Object got;
 				if (channel instanceof WriteChannel) {
 					got = ((WriteChannel<?>) channel).getNextWriteValue().orElse(null);
-					gotText = Objects.toString(got);
 				} else {
 					Value<?> value = channel.getNextValue();
 					got = value.orElse(null);
