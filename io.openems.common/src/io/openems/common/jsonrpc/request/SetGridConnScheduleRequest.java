@@ -1,6 +1,7 @@
 package io.openems.common.jsonrpc.request;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,7 +42,7 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 		return new SetGridConnScheduleRequest(r.getId(), edgeId, schedule);
 	}
 
-	public final static String METHOD = "setGridConnSchedule";
+	public static final String METHOD = "setGridConnSchedule";
 
 	private final String edgeId;
 	private final List<GridConnSchedule> schedule;
@@ -77,11 +78,11 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 	}
 
 	public String getEdgeId() {
-		return edgeId;
+		return this.edgeId;
 	}
 
 	public List<GridConnSchedule> getSchedule() {
-		return schedule;
+		return this.schedule;
 	}
 
 	public static class GridConnSchedule {
@@ -94,6 +95,7 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 				int activePowerSetPoint = JsonUtils.getAsInt(se, "activePowerSetPoint");
 				schedule.add(new GridConnSchedule(startTimestamp, duration, activePowerSetPoint));
 			}
+			schedule.sort(Comparator.comparing(GridConnSchedule::getStartTimestamp).reversed());
 			return schedule;
 		}
 
@@ -102,6 +104,8 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 		private final int activePowerSetPoint;
 
 		/**
+		 * Construct an instance of {@link GridConnSchedule}.
+		 * 
 		 * @param startTimestamp      epoch in seconds
 		 * @param duration            in seconds
 		 * @param activePowerSetPoint in Watt
@@ -113,15 +117,15 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 		}
 
 		public long getStartTimestamp() {
-			return startTimestamp;
+			return this.startTimestamp;
 		}
 
 		public int getDuration() {
-			return duration;
+			return this.duration;
 		}
 
 		public int getActivePowerSetPoint() {
-			return activePowerSetPoint;
+			return this.activePowerSetPoint;
 		}
 
 		public JsonObject toJson() {

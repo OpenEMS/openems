@@ -197,7 +197,7 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	 * @param adapter     DSPortAdapter that this NetAdapterSim will proxy commands
 	 *                    to.
 	 * @param multiThread if true, multiple TCP/IP connections are allowed to
-	 *                    interact simulataneously with this adapter.
+	 *                    interact simultaneously with this adapter.
 	 *
 	 * @throws IOException if a network error occurs or the listen socket cannot be
 	 *                     created on the specified port.
@@ -222,7 +222,7 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	 *                    to.
 	 * @param listenPort  the TCP/IP port to listen on for incoming connections
 	 * @param multiThread if true, multiple TCP/IP connections are allowed to
-	 *                    interact simulataneously with this adapter.
+	 *                    interact simultaneously with this adapter.
 	 *
 	 * @throws IOException if a network error occurs or the listen socket cannot be
 	 *                     created on the specified port.
@@ -312,7 +312,7 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	 *                    to.
 	 * @param serverSock  the ServerSocket for incoming connections
 	 * @param multiThread if true, multiple TCP/IP connections are allowed to
-	 *                    interact simulataneously with this adapter.
+	 *                    interact simultaneously with this adapter.
 	 *
 	 * @throws IOException if a network error occurs or the listen socket cannot be
 	 *                     created on the specified port.
@@ -431,7 +431,7 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 			try {
 				sock = serverSocket.accept();
 				// reset time of last command, so we don't simulate a bunch of
-				// unneccessary time
+				// unnecessary time
 				timeOfLastCommand = System.currentTimeMillis();
 				handleConnection(sock);
 			} catch (IOException ioe1) {
@@ -673,7 +673,7 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 					break;
 				default:
 					if (SIM_DEBUG && logFile != null)
-						logFile.println("Unkown command received: " + cmd);
+						logFile.println("Unknown command received: " + cmd);
 					break;
 				}
 			} catch (OneWireException owe) {

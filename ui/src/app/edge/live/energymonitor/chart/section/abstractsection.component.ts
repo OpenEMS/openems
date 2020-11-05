@@ -123,7 +123,7 @@ export enum GridMode {
 
 export abstract class AbstractSection {
 
-    public url: string = window.location.href;
+    public fillRef: string = "";
     public valuePath: string = "";
     public outlinePath: string = "";
     public energyFlow: EnergyFlow = null;
@@ -161,6 +161,19 @@ export abstract class AbstractSection {
                 }
             });
         });
+    }
+
+    /**
+     * attr.fill="{{ fillRef }}" has to be specific if using Safari (IOS Browser)
+     * otherwise Energymonitor wont be displayed correctly
+     */
+    protected adjustFillRefbyBrowser(): void {
+        if (navigator.vendor.match(/apple/i)) {
+            this.fillRef = "url(" + window.location.origin + window.location.pathname + "#" + this.sectionId + ")"
+        }
+        else {
+            this.fillRef = "url(#" + this.sectionId + ")"
+        }
     }
 
     /**
@@ -215,7 +228,7 @@ export abstract class AbstractSection {
      * This method is called on every change of values.
      * 
      * @param valueAbsolute the absolute value of the Section
-     * @param valueRatio    the relative value of the Secion in [-1,1]
+     * @param valueRatio    the relative value of the Section in [-1,1]
      * @param sumRatio      the relative value of the Section compared to the total System.InPower/OutPower [0,1]
      */
     protected updateSectionData(valueAbsolute: number, valueRatio: number, sumRatio: number) {

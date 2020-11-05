@@ -81,8 +81,7 @@
             <ion-item>
               <ion-icon slot="start" name="wifi-outline"></ion-icon>
               <ion-label class="ion-text-wrap">
-                <h2>Verbindung wird aufgebaut...</h2>
-                <!-- TODO translate -->
+                <h2 translate>Index.connectionInProgress</h2>
               </ion-label>
             </ion-item>
           </ion-card>
@@ -101,10 +100,6 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-
-    <!-- Show Sub-Views -->
-    <router-outlet id="content"></router-outlet>
-    <!-- TODO use ion-router-outlet once it does not break anymore the screen width <ion-router-outlet></ion-router-outlet> -->
 
     <systemLog *ngIf="isSystemLogEnabled"></systemLog>
 
@@ -137,8 +132,6 @@
           </ion-item>
         </nav>
       </ion-list>
-
-      <!-- TODO remove token and session_id from Cookie on logout -->
     </ion-content>
   </ion-menu>
 </ion-app>

@@ -25,39 +25,35 @@ export class ConsumptionComponent {
   ) { }
 
   ngOnInit() {
-    let channels = [];
-    this.service.getConfig().then(config => {
-      this.config = config;
-      this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED');
-      for (let component of this.consumptionMeterComponents) {
-        channels.push(
-          new ChannelAddress(component.id, 'ActivePower'),
-        )
-      }
-      this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster.SelfConsumtion') && !(component.factoryId == 'Evcs.Cluster.PeakShaving') && !component.isEnabled == false);
-      for (let component of this.evcsComponents) {
-        channels.push(
-          new ChannelAddress(component.id, 'ChargePower'),
-        )
-      }
-    })
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
+      let channels = [];
+      // general consumption channels
       channels.push(
         new ChannelAddress('_sum', 'ConsumptionActivePower'),
+        // channels for modal component, subscribe here for better UX
         new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
         new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
         new ChannelAddress('_sum', 'ConsumptionActivePowerL3'),
-        new ChannelAddress('_sum', 'ConsumptionMaxActivePower')
       )
+      // other consumption channels
+      this.service.getConfig().then(config => {
+        this.config = config;
+        this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED');
+        for (let component of this.consumptionMeterComponents) {
+          channels.push(
+            new ChannelAddress(component.id, 'ActivePower'),
+          )
+        }
+        this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster.SelfConsumption') && !(component.factoryId == 'Evcs.Cluster.PeakShaving') && !component.isEnabled == false);
+        for (let component of this.evcsComponents) {
+          channels.push(
+            new ChannelAddress(component.id, 'ChargePower'),
+          )
+        }
+      })
       this.edge.subscribeChannels(this.websocket, ConsumptionComponent.SELECTOR, channels);
     });
-  }
-
-  ngOnDestroy() {
-    if (this.edge != null) {
-      this.edge.unsubscribeChannels(this.websocket, ConsumptionComponent.SELECTOR);
-    }
   }
 
   async presentModal() {
@@ -97,6 +93,12 @@ export class ConsumptionComponent {
       };
     });
     return sum;
+  }
+
+  ngOnDestroy() {
+    if (this.edge != null) {
+      this.edge.unsubscribeChannels(this.websocket, ConsumptionComponent.SELECTOR);
+    }
   }
 }
 

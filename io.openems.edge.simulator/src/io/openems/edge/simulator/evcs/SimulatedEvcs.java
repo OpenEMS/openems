@@ -21,6 +21,7 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.Unit;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -73,7 +74,7 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "datasource", config.datasource_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {
 			return;
 		}
 
@@ -105,32 +106,34 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 	private double exactEnergySession = 0;
 
 	private void updateChannels() {
-		int simulatedChargePower = 0;
+		int chargePower = 0;
 
 		Optional<Integer> chargePowerLimitOpt = this.getSetChargePowerLimitChannel().getNextWriteValueAndReset();
 		if (chargePowerLimitOpt.isPresent()) {
+			int chargePowerLimit = chargePowerLimitOpt.get();
 
 			// copy write value to read value
-			this._setSetChargePowerLimit(chargePowerLimitOpt.get());
+			this._setSetChargePowerLimit(chargePowerLimit);
 
 			// get and store Simulated Charge Power
-			simulatedChargePower = this.datasource.getValue(OpenemsType.INTEGER, "ActivePower");
+			Integer simulatedChargePower = this.datasource.getValue(OpenemsType.INTEGER,
+					new ChannelAddress(this.id(), "ActivePower"));
 			this.channel(ChannelId.SIMULATED_CHARGE_POWER).setNextValue(simulatedChargePower);
 
 			// Apply Charge Limit
-			int chargePowerLimit = chargePowerLimitOpt.get();
-			simulatedChargePower = Math.min(simulatedChargePower, chargePowerLimit);
-			this._setSetChargePowerLimit(chargePowerLimit);
+			if (simulatedChargePower != null) {
+				chargePower = Math.min(simulatedChargePower, chargePowerLimit);
+			}
 		}
 
-		this._setChargePower(simulatedChargePower);
+		this._setChargePower(chargePower);
 
-		long timeDiff = ChronoUnit.MILLIS.between(lastUpdate, LocalDateTime.now());
+		long timeDiff = ChronoUnit.MILLIS.between(this.lastUpdate, LocalDateTime.now());
 		double energieTransfered = (timeDiff / 1000.0 / 60 / 60) * this.getChargePower().orElse(0);
 		this.exactEnergySession = this.exactEnergySession + energieTransfered;
-		this._setEnergySession((int) exactEnergySession);
+		this._setEnergySession((int) this.exactEnergySession);
 
-		lastUpdate = LocalDateTime.now();
+		this.lastUpdate = LocalDateTime.now();
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package io.openems.edge.fenecon.dess.charger;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -40,7 +41,7 @@ public abstract class AbstractFeneconDessCharger extends AbstractOpenemsModbusCo
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		final int offset = this.getOffset();
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(offset + 2, Priority.LOW, //

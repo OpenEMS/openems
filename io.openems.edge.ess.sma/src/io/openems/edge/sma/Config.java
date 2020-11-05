@@ -21,7 +21,7 @@ import io.openems.edge.ess.api.SinglePhase;
 
 	SinglePhase phase() default SinglePhase.L1;
 
-	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
+	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
 
 	int modbusUnitId() default 3;

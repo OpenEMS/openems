@@ -11,6 +11,7 @@ export const TRANSLATION = {
         changeFailed: 'Change failed',
         chargeDischarge: 'Charge/Discharge power',
         chargePower: 'Charge power',
+        componentCount: 'Number of components',
         componentInactive: 'Component is not active!',
         connectionLost: 'Connection lost. Trying to reconnect.',
         consumption: 'Consumption',
@@ -18,6 +19,8 @@ export const TRANSLATION = {
         currentName: 'current name',
         currentValue: 'current value',
         dateFormat: 'yyyy-MM-dd', // e.g. German: dd.MM.yyyy (dd = Day, MM = Month, yyyy = Year)
+        digitalInputs: 'Digital Inputs',
+        directConsumption: 'Direct consumption',
         dischargePower: 'Discharge power',
         fault: 'Fault',
         grid: 'Grid',
@@ -85,19 +88,26 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'About OpenEMS UI',
-        edgeSettings: 'FEMS Settings',
+        edgeSettings: 'OpenEMS Edge Settings',
         generalSettings: 'General Settings',
         index: 'Index',
         logout: 'Sign Out',
         menu: 'Menu',
-        overview: 'FEMS Overview',
+        overview: 'OpenEMS Edge Overview',
     },
     Index: {
         allConnected: 'All connections established.',
+        connectionInProgress: 'Establishing connection...',
         connectionFailed: 'Connection to {{value}} failed.', // value = name of websocket
         connectionSuccessful: 'Successfully connected to {{value}}.', // value = name of websocket
         isOffline: 'OpenEMS is offline!',
         toEnergymonitor: 'To Energymonitor...',
+    },
+    Login: {
+        title: "Login",
+        preamble: "Please enter your password or submit the default value to login as a guest.",
+        passwordLabel: "Password",
+        passwordPlaceholder: "Password",
     },
     Edge: {
         Index: {
@@ -185,7 +195,13 @@ export const TRANSLATION = {
                     status: 'Status',
                     totalCharge: 'Total charge',
                     totalChargingPower: 'Total charging power',
+                    unknown: 'Unknown',
                     unplugged: 'Unplugged',
+                    Administration: {
+                        carAdministration: 'Car administration',
+                        customCarInfo: 'If this is the case, your car can only be charged efficiently from a certain output. With this button, this is included in your configuration options as well as in the automatic charging calculations.',
+                        renaultZoe: 'Is a Renault Zoe mainly charged on this charging station?'
+                    },
                     NoConnection: {
                         description: 'No connection to the charging station.',
                         help1_1: 'The IP of the charging station appears when switching on again',

@@ -8,6 +8,7 @@ import { ChartOptionsPopoverComponent } from './shared/chartoptions/popover/popo
 import { EdgeModule } from './edge/edge.module';
 import { environment as env } from '../environments/environment';
 import { FormlyModule } from '@ngx-formly/core';
+import { FormlyWrapperFormField } from './edge/settings/component/shared/form-field.wrapper';
 import { IndexModule } from './index/index.module';
 import { InputTypeComponent } from './edge/settings/component/shared/input';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
@@ -33,6 +34,7 @@ import localDE from '@angular/common/locales/de';
     AppComponent,
     ChartOptionsPopoverComponent,
     InputTypeComponent,
+    FormlyWrapperFormField,
     PickDatePopoverComponent,
     RepeatTypeComponent,
     StatusSingleComponent,
@@ -52,6 +54,9 @@ import localDE from '@angular/common/locales/de';
     EdgeSettingsModule,
     env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],
     FormlyModule.forRoot({
+      wrappers: [
+        { name: 'form-field', component: FormlyWrapperFormField }
+      ],
       types: [
         { name: 'input', component: InputTypeComponent },
         { name: 'repeat', component: RepeatTypeComponent },

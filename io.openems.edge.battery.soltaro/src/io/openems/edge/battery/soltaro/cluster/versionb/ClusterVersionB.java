@@ -24,11 +24,11 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.ModuleParameters;
 import io.openems.edge.battery.soltaro.ResetState;
-import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
 import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
@@ -58,14 +58,14 @@ import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Bms.Soltaro.Cluster.VersionB", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
-public class ClusterVersionB extends AbstractOpenemsModbusComponent implements SoltaroBattery, SoltaroCluster, Battery,
-		OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
+public class ClusterVersionB extends AbstractOpenemsModbusComponent
+		implements SoltaroCluster, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	public static final int DISCHARGE_MAX_A = 0; // default value 0 to avoid damages
 	public static final int CHARGE_MAX_A = 0; // default value 0 to avoid damages
@@ -107,7 +107,6 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
-				SoltaroBattery.ChannelId.values(), //
 				SoltaroCluster.ChannelId.values(), //
 				ClusterVersionBChannelId.values() //
 		);
@@ -119,15 +118,21 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws OpenemsException {
 		// Create racks dynamically, do this before super() call because super() uses
 		// getModbusProtocol, and it is using racks...
 		for (int i : config.racks()) {
-			this.racks.put(i, new SingleRack(i, config.numberOfSlaves(), RACK_INFO.get(i).addressOffset, this));
+			RackInfo rackInfo = RACK_INFO.get(i);
+			if (rackInfo == null) {
+				throw new OpenemsException("Invalid configuration value [" + i + "] for 'racks'");
+			}
+			this.racks.put(i, new SingleRack(i, config.numberOfSlaves(), rackInfo.addressOffset, this));
 		}
 
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
 
 		this.config = config;
 		this.modbusBridgeId = config.modbus_id();
@@ -168,9 +173,6 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 		case ON:
 			this.startSystem();
 			break;
-		case CONFIGURE:
-			this.logWarn(this.log, "Cluster cannot be configured currently!");
-			break;
 		}
 	}
 
@@ -180,22 +182,22 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 		boolean readyForWorking = false;
 		switch (this.getStateMachineState()) {
 		case ERROR:
-			stopSystem();
-			errorDelayIsOver = LocalDateTime.now().plusSeconds(config.errorLevel2Delay());
-			setStateMachineState(State.ERRORDELAY);
+			this.stopSystem();
+			this.errorDelayIsOver = LocalDateTime.now().plusSeconds(this.config.errorLevel2Delay());
+			this.setStateMachineState(State.ERRORDELAY);
 			break;
 		case ERRORDELAY:
-			// If we are in the error delay time, the system is resetted, this can help
-			// handling the rrors
-			if (LocalDateTime.now().isAfter(errorDelayIsOver)) {
-				errorDelayIsOver = null;
-				resetDone = false;
+			// If we are in the error delay time, the system is reset, this can help
+			// handling the errors
+			if (LocalDateTime.now().isAfter(this.errorDelayIsOver)) {
+				this.errorDelayIsOver = null;
+				this.resetDone = false;
 				if (this.isError()) {
 					this.setStateMachineState(State.ERROR);
 				} else {
 					this.setStateMachineState(State.UNDEFINED);
 				}
-			} else if (!resetDone) {
+			} else if (!this.resetDone) {
 				this.handleErrorsWithReset();
 			}
 			break;
@@ -203,18 +205,18 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 		case INIT:
 			if (this.isSystemRunning()) {
 				this.setStateMachineState(State.RUNNING);
-				unsuccessfulStarts = 0;
-				startAttemptTime = null;
+				this.unsuccessfulStarts = 0;
+				this.startAttemptTime = null;
 			} else {
-				if (startAttemptTime.plusSeconds(config.maxStartTime()).isBefore(LocalDateTime.now())) {
-					startAttemptTime = null;
-					unsuccessfulStarts++;
+				if (this.startAttemptTime.plusSeconds(this.config.maxStartTime()).isBefore(LocalDateTime.now())) {
+					this.startAttemptTime = null;
+					this.unsuccessfulStarts++;
 					this.stopSystem();
 					this.setStateMachineState(State.STOPPING);
-					if (unsuccessfulStarts >= config.maxStartAppempts()) {
-						errorDelayIsOver = LocalDateTime.now().plusSeconds(config.startUnsuccessfulDelay());
+					if (this.unsuccessfulStarts >= this.config.maxStartAppempts()) {
+						this.errorDelayIsOver = LocalDateTime.now().plusSeconds(this.config.startUnsuccessfulDelay());
 						this.setStateMachineState(State.ERRORDELAY);
-						unsuccessfulStarts = 0;
+						this.unsuccessfulStarts = 0;
 					}
 				}
 			}
@@ -222,7 +224,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 		case OFF:
 			this.startSystem();
 			this.setStateMachineState(State.INIT);
-			startAttemptTime = LocalDateTime.now();
+			this.startAttemptTime = LocalDateTime.now();
 			break;
 		case RUNNING:
 			if (this.isSystemRunning()) {
@@ -304,7 +306,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 		case FINISHED:
 			this.resetState = ResetState.NONE;
 			this.setStateMachineState(State.ERRORDELAY);
-			resetDone = true;
+			this.resetDone = true;
 			break;
 		}
 	}
@@ -345,11 +347,11 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	}
 
 	private boolean isSystemStopped() {
-		return haveAllRacksTheSameContactorControlState(ContactorControl.CUT_OFF);
+		return this.haveAllRacksTheSameContactorControlState(ContactorControl.CUT_OFF);
 	}
 
 	private boolean isSystemRunning() {
-		return haveAllRacksTheSameContactorControlState(ContactorControl.ON_GRID);
+		return this.haveAllRacksTheSameContactorControlState(ContactorControl.ON_GRID);
 	}
 
 	private boolean haveAllRacksTheSameContactorControlState(ContactorControl cctrl) {
@@ -375,7 +377,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 			b = b && val.isPresent();
 		}
 
-		return b && !isSystemRunning() && !isSystemStopped();
+		return b && !this.isSystemRunning() && !this.isSystemStopped();
 	}
 
 	@Override
@@ -449,11 +451,11 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	}
 
 	public String getModbusBridgeId() {
-		return modbusBridgeId;
+		return this.modbusBridgeId;
 	}
 
 	public State getStateMachineState() {
-		return state;
+		return this.state;
 	}
 
 	public void setStateMachineState(State state) {
@@ -462,7 +464,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		ModbusProtocol protocol = new ModbusProtocol(this, new Task[] {
 				// -------- control registers of master --------------------------------------
 				new FC16WriteRegistersTask(0x1004, //
@@ -549,13 +551,13 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 
 				// -------- state registers of master --------------------------------------
 				new FC3ReadRegistersTask(0x1044, Priority.LOW, //
-						m(SoltaroBattery.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
+						m(SoltaroCluster.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
 						m(SoltaroCluster.ChannelId.SYSTEM_CURRENT, new UnsignedWordElement(0x1045), //
 								ElementToChannelConverter.SCALE_FACTOR_2), // TODO Check if scale factor is correct
 						new DummyRegisterElement(0x1046), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1047)) //
 								.onUpdateCallback(val -> {
-									recalculateSoc();
+									this.recalculateSoc();
 								}), //
 						m(SoltaroCluster.ChannelId.SYSTEM_RUNNING_STATE, new UnsignedWordElement(0x1048)), //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x1049), //
@@ -707,7 +709,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Battery.getModbusSlaveNatureTable(accessMode) //
 		);
@@ -746,7 +748,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 		ClusterVersionBChannelId positiveContactorChannelId;
 		SoltaroCluster.ChannelId subMasterCommunicationAlarmChannelId;
 
-		RackInfo( //
+		RackInfo(//
 				int addressOffset, //
 				SoltaroCluster.ChannelId usageChannelId, //
 				ClusterVersionBChannelId positiveContactorChannelId, //

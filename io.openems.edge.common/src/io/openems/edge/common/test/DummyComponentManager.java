@@ -82,6 +82,7 @@ public class DummyComponentManager implements ComponentManager {
 		return null;
 	}
 
+	@Deprecated()
 	@Override
 	public Channel<?> _channel(String channelName) {
 		return null;

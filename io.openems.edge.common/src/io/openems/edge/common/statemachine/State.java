@@ -3,19 +3,28 @@ package io.openems.edge.common.statemachine;
 import io.openems.common.types.OptionsEnum;
 
 /**
- * Defines a State of a {@link StateMachine}. This interface is typically
- * implemented by an enum.
+ * Defines a State of a {@link AbstractStateMachine}. This interface is
+ * typically implemented by an enum.
  *
- * @param <STATE>   the actual State type
- * @param <CONTEXT> the context type
+ * @param <STATE> the actual State type
  */
-public interface State<STATE extends State<STATE, CONTEXT>, CONTEXT> extends OptionsEnum {
+public interface State<STATE extends State<STATE>> extends OptionsEnum {
 
 	/**
-	 * Gets the Handler for this State.
+	 * Gets all the available States.
 	 * 
-	 * @return the {@link StateHandler}
+	 * <p>
+	 * If used inside a 'State' enum, just implement this method using
+	 * 
+	 * <pre>
+	 * &#64;Override
+	 * public State[] getStates() {
+	 * 	return State.values();
+	 * }
+	 * </pre>
+	 * 
+	 * @return an array of States, as provided by an enum.
 	 */
-	public StateHandler<STATE, CONTEXT> getHandler();
+	public STATE[] getStates();
 
 }

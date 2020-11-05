@@ -22,10 +22,11 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.Context;
-import io.openems.edge.battery.soltaro.single.versionc.statemachine.State;
+import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine;
+import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.State;
 import io.openems.edge.battery.soltaro.versionc.utils.CellChannelFactory;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -46,7 +47,6 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.common.statemachine.StateMachine;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
@@ -57,8 +57,8 @@ import io.openems.edge.common.taskmanager.Priority;
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		})
-public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent implements SingleRackVersionC,
-		SoltaroBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
+public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
+		implements SingleRackVersionC, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	private final Logger log = LoggerFactory.getLogger(SingleRackVersionCImpl.class);
 
@@ -68,7 +68,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 	/**
 	 * Manages the {@link State}s of the StateMachine.
 	 */
-	private final StateMachine<State, Context> stateMachine = new StateMachine<>(State.UNDEFINED);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private Config config;
 
@@ -76,7 +76,6 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
-				SoltaroBattery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				SingleRackVersionC.ChannelId.values() //
 		);
@@ -90,8 +89,10 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
 
 		// Calculate Capacity
 		int capacity = this.config.numberOfSlaves() * this.config.moduleType().getCapacity_Wh();
@@ -160,28 +161,8 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 				+ "|State:" + this.stateMachine.getCurrentState();
 	}
 
-//	private void checkAllowedCurrent() {
-//		if (isPoleTemperatureTooHot()) {
-//			this.limitMaxCurrent();
-//		}
-//	}
-//
-//	private void limitMaxCurrent() {
-//		// TODO limit current
-//	}
-//
-//	private boolean isPoleTemperatureTooHot() {
-//		StateChannel preAlarmChannel = this.channel(SingleRackVersionC.ChannelId.PRE_ALARM_POWER_POLE_HIGH);
-//		boolean preAlarm = preAlarmChannel.value().orElse(false);
-//		StateChannel level1Channel = this.channel(SingleRackVersionC.ChannelId.LEVEL1_POWER_POLE_TEMP_HIGH);
-//		boolean level1 = level1Channel.value().orElse(false);
-//		StateChannel level2Channel = this.channel(SingleRackVersionC.ChannelId.LEVEL2_POWER_POLE_TEMP_HIGH);
-//		boolean level2 = level2Channel.value().orElse(false);
-//		return preAlarm || level1 || level2;
-//	}
-
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		ModbusProtocol protocol = new ModbusProtocol(this, //
 				new FC6WriteRegisterTask(0x2004, //
 						m(SingleRackVersionC.ChannelId.SYSTEM_RESET, new UnsignedWordElement(0x2004)) //
@@ -254,7 +235,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 										ElementToChannelConverter.SCALE_FACTOR_2) // [mA]
 								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [A]
 								.build(), //
-						m(SoltaroBattery.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x2102)),
+						m(SingleRackVersionC.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x2102)),
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), m(new UnsignedWordElement(0x2104)) //
 								.m(SingleRackVersionC.ChannelId.CLUSTER_1_SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
 								.m(Battery.ChannelId.SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
@@ -650,9 +631,15 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 					elements[j] = m(channelId, new UnsignedWordElement(type.getOffset() + sensorIndex));
 				}
 				// Add a Modbus read task for this module
-				protocol.addTask(//
-						new FC3ReadRegistersTask(type.getOffset() + i * type.getSensorsPerModule(), Priority.LOW,
-								elements));
+				int startAddress = type.getOffset() + i * type.getSensorsPerModule();
+				try {
+					protocol.addTask(//
+							new FC3ReadRegistersTask(startAddress, Priority.LOW, elements));
+				} catch (OpenemsException e) {
+					this.logWarn(this.log, "Error while adding Modbus task for slave [" + i + "] starting at ["
+							+ startAddress + "]: " + e.getMessage());
+					e.printStackTrace();
+				}
 			}
 		};
 		addCellChannels.accept(CellChannelFactory.Type.VOLTAGE);

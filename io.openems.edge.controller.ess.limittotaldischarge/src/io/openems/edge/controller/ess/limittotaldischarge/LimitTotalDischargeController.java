@@ -1,9 +1,7 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
-import java.time.Clock;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.temporal.TemporalAmount;
+import java.time.Instant;
 import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
@@ -38,16 +36,14 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 	private final Logger log = LoggerFactory.getLogger(LimitTotalDischargeController.class);
 
-	private final Clock clock;
-
 	@Reference
 	protected ComponentManager componentManager;
 
 	/**
-	 * Length of hysteresis in seconds. States are not changed quicker than this.
+	 * Length of hysteresis in minutes. States are not changed quicker than this.
 	 */
-	private final TemporalAmount hysteresis = Duration.ofMinutes(5);
-	private LocalDateTime lastStateChange = LocalDateTime.MIN;
+	private static final int HYSTERESIS = 5;
+	private Instant lastStateChange = Instant.MIN;
 
 	private String essId;
 	private int minSoc = 0;
@@ -74,16 +70,11 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 	}
 
 	public LimitTotalDischargeController() {
-		this(Clock.systemDefaultZone());
-	}
-
-	protected LimitTotalDischargeController(Clock clock) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.clock = clock;
 	}
 
 	@Activate
@@ -93,9 +84,20 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 		this.essId = config.ess_id();
 		this.minSoc = config.minSoc();
 		this.forceChargeSoc = config.forceChargeSoc();
-		if (config.forceChargePower() > 0) {
+
+		// Parse Force-Charge-Power
+		int forceChargePower;
+		try {
+			forceChargePower = config.forceChargePower();
+		} catch (Exception e) {
+			// happens if optional configuration parameter is not given.
+			forceChargePower = 0;
+		}
+		if (forceChargePower > 0) {
 			// apply configured force charge power if it is was set and it is greater than 0
 			this.forceChargePower = Optional.of(config.forceChargePower());
+		} else {
+			this.forceChargePower = Optional.empty();
 		}
 
 		// Force-Charge-SoC must be smaller than Min-SoC
@@ -189,7 +191,8 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 		// adjust value so that it fits into Min/MaxActivePower
 		if (calculatedPower != null) {
-			calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+			calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
+					calculatedPower);
 		}
 
 		// Apply Force-Charge if it was set
@@ -207,9 +210,12 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 	 */
 	private boolean changeState(State nextState) {
 		if (this.state != nextState) {
-			if (this.lastStateChange.plus(this.hysteresis).isBefore(LocalDateTime.now(this.clock))) {
+			if (Duration.between(//
+					this.lastStateChange, //
+					Instant.now(this.componentManager.getClock()) //
+			).toMinutes() >= HYSTERESIS) {
 				this.state = nextState;
-				this.lastStateChange = LocalDateTime.now(this.clock);
+				this.lastStateChange = Instant.now(this.componentManager.getClock());
 				this.channel(ChannelId.AWAITING_HYSTERESIS).setNextValue(false);
 				return true;
 			} else {

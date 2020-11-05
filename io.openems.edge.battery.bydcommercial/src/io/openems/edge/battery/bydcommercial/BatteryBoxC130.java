@@ -6,49 +6,117 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 
-public interface BatteryBoxC130 extends Battery, OpenemsComponent {
+public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppable {
 
-	public default EnumWriteChannel getPreChargeControlChannel() {
-		return this.channel(ChannelId.PRE_CHARGE_CONTROL);
+	/**
+	 * Gets the Channel for {@link ChannelId#POWER_CIRCUIT_CONTROL}.
+	 * 
+	 * @return the Channel
+	 */
+	public default WriteChannel<PowerCircuitControl> getPowerCircuitControlChannel() {
+		return this.channel(ChannelId.POWER_CIRCUIT_CONTROL);
 	}
 
-	public default PreChargeControl getPreChargeControl() {
-		return this.getPreChargeControlChannel().value().asEnum();
+	/**
+	 * Gets the PreChargeControl, see {@link ChannelId#POWER_CIRCUIT_CONTROL}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default PowerCircuitControl getPowerCircuitControl() {
+		return this.getPowerCircuitControlChannel().value().asEnum();
 	}
 
-	public default void setPreChargeControl(PreChargeControl preChargeControl) throws OpenemsNamedException {
-		this.getPreChargeControlChannel().setNextWriteValue(preChargeControl);
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#POWER_CIRCUIT_CONTROL} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setPowerCircuitControl(PowerCircuitControl value) {
+		this.getPowerCircuitControlChannel().setNextValue(value);
 	}
 
+	/**
+	 * Writes the value to the {@link ChannelId#POWER_CIRCUIT_CONTROL} Register.
+	 * 
+	 * @param value the next value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setPowerCircuitControl(PowerCircuitControl value) throws OpenemsNamedException {
+		this.getPowerCircuitControlChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
+	 * 
+	 * @return the Channel
+	 */
 	public default StateChannel getMaxStartAttemptsChannel() {
 		return this.channel(ChannelId.MAX_START_ATTEMPTS);
 	}
 
+	/**
+	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_START_ATTEMPTS}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
 	public default Value<Boolean> getMaxStartAttempts() {
 		return this.getMaxStartAttemptsChannel().value();
 	}
 
-	public default void setMaxStartAttempts(boolean isMaxStartAttempts) throws OpenemsNamedException {
-		this.getMaxStartAttemptsChannel().setNextValue(isMaxStartAttempts);
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_START_ATTEMPTS} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setMaxStartAttempts(Boolean value) {
+		this.getMaxStartAttemptsChannel().setNextValue(value);
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_STOP_ATTEMPTS}.
+	 * 
+	 * @return the Channel
+	 */
 	public default StateChannel getMaxStopAttemptsChannel() {
 		return this.channel(ChannelId.MAX_STOP_ATTEMPTS);
 	}
 
+	/**
+	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_STOP_ATTEMPTS}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
 	public default Value<Boolean> getMaxStopAttempts() {
 		return this.getMaxStopAttemptsChannel().value();
 	}
 
-	public default void setMaxStopAttempts(boolean isMaxStopAttempts) throws OpenemsNamedException {
-		this.getMaxStopAttemptsChannel().setNextValue(isMaxStopAttempts);
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_STOP_ATTEMPTS}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setMaxStopAttempts(Boolean value) {
+		this.getMaxStopAttemptsChannel().setNextValue(value);
 	}
+
+	/**
+	 * Gets the target Start/Stop mode from config or StartStop-Channel.
+	 * 
+	 * @return {@link StartStop}
+	 */
+	public StartStop getStartStopTarget();
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// EnumReadChannels
@@ -56,37 +124,40 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent {
 		BATTERY_WORK_STATE(Doc.of(BatteryWorkState.values())), //
 
 		// IntegerReadChannels
-		PRE_CHARGE_CONTROL(Doc.of(PreChargeControl.values()) //
+		POWER_CIRCUIT_CONTROL(Doc.of(PowerCircuitControl.values()) // 
 				.accessMode(AccessMode.READ_WRITE)), //
 		CLUSTER_1_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), // FS
+				.unit(Unit.MILLIAMPERE)), //
 		CLUSTER_1_SOH(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT)), //
 		CLUSTER_1_MAX_CELL_VOLTAGE_ID(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
-				.text("Range: 1 ~ 512")), //
+				.text("Range: 1 ~ 256")), //
 		CLUSTER_1_MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_MIN_CELL_VOLTAGE_ID(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
-				.text("Range: 1 ~ 512")), //
+				.text("Range: 1 ~ 256")), //
 		CLUSTER_1_MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_MAX_CELL_TEMPERATURE_ID(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
-				.text("Range: 1 ~ 512")), //
+				.text("Range: 1 ~ 256")), //
 		CLUSTER_1_MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEZIDEGREE_CELSIUS) //
 				.text("Range: -400 ~ 1500")), //
 		CLUSTER_1_MIN_CELL_TEMPERATURE_ID(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
-				.text("Range: 1 ~ 512")), //
+				.text("Range: 1 ~ 256")), //
 		CLUSTER_1_MIN_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEZIDEGREE_CELSIUS) //
 				.text("Range: -400 ~ 1500")), //
-
+		MODULE_QTY(Doc.of(OpenemsType.INTEGER) //
+				.text("Range: 1 ~ 256")), //
+		TOTAL_VOLTAGE_OF_SINGLE_MODULE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
 		SYSTEM_INSULATION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOOHM)), //
 		SYSTEM_ACCEPT_MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
@@ -770,7 +841,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent {
 		ALARM_BCU_NTC(Doc.of(Level.WARNING) //
 				.text("BCU NTC Alarm")), //
 		ALARM_SLAVE_CONTROL_SUMMARY(Doc.of(Level.WARNING) //
-				.text(" Slave Contorl Summary Alarm")), //
+				.text(" Slave Control Summary Alarm")), //
 		FAILURE_INITIALIZATION(Doc.of(Level.FAULT) //
 				.text("Initialization failure")), //
 		FAILURE_EEPROM(Doc.of(Level.FAULT) //

@@ -1,7 +1,7 @@
-import { WebSocketSubject } from "rxjs/webSocket";
+import { EdgeRpcRequest } from "../jsonrpc/request/edgeRpcRequest";
 import { environment as env } from '../../../environments';
 import { JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
-import { EdgeRpcRequest } from "../jsonrpc/request/edgeRpcRequest";
+import { WebSocketSubject } from "rxjs/webSocket";
 
 export class WsData {
 
@@ -81,7 +81,7 @@ export class WsData {
         // TODO use OpenemsError code
         promise.reject(
           new JsonrpcResponseError(response.id, {
-            code: 0, message: "Reponse is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response, data: {}
+            code: 0, message: "Response is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response, data: {}
           }));
       }
     } else {

@@ -81,6 +81,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 		if (timestamp.equals(this.lastTimestamp)) {
 			return;
 		}
+		this.lastTimestamp = timestamp;
 
 		for (OpenemsComponent component : this.parent.componentManager.getEnabledComponents()) {
 			for (Channel<?> channel : component.channels()) {
@@ -89,6 +90,8 @@ public class RecordWorker extends AbstractImmediateWorker {
 					// Ignore WRITE_ONLY Channels
 					continue;
 				}
+				
+				
 
 				ToDoubleFunction<? super Object> channelMapFunction = this
 						.getChannelMapFunction(channel.channelDoc().getType());

@@ -29,8 +29,9 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
     }
 
     ngOnInit() {
+        this.spinnerId = 'production-single-chart';
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh()
     }
 
     ngOnDestroy() {
@@ -38,11 +39,13 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
+        this.service.startSpinner(this.spinnerId);
         this.loading = true;
+        this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
-                    this.colors = [];
                     let result = response.result;
                     // convert labels
                     let labels: Date[] = [];
@@ -103,7 +106,7 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
                     });
                     this.datasets = datasets;
                     this.loading = false;
-
+                    this.service.stopSpinner(this.spinnerId);
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();

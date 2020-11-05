@@ -75,7 +75,7 @@ import com.dalsemi.onewire.container.OneWireContainer;
  * allowed
  * <li>Files can have the read-only attribute
  * <li>Directories can have the hidden attribute
- * <li>It is recommended to limit directory depth to 10 levels to accomodate
+ * <li>It is recommended to limit directory depth to 10 levels to accommodate
  * legacy implementations
  * </ul>
  *

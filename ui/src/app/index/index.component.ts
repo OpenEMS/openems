@@ -1,13 +1,12 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { environment } from '../../environments';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
 import { AuthenticateWithPasswordResponse } from '../shared/jsonrpc/response/authenticateWithPasswordResponse';
+import { Component } from '@angular/core';
 import { Edge, Service, Utils, Websocket } from '../shared/shared';
+import { environment } from '../../environments';
+import { FormGroup } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'index',
@@ -36,7 +35,8 @@ export class IndexComponent {
     public utils: Utils,
     private router: Router,
     private service: Service,
-    private route: ActivatedRoute) {
+    private route: ActivatedRoute
+  ) {
 
     //Forwarding to device index if there is only 1 edge
     service.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
