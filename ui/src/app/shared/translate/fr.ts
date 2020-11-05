@@ -91,6 +91,8 @@ export const TRANSLATION = {
         logout: 'Déconnexion',
         menu: 'Menu',
         overview: 'Apperçu FEMS ',
+        profile: 'Utilisateur',
+        settings: 'Réglages',
     },
     Index: {
         allConnected: 'Toutes les connections sont établies.',

@@ -1,0 +1,75 @@
+<header></header>
+<ion-content>
+  <ion-grid>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="8" size-xl="6">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="information-circle-outline"></ion-icon>
+            <ion-label class="ion-text-wrap">
+              OpenEMS UI
+              <ion-card-subtitle translate>About.ui</ion-card-subtitle>
+            </ion-label>
+          </ion-item>
+
+          <ion-card-content class="ion-text-wrap">
+            <p translate>About.developed</p>
+            <ul>
+              <li>
+                <a target="_blank" href="https://openems.io" translate>About.openEMS</a>
+              </li>
+              <li>
+                <a target="_blank" href="https://github.com/OpenEMS/openems/tree/develop">
+                  <span translate>About.build</span>: 2020.23.0-SNAPSHOT</a>
+              </li>
+            </ul>
+            <p>
+              <span [innerHTML]="'About.contact' | translate:{value: 'info@openems.io'}"></span>
+            </p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="8" size-xl="6">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
+            <ion-label class="ion-text-wrap" translate>
+              Menu.user
+            </ion-label>
+          </ion-item>
+
+          <ion-card-content class="ion-text-wrap">
+            <p translate>About.developed</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="8" size-xl="6">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="options-outline"></ion-icon>
+            <ion-label translate>Menu.generalSettings</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-item>
+              <ion-label translate>About.language</ion-label>
+              <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage">
+                <ion-select-option *ngFor="let language of languages" [value]="language">
+                  {{ language }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item>
+              <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="env.debugMode">
+              </ion-checkbox>
+              <ion-label translate>Debug-Mode</ion-label>
+            </ion-item>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

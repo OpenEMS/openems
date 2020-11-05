@@ -103,6 +103,7 @@
 
     <systemLog *ngIf="isSystemLogEnabled"></systemLog>
 
+<<<<<<< HEAD
   </ion-content>
   <!-- Side Menu  -->
   <ion-menu type="overlay" side="start" contentId="content">
@@ -135,3 +136,46 @@
     </ion-content>
   </ion-menu>
 </ion-app>
+=======
+    <!-- Show Sub-Views -->
+    <ion-router-outlet id="content"></ion-router-outlet>
+
+    <!-- Side Menu  -->
+    <ion-menu type="overlay" side="start" contentId="content">
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-buttons slot="start">
+            <ion-menu-button autoHide="false"></ion-menu-button>
+          </ion-buttons>
+          <ion-title translate>Menu.menu</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <ion-list>
+
+          <ion-item routerLinkActive="active" routerLink="/user" (click)="menu.close()">
+            <ion-icon style="margin-right: 5%" size="large" color="primary" slot="start" name="person-outline">
+            </ion-icon>
+            <ion-label class="ion-text-wrap">
+              <p>Fabian Schwarzbeck</p>
+              <ion-text color="primary">
+                <p>fabian.schwarzbeck@fenecon.de</p>
+              </ion-text>
+            </ion-label>
+          </ion-item>
+
+          <ion-item lines="full" *ngIf="env.backend === 'OpenEMS Backend'" routerLinkActive="active" routerLink="/index"
+            (click)="menu.close()">
+            <ion-label translate>Menu.overview</ion-label>
+          </ion-item>
+          <nav *ngIf="(service.currentEdge | async) as edge">
+            <ion-item lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
+              <ion-label translate>Menu.edgeSettings</ion-label>
+            </ion-item>
+          </nav>
+        </ion-list>
+      </ion-content>
+    </ion-menu>
+  </ion-content>
+</ion-app>
+>>>>>>> 183cb1430f3152d87e8cd4d557ea510ec4513759
