@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
@@ -41,9 +42,11 @@ public class GoodWeEtChargerPv2 extends AbstractGoodWeEtCharger implements EssDc
 	}
 
 	@Activate
-	void activate(ComponentContext context, ConfigPV2 config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
-				config.modbus_id());
+	void activate(ComponentContext context, ConfigPV2 config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
+				config.modbus_id())) {
+			return;
+		}
 
 		// update filter for 'Ess'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {

@@ -11,6 +11,7 @@ import org.osgi.service.component.ComponentContext;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
@@ -122,7 +123,7 @@ public interface OpenemsComponent {
 	 * @param channelName the Channel-ID as a string
 	 * @return the Channel or null
 	 */
-	@Deprecated
+	@Deprecated()
 	public Channel<?> _channel(String channelName);
 
 	/**
@@ -189,6 +190,13 @@ public interface OpenemsComponent {
 		}
 	}
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a modbus table for the Channels
+	 * of this Component.
+	 * 
+	 * @param accessMode the {@link AccessMode} of the Controller
+	 * @return a {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(OpenemsComponent.class, accessMode, 80) //
 				.channel(0, ChannelId.STATE, ModbusType.UINT16) //
@@ -201,7 +209,15 @@ public interface OpenemsComponent {
 	 * @return the StateCollectorChannel
 	 */
 	public default StateCollectorChannel getStateChannel() {
-		return this._getChannelAs(ChannelId.STATE, StateCollectorChannel.class);
+		try {
+			return this._getChannelAs(ChannelId.STATE, StateCollectorChannel.class);
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException(//
+					"Class [" + this.getClass().getCanonicalName() + "] does not have a Channel 'State'. " //
+							+ "\nMake sure to pass the 'OpenemsComponent.ChannelId.values()' as first parameter " //
+							+ "in the AbstractOpenemsComponent constructor.",
+					e);
+		}
 	}
 
 	/**
@@ -213,15 +229,16 @@ public interface OpenemsComponent {
 		return this.getStateChannel().value().asEnum();
 	}
 
-	@SuppressWarnings("unchecked")
 	/**
 	 * Gets the Channel as the given Type.
 	 * 
+	 * @param <T>       the expected Channel type
 	 * @param channelId the Channel-ID
 	 * @param type      the expected Type
 	 * @return the Channel
 	 */
-	default <T extends Channel<?>> T _getChannelAs(ChannelId channelId, Class<T> type) {
+	@SuppressWarnings("unchecked")
+	public default <T extends Channel<?>> T _getChannelAs(ChannelId channelId, Class<T> type) {
 		Channel<?> channel = this.channel(channelId);
 		if (channel == null) {
 			throw new IllegalArgumentException("Channel [" + channelId + "] is not defined.");
@@ -268,8 +285,14 @@ public interface OpenemsComponent {
 	 * </pre>
 	 * 
 	 * <p>
-	 * Generates a 'target' filter on the 'Controllers' member so, that the target
-	 * component 'id' is in 'controllerIds'.
+	 * Generates a 'target' filter on the 'Controllers' member so, that the the
+	 * expected service to be injected needs to fulfill:
+	 * <ul>
+	 * <li>the service must be enabled
+	 * <li>the service must not have the same PID as the calling component
+	 * <li>the service "id" must be one of the provided "controllersIds"
+	 * </ul>
+	 * 
 	 * 
 	 * @param cm     a ConfigurationAdmin instance. Get one using
 	 * 
@@ -279,32 +302,19 @@ public interface OpenemsComponent {
 	 *               </pre>
 	 * 
 	 * @param pid    PID of the calling component (use 'config.service_pid()' or
-	 *               '(String)prop.get(Constants.SERVICE_PID)'
+	 *               '(String)prop.get(Constants.SERVICE_PID)'; if null, PID filter
+	 *               is not added to the resulting target filter
 	 * @param member Name of the Method or Field with the Reference annotation, e.g.
-	 *               'Controllers' for 'addControllers()' method
-	 * @param ids    Component IDs to be filtered for
+	 * 
+	 * @param ids    Component IDs to be filtered for; for empty list, no ids are
+	 *               added to the target filter
 	 * 
 	 * @return true if the filter was updated. You may use it to abort the
 	 *         activate() method.
 	 */
 	public static boolean updateReferenceFilter(ConfigurationAdmin cm, String pid, String member, String... ids) {
 		final String targetProperty = member + ".target";
-		/*
-		 * generate required target filter
-		 */
-		// target component must be enabled
-		StringBuilder targetBuilder = new StringBuilder("(&(enabled=true)");
-		if (pid != null && !pid.isEmpty()) {
-			// target component must not be the same as the calling component
-			targetBuilder.append("(!(service.pid=" + pid + "))");
-		}
-		// add filter for given Component-IDs
-		targetBuilder.append("(|");
-		for (String id : ids) {
-			targetBuilder.append("(id=" + id + ")");
-		}
-		targetBuilder.append("))");
-		String requiredTarget = targetBuilder.toString();
+		final String requiredTarget = ConfigUtils.generateReferenceTargetFilter(pid, ids);
 		/*
 		 * read existing target filter
 		 */

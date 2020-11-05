@@ -1,12 +1,10 @@
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 import { ActivatedRoute } from '@angular/router';
 import { calculateActiveTimeOverPeriod } from '../shared';
 import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
-import { ChpSocModalComponent } from './modal/modal.component';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ModalController } from '@ionic/angular';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: ChpSocWidgetComponent.SELECTOR,
@@ -15,7 +13,7 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() private componentId: string;
+    @Input() public componentId: string;
 
     private static readonly SELECTOR = "chpsocWidget";
 
@@ -23,12 +21,9 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;
 
-    private inputChannel = null;
-
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-        public modalCtrl: ModalController,
     ) {
         super(service);
     }
@@ -38,10 +33,8 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
             this.edge = response;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
-                this.inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
             })
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
@@ -69,18 +62,6 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
             let channeladdresses = [outputChannel];
             resolve(channeladdresses);
         });
-    }
-
-    async presentModal() {
-        const modal = await this.modalCtrl.create({
-            component: ChpSocModalComponent,
-            cssClass: 'wide-modal',
-            componentProps: {
-                component: this.component,
-                inputChannel: this.inputChannel
-            }
-        });
-        return await modal.present();
     }
 }
 

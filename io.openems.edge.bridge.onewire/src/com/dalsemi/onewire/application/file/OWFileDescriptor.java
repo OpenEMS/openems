@@ -66,7 +66,7 @@ public class OWFileDescriptor {
 	/** Hashtable to contain MemoryCache instances (one per container) */
 	private static Hashtable<Long, MemoryCache> memoryCacheHash = new Hashtable<>(4);
 
-	/** Field EXT_DIRECTORY entension value */
+	/** Field EXT_DIRECTORY extension value */
 	private static final byte EXT_DIRECTORY = 0x007F;
 
 	/**
@@ -486,7 +486,7 @@ public class OWFileDescriptor {
 	// --------
 
 	/**
-	 * Opens the file for reading. If successfull (no exceptions) then the following
+	 * Opens the file for reading. If successful (no exceptions) then the following
 	 * class member variables will be set:
 	 * <ul>
 	 * <li>fePage - File Entry page number
@@ -553,7 +553,7 @@ public class OWFileDescriptor {
 	/**
 	 * Closes this file descriptor and releases any system resources associated with
 	 * this stream. Any cached writes are flushed into the filesystem. This file
-	 * descriptor may no longer be used for writing bytes. If successfull (no
+	 * descriptor may no longer be used for writing bytes. If successful (no
 	 * exceptions) then the following class member variables will be set:
 	 * <ul>
 	 * <li>fePage - File Entry page number
@@ -622,7 +622,7 @@ public class OWFileDescriptor {
 			// \\//\\//\\//\\//\\//\\//\\//
 			if (doDebugMessages)
 				System.out.println(
-						"===create, appent=" + append + " isDirectory=" + isDirectory + " makeParents=" + makeParents);
+						"===create, append=" + append + " isDirectory=" + isDirectory + " makeParents=" + makeParents);
 
 			// clear last page read flag in the cache
 			cache.clearLastPageRead();
@@ -783,7 +783,7 @@ public class OWFileDescriptor {
 	 * WARNING: all files/directories will be deleted in the process.
 	 *
 	 * @throws OneWireException   when adapter is not setup properly
-	 * @throws OneWireIOException when an IO error occured reading the 1-Wire device
+	 * @throws OneWireIOException when an IO error occurred reading the 1-Wire device
 	 */
 	protected void format() throws OneWireException, OneWireIOException {
 		int i, j, len, next_page, cnt, cdcnt = 0, device_map_pages, dm_bytes = 0;
@@ -1775,7 +1775,7 @@ public class OWFileDescriptor {
 	 */
 	protected boolean renameTo(OWFile dest) {
 		if (dest == null)
-			throw new NullPointerException("Desitination file is null");
+			throw new NullPointerException("Destination file is null");
 
 		synchronized (cache) {
 			// make sure exists (also getting the file entry info)
@@ -2180,7 +2180,7 @@ public class OWFileDescriptor {
 	}
 
 	/**
-	 * Get's an array of integers that represents the page list of the file or
+	 * Gets an array of integers that represents the page list of the file or
 	 * directory represented by this OWFile.
 	 *
 	 * @exception OneWireException if an I/O error occurs.
@@ -2237,7 +2237,7 @@ public class OWFileDescriptor {
 	}
 
 	/**
-	 * Get's the memory bank object for the specified page. This is significant if
+	 * Gets the memory bank object for the specified page. This is significant if
 	 * the Filesystem spans memory banks on the same or different devices.
 	 */
 	protected PagedMemoryBank getMemoryBankForPage(int page) {
@@ -2245,7 +2245,7 @@ public class OWFileDescriptor {
 	}
 
 	/**
-	 * Get's the local page number on the memory bank object for the specified page.
+	 * Gets the local page number on the memory bank object for the specified page.
 	 * This is significant if the Filesystem spans memory banks on the same or
 	 * different devices.
 	 */
@@ -2469,7 +2469,7 @@ public class OWFileDescriptor {
 	 * @param numberPages    number of page of the elements data
 	 * @param prevEntry      previous entry used for back reference in creating new
 	 *                       directories
-	 * @param prevEntryStart previous entry start page for directory back referenece
+	 * @param prevEntryStart previous entry start page for directory back reference
 	 *
 	 * @throws FileNotFoundException if the filesystem runs out of space or if an IO
 	 *                               error occurs
@@ -3055,7 +3055,7 @@ public class OWFileDescriptor {
 
 							// \\//\\//\\//\\//\\//\\//\\//
 							if (doDebugMessages)
-								System.out.println("=Parse ERROR, entension > 102 or spaces detected");
+								System.out.println("=Parse ERROR, extension > 102 or spaces detected");
 
 							return false;
 						}
@@ -3116,7 +3116,7 @@ public class OWFileDescriptor {
 	 * codes. On UNIX systems, the hash code of an abstract pathname is equal to the
 	 * exclusive <em>or</em> of its pathname string and the decimal value
 	 * <code>1234321</code>. On Win32 systems, the hash code is equal to the
-	 * exclusive <em>or</em> of its pathname string, convered to lower case, and the
+	 * exclusive <em>or</em> of its pathname string, converted to lower case, and the
 	 * decimal value <code>1234321</code>.
 	 *
 	 * @return A hash code for this abstract pathname

@@ -1,20 +1,21 @@
-import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { Cookie } from 'ng2-cookies';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
-import { filter, first, map } from 'rxjs/operators';
+import { ChannelAddress } from '../shared';
+import { Cookie } from 'ng2-cookies';
+import { DefaultTypes } from './defaulttypes';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
+import { Edges } from '../jsonrpc/shared';
+import { ErrorHandler, Injectable } from '@angular/core';
+import { filter, first, map } from 'rxjs/operators';
 import { JsonrpcResponseError } from '../jsonrpc/base';
+import { Language, LanguageTag } from '../translate/language';
+import { ModalController, ToastController } from '@ionic/angular';
+import { NgxSpinnerService } from 'ngx-spinner';
 import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { Edges } from '../jsonrpc/shared';
-import { ChannelAddress } from '../shared';
-import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
-import { DefaultTypes } from './defaulttypes';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -22,6 +23,15 @@ export class Service implements ErrorHandler {
   public static readonly TIMEOUT = 15_000;
 
   public notificationEvent: Subject<DefaultTypes.Notification> = new Subject<DefaultTypes.Notification>();
+
+  /**
+   * Represents the resolution of used device
+   * Checks if smartphone resolution is used
+   */
+  public deviceHeight: number = 0;
+  public deviceWidth: number = 0;
+  public isSmartphoneResolution: boolean = false;
+  public isSmartphoneResolutionSubject: Subject<boolean> = new Subject<boolean>();
 
   /**
    * Holds the currenty selected Page Title.
@@ -50,8 +60,10 @@ export class Service implements ErrorHandler {
 
   constructor(
     private router: Router,
-    public translate: TranslateService,
+    private spinner: NgxSpinnerService,
     private toaster: ToastController,
+    public modalCtrl: ModalController,
+    public translate: TranslateService,
   ) {
     // add language
     translate.addLangs(Language.getLanguages());
@@ -70,11 +82,26 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * Sets the application language
+   * Set the application language
    */
   public setLang(id: LanguageTag) {
     this.translate.use(id);
     // TODO set locale for date-fns: https://date-fns.org/docs/I18n
+  }
+
+  /**
+   * Convert the browser language in Language Tag
+   */
+  public browserLangToLangTag(browserLang: string): LanguageTag {
+    switch (browserLang) {
+      case "de": return LanguageTag.DE;
+      case "en": return LanguageTag.EN;
+      case "es": return LanguageTag.ES;
+      case "nl": return LanguageTag.NL;
+      case "cz": return LanguageTag.CZ;
+      case "fr": return LanguageTag.FR;
+      default: return LanguageTag.DE;
+    }
   }
 
   /**
@@ -241,7 +268,7 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * Gets the ChannelAdresses for cumulated values that should be queried.
+   * Gets the ChannelAddresses for cumulated values that should be queried.
    * 
    * @param edge the current Edge
    */
@@ -274,6 +301,8 @@ export class Service implements ErrorHandler {
     // try to merge requests within 100 ms
     if (this.queryEnergyTimeout == null) {
       this.queryEnergyTimeout = setTimeout(() => {
+
+        this.queryEnergyTimeout = null;
 
         // merge requests
         let mergedRequests: {
@@ -343,6 +372,32 @@ export class Service implements ErrorHandler {
   }[] = [];
   private queryEnergyTimeout: any = null;
 
+
+  /**
+   * Start NGX-Spinner
+   * 
+   * Spinner will appear inside html tag only
+   * 
+   * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
+   * 
+   * @param selector selector for specific spinner
+   */
+  public startSpinner(selector: string) {
+    this.spinner.show(selector, {
+      type: 'ball-clip-rotate-multiple',
+      fullScreen: false,
+      bdColor: "rgba(0,0,0,0.5)"
+    });
+  }
+
+  /**
+   * Stop NGX-Spinner
+   * @param selector selector for specific spinner
+   */
+  public stopSpinner(selector: string) {
+    this.spinner.hide(selector);
+  }
+
   public async toast(message: string, level: 'success' | 'warning' | 'danger') {
     const toast = await this.toaster.create({
       message: message,
@@ -354,7 +409,7 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * checks if fems is allowed to show kWh
+   * Checks if this Edge is allowed to show kWh values
    */
   public isKwhAllowed(edge: Edge): boolean {
     return false;

@@ -39,6 +39,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -463,11 +464,17 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public <T> T getValue(OpenemsType type, String channelAddress) {
+	public <T> T getValue(OpenemsType type, ChannelAddress channelAddress) {
 		if (this.currentSimulation == null) {
 			return null;
 		}
-		return TypeUtils.getAsType(type, this.currentSimulation.request.profiles.get(channelAddress).getCurrentValue());
+		// First: try full ChannelAddress
+		Profile profile = this.currentSimulation.request.profiles.get(channelAddress.toString());
+		if (profile == null) {
+			// Not found: try Channel-ID only (without Component-ID)
+			profile = this.currentSimulation.request.profiles.get(channelAddress.getChannelId());
+		}
+		return TypeUtils.getAsType(type, profile.getCurrentValue());
 	}
 
 	@Override
@@ -503,6 +510,13 @@ public class SimulatorApp extends AbstractOpenemsComponent
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			throws OpenemsNamedException {
+		throw new NotImplementedException("QueryHistoryEnergyPerPeriod is not implemented for Simulator-App");
 	}
 
 	@Override

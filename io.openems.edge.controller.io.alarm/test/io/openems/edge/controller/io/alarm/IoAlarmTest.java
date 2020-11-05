@@ -1,11 +1,8 @@
 package io.openems.edge.controller.io.alarm;
 
-import java.util.ArrayList;
-
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.ControllerTest;
@@ -13,83 +10,44 @@ import io.openems.edge.io.test.DummyInputOutput;
 
 public class IoAlarmTest {
 
-	@SuppressWarnings("all")
-	private static class MyConfig extends AbstractComponentConfig implements Config {
+	private static final String CTRL_ID = "ctrl0";
 
-		private final String[] inputChannelAddress;
-		private final String outputChannelAddress;
+	private static final String DUMMY_ID = "dummy0";
+	private static final ChannelAddress DUMMY_STATE0 = new ChannelAddress(DUMMY_ID, "State0");
+	private static final ChannelAddress DUMMY_STATE1 = new ChannelAddress(DUMMY_ID, "State1");
 
-		public MyConfig(String id, String[] inputChannelAddress, String outputChannelAddress) {
-
-			super(Config.class, id);
-			this.inputChannelAddress = inputChannelAddress;
-			this.outputChannelAddress = outputChannelAddress;
-
-		}
-
-		@Override
-		public String[] inputChannelAddress() {
-			return this.inputChannelAddress;
-		}
-
-		@Override
-		public String outputChannelAddress() {
-			return this.outputChannelAddress;
-		}
-
-	}
+	private static final String IO_ID = "io0";
+	private static final ChannelAddress IO_INPUT_OUTPUT0 = new ChannelAddress(IO_ID, "InputOutput0");
 
 	@Test
 	public void test() throws Exception {
-		// initialize the controller
-		IoAlarm controller = new IoAlarm();
-		// Add referenced services
-		DummyComponentManager componentManager = new DummyComponentManager();
-		controller.componentManager = componentManager;
-
-		ArrayList<ChannelAddress> channelAddress = new ArrayList<ChannelAddress>();		
-		
-		ChannelAddress ess0State0 = new ChannelAddress("ess0", "State0");		
-		ChannelAddress ess0State1 = new ChannelAddress("ess0", "State1");			
-		
-		channelAddress.add(ess0State0);		
-		channelAddress.add(ess0State1);				
-		
-		ChannelAddress output0 = new ChannelAddress("io0", "InputOutput0");
-				
-		String[] inAddress = new String[channelAddress.size()];
-
-		for (int i = 0; i < channelAddress.size(); i++) {
-			inAddress[i] = channelAddress.get(i).toString();
-		}
-		
-		MyConfig myconfig = new MyConfig("ctrl1", inAddress, output0.toString());
-
-		controller.activate(null, myconfig);
-		controller.activate(null, myconfig);		
-		
-		DummyComponent ess0 = new DummyComponent("ess0");
-		DummyInputOutput io = new DummyInputOutput("io0");
-
-		new ControllerTest(controller, componentManager, ess0, io)//
+		new ControllerTest(new IoAlarm()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addComponent(new DummyComponent(DUMMY_ID)) //
+				.addComponent(new DummyInputOutput(IO_ID)) //
+				.activate(MyConfig.create() //
+						.setId(CTRL_ID) //
+						.setInputChannelAddresses(//
+								DUMMY_STATE0.toString(), //
+								DUMMY_STATE1.toString())
+						.setOutputChannelAddress(IO_INPUT_OUTPUT0.toString()) //
+						.build())
 				.next(new TestCase() //
-						.input(ess0State0, true) //
-						.input(ess0State1, false) //
-						.output(output0, true)) //
+						.input(DUMMY_STATE0, true) //
+						.input(DUMMY_STATE1, false) //
+						.output(IO_INPUT_OUTPUT0, true)) //
 				.next(new TestCase() //
-						.input(ess0State0, false) //
-						.input(ess0State1, true) //
-						.output(output0, true)) //
-				.next(new TestCase()
-						.input(ess0State0, true) //
-				        .input(ess0State1, true) //
-				        .output(output0, true))
-				.next(new TestCase()
-						.input(ess0State0, false) //
-				        .input(ess0State1, false) //
-				        .output(output0, false))
-				.run();
-
+						.input(DUMMY_STATE0, false) //
+						.input(DUMMY_STATE1, true) //
+						.output(IO_INPUT_OUTPUT0, true)) //
+				.next(new TestCase() //
+						.input(DUMMY_STATE0, true) //
+						.input(DUMMY_STATE1, true) //
+						.output(IO_INPUT_OUTPUT0, true))
+				.next(new TestCase() //
+						.input(DUMMY_STATE0, false) //
+						.input(DUMMY_STATE1, false) //
+						.output(IO_INPUT_OUTPUT0, false));
 	}
 
 }

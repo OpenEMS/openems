@@ -1,6 +1,5 @@
 package io.openems.edge.controller.io.channelsinglethreshold;
 
-import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -58,7 +57,6 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 	protected ComponentManager componentManager;
 
 	private final Logger log = LoggerFactory.getLogger(ChannelSingleThreshold.class);
-	private final Clock clock;
 
 	private Config config;
 	private LocalDateTime lastStateChange = LocalDateTime.MIN;
@@ -69,16 +67,11 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 	private State state = State.UNDEFINED;
 
 	public ChannelSingleThreshold() {
-		this(Clock.systemDefaultZone());
-	}
-
-	public ChannelSingleThreshold(Clock clock) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.clock = Clock.systemDefaultZone();
 	}
 
 	@Activate
@@ -127,8 +120,9 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 
 		// Get average input value of the last 'minimumSwitchingTime' seconds
 		IntegerReadChannel inputChannel = this.componentManager.getChannel(inputChannelAddress);
-		Collection<Value<Integer>> values = inputChannel.getPastValues()
-				.tailMap(LocalDateTime.now(this.clock).minusSeconds(this.config.minimumSwitchingTime()), true).values();
+		Collection<Value<Integer>> values = inputChannel.getPastValues().tailMap(
+				LocalDateTime.now(this.componentManager.getClock()).minusSeconds(this.config.minimumSwitchingTime()),
+				true).values();
 
 		// make sure we have at least one value
 		if (values.isEmpty()) {
@@ -228,9 +222,9 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 	private void changeState(State nextState) {
 		Duration hysteresis = Duration.ofSeconds(this.config.minimumSwitchingTime());
 		if (this.state != nextState) {
-			if (this.lastStateChange.plus(hysteresis).isBefore(LocalDateTime.now(this.clock))) {
+			if (this.lastStateChange.plus(hysteresis).isBefore(LocalDateTime.now(this.componentManager.getClock()))) {
 				this.state = nextState;
-				this.lastStateChange = LocalDateTime.now(this.clock);
+				this.lastStateChange = LocalDateTime.now(this.componentManager.getClock());
 				this.channel(ChannelId.AWAITING_HYSTERESIS).setNextValue(false);
 			} else {
 				this.channel(ChannelId.AWAITING_HYSTERESIS).setNextValue(true);

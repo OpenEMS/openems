@@ -57,6 +57,9 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -65,7 +68,7 @@ import io.openems.edge.ess.power.api.Relationship;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter implements KacoBlueplanetGridsave,
-		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, StartStoppable {
+		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, TimedataProvider, StartStoppable {
 
 	private static final int UNIT_ID = 1;
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
@@ -79,7 +82,15 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	@Reference
 	private ComponentManager componentManager;
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
+
 	private final Logger log = LoggerFactory.getLogger(KacoBlueplanetGridsaveImpl.class);
+
+	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	/**
 	 * Manages the {@link State}s of the StateMachine.
@@ -116,7 +127,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	// .put(SunSpecModel.S_160, Priority.LOW) //
 
 	@Activate
-	public KacoBlueplanetGridsaveImpl() {
+	public KacoBlueplanetGridsaveImpl() throws OpenemsException {
 		super(//
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //
@@ -134,9 +145,11 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
-				config.modbus_id(), READ_FROM_MODBUS_BLOCK);
+	void activate(ComponentContext context, Config config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+				config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
+			return;
+		}
 		this.config = config;
 	}
 
@@ -163,6 +176,9 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
+
+		// Calculate the Energy values from ActivePower.
+		this.calculateEnergy();
 
 		// Trigger the Watchdog
 		this.triggerWatchdog();
@@ -420,5 +436,31 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	@Override
 	public <T extends Channel<?>> T getSunSpecChannelOrError(SunSpecPoint point) throws OpenemsException {
 		return super.getSunSpecChannelOrError(point);
+	}
+
+	/**
+	 * Calculate the Energy values from ActivePower.
+	 */
+	private void calculateEnergy() {
+		// Calculate Energy
+		Integer activePower = this.getActivePower().get();
+		if (activePower == null) {
+			// Not available
+			this.calculateChargeEnergy.update(null);
+			this.calculateDischargeEnergy.update(null);
+		} else if (activePower > 0) {
+			// Buy-From-Grid
+			this.calculateChargeEnergy.update(0);
+			this.calculateDischargeEnergy.update(activePower);
+		} else {
+			// Sell-To-Grid
+			this.calculateChargeEnergy.update(activePower * -1);
+			this.calculateDischargeEnergy.update(0);
+		}
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }

@@ -6,7 +6,7 @@ package io.openems.edge.common.startstop;
  * logic of the {@link StartStoppable#setStartStop(StartStop)} method:
  * 
  * <pre>
- * 	&#64;AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stopp?")
+ * 	&#64;AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stop?")
  *	StartStopConfig startStop() default StartStopConfig.AUTO;
  * </pre>
  * 

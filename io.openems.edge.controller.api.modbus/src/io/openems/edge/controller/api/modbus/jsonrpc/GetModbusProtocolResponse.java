@@ -42,10 +42,6 @@ public class GetModbusProtocolResponse extends JsonrpcResponseSuccess {
 		this.tableRecords = records;
 	}
 
-	public TreeMap<Integer, ModbusRecord> getTableRecords() {
-		return tableRecords;
-	}
-
 	@Override
 	public JsonObject getResult() {
 		JsonArray table = new JsonArray();

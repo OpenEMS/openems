@@ -41,6 +41,10 @@ export class ProductionSectionComponent extends AbstractSection implements OnDes
         this.unitpipe = unitpipe;
     }
 
+    ngOnInit() {
+        this.adjustFillRefbyBrowser();
+    }
+
     toggleAnimation() {
         this.startAnimation = setInterval(() => {
             this.showAnimation = !this.showAnimation;

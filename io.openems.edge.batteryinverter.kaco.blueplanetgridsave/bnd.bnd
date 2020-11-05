@@ -12,7 +12,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
 	io.openems.edge.ess.api,\
+	io.openems.edge.timedata.api,\
 
 -testpath: \
 	${testpath},\
-	com.ghgande.j2mod;version=2.5.5
+	com.ghgande.j2mod

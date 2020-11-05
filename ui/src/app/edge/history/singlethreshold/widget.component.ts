@@ -1,12 +1,10 @@
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 import { ActivatedRoute } from '@angular/router';
 import { calculateActiveTimeOverPeriod } from '../shared';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ModalController } from '@ionic/angular';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { SinglethresholdModalComponent } from './modal/modal.component';
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: SinglethresholdWidgetComponent.SELECTOR,
@@ -15,7 +13,7 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() private componentId: string;
+    @Input() public componentId: string;
 
     private static readonly SELECTOR = "singlethresholdWidget";
 
@@ -23,12 +21,9 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;
 
-    private inputChannel = null;
-
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-        public modalCtrl: ModalController,
     ) {
         super(service);
     }
@@ -38,10 +33,8 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
             this.edge = response;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
-                this.inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
             })
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
@@ -69,17 +62,5 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
             let channeladdresses = [outputChannel];
             resolve(channeladdresses);
         });
-    }
-
-    async presentModal() {
-        const modal = await this.modalCtrl.create({
-            component: SinglethresholdModalComponent,
-            cssClass: 'wide-modal',
-            componentProps: {
-                component: this.component,
-                inputChannel: this.inputChannel
-            }
-        });
-        return await modal.present();
     }
 }

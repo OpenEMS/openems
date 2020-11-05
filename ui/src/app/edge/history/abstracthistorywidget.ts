@@ -1,36 +1,41 @@
-import { interval, Subject } from 'rxjs';
+import { ChannelAddress, Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { Service, ChannelAddress, Edge, EdgeConfig } from 'src/app/shared/shared';
-import { takeUntil } from 'rxjs/operators';
 
+// NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryWidget {
 
     //observable is used to fetch new widget data every 5 minutes
-    private refreshWidgetData = interval(300000);
+    // private refreshWidgetData = interval(600000);
 
-    private ngUnsubscribe: Subject<void> = new Subject<void>();
+    // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     constructor(
         protected service: Service,
     ) { }
 
     /**
-     * Subscribes to 5 minute Interval Observable to update data in Flat Widget
+     * Subscribes to 10 minute Interval Observable to update data in Flat Widget
      */
     protected subscribeWidgetRefresh() {
-        this.refreshWidgetData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-            this.updateValues()
-        })
+        // XXX disabled to reduce server load
+
+        // this.refreshWidgetData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+        // this.updateValues()
+        // })
     }
 
     /**
-     * Unsubscribes to 5 minute Interval Observable
+     * Unsubscribes to 10 minute Interval Observable
      */
     protected unsubscribeWidgetRefresh() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
+        // XXX disabled to reduce server load
+
+        // if (this.ngUnsubscribe.isStopped == false) {
+        //     this.ngUnsubscribe.next();
+        // this.ngUnsubscribe.complete();
+        // }
     }
 
     /**
@@ -62,7 +67,21 @@ export abstract class AbstractHistoryWidget {
     }
 
     /**
-     * Gets the ChannelAdresses that should be queried.
+     * checks if widget is allowed to be refreshed
+     */
+    // protected checkAllowanceWidgetRefresh(): boolean {
+    //     let currentDate = new Date();
+    //     let allowRefresh: boolean = false;
+    //     if (isAfter(this.service.historyPeriod.from.getDate(), currentDate.getDate()) || currentDate.getDate() == this.service.historyPeriod.from.getDate()) {
+    //         allowRefresh = true;
+    //     } else {
+    //         allowRefresh = false;
+    //     }
+    //     return allowRefresh;
+    // }
+
+    /**
+     * Gets the ChannelAddresses that should be queried.
      * 
      * @param edge the current Edge
      * @param config the EdgeConfig

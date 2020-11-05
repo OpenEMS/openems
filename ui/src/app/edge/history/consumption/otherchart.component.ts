@@ -30,8 +30,9 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
 
 
     ngOnInit() {
+        this.spinnerId = "consumption-other-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh()
     }
 
     ngOnDestroy() {
@@ -39,6 +40,8 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
+        this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getConfig().then(config => {
@@ -57,7 +60,7 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
 
                 // gather EVCS consumption
                 let totalEvcsConsumption: number[] = [];
-                config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion')).forEach(component => {
+                config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption')).forEach(component => {
                     totalEvcsConsumption = result.data[component.id + '/ChargePower'].map((value, index) => {
                         return Utils.addSafely(totalEvcsConsumption[index], value / 1000)
                     });
@@ -88,6 +91,7 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
                 }
                 this.datasets = datasets;
                 this.loading = false;
+                this.service.stopSpinner(this.spinnerId);
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();

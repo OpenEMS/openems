@@ -213,6 +213,7 @@ public class RestHandler extends AbstractHandler {
 	 * @param baseRequest    the HTTP POST base-request
 	 * @param request        the HTTP POST request
 	 * @param response       the result to be returned
+	 * @return false if request cannot be handled or ok response was not sent
 	 * @throws OpenemsNamedException on error
 	 */
 	private boolean handleGet(User user, ChannelAddress channelAddress, Request baseRequest, HttpServletRequest request,
@@ -287,6 +288,7 @@ public class RestHandler extends AbstractHandler {
 	 * @param baseRequest    the HTTP POST base-request
 	 * @param request        the HTTP POST request
 	 * @param response       the result to be returned
+	 * @return false if ok response was not sent
 	 * @throws OpenemsNamedException on error
 	 */
 	private boolean handlePost(User user, ChannelAddress channelAddress, Request baseRequest,
@@ -336,9 +338,10 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles an http request to 'jsonrpc' endpoint.
 	 * 
-	 * @param user           the User
-	 * @param edgeRpcRequest the EdgeRpcRequest
-	 * @return the JSON-RPC Success Response Future
+	 * @param user         the User
+	 * @param baseRequest  the HTTP POST base-request
+	 * @param httpRequest  the HTTP POST request
+	 * @param httpResponse the HTTP response
 	 */
 	private void handleJsonRpc(User user, Request baseRequest, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse) {
@@ -411,8 +414,8 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles an JSON-RPC Request.
 	 * 
-	 * @param user           the User
-	 * @param edgeRpcRequest the EdgeRpcRequest
+	 * @param user    the {@link User}
+	 * @param request the {@link JsonrpcRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsException on error
 	 */
@@ -469,7 +472,8 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles a QueryHistoricEnergyRequest.
 	 * 
-	 * @param request the QueryHistoricEnergyRequest
+	 * @param user    the {@link User}
+	 * @param request the {@link QueryHistoricTimeseriesEnergyRequest}
 	 * @return the Future JSPN-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */

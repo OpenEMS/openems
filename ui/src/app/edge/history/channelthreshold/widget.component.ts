@@ -1,12 +1,10 @@
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 import { ActivatedRoute } from '@angular/router';
 import { calculateActiveTimeOverPeriod } from '../shared';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { ChannelthresholdModalComponent } from './modal/modal.component';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ModalController } from '@ionic/angular';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: ChanneltresholdWidgetComponent.SELECTOR,
@@ -15,8 +13,8 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 export class ChanneltresholdWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() private componentId: string;
-    private config: EdgeConfig = null;
+    @Input() public componentId: string;
+    public config: EdgeConfig = null;
     public component: EdgeConfig.Component = null;
 
     private static readonly SELECTOR = "channelthresholdWidget";
@@ -27,7 +25,6 @@ export class ChanneltresholdWidgetComponent extends AbstractHistoryWidget implem
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-        public modalCtrl: ModalController,
     ) {
         super(service);
     }
@@ -40,7 +37,6 @@ export class ChanneltresholdWidgetComponent extends AbstractHistoryWidget implem
                 this.component = config.getComponent(this.componentId);
             })
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
@@ -69,17 +65,4 @@ export class ChanneltresholdWidgetComponent extends AbstractHistoryWidget implem
             resolve(channeladdresses);
         });
     }
-
-    async presentModal() {
-        const modal = await this.modalCtrl.create({
-            component: ChannelthresholdModalComponent,
-            cssClass: 'wide-modal',
-            componentProps: {
-                component: this.component,
-                config: this.config
-            }
-        });
-        return await modal.present();
-    }
 }
-

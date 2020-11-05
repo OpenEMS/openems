@@ -1,707 +1,365 @@
 package io.openems.edge.ess.sinexcel;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
-import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.api.Battery;
-import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
-import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
-import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
-import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
-import io.openems.edge.bridge.modbus.api.element.StringWordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
-import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
-import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.common.startstop.StartStop;
-import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
-@Designate(ocd = Config.class, factory = true)
-@Component(//
-		name = "Ess.Sinexcel", //
-		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE }) //
-public class EssSinexcel extends AbstractOpenemsModbusComponent
-		implements SymmetricEss, ManagedSymmetricEss, EventHandler, OpenemsComponent, ModbusSlave {
+public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHandler, OpenemsComponent, ModbusSlave {
 
-	private final Logger log = LoggerFactory.getLogger(EssSinexcel.class);
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-	public static final int MAX_APPARENT_POWER = 30_000;
-	public static final int DEFAULT_UNIT_ID = 1;
+		MOD_ON_CMD(Doc.of(FalseTrue.values()) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		MOD_OFF_CMD(Doc.of(FalseTrue.values()) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		CLEAR_FAILURE_CMD(Doc.of(FalseTrue.values()) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		ON_GRID_CMD(Doc.of(FalseTrue.values()) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		OFF_GRID_CMD(Doc.of(FalseTrue.values()) //
+				.accessMode(AccessMode.READ_WRITE)), //
 
-	public int maxApparentPower;
-	private InverterState inverterState;
-	private Battery battery;
-	public LocalDateTime timeForSystemInitialization = null;
+		SET_INTERN_DC_RELAY(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.NONE)),
 
-	protected int SLOW_CHARGE_VOLTAGE = 4370; // for new batteries - 3940
-	protected int FLOAT_CHARGE_VOLTAGE = 4370; // for new batteries - 3940
+		SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //
 
-	private int a = 0;
-	private int counterOn = 0;
-	private int counterOff = 0;
+		DEBUG_DISCHARGE_MAX_A(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)), //
 
-	// State-Machines
-	private final StateMachine stateMachine;
+		DEBUG_CHARGE_MAX_A(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)), //
 
-	/**
-	 * Helper wrapping class to handle listeners on battery Channels.
-	 */
-	private final ChannelHandler channelHandler = new ChannelHandler(this);
+		CHARGE_MAX_A(new IntegerDoc() //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.AMPERE) //
+				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(EssSinexcel.ChannelId.DEBUG_CHARGE_MAX_A))), //
 
-	@Reference
-	protected ComponentManager componentManager;
+		DISCHARGE_MAX_A(new IntegerDoc() //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.AMPERE) //
+				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(EssSinexcel.ChannelId.DEBUG_DISCHARGE_MAX_A))), //
 
-	protected Config config;
+		SET_SLOW_CHARGE_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.VOLT)),
+		SET_FLOAT_CHARGE_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.VOLT)),
 
-	@Reference
-	protected ConfigurationAdmin cm;
+		DEBUG_DIS_MIN_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		DEBUG_CHA_MAX_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		DISCHARGE_MIN_V(new IntegerDoc() //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.VOLT) //
+				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(EssSinexcel.ChannelId.DEBUG_DIS_MIN_V))), //
+		CHARGE_MAX_V(new IntegerDoc() //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.VOLT) //
+				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(EssSinexcel.ChannelId.DEBUG_CHA_MAX_V))), //
 
-	@Reference
-	private Power power;
+		SET_ANALOG_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.KILOWATT_HOURS)),
+		SET_ANALOG_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.KILOWATT_HOURS)),
+		SET_ANALOG_DC_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.KILOWATT_HOURS)),
+		SET_ANALOG_DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.KILOWATT_HOURS)),
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
+		INVOUTVOLT_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		INVOUTVOLT_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)),
+		INVOUTVOLT_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		INVOUTCURRENT_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)), //
+		INVOUTCURRENT_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)), //
+		INVOUTCURRENT_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)), //
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setBattery(Battery battery) {
-		this.battery = battery;
-	}
+		TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
 
-	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
-				config.modbus_id());
-		this.config = config;
-		this.inverterState = config.InverterState();
+		DC_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
 
-		// initialize the connection to the battery
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Battery", config.battery_id())) {
-			return;
+		ANALOG_DC_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.KILOVOLT_AMPERE)),
+		ANALOG_DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.KILOVOLT_AMPERE)),
+
+		FREQUENCY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.HERTZ)), //
+		DC_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)), //
+		DC_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+
+		SINEXCEL_STATE(Doc.of(CurrentState.values())), //
+
+		SERIAL(Doc.of(OpenemsType.STRING) //
+				.unit(Unit.NONE)), //
+		MODEL(Doc.of(OpenemsType.STRING) //
+				.unit(Unit.NONE)), //
+
+		VERSION(Doc.of(OpenemsType.STRING) //
+				.unit(Unit.NONE)), //
+
+		LOWER_VOLTAGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		UPPER_VOLTAGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)),
+
+		SET_ANTI_ISLANDING(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.ON_OFF)),
+
+		BAT_MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)),
+		BAT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)),
+		BAT_TEMP(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.unit(Unit.DEGREE_CELSIUS)),
+		BAT_SOC(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.unit(Unit.PERCENT)),
+		BAT_SOH(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.unit(Unit.PERCENT)),
+
+		DEBUG_EN_LIMIT(Doc.of(OpenemsType.INTEGER)), //
+		EN_LIMIT(new IntegerDoc() //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.text("new battery limits are activated when EnLimit is 1") //
+				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(EssSinexcel.ChannelId.DEBUG_EN_LIMIT))), //
+
+		SINEXCEL_STATE_1(Doc.of(Level.INFO) //
+				.text("OFF")), //
+		SINEXCEL_STATE_2(Doc.of(Level.INFO) //
+				.text("Sleeping")), //
+		SINEXCEL_STATE_3(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Starting")), //
+		SINEXCEL_STATE_4(Doc.of(Level.INFO) //
+				.text("MPPT")), //
+		SINEXCEL_STATE_5(Doc.of(Level.INFO) //
+				.text("Throttled")), //
+		SINEXCEL_STATE_6(Doc.of(Level.INFO) //
+				.text("Shutting down")), //
+		SINEXCEL_STATE_7(Doc.of(Level.INFO) //
+				.text("Fault")), //
+		SINEXCEL_STATE_8(Doc.of(Level.INFO) //
+				.text("Standby")), //
+		SINEXCEL_STATE_9(Doc.of(Level.INFO) //
+				.text("Started")), //
+
+		// EVENT Bitfield 32
+		STATE_0(Doc.of(Level.FAULT) //
+				.text("Ground fault")), //
+		STATE_1(Doc.of(Level.WARNING) //
+				.text("DC over Voltage")), //
+		STATE_2(Doc.of(OpenemsType.BOOLEAN) //
+				.text("AC disconnect open")), //
+		STATE_3(Doc.of(Level.WARNING) //
+				.text("DC disconnect open")), //
+		STATE_4(Doc.of(Level.WARNING) //
+				.text("Grid shutdown")), //
+		STATE_5(Doc.of(Level.WARNING) //
+				.text("Cabinet open")), //
+		STATE_6(Doc.of(Level.WARNING) //
+				.text("Manual shutdown")), //
+		STATE_7(Doc.of(Level.WARNING) //
+				.text("Over temperature")), //
+		STATE_8(Doc.of(Level.WARNING) //
+				.text("AC Frequency above limit")), //
+		STATE_9(Doc.of(Level.WARNING) //
+				.text("AC Frequnecy under limit")), //
+		STATE_10(Doc.of(Level.WARNING) //
+				.text("AC Voltage above limit")), //
+		STATE_11(Doc.of(Level.WARNING) //
+				.text("AC Voltage under limit")), //
+		STATE_12(Doc.of(Level.WARNING) //
+				.text("Blown String fuse on input")), //
+		STATE_13(Doc.of(Level.WARNING) //
+				.text("Under temperature")), //
+		STATE_14(Doc.of(Level.WARNING) //
+				.text("Generic Memory or Communication error (internal)")), //
+		STATE_15(Doc.of(Level.FAULT) //
+				.text("Hardware test failure")), //
+
+		// FAULT LIST
+		STATE_16(Doc.of(Level.FAULT) //
+				.text("Fault Status")), //
+		STATE_17(Doc.of(Level.WARNING) //
+				.text("Alert Status")), //
+		STATE_18(Doc.of(OpenemsType.BOOLEAN) //
+				.text("On/Off Status")), //
+		STATE_19(Doc.of(OpenemsType.BOOLEAN) //
+				.text("On Grid") //
+				.onInit(c -> { //
+					BooleanReadChannel channel = (BooleanReadChannel) c;
+					EssSinexcel self = (EssSinexcel) channel.getComponent();
+					channel.onChange((oldValue, newValue) -> {
+						Optional<Boolean> value = newValue.asOptional();
+						if (!value.isPresent()) {
+							self._setGridMode(GridMode.UNDEFINED);
+						} else {
+							if (value.get()) {
+								self._setGridMode(GridMode.ON_GRID);
+							} else {
+								self._setGridMode(GridMode.OFF_GRID);
+							}
+						}
+					});
+				})),
+		STATE_20(Doc.of(Level.INFO) //
+				.text("Off Grid")), //
+		STATE_21(Doc.of(Level.WARNING) //
+				.text("AC OVP")), //
+		STATE_22(Doc.of(Level.WARNING) //
+				.text("AC UVP")), //
+		STATE_23(Doc.of(Level.WARNING) //
+				.text("AC OFP")), //
+		STATE_24(Doc.of(Level.WARNING) //
+				.text("AC UFP")), //
+		STATE_25(Doc.of(Level.WARNING) //
+				.text("Grid Voltage Unbalance")), //
+		STATE_26(Doc.of(Level.WARNING) //
+				.text("Grid Phase reserve")), //
+		STATE_27(Doc.of(Level.INFO) //
+				.text("Islanding")), //
+		STATE_28(Doc.of(Level.WARNING) //
+				.text("On/ Off Grid Switching Error")), //
+		STATE_29(Doc.of(Level.WARNING) //
+				.text("Output Grounding Error")), //
+		STATE_30(Doc.of(Level.WARNING) //
+				.text("Output Current Abnormal")), //
+		STATE_31(Doc.of(Level.WARNING) //
+				.text("Grid Phase Lock Fails")), //
+		STATE_32(Doc.of(Level.WARNING) //
+				.text("Internal Air Over-Temp")), //
+		STATE_33(Doc.of(Level.WARNING) //
+				.text("Zeitueberschreitung der Netzverbindung")), //
+		STATE_34(Doc.of(Level.INFO) //
+				.text("EPO")), //
+		STATE_35(Doc.of(Level.FAULT) //
+				.text("HMI Parameters Fault")), //
+		STATE_36(Doc.of(Level.WARNING) //
+				.text("DSP Version Error")), //
+		STATE_37(Doc.of(Level.WARNING) //
+				.text("CPLD Version Error")), //
+		STATE_38(Doc.of(Level.WARNING) //
+				.text("Hardware Version Error")), //
+		STATE_39(Doc.of(Level.WARNING) //
+				.text("Communication Error")), //
+		STATE_40(Doc.of(Level.WARNING) //
+				.text("AUX Power Error")), //
+		STATE_41(Doc.of(Level.FAULT) //
+				.text("Fan Failure")), //
+		STATE_42(Doc.of(Level.WARNING) //
+				.text("BUS Over Voltage")), //
+		STATE_43(Doc.of(Level.WARNING) //
+				.text("BUS Low Voltage")), //
+		STATE_44(Doc.of(Level.WARNING) //
+				.text("BUS Voltage Unbalanced")), //
+		STATE_45(Doc.of(Level.WARNING) //
+				.text("AC Soft Start Failure")), //
+		STATE_46(Doc.of(Level.WARNING) //
+				.text("Reserved")), //
+		STATE_47(Doc.of(Level.WARNING) //
+				.text("Output Voltage Abnormal")), //
+		STATE_48(Doc.of(Level.WARNING) //
+				.text("Output Current Unbalanced")), //
+		STATE_49(Doc.of(Level.WARNING) //
+				.text("Over Temperature of Heat Sink")), //
+		STATE_50(Doc.of(Level.WARNING) //
+				.text("Output Overload")), //
+		STATE_51(Doc.of(Level.WARNING) //
+				.text("Reserved")), //
+		STATE_52(Doc.of(Level.WARNING) //
+				.text("AC Breaker Short-Circuit")), //
+		STATE_53(Doc.of(Level.WARNING) //
+				.text("Inverter Start Failure")), //
+		STATE_54(Doc.of(Level.WARNING) //
+				.text("AC Breaker is open")), //
+		STATE_55(Doc.of(Level.WARNING) //
+				.text("EE Reading Error 1")), //
+		STATE_56(Doc.of(Level.WARNING) //
+				.text("EE Reading Error 2")), //
+		STATE_57(Doc.of(Level.FAULT) //
+				.text("SPD Failure  ")), //
+		STATE_58(Doc.of(Level.WARNING) //
+				.text("Inverter over load")), //
+		STATE_59(Doc.of(OpenemsType.BOOLEAN) //
+				.text("DC Charging")), //
+		STATE_60(Doc.of(OpenemsType.BOOLEAN) //
+				.text("DC Discharging")), //
+		STATE_61(Doc.of(Level.INFO) //
+				.text("Battery fully charged")), //
+		STATE_62(Doc.of(Level.INFO) //
+				.text("Battery empty")), //
+		STATE_63(Doc.of(Level.FAULT) //
+				.text("Fault Status")), //
+		STATE_64(Doc.of(Level.WARNING) //
+				.text("Alert Status")), //
+		STATE_65(Doc.of(Level.WARNING) //
+				.text("DC input OVP")), //
+		STATE_66(Doc.of(Level.WARNING) //
+				.text("DC input UVP")), //
+		STATE_67(Doc.of(Level.WARNING) //
+				.text("DC Groundig Error")), //
+		STATE_68(Doc.of(Level.WARNING) //
+				.text("BMS alerts")), //
+		STATE_69(Doc.of(Level.FAULT) //
+				.text("DC Soft-Start failure")), //
+		STATE_70(Doc.of(Level.WARNING) //
+				.text("DC relay short-circuit")), //
+		STATE_71(Doc.of(Level.WARNING) //
+				.text("DC relay short open")), //
+		STATE_72(Doc.of(Level.WARNING) //
+				.text("Battery power over load")), //
+		STATE_73(Doc.of(Level.FAULT) //
+				.text("BUS start fails")), //
+		STATE_74(Doc.of(Level.WARNING) //
+				.text("DC OCP"));
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
 		}
-		this.channelHandler.activate(this.battery);
 
-		this.SLOW_CHARGE_VOLTAGE = config.toppingCharge();
-		this.FLOAT_CHARGE_VOLTAGE = config.toppingCharge();
-
-		// this.getNoOfCells();
-		this.inverterOn();
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		this.channelHandler.deactivate();
-		super.deactivate();
-	}
-
-	public EssSinexcel() throws OpenemsNamedException {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				SymmetricEss.ChannelId.values(), //
-				ManagedSymmetricEss.ChannelId.values(), //
-				SinexcelChannelId.values() //
-		);
-		this._setMaxApparentPower(EssSinexcel.MAX_APPARENT_POWER);
-		this.stateMachine = new StateMachine(this);
-	}
-
-//	private void getNoOfCells() throws OpenemsNamedException {
-//		Battery bms = this.componentManager.getComponent(this.config.battery_id());
-//		this.numberOfSlaves = (int) bms.getComponentContext().getProperties().get("numberOfSlaves");
-//	}
-
-	/**
-	 * Sets the Battery Ranges. Executed on TOPIC_CYCLE_AFTER_PROCESS_IMAGE.
-	 * 
-	 * @throws OpenemsNamedException
-	 */
-	private void setBatteryRanges() throws OpenemsNamedException {
-		if (battery == null) {
-			return;
-		}
-
-		int disMaxA = battery.getDischargeMaxCurrent().orElse(0);
-		int chaMaxA = battery.getChargeMaxCurrent().orElse(0);
-		int disMinV = battery.getDischargeMinVoltage().orElse(0);
-		int chaMaxV = battery.getChargeMaxVoltage().orElse(0);
-
-		// Sinexcel range for Max charge/discharge current is 0A to 90A,
-		if (chaMaxA > 90) {
-			{
-				IntegerWriteChannel setChaMaxA = this.channel(SinexcelChannelId.CHARGE_MAX_A);
-				setChaMaxA.setNextWriteValue(900);
-			}
-		} else {
-			{
-				IntegerWriteChannel setChaMaxA = this.channel(SinexcelChannelId.CHARGE_MAX_A);
-				setChaMaxA.setNextWriteValue(chaMaxA * 10);
-			}
-		}
-
-		if (disMaxA > 90) {
-			{
-				IntegerWriteChannel setDisMaxA = this.channel(SinexcelChannelId.DISCHARGE_MAX_A);
-				setDisMaxA.setNextWriteValue(900);
-			}
-		} else {
-			{
-				IntegerWriteChannel setDisMaxA = this.channel(SinexcelChannelId.DISCHARGE_MAX_A);
-				setDisMaxA.setNextWriteValue(disMaxA * 10);
-			}
-		}
-		{
-			IntegerWriteChannel setDisMinV = this.channel(SinexcelChannelId.DISCHARGE_MIN_V);
-			setDisMinV.setNextWriteValue(disMinV * 10);
-		}
-		{
-			IntegerWriteChannel setChaMaxV = this.channel(SinexcelChannelId.CHARGE_MAX_V);
-			setChaMaxV.setNextWriteValue(chaMaxV * 10);
-		}
-		final double EFFICIENCY_FACTOR = 0.9;
-		this._setAllowedChargePower((int) (chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR));
-		this._setAllowedDischargePower((int) (disMaxA * disMinV * EFFICIENCY_FACTOR));
-	}
-
-	/**
-	 * Starts the inverter.
-	 * 
-	 * @throws OpenemsNamedException on error
-	 */
-	public void inverterOn() throws OpenemsNamedException {
-		EnumWriteChannel setdataModOnCmd = this.channel(SinexcelChannelId.MOD_ON_CMD);
-		setdataModOnCmd.setNextWriteValue(FalseTrue.TRUE); // true = START
-	}
-
-	/**
-	 * Stops the inverter.
-	 * 
-	 * @throws OpenemsNamedException on error
-	 */
-	public void inverterOff() throws OpenemsNamedException {
-		EnumWriteChannel setdataModOffCmd = this.channel(SinexcelChannelId.MOD_OFF_CMD);
-		setdataModOffCmd.setNextWriteValue(FalseTrue.TRUE); // true = STOP
-	}
-
-	/**
-	 * Executes a Soft-Start. Sets the internal DC relay. Once this register is set
-	 * to 1, the PCS will start the soft-start procedure, otherwise, the PCS will do
-	 * nothing on the DC input Every time the PCS is powered off, this register will
-	 * be cleared to 0. In some particular cases, the BMS wants to re-softstart, the
-	 * EMS should actively clear this register to 0, after BMS soft-started, set it
-	 * to 1 again.
-	 *
-	 * @throws OpenemsNamedException on error
-	 */
-	public void softStart(boolean switchOn) throws OpenemsNamedException {
-		this.logInfo(this.log, "[In boolean soft start method]");
-		IntegerWriteChannel setDcRelay = this.channel(SinexcelChannelId.SET_INTERN_DC_RELAY);
-		if (switchOn) {
-			setDcRelay.setNextWriteValue(1);
-		} else {
-			setDcRelay.setNextWriteValue(0);
-		}
-	}
-
-	/**
-	 * At first the PCS needs a stop command, then is required to remove the AC
-	 * connection, after that the Grid OFF command.
-	 * 
-	 * @throws OpenemsNamedException on error
-	 */
-	public void islandOn() throws OpenemsNamedException {
-		IntegerWriteChannel setAntiIslanding = this.channel(SinexcelChannelId.SET_ANTI_ISLANDING);
-		setAntiIslanding.setNextWriteValue(0); // Disabled
-		IntegerWriteChannel setdataGridOffCmd = this.channel(SinexcelChannelId.OFF_GRID_CMD);
-		setdataGridOffCmd.setNextWriteValue(1); // Stop
-	}
-
-	/**
-	 * At first the PCS needs a stop command, then is required to plug in the AC
-	 * connection, after that the Grid ON command.
-	 * 
-	 * @throws OpenemsNamedException on error
-	 */
-	public void islandingOff() throws OpenemsNamedException {
-		IntegerWriteChannel setAntiIslanding = this.channel(SinexcelChannelId.SET_ANTI_ISLANDING);
-		setAntiIslanding.setNextWriteValue(1); // Enabled
-		IntegerWriteChannel setdataGridOnCmd = this.channel(SinexcelChannelId.OFF_GRID_CMD);
-		setdataGridOnCmd.setNextWriteValue(1); // Start
-	}
-
-	public void doHandlingSlowFloatVoltage() throws OpenemsNamedException {
-		// System.out.println("Upper voltage : " +
-		// this.channel(SinexcelChannelId.UPPER_VOLTAGE_LIMIT).value().asStringWithoutUnit());
-		IntegerWriteChannel setSlowChargeVoltage = this.channel(SinexcelChannelId.SET_SLOW_CHARGE_VOLTAGE);
-		setSlowChargeVoltage.setNextWriteValue(this.SLOW_CHARGE_VOLTAGE);
-		IntegerWriteChannel setFloatChargeVoltage = this.channel(SinexcelChannelId.SET_FLOAT_CHARGE_VOLTAGE);
-		setFloatChargeVoltage.setNextWriteValue(this.FLOAT_CHARGE_VOLTAGE);
-	}
-
-	public boolean faultIslanding() {
-		StateChannel i = this.channel(SinexcelChannelId.STATE_4);
-		Optional<Boolean> islanding = i.getNextValue().asOptional();
-		return islanding.isPresent() && islanding.get();
-	}
-
-	public boolean stateOnOff() {
-		StateChannel v = this.channel(SinexcelChannelId.STATE_18);
-		Optional<Boolean> stateOff = v.getNextValue().asOptional();
-		return stateOff.isPresent() && stateOff.get();
-	}
-
-//	/**
-//	 * Is Grid Shutdown?.
-//	 * 
-//	 * @return true if grid is shut down
-//	 */
-//	public boolean faultIslanding() {
-//		StateChannel channel = this.channel(SinexcelChannelId.STATE_4);
-//		Optional<Boolean> islanding = channel.getNextValue().asOptional();
-//		return islanding.isPresent() && islanding.get();
-//	}
-//
-//	/**
-//	 * Is inverter state ON?.
-//	 * 
-//	 * @return true if inverter is in ON-State
-//	 */
-//	public boolean isStateOn() {
-//		StateChannel channel = this.channel(SinexcelChannelId.STATE_18);
-//		Optional<Boolean> stateOff = channel.getNextValue().asOptional();
-//		return stateOff.isPresent() && stateOff.get();
-//	}
-
-	// SF: was commented before
-//	public boolean stateOn() {
-//		StateChannel v = this.channel(SinexcelChannelId.Sinexcel_STATE_9);
-//		Optional<Boolean> stateOff = v.getNextValue().asOptional(); 
-//		return stateOff.isPresent() && stateOff.get();
-//	}
-
-	protected ModbusProtocol defineModbusProtocol() {
-		return new ModbusProtocol(this, //
-
-				new FC6WriteRegisterTask(0x028A, //
-						m(SinexcelChannelId.MOD_ON_CMD, new UnsignedWordElement(0x028A))),
-				new FC6WriteRegisterTask(0x028B, //
-						m(SinexcelChannelId.MOD_OFF_CMD, new UnsignedWordElement(0x028B))),
-				new FC6WriteRegisterTask(0x028C, //
-						m(SinexcelChannelId.CLEAR_FAILURE_CMD, new UnsignedWordElement(0x028C))),
-				new FC6WriteRegisterTask(0x028D, //
-						m(SinexcelChannelId.ON_GRID_CMD, new UnsignedWordElement(0x028D))),
-				new FC6WriteRegisterTask(0x028E, //
-						m(SinexcelChannelId.OFF_GRID_CMD, new UnsignedWordElement(0x028E))),
-
-				new FC6WriteRegisterTask(0x0290, // FIXME: not documented!
-						m(SinexcelChannelId.SET_INTERN_DC_RELAY, new UnsignedWordElement(0x0290))),
-
-				new FC6WriteRegisterTask(0x0087, //
-						m(SinexcelChannelId.SET_ACTIVE_POWER, new SignedWordElement(0x0087))), // in 100 W
-				new FC6WriteRegisterTask(0x0088,
-						m(SinexcelChannelId.SET_REACTIVE_POWER, new SignedWordElement(0x0088))), // in 100 var
-
-				new FC6WriteRegisterTask(0x032B, //
-						m(SinexcelChannelId.CHARGE_MAX_A, new UnsignedWordElement(0x032B))), //
-				new FC6WriteRegisterTask(0x032C, //
-						m(SinexcelChannelId.DISCHARGE_MAX_A, new UnsignedWordElement(0x032C))), //
-
-				new FC6WriteRegisterTask(0x0329,
-						m(SinexcelChannelId.SET_SLOW_CHARGE_VOLTAGE, new UnsignedWordElement(0x0329))),
-				new FC6WriteRegisterTask(0x0328,
-						m(SinexcelChannelId.SET_FLOAT_CHARGE_VOLTAGE, new UnsignedWordElement(0x0328))),
-
-				new FC6WriteRegisterTask(0x032E, m(SinexcelChannelId.CHARGE_MAX_V, new UnsignedWordElement(0x032E))),
-				new FC6WriteRegisterTask(0x032D, m(SinexcelChannelId.DISCHARGE_MIN_V, new UnsignedWordElement(0x032D))),
-
-				new FC16WriteRegistersTask(0x007E,
-						m(SinexcelChannelId.SET_ANALOG_CHARGE_ENERGY, new UnsignedDoublewordElement(0x007E))),
-				// new FC6WriteRegisterTask(0x007F,
-				// m(SinexcelChannelId.SET_ANALOG_CHARGE_ENERGY, new
-				// UnsignedWordElement(0x007F))),
-
-				new FC16WriteRegistersTask(0x0080,
-						m(SinexcelChannelId.SET_ANALOG_DISCHARGE_ENERGY, new UnsignedDoublewordElement(0x0080))),
-				// new FC6WriteRegisterTask(0x0081,
-				// m(SinexcelChannelId.SET_ANALOG_DISCHARGE_ENERGY, new
-				// UnsignedWordElement(0x0081))),
-
-				new FC16WriteRegistersTask(0x0090,
-						m(SinexcelChannelId.SET_ANALOG_DC_CHARGE_ENERGY, new UnsignedDoublewordElement(0x0090))),
-				// new FC6WriteRegisterTask(0x0091,
-				// m(SinexcelChannelId.SET_ANALOG_DC_CHARGE_ENERGY, new
-				// UnsignedWordElement(0x0091))),
-
-				new FC16WriteRegistersTask(0x0092,
-						m(SinexcelChannelId.SET_ANALOG_DC_DISCHARGE_ENERGY, new UnsignedDoublewordElement(0x0092))),
-				// new FC6WriteRegisterTask(0x0093,
-				// m(SinexcelChannelId.SET_ANALOG_DC_DISCHARGE_ENERGY, new
-				// UnsignedWordElement(0x0093))),
-
-				new FC3ReadRegistersTask(0x0001, Priority.ONCE, //
-						m(SinexcelChannelId.MODEL, new StringWordElement(0x0001, 16)), //
-						m(SinexcelChannelId.SERIAL, new StringWordElement(0x0011, 8))), //
-
-				new FC3ReadRegistersTask(0x0065, Priority.LOW, //
-						m(SinexcelChannelId.INVOUTVOLT_L1, new UnsignedWordElement(0x0065),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						m(SinexcelChannelId.INVOUTVOLT_L2, new UnsignedWordElement(0x0066),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						m(SinexcelChannelId.INVOUTVOLT_L3, new UnsignedWordElement(0x0067),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						m(SinexcelChannelId.INVOUTCURRENT_L1, new UnsignedWordElement(0x0068),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						m(SinexcelChannelId.INVOUTCURRENT_L2, new UnsignedWordElement(0x0069),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						m(SinexcelChannelId.INVOUTCURRENT_L3, new UnsignedWordElement(0x006A),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						new DummyRegisterElement(0x006B, 0x007D), //
-						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, new UnsignedDoublewordElement(0x007E),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(0x0080),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						new DummyRegisterElement(0x0082, 0x0083),
-						m(SinexcelChannelId.TEMPERATURE, new SignedWordElement(0x0084)),
-						new DummyRegisterElement(0x0085, 0x008C), //
-						m(SinexcelChannelId.DC_POWER, new SignedWordElement(0x008D),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						new DummyRegisterElement(0x008E, 0x008F), //
-						m(SinexcelChannelId.ANALOG_DC_CHARGE_ENERGY, new UnsignedDoublewordElement(0x0090)), //
-						m(SinexcelChannelId.ANALOG_DC_DISCHARGE_ENERGY, new UnsignedDoublewordElement(0x0092))), //
-
-				new FC3ReadRegistersTask(0x0220, Priority.ONCE,
-						m(SinexcelChannelId.VERSION, new StringWordElement(0x0220, 8))), //
-
-				new FC3ReadRegistersTask(0x0248, Priority.HIGH, //
-						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(0x0248), //
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						new DummyRegisterElement(0x0249),
-						m(SinexcelChannelId.FREQUENCY, new SignedWordElement(0x024A),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-						new DummyRegisterElement(0x024B, 0x024D), //
-						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(0x024E)), //
-						new DummyRegisterElement(0x024F, 0x0254), //
-						m(SinexcelChannelId.DC_CURRENT, new SignedWordElement(0x0255),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						new DummyRegisterElement(0x0256), //
-						m(SinexcelChannelId.DC_VOLTAGE, new UnsignedWordElement(0x0257),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						new DummyRegisterElement(0x0258, 0x0259), //
-						m(SinexcelChannelId.SINEXCEL_STATE, new UnsignedWordElement(0x0260))), //
-
-				new FC3ReadRegistersTask(0x032D, Priority.LOW,
-						m(SinexcelChannelId.LOWER_VOLTAGE_LIMIT, new UnsignedWordElement(0x032D), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						m(SinexcelChannelId.UPPER_VOLTAGE_LIMIT, new UnsignedWordElement(0x032E), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
-
-				new FC3ReadRegistersTask(0x0262, Priority.LOW, //
-						m(new BitsWordElement(0x0262, this) //
-								.bit(0, SinexcelChannelId.STATE_0) //
-								.bit(1, SinexcelChannelId.STATE_1) //
-								.bit(2, SinexcelChannelId.STATE_2) //
-								.bit(3, SinexcelChannelId.STATE_3) //
-								.bit(4, SinexcelChannelId.STATE_4) //
-								.bit(5, SinexcelChannelId.STATE_5) //
-								.bit(6, SinexcelChannelId.STATE_6) //
-								.bit(7, SinexcelChannelId.STATE_7) //
-								.bit(8, SinexcelChannelId.STATE_8) //
-								.bit(9, SinexcelChannelId.STATE_9) //
-								.bit(10, SinexcelChannelId.STATE_10) //
-								.bit(11, SinexcelChannelId.STATE_11) //
-								.bit(12, SinexcelChannelId.STATE_12) //
-								.bit(13, SinexcelChannelId.STATE_13) //
-								.bit(14, SinexcelChannelId.STATE_14) //
-								.bit(15, SinexcelChannelId.STATE_15))),
-
-				new FC3ReadRegistersTask(0x0260, Priority.LOW, //
-						m(new BitsWordElement(0x0260, this) //
-								.bit(1, SinexcelChannelId.SINEXCEL_STATE_1) //
-								.bit(2, SinexcelChannelId.SINEXCEL_STATE_2) //
-								.bit(3, SinexcelChannelId.SINEXCEL_STATE_3) //
-								.bit(4, SinexcelChannelId.SINEXCEL_STATE_4) //
-								.bit(5, SinexcelChannelId.SINEXCEL_STATE_5) //
-								.bit(6, SinexcelChannelId.SINEXCEL_STATE_6) //
-								.bit(7, SinexcelChannelId.SINEXCEL_STATE_7) //
-								.bit(8, SinexcelChannelId.SINEXCEL_STATE_8) //
-								.bit(9, SinexcelChannelId.SINEXCEL_STATE_9))),
-
-				new FC3ReadRegistersTask(0x0020, Priority.LOW, //
-						m(new BitsWordElement(0x0020, this) //
-								.bit(0, SinexcelChannelId.STATE_16) //
-								.bit(1, SinexcelChannelId.STATE_17) //
-								.bit(2, SinexcelChannelId.STATE_18) //
-								.bit(3, SinexcelChannelId.STATE_19) //
-								.bit(4, SinexcelChannelId.STATE_20))),
-
-				new FC3ReadRegistersTask(0x0024, Priority.LOW, //
-						m(new BitsWordElement(0x0024, this) //
-								.bit(0, SinexcelChannelId.STATE_21) //
-								.bit(1, SinexcelChannelId.STATE_22) //
-								.bit(2, SinexcelChannelId.STATE_23) //
-								.bit(3, SinexcelChannelId.STATE_24) //
-								.bit(4, SinexcelChannelId.STATE_25) //
-								.bit(5, SinexcelChannelId.STATE_26) //
-								.bit(6, SinexcelChannelId.STATE_27) //
-								.bit(7, SinexcelChannelId.STATE_28) //
-								.bit(8, SinexcelChannelId.STATE_29) //
-								.bit(9, SinexcelChannelId.STATE_30) //
-								.bit(10, SinexcelChannelId.STATE_31) //
-								.bit(11, SinexcelChannelId.STATE_32) //
-								.bit(12, SinexcelChannelId.STATE_33))),
-
-				new FC3ReadRegistersTask(0x0025, Priority.LOW, //
-						m(new BitsWordElement(0x0025, this) //
-								.bit(0, SinexcelChannelId.STATE_34) //
-								.bit(1, SinexcelChannelId.STATE_35) //
-								.bit(2, SinexcelChannelId.STATE_36) //
-								.bit(3, SinexcelChannelId.STATE_37) //
-								.bit(4, SinexcelChannelId.STATE_38) //
-								.bit(5, SinexcelChannelId.STATE_39) //
-								.bit(6, SinexcelChannelId.STATE_40) //
-								.bit(7, SinexcelChannelId.STATE_41) //
-								.bit(8, SinexcelChannelId.STATE_42) //
-								.bit(9, SinexcelChannelId.STATE_43) //
-								.bit(10, SinexcelChannelId.STATE_44) //
-								.bit(11, SinexcelChannelId.STATE_45) //
-								.bit(13, SinexcelChannelId.STATE_47) //
-								.bit(14, SinexcelChannelId.STATE_48) //
-								.bit(15, SinexcelChannelId.STATE_49))),
-
-				new FC3ReadRegistersTask(0x0026, Priority.LOW, //
-						m(new BitsWordElement(0x0026, this) //
-								.bit(0, SinexcelChannelId.STATE_50) //
-								.bit(2, SinexcelChannelId.STATE_52) //
-								.bit(3, SinexcelChannelId.STATE_53) //
-								.bit(4, SinexcelChannelId.STATE_54))),
-
-				new FC3ReadRegistersTask(0x0027, Priority.LOW, //
-						m(new BitsWordElement(0x0027, this) //
-								.bit(0, SinexcelChannelId.STATE_55) //
-								.bit(1, SinexcelChannelId.STATE_56) //
-								.bit(2, SinexcelChannelId.STATE_57) //
-								.bit(3, SinexcelChannelId.STATE_58))),
-
-				new FC3ReadRegistersTask(0x0028, Priority.LOW, //
-						m(new BitsWordElement(0x0028, this) //
-								.bit(0, SinexcelChannelId.STATE_59) //
-								.bit(1, SinexcelChannelId.STATE_60) //
-								.bit(2, SinexcelChannelId.STATE_61) //
-								.bit(3, SinexcelChannelId.STATE_62) //
-								.bit(4, SinexcelChannelId.STATE_63) //
-								.bit(5, SinexcelChannelId.STATE_64))),
-
-				new FC3ReadRegistersTask(0x002B, Priority.LOW, //
-						m(new BitsWordElement(0x002B, this) //
-								.bit(0, SinexcelChannelId.STATE_65) //
-								.bit(1, SinexcelChannelId.STATE_66) //
-								.bit(2, SinexcelChannelId.STATE_67) //
-								.bit(3, SinexcelChannelId.STATE_68))),
-
-				new FC3ReadRegistersTask(0x002C, Priority.LOW, //
-						m(new BitsWordElement(0x002C, this) //
-								.bit(0, SinexcelChannelId.STATE_69) //
-								.bit(1, SinexcelChannelId.STATE_70) //
-								.bit(2, SinexcelChannelId.STATE_71) //
-								.bit(3, SinexcelChannelId.STATE_72) //
-								.bit(4, SinexcelChannelId.STATE_73))),
-
-				new FC3ReadRegistersTask(0x002F, Priority.LOW, //
-						m(new BitsWordElement(0x002F, this) //
-								.bit(0, SinexcelChannelId.STATE_74))));
-	}
-
-	@Override
-	public String debugLog() {
-		return "SoC:" + this.getSoc().asString() //
-				+ "|L:" + this.getActivePower().asString() //
-				+ "|Allowed:"
-				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
-				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
-				+ "|" + this.getGridModeChannel().value().asOptionString();
-	}
-
-	@Override
-	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
-		if (battery.getStartStop() != StartStop.START) {
-			return new Constraint[] { //
-					this.createPowerConstraint("Battery is not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
-					this.createPowerConstraint("Battery is not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
-			};
-		} else {
-			return Power.NO_CONSTRAINTS;
+		@Override
+		public Doc doc() {
+			return this.doc;
 		}
 	}
 
-	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		switch (this.inverterState) {
-		case ON:
-			IntegerWriteChannel setActivePower = this.channel(SinexcelChannelId.SET_ACTIVE_POWER);
-			setActivePower.setNextWriteValue(activePower / 100);
-
-			IntegerWriteChannel setReactivePower = this.channel(SinexcelChannelId.SET_REACTIVE_POWER);
-			setReactivePower.setNextWriteValue(reactivePower / 100);
-
-			if (this.stateOnOff() == false) {
-				a = 1;
-			}
-
-			if (this.stateOnOff() == true) {
-				a = 0;
-			}
-
-			if (activePower == 0 && reactivePower == 0 && a == 0) {
-				this.counterOff++;
-				if (this.counterOff == 48) {
-					this.inverterOff();
-					this.counterOff = 0;
-				}
-
-			} else if ((activePower != 0 || reactivePower != 0) && a == 1) {
-				this.counterOn++;
-				if (this.counterOn == 48) {
-					this.inverterOn();
-					this.counterOn = 0;
-				}
-			}
-			break;
-
-		case OFF:
-			if (this.stateOnOff() == true) {
-				this.inverterOff();
-			} else {
-				return;
-			}
-			break;
-		}
-	}
-
-	@Override
-	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-//		boolean island = faultIslanding();
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			try {
-				this.setBatteryRanges();
-				this.doHandlingSlowFloatVoltage();
-				this.stateMachine.run();
-			} catch (OpenemsNamedException e) {
-				this.logError(this.log, "EventHandler failed: " + e.getMessage());
-			}
-
-//			if(island = true) {
-//				islandingOn();
-//			}
-//			else if(island = false) {
-//				islandingOff();
-//			}
-
-			break;
-		}
-
-	}
-
-	@Override
-	public Power getPower() {
-		return this.power;
-	}
-
-	@Override
-	public int getPowerPrecision() {
-		return 100;
-	}
-
-	public IntegerWriteChannel getDischargeMinVoltageChannel() {
-		return this.channel(SinexcelChannelId.DISCHARGE_MIN_V);
-	}
-
-	public IntegerWriteChannel getDischargeMaxAmpereChannel() {
-		return this.channel(SinexcelChannelId.DISCHARGE_MAX_A);
-	}
-
-	public IntegerWriteChannel getChargeMaxVoltageChannel() {
-		return this.channel(SinexcelChannelId.CHARGE_MAX_V);
-	}
-
-	public IntegerWriteChannel getChargeMaxAmpereChannel() {
-		return this.channel(SinexcelChannelId.CHARGE_MAX_A);
-	}
-
-	public IntegerWriteChannel getEnLimitChannel() {
-		return this.channel(SinexcelChannelId.EN_LIMIT);
-	}
-
-	public IntegerWriteChannel getBatterySocChannel() {
-		return this.channel(SinexcelChannelId.BAT_SOC);
-	}
-
-	public IntegerWriteChannel getBatterySohChannel() {
-		return this.channel(SinexcelChannelId.BAT_SOH);
-	}
-
-	public IntegerWriteChannel getBatteryTempChannel() {
-		return this.channel(SinexcelChannelId.BAT_TEMP);
-	}
-
-	public IntegerWriteChannel getMinimalCellVoltage() {
-		return this.channel(SinexcelChannelId.BAT_MIN_CELL_VOLTAGE);
-	}
-
-	public IntegerWriteChannel getVoltage() {
-		return this.channel(SinexcelChannelId.BAT_VOLTAGE);
-	}
-
-	@Override
-	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
-		);
-	}
 }

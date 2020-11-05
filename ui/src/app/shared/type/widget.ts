@@ -1,5 +1,5 @@
-import { EdgeConfig } from '../edge/edgeconfig';
 import { Edge } from '../edge/edge';
+import { EdgeConfig } from '../edge/edgeconfig';
 
 export enum WidgetClass {
     'Energymonitor',
@@ -14,6 +14,7 @@ export enum WidgetClass {
 export enum WidgetNature {
     'io.openems.edge.evcs.api.Evcs',
     'io.openems.impl.controller.channelthreshold.ChannelThresholdController', // TODO deprecated
+    'io.openems.edge.io.api.DigitalInput',
 }
 
 export enum WidgetFactory {
@@ -25,7 +26,7 @@ export enum WidgetFactory {
     'Controller.Asymmetric.PeakShaving',
     'Controller.Symmetric.PeakShaving',
     'Evcs.Cluster.PeakShaving',
-    'Evcs.Cluster.SelfConsumtion',
+    'Evcs.Cluster.SelfConsumption',
 }
 
 export class Widget {
@@ -67,6 +68,9 @@ export class Widgets {
 
         for (let nature of Object.values(WidgetNature).filter(v => typeof v === 'string')) {
             for (let componentId of config.getComponentIdsImplementingNature(nature.toString())) {
+                if (nature === 'io.openems.edge.io.api.DigitalInput' && list.some(e => e.name === 'io.openems.edge.io.api.DigitalInput')) {
+                    continue;
+                }
                 if (config.getComponent(componentId).isEnabled) {
                     list.push({ name: nature, componentId: componentId });
                 }
