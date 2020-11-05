@@ -132,5 +132,4 @@ public class KacoBlueplanetGridsaveTest {
 						.output(WATCHDOG, 10 /* triggered again after 5 seconds */)) //
 		;
 	}
-
 }
