@@ -23,7 +23,7 @@ public @interface Config {
 	StartStopConfig startStop() default StartStopConfig.AUTO;
 	
 	@AttributeDefinition(name = "Activate watchdog", description = "Activate watchdog or not?")
-	boolean Activate_watchdog() default true;
+	boolean activateWatchdog() default true;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";

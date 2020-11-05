@@ -181,7 +181,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 		// Calculate the Energy values from ActivePower.
 		this.calculateEnergy();
 
-		if (this.config.Activate_watchdog()) {
+		if (this.config.activateWatchdog()) {
 			// Trigger the Watchdog
 			this.triggerWatchdog();
 		}		

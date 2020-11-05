@@ -67,7 +67,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public boolean Activate_watchdog() {
+	public boolean activateWatchdog() {
 		return false;
 	}
 }
