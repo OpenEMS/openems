@@ -1,9 +1,8 @@
 package io.openems.edge.controller.ess.activepowervoltagecharacteristic;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -19,15 +18,11 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -44,14 +39,14 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE//
 )
 public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsComponent
-		implements PolyLine, Controller, OpenemsComponent {
+		implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ActivePowerVoltageCharacteristicImpl.class);
 
 	private LocalDateTime lastSetPowerTime = LocalDateTime.MIN;
 
-	private float referencePoint; // Voltage Ratio
 	private Config config;
+	private PolyLine pByUCharacteristics = null;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -102,6 +97,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 			return;
 		}
 		this.config = config;
+		this.pByUCharacteristics = new PolyLine("voltageRatio", "power", config.lineConfig());
 	}
 
 	@Deactivate
@@ -125,100 +121,42 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 			break;
 		}
 
-		Channel<Integer> gridLineVoltage = this.meter.channel(SymmetricMeter.ChannelId.VOLTAGE);
-		// Reference point is the voltage ratio which is required in order to find
-		// the line value
-		this.referencePoint = gridLineVoltage.value().orElse(0) / (this.config.nominalVoltage() * 1000);
-		// Store the reference point in the channel voltage_ratio
-		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.referencePoint);
-		// In case of no meter data, to avoid to get min power value,
-		// it has to return here
-		if (this.referencePoint == 0) {
-			this.log.info("Voltage Ratio is 0");
+		// Ratio between current voltage and nominal voltage
+		final Float voltageRatio;
+		Value<Integer> gridVoltage = this.meter.getVoltage();
+		if (gridVoltage.isDefined()) {
+			voltageRatio = gridVoltage.get() / (this.config.nominalVoltage() * 1000);
+		} else {
+			voltageRatio = null;
+		}
+		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(voltageRatio);
+		if (voltageRatio == null) {
 			return;
 		}
+
 		// Do NOT change Set Power If it Does not exceed the hysteresis time
 		Clock clock = this.componentManager.getClock();
-		if (this.lastSetPowerTime.isAfter(LocalDateTime.now(clock).minusSeconds(this.config.waitForHysteresis()))) {
+		LocalDateTime now = LocalDateTime.now(clock);
+		if (Duration.between(this.lastSetPowerTime, now).getSeconds() < this.config.waitForHysteresis()) {
 			return;
 		}
-		this.lastSetPowerTime = LocalDateTime.now(clock);
+		this.lastSetPowerTime = now;
 
-		// getLineValue method: Calculates the line value based on the slope between
-		// greater and smaller point which referred by referencePoint.
-		Integer power = this.getLineValue(JsonUtils.getAsJsonArray(//
-				JsonUtils.parse(this.config.lineConfig())), this.referencePoint).intValue();
+		// Get P-by-U value from voltageRatio
+		final Integer power;
+		if (this.pByUCharacteristics == null) {
+			power = null;
+		} else {
+			Float p = this.pByUCharacteristics.getValue(voltageRatio);
+			if (p == null) {
+				power = null;
+			} else {
+				power = p.intValue();
+			}
+		}
 		this.channel(ChannelId.CALCULATED_POWER).setNextValue(power);
+
+		// Apply Power
 		this.ess.setActivePowerEquals(power);
-		this.ess.setReactivePowerEquals(0);
-	}
-
-	/**
-	 * Parse Line
-	 *
-	 * <p>
-	 * Pars the given JSON line format to xCoord and yCoord parameters.
-	 *
-	 * <pre>
-	 * [
-	 *  { "xCoord": 0.9,         "yCoord":-4000}},
-	 *  { "xCoord": 0.93,        "yCoord":-1000}},
-	 *  { "xCoord": 1.07,        "yCoord":1000}},
-	 *  { "xCoord": 1.1,         "yCoord":4000}}
-	 * ]
-	 * </pre>
-	 *
-	 * @param lineConfig the configured x and y coordinates values
-	 * @return lineMap
-	 * @throws OpenemsNamedException on error
-	 */
-	@Override
-	public TreeMap<Float, Float> parseLine(JsonArray lineConfig) throws OpenemsNamedException {
-		TreeMap<Float, Float> lineMap = new TreeMap<>();
-		for (JsonElement element : lineConfig) {
-			Float xCoordValue = JsonUtils.getAsFloat(element, "xCoord");
-			Float yCoordValue = JsonUtils.getAsFloat(element, "yCoord");
-			lineMap.put(xCoordValue, yCoordValue);
-		}
-		return lineMap;
-	}
-
-	/**
-	 * Get Line Value
-	 *
-	 * <p>
-	 * getLineValue method: Calculates the line value based on the slope between
-	 * greater and smaller point which referred by referencePoint.
-	 *
-	 * @param lineConfig     the configured x and y coordinates values
-	 * @param referencePoint indicates the point of the value to be used.
-	 * @return (m * referencePoint + t) equals to indicated point value
-	 * @throws OpenemsNamedException on error
-	 */
-	@Override
-	public Float getLineValue(JsonArray lineConfig, float referencePoint) throws OpenemsNamedException {
-		TreeMap<Float, Float> lineMap = this.parseLine(lineConfig);
-		Entry<Float, Float> floorEntry = lineMap.floorEntry(referencePoint);
-		Entry<Float, Float> ceilingEntry = lineMap.ceilingEntry(referencePoint);
-		// In case of referencePoint is smaller than floorEntry key
-		try {
-			if (floorEntry.getKey().equals(referencePoint)) {
-				return floorEntry.getValue().floatValue();
-			}
-		} catch (NullPointerException e) {
-			return ceilingEntry.getValue().floatValue();
-		}
-		// In case of referencePoint is bigger than ceilingEntry key
-		try {
-			if (ceilingEntry.getKey().equals(referencePoint)) {
-				return ceilingEntry.getValue().floatValue();
-			}
-		} catch (NullPointerException e) {
-			return floorEntry.getValue().floatValue();
-		}
-
-		Float m = (ceilingEntry.getValue() - floorEntry.getValue()) / (ceilingEntry.getKey() - floorEntry.getKey());
-		Float t = floorEntry.getValue() - m * floorEntry.getKey();
-		return m * referencePoint + t;
 	}
 }

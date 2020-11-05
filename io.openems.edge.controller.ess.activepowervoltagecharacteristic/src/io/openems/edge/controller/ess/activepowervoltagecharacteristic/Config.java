@@ -24,7 +24,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String meter_id();
 
 	@AttributeDefinition(name = "P by U characteristic ", description = "The graph values for power and percentage")
-	String lineConfig() default "[{ \"xCoord\" : 0.95, \"yCoord\" : 4000}, { \"xCoord\":0.97999, \"yCoord\": 1000},{ \"xCoord\" : 0.98, \"yCoord\" : 0},{ \"xCoord\" : 1.0299, \"yCoord\" : 0},{\"xCoord\" :1.03 , \"yCoord\": -1000 },{\"xCoord\": 1.05 , \"yCoord\": -4000 }]";
+	String lineConfig() default "[{ \"voltageRatio\" : 0.95, \"power\" : 4000}, { \"voltageRatio\":0.97999, \"power\": 1000},{ \"voltageRatio\" : 0.98, \"power\" : 0},{ \"voltageRatio\" : 1.0299, \"power\" : 0},{\"voltageRatio\" :1.03 , \"power\": -1000 },{\"voltageRatio\": 1.05 , \"power\": -4000 }]";
 
 	@AttributeDefinition(name = "Nominal Voltage [V]", description = "The nominal voltage of the grid")
 	float nominalVoltage() default 240f;

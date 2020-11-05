@@ -41,20 +41,20 @@ public class CharacteristicImplTest {
 						.setWaitForHysteresis(5)//
 						.setPowerVoltConfig(JsonUtils.buildJsonArray()//
 								.add(JsonUtils.buildJsonObject()//
-										.addProperty("xCoord", 0.9) //
-										.addProperty("yCoord", 60) //
+										.addProperty("voltageRatio", 0.9) //
+										.addProperty("percent", 60) //
 										.build()) //
 								.add(JsonUtils.buildJsonObject()//
-										.addProperty("xCoord", 0.93) //
-										.addProperty("yCoord", 0) //
+										.addProperty("voltageRatio", 0.93) //
+										.addProperty("percent", 0) //
 										.build()) //
 								.add(JsonUtils.buildJsonObject()//
-										.addProperty("xCoord", 1.07) //
-										.addProperty("yCoord", 0) //
+										.addProperty("voltageRatio", 1.07) //
+										.addProperty("percent", 0) //
 										.build()) //
 								.add(JsonUtils.buildJsonObject()//
-										.addProperty("xCoord", 1.1) //
-										.addProperty("yCoord", -60) //
+										.addProperty("voltageRatio", 1.1) //
+										.addProperty("percent", -60) //
 										.build() //
 								).build().toString() //
 						).build()) //
@@ -67,7 +67,7 @@ public class CharacteristicImplTest {
 						.timeleap(clock, 5, ChronoUnit.SECONDS)//
 						.input(METER_VOLTAGE, 216_000) // [mV]
 						.input(MAX_APPARENT_POWER, 10_000) // [VA]
-						.output(ESS_REACTIVE_POWER,6000))//
+						.output(ESS_REACTIVE_POWER, 6000))//
 				.next(new TestCase("Third Input")//
 						.timeleap(clock, 5, ChronoUnit.SECONDS)//
 						.input(METER_VOLTAGE, 220_000) // [mV]

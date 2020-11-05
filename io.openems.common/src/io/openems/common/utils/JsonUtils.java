@@ -124,7 +124,7 @@ public class JsonUtils {
 		}
 		throw OpenemsError.JSON_NO_FLOAT.exception(jPrimitive.toString().replaceAll("%", "%%"));
 	}
-	
+
 	public static float getAsFloat(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
 		if (jPrimitive.isNumber()) {
@@ -724,7 +724,7 @@ public class JsonUtils {
 			j.addProperty(property, value);
 			return this;
 		}
-		
+
 		public JsonObjectBuilder addProperty(String property, double value) {
 			j.addProperty(property, value);
 			return this;
