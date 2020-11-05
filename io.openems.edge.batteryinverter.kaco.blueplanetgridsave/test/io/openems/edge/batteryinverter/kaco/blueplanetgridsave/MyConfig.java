@@ -66,4 +66,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
 
+	@Override
+	public boolean Activate_watchdog() {
+		return false;
+	}
 }
