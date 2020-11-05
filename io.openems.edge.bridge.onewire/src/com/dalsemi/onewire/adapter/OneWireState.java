@@ -151,7 +151,7 @@ class OneWireState {
 	public boolean searchOnlyAlarmingButtons;
 
 	/**
-	 * Flag to indicate next search will not be preceeded by a 1-Wire reset
+	 * Flag to indicate next search will not be preceded by a 1-Wire reset
 	 */
 	public boolean skipResetOnSearch;
 

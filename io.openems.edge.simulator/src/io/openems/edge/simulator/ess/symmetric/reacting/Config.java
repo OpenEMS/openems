@@ -19,7 +19,7 @@ import io.openems.edge.common.sum.GridMode;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Max Apparant Power [VA]")
+	@AttributeDefinition(name = "Max Apparent Power [VA]")
 	int maxApparentPower() default 10000;
 
 	@AttributeDefinition(name = "Capacity [Wh]")

@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
 		name = "EVCS OCPP Ies KeyWatt", //
-		description = "Implements an OCPP capable Ies KeyWatt electric vehicle charging station whithout the smart charging function.")
+		description = "Implements an OCPP capable Ies KeyWatt electric vehicle charging station without the smart charging function.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

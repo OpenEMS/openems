@@ -74,8 +74,8 @@
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
-                                <ion-input class="regularFont" [value]="formGroup.value.peakShavingPower"
-                                    formControlName="peakShavingPower" style="text-align: end;">
+                                <ion-input class="regularFont" formControlName="peakShavingPower"
+                                    style="text-align: end;" type="number">
                                 </ion-input>
                                 <ion-label class="regularFont">&nbsp;W</ion-label>
                             </ion-item>
@@ -89,8 +89,8 @@
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
-                                <ion-input class="regularFont" [value]="formGroup.value.rechargePower"
-                                    formControlName="rechargePower" style="text-align: end;">
+                                <ion-input class="regularFont" formControlName="rechargePower" style="text-align: end;"
+                                    type="number">
                                 </ion-input>
                                 <ion-label class="regularFont">&nbsp;W</ion-label>
                             </ion-item>

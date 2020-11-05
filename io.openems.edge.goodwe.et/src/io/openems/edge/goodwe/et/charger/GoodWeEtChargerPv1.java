@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -51,7 +52,7 @@ public class GoodWeEtChargerPv1 extends AbstractGoodWeEtCharger implements EssDc
 	 * TODO update required from GoodWe regarding individual energy registers.
 	 */
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 
 		ModbusProtocol protocol = super.defineModbusProtocol();
 		protocol.addTask(new FC3ReadRegistersTask(35191, Priority.LOW, //
@@ -61,9 +62,11 @@ public class GoodWeEtChargerPv1 extends AbstractGoodWeEtCharger implements EssDc
 	}
 
 	@Activate
-	void activate(ComponentContext context, ConfigPV1 config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
-				config.modbus_id());
+	void activate(ComponentContext context, ConfigPV1 config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
+				config.modbus_id())) {
+			return;
+		}
 
 		// update filter for 'Ess'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {

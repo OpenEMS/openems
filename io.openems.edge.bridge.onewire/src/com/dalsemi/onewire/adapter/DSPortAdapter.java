@@ -293,7 +293,7 @@ public abstract class DSPortAdapter {
 	/**
 	 * Retrieves a list of the platform appropriate port names for this adapter. A
 	 * port must be selected with the method 'selectPort' before any other
-	 * communication methods can be used. Using a communcation method before
+	 * communication methods can be used. Using a communication method before
 	 * 'selectPort' will result in a <code>OneWireException</code> exception.
 	 *
 	 * @return <code>Enumeration</code> of type <code>String</code> that contains
@@ -353,12 +353,12 @@ public abstract class DSPortAdapter {
 	 * Specifies a platform appropriate port name for this adapter. Note that even
 	 * though the port has been selected, it's ownership may be relinquished if it
 	 * is not currently held in a 'exclusive' block. This class will then try to
-	 * re-aquire the port when needed. If the port cannot be re-aquired ehen the
+	 * re-acquire the port when needed. If the port cannot be re-acquired ehen the
 	 * exception <code>PortInUseException</code> will be thrown.
 	 *
 	 * @param portName name of the target port, retrieved from getPortNames()
 	 *
-	 * @return <code>true</code> if the port was aquired, <code>false</code> if the
+	 * @return <code>true</code> if the port was acquired, <code>false</code> if the
 	 *         port is not available.
 	 *
 	 * @throws OneWireIOException If port does not exist, or unable to communicate
@@ -807,7 +807,7 @@ public abstract class DSPortAdapter {
 
 	/**
 	 * Selects the specified iButton or 1-Wire device by broadcasting its address.
-	 * This operation is refered to a 'MATCH ROM' operation in the iButton and
+	 * This operation is referred to a 'MATCH ROM' operation in the iButton and
 	 * 1-Wire device data sheets. This does not affect the 'current' device state
 	 * information used in searches (findNextDevice...).
 	 *
@@ -843,7 +843,7 @@ public abstract class DSPortAdapter {
 
 	/**
 	 * Selects the specified iButton or 1-Wire device by broadcasting its address.
-	 * This operation is refered to a 'MATCH ROM' operation in the iButton and
+	 * This operation is referred to a 'MATCH ROM' operation in the iButton and
 	 * 1-Wire device data sheets. This does not affect the 'current' device state
 	 * information used in searches (findNextDevice...).
 	 *
@@ -867,7 +867,7 @@ public abstract class DSPortAdapter {
 
 	/**
 	 * Selects the specified iButton or 1-Wire device by broadcasting its address.
-	 * This operation is refered to a 'MATCH ROM' operation in the iButton and
+	 * This operation is referred to a 'MATCH ROM' operation in the iButton and
 	 * 1-Wire device data sheets. This does not affect the 'current' device state
 	 * information used in searches (findNextDevice...).
 	 *
@@ -891,7 +891,7 @@ public abstract class DSPortAdapter {
 
 	/**
 	 * Selects the specified iButton or 1-Wire device by broadcasting its address.
-	 * This operation is refered to a 'MATCH ROM' operation in the iButton and
+	 * This operation is referred to a 'MATCH ROM' operation in the iButton and
 	 * 1-Wire device data sheets. This does not affect the 'current' device state
 	 * information used in searches (findNextDevice...).
 	 *
@@ -917,7 +917,7 @@ public abstract class DSPortAdapter {
 
 	/**
 	 * Selects the specified iButton or 1-Wire device by broadcasting its address.
-	 * This operation is refered to a 'MATCH ROM' operation in the iButton and
+	 * This operation is referred to a 'MATCH ROM' operation in the iButton and
 	 * 1-Wire device data sheets. This does not affect the 'current' device state
 	 * information used in searches (findNextDevice...).
 	 *
@@ -946,7 +946,7 @@ public abstract class DSPortAdapter {
 
 	/**
 	 * Selects the specified iButton or 1-Wire device by broadcasting its address.
-	 * This operation is refered to a 'MATCH ROM' operation in the iButton and
+	 * This operation is referred to a 'MATCH ROM' operation in the iButton and
 	 * 1-Wire device data sheets. This does not affect the 'current' device state
 	 * information used in searches (findNextDevice...).
 	 *
@@ -1097,10 +1097,10 @@ public abstract class DSPortAdapter {
 	 * they want to ensure exclusive use. If it is not called around several methods
 	 * then it will be called inside each method.
 	 *
-	 * @param blocking <code>true</code> if want to block waiting for an excluse
+	 * @param blocking <code>true</code> if want to block waiting for exclusive
 	 *                 access to the adapter
 	 * @return <code>true</code> if blocking was false and a exclusive session with
-	 *         the adapter was aquired
+	 *         the adapter was acquired
 	 *
 	 * @throws OneWireException on a setup error with the 1-Wire adapter
 	 */
@@ -1130,7 +1130,7 @@ public abstract class DSPortAdapter {
 	/**
 	 * Gets a bit from the 1-Wire Network.
 	 *
-	 * @return the bit value recieved from the the 1-Wire Network.
+	 * @return the bit value received from the the 1-Wire Network.
 	 *
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
@@ -1389,12 +1389,12 @@ public abstract class DSPortAdapter {
 	 *
 	 * @param speed
 	 *              <ul>
-	 *              <li>0 (SPEED_REGULAR) set to normal communciation speed
-	 *              <li>1 (SPEED_FLEX) set to flexible communciation speed used for
+	 *              <li>0 (SPEED_REGULAR) set to normal communication speed
+	 *              <li>1 (SPEED_FLEX) set to flexible communication speed used for
 	 *              long lines
-	 *              <li>2 (SPEED_OVERDRIVE) set to normal communciation speed to
+	 *              <li>2 (SPEED_OVERDRIVE) set to normal communication speed to
 	 *              overdrive
-	 *              <li>3 (SPEED_HYPERDRIVE) set to normal communciation speed to
+	 *              <li>3 (SPEED_HYPERDRIVE) set to normal communication speed to
 	 *              hyperdrive
 	 *              <li>>3 future speeds
 	 *              </ul>
@@ -1586,7 +1586,7 @@ public abstract class DSPortAdapter {
 		for (i = 0; i < 24; i++)
 			send_packet[i] = (byte) 0xFF;
 
-		// now set or clear apropriate bits for search
+		// now set or clear appropriate bits for search
 		for (i = 0; i < 64; i++)
 			arrayWriteBit(arrayReadBit(i, address), (i + 1) * 3 - 1, send_packet);
 

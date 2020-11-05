@@ -34,13 +34,21 @@ public class KeepAllEqual {
 			Inverter invA = allInverters.get(0);
 			for (int j = 1; j < allInverters.size(); j++) {
 				Inverter invB = allInverters.get(j);
-				Constraint c = new Constraint(invA.toString() + "|" + invB.toString() + ": distribute equally",
+				constraints.add(new Constraint(
+						invA.toString() + "|" + invB.toString() + ": distribute ActivePower equally",
 						new LinearCoefficient[] {
 								new LinearCoefficient(coefficients.of(invA.getEssId(), invA.getPhase(), Pwr.ACTIVE), 1),
 								new LinearCoefficient(coefficients.of(invB.getEssId(), invB.getPhase(), Pwr.ACTIVE),
 										-1) },
-						Relationship.EQUALS, 0);
-				constraints.add(c);
+						Relationship.EQUALS, 0));
+				constraints.add(new Constraint(
+						invA.toString() + "|" + invB.toString() + ": distribute ReactivePower equally",
+						new LinearCoefficient[] {
+								new LinearCoefficient(coefficients.of(invA.getEssId(), invA.getPhase(), Pwr.REACTIVE),
+										1),
+								new LinearCoefficient(coefficients.of(invB.getEssId(), invB.getPhase(), Pwr.REACTIVE),
+										-1) },
+						Relationship.EQUALS, 0));
 			}
 			return ConstraintSolver.solve(coefficients, constraints);
 
