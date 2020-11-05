@@ -1,7 +1,11 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 
 import java.lang.reflect.Method;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
@@ -17,8 +21,10 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.DummyCycle;
+import io.openems.edge.common.test.TimeLeapClock;
 
 public class KacoBlueplanetGridsaveTest {
 
@@ -28,8 +34,12 @@ public class KacoBlueplanetGridsaveTest {
 
 	private static final ChannelAddress STATE_MACHINE = new ChannelAddress(BATTERY_INVERTER_ID, "StateMachine");
 
+	private static final ChannelAddress MAX_APPARENT_POWER = new ChannelAddress(BATTERY_INVERTER_ID,
+			"MaxApparentPower");
 	private static final ChannelAddress CURRENT_STATE = new ChannelAddress(BATTERY_INVERTER_ID,
 			KacoSunSpecModel.S64201.CURRENT_STATE.getChannelId().id());
+	private static final ChannelAddress WATCHDOG = new ChannelAddress(BATTERY_INVERTER_ID,
+			KacoSunSpecModel.S64201.WATCHDOG.getChannelId().id());
 
 	private static class MyComponentTest extends ComponentTest {
 
@@ -49,13 +59,20 @@ public class KacoBlueplanetGridsaveTest {
 
 	}
 
-	@Test
-	public void testStart() throws Exception {
+	private static TimeLeapClock clock;
+	private static ComponentTest test;
+
+	@Before
+	public void prepareTest() throws Exception {
+		final long start = 1577836800L;
+		clock = new TimeLeapClock(Instant.ofEpochSecond(start) /* starts at 1. January 2020 00:00:00 */,
+				ZoneOffset.UTC);
 		KacoBlueplanetGridsaveImpl sut = new KacoBlueplanetGridsaveImpl();
 
-		ComponentTest test = new MyComponentTest(sut) //
+		test = new MyComponentTest(sut) //
 				.addReference("cycle", new DummyCycle(1000)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID));
 
 		// TODO implement proper Dummy-Modbus-Bridge with SunSpec support. Till then...
@@ -79,19 +96,42 @@ public class KacoBlueplanetGridsaveTest {
 				.setId(BATTERY_INVERTER_ID) //
 				.setStartStopConfig(StartStopConfig.START) //
 				.setModbusId(MODBUS_ID) //
-				.setActivateWatchdog(false) //
-				.build()) //
+				.setActivateWatchdog(true) //
+				.build()); //
+	}
 
+	@Test
+	public void testStart() throws Exception {
+		test //
 				.next(new TestCase() //
-						.input(CURRENT_STATE, S64201CurrentState.OFF) //
-						.output(STATE_MACHINE, State.UNDEFINED)) //
+						.input(CURRENT_STATE, S64201CurrentState.STANDBY) //
+						.input(MAX_APPARENT_POWER, 50_000) //
+						.output(STATE_MACHINE, State.UNDEFINED) //
+						.output(WATCHDOG, 10 /* 10 x cycle-time */)) //
 				.next(new TestCase() //
-						.output(STATE_MACHINE, State.GO_RUNNING)) //
+						.timeleap(clock, 4, ChronoUnit.SECONDS) //
+						.output(STATE_MACHINE, State.GO_RUNNING) //
+						.output(WATCHDOG, null /* waiting till next watchdog trigger */)) //
 				.next(new TestCase() //
-						.input(CURRENT_STATE, S64201CurrentState.GRID_CONNECTED)) //
+						.timeleap(clock, 1, ChronoUnit.SECONDS) //
+						.input(CURRENT_STATE, S64201CurrentState.GRID_CONNECTED) //
+						.output(WATCHDOG, 10 /* triggered again after 5 seconds */)) //
 				.next(new TestCase() //
 						.output(STATE_MACHINE, State.RUNNING)) //
 		;
 	}
 
+	@Test
+	public void testWatchdog() throws Exception {
+		test //
+				.next(new TestCase() //
+						.output(WATCHDOG, 10 /* 10 x cycle-time */)) //
+				.next(new TestCase() //
+						.timeleap(clock, 4, ChronoUnit.SECONDS) //
+						.output(WATCHDOG, null /* waiting till next watchdog trigger */)) //
+				.next(new TestCase() //
+						.timeleap(clock, 1, ChronoUnit.SECONDS) //
+						.output(WATCHDOG, 10 /* triggered again after 5 seconds */)) //
+		;
+	}
 }

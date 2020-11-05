@@ -47,6 +47,7 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.startstop.StartStop;
@@ -77,6 +78,9 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -287,11 +291,12 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	 * @throws OpenemsNamedException on error
 	 */
 	private void triggerWatchdog() throws OpenemsNamedException {
-		int watchdogSeconds = this.cycle.getCycleTime() / 1000 * KacoBlueplanetGridsave.WATCHDOG_CYCLES;
-		if (Duration.between(this.lastTriggerWatchdog, Instant.now()).getSeconds() > watchdogSeconds / 2) {
+		int watchdogSeconds = Math.round(this.cycle.getCycleTime() / 1000f * KacoBlueplanetGridsave.WATCHDOG_CYCLES);
+		Instant now = Instant.now(this.componentManager.getClock());
+		if (Duration.between(this.lastTriggerWatchdog, now).getSeconds() >= watchdogSeconds / 2) {
 			IntegerWriteChannel watchdogChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64201.WATCHDOG);
 			watchdogChannel.setNextWriteValue(watchdogSeconds);
-			this.lastTriggerWatchdog = Instant.now();
+			this.lastTriggerWatchdog = now;
 		}
 	}
 
