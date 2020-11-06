@@ -507,7 +507,6 @@ public enum SiChannelId implements ChannelId {
 			.unit(Unit.DEGREE_CELSIUS)), //
 //	DEBUG_SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 //			.unit(Unit.WATT)), //
-	BATTERY_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE)), //
 	OPERATING_MODE_FOR_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER));
 
 	private final Doc doc;

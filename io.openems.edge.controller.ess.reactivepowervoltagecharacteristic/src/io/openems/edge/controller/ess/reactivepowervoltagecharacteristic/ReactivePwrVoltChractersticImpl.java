@@ -18,10 +18,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -38,7 +35,8 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
+public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent
+		implements ReactivePowerVoltageCharacteristic, Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ReactivePwrVoltChractersticImpl.class);
 
@@ -59,30 +57,11 @@ public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent im
 	@Reference
 	protected ComponentManager componentManager;
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-
-		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)), //
-		PERCENT(Doc.of(OpenemsType.FLOAT).unit(Unit.PERCENT)), //
-		VOLTAGE_RATIO(Doc.of(OpenemsType.DOUBLE))//
-		;
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
-
 	public ReactivePwrVoltChractersticImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
-				ChannelId.values()//
+				ReactivePowerVoltageCharacteristic.ChannelId.values()//
 		);
 	}
 
@@ -128,7 +107,7 @@ public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent im
 		} else {
 			voltageRatio = null;
 		}
-		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(voltageRatio);
+		this._setVoltageRatio(voltageRatio);
 		if (voltageRatio == null) {
 			return;
 		}
@@ -159,7 +138,7 @@ public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent im
 		// Otherwise should not calcula the reactive power and has to return here
 		Value<Integer> apparentPower = this.ess.getMaxApparentPower();
 		Integer power = (int) (apparentPower.orElse(0) * percent * 0.01);
-		this.channel(ChannelId.CALCULATED_POWER).setNextValue(power);
+		this._setCalculatedPower(power);
 
 		// Apply Power
 		this.ess.setReactivePowerEquals(power);

@@ -14,8 +14,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int nominalVoltage;
 		private int waitForHysteresis;
 		private String powerVoltConfig;
-		private String ess_target;
-		private String meter_target;
 
 		private Builder() {
 
@@ -48,16 +46,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setWaitForHysteresis(int waitForHysteresis) throws OpenemsNamedException {
 			this.waitForHysteresis = waitForHysteresis;
-			return this;
-		}
-
-		public Builder ess_target(String ess_target) {
-			this.ess_target = ess_target;
-			return this;
-		}
-
-		public Builder meter_target(String meter_target) {
-			this.meter_target = meter_target;
 			return this;
 		}
 

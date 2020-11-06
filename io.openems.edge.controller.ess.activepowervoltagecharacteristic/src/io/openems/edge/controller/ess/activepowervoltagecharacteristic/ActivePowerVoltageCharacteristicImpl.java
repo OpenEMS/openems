@@ -18,10 +18,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -39,7 +36,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE//
 )
 public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsComponent
-		implements Controller, OpenemsComponent {
+		implements ActivePowerVoltageCharacteristic, Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ActivePowerVoltageCharacteristicImpl.class);
 
@@ -60,30 +57,11 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 	@Reference
 	protected ComponentManager componentManager;
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-
-		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)), //
-		PERCENT(Doc.of(OpenemsType.FLOAT).unit(Unit.PERCENT)), //
-		VOLTAGE_RATIO(Doc.of(OpenemsType.DOUBLE)), //
-		;
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
-
 	public ActivePowerVoltageCharacteristicImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
-				ChannelId.values()//
+				ActivePowerVoltageCharacteristic.ChannelId.values()//
 		);
 	}
 
@@ -129,7 +107,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 		} else {
 			voltageRatio = null;
 		}
-		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(voltageRatio);
+		this._setVoltageRatio(voltageRatio);
 		if (voltageRatio == null) {
 			return;
 		}
@@ -154,7 +132,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 				power = p.intValue();
 			}
 		}
-		this.channel(ChannelId.CALCULATED_POWER).setNextValue(power);
+		this._setCalculatedPower(power);
 
 		// Apply Power
 		this.ess.setActivePowerEquals(power);
