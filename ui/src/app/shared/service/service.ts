@@ -15,11 +15,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { Role } from '../type/role';
-<<<<<<< HEAD
-import { DefaultTypes } from './defaulttypes';
-=======
 import { TranslateService } from '@ngx-translate/core';
->>>>>>> 183cb1430f3152d87e8cd4d557ea510ec4513759
 
 @Injectable()
 export class Service implements ErrorHandler {

@@ -2,7 +2,80 @@
 <ion-content>
   <ion-grid>
     <ion-row class="ion-justify-content-center">
-      <ion-col size="12" size-md="8" size-xl="6">
+      <ion-col size="12" size-md="8" size-xl="4">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
+            <ion-label class="ion-text-wrap" translate>
+              Menu.user
+            </ion-label>
+          </ion-item>
+
+          <ion-card-content class="ion-text-wrap">
+            <ion-item lines="full">
+              <ion-label>
+                Name:
+                <ion-text color="dark">
+                  <h5>
+                    Fabian Schwarzbeck
+                  </h5>
+                </ion-text>
+              </ion-label>
+            </ion-item>
+            <ion-item lines="full">
+              <ion-label>
+                Login:
+                <ion-text color="dark">
+                  <h5>
+                    fabian.schwarzbeck@fenecon.de
+                  </h5>
+                </ion-text>
+              </ion-label>
+            </ion-item>
+            <ion-item lines="full">
+              <ion-label class="ion-hide-sm-down">
+                Funktionen:
+              </ion-label>
+              <ion-button class="ion-no-padding ion-margin-end" size="default" fill="clear">
+                <ion-icon name="refresh-outline"></ion-icon>
+                <ion-label>Passwort reset</ion-label>
+              </ion-button>
+              <ion-button class="ion-no-padding" size="default" fill="clear">
+                <ion-icon name="log-out-outline"></ion-icon>
+                <ion-label>Logout</ion-label>
+              </ion-button>
+            </ion-item>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="8" size-xl="4">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="options-outline"></ion-icon>
+            <ion-label translate>Menu.generalSettings</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-item lines="full">
+              <ion-label translate>About.language</ion-label>
+              <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage">
+                <ion-select-option *ngFor="let language of languages" [value]="language">
+                  {{ language }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item lines="full">
+              <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="env.debugMode">
+              </ion-checkbox>
+              <ion-label translate>Debug-Mode</ion-label>
+            </ion-item>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="8" size-xl="4">
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="information-circle-outline"></ion-icon>
@@ -26,47 +99,6 @@
             <p>
               <span [innerHTML]="'About.contact' | translate:{value: 'info@openems.io'}"></span>
             </p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-    <ion-row class="ion-justify-content-center">
-      <ion-col size="12" size-md="8" size-xl="6">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
-            <ion-label class="ion-text-wrap" translate>
-              Menu.user
-            </ion-label>
-          </ion-item>
-
-          <ion-card-content class="ion-text-wrap">
-            <p translate>About.developed</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-    <ion-row class="ion-justify-content-center">
-      <ion-col size="12" size-md="8" size-xl="6">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="primary" name="options-outline"></ion-icon>
-            <ion-label translate>Menu.generalSettings</ion-label>
-          </ion-item>
-          <ion-card-content>
-            <ion-item>
-              <ion-label translate>About.language</ion-label>
-              <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage">
-                <ion-select-option *ngFor="let language of languages" [value]="language">
-                  {{ language }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-            <ion-item>
-              <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="env.debugMode">
-              </ion-checkbox>
-              <ion-label translate>Debug-Mode</ion-label>
-            </ion-item>
           </ion-card-content>
         </ion-card>
       </ion-col>

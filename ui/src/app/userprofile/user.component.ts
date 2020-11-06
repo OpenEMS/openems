@@ -17,7 +17,7 @@ export class UserComponent {
   public currentLanguage: LanguageTag;
 
   constructor(
-    private translate: TranslateService,
+    public translate: TranslateService,
     private route: ActivatedRoute,
     private service: Service,
   ) {
@@ -37,5 +37,4 @@ export class UserComponent {
     this.currentLanguage = language;
     this.translate.use(language);
   }
-
 }
