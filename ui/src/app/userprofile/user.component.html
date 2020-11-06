@@ -12,9 +12,11 @@
           </ion-item>
 
           <ion-card-content class="ion-text-wrap">
-            <ion-item lines="full">
+            <ion-item lines="inset">
               <ion-label>
                 Name:
+                <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
+                </ion-icon>
                 <ion-text color="dark">
                   <h5>
                     Fabian Schwarzbeck
@@ -22,9 +24,11 @@
                 </ion-text>
               </ion-label>
             </ion-item>
-            <ion-item lines="full">
+            <ion-item lines="inset">
               <ion-label>
                 Login:
+                <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
+                </ion-icon>
                 <ion-text color="dark">
                   <h5>
                     fabian.schwarzbeck@fenecon.de
@@ -32,15 +36,14 @@
                 </ion-text>
               </ion-label>
             </ion-item>
-            <ion-item lines="full">
-              <ion-label class="ion-hide-sm-down">
-                Funktionen:
-              </ion-label>
-              <ion-button class="ion-no-padding ion-margin-end" size="default" fill="clear">
+            <ion-item lines="inset">
+              <ion-button slot="end" class="ion-no-padding" size="default" fill="clear">
                 <ion-icon name="refresh-outline"></ion-icon>
-                <ion-label>Passwort reset</ion-label>
+                <ion-label>Passwort ändern</ion-label>
               </ion-button>
-              <ion-button class="ion-no-padding" size="default" fill="clear">
+            </ion-item>
+            <ion-item lines="inset">
+              <ion-button slot="end" class="ion-no-padding" size="default" fill="clear">
                 <ion-icon name="log-out-outline"></ion-icon>
                 <ion-label>Logout</ion-label>
               </ion-button>
@@ -57,18 +60,13 @@
             <ion-label translate>Menu.generalSettings</ion-label>
           </ion-item>
           <ion-card-content>
-            <ion-item lines="full">
+            <ion-item lines="inset">
               <ion-label translate>About.language</ion-label>
               <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage">
                 <ion-select-option *ngFor="let language of languages" [value]="language">
                   {{ language }}
                 </ion-select-option>
               </ion-select>
-            </ion-item>
-            <ion-item lines="full">
-              <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="env.debugMode">
-              </ion-checkbox>
-              <ion-label translate>Debug-Mode</ion-label>
             </ion-item>
           </ion-card-content>
         </ion-card>
@@ -86,7 +84,7 @@
           </ion-item>
 
           <ion-card-content class="ion-text-wrap">
-            <p translate>About.developed</p>
+            <p class="ion-padding" translate>About.developed</p>
             <ul>
               <li>
                 <a target="_blank" href="https://openems.io" translate>About.openEMS</a>
@@ -96,9 +94,14 @@
                   <span translate>About.build</span>: 2020.23.0-SNAPSHOT</a>
               </li>
             </ul>
-            <p>
+            <p class="ion-padding">
               <span [innerHTML]="'About.contact' | translate:{value: 'info@openems.io'}"></span>
             </p>
+            <ion-item lines="inset">
+              <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="env.debugMode">
+              </ion-checkbox>
+              <ion-label translate>Debug-Mode</ion-label>
+            </ion-item>
           </ion-card-content>
         </ion-card>
       </ion-col>

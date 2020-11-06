@@ -22,10 +22,10 @@ export class UserComponent {
     private service: Service,
   ) {
     this.languages = Language.getLanguageTags();
-    this.currentLanguage = translate.currentLang as LanguageTag;
   }
 
   ngOnInit() {
+    this.currentLanguage = this.translate.currentLang as LanguageTag;
     this.service.setCurrentComponent(this.translate.instant('Menu.user'), this.route);
   }
 

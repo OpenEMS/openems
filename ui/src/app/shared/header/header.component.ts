@@ -71,7 +71,7 @@ export class HeaderComponent {
         let urlArray = url.split('/');
         let file = urlArray.pop();
 
-        if (file == 'user' || urlArray.length > 3) {
+        if (file == 'user' || file == 'settings' || urlArray.length > 3) {
             // disable side-menu; show back-button instead
             this.enableSideMenu = false;
         } else {
