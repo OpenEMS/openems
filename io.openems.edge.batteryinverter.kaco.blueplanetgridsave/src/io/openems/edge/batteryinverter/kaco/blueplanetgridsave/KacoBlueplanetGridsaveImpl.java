@@ -64,9 +64,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
-		implements KacoBlueplanetGridsave, ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent,
-		TimedataProvider, StartStoppable {
+public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter implements KacoBlueplanetGridsave,
+		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, TimedataProvider, StartStoppable {
 
 	private static final int UNIT_ID = 1;
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
@@ -94,6 +93,8 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 
 	private Config config;
 
+	private boolean hasSunSpecModel64203 = false;
+
 	/**
 	 * Active SunSpec models for KACO blueplanet gridsave. Commented models are
 	 * available but not used currently.
@@ -104,7 +105,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 			.put(DefaultSunSpecModel.S_121, Priority.LOW) //
 			.put(KacoSunSpecModel.S_64201, Priority.HIGH) //
 			.put(KacoSunSpecModel.S_64202, Priority.LOW) //
-			// .put(KacoSunSpecModel.S_64203, Priority.LOW) //
+			.put(KacoSunSpecModel.S_64203, Priority.LOW) //
 			.put(KacoSunSpecModel.S_64204, Priority.LOW) //
 			.build();
 
@@ -165,7 +166,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 		}
 
 		// Set Display Information
-		// this.setDisplayInformation(battery);
+		this.setDisplayInformation(battery);
 
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
@@ -196,20 +197,18 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 
 	@Override
 	public BatteryInverterConstraint[] getStaticConstraints() throws OpenemsException {
-		BatteryInverterConstraint noReactivePower = new BatteryInverterConstraint("Reactive power is not allowed",
-				Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0d);
-
 		if (this.stateMachine.getCurrentState() == State.RUNNING) {
-			return new BatteryInverterConstraint[] { noReactivePower };
+			return BatteryInverterConstraint.NO_CONSTRAINTS;
 
 		} else {
 			// Block any power as long as we are not RUNNING
 			return new BatteryInverterConstraint[] { //
-					noReactivePower, //
+					new BatteryInverterConstraint("KACO inverter not ready", Phase.ALL, Pwr.REACTIVE,
+							Relationship.EQUALS, 0d),
+					// noReactivePower, //
 					new BatteryInverterConstraint("KACO inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
 							0d) //
 			};
-
 		}
 	}
 
@@ -219,7 +218,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 	 * @param battery the linked {@link Battery}
 	 * @throws OpenemsNamedException on error
 	 */
-	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
+	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {		
 		// Discharge Min Voltage
 		IntegerWriteChannel disMinVChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64202.DIS_MIN_V_0);
 		Integer dischargeMinVoltage = battery.getDischargeMinVoltage().get();
@@ -249,26 +248,28 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 		enLimitChannel.setNextWriteValue(S64202EnLimit.ACTIVATE);
 	}
 
-//	/**
-//	 * Sets the information that is shown on the Display, like State-of-Charge,
-//	 * State-of-Health and Max-Cell-Temperature.
-//	 * 
-//	 * @param battery the linked {@link Battery}
-//	 * @throws OpenemsNamedException on error
-//	 */
-//	private void setDisplayInformation(Battery battery) throws OpenemsNamedException {
-//		// State-of-Charge
-//		IntegerWriteChannel batSocChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_SOC_0);
-//		batSocChannel.setNextWriteValue(battery.getSoc().get());
-//
-//		// State-of-Health
-//		IntegerWriteChannel batSohChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_SOH_0);
-//		batSohChannel.setNextWriteValue(battery.getSoh().get());
-//
-//		// Max-Cell-Temperature
-//		IntegerWriteChannel batTempChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_TEMP_0);
-//		batTempChannel.setNextWriteValue(battery.getMaxCellTemperature().get());
-//	}
+	/**
+	 * Sets the information that is shown on the Display, like State-of-Charge,
+	 * State-of-Health and Max-Cell-Temperature.
+	 * 
+	 * @param battery the linked {@link Battery}
+	 * @throws OpenemsNamedException on error
+	 */
+	private void setDisplayInformation(Battery battery) throws OpenemsNamedException {
+		if (this.hasSunSpecModel64203) {
+			// State-of-Charge
+			IntegerWriteChannel batSocChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_SOC_0);
+			batSocChannel.setNextWriteValue(battery.getSoc().get());
+
+			// State-of-Health
+			IntegerWriteChannel batSohChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_SOH_0);
+			batSohChannel.setNextWriteValue(battery.getSoh().get());
+
+			// Max-Cell-Temperature
+			IntegerWriteChannel batTempChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_TEMP_0);
+			batTempChannel.setNextWriteValue(battery.getMaxCellTemperature().get());
+		}
+	}
 
 //	private Instant lastTriggerWatchdog = Instant.MIN;
 //
@@ -456,5 +457,13 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 		return this.timedata;
 	}
 
+	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) {
+		super.addBlock(startAddress, model, priority);
+
+		// Mark S_64203 as available
+		if (model.equals(KacoSunSpecModel.S_64203)) {
+			this.hasSunSpecModel64203 = true;
+		}
+	}
 
 }

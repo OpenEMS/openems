@@ -70,17 +70,25 @@ public class KeepTargetDirectionAndMaximizeInOrder {
 		for (Inverter inv : targetInverters) {
 			// Create Constraint to force Ess positive/negative/zero according to
 			// targetDirection
-			Constraint c = ConstraintUtil.createSimpleConstraint(coefficients, //
+			Constraint cActivePower = ConstraintUtil.createSimpleConstraint(coefficients, //
 					inv.toString() + ": Force " + targetDirection.name() //
 					, inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, relationship, 0);
-			constraints.add(c);
+			
+			Constraint cReactivePower = ConstraintUtil.createSimpleConstraint(coefficients, //
+					inv.toString() + ": Force " + targetDirection.name() //
+					, inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, relationship, 0);	
+			
+			
+			constraints.add(cActivePower);
+			constraints.add(cReactivePower);
 			// Try to solve with Constraint
 			try {
 				thisSolution = ConstraintSolver.solve(coefficients, constraints);
 				result = thisSolution; // only if solving was successful
 			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 				// solving failed
-				constraints.remove(c);
+				constraints.remove(cActivePower);
+				constraints.remove(cReactivePower);
 			}
 		}
 
@@ -96,19 +104,33 @@ public class KeepTargetDirectionAndMaximizeInOrder {
 			} else {
 				goal = GoalType.MAXIMIZE;
 			}
-			double target = CalculatePowerExtrema.from(coefficients, allConstraints, inv.getEssId(), inv.getPhase(),
+			double activePowerTarget = CalculatePowerExtrema.from(coefficients, allConstraints, inv.getEssId(), inv.getPhase(),
 					Pwr.ACTIVE, goal);
-			Constraint c = ConstraintUtil.createSimpleConstraint(coefficients, //
-					inv.toString() + ": Set " + goal.name() + " value", //
-					inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, target);
-			constraints.add(c);
+			
+			double reactivePowerTarget = CalculatePowerExtrema.from(coefficients, allConstraints, inv.getEssId(), inv.getPhase(),
+					Pwr.REACTIVE, goal);
+			
+			
+			Constraint cActivePower = ConstraintUtil.createSimpleConstraint(coefficients, //
+					inv.toString() + ": Set ActivePower " + goal.name() + " value", //
+					inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, activePowerTarget);
+			Constraint cReactivePower = ConstraintUtil.createSimpleConstraint(coefficients, //
+					inv.toString() + ": Set Reactive" + goal.name() + " value", //
+					inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, Relationship.EQUALS, reactivePowerTarget); //
+			constraints.add(cActivePower);
+			constraints.add(cReactivePower);
+			
+			
+
 			// Try to solve with Constraint
 			try {
 				thisSolution = ConstraintSolver.solve(coefficients, constraints);
 				result = thisSolution; // only if solving was successful
 			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 				// If solving fails: remove the Constraints
-				constraints.remove(c);
+				constraints.remove(cActivePower);
+				constraints.remove(cReactivePower);
+				
 			}
 		}
 

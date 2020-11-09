@@ -55,16 +55,21 @@ public class RunningHandler extends StateHandler<State, Context> {
 	 * @throws OpenemsNamedException on error
 	 */
 	private void applyPower(Context context) throws OpenemsNamedException {
-		// TODO apply reactive power
-		IntegerWriteChannel wSetPctChannel = context.component
-				.getSunSpecChannelOrError(KacoSunSpecModel.S64201.W_SET_PCT);
 		IntegerReadChannel maxApparentPowerChannel = context.component
 				.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER);
 		int maxApparentPower = maxApparentPowerChannel.value().getOrError();
 
 		// Active Power Set-Point is set in % of maximum active power
+		IntegerWriteChannel wSetPctChannel = context.component
+				.getSunSpecChannelOrError(KacoSunSpecModel.S64201.W_SET_PCT);
 		int wSetPct = context.setActivePower * 100 / maxApparentPower;
 		wSetPctChannel.setNextWriteValue(wSetPct);
+
+		// Reactive Power Set-Point is set in % of maximum active power
+		IntegerWriteChannel varSetPctChannel = context.component
+				.getSunSpecChannelOrError(KacoSunSpecModel.S64201.VAR_SET_PCT);
+		int varSetPct = context.setReactivePower * 100 / maxApparentPower;
+		varSetPctChannel.setNextWriteValue(varSetPct);
 	}
 
 }

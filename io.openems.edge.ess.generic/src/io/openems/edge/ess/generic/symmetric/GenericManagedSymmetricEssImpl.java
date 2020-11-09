@@ -158,6 +158,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 	public String debugLog() {
 		return "SoC:" + this.getSoc().asString() //
 				+ "|L:" + this.getActivePower().asString() //
+				+ "|R:" + this.getReactivePower().asString() //
 				+ "|Allowed:" //
 				+ this.getAllowedChargePower().asStringWithoutUnit() + ";" //
 				+ this.getAllowedDischargePower().asString() //

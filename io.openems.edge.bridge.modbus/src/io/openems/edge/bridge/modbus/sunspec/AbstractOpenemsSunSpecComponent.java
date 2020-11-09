@@ -225,7 +225,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @param priority     the reading priority
 	 * @return future that gets completed when the Block elements are read
 	 */
-	private void addBlock(int startAddress, SunSpecModel model, Priority priority) {
+	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) {
 		this.logInfo(this.log, "Adding SunSpec-Model [" + model.getBlockId() + ":" + model.label() + "] starting at ["
 				+ startAddress + "]");
 		AbstractModbusElement<?>[] elements = new AbstractModbusElement[model.points().length];
