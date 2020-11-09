@@ -11,8 +11,7 @@ public enum Status implements OptionsEnum {
 
 	/**
 	 * The Lock state is downward compatible with the energy provider block that is
-	 * frequently activated at specific times and consists of a maximum ‘hard’
-	 * blocking period of 2 hours.
+	 * frequently activated at specific times and consists of a maximum 'hard'.
 	 */
 	LOCK(0, true, false, "Blocks everything till an internal maximum time of default two hours"),
 
