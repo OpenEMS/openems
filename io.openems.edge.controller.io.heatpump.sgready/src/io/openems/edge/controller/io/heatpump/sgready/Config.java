@@ -48,7 +48,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int automaticForceOnSoc() default 10;
 
 	@AttributeDefinition(name = "Lock control enabled?", description = "Is the lock control enabled? (In the automatic mode)")
-	boolean automaticLockCtrlEnabled() default true;
+	boolean automaticLockCtrlEnabled() default false;
 
 	@AttributeDefinition(name = "Lock grid buy power", description = "Above this grid buy power and the soc is low enough, the lock state will be set.")
 	int automaticLockGridBuyPower() default 5000;
