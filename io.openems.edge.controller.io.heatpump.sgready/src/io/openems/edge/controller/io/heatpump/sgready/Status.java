@@ -57,10 +57,20 @@ public enum Status implements OptionsEnum {
 		return this.name;
 	}
 
+	/**
+	 * Get the value of output 1.
+	 * 
+	 * @return value as boolean
+	 */
 	public boolean getOutput1() {
 		return this.output1;
 	}
 
+	/**
+	 * Get the value of output 2.
+	 * 
+	 * @return value as boolean
+	 */
 	public boolean getOutput2() {
 		return this.output2;
 	}

@@ -54,8 +54,8 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 	protected Instant lastStateChange = Instant.MIN;
 
 	/*
-	 * Status definitions for each state. Storing meta data, are responsible for the
-	 * time calculation activation of that state.
+	 * Status definitions for each state. Are responsible for the time calculation
+	 * activation of that state and storing their meta data.
 	 */
 	private final StatusDefinition lockState = new StatusDefinition(this, Status.LOCK,
 			HeatPump.ChannelId.LOCK_STATE_TIME);
@@ -132,13 +132,13 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Automatic mode.
-	 * <p>
 	 * 
+	 * <p>
 	 * Sets the digital outputs and the state depending on the surplus or grid-buy
 	 * power.
 	 * 
-	 * @throws IllegalArgumentException
-	 * @throws OpenemsNamedException
+	 * @throws IllegalArgumentException on error
+	 * @throws OpenemsNamedException    on error
 	 */
 	private void modeAutomatic() throws IllegalArgumentException, OpenemsNamedException {
 
@@ -150,15 +150,10 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 		}
 		this._setAwaitingHysteresis(false);
 
-		// Different modes and their limitations can be enabled and disabled by the user
-		boolean recommCtrlEnabled = this.config.automaticRecommendationCtrlEnabled();
-		boolean forceOnCtrlEnabled = this.config.automaticForceOnCtrlEnabled();
-		boolean lockCtrlEnabled = this.config.automaticLockCtrlEnabled();
-
 		// Values to calculate the surplus/grid-buy power
-		int gridActivePower = getGridActivePowerOrZero();
-		int soc = getEssSocOrZero();
-		int essDischargePower = getEssDischargePowerOrZero();
+		int gridActivePower = this.getGridActivePowerOrZero();
+		int soc = this.getEssSocOrZero();
+		int essDischargePower = this.getEssDischargePowerOrZero();
 
 		// We are only interested in discharging, not charging
 		essDischargePower = essDischargePower < 0 ? 0 : essDischargePower;
@@ -172,21 +167,22 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 
 		// Check conditions for lock mode (Lock mode is not depending on the
 		// essDischarge Power)
-		if (lockCtrlEnabled && gridActivePower > this.config.automaticLockGridBuyPower()
+		if (this.config.automaticLockCtrlEnabled() && gridActivePower > this.config.automaticLockGridBuyPower()
 				&& soc < this.config.automaticLockSoc()) {
 			this.lockState.switchOn();
 			return;
 		}
 
 		// Check conditions for force on mode
-		if (forceOnCtrlEnabled && surplusPower > this.config.automaticForceOnSurplusPower()
+		if (this.config.automaticForceOnCtrlEnabled() && surplusPower > this.config.automaticForceOnSurplusPower()
 				&& soc > this.config.automaticForceOnSoc()) {
 			this.forceOnState.switchOn();
 			return;
 		}
 
 		// Check conditions for recommendation mode
-		if (recommCtrlEnabled && surplusPower > this.config.automaticRecommendationSurplusPower()) {
+		if (this.config.automaticRecommendationCtrlEnabled()
+				&& surplusPower > this.config.automaticRecommendationSurplusPower()) {
 			this.recommState.switchOn();
 			return;
 		}
@@ -202,8 +198,8 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 	 * <p>
 	 * Sets the digital outputs and the state depending on a fix user input.
 	 * 
-	 * @throws IllegalArgumentException
-	 * @throws OpenemsNamedException
+	 * @throws IllegalArgumentException on error
+	 * @throws OpenemsNamedException    on error
 	 */
 	private void modeManual() throws IllegalArgumentException, OpenemsNamedException {
 		Status state = this.config.manualState();
@@ -227,17 +223,17 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 	}
 
 	private int getEssDischargePowerOrZero() {
-		return getChannelValueOrZeroAndSetStateChannel(this.sum.getEssDischargePowerChannel(),
+		return this.getChannelValueOrZeroAndSetStateChannel(this.sum.getEssDischargePowerChannel(),
 				this.getEssDischargePowerNotPresentChannel());
 	}
 
 	private int getEssSocOrZero() {
-		return getChannelValueOrZeroAndSetStateChannel(this.sum.getEssSocChannel(),
+		return this.getChannelValueOrZeroAndSetStateChannel(this.sum.getEssSocChannel(),
 				this.getStateOfChargeNotPresentChannel());
 	}
 
 	private int getGridActivePowerOrZero() {
-		return getChannelValueOrZeroAndSetStateChannel(this.sum.getGridActivePowerChannel(),
+		return this.getChannelValueOrZeroAndSetStateChannel(this.sum.getGridActivePowerChannel(),
 				this.getGridActivePowerNotPresentChannel());
 	}
 
@@ -245,9 +241,10 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 	 * Get the IntegerReadChannel value or 0 if not present - Sets also the
 	 * according state channel depending on the channel.
 	 * 
-	 * @param channel
-	 * @param stateChannel
-	 * @return
+	 * @param channel      Channel that value should be read.
+	 * @param stateChannel Referring StateChannel that will be set if the value is
+	 *                     not present.
+	 * @return Current channel value as int.
 	 */
 	private int getChannelValueOrZeroAndSetStateChannel(IntegerReadChannel channel, StateChannel stateChannel) {
 		Optional<Integer> channelOptional = channel.getNextValue().asOptional();
@@ -265,8 +262,8 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 	 * 
 	 * @param output1 Value that should be set on output 1.
 	 * @param output2 Value that should be set on output 2.
-	 * @throws IllegalArgumentException
-	 * @throws OpenemsNamedException
+	 * @throws IllegalArgumentException on error
+	 * @throws OpenemsNamedException    on error
 	 */
 	protected void setOutputs(boolean output1, boolean output2) throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(ChannelAddress.fromString(this.config.outputChannel1()), output1);
@@ -278,8 +275,8 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 	 * 
 	 * @param channelAddress The address of the channel.
 	 * @param value          Boolean that should be set on the output.
-	 * @throws IllegalArgumentException
-	 * @throws OpenemsNamedException
+	 * @throws IllegalArgumentException on error
+	 * @throws OpenemsNamedException    on error
 	 */
 	protected void setOutput(ChannelAddress channelAddress, boolean value)
 			throws IllegalArgumentException, OpenemsNamedException {
@@ -312,14 +309,14 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Change of a state.
-	 * <p>
 	 * 
+	 * <p>
 	 * Sets the digital outputs, the currently active status and the lastStateChange
 	 * time set point.
 	 * 
 	 * @param status New active status
-	 * @throws OpenemsNamedException
-	 * @throws IllegalArgumentException
+	 * @throws OpenemsNamedException    on error
+	 * @throws IllegalArgumentException on error
 	 */
 	public void changeState(Status status) throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutputs(status.getOutput1(), status.getOutput2());

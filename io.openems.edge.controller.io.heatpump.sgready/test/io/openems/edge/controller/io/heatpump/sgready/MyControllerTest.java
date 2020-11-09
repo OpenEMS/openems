@@ -16,11 +16,11 @@ import io.openems.edge.io.test.DummyInputOutput;
 
 public class MyControllerTest {
 
-	private final static String CTRL_ID = "ctrHeatPump0";
-	private final static String IO_ID = "io0";
+	private static final String CTRL_ID = "ctrHeatPump0";
+	private static final String IO_ID = "io0";
 
-	private final static String outputChannel1 = "io0/InputOutput0";
-	private final static String outputChannel2 = "io0/InputOutput1";
+	private static final String outputChannel1 = "io0/InputOutput0";
+	private static final String outputChannel2 = "io0/InputOutput1";
 
 	private static final ChannelAddress STATUS = new ChannelAddress(CTRL_ID, "Status");
 	private static final ChannelAddress AWAITING_HYSTERESIS = new ChannelAddress(CTRL_ID, "AwaitingHysteresis");

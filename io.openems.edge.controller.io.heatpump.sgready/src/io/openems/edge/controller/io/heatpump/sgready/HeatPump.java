@@ -109,7 +109,7 @@ public interface HeatPump extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the value for the {@link ChannelId#GRID_ACTIVE_POWER_NOT_PRESENT}
+	 * Gets the value for the {@link ChannelId#GRID_ACTIVE_POWER_NOT_PRESENT}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -137,7 +137,7 @@ public interface HeatPump extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the value for the {@link ChannelId#STATE_OF_CHARGE_NOT_PRESENT}
+	 * Gets the value for the {@link ChannelId#STATE_OF_CHARGE_NOT_PRESENT}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -165,7 +165,7 @@ public interface HeatPump extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the value for the {@link ChannelId#ESS_DISCHARGE_POWER_NOT_PRESENT}
+	 * Gets the value for the {@link ChannelId#ESS_DISCHARGE_POWER_NOT_PRESENT}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
