@@ -113,7 +113,7 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 * @param owc          The DS1963S iButton that this object will refer to.
 	 * @param formatDevice If <code>true</code>, the TMEX filesystem will be
 	 *                     formatted before the account service file is created.
-	 * @param authSecret   The master authentication secret for the systm.
+	 * @param authSecret   The master authentication secret for the system.
 	 *
 	 * @throws OneWireIOException on a 1-Wire communication error such as reading an
 	 *                            incorrect CRC from a 1-Wire device. This could be
@@ -199,7 +199,7 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 * @param owc          The DS1963S iButton that this object will refer to.
 	 * @param formatDevice If <code>true</code>, the TMEX filesystem will be
 	 *                     formatted before the account service file is created.
-	 * @param authSecret   The master authentication secret for the systm.
+	 * @param authSecret   The master authentication secret for the system.
 	 *
 	 * @throws OneWireIOException on a 1-Wire communication error such as reading an
 	 *                            incorrect CRC from a 1-Wire device. This could be

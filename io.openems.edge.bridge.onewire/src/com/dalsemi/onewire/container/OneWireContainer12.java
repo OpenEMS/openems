@@ -1290,16 +1290,16 @@ public class OneWireContainer12 extends OneWireContainer implements SwitchContai
 			/*
 			 * OK let me explain that last piece of code: The only return values are going
 			 * to be 1 and 3, 1 for a normal increment and 3 if we want to leave space to
-			 * recieve a CRC.
+			 * receive a CRC.
 			 * 
 			 * So the mask gets the bits out that are concerned with the CRC. When its 0 it
 			 * means that the CRC is disabled, so the next location into our destination
 			 * array we need to copy into is just the next available location.
 			 * 
-			 * When it is 1, it means we will recieve a CRC after each transmission, so we
-			 * should leave a 2 byte space for it (thus increament by 3).
+			 * When it is 1, it means we will receive a CRC after each transmission, so we
+			 * should leave a 2 byte space for it (thus increment by 3).
 			 * 
-			 * When it is 2, it means that after every 8 bytes we want to recieve a CRC byte
+			 * When it is 2, it means that after every 8 bytes we want to receive a CRC byte
 			 * pair. When it is a 3, it means that every 32 bytes we want the CRC pair. So
 			 * what we want to check is if the current_index is divisible by 8 or 32 (we do
 			 * not call this method with current_index==0). Since 8 and 32 are powers of 2

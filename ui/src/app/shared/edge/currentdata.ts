@@ -233,37 +233,45 @@ export class CurrentData {
     }
     return result;
   }
-  public static calculateAutarchy(buyFromGrid: number, consumptionActivePower: number): number {
-    return Math.max(
-      Utils.orElse(
-        (
-          1 - (
-            Utils.divideSafely(
-              Utils.orElse(buyFromGrid, 0),
-              Math.max(Utils.orElse(consumptionActivePower, 0), 0)
-            )
-          )
-        ) * 100, 0
-      ), 0)
-  }
-
-  public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number): number {
-    if (productionActivePower == 0) {
-      return null;
-    }
-    else {
+  public static calculateAutarchy(buyFromGrid: number, consumptionActivePower: number): number | null {
+    if (buyFromGrid && consumptionActivePower) {
       return Math.max(
         Utils.orElse(
           (
             1 - (
               Utils.divideSafely(
-                Utils.orElse(sellToGrid, 0), (
-                Math.max(Utils.orElse(productionActivePower, 0), 0)
-              )
+                Utils.orElse(buyFromGrid, 0),
+                Math.max(Utils.orElse(consumptionActivePower, 0), 0)
               )
             )
           ) * 100, 0
         ), 0)
+    } else {
+      return null
+    }
+  }
+
+  public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number): number | null {
+    if (sellToGrid && productionActivePower) {
+      if (productionActivePower == 0) {
+        return null;
+      }
+      else {
+        return Math.max(
+          Utils.orElse(
+            (
+              1 - (
+                Utils.divideSafely(
+                  Utils.orElse(sellToGrid, 0), (
+                  Math.max(Utils.orElse(productionActivePower, 0), 0)
+                )
+                )
+              )
+            ) * 100, 0
+          ), 0)
+      }
+    } else {
+      return null;
     }
   }
 }

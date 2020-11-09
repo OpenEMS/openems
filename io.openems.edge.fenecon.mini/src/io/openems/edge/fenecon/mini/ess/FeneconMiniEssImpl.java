@@ -1,5 +1,7 @@
 package io.openems.edge.fenecon.mini.ess;
 
+import java.util.function.Consumer;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -10,9 +12,17 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -25,35 +35,73 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
+import io.openems.edge.ess.api.ManagedAsymmetricEss;
+import io.openems.edge.ess.api.ManagedSinglePhaseEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SinglePhase;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.fenecon.mini.FeneconMiniConstants;
+import io.openems.edge.fenecon.mini.ess.statemachine.Context;
+import io.openems.edge.fenecon.mini.ess.statemachine.StateMachine;
+import io.openems.edge.fenecon.mini.ess.statemachine.StateMachine.State;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Fenecon.Mini.Ess", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE, property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
 public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
-		implements SinglePhaseEss, AsymmetricEss, SymmetricEss, OpenemsComponent, ModbusSlave {
+		implements FeneconMiniEss, ManagedSinglePhaseEss, ManagedAsymmetricEss, ManagedSymmetricEss, SinglePhaseEss,
+		AsymmetricEss, SymmetricEss, OpenemsComponent, ModbusSlave, TimedataProvider, EventHandler {
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	@Reference
+	protected Power power;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
-	private SinglePhase phase;
+	private final Logger log = LoggerFactory.getLogger(FeneconMiniEssImpl.class);
+
+	/**
+	 * Manages the {@link State}s of the StateMachine.
+	 */
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+
+	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
+
+	private Config config;
 
 	public FeneconMiniEssImpl() {
 		super(//
@@ -61,17 +109,46 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 				SymmetricEss.ChannelId.values(), //
 				AsymmetricEss.ChannelId.values(), //
 				SinglePhaseEss.ChannelId.values(), //
+				ManagedSymmetricEss.ChannelId.values(), //
+				ManagedAsymmetricEss.ChannelId.values(), //
+				ManagedSinglePhaseEss.ChannelId.values(), //
 				FeneconMiniEss.ChannelId.values() //
 		);
 		this._setCapacity(3_000);
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), FeneconMiniConstants.UNIT_ID, this.cm,
-				"Modbus", config.modbus_id());
-		this.phase = config.phase();
+	void activate(ComponentContext context, Config config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), FeneconMiniConstants.UNIT_ID,
+				this.cm, "Modbus", config.modbus_id())) {
+			return;
+		}
+		this.config = config;
 		SinglePhaseEss.initializeCopyPhaseChannel(this, config.phase());
+
+		// Calculate Allowed Charge and Discharge Power
+		final Consumer<Value<Integer>> calculateAllowedChargeDischargePower = (ignore) -> {
+			Value<Integer> voltage = this.getBecu1TotalVoltageChannel().getNextValue();
+			Value<Integer> chargeCurrent = this.getBecu1AllowedChargeCurrentChannel().getNextValue();
+			Value<Integer> dischargeCurrent = this.getBecu1AllowedDischargeCurrentChannel().getNextValue();
+			final Integer allowedCharge;
+			final Integer allowedDischarge;
+			if (voltage.isDefined() && chargeCurrent.isDefined() && dischargeCurrent.isDefined()) {
+				allowedCharge = Math.round(voltage.get() /* [mV] */ / 1000F /* convert to [V] */
+						* chargeCurrent.get() /* [mA] */ / 1000F /* convert to [A] */
+						* -1 /* charge */);
+				allowedDischarge = Math.round(voltage.get() /* [mV] */ / 1000F /* convert to [V] */
+						* dischargeCurrent.get() /* [mA] */ / 1000F /* convert to [A] */);
+			} else {
+				allowedCharge = null;
+				allowedDischarge = null;
+			}
+			this._setAllowedChargePower(allowedCharge);
+			this._setAllowedDischargePower(allowedDischarge);
+		};
+		this.getBecu1TotalVoltageChannel().onSetNextValue(calculateAllowedChargeDischargePower);
+		this.getBecu1AllowedChargeCurrentChannel().onSetNextValue(calculateAllowedChargeDischargePower);
+		this.getBecu1AllowedDischargeCurrentChannel().onSetNextValue(calculateAllowedChargeDischargePower);
 	}
 
 	@Deactivate
@@ -81,23 +158,23 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public SinglePhase getPhase() {
-		return this.phase;
+		return this.config.phase();
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(100, Priority.LOW, //
 						m(FeneconMiniEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(100)), //
 						m(FeneconMiniEss.ChannelId.CONTROL_MODE, new UnsignedWordElement(101)), //
-						new DummyRegisterElement(102, 103), //
-						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(104)), //
-						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, new UnsignedDoublewordElement(106)), //
+						new DummyRegisterElement(102, 107), //
 						m(FeneconMiniEss.ChannelId.BATTERY_GROUP_STATE, new UnsignedWordElement(108)), //
 						new DummyRegisterElement(109), //
 						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110)), //
 						m(FeneconMiniEss.ChannelId.BATTERY_CURRENT, new SignedWordElement(111)), //
-						m(FeneconMiniEss.ChannelId.BATTERY_POWER, new SignedWordElement(112))), //
+						m(FeneconMiniEss.ChannelId.BATTERY_POWER, new SignedWordElement(112)), //
+						new DummyRegisterElement(113, 133), //
+						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(134))), //
 				new FC3ReadRegistersTask(2007, Priority.HIGH, //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2007),
 								UNSIGNED_POWER_CONVERTER)), //
@@ -108,9 +185,9 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2207),
 								UNSIGNED_POWER_CONVERTER)), //
 				new FC3ReadRegistersTask(3000, Priority.LOW, //
-						m(FeneconMiniEss.ChannelId.BECU1_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(3000),
+						m(FeneconMiniEss.ChannelId.BECU1_ALLOWED_CHARGE_CURRENT, new UnsignedWordElement(3000),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(FeneconMiniEss.ChannelId.BECU1_DISCHARGE_CURRENT_LIMIT, new UnsignedWordElement(3001), //
+						m(FeneconMiniEss.ChannelId.BECU1_ALLOWED_DISCHARGE_CURRENT, new UnsignedWordElement(3001),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(FeneconMiniEss.ChannelId.BECU1_TOTAL_VOLTAGE, new UnsignedWordElement(3002),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
@@ -349,7 +426,6 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 								.bit(10, FeneconMiniEss.ChannelId.STATE_139) //
 								.bit(11, FeneconMiniEss.ChannelId.STATE_140) //
 								.bit(12, FeneconMiniEss.ChannelId.STATE_141) //
-								.bit(13, FeneconMiniEss.ChannelId.STATE_142) //
 								.bit(14, FeneconMiniEss.ChannelId.STATE_143)),
 						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(4812),
 								new ElementToChannelConverter(value -> {
@@ -358,12 +434,8 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 										return null;
 									}
 									int soc = (Integer) value;
-									IntegerReadChannel allowedCharge = this
-											.channel(FeneconMiniEss.ChannelId.BECU1_CHARGE_CURRENT_LIMIT);
-									IntegerReadChannel allowedDischarge = this
-											.channel(FeneconMiniEss.ChannelId.BECU1_DISCHARGE_CURRENT_LIMIT);
-									if (soc > 95 && allowedCharge.value().orElse(-1) == 0
-											&& allowedDischarge.value().orElse(0) != 0) {
+									if (soc > 95 && this.getAllowedChargePower().orElse(-1) == 0
+											&& this.getAllowedDischargePower().orElse(0) != 0) {
 										return 100;
 									} else {
 										return value;
@@ -372,8 +444,6 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 										value -> value)) //
 				), //
 
-				new FC3ReadRegistersTask(30166, Priority.LOW, //
-						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(30166))), //
 				new FC16WriteRegistersTask(9014, //
 						m(FeneconMiniEss.ChannelId.RTC_YEAR, new UnsignedWordElement(9014)), //
 						m(FeneconMiniEss.ChannelId.RTC_MONTH, new UnsignedWordElement(9015)), //
@@ -381,19 +451,63 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 						m(FeneconMiniEss.ChannelId.RTC_HOUR, new UnsignedWordElement(9017)), //
 						m(FeneconMiniEss.ChannelId.RTC_MINUTE, new UnsignedWordElement(9018)), //
 						m(FeneconMiniEss.ChannelId.RTC_SECOND, new UnsignedWordElement(9019))), //
+				new FC16WriteRegistersTask(30526, //
+						m(FeneconMiniEss.ChannelId.GRID_MAX_CHARGE_CURRENT, new UnsignedWordElement(30526),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(FeneconMiniEss.ChannelId.GRID_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(30527),
+								ElementToChannelConverter.SCALE_FACTOR_2)), //
 				new FC16WriteRegistersTask(30558, //
 						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30558))), //
 				new FC16WriteRegistersTask(30559, //
 						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30559))), //
-				new FC16WriteRegistersTask(30157, //
+
+				new FC3ReadRegistersTask(30126, Priority.LOW, //
+						m(FeneconMiniEss.ChannelId.GRID_MAX_CHARGE_CURRENT, new UnsignedWordElement(30126),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(FeneconMiniEss.ChannelId.GRID_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(30127),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						new DummyRegisterElement(30128, 30156), //
 						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30157)), //
-						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30158))));//
+						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30158)), //
+						new DummyRegisterElement(30159, 30165), //
+						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(30166),
+								new ElementToChannelConverter(
+										// element -> channel
+										value -> {
+											Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
+											if (intValue != null) {
+												switch (intValue) {
+												case 0:
+													return GridMode.ON_GRID;
+												case 1:
+													return GridMode.OFF_GRID;
+												}
+											}
+											return GridMode.UNDEFINED;
+										}, //
+
+										// channel -> element
+										value -> value))), //
+
+				new FC3ReadRegistersTask(2992, Priority.LOW, //
+						m(FeneconMiniEss.ChannelId.DEBUG_RUN_STATE, new UnsignedWordElement(2992))), //
+				new FC16WriteRegistersTask(2992, //
+						m(FeneconMiniEss.ChannelId.DEBUG_RUN_STATE, new UnsignedWordElement(2992))) //
+		);//
 	}
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().asString() //
-				+ "|L:" + this.getActivePower().asString(); //
+		if (this.config == null || this.config.readonly()) {
+			return "SoC:" + this.getSoc().asString() //
+					+ "|L:" + this.getActivePower().asString(); //
+		} else {
+			return "SoC:" + this.getSoc().asString() //
+					+ "|L:" + this.getActivePower().asString() //
+					+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";"
+					+ this.getAllowedDischargePower().asString() //
+					+ "|" + this.channel(FeneconMiniEss.ChannelId.STATE_MACHINE).value().asEnum().asCamelCase();
+		}
 	}
 
 	@Override
@@ -418,4 +532,93 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 				return intValue - 10_000; // apply delta of 10_000
 			}, //
 			value -> value);
+
+	@Override
+	public Power getPower() {
+		return this.power;
+	}
+
+	@Override
+	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
+		// Store the current State
+		this.channel(FeneconMiniEss.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
+
+		// Prepare Context
+		Context context = new Context(this, this.config, activePower, reactivePower);
+
+		// Call the StateMachine
+		try {
+			this.stateMachine.run(context);
+
+			this.channel(FeneconMiniEss.ChannelId.RUN_FAILED).setNextValue(false);
+
+		} catch (OpenemsNamedException e) {
+			this.channel(FeneconMiniEss.ChannelId.RUN_FAILED).setNextValue(true);
+			this.logError(this.log, "StateMachine failed: " + e.getMessage());
+		}
+	}
+
+	@Override
+	public int getPowerPrecision() {
+		return 1;
+	}
+
+	@Override
+	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
+		if (this.config.readonly()) {
+			return new Constraint[] { //
+					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
+					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
+			};
+
+		} else if (this.stateMachine.getCurrentState() == State.WRITE_MODE) {
+			return new Constraint[] { //
+					this.createPowerConstraint("No reactive power", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
+			};
+
+		} else {
+			return new Constraint[] { //
+					this.createPowerConstraint("Not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
+					this.createPowerConstraint("Not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
+			};
+		}
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.calculateEnergy();
+			break;
+		}
+	}
+
+	/**
+	 * Calculate the Energy values from ActivePower.
+	 */
+	private void calculateEnergy() {
+		// Calculate Energy
+		Integer activePower = this.getActivePower().get();
+		if (activePower == null) {
+			// Not available
+			this.calculateChargeEnergy.update(null);
+			this.calculateDischargeEnergy.update(null);
+		} else if (activePower > 0) {
+			// Buy-From-Grid
+			this.calculateChargeEnergy.update(0);
+			this.calculateDischargeEnergy.update(activePower);
+		} else {
+			// Sell-To-Grid
+			this.calculateChargeEnergy.update(activePower * -1);
+			this.calculateDischargeEnergy.update(0);
+		}
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
 }

@@ -72,10 +72,10 @@ class UPacketBuilder {
 	/** DS9097U function command, OneWire reset */
 	public static final char FUNCTION_RESET = 0xC1;
 
-	/** DS9097U function command, 5V pulse imediate */
+	/** DS9097U function command, 5V pulse immediate */
 	public static final char FUNCTION_5VPULSE_NOW = 0xED;
 
-	/** DS9097U function command, 12V pulse imediate */
+	/** DS9097U function command, 12V pulse immediate */
 	public static final char FUNCTION_12VPULSE_NOW = 0xFD;
 
 	/** DS9097U function command, 5V pulse after next byte */
@@ -220,7 +220,7 @@ class UPacketBuilder {
 
 		packet.returnLength = 0;
 
-		// reset the return cound
+		// reset the return count
 		totalReturnLength = 0;
 	}
 
@@ -382,7 +382,7 @@ class UPacketBuilder {
 	 */
 	public int dataByte(char dataByteValue) {
 
-		// contruct a temporary array of characters of length 1
+		// construct a temporary array of characters of length 1
 		// to use the dataBytes method
 		char[] temp_char_array = new char[1];
 

@@ -54,6 +54,7 @@
 	bnd.identity;id='io.openems.edge.controller.debug.detailedlog',\
 	bnd.identity;id='io.openems.edge.controller.debug.log',\
 	bnd.identity;id='io.openems.edge.controller.ess.acisland',\
+	bnd.identity;id='io.openems.edge.controller.ess.activepowervoltagecharacteristic',\
 	bnd.identity;id='io.openems.edge.controller.ess.delaycharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.delayedselltogrid',\
 	bnd.identity;id='io.openems.edge.controller.ess.hybrid.surplusfeedtogrid',\
@@ -61,6 +62,7 @@
 	bnd.identity;id='io.openems.edge.controller.ess.mindischargeperiod',\
 	bnd.identity;id='io.openems.edge.controller.ess.onefullcycle',\
 	bnd.identity;id='io.openems.edge.controller.ess.predictivedelaycharge',\
+	bnd.identity;id='io.openems.edge.controller.ess.reactivepowervoltagecharacteristic',\
 	bnd.identity;id='io.openems.edge.controller.ess.selltogridlimit',\
 	bnd.identity;id='io.openems.edge.controller.evcs',\
 	bnd.identity;id='io.openems.edge.controller.evcs.fixactivepower',\
@@ -80,7 +82,6 @@
 	bnd.identity;id='io.openems.edge.controller.symmetric.linearpowerband',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.randompower',\
-	bnd.identity;id='io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.timeslotpeakshaving',\
 	bnd.identity;id='io.openems.edge.core',\
 	bnd.identity;id='io.openems.edge.ess.byd.container',\
@@ -178,6 +179,7 @@
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
 	io.openems.edge.controller.debug.log;version=snapshot,\
 	io.openems.edge.controller.ess.acisland;version=snapshot,\
+	io.openems.edge.controller.ess.activepowervoltagecharacteristic;version=snapshot,\
 	io.openems.edge.controller.ess.delaycharge;version=snapshot,\
 	io.openems.edge.controller.ess.delayedselltogrid;version=snapshot,\
 	io.openems.edge.controller.ess.hybrid.surplusfeedtogrid;version=snapshot,\
@@ -185,6 +187,7 @@
 	io.openems.edge.controller.ess.mindischargeperiod;version=snapshot,\
 	io.openems.edge.controller.ess.onefullcycle;version=snapshot,\
 	io.openems.edge.controller.ess.predictivedelaycharge;version=snapshot,\
+	io.openems.edge.controller.ess.reactivepowervoltagecharacteristic;version=snapshot,\
 	io.openems.edge.controller.ess.selltogridlimit;version=snapshot,\
 	io.openems.edge.controller.evcs;version=snapshot,\
 	io.openems.edge.controller.evcs.fixactivepower;version=snapshot,\
@@ -204,7 +207,6 @@
 	io.openems.edge.controller.symmetric.linearpowerband;version=snapshot,\
 	io.openems.edge.controller.symmetric.peakshaving;version=snapshot,\
 	io.openems.edge.controller.symmetric.randompower;version=snapshot,\
-	io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;version=snapshot,\
 	io.openems.edge.controller.symmetric.timeslotpeakshaving;version=snapshot,\
 	io.openems.edge.core;version=snapshot,\
 	io.openems.edge.ess.api;version=snapshot,\
@@ -237,6 +239,7 @@
 	io.openems.edge.io.wago;version=snapshot,\
 	io.openems.edge.kostal.piko;version=snapshot,\
 	io.openems.edge.meter.abb;version=snapshot,\
+	io.openems.edge.meter.api;version=snapshot,\
 	io.openems.edge.meter.artemes.am2;version=snapshot,\
 	io.openems.edge.meter.bcontrol.em300;version=snapshot,\
 	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot,\

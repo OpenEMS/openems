@@ -181,7 +181,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	public static final byte COPY_SCRATCHPAD_PW_COMMAND = (byte) 0x99;
 	/** 1-Wire command for Read Memory With Password */
 	public static final byte READ_MEMORY_PW_COMMAND = (byte) 0x69;
-	/** 1-Wire command for Verifing the Password */
+	/** 1-Wire command for Verifying the Password */
 	public static final byte VERIFY_PSW_COMMAND = (byte) 0xC3;
 	/** 1-Wire command for getting Read Version */
 	public static final byte READ_VERSION = (byte) 0xCC;

@@ -18,7 +18,7 @@ export class ChannelthresholdChartOverviewComponent {
     public showTotal: boolean = null;
     public channelthresholdComponents: string[] = [];
 
-    // referene to the Utils method to access via html
+    // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
     constructor(
