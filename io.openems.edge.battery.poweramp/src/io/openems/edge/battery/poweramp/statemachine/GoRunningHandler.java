@@ -26,7 +26,7 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 		BMSControl bMSControl = context.component.getBMSControl();
 
-		if (bMSControl == BMSControl.SWITCH_ON) {
+		if (bMSControl == BMSControl.SWITCHED_ON) {
 			return State.RUNNING;
 		}
 

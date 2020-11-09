@@ -17,7 +17,7 @@ public class ErrorHandler extends StateHandler<State, Context> {
 		this.entryAt = Instant.now();
 
 		// Try to stop system
-		context.component.setBMSControl(BMSControl.SWITCH_OFF);
+		context.component.setBMSControl(BMSControl.SWITCHED_OFF);
 	}
 
 	@Override

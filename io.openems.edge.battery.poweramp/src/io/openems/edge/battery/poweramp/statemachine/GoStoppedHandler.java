@@ -22,9 +22,9 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		BMSControl preChargeControl = context.component.getBMSControl();
+		BMSControl bmsControl = context.component.getBMSControl();
 
-		if (preChargeControl == BMSControl.SWITCH_OFF) {
+		if (bmsControl == BMSControl.SWITCHED_OFF) {
 			return State.STOPPED;
 		}
 
@@ -40,7 +40,7 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 			} else {
 				// Trying to switch off
-				context.component.setBMSControl(BMSControl.SWITCH_OFF);
+				context.component.setBMSControl(BMSControl.SWITCHED_OFF);
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
 				return State.GO_STOPPED;

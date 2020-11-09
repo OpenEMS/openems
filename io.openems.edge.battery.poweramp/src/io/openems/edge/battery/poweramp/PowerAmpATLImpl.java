@@ -32,7 +32,6 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -134,10 +133,6 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		ModbusProtocol protocol = new ModbusProtocol(this, //
-				new FC6WriteRegisterTask(44000, //
-						m(PowerAmpATL.ChannelId.BMS_CONTROL, new UnsignedWordElement(44000))), //
-				new FC3ReadRegistersTask(44000, Priority.HIGH, //
-						m(PowerAmpATL.ChannelId.BMS_CONTROL, new UnsignedWordElement(44000))), //
 				new FC3ReadRegistersTask(500, Priority.LOW, //
 						m(new BitsWordElement(500, this) //
 								.bit(0, PowerAmpATL.ChannelId.RACK_PRE_ALARM_CELL_OVER_VOLTAGE) //
@@ -256,7 +251,8 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 						m(new UnsignedWordElement(519)) //
 								.m(PowerAmpATL.ChannelId.MAX_DISCHARGE_CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1)
-								.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [%]
+								.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [%]
 								.build(), //
 						m(PowerAmpATL.ChannelId.MAX_DC_CHARGE_CURRENT_LIMIT_PER_BCU, new UnsignedWordElement(520), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
@@ -397,7 +393,9 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
 						m(PowerAmpATL.ChannelId.BCU_MAX_CELL_VOLTAGE_LIMIT, new UnsignedWordElement(10022)), //
 						m(PowerAmpATL.ChannelId.BCU_MIN_CELL_VOLTAGE_LIMIT, new UnsignedWordElement(10023)), //
-						m(PowerAmpATL.ChannelId.BMU_NUMBER, new UnsignedWordElement(10024)) //
+						m(PowerAmpATL.ChannelId.BMU_NUMBER, new UnsignedWordElement(10024))), //
+				new FC3ReadRegistersTask(44000, Priority.HIGH, //
+						m(PowerAmpATL.ChannelId.BMS_CONTROL, new UnsignedWordElement(44000)) //
 				));//
 		return protocol;
 	}
