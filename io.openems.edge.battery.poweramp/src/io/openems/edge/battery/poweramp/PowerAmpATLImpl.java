@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.poweramp.statemachine.Context;
 import io.openems.edge.battery.poweramp.statemachine.StateMachine;
@@ -79,11 +80,10 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 		this.config = config;
-		// TODO Calculate Capacity
 	}
 
 	@Deactivate
@@ -131,7 +131,7 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		ModbusProtocol protocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(500, Priority.LOW, //
 						m(new BitsWordElement(500, this) //
@@ -212,7 +212,6 @@ public class PowerAmpATLImpl extends AbstractOpenemsModbusComponent
 								.bit(8, PowerAmpATL.ChannelId.FAULT_POSITION_BCU_9) //
 								.bit(9, PowerAmpATL.ChannelId.FAULT_POSITION_BCU_10))//
 				), //
-
 				new FC3ReadRegistersTask(506, Priority.HIGH, //
 						m(new UnsignedWordElement(506)) //
 								.m(PowerAmpATL.ChannelId.BATTERY_RACK_VOLTAGE,
