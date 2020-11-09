@@ -1,6 +1,6 @@
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, Service, Utils } from '../../../shared/shared';
+import { ChannelAddress, Service, Utils } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -32,7 +32,6 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
     this.spinnerId = "channelthreshold-total-chart";
     this.service.startSpinner(this.spinnerId);
     this.service.setCurrentComponent('', this.route);
-    this.subscribeChartRefresh()
   }
 
   ngOnDestroy() {
@@ -40,6 +39,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
   }
 
   protected updateChart() {
+    this.autoSubscribeChartRefresh();
     this.service.startSpinner(this.spinnerId);
     this.colors = [];
     this.loading = true;

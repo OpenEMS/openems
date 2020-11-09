@@ -10,6 +10,8 @@ import { ChpSocComponent } from './chpsoc/chpsoc.component';
 import { ChpsocModalComponent } from './chpsoc/modal/modal.component';
 import { ConsumptionComponent } from './consumption/consumption.component';
 import { ConsumptionModalComponent } from './consumption/modal/modal.component';
+import { DigitalInputComponent } from './digitalinput/digitalinput.component';
+import { DigitalInputModalComponent } from './digitalinput/modal/modal.component';
 import { EnergymonitorModule } from './energymonitor/energymonitor.module';
 import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';
 import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
@@ -38,8 +40,6 @@ import { StorageComponent } from './storage/storage.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetricpeakshaving.component';
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
-import { DigitalInputComponent } from './digitalinput/digitalinput.component';
-import { DigitalInputModalComponent } from './digitalinput/modal/modal.component';
 
 @NgModule({
   imports: [

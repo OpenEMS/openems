@@ -62,7 +62,7 @@ public class MulticastListener implements Runnable {
 	/**
 	 * Creates a multicast listener on the specified multicast port, bound to the
 	 * specified multicast group. Whenever the byte[] pattern specified by
-	 * "expectedMessage" is received, the byte[] pattern specifed by "returnMessage"
+	 * "expectedMessage" is received, the byte[] pattern specified by "returnMessage"
 	 * is sent to the sender of the "expected message".
 	 *
 	 * @param multicastPort   Port to bind this listener to.

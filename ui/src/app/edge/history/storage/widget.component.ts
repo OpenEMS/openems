@@ -1,10 +1,9 @@
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ModalController } from '@ionic/angular';
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: StorageComponent.SELECTOR,
@@ -32,7 +31,6 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
@@ -48,6 +46,8 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
             this.getChannelAddresses(this.edge, config).then(channels => {
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
                     this.data = response.result.data;
+                }).catch(() => {
+                    this.data = null;
                 })
             });
         })

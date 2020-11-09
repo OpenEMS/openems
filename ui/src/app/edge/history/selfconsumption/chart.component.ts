@@ -33,7 +33,6 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
         this.spinnerId = "selfconsumption-chart";
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh()
     }
 
     ngOnDestroy() {
@@ -41,6 +40,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.colors = [];
@@ -120,7 +120,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
                 if (value == null) {
                     return null
                 } else {
-                    return CurrentData.calculateSelfConsumption(sellToGridData[index], value, dischargeData[index]);
+                    return CurrentData.calculateSelfConsumption(sellToGridData[index], value);
                 }
             })
 

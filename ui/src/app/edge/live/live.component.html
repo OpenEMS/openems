@@ -50,7 +50,7 @@
 
               <ng-container *ngIf="config.components[widget.componentId].factoryId as factoryId">
                 <ng-container
-                  *ngIf="factoryId != 'Evcs.Cluster.PeakShaving' && factoryId != 'Evcs.Cluster.SelfConsumtion'">
+                  *ngIf="factoryId != 'Evcs.Cluster.PeakShaving' && factoryId != 'Evcs.Cluster.SelfConsumption'">
                   <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" size-lg="6" class="ion-no-padding">
                     <evcs [componentId]="widget.componentId">
                     </evcs>
@@ -58,7 +58,7 @@
                 </ng-container>
               </ng-container>
 
-              <ion-col *ngSwitchCase="'Evcs.Cluster.SelfConsumtion'" size="12" size-lg="6" class="ion-no-padding">
+              <ion-col *ngSwitchCase="'Evcs.Cluster.SelfConsumption'" size="12" size-lg="6" class="ion-no-padding">
                 <evcsCluster [componentId]="widget.componentId"></evcsCluster>
               </ion-col>
 
@@ -97,15 +97,16 @@
                 <asymmetricpeakshaving [componentId]="widget.componentId"></asymmetricpeakshaving>
               </ion-col>
 
-            <ion-col *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'" size="12" size-lg="6"
-              class="ion-no-padding">
-              <singlethreshold [componentId]="widget.componentId"></singlethreshold>
-            </ion-col>
+              <ion-col *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'" size="12" size-lg="6"
+                class="ion-no-padding">
+                <singlethreshold [componentId]="widget.componentId"></singlethreshold>
+              </ion-col>
 
-            <ion-col *ngSwitchCase="'io.openems.edge.io.api.DigitalInput'" size="12" size-lg="6" class="ion-no-padding">
-              <digitalinput></digitalinput>
-            </ion-col>
-          </ng-container>
+              <ion-col *ngSwitchCase="'io.openems.edge.io.api.DigitalInput'" size="12" size-lg="6"
+                class="ion-no-padding">
+                <digitalinput></digitalinput>
+              </ion-col>
+            </ng-container>
 
             <!-- <ion-col size="12" size-lg="12">
             <info></info>

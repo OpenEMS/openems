@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
@@ -37,9 +38,11 @@ public class FeneconDessCharger2 extends AbstractFeneconDessCharger implements E
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config2 config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), FeneconDessConstants.UNIT_ID, this.cm,
-				"Modbus", config.modbus_id());
+	void activate(ComponentContext context, Config2 config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), FeneconDessConstants.UNIT_ID,
+				this.cm, "Modbus", config.modbus_id())) {
+			return;
+		}
 	}
 
 	@Deactivate
