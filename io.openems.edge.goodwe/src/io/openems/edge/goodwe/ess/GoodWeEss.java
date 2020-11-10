@@ -10,6 +10,8 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.goodwe.charger.AbstractGoodWeEtCharger;
+import io.openems.edge.goodwe.charger.GoodWeChargerPv1;
+import io.openems.edge.goodwe.charger.GoodWeChargerPv2;
 import io.openems.edge.goodwe.ess.applypower.ApplyPowerStateMachine;
 import io.openems.edge.goodwe.ess.enums.AppModeIndex;
 import io.openems.edge.goodwe.ess.enums.BatteryMode;
@@ -26,12 +28,18 @@ import io.openems.edge.goodwe.ess.enums.WorkMode;
 
 public interface GoodWeEss extends SymmetricEss, OpenemsComponent {
 
-	public Integer getUnitId();
-
-	public String getModbusBridgeId();
-
+	/**
+	 * Registers a Charger with the ESS.
+	 * 
+	 * @param charger either {@link GoodWeChargerPv1} or {@link GoodWeChargerPv2}
+	 */
 	public void addCharger(AbstractGoodWeEtCharger charger);
 
+	/**
+	 * Unregisters a Charger from the ESS.
+	 * 
+	 * @param charger either {@link GoodWeChargerPv1} or {@link GoodWeChargerPv2}
+	 */
 	public void removeCharger(AbstractGoodWeEtCharger charger);
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {

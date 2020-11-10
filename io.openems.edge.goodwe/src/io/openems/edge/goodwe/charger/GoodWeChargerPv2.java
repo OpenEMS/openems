@@ -54,13 +54,13 @@ public class GoodWeChargerPv2 extends AbstractGoodWeEtCharger
 
 	@Activate
 	void activate(ComponentContext context, ConfigPV2 config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
-				config.modbus_id())) {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
 			return;
 		}
 
 		// update filter for 'Ess'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
 

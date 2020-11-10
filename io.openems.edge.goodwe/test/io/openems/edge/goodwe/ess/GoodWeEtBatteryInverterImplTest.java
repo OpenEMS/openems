@@ -39,7 +39,7 @@ public class GoodWeEtBatteryInverterImplTest {
 						.setId(CHARGER_ID) //
 						.setEssId(ESS_ID) //
 						.setModbusId(MODBUS_ID) //
-						.setUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
+						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.build());
 
 		GoodWeEssImpl ess = new GoodWeEssImpl();
@@ -52,7 +52,7 @@ public class GoodWeEtBatteryInverterImplTest {
 				.activate(MyConfig.create() //
 						.setId(ESS_ID) //
 						.setModbusId(MODBUS_ID) //
-						.setUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
+						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setCapacity(9_000) //
 						.setMaxBatteryPower(5_200) //
 						.setReadOnlyMode(false) //
@@ -102,7 +102,7 @@ public class GoodWeEtBatteryInverterImplTest {
 				.activate(MyConfig.create() //
 						.setId(ESS_ID) //
 						.setModbusId(MODBUS_ID) //
-						.setUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
+						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setCapacity(9_000) //
 						.setMaxBatteryPower(5_200) //
 						.setReadOnlyMode(false) //

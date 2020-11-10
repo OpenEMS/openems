@@ -24,11 +24,21 @@ public class Context {
 		this.essPowerSet = essPowerSet;
 	}
 
+	/**
+	 * Gets the resulting Power-Set value.
+	 * 
+	 * @return the value
+	 */
 	public int getEssPowerSet() {
-		return essPowerSet;
+		return this.essPowerSet;
 	}
 
+	/**
+	 * Gets the resulting {@link PowerModeEms} value.
+	 * 
+	 * @return the value
+	 */
 	public PowerModeEms getNextPowerMode() {
-		return nextPowerMode;
+		return this.nextPowerMode;
 	}
 }

@@ -101,8 +101,10 @@ public class GoodWeEssImpl extends AbstractOpenemsModbusComponent implements Goo
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
-				config.modbus_id());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
 		this.config = config;
 		this._setCapacity(this.config.capacity());
 	}
@@ -120,10 +122,6 @@ public class GoodWeEssImpl extends AbstractOpenemsModbusComponent implements Goo
 				HybridEss.ChannelId.values(), //
 				GoodWeEss.ChannelId.values() //
 		);
-	}
-
-	public String getModbusBridgeId() {
-		return this.config.modbus_id();
 	}
 
 	@Override
@@ -420,10 +418,10 @@ public class GoodWeEssImpl extends AbstractOpenemsModbusComponent implements Goo
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		int pvProduction = getPvProduction();
+		int pvProduction = this.getPvProduction();
 		int soc = this.getSoc().orElse(0);
 		ApplyPowerStateMachine.State state = ApplyPowerStateMachine.evaluateState(this.getGoodweType(),
-				config.readOnlyMode(), pvProduction, soc, activePower);
+				this.config.readOnlyMode(), pvProduction, soc, activePower);
 
 		// Store the current State
 		this.channel(GoodWeEss.ChannelId.APPLY_POWER_STATE_MACHINE).setNextValue(state);
