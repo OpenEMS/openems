@@ -19,7 +19,7 @@ export class ProductionChartOverviewComponent {
     public showPhases: boolean = false;
     public isOnlyChart: boolean = null;
 
-    // referene to the Utils method to access via html
+    // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
     constructor(

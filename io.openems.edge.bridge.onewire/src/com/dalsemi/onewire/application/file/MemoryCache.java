@@ -168,7 +168,7 @@ class MemoryCache {
 	/** Field pbmCache - buffer to cache the page bitmap */
 	private byte[] pbmCache;
 
-	/** Field pbmCacheModified - modifified version of the page bitmap */
+	/** Field pbmCacheModified - modified version of the page bitmap */
 	private byte[] pbmCacheModified;
 
 	/** Field pbmRead - flag indicating that the page bitmap has been read */
@@ -935,7 +935,7 @@ class MemoryCache {
 				pbmBank.read(0, false, temp_buf, 0, numBytes);
 				for (int i = 0; i < numBytes; i++) {
 					if ((temp_buf[i] & 0x00FF) != (pbmCacheModified[i] & 0x00FF))
-						throw new OneWireException("Readback verfication of page bitmap was not correct");
+						throw new OneWireException("Readback verification of page bitmap was not correct");
 				}
 
 				// put new value of bitmap pbmCache
@@ -1192,7 +1192,7 @@ class MemoryCache {
 	}
 
 	/**
-	 * Get's the memory bank object for the specified page. This is significant if
+	 * Gets the memory bank object for the specified page. This is significant if
 	 * the Filesystem spans memory banks on the same or different devices.
 	 */
 	public PagedMemoryBank getMemoryBankForPage(int page) {
@@ -1211,7 +1211,7 @@ class MemoryCache {
 	}
 
 	/**
-	 * Get's the index into the array of Devices where this page resides. This is
+	 * Gets the index into the array of Devices where this page resides. This is
 	 * significant if the Filesystem spans memory banks on the same or different
 	 * devices.
 	 */
@@ -1227,7 +1227,7 @@ class MemoryCache {
 	}
 
 	/**
-	 * Get's the local page number on the memory bank object for the specified page.
+	 * Gets the local page number on the memory bank object for the specified page.
 	 * This is significant if the Filesystem spans memory banks on the same or
 	 * different devices.
 	 */
@@ -1249,7 +1249,7 @@ class MemoryCache {
 	/**
 	 * Clears the lastPageRead global so that a readPage will not try to continue
 	 * where the last page left off. This should be called anytime exclusive access
-	 * to the 1-Wire canot be guaranteed.
+	 * to the 1-Wire cannot be guaranteed.
 	 */
 	public void clearLastPageRead() {
 		// last page can't be used due to redirect read

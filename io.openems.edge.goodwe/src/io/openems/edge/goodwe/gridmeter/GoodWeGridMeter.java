@@ -15,6 +15,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -71,9 +72,11 @@ public class GoodWeGridMeter extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
-				config.modbus_id());
+	void activate(ComponentContext context, Config config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
+				config.modbus_id())) {
+			return;
+		}
 	}
 
 	@Deactivate
@@ -82,7 +85,7 @@ public class GoodWeGridMeter extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 
 				// active and reactive power
@@ -127,21 +130,6 @@ public class GoodWeGridMeter extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2))); //
-
-		// Energy values
-		/*
-		 * NOTE: Energy values are calculated manually from ActivePower, because the
-		 * data in registers 35200 and 35195 is not correct. GoodWe is informed,
-		 * acknowledged the problem and is working on fixing it.
-		 */
-		// new FC3ReadRegistersTask(35200, Priority.LOW, //
-		// m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new
-		// UnsignedDoublewordElement(35200),
-		// ElementToChannelConverter.SCALE_FACTOR_2)), //
-		// new FC3ReadRegistersTask(35195, Priority.LOW, //
-		// m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new
-		// UnsignedDoublewordElement(35195),
-		// ElementToChannelConverter.SCALE_FACTOR_2)))
 	}
 
 	@Override

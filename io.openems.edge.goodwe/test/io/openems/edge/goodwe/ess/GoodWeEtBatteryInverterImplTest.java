@@ -77,16 +77,6 @@ public class GoodWeEtBatteryInverterImplTest {
 								.input(ESS_SET_ACTIVE_POWER_EQUALS, -2_000) //
 								.output(ESS_EMS_POWER_MODE, PowerModeEms.CHARGE_BAT) //
 								.output(ESS_EMS_POWER_SET, 5_000)) //
-				// Impossible scenario. We limit allowed charge/discharge power so that this
-				// falls back to scenario 3
-				// .next(new TestCase(
-				// "Scenario 4: (set-point is negative && PV-Power equals max charge power of
-				// the battery)") //
-				// .input(CHARGER_ACTUAL_POWER, 3_000) //
-				// .input(ESS_SOC, 50) //
-				// .input(ESS_SET_ACTIVE_POWER_EQUALS, -2_000) //
-				// .output(ESS_EMS_POWER_MODE, PowerModeEms.DISCHARGE_PV) //
-				// .output(ESS_EMS_POWER_SET, 3000)) //
 				.next(new TestCase("Scenario 5: (set-point is positive && set-point is higher than pv production)") //
 						.input(CHARGER_ACTUAL_POWER, 3_000) //
 						.input(ESS_SOC, 100) //

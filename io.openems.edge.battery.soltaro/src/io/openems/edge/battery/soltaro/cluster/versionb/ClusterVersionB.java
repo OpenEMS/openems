@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.ModuleParameters;
@@ -63,8 +64,8 @@ import io.openems.edge.common.taskmanager.Priority;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
-public class ClusterVersionB extends AbstractOpenemsModbusComponent implements SoltaroCluster, Battery,
-		OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
+public class ClusterVersionB extends AbstractOpenemsModbusComponent
+		implements SoltaroCluster, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	public static final int DISCHARGE_MAX_A = 0; // default value 0 to avoid damages
 	public static final int CHARGE_MAX_A = 0; // default value 0 to avoid damages
@@ -117,15 +118,21 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws OpenemsException {
 		// Create racks dynamically, do this before super() call because super() uses
 		// getModbusProtocol, and it is using racks...
 		for (int i : config.racks()) {
-			this.racks.put(i, new SingleRack(i, config.numberOfSlaves(), RACK_INFO.get(i).addressOffset, this));
+			RackInfo rackInfo = RACK_INFO.get(i);
+			if (rackInfo == null) {
+				throw new OpenemsException("Invalid configuration value [" + i + "] for 'racks'");
+			}
+			this.racks.put(i, new SingleRack(i, config.numberOfSlaves(), rackInfo.addressOffset, this));
 		}
 
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
 
 		this.config = config;
 		this.modbusBridgeId = config.modbus_id();
@@ -457,7 +464,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		ModbusProtocol protocol = new ModbusProtocol(this, new Task[] {
 				// -------- control registers of master --------------------------------------
 				new FC16WriteRegistersTask(0x1004, //

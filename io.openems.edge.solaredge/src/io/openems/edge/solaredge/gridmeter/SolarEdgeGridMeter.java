@@ -17,6 +17,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
@@ -53,7 +54,7 @@ public class SolarEdgeGridMeter extends AbstractSunSpecMeter
 
 	private Config config;
 
-	public SolarEdgeGridMeter() {
+	public SolarEdgeGridMeter() throws OpenemsException {
 		super(//
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //
@@ -71,9 +72,11 @@ public class SolarEdgeGridMeter extends AbstractSunSpecMeter
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
-				config.modbus_id(), READ_FROM_MODBUS_BLOCK);
+	void activate(ComponentContext context, Config config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+				config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
+			return;
+		}
 		this.config = config;
 	}
 

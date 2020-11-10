@@ -83,7 +83,7 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 * @param owc          The DS1963S iButton that this object will refer to.
 	 * @param formatDevice If <code>true</code>, the TMEX filesystem will be
 	 *                     formatted before the account service file is created.
-	 * @param authSecret   The master authentication secret for the systm.
+	 * @param authSecret   The master authentication secret for the system.
 	 *
 	 * @throws OneWireIOException on a 1-Wire communication error such as reading an
 	 *                            incorrect CRC from a 1-Wire device. This could be
@@ -163,7 +163,7 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 * @param owc          The DS1963S iButton that this object will refer to.
 	 * @param formatDevice If <code>true</code>, the TMEX filesystem will be
 	 *                     formatted before the account service file is created.
-	 * @param authSecret   The master authentication secret for the systm.
+	 * @param authSecret   The master authentication secret for the system.
 	 *
 	 * @throws OneWireIOException on a 1-Wire communication error such as reading an
 	 *                            incorrect CRC from a 1-Wire device. This could be
@@ -484,7 +484,7 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 			int wcc = -1;
 
 			// don't worry, this should not happen in the critical path.
-			// so malloc-ing doesnt really matter
+			// so malloc-ing doesn't really matter
 			byte[] wcc_buffer = new byte[32];
 
 			// read the page, 19, containing the write-cycle counters

@@ -72,7 +72,7 @@ class MemoryBankScratchCRC extends MemoryBankScratchEx {
 	 * @param page         page number to read
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -97,7 +97,7 @@ class MemoryBankScratchCRC extends MemoryBankScratchEx {
 	 * @param page         page number to read
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.

@@ -2,10 +2,9 @@ package io.openems.edge.goodwe.charger;
 
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
-import io.openems.edge.goodwe.charger.ConfigPV1;
 
 @SuppressWarnings("all")
-public class MyConfig extends AbstractComponentConfig implements ConfigPV1 {
+public class MyConfig extends AbstractComponentConfig implements ConfigPV1, ConfigPV2 {
 
 	public static class Builder {
 		private String id = null;

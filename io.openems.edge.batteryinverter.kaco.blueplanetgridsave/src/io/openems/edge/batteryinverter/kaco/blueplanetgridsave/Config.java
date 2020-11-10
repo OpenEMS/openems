@@ -21,6 +21,9 @@ public @interface Config {
 
 	@AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stop?")
 	StartStopConfig startStop() default StartStopConfig.AUTO;
+	
+	@AttributeDefinition(name = "Activate watchdog", description = "Activate watchdog or not?")
+	boolean activateWatchdog() default true;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";

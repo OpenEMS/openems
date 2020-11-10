@@ -529,7 +529,7 @@ public class OneWireContainer02 extends OneWireContainer {
 	 *
 	 * @param key    number indicating the key to be written: 0, 1, or 2
 	 * @param addr   address to start writing at ( 0x00 to 0x3F )
-	 * @param passwd passwird for the subkey
+	 * @param passwd password for the subkey
 	 * @param data   data to be written
 	 *
 	 *

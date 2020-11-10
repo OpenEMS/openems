@@ -10,31 +10,39 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
-import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
-import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.goodwe.ess.GoodWeEss;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
 
 @Designate(ocd = ConfigPV1.class, factory = true)
 @Component(//
 		name = "GoodWe.Charger-PV1", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
-public class GoodWeChargerPv1 extends AbstractGoodWeEtCharger implements EssDcCharger, OpenemsComponent {
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+				"type=GRID" //
+		})
+public class GoodWeChargerPv1 extends AbstractGoodWeEtCharger
+		implements EssDcCharger, OpenemsComponent, EventHandler, TimedataProvider {
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private GoodWeEss ess;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -45,25 +53,12 @@ public class GoodWeChargerPv1 extends AbstractGoodWeEtCharger implements EssDcCh
 		super();
 	}
 
-	/*
-	 * Energy values since we don't have individual energy values. //
-	 * 
-	 * TODO update required from GoodWe regarding individual energy registers.
-	 */
-	@Override
-	protected ModbusProtocol defineModbusProtocol() {
-
-		ModbusProtocol protocol = super.defineModbusProtocol();
-		protocol.addTask(new FC3ReadRegistersTask(35191, Priority.LOW, //
-				m(EssDcCharger.ChannelId.ACTUAL_ENERGY, new UnsignedDoublewordElement(35191),
-						ElementToChannelConverter.SCALE_FACTOR_2)));
-		return protocol;
-	}
-
 	@Activate
-	void activate(ComponentContext context, ConfigPV1 config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
-				config.modbus_id());
+	void activate(ComponentContext context, ConfigPV1 config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
+				config.modbus_id())) {
+			return;
+		}
 
 		// update filter for 'Ess'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
@@ -86,6 +81,11 @@ public class GoodWeChargerPv1 extends AbstractGoodWeEtCharger implements EssDcCh
 	@Override
 	protected int getStartAddress() {
 		return 35103;
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 
 }
