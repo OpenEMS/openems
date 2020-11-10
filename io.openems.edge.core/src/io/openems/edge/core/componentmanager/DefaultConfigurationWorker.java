@@ -151,6 +151,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 	private void migrateConfigurationsOnVersionUpgrade(List<Config> existingConfigs,
 			AtomicBoolean configurationFailed) {
 		this.migrateConfigurationOnVersion_2020_11_5(existingConfigs, configurationFailed);
+		this.migrateConfigurationOnVersion_2020_23_4(existingConfigs, configurationFailed);
 	}
 
 	/**
@@ -208,6 +209,98 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 					new Property("modbusUnitId", modbusUnitId), //
 					new Property("invert", invert), //
 					new Property("type", type) //
+			));
+		});
+	}
+
+	/**
+	 * Migrate to OpenEMS version 2020.23.4.
+	 */
+	private void migrateConfigurationOnVersion_2020_23_4(List<Config> existingConfigs,
+			AtomicBoolean configurationFailed) {
+		/*
+		 * Upgrade GoodWe configuration.
+		 */
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
+		"GoodWe.ET.Charger-PV1".equals(c.factoryPid) //
+		)).forEach(c -> {
+			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
+			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
+			String essId = DictionaryUtils.getAsString(c.properties, "ess.id");
+			int modbusUnitId = DictionaryUtils.getAsOptionalInteger(c.properties, "unit.id").orElse(0xF7);
+			String modbusId = DictionaryUtils.getAsString(c.properties, "modbus.id");
+
+			this.deleteConfiguration(configurationFailed, c.componentId.get());
+
+			this.createConfiguration(configurationFailed, "GoodWe.Charger-PV1", Arrays.asList(//
+					new Property("id", c.componentId.get()), //
+					new Property("alias", alias), //
+					new Property("enabled", enabled), //
+					new Property("ess.id", essId), //
+					new Property("modbus.id", modbusId), //
+					new Property("modbusUnitId", modbusUnitId) //
+			));
+		});
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
+		"GoodWe.ET.Charger-PV2".equals(c.factoryPid) //
+		)).forEach(c -> {
+			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
+			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
+			String essId = DictionaryUtils.getAsString(c.properties, "ess.id");
+			int modbusUnitId = DictionaryUtils.getAsOptionalInteger(c.properties, "unit.id").orElse(0xF7);
+			String modbusId = DictionaryUtils.getAsString(c.properties, "modbus.id");
+
+			this.deleteConfiguration(configurationFailed, c.componentId.get());
+
+			this.createConfiguration(configurationFailed, "GoodWe.Charger-PV2", Arrays.asList(//
+					new Property("id", c.componentId.get()), //
+					new Property("alias", alias), //
+					new Property("enabled", enabled), //
+					new Property("ess.id", essId), //
+					new Property("modbus.id", modbusId), //
+					new Property("modbusUnitId", modbusUnitId) //
+			));
+		});
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
+		"GoodWe.ET.Grid-Meter".equals(c.factoryPid) //
+		)).forEach(c -> {
+			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
+			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
+			int modbusUnitId = DictionaryUtils.getAsOptionalInteger(c.properties, "unit.id").orElse(0xF7);
+			String modbusId = DictionaryUtils.getAsString(c.properties, "modbus.id");
+
+			this.deleteConfiguration(configurationFailed, c.componentId.get());
+
+			this.createConfiguration(configurationFailed, "GoodWe.Grid-Meter", Arrays.asList(//
+					new Property("id", c.componentId.get()), //
+					new Property("alias", alias), //
+					new Property("enabled", enabled), //
+					new Property("modbus.id", modbusId), //
+					new Property("modbusUnitId", modbusUnitId) //
+			));
+		});
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
+		"GoodWe.ET.Battery-Inverter".equals(c.factoryPid) //
+		)).forEach(c -> {
+			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
+			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
+			boolean readOnlyMode = DictionaryUtils.getAsOptionalBoolean(c.properties, "readOnlyMode").orElse(true);
+			int modbusUnitId = DictionaryUtils.getAsOptionalInteger(c.properties, "unit.id").orElse(0xF7);
+			String modbusId = DictionaryUtils.getAsString(c.properties, "modbus.id");
+			int capacity = DictionaryUtils.getAsOptionalInteger(c.properties, "capacity").orElse(9_000);
+			int maxBatteryPower = 5_200;
+
+			this.deleteConfiguration(configurationFailed, c.componentId.get());
+
+			this.createConfiguration(configurationFailed, "GoodWe.Ess", Arrays.asList(//
+					new Property("id", c.componentId.get()), //
+					new Property("alias", alias), //
+					new Property("enabled", enabled), //
+					new Property("readOnlyMode", readOnlyMode), //
+					new Property("modbus.id", modbusId), //
+					new Property("modbusUnitId", modbusUnitId), //
+					new Property("capacity", capacity), //
+					new Property("maxBatteryPower", maxBatteryPower) //
 			));
 		});
 	}
