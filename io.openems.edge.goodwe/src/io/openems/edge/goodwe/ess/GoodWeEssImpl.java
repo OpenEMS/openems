@@ -163,7 +163,7 @@ public class GoodWeEssImpl extends AbstractOpenemsModbusComponent implements Goo
 						new DummyRegisterElement(35117, 35118), //
 						m(GoodWeEss.ChannelId.PV_MODE, new UnsignedDoublewordElement(35119))), //
 
-				new FC3ReadRegistersTask(35136, Priority.HIGH, //
+				new FC3ReadRegistersTask(35136, Priority.LOW, //
 						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(35136), //
 								new ElementToChannelConverter((value) -> {
 									Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
@@ -236,7 +236,7 @@ public class GoodWeEssImpl extends AbstractOpenemsModbusComponent implements Goo
 						m(GoodWeEss.ChannelId.I_BATTERY1, new SignedWordElement(35181),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(35182), //
-						m(GoodWeEss.ChannelId.P_BATTERY1, new SignedWordElement(35183)), //
+						m(GoodWeEss.ChannelId.P_BATTERY1, new SignedWordElement(35183)), // required for ActivePower
 						m(GoodWeEss.ChannelId.BATTERY_MODE, new UnsignedWordElement(35184))), //
 
 				new FC3ReadRegistersTask(35185, Priority.LOW, //
@@ -264,7 +264,7 @@ public class GoodWeEssImpl extends AbstractOpenemsModbusComponent implements Goo
 						m(GoodWeEss.ChannelId.BMS_CHARGE_IMAX, new UnsignedWordElement(37004)), //
 						m(GoodWeEss.ChannelId.BMS_DISCHARGE_IMAX, new UnsignedWordElement(37005))), //
 
-				new FC3ReadRegistersTask(37007, Priority.HIGH, //
+				new FC3ReadRegistersTask(37007, Priority.LOW, //
 						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(37007), new ElementToChannelConverter(
 								// element -> channel
 								value -> {
@@ -279,6 +279,7 @@ public class GoodWeEssImpl extends AbstractOpenemsModbusComponent implements Goo
 								},
 								// channel -> element
 								value -> value))), //
+
 				new FC3ReadRegistersTask(37008, Priority.LOW, //
 						m(GoodWeEss.ChannelId.BMS_SOH, new UnsignedWordElement(37008)), //
 						m(GoodWeEss.ChannelId.BMS_BATTERY_STRINGS, new UnsignedWordElement(37009))), //
@@ -312,7 +313,7 @@ public class GoodWeEssImpl extends AbstractOpenemsModbusComponent implements Goo
 						m(GoodWeEss.ChannelId.FEED_POWER_ENABLE, new UnsignedWordElement(47509)), //
 						m(GoodWeEss.ChannelId.FEED_POWER_PARA, new UnsignedWordElement(47510))), //
 
-				new FC3ReadRegistersTask(47511, Priority.HIGH,
+				new FC3ReadRegistersTask(47511, Priority.LOW,
 						m(GoodWeEss.ChannelId.EMS_POWER_MODE, new UnsignedWordElement(47511)), //
 						m(GoodWeEss.ChannelId.EMS_POWER_SET, new UnsignedWordElement(47512))), //
 
@@ -478,12 +479,11 @@ public class GoodWeEssImpl extends AbstractOpenemsModbusComponent implements Goo
 		 * Update ActivePower from P_BATTERY1 and chargers ACTUAL_POWER
 		 */
 		final Channel<Integer> batteryPower = this.channel(GoodWeEss.ChannelId.P_BATTERY1);
-		Integer activePower = batteryPower.getNextValue().get();
 		Integer productionPower = null;
 		for (AbstractGoodWeEtCharger charger : this.chargers) {
 			productionPower = TypeUtils.sum(productionPower, charger.getActualPower().get());
-			activePower = TypeUtils.sum(activePower, charger.getActualPowerChannel().getNextValue().get());
 		}
+		Integer activePower = TypeUtils.sum(productionPower, batteryPower.value().get());
 		this._setActivePower(activePower);
 
 		/*
@@ -506,9 +506,6 @@ public class GoodWeEssImpl extends AbstractOpenemsModbusComponent implements Goo
 		/*
 		 * Update Allowed charge and Allowed discharge
 		 */
-
-//		System.out.println(
-//				"Allowed Charge power: " + allowedChargePower + " Allowed Discharge Power: " + allowedDischargePower);
 
 		Integer soc = this.getSoc().get();
 		Integer maxBatteryPower = this.config.maxBatteryPower();

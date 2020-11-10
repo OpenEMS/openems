@@ -29,8 +29,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-				"type=GRID" //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
 public class GoodWeChargerPv2 extends AbstractGoodWeEtCharger
 		implements EssDcCharger, OpenemsComponent, EventHandler, TimedataProvider {

@@ -35,7 +35,7 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		int startAddress = this.getStartAddress();
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(startAddress, Priority.HIGH, //
+				new FC3ReadRegistersTask(startAddress, Priority.LOW, //
 						m(PvChannelId.V, new UnsignedWordElement(startAddress), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(PvChannelId.I, new UnsignedWordElement(startAddress + 1),
@@ -57,20 +57,14 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 	 * Calculate the Energy values from ActivePower.
 	 */
 	private void calculateEnergy() {
-		// Calculate Energy
-		Integer activePower = this.getActualPower().get();
-		if (activePower == null) {
+		Integer actualPower = this.getActualPower().get();
+		if (actualPower == null) {
 			// Not available
 			this.calculateActualEnergy.update(null);
-			this.calculateActualEnergy.update(null);
-		} else if (activePower > 0) {
-			// Buy-From-Grid
-			this.calculateActualEnergy.update(activePower);
-			this.calculateActualEnergy.update(0);
+		} else if (actualPower > 0) {
+			this.calculateActualEnergy.update(actualPower);
 		} else {
-			// Sell-To-Grid
 			this.calculateActualEnergy.update(0);
-			this.calculateActualEnergy.update(activePower * -1);
 		}
 	}
 
