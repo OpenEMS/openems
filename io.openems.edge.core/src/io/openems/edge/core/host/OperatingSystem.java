@@ -28,11 +28,21 @@ public interface OperatingSystem {
 			SetNetworkConfigRequest request) throws OpenemsNamedException;
 
 	/**
+	 * Gets the USB configuration.
+	 * 
+	 * @return the original configuration in textual form
+	 * @throws OpenemsNamedException on error
+	 */
+	public String getUsbConfiguration() throws OpenemsNamedException;
+
+	/**
 	 * Executes a command.
 	 * 
 	 * @param request the ExecuteCommandRequest
 	 * @return a ExecuteCommandResponse
+	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteCommandRequest(ExecuteSystemCommandRequest request);
+	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteCommandRequest(
+			ExecuteSystemCommandRequest request) throws OpenemsNamedException;
 
 }

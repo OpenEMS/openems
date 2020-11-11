@@ -9,6 +9,7 @@ import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -43,6 +44,7 @@ import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 	private static final String NETWORK_BASE_PATH = "/etc/systemd/network";
+	private static final Path UDEV_PATH = Paths.get("/etc/udev/rules.d/99-usb-serial.rules");
 
 	private static enum Block {
 		UNDEFINED, MATCH, NETWORK
@@ -168,7 +170,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 						dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), file));
 
 			} catch (IOException e) {
-				throw new OpenemsException("Unable to read file [" + file + "]");
+				throw new OpenemsException("Unable to read file [" + file + "]: " + e.getMessage());
 			}
 		}
 
@@ -398,6 +400,16 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				}
 			}
 			return result;
+		}
+	}
+
+	@Override
+	public String getUsbConfiguration() throws OpenemsNamedException {
+		try {
+			List<String> lines = Files.readAllLines(UDEV_PATH, StandardCharsets.US_ASCII);
+			return String.join("\n", lines);
+		} catch (IOException e) {
+			throw new OpenemsException("Unable to read file [" + UDEV_PATH + "]: " + e.getMessage());
 		}
 	}
 }

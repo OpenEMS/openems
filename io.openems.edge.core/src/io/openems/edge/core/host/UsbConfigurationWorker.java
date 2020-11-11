@@ -15,32 +15,31 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.worker.AbstractWorker;
 
 /**
- * This Worker reads the actual network configuration and stores it in the Host
+ * This worker reads the actual USB configuration and stores it in the Host
  * configuration.
  */
-public class NetworkConfigurationWorker extends AbstractWorker {
+public class UsbConfigurationWorker extends AbstractWorker {
 
-	private final Logger log = LoggerFactory.getLogger(NetworkConfigurationWorker.class);
+	private final Logger log = LoggerFactory.getLogger(UsbConfigurationWorker.class);
 
 	private final HostImpl parent;
 
-	public NetworkConfigurationWorker(HostImpl parent) {
+	public UsbConfigurationWorker(HostImpl parent) {
 		this.parent = parent;
 	}
 
 	@Override
 	protected void forever() {
 		try {
-			String actualNetworkConfiguration = this.parent.operatingSystem.getNetworkConfiguration().toJson()
-					.toString();
-			String persistedNetworkConfiguration = this.parent.config.networkConfiguration();
+			String actualUsbConfiguration = this.parent.operatingSystem.getUsbConfiguration();
+			String persistedUsbConfiguration = this.parent.config.usbConfiguration();
 
-			if (!actualNetworkConfiguration.equals(persistedNetworkConfiguration)) {
-				this.persistNetworkConfiguration(actualNetworkConfiguration);
+			if (!actualUsbConfiguration.equals(persistedUsbConfiguration)) {
+				this.persistUsbConfiguration(actualUsbConfiguration);
 			}
 
 		} catch (OpenemsNamedException | IOException e) {
-			this.parent.logError(this.log, "Unable to persist actual network configuration: " + e.getMessage());
+			this.parent.logError(this.log, "Unable to persist actual USB configuration: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -51,7 +50,7 @@ public class NetworkConfigurationWorker extends AbstractWorker {
 	 * @param networkConfiguration the actual network configuration
 	 * @throws IOException on error
 	 */
-	private void persistNetworkConfiguration(String networkConfiguration) throws IOException {
+	private void persistUsbConfiguration(String networkConfiguration) throws IOException {
 		String factoryPid = this.parent.serviceFactoryPid();
 		final Configuration config = this.parent.cm.getConfiguration(factoryPid, null);
 		Dictionary<String, Object> properties = config.getProperties();
@@ -61,8 +60,8 @@ public class NetworkConfigurationWorker extends AbstractWorker {
 		} else {
 			// 'Host' configuration exists -> update configuration
 		}
-		properties.put("networkConfiguration", networkConfiguration);
-		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_BY, "Internal NetworkConfigurationWorker");
+		properties.put("usbConfiguration", networkConfiguration);
+		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_BY, "Internal UsbConfigurationWorker");
 		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_AT,
 				LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString());
 		config.update(properties);

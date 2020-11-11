@@ -9,6 +9,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
 import io.openems.common.OpenemsConstants;
@@ -31,6 +32,7 @@ import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 /**
  * The Host-Component handles access to the host computer and operating system.
  */
+@Designate(ocd = Config.class, factory = false)
 @Component(//
 		name = "Core.Host", //
 		immediate = true, //
@@ -48,6 +50,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 
 	private final DiskSpaceWorker diskSpaceWorker;
 	private final NetworkConfigurationWorker networkConfigurationWorker;
+	private final UsbConfigurationWorker usbConfigurationWorker;
 
 	protected Config config;
 
@@ -56,9 +59,17 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 				OpenemsComponent.ChannelId.values(), //
 				Host.ChannelId.values() //
 		);
-		this.operatingSystem = new OperatingSystemDebianSystemd(this);
+
+		// Initialize correct Operating System handler
+		if (System.getProperty("os.name").startsWith("Windows")) {
+			this.operatingSystem = new OperatingSystemWindows();
+		} else {
+			this.operatingSystem = new OperatingSystemDebianSystemd(this);
+		}
+
 		this.diskSpaceWorker = new DiskSpaceWorker(this);
 		this.networkConfigurationWorker = new NetworkConfigurationWorker(this);
+		this.usbConfigurationWorker = new UsbConfigurationWorker(this);
 	}
 
 	@Activate
@@ -71,8 +82,10 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 		// Start the Workers
 		this.diskSpaceWorker.activate(this.id());
 		this.networkConfigurationWorker.activate(this.id());
+		this.usbConfigurationWorker.activate(this.id());
 
 		this.networkConfigurationWorker.triggerNextRun();
+		this.usbConfigurationWorker.triggerNextRun();
 	}
 
 	@Deactivate
@@ -80,6 +93,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 		// Stop the Workers
 		this.diskSpaceWorker.deactivate();
 		this.networkConfigurationWorker.deactivate();
+		this.usbConfigurationWorker.deactivate();
 
 		super.deactivate();
 	}
@@ -135,7 +149,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 
 		// Notify NetworkConfigurationWorker about the change
 		this.networkConfigurationWorker.triggerNextRun();
-		
+
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
