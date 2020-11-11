@@ -125,6 +125,10 @@
               <advertisement [advertWidgets]="advertWidgets"></advertisement>
             </ion-col>
 
+            <ion-col *ngIf="service.isBatteryBoxAllowed(edge)" size="12" size-lg="6" class="ion-no-padding">
+              <byd></byd>
+            </ion-col>
+
             <!-- <ion-col size="12" size-lg="12">
             <info></info>
           </ion-col> -->
