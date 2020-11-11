@@ -1,12 +1,11 @@
 package io.openems.edge.ess.generic.symmetric;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
+import io.openems.edge.common.channel.AbstractChannelListenerManager;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.value.Value;
@@ -18,26 +17,11 @@ import io.openems.edge.ess.api.SymmetricEss;
  * calculating the Ess-Channels based on the Channels of the Battery and
  * Battery-Inverter. Takes care of registering and unregistering listeners.
  */
-public class ChannelHandler {
-
-	private static class Listener<T> {
-		protected final OpenemsComponent component;
-		protected final ChannelId channelId;
-		protected final Consumer<Value<T>> callback;
-
-		public Listener(OpenemsComponent component, ChannelId channelId, Consumer<Value<T>> callback) {
-			super();
-			this.component = component;
-			this.channelId = channelId;
-			this.callback = callback;
-		}
-	}
+public class ChannelManager extends AbstractChannelListenerManager {
 
 	private final GenericManagedSymmetricEss parent;
 
-	private final List<Listener<?>> listeners = new ArrayList<>();
-
-	public ChannelHandler(GenericManagedSymmetricEss parent) {
+	public ChannelManager(GenericManagedSymmetricEss parent) {
 		this.parent = parent;
 	}
 
@@ -72,10 +56,12 @@ public class ChannelHandler {
 			}
 		};
 
-		this.addListener(battery, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, allowedChargeDischargeCallback);
-		this.addListener(battery, Battery.ChannelId.DISCHARGE_MAX_CURRENT, allowedChargeDischargeCallback);
-		this.addListener(battery, Battery.ChannelId.CHARGE_MAX_VOLTAGE, allowedChargeDischargeCallback);
-		this.addListener(battery, Battery.ChannelId.CHARGE_MAX_CURRENT, allowedChargeDischargeCallback);
+		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
+				allowedChargeDischargeCallback);
+		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MAX_CURRENT,
+				allowedChargeDischargeCallback);
+		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_VOLTAGE, allowedChargeDischargeCallback);
+		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_CURRENT, allowedChargeDischargeCallback);
 		this.addCopyListener(battery, //
 				Battery.ChannelId.CAPACITY, //
 				SymmetricEss.ChannelId.CAPACITY);
@@ -107,32 +93,6 @@ public class ChannelHandler {
 	}
 
 	/**
-	 * Called on deactivate(). Remove all callbacks from Channels.
-	 */
-	public void deactivate() {
-		for (Listener<?> listener : this.listeners) {
-			Channel<?> channel = listener.component.channel(listener.channelId);
-			channel.removeOnSetNextValueCallback(listener.callback);
-		}
-	}
-
-	/**
-	 * Adds a Listener. Also applies the callback once to make sure it applies
-	 * already existing values.
-	 * 
-	 * @param <T>       the Channel value type
-	 * @param component the Component - Battery or BatteryInverter
-	 * @param channelId the ChannelId
-	 * @param callback  the callback
-	 */
-	private <T> void addListener(OpenemsComponent component, ChannelId channelId, Consumer<Value<T>> callback) {
-		this.listeners.add(new Listener<T>(component, channelId, callback));
-		Channel<T> channel = component.channel(channelId);
-		channel.onSetNextValue(callback);
-		callback.accept(channel.getNextValue());
-	}
-
-	/**
 	 * Adds a Copy-Listener. It listens on setNextValue() and copies the value to
 	 * the target channel.
 	 * 
@@ -143,7 +103,7 @@ public class ChannelHandler {
 	 */
 	private <T> void addCopyListener(OpenemsComponent sourceComponent, ChannelId sourceChannelId,
 			ChannelId targetChannelId) {
-		this.<T>addListener(sourceComponent, sourceChannelId, (value) -> {
+		this.<T>addOnSetNextValueListener(sourceComponent, sourceChannelId, (value) -> {
 			Channel<T> targetChannel = this.parent.channel(targetChannelId);
 			targetChannel.setNextValue(value);
 		});
