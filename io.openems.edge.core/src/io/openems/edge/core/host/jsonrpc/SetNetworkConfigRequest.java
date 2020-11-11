@@ -1,4 +1,4 @@
-package io.openems.edge.core.host;
+package io.openems.edge.core.host.jsonrpc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.core.host.NetworkInterface;
 
 /**
  * Updates the current network configuration.

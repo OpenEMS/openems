@@ -27,12 +27,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.types.ConfigurationProperty;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
+import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 
 /**
  * OperatingSystem implementation for Debian with systemd.
@@ -55,9 +58,9 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	private static final Pattern NETWORK_DNS = Pattern
 			.compile("^DNS=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
 
-	private final Host parent;
+	private final HostImpl parent;
 
-	protected OperatingSystemDebianSystemd(Host parent) {
+	protected OperatingSystemDebianSystemd(HostImpl parent) {
 		this.parent = parent;
 	}
 
@@ -362,11 +365,11 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	private static class InputStreamToString implements Supplier<List<String>> {
 		private final Logger log = LoggerFactory.getLogger(InputStreamToString.class);
 
-		private final Host parent;
+		private final HostImpl parent;
 		private final String command;
 		private final InputStream stream;
 
-		public InputStreamToString(Host parent, String command, InputStream stream) {
+		public InputStreamToString(HostImpl parent, String command, InputStream stream) {
 			this.parent = parent;
 			this.command = StringUtils.toShortString(command, 20);
 			this.stream = stream;

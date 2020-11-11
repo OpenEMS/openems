@@ -1,4 +1,4 @@
-package io.openems.edge.core.host;
+package io.openems.edge.core.host.jsonrpc;
 
 import java.util.UUID;
 
