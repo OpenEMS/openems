@@ -38,6 +38,13 @@ public class SetNetworkConfigRequest extends JsonrpcRequest {
 
 	public static final String METHOD = "setNetworkConfig";
 
+	/**
+	 * Parses a generic {@link JsonrpcRequest} to a {@link SetNetworkConfigRequest}.
+	 * 
+	 * @param r the {@link JsonrpcRequest}
+	 * @return the {@link SetNetworkConfigRequest}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static SetNetworkConfigRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		JsonObject jInterfaces = JsonUtils.getAsJsonObject(p, "interfaces");
@@ -70,6 +77,11 @@ public class SetNetworkConfigRequest extends JsonrpcRequest {
 				.build();
 	}
 
+	/**
+	 * Gets the request network interfaces.
+	 * 
+	 * @return the network interfaces
+	 */
 	public List<NetworkInterface<?>> getNetworkInterface() {
 		return this.networkInterfaces;
 	}

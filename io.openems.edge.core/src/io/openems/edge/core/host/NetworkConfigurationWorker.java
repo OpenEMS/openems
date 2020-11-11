@@ -46,7 +46,7 @@ public class NetworkConfigurationWorker extends AbstractWorker {
 	}
 
 	/**
-	 * Reconfigure Parent to persist the actual network configuration
+	 * Reconfigure Parent to persist the actual network configuration.
 	 * 
 	 * @param networkConfiguration the actual network configuration
 	 * @throws IOException on error

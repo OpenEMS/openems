@@ -34,6 +34,14 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 	public static final boolean DEFAULT_RUN_IN_BACKGROUND = false;
 	public static final int DEFAULT_TIMEOUT_SECONDS = 5;
 
+	/**
+	 * Parses a generic {@link JsonrpcRequest} to a
+	 * {@link ExecuteSystemCommandRequest}.
+	 * 
+	 * @param r the {@link JsonrpcRequest}
+	 * @return the {@link ExecuteSystemCommandRequest}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static ExecuteSystemCommandRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		String command = JsonUtils.getAsString(p, "command");
@@ -54,8 +62,8 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 	/**
 	 * Factory without Username + Password; run in background without timeout.
 	 * 
-	 * @param id      the Request-ID
 	 * @param command the command
+	 * @return the {@link ExecuteSystemCommandRequest}
 	 */
 	public static ExecuteSystemCommandRequest runInBackgroundWithoutAuthentication(String command) {
 		return new ExecuteSystemCommandRequest(UUID.randomUUID(), command, true, 0, Optional.empty(), Optional.empty());
@@ -68,15 +76,16 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 	 * @param runInBackground run the command in background (true) or in foreground
 	 *                        (false)
 	 * @param timeoutSeconds  interrupt the command after ... seconds
+	 * @return the {@link ExecuteSystemCommandRequest}
 	 */
 	public static ExecuteSystemCommandRequest withoutAuthentication(String command, boolean runInBackground,
 			int timeoutSeconds) {
-		return new ExecuteSystemCommandRequest(UUID.randomUUID(), command, runInBackground, timeoutSeconds, Optional.empty(),
-				Optional.empty());
+		return new ExecuteSystemCommandRequest(UUID.randomUUID(), command, runInBackground, timeoutSeconds,
+				Optional.empty(), Optional.empty());
 	}
 
-	public ExecuteSystemCommandRequest(String command, boolean runInBackground, int timeoutSeconds, Optional<String> username,
-			Optional<String> password) {
+	public ExecuteSystemCommandRequest(String command, boolean runInBackground, int timeoutSeconds,
+			Optional<String> username, Optional<String> password) {
 		this(UUID.randomUUID(), command, runInBackground, timeoutSeconds, username, password);
 	}
 
@@ -105,22 +114,47 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 		return result.build();
 	}
 
+	/**
+	 * Gets the request command.
+	 * 
+	 * @return the command
+	 */
 	public String getCommand() {
 		return this.command;
 	}
 
+	/**
+	 * Gets the request isRunInBackground option.
+	 * 
+	 * @return the isRunInBackground option
+	 */
 	public boolean isRunInBackground() {
 		return this.runInBackground;
 	}
 
+	/**
+	 * Gets the request timeout.
+	 * 
+	 * @return the timeout in seconds
+	 */
 	public int getTimeoutSeconds() {
 		return this.timeoutSeconds;
 	}
 
+	/**
+	 * Gets the request username.
+	 * 
+	 * @return the username
+	 */
 	public Optional<String> getUsername() {
 		return this.username;
 	}
 
+	/**
+	 * Gets the request password.
+	 * 
+	 * @return the password
+	 */
 	public Optional<String> getPassword() {
 		return this.password;
 	}
