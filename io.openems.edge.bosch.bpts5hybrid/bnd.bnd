@@ -1,0 +1,15 @@
+Bundle-Name: OpenEMS Edge io.openems.edge.bosch.bpts5hybrid
+Bundle-Vendor: OpenEMS Association e.V.
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	slf4j.api,\
+	io.openems.edge.ess.api;version=latest,\
+	io.openems.edge.meter.api;version=latest
+
+-testpath: \
+	${testpath}
