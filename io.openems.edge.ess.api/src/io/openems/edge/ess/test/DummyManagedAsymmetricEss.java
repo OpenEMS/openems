@@ -11,10 +11,10 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 
 /**
- * Provides a simple, simulated ManagedAsymmetricEss component that can be used
- * together with the OpenEMS Component test framework.
+ * Provides a simple, simulated {@link ManagedAsymmetricEss} component that can
+ * be used together with the OpenEMS Component test framework.
  */
-public class DummyManagedAsymmetricEss extends DummyManagedSymmetricEss
+public class DummyManagedAsymmetricEss extends AbstractDummyManagedSymmetricEss<DummyManagedAsymmetricEss>
 		implements ManagedAsymmetricEss, ManagedSymmetricEss, AsymmetricEss, SymmetricEss, OpenemsComponent {
 
 	private Consumer<AsymmetricApplyPowerRecord> asymmetricApplyPowerCallback = null;
@@ -63,5 +63,10 @@ public class DummyManagedAsymmetricEss extends DummyManagedSymmetricEss
 			this.activePowerL3 = activePowerL3;
 			this.reactivePowerL3 = reactivePowerL3;
 		}
+	}
+
+	@Override
+	protected DummyManagedAsymmetricEss self() {
+		return this;
 	}
 }

@@ -42,13 +42,13 @@ public class ReduceNumberOfUsedInvertersTest {
 		ess3 = new DummyManagedSymmetricEss("ess3").withSoc(40);
 		esss = Arrays.asList(ess0, ess1, ess2, ess3);
 
-		inverter0 = new ThreePhaseInverter(ess0.id());
-		inverter1 = new ThreePhaseInverter(ess1.id());
-		inverter2 = new ThreePhaseInverter(ess2.id());
-		inverter3 = new ThreePhaseInverter(ess3.id());
+		inverter0 = new ThreePhaseInverter(ess0.id(), false);
+		inverter1 = new ThreePhaseInverter(ess1.id(), false);
+		inverter2 = new ThreePhaseInverter(ess2.id(), false);
+		inverter3 = new ThreePhaseInverter(ess3.id(), false);
 		allInverters = Arrays.asList(inverter0, inverter1, inverter2, inverter3);
 
-		WeightsUtil.updateWeightsFromSoc(allInverters, esss);
+		WeightsUtil.updateWeights(allInverters, esss);
 		WeightsUtil.sortByWeights(allInverters);
 
 		sut = new ReduceNumberOfUsedInverters();

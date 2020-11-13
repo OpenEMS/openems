@@ -104,7 +104,7 @@ public class Data {
 		this.coefficients.initialize(this.symmetricMode, essIds);
 
 		// Initially sort Inverters
-		WeightsUtil.updateWeightsFromSoc(this.inverters, this.esss);
+		WeightsUtil.updateWeights(this.inverters, this.esss);
 		WeightsUtil.sortByWeights(this.inverters);
 	}
 
@@ -112,7 +112,7 @@ public class Data {
 		// Remove Constraints of last Cycle
 		this.constraints.clear();
 		// Update sorting of Inverters
-		WeightsUtil.updateWeightsFromSoc(this.inverters, this.esss);
+		WeightsUtil.updateWeights(this.inverters, this.esss);
 		WeightsUtil.adjustSortingByWeights(this.inverters);
 	}
 

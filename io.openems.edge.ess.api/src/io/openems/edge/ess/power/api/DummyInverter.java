@@ -6,8 +6,8 @@ package io.openems.edge.ess.power.api;
  */
 public class DummyInverter extends Inverter {
 
-	public DummyInverter(String essId, Phase phase) {
-		super(essId, phase);
+	public DummyInverter(String essId, Phase phase, boolean isHybridEss) {
+		super(essId, phase, isHybridEss);
 	}
 
 }

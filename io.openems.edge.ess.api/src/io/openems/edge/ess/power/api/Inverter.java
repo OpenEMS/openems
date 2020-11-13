@@ -1,5 +1,6 @@
 package io.openems.edge.ess.power.api;
 
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
@@ -9,6 +10,9 @@ public abstract class Inverter {
 	 * Factory
 	 */
 	public static Inverter[] of(boolean symmetricMode, ManagedSymmetricEss ess, EssType essType) {
+		// Is this ESS a HybridEss?
+		final boolean isHybridEss = (ess instanceof HybridEss);
+
 		String essId = ess.id();
 		if (symmetricMode) {
 			// Symmetric Mode -> always return a symmetric ThreePhaseInverter
@@ -16,7 +20,7 @@ public abstract class Inverter {
 			case SINGLE_PHASE:
 			case ASYMMETRIC:
 			case SYMMETRIC:
-				return new Inverter[] { new ThreePhaseInverter(essId) };
+				return new Inverter[] { new ThreePhaseInverter(essId, isHybridEss) };
 
 			case META:
 				return new Inverter[0];
@@ -27,26 +31,26 @@ public abstract class Inverter {
 			case SINGLE_PHASE:
 				Phase phase = ((ManagedSinglePhaseEss) ess).getPhase().getPowerApiPhase();
 				return new Inverter[] { //
-						phase == Phase.L1 ? new SinglePhaseInverter(essId, Phase.L1)
-								: new DummyInverter(essId, Phase.L1),
-						phase == Phase.L2 ? new SinglePhaseInverter(essId, Phase.L2)
-								: new DummyInverter(essId, Phase.L2),
-						phase == Phase.L3 ? new SinglePhaseInverter(essId, Phase.L3)
-								: new DummyInverter(essId, Phase.L3), //
+						phase == Phase.L1 ? new SinglePhaseInverter(essId, Phase.L1, isHybridEss)
+								: new DummyInverter(essId, Phase.L1, isHybridEss),
+						phase == Phase.L2 ? new SinglePhaseInverter(essId, Phase.L2, isHybridEss)
+								: new DummyInverter(essId, Phase.L2, isHybridEss),
+						phase == Phase.L3 ? new SinglePhaseInverter(essId, Phase.L3, isHybridEss)
+								: new DummyInverter(essId, Phase.L3, isHybridEss), //
 				};
 
 			case ASYMMETRIC:
 				return new Inverter[] { //
-						new SinglePhaseInverter(essId, Phase.L1), //
-						new SinglePhaseInverter(essId, Phase.L2), //
-						new SinglePhaseInverter(essId, Phase.L3) //
+						new SinglePhaseInverter(essId, Phase.L1, isHybridEss), //
+						new SinglePhaseInverter(essId, Phase.L2, isHybridEss), //
+						new SinglePhaseInverter(essId, Phase.L3, isHybridEss) //
 				};
 
 			case META:
 				return new Inverter[0];
 
 			case SYMMETRIC:
-				return new Inverter[] { new ThreePhaseInverter(essId) };
+				return new Inverter[] { new ThreePhaseInverter(essId, isHybridEss) };
 			}
 		}
 		// should never come here
@@ -55,10 +59,12 @@ public abstract class Inverter {
 
 	private final String essId;
 	private final Phase phase;
+	private final boolean isHybridEss;
 
-	protected Inverter(String essId, Phase phase) {
+	protected Inverter(String essId, Phase phase, boolean isHybridEss) {
 		this.essId = essId;
 		this.phase = phase;
+		this.isHybridEss = isHybridEss;
 	}
 
 	public String getEssId() {
@@ -67,6 +73,15 @@ public abstract class Inverter {
 
 	public Phase getPhase() {
 		return this.phase;
+	}
+
+	/**
+	 * Does this {@link Inverter} represent a {@link HybridEss}?.
+	 * 
+	 * @return true for {@link HybridEss}; false otherwise
+	 */
+	public boolean isHybridEss() {
+		return isHybridEss;
 	}
 
 	/**
