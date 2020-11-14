@@ -119,12 +119,9 @@ for D in io.openems.edge.*; do
 done
 runbundles=$(grep -n '\-runbundles:' $bndrun | grep -Eo '^[^:]+' | head -n1)
 tail -n +$(expr $runbundles - 1) "$bndrun" >> "$bndrun.new"
-diff "$bndrun" "$bndrun.new"
-if [ $? -ne 0 ]; then
-	echo "EdgeApp.bndrun changed! Run ./gradlew resolve.EdgeApp"
-	head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
-fi
+head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
 rm "$bndrun.new"
+./gradlew resolve.EdgeApp
 
 # Update BackendApp.bndrun
 bndrun='io.openems.backend.application/BackendApp.bndrun'
@@ -144,10 +141,7 @@ for D in io.openems.backend.*; do
 done
 runbundles=$(grep -n '\-runbundles:' $bndrun | grep -Eo '^[^:]+' | head -n1)
 tail -n +$(expr $runbundles - 1) "$bndrun" >> "$bndrun.new"
-diff "$bndrun" "$bndrun.new"
-if [ $? -ne 0 ]; then
-	echo "BackendApp.bndrun changed! Run ./gradlew resolve.BackendApp"
-	head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
-fi
+head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
 rm "$bndrun.new"
+./gradlew resolve.BackendApp
 
