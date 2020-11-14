@@ -219,3 +219,8 @@ gradle-app.setting
 
 # docs
 /doc/build/package-lock.json
+
+# tools (docker) build Directories
+/tools/docker/openems-backend/build
+/tools/docker/openems-edge/build
+/tools/docker/openems-ui/build
