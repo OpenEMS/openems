@@ -12,6 +12,42 @@
 <ion-content>
   <ng-container *ngIf="!loading">
     <ion-card-content class="underline">
+      <table *ngIf="(edge.currentData | async)['channel'] as currentData" class="full_width">
+        <tr [ngSwitch]="currentData[component.id + '/Status']">
+          <td style="width:65%">Zustand</td>
+          <td *ngIf="currentData[this.component.id + '/State'] != 3" style="width:35%" class="align_right">
+            <ng-container *ngSwitchCase="-1">
+              Undefiniert
+            </ng-container>
+            <ng-container *ngSwitchCase="0">
+              Sperre
+            </ng-container>
+            <ng-container *ngSwitchCase="1">
+              Normalbetrieb
+            </ng-container>
+            <ng-container *ngSwitchCase="2">
+              Einschaltempfehlung
+            </ng-container>
+            <ng-container *ngSwitchCase="3">
+              Einschaltbefehl
+            </ng-container>
+          </td>
+          <td *ngIf="currentData[this.component.id + '/State'] == 3" style="width:35%" class="align_right">
+            <ion-icon name="help-outline"></ion-icon>
+          </td>
+        </tr>
+        <tr>
+          <td style="width:65%">Modus</td>
+          <td *ngIf="component.properties['mode'] == 'MANUAL'" style="width: 35%" class="align_right" translate>
+            General.manually
+          </td>
+          <td *ngIf="component.properties['mode'] == 'AUTOMATIC'" style="width: 35%" class="align_right" translate>
+            General.automatic
+          </td>
+        </tr>
+      </table>
+    </ion-card-content>
+    <ion-card-content class="underline">
       <table class="full_width">
         <tr>
           <td translate>
@@ -37,8 +73,6 @@
       </ion-segment>
     </ion-card-content>
     <!-- Manual Mode -->
-    <!-- TODO: Translate -->
-
     <form [formGroup]="formGroup">
       <ng-container *ngIf="component.properties['mode'] == 'MANUAL'">
         <ion-card-content *ngIf="formGroup.value.workMode != 'NONE'" class="underline">
@@ -65,39 +99,15 @@
           </ion-list>
         </ion-card-content>
       </ng-container>
-    </form>
-    <!-- Automatic Mode -->
-    <ng-container *ngIf="component.properties['mode'] == 'AUTOMATIC'">
-      <ion-card-content class="underline">
-        <ion-item class="ion-no-padding" style="cursor: pointer;" lines="none">
-          <ion-label class="regularFont">Einschaltempfehlung</ion-label>
-          <ion-toggle></ion-toggle>
-        </ion-item>
+      <!-- Automatic Mode -->
+      <ng-container *ngIf="component.properties['mode'] == 'AUTOMATIC'">
+        <ion-card-content class="underline">
+          <ion-item class="ion-no-padding" style="cursor: pointer;" lines="none">
+            <ion-label class="regularFont">Einschaltempfehlung</ion-label>
+            <ion-toggle (ionChange)="updateAutomaticEnableMode($event,'automaticRecommendationCtrlEnabled')"
+              [checked]="formGroup.controls.automaticRecommendationCtrlEnabled.value == true"></ion-toggle>
+          </ion-item>
 
-        <table class="full_width">
-          <tr>
-            <td style="width: 65%">
-              Ab Überschusseinspeisung von
-            </td>
-            <td style="width: 35%" class="align_right">
-              <ion-item class="ion-no-padding" lines="inset">
-                <ion-input class="regularFont" inputmode="decimal" style="text-align: end;">
-                </ion-input>
-                <ion-label class="regularFont">&nbsp;W</ion-label>
-              </ion-item>
-            </td>
-          </tr>
-        </table>
-      </ion-card-content>
-
-      <ion-card-content class="underline">
-        <ion-item class="ion-no-padding" style="cursor: pointer;" lines="none">
-          <ion-label class="regularFont">Einschaltbefehl
-          </ion-label>
-          <ion-toggle></ion-toggle>
-        </ion-item>
-
-        <ng-container>
           <table class="full_width">
             <tr>
               <td style="width: 65%">
@@ -105,101 +115,127 @@
               </td>
               <td style="width: 35%" class="align_right">
                 <ion-item class="ion-no-padding" lines="inset">
-                  <ion-input class="regularFont" inputmode="decimal" style="text-align: end;">
+                  <ion-input formControlName="automaticRecommendationSurplusPower" class="regularFont"
+                    inputmode="decimal" style="text-align: end;">
                   </ion-input>
                   <ion-label class="regularFont">&nbsp;W</ion-label>
                 </ion-item>
               </td>
             </tr>
-            <tr>
-              <td style="width: 65%;">
-                und über Ladezustand von</td>
-              <td style="width: 35%" class="align_right ion-padding-end">
-                {{ 88 | unitvalue:'%' }}
-              </td>
-            </tr>
           </table>
-          <table class="full_width">
-            <tr>
-              <ion-range pin color="dark" min="1" max="100">
-                <ion-label slot="start">
-                  {{ 0 | unitvalue:'%' }}
-                </ion-label>
-                <ion-label slot="end">
-                  {{ 100 | unitvalue:'%' }}
-                </ion-label>
-              </ion-range>
-            </tr>
-          </table>
-        </ng-container>
-      </ion-card-content>
+        </ion-card-content>
 
-      <ion-card-content class="underline">
-        <ion-item class="ion-no-padding" style="cursor: pointer;" lines="none">
-          <ion-label class="regularFont">Sperre</ion-label>
-          <ion-toggle></ion-toggle>
-        </ion-item>
-        <ng-container>
+        <ion-card-content class="underline">
+          <ion-item class="ion-no-padding" style="cursor: pointer;" lines="none">
+            <ion-label class="regularFont">Einschaltbefehl
+            </ion-label>
+            <ion-toggle (ionChange)="updateAutomaticEnableMode($event,'automaticRecommendationCtrlEnabled')"
+              [checked]="formGroup.controls.automaticForceOnCtrlEnabled.value == true"></ion-toggle>
+          </ion-item>
+
+          <ng-container>
+            <table class="full_width">
+              <tr>
+                <td style="width: 65%">
+                  Ab Überschusseinspeisung von
+                </td>
+                <td style="width: 35%" class="align_right">
+                  <ion-item class="ion-no-padding" lines="inset">
+                    <ion-input formControlName="automaticForceOnSurplusPower" class="regularFont" inputmode="decimal"
+                      style="text-align: end;">
+                    </ion-input>
+                    <ion-label class="regularFont">&nbsp;W</ion-label>
+                  </ion-item>
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 65%;">
+                  und über Ladezustand von</td>
+                <td style="width: 35%" class="align_right ion-padding-end">
+                  {{ formGroup.controls.automaticForceOnSoc.value | unitvalue:'%' }}
+                </td>
+              </tr>
+            </table>
+            <table class="full_width">
+              <tr>
+                <ion-range formControlName="automaticForceOnSoc" pin color="dark" min="1" max="100">
+                  <ion-label slot="start">
+                    {{ 0 | unitvalue:'%' }}
+                  </ion-label>
+                  <ion-label slot="end">
+                    {{ 100 | unitvalue:'%' }}
+                  </ion-label>
+                </ion-range>
+              </tr>
+            </table>
+          </ng-container>
+        </ion-card-content>
+
+        <ion-card-content class="underline">
+          <ion-item class="ion-no-padding" style="cursor: pointer;" lines="none">
+            <ion-label class="regularFont">Sperre</ion-label>
+            <ion-toggle (ionChange)="updateAutomaticEnableMode($event,'automaticLockCtrlEnabled')"
+              [checked]="formGroup.controls.automaticLockCtrlEnabled.value"></ion-toggle>
+          </ion-item>
+          <ng-container>
+            <table class="full_width">
+              <tr>
+                <td style="width: 65%">
+                  Ab Netzbezug von
+                </td>
+                <td style="width: 35%" class="align_right">
+                  <ion-item class="ion-no-padding" lines="inset">
+                    <ion-input formControlName="automaticLockGridBuyPower" class="regularFont" inputmode="decimal"
+                      style="text-align: end;">
+                    </ion-input>
+                    <ion-label class="regularFont">&nbsp;W</ion-label>
+                  </ion-item>
+                </td>
+              </tr>
+            </table>
+            <table class="full_width">
+              <tr>
+                <td style="width: 65%;">
+                  Unter Ladezustand von</td>
+                <td style="width: 35%" class="align_right ion-padding-end">
+                  {{ formGroup.controls.automaticLockSoc.value | unitvalue:'%' }}
+                </td>
+              </tr>
+            </table>
+            <table class="full_width">
+              <tr>
+                <ion-range formControlName="automaticLockSoc" pin color="dark" min="1" max="100">
+                  <ion-label slot="start">
+                    {{ 0 | unitvalue:'%' }}
+                  </ion-label>
+                  <ion-label slot="end">
+                    {{ 100 | unitvalue:'%' }}
+                  </ion-label>
+                </ion-range>
+              </tr>
+            </table>
+          </ng-container>
+        </ion-card-content>
+        <ion-card-content class="underline">
           <table class="full_width">
             <tr>
-              <td style="width: 5%">
-                <ion-checkbox checked="true"></ion-checkbox>
-              </td>
-              <td style="width: 60%">
-                Ab Netzbezug von
+              <td style="width: 65%" translate>
+                Edge.Index.Widgets.Singlethreshold.minSwitchingTime
               </td>
               <td style="width: 35%" class="align_right">
-                <ion-item class="ion-no-padding" lines="inset">
-                  <ion-input class="regularFont" inputmode="decimal" style="text-align: end;">
+                <ion-item lines="inset" class="ion-no-padding">
+                  <ion-input formControlName="minimumSwitchingTime" class="regularFont" inputmode="decimal"
+                    style="text-align: end;">
                   </ion-input>
-                  <ion-label class="regularFont">&nbsp;W</ion-label>
+                  <ion-label class="regularFont">&nbsp;s</ion-label>
                 </ion-item>
               </td>
             </tr>
           </table>
-          <table class="full_width">
-            <tr>
-              <td style="width: 5%">
-                <ion-checkbox checked="true"></ion-checkbox>
-              </td>
-              <td style="width: 60%;">
-                Unter Ladezustand von</td>
-              <td style="width: 35%" class="align_right ion-padding-end">
-                {{ 666 | unitvalue:'%' }}
-              </td>
-            </tr>
-          </table>
-          <table class="full_width">
-            <tr>
-              <ion-range pin color="dark" min="1" max="100">
-                <ion-label slot="start">
-                  {{ 0 | unitvalue:'%' }}
-                </ion-label>
-                <ion-label slot="end">
-                  {{ 100 | unitvalue:'%' }}
-                </ion-label>
-              </ion-range>
-            </tr>
-          </table>
-        </ng-container>
-      </ion-card-content>
-      <ion-card-content class="underline">
-        <table class="full_width">
-          <tr>
-            <td style="width: 65%" translate>
-              Edge.Index.Widgets.Singlethreshold.minSwitchingTime
-            </td>
-            <td style="width: 35%" class="align_right">
-              <ion-item lines="inset" class="ion-no-padding">
-                <ion-input class="regularFont" inputmode="decimal" style="text-align: end;">
-                </ion-input>
-                <ion-label class="regularFont">&nbsp;s</ion-label>
-              </ion-item>
-            </td>
-          </tr>
-        </table>
-      </ion-card-content>
-    </ng-container>
+        </ion-card-content>
+      </ng-container>
+    </form>
+
 
     <ion-fab *ngIf="formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="center" slot="fixed">
       <ion-fab-button (click)="applyChanges()">

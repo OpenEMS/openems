@@ -1,10 +1,14 @@
 import { Component, Input } from '@angular/core';
-import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 type ManualMode = 'FORCE_ON' | 'RECOMMENDATION' | 'REGULAR' | 'LOCK';
+type AutomaticEnableMode = 'automaticRecommendationCtrlEnabled' | 'automaticForceOnCtrlEnabled' | 'automaticLockCtrlEnabled'
 
 @Component({
   selector: HeatPumpModalComponent.SELECTOR,
@@ -14,11 +18,13 @@ export class HeatPumpModalComponent {
 
   private static readonly SELECTOR = "heatpump-modal";
 
-  @Input() public edge: Edge = null;
-  @Input() public component: EdgeConfig.Component = null;
+  @Input() public edge: Edge | null = null;
+  @Input() public component: EdgeConfig.Component | null = null;
+  @Input() public status: BehaviorSubject<{ name: string }>;
 
   public formGroup: FormGroup | null = null;
   public loading: boolean = false;
+  private stopOnDestroy: Subject<void> = new Subject<void>();
 
   constructor(
     private websocket: Websocket,
@@ -29,26 +35,25 @@ export class HeatPumpModalComponent {
   ) { }
 
   ngOnInit() {
-    console.log("COMPONENT", this.component)
+    console.log("comp", this.component)
+
     this.formGroup = this.formBuilder.group({
       // Manual
       manualState: new FormControl(this.component.properties.manualState),
       // Automatic
-
-      // Modes
-      recommendation: new FormControl(this.component.properties.automaticRecommendationCtrlEnabled),
-      forceOn: new FormControl(this.component.properties.automaticForceOnCtrlEnabled),
-      lock: new FormControl(this.component.properties.automaticLockCtrlEnabled),
-      // Variables
+      automaticForceOnCtrlEnabled: new FormControl(this.component.properties.automaticForceOnCtrlEnabled),
+      automaticForceOnSoc: new FormControl(this.component.properties.automaticForceOnSoc),
+      automaticForceOnSurplusPower: new FormControl(this.component.properties.automaticForceOnSurplusPower),
+      automaticLockCtrlEnabled: new FormControl(this.component.properties.automaticLockCtrlEnabled),
+      automaticLockGridBuyPower: new FormControl(this.component.properties.automaticLockGridBuyPower),
+      automaticLockSoc: new FormControl(this.component.properties.automaticLockSoc),
+      automaticRecommendationCtrlEnabled: new FormControl(this.component.properties.automaticRecommendationCtrlEnabled),
+      automaticRecommendationSurplusPower: new FormControl(this.component.properties.automaticRecommendationSurplusPower),
       minimumSwitchingTime: new FormControl(this.component.properties.minimumSwitchingTime),
-      gridBuyLock: new FormControl(this.component.properties.automaticLockGridBuyPower),
-      socForceOn: new FormControl(this.component.properties.automaticForceOnSoc),
-      gridSellForceOn: new FormControl(this.component.properties.automaticForceOnSurplusPower),
-      gridSellRecommendation: new FormControl(this.component.properties.automaticRecommendationSurplusPower),
     })
   };
 
-  updateControllerMode(event: CustomEvent) {
+  public updateControllerMode(event: CustomEvent) {
     let oldMode = this.component.properties['mode'];
     let newMode = event.detail.value;
 
@@ -65,6 +70,11 @@ export class HeatPumpModalComponent {
         console.warn(reason);
       });
     }
+  }
+
+  public updateAutomaticEnableMode(event: CustomEvent, state: AutomaticEnableMode) {
+    this.formGroup.controls[state].setValue(event.detail['checked'] as boolean);
+    this.formGroup.controls[state].markAsDirty()
   }
 
   public updateManualMode(state: ManualMode) {
@@ -94,6 +104,10 @@ export class HeatPumpModalComponent {
       });
       this.formGroup.markAsPristine();
     }
+  }
+
+  ngOnDestroy() {
+    this.modalCtrl.dismiss(this.component);
   }
 
 }

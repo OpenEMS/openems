@@ -8,11 +8,25 @@
                 </ion-item>
                 <ion-card-content>
                     <table class="full_width">
-                        <tr>
+                        <tr [ngSwitch]="currentData[component.id + '/Status']">
                             <td style="width:65%">Zustand</td>
                             <td *ngIf="currentData[this.component.id + '/State'] != 3" style="width:35%"
                                 class="align_right">
-                                {{ (status | async)?.name }}
+                                <ng-container *ngSwitchCase="-1">
+                                    Undefiniert
+                                </ng-container>
+                                <ng-container *ngSwitchCase="0">
+                                    Sperre
+                                </ng-container>
+                                <ng-container *ngSwitchCase="1">
+                                    Normalbetrieb
+                                </ng-container>
+                                <ng-container *ngSwitchCase="2">
+                                    Einschaltempfehlung
+                                </ng-container>
+                                <ng-container *ngSwitchCase="3">
+                                    Einschaltbefehl
+                                </ng-container>
                             </td>
                             <td *ngIf="currentData[this.component.id + '/State'] == 3" style="width:35%"
                                 class="align_right">

@@ -20,7 +20,6 @@ export class HeatPumpComponent {
   private edge: Edge = null;
   public component: EdgeConfig.Component = null;
   public status: BehaviorSubject<{ name: string }> = new BehaviorSubject(null);
-  private stopOnDestroy: Subject<void> = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -35,34 +34,11 @@ export class HeatPumpComponent {
       this.edge = edge;
       this.service.getConfig().then(config => {
         this.component = config.components[this.componentId];
-        console.log("component", this.component)
         let channels = [
-          new ChannelAddress(this.componentId, 'Status'),
-          new ChannelAddress(this.componentId, 'State'),
+          new ChannelAddress(this.component.id, 'Status'),
+          new ChannelAddress(this.component.id, 'State'),
         ]
         this.edge.subscribeChannels(this.websocket, HeatPumpComponent.SELECTOR, channels);
-
-        this.edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-          // TODO TRANSLATE
-          switch (currentData.channel[this.component.id + '/Status']) {
-            case -1:
-              this.status.next({ name: 'Undefiniert' })
-              break;
-            case 0:
-              this.status.next({ name: 'Sperre' })
-              break;
-            case 1:
-              this.status.next({ name: 'Normalbetrieb' })
-              break;
-            case 2:
-              this.status.next({ name: 'Einschaltempfehlung' })
-              break;
-            case 3:
-              this.status.next({ name: 'Einschaltbefehl' })
-              break;
-          }
-        })
-
       })
     })
 
@@ -73,15 +49,16 @@ export class HeatPumpComponent {
       component: HeatPumpModalComponent,
       componentProps: {
         edge: this.edge,
-        component: this.component
+        component: this.component,
+        status: this.status
       }
     });
-    return await modal.present();
+    modal.onDidDismiss().then((data) => {
+      this.component = data as EdgeConfig.Component;
+    })
   }
 
   ngOnDestroy() {
     this.edge.unsubscribeChannels(this.websocket, HeatPumpComponent.SELECTOR);
-    this.stopOnDestroy.next();
-    this.stopOnDestroy.complete();
   }
 }
