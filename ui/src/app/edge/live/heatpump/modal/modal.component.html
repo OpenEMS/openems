@@ -102,10 +102,11 @@
       <!-- Automatic Mode -->
       <ng-container *ngIf="component.properties['mode'] == 'AUTOMATIC'">
         <ion-card-content class="underline">
-          <ion-item class="ion-no-padding" style="cursor: pointer;" lines="none">
+          <ion-item
+            (click)="updateAutomaticEnableMode(formGroup.controls.automaticRecommendationCtrlEnabled.value == true? false:true,'automaticRecommendationCtrlEnabled')"
+            class="ion-no-padding" lines="none" style="cursor: pointer;">
             <ion-label class="regularFont">Einschaltempfehlung</ion-label>
-            <ion-toggle (ionChange)="updateAutomaticEnableMode($event,'automaticRecommendationCtrlEnabled')"
-              [checked]="formGroup.controls.automaticRecommendationCtrlEnabled.value == true"></ion-toggle>
+            <ion-toggle [checked]="formGroup.controls.automaticRecommendationCtrlEnabled.value == true"></ion-toggle>
           </ion-item>
 
           <table class="full_width">
@@ -126,11 +127,12 @@
         </ion-card-content>
 
         <ion-card-content class="underline">
-          <ion-item class="ion-no-padding" style="cursor: pointer;" lines="none">
+          <ion-item
+            (click)="updateAutomaticEnableMode(formGroup.controls.automaticForceOnCtrlEnabled.value == true? false:true,'automaticForceOnCtrlEnabled')"
+            class="ion-no-padding" lines="none" style="cursor: pointer;">
             <ion-label class="regularFont">Einschaltbefehl
             </ion-label>
-            <ion-toggle (ionChange)="updateAutomaticEnableMode($event,'automaticRecommendationCtrlEnabled')"
-              [checked]="formGroup.controls.automaticForceOnCtrlEnabled.value == true"></ion-toggle>
+            <ion-toggle [checked]="formGroup.controls.automaticForceOnCtrlEnabled.value == true"></ion-toggle>
           </ion-item>
 
           <ng-container>
@@ -172,10 +174,11 @@
         </ion-card-content>
 
         <ion-card-content class="underline">
-          <ion-item class="ion-no-padding" style="cursor: pointer;" lines="none">
+          <ion-item
+            (click)="updateAutomaticEnableMode(formGroup.controls.automaticLockCtrlEnabled.value == true? false:true,'automaticLockCtrlEnabled')"
+            class="ion-no-padding" lines="none" style="cursor: pointer;">
             <ion-label class="regularFont">Sperre</ion-label>
-            <ion-toggle (ionChange)="updateAutomaticEnableMode($event,'automaticLockCtrlEnabled')"
-              [checked]="formGroup.controls.automaticLockCtrlEnabled.value"></ion-toggle>
+            <ion-toggle [checked]="formGroup.controls.automaticLockCtrlEnabled.value"></ion-toggle>
           </ion-item>
           <ng-container>
             <table class="full_width">

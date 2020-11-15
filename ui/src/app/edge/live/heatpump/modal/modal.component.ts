@@ -1,11 +1,8 @@
 import { Component, Input } from '@angular/core';
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
 
 type ManualMode = 'FORCE_ON' | 'RECOMMENDATION' | 'REGULAR' | 'LOCK';
 type AutomaticEnableMode = 'automaticRecommendationCtrlEnabled' | 'automaticForceOnCtrlEnabled' | 'automaticLockCtrlEnabled'
@@ -20,11 +17,9 @@ export class HeatPumpModalComponent {
 
   @Input() public edge: Edge | null = null;
   @Input() public component: EdgeConfig.Component | null = null;
-  @Input() public status: BehaviorSubject<{ name: string }>;
 
   public formGroup: FormGroup | null = null;
   public loading: boolean = false;
-  private stopOnDestroy: Subject<void> = new Subject<void>();
 
   constructor(
     private websocket: Websocket,
@@ -35,8 +30,6 @@ export class HeatPumpModalComponent {
   ) { }
 
   ngOnInit() {
-    console.log("comp", this.component)
-
     this.formGroup = this.formBuilder.group({
       // Manual
       manualState: new FormControl(this.component.properties.manualState),
@@ -72,8 +65,8 @@ export class HeatPumpModalComponent {
     }
   }
 
-  public updateAutomaticEnableMode(event: CustomEvent, state: AutomaticEnableMode) {
-    this.formGroup.controls[state].setValue(event.detail['checked'] as boolean);
+  public updateAutomaticEnableMode(isTrue: boolean, state: AutomaticEnableMode) {
+    this.formGroup.controls[state].setValue(isTrue);
     this.formGroup.controls[state].markAsDirty()
   }
 
@@ -105,9 +98,4 @@ export class HeatPumpModalComponent {
       this.formGroup.markAsPristine();
     }
   }
-
-  ngOnDestroy() {
-    this.modalCtrl.dismiss(this.component);
-  }
-
 }

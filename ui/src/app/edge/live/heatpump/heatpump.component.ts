@@ -54,8 +54,11 @@ export class HeatPumpComponent {
       }
     });
     modal.onDidDismiss().then((data) => {
-      this.component = data as EdgeConfig.Component;
+      this.service.getConfig().then(config => {
+        this.component = config.components[this.componentId];
+      })
     })
+    return await modal.present();
   }
 
   ngOnDestroy() {
