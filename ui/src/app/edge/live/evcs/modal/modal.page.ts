@@ -223,7 +223,7 @@ export class EvcsModalComponent implements OnInit {
   }
 
   /**
-  * uptdate the state of the toggle whitch renders the minimum charge power
+  * update the state of the toggle which renders the minimum charge power
   * 
   * @param event 
   */
@@ -277,7 +277,7 @@ export class EvcsModalComponent implements OnInit {
   }
 
   /**
-   * uptdate the state of the toggle whitch renders the minimum charge power
+   * update the state of the toggle which renders the minimum charge power
    * 
    * @param event 
    * @param phases 

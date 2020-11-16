@@ -396,6 +396,29 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely subtract Longs.
+	 * 
+	 * <ul>
+	 * <li>if minuend is null -> result is null
+	 * <li>if subtrahend is null -> result is minuend
+	 * <li>if both are null -> result is null
+	 * </ul>
+	 * 
+	 * @param minuend    the minuend of the subtraction
+	 * @param subtrahend the subtrahend of the subtraction
+	 * @return the result, possibly null
+	 */
+	public static Long subtract(Long minuend, Long subtrahend) {
+		if (minuend == null) {
+			return null;
+		}
+		if (subtrahend == null) {
+			return minuend;
+		}
+		return minuend - subtrahend;
+	}
+
+	/**
 	 * Safely multiply Integers.
 	 * 
 	 * @param factors the factors of the multiplication

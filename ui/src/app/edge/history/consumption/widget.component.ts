@@ -47,7 +47,6 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
             this.getChannelAddresses(this.edge, config).then(channels => {
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
                     this.data = response.result.data;
-
                     //calculate other power
                     let otherEnergy: number = 0;
                     this.evcsComponents.forEach(component => {
@@ -57,6 +56,8 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                         otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'];
                     })
                     this.totalOtherEnergy = response.result.data["_sum/ConsumptionActiveEnergy"] - otherEnergy;
+                }).catch(() => {
+                    this.data = null;
                 })
             });
         })
@@ -69,7 +70,7 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                 new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
             ]
 
-            this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster.SelfConsumtion') && !(component.factoryId == 'Evcs.Cluster.PeakShaving') && !component.isEnabled == false);
+            this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster.SelfConsumption') && !(component.factoryId == 'Evcs.Cluster.PeakShaving') && !component.isEnabled == false);
             for (let component of this.evcsComponents) {
                 channels.push(
                     new ChannelAddress(component.id, 'EnergyTotal'),

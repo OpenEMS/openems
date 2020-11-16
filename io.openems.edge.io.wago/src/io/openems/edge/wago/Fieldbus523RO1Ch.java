@@ -1,8 +1,8 @@
 package io.openems.edge.wago;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyCoilElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
@@ -12,11 +12,12 @@ public class Fieldbus523RO1Ch extends FieldbusModule {
 
 	private static final String ID_TEMPLATE = "RELAY_M";
 
-	private final AbstractModbusElement<?>[] inputElements;
-	private final AbstractModbusElement<?>[] outputElements;
+	private final ModbusCoilElement[] inputCoil0Elements;
+	private final ModbusCoilElement[] inputCoil512Elements;
+	private final ModbusCoilElement[] outputCoil512Elements;
 	private final BooleanReadChannel[] readChannels;
 
-	public Fieldbus523RO1Ch(Wago parent, int moduleCount, int inputOffset, int outputOffset) {
+	public Fieldbus523RO1Ch(Wago parent, int moduleCount, int coilOffset0, int coilOffset512) {
 		String id = ID_TEMPLATE + moduleCount;
 
 		BooleanWriteChannel channel1;
@@ -34,16 +35,17 @@ public class Fieldbus523RO1Ch extends FieldbusModule {
 		}
 		this.readChannels = new BooleanReadChannel[] { channel1, channel2 };
 
-		this.inputElements = new AbstractModbusElement<?>[] { //
-				parent.createModbusElement(channel1.channelId(), outputOffset), //
-				new DummyCoilElement(outputOffset + 1), //
-				parent.createModbusElement(channel2.channelId(), inputOffset), //
-				new DummyCoilElement(inputOffset + 1) //
+		this.inputCoil0Elements = new ModbusCoilElement[] { //
+				parent.createModbusCoilElement(channel2.channelId(), coilOffset0), //
+				new DummyCoilElement(coilOffset0 + 1) //
 		};
-
-		this.outputElements = new AbstractModbusElement<?>[] { //
-				parent.createModbusElement(channel1.channelId(), outputOffset), //
-				new DummyCoilElement(outputOffset + 1) //
+		this.inputCoil512Elements = new ModbusCoilElement[] { //
+				parent.createModbusCoilElement(channel1.channelId(), coilOffset512), //
+				new DummyCoilElement(coilOffset512 + 1), //
+		};
+		this.outputCoil512Elements = new ModbusCoilElement[] { //
+				parent.createModbusCoilElement(channel1.channelId(), coilOffset512), //
+				new DummyCoilElement(coilOffset512 + 1) //
 		};
 	}
 
@@ -53,23 +55,18 @@ public class Fieldbus523RO1Ch extends FieldbusModule {
 	}
 
 	@Override
-	public AbstractModbusElement<?>[] getInputElements() {
-		return this.inputElements;
+	public ModbusCoilElement[] getInputCoil0Elements() {
+		return this.inputCoil0Elements;
 	}
 
 	@Override
-	public AbstractModbusElement<?>[] getOutputElements() {
-		return this.outputElements;
+	public ModbusCoilElement[] getInputCoil512Elements() {
+		return this.inputCoil512Elements;
 	}
 
 	@Override
-	public int getOutputCoils() {
-		return 2;
-	}
-
-	@Override
-	public int getInputCoils() {
-		return 2;
+	public ModbusCoilElement[] getOutputCoil512Elements() {
+		return this.outputCoil512Elements;
 	}
 
 	@Override

@@ -723,7 +723,7 @@ public enum KacoSunSpecModel implements SunSpecModel {
 			STANDBY(2, "Idle state, ready for precharge"), //
 			PRECHARGE_1(3, "Precharge Step 1; close negative power relay before starting precharge"), //
 			PRECHARGE_2(4, "Precharge Step 2; close precharge relay and start precharge"), //
-			PRECHARGE_3(5, "Precharge Step 3; close positiv power relay after successful precharge"), //
+			PRECHARGE_3(5, "Precharge Step 3; close positive power relay after successful precharge"), //
 			RUNNING(6, "Running; precharge finished, ready for operation"), //
 			COOLDOWN(7,
 					"Cooldown of resistor; precharge resistor needs to cooldown bevor new precharge sequence can be started"), //
@@ -768,7 +768,7 @@ public enum KacoSunSpecModel implements SunSpecModel {
 			ERROR_RUNNING_MODE(7, "Error during RUNNING mode"), //
 			I2C_COMM(8, "I2C communication error"), //
 			CAN_COMM(9, "CAN communication error"), //
-			EXT_SWITCHOFF(10, "external swich off, eg. because of gridfault"), //
+			EXT_SWITCHOFF(10, "external switch off, eg. because of gridfault"), //
 			BATTERY_LIMITS_NA(11, "Battery limits never set by EMS"); //
 
 			private final int value;

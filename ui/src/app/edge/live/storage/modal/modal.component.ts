@@ -15,7 +15,7 @@ export class StorageModalComponent {
     @Input() essComponents: EdgeConfig.Component[];
     @Input() chargerComponents: EdgeConfig.Component[];
 
-    // referene to the Utils method to access via html
+    // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
     public outputChannel: ChannelAddress[] = null;

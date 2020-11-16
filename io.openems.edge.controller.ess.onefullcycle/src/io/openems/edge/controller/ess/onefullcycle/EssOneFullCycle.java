@@ -114,7 +114,7 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 		try {
 			this.initializeEnums(ess);
 		} catch (OpenemsException e) {
-			this.logError(this.log, "Unable to initalize Enums: " + e.getMessage());
+			this.logError(this.log, "Unable to initialize Enums: " + e.getMessage());
 			return;
 		}
 

@@ -8,7 +8,7 @@ import io.openems.edge.ess.api.SinglePhase;
 @ObjectClassDefinition(//
 		name = "FENECON Mini ESS", //
 		description = "The energy storage system implementation of a FENECON Mini.")
-@interface Config {
+public @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ess0";
@@ -18,6 +18,9 @@ import io.openems.edge.ess.api.SinglePhase;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+
+	@AttributeDefinition(name = "Read-Only mode", description = "Enables Read-Only mode")
+	boolean readonly() default true;
 
 	@AttributeDefinition(name = "Phase", description = "On which Phase is the Mini connected?")
 	SinglePhase phase() default SinglePhase.L1;

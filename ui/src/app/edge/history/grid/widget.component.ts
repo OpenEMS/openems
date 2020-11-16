@@ -44,6 +44,8 @@ export class GridComponent extends AbstractHistoryWidget implements OnInit, OnCh
             this.getChannelAddresses(this.edge, config).then(channels => {
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
                     this.data = response.result.data;
+                }).catch(() => {
+                    this.data = null;
                 })
             });
         })
