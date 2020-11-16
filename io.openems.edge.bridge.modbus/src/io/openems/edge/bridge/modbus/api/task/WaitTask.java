@@ -36,6 +36,11 @@ public class WaitTask implements Task {
 	}
 
 	@Override
+	public int getLength() {
+		return 0;
+	}
+
+	@Override
 	public void setParent(AbstractOpenemsModbusComponent parent) {
 		this.parent = parent;
 	}
