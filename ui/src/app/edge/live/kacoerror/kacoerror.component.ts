@@ -45,7 +45,8 @@ export class KacoErrorComponent {
                     new ChannelAddress(component.id, 'ErrorLog'),
                     new ChannelAddress(component.id, 'ErrorList'),
                     new ChannelAddress(component.id, 'HasError'),
-                    new ChannelAddress(component.id, 'InverterStatus')
+                    new ChannelAddress(component.id, 'InverterStatus'),
+                    new ChannelAddress(component.id, 'EpLimit')
                 );
             }
             this.edge.subscribeChannels(this.websocket, KacoErrorComponent.SELECTOR, channels);

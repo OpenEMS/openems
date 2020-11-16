@@ -57,6 +57,12 @@
                                 </td>
                             </ng-container>
                         </tr>
+                        <tr>
+                            <td style="width: 50%">Energy Provider Limit:</td>
+                            <td style="width: 50%" class="align_right">
+                                {{ currentData[component.id + '/EpLimit'] }} %
+                            </td>
+                        </tr>
                         <ng-container *ngIf="currentData[component.id + '/HasError'] === 1">
 
                             <tr *ngFor="let error of currentData[component.id + '/ErrorList'] | toarray">
