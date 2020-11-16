@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -155,7 +156,16 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 
 		String fromDateString = fromDate.format(DATE_FORMATTER);
 		String toDateString = toDate.format(DATE_FORMATTER);
-		addStringValue(ws, 2, 1, fromDateString + " - " + toDateString);
+
+		if (fromDate.truncatedTo(ChronoUnit.DAYS).isEqual( //
+				toDate.minus(1, ChronoUnit.SECONDS) // toDate might be 0 o'clock in the morning
+						.truncatedTo(ChronoUnit.DAYS))) {
+			// Only one day selected
+			addStringValue(ws, 2, 1, fromDateString);
+		} else {
+			// Multiple days selected
+			addStringValue(ws, 2, 1, fromDateString + " - " + toDateString);
+		}
 	}
 
 	/**
@@ -256,7 +266,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 			}
 			// Consumption power
 			if (isNotNull(values.get(CONSUMPTION_ACTIVE_POWER))) {
-				addFloatValue(ws, rowCount, 6, JsonUtils.getAsFloat(values.get(CONSUMPTION_ACTIVE_POWER)) / 4000);
+				addFloatValue(ws, rowCount, 6, JsonUtils.getAsFloat(values.get(CONSUMPTION_ACTIVE_POWER)));
 			}
 
 			// State of charge

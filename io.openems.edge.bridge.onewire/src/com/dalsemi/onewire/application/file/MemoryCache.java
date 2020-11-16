@@ -96,10 +96,10 @@ class MemoryCache {
 	// -------- Variables
 	// --------
 
-	/** Field owd - 1-Wire container that containes this memory to cache */
+	/** Field owd - 1-Wire container that contains this memory to cache */
 	private OneWireContainer[] owd;
 
-	/** Field cache - 2 dimentional array to contain the cache */
+	/** Field cache - 2 dimensional array to contain the cache */
 	private byte[][] cache;
 
 	/** Field len - array of lengths of packets found */
@@ -168,7 +168,7 @@ class MemoryCache {
 	/** Field pbmCache - buffer to cache the page bitmap */
 	private byte[] pbmCache;
 
-	/** Field pbmCacheModified - modifified version of the page bitmap */
+	/** Field pbmCacheModified - modified version of the page bitmap */
 	private byte[] pbmCacheModified;
 
 	/** Field pbmRead - flag indicating that the page bitmap has been read */
@@ -402,7 +402,7 @@ class MemoryCache {
 	 * @return the number byte in the packet
 	 *
 	 * @throws OneWireException   when the adapter is not setup properly
-	 * @throws OneWireIOException when an 1-Wire IO error occures
+	 * @throws OneWireIOException when an 1-Wire IO error occurs
 	 */
 	public int readPagePacket(int page, byte[] readBuf, int offset) throws OneWireIOException, OneWireException {
 
@@ -732,7 +732,7 @@ class MemoryCache {
 	 * Flush the pages written back to the 1-Wire device.
 	 *
 	 * @throws OneWireException   when the adapter is not setup properly
-	 * @throws OneWireIOException when an 1-Wire IO error occures
+	 * @throws OneWireIOException when an 1-Wire IO error occurs
 	 */
 	public void sync() throws OneWireIOException, OneWireException {
 		int page, log;
@@ -935,7 +935,7 @@ class MemoryCache {
 				pbmBank.read(0, false, temp_buf, 0, numBytes);
 				for (int i = 0; i < numBytes; i++) {
 					if ((temp_buf[i] & 0x00FF) != (pbmCacheModified[i] & 0x00FF))
-						throw new OneWireException("Readback verfication of page bitmap was not correct");
+						throw new OneWireException("Readback verification of page bitmap was not correct");
 				}
 
 				// put new value of bitmap pbmCache
@@ -1192,7 +1192,7 @@ class MemoryCache {
 	}
 
 	/**
-	 * Get's the memory bank object for the specified page. This is significant if
+	 * Gets the memory bank object for the specified page. This is significant if
 	 * the Filesystem spans memory banks on the same or different devices.
 	 */
 	public PagedMemoryBank getMemoryBankForPage(int page) {
@@ -1211,7 +1211,7 @@ class MemoryCache {
 	}
 
 	/**
-	 * Get's the index into the array of Devices where this page resides. This is
+	 * Gets the index into the array of Devices where this page resides. This is
 	 * significant if the Filesystem spans memory banks on the same or different
 	 * devices.
 	 */
@@ -1227,7 +1227,7 @@ class MemoryCache {
 	}
 
 	/**
-	 * Get's the local page number on the memory bank object for the specified page.
+	 * Gets the local page number on the memory bank object for the specified page.
 	 * This is significant if the Filesystem spans memory banks on the same or
 	 * different devices.
 	 */
@@ -1249,7 +1249,7 @@ class MemoryCache {
 	/**
 	 * Clears the lastPageRead global so that a readPage will not try to continue
 	 * where the last page left off. This should be called anytime exclusive access
-	 * to the 1-Wire canot be guaranteed.
+	 * to the 1-Wire cannot be guaranteed.
 	 */
 	public void clearLastPageRead() {
 		// last page can't be used due to redirect read

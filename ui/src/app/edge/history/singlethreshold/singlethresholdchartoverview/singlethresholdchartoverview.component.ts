@@ -15,7 +15,7 @@ export class SinglethresholdChartOverviewComponent {
     public component: EdgeConfig.Component = null;
     public inputChannel: string;
 
-    // referene to the Utils method to access via html
+    // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
     constructor(

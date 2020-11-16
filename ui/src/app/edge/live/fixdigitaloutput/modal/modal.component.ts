@@ -28,7 +28,11 @@ export class FixDigitalOutputModalComponent {
    */
   updateMode(event: CustomEvent) {
     let oldMode = this.component.properties.isOn;
-    let newMode = event.detail.value;
+
+    // ion-segment button only supports string as type
+    // https://ionicframework.com/docs/v4/api/segment-button
+
+    let newMode = (event.detail.value.toLowerCase() === 'true');
 
     this.edge.updateComponentConfig(this.websocket, this.component.id, [
       { name: 'isOn', value: newMode }

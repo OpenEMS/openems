@@ -3,13 +3,14 @@ package io.openems.edge.simulator.datasource.api;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.Set;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -38,12 +39,6 @@ public abstract class AbstractCsvDatasource extends AbstractOpenemsComponent
 		super.activate(context, id, alias, enabled);
 		this.timeDelta = timeDelta;
 		this.data = this.getData();
-		
-			ZonedDateTime now = ZonedDateTime.now();
-			int minutes = (now.getHour() * 60) + now.getMinute();
-			this.data.setIndex(minutes + 1);
-		
-
 	}
 
 	@Override
@@ -66,8 +61,14 @@ public abstract class AbstractCsvDatasource extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public <T> T getValue(OpenemsType type, String key) {
-		return TypeUtils.getAsType(type, this.data.getValue(key));
+	public <T> T getValue(OpenemsType type, ChannelAddress channelAddress) {
+		// First: try full ChannelAddress
+		Optional<Float> valueOpt = this.data.getValue(channelAddress.toString());
+		if (!valueOpt.isPresent()) {
+			// Not found: try Channel-ID only (without Component-ID)
+			valueOpt = this.data.getValue(channelAddress.getChannelId());
+		}
+		return TypeUtils.getAsType(type, valueOpt);
 	}
 
 	@Override

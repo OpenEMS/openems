@@ -41,7 +41,6 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.CommonTimedataService;
@@ -216,8 +215,6 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException {
-		// throw new NotImplementedException("QueryHistoryEnergyPerPeriod is not
-		// implemented for RRD4j");
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
 
 		ZoneId timezone = fromDate.getZone();

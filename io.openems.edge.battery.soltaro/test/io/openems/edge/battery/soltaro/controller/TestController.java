@@ -26,7 +26,7 @@ public class TestController {
 
 	@Test
 	public final void test() {
-		// TODO More tests and szenarios needed
+		// TODO More tests and scenarios needed
 		// Initialize Controller
 		BatteryHandlingController controller = new BatteryHandlingController();
 		// Add referenced services

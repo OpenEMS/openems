@@ -171,7 +171,7 @@ public interface OTPMemoryBank extends PagedMemoryBank {
 	// --------
 
 	/**
-	 * Locks the specifed page in this memory bank. Not supported by all devices.
+	 * Locks the specified page in this memory bank. Not supported by all devices.
 	 *
 	 * @param page number of page to lock
 	 *
@@ -214,7 +214,7 @@ public interface OTPMemoryBank extends PagedMemoryBank {
 	public boolean isPageLocked(int page) throws OneWireIOException, OneWireException;
 
 	/**
-	 * Redirects the specifed page to a new page. Not supported by all devices.
+	 * Redirects the specified page to a new page. Not supported by all devices.
 	 *
 	 * @param page    number of page to redirect
 	 * @param newPage new page number to redirect to
@@ -286,7 +286,7 @@ public interface OTPMemoryBank extends PagedMemoryBank {
 	public int getRedirectedPage(int page) throws OneWireIOException, OneWireException;
 
 	/**
-	 * Locks the redirection of the specifed page. Not supported by all devices.
+	 * Locks the redirection of the specified page. Not supported by all devices.
 	 *
 	 * @param page page to redirect
 	 *

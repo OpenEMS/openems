@@ -20,7 +20,7 @@ import io.openems.edge.battery.soltaro.ModuleType;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige; ! Soltaro Cluster needs baudrate of 57600 !")
+	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge; ! Soltaro Cluster needs baudrate of 57600 !")
 	String modbus_id() default "modbus0";
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
@@ -47,7 +47,7 @@ import io.openems.edge.battery.soltaro.ModuleType;
 	@AttributeDefinition(name = "Max Start Time", description = "Max Time in seconds allowed for starting the system")
 	int maxStartTime() default 20;
 	
-	@AttributeDefinition(name = "Pending Tolerance", description = "time in seconds, that is waited if system status cannot be determinated e.g. in case of reading errors")
+	@AttributeDefinition(name = "Pending Tolerance", description = "time in seconds, that is waited if system status cannot be determined e.g. in case of reading errors")
 	int pendingTolerance() default 15;
 
 	@AttributeDefinition(name = "Start Not Successful Delay Time", description = "Sets the delay time in seconds how long the system should be stopped if it was not able to start")

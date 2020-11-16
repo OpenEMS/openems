@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
 		name = "Controller Electric Vehicle Charging Station: Fix Active Power", //
-		description = "Defines a fixed charge/discarge power to an Electric Vehicle Charging Station.")
+		description = "Defines a fixed charge/discharge power to an Electric Vehicle Charging Station.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

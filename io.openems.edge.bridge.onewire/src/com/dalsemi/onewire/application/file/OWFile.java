@@ -102,7 +102,7 @@ import com.dalsemi.onewire.container.PagedMemoryBank;
  * the following exceptions
  * <p>
  * <p>
- * Methods provided but of <b> limited </b> functionallity
+ * Methods provided but of <b> limited </b> functionality
  * <ul>
  * <li>public long lastModified() - always returns 0
  * <li>public boolean isAbsolute() - always true
@@ -149,7 +149,7 @@ import com.dalsemi.onewire.container.PagedMemoryBank;
  * allowed
  * <li>Files can have the read-only attribute
  * <li>Directories can have the hidden attribute
- * <li>It is recommended to limit directory depth to 10 levels to accomodate
+ * <li>It is recommended to limit directory depth to 10 levels to accommodate
  * legacy implementations
  * </ul>
  *
@@ -168,7 +168,7 @@ import com.dalsemi.onewire.container.PagedMemoryBank;
  * the constructor that accepts an array of 1-Wire devices. The first device in
  * the list is the 'root' device and the rest will be designated 'satelite's.
  * Once the <code> format() </code> method is used to link these devices then
- * only the 'root' need be used in future constuctors of this class or the
+ * only the 'root' need be used in future constructors of this class or the
  * 1-Wire file stream classes.
  * <li>Only rewrittable 1-Wire memory devices can be used in multi-device file
  * systems. EPROM and write-once devices can only be used in single device file
@@ -995,7 +995,7 @@ public class OWFile {
 	 * codes. On UNIX systems, the hash code of an abstract pathname is equal to the
 	 * exclusive <em>or</em> of its pathname string and the decimal value
 	 * <code>1234321</code>. On Win32 systems, the hash code is equal to the
-	 * exclusive <em>or</em> of its pathname string, convered to lower case, and the
+	 * exclusive <em>or</em> of its pathname string, converted to lower case, and the
 	 * decimal value <code>1234321</code>.
 	 *
 	 * @return A hash code for this abstract pathname
@@ -1100,7 +1100,7 @@ public class OWFile {
 	}
 
 	/**
-	 * Get's an array of integers that represents the page list of the file or
+	 * Gets an array of integers that represents the page list of the file or
 	 * directory represented by this OWFile.
 	 *
 	 * @return node page list file or directory
@@ -1138,7 +1138,7 @@ public class OWFile {
 	}
 
 	/**
-	 * Get's the memory bank object for the specified page. This is significant if
+	 * Gets the memory bank object for the specified page. This is significant if
 	 * the Filesystem spans memory banks on the same or different devices.
 	 *
 	 * @return PagedMemoryBank for the specified page
@@ -1154,7 +1154,7 @@ public class OWFile {
 	}
 
 	/**
-	 * Get's the local page number on the memory bank object for the specified page.
+	 * Gets the local page number on the memory bank object for the specified page.
 	 * This is significant if the Filesystem spans memory banks on the same or
 	 * different devices.
 	 *

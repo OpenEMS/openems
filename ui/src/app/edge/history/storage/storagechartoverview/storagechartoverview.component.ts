@@ -19,7 +19,7 @@ export class StorageChartOverviewComponent {
     public showTotal: boolean = null;
     public isOnlyChart = null;
 
-    // referene to the Utils method to access via html
+    // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
     constructor(
