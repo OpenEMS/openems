@@ -93,7 +93,7 @@ import com.dalsemi.onewire.utils.Convert;
  *
  * <P>
  * When converting analog voltages to digital, the user of the device must
- * gaurantee that the voltage seen by the channel of the quad A/D does not
+ * guarantee that the voltage seen by the channel of the quad A/D does not
  * exceed the selected input range of the device. If this happens, the device
  * will default to reading 0 volts. There is NO way to know if the device is
  * reading a higher than specified voltage or NO voltage.
@@ -248,7 +248,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 */
 	public String getDescription() {
 		return "Four high-impedance inputs for measurement of analog "
-				+ "voltages.  User programable input range.  Very low "
+				+ "voltages.  User programmable input range.  Very low "
 				+ "power.  Built-in multidrop controller.  Channels "
 				+ "not used as input can be configured as outputs " + "through the use of open drain digital outputs. "
 				+ "Capable of use of Overdrive for fast data transfer. "
@@ -367,7 +367,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 * from this method with static utility methods to extract the status, alarm and
 	 * other register values. Appended to the data is 2 bytes that represent a
 	 * bitmap of changed bytes. These bytes are used in the
-	 * <CODE>writeADRegisters()</CODE> in conjuction with the 'set' methods to only
+	 * <CODE>writeADRegisters()</CODE> in conjunction with the 'set' methods to only
 	 * write back the changed register bytes.
 	 *
 	 * @return register page contents verified with onboard CRC
@@ -617,7 +617,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 			throws OneWireIOException, OneWireException {
 		byte input_select_mask = 0;
 		byte read_out_control = 0;
-		int time = 160; // Time required in micro Seconds to covert.
+		int time = 160; // Time required in micro Seconds to convert.
 
 		// calculate the input mask, readout control, and conversion time
 		for (int ch = 3; ch >= 0; ch--) {
@@ -825,7 +825,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	}
 
 	/**
-	 * Detects if this device has seen a Power-On-Reset (POR). If this has occured
+	 * Detects if this device has seen a Power-On-Reset (POR). If this has occurred
 	 * it may be necessary to set the state of the device to the desired values. The
 	 * register buffer is retrieved from the <CODE>readDevice()</CODE> method.
 	 *

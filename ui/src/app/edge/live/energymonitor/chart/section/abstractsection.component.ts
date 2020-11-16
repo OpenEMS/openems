@@ -228,7 +228,7 @@ export abstract class AbstractSection {
      * This method is called on every change of values.
      * 
      * @param valueAbsolute the absolute value of the Section
-     * @param valueRatio    the relative value of the Secion in [-1,1]
+     * @param valueRatio    the relative value of the Section in [-1,1]
      * @param sumRatio      the relative value of the Section compared to the total System.InPower/OutPower [0,1]
      */
     protected updateSectionData(valueAbsolute: number, valueRatio: number, sumRatio: number) {

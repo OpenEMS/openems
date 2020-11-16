@@ -121,6 +121,7 @@ export class Service implements ErrorHandler {
       case "es": return LanguageTag.ES;
       case "nl": return LanguageTag.NL;
       case "cz": return LanguageTag.CZ;
+      case "fr": return LanguageTag.FR;
       default: return LanguageTag.DE;
     }
   }
@@ -290,7 +291,7 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * Gets the ChannelAdresses for cumulated values that should be queried.
+   * Gets the ChannelAddresses for cumulated values that should be queried.
    * 
    * @param edge the current Edge
    */

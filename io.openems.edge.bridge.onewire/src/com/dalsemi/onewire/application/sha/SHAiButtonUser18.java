@@ -83,7 +83,7 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 * @param owc          The DS1963S iButton that this object will refer to.
 	 * @param formatDevice If <code>true</code>, the TMEX filesystem will be
 	 *                     formatted before the account service file is created.
-	 * @param authSecret   The master authentication secret for the systm.
+	 * @param authSecret   The master authentication secret for the system.
 	 *
 	 * @throws OneWireIOException on a 1-Wire communication error such as reading an
 	 *                            incorrect CRC from a 1-Wire device. This could be
@@ -159,11 +159,11 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 *                     information, used to create a unique secret for this user
 	 *                     token.
 	 * @param fileName     The file name for the account info.
-	 * @param fileNameExt  The file extenstion for the account info
+	 * @param fileNameExt  The file extension for the account info
 	 * @param owc          The DS1963S iButton that this object will refer to.
 	 * @param formatDevice If <code>true</code>, the TMEX filesystem will be
 	 *                     formatted before the account service file is created.
-	 * @param authSecret   The master authentication secret for the systm.
+	 * @param authSecret   The master authentication secret for the system.
 	 *
 	 * @throws OneWireIOException on a 1-Wire communication error such as reading an
 	 *                            incorrect CRC from a 1-Wire device. This could be
@@ -268,7 +268,7 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 * @param coprBindCode The Coprocessor Bind Code without the user-specific
 	 *                     information.
 	 * @param fileName     The file name of the account file
-	 * @param fileNameExt  The file extenstion of the account file
+	 * @param fileNameExt  The file extension of the account file
 	 * @param owc          The DS1963S iButton that this object will refer to.
 	 *
 	 * @throws OneWireIOException on a 1-Wire communication error such as reading an
@@ -299,13 +299,13 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 
 	/**
 	 * <P>
-	 * Creates a mostly unitialized SHAiButtonUser object. This constructor merely
+	 * Creates a mostly uninitialized SHAiButtonUser object. This constructor merely
 	 * copies the coprocessors 7 byte binding code into a local cache and stores the
 	 * name of the account service file used for all user iButtons.
 	 * </P>
 	 *
 	 * <P>
-	 * Since this constructor leaves data unitialized, you should be very careful
+	 * Since this constructor leaves data uninitialized, you should be very careful
 	 * with the use of it. It is expected that after calling this constructor, the
 	 * user will call <code>setiButton</code> to finish the initialization process.
 	 * On memory-starved platforms, this should help optimize memory usage.
@@ -340,7 +340,7 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 * Modifies this SHA iButton so that it refers to another DS1963S container.
 	 * This function only copies the reference to the OneWireContainer, copes the
 	 * reference to it's 1-Wire address, and then asserts that the iButton contains
-	 * a valid acccount info file associated with the system.
+	 * a valid account info file associated with the system.
 	 * </P>
 	 *
 	 * @param owc The <code>OneWireContainer18</code> this object will refer to.
@@ -484,7 +484,7 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 			int wcc = -1;
 
 			// don't worry, this should not happen in the critical path.
-			// so malloc-ing doesnt really matter
+			// so malloc-ing doesn't really matter
 			byte[] wcc_buffer = new byte[32];
 
 			// read the page, 19, containing the write-cycle counters

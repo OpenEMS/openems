@@ -3,7 +3,7 @@
 CHANNEL_ID="RELAY_2"
 METHOD="Relay2"
 JAVADOC="Relay Output 2"
-#JAVADOC="Temparature in [deci degC]"
+#JAVADOC="Temperature in [deci degC]"
 
 #CHANNEL_CLASS="BooleanReadChannel"
 #CHANNEL_CLASS="IntegerReadChannel"

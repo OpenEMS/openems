@@ -159,7 +159,7 @@ import io.openems.edge.meter.api.MeterType;
 	@AttributeDefinition(name = "Meter-Type", description = "Grid, Production (=default), Consumption") // <5>
 	MeterType type() default MeterType.PRODUCTION; // <6>
 
-	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
+	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0"; // <7>
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
@@ -174,7 +174,7 @@ import io.openems.edge.meter.api.MeterType;
 ----
 <1> The *@ObjectClassDefinition* annotation defines this file as a Meta Type Resource for OSGi configuration admin. Use it to set a _name_ and _description_ for this OpenEMS Component.
 // TODO add screenshot that shows how the strings are used in Apache
-<2> The *id* configuration parameter sets the OpenEMS Component-ID (see xref:coreconcepts.adoc[Channel Adress]). _Note_: A *default* ID 'meter0' is defined. It is good practice to define such an ID here, as it simplifies configuration in the UI.
+<2> The *id* configuration parameter sets the OpenEMS Component-ID (see xref:coreconcepts.adoc[Channel Address]). _Note_: A *default* ID 'meter0' is defined. It is good practice to define such an ID here, as it simplifies configuration in the UI.
 <3> The *alias* configuration parameter sets the human-readable name of this OpenEMS Component. If no alias is configured, the Component-ID is used instead.
 <4> The *enabled* parameter provides a _soft_ way of deactivating an OpenEMS Component programmatically.
 <5> The *@AttributeDefinition* annotation provides meta information about a configuration parameter like _name_ and _description_.
@@ -233,12 +233,12 @@ public MeterSimulated() {
 	);
 }
 ----
-. Finally we need to delare the modbus protocol of the simulated meter inside the `defineModbusProtocol` method. Replace the existing method
+. Finally we need to declare the modbus protocol of the simulated meter inside the `defineModbusProtocol` method. Replace the existing method
 +
 [source,java]
 ----
 @Override
-protected ModbusProtocol defineModbusProtocol() {
+protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 	// TODO implement ModbusProtocol
 	return new ModbusProtocol(this);
 }
@@ -249,7 +249,7 @@ with
 [source,java]
 ----
 @Override
-protected ModbusProtocol defineModbusProtocol() {
+protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 	return new ModbusProtocol(this, //
 			new FC3ReadRegistersTask(1000, Priority.HIGH,
 					m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(1000))));
@@ -351,7 +351,7 @@ public class MeterSimulated extends AbstractOpenemsModbusComponent // <6>
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() { // <14>
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException { // <14>
 		return new ModbusProtocol(this, // <15>
 				new FC3ReadRegistersTask(1000, Priority.HIGH, // <16>
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(1000)))); // <17>
@@ -413,7 +413,7 @@ Using this principle a complete Modbus table consisting of multiple register blo
 
 === Start the device simulator
 
-To start the device simulator, open the btn:[io.openems.edge.bridge.modbus] project and navigate to the btn:[test] -> btn:[io.openems.edge.brige.modbus] folder. There you find the btn:[ModbusSlaveSimulator.java] file. Right-click that file and select btn:[Run As] -> btn:[Java Application].
+To start the device simulator, open the btn:[io.openems.edge.bridge.modbus] project and navigate to the btn:[test] -> btn:[io.openems.edge.bridge.modbus] folder. There you find the btn:[ModbusSlaveSimulator.java] file. Right-click that file and select btn:[Run As] -> btn:[Java Application].
 
 [NOTE]
 ====

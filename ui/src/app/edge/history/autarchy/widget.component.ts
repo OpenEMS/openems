@@ -47,6 +47,8 @@ export class AutarchyWidgetComponent extends AbstractHistoryWidget implements On
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
                     let result = response.result;
                     this.autarchyValue = CurrentData.calculateAutarchy(result.data['_sum/GridBuyActiveEnergy'] / 1000, result.data['_sum/ConsumptionActiveEnergy'] / 1000);
+                }).catch(() => {
+                    this.autarchyValue = null;
                 })
             });
         })

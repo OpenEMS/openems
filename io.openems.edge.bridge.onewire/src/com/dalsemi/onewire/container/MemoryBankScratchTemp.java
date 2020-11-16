@@ -77,7 +77,7 @@ class MemoryBankScratchTemp implements MemoryBank {
 
 	/**
 	 * Starting physical address in memory bank. Needed for different types of
-	 * memory in the same logical memory bank. This can be used to seperate them
+	 * memory in the same logical memory bank. This can be used to separate them
 	 * into two virtual memory banks. Example: DS2406 status page has mixed EPROM
 	 * and Volatile RAM.
 	 */
@@ -306,7 +306,7 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 * readPageCRC(). readPageCRC() however is not supported on all memory types,
 	 * see 'hasPageAutoCRC()'. If neither is an option then this method could be
 	 * called more then once to at least verify that the same thing is read
-	 * consistantly.
+	 * consistently.
 	 *
 	 * @param startAddr    starting physical address
 	 * @param readContinue ignored by method
@@ -654,7 +654,7 @@ class MemoryBankScratchTemp implements MemoryBank {
 				// attempt to set the correct speed and verify device present
 				ib.doSpeed();
 
-				// no execptions so clear flag
+				// no exceptions so clear flag
 				doSetSpeed = false;
 			}
 		}
