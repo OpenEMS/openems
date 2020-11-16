@@ -2,9 +2,14 @@ package io.openems.common.websocket;
 
 import java.net.Proxy;
 import java.net.URI;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
@@ -130,6 +135,17 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	 */
 	public void start() {
 		this.log.info("Opening connection [" + this.getName() + "] to websocket server [" + this.serverUri + "]");
+		if(this.serverUri.toString().indexOf("wss") == 0) {
+			System.err.println("Setting SSL");
+			 try {
+				SSLContext sslContext = SSLContext.getDefault();
+				SSLSocketFactory sslFactory = sslContext.getSocketFactory();
+				ws.setSocketFactory(sslFactory);
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		this.ws.connect();
 	}
 
