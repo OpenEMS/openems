@@ -455,7 +455,7 @@ public enum ErrorCodeChannelId1 implements ChannelId {
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
 			.needsHardReset(false) //
 			.code(0x010017) //
-			.text("FRT Error occured")),
+			.text("FRT Error occurred")),
 	STATE_IDC_OVERCURRENT_SOFTWARE_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.UNDEFINED) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //

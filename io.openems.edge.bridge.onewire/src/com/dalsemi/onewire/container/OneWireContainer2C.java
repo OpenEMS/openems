@@ -46,7 +46,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * <UL>
  * <LI>Single element 256-position linear taper potentiometer
  * <LI>Supports potentiometer terminal working voltages up to 11V
- * <LI>Potentiometer terminal voltage independant of supply voltage
+ * <LI>Potentiometer terminal voltage independent of supply voltage
  * <LI>100k Ohm resistor element value
  * <LI>Operating temperature range from -40@htmlonly &#176C @endhtmlonly to
  * +85@htmlonly &#176C @endhtmlonly
@@ -439,7 +439,7 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 *
 	 * @return the new position of the wiper (0-255)
 	 * @throws OneWireIOException Data was not written correctly
-	 * @throws OneWireException   Counld not find device
+	 * @throws OneWireException   Could not find device
 	 */
 	public int decrement() throws OneWireIOException, OneWireException {
 		return unitChange(DECREMENT, true);
@@ -580,7 +580,7 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	/*
 	 * This function handles the increment and decrement operations, including the
 	 * contingent reset. You do not need to call reset between consecutive unit
-	 * change commands. Both operations issue the command byte and then recieve the
+	 * change commands. Both operations issue the command byte and then receive the
 	 * new wiper position.
 	 */
 	private synchronized int unitChange(byte COMMAND, boolean reselect) throws OneWireIOException, OneWireException {

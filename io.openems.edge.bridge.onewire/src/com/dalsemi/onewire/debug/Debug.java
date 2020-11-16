@@ -91,7 +91,7 @@ public class Debug {
 	 * Gets the debug printing mode for this application.
 	 *
 	 * @return <code>true</code> indicates debug messages are on, <code>false</code>
-	 *         supresses them.
+	 *         suppresses them.
 	 */
 	public static final boolean getDebugMode() {
 		return DEBUG;
@@ -109,7 +109,7 @@ public class Debug {
 	/**
 	 * Prints the specified <code>java.lang.String</code> object if debug mode is
 	 * enabled. This method calls <code>PrintStream.println(String)</code>, and
-	 * pre-pends the <code>String</code> ">> " to the message, so taht if a program
+	 * pre-pends the <code>String</code> ">> " to the message, so that if a program
 	 * were to call (when debug mode was enabled): <code><pre>
 	 *     com.dalsemi.onewire.debug.Debug.debug("Some notification...");
 	 * </pre></code> the resulting output would look like: <code><pre>
@@ -126,7 +126,7 @@ public class Debug {
 	/**
 	 * Prints the specified array of bytes with a given label if debug mode is
 	 * enabled. This method calls <code>PrintStream.println(String)</code>, and
-	 * pre-pends the <code>String</code> ">> " to the message, so taht if a program
+	 * pre-pends the <code>String</code> ">> " to the message, so that if a program
 	 * were to call (when debug mode was enabled): <code><pre>
 	 *     com.dalsemi.onewire.debug.Debug.debug("Some notification...", myBytes);
 	 * </pre></code> the resulting output would look like: <code><pre>
@@ -145,7 +145,7 @@ public class Debug {
 	/**
 	 * Prints the specified array of bytes with a given label if debug mode is
 	 * enabled. This method calls <code>PrintStream.println(String)</code>, and
-	 * pre-pends the <code>String</code> ">> " to the message, so taht if a program
+	 * pre-pends the <code>String</code> ">> " to the message, so that if a program
 	 * were to call (when debug mode was enabled): <code><pre>
 	 *     com.dalsemi.onewire.debug.Debug.debug("Some notification...", myBytes, 0, 8);
 	 * </pre></code> the resulting output would look like: <code><pre>
@@ -182,7 +182,7 @@ public class Debug {
 	/**
 	 * Prints the specified exception with a given label if debug mode is enabled.
 	 * This method calls <code>PrintStream.println(String)</code>, and pre-pends the
-	 * <code>String</code> ">> " to the message, so taht if a program were to call
+	 * <code>String</code> ">> " to the message, so that if a program were to call
 	 * (when debug mode was enabled): <code><pre>
 	 *     com.dalsemi.onewire.debug.Debug.debug("Some notification...", exception);
 	 * </pre></code> the resulting output would look like: <code><pre>

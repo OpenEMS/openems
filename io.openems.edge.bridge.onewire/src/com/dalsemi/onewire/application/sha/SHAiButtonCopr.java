@@ -138,7 +138,7 @@ public class SHAiButtonCopr {
 	protected int authPageNumber = -1;
 
 	/**
-	 * Any auxilliary data stored on this coprocessor
+	 * Any auxiliary data stored on this coprocessor
 	 */
 	protected String auxData;
 
@@ -254,7 +254,7 @@ public class SHAiButtonCopr {
 	 *                           installation on user buttons.
 	 * @param l_bindCode         the binding code used to finalize secret
 	 *                           installation on user buttons.
-	 * @param l_auxData          any auxilliary or miscellaneous data to be stored
+	 * @param l_auxData          any auxiliary or miscellaneous data to be stored
 	 *                           on the coprocessor.
 	 * @param l_initialSignature the 20-byte initial MAC placed in user account data
 	 *                           before generating actual MAC.
@@ -604,11 +604,11 @@ public class SHAiButtonCopr {
 
 	/**
 	 * <P>
-	 * Returns a string representing the auxilliary data associated with this
+	 * Returns a string representing the auxiliary data associated with this
 	 * coprocessor's service.
 	 * </P>
 	 *
-	 * @return the auxilliary data of this coprocessor's service
+	 * @return the auxiliary data of this coprocessor's service
 	 */
 	public String getAuxilliaryData() {
 		return auxData;
@@ -740,7 +740,7 @@ public class SHAiButtonCopr {
 	 * account data into the specified array starting at the specified offset.
 	 * </P>
 	 *
-	 * @param data   arry for copying the 20-byte initial signature.
+	 * @param data   array for copying the 20-byte initial signature.
 	 * @param offset the index at which to start copying.
 	 */
 	public void getInitialSignature(byte[] data, int offset) {

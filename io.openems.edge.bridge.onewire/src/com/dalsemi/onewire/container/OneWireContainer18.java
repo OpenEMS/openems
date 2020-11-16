@@ -1455,7 +1455,7 @@ public class OneWireContainer18 extends OneWireContainer {
 		return true;
 	}
 
-	// local cahce to make TINI fast
+	// local cache to make TINI fast
 	private byte[] bind_code_temp = new byte[32];
 	private byte[] bind_code_alt_temp = new byte[32];
 	private byte[] bind_data_temp = new byte[32];

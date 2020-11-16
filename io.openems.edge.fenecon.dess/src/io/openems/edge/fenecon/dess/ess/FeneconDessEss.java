@@ -1,6 +1,7 @@
 package io.openems.edge.fenecon.dess.ess;
 
-import java.util.OptionalDouble;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -14,8 +15,9 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
-import com.google.common.collect.EvictingQueue;
+import com.google.common.math.Quantiles;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -71,9 +73,11 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), FeneconDessConstants.UNIT_ID, this.cm,
-				"Modbus", config.modbus_id());
+	void activate(ComponentContext context, Config config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), FeneconDessConstants.UNIT_ID,
+				this.cm, "Modbus", config.modbus_id())) {
+			return;
+		}
 	}
 
 	@Deactivate
@@ -83,21 +87,23 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SYSTEM_STATE(Doc.of(SystemState.values())), //
-		ORIGINAL_SOC(new IntegerDoc()//
-				.onInit(channel -> { //
-					final EvictingQueue<Integer> lastSocValues = EvictingQueue.create(100);
-					((IntegerReadChannel) channel).onChange((oldValue, newValue) -> {
-						Integer originalSocValue = newValue.get();
-						Integer correctedSocValue = null;
-						if (originalSocValue != null) {
-							lastSocValues.add(originalSocValue);
-							OptionalDouble averageSoc = lastSocValues.stream().mapToInt(Integer::intValue).average();
-							if (averageSoc.isPresent()) {
-								correctedSocValue = (int) averageSoc.getAsDouble();
-							}
-						}
+		ORIGINAL_SOC(new IntegerDoc() //
+				.onInit(c -> { //
+					IntegerReadChannel channel = (IntegerReadChannel) c;
+					c.onUpdate(value -> {
 						SymmetricEss parent = (SymmetricEss) channel.getComponent();
-						parent._setSoc(correctedSocValue);
+						Collection<Integer> values = c.getPastValues().values() //
+								.stream() //
+								.limit(10) //
+								.filter(v -> v.isDefined()) //
+								.map(v -> v.get()) //
+								.collect(Collectors.toList());
+						if (values.isEmpty()) {
+							parent._setSoc(null);
+						} else {
+							int median = Math.round((float) Quantiles.median().compute(values));
+							parent._setSoc(median);
+						}
 					});
 				})),
 		BSMU_WORK_STATE(Doc.of(BsmuWorkState.values()) //
@@ -142,14 +148,13 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(10000, Priority.LOW, //
 						m(FeneconDessEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(10000)), //
 						m(FeneconDessEss.ChannelId.BSMU_WORK_STATE, new UnsignedWordElement(10001)), //
 						m(FeneconDessEss.ChannelId.STACK_CHARGE_STATE, new UnsignedWordElement(10002))), //
 				new FC3ReadRegistersTask(10143, Priority.LOW, //
-						// m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(10143)), //
 						m(FeneconDessEss.ChannelId.ORIGINAL_SOC, new UnsignedWordElement(10143)), //
 						new DummyRegisterElement(10144, 10150),
 						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY,

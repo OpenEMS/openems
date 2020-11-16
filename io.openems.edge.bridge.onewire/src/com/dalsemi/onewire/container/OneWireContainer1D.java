@@ -49,7 +49,7 @@ import com.dalsemi.onewire.utils.CRC16;
  * </P>
  *
  * <P>
- * Each counter is assosciated with a memory page. The counters for pages 12 and
+ * Each counter is associated with a memory page. The counters for pages 12 and
  * 13 are incremented with a write to the memory on that page. The counters for
  * pages 14 and 15 are externally triggered. See the method
  * {@link #readCounter(int) readCounter} to read a counter directly. Note that

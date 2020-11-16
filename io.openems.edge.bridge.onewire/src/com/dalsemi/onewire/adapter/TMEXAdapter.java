@@ -183,7 +183,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	/** Flag to indicate next search will be a 'first' */
 	private boolean resetSearch = true;
 
-	/** Flag to indicate next search will not be preceeded by a 1-Wire reset */
+	/** Flag to indicate next search will not be preceded by a 1-Wire reset */
 	private boolean skipResetOnSearch = false;
 
 	// --------
@@ -651,7 +651,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * they want to ensure exclusive use. If it is not called around several methods
 	 * then it will be called inside each method.
 	 *
-	 * @param blocking <code>true</code> if want to block waiting for an excluse
+	 * @param blocking <code>true</code> if want to block waiting for exclusive
 	 *                 access to the adapter
 	 * @return <code>true</code> if blocking was false and a exclusive session with
 	 *         the adapter was acquired
@@ -1088,7 +1088,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	private native String getVersion_Native();
 
 	/**
-	 * Peform a search
+	 * Perform a search
 	 *
 	 * @param skipResetOnSearch boolean, true to skip 1-Wire reset on search
 	 * @param resetSearch       boolean, true to reset search (First)
