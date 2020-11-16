@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -57,6 +58,15 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 	 * Map from Component-ID to defect details.
 	 */
 	private final Map<String, String> defectiveComponents = new HashMap<>();
+
+	/**
+	 * Delays announcement of defective Components by one execution Cycle.
+	 */
+	private final Set<String> lastDefectiveComponents = new HashSet<>();
+
+	/**
+	 * Components with duplicated Component-IDs.
+	 */
 	private final Set<String> duplicatedComponentIds = new HashSet<String>();
 
 	public OsgiValidateWorker(ComponentManagerImpl parent) {
@@ -84,7 +94,13 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 		this.parent._setConfigNotActivated(!defectiveComponents.isEmpty());
 		synchronized (this.defectiveComponents) {
 			this.defectiveComponents.clear();
-			this.defectiveComponents.putAll(defectiveComponents);
+			for (Entry<String, String> c : defectiveComponents.entrySet()) {
+				if (this.lastDefectiveComponents.contains(c.getKey())) {
+					// Delay announcement of defective Components by one execution Cycle.
+					this.defectiveComponents.put(c.getKey(), c.getValue());
+				}
+			}
+			this.lastDefectiveComponents.addAll(defectiveComponents.keySet());
 		}
 	}
 
@@ -148,7 +164,17 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 	private static void updateInactiveComponentsUsingConfigurationAdmin(Map<String, String> defectiveComponents,
 			List<OpenemsComponent> enabledComponents, Configuration[] configs) {
 		for (Configuration config : configs) {
-			Dictionary<String, Object> properties = config.getProperties();
+			Dictionary<String, Object> properties;
+			try {
+				properties = config.getProperties();
+				if (properties == null) {
+					// configuration was just created and update has not been called
+					continue;
+				}
+			} catch (IllegalStateException e) {
+				// Configuration has been deleted
+				continue;
+			}
 			String componentId = (String) properties.get("id");
 			if (componentId != null) {
 				if (defectiveComponents.containsKey(componentId)) {

@@ -85,7 +85,7 @@ testpath: \
 	Edge_Controller_PVinverter;member=${filter;${p};io\.openems\.edge\.controller\.pvinverter\..*},\
 	Edge_Ess;member=${filter;${p};io\.openems\.edge\.ess\..*},\
 	Edge_Evcs;member=${filter;${p};io\.openems\.edge\.evcs\..*|io\.openems\.wrapper\.eu\.chargetime\.ocpp},\
-	Edge_Multiple;member=${filter;${p};io\.openems\.edge\.fenecon\..*|io\.openems\.edge\.goodwe\..et|io\.openems\.edge\.kostal\.piko|io\.openems\.edge\.tesla\.*|io\.openems\.edge\.solaredge},\
+	Edge_Multiple;member=${filter;${p};io\.openems\.edge\.fenecon\..*|io\.openems\.edge\.goodwe|io\.openems\.edge\.kostal\.piko|io\.openems\.edge\.tesla\.*|io\.openems\.edge\.solaredge},\
 	Edge_IO;member=${filter;${p};io\.openems\.edge\.io\..*|io\.openems\.edge\.controller\.channelthreshold|io\.openems\.edge\.controller\.chp\..*|io\.openems\.edge\.controller\.highloadtimeslot},\
 	Edge_Meter;member=${filter;${p};io\.openems\.edge\.meter\..*},\
 	Edge_Predictor;member=${filter;${p};io\.openems\.edge\.predictor\..*},\

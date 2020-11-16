@@ -3,7 +3,7 @@ package io.openems.edge.controller.debuglog;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Debug Log", //
 		description = "This controller prints information about all available components on the console")
 @interface Config {
@@ -16,6 +16,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+
+	@AttributeDefinition(name = "Additional Channels", description = "Channel-Addresses of additional Channels that should be logged")
+	String[] additionalChannels() default {};
+
+	@AttributeDefinition(name = "Ignore Components", description = "Component-IDs of Components that should not be logged")
+	String[] ignoreComponents() default {};
 
 	String webconsole_configurationFactory_nameHint() default "Controller Debug Log [{id}]";
 }
