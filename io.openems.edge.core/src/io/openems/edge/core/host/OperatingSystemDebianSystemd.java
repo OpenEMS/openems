@@ -406,8 +406,12 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	@Override
 	public String getUsbConfiguration() throws OpenemsNamedException {
 		try {
-			List<String> lines = Files.readAllLines(UDEV_PATH, StandardCharsets.US_ASCII);
-			return String.join("\n", lines);
+			if (!Files.exists(UDEV_PATH)) {
+				return "";
+			} else {
+				List<String> lines = Files.readAllLines(UDEV_PATH, StandardCharsets.US_ASCII);
+				return String.join("\n", lines);
+			}
 		} catch (IOException e) {
 			throw new OpenemsException("Unable to read file [" + UDEV_PATH + "]: " + e.getMessage());
 		}
