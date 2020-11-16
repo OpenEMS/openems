@@ -19,7 +19,6 @@ public class Test {
 //	private static ZonedDateTime cheapTimeStamp = null;
 	private static ZonedDateTime proLessThanCon = null;
 	private static ZonedDateTime proMoreThanCon = null;
-	private static ZonedDateTime startHour = null;
 	private static int maxMorningHour = 8;
 	private static int maxEveningHour = 17;
 	private static int nettcapacity = 15000;
@@ -92,7 +91,7 @@ public class Test {
 //		remainingCapacity = 12000;
 
 		System.out.println("=========================================================================");
-		startHour = now.withMinute(0).withSecond(0).withNano(0);
+		ZonedDateTime startHour = now.withMinute(0).withSecond(0).withNano(0);
 		calculateBoundaryHours(production, Consumption);
 
 		// Print the boundary Hours
@@ -110,7 +109,6 @@ public class Test {
 
 		System.out.println("Required Energy: " + requiredEnergy);
 
-//		
 		calculateCheapHours(requiredEnergy);
 		System.out.println("=========================================================================");
 		cheapHours.forEach(value -> System.out.println(value));

@@ -134,8 +134,8 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 
 			for (int i = 0; i < 24; i++) {
 				if (consumptionValues[i] != null && productionValues[i] != null) {
-					hourlyProduction.put(this.startHour.plusHours(i), productionValues[i]);
-					hourlyConsumption.put(this.startHour.plusHours(i), consumptionValues[i]);
+					hourlyProduction.put(startHour.plusHours(i), productionValues[i]);
+					hourlyConsumption.put(startHour.plusHours(i), consumptionValues[i]);
 				}
 			}
 
@@ -208,7 +208,6 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 
 		for (Entry<ZonedDateTime, Integer> entry : hourlyConsumption.subMap(proLessThanCon, proMoreThanCon)
 				.entrySet()) {
-
 			consumptionTotal += entry.getValue() - hourlyProduction.get(entry.getKey());
 		}
 
