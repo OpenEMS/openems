@@ -303,7 +303,7 @@ public class PreConfig {
 
 				Hashtable<String, Object> core = new Hashtable<>();
 				core.put("enabled", true);
-				//core.put("serialnumber", "");
+				// core.put("serialnumber", "");
 				core.put("id", "kacoCore0");
 				core.put("alias", "");
 				if (userkey == "") {
@@ -339,24 +339,24 @@ public class PreConfig {
 				// grid.put("external", false);
 				factory.update(grid);
 
+				// Create PVMeter factory =
+				cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.PVMeter", null);
+
+				Hashtable<String, Object> pv = new Hashtable<>();
+				pv.put("enabled", true);
+				pv.put("core.id", "kacoCore0");
+				pv.put("id", "pv0");
+				pv.put("alias", "PV");
+				factory.update(pv);
+
 				/*
-				 * // Create PVMeter factory =
-				 * cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.PVMeter", null);
+				 * // Create Charger factory =
+				 * cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.Charger", null);
 				 * 
-				 * Hashtable<String, Object> pv = new Hashtable<>(); pv.put("enabled", true);
-				 * pv.put("core.id", "kacoCore0"); pv.put("id", "pv0"); pv.put("alias", "PV");
-				 * factory.update(pv);
+				 * Hashtable<String, Object> charger = new Hashtable<>(); charger.put("enabled",
+				 * true); charger.put("core.id", "kacoCore0"); charger.put("id", "charger0");
+				 * charger.put("alias", "PV"); factory.update(charger);
 				 */
-
-				// Create Charger
-				factory = cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.Charger", null);
-
-				Hashtable<String, Object> charger = new Hashtable<>();
-				charger.put("enabled", true);
-				charger.put("core.id", "kacoCore0");
-				charger.put("id", "charger0");
-				charger.put("alias", "PV");
-				factory.update(charger);
 
 			} else {
 				System.out.println("Kaco already active");

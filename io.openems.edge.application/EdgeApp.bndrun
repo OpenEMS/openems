@@ -187,6 +187,5 @@
 	javax.jmdns;version='[3.5.6,3.5.7)',\
 	org.apache.httpcomponents.httpclient;version='[4.5.13,4.5.14)',\
 	io.openems.edge.controller.ess.hybrid.surplusfeedtogrid;version=snapshot,\
-	org.apache.commons.commons-codec;version='[1.13.0,1.13.1)',\
-	org.apache.commons.vfs2;version='[2.7.0,2.7.1)',\
-	org.apache.servicemix.bundles.jsch;version='[0.1.55,0.1.56)'
+	org.apache.servicemix.bundles.jsch;version='[0.1.55,0.1.56)',\
+	org.apache.commons.codec;version='[1.11.0,1.11.1)'
