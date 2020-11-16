@@ -1097,7 +1097,7 @@ public abstract class DSPortAdapter {
 	 * they want to ensure exclusive use. If it is not called around several methods
 	 * then it will be called inside each method.
 	 *
-	 * @param blocking <code>true</code> if want to block waiting for an excluse
+	 * @param blocking <code>true</code> if want to block waiting for exclusive
 	 *                 access to the adapter
 	 * @return <code>true</code> if blocking was false and a exclusive session with
 	 *         the adapter was acquired

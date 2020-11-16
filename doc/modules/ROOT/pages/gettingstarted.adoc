@@ -144,7 +144,7 @@ INFO  [onent.AbstractOpenemsComponent] [meter0] Activate GridMeter [edge.simulat
 +
 NOTE: This setup causes the simulated grid-meter to take the standardized load-profiles data as input parameter.
 +
-NOTE: 'Acting' referrs to the fact, that this meter actively provides data - in opposite to a 'Reacting' device that is reacting on other components: for example the 'Simulator.EssSymmetric.Reacting' configured below.
+NOTE: 'Acting' refers to the fact, that this meter actively provides data - in opposite to a 'Reacting' device that is reacting on other components: for example the 'Simulator.EssSymmetric.Reacting' configured below.
 
 .. Configure a simulated reacting energy storage system: "Simulator EssSymmetric Reacting". The default values can be accepted without changes. (If you choose an other setup as the one described here you may have to create a new Datasource-Component and provide its ID here. The actual data is ignored, but the Datasource's Time-Delta value is required to calculate values with time-dependant units.)
 +

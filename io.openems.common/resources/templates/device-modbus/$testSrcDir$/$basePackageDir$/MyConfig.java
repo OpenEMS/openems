@@ -1,7 +1,6 @@
 package $basePackageName$;
 
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.MyConfig.Builder;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
@@ -10,6 +9,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String modbusId = null;
+		public int modbusUnitId;
 
 		private Builder() {
 		}
@@ -21,6 +21,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setModbusId(String modbusId) {
 			this.modbusId = modbusId;
+			return this;
+		}
+
+		public Builder setModbusUnitId(int modbusUnitId) {
+			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
 
@@ -53,6 +58,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String Modbus_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
+	}
+
+	@Override
+	public int modbusUnitId() {
+		return this.builder.modbusUnitId;
 	}
 
 }

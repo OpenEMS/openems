@@ -210,7 +210,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	), //
 	S_304(//
 			"Inclinometer Model", //
-			"Include to support orienation measurements", //
+			"Include to support orientation measurements", //
 			"", //
 			6, //
 			DefaultSunSpecModel.S304.values(), //
@@ -422,7 +422,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		UN(new PointImpl(//
 				"S2_UN", //
 				"UN", //
-				"Update Number.  Incrementing nunber each time the mappping is changed.  If the number is not changed from thelast reading the direct access to a specific offset will result in reading the same logical model as before.  Otherwise the entire model must be read to refresh the changes", //
+				"Update Number.  Incrementing number each time the mapping is changed.  If the number is not changed from the last reading the direct access to a specific offset will result in reading the same logical model as before.  Otherwise the entire model must be read to refresh the changes", //
 				"", //
 				PointType.UINT16, //
 				true, //
@@ -4064,7 +4064,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		AHR_RTG(new PointImpl(//
 				"S120_AHR_RTG", //
 				"AhrRtg", //
-				"The useable capacity of the battery.  Maximum charge minus minimum charge from a technology capability perspective (Amp-hour capacity rating).", //
+				"The usable capacity of the battery.  Maximum charge minus minimum charge from a technology capability perspective (Amp-hour capacity rating).", //
 				"", //
 				PointType.UINT16, //
 				false, //
@@ -10128,7 +10128,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		LAT(new PointImpl(//
 				"S305_LAT", //
 				"Lat", //
-				"Lattitude with seven degrees of precision", //
+				"Latitude with seven degrees of precision", //
 				"", //
 				PointType.INT32, //
 				false, //
@@ -10186,7 +10186,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		A(new PointImpl(//
 				"S306_A", //
 				"Amps", //
-				"Current measurment at reference point", //
+				"Current measurement at reference point", //
 				"", //
 				PointType.UINT16, //
 				false, //
@@ -10197,7 +10197,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		V(new PointImpl(//
 				"S306_V", //
 				"Voltage", //
-				"Voltage  measurment at reference point", //
+				"Voltage  measurement at reference point", //
 				"", //
 				PointType.UINT16, //
 				false, //
@@ -10208,7 +10208,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		TMP(new PointImpl(//
 				"S306_TMP", //
 				"Temperature", //
-				"Temperature measurment at reference point", //
+				"Temperature measurement at reference point", //
 				"", //
 				PointType.UINT16, //
 				false, //

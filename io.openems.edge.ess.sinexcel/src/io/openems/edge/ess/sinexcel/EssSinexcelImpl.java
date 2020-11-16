@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -88,7 +89,7 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 	/**
 	 * Helper wrapping class to handle listeners on battery Channels.
 	 */
-	private final ChannelHandler channelHandler = new ChannelHandler(this);
+	private final ChannelManager channelHandler = new ChannelManager(this);
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -113,8 +114,10 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
-				config.modbus_id());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
+				config.modbus_id())) {
+			return;
+		}
 		this.config = config;
 		this.inverterState = config.InverterState();
 
@@ -321,7 +324,7 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 //		return stateOff.isPresent() && stateOff.get();
 //	}
 
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 
 				new FC6WriteRegisterTask(0x028A, //
@@ -431,7 +434,7 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 						m(EssSinexcel.ChannelId.DC_VOLTAGE, new UnsignedWordElement(0x0257),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						new DummyRegisterElement(0x0258, 0x0259), //
-						m(EssSinexcel.ChannelId.SINEXCEL_STATE, new UnsignedWordElement(0x0260))), //
+						m(EssSinexcel.ChannelId.SINEXCEL_STATE, new UnsignedWordElement(0x025A))), //
 
 				new FC3ReadRegistersTask(0x032D, Priority.LOW,
 						m(EssSinexcel.ChannelId.LOWER_VOLTAGE_LIMIT, new UnsignedWordElement(0x032D), //

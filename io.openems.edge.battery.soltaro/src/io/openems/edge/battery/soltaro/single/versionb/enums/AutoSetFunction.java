@@ -6,7 +6,7 @@ public enum AutoSetFunction implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	INIT_MODE(0x0, "Init mode"), //
 	START_AUTO_SETTING(0x1, "Start auto setting"), //
-	SUCCES(0x2, "Success"), //
+	SUCCESS(0x2, "Success"), //
 	FAILURE(0x3, "Failure");
 
 	private final int value;

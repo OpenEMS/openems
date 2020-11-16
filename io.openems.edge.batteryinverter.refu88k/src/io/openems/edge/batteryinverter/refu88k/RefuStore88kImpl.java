@@ -110,9 +110,11 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
-				config.modbus_id()); //
+	void activate(ComponentContext context, Config config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
+				config.modbus_id())) {
+			return;
+		}
 		this.config = config;
 		this.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
@@ -216,7 +218,7 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 	private final static int SUNSPEC_64800 = 40225; // MESA-PCS Extensions
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() { // Register
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException { // Register
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(SUNSPEC_1, Priority.ONCE, //
 						m(RefuStore88kChannelId.ID_1, new UnsignedWordElement(SUNSPEC_1)), // 40002

@@ -27,7 +27,7 @@ export class ConsumptionChartOverviewComponent {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.service.getConfig().then(config => {
                 this.edge = edge;
-                this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion'))
+                this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption'))
                 this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED');
                 // determine if singlechart is the only chart that is shown
                 // disable total option to choose for chartoptions component

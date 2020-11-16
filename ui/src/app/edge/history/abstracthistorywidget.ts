@@ -81,7 +81,7 @@ export abstract class AbstractHistoryWidget {
     // }
 
     /**
-     * Gets the ChannelAdresses that should be queried.
+     * Gets the ChannelAddresses that should be queried.
      * 
      * @param edge the current Edge
      * @param config the EdgeConfig

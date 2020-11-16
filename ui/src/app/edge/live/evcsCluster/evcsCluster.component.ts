@@ -18,7 +18,7 @@ export class EvcsClusterComponent {
   public edge: Edge = null;
   public config: EdgeConfig.Component = new EdgeConfig.Component;
 
-  public channelAdresses = [];
+  public channelAddresses = [];
   public evcssInCluster: EdgeConfig.Component[] = [];
   public evcsMap: { [sourceId: string]: EdgeConfig.Component } = {};
 
@@ -59,11 +59,11 @@ export class EvcsClusterComponent {
         for (let component of config.getComponentsImplementingNature(nature)) {
           if (evcsIdsInCluster.includes(component.id)) {
             this.evcssInCluster.push(component);
-            this.fillChannelAdresses(component.id);
+            this.fillChannelAddresses(component.id);
           }
         }
 
-        this.edge.subscribeChannels(this.websocket, "evcs", this.channelAdresses);
+        this.edge.subscribeChannels(this.websocket, "evcs", this.channelAddresses);
 
         //Initialise the Map with all evcss
         this.evcssInCluster.forEach(evcs => {
@@ -83,8 +83,8 @@ export class EvcsClusterComponent {
     });
   }
 
-  private fillChannelAdresses(componentId: string) {
-    this.channelAdresses.push(
+  private fillChannelAddresses(componentId: string) {
+    this.channelAddresses.push(
       new ChannelAddress(componentId, 'ChargePower'),
       new ChannelAddress(componentId, 'MaximumHardwarePower'),
       new ChannelAddress(componentId, 'MinimumHardwarePower'),
