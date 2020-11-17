@@ -48,7 +48,6 @@
 	bnd.identity;id='io.openems.edge.controller.asymmetric.fixreactivepower',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.phaserectification',\
-	bnd.identity;id='io.openems.edge.controller.battery.batteryprotection',\
 	bnd.identity;id='io.openems.edge.controller.channelthreshold',\
 	bnd.identity;id='io.openems.edge.controller.chp.soc',\
 	bnd.identity;id='io.openems.edge.controller.debug.detailedlog',\
@@ -91,7 +90,6 @@
 	bnd.identity;id='io.openems.edge.ess.fenecon.commercial40',\
 	bnd.identity;id='io.openems.edge.ess.generic',\
 	bnd.identity;id='io.openems.edge.ess.kaco.blueplanet.gridsave50',\
-	bnd.identity;id='io.openems.edge.ess.mr.gridcon',\
 	bnd.identity;id='io.openems.edge.ess.refu',\
 	bnd.identity;id='io.openems.edge.ess.sinexcel',\
 	bnd.identity;id='io.openems.edge.ess.sma',\
@@ -174,7 +172,6 @@
 	io.openems.edge.controller.asymmetric.fixreactivepower;version=snapshot,\
 	io.openems.edge.controller.asymmetric.peakshaving;version=snapshot,\
 	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
-	io.openems.edge.controller.battery.batteryprotection;version=snapshot,\
 	io.openems.edge.controller.channelthreshold;version=snapshot,\
 	io.openems.edge.controller.chp.soc;version=snapshot,\
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
@@ -218,7 +215,6 @@
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
 	io.openems.edge.ess.generic;version=snapshot,\
 	io.openems.edge.ess.kaco.blueplanet.gridsave50;version=snapshot,\
-	io.openems.edge.ess.mr.gridcon;version=snapshot,\
 	io.openems.edge.ess.refu;version=snapshot,\
 	io.openems.edge.ess.sinexcel;version=snapshot,\
 	io.openems.edge.ess.sma;version=snapshot,\
