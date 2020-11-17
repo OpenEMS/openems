@@ -48,7 +48,6 @@
 	bnd.identity;id='io.openems.edge.controller.asymmetric.fixreactivepower',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.phaserectification',\
-	bnd.identity;id='io.openems.edge.controller.battery.batteryprotection',\
 	bnd.identity;id='io.openems.edge.controller.channelthreshold',\
 	bnd.identity;id='io.openems.edge.controller.chp.soc',\
 	bnd.identity;id='io.openems.edge.controller.debug.detailedlog',\
@@ -64,7 +63,6 @@
 	bnd.identity;id='io.openems.edge.controller.ess.predictivedelaycharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.reactivepowervoltagecharacteristic',\
 	bnd.identity;id='io.openems.edge.controller.ess.selltogridlimit',\
-	bnd.identity;id='io.openems.edge.controller.ess.setpower',\
 	bnd.identity;id='io.openems.edge.controller.evcs',\
 	bnd.identity;id='io.openems.edge.controller.evcs.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.generic.jsonlogic',\
@@ -174,7 +172,6 @@
 	io.openems.edge.controller.asymmetric.fixreactivepower;version=snapshot,\
 	io.openems.edge.controller.asymmetric.peakshaving;version=snapshot,\
 	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
-	io.openems.edge.controller.battery.batteryprotection;version=snapshot,\
 	io.openems.edge.controller.channelthreshold;version=snapshot,\
 	io.openems.edge.controller.chp.soc;version=snapshot,\
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
@@ -190,7 +187,6 @@
 	io.openems.edge.controller.ess.predictivedelaycharge;version=snapshot,\
 	io.openems.edge.controller.ess.reactivepowervoltagecharacteristic;version=snapshot,\
 	io.openems.edge.controller.ess.selltogridlimit;version=snapshot,\
-	io.openems.edge.controller.ess.setpower;version=snapshot,\
 	io.openems.edge.controller.evcs;version=snapshot,\
 	io.openems.edge.controller.evcs.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.generic.jsonlogic;version=snapshot,\
