@@ -59,6 +59,15 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 					this.logInfo(this.log, "Identified Socomec Countis E24 meter");
 					this.identifiedCountisE23_E24();
 
+				// e27 and e28 are identical to e23 and e24, they just have a Modbus-TCP interface rather than modbus-RTU
+				} else if (name.startsWith("countis e27")) {
+					this.logInfo(this.log, "Identified Socomec Countis E27 meter");
+					this.identifiedCountisE23_E24();
+
+				} else if (name.startsWith("countis e28")) {
+					this.logInfo(this.log, "Identified Socomec Countis E28 meter");
+					this.identifiedCountisE23_E24();
+
 				} else if (name.startsWith("diris a-10") || name.startsWith("diris a10")) {
 					this.logInfo(this.log, "Identified Socomec Diris A10 meter");
 					this.identifiedDirisA10();
