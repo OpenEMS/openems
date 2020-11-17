@@ -6,9 +6,9 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
+	io.openems.edge.battery.api,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
-	io.openems.edge.battery.api,\
 	io.openems.edge.ess.api
 
 -testpath: \
