@@ -12,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String modbusId = null;
 		public int modbusUnitId;
 		public MeterType type;
+		public boolean invert;
 
 		private Builder() {
 		}
@@ -65,6 +66,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;
+	}
+
+	@Override
+	public boolean invert() {
+		return this.builder.invert;
 	}
 
 	@Override
