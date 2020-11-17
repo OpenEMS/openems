@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "EVCS Cluster Self Consumtion", //
+		name = "EVCS Cluster Self Consumption", //
 		description = "Limits the maximum charging power of all electric vehicle "
 				+ "charging stations, depending on the ecxess power.")
 @interface ConfigSelfConsumption {
@@ -31,6 +31,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
 	String ess_id() default "ess0";
 
-	String webconsole_configurationFactory_nameHint() default "EVCS Cluster Self Consumtion [{id}]";
+	String webconsole_configurationFactory_nameHint() default "EVCS Cluster Self Consumption [{id}]";
 
 }

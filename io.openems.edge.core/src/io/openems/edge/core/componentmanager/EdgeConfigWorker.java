@@ -149,9 +149,13 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	 */
 	private EdgeConfig buildNewEdgeConfig() {
 		EdgeConfig result = new EdgeConfig();
-		this.readFactories(result);
-		this.readConfigurations(result, null /* no filter: read all */);
-		this.readComponents(result);
+		try {
+			this.readFactories(result);
+			this.readConfigurations(result, null /* no filter: read all */);
+			this.readComponents(result);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 		return result;
 	}
 
@@ -399,6 +403,9 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 		final Bundle[] bundles = this.parent.bundleContext.getBundles();
 		for (Bundle bundle : bundles) {
 			final MetaTypeInformation mti = this.parent.metaTypeService.getMetaTypeInformation(bundle);
+			if (mti == null) {
+				continue;
+			}
 
 			// read Bundle Manifest
 			URL manifestUrl = bundle.getResource("META-INF/MANIFEST.MF");

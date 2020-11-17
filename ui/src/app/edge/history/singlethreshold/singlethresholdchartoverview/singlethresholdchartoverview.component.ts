@@ -1,6 +1,6 @@
+import { ActivatedRoute } from '@angular/router';
 import { Component } from '@angular/core';
 import { Service, Utils, EdgeConfig, Edge } from '../../../../shared/shared';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: SinglethresholdChartOverviewComponent.SELECTOR,
@@ -15,7 +15,7 @@ export class SinglethresholdChartOverviewComponent {
     public component: EdgeConfig.Component = null;
     public inputChannel: string;
 
-    // referene to the Utils method to access via html
+    // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
     constructor(

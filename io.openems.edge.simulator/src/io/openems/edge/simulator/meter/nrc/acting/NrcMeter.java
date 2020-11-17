@@ -18,6 +18,7 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.Unit;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -119,7 +120,8 @@ public class NrcMeter extends AbstractOpenemsComponent
 		/*
 		 * get and store Simulated Active Power
 		 */
-		Integer simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER, this.id() + "/ActivePower");
+		Integer simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER,
+				new ChannelAddress(this.id(), "ActivePower"));
 		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
 		this._setActivePower(simulatedActivePower);
 

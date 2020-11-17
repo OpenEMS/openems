@@ -85,8 +85,7 @@ public class SetPowerTest {
 		new ControllerTest(controller, componentManager, controller, essComponent, meter) //
 				.next(new TestCase() //
 						.input(input0, 50) //
-						.output(output0, 50)) //
-				.run();
+						.output(output0, 50)); //
 	}
 
 }

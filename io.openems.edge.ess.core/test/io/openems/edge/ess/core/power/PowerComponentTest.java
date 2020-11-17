@@ -50,8 +50,9 @@ public class PowerComponentTest {
 						.setEnablePid(false) //
 						.build()); //
 
-		expect("#10", ess0, 5000, 0);
+		expect("#10", ess0, 5000, 3000);
 		ess0.addPowerConstraint("", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 5000);
+		ess0.addPowerConstraint("", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 3000);
 		componentTest.next(new TestCase());
 	}
 
@@ -74,10 +75,13 @@ public class PowerComponentTest {
 						.setEnablePid(false) //
 						.build()); //
 
-		expect("#1", ess0, 5000, 0, 5000, 0, 5000, 0);
+		expect("#1", ess0, 5000, 3333, 5000, 3333, 5000, 3334);
 		ess0.addPowerConstraint("", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 15000);
+		ess0.addPowerConstraint("", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 10000);
 		ess0.addPowerConstraint("", Phase.L1, Pwr.ACTIVE, Relationship.EQUALS, 5000);
+		ess0.addPowerConstraint("", Phase.L1, Pwr.REACTIVE, Relationship.EQUALS, 3333);
 		ess0.addPowerConstraint("", Phase.L2, Pwr.ACTIVE, Relationship.EQUALS, 5000);
+		ess0.addPowerConstraint("", Phase.L2, Pwr.REACTIVE, Relationship.EQUALS, 3333);
 		componentTest.next(new TestCase());
 	}
 
@@ -100,8 +104,9 @@ public class PowerComponentTest {
 						.setEnablePid(false) //
 						.build()); //
 
-		expect("#1", ess0, 5000, 0, 5000, 0, 5000, 0);
+		expect("#1", ess0, 5000, 3000, 5000, 3000, 5000, 3000);
 		ess0.addPowerConstraint("", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 15000);
+		ess0.addPowerConstraint("", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 9000);
 		componentTest.next(new TestCase());
 	}
 
@@ -132,64 +137,74 @@ public class PowerComponentTest {
 						.build()); //
 
 		// #1
-		expect("#1", ess1, -5000, 0);
+		expect("#1", ess1, -5000, -3000);
 		expect("#1", ess2, -0, 0);
 		ess0.addPowerConstraint("#1", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -5000);
+		ess0.addPowerConstraint("#1", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -3000);
 		ess1.withSoc(80); // this is for test #2
 		componentTest.next(new TestCase("#1"));
 
 		// #2
-		expect("#2", ess1, -4697, 0);
-		expect("#2", ess2, -302, 0);
+		expect("#2", ess1, -4697, -2818);
+		expect("#2", ess2, -302, -181);
 		ess0.addPowerConstraint("#2", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -5000);
+		ess0.addPowerConstraint("#2", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -3000);
 		componentTest.next(new TestCase("#2"));
 
 		// #3
-		expect("#3", ess1, -4429, 0);
-		expect("#3", ess2, -570, 0);
+		expect("#3", ess1, -4429, -2657);
+		expect("#3", ess2, -570, -342);
 		ess0.addPowerConstraint("#3", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -5000);
+		ess0.addPowerConstraint("#3", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -3000);
 		componentTest.next(new TestCase("#3"));
 
 		// #4
-		expect("#4", ess1, -4190, 0);
-		expect("#4", ess2, -809, 0);
+		expect("#4", ess1, -4190, -2514);
+		expect("#4", ess2, -809, -485);
 		ess0.addPowerConstraint("#4", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -5000);
+		ess0.addPowerConstraint("#4", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -3000);
 		componentTest.next(new TestCase("#4"));
 
 		// #5
-		expect("#5", ess1, -3976, 0);
-		expect("#5", ess2, -1023, 0);
+		expect("#5", ess1, -3976, -2385);
+		expect("#5", ess2, -1023, -614);
 		ess0.addPowerConstraint("#5", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -5000);
+		ess0.addPowerConstraint("#5", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -3000);
 		componentTest.next(new TestCase("#5"));
 
 		// #6
-		expect("#6", ess1, -3782, 0);
-		expect("#6", ess2, -1217, 0);
+		expect("#6", ess1, -3782, -2269);
+		expect("#6", ess2, -1217, -730);
 		ess0.addPowerConstraint("#6", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -5000);
+		ess0.addPowerConstraint("#6", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -3000);
 		componentTest.next(new TestCase("#6"));
 
 		// #7
-		expect("#7", ess1, -3606, 0);
-		expect("#7", ess2, -1393, 0);
+		expect("#7", ess1, -3606, -2164);
+		expect("#7", ess2, -1393, -835);
 		ess0.addPowerConstraint("#7", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -5000);
+		ess0.addPowerConstraint("#7", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -3000);
 		componentTest.next(new TestCase("#7"));
 
 		// #8
-		expect("#8", ess1, -3446, 0);
-		expect("#8", ess2, -1553, 0);
+		expect("#8", ess1, -3446, -2067);
+		expect("#8", ess2, -1553, -932);
 		ess0.addPowerConstraint("#8", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -5000);
+		ess0.addPowerConstraint("#8", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -3000);
 		componentTest.next(new TestCase("#8"));
 
 		// #9
-		expect("#9", ess1, -3300, 0);
-		expect("#9", ess2, -1699, 0);
+		expect("#9", ess1, -3300, -1980);
+		expect("#9", ess2, -1699, -1019);
 		ess0.addPowerConstraint("#9", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -5000);
+		ess0.addPowerConstraint("#9", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -3000);
 		componentTest.next(new TestCase("#9"));
 
 		// #10
-		expect("#10", ess1, -3165, 0);
-		expect("#10", ess2, -1834, 0);
+		expect("#10", ess1, -3165, -1899);
+		expect("#10", ess2, -1834, -1100);
 		ess0.addPowerConstraint("#10", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -5000);
+		ess0.addPowerConstraint("#10", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -3000);
 		componentTest.next(new TestCase("#10"));
 
 		ess1.withSymmetricApplyPowerCallback(null);
@@ -207,9 +222,10 @@ public class PowerComponentTest {
 
 		// #20
 		expect("#20", ess1, -0, 0);
-		expect("#20", ess2, -5000, 0);
-		ess0.addPowerConstraint("#10", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -5000);
-		componentTest.next(new TestCase("#10"));
+		expect("#20", ess2, -5000, -3000);
+		ess0.addPowerConstraint("#20", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -5000);
+		ess0.addPowerConstraint("#20", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -3000);
+		componentTest.next(new TestCase("#20"));
 	}
 
 	@Test
@@ -270,41 +286,50 @@ public class PowerComponentTest {
 		expect("#1", ess5, 10062, 0); // largest SoC
 		expect("#1", ess6, 9986, 0); // second largest SoC
 		ess0.addPowerConstraint("#1", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 30000);
+		ess0.addPowerConstraint("#1", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
 		componentTest.next(new TestCase("#1"));
 
 		// #2
 		expect("#2", ess1, 0, 0);
-		expect("#2", ess2, 8257, 0); // third largest SoC
+		expect("#2", ess2, 8257, 4954); // third largest SoC
 		expect("#2", ess3, 0, 0);
 		expect("#2", ess4, 0, 0);
-		expect("#2", ess5, 8435, 0); // largest SoC
-		expect("#2", ess6, 8310, 0); // second largest SoC
+		expect("#2", ess5, 8435, 5061); // largest SoC
+		expect("#2", ess6, 8310, 4986); // second largest SoC
 		ess0.addPowerConstraint("#2", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 25000);
+		ess0.addPowerConstraint("#2", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 15000);
 		componentTest.next(new TestCase("#2"));
 
 		// #3
 		expect("#3", ess1, 0, 0);
-		expect("#3", ess2, 1634, 0); // third largest SoC
+		expect("#3", ess2, 1634, 654); // third largest SoC
 		expect("#3", ess3, 0, 0);
 		expect("#3", ess4, 0, 0);
-		expect("#3", ess5, 1723, 0); // largest SoC
-		expect("#3", ess6, 1644, 0); // second largest SoC
+		expect("#3", ess5, 1723, 689); // largest SoC
+		expect("#3", ess6, 1644, 658); // second largest SoC
 		ess0.addPowerConstraint("#3", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 5000);
+		ess0.addPowerConstraint("#3", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 2000);
 		componentTest.next(new TestCase("#3"));
 
 		// #4 not strictly defined force charge
-		expect("#4", ess1, -2000, 0);
-		expect("#4", ess2, -2000, 0);
-		expect("#4", ess3, -2000, 0);
-		expect("#4", ess4, -2000, 0);
-		expect("#4", ess5, -2000, 0); // largest SoC
-		expect("#4", ess6, -2000, 0); // second largest SoC
+		expect("#4", ess1, -2000, -1000);
+		expect("#4", ess2, -2000, -1000);
+		expect("#4", ess3, -2000, -1000);
+		expect("#4", ess4, -2000, -1000);
+		expect("#4", ess5, -2000, -1000); // largest SoC
+		expect("#4", ess6, -2000, -1000); // second largest SoC
 		ess1.addPowerConstraint("#4", Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
 		ess2.addPowerConstraint("#4", Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
 		ess3.addPowerConstraint("#4", Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
 		ess4.addPowerConstraint("#4", Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
 		ess5.addPowerConstraint("#4", Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
 		ess6.addPowerConstraint("#4", Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		ess1.addPowerConstraint("#4", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -1000);
+		ess2.addPowerConstraint("#4", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -1000);
+		ess3.addPowerConstraint("#4", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -1000);
+		ess4.addPowerConstraint("#4", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -1000);
+		ess5.addPowerConstraint("#4", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -1000);
+		ess6.addPowerConstraint("#4", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, -1000);
 		componentTest.next(new TestCase("#4"));
 	}
 

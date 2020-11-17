@@ -30,4 +30,5 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 		assert false;
 		return State.UNDEFINED; // can never happen
 	}
+
 }

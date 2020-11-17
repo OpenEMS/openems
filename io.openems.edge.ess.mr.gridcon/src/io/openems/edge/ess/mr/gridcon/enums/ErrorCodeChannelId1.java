@@ -407,7 +407,7 @@ public enum ErrorCodeChannelId1 implements ChannelId {
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
 			.needsHardReset(true) //
 			.code(0x01000F) //
-			.text("Array oveflow")),
+			.text("Array overflow")),
 	STATE_AUTONOM_TEST_SW_SOFTWARE_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.UNDEFINED) //
 			.reactionLevel(ReactionLevel.INFO) //
@@ -437,7 +437,7 @@ public enum ErrorCodeChannelId1 implements ChannelId {
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
 			.needsHardReset(false) //
 			.code(0x010014) //
-			.text("voltage sync not succedded")),
+			.text("voltage sync not succeeded")),
 	STATE_VOLTAGE_NOT_OK_FOR_SYNC_V_SOFTWARE_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.UNDEFINED) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
@@ -455,7 +455,7 @@ public enum ErrorCodeChannelId1 implements ChannelId {
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
 			.needsHardReset(false) //
 			.code(0x010017) //
-			.text("FRT Error occured")),
+			.text("FRT Error occurred")),
 	STATE_IDC_OVERCURRENT_SOFTWARE_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.UNDEFINED) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //

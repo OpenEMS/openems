@@ -23,7 +23,7 @@ public @interface Config {
 	@AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stop?")
 	StartStopConfig startStop() default StartStopConfig.AUTO;
 
-	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige; ! Soltaro Cluster needs baudrate of 57600 !")
+	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge; ! Soltaro Cluster needs baudrate of 57600 !")
 	String modbus_id() default "modbus0";
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")

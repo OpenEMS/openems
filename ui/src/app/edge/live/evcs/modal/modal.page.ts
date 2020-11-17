@@ -1,9 +1,9 @@
+import { AdministrationComponent } from './administration/administration.component';
 import { Component, OnInit, Input } from '@angular/core';
 import { EvcsPopoverComponent } from './popover/popover.page';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Websocket, Service, EdgeConfig, Edge } from 'src/app/shared/shared';
-import { AdministrationComponent } from './administration/administration.component';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER' | 'OFF';
 type Priority = 'CAR' | 'STORAGE';
@@ -223,7 +223,7 @@ export class EvcsModalComponent implements OnInit {
   }
 
   /**
-  * uptdate the state of the toggle whitch renders the minimum charge power
+  * update the state of the toggle which renders the minimum charge power
   * 
   * @param event 
   */
@@ -277,7 +277,7 @@ export class EvcsModalComponent implements OnInit {
   }
 
   /**
-   * uptdate the state of the toggle whitch renders the minimum charge power
+   * update the state of the toggle which renders the minimum charge power
    * 
    * @param event 
    * @param phases 

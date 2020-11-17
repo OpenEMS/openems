@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,12 +24,14 @@ import org.osgi.service.event.EventHandler;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.OptionsEnum;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.type.TypeUtils;
 
 /**
  * Provides a test framework for OpenEMS Components.
@@ -166,26 +169,24 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				Object expected = output.value;
 				Channel<?> channel = components.get(output.address.getComponentId())
 						.channel(output.address.getChannelId());
-				if (expected instanceof OptionsEnum) {
-					expected = ((OptionsEnum) expected).getValue();
-				}
 				Object got;
-				String gotText;
 				if (channel instanceof WriteChannel) {
-					got = ((WriteChannel<?>) channel).getNextWriteValue().orElse(null);
-					gotText = Objects.toString(got);
+					got = ((WriteChannel<?>) channel).getNextWriteValueAndReset().orElse(null);
 				} else {
 					Value<?> value = channel.getNextValue();
 					got = value.orElse(null);
-					gotText = value.asOptionString();
-					if (gotText.isEmpty()) {
-						gotText = Objects.toString(got);
-					}
+				}
+
+				// Try to parse an Enum
+				if (channel.channelDoc() instanceof EnumDoc) {
+					EnumDoc enumDoc = (EnumDoc) channel.channelDoc();
+					Integer intGot = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, got);
+					got = enumDoc.getOption(intGot);
 				}
 				if (!Objects.equals(expected, got)) {
 					throw new Exception("On TestCase [" + this.description + "]: " //
 							+ "expected [" + output.value + "] " //
-							+ "got [" + gotText + "] " //
+							+ "got [" + got + "] " //
 							+ "for Channel [" + output.address.toString() + "] " //
 							+ "on Inputs [" + this.inputs + "]");
 				}
@@ -257,6 +258,13 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		// If this is an OpenemsComponent -> store it for later
 		if (object instanceof OpenemsComponent) {
 			this.addComponent((OpenemsComponent) object);
+		}
+		if (object instanceof Collection<?>) {
+			for (Object o : (Collection<?>) object) {
+				if (o instanceof OpenemsComponent) {
+					this.addComponent((OpenemsComponent) o);
+				}
+			}
 		}
 		return this.self();
 	}
@@ -448,14 +456,6 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE);
 		testCase.validateOutputs(this.components);
 		return this.self();
-	}
-
-	/**
-	 * TODO: remove: Test-Cases are now executed directly on adding via
-	 * {@link #next(TestCase)}.
-	 */
-	public void run() {
-
 	}
 
 	/**

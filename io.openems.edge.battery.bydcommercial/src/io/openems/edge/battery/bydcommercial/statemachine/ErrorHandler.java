@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.bydcommercial.PreChargeControl;
+import io.openems.edge.battery.bydcommercial.PowerCircuitControl;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
@@ -17,7 +17,7 @@ public class ErrorHandler extends StateHandler<State, Context> {
 		this.entryAt = Instant.now();
 
 		// Try to stop system
-		context.component.setPreChargeControl(PreChargeControl.SWITCH_OFF);
+		context.component._setPowerCircuitControl(PowerCircuitControl.SWITCH_OFF);
 	}
 
 	@Override

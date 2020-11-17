@@ -10,6 +10,8 @@ import { ChpSocComponent } from './chpsoc/chpsoc.component';
 import { ChpsocModalComponent } from './chpsoc/modal/modal.component';
 import { ConsumptionComponent } from './consumption/consumption.component';
 import { ConsumptionModalComponent } from './consumption/modal/modal.component';
+import { DigitalInputComponent } from './digitalinput/digitalinput.component';
+import { DigitalInputModalComponent } from './digitalinput/modal/modal.component';
 import { EnergymonitorModule } from './energymonitor/energymonitor.module';
 import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';
 import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
@@ -63,6 +65,8 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     SinglethresholdModalComponent,
     StorageModalComponent,
     SymmetricPeakshavingModalComponent,
+    DigitalInputComponent,
+    DigitalInputModalComponent,
   ],
   declarations: [
     AdministrationComponent,
@@ -101,6 +105,8 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     StorageModalComponent,
     SymmetricPeakshavingComponent,
     SymmetricPeakshavingModalComponent,
+    DigitalInputComponent,
+    DigitalInputModalComponent,
   ]
 })
 export class LiveModule { }

@@ -103,7 +103,7 @@ public interface PotentiometerContainer extends OneWireSensor {
 	// --------
 
 	/**
-	 * Querys to see if this Potentiometer 1-Wire Device has linear potentiometer
+	 * Queries to see if this Potentiometer 1-Wire Device has linear potentiometer
 	 * element(s) or logarithmic potentiometer element(s).
 	 *
 	 * @param state state buffer of the Potentiometer 1-Wire Device (returned by
@@ -115,7 +115,7 @@ public interface PotentiometerContainer extends OneWireSensor {
 	public boolean isLinear(byte[] state);
 
 	/**
-	 * Querys to see if this Potentiometer 1-Wire Device's wiper settings are
+	 * Queries to see if this Potentiometer 1-Wire Device's wiper settings are
 	 * volatile or non-volatile.
 	 *
 	 * @param state state buffer of the Potentiometer 1-Wire Device (returned by
@@ -126,7 +126,7 @@ public interface PotentiometerContainer extends OneWireSensor {
 	public boolean wiperSettingsAreVolatile(byte[] state);
 
 	/**
-	 * Querys to see how many potentiometers this Potentiometer 1-Wire Device has.
+	 * Queries to see how many potentiometers this Potentiometer 1-Wire Device has.
 	 *
 	 * @param state state buffer of the Potentiometer 1-Wire Device (returned by
 	 *              <CODE>readDevice()</CODE>)
@@ -135,7 +135,7 @@ public interface PotentiometerContainer extends OneWireSensor {
 	public int numberOfPotentiometers(byte[] state);
 
 	/**
-	 * Querys to find the number of wiper settings that any wiper on this
+	 * Queries to find the number of wiper settings that any wiper on this
 	 * Potentiometer 1-Wire Device can have.
 	 *
 	 * @param state state buffer of the Potentiometer 1-Wire Device (returned by
@@ -145,7 +145,7 @@ public interface PotentiometerContainer extends OneWireSensor {
 	public int numberOfWiperSettings(byte[] state);
 
 	/**
-	 * Querys to find the resistance value of the potentiometer.
+	 * Queries to find the resistance value of the potentiometer.
 	 *
 	 * @param state state buffer of the Potentiometer 1-Wire Device (returned by
 	 *              <CODE>readDevice()</CODE>)

@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.bmw.enums.BmsState;
 import io.openems.edge.battery.bmw.enums.State;
@@ -43,6 +44,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
@@ -53,7 +55,7 @@ import io.openems.edge.common.taskmanager.Priority;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
 public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
-		implements BmwBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave {
+		implements BmwBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	private final Logger log = LoggerFactory.getLogger(BmwBatteryImpl.class);
 
@@ -89,10 +91,12 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
 	}
 
 	private void handleStateMachine() {
@@ -335,7 +339,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 
 		return new ModbusProtocol(this, //
 

@@ -34,7 +34,6 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart implemen
         this.spinnerId = 'production-meter-chart';
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh()
     }
 
     ngOnDestroy() {
@@ -42,6 +41,7 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart implemen
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.loading = true;
         this.service.startSpinner(this.spinnerId);
         this.colors = [];

@@ -15,6 +15,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -33,7 +34,8 @@ import io.openems.edge.io.api.DigitalOutput;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "IO.KMtronic", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implements DigitalOutput, OpenemsComponent, ModbusSlave {
+public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent
+		implements DigitalOutput, OpenemsComponent, ModbusSlave {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -64,9 +66,11 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id());
+	void activate(ComponentContext context, Config config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
 	}
 
 	@Deactivate
@@ -75,7 +79,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				/*
 				 * For Read: Read Coils
@@ -130,7 +134,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		}
 		return b.toString();
 	}
-	
+
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //

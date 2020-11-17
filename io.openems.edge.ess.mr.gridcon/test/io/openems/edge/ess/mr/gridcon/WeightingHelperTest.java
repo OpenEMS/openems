@@ -9,7 +9,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.ess.mr.gridcon.WeightingHelper;
 import io.openems.edge.ess.mr.gridcon.helper.DummyBattery;
 
 public class WeightingHelperTest {

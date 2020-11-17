@@ -26,7 +26,7 @@ public @interface Config {
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
 	String modbus_id() default "modbus0";
 
-	@AttributeDefinition(name = "Modbus-Unit-ID", description = "Unit ID of Modbus brige.")
+	@AttributeDefinition(name = "Modbus-Unit-ID", description = "Unit ID of Modbus bridge.")
 	int unit_id() default 0;
 
 	@AttributeDefinition(name = "Efficieny Factor Discharge", description = "Allowed Power at inverter is decreased with this factor")

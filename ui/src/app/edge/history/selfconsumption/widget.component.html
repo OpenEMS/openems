@@ -8,7 +8,7 @@
     <ion-card-content>
         <table class="full_width">
             <tr>
-                <td style="width:100%" *ngIf="edge && service.isKwhAllowed(edge); else noData">
+                <td style="width:100%" *ngIf="selfconsumptionValue && edge && service.isKwhAllowed(edge); else noData">
                     <percentagebar [value]="selfconsumptionValue">
                     </percentagebar>
                 </td>

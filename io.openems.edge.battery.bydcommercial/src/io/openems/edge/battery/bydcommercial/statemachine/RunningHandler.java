@@ -1,6 +1,6 @@
 package io.openems.edge.battery.bydcommercial.statemachine;
 
-import io.openems.edge.battery.bydcommercial.PreChargeControl;
+import io.openems.edge.battery.bydcommercial.PowerCircuitControl;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
@@ -13,7 +13,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 			return State.UNDEFINED;
 		}
 
-		if (context.component.getPreChargeControl() != PreChargeControl.RUNNING) {
+		if (context.component.getPowerCircuitControl() != PowerCircuitControl.SWITCH_ON) {
 			return State.UNDEFINED;
 		}
 

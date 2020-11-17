@@ -5,7 +5,6 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class StoppedHandler extends StateHandler<State, Context> {
-
 	@Override
 	public State runAndGetNextState(Context context) {
 		// Mark as stopped
@@ -13,6 +12,4 @@ public class StoppedHandler extends StateHandler<State, Context> {
 
 		return State.STOPPED;
 	}
-
 }
-

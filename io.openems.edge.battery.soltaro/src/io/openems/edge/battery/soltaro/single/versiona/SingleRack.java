@@ -25,6 +25,7 @@ import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
@@ -113,10 +114,12 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
 		this.modbusBridgeId = config.modbus_id();
 		this.batteryState = config.batteryState();
 		this._setCapacity(config.capacity() * 1000);
@@ -1100,7 +1103,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC6WriteRegisterTask(0x2010, //
 						m(SingleRack.ChannelId.BMS_CONTACTOR_CONTROL, new UnsignedWordElement(0x2010)) //

@@ -1,6 +1,5 @@
 package io.openems.edge.controller.ess.predictivedelaycharge;
 
-import java.time.Clock;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
@@ -20,8 +19,6 @@ import io.openems.edge.predictor.api.ConsumptionHourlyPredictor;
 import io.openems.edge.predictor.api.ProductionHourlyPredictor;
 
 public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsComponent implements OpenemsComponent {
-
-	private final Clock clock;
 
 	/**
 	 * The number of buffer hours to make sure the battery still charges full, even
@@ -58,16 +55,11 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 	}
 
 	protected AbstractPredictiveDelayCharge() {
-		this(Clock.systemDefaultZone());
-	}
-
-	protected AbstractPredictiveDelayCharge(Clock clock) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ChannelId.values()//
 		);
-		this.clock = clock;
 	}
 
 	protected void activate(ComponentContext context, String id, String alias) {
@@ -106,7 +98,8 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 			ConsumptionHourlyPredictor consumptionHourlyPredictor, ComponentManager componentManager)
 			throws OpenemsNamedException {
 
-		ZonedDateTime now = ZonedDateTime.now(this.clock).withZoneSameInstant(ZoneOffset.UTC);
+		ZonedDateTime now = ZonedDateTime.now(this.getComponentManager().getClock())
+				.withZoneSameInstant(ZoneOffset.UTC);
 
 		Integer calculatedPower = null;
 
@@ -130,8 +123,8 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 			ZonedDateTime predictionStartHour = productionHourlyPredictor.get24hPrediction().getStart();
 
 			// For Debug Purpose
-			hourlyProduction = this.hourlyProduction;
-			hourlyConsumption = this.hourlyConsumption;
+			this.hourlyProduction = hourlyProduction;
+			this.hourlyConsumption = hourlyConsumption;
 
 			// calculating target hour
 			this.targetHour = this.calculateTargetHour(hourlyProduction, hourlyConsumption, predictionStartHour);
@@ -272,4 +265,6 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 				.channel(AbstractPredictiveDelayCharge.ChannelId.CHARGE_POWER_LIMIT);
 		chargePowerLimitChannel.setNextValue(limit);
 	}
+
+	protected abstract ComponentManager getComponentManager();
 }

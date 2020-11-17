@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.bydcommercial.PreChargeControl;
+import io.openems.edge.battery.bydcommercial.PowerCircuitControl;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.battery.bydcommercial.utils.Constants;
 import io.openems.edge.common.statemachine.StateHandler;
@@ -22,9 +22,9 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		PreChargeControl preChargeControl = context.component.getPreChargeControl();
+		PowerCircuitControl powerCircuitControl = context.component.getPowerCircuitControl();
 
-		if (preChargeControl == PreChargeControl.SWITCH_OFF) {
+		if (powerCircuitControl == PowerCircuitControl.SWITCH_OFF) {
 			return State.STOPPED;
 		}
 
@@ -40,7 +40,7 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 			} else {
 				// Trying to switch off
-				context.component.setPreChargeControl(PreChargeControl.SWITCH_OFF);
+				context.component.setPowerCircuitControl(PowerCircuitControl.SWITCH_OFF);
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
 				return State.GO_STOPPED;

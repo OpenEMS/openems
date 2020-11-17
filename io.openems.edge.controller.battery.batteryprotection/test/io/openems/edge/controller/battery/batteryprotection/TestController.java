@@ -26,7 +26,7 @@ public class TestController {
 
 	@Test
 	public final void test() {
-		// TODO More tests and szenarios needed
+		// TODO More tests and scenarios needed
 		// Initialize Controller
 		BatteryProtectionController controller = new BatteryProtectionController();
 		// Add referenced services
@@ -49,7 +49,7 @@ public class TestController {
 //					.next(new TestCase() //
 //							.input(ctrl0MinCellVoltage, config.criticalLowCellVoltage() - 1) //
 //							.output(ctrl0State, State.FORCE_CHARGE.getValue())) //
-					.run();
+			;
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}

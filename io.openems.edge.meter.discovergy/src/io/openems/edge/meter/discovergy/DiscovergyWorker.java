@@ -78,19 +78,19 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 			if (System.currentTimeMillis() / 1000 - LAST_READING_TOO_OLD_SECONDS < time) {
 				// Values are valid
 				JsonObject values = JsonUtils.getAsJsonObject(reading, "values");
-				rawPower = JsonUtils.getAsInt(values, Field.POWER.n());
-				rawPower1 = JsonUtils.getAsInt(values, Field.POWER1.n());
-				rawPower2 = JsonUtils.getAsInt(values, Field.POWER2.n());
-				rawPower3 = JsonUtils.getAsInt(values, Field.POWER3.n());
-				rawVoltage1 = JsonUtils.getAsInt(values, Field.VOLTAGE1.n());
-				rawVoltage2 = JsonUtils.getAsInt(values, Field.VOLTAGE2.n());
-				rawVoltage3 = JsonUtils.getAsInt(values, Field.VOLTAGE3.n());
-				rawEnergy = JsonUtils.getAsLong(values, Field.ENERGY.n());
-				rawEnergy1 = JsonUtils.getAsLong(values, Field.ENERGY1.n());
-				rawEnergy2 = JsonUtils.getAsLong(values, Field.ENERGY2.n());
-				rawEnergyOut = JsonUtils.getAsLong(values, Field.ENERGY_OUT.n());
-				rawEnergyOut1 = JsonUtils.getAsLong(values, Field.ENERGY_OUT1.n());
-				rawEnergyOut2 = JsonUtils.getAsLong(values, Field.ENERGY_OUT2.n());
+				rawPower = JsonUtils.getAsOptionalInt(values, Field.POWER.n()).orElse(null);
+				rawPower1 = JsonUtils.getAsOptionalInt(values, Field.POWER1.n()).orElse(null);
+				rawPower2 = JsonUtils.getAsOptionalInt(values, Field.POWER2.n()).orElse(null);
+				rawPower3 = JsonUtils.getAsOptionalInt(values, Field.POWER3.n()).orElse(null);
+				rawVoltage1 = JsonUtils.getAsOptionalInt(values, Field.VOLTAGE1.n()).orElse(null);
+				rawVoltage2 = JsonUtils.getAsOptionalInt(values, Field.VOLTAGE2.n()).orElse(null);
+				rawVoltage3 = JsonUtils.getAsOptionalInt(values, Field.VOLTAGE3.n()).orElse(null);
+				rawEnergy = JsonUtils.getAsOptionalLong(values, Field.ENERGY.n()).orElse(null);
+				rawEnergy1 = JsonUtils.getAsOptionalLong(values, Field.ENERGY1.n()).orElse(null);
+				rawEnergy2 = JsonUtils.getAsOptionalLong(values, Field.ENERGY2.n()).orElse(null);
+				rawEnergyOut = JsonUtils.getAsOptionalLong(values, Field.ENERGY_OUT.n()).orElse(null);
+				rawEnergyOut1 = JsonUtils.getAsOptionalLong(values, Field.ENERGY_OUT1.n()).orElse(null);
+				rawEnergyOut2 = JsonUtils.getAsOptionalLong(values, Field.ENERGY_OUT2.n()).orElse(null);
 
 				lastReadingTooOld = false;
 

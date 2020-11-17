@@ -60,28 +60,28 @@ class UPacketBuilder {
 
 	// -------- DS9097U function commands
 
-	/** DS9097U funciton command, single bit */
+	/** DS9097U function command, single bit */
 	public static final char FUNCTION_BIT = 0x81;
 
-	/** DS9097U funciton command, turn search mode on */
+	/** DS9097U function command, turn search mode on */
 	public static final char FUNCTION_SEARCHON = 0xB1;
 
-	/** DS9097U funciton command, turn search mode off */
+	/** DS9097U function command, turn search mode off */
 	public static final char FUNCTION_SEARCHOFF = 0xA1;
 
-	/** DS9097U funciton command, OneWire reset */
+	/** DS9097U function command, OneWire reset */
 	public static final char FUNCTION_RESET = 0xC1;
 
-	/** DS9097U funciton command, 5V pulse imediate */
+	/** DS9097U function command, 5V pulse immediate */
 	public static final char FUNCTION_5VPULSE_NOW = 0xED;
 
-	/** DS9097U funciton command, 12V pulse imediate */
+	/** DS9097U function command, 12V pulse immediate */
 	public static final char FUNCTION_12VPULSE_NOW = 0xFD;
 
-	/** DS9097U funciton command, 5V pulse after next byte */
+	/** DS9097U function command, 5V pulse after next byte */
 	public static final char FUNCTION_5VPULSE_ARM = 0xEF;
 
-	/** DS9097U funciton command to stop an ongoing pulse */
+	/** DS9097U function command to stop an ongoing pulse */
 	public static final char FUNCTION_STOP_PULSE = 0xF1;
 
 	// -------- DS9097U bit polarity settings for doing bit operations
@@ -220,7 +220,7 @@ class UPacketBuilder {
 
 		packet.returnLength = 0;
 
-		// reset the return cound
+		// reset the return count
 		totalReturnLength = 0;
 	}
 
@@ -382,7 +382,7 @@ class UPacketBuilder {
 	 */
 	public int dataByte(char dataByteValue) {
 
-		// contruct a temporary array of characters of lenght 1
+		// construct a temporary array of characters of length 1
 		// to use the dataBytes method
 		char[] temp_char_array = new char[1];
 
@@ -583,7 +583,7 @@ class UPacketBuilder {
 		// set to command mode
 		setToCommandMode();
 
-		// append paramter get
+		// append parameter get
 		packet.buffer.append((char) (CONFIG_MASK | parameter >> 3));
 
 		// add to the return number of bytes
@@ -611,7 +611,7 @@ class UPacketBuilder {
 		// set to command mode
 		setToCommandMode();
 
-		// append the paramter set with value
+		// append the parameter set with value
 		packet.buffer.append((char) ((CONFIG_MASK | parameter) | parameterValue));
 
 		// add to the return number of bytes
@@ -640,7 +640,7 @@ class UPacketBuilder {
 		// set to command mode
 		setToCommandMode();
 
-		// append the paramter set with value
+		// append the parameter set with value
 		packet.buffer.append(command);
 
 		// check for response
@@ -894,7 +894,7 @@ class UPacketBuilder {
 	 *
 	 * @param bitBuffer array of chars where the bit to read is located
 	 * @param address   bit location to read (LSBit of first Byte in bitBuffer is
-	 *                  postion 0)
+	 *                  position 0)
 	 *
 	 * @return the boolean value of the bit position
 	 */
@@ -912,7 +912,7 @@ class UPacketBuilder {
 	 *
 	 * @param bitBuffer   array of chars where the bit to write is located
 	 * @param address     bit location to write (LSBit of first Byte in bitBuffer is
-	 *                    postion 0)
+	 *                    position 0)
 	 * @param newBitState new bit state
 	 */
 	public void bitWrite(char[] bitBuffer, int address, boolean newBitState) {
