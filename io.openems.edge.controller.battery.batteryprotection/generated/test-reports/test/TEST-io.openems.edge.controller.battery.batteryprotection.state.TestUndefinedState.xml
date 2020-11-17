@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.openems.edge.controller.battery.batteryprotection.state.TestUndefinedState" tests="5" skipped="0" failures="0" errors="0" timestamp="2020-11-17T21:59:18" hostname="FEN022" time="0.011">
+  <properties/>
+  <testcase name="testGetState" classname="io.openems.edge.controller.battery.batteryprotection.state.TestUndefinedState" time="0.007"/>
+  <testcase name="testAct" classname="io.openems.edge.controller.battery.batteryprotection.state.TestUndefinedState" time="0.001"/>
+  <testcase name="testGetNextStateNormal" classname="io.openems.edge.controller.battery.batteryprotection.state.TestUndefinedState" time="0.001"/>
+  <testcase name="testGetNextStateUndefinedMinCell" classname="io.openems.edge.controller.battery.batteryprotection.state.TestUndefinedState" time="0.001"/>
+  <testcase name="testGetNextStateUndefinedSoc" classname="io.openems.edge.controller.battery.batteryprotection.state.TestUndefinedState" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[[Test worker] INFO io.openems.edge.controller.battery.batteryprotection.state.Undefined - Nothing to do!
+]]></system-err>
+</testsuite>

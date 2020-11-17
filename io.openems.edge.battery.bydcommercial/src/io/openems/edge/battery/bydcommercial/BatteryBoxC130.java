@@ -841,7 +841,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 		ALARM_BCU_NTC(Doc.of(Level.WARNING) //
 				.text("BCU NTC Alarm")), //
 		ALARM_SLAVE_CONTROL_SUMMARY(Doc.of(Level.WARNING) //
-				.text("Slave Control Summary Alarm")), //
+				.text(" Slave Control Summary Alarm")), //
 		FAILURE_INITIALIZATION(Doc.of(Level.FAULT) //
 				.text("Initialization failure")), //
 		FAILURE_EEPROM(Doc.of(Level.FAULT) //

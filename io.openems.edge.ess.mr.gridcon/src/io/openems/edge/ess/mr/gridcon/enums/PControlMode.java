@@ -4,16 +4,20 @@ import io.openems.common.types.OptionsEnum;
 
 public enum PControlMode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	DISABLED(1, "Disabled"), //
-	ACTIVE_POWER_CONTROL(1, "Active Power Control Mode"), //
-	POWER_LIMITER(2, "Power Limiter Mode"); //
+	DISABLED(1, "Disabled"), // TODO Check values!!!
+	ACTIVE_POWER_CONTROL(1, "Active Power Control Mode"), // TODO maybe inverted word order?!
+	POWER_LIMITER(4, "Power Limiter Mode");
 
-	private final int value;
+	private final float value;
 	private final String name;
 
-	private PControlMode(int value, String name) {
+	private PControlMode(float value, String name) {
 		this.value = value;
 		this.name = name;
+	}
+
+	public float getFloatValue() {
+		return value;
 	}
 
 	@Override
@@ -23,7 +27,7 @@ public enum PControlMode implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return 0;
 	}
 
 	@Override

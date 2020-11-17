@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.openems.edge.controller.battery.batteryprotection.TestStateController" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-11-17T21:59:18" hostname="FEN022" time="0.001">
+  <properties/>
+  <testcase name="test" classname="io.openems.edge.controller.battery.batteryprotection.TestStateController" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

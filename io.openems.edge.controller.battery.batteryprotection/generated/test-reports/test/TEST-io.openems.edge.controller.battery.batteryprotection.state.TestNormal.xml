@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.openems.edge.controller.battery.batteryprotection.state.TestNormal" tests="11" skipped="0" failures="0" errors="0" timestamp="2020-11-17T21:59:13" hostname="FEN022" time="5.04">
+  <properties/>
+  <testcase name="testGetState" classname="io.openems.edge.controller.battery.batteryprotection.state.TestNormal" time="0.004"/>
+  <testcase name="testAct" classname="io.openems.edge.controller.battery.batteryprotection.state.TestNormal" time="0.001"/>
+  <testcase name="testGetNextStateLimitSoc" classname="io.openems.edge.controller.battery.batteryprotection.state.TestNormal" time="0.0"/>
+  <testcase name="testGetNextStateLimitHighCellVoltage" classname="io.openems.edge.controller.battery.batteryprotection.state.TestNormal" time="0.001"/>
+  <testcase name="testGetNextStateWithNoChanges" classname="io.openems.edge.controller.battery.batteryprotection.state.TestNormal" time="0.001"/>
+  <testcase name="testGetNextStateNormalNoChargingValuePresent" classname="io.openems.edge.controller.battery.batteryprotection.state.TestNormal" time="2.508"/>
+  <testcase name="testGetNextStateUndefinedNoVoltage" classname="io.openems.edge.controller.battery.batteryprotection.state.TestNormal" time="0.001"/>
+  <testcase name="testGetNextStateNormalNoChargingValuesPresent" classname="io.openems.edge.controller.battery.batteryprotection.state.TestNormal" time="2.51"/>
+  <testcase name="testGetNextStateLimitLowCellTemperature" classname="io.openems.edge.controller.battery.batteryprotection.state.TestNormal" time="0.003"/>
+  <testcase name="testGetNextStateLimitLowCellVoltage" classname="io.openems.edge.controller.battery.batteryprotection.state.TestNormal" time="0.003"/>
+  <testcase name="testGetNextStateLimitHighCellTemperature" classname="io.openems.edge.controller.battery.batteryprotection.state.TestNormal" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -54,12 +54,6 @@ import io.openems.edge.common.taskmanager.Priority;
 public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 		implements BatteryBoxC130, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
-	private static final float CAPACITY_PER_MODULE = 6.9f;
-
-	private static final int MIN_ALLOWED_VOLTAGE_PER_MODULE = 34;
-
-	private static final int MAX_ALLOWED_VOLTAGE_PER_MODULE = 42;
-
 	private final Logger log = LoggerFactory.getLogger(BatteryBoxC130Impl.class);
 
 	@Reference
@@ -93,15 +87,6 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 				"Modbus", config.modbus_id())) {
 			return;
 		}
-
-		int max_voltage = this.config.numberOfSlaves() * MAX_ALLOWED_VOLTAGE_PER_MODULE;
-		_setChargeMaxVoltage(max_voltage);
-		
-		int min_voltage = this.config.numberOfSlaves() * MIN_ALLOWED_VOLTAGE_PER_MODULE;
-		_setDischargeMinVoltage(min_voltage);
-		
-		int capacity = (int) (this.config.numberOfSlaves() * CAPACITY_PER_MODULE);
-		_setCapacity(capacity);
 	}
 
 	@Deactivate

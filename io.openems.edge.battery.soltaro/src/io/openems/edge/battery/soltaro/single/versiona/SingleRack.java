@@ -142,7 +142,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				break;
 			case CUT_OFF:
 				// TODO start stop is not implemented;
-				this._setStartStop(StartStop.STOP);
+				this._setStartStop(StartStop.UNDEFINED);
 				this.isStopping = false;
 				break;
 			case ON_GRID:
@@ -349,11 +349,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return "SoC:" + this.getSoc() //
 				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
-				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent()
-				+ "|Running: " + this.isSystemRunning()
-				+ "|U: " + this.getVoltage()
-				+ "|I: " + this.getCurrent()
-				;
+				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent();
 	}
 
 	private void startSystem() {
@@ -1127,7 +1123,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				new FC6WriteRegisterTask(0x2047, //
 						m(SingleRack.ChannelId.CELL_VOLTAGE_RECOVER, new UnsignedWordElement(0x2047)) //
 				), //
-				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
+				new FC3ReadRegistersTask(0x2100, Priority.LOW, //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x2100), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.CURRENT, new SignedWordElement(0x2101), //

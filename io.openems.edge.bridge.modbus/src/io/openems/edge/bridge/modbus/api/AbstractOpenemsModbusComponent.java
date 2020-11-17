@@ -160,10 +160,6 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			modbus.removeProtocol(this.id());
 		}
 	}
-		
-	public BridgeModbus getModbus() {
-		return modbus.get();
-	}
 
 	private ModbusProtocol getModbusProtocol(int unitId) throws OpenemsException {
 		ModbusProtocol protocol = this.protocol;

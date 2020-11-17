@@ -877,13 +877,7 @@ public enum ErrorCodeChannelId1 implements ChannelId {
 			.reactionLevel(ReactionLevel.WARNING) //
 			.needsHardReset(false) //
 			.code(0x04031F) //
-			.text("Warning: Fan Fault")),
-	FLOAT_UNDERFLOW_FOR_PROPERTY(new ErrorDoc(Level.WARNING) //
-			.acknowledge(Acknowledge.UNDEFINED) //
-			.reactionLevel(ReactionLevel.INFO) //
-			.needsHardReset(false) //
-			.code(0x08000C) //
-			.text("Float underflow for property")),;
+			.text("Warning: Fan Fault")),;
 
 	private final Doc doc;
 

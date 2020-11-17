@@ -380,16 +380,12 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		return b && !this.isSystemRunning() && !this.isSystemStopped();
 	}
 
-	 @Override
-		public String debugLog() {
-			return "SoC:" + this.getSoc() //
-					+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
-					+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent()
-					+ "|Running: " + this.isSystemRunning()
-					+ "|U: " + this.getVoltage()
-					+ "|I: " + this.getCurrent()
-					;
-		}
+	@Override
+	public String debugLog() {
+		return "SoC:" + this.getSoc() //
+				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
+				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent();
+	}
 
 	private void sleepSystem() {
 		// Write sleep and reset to all racks
