@@ -7,7 +7,6 @@ public class CcuParameters1 {
 	public CcuParameters1() {
 	}
 
-
 	private float uByQDroopMainLower = 0f;
 	private float uByQDroopMainUpper = 0f;
 	private float uByQDroopT1Main = 0f;

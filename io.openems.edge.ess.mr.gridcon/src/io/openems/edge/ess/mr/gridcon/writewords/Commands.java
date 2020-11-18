@@ -9,13 +9,11 @@ import io.openems.edge.ess.mr.gridcon.enums.Mode;
 
 public class Commands {
 
-
 	public static int COMMANDS_ADRESS = 32560;
 
 	public Commands() {
 
 	}
-
 
 	// 32560
 	private Boolean enableIpu1 = false;
@@ -31,7 +29,7 @@ public class Commands {
 	private Boolean blackstartApproval = false;
 	private Boolean syncApproval = false;
 	private Boolean shortCircuitHandling = false;
-	private Mode mode = null; //Mode.CURRENT_CONTROL;
+	private Mode mode = null; // Mode.CURRENT_CONTROL;
 	private Boolean triggerSia = false;
 	private BalancingMode balancingMode = BalancingMode.DISABLED;
 	private FundamentalFrequencyMode fundamentalFrequencyMode = FundamentalFrequencyMode.DISABLED;
@@ -117,7 +115,7 @@ public class Commands {
 	public Boolean isBlackstartApproval() {
 		return blackstartApproval;
 	}
-	
+
 //	public void setBlackstartApproval(Boolean blackstartApproval) {
 //		this.blackstartApproval = blackstartApproval;
 //	}
@@ -145,8 +143,8 @@ public class Commands {
 		this.mode = mode;
 
 		boolean isSyncApproval = (mode == Mode.CURRENT_CONTROL);
-		
-		this.syncApproval = isSyncApproval;			
+
+		this.syncApproval = isSyncApproval;
 		this.blackstartApproval = !isSyncApproval;
 	}
 
@@ -161,7 +159,7 @@ public class Commands {
 	public void setBalancingMode(BalancingMode balancingMode) {
 		this.balancingMode = balancingMode;
 	}
-	
+
 	public FundamentalFrequencyMode getFundamentalFrequencyMode() {
 		return fundamentalFrequencyMode;
 	}
@@ -272,11 +270,9 @@ public class Commands {
 				+ ", enableIpu4=" + enableIpu4 + ", playBit=" + playBit + ", readyAndStopBit2nd=" + readyAndStopBit2nd
 				+ ", acknowledgeBit=" + acknowledgeBit + ", stopBit1st=" + stopBit1st + ", blackstartApproval="
 				+ blackstartApproval + ", syncApproval=" + syncApproval + ", shortCircuitHandling="
-				+ shortCircuitHandling + ", mode=" + mode + ", triggerSia=" + triggerSia
-				+ ",fundamentalFrequencyMode=" + fundamentalFrequencyMode
-				+ ",balancingMode=" + balancingMode
-				+ ",harmonicCompensationMode=" + harmonicCompensationMode
-				+ ", errorCodeFeedback=" + errorCodeFeedback + ", parameterU0=" + parameterU0
+				+ shortCircuitHandling + ", mode=" + mode + ", triggerSia=" + triggerSia + ",fundamentalFrequencyMode="
+				+ fundamentalFrequencyMode + ",balancingMode=" + balancingMode + ",harmonicCompensationMode="
+				+ harmonicCompensationMode + ", errorCodeFeedback=" + errorCodeFeedback + ", parameterU0=" + parameterU0
 				+ ", parameterF0=" + parameterF0 + ", parameterQref=" + parameterQref + ", parameterPref="
 				+ parameterPref + ", syncDate=" + syncDate + ", syncTime=" + syncTime + "]\n" + getHexRepresentation();
 	}
@@ -318,7 +314,7 @@ public class Commands {
 		set.set(7, mode.value);
 		set.set(8, isTriggerSia());
 		set.set(9, fundamentalFrequencyMode.isBit1());
-		set.set(10, fundamentalFrequencyMode.isBit2());		
+		set.set(10, fundamentalFrequencyMode.isBit2());
 		set.set(11, getBalancingMode().isBit1());
 		set.set(12, getBalancingMode().isBit2());
 		set.set(13, harmonicCompensationMode.isBit1());

@@ -53,7 +53,7 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	protected abstract ComponentManager getComponentManager();
 
 	private final Logger log = LoggerFactory.getLogger(EssGridcon.class);
-	
+
 	protected final StateController stateController = new StateController();
 
 	public EssGridcon(io.openems.edge.common.channel.ChannelId[] otherChannelIds) {
@@ -73,13 +73,13 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 			String bmsA, String bmsB, String bmsC, float offsetCurrent) throws OpenemsNamedException {
 
 		super.activate(context, id, alias, enabled);
-		
+
 		this.gridconId = gridconId;
 		this.bmsAId = bmsA;
 		this.bmsBId = bmsB;
 		this.bmsCId = bmsC;
 		this.offsetCurrent = offsetCurrent;
-		
+
 		initializeStateController(gridconId, bmsA, bmsB, bmsC);
 		mainStateObject = getFirstGeneralStateObjectUndefined();
 		gridconStateObject = getFirstGridconStateObjectUndefined();
@@ -103,12 +103,12 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		if (!isEnabled()) {
 			return;
 		}
-		
+
 		if (getGridconPcs() == null) {
 			log.error("Gridcon Component with ID [" + this.gridconId + "] is not found!");
 			return;
 		}
-		
+
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			calculateActiveAndReactivePower();
@@ -123,8 +123,7 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 				calculateAllowedPower();
 				calculateBatteryValues();
 
-				
-				// Execute state machine for general handling				
+				// Execute state machine for general handling
 				IState nextMainState = this.mainStateObject.getNextState();
 				StateObject nextMainStateObject = stateController.getGeneralStateObject(nextMainState);
 
@@ -136,20 +135,18 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 				this.mainStateObject = nextMainStateObject;
 
 				this.mainStateObject.act();
-				
-				// Execute state machine for gridcon handling, parameters for the grid settings coming from the state machine object
+
+				// Execute state machine for gridcon handling, parameters for the grid settings
+				// coming from the state machine object
 				GridconSettings gridconSettings = this.mainStateObject.getGridconSettings();
-				
-				
+
 				IState nextGridconState = this.gridconStateObject.getNextState();
-				GridconStateObject nextGridconStateObject = stateController.getGridconStateObject(nextGridconState);				
+				GridconStateObject nextGridconStateObject = stateController.getGridconStateObject(nextGridconState);
 				this.gridconStateObject = nextGridconStateObject;
 				this.gridconStateObject.act(gridconSettings);
-				
-				
-				
+
 				this.writeStateMachineToChannel();
-				
+
 			} catch (IllegalArgumentException | OpenemsNamedException e) {
 				logError(log, "Error: " + e.getMessage());
 			}
@@ -259,9 +256,9 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 			maxChargeCurrent = Math.max(maxChargeCurrent, 0);
 			allowedCharge += battery.getVoltage().get() * maxChargeCurrent * -1;
 
-			Integer maxDischargeCurrent = Math.min(MAX_CURRENT_PER_STRING,
-					battery.getDischargeMaxCurrent().get());
-			maxDischargeCurrent = maxDischargeCurrent - offset; // Reduce the max power by the value for the offset current
+			Integer maxDischargeCurrent = Math.min(MAX_CURRENT_PER_STRING, battery.getDischargeMaxCurrent().get());
+			maxDischargeCurrent = maxDischargeCurrent - offset; // Reduce the max power by the value for the offset
+																// current
 			maxDischargeCurrent = Math.max(maxDischargeCurrent, 0);
 			allowedDischarge += battery.getVoltage().get() * maxDischargeCurrent;
 		}
@@ -296,7 +293,7 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 			sumCurrentCapacity += totalCapacity * soc / 100.0;
 		}
 		int soc = Math.round(sumCurrentCapacity * 100 / sumTotalCapacity);
-		
+
 		_setSoc(soc);
 	}
 

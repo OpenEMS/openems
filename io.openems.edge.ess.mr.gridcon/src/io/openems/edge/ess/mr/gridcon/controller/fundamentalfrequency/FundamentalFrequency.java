@@ -64,7 +64,7 @@ public class FundamentalFrequency extends AbstractOpenemsComponent implements Co
 		GridconPcs gridcon = this.componentManager.getComponent(this.config.gridcon_id());
 
 		gridcon.setFundamentalFrequencyMode(config.fundamentalFrequencyMode());
-		
+
 		if (config.fundamentalFrequencyMode() == FundamentalFrequencyMode.PFC_COS_PHI) {
 			gridcon.setCosPhiSetPoint1(config.cosPhiSetPoint1());
 			gridcon.setCosPhiSetPoint2(config.cosPhiSetPoint2());

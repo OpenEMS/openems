@@ -13,11 +13,11 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery {
 	public static int DEFAULT_MAX_CELL_VOLTAGE = 3380;
 	public static int DEFAULT_MIN_CELL_TEMPERATURE = 25;
 	public static int DEFAULT_MAX_CELL_TEMPERATURE = 33;
-	
+
 	public static int DEFAULT_VOLTAGE = 800;
 	public static int DEFAULT_MAX_CHARGE_CURRENT = 80;
 	public static int DEFAULT_MAX_DISCHARGE_CURRENT = 60;
-	
+
 	private boolean running = false;
 
 	public DummyBattery(//
@@ -76,7 +76,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery {
 	public void setSocToUndefined() {
 		this._setSoc(null);
 	}
-	
+
 	public void setMaximalChargeCurrent(int max) {
 		this._setChargeMaxCurrent(max);
 	}
@@ -84,7 +84,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery {
 	public void setMaximalChargeCurrentToUndefined() {
 		this._setChargeMaxCurrent(null);
 	}
-	
+
 	public void setMaximalDischargeCurrent(int max) {
 		this._setDischargeMaxCurrent(max);
 	}
@@ -92,7 +92,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery {
 	public void setMaximalDischargeCurrentToUndefined() {
 		this._setDischargeMaxCurrent(null);
 	}
-	
+
 	public void setVoltage(int voltage) {
 		this._setVoltage(voltage);
 	}

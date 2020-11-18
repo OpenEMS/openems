@@ -43,12 +43,11 @@ public class MeterGridcon extends AbstractOpenemsComponent
 
 	@Reference
 	protected ConfigurationAdmin cm;
-	
+
 	@Reference
 	ComponentManager componentManager;
-	
-	String gridconId; 
-	
+
+	String gridconId;
 
 	public MeterGridcon() {
 		super(//
@@ -100,36 +99,34 @@ public class MeterGridcon extends AbstractOpenemsComponent
 			break;
 		}
 	}
-	
+
 	private void fillChannels() {
 		try {
 			GridconPcs gridconPcs = componentManager.getComponent(gridconId);
-			
+
 			if (gridconPcs == null) {
 				return;
 			}
-						
-			
+
 			_setCurrentL1((int) (gridconPcs.getCurrentL1Grid() * 1000.0));
 			_setCurrentL2((int) (gridconPcs.getCurrentL2Grid() * 1000.0));
 			_setCurrentL3((int) (gridconPcs.getCurrentL3Grid() * 1000.0));
-			_setCurrent((int) (gridconPcs.getCurrentLNGrid() * 1000.0)); //TODO correct?! ;)
+			_setCurrent((int) (gridconPcs.getCurrentLNGrid() * 1000.0)); // TODO correct?! ;)
 
 			_setActivePowerL1((int) (gridconPcs.getActivePowerL1Grid()));
 			_setActivePowerL2((int) (gridconPcs.getActivePowerL2Grid()));
 			_setActivePowerL3((int) (gridconPcs.getActivePowerL3Grid()));
 			_setActivePower((int) (gridconPcs.getActivePowerSumGrid()));
-			
+
 			_setReactivePowerL1((int) (gridconPcs.getReactivePowerL1Grid()));
 			_setReactivePowerL2((int) (gridconPcs.getReactivePowerL2Grid()));
 			_setReactivePowerL3((int) (gridconPcs.getReactivePowerL3Grid()));
 			_setReactivePower((int) (gridconPcs.getReactivePowerSumGrid()));
 
-		} catch (OpenemsNamedException e) {		
+		} catch (OpenemsNamedException e) {
 			System.out.println("Error while reading meter values from gridcon!\n" + e.getMessage());
 		}
-		
-		
+
 	}
 
 	@Override

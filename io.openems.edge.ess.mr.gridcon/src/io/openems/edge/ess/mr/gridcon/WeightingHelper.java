@@ -74,7 +74,7 @@ public class WeightingHelper {
 
 	public static int getStringControlMode(Battery battery1, Battery battery2, Battery battery3) {
 		int weightingMode = 0;
-		
+
 		boolean useBatteryStringA = (battery1 != null && Helper.isRunning(battery1));
 		if (useBatteryStringA) {
 			weightingMode = weightingMode + 1; // battA = 1 (2^0)

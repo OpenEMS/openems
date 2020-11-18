@@ -23,9 +23,8 @@ public class Run extends BaseState {
 //	private ParameterSet parameterSet;
 
 	public Run(ComponentManager manager, String gridconPcsId, String b1Id, String b2Id, String b3Id, boolean enableIpu1,
-			boolean enableIpu2, boolean enableIpu3, // ParameterSet parameterSet, 
-			String hardRestartRelayAdress,
-			float offsetCurrent) {
+			boolean enableIpu2, boolean enableIpu3, // ParameterSet parameterSet,
+			String hardRestartRelayAdress, float offsetCurrent) {
 		super(manager, gridconPcsId, b1Id, b2Id, b3Id, hardRestartRelayAdress);
 		this.enableIpu1 = enableIpu1;
 		this.enableIpu2 = enableIpu2;
@@ -120,7 +119,8 @@ public class Run extends BaseState {
 			return false;
 		}
 
-		if (getBattery2() == null && getBattery3() == null) { // only this battery exists --> must have highest cell voltage
+		if (getBattery2() == null && getBattery3() == null) { // only this battery exists --> must have highest cell
+																// voltage
 			return true;
 		}
 
@@ -141,7 +141,8 @@ public class Run extends BaseState {
 			return false;
 		}
 
-		if (getBattery1() == null && getBattery3() == null) { // only this battery exists --> must have highest cell voltage
+		if (getBattery1() == null && getBattery3() == null) { // only this battery exists --> must have highest cell
+																// voltage
 			return true;
 		}
 
@@ -162,7 +163,8 @@ public class Run extends BaseState {
 			return false;
 		}
 
-		if (getBattery1() == null && getBattery2() == null) { // only this battery exists --> must have highest cell voltage
+		if (getBattery1() == null && getBattery2() == null) { // only this battery exists --> must have highest cell
+																// voltage
 			return true;
 		}
 

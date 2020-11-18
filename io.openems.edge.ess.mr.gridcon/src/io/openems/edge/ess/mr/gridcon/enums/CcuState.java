@@ -7,7 +7,8 @@ import io.openems.common.types.OptionsEnum;
  */
 public enum CcuState implements OptionsEnum {
 	INIT(1, "INIT"), // = 1, // Initialisierung / Booting in Progress
-	IDLE_CURRENTLY_NOT_WORKING(2, "IDLE"), // = 2, // System waiting for Instructions, MainContactor open, IGBT are not working
+	IDLE_CURRENTLY_NOT_WORKING(2, "IDLE"), // = 2, // System waiting for Instructions, MainContactor open, IGBT are not
+											// working
 	PRECHARGE_CURRENTLY_NOT_WORKING(3, "PRECHARGE"), // = 3, // IPU StateObject
 	GO_IDLE_CURRENTLY_NOT_WORKING(4, "GO_IDLE"), // = 4, // System changes STATE_IDLE
 	CHARGED_CURRENTLY_NOT_WORKING(5, "CHARGED"), // = 5, // IPU StateObject

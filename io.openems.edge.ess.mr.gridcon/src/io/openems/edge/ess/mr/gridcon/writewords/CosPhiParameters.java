@@ -29,7 +29,8 @@ public class CosPhiParameters {
 
 	@Override
 	public String toString() {
-		return "CosPhiParameters [cosPhiSetPoint1=" + cosPhiSetPoint1 + ", cosPhiSetPoint2=" + cosPhiSetPoint2 + "]\n" + getHexRepresentation();
+		return "CosPhiParameters [cosPhiSetPoint1=" + cosPhiSetPoint1 + ", cosPhiSetPoint2=" + cosPhiSetPoint2 + "]\n"
+				+ getHexRepresentation();
 	}
 
 	private String getHexRepresentation() {

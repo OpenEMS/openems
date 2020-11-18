@@ -3,12 +3,12 @@ package io.openems.edge.ess.mr.gridcon;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
 
 public class GridconSettings {
-	
+
 	boolean switchOffIpus;
 	float u0;
 	float f0;
 	Mode mode;
-	
+
 	private GridconSettings(boolean switchOffIpus, float u0, float f0, Mode mode) {
 		this.switchOffIpus = switchOffIpus;
 		this.u0 = u0;
@@ -19,7 +19,7 @@ public class GridconSettings {
 	public static GridconSettings createRunningSettings(float u0, float f0, Mode mode) {
 		return new GridconSettings(false, u0, f0, mode);
 	}
-	
+
 	public static GridconSettings createStopSettings(Mode mode) {
 		return new GridconSettings(true, 0, 0, mode);
 	}
@@ -35,7 +35,7 @@ public class GridconSettings {
 	public float getF0() {
 		return f0;
 	}
-	
+
 	public Mode getMode() {
 		return mode;
 	}
@@ -70,7 +70,5 @@ public class GridconSettings {
 			return false;
 		return true;
 	}
-	
-	
-	
+
 }

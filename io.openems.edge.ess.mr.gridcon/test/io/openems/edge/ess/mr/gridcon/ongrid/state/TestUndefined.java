@@ -12,7 +12,7 @@ import io.openems.edge.ess.mr.gridcon.state.gridconstate.Undefined;
 public class TestUndefined {
 
 	Undefined sut;
-	
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 	}
@@ -41,7 +41,7 @@ public class TestUndefined {
 	@Test
 	public final void testAct() {
 		try {
-			//nothing should happen
+			// nothing should happen
 			sut.act(null);
 		} catch (Exception e) {
 			fail();

@@ -24,7 +24,6 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 	private boolean error;
 	private float dcLinkPositiveVoltage = DC_LINK_VOLTAGE;
 
-	
 	@Override
 	public float getMaxApparentPower() {
 		return MAXIMUM_POWER;
@@ -53,10 +52,10 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 	@Override
 	public void setPlay(boolean play) {
 		if (play) {
-			running = true;		
+			running = true;
 		}
 	}
-	
+
 	@Override
 	public void setStop(boolean stop) {
 		if (stop) {
@@ -96,19 +95,19 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 	@Override
 	public void setEnableIpu1(boolean enabled) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setEnableIpu2(boolean enabled) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setEnableIpu3(boolean enabled) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 //	@Override
@@ -120,113 +119,113 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 	@Override
 	public void setU0(float onGridVoltageFactor) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setF0(float onGridFrequencyFactor) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setPControlMode(PControlMode activePowerControl) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setQLimit(float f) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setPMaxChargeIpu1(float maxPower) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setPMaxDischargeIpu1(float maxPower) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setPMaxChargeIpu2(float maxPower) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setPMaxDischargeIpu2(float maxPower) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setPMaxChargeIpu3(float maxPower) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setPMaxDischargeIpu3(float maxPower) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setDcLinkVoltage(float dcLinkVoltageSetpoint) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setWeightStringA(Float weight) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setWeightStringB(Float weight) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setWeightStringC(Float weight) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setStringControlMode(int stringControlMode) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void enableDcDc() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setSyncDate(int date) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setSyncTime(int time) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
-	public float getActivePower() {		
+	public float getActivePower() {
 		return currentActivePower;
 	}
 
@@ -239,7 +238,7 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 	@Override
 	public void disableDcDc() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -257,7 +256,7 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 	@Override
 	public void doWriteTasks() throws OpenemsNamedException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -286,19 +285,19 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 	@Override
 	public void setIRefStringA(Float current) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setIRefStringB(Float current) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setIRefStringC(Float current) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -310,25 +309,25 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 	@Override
 	public void setMode(Mode mode) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setBalancingMode(BalancingMode balancingMode) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setFundamentalFrequencyMode(FundamentalFrequencyMode fundamentalFrequencyMode) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setHarmonicCompensationMode(HarmonicCompensationMode harmonicCompensationMode) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -430,15 +429,13 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 	@Override
 	public void setCosPhiSetPoint1(float cosPhiSetPoint1) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setCosPhiSetPoint2(float cosPhiSetPoint2) {
 		// TODO Auto-generated method stub
-		
-	}
 
-	
+	}
 
 }

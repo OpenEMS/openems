@@ -31,6 +31,5 @@ import io.openems.edge.ess.mr.gridcon.enums.FundamentalFrequencyMode;
 	@AttributeDefinition(name = "Cos Phi Set Point 2, positive=inductive, negative=capacitive", description = "Cos Phi Set Point 2, positive=inductive, negative=capacitive", max = "1", min = "-1")
 	float cosPhiSetPoint2() default 0.95f;
 
-	
 	String webconsole_configurationFactory_nameHint() default "Controller MR SetFundamentalFrequencyMode [{id}]";
 }

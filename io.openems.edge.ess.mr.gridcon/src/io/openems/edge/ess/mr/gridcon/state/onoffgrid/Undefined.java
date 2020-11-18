@@ -31,32 +31,32 @@ public class Undefined extends BaseState implements StateObject {
 		}
 
 		if (DecisionTableHelper.isStateStartSystem(condition)) {
-				return OnOffGridState.START_SYSTEM;
+			return OnOffGridState.START_SYSTEM;
 		}
 
 		if (DecisionTableHelper.isWaitingForDevices(condition)) {
-				return OnOffGridState.WAIT_FOR_DEVICES;
+			return OnOffGridState.WAIT_FOR_DEVICES;
 		}
 
 		if (DecisionTableHelper.isOnGridMode(condition)) {
 			System.out.println("DecisionTableHelper -->  On grid conditions!");
-				return OnOffGridState.ON_GRID_MODE;
+			return OnOffGridState.ON_GRID_MODE;
 		}
 
 		if (DecisionTableHelper.isOffGridMode(condition)) {
-				return OnOffGridState.OFF_GRID_MODE;
+			return OnOffGridState.OFF_GRID_MODE;
 		}
 
 		if (DecisionTableHelper.isOffGridGridBack(condition)) {
-				return OnOffGridState.OFF_GRID_MODE_GRID_BACK;
+			return OnOffGridState.OFF_GRID_MODE_GRID_BACK;
 		}
 
 		if (DecisionTableHelper.isOffGridWaitForGridAvailable(condition)) {
-				return OnOffGridState.OFF_GRID_MODE_WAIT_FOR_GRID_AVAILABLE;
+			return OnOffGridState.OFF_GRID_MODE_WAIT_FOR_GRID_AVAILABLE;
 		}
 
 		if (DecisionTableHelper.isAdjustParameters(condition)) {
-				return OnOffGridState.OFF_GRID_MODE_ADJUST_PARMETER;
+			return OnOffGridState.OFF_GRID_MODE_ADJUST_PARMETER;
 		}
 
 		return OnOffGridState.UNDEFINED;

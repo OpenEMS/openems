@@ -6,7 +6,6 @@ public class IpuParameter {
 	public IpuParameter() {
 	}
 
-
 	private float dcVoltageSetpoint = 0f;
 	private float dcCurrentSetpoint = 0f;
 	private float u0OffsetToCcu = 0f;

@@ -20,8 +20,6 @@ public class OnGrid extends BasteState {
 	@Override
 	public void act() throws OpenemsNamedException {
 
-
-
 	}
 
 	@Override

@@ -10,8 +10,8 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.FloatDoc;
 import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerDoc;
-import io.openems.edge.common.channel.LongDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.LongDoc;
 import io.openems.edge.common.channel.LongWriteChannel;
 
 /**
@@ -115,11 +115,11 @@ public enum GridConChannelId implements ChannelId {
 	DCDC_MEASUREMENTS_CURRENT_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)),
 	DCDC_MEASUREMENTS_CURRENT_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)),
 	DCDC_MEASUREMENTS_CURRENT_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)),
-	
+
 	DCDC_MEASUREMENTS_CURRENT_STRING_A_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)),
 	DCDC_MEASUREMENTS_CURRENT_STRING_B_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)),
 	DCDC_MEASUREMENTS_CURRENT_STRING_C_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)),
-	
+
 	DCDC_MEASUREMENTS_POWER_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.KILOWATT)),
 	DCDC_MEASUREMENTS_POWER_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.KILOWATT)),
 	DCDC_MEASUREMENTS_POWER_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.KILOWATT)),
@@ -130,17 +130,17 @@ public enum GridConChannelId implements ChannelId {
 	DCDC_MEASUREMENTS_ACCUMULATED_DC_UTILIZATION(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)),
 	DCDC_MEASUREMENTS_RESERVE_1(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 	DCDC_MEASUREMENTS_RESERVE_2(Doc.of(OpenemsType.FLOAT).unit(Unit.PERCENT)),
-	
+
 	GRID_MEASUREMENT_I_L1(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 	GRID_MEASUREMENT_I_L2(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 	GRID_MEASUREMENT_I_L3(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 	GRID_MEASUREMENT_I_LN(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
-	
+
 	GRID_MEASUREMENT_P_L1(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
 	GRID_MEASUREMENT_P_L2(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
 	GRID_MEASUREMENT_P_L3(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
 	GRID_MEASUREMENT_P_SUM(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)), //
-	
+
 	GRID_MEASUREMENT_Q_L1(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 	GRID_MEASUREMENT_Q_L2(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 	GRID_MEASUREMENT_Q_L3(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT_AMPERE_REACTIVE)), //
@@ -197,7 +197,7 @@ public enum GridConChannelId implements ChannelId {
 	COMMAND_CONTROL_WORD_BALANCING_MODE_BIT_2(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-					GridConChannelId.COMMAND_CONTROL_WORD_BALANCING_MODE_BIT_2_DEBUG))),	
+					GridConChannelId.COMMAND_CONTROL_WORD_BALANCING_MODE_BIT_2_DEBUG))),
 	COMMAND_CONTROL_WORD_FUNDAMENTAL_FREQUENCY_MODE_BIT_1_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 	COMMAND_CONTROL_WORD_FUNDAMENTAL_FREQUENCY_MODE_BIT_1(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
@@ -437,7 +437,7 @@ public enum GridConChannelId implements ChannelId {
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.CONTROL_PARAMETER_COS_PHI_SETPOINT_2_DEBUG))),
-	
+
 	INVERTER_1_CONTROL_DC_VOLTAGE_SETPOINT_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
 	INVERTER_1_CONTROL_DC_VOLTAGE_SETPOINT(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
@@ -594,13 +594,13 @@ public enum GridConChannelId implements ChannelId {
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C_DEBUG))), ////
 
 	DCDC_CONTROL_I_REF_STRING_A_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)), //
-	DCDC_CONTROL_I_REF_STRING_B_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)), //			
+	DCDC_CONTROL_I_REF_STRING_B_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)), //
 	DCDC_CONTROL_I_REF_STRING_C_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)), //
-	
+
 	DCDC_CONTROL_I_REF_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE)), //
-	DCDC_CONTROL_I_REF_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE)), //			
+	DCDC_CONTROL_I_REF_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE)), //
 	DCDC_CONTROL_I_REF_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE)), //
-	
+
 	DCDC_CONTROL_STRING_CONTROL_MODE(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)),;
 
 	private final Doc doc;

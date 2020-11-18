@@ -16,9 +16,9 @@ public class StateController {
 	private DecisionTableCondition condition;
 
 	public StateController() {
-		
+
 	}
-	
+
 	public void initOnGrid(//
 			ComponentManager manager, //
 			String gridconPcs, //
@@ -35,31 +35,31 @@ public class StateController {
 		generalStateObjects = new HashMap<IState, StateObject>();
 		gridconStateObjects = new HashMap<IState, GridconStateObject>();
 
-
 		gridconStateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.STOPPED,
-				new io.openems.edge.ess.mr.gridcon.state.gridconstate.Stopped(manager, gridconPcs, b1, b2, b3,
-						enableI1, enableI2, enableI3, /* parameterSet,*/ hardRestartRelayAdress));
+				new io.openems.edge.ess.mr.gridcon.state.gridconstate.Stopped(manager, gridconPcs, b1, b2, b3, enableI1,
+						enableI2, enableI3, /* parameterSet, */ hardRestartRelayAdress));
 		gridconStateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.RUN,
 				new io.openems.edge.ess.mr.gridcon.state.gridconstate.Run(manager, gridconPcs, b1, b2, b3, enableI1,
-						enableI2, enableI3, /* parameterSet,*/ hardRestartRelayAdress, offsetCurrent));
-		gridconStateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED, 
-				new io.openems.edge.ess.mr.gridcon.state.gridconstate.Undefined(manager, gridconPcs, b1, b2, b3, hardRestartRelayAdress));
+						enableI2, enableI3, /* parameterSet, */ hardRestartRelayAdress, offsetCurrent));
+		gridconStateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED,
+				new io.openems.edge.ess.mr.gridcon.state.gridconstate.Undefined(manager, gridconPcs, b1, b2, b3,
+						hardRestartRelayAdress));
 		gridconStateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.ERROR,
 				new io.openems.edge.ess.mr.gridcon.state.gridconstate.Error(manager, gridconPcs, b1, b2, b3, enableI1,
-						enableI2, enableI3, /* parameterSet,*/ hardRestartRelayAdress));
+						enableI2, enableI3, /* parameterSet, */ hardRestartRelayAdress));
 
 		generalStateObjects.put(io.openems.edge.ess.mr.gridcon.state.ongrid.OnGridState.UNDEFINED,
 				new io.openems.edge.ess.mr.gridcon.state.ongrid.Undefined());
 		generalStateObjects.put(io.openems.edge.ess.mr.gridcon.state.ongrid.OnGridState.ERROR,
 				new io.openems.edge.ess.mr.gridcon.state.ongrid.Error());
-		generalStateObjects.put(io.openems.edge.ess.mr.gridcon.state.ongrid.OnGridState.ONGRID, 
+		generalStateObjects.put(io.openems.edge.ess.mr.gridcon.state.ongrid.OnGridState.ONGRID,
 				new io.openems.edge.ess.mr.gridcon.state.ongrid.OnGrid());
 	}
 
 	public StateObject getGeneralStateObject(IState state) {
 		return generalStateObjects.get(state);
 	}
-	
+
 	public GridconStateObject getGridconStateObject(IState state) {
 		return gridconStateObjects.get(state);
 	}
@@ -77,12 +77,10 @@ public class StateController {
 			float deltaVoltage, //
 			float offsetCurrent) {
 
-		
 	}
 
 	public void printCondition() {
 		System.out.println("condition: \n" + condition);
 	}
 
-	
 }

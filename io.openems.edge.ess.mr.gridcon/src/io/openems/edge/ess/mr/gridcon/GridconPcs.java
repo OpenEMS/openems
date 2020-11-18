@@ -12,14 +12,14 @@ import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
  *
  */
 public interface GridconPcs {
-	
+
 	public static final int MAX_POWER_PER_INVERTER = 42_000;
 	public static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
 	public static final float Q_LIMIT = 1f;
 	public static final int POWER_PRECISION_WATT = 1; // 100 TODO estimated value;
 	public static final float DEFAULT_GRID_FREQUENCY = 50;
 	public static final float DEFAULT_GRID_VOLTAGE = 230;
-	
+
 	public static final Float NOMINAL_CURRENT_PER_UNIT = 60f;
 	public static final Float NOMINAL_POWER_PER_UNIT = (float) MAX_POWER_PER_INVERTER;
 
@@ -47,9 +47,9 @@ public interface GridconPcs {
 
 	float getReactivePower();
 
-	//	float getActivePowerInverter1();
-	//	float getActivePowerInverter2();
-	//	float getActivePowerInverter3();
+	// float getActivePowerInverter1();
+	// float getActivePowerInverter2();
+	// float getActivePowerInverter3();
 	float getDcLinkPositiveVoltage();
 
 	boolean isCommunicationBroken();
@@ -60,24 +60,28 @@ public interface GridconPcs {
 
 	void setEnableIpu3(boolean enabled);
 
-	//	void setEnableIPU4(boolean enabled);
+	// void setEnableIPU4(boolean enabled);
 	void enableDcDc();
 
 	void disableDcDc();
 
 //	void setParameterSet(ParameterSet set1);
-	
+
 	void setBalancingMode(BalancingMode balancingMode);
+
 	void setFundamentalFrequencyMode(FundamentalFrequencyMode fundamentalFrequencyMode);
+
 	void setHarmonicCompensationMode(HarmonicCompensationMode harmonicCompensationMode);
 
-		//	void setShortCircuitHAndling(boolean b);
+	// void setShortCircuitHAndling(boolean b);
 
 	// ------ Methods that are important for 'grid situation'
-	void setMode(Mode mode); // the mode indicates blackstart or sync approval 
-	//void setSyncApproval(boolean b);
-	//void setBlackStartApproval(boolean b);
+	void setMode(Mode mode); // the mode indicates blackstart or sync approval
+	// void setSyncApproval(boolean b);
+	// void setBlackStartApproval(boolean b);
+
 	void setU0(float voltageFactor);
+
 	void setF0(float frequencyFactor);
 	// ----------------------------------------------
 
@@ -130,26 +134,38 @@ public interface GridconPcs {
 	double getEfficiencyLossChargeFactor();
 
 	double getEfficiencyLossDischargeFactor();
-	
-	// Grid Measurement Values	
+
+	// Grid Measurement Values
 	float getCurrentL1Grid();
+
 	float getCurrentL2Grid();
+
 	float getCurrentL3Grid();
+
 	float getCurrentLNGrid();
-	
+
 	float getActivePowerL1Grid();
+
 	float getActivePowerL2Grid();
+
 	float getActivePowerL3Grid();
+
 	float getActivePowerSumGrid();
-	
+
 	float getReactivePowerL1Grid();
+
 	float getReactivePowerL2Grid();
+
 	float getReactivePowerL3Grid();
+
 	float getReactivePowerSumGrid();
-	
+
 	float getApparentPowerL1Grid();
+
 	float getApparentPowerL2Grid();
+
 	float getApparentPowerL3Grid();
+
 	float getApparentPowerSumGrid();
 
 	// Gridcon is undefined if not all relevant gridcon values are set

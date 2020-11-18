@@ -28,7 +28,7 @@ public class Error extends BaseState {
 	private static final long WAITING_TIME_ERRORS = 20;
 	private static final long WAITING_TIME_HARD_RESTART = 70;
 	private static final float MAX_ALLOWED_DELTA_LINK_VOLTAGE = 20;
-	private static final long COMMUNICATION_TIMEOUT = 70; //After 70 seconds gridcon should be ready
+	private static final long COMMUNICATION_TIMEOUT = 70; // After 70 seconds gridcon should be ready
 	private final Logger log = LoggerFactory.getLogger(Error.class);
 
 	private boolean enableIpu1;
@@ -92,7 +92,7 @@ public class Error extends BaseState {
 				e.printStackTrace();
 			}
 		}
-		
+
 		if (getGridconPcs().isCommunicationBroken() && errorHandlingState == null) {
 			System.out.println("Communication broken!");
 			if (communicationBrokenSince == null) {
@@ -127,8 +127,6 @@ public class Error extends BaseState {
 
 		// TODO sub state machine: start -> reading errors -> acknowledging --> waiting
 		// for a certain period --> finished
-
-
 
 		if (errorHandlingState == null) {
 			errorHandlingState = ErrorHandlingState.START;

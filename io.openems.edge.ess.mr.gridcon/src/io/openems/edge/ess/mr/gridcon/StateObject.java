@@ -28,7 +28,7 @@ public interface StateObject {
 
 	/**
 	 * 
-	 * @return the relevant settings for the gridcon 
+	 * @return the relevant settings for the gridcon
 	 */
 	GridconSettings getGridconSettings();
 }

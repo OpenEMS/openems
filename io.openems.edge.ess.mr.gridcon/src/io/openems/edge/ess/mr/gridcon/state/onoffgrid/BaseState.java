@@ -270,8 +270,7 @@ public abstract class BaseState implements StateObject {
 		}
 		return running;
 	}
-	
-	
+
 	protected void setStringControlMode() {
 		int weightingMode = WeightingHelper.getStringControlMode(getBattery1(), getBattery2(), getBattery3());
 		getGridconPcs().setStringControlMode(weightingMode);

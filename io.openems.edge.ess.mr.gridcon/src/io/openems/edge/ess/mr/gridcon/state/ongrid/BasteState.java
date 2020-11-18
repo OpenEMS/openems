@@ -4,5 +4,4 @@ import io.openems.edge.ess.mr.gridcon.StateObject;
 
 public abstract class BasteState implements StateObject {
 
-
 }
