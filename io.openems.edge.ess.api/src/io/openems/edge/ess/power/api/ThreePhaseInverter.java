@@ -5,8 +5,8 @@ package io.openems.edge.ess.power.api;
  */
 public class ThreePhaseInverter extends Inverter {
 
-	public ThreePhaseInverter(String essId) {
-		super(essId, Phase.ALL);
+	public ThreePhaseInverter(String essId, boolean isHybridEss) {
+		super(essId, Phase.ALL, isHybridEss);
 	}
 
 }

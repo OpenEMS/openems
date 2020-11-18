@@ -2,11 +2,9 @@ package io.openems.edge.ess.test;
 
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -18,7 +16,7 @@ import io.openems.edge.ess.power.api.Power;
  * {@link ManagedSymmetricEss} component and can be used together with the
  * OpenEMS Component test framework.
  */
-public class DummyHybridEss extends AbstractOpenemsComponent
+public class DummyHybridEss extends AbstractDummyManagedSymmetricEss<DummyHybridEss>
 		implements HybridEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
 	public static final int MAX_APPARENT_POWER = Integer.MAX_VALUE;
@@ -41,38 +39,18 @@ public class DummyHybridEss extends AbstractOpenemsComponent
 
 	}
 
-	private final Power power;
-
 	public DummyHybridEss(String id, Power power) {
-		super(//
+		super(id, power, //
 				OpenemsComponent.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
+				HybridEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.power = power;
-		for (Channel<?> channel : this.channels()) {
-			channel.nextProcessImage();
-		}
-		super.activate(null, id, "", true);
 	}
 
 	public DummyHybridEss(String id) {
 		this(id, new DummyPower(MAX_APPARENT_POWER));
-	}
-
-	@Override
-	public Power getPower() {
-		return this.power;
-	}
-
-	@Override
-	public void applyPower(int activePower, int reactivePower) {
-	}
-
-	@Override
-	public int getPowerPrecision() {
-		return 1;
 	}
 
 	/**
@@ -84,22 +62,6 @@ public class DummyHybridEss extends AbstractOpenemsComponent
 	public DummyHybridEss withSurplusPower(Integer value) {
 		this._setSurplusPower(value);
 		this.getSurplusPowerChannel().nextProcessImage();
-		return this;
-	}
-
-	/**
-	 * Set {@link SymmetricEss.ChannelId#MAX_APPARENT_POWER} of this
-	 * {@link DummyHybridEss}.
-	 * 
-	 * @param value the max apparent power
-	 * @return myself
-	 */
-	public DummyHybridEss withMaxApparentPower(int value) {
-		this._setMaxApparentPower(value);
-		this.getMaxApparentPowerChannel().nextProcessImage();
-		if (this.power instanceof DummyPower) {
-			((DummyPower) this.power).setMaxApparentPower(value);
-		}
 		return this;
 	}
 
@@ -130,5 +92,10 @@ public class DummyHybridEss extends AbstractOpenemsComponent
 	@Override
 	public Integer getSurplusPower() {
 		return this.getSurplusPowerChannel().value().get();
+	}
+
+	@Override
+	protected DummyHybridEss self() {
+		return this;
 	}
 }

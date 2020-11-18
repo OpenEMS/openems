@@ -14,6 +14,8 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.ess.power.api.SolverStrategy;
+import io.openems.edge.ess.test.AbstractDummyManagedSymmetricEss;
+import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedAsymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyMetaEss;
@@ -422,7 +424,87 @@ public class PowerComponentTest {
 		componentTest.next(new TestCase("#7"));
 	}
 
-	private static void expect(String description, DummyManagedSymmetricEss ess, int p, int q) {
+	/**
+	 * Combination of a AC-only system with a HybridEss -> CHARGE.
+	 * 
+	 * @throws Exception on error
+	 */
+	@Test
+	public void testAcHybridCombinationCharge() throws Exception {
+		PowerComponent powerComponent = new PowerComponentImpl();
+		DummyHybridEss ess1 = new DummyHybridEss("ess1", powerComponent) //
+				.withMaxApparentPower(40000) //
+				.withAllowedChargePower(-10000) //
+				.withAllowedDischargePower(10000) //
+				.withSoc(10) //
+				.withPowerPrecision(100);
+		DummyManagedSymmetricEss ess2 = new DummyManagedSymmetricEss("ess2", powerComponent) //
+				.withMaxApparentPower(40000) //
+				.withAllowedChargePower(-3000) //
+				.withAllowedDischargePower(3000) //
+				.withSoc(50) //
+				.withPowerPrecision(100);
+		DummyMetaEss ess0 = new DummyMetaEss("ess0", powerComponent, ess1, ess2); //
+
+		final ComponentTest componentTest = new ComponentTest(powerComponent) //
+				.addReference("addEss", ess0) //
+				.addReference("addEss", ess1) //
+				.addReference("addEss", ess2) //
+				.activate(MyConfig.create() //
+						.setStrategy(SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET) //
+						.setSymmetricMode(true) //
+						.setDebugMode(false) //
+						.setEnablePid(false) //
+						.build()); //
+
+		// #1 Charge -> always prefer AC-only
+		expect("#1", ess1, 0, 0);
+		expect("#1", ess2, -2000, 0);
+		ess0.addPowerConstraint("#1", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -2000);
+		componentTest.next(new TestCase("#1"));
+	}
+
+	/**
+	 * Combination of a AC-only system with a HybridEss -> DISCHARGE.
+	 * 
+	 * @throws Exception on error
+	 */
+	@Test
+	public void testAcHybridCombinationDischarge() throws Exception {
+		PowerComponent powerComponent = new PowerComponentImpl();
+		DummyHybridEss ess1 = new DummyHybridEss("ess1", powerComponent) //
+				.withMaxApparentPower(40000) //
+				.withAllowedChargePower(-10000) //
+				.withAllowedDischargePower(10000) //
+				.withSoc(10) //
+				.withPowerPrecision(100);
+		DummyManagedSymmetricEss ess2 = new DummyManagedSymmetricEss("ess2", powerComponent) //
+				.withMaxApparentPower(40000) //
+				.withAllowedChargePower(-3000) //
+				.withAllowedDischargePower(3000) //
+				.withSoc(50) //
+				.withPowerPrecision(100);
+		DummyMetaEss ess0 = new DummyMetaEss("ess0", powerComponent, ess1, ess2); //
+
+		final ComponentTest componentTest = new ComponentTest(powerComponent) //
+				.addReference("addEss", ess0) //
+				.addReference("addEss", ess1) //
+				.addReference("addEss", ess2) //
+				.activate(MyConfig.create() //
+						.setStrategy(SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET) //
+						.setSymmetricMode(true) //
+						.setDebugMode(false) //
+						.setEnablePid(false) //
+						.build()); //
+
+		// #1 Discharge -> always prefer HybridEss
+		expect("#1", ess1, 3000, 0);
+		expect("#1", ess2, 0, 0);
+		ess0.addPowerConstraint("#2", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 3000);
+		componentTest.next(new TestCase("#2"));
+	}
+
+	private static void expect(String description, AbstractDummyManagedSymmetricEss<?> ess, int p, int q) {
 		openCallbacks.incrementAndGet();
 		ess.withSymmetricApplyPowerCallback((record) -> {
 			openCallbacks.decrementAndGet();
