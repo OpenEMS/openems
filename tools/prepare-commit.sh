@@ -102,6 +102,9 @@ EOT
 	fi
 done
 
+# Build
+./gradlew build
+
 # Update EdgeApp.bndrun
 bndrun='io.openems.edge.application/EdgeApp.bndrun'
 head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bndrun" > "$bndrun.new"
