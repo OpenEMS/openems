@@ -19,7 +19,7 @@ public class DcDcParameter {
 	private int stringControlMode = 0;
 
 	public float getDcVoltageSetpoint() {
-		return dcVoltageSetpoint;
+		return this.dcVoltageSetpoint;
 	}
 
 	public void setDcVoltageSetpoint(float dcVoltageSetpoint) {
@@ -27,7 +27,7 @@ public class DcDcParameter {
 	}
 
 	public float getWeightStringA() {
-		return weightStringA;
+		return this.weightStringA;
 	}
 
 	public void setWeightStringA(float weightStringA) {
@@ -35,7 +35,7 @@ public class DcDcParameter {
 	}
 
 	public float getWeightStringB() {
-		return weightStringB;
+		return this.weightStringB;
 	}
 
 	public void setWeightStringB(float weightStringB) {
@@ -43,7 +43,7 @@ public class DcDcParameter {
 	}
 
 	public float getWeightStringC() {
-		return weightStringC;
+		return this.weightStringC;
 	}
 
 	public void setWeightStringC(float weightStringC) {
@@ -51,7 +51,7 @@ public class DcDcParameter {
 	}
 
 	public int getStringControlMode() {
-		return stringControlMode;
+		return this.stringControlMode;
 	}
 
 	public void setStringControlMode(int stringControlMode) {
@@ -59,15 +59,15 @@ public class DcDcParameter {
 	}
 
 	public float getiRefStringA() {
-		return iRefStringA;
+		return this.iRefStringA;
 	}
 
 	public float getiRefStringB() {
-		return iRefStringB;
+		return this.iRefStringB;
 	}
 
 	public float getiRefStringC() {
-		return iRefStringC;
+		return this.iRefStringC;
 	}
 
 	public void setiRefStringA(float iRefStringA) {
@@ -84,31 +84,31 @@ public class DcDcParameter {
 
 	@Override
 	public String toString() {
-		return "DcDcParameter [dcVoltageSetpoint=" + dcVoltageSetpoint + ", weightStringA=" + weightStringA
-				+ ", weightStringB=" + weightStringB + ", weightStringC=" + weightStringC + ", iRefStringA="
-				+ iRefStringA + ", iRefStringB=" + iRefStringB + ", iRefStringC=" + iRefStringC + ", stringControlMode="
-				+ stringControlMode + "]\n" + getHexRepresentation();
+		return "DcDcParameter [dcVoltageSetpoint=" + this.dcVoltageSetpoint + ", weightStringA=" + this.weightStringA
+				+ ", weightStringB=" + this.weightStringB + ", weightStringC=" + this.weightStringC + ", iRefStringA="
+				+ this.iRefStringA + ", iRefStringB=" + this.iRefStringB + ", iRefStringC=" + this.iRefStringC
+				+ ", stringControlMode=" + this.stringControlMode + "]\n" + this.getHexRepresentation();
 	}
 
 	private String getHexRepresentation() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(DC_DC_ADRESS);
 		sb.append(": ");
-		sb.append(HexFormatter.format(dcVoltageSetpoint, true));
+		sb.append(HexFormatter.format(this.dcVoltageSetpoint, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(weightStringA, true));
+		sb.append(HexFormatter.format(this.weightStringA, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(weightStringB, true));
+		sb.append(HexFormatter.format(this.weightStringB, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(weightStringC, true));
+		sb.append(HexFormatter.format(this.weightStringC, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(iRefStringA, true));
+		sb.append(HexFormatter.format(this.iRefStringA, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(iRefStringB, true));
+		sb.append(HexFormatter.format(this.iRefStringB, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(iRefStringC, true));
+		sb.append(HexFormatter.format(this.iRefStringC, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(stringControlMode, true));
+		sb.append(HexFormatter.format(this.stringControlMode, true));
 
 		return sb.toString();
 	}

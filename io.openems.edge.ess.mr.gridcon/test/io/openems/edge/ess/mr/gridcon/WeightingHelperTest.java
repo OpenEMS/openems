@@ -230,27 +230,26 @@ public class WeightingHelperTest {
 
 		int b1Voltage = 650;
 		int b1maxCurrent = 80;
+		b1.setVoltage(b1Voltage);
+		b1.setMaximalChargeCurrent(b1maxCurrent);
 
 		int b2Voltage = 700;
 		int b2maxCurrent = 80;
+		b2.setVoltage(b2Voltage);
+		b2.setMaximalChargeCurrent(b2maxCurrent);
 
 		int b3Voltage = 800;
 		int b3maxCurrent = 30;
-
-		float maxPower1 = b1Voltage * b1maxCurrent;
-		float maxPower2 = b2Voltage * b2maxCurrent;
-		float maxPower3 = b3Voltage * b3maxCurrent;
-
-		b1.setVoltage(b1Voltage);
-		b1.setMaximalChargeCurrent(b1maxCurrent);
-		b2.setVoltage(b2Voltage);
-		b2.setMaximalChargeCurrent(b2maxCurrent);
 		b3.setVoltage(b3Voltage);
 		b3.setMaximalChargeCurrent(b3maxCurrent);
 
 		b1.start();
 		b2.start();
 		b3.start();
+
+		float maxPower1 = b1Voltage * b1maxCurrent;
+		float maxPower2 = b2Voltage * b2maxCurrent;
+		float maxPower3 = b3Voltage * b3maxCurrent;
 		expected = new Float[] { maxPower1, maxPower2, maxPower3 };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
@@ -299,27 +298,26 @@ public class WeightingHelperTest {
 
 		int b1Voltage = 650;
 		int b1maxCurrent = 80;
+		b1.setVoltage(b1Voltage);
+		b1.setMaximalDischargeCurrent(b1maxCurrent);
 
 		int b2Voltage = 700;
 		int b2maxCurrent = 80;
+		b2.setVoltage(b2Voltage);
+		b2.setMaximalDischargeCurrent(b2maxCurrent);
 
 		int b3Voltage = 800;
 		int b3maxCurrent = 30;
-
-		float maxPower1 = b1Voltage * b1maxCurrent;
-		float maxPower2 = b2Voltage * b2maxCurrent;
-		float maxPower3 = b3Voltage * b3maxCurrent;
-
-		b1.setVoltage(b1Voltage);
-		b1.setMaximalDischargeCurrent(b1maxCurrent);
-		b2.setVoltage(b2Voltage);
-		b2.setMaximalDischargeCurrent(b2maxCurrent);
 		b3.setVoltage(b3Voltage);
 		b3.setMaximalDischargeCurrent(b3maxCurrent);
 
 		b1.start();
 		b2.start();
 		b3.start();
+
+		float maxPower1 = b1Voltage * b1maxCurrent;
+		float maxPower2 = b2Voltage * b2maxCurrent;
+		float maxPower3 = b3Voltage * b3maxCurrent;
 		expected = new Float[] { maxPower1, maxPower2, maxPower3 };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);

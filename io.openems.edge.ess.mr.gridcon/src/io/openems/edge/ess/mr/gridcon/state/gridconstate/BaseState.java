@@ -32,11 +32,11 @@ public abstract class BaseState implements GridconStateObject {
 	}
 
 	protected boolean isNextStateUndefined() {
-		if (!getGridconPcs().isCommunicationBroken() && !isGridconDefined()) {
+		if (!this.getGridconPcs().isCommunicationBroken() && !this.isGridconDefined()) {
 			System.out.println("Gridcon is undefined!");
 			return true;
 		}
-		if (!isAtLeastOneBatteryDefined()) {
+		if (!this.isAtLeastOneBatteryDefined()) {
 			System.out.println("All Batteries are undefined!");
 			return true;
 		}
@@ -46,14 +46,14 @@ public abstract class BaseState implements GridconStateObject {
 	private boolean isAtLeastOneBatteryDefined() {
 		boolean undefined = true;
 
-		if (getBattery1() != null) {
-			undefined = undefined && Helper.isUndefined(getBattery1());
+		if (this.getBattery1() != null) {
+			undefined = undefined && Helper.isUndefined(this.getBattery1());
 		}
-		if (getBattery2() != null) {
-			undefined = undefined && Helper.isUndefined(getBattery2());
+		if (this.getBattery2() != null) {
+			undefined = undefined && Helper.isUndefined(this.getBattery2());
 		}
-		if (getBattery3() != null) {
-			undefined = undefined && Helper.isUndefined(getBattery3());
+		if (this.getBattery3() != null) {
+			undefined = undefined && Helper.isUndefined(this.getBattery3());
 		}
 
 		return !undefined;
@@ -62,27 +62,28 @@ public abstract class BaseState implements GridconStateObject {
 	private boolean isGridconDefined() {
 		boolean defined = false;
 
-		if (getGridconPcs() != null) {
-			defined = !getGridconPcs().isUndefined();
+		if (this.getGridconPcs() != null) {
+			defined = !this.getGridconPcs().isUndefined();
 		}
 
 		return defined;
 	}
 
 	protected boolean isNextStateError() {
-		if (getGridconPcs() != null && (getGridconPcs().isError() || getGridconPcs().isCommunicationBroken())) {
+		if (this.getGridconPcs() != null
+				&& (this.getGridconPcs().isError() || this.getGridconPcs().isCommunicationBroken())) {
 			return true;
 		}
 
-		if (getBattery1() != null && Helper.isError(getBattery1())) {
+		if (this.getBattery1() != null && Helper.isError(this.getBattery1())) {
 			return true;
 		}
 
-		if (getBattery2() != null && Helper.isError(getBattery2())) {
+		if (this.getBattery2() != null && Helper.isError(this.getBattery2())) {
 			return true;
 		}
 
-		if (getBattery3() != null && Helper.isError(getBattery3())) {
+		if (this.getBattery3() != null && Helper.isError(this.getBattery3())) {
 			return true;
 		}
 
@@ -90,65 +91,67 @@ public abstract class BaseState implements GridconStateObject {
 	}
 
 	protected boolean isNextStateStopped() {
-		return getGridconPcs() != null && getGridconPcs().isStopped();
+		return this.getGridconPcs() != null && this.getGridconPcs().isStopped();
 	}
 
 	protected boolean isNextStateRunning() {
-		return (getGridconPcs() != null && getGridconPcs().isRunning());
+		return (this.getGridconPcs() != null && this.getGridconPcs().isRunning());
 	}
 
 	protected void startBatteries() {
-		if (getBattery1() != null) {
-			if (!Helper.isRunning(getBattery1())) {
-				Helper.startBattery(getBattery1());
+		if (this.getBattery1() != null) {
+			if (!Helper.isRunning(this.getBattery1())) {
+				Helper.startBattery(this.getBattery1());
 			}
 		}
-		if (getBattery2() != null) {
-			if (!Helper.isRunning(getBattery2())) {
-				Helper.startBattery(getBattery2());
+		if (this.getBattery2() != null) {
+			if (!Helper.isRunning(this.getBattery2())) {
+				Helper.startBattery(this.getBattery2());
 			}
 		}
-		if (getBattery3() != null) {
-			if (!Helper.isRunning(getBattery3())) {
-				Helper.startBattery(getBattery3());
+		if (this.getBattery3() != null) {
+			if (!Helper.isRunning(this.getBattery3())) {
+				Helper.startBattery(this.getBattery3());
 			}
 		}
 	}
 
 	protected boolean isBatteriesStarted() {
 		boolean running = true;
-		if (getBattery1() != null) {
-			running = running && Helper.isRunning(getBattery1());
+		if (this.getBattery1() != null) {
+			running = running && Helper.isRunning(this.getBattery1());
 		}
-		if (getBattery2() != null) {
-			running = running && Helper.isRunning(getBattery2());
+		if (this.getBattery2() != null) {
+			running = running && Helper.isRunning(this.getBattery2());
 		}
-		if (getBattery3() != null) {
-			running = running && Helper.isRunning(getBattery3());
+		if (this.getBattery3() != null) {
+			running = running && Helper.isRunning(this.getBattery3());
 		}
 		return running;
 	}
 
 	protected void setStringControlMode() {
-		int weightingMode = WeightingHelper.getStringControlMode(getBattery1(), getBattery2(), getBattery3());
-		getGridconPcs().setStringControlMode(weightingMode);
+		int weightingMode = WeightingHelper.getStringControlMode(this.getBattery1(), this.getBattery2(),
+				this.getBattery3());
+		this.getGridconPcs().setStringControlMode(weightingMode);
 	}
 
 	protected void setStringWeighting() {
-		float activePower = getGridconPcs().getActivePowerPreset();
+		float activePower = this.getGridconPcs().getActivePowerPreset();
 
-		Float[] weightings = WeightingHelper.getWeighting(activePower, getBattery1(), getBattery2(), getBattery3());
+		Float[] weightings = WeightingHelper.getWeighting(activePower, this.getBattery1(), this.getBattery2(),
+				this.getBattery3());
 
-		getGridconPcs().setWeightStringA(weightings[0]);
-		getGridconPcs().setWeightStringB(weightings[1]);
-		getGridconPcs().setWeightStringC(weightings[2]);
+		this.getGridconPcs().setWeightStringA(weightings[0]);
+		this.getGridconPcs().setWeightStringB(weightings[1]);
+		this.getGridconPcs().setWeightStringC(weightings[2]);
 	}
 
 	protected void setDateAndTime() {
 		int date = this.convertToInteger(this.generateDate(LocalDateTime.now()));
-		getGridconPcs().setSyncDate(date);
+		this.getGridconPcs().setSyncDate(date);
 		int time = this.convertToInteger(this.generateTime(LocalDateTime.now()));
-		getGridconPcs().setSyncTime(time);
+		this.getGridconPcs().setSyncTime(time);
 	}
 
 	private BitSet generateDate(LocalDateTime time) {
@@ -177,7 +180,7 @@ public abstract class BaseState implements GridconStateObject {
 	}
 
 	GridconPcs getGridconPcs() {
-		return getComponent(gridconPcsId);
+		return this.getComponent(this.gridconPcsId);
 	}
 
 	protected void setHardRestartRelay(boolean val) {
@@ -191,21 +194,21 @@ public abstract class BaseState implements GridconStateObject {
 	}
 
 	Battery getBattery1() {
-		return getComponent(battery1Id);
+		return this.getComponent(this.battery1Id);
 	}
 
 	Battery getBattery2() {
-		return getComponent(battery2Id);
+		return this.getComponent(this.battery2Id);
 	}
 
 	Battery getBattery3() {
-		return getComponent(battery3Id);
+		return this.getComponent(this.battery3Id);
 	}
 
 	<T> T getComponent(String id) {
 		T component = null;
 		try {
-			component = manager.getComponent(id);
+			component = this.manager.getComponent(id);
 		} catch (OpenemsNamedException e) {
 			System.out.println(e);
 		}

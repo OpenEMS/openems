@@ -52,7 +52,7 @@ public class EssGridconOnGrid extends EssGridcon
 		this.config = c;
 		EssGridconOnGrid.super.activate(context, c.id(), c.alias(), c.enabled(), c.gridcon_id(), c.bms_a_id(),
 				c.bms_b_id(), c.bms_c_id(), c.offsetCurrent());
-		this.checkConfiguration(config);
+		this.checkConfiguration(this.config);
 	}
 
 	@Deactivate
@@ -76,12 +76,12 @@ public class EssGridconOnGrid extends EssGridcon
 
 	@Override
 	public Power getPower() {
-		return power;
+		return this.power;
 	}
 
 	@Override
 	protected ComponentManager getComponentManager() {
-		return componentManager;
+		return this.componentManager;
 	}
 
 	@Override
@@ -91,8 +91,9 @@ public class EssGridconOnGrid extends EssGridcon
 
 	@Override
 	protected void initializeStateController(String gridconPcs, String b1, String b2, String b3) {
-		stateController.initOnGrid(componentManager, gridconPcs, b1, b2, b3, config.enableIpu1(), config.enableIpu2(),
-				config.enableIpu3(), /* config.parameterSet(), */ config.outputHardReset(), config.offsetCurrent());
+		this.stateController.initOnGrid(this.componentManager, gridconPcs, b1, b2, b3, this.config.enableIpu1(),
+				this.config.enableIpu2(), this.config.enableIpu3(),
+				/* config.parameterSet(), */ this.config.outputHardReset(), this.config.offsetCurrent());
 	}
 
 	@Override

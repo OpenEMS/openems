@@ -48,10 +48,10 @@ public class OffGridGridBack extends BaseState {
 	@Override
 	public void act() throws OpenemsNamedException {
 		setSyncBridge(true);
-		float factor = targetFrequencyOffgrid / GridconPcs.DEFAULT_GRID_FREQUENCY;
-		getGridconPcs().setF0(factor);
+		float factor = this.targetFrequencyOffgrid / GridconPcs.DEFAULT_GRID_FREQUENCY;
+		this.getGridconPcs().setF0(factor);
 		try {
-			getGridconPcs().doWriteTasks();
+			this.getGridconPcs().doWriteTasks();
 		} catch (OpenemsNamedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

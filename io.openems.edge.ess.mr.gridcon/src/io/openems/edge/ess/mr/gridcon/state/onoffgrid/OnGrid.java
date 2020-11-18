@@ -46,12 +46,12 @@ public class OnGrid extends BaseState {
 	public void act() throws OpenemsNamedException {
 
 		setSyncBridge(false);
-		float factor = targetFrequencyOnGrid / GridconPcs.DEFAULT_GRID_FREQUENCY;
+		float factor = this.targetFrequencyOnGrid / GridconPcs.DEFAULT_GRID_FREQUENCY;
 		System.out.println(" ---> set frequency factor: " + factor);
-		getGridconPcs().setF0(factor);
+		this.getGridconPcs().setF0(factor);
 
 		try {
-			getGridconPcs().doWriteTasks();
+			this.getGridconPcs().doWriteTasks();
 		} catch (OpenemsNamedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

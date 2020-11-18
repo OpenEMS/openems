@@ -28,7 +28,7 @@ public interface DecisionTableCondition {
 		}
 
 		public Boolean getValue() {
-			return value;
+			return this.value;
 		}
 	}
 
@@ -43,7 +43,7 @@ public interface DecisionTableCondition {
 		}
 
 		public Boolean getValue() {
-			return value;
+			return this.value;
 		}
 	}
 
@@ -58,7 +58,7 @@ public interface DecisionTableCondition {
 		}
 
 		public Boolean getValue() {
-			return value;
+			return this.value;
 		}
 	}
 
@@ -73,7 +73,7 @@ public interface DecisionTableCondition {
 		}
 
 		public Boolean getValue() {
-			return value;
+			return this.value;
 		}
 	}
 
@@ -88,7 +88,7 @@ public interface DecisionTableCondition {
 		}
 
 		public Boolean getValue() {
-			return value;
+			return this.value;
 		}
 	}
 
@@ -103,7 +103,7 @@ public interface DecisionTableCondition {
 		}
 
 		public Boolean getValue() {
-			return value;
+			return this.value;
 		}
 	}
 }

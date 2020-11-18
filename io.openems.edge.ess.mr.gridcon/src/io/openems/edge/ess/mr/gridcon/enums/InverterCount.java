@@ -20,6 +20,6 @@ public enum InverterCount {
 	}
 
 	public int getMaxApparentPower() {
-		return maxApparentPower;
+		return this.maxApparentPower;
 	}
 }

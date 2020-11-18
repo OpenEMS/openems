@@ -52,16 +52,16 @@ public class AdjustParameter extends BaseState {
 	@Override
 	public void act() throws OpenemsNamedException {
 
-		float targetFrequency = getFrequencyOnMeter() + deltaFrequency;
+		float targetFrequency = getFrequencyOnMeter() + this.deltaFrequency;
 		float frequencyFactor = targetFrequency / GridconPcs.DEFAULT_GRID_FREQUENCY;
-		getGridconPcs().setF0(frequencyFactor);
+		this.getGridconPcs().setF0(frequencyFactor);
 
-		float targetVoltage = getVoltageOnMeter() + deltaVoltage;
+		float targetVoltage = getVoltageOnMeter() + this.deltaVoltage;
 		float voltageFactor = targetVoltage / GridconPcs.DEFAULT_GRID_VOLTAGE;
-		getGridconPcs().setU0(voltageFactor);
+		this.getGridconPcs().setU0(voltageFactor);
 
 		try {
-			getGridconPcs().doWriteTasks();
+			this.getGridconPcs().doWriteTasks();
 		} catch (Exception e) {
 			System.out.println("Adjust parameter , error while writing the tasks");
 		}

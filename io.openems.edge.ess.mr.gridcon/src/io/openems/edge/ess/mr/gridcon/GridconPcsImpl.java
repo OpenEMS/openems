@@ -72,9 +72,12 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	private static final int START_ADDRESS_GRID_MEASUREMENTS = 33456; // TODO CHECK if it is varible
 
 	private static final int START_ADDRESS_DCDC_MEASUREMENTS = 33488;
-//	private static final int START_ADDRESS_DCDC_MEASUREMENTS_WITH_ONE_IPU = 33520;
-//	private static final int START_ADDRESS_DCDC_MEASUREMENTS_WITH_TWO_IPUS = 33552;
-//	private static final int START_ADDRESS_DCDC_MEASUREMENTS_WITH_THREE_IPUS = 33584;
+	// private static final int START_ADDRESS_DCDC_MEASUREMENTS_WITH_ONE_IPU =
+	// 33520;
+	// private static final int START_ADDRESS_DCDC_MEASUREMENTS_WITH_TWO_IPUS =
+	// 33552;
+	// private static final int START_ADDRESS_DCDC_MEASUREMENTS_WITH_THREE_IPUS =
+	// 33584;
 
 	private static final int START_ADDRESS_DCDC_STATE_WITH_TWO_IPUS = 33232;
 	private static final int START_ADDRESS_DCDC_STATE_WITH_ONE_IPU = 33200;
@@ -120,14 +123,14 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				GridConChannelId.values() //
 		);
-		commands = new Commands();
-		ccuParameters1 = new CcuParameters1();
-		ccuParameters2 = new CcuParameters2();
-		ipu1Parameter = new IpuParameter();
-		ipu2Parameter = new IpuParameter();
-		ipu3Parameter = new IpuParameter();
-		dcDcParameter = new DcDcParameter();
-		cosPhiParameters = new CosPhiParameters();
+		this.commands = new Commands();
+		this.ccuParameters1 = new CcuParameters1();
+		this.ccuParameters2 = new CcuParameters2();
+		this.ipu1Parameter = new IpuParameter();
+		this.ipu2Parameter = new IpuParameter();
+		this.ipu3Parameter = new IpuParameter();
+		this.dcDcParameter = new DcDcParameter();
+		this.cosPhiParameters = new CosPhiParameters();
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -160,19 +163,19 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public float getMaxApparentPower() {
-		return inverterCount.getMaxApparentPower();
+		return this.inverterCount.getMaxApparentPower();
 	}
 
 	@Override
 	public void doWriteTasks() throws OpenemsNamedException {
-		writeCommands();
-		writeCcuParameters1();
-		writeCcuParameters2();
-		writeCosPhiParameters();
-		writeDcDcControlCommandWord();
-		writeIpuInverter1ControlCommand();
-		writeIpuInverter2ControlCommand();
-		writeIpuInverter3ControlCommand();
+		this.writeCommands();
+		this.writeCcuParameters1();
+		this.writeCcuParameters2();
+		this.writeCosPhiParameters();
+		this.writeDcDcControlCommandWord();
+		this.writeIpuInverter1ControlCommand();
+		this.writeIpuInverter2ControlCommand();
+		this.writeIpuInverter3ControlCommand();
 	}
 
 	@Override
@@ -185,9 +188,9 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE:
 			try {
 				// Ensure that all values are set before writing is executed
-				doWriteTasks();
+				this.doWriteTasks();
 			} catch (OpenemsNamedException e) {
-				log.error("Error in doWriteTasks()", e);
+				this.log.error("Error in doWriteTasks()", e);
 			}
 			break;
 		}
@@ -198,80 +201,81 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 		CcuState state = ((EnumReadChannel) this.channel(GridConChannelId.CCU_STATE)).value().asEnum();
 		IntegerReadChannel errorCountChannel = this.channel(GridConChannelId.CCU_ERROR_COUNT);
 		int errorCount = errorCountChannel.value().orElse(-1);
-		return "Gridcon CCU state: " + state + "; Error count: " + errorCount + "; Active Power: " + getActivePower();
+		return "Gridcon CCU state: " + state + "; Error count: " + errorCount + "; Active Power: "
+				+ this.getActivePower();
 
 	}
 
-//	private String getGridMeasurements() {
-//		StringBuilder s = new StringBuilder();
-//		
-//		s.append("Current L1: ");
-//		s.append(getCurrentL1Grid());
-//		s.append("\n");
-//		
-//		s.append("Current L2: ");
-//		s.append(getCurrentL2Grid());
-//		s.append("\n");
-//		
-//		s.append("Current L3: ");
-//		s.append(getCurrentL3Grid());
-//		s.append("\n");
-//		
-//		s.append("Current N: ");
-//		s.append(getCurrentLNGrid());
-//		s.append("\n");
-//		
-//		s.append("Active Power L1: ");
-//		s.append(getActivePowerL1Grid());
-//		s.append("\n");
-//		
-//		s.append("Active Power L2: ");
-//		s.append(getActivePowerL2Grid());
-//		s.append("\n");
-//		
-//		s.append("Active Power L3: ");
-//		s.append(getActivePowerL3Grid());
-//		s.append("\n");
-//		
-//		s.append("Active Power Sum: ");
-//		s.append(getActivePowerSumGrid());
-//		s.append("\n");
-//		
-//		s.append("Reactive Power L1: ");
-//		s.append(getReactivePowerL1Grid());
-//		s.append("\n");
-//		
-//		s.append("Reactive Power L2: ");
-//		s.append(getReactivePowerL2Grid());
-//		s.append("\n");
-//		
-//		s.append("Reactive Power L3: ");
-//		s.append(getReactivePowerL3Grid());
-//		s.append("\n");
-//		
-//		s.append("Reactive Power Sum: ");
-//		s.append(getReactivePowerSumGrid());
-//		s.append("\n");
-//		
-//		s.append("Apparent Power L1: ");
-//		s.append(getApparentPowerL1Grid());
-//		s.append("\n");
-//		
-//		s.append("Apparent Power L2: ");
-//		s.append(getApparentPowerL2Grid());
-//		s.append("\n");
-//		
-//		s.append("Apparent Power L3: ");
-//		s.append(getApparentPowerL3Grid());
-//		s.append("\n");
-//		
-//		s.append("Apparent Power Sum: ");
-//		s.append(getApparentPowerSumGrid());
-//		s.append("\n");
-//		
-//		
-//		return s.toString();
-//	}
+	// private String getGridMeasurements() {
+	// StringBuilder s = new StringBuilder();
+	//
+	// s.append("Current L1: ");
+	// s.append(getCurrentL1Grid());
+	// s.append("\n");
+	//
+	// s.append("Current L2: ");
+	// s.append(getCurrentL2Grid());
+	// s.append("\n");
+	//
+	// s.append("Current L3: ");
+	// s.append(getCurrentL3Grid());
+	// s.append("\n");
+	//
+	// s.append("Current N: ");
+	// s.append(getCurrentLNGrid());
+	// s.append("\n");
+	//
+	// s.append("Active Power L1: ");
+	// s.append(getActivePowerL1Grid());
+	// s.append("\n");
+	//
+	// s.append("Active Power L2: ");
+	// s.append(getActivePowerL2Grid());
+	// s.append("\n");
+	//
+	// s.append("Active Power L3: ");
+	// s.append(getActivePowerL3Grid());
+	// s.append("\n");
+	//
+	// s.append("Active Power Sum: ");
+	// s.append(getActivePowerSumGrid());
+	// s.append("\n");
+	//
+	// s.append("Reactive Power L1: ");
+	// s.append(getReactivePowerL1Grid());
+	// s.append("\n");
+	//
+	// s.append("Reactive Power L2: ");
+	// s.append(getReactivePowerL2Grid());
+	// s.append("\n");
+	//
+	// s.append("Reactive Power L3: ");
+	// s.append(getReactivePowerL3Grid());
+	// s.append("\n");
+	//
+	// s.append("Reactive Power Sum: ");
+	// s.append(getReactivePowerSumGrid());
+	// s.append("\n");
+	//
+	// s.append("Apparent Power L1: ");
+	// s.append(getApparentPowerL1Grid());
+	// s.append("\n");
+	//
+	// s.append("Apparent Power L2: ");
+	// s.append(getApparentPowerL2Grid());
+	// s.append("\n");
+	//
+	// s.append("Apparent Power L3: ");
+	// s.append(getApparentPowerL3Grid());
+	// s.append("\n");
+	//
+	// s.append("Apparent Power Sum: ");
+	// s.append(getApparentPowerSumGrid());
+	// s.append("\n");
+	//
+	//
+	// return s.toString();
+	// }
 
 	@Override
 	public void setPower(int activePower, int reactivePower) {
@@ -283,7 +287,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 		 * values lower than -1 or higher than 1.
 		 */
 
-		activePowerPreset = activePower;
+		this.activePowerPreset = activePower;
 
 		float activePowerFactor = (-1) * activePower / maxApparentPower;
 		float reactivePowerFactor = (-1) * reactivePower / maxApparentPower;
@@ -338,103 +342,109 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	}
 
 	protected void writeCcuParameters1() throws IllegalArgumentException, OpenemsNamedException {
-		CcuParameters1 ccpw = ccuParameters1;
+		CcuParameters1 ccpw = this.ccuParameters1;
 
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN_LOWER, ccpw.getuByQDroopMainLower());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN_UPPER, ccpw.getuByQDroopMainUpper());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN, ccpw.getuByQDroopT1Main());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_F_P_DROOP_MAIN_LOWER, ccpw.getfByPDroopMainLower());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_F_P_DROOP_MAIN_UPPER, ccpw.getfByPDroopMainUpper());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_F_P_DROOP_T1_MAIN, ccpw.getfByPDroopT1Main());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_U_DROOP_MAIN_LOWER, ccpw.getqByUDroopMainLower());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_U_DROOP_MAIN_UPPER, ccpw.getqByUDroopMainUpper());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_U_DEAD_BAND_LOWER, ccpw.getqByUDeadBandLower());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_U_DEAD_BAND_UPPER, ccpw.getqByUDeadBandUpper());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_LIMIT, ccpw.getqLimit());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN_LOWER, ccpw.getuByQDroopMainLower());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN_UPPER, ccpw.getuByQDroopMainUpper());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN, ccpw.getuByQDroopT1Main());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_F_P_DROOP_MAIN_LOWER, ccpw.getfByPDroopMainLower());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_F_P_DROOP_MAIN_UPPER, ccpw.getfByPDroopMainUpper());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_F_P_DROOP_T1_MAIN, ccpw.getfByPDroopT1Main());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_U_DROOP_MAIN_LOWER, ccpw.getqByUDroopMainLower());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_U_DROOP_MAIN_UPPER, ccpw.getqByUDroopMainUpper());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_U_DEAD_BAND_LOWER, ccpw.getqByUDeadBandLower());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_U_DEAD_BAND_UPPER, ccpw.getqByUDeadBandUpper());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_LIMIT, ccpw.getqLimit());
 	}
 
 	protected void writeCcuParameters2() throws IllegalArgumentException, OpenemsNamedException {
-		CcuParameters2 ccpw = ccuParameters2;
+		CcuParameters2 ccpw = this.ccuParameters2;
 
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN_LOWER, ccpw.getpByFDroopMainLower());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN_UPPER, ccpw.getpByFDroopMainUpper());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DEAD_BAND_LOWER, ccpw.getpByFDeadBandLower());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DEAD_BAND_UPPER, ccpw.getpByFDeadBandUpper());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DROOP_LOWER, ccpw.getpByUDroopLower());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DROOP_UPPER, ccpw.getpByUDroopUpper());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DEAD_BAND_LOWER, ccpw.getpByUDeadBandLower());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DEAD_BAND_UPPER, ccpw.getpByUDeadBandUpper());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_MAX_CHARGE, ccpw.getpByUMaxCharge());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_MAX_DISCHARGE, ccpw.getpByUMaxDischarge());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_MODE, ccpw.getpControlMode().getValue()); //
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_LIM_TWO, ccpw.getpControlLimTwo());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_LIM_ONE, ccpw.getpControlLimOne());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN_LOWER, ccpw.getpByFDroopMainLower());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN_UPPER, ccpw.getpByFDroopMainUpper());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DEAD_BAND_LOWER, ccpw.getpByFDeadBandLower());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DEAD_BAND_UPPER, ccpw.getpByFDeadBandUpper());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DROOP_LOWER, ccpw.getpByUDroopLower());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DROOP_UPPER, ccpw.getpByUDroopUpper());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DEAD_BAND_LOWER, ccpw.getpByUDeadBandLower());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DEAD_BAND_UPPER, ccpw.getpByUDeadBandUpper());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_MAX_CHARGE, ccpw.getpByUMaxCharge());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_MAX_DISCHARGE, ccpw.getpByUMaxDischarge());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_MODE, ccpw.getpControlMode().getValue()); //
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_LIM_TWO, ccpw.getpControlLimTwo());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_LIM_ONE, ccpw.getpControlLimOne());
 	}
 
 	protected void writeCosPhiParameters() throws IllegalArgumentException, OpenemsNamedException {
-		CosPhiParameters cpp = cosPhiParameters;
+		CosPhiParameters cpp = this.cosPhiParameters;
 
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_COS_PHI_SETPOINT_1, cpp.getCosPhiSetPoint1());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_COS_PHI_SETPOINT_2, cpp.getCosPhiSetPoint2());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_COS_PHI_SETPOINT_1, cpp.getCosPhiSetPoint1());
+		this.writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_COS_PHI_SETPOINT_2, cpp.getCosPhiSetPoint2());
 	}
 
 	protected void writeIpuInverter1ControlCommand() throws IllegalArgumentException, OpenemsNamedException {
-		IpuParameter iicw = ipu1Parameter;
+		IpuParameter iicw = this.ipu1Parameter;
 
-		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_VOLTAGE_SETPOINT, iicw.getDcVoltageSetpoint());
-		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_CURRENT_SETPOINT, iicw.getDcCurrentSetpoint());
-		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_U0_OFFSET_TO_CCU_VALUE, iicw.getU0OffsetToCcu());
-		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_F0_OFFSET_TO_CCU_VALUE, iicw.getF0OffsetToCcu());
-		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_Q_REF_OFFSET_TO_CCU_VALUE, iicw.getqRefOffsetToCcu());
-		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_REF_OFFSET_TO_CCU_VALUE, iicw.getpRefOffsetToCcu());
-		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_MAX_DISCHARGE, iicw.getpMaxDischarge());
-		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_MAX_CHARGE, iicw.getpMaxCharge());
+		this.writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_VOLTAGE_SETPOINT, iicw.getDcVoltageSetpoint());
+		this.writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_CURRENT_SETPOINT, iicw.getDcCurrentSetpoint());
+		this.writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_U0_OFFSET_TO_CCU_VALUE, iicw.getU0OffsetToCcu());
+		this.writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_F0_OFFSET_TO_CCU_VALUE, iicw.getF0OffsetToCcu());
+		this.writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_Q_REF_OFFSET_TO_CCU_VALUE,
+				iicw.getqRefOffsetToCcu());
+		this.writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_REF_OFFSET_TO_CCU_VALUE,
+				iicw.getpRefOffsetToCcu());
+		this.writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_MAX_DISCHARGE, iicw.getpMaxDischarge());
+		this.writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_MAX_CHARGE, iicw.getpMaxCharge());
 	}
 
 	protected void writeIpuInverter2ControlCommand() throws IllegalArgumentException, OpenemsNamedException {
-		IpuParameter iicw = ipu2Parameter;
+		IpuParameter iicw = this.ipu2Parameter;
 
-		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_DC_VOLTAGE_SETPOINT, iicw.getDcVoltageSetpoint());
-		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_DC_CURRENT_SETPOINT, iicw.getDcCurrentSetpoint());
-		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_U0_OFFSET_TO_CCU_VALUE, iicw.getU0OffsetToCcu());
-		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_F0_OFFSET_TO_CCU_VALUE, iicw.getF0OffsetToCcu());
-		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_Q_REF_OFFSET_TO_CCU_VALUE, iicw.getqRefOffsetToCcu());
-		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_REF_OFFSET_TO_CCU_VALUE, iicw.getpRefOffsetToCcu());
-		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_MAX_DISCHARGE, iicw.getpMaxDischarge());
-		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_MAX_CHARGE, iicw.getpMaxCharge());
+		this.writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_DC_VOLTAGE_SETPOINT, iicw.getDcVoltageSetpoint());
+		this.writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_DC_CURRENT_SETPOINT, iicw.getDcCurrentSetpoint());
+		this.writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_U0_OFFSET_TO_CCU_VALUE, iicw.getU0OffsetToCcu());
+		this.writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_F0_OFFSET_TO_CCU_VALUE, iicw.getF0OffsetToCcu());
+		this.writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_Q_REF_OFFSET_TO_CCU_VALUE,
+				iicw.getqRefOffsetToCcu());
+		this.writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_REF_OFFSET_TO_CCU_VALUE,
+				iicw.getpRefOffsetToCcu());
+		this.writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_MAX_DISCHARGE, iicw.getpMaxDischarge());
+		this.writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_MAX_CHARGE, iicw.getpMaxCharge());
 	}
 
 	protected void writeIpuInverter3ControlCommand() throws IllegalArgumentException, OpenemsNamedException {
-		IpuParameter iicw = ipu3Parameter;
+		IpuParameter iicw = this.ipu3Parameter;
 
-		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_DC_VOLTAGE_SETPOINT, iicw.getDcVoltageSetpoint());
-		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_DC_CURRENT_SETPOINT, iicw.getDcCurrentSetpoint());
-		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_U0_OFFSET_TO_CCU_VALUE, iicw.getU0OffsetToCcu());
-		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_F0_OFFSET_TO_CCU_VALUE, iicw.getF0OffsetToCcu());
-		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_Q_REF_OFFSET_TO_CCU_VALUE, iicw.getqRefOffsetToCcu());
-		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_P_REF_OFFSET_TO_CCU_VALUE, iicw.getpRefOffsetToCcu());
-		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_P_MAX_DISCHARGE, iicw.getpMaxDischarge());
-		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_P_MAX_CHARGE, iicw.getpMaxCharge());
+		this.writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_DC_VOLTAGE_SETPOINT, iicw.getDcVoltageSetpoint());
+		this.writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_DC_CURRENT_SETPOINT, iicw.getDcCurrentSetpoint());
+		this.writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_U0_OFFSET_TO_CCU_VALUE, iicw.getU0OffsetToCcu());
+		this.writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_F0_OFFSET_TO_CCU_VALUE, iicw.getF0OffsetToCcu());
+		this.writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_Q_REF_OFFSET_TO_CCU_VALUE,
+				iicw.getqRefOffsetToCcu());
+		this.writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_P_REF_OFFSET_TO_CCU_VALUE,
+				iicw.getpRefOffsetToCcu());
+		this.writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_P_MAX_DISCHARGE, iicw.getpMaxDischarge());
+		this.writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_P_MAX_CHARGE, iicw.getpMaxCharge());
 	}
 
 	protected void writeDcDcControlCommandWord() throws IllegalArgumentException, OpenemsNamedException {
-		DcDcParameter dcc = dcDcParameter;
+		DcDcParameter dcc = this.dcDcParameter;
 
 		System.out.println("DC DC control command:\n" + dcc.toString());
 
 		if (dcc.getStringControlMode() == 0) {
 			// weighting is never allowed to be '0', but it's working according to the tool
 			// throw new OpenemsException("Calculated weight of '0' -> not allowed!");
-			log.error("Calculated weight of '0' -> not allowed!");
+			this.log.error("Calculated weight of '0' -> not allowed!");
 		}
 
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_DC_VOLTAGE_SETPOINT, dcc.getDcVoltageSetpoint()); //
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A, dcc.getWeightStringA()); //
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B, dcc.getWeightStringB()); //
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C, dcc.getWeightStringC()); //
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_A, dcc.getiRefStringA()); //
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_B, dcc.getiRefStringB()); //
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_C, dcc.getiRefStringC()); //
+		this.writeValueToChannel(GridConChannelId.DCDC_CONTROL_DC_VOLTAGE_SETPOINT, dcc.getDcVoltageSetpoint()); //
+		this.writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A, dcc.getWeightStringA()); //
+		this.writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B, dcc.getWeightStringB()); //
+		this.writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C, dcc.getWeightStringC()); //
+		this.writeValueToChannel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_A, dcc.getiRefStringA()); //
+		this.writeValueToChannel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_B, dcc.getiRefStringB()); //
+		this.writeValueToChannel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_C, dcc.getiRefStringC()); //
 
 		// Write values into mirror debug values for monitoring them
 		GridconPcsImpl.this.channel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_A_DEBUG)
@@ -444,7 +454,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 		GridconPcsImpl.this.channel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_C_DEBUG)
 				.setNextValue((int) (dcc.getiRefStringC() * 1000));
 
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_STRING_CONTROL_MODE, dcc.getStringControlMode()); //
+		this.writeValueToChannel(GridConChannelId.DCDC_CONTROL_STRING_CONTROL_MODE, dcc.getStringControlMode()); //
 	}
 
 	@Override
@@ -654,31 +664,31 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(CosPhiParameters.COS_PHI_ADDRESS + 2)
 										.wordOrder(WordOrder.LSWMSW)) //
 				)
-//				,								/*
-//				 * Control Parameters Mirror
-//				 */
-//				new FC3ReadRegistersTask(32912, Priority.LOW,
-//						m(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN,
-//								new FloatDoublewordElement(32912).wordOrder(WordOrder.LSWMSW)), //
-//						m(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN,
-//								new FloatDoublewordElement(32914).wordOrder(WordOrder.LSWMSW)), //
-//						m(GridConChannelId.CONTROL_PARAMETER_F_P_DROOP_MAIN,
-//								new FloatDoublewordElement(32916).wordOrder(WordOrder.LSWMSW)), //
-//						m(GridConChannelId.CONTROL_PARAMETER_F_P_DROOP_T1_MAIN,
-//								new FloatDoublewordElement(32918).wordOrder(WordOrder.LSWMSW)), //
-//						m(GridConChannelId.CONTROL_PARAMETER_Q_U_DROOP_MAIN,
-//								new FloatDoublewordElement(32920).wordOrder(WordOrder.LSWMSW)), //
-//						m(GridConChannelId.CONTROL_PARAMETER_Q_U_DEAD_BAND,
-//								new FloatDoublewordElement(32922).wordOrder(WordOrder.LSWMSW)), //
-//						m(GridConChannelId.CONTROL_PARAMETER_Q_LIMIT,
-//								new FloatDoublewordElement(32924).wordOrder(WordOrder.LSWMSW)), //
-//						m(GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN,
-//								new FloatDoublewordElement(32926).wordOrder(WordOrder.LSWMSW)), //
-//						m(GridConChannelId.CONTROL_PARAMETER_P_F_DEAD_BAND,
-//								new FloatDoublewordElement(32928).wordOrder(WordOrder.LSWMSW)), //
-//						m(GridConChannelId.CONTROL_PARAMETER_P_U_DROOP,
-//								new FloatDoublewordElement(32930).wordOrder(WordOrder.LSWMSW)) //
-//				)				
+		// , /*
+		// * Control Parameters Mirror
+		// */
+		// new FC3ReadRegistersTask(32912, Priority.LOW,
+		// m(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN,
+		// new FloatDoublewordElement(32912).wordOrder(WordOrder.LSWMSW)), //
+		// m(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN,
+		// new FloatDoublewordElement(32914).wordOrder(WordOrder.LSWMSW)), //
+		// m(GridConChannelId.CONTROL_PARAMETER_F_P_DROOP_MAIN,
+		// new FloatDoublewordElement(32916).wordOrder(WordOrder.LSWMSW)), //
+		// m(GridConChannelId.CONTROL_PARAMETER_F_P_DROOP_T1_MAIN,
+		// new FloatDoublewordElement(32918).wordOrder(WordOrder.LSWMSW)), //
+		// m(GridConChannelId.CONTROL_PARAMETER_Q_U_DROOP_MAIN,
+		// new FloatDoublewordElement(32920).wordOrder(WordOrder.LSWMSW)), //
+		// m(GridConChannelId.CONTROL_PARAMETER_Q_U_DEAD_BAND,
+		// new FloatDoublewordElement(32922).wordOrder(WordOrder.LSWMSW)), //
+		// m(GridConChannelId.CONTROL_PARAMETER_Q_LIMIT,
+		// new FloatDoublewordElement(32924).wordOrder(WordOrder.LSWMSW)), //
+		// m(GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN,
+		// new FloatDoublewordElement(32926).wordOrder(WordOrder.LSWMSW)), //
+		// m(GridConChannelId.CONTROL_PARAMETER_P_F_DEAD_BAND,
+		// new FloatDoublewordElement(32928).wordOrder(WordOrder.LSWMSW)), //
+		// m(GridConChannelId.CONTROL_PARAMETER_P_U_DROOP,
+		// new FloatDoublewordElement(32930).wordOrder(WordOrder.LSWMSW)) //
+		// )
 		);
 
 		if (inverterCount > 0) {
@@ -936,7 +946,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 			 * if one inverter is used, dc dc converter is ipu2 ...
 			 */
 			int startAddressIpuControl = DcDcParameter.DC_DC_ADRESS; // DCDC has now a fix address
-//			int startAddressIpuControlMirror = 33040;
+			// int startAddressIpuControlMirror = 33040;
 
 			int startAddressDcDcState = START_ADDRESS_DCDC_STATE_WITH_THREE_IPUS;
 			int startAddressDcdcMeasurements = START_ADDRESS_DCDC_MEASUREMENTS;
@@ -1180,7 +1190,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public int getErrorCode() {
-		return getInteger(GridConChannelId.CCU_ERROR_CODE);
+		return this.getInteger(GridConChannelId.CCU_ERROR_CODE);
 	}
 
 	// TODO Check sign, round!?
@@ -1202,13 +1212,13 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public float getActivePower() {
-		return getActivePowerInverter1() + getActivePowerInverter2() + getActivePowerInverter3();
+		return this.getActivePowerInverter1() + this.getActivePowerInverter2() + this.getActivePowerInverter3();
 	}
 
 	@Override
 	public float getReactivePower() { // TODO check if this is correct
 		FloatReadChannel c = this.channel(GridConChannelId.CCU_POWER_Q);
-		return c.getNextValue().orElse(0f) * getMaxApparentPower();
+		return c.getNextValue().orElse(0f) * this.getMaxApparentPower();
 	}
 
 	@Override
@@ -1226,7 +1236,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 		try {
 			modbusBridge = manager.getComponent(modbusId);
 		} catch (OpenemsNamedException e) {
-			log.debug("Cannot get modbus component");
+			this.log.debug("Cannot get modbus component");
 		}
 		if (modbusBridge == null) {
 			return true;
@@ -1240,7 +1250,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void setEnableIpu1(boolean enabled) {
-		switch (inverterCount) {
+		switch (this.inverterCount) {
 		case ONE:
 			this.commands.setEnableIpu1(enabled);
 			break;
@@ -1255,7 +1265,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void setEnableIpu2(boolean enabled) {
-		switch (inverterCount) {
+		switch (this.inverterCount) {
 		case ONE:
 			System.out.println("Not allowed, there is only one inverters!");
 			break;
@@ -1270,7 +1280,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void setEnableIpu3(boolean enabled) {
-		switch (inverterCount) {
+		switch (this.inverterCount) {
 		case ONE:
 			System.out.println("Not allowed, there are only two inverters!");
 			break;
@@ -1305,87 +1315,87 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void setPControlMode(PControlMode pControlMode) {
-		ccuParameters2.setpControlMode(pControlMode);
+		this.ccuParameters2.setpControlMode(pControlMode);
 	}
 
 	@Override
 	public void setQLimit(float qLimit) {
-		ccuParameters1.setqLimit(qLimit);
+		this.ccuParameters1.setqLimit(qLimit);
 	}
 
 	@Override
 	public void setPMaxChargeIpu1(float maxPower) {
-		ipu1Parameter.setpMaxCharge(maxPower);
+		this.ipu1Parameter.setpMaxCharge(maxPower);
 	}
 
 	@Override
 	public void setPMaxDischargeIpu1(float maxPower) {
-		ipu1Parameter.setpMaxDischarge(maxPower);
+		this.ipu1Parameter.setpMaxDischarge(maxPower);
 	}
 
 	@Override
 	public void setPMaxChargeIpu2(float maxPower) {
-		ipu2Parameter.setpMaxCharge(maxPower);
+		this.ipu2Parameter.setpMaxCharge(maxPower);
 	}
 
 	@Override
 	public void setPMaxDischargeIpu2(float maxPower) {
-		ipu2Parameter.setpMaxDischarge(maxPower);
+		this.ipu2Parameter.setpMaxDischarge(maxPower);
 	}
 
 	@Override
 	public void setPMaxChargeIpu3(float maxPower) {
-		ipu3Parameter.setpMaxCharge(maxPower);
+		this.ipu3Parameter.setpMaxCharge(maxPower);
 	}
 
 	@Override
 	public void setPMaxDischargeIpu3(float maxPower) {
-		ipu3Parameter.setpMaxDischarge(maxPower);
+		this.ipu3Parameter.setpMaxDischarge(maxPower);
 	}
 
 	@Override
 	public void setDcLinkVoltage(float dcLinkVoltageSetpoint) {
-		dcDcParameter.setDcVoltageSetpoint(dcLinkVoltageSetpoint);
+		this.dcDcParameter.setDcVoltageSetpoint(dcLinkVoltageSetpoint);
 	}
 
 	@Override
 	public void setWeightStringA(Float weight) {
-		dcDcParameter.setWeightStringA(weight);
+		this.dcDcParameter.setWeightStringA(weight);
 	}
 
 	@Override
 	public void setWeightStringB(Float weight) {
-		dcDcParameter.setWeightStringB(weight);
+		this.dcDcParameter.setWeightStringB(weight);
 	}
 
 	@Override
 	public void setWeightStringC(Float weight) {
-		dcDcParameter.setWeightStringC(weight);
+		this.dcDcParameter.setWeightStringC(weight);
 	}
 
 	@Override
 	public void setStringControlMode(int stringControlMode) {
-		dcDcParameter.setStringControlMode(stringControlMode);
+		this.dcDcParameter.setStringControlMode(stringControlMode);
 	}
 
 	@Override
 	public void setIRefStringA(Float current) {
-		dcDcParameter.setiRefStringA(current);
+		this.dcDcParameter.setiRefStringA(current);
 	}
 
 	@Override
 	public void setIRefStringB(Float current) {
-		dcDcParameter.setiRefStringB(current);
+		this.dcDcParameter.setiRefStringB(current);
 	}
 
 	@Override
 	public void setIRefStringC(Float current) {
-		dcDcParameter.setiRefStringC(current);
+		this.dcDcParameter.setiRefStringC(current);
 	}
 
 	@Override
 	public void enableDcDc() {
-		switch (inverterCount) {
+		switch (this.inverterCount) {
 		case ONE:
 			this.commands.setEnableIpu2(true);
 			break;
@@ -1400,7 +1410,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void disableDcDc() {
-		switch (inverterCount) {
+		switch (this.inverterCount) {
 		case ONE:
 			this.commands.setEnableIpu2(false);
 			break;
@@ -1415,7 +1425,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public int getErrorCount() {
-		return getInteger(GridConChannelId.CCU_ERROR_COUNT);
+		return this.getInteger(GridConChannelId.CCU_ERROR_COUNT);
 	}
 
 	@Override
@@ -1440,17 +1450,17 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public boolean isStopped() {
-		return getCcuState() == CcuState.SYNC_TO_V || getCcuState() == CcuState.IDLE_CURRENTLY_NOT_WORKING;
+		return this.getCcuState() == CcuState.SYNC_TO_V || this.getCcuState() == CcuState.IDLE_CURRENTLY_NOT_WORKING;
 	}
 
 	@Override
 	public boolean isRunning() {
-		return getCcuState() == CcuState.RUN || getCcuState() == CcuState.COMPENSATOR;
+		return this.getCcuState() == CcuState.RUN || this.getCcuState() == CcuState.COMPENSATOR;
 	}
 
 	@Override
 	public boolean isError() {
-		return getCcuState() == CcuState.ERROR || isCommunicationBroken();
+		return this.getCcuState() == CcuState.ERROR || this.isCommunicationBroken();
 	}
 
 	private CcuState getCcuState() {
@@ -1464,8 +1474,8 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 		this.commands.setReadyAndStopBit2nd(stop);
 		if (stop) { // only one command should be executed!
 			System.out.println("only one command should be executed!");
-			setPlay(false);
-			setAcknowledge(false);
+			this.setPlay(false);
+			this.setAcknowledge(false);
 		}
 	}
 
@@ -1474,8 +1484,8 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 		this.commands.setAcknowledgeBit(acknowledge);
 		if (acknowledge) { // only one command should be executed!
 			System.out.println("only one command should be executed!");
-			setStop(false);
-			setPlay(false);
+			this.setStop(false);
+			this.setPlay(false);
 		}
 	}
 
@@ -1484,8 +1494,8 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 		this.commands.setPlayBit(play);
 		if (play) { // only one command should be executed!
 			System.out.println("only one command should be executed!");
-			setStop(false);
-			setAcknowledge(false);
+			this.setStop(false);
+			this.setAcknowledge(false);
 		}
 	}
 
@@ -1501,15 +1511,15 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 		boolean ret = true;
 
 		if (enableIpu1) {
-			ret = ret && isIpuRunning(GridConChannelId.INVERTER_1_STATUS_STATE_MACHINE);
+			ret = ret && this.isIpuRunning(GridConChannelId.INVERTER_1_STATUS_STATE_MACHINE);
 		}
 
 		if (enableIpu2) {
-			ret = ret && isIpuRunning(GridConChannelId.INVERTER_2_STATUS_STATE_MACHINE);
+			ret = ret && this.isIpuRunning(GridConChannelId.INVERTER_2_STATUS_STATE_MACHINE);
 		}
 
 		if (enableIpu3) {
-			ret = ret && isIpuRunning(GridConChannelId.INVERTER_3_STATUS_STATE_MACHINE);
+			ret = ret && this.isIpuRunning(GridConChannelId.INVERTER_3_STATUS_STATE_MACHINE);
 		}
 
 		return ret;
@@ -1522,17 +1532,17 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public float getActivePowerPreset() {
-		return activePowerPreset;
+		return this.activePowerPreset;
 	}
 
 	@Override
 	public double getEfficiencyLossChargeFactor() {
-		return efficiencyLossChargeFactor;
+		return this.efficiencyLossChargeFactor;
 	}
 
 	@Override
 	public double getEfficiencyLossDischargeFactor() {
-		return efficiencyLossDischargeFactor;
+		return this.efficiencyLossDischargeFactor;
 	}
 
 	@Override
@@ -1583,97 +1593,97 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public float getCurrentL1Grid() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_I_L1);
-		return c.getNextValue().orElse(0f) * inverterCount.getCount() * NOMINAL_CURRENT_PER_UNIT;
+		return c.getNextValue().orElse(0f) * this.inverterCount.getCount() * NOMINAL_CURRENT_PER_UNIT;
 	}
 
 	@Override
 	public float getCurrentL2Grid() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_I_L2);
-		return c.getNextValue().orElse(0f) * inverterCount.getCount() * NOMINAL_CURRENT_PER_UNIT;
+		return c.getNextValue().orElse(0f) * this.inverterCount.getCount() * NOMINAL_CURRENT_PER_UNIT;
 	}
 
 	@Override
 	public float getCurrentL3Grid() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_I_L3);
-		return c.getNextValue().orElse(0f) * inverterCount.getCount() * NOMINAL_CURRENT_PER_UNIT;
+		return c.getNextValue().orElse(0f) * this.inverterCount.getCount() * NOMINAL_CURRENT_PER_UNIT;
 	}
 
 	@Override
 	public float getCurrentLNGrid() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_I_LN);
-		return c.getNextValue().orElse(0f) * inverterCount.getCount() * NOMINAL_CURRENT_PER_UNIT;
+		return c.getNextValue().orElse(0f) * this.inverterCount.getCount() * NOMINAL_CURRENT_PER_UNIT;
 	}
 
 	@Override
 	public float getActivePowerL1Grid() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_P_L1);
-		return c.getNextValue().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+		return c.getNextValue().orElse(0f) * this.inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
 	}
 
 	@Override
 	public float getActivePowerL2Grid() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_P_L2);
-		return c.getNextValue().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+		return c.getNextValue().orElse(0f) * this.inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
 	}
 
 	@Override
 	public float getActivePowerL3Grid() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_P_L3);
-		return c.getNextValue().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+		return c.getNextValue().orElse(0f) * this.inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
 	}
 
 	@Override
 	public float getActivePowerSumGrid() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_P_SUM);
-		return c.getNextValue().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+		return c.getNextValue().orElse(0f) * this.inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
 	}
 
 	@Override
 	public float getReactivePowerL1Grid() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_Q_L1);
-		return c.getNextValue().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+		return c.getNextValue().orElse(0f) * this.inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
 	}
 
 	@Override
 	public float getReactivePowerL2Grid() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_Q_L2);
-		return c.getNextValue().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+		return c.getNextValue().orElse(0f) * this.inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
 	}
 
 	@Override
 	public float getReactivePowerL3Grid() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_Q_L3);
-		return c.getNextValue().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+		return c.getNextValue().orElse(0f) * this.inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
 	}
 
 	@Override
 	public float getReactivePowerSumGrid() {
 		FloatReadChannel c = this.channel(GridConChannelId.GRID_MEASUREMENT_Q_SUM);
-		return c.getNextValue().orElse(0f) * inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
+		return c.getNextValue().orElse(0f) * this.inverterCount.getCount() * NOMINAL_POWER_PER_UNIT;
 	}
 
 	@Override
 	public float getApparentPowerL1Grid() {
-		return (float) Math.sqrt(
-				getActivePowerL1Grid() * getActivePowerL1Grid() + getReactivePowerL1Grid() * getReactivePowerL1Grid());
+		return (float) Math.sqrt(this.getActivePowerL1Grid() * this.getActivePowerL1Grid()
+				+ this.getReactivePowerL1Grid() * this.getReactivePowerL1Grid());
 	}
 
 	@Override
 	public float getApparentPowerL2Grid() {
-		return (float) Math.sqrt(
-				getActivePowerL2Grid() * getActivePowerL2Grid() + getReactivePowerL2Grid() * getReactivePowerL2Grid());
+		return (float) Math.sqrt(this.getActivePowerL2Grid() * this.getActivePowerL2Grid()
+				+ this.getReactivePowerL2Grid() * this.getReactivePowerL2Grid());
 	}
 
 	@Override
 	public float getApparentPowerL3Grid() {
-		return (float) Math.sqrt(
-				getActivePowerL3Grid() * getActivePowerL3Grid() + getReactivePowerL3Grid() * getReactivePowerL3Grid());
+		return (float) Math.sqrt(this.getActivePowerL3Grid() * this.getActivePowerL3Grid()
+				+ this.getReactivePowerL3Grid() * this.getReactivePowerL3Grid());
 	}
 
 	@Override
 	public float getApparentPowerSumGrid() {
-		return (float) Math.sqrt(getActivePowerSumGrid() * getActivePowerSumGrid()
-				+ getReactivePowerSumGrid() * getReactivePowerSumGrid());
+		return (float) Math.sqrt(this.getActivePowerSumGrid() * this.getActivePowerSumGrid()
+				+ this.getReactivePowerSumGrid() * this.getReactivePowerSumGrid());
 	}
 
 	@Override

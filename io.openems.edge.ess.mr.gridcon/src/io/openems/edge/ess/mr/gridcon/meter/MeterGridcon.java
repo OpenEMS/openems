@@ -27,10 +27,10 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
- * Implements a meter using values from a gridcon
+ * Implements a meter using values from a gridcon.
  */
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Meter.Gridcon", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
@@ -95,14 +95,14 @@ public class MeterGridcon extends AbstractOpenemsComponent
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			fillChannels();
+			this.fillChannels();
 			break;
 		}
 	}
 
 	private void fillChannels() {
 		try {
-			GridconPcs gridconPcs = componentManager.getComponent(gridconId);
+			GridconPcs gridconPcs = this.componentManager.getComponent(this.gridconId);
 
 			if (gridconPcs == null) {
 				return;

@@ -20,7 +20,7 @@ public class CcuParameters1 {
 	private float qLimit = 0f;
 
 	public float getqLimit() {
-		return qLimit;
+		return this.qLimit;
 	}
 
 	public void setqLimit(float qLimit) {
@@ -28,80 +28,80 @@ public class CcuParameters1 {
 	}
 
 	public float getuByQDroopMainLower() {
-		return uByQDroopMainLower;
+		return this.uByQDroopMainLower;
 	}
 
 	public float getuByQDroopMainUpper() {
-		return uByQDroopMainUpper;
+		return this.uByQDroopMainUpper;
 	}
 
 	public float getuByQDroopT1Main() {
-		return uByQDroopT1Main;
+		return this.uByQDroopT1Main;
 	}
 
 	public float getfByPDroopMainLower() {
-		return fByPDroopMainLower;
+		return this.fByPDroopMainLower;
 	}
 
 	public float getfByPDroopMainUpper() {
-		return fByPDroopMainUpper;
+		return this.fByPDroopMainUpper;
 	}
 
 	public float getfByPDroopT1Main() {
-		return fByPDroopT1Main;
+		return this.fByPDroopT1Main;
 	}
 
 	public float getqByUDroopMainLower() {
-		return qByUDroopMainLower;
+		return this.qByUDroopMainLower;
 	}
 
 	public float getqByUDroopMainUpper() {
-		return qByUDroopMainUpper;
+		return this.qByUDroopMainUpper;
 	}
 
 	public float getqByUDeadBandLower() {
-		return qByUDeadBandLower;
+		return this.qByUDeadBandLower;
 	}
 
 	public float getqByUDeadBandUpper() {
-		return qByUDeadBandUpper;
+		return this.qByUDeadBandUpper;
 	}
 
 	@Override
 	public String toString() {
-		return "CcuParameters1 [uByQDroopMainLower=" + uByQDroopMainLower + ", uByQDroopMainUpper=" + uByQDroopMainUpper
-				+ ", uByQDroopT1Main=" + uByQDroopT1Main + ", fByPDroopMainLower=" + fByPDroopMainLower
-				+ ", fByPDroopMainUpper=" + fByPDroopMainUpper + ", fByPDroopT1Main=" + fByPDroopT1Main
-				+ ", qByUDroopMainLower=" + qByUDroopMainLower + ", qByUDroopMainUpper=" + qByUDroopMainUpper
-				+ ", qByUDeadBandLower=" + qByUDeadBandLower + ", qByUDeadBandUpper=" + qByUDeadBandUpper + ", qLimit="
-				+ qLimit + "]" + "\n" + getHexRepresentation();
+		return "CcuParameters1 [uByQDroopMainLower=" + this.uByQDroopMainLower + ", uByQDroopMainUpper="
+				+ this.uByQDroopMainUpper + ", uByQDroopT1Main=" + this.uByQDroopT1Main + ", fByPDroopMainLower="
+				+ this.fByPDroopMainLower + ", fByPDroopMainUpper=" + this.fByPDroopMainUpper + ", fByPDroopT1Main="
+				+ this.fByPDroopT1Main + ", qByUDroopMainLower=" + this.qByUDroopMainLower + ", qByUDroopMainUpper="
+				+ this.qByUDroopMainUpper + ", qByUDeadBandLower=" + this.qByUDeadBandLower + ", qByUDeadBandUpper="
+				+ this.qByUDeadBandUpper + ", qLimit=" + this.qLimit + "]" + "\n" + this.getHexRepresentation();
 	}
 
 	private String getHexRepresentation() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(CCU_PARAMETERS_1_ADRESS);
 		sb.append(": ");
-		sb.append(HexFormatter.format(uByQDroopMainLower, true));
+		sb.append(HexFormatter.format(this.uByQDroopMainLower, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(uByQDroopMainUpper, true));
+		sb.append(HexFormatter.format(this.uByQDroopMainUpper, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(uByQDroopT1Main, true));
+		sb.append(HexFormatter.format(this.uByQDroopT1Main, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(fByPDroopMainLower, true));
+		sb.append(HexFormatter.format(this.fByPDroopMainLower, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(fByPDroopMainUpper, true));
+		sb.append(HexFormatter.format(this.fByPDroopMainUpper, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(fByPDroopT1Main, true));
+		sb.append(HexFormatter.format(this.fByPDroopT1Main, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(qByUDroopMainLower, true));
+		sb.append(HexFormatter.format(this.qByUDroopMainLower, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(qByUDroopMainUpper, true));
+		sb.append(HexFormatter.format(this.qByUDroopMainUpper, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(qByUDeadBandLower, true));
+		sb.append(HexFormatter.format(this.qByUDeadBandLower, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(qByUDeadBandUpper, true));
+		sb.append(HexFormatter.format(this.qByUDeadBandUpper, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(qLimit, true));
+		sb.append(HexFormatter.format(this.qLimit, true));
 
 		return sb.toString();
 	}

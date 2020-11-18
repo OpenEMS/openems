@@ -55,15 +55,15 @@ public abstract class BaseState implements StateObject {
 	}
 
 	protected boolean isNextStateUndefined() {
-		return !isGridconDefined() || !isAtLeastOneBatteryDefined() || !isDigitalInputsDefined();
+		return !this.isGridconDefined() || !this.isAtLeastOneBatteryDefined() || !this.isDigitalInputsDefined();
 	}
 
 	private boolean isDigitalInputsDefined() {
 		boolean defined = true;
 
-		defined = defined && isDigitalInputDefined(inputNA1);
-		defined = defined && isDigitalInputDefined(inputNA2);
-		defined = defined && isDigitalInputDefined(inputSyncBridge);
+		defined = defined && this.isDigitalInputDefined(this.inputNA1);
+		defined = defined && this.isDigitalInputDefined(this.inputNA2);
+		defined = defined && this.isDigitalInputDefined(this.inputSyncBridge);
 
 		return defined;
 	}
@@ -71,8 +71,8 @@ public abstract class BaseState implements StateObject {
 	private boolean isDigitalInputDefined(String inputAddress) {
 		boolean defined = false;
 		try {
-			BooleanReadChannel inputChannel = getBooleanReadChannel(inputAddress);
-			defined = isValueDefined(inputChannel.value());
+			BooleanReadChannel inputChannel = this.getBooleanReadChannel(inputAddress);
+			defined = this.isValueDefined(inputChannel.value());
 		} catch (Exception e) {
 			defined = false;
 		}
@@ -94,14 +94,14 @@ public abstract class BaseState implements StateObject {
 	private boolean isAtLeastOneBatteryDefined() {
 		boolean undefined = true;
 
-		if (getBattery1() != null) {
-			undefined = undefined && Helper.isUndefined(getBattery1());
+		if (this.getBattery1() != null) {
+			undefined = undefined && Helper.isUndefined(this.getBattery1());
 		}
-		if (getBattery2() != null) {
-			undefined = undefined && Helper.isUndefined(getBattery2());
+		if (this.getBattery2() != null) {
+			undefined = undefined && Helper.isUndefined(this.getBattery2());
 		}
-		if (getBattery3() != null) {
-			undefined = undefined && Helper.isUndefined(getBattery3());
+		if (this.getBattery3() != null) {
+			undefined = undefined && Helper.isUndefined(this.getBattery3());
 		}
 
 		return !undefined;
@@ -113,19 +113,19 @@ public abstract class BaseState implements StateObject {
 	}
 
 	protected boolean isNextStateError() {
-		if (getGridconPcs() != null && getGridconPcs().isError()) {
+		if (this.getGridconPcs() != null && this.getGridconPcs().isError()) {
 			return true;
 		}
 
-		if (getBattery1() != null && Helper.isError(getBattery1())) {
+		if (this.getBattery1() != null && Helper.isError(this.getBattery1())) {
 			return true;
 		}
 
-		if (getBattery2() != null && Helper.isError(getBattery2())) {
+		if (this.getBattery2() != null && Helper.isError(this.getBattery2())) {
 			return true;
 		}
 
-		if (getBattery3() != null && Helper.isError(getBattery3())) {
+		if (this.getBattery3() != null && Helper.isError(this.getBattery3())) {
 			return true;
 		}
 
@@ -133,22 +133,22 @@ public abstract class BaseState implements StateObject {
 	}
 
 	protected boolean isNextStateOnGridStopped() {
-		return isSystemOngrid() && getGridconPcs() != null && getGridconPcs().isStopped();
+		return this.isSystemOngrid() && this.getGridconPcs() != null && this.getGridconPcs().isStopped();
 	}
 
 	protected boolean isNextStateOnGridRunning() {
-		return isSystemOngrid() && (getGridconPcs() != null && getGridconPcs().isRunning());
+		return this.isSystemOngrid() && (this.getGridconPcs() != null && this.getGridconPcs().isRunning());
 	}
 
 	protected boolean isNextStateOffGrid() {
-		if (isSystemOffgrid() && !isVoltageOnMeter()) {
+		if (this.isSystemOffgrid() && !this.isVoltageOnMeter()) {
 			return true;
 		}
 		return false;
 	}
 
 	protected boolean isNextStateGoingOnGrid() {
-		if (isSystemOffgrid() && isVoltageOnMeter()) {
+		if (this.isSystemOffgrid() && this.isVoltageOnMeter()) {
 			return true;
 		}
 		return false;
@@ -157,7 +157,7 @@ public abstract class BaseState implements StateObject {
 	private boolean isVoltageOnMeter() {
 		boolean ret = false;
 		try {
-			SymmetricMeter meter = manager.getComponent(meterId);
+			SymmetricMeter meter = this.manager.getComponent(this.meterId);
 			Value<Integer> voltageValue = meter.getVoltage();
 			int voltage = voltageValue.orElse(0); // voltage is in mV
 			ret = voltage > BaseState.VOLTAGE_GRID;
@@ -170,7 +170,7 @@ public abstract class BaseState implements StateObject {
 	protected float getVoltageOnMeter() {
 		float ret = Float.MIN_VALUE;
 		try {
-			SymmetricMeter meter = manager.getComponent(meterId);
+			SymmetricMeter meter = this.manager.getComponent(this.meterId);
 			Value<Integer> voltageValue = meter.getVoltage();
 			int voltage = voltageValue.orElse(0); // voltage is in mV
 			ret = voltage / 1000.0f;
@@ -183,7 +183,7 @@ public abstract class BaseState implements StateObject {
 	protected float getFrequencyOnMeter() {
 		float ret = Float.MIN_VALUE;
 		try {
-			SymmetricMeter meter = manager.getComponent(meterId);
+			SymmetricMeter meter = this.manager.getComponent(this.meterId);
 			Value<Integer> frequencyValue = meter.getFrequency();
 			int frequency = frequencyValue.orElse(0); // voltage is in mV
 			ret = frequency / 1000.0f;
@@ -197,9 +197,9 @@ public abstract class BaseState implements StateObject {
 		System.out.println("setSyncBridge : parameter --> " + b);
 		try {
 			System.out.println("Try to write " + b + " to the sync bridge channel");
-			System.out.println("output sync bridge address: " + outputSyncBridge);
+			System.out.println("output sync bridge address: " + this.outputSyncBridge);
 			BooleanWriteChannel outputSyncDeviceBridgeChannel = this.manager
-					.getChannel(ChannelAddress.fromString(outputSyncBridge));
+					.getChannel(ChannelAddress.fromString(this.outputSyncBridge));
 			outputSyncDeviceBridgeChannel.setNextWriteValue(b);
 		} catch (IllegalArgumentException | OpenemsNamedException e) {
 			System.out.println("Error writing channel");
@@ -208,16 +208,16 @@ public abstract class BaseState implements StateObject {
 	}
 
 	protected boolean isSystemOngrid() {
-		if (isDigitalInputDefined(inputNA1) && isDigitalInputDefined(inputNA2)) {
+		if (this.isDigitalInputDefined(this.inputNA1) && this.isDigitalInputDefined(this.inputNA2)) {
 			try {
-				boolean na1Value = getBooleanReadChannel(inputNA1).value().get();
-				boolean na2Value = getBooleanReadChannel(inputNA2).value().get();
+				boolean na1Value = this.getBooleanReadChannel(this.inputNA1).value().get();
+				boolean na2Value = this.getBooleanReadChannel(this.inputNA2).value().get();
 
-				if (na1Inverted) {
+				if (this.na1Inverted) {
 					na1Value = !na1Value;
 				}
 
-				if (na2Inverted) {
+				if (this.na2Inverted) {
 					na2Value = !na2Value;
 				}
 
@@ -230,16 +230,16 @@ public abstract class BaseState implements StateObject {
 	}
 
 	protected boolean isSystemOffgrid() {
-		if (isDigitalInputDefined(inputNA1) && isDigitalInputDefined(inputNA2)) {
+		if (this.isDigitalInputDefined(this.inputNA1) && this.isDigitalInputDefined(this.inputNA2)) {
 			try {
-				boolean na1Value = getBooleanReadChannel(inputNA1).value().get();
-				boolean na2Value = getBooleanReadChannel(inputNA2).value().get();
+				boolean na1Value = this.getBooleanReadChannel(this.inputNA1).value().get();
+				boolean na2Value = this.getBooleanReadChannel(this.inputNA2).value().get();
 
-				if (na1Inverted) {
+				if (this.na1Inverted) {
 					na1Value = !na1Value;
 				}
 
-				if (na2Inverted) {
+				if (this.na2Inverted) {
 					na2Value = !na2Value;
 				}
 
@@ -252,46 +252,48 @@ public abstract class BaseState implements StateObject {
 	}
 
 	protected void startBatteries() {
-		Helper.startBattery(getBattery1());
-		Helper.startBattery(getBattery2());
-		Helper.startBattery(getBattery3());
+		Helper.startBattery(this.getBattery1());
+		Helper.startBattery(this.getBattery2());
+		Helper.startBattery(this.getBattery3());
 	}
 
 	protected boolean isBatteriesStarted() {
 		boolean running = true;
-		if (getBattery1() != null) {
-			running = running && Helper.isRunning(getBattery1());
+		if (this.getBattery1() != null) {
+			running = running && Helper.isRunning(this.getBattery1());
 		}
-		if (getBattery2() != null) {
-			running = running && Helper.isRunning(getBattery2());
+		if (this.getBattery2() != null) {
+			running = running && Helper.isRunning(this.getBattery2());
 		}
-		if (getBattery3() != null) {
-			running = running && Helper.isRunning(getBattery3());
+		if (this.getBattery3() != null) {
+			running = running && Helper.isRunning(this.getBattery3());
 		}
 		return running;
 	}
 
 	protected void setStringControlMode() {
-		int weightingMode = WeightingHelper.getStringControlMode(getBattery1(), getBattery2(), getBattery3());
-		getGridconPcs().setStringControlMode(weightingMode);
+		int weightingMode = WeightingHelper.getStringControlMode(this.getBattery1(), this.getBattery2(),
+				this.getBattery3());
+		this.getGridconPcs().setStringControlMode(weightingMode);
 	}
 
 	protected void setStringWeighting() {
-		float activePower = getGridconPcs().getActivePower();
+		float activePower = this.getGridconPcs().getActivePower();
 
-		Float[] weightings = WeightingHelper.getWeighting(activePower, getBattery1(), getBattery2(), getBattery3());
+		Float[] weightings = WeightingHelper.getWeighting(activePower, this.getBattery1(), this.getBattery2(),
+				this.getBattery3());
 
-		getGridconPcs().setWeightStringA(weightings[0]);
-		getGridconPcs().setWeightStringB(weightings[1]);
-		getGridconPcs().setWeightStringC(weightings[2]);
+		this.getGridconPcs().setWeightStringA(weightings[0]);
+		this.getGridconPcs().setWeightStringB(weightings[1]);
+		this.getGridconPcs().setWeightStringC(weightings[2]);
 
 	}
 
 	protected void setDateAndTime() {
 		int date = this.convertToInteger(this.generateDate(LocalDateTime.now()));
-		getGridconPcs().setSyncDate(date);
+		this.getGridconPcs().setSyncDate(date);
 		int time = this.convertToInteger(this.generateTime(LocalDateTime.now()));
-		getGridconPcs().setSyncTime(time);
+		this.getGridconPcs().setSyncTime(time);
 	}
 
 	private BitSet generateDate(LocalDateTime time) {
@@ -320,25 +322,25 @@ public abstract class BaseState implements StateObject {
 	}
 
 	GridconPcs getGridconPcs() {
-		return getComponent(gridconPcsId);
+		return this.getComponent(this.gridconPcsId);
 	}
 
 	Battery getBattery1() {
-		return getComponent(battery1Id);
+		return this.getComponent(this.battery1Id);
 	}
 
 	Battery getBattery2() {
-		return getComponent(battery2Id);
+		return this.getComponent(this.battery2Id);
 	}
 
 	Battery getBattery3() {
-		return getComponent(battery3Id);
+		return this.getComponent(this.battery3Id);
 	}
 
 	<T> T getComponent(String id) {
 		T component = null;
 		try {
-			component = manager.getComponent(id);
+			component = this.manager.getComponent(id);
 		} catch (OpenemsNamedException e) {
 			System.out.println(e);
 		}

@@ -62,7 +62,7 @@ public class SetBalancing extends AbstractOpenemsComponent implements Controller
 	public void run() throws OpenemsNamedException {
 		GridconPcs gridcon = this.componentManager.getComponent(this.config.gridcon_id());
 
-		gridcon.setBalancingMode(config.balancingMode());
+		gridcon.setBalancingMode(this.config.balancingMode());
 	}
 
 }

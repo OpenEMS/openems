@@ -33,11 +33,11 @@ public class Undefined extends BaseState {
 
 		io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState stateToReturn = io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED;
 
-		if (lastMethodCall == null) {
-			lastMethodCall = LocalDateTime.now();
+		if (this.lastMethodCall == null) {
+			this.lastMethodCall = LocalDateTime.now();
 		}
 
-		if (lastMethodCall.plusSeconds(timeSecondsToWaitWhenUndefined).isBefore(LocalDateTime.now())) {
+		if (this.lastMethodCall.plusSeconds(this.timeSecondsToWaitWhenUndefined).isBefore(LocalDateTime.now())) {
 
 			if (isNextStateUndefined()) {
 				stateToReturn = io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED;
@@ -56,7 +56,7 @@ public class Undefined extends BaseState {
 			}
 		}
 		if (stateToReturn != io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED) {
-			lastMethodCall = null;
+			this.lastMethodCall = null;
 		}
 
 		return stateToReturn;
@@ -64,6 +64,6 @@ public class Undefined extends BaseState {
 
 	@Override
 	public void act(GridconSettings settings) {
-		log.info("undefined.act() -> Nothing to do!");
+		this.log.info("undefined.act() -> Nothing to do!");
 	}
 }

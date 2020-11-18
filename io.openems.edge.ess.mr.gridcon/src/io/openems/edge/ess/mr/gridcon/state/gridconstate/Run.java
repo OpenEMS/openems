@@ -20,7 +20,7 @@ public class Run extends BaseState {
 	private boolean enableIpu2;
 	private boolean enableIpu3;
 	private float offsetCurrent;
-//	private ParameterSet parameterSet;
+	// private ParameterSet parameterSet;
 
 	public Run(ComponentManager manager, String gridconPcsId, String b1Id, String b2Id, String b3Id, boolean enableIpu1,
 			boolean enableIpu2, boolean enableIpu3, // ParameterSet parameterSet,
@@ -29,7 +29,7 @@ public class Run extends BaseState {
 		this.enableIpu1 = enableIpu1;
 		this.enableIpu2 = enableIpu2;
 		this.enableIpu3 = enableIpu3;
-//		this.parameterSet = parameterSet;
+		// this.parameterSet = parameterSet;
 		this.offsetCurrent = offsetCurrent;
 	}
 
@@ -57,21 +57,21 @@ public class Run extends BaseState {
 
 	@Override
 	public void act(GridconSettings settings) {
-		log.info("run() -> Set all parameters to gridcon!");
+		this.log.info("run() -> Set all parameters to gridcon!");
 
 		// sometimes link voltage can be too low unrecognized by gridcon, i.e. no error
 		// message
 		// in case of that, restart the system, but this should be detected by isError()
 		// function
 
-		checkBatteries();
-		setRunParameters(settings);
-		setStringWeighting();
-		setOffsetCurrent();
-		setStringControlMode();
-		setDateAndTime();
+		this.checkBatteries();
+		this.setRunParameters(settings);
+		this.setStringWeighting();
+		this.setOffsetCurrent();
+		this.setStringControlMode();
+		this.setDateAndTime();
 		try {
-			getGridconPcs().doWriteTasks();
+			this.getGridconPcs().doWriteTasks();
 		} catch (OpenemsNamedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -97,20 +97,20 @@ public class Run extends BaseState {
 	}
 
 	private void setOffsetCurrent() {
-		if (hasBattery1HighestCellVoltage()) {
-			getGridconPcs().setIRefStringA(offsetCurrent);
-			getGridconPcs().setIRefStringB(0f);
-			getGridconPcs().setIRefStringC(0f);
+		if (this.hasBattery1HighestCellVoltage()) {
+			this.getGridconPcs().setIRefStringA(this.offsetCurrent);
+			this.getGridconPcs().setIRefStringB(0f);
+			this.getGridconPcs().setIRefStringC(0f);
 		}
-		if (hasBattery2HighestCellVoltage()) {
-			getGridconPcs().setIRefStringA(0f);
-			getGridconPcs().setIRefStringB(offsetCurrent);
-			getGridconPcs().setIRefStringC(0f);
+		if (this.hasBattery2HighestCellVoltage()) {
+			this.getGridconPcs().setIRefStringA(0f);
+			this.getGridconPcs().setIRefStringB(this.offsetCurrent);
+			this.getGridconPcs().setIRefStringC(0f);
 		}
-		if (hasBattery3HighestCellVoltage()) {
-			getGridconPcs().setIRefStringA(0f);
-			getGridconPcs().setIRefStringB(0f);
-			getGridconPcs().setIRefStringC(offsetCurrent);
+		if (this.hasBattery3HighestCellVoltage()) {
+			this.getGridconPcs().setIRefStringA(0f);
+			this.getGridconPcs().setIRefStringB(0f);
+			this.getGridconPcs().setIRefStringC(this.offsetCurrent);
 		}
 	}
 
@@ -119,65 +119,65 @@ public class Run extends BaseState {
 			return false;
 		}
 
-		if (getBattery2() == null && getBattery3() == null) { // only this battery exists --> must have highest cell
-																// voltage
+		if (getBattery2() == null && getBattery3() == null) {
+			// only this battery exists --> must have highest cell voltage
 			return true;
 		}
 
 		if (getBattery2() == null) { // only battery one and three are existing
-			return getMaxCellVoltage(getBattery1()) >= getMaxCellVoltage(getBattery3());
+			return this.getMaxCellVoltage(this.getBattery1()) >= this.getMaxCellVoltage(this.getBattery3());
 		}
 
 		if (getBattery3() == null) { // only battery one and two are existing
-			return getMaxCellVoltage(getBattery1()) >= getMaxCellVoltage(getBattery2());
+			return this.getMaxCellVoltage(this.getBattery1()) >= this.getMaxCellVoltage(this.getBattery2());
 		}
 
-		return getMaxCellVoltage(getBattery1()) >= Math.max(getMaxCellVoltage(getBattery2()),
-				getMaxCellVoltage(getBattery3()));
+		return this.getMaxCellVoltage(getBattery1()) >= Math.max(this.getMaxCellVoltage(this.getBattery2()),
+				this.getMaxCellVoltage(getBattery3()));
 	}
 
 	private boolean hasBattery2HighestCellVoltage() {
-		if (getBattery2() == null) { // battery is not existing --> cannot have highest cell voltage
+		if (this.getBattery2() == null) { // battery is not existing --> cannot have highest cell voltage
 			return false;
 		}
 
-		if (getBattery1() == null && getBattery3() == null) { // only this battery exists --> must have highest cell
-																// voltage
+		if (this.getBattery1() == null && this.getBattery3() == null) {
+			// only this battery exists --> must have highest cell voltage
 			return true;
 		}
 
-		if (getBattery1() == null) { // only battery two and three are existing
-			return getMaxCellVoltage(getBattery2()) >= getMaxCellVoltage(getBattery3());
+		if (this.getBattery1() == null) { // only battery two and three are existing
+			return this.getMaxCellVoltage(this.getBattery2()) >= this.getMaxCellVoltage(this.getBattery3());
 		}
 
-		if (getBattery3() == null) { // only battery one and two are existing
-			return getMaxCellVoltage(getBattery2()) >= getMaxCellVoltage(getBattery1());
+		if (this.getBattery3() == null) { // only battery one and two are existing
+			return this.getMaxCellVoltage(this.getBattery2()) >= this.getMaxCellVoltage(this.getBattery1());
 		}
 
-		return getMaxCellVoltage(getBattery2()) >= Math.max(getMaxCellVoltage(getBattery1()),
-				getMaxCellVoltage(getBattery3()));
+		return this.getMaxCellVoltage(this.getBattery2()) >= Math.max(this.getMaxCellVoltage(this.getBattery1()),
+				this.getMaxCellVoltage(this.getBattery3()));
 	}
 
 	private boolean hasBattery3HighestCellVoltage() {
-		if (getBattery3() == null) { // battery is not existing --> cannot have highest cell voltage
+		if (this.getBattery3() == null) { // battery is not existing --> cannot have highest cell voltage
 			return false;
 		}
 
-		if (getBattery1() == null && getBattery2() == null) { // only this battery exists --> must have highest cell
-																// voltage
+		if (this.getBattery1() == null && this.getBattery2() == null) {
+			// only this battery exists --> must have highest cell voltage
 			return true;
 		}
 
-		if (getBattery2() == null) { // only battery one and three are existing
-			return getMaxCellVoltage(getBattery3()) >= getMaxCellVoltage(getBattery1());
+		if (this.getBattery2() == null) { // only battery one and three are existing
+			return this.getMaxCellVoltage(this.getBattery3()) >= this.getMaxCellVoltage(this.getBattery1());
 		}
 
-		if (getBattery1() == null) { // only battery two and three are existing
-			return getMaxCellVoltage(getBattery3()) >= getMaxCellVoltage(getBattery2());
+		if (this.getBattery1() == null) { // only battery two and three are existing
+			return this.getMaxCellVoltage(this.getBattery3()) >= this.getMaxCellVoltage(this.getBattery2());
 		}
 
-		return getMaxCellVoltage(getBattery3()) >= Math.max(getMaxCellVoltage(getBattery1()),
-				getMaxCellVoltage(getBattery2()));
+		return this.getMaxCellVoltage(this.getBattery3()) >= Math.max(this.getMaxCellVoltage(this.getBattery1()),
+				this.getMaxCellVoltage(this.getBattery2()));
 	}
 
 	private int getMaxCellVoltage(Battery battery) {
@@ -185,9 +185,9 @@ public class Run extends BaseState {
 	}
 
 	private void setRunParameters(GridconSettings settings) {
-		getGridconPcs().setEnableIpu1(enableIpu1);
-		getGridconPcs().setEnableIpu2(enableIpu2);
-		getGridconPcs().setEnableIpu3(enableIpu3);
+		getGridconPcs().setEnableIpu1(this.enableIpu1);
+		getGridconPcs().setEnableIpu2(this.enableIpu2);
+		getGridconPcs().setEnableIpu3(this.enableIpu3);
 
 		// Enable DC DC
 		getGridconPcs().enableDcDc();
@@ -196,22 +196,22 @@ public class Run extends BaseState {
 		getGridconPcs().setMode(settings.getMode());
 		getGridconPcs().setU0(settings.getU0());
 		getGridconPcs().setF0(settings.getF0());
-//		getGridconPcs().setParameterSet(parameterSet);
+		// getGridconPcs().setParameterSet(parameterSet);
 		getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
 		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
 
 		float maxPower = GridconPcsImpl.MAX_POWER_PER_INVERTER;
-		if (enableIpu1) {
-			getGridconPcs().setPMaxChargeIpu1(maxPower);
-			getGridconPcs().setPMaxDischargeIpu1(-maxPower);
+		if (this.enableIpu1) {
+			this.getGridconPcs().setPMaxChargeIpu1(maxPower);
+			this.getGridconPcs().setPMaxDischargeIpu1(-maxPower);
 		}
-		if (enableIpu2) {
-			getGridconPcs().setPMaxChargeIpu2(maxPower);
-			getGridconPcs().setPMaxDischargeIpu2(-maxPower);
+		if (this.enableIpu2) {
+			this.getGridconPcs().setPMaxChargeIpu2(maxPower);
+			this.getGridconPcs().setPMaxDischargeIpu2(-maxPower);
 		}
-		if (enableIpu3) {
-			getGridconPcs().setPMaxChargeIpu3(maxPower);
-			getGridconPcs().setPMaxDischargeIpu3(-maxPower);
+		if (this.enableIpu3) {
+			this.getGridconPcs().setPMaxChargeIpu3(maxPower);
+			this.getGridconPcs().setPMaxDischargeIpu3(-maxPower);
 		}
 	}
 }

@@ -17,10 +17,10 @@ public enum HarmonicCompensationMode {
 	}
 
 	public boolean isBit1() {
-		return bit1;
+		return this.bit1;
 	}
 
 	public boolean isBit2() {
-		return bit2;
+		return this.bit2;
 	}
 }

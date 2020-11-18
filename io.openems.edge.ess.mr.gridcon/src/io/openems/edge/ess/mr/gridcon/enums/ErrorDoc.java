@@ -32,7 +32,7 @@ public class ErrorDoc extends StateChannelDoc {
 	}
 
 	public boolean isNeedsHardReset() {
-		return needsHardReset;
+		return this.needsHardReset;
 	}
 
 	public ErrorDoc needsHardReset(boolean needsHardReset) {
@@ -41,7 +41,7 @@ public class ErrorDoc extends StateChannelDoc {
 	}
 
 	public Acknowledge getAcknowledge() {
-		return acknowledge;
+		return this.acknowledge;
 	}
 
 	public ErrorDoc acknowledge(Acknowledge acknowledge) {
@@ -50,7 +50,7 @@ public class ErrorDoc extends StateChannelDoc {
 	}
 
 	public ReactionLevel getReactionLevel() {
-		return reactionLevel;
+		return this.reactionLevel;
 	}
 
 	public ErrorDoc reactionLevel(ReactionLevel reactionLevel) {
@@ -59,7 +59,7 @@ public class ErrorDoc extends StateChannelDoc {
 	}
 
 	public int getCode() {
-		return code;
+		return this.code;
 	}
 
 	public ErrorDoc code(int code) {

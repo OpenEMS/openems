@@ -34,10 +34,10 @@ public class Commands {
 	private BalancingMode balancingMode = BalancingMode.DISABLED;
 	private FundamentalFrequencyMode fundamentalFrequencyMode = FundamentalFrequencyMode.DISABLED;
 	private HarmonicCompensationMode harmonicCompensationMode = HarmonicCompensationMode.DISABLED;
-//	private Boolean parameterSet1 = false;
-//	private Boolean parameterSet2 = false;
-//	private Boolean parameterSet3 = false;
-//	private Boolean parameterSet4 = false;
+	// private Boolean parameterSet1 = false;
+	// private Boolean parameterSet2 = false;
+	// private Boolean parameterSet3 = false;
+	// private Boolean parameterSet4 = false;
 
 	// 32562
 	private Integer errorCodeFeedback = 0;
@@ -49,7 +49,7 @@ public class Commands {
 	private Integer syncTime = 0;
 
 	public Boolean isEnableIpu1() {
-		return enableIpu1;
+		return this.enableIpu1;
 	}
 
 	public void setEnableIpu1(Boolean enable) {
@@ -57,7 +57,7 @@ public class Commands {
 	}
 
 	public Boolean isEnableIpu2() {
-		return enableIpu2;
+		return this.enableIpu2;
 	}
 
 	public void setEnableIpu2(Boolean enable) {
@@ -65,7 +65,7 @@ public class Commands {
 	}
 
 	public Boolean isEnableIpu3() {
-		return enableIpu3;
+		return this.enableIpu3;
 	}
 
 	public void setEnableIpu3(Boolean enable) {
@@ -73,7 +73,7 @@ public class Commands {
 	}
 
 	public Boolean isEnableIpu4() {
-		return enableIpu4;
+		return this.enableIpu4;
 	}
 
 	public void setEnableIpu4(Boolean enable) {
@@ -81,7 +81,7 @@ public class Commands {
 	}
 
 	public Boolean getPlayBit() {
-		return playBit;
+		return this.playBit;
 	}
 
 	public void setPlayBit(Boolean playBit) {
@@ -89,7 +89,7 @@ public class Commands {
 	}
 
 	public Boolean getReadyAndStopBit2nd() {
-		return readyAndStopBit2nd;
+		return this.readyAndStopBit2nd;
 	}
 
 	public void setReadyAndStopBit2nd(Boolean readyAndStopBit2nd) {
@@ -97,7 +97,7 @@ public class Commands {
 	}
 
 	public Boolean getAcknowledgeBit() {
-		return acknowledgeBit;
+		return this.acknowledgeBit;
 	}
 
 	public void setAcknowledgeBit(Boolean acknowledgeBit) {
@@ -105,7 +105,7 @@ public class Commands {
 	}
 
 	public Boolean getStopBit1st() {
-		return stopBit1st;
+		return this.stopBit1st;
 	}
 
 	public void setStopBit1st(Boolean stopBit1st) {
@@ -113,27 +113,27 @@ public class Commands {
 	}
 
 	public Boolean isBlackstartApproval() {
-		return blackstartApproval;
+		return this.blackstartApproval;
 	}
 
-//	public void setBlackstartApproval(Boolean blackstartApproval) {
-//		this.blackstartApproval = blackstartApproval;
-//	}
+	// public void setBlackstartApproval(Boolean blackstartApproval) {
+	// this.blackstartApproval = blackstartApproval;
+	// }
 
 	public Boolean isSyncApproval() {
-		return syncApproval;
+		return this.syncApproval;
 	}
 
-//	public void setSyncApproval(Boolean syncApproval) {
-//		this.syncApproval = syncApproval;
-//	}
+	// public void setSyncApproval(Boolean syncApproval) {
+	// this.syncApproval = syncApproval;
+	// }
 
 	public Boolean isShortCircuitHandling() {
-		return shortCircuitHandling;
+		return this.shortCircuitHandling;
 	}
 
 	public Mode getMode() {
-		return mode;
+		return this.mode;
 	}
 
 	/*
@@ -149,11 +149,11 @@ public class Commands {
 	}
 
 	public Boolean isTriggerSia() {
-		return triggerSia;
+		return this.triggerSia;
 	}
 
 	public BalancingMode getBalancingMode() {
-		return balancingMode;
+		return this.balancingMode;
 	}
 
 	public void setBalancingMode(BalancingMode balancingMode) {
@@ -161,7 +161,7 @@ public class Commands {
 	}
 
 	public FundamentalFrequencyMode getFundamentalFrequencyMode() {
-		return fundamentalFrequencyMode;
+		return this.fundamentalFrequencyMode;
 	}
 
 	public void setFundamentalFrequencyMode(FundamentalFrequencyMode fundamentalFrequencyMode) {
@@ -169,47 +169,47 @@ public class Commands {
 	}
 
 	public HarmonicCompensationMode getHarmonicCompensationMode() {
-		return harmonicCompensationMode;
+		return this.harmonicCompensationMode;
 	}
 
 	public void setHarmonicCompensationMode(HarmonicCompensationMode harmonicCompensationMode) {
 		this.harmonicCompensationMode = harmonicCompensationMode;
 	}
 
-//	public Boolean isParameterSet1() {
-//		return parameterSet1;
-//	}
-//
-//	public void setParameterSet1(Boolean parameterSet1) {
-//		this.parameterSet1 = parameterSet1;
-//	}
-//
-//	public Boolean isParameterSet2() {
-//		return parameterSet2;
-//	}
-//
-//	public void setParameterSet2(Boolean parameterSet2) {
-//		this.parameterSet2 = parameterSet2;
-//	}
-//
-//	public Boolean isParameterSet3() {
-//		return parameterSet3;
-//	}
-//
-//	public void setParameterSet3(Boolean parameterSet3) {
-//		this.parameterSet3 = parameterSet3;
-//	}
-//
-//	public Boolean isParameterSet4() {
-//		return parameterSet4;
-//	}
-//
-//	public void setParameterSet4(Boolean parameterSet4) {
-//		this.parameterSet4 = parameterSet4;
-//	}
+	// public Boolean isParameterSet1() {
+	// return parameterSet1;
+	// }
+	//
+	// public void setParameterSet1(Boolean parameterSet1) {
+	// this.parameterSet1 = parameterSet1;
+	// }
+	//
+	// public Boolean isParameterSet2() {
+	// return parameterSet2;
+	// }
+	//
+	// public void setParameterSet2(Boolean parameterSet2) {
+	// this.parameterSet2 = parameterSet2;
+	// }
+	//
+	// public Boolean isParameterSet3() {
+	// return parameterSet3;
+	// }
+	//
+	// public void setParameterSet3(Boolean parameterSet3) {
+	// this.parameterSet3 = parameterSet3;
+	// }
+	//
+	// public Boolean isParameterSet4() {
+	// return parameterSet4;
+	// }
+	//
+	// public void setParameterSet4(Boolean parameterSet4) {
+	// this.parameterSet4 = parameterSet4;
+	// }
 
 	public Integer getErrorCodeFeedback() {
-		return errorCodeFeedback;
+		return this.errorCodeFeedback;
 	}
 
 	public void setErrorCodeFeedback(Integer errorCodeFeedback) {
@@ -217,7 +217,7 @@ public class Commands {
 	}
 
 	public Float getParameterU0() {
-		return parameterU0;
+		return this.parameterU0;
 	}
 
 	public void setParameterU0(Float parameterU0) {
@@ -225,7 +225,7 @@ public class Commands {
 	}
 
 	public Float getParameterF0() {
-		return parameterF0;
+		return this.parameterF0;
 	}
 
 	public void setParameterF0(Float parameterF0) {
@@ -233,7 +233,7 @@ public class Commands {
 	}
 
 	public Float getParameterQref() {
-		return parameterQref;
+		return this.parameterQref;
 	}
 
 	public void setParameterQref(Float parameterQref) {
@@ -241,7 +241,7 @@ public class Commands {
 	}
 
 	public Float getParameterPref() {
-		return parameterPref;
+		return this.parameterPref;
 	}
 
 	public void setParameterPref(Float parameterPref) {
@@ -249,7 +249,7 @@ public class Commands {
 	}
 
 	public Integer getSyncDate() {
-		return syncDate;
+		return this.syncDate;
 	}
 
 	public void setSyncDate(Integer syncDate) {
@@ -257,7 +257,7 @@ public class Commands {
 	}
 
 	public Integer getSyncTime() {
-		return syncTime;
+		return this.syncTime;
 	}
 
 	public void setSyncTime(Integer syncTime) {
@@ -266,63 +266,81 @@ public class Commands {
 
 	@Override
 	public String toString() {
-		return "Commands [enableIpu1=" + enableIpu1 + ", enableIpu2=" + enableIpu2 + ", enableIpu3=" + enableIpu3
-				+ ", enableIpu4=" + enableIpu4 + ", playBit=" + playBit + ", readyAndStopBit2nd=" + readyAndStopBit2nd
-				+ ", acknowledgeBit=" + acknowledgeBit + ", stopBit1st=" + stopBit1st + ", blackstartApproval="
-				+ blackstartApproval + ", syncApproval=" + syncApproval + ", shortCircuitHandling="
-				+ shortCircuitHandling + ", mode=" + mode + ", triggerSia=" + triggerSia + ",fundamentalFrequencyMode="
-				+ fundamentalFrequencyMode + ",balancingMode=" + balancingMode + ",harmonicCompensationMode="
-				+ harmonicCompensationMode + ", errorCodeFeedback=" + errorCodeFeedback + ", parameterU0=" + parameterU0
-				+ ", parameterF0=" + parameterF0 + ", parameterQref=" + parameterQref + ", parameterPref="
-				+ parameterPref + ", syncDate=" + syncDate + ", syncTime=" + syncTime + "]\n" + getHexRepresentation();
+		return "Commands [" //
+				+ "enableIpu1=" + this.enableIpu1 + ", " //
+				+ "enableIpu2=" + this.enableIpu2 + ", " //
+				+ "enableIpu3=" + this.enableIpu3 + ", " //
+				+ "enableIpu4=" + this.enableIpu4 + ", " //
+				+ "playBit=" + this.playBit + ", " //
+				+ "readyAndStopBit2nd=" + this.readyAndStopBit2nd + ", " //
+				+ "acknowledgeBit=" + this.acknowledgeBit + ", " //
+				+ "stopBit1st=" + this.stopBit1st + ", " //
+				+ "blackstartApproval=" + this.blackstartApproval + ", " //
+				+ "syncApproval=" + this.syncApproval + ", " //
+				+ "shortCircuitHandling=" + this.shortCircuitHandling + ", " //
+				+ "mode=" + this.mode + ", " //
+				+ "triggerSia=" + this.triggerSia + ", " + //
+				"fundamentalFrequencyMode=" + this.fundamentalFrequencyMode + ", " //
+				+ "balancingMode=" + this.balancingMode + ", " //
+				+ "harmonicCompensationMode=" + this.harmonicCompensationMode + ", " //
+				+ "errorCodeFeedback=" + this.errorCodeFeedback + ", " //
+				+ "parameterU0=" + this.parameterU0 + ", " //
+				+ "parameterF0=" + this.parameterF0 + ", " //
+				+ "parameterQref=" + this.parameterQref + ", " //
+				+ "parameterPref=" + this.parameterPref + ", " //
+				+ "syncDate=" + this.syncDate + ", " //
+				+ "syncTime=" + this.syncTime //
+				+ "]" //
+				+ "\n" //
+				+ this.getHexRepresentation();
 	}
 
 	private String getHexRepresentation() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(Commands.COMMANDS_ADRESS);
 		sb.append(": ");
-		sb.append(HexFormatter.formatShort(getCmdWord1(), true));
+		sb.append(HexFormatter.formatShort(this.getCmdWord1(), true));
 		sb.append(" ");
-		sb.append(HexFormatter.format(getCmdWord2(), true));
+		sb.append(HexFormatter.format(this.getCmdWord2(), true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(errorCodeFeedback, true));
+		sb.append(HexFormatter.format(this.errorCodeFeedback, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(parameterU0, true));
+		sb.append(HexFormatter.format(this.parameterU0, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(parameterF0, true));
+		sb.append(HexFormatter.format(this.parameterF0, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(parameterQref, true));
+		sb.append(HexFormatter.format(this.parameterQref, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(parameterPref, true));
+		sb.append(HexFormatter.format(this.parameterPref, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(syncDate, true));
+		sb.append(HexFormatter.format(this.syncDate, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(syncTime, true));
+		sb.append(HexFormatter.format(this.syncTime, true));
 
 		return sb.toString();
 	}
 
 	private short getCmdWord1() {
 		BitSet set = new BitSet(16);
-		set.set(0, getStopBit1st()); //
-		set.set(1, getPlayBit());
-		set.set(2, getReadyAndStopBit2nd());
-		set.set(3, getAcknowledgeBit());
-		set.set(4, isBlackstartApproval());
-		set.set(5, isSyncApproval());
-		set.set(6, isShortCircuitHandling());
-		set.set(7, mode.value);
-		set.set(8, isTriggerSia());
-		set.set(9, fundamentalFrequencyMode.isBit1());
-		set.set(10, fundamentalFrequencyMode.isBit2());
-		set.set(11, getBalancingMode().isBit1());
-		set.set(12, getBalancingMode().isBit2());
-		set.set(13, harmonicCompensationMode.isBit1());
-		set.set(14, harmonicCompensationMode.isBit2());
-//		set.set(10, isParameterSet1());
-//		set.set(11, isParameterSet2());
-//		set.set(12, isParameterSet3());
-//		set.set(13, isParameterSet4());
+		set.set(0, this.getStopBit1st()); //
+		set.set(1, this.getPlayBit());
+		set.set(2, this.getReadyAndStopBit2nd());
+		set.set(3, this.getAcknowledgeBit());
+		set.set(4, this.isBlackstartApproval());
+		set.set(5, this.isSyncApproval());
+		set.set(6, this.isShortCircuitHandling());
+		set.set(7, this.mode.value);
+		set.set(8, this.isTriggerSia());
+		set.set(9, this.fundamentalFrequencyMode.isBit1());
+		set.set(10, this.fundamentalFrequencyMode.isBit2());
+		set.set(11, this.getBalancingMode().isBit1());
+		set.set(12, this.getBalancingMode().isBit2());
+		set.set(13, this.harmonicCompensationMode.isBit1());
+		set.set(14, this.harmonicCompensationMode.isBit2());
+		// set.set(10, isParameterSet1());
+		// set.set(11, isParameterSet2());
+		// set.set(12, isParameterSet3());
+		// set.set(13, isParameterSet4());
 
 		long val = 0;
 		long[] l = set.toLongArray();
@@ -336,10 +354,10 @@ public class Commands {
 
 	private int getCmdWord2() {
 		BitSet set = new BitSet(16);
-		set.set(28 - 16, enableIpu4); //
-		set.set(29 - 16, enableIpu3); //
-		set.set(30 - 16, enableIpu2); //
-		set.set(31 - 16, enableIpu1); //
+		set.set(28 - 16, this.enableIpu4); //
+		set.set(29 - 16, this.enableIpu3); //
+		set.set(30 - 16, this.enableIpu2); //
+		set.set(31 - 16, this.enableIpu1); //
 
 		long val = 0;
 		long[] l = set.toLongArray();

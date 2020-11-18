@@ -50,24 +50,24 @@ public class OffGrid extends BaseState {
 
 	@Override
 	public void act() throws OpenemsNamedException {
-		float factor = targetFrequencyOffgrid / GridconPcs.DEFAULT_GRID_FREQUENCY;
-		getGridconPcs().setF0(factor);
+		float factor = this.targetFrequencyOffgrid / GridconPcs.DEFAULT_GRID_FREQUENCY;
+		this.getGridconPcs().setF0(factor);
 
-//		getGridconPcs().setBlackStartApproval(true);
-//		getGridconPcs().setSyncApproval(false);
-		getGridconPcs().setMode(Mode.VOLTAGE_CONTROL);
+		// getGridconPcs().setBlackStartApproval(true);
+		// getGridconPcs().setSyncApproval(false);
+		this.getGridconPcs().setMode(Mode.VOLTAGE_CONTROL);
 
 		// Set weighting to strings, use a fix value for active power because in
 		// off grid mode it is always discharging
 		float activePower = 1000;
 		Float[] weightings = WeightingHelper.getWeighting(activePower, getBattery1(), getBattery2(), getBattery3());
 
-		getGridconPcs().setWeightStringA(weightings[0]);
-		getGridconPcs().setWeightStringB(weightings[1]);
-		getGridconPcs().setWeightStringC(weightings[2]);
+		this.getGridconPcs().setWeightStringA(weightings[0]);
+		this.getGridconPcs().setWeightStringB(weightings[1]);
+		this.getGridconPcs().setWeightStringC(weightings[2]);
 
 		try {
-			getGridconPcs().doWriteTasks();
+			this.getGridconPcs().doWriteTasks();
 		} catch (OpenemsNamedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

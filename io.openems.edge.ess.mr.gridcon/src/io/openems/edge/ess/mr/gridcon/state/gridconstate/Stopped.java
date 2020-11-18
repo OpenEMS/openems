@@ -17,7 +17,7 @@ public class Stopped extends BaseState {
 	private boolean enableIpu1;
 	private boolean enableIpu2;
 	private boolean enableIpu3;
-//	private ParameterSet parameterSet;
+	// private ParameterSet parameterSet;
 
 	public Stopped(ComponentManager manager, String gridconPcsId, String b1Id, String b2Id, String b3Id,
 			boolean enableIpu1, boolean enableIpu2, boolean enableIpu3, // ParameterSet parameterSet,
@@ -26,7 +26,7 @@ public class Stopped extends BaseState {
 		this.enableIpu1 = enableIpu1;
 		this.enableIpu2 = enableIpu2;
 		this.enableIpu3 = enableIpu3;
-//		this.parameterSet = parameterSet;
+		// this.parameterSet = parameterSet;
 	}
 
 	@Override
@@ -52,15 +52,15 @@ public class Stopped extends BaseState {
 
 	@Override
 	public void act(GridconSettings settings) {
-		log.info("Start batteries and gridcon!");
+		this.log.info("Start batteries and gridcon!");
 
-		startSystem(settings);
-		setStringWeighting();
-		setStringControlMode();
-		setDateAndTime();
+		this.startSystem(settings);
+		this.setStringWeighting();
+		this.setStringControlMode();
+		this.setDateAndTime();
 
 		try {
-			getGridconPcs().doWriteTasks();
+			this.getGridconPcs().doWriteTasks();
 		} catch (OpenemsNamedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -69,115 +69,115 @@ public class Stopped extends BaseState {
 
 	private void startSystem(GridconSettings settings) {
 
-		if (!isBatteriesStarted()) {
+		if (!this.isBatteriesStarted()) {
 			System.out.println("Batteries are not started, start batteries and keep system stopped!");
-			startBatteries();
-			keepSystemStopped(settings);
+			this.startBatteries();
+			this.keepSystemStopped(settings);
 			return;
 		}
 
 		if (isBatteriesStarted()) {
 
 			if (!getGridconPcs().isDcDcStarted()) {
-				startDcDc(settings);
+				this.startDcDc(settings);
 				return;
 			}
-			enableIpus(settings);
+			this.enableIpus(settings);
 		}
 	}
 
 	private void keepSystemStopped(GridconSettings settings) {
-		getGridconPcs().setEnableIpu1(false);
-		getGridconPcs().setEnableIpu2(false);
-		getGridconPcs().setEnableIpu3(false);
-		getGridconPcs().disableDcDc();
+		this.getGridconPcs().setEnableIpu1(false);
+		this.getGridconPcs().setEnableIpu2(false);
+		this.getGridconPcs().setEnableIpu3(false);
+		this.getGridconPcs().disableDcDc();
 
-		getGridconPcs().setStop(true);
-		getGridconPcs().setPlay(false);
-		getGridconPcs().setAcknowledge(false);
+		this.getGridconPcs().setStop(true);
+		this.getGridconPcs().setPlay(false);
+		this.getGridconPcs().setAcknowledge(false);
 
-		getGridconPcs().setMode(settings.getMode());
-		getGridconPcs().setU0(settings.getU0());
-		getGridconPcs().setF0(settings.getF0());
-		getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
-		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
-		getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
+		this.getGridconPcs().setMode(settings.getMode());
+		this.getGridconPcs().setU0(settings.getU0());
+		this.getGridconPcs().setF0(settings.getF0());
+		this.getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
+		this.getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
+		this.getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
 
-//		getGridconPcs().setParameterSet(parameterSet);
+		// getGridconPcs().setParameterSet(parameterSet);
 		float maxPower = GridconPcs.MAX_POWER_PER_INVERTER;
-		if (enableIpu1) {
-			getGridconPcs().setPMaxChargeIpu1(maxPower);
-			getGridconPcs().setPMaxDischargeIpu1(-maxPower);
+		if (this.enableIpu1) {
+			this.getGridconPcs().setPMaxChargeIpu1(maxPower);
+			this.getGridconPcs().setPMaxDischargeIpu1(-maxPower);
 		}
-		if (enableIpu2) {
-			getGridconPcs().setPMaxChargeIpu2(maxPower);
-			getGridconPcs().setPMaxDischargeIpu2(-maxPower);
+		if (this.enableIpu2) {
+			this.getGridconPcs().setPMaxChargeIpu2(maxPower);
+			this.getGridconPcs().setPMaxDischargeIpu2(-maxPower);
 		}
-		if (enableIpu3) {
-			getGridconPcs().setPMaxChargeIpu3(maxPower);
-			getGridconPcs().setPMaxDischargeIpu3(-maxPower);
+		if (this.enableIpu3) {
+			this.getGridconPcs().setPMaxChargeIpu3(maxPower);
+			this.getGridconPcs().setPMaxDischargeIpu3(-maxPower);
 		}
 	}
 
 	private void enableIpus(GridconSettings settings) {
-		getGridconPcs().setEnableIpu1(enableIpu1);
-		getGridconPcs().setEnableIpu2(enableIpu2);
-		getGridconPcs().setEnableIpu3(enableIpu3);
-		getGridconPcs().enableDcDc();
-		getGridconPcs().setStop(false);
-		getGridconPcs().setPlay(false);
-		getGridconPcs().setAcknowledge(false);
+		this.getGridconPcs().setEnableIpu1(this.enableIpu1);
+		this.getGridconPcs().setEnableIpu2(this.enableIpu2);
+		this.getGridconPcs().setEnableIpu3(this.enableIpu3);
+		this.getGridconPcs().enableDcDc();
+		this.getGridconPcs().setStop(false);
+		this.getGridconPcs().setPlay(false);
+		this.getGridconPcs().setAcknowledge(false);
 
-		getGridconPcs().setMode(settings.getMode());
-		getGridconPcs().setU0(settings.getU0());
-		getGridconPcs().setF0(settings.getF0());
-		getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
-		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
-		getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
+		this.getGridconPcs().setMode(settings.getMode());
+		this.getGridconPcs().setU0(settings.getU0());
+		this.getGridconPcs().setF0(settings.getF0());
+		this.getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
+		this.getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
+		this.getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
 
-//		getGridconPcs().setParameterSet(parameterSet);
+		// getGridconPcs().setParameterSet(parameterSet);
 		float maxPower = GridconPcs.MAX_POWER_PER_INVERTER;
-		if (enableIpu1) {
-			getGridconPcs().setPMaxChargeIpu1(maxPower);
-			getGridconPcs().setPMaxDischargeIpu1(-maxPower);
+		if (this.enableIpu1) {
+			this.getGridconPcs().setPMaxChargeIpu1(maxPower);
+			this.getGridconPcs().setPMaxDischargeIpu1(-maxPower);
 		}
-		if (enableIpu2) {
-			getGridconPcs().setPMaxChargeIpu2(maxPower);
-			getGridconPcs().setPMaxDischargeIpu2(-maxPower);
+		if (this.enableIpu2) {
+			this.getGridconPcs().setPMaxChargeIpu2(maxPower);
+			this.getGridconPcs().setPMaxDischargeIpu2(-maxPower);
 		}
-		if (enableIpu3) {
-			getGridconPcs().setPMaxChargeIpu3(maxPower);
-			getGridconPcs().setPMaxDischargeIpu3(-maxPower);
+		if (this.enableIpu3) {
+			this.getGridconPcs().setPMaxChargeIpu3(maxPower);
+			this.getGridconPcs().setPMaxDischargeIpu3(-maxPower);
 		}
 	}
 
 	private void startDcDc(GridconSettings settings) {
-		getGridconPcs().setEnableIpu1(false);
-		getGridconPcs().setEnableIpu2(false);
-		getGridconPcs().setEnableIpu3(false);
-		getGridconPcs().enableDcDc();
-		getGridconPcs().setStop(false);
-		getGridconPcs().setPlay(true);
-		getGridconPcs().setAcknowledge(false);
+		this.getGridconPcs().setEnableIpu1(false);
+		this.getGridconPcs().setEnableIpu2(false);
+		this.getGridconPcs().setEnableIpu3(false);
+		this.getGridconPcs().enableDcDc();
+		this.getGridconPcs().setStop(false);
+		this.getGridconPcs().setPlay(true);
+		this.getGridconPcs().setAcknowledge(false);
 
-		getGridconPcs().setMode(settings.getMode());
-		getGridconPcs().setU0(settings.getU0());
-		getGridconPcs().setF0(settings.getF0());
-		getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
-		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
-		getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
+		this.getGridconPcs().setMode(settings.getMode());
+		this.getGridconPcs().setU0(settings.getU0());
+		this.getGridconPcs().setF0(settings.getF0());
+		this.getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
+		this.getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
+		this.getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
 
-//		getGridconPcs().setParameterSet(parameterSet);
+		// getGridconPcs().setParameterSet(parameterSet);
 		float maxPower = GridconPcs.MAX_POWER_PER_INVERTER;
-		if (enableIpu1) {
-			getGridconPcs().setPMaxChargeIpu1(maxPower);
-			getGridconPcs().setPMaxDischargeIpu1(-maxPower);
+		if (this.enableIpu1) {
+			this.getGridconPcs().setPMaxChargeIpu1(maxPower);
+			this.getGridconPcs().setPMaxDischargeIpu1(-maxPower);
 		}
-		if (enableIpu2) {
-			getGridconPcs().setPMaxChargeIpu2(maxPower);
+		if (this.enableIpu2) {
+			this.getGridconPcs().setPMaxChargeIpu2(maxPower);
 			getGridconPcs().setPMaxDischargeIpu2(-maxPower);
 		}
-		if (enableIpu3) {
+		if (this.enableIpu3) {
 			getGridconPcs().setPMaxChargeIpu3(maxPower);
 			getGridconPcs().setPMaxDischargeIpu3(-maxPower);
 		}

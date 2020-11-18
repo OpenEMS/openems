@@ -31,42 +31,42 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 
 	@Override
 	public boolean isRunning() {
-		return running;
+		return this.running;
 	}
 
 	@Override
 	public boolean isStopped() {
-		return !running;
+		return !this.running;
 	}
 
 	@Override
 	public boolean isError() {
-		return error;
+		return this.error;
 	}
 
 	@Override
 	public void setPower(int activePower, int reactivePower) {
-		currentActivePower = activePower;
+		this.currentActivePower = activePower;
 	}
 
 	@Override
 	public void setPlay(boolean play) {
 		if (play) {
-			running = true;
+			this.running = true;
 		}
 	}
 
 	@Override
 	public void setStop(boolean stop) {
 		if (stop) {
-			running = false;
+			this.running = false;
 		}
 	}
 
 	@Override
 	public void setAcknowledge(boolean acknowledge) {
 		if (acknowledge) {
-			error = false;
+			this.error = false;
 		}
 	}
 
@@ -83,7 +83,7 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 
 	@Override
 	public float getDcLinkPositiveVoltage() {
-		return dcLinkPositiveVoltage;
+		return this.dcLinkPositiveVoltage;
 	}
 
 	@Override
@@ -110,11 +110,11 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 
 	}
 
-//	@Override
-//	public void setParameterSet(ParameterSet set1) {
-//		// TODO Auto-generated method stub
-//		
-//	}
+	// @Override
+	// public void setParameterSet(ParameterSet set1) {
+	// // TODO Auto-generated method stub
+	//
+	// }
 
 	@Override
 	public void setU0(float onGridVoltageFactor) {
@@ -226,7 +226,7 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 
 	@Override
 	public float getActivePower() {
-		return currentActivePower;
+		return this.currentActivePower;
 	}
 
 	@Override
@@ -267,7 +267,7 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 
 	@Override
 	public float getActivePowerPreset() {
-		return currentActivePower;
+		return this.currentActivePower;
 	}
 
 	@Override

@@ -64,7 +64,7 @@ public class Undefined extends BaseState implements StateObject {
 
 	@Override
 	public void act() {
-		log.info("Nothing to do!");
+		this.log.info("Nothing to do!");
 	}
 
 	@Override

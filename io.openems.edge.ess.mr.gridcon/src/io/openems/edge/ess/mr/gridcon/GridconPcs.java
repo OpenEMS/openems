@@ -65,7 +65,7 @@ public interface GridconPcs {
 
 	void disableDcDc();
 
-//	void setParameterSet(ParameterSet set1);
+	// void setParameterSet(ParameterSet set1);
 
 	void setBalancingMode(BalancingMode balancingMode);
 

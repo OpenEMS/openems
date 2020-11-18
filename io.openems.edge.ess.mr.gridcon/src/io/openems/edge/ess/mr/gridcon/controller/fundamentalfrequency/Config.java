@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.ess.mr.gridcon.enums.FundamentalFrequencyMode;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Set Fundamental Frequency Mode", //
 		description = "Sets the fundamental frequency mode for the gridcon.")
 @interface Config {

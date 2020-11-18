@@ -42,11 +42,11 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 	@Override
 	public NaProtection1On isNaProtection1On() {
 		try {
-			BooleanReadChannel c = manager.getChannel(ChannelAddress.fromString(inputNaProtection1));
+			BooleanReadChannel c = this.manager.getChannel(ChannelAddress.fromString(this.inputNaProtection1));
 
 			boolean value = c.value().get();
 
-			if (nA1Inverted) {
+			if (this.nA1Inverted) {
 				value = !value;
 			}
 
@@ -64,10 +64,10 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 	@Override
 	public NaProtection2On isNaProtection2On() {
 		try {
-			BooleanReadChannel c = manager.getChannel(ChannelAddress.fromString(inputNaProtection2));
+			BooleanReadChannel c = this.manager.getChannel(ChannelAddress.fromString(this.inputNaProtection2));
 			boolean value = c.value().get();
 
-			if (nA2Inverted) {
+			if (this.nA2Inverted) {
 				value = !value;
 			}
 
@@ -85,7 +85,7 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 	public GridconCommunicationFailed isGridconCommunicationFailed() {
 		GridconPcs gridconPcs;
 		try {
-			gridconPcs = manager.getComponent(gridconPcsId);
+			gridconPcs = this.manager.getComponent(this.gridconPcsId);
 			if (gridconPcs.isCommunicationBroken()) {
 				return GridconCommunicationFailed.TRUE;
 			} else {
@@ -100,7 +100,7 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 	public MeterCommunicationFailed isMeterCommunicationFailed() {
 
 		try {
-			AbstractOpenemsModbusComponent meter = manager.getComponent(meterId);
+			AbstractOpenemsModbusComponent meter = this.manager.getComponent(this.meterId);
 
 			BridgeModbus modbusBridge = meter.getModbus();
 
@@ -126,7 +126,7 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 	@Override
 	public VoltageInRange isVoltageInRange() {
 		try {
-			SymmetricMeter meter = manager.getComponent(meterId);
+			SymmetricMeter meter = this.manager.getComponent(this.meterId);
 			double voltage = meter.getVoltage().get() / 1000;
 			if (voltage > DecisionTableCondition.LOWER_VOLTAGE && voltage < DecisionTableCondition.UPPER_VOLTAGE) {
 				return VoltageInRange.TRUE;
@@ -142,11 +142,11 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 	@Override
 	public SyncBridgeOn isSyncBridgeOn() {
 		try {
-			BooleanReadChannel c = manager.getChannel(ChannelAddress.fromString(inputSyncBridge));
+			BooleanReadChannel c = this.manager.getChannel(ChannelAddress.fromString(this.inputSyncBridge));
 
 			boolean value = c.value().get();
 
-			if (isSyncBridgeInverted) {
+			if (this.isSyncBridgeInverted) {
 				value = !value;
 			}
 
@@ -165,27 +165,27 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Input NA Protection 1: ");
-		sb.append(isNaProtection1On());
+		sb.append(this.isNaProtection1On());
 		sb.append("\n");
 
 		sb.append("Input NA Protection 2: ");
-		sb.append(isNaProtection2On());
+		sb.append(this.isNaProtection2On());
 		sb.append("\n");
 
 		sb.append("GridconCommunicationFailed: ");
-		sb.append(isGridconCommunicationFailed());
+		sb.append(this.isGridconCommunicationFailed());
 		sb.append("\n");
 
 		sb.append("MeterCommunicationFailed: ");
-		sb.append(isMeterCommunicationFailed());
+		sb.append(this.isMeterCommunicationFailed());
 		sb.append("\n");
 
 		sb.append("Voltage in Range: ");
-		sb.append(isVoltageInRange());
+		sb.append(this.isVoltageInRange());
 		sb.append("\n");
 
 		sb.append("Sync Bridge On: ");
-		sb.append(isSyncBridgeOn());
+		sb.append(this.isSyncBridgeOn());
 		sb.append("\n");
 
 		return sb.toString();

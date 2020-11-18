@@ -54,7 +54,7 @@ public class EssGridconOnOffGrid extends EssGridcon
 		this.config = c;
 		EssGridconOnOffGrid.super.activate(context, c.id(), c.alias(), c.enabled(), c.gridcon_id(), c.bms_a_id(),
 				c.bms_b_id(), c.bms_c_id(), c.offsetCurrent());
-		this.checkConfiguration(config);
+		this.checkConfiguration(this.config);
 	}
 
 	@Deactivate
@@ -96,12 +96,12 @@ public class EssGridconOnOffGrid extends EssGridcon
 
 	@Override
 	public Power getPower() {
-		return power;
+		return this.power;
 	}
 
 	@Override
 	protected ComponentManager getComponentManager() {
-		return componentManager;
+		return this.componentManager;
 	}
 
 	@Override
@@ -111,36 +111,36 @@ public class EssGridconOnOffGrid extends EssGridcon
 
 	@Override
 	protected void initializeStateController(String gridconPcs, String b1, String b2, String b3) {
-		DecisionTableCondition tableCondition = new DecisionTableConditionImpl(componentManager, gridconPcs,
-				config.meter_id(), config.inputNaProtection1(), config.inputNaProtection2(),
-				config.inputSyncDeviceBridge(), config.isNaProtection1Inverted(), config.isNaProtection2Inverted(),
-				config.isInputSyncDeviceBridgeInverted());
+		DecisionTableCondition tableCondition = new DecisionTableConditionImpl(this.componentManager, gridconPcs,
+				this.config.meter_id(), this.config.inputNaProtection1(), this.config.inputNaProtection2(),
+				this.config.inputSyncDeviceBridge(), this.config.isNaProtection1Inverted(),
+				this.config.isNaProtection2Inverted(), this.config.isInputSyncDeviceBridgeInverted());
 		stateController.initDecisionTableCondition(tableCondition);
 		stateController.initOnOffGrid(//
-				componentManager, //
+				this.componentManager, //
 				gridconPcs, //
 				b1, //
 				b2, //
 				b3, //
-				config.enableIpu1(), //
-				config.enableIpu2(), //
-				config.enableIpu3(), //
-				config.parameterSet(), //
-				config.inputNaProtection1(), //
-				config.isNaProtection1Inverted(), //
-				config.inputNaProtection2(), //
-				config.isNaProtection2Inverted(), //
-				config.inputSyncDeviceBridge(), //
-				config.isInputSyncDeviceBridgeInverted(), //
-				config.outputSyncDeviceBridge(), //
-				config.isOutputSyncDeviceBridgeInverted(), //
-				config.outputHardReset(), //
-				config.isOutputHardResetInverted(), //
-				config.targetFrequencyOnGrid(), //
-				config.targetFrequencyOffGrid(), //
-				config.meter_id(), //
-				config.deltaFrequency(), //
-				config.deltaVoltage(), //
-				config.offsetCurrent());
+				this.config.enableIpu1(), //
+				this.config.enableIpu2(), //
+				this.config.enableIpu3(), //
+				this.config.parameterSet(), //
+				this.config.inputNaProtection1(), //
+				this.config.isNaProtection1Inverted(), //
+				this.config.inputNaProtection2(), //
+				this.config.isNaProtection2Inverted(), //
+				this.config.inputSyncDeviceBridge(), //
+				this.config.isInputSyncDeviceBridgeInverted(), //
+				this.config.outputSyncDeviceBridge(), //
+				this.config.isOutputSyncDeviceBridgeInverted(), //
+				this.config.outputHardReset(), //
+				this.config.isOutputHardResetInverted(), //
+				this.config.targetFrequencyOnGrid(), //
+				this.config.targetFrequencyOffGrid(), //
+				this.config.meter_id(), //
+				this.config.deltaFrequency(), //
+				this.config.deltaVoltage(), //
+				this.config.offsetCurrent());
 	}
 }

@@ -12,7 +12,7 @@ public class CosPhiParameters {
 	private float cosPhiSetPoint2 = 1f;
 
 	public float getCosPhiSetPoint1() {
-		return cosPhiSetPoint1;
+		return this.cosPhiSetPoint1;
 	}
 
 	public void setCosPhiSetPoint1(float cosPhiSetPoint1) {
@@ -20,7 +20,7 @@ public class CosPhiParameters {
 	}
 
 	public float getCosPhiSetPoint2() {
-		return cosPhiSetPoint2;
+		return this.cosPhiSetPoint2;
 	}
 
 	public void setCosPhiSetPoint2(float cosPhiSetPoint2) {
@@ -29,17 +29,17 @@ public class CosPhiParameters {
 
 	@Override
 	public String toString() {
-		return "CosPhiParameters [cosPhiSetPoint1=" + cosPhiSetPoint1 + ", cosPhiSetPoint2=" + cosPhiSetPoint2 + "]\n"
-				+ getHexRepresentation();
+		return "CosPhiParameters [cosPhiSetPoint1=" + this.cosPhiSetPoint1 + ", cosPhiSetPoint2=" + this.cosPhiSetPoint2
+				+ "]\n" + this.getHexRepresentation();
 	}
 
 	private String getHexRepresentation() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(COS_PHI_ADDRESS);
 		sb.append(": ");
-		sb.append(HexFormatter.format(cosPhiSetPoint1, true));
+		sb.append(HexFormatter.format(this.cosPhiSetPoint1, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(cosPhiSetPoint2, true));
+		sb.append(HexFormatter.format(this.cosPhiSetPoint2, true));
 
 		return sb.toString();
 	}

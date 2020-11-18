@@ -16,7 +16,7 @@ public class IpuParameter {
 	private float pMaxCharge = 0f;
 
 	public float getpMaxDischarge() {
-		return pMaxDischarge;
+		return this.pMaxDischarge;
 	}
 
 	public void setpMaxDischarge(float pMaxDischarge) {
@@ -24,7 +24,7 @@ public class IpuParameter {
 	}
 
 	public float getpMaxCharge() {
-		return pMaxCharge;
+		return this.pMaxCharge;
 	}
 
 	public void setpMaxCharge(float pMaxCharge) {
@@ -32,54 +32,55 @@ public class IpuParameter {
 	}
 
 	public float getDcVoltageSetpoint() {
-		return dcVoltageSetpoint;
+		return this.dcVoltageSetpoint;
 	}
 
 	public float getDcCurrentSetpoint() {
-		return dcCurrentSetpoint;
+		return this.dcCurrentSetpoint;
 	}
 
 	public float getU0OffsetToCcu() {
-		return u0OffsetToCcu;
+		return this.u0OffsetToCcu;
 	}
 
 	public float getF0OffsetToCcu() {
-		return f0OffsetToCcu;
+		return this.f0OffsetToCcu;
 	}
 
 	public float getqRefOffsetToCcu() {
-		return qRefOffsetToCcu;
+		return this.qRefOffsetToCcu;
 	}
 
 	public float getpRefOffsetToCcu() {
-		return pRefOffsetToCcu;
+		return this.pRefOffsetToCcu;
 	}
 
 	@Override
 	public String toString() {
-		return "IpuParameter [dcVoltageSetpoint=" + dcVoltageSetpoint + ", dcCurrentSetpoint=" + dcCurrentSetpoint
-				+ ", u0OffsetToCcu=" + u0OffsetToCcu + ", f0OffsetToCcu=" + f0OffsetToCcu + ", qRefOffsetToCcu="
-				+ qRefOffsetToCcu + ", pRefOffsetToCcu=" + pRefOffsetToCcu + ", pMaxDischarge=" + pMaxDischarge
-				+ ", pMaxCharge=" + pMaxCharge + "]\n" + getHexRepresentation();
+		return "IpuParameter [dcVoltageSetpoint=" + this.dcVoltageSetpoint + ", dcCurrentSetpoint="
+				+ this.dcCurrentSetpoint + ", u0OffsetToCcu=" + this.u0OffsetToCcu + ", f0OffsetToCcu="
+				+ this.f0OffsetToCcu + ", qRefOffsetToCcu=" + this.qRefOffsetToCcu + ", pRefOffsetToCcu="
+				+ this.pRefOffsetToCcu + ", pMaxDischarge=" + this.pMaxDischarge + ", pMaxCharge=" + this.pMaxCharge
+				+ "]\n" + this.getHexRepresentation();
 	}
 
 	private String getHexRepresentation() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(HexFormatter.format(dcVoltageSetpoint, true));
+		sb.append(HexFormatter.format(this.dcVoltageSetpoint, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(dcCurrentSetpoint, true));
+		sb.append(HexFormatter.format(this.dcCurrentSetpoint, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(u0OffsetToCcu, true));
+		sb.append(HexFormatter.format(this.u0OffsetToCcu, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(f0OffsetToCcu, true));
+		sb.append(HexFormatter.format(this.f0OffsetToCcu, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(qRefOffsetToCcu, true));
+		sb.append(HexFormatter.format(this.qRefOffsetToCcu, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(pRefOffsetToCcu, true));
+		sb.append(HexFormatter.format(this.pRefOffsetToCcu, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(pMaxDischarge, true));
+		sb.append(HexFormatter.format(this.pMaxDischarge, true));
 		sb.append("  ");
-		sb.append(HexFormatter.format(pMaxCharge, true));
+		sb.append(HexFormatter.format(this.pMaxCharge, true));
 
 		return sb.toString();
 	}
