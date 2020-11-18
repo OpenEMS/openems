@@ -4,8 +4,6 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../s
 import { ModalController } from '@ionic/angular';
 import { HeatPumpModalComponent } from './modal/modal.component';
 import { BehaviorSubject } from 'rxjs';
-import { Subject } from 'rxjs/internal/Subject';
-import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: HeatPumpComponent.SELECTOR,
@@ -53,7 +51,7 @@ export class HeatPumpComponent {
         status: this.status
       }
     });
-    modal.onDidDismiss().then((data) => {
+    modal.onDidDismiss().then(() => {
       this.service.getConfig().then(config => {
         this.component = config.components[this.componentId];
       })

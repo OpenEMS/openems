@@ -44,6 +44,7 @@ export class HeatPumpModalComponent {
       automaticRecommendationSurplusPower: new FormControl(this.component.properties.automaticRecommendationSurplusPower),
       minimumSwitchingTime: new FormControl(this.component.properties.minimumSwitchingTime),
     })
+    console.log("component", this.component)
   };
 
   public updateControllerMode(event: CustomEvent) {

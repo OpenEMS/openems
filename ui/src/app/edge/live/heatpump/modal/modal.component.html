@@ -75,7 +75,7 @@
     <!-- Manual Mode -->
     <form [formGroup]="formGroup">
       <ng-container *ngIf="component.properties['mode'] == 'MANUAL'">
-        <ion-card-content *ngIf="formGroup.value.workMode != 'NONE'" class="underline">
+        <ion-card-content *ngIf="formGroup.value.workMode != 'NONE'">
           <ion-list>
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('FORCE_ON')"
               lines="none">
@@ -199,7 +199,7 @@
             <table class="full_width">
               <tr>
                 <td style="width: 65%;">
-                  Unter Ladezustand von</td>
+                  und unter Ladezustand von</td>
                 <td style="width: 35%" class="align_right ion-padding-end">
                   {{ formGroup.controls.automaticLockSoc.value | unitvalue:'%' }}
                 </td>
