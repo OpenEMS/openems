@@ -1,5 +1,5 @@
 Bundle-Name: OpenEMS Edge Controller IO SG-Ready Heat Pump
-Bundle-Vendor: OpenEMS Association e.V.
+Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
@@ -8,8 +8,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
-	io.openems.edge.io.api;version=latest,\
-	io.openems.edge.timedata.api;version=latest
+	io.openems.edge.io.api,\
+	io.openems.edge.timedata.api
 
 -testpath: \
 	${testpath}

@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
 		name = "Controller IO SG-Ready Heat Pump", //
-		description = "Controls a SG-Ready heat pump via two relay outputs, according to user settings or surplus power.")
+		description = "Controls a SG-Ready heat pump via two relay outputs, depending on surplus power and battery state-of-charge.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
