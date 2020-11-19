@@ -553,7 +553,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 				// new UnsignedDoublewordElement(40673)), //
 				// m(SunnyIsland6Ess.ChannelId.AUTOMATIC_FREQUENCY_SYNCHRONIZATION,
 				// new UnsignedDoublewordElement(40675)), //
-				// m(SunnyIsland6Ess.ChannelId.MAXIUMUM_CURRENT_FROM_PUBLIC_GRID,
+				// m(SunnyIsland6Ess.ChannelId.MAXIMUM_CURRENT_FROM_PUBLIC_GRID,
 				// new UnsignedDoublewordElement(40677)), //
 				// m(SunnyIsland6Ess.ChannelId.POWER_FEEDBACK_TO_PUBLIC_GRID_ALLOWED,
 				// new UnsignedDoublewordElement(40679)), //
@@ -855,7 +855,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 				// new UnsignedDoublewordElement(40673)), //
 				// m(SunnyIsland6Ess.ChannelId.AUTOMATIC_FREQUENCY_SYNCHRONIZATION,
 				// new UnsignedDoublewordElement(40675)), //
-				// m(SunnyIsland6Ess.ChannelId.MAXIUMUM_CURRENT_FROM_PUBLIC_GRID,
+				// m(SunnyIsland6Ess.ChannelId.MAXIMUM_CURRENT_FROM_PUBLIC_GRID,
 				// new UnsignedDoublewordElement(40677)), //
 				// m(SunnyIsland6Ess.ChannelId.POWER_FEEDBACK_TO_PUBLIC_GRID_ALLOWED,
 				// new UnsignedDoublewordElement(40679)), //

@@ -7,7 +7,7 @@ import { AutarchyWidgetComponent } from './autarchy/widget.component';
 import { ChannelthresholdChartOverviewComponent } from './channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { ChannelthresholdSingleChartComponent } from './channelthreshold/singlechart.component';
 import { ChannelthresholdTotalChartComponent } from './channelthreshold/totalchart.component';
-import { ChanneltresholdWidgetComponent } from './channelthreshold/widget.component';
+import { ChannelthresholdWidgetComponent } from './channelthreshold/widget.component';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
 import { ConsumptionChartOverviewComponent } from './consumption/consumptionchartoverview/consumptionchartoverview.component';
@@ -74,7 +74,7 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     ChannelthresholdChartOverviewComponent,
     ChannelthresholdSingleChartComponent,
     ChannelthresholdTotalChartComponent,
-    ChanneltresholdWidgetComponent,
+    ChannelthresholdWidgetComponent,
     ChpSocChartComponent,
     ChpSocWidgetComponent,
     ConsumptionChartOverviewComponent,

@@ -421,6 +421,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 			return new ChannelDef(DsType.GAUGE, Double.NaN, 100, ConsolFun.AVERAGE);
 		case ON_OFF:
 			return new ChannelDef(DsType.GAUGE, Double.NaN, 1, ConsolFun.AVERAGE);
+		case CUMULATED_SECONDS:
 		case WATT_HOURS:
 		case KILOWATT_HOURS:
 		case VOLT_AMPERE_HOURS:

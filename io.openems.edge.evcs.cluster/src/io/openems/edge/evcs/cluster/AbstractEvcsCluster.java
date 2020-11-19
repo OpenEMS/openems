@@ -10,7 +10,10 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -30,6 +33,28 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 	public AbstractEvcsCluster(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
+	}
+
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		MAXIMUM_POWER_TO_DISTRIBUTE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT).text("Maximum power to distribute, for all given Evcss.")),
+		MAXIMUM_AVAILABLE_ESS_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT).text("Maximum available ess power.")), 
+		MAXIMUM_AVAILABLE_GRID_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT).text("Maximum available grid power.")),
+		USED_ESS_MAXIMUM_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT).text("Dynamic maximum discharge power, that could be limited by us to ensure the possibillity to discharge the battery."));
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
 	}
 
 	@Override
@@ -93,6 +118,7 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 	protected void limitEvcss() {
 		try {
 			int totalPowerLimit = this.getMaximumPowerToDistribute();
+			this.channel(ChannelId.MAXIMUM_POWER_TO_DISTRIBUTE).setNextValue(totalPowerLimit);
 
 			/*
 			 * If a maximum power is present, e.g. from another cluster, then the limit will
@@ -117,39 +143,49 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 				if (evcs instanceof ManagedEvcs) {
 					ManagedEvcs managedEvcs = (ManagedEvcs) evcs;
 					int requestedPower = managedEvcs.getSetChargePowerRequestChannel().getNextWriteValue().orElse(0);
-					Status status = evcs.getStatus();
+
+					if (requestedPower <= 0) {
+						managedEvcs.setChargePowerLimit(0);
+						continue;
+					}
+
+					int guaranteedPower = getGuaranteedPower(managedEvcs);
+					Status status = managedEvcs.getStatus();
 					switch (status) {
 					case CHARGING_FINISHED:
-						if (requestedPower > 0) {
-							managedEvcs.setChargePowerLimit(requestedPower);
-						}
+						managedEvcs.setChargePowerLimit(requestedPower);
 						break;
 					case ERROR:
 					case STARTING:
 					case UNDEFINED:
 					case NOT_READY_FOR_CHARGING:
 					case ENERGY_LIMIT_REACHED:
+						managedEvcs.setChargePowerLimit(0);
+						break;
+					case READY_FOR_CHARGING:
+
+						// Check if there is enough power for an initial charge
+						if (totalPowerLimit - this.getChargePower().orElse(0) >= guaranteedPower) {
+							managedEvcs.setChargePowerLimit(guaranteedPower);
+							// TODO: managedEvcs._setStatus(Status.UNCONFIRMED_CHARGING); or put this in the
+							// setChargePowerLimit
+							totalPowerLeftMinusGuarantee -= guaranteedPower;
+						}
 						break;
 
 					// EVCS is active.
 					case CHARGING_REJECTED:
-					case READY_FOR_CHARGING:
 					case CHARGING:
-
-						activeEvcss.add(managedEvcs);
-
 						/*
 						 * Reduces the available power by the guaranteed power of each charging station.
 						 * Sets the minimum power depending on the guaranteed and the maximum Power.
 						 */
-						if (requestedPower > 0) {
-							int evcsMaxPower = evcs.getMaximumPower()
-									.orElse(evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT));
-							int minGurarantee = this.getMinimumChargePowerGuarantee();
-							int guarantee = evcsMaxPower > minGurarantee ? minGurarantee : evcsMaxPower;
-
-							totalPowerLeftMinusGuarantee -= guarantee;
-							evcs._setMinimumPower(guarantee);
+						if (totalPowerLeftMinusGuarantee - guaranteedPower >= 0) {
+							totalPowerLeftMinusGuarantee -= guaranteedPower;
+							managedEvcs._setMinimumPower(guaranteedPower);
+							activeEvcss.add(managedEvcs);
+						} else {
+							managedEvcs.setChargePowerLimit(0);
 						}
 					}
 				}
@@ -160,10 +196,13 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 			 */
 			for (ManagedEvcs evcs : activeEvcss) {
 
-				int guaranteedPower = evcs.getMinimumPower().orElse(0);
+				// int guaranteedPower = evcs.getMinimumPowerChannel().getNextValue().orElse(0);
+				int guaranteedPower = evcs.getMinimumPowerChannel().getNextValue().orElse(0);
 
 				// Power left for the this EVCS including its guaranteed power
 				final int powerLeft = totalPowerLeftMinusGuarantee + guaranteedPower;
+
+				int maximumHardwareLimit = evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT);
 
 				int nextChargePower;
 				Optional<Integer> requestedPower = evcs.getSetChargePowerRequestChannel().getNextWriteValue();
@@ -174,30 +213,51 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 							"Requested power ( for " + evcs.alias() + "): " + requestedPower.get());
 					nextChargePower = requestedPower.get();
 				} else {
-					nextChargePower = evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT);
+					nextChargePower = maximumHardwareLimit;
 				}
 
-				// It should not be charged more than possible for the current EV
-				int maxPower = evcs.getMaximumPower()
-						.orElse(evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT));
-				nextChargePower = nextChargePower > maxPower ? maxPower : nextChargePower;
+				// Total power should be only reduced by the maximum power, that EV is charging.
+				int maximumChargePower = evcs.getMaximumPower().orElse(nextChargePower);
+
+				nextChargePower = nextChargePower > maximumHardwareLimit ? maximumHardwareLimit : nextChargePower;
 
 				// Checks if there is enough power left and sets the charge power
-				if (nextChargePower < powerLeft) {
-					evcs.setChargePowerLimit(nextChargePower);
-					totalPowerLeftMinusGuarantee = totalPowerLeftMinusGuarantee - (nextChargePower - guaranteedPower);
-					this.logInfoInDebugmode(this.log,
-							"Charge power: " + nextChargePower + "; Power left: " + totalPowerLeftMinusGuarantee);
+				if (maximumChargePower < powerLeft) {
+					totalPowerLeftMinusGuarantee = totalPowerLeftMinusGuarantee
+							- (maximumChargePower - guaranteedPower);
 				} else {
-					evcs.setChargePowerLimit(powerLeft);
+					nextChargePower = powerLeft;
 					totalPowerLeftMinusGuarantee = 0;
-					this.logInfoInDebugmode(this.log,
-							"Power Left: " + totalPowerLeftMinusGuarantee + " ; Charge power: " + powerLeft);
 				}
+
+				/**
+				 * Set the next charge power of the EVCS
+				 */
+				if (nextChargePower > evcs.getChargePower().orElse(0)) {
+					evcs.setChargePowerLimitWithPid(nextChargePower);
+				} else {
+					evcs.setChargePowerLimit(nextChargePower);
+				}
+				this.logInfoInDebugmode(this.log, "Next charge power: " + nextChargePower + "; Max charge power: "
+						+ maximumChargePower + "; Power left: " + totalPowerLeftMinusGuarantee);
 			}
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Results the power that should be guaranteed for one EVCS.
+	 * 
+	 * @param evcs EVCS whose limits should be used.
+	 * @return Guaranteed power that should/can be used.
+	 */
+	private int getGuaranteedPower(Evcs evcs) {
+		int minGuarantee = this.getMinimumChargePowerGuarantee();
+		int minHW = evcs.getMinimumHardwarePower().orElse(minGuarantee);
+		int evcsMaxPower = evcs.getMaximumPower().orElse(evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT));
+		minGuarantee = evcsMaxPower > minGuarantee ? minGuarantee : evcsMaxPower;
+		return minHW > minGuarantee ? minHW : minGuarantee;
 	}
 
 	/**

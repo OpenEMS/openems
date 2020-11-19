@@ -89,7 +89,7 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 	/**
 	 * Helper wrapping class to handle listeners on battery Channels.
 	 */
-	private final ChannelHandler channelHandler = new ChannelHandler(this);
+	private final ChannelManager channelHandler = new ChannelManager(this);
 
 	@Reference
 	protected ComponentManager componentManager;
