@@ -1,9 +1,10 @@
-package io.openems.edge.core.host;
+package io.openems.edge.core.host.jsonrpc;
 
 import java.util.UUID;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
@@ -23,6 +24,13 @@ public class GetNetworkConfigRequest extends JsonrpcRequest {
 
 	public static final String METHOD = "getNetworkConfig";
 
+	/**
+	 * Parses a generic {@link JsonrpcRequest} to a {@link GetNetworkConfigRequest}.
+	 * 
+	 * @param r the {@link JsonrpcRequest}
+	 * @return the {@link GetNetworkConfigRequest}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static GetNetworkConfigRequest from(JsonrpcRequest r) throws OpenemsException {
 		return new GetNetworkConfigRequest(r.getId());
 	}

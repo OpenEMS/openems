@@ -1,10 +1,11 @@
-package io.openems.edge.core.host;
+package io.openems.edge.core.host.jsonrpc;
 
 import java.util.UUID;
 
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.edge.core.host.NetworkConfiguration;
 
 /**
  * JSON-RPC Response to "getNetworkConfig" Request.
