@@ -41,7 +41,6 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.CommonTimedataService;
@@ -216,7 +215,37 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException {
-		throw new NotImplementedException("QueryHistoryEnergyPerPeriod is not implemented for RRD4j");
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
+
+		ZoneId timezone = fromDate.getZone();
+
+		long fromTimestamp = fromDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
+		long toTimeStamp = toDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
+
+		long nextStamp = fromTimestamp + resolution;
+		long timeStamp = fromTimestamp;
+
+		while (nextStamp <= toTimeStamp) {
+
+			Instant timestampInstantFrom = Instant.ofEpochSecond(timeStamp);
+			ZonedDateTime dateTimeFrom = ZonedDateTime.ofInstant(timestampInstantFrom, ZoneOffset.UTC)
+					.withZoneSameInstant(timezone);
+
+			Instant timestampInstantTo = Instant.ofEpochSecond(nextStamp);
+			ZonedDateTime dateTimeTo = ZonedDateTime.ofInstant(timestampInstantTo, ZoneOffset.UTC)
+					.withZoneSameInstant(timezone);
+
+			SortedMap<ChannelAddress, JsonElement> tableRow = this.queryHistoricEnergy(null, dateTimeFrom, dateTimeTo,
+					channels);
+
+			table.put(dateTimeFrom, tableRow);
+
+			timeStamp = nextStamp;
+			nextStamp += resolution;
+		}
+
+		return table;
+
 	}
 
 	@Override
@@ -392,6 +421,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 			return new ChannelDef(DsType.GAUGE, Double.NaN, 100, ConsolFun.AVERAGE);
 		case ON_OFF:
 			return new ChannelDef(DsType.GAUGE, Double.NaN, 1, ConsolFun.AVERAGE);
+		case CUMULATED_SECONDS:
 		case WATT_HOURS:
 		case KILOWATT_HOURS:
 		case VOLT_AMPERE_HOURS:

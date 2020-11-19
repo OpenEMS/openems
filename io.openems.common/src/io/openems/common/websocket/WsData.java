@@ -130,7 +130,7 @@ public abstract class WsData {
 			} else {
 				// Undefined Error Response -> cancel future
 				OpenemsNamedException exception = new OpenemsNamedException(OpenemsError.GENERIC,
-						"Reponse is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response.toString());
+						"Response is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response.toString());
 				future.completeExceptionally(exception);
 			}
 

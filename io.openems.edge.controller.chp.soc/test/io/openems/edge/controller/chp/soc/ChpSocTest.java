@@ -39,13 +39,13 @@ public class ChpSocTest {
 						.output(IO_OUTPUT0, true)) //
 				.next(new TestCase() //
 						.input(ESS_SOC, 50) //
-						.output(IO_OUTPUT0, true)) //
+						.output(IO_OUTPUT0, null)) //
 				.next(new TestCase() //
 						.input(ESS_SOC, 90) //
 						.output(IO_OUTPUT0, false)) //
 				.next(new TestCase() //
 						.input(ESS_SOC, 50) //
-						.output(IO_OUTPUT0, false)) //
+						.output(IO_OUTPUT0, null)) //
 				.next(new TestCase() //
 						.input(ESS_SOC, 15) //
 						.output(IO_OUTPUT0, true)) //
@@ -60,7 +60,7 @@ public class ChpSocTest {
 						.output(IO_OUTPUT0, true)) //
 				.next(new TestCase() //
 						.input(ESS_SOC, 45) //
-						.output(IO_OUTPUT0, true));
+						.output(IO_OUTPUT0, null));
 	}
 
 }

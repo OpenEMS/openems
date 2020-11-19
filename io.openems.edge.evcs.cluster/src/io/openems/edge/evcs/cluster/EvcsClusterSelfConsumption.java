@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 @Designate(ocd = ConfigSelfConsumption.class, factory = true)
 @Component(//
-		name = "Evcs.Cluster.SelfConsumtion", //
+		name = "Evcs.Cluster.SelfConsumption", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //

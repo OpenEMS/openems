@@ -76,7 +76,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 	/**
 	 * Helper wrapping class to handle everything related to Channels.
 	 */
-	private final ChannelHandler channelHandler = new ChannelHandler(this);
+	private final ChannelManager channelHandler = new ChannelManager(this);
 
 	private Config config = null;
 
@@ -209,9 +209,9 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 
 		// If the GenericEss is not in State "STARTED" block ACTIVE and REACTIVE Power!
 		if (!this.isStarted()) {
-			result.add(this.createPowerConstraint("ActivePower Contraint ESS not Started", Phase.ALL, Pwr.ACTIVE,
+			result.add(this.createPowerConstraint("ActivePower Constraint ESS not Started", Phase.ALL, Pwr.ACTIVE,
 					Relationship.EQUALS, 0));
-			result.add(this.createPowerConstraint("ReactivePower Contraint ESS not Started", Phase.ALL, Pwr.REACTIVE,
+			result.add(this.createPowerConstraint("ReactivePower Constraint ESS not Started", Phase.ALL, Pwr.REACTIVE,
 					Relationship.EQUALS, 0));
 		}
 		return result.toArray(new Constraint[result.size()]);

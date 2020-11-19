@@ -62,7 +62,7 @@ import com.dalsemi.onewire.utils.Bit;
  * channel [Main(0) or Auxillary(1)] to the 1-Wire data line. Note that this is
  * the opposite of the {@link com.dalsemi.onewire.container.OneWireContainer12
  * DS2406} and {@link com.dalsemi.onewire.container.OneWireContainer05 DS2405}
- * which connect thier I/O lines to ground.
+ * which connect their I/O lines to ground.
  * <H3>Usage</H3>
  *
  * <DL>
@@ -112,7 +112,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	/** Channel flag to indicate smart on. */
 	protected static final int SWITCH_SMART = 2;
 
-	/** Read Write Status register commmand. */
+	/** Read Write Status register command. */
 	protected static final byte READ_WRITE_STATUS_COMMAND = (byte) 0x5A;
 
 	/** All lines off command. */
@@ -778,7 +778,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	}
 
 	/**
-	 * Sets the control pin channel association. This only makes sense if the contol
+	 * Sets the control pin channel association. This only makes sense if the control
 	 * pin is in automatic mode. The method <code>writeDevice(byte[])</code> must be
 	 * called to finalize changes to the device. Note that multiple 'set' methods
 	 * can be called before one call to <code>writeDevice(byte[])</code>.

@@ -17,7 +17,7 @@ import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
 
 /**
- * Handles replys to Report Querys sent by {@link ReadWorker}.
+ * Handles replies to Report Queries sent by {@link ReadWorker}.
  */
 public class ReadHandler implements Consumer<String> {
 

@@ -47,7 +47,7 @@ import com.dalsemi.onewire.utils.Convert;
  *
  * <P>
  * This iButton is primarily used as a read/write portable memory device with
- * real-time-clock, timer and experation features.
+ * real-time-clock, timer and expiration features.
  * </P>
  *
  * <H3>Features</H3>
@@ -75,7 +75,7 @@ import com.dalsemi.onewire.utils.Convert;
  * <P>
  * Appended to the clock page data retrieved with 'readDevice' are 4 bytes that
  * represent a bitmap of changed bytes. These bytes are used in the
- * 'writeDevice' method in conjuction with the 'set' methods to only write back
+ * 'writeDevice' method in conjunction with the 'set' methods to only write back
  * the changed clock register bytes. The 'readDevice' method will clear any
  * pending alarms.
  * </P>
@@ -610,7 +610,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 		// check if need to write control register
 		if (Bit.arrayReadBit(CONTROL_OFFSET, BITMAP_OFFSET, state) == 1) {
 
-			// write normaly
+			// write Normally
 			clock.write(CONTROL_OFFSET, state, CONTROL_OFFSET, 1);
 
 			// check if any write-protect bits set
@@ -732,7 +732,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @param state current state of the device returned from
 	 *              <code>readDevice()</code>
 	 *
-	 * @return time in milliseconds that have occured since the interval counter was
+	 * @return time in milliseconds that have occurred since the interval counter was
 	 *         started
 	 *
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
@@ -901,13 +901,13 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	}
 
 	/**
-	 * Check if the device can be read after a write protected alarm has occured.
+	 * Check if the device can be read after a write protected alarm has occurred.
 	 *
 	 * @param state current state of the device returned from
 	 *              <code>readDevice()</code>
 	 *
 	 * @return <code>true</code> if the device can be read after a write protected
-	 *         alarm has occured
+	 *         alarm has occurred
 	 *
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #setReadAfterExpire(boolean, byte[]) setReadAfterExpire
@@ -953,7 +953,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	}
 
 	/**
-	 * Checks if the automatic delay for the Inteval Timer and the Cycle counter is
+	 * Checks if the automatic delay for the Interval Timer and the Cycle counter is
 	 * either 3.5ms (regular) or 123ms (long).
 	 *
 	 * @param state current state of the device returned from
@@ -1125,7 +1125,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * must be called to finalize changes to the device. Note that multiple 'set'
 	 * methods can be called before one call to <code>writeDevice(byte[])</code>.
 	 *
-	 * @param time  in milliseconds to set the inverval timer
+	 * @param time  in milliseconds to set the interval timer
 	 * @param state current state of the device returned from
 	 *              <code>readDevice()</code>
 	 *
@@ -1238,7 +1238,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	}
 
 	/**
-	 * Sets the read state of the device after a write protected alarm has occured.
+	 * Sets the read state of the device after a write protected alarm has occurred.
 	 * The method <code>writeDevice(byte[])</code> must be called to finalize
 	 * changes to the device. Note that multiple 'set' methods can be called before
 	 * one call to <code>writeDevice(byte[])</code>.
@@ -1306,7 +1306,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	}
 
 	/**
-	 * Sets the automatic delay for the Inteval Timer and the Cycle counter to
+	 * Sets the automatic delay for the Interval Timer and the Cycle counter to
 	 * either 123ms (long) or 3.5ms (regular). The method
 	 * <code>writeDevice(byte[])</code> must be called to finalize changes to the
 	 * device. Note that multiple 'set' methods can be called before one call to

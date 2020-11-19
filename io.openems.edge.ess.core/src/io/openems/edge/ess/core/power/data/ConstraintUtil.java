@@ -145,7 +145,7 @@ public class ConstraintUtil {
 					result.add(c);
 				}
 			} catch (OpenemsNamedException e) {
-				LOG.error("Setting static contraints for Ess [" + ess.id() + "] failed: " + e.getMessage());
+				LOG.error("Setting static constraints for Ess [" + ess.id() + "] failed: " + e.getMessage());
 				isFailed = true;
 			}
 		}

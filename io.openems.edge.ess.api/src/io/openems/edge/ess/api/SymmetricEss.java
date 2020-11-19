@@ -52,7 +52,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: Integer/Enum
-		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
+		 * <li>Range: -1=Undefined, 1=On-Grid, 2=Off-Grid
 		 * </ul>
 		 */
 		GRID_MODE(Doc.of(GridMode.values())),

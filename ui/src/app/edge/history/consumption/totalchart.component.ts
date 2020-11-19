@@ -17,7 +17,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
     @Input() private period: DefaultTypes.HistoryPeriod;
     @Input() private showPhases: boolean;
 
-    // referene to the Utils method to access via html
+    // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
     ngOnChanges() {
@@ -64,7 +64,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
 
                     // gather EVCS consumption
                     let totalEvcsConsumption: number[] = [];
-                    config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion')).forEach(component => {
+                    config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption')).forEach(component => {
                         totalEvcsConsumption = result.data[component.id + '/ChargePower'].map((value, index) => {
                             return Utils.addSafely(totalEvcsConsumption[index], value / 1000)
                         });
@@ -91,7 +91,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
 
                     //EVCS Component Array
                     let regularEvcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' ||
-                        component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion'));
+                        component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption'));
 
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach((channelAddress, index) => {
@@ -176,7 +176,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                         })
                                     }
 
-                                } else if (config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion')).length == 1) {
+                                } else if (config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption')).length == 1) {
                                     if (channelAddress.channelId == "ChargePower") {
                                         datasets.push({
                                             label: (component.id == component.alias ? component.id : component.alias),
@@ -189,7 +189,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                         })
                                     }
                                 }
-                                if (Utils.isLastElement(channelAddress, channelAddresses) && config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion')).length > 0) {
+                                if (Utils.isLastElement(channelAddress, channelAddresses) && config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption')).length > 0) {
                                     datasets.push({
                                         label: this.translate.instant('General.otherConsumption'),
                                         data: otherConsumption,
@@ -232,7 +232,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                 new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
                 new ChannelAddress('_sum', 'ConsumptionActivePowerL3'),
             ];
-            config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion')).forEach(component => {
+            config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption')).forEach(component => {
                 result.push(new ChannelAddress(component.id, 'ChargePower'));
             })
             resolve(result);

@@ -119,7 +119,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 				if (val != null) {
 
 					/*
-					 * Value is formated in RAW data (integer/decimal) or in SignedData (binary data
+					 * Value is formatted in RAW data (integer/decimal) or in SignedData (binary data
 					 * block, encoded as hex data)
 					 */
 					ValueFormat format = value.getFormat();

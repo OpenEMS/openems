@@ -1,6 +1,5 @@
 package io.openems.edge.meter.socomec.threephase;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -18,18 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
-import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
-import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -39,6 +33,7 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.socomec.AbstractSocomecMeter;
 import io.openems.edge.meter.socomec.SocomecMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -47,19 +42,17 @@ import io.openems.edge.meter.socomec.SocomecMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class SocomecMeterThreephaseImpl extends AbstractOpenemsModbusComponent implements SocomecMeterThreephase,
-		SocomecMeter, SymmetricMeter, AsymmetricMeter, OpenemsComponent, ModbusSlave {
+public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements SocomecMeterThreephase, SocomecMeter,
+		SymmetricMeter, AsymmetricMeter, OpenemsComponent, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(SocomecMeterThreephaseImpl.class);
-
-	private final ModbusProtocol modbusProtocol;
 
 	private Config config;
 
 	@Reference
 	private ConfigurationAdmin cm;
 
-	public SocomecMeterThreephaseImpl() {
+	public SocomecMeterThreephaseImpl() throws OpenemsException {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
@@ -67,7 +60,6 @@ public class SocomecMeterThreephaseImpl extends AbstractOpenemsModbusComponent i
 				SocomecMeter.ChannelId.values(), //
 				SocomecMeterThreephase.ChannelId.values() //
 		);
-		this.modbusProtocol = new ModbusProtocol(this);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -76,9 +68,11 @@ public class SocomecMeterThreephaseImpl extends AbstractOpenemsModbusComponent i
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id());
+	void activate(ComponentContext context, Config config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
 		this.config = config;
 		this.identifySocomecMeter();
 	}
@@ -93,63 +87,14 @@ public class SocomecMeterThreephaseImpl extends AbstractOpenemsModbusComponent i
 		return this.config.type();
 	}
 
-	@Override
-	protected final ModbusProtocol defineModbusProtocol() {
-		return this.modbusProtocol;
-	}
-
-	/**
-	 * Identifies the Socomec meter and applies the appropriate modbus protocol.
-	 */
-	private void identifySocomecMeter() {
-		// Search for Socomec identifier register. Needs to be "SOCO".
-		this.readELementOnce(new UnsignedQuadruplewordElement(0xC350)).thenAccept(value -> {
-			if (value != 0x0053004F0043004FL /* SOCO */) {
-				this.channel(SocomecMeter.ChannelId.NO_SOCOMEC_METER).setNextValue(true);
-				return;
-			}
-			// Found Socomec meter
-			this.readELementOnce(new StringWordElement(0xC38A, 8)).thenAccept(name -> {
-				name = name.toLowerCase();
-				// NOTE: if you add a meter name here, make sure to also add it in
-				// SocomecMeterSinglephaseImpl.
-				if (name.startsWith("countis e23")) {
-					this.logInfo(this.log, "Identified Socomec Countis E23 meter");
-					this.protocolCountisE23_E24();
-
-				} else if (name.startsWith("countis e24")) {
-					this.logInfo(this.log, "Identified Socomec Countis E24 meter");
-					this.protocolCountisE23_E24();
-
-				} else if (name.startsWith("diris a-10") || name.startsWith("diris a10")) {
-					this.logInfo(this.log, "Identified Socomec Diris A10 meter");
-					this.protocolDirisA10();
-
-				} else if (name.startsWith("diris a14")) {
-					this.logInfo(this.log, "Identified Socomec Diris A14 meter");
-					this.protocolDirisA14();
-
-				} else if (name.startsWith("diris b30")) {
-					this.logInfo(this.log, "Identified Socomec Diris B30 meter");
-					this.protocolDirisB30();
-
-				} else if (name.startsWith("countis e14")) {
-					this.logError(this.log, "Identified Socomec [" + name + "] meter. This is not a threephase meter!");
-					this.channel(SocomecMeterThreephase.ChannelId.NOT_A_THREEPHASE_METER).setNextValue(true);
-
-				} else {
-					this.logError(this.log, "Unable to identify Socomec [" + name + "] meter!");
-					this.channel(SocomecMeter.ChannelId.UNKNOWN_SOCOMEC_METER).setNextValue(true);
-				}
-			});
-		});
-	}
-
 	/**
 	 * Applies the modbus protocol for Socomec Countis E23 and E24. Both are
 	 * identical.
+	 * 
+	 * @throws OpenemsException on error
 	 */
-	private void protocolCountisE23_E24() {
+	@Override
+	protected void identifiedCountisE23_E24_E27_E28() throws OpenemsException {
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0xc558),
@@ -209,8 +154,11 @@ public class SocomecMeterThreephaseImpl extends AbstractOpenemsModbusComponent i
 
 	/**
 	 * Applies the modbus protocol for Socomec Diris A14.
+	 * 
+	 * @throws OpenemsException on error
 	 */
-	private void protocolDirisA14() {
+	@Override
+	protected void identifiedDirisA14() throws OpenemsException {
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0xc558),
@@ -270,8 +218,11 @@ public class SocomecMeterThreephaseImpl extends AbstractOpenemsModbusComponent i
 
 	/**
 	 * Applies the modbus protocol for Socomec Diris A10.
+	 * 
+	 * @throws OpenemsException on error
 	 */
-	private void protocolDirisA10() {
+	@Override
+	protected void identifiedDirisA10() throws OpenemsException {
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0xc558),
@@ -331,8 +282,11 @@ public class SocomecMeterThreephaseImpl extends AbstractOpenemsModbusComponent i
 
 	/**
 	 * Applies the modbus protocol for Socomec Diris B30.
+	 * 
+	 * @throws OpenemsException on error
 	 */
-	private void protocolDirisB30() {
+	@Override
+	protected void identifiedDirisB30() throws OpenemsException {
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(0x480C, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0x480C),
@@ -423,6 +377,16 @@ public class SocomecMeterThreephaseImpl extends AbstractOpenemsModbusComponent i
 	}
 
 	@Override
+	protected void identifiedCountisE14() throws OpenemsException {
+		this.thisIsNotAThreePhaseMeter();
+	}
+
+	private void thisIsNotAThreePhaseMeter() {
+		this.logError(this.log, "This is not a threephase meter!");
+		this.channel(SocomecMeterThreephase.ChannelId.NOT_A_THREEPHASE_METER).setNextValue(true);
+	}
+
+	@Override
 	public String debugLog() {
 		return "L:" + this.getActivePower().asString();
 	}
@@ -434,34 +398,5 @@ public class SocomecMeterThreephaseImpl extends AbstractOpenemsModbusComponent i
 				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
 				AsymmetricMeter.getModbusSlaveNatureTable(accessMode) //
 		);
-	}
-
-	/**
-	 * Reads given Element once from Modbus.
-	 * 
-	 * @param <T>     the Type of the element
-	 * @param element the element
-	 * @return a future value, e.g. a integer
-	 */
-	private <T> CompletableFuture<T> readELementOnce(AbstractModbusElement<T> element) {
-		// Prepare result
-		final CompletableFuture<T> result = new CompletableFuture<T>();
-
-		// Activate task
-		final Task task = new FC3ReadRegistersTask(element.getStartAddress(), Priority.HIGH, element);
-		this.modbusProtocol.addTask(task);
-
-		// Register listener for element
-		element.onUpdateCallback(value -> {
-			if (value == null) {
-				// try again
-				return;
-			}
-			// do not try again
-			this.modbusProtocol.removeTask(task);
-			result.complete(value);
-		});
-
-		return result;
 	}
 }
