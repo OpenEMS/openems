@@ -9,8 +9,9 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.common,\
 	io.openems.edge.evcs.api,\
 	io.openems.edge.evcs.ocpp.common,\
+	io.openems.edge.timedata.api,\
 	io.openems.wrapper.eu.chargetime.ocpp,\
 	Java-WebSocket,\
-	io.openems.edge.timedata.api
+
 -testpath: \
 	${testpath}

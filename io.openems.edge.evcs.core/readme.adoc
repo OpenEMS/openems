@@ -1,3 +1,5 @@
-= io.openems.edge.evcs.core
+= EVCS Core
+
+Core services for electric vehicle charging.
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.core[Source Code icon:github[]]

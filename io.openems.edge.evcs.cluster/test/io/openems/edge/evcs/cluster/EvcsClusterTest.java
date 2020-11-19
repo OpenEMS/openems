@@ -315,7 +315,7 @@ public class EvcsClusterTest {
 						.input(evcs0SetPowerRequest, 15000) //
 						.input(essAllowedDischargePower, 0) //
 						.output(evcsClusterMaximumPowerToDistribute, 0) //
-						.output(evcs0SetChargePowerLimit, 0)) //
+						.output(evcs0SetChargePowerLimit, null)) //
 				.next(new TestCase() //
 						.input(sumEssActivePower, 0) //
 						.input(meterGridActivePower, 15000) //

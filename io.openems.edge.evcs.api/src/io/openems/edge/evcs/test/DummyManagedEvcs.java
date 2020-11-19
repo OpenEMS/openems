@@ -9,7 +9,7 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 
 public class DummyManagedEvcs extends AbstractOpenemsComponent implements Evcs, ManagedEvcs, OpenemsComponent {
 
-	EvcsPower evcsPower;
+	private final EvcsPower evcsPower;
 
 	/**
 	 * Constructor.
