@@ -96,6 +96,7 @@
 	bnd.identity;id='io.openems.edge.ess.sma',\
 	bnd.identity;id='io.openems.edge.ess.streetscooter',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
+	bnd.identity;id='io.openems.edge.evcs.core',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.abl',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.common',\
@@ -223,6 +224,7 @@
 	io.openems.edge.ess.streetscooter;version=snapshot,\
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
+	io.openems.edge.evcs.core;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.evcs.ocpp.abl;version=snapshot,\
 	io.openems.edge.evcs.ocpp.common;version=snapshot,\
