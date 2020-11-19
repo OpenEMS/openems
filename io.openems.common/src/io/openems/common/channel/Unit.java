@@ -202,6 +202,15 @@ public enum Unit {
 	HOUR("h"),
 
 	// ##########
+	// Cumulated Time
+	// ##########
+
+	/**
+	 * Unit of cumulated time [s]
+	 */
+	CUMULATED_SECONDS("sec"),
+
+	// ##########
 	// Resistance
 	// ##########
 
@@ -275,6 +284,7 @@ public enum Unit {
 		case SECONDS:
 		case AMPERE_HOURS:
 		case HOUR:
+		case CUMULATED_SECONDS:
 		case KILOAMPERE_HOURS:
 		case KILOVOLT_AMPERE:
 		case KILOVOLT_AMPERE_REACTIVE:
