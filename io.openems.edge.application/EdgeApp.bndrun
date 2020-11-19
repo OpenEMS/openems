@@ -138,7 +138,7 @@
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
 	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
-
+	bnd.identity;id='io.openems.edge.ess.adstec.storaxe'
 -runbundles: \
 	Java-WebSocket;version='[1.5.1,1.5.2)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
@@ -296,4 +296,5 @@
 	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.6,2.0.7)',\
 	org.osgi.util.function;version='[1.1.0,1.1.1)',\
 	org.osgi.util.promise;version='[1.1.1,1.1.2)',\
-	rrd4j;version='[3.7.0,3.7.1)'
+	rrd4j;version='[3.7.0,3.7.1)',\
+	io.openems.edge.ess.adstec.storaxe;version=snapshot

@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -55,7 +56,7 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id());
 		this._setCapacity(config.capacity());
@@ -67,16 +68,16 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(100, Priority.LOW, //
+				new FC3ReadRegistersTask(1, Priority.LOW, //
 						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(1), GRID_MODE_CONVERTER),
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new UnsignedWordElement(2), ElementToChannelConverter.SCALE_FACTOR_2),
-						m(SymmetricEss.ChannelId.REACTIVE_POWER, new UnsignedWordElement(3), ElementToChannelConverter.SCALE_FACTOR_2),
-						
+						m(SymmetricEss.ChannelId.REACTIVE_POWER, new UnsignedWordElement(3), ElementToChannelConverter.SCALE_FACTOR_2)),
+				new FC3ReadRegistersTask(125, Priority.LOW, //
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(125), ElementToChannelConverter.SCALE_FACTOR_2),
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(126), ElementToChannelConverter.DIRECT_1_TO_1),
-						
+						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(126), ElementToChannelConverter.DIRECT_1_TO_1)),
+				new FC3ReadRegistersTask(134, Priority.LOW, //
 						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, new UnsignedDoublewordElement(134), ElementToChannelConverter.SCALE_FACTOR_3),
 						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(136), ElementToChannelConverter.SCALE_FACTOR_3),
 						m(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(138), ElementToChannelConverter.DIRECT_1_TO_1),
