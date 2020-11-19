@@ -8,14 +8,18 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.filter.RampFilter;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 
 @ProviderType
 public interface ManagedEvcs extends Evcs {
+
+	public EvcsPower getEvcsPower();
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
@@ -33,7 +37,7 @@ public interface ManagedEvcs extends Evcs {
 		 * </ul>
 		 * 
 		 * <p>
-		 * Function
+		 * Function:
 		 * <ul>
 		 * <li>Write Value should be sent to the EVCS and cleared afterwards
 		 * <li>Read value should contain the currently valid loading target that was
@@ -50,6 +54,37 @@ public interface ManagedEvcs extends Evcs {
 		SET_CHARGE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_WRITE)),
+
+		/**
+		 * Applies the PID filter and then sets a fixed Active Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: ManagedEvcs
+		 * <li>Writable
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */
+		SET_CHARGE_POWER_LIMIT_WITH_PID(new IntegerDoc() //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_WRITE).onInit(channel -> {
+					((IntegerWriteChannel) channel).onSetNextWrite(value -> {
+
+						if (value != null) {
+							ManagedEvcs evcs = (ManagedEvcs) channel.getComponent();
+
+							RampFilter rampFilter = evcs.getEvcsPower().getRampFilter();
+
+							rampFilter.setLimits(evcs.getMinimumHardwarePower().orElse(0),
+									evcs.getMaximumHardwarePower().orElse(value));
+
+							int currentPower = evcs.getChargePower().orElse(0);
+							int pidOutput = rampFilter.applyRampFilter(currentPower, value);
+
+							evcs.setChargePowerLimit(pidOutput);
+						}
+					});
+				})), //
 
 		/**
 		 * Is true if the EVCS is in a EVCS-Cluster.
@@ -168,6 +203,56 @@ public interface ManagedEvcs extends Evcs {
 	 */
 	public default void setChargePowerLimit(Integer value) throws OpenemsNamedException {
 		this.getSetChargePowerLimitChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_PID}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetChargePowerLimitWithPidChannel() {
+		return this.channel(ChannelId.SET_CHARGE_POWER_LIMIT_WITH_PID);
+	}
+
+	/**
+	 * Gets the set charge power limit of the EVCS in [W] with applied PID filter.
+	 * See {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_PID}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getSetChargePowerLimitWithPid() {
+		return this.getSetChargePowerLimitWithPidChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_PID} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSetChargePowerLimitWithPid(Integer value) {
+		this.getSetChargePowerLimitWithPidChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_PID} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSetChargePowerLimitWithPid(int value) {
+		this.getSetChargePowerLimitWithPidChannel().setNextValue(value);
+	}
+
+	/**
+	 * Sets the charge power limit of the EVCS in [W] with applied PID filter. See
+	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_PID}.
+	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setChargePowerLimitWithPid(Integer value) throws OpenemsNamedException {
+		this.getSetChargePowerLimitWithPidChannel().setNextWriteValue(value);
 	}
 
 	/**

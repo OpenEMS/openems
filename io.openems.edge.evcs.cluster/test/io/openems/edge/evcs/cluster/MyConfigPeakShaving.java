@@ -1,18 +1,28 @@
 package io.openems.edge.evcs.cluster;
 
-import io.openems.common.utils.ConfigUtils;
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
+
+import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfigPeakShaving extends AbstractComponentConfig implements ConfigPeakShaving {
 
 	protected static class Builder {
-		private String id;
-		private String meterId;
-		private String essId;
-		private String[] evcsIds;
-		private int hardwarePowerLimitPerPhase;
-		private boolean debugMode;
+
+		private String id = "evcsCluster0";
+		private String alias = "Evcs Cluster";
+		private boolean enabled = true;
+		private boolean debugMode = false;
+		private int hardwarePowerLimitPerPhase = 7000;
+		private String[] evcs_ids = { "evcs0", "evcs1" };
+		private String evcsTarget = "(&(enabled=true)(!(service.pid=evcsCluster0))(|(id=\" + this.evcs_id() + \")))";
+		private String ess_id = "ess0";
+		private String meter_id = "meter0";
+		private int essSecureDischargeSoc = 25;
+		private int essSecureDischargeMinSoc = 15;
+		private boolean enableSecureEssDischarge = false;
 
 		private Builder() {
 		}
@@ -22,28 +32,58 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 			return this;
 		}
 
+		public Builder setAlias(String alias) {
+			this.alias = alias;
+			return this;
+		}
+
+		public Builder setEnabled(boolean enabled) {
+			this.enabled = enabled;
+			return this;
+		}
+
 		public Builder setDebugMode(boolean debugMode) {
 			this.debugMode = debugMode;
 			return this;
 		}
 
-		public Builder setEssId(String essId) {
-			this.essId = essId;
-			return this;
-		}
-
-		public Builder setHardwarePowerLimitPerPhase(int hardwarePowerLimitPerPhase) {
+		public Builder setHardwarePowerLimit(int hardwarePowerLimitPerPhase) {
 			this.hardwarePowerLimitPerPhase = hardwarePowerLimitPerPhase;
 			return this;
 		}
 
-		public Builder setEvcsIds(String... evcsIds) {
-			this.evcsIds = evcsIds;
+		public Builder setEvcsIds(String[] evcs_ids) {
+			this.evcs_ids = evcs_ids;
 			return this;
 		}
 
-		public Builder setMeterId(String meterId) {
-			this.meterId = meterId;
+		public Builder setEvcsTarget(String evcsTarget) {
+			this.evcsTarget = evcsTarget;
+			return this;
+		}
+
+		public Builder setEssId(String ess_id) {
+			this.ess_id = ess_id;
+			return this;
+		}
+
+		public Builder setEssSecureDischargeSoc(int essSecureDischargeSoc) {
+			this.essSecureDischargeSoc = essSecureDischargeSoc;
+			return this;
+		}
+
+		public Builder setEssSecureDischargeMinSoc(int essSecureDischargeMinSoc) {
+			this.essSecureDischargeMinSoc = essSecureDischargeMinSoc;
+			return this;
+		}
+
+		public Builder setEnableSecureEssDischarge(boolean enableSecureEssDischarge) {
+			this.enableSecureEssDischarge = enableSecureEssDischarge;
+			return this;
+		}
+
+		public Builder setMeterId(String meter_id) {
+			this.meter_id = meter_id;
 			return this;
 		}
 
@@ -52,11 +92,6 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 		}
 	}
 
-	/**
-	 * Create a Config builder.
-	 * 
-	 * @return a {@link Builder}
-	 */
 	public static Builder create() {
 		return new Builder();
 	}
@@ -69,8 +104,28 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 	}
 
 	@Override
+	public String id() {
+		return this.builder.id;
+	}
+
+	@Override
 	public boolean debugMode() {
 		return this.builder.debugMode;
+	}
+
+	@Override
+	public String[] evcs_ids() {
+		return this.builder.evcs_ids;
+	}
+
+	@Override
+	public String ess_id() {
+		return this.builder.ess_id;
+	}
+
+	@Override
+	public String Evcs_target() {
+		return this.builder.evcsTarget;
 	}
 
 	@Override
@@ -79,23 +134,22 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 	}
 
 	@Override
-	public String[] evcs_ids() {
-		return this.builder.evcsIds;
-	}
-
-	@Override
-	public String Evcs_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.evcs_ids());
-	}
-
-	@Override
-	public String ess_id() {
-		return this.builder.essId;
-	}
-
-	@Override
 	public String meter_id() {
-		return this.builder.meterId;
+		return this.builder.meter_id;
 	}
 
+	@Override
+	public boolean enable_secure_ess_discharge() {
+		return this.builder.enableSecureEssDischarge;
+	}
+
+	@Override
+	public int ess_secure_discharge_soc() {
+		return this.builder.essSecureDischargeSoc;
+	}
+
+	@Override
+	public int ess_secure_discharge_min_soc() {
+		return this.builder.essSecureDischargeMinSoc;
+	}
 }

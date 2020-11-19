@@ -739,7 +739,7 @@ class UPacketBuilder {
 				return DSPortAdapter.RESET_PRESENCE;
 			case RESPONSE_RESET_ALARM:
 
-				// alarm presense so go into DS2480 long alarm check mode
+				// alarm presence so go into DS2480 long alarm check mode
 				uState.longAlarmCheck = true;
 				uState.lastAlarmCount = 0;
 

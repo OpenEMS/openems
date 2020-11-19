@@ -1,7 +1,7 @@
 package io.openems.edge.evcs.ocpp.server;
 
 import java.net.UnknownHostException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +50,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 	public static final int DEFAULT_PORT = 8887;
 	private final Logger log = LoggerFactory.getLogger(OcppServerImpl.class);
 	protected Config config;
-	
+
 	/**
 	 * The JSON server.
 	 * 
@@ -58,7 +58,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 	 * Responsible for the OCPP communication.
 	 */
 	private final MyJsonServer myJsonServer = new MyJsonServer(this);
-	
+
 	/**
 	 * Currently connected sessions with their related evcs components.
 	 */
@@ -85,14 +85,16 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 	 */
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	protected void addEvcs(Evcs evcs) {
-		if (!(evcs instanceof AbstractOcppEvcsComponent)) {
+		if (!(evcs instanceof AbstractOcppEvcsComponent) || evcs == null) {
 			return;
 		}
 		AbstractOcppEvcsComponent ocppEvcs = (AbstractOcppEvcsComponent) evcs;
-		List<AbstractOcppEvcsComponent> presentEvcss = this.ocppEvcss.get(ocppEvcs.getConfiguredOcppId());
+		List<AbstractOcppEvcsComponent> presentEvcss = ocppEvcss.get(ocppEvcs.getConfiguredOcppId());
+
 		if (presentEvcss == null) {
-			this.ocppEvcss.put(ocppEvcs.getConfiguredOcppId(), Arrays.asList(ocppEvcs));
-			presentEvcss = Arrays.asList(ocppEvcs);
+			List<AbstractOcppEvcsComponent> initEvcssArr = new ArrayList<AbstractOcppEvcsComponent>();
+			initEvcssArr.add(ocppEvcs);
+			ocppEvcss.put(ocppEvcs.getConfiguredOcppId(), initEvcssArr);
 		} else {
 			presentEvcss.add(ocppEvcs);
 		}
@@ -108,15 +110,14 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 
 	/**
 	 * Removes the given Evcs component from the list and checks whether there is a
-	 * present session that should be removed. 
+	 * present session that should be removed.
 	 * 
 	 * @param evcs Evcs that should be removed
 	 */
 	protected void removeEvcs(Evcs evcs) {
-		if (!(evcs instanceof AbstractOcppEvcsComponent)) {
+		if (!(evcs instanceof AbstractOcppEvcsComponent) || evcs == null) {
 			return;
 		}
-
 		AbstractOcppEvcsComponent ocppEvcs = (AbstractOcppEvcsComponent) evcs;
 		List<AbstractOcppEvcsComponent> evcss = this.activeEvcsSessions.get(ocppEvcs.getSessionId());
 		if (evcss != null) {
@@ -129,7 +130,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 		this.ocppEvcss.remove(ocppEvcs.getConfiguredOcppId());
 		ocppEvcs.lostSession();
 	}
-	
+
 	public OcppServerImpl() {
 		super(OpenemsComponent.ChannelId.values() //
 		);

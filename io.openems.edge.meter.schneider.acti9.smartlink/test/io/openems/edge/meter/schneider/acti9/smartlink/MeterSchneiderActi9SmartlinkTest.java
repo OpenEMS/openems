@@ -21,6 +21,7 @@ public class MeterSchneiderActi9SmartlinkTest {
 						.setId(METER_ID) //
 						.setModbusId(MODBUS_ID) //
 						.setType(MeterType.GRID) //
+						.setInvert(false) //
 						.build()) //
 		;
 	}
