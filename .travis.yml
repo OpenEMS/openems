@@ -7,6 +7,10 @@ matrix:
        - openjdk8
       script:
        - ./gradlew build
+       - ./gradlew resolve.BackendApp
+       - git diff --exit-code io.openems.backend.application/BackendApp.bndrun
+       - ./gradlew resolve.EdgeApp
+       - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
        - ./gradlew buildAggregatedJavadocs --continue
        - ./gradlew buildAntoraDocs --continue
       deploy:
