@@ -238,6 +238,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 		case PERCENT:
 		case ON_OFF:
 			return DoubleStream::average;
+		case CUMULATED_SECONDS:
 		case WATT_HOURS:
 		case KILOWATT_HOURS:
 		case VOLT_AMPERE_HOURS:

@@ -32,8 +32,9 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.modbusslave.ModbusType;
-import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.EvcsPower;
+import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.keba.kecontact.core.KebaKeContactCore;
 
 @Designate(ocd = Config.class, factory = true)
@@ -53,6 +54,9 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	private Boolean lastConnectionLostState = false;
 
 	protected Config config;
+
+	@Reference
+	private EvcsPower evcsPower;
 
 	@Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
 	private KebaKeContactCore kebaKeContactCore = null;
@@ -241,5 +245,10 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				.channel(85, KebaChannelId.ACTUAL_POWER, ModbusType.UINT16)
 				.channel(86, KebaChannelId.COS_PHI, ModbusType.UINT16).uint16Reserved(87)
 				.channel(88, KebaChannelId.ENERGY_TOTAL, ModbusType.UINT16).build();
+	}
+
+	@Override
+	public EvcsPower getEvcsPower() {
+		return this.evcsPower;
 	}
 }

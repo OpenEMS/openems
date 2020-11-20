@@ -29,11 +29,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "ABL limit identifier", description = "The limit id defined in the web administration interface of the ABL chargepoint.", required = true)
 	String limitId() default "limit100";
 
-	@AttributeDefinition(name = "Maximum power", description = "Maximum power of the charger in Watt.", required = true)
-	int maxHwPower() default 22080;
+	@AttributeDefinition(name = "Maximum current", description = "Maximum current of the charger in mA.", required = true)
+	int maxHwCurrent() default 32000;
 
-	@AttributeDefinition(name = "Minimum power", description = "Minimum power of the charger in Watt.", required = true)
-	int minHwPower() default 0;
+	@AttributeDefinition(name = "Minimum current", description = "Minimum current of the Charger in mA.", required = true)
+	int minHwCurrent() default 6000;
 
 	String webconsole_configurationFactory_nameHint() default "EVCS OCPP ABL [{id}]";
 }

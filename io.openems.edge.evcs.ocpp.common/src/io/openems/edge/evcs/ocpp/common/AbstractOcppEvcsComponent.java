@@ -7,22 +7,31 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 
 import eu.chargetime.ocpp.model.Request;
+import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.api.Status;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
 
 public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
-		implements Evcs, MeasuringEvcs, EventHandler {
+		implements Evcs, MeasuringEvcs, EventHandler, TimedataProvider {
 
 	private ChargingProperty lastChargingProperty = null;
 
@@ -33,6 +42,13 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	protected OcppServer ocppServer = null;
 
 	protected UUID sessionId = null;
+
+	private ChargeSessionStamp sessionStart = new ChargeSessionStamp();
+
+	private ChargeSessionStamp sessionEnd = new ChargeSessionStamp();
+	
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	protected AbstractOcppEvcsComponent(OcppProfileType[] profileTypes,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
@@ -62,21 +78,57 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 
 		this.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER).setNextValue(getConfiguredMaximumHardwarePower());
 		this.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER).setNextValue(getConfiguredMinimumHardwarePower());
-		this._setEnergySession(0);
 	}
 
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.setInitialTotalEnergyFromTimedata();
+			break;
+
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 			if (this.sessionId == null) {
+				lostSession();
 				return;
 			}
-			if (this.getStatus().equals(Status.CHARGING_FINISHED)) {
-				this.resetMeasuredChannelValues();
-			}
-			writeHandler.run();
+
+			this.checkCurrentState();
+			this.writeHandler.run();
 			break;
+		}
+	}
+
+	/**
+	 * Initialize total energy value from from Timedata service if it is not already
+	 * set.
+	 */
+	private void setInitialTotalEnergyFromTimedata() {
+		Long totalEnergy = this.getActiveConsumptionEnergy().orElse(null);
+		
+		// Total energy already set
+		if (totalEnergy != null) {
+			return;
+		}
+		
+		Timedata timedata = this.getTimedata();
+		String componentId = this.id();
+		if (timedata == null || componentId == null) {
+			return;
+		} else {
+			timedata.getLatestValue(new ChannelAddress(componentId, "ActiveConstumptionEnergy"))
+					.thenAccept(totalEnergyOpt -> {
+						
+						if (totalEnergyOpt.isPresent()) {
+							try {
+								this._setActiveConsumptionEnergy(TypeUtils.getAsType(OpenemsType.LONG, totalEnergyOpt.get()));
+							} catch (IllegalArgumentException e) {
+								this._setActiveConsumptionEnergy(TypeUtils.getAsType(OpenemsType.LONG, 0L));
+							}
+						} else {
+							this._setActiveConsumptionEnergy(TypeUtils.getAsType(OpenemsType.LONG, 0L));
+						}
+					});
 		}
 	}
 
@@ -109,6 +161,8 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 
 	public abstract Integer getConfiguredMinimumHardwarePower();
 
+	public abstract boolean returnsSessionEnergy();
+
 	/**
 	 * Required requests that should be sent after a connection was established.
 	 * 
@@ -134,6 +188,9 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		return this.sessionId;
 	};
 
+	/**
+	 * Reset the measured channel values and the charge power.
+	 */
 	private void resetMeasuredChannelValues() {
 		for (MeasuringEvcs.ChannelId c : MeasuringEvcs.ChannelId.values()) {
 			Channel<?> channel = this.channel(c);
@@ -142,12 +199,48 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		this._setChargePower(0);
 	}
 
+	/**
+	 * Check the current state and resets the measured values.
+	 */
+	private void checkCurrentState() {
+		Status state = this.getStatus();
+		switch (state) {
+		case CHARGING:
+			break;
+		case CHARGING_FINISHED:
+			this.resetMeasuredChannelValues();
+			break;
+		case CHARGING_REJECTED:
+		case ENERGY_LIMIT_REACHED:
+		case ERROR:
+		case NOT_READY_FOR_CHARGING:
+		case READY_FOR_CHARGING:
+		case STARTING:
+		case UNDEFINED:
+			this._setChargePower(0);
+			break;
+		}
+	}
+
 	public ChargingProperty getLastChargingProperty() {
 		return this.lastChargingProperty;
 	}
 
 	public void setLastChargingProperty(ChargingProperty chargingProperty) {
 		this.lastChargingProperty = chargingProperty;
+	}
+
+	public ChargeSessionStamp getSessionStart() {
+		return sessionStart;
+	}
+
+	public ChargeSessionStamp getSessionEnd() {
+		return sessionEnd;
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 
 	@Override

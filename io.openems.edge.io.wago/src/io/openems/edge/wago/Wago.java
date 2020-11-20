@@ -15,6 +15,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -46,6 +48,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
 import io.openems.edge.common.channel.BooleanReadChannel;
@@ -68,7 +71,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	protected ConfigurationAdmin cm;
 
 	private InetAddress ipAddress = null;
-	private ModbusProtocol protocol = null;
+	protected ModbusProtocol protocol = null;
 	private CopyOnWriteArrayList<FieldbusModule> modules = new CopyOnWriteArrayList<FieldbusModule>();
 
 	public enum ThisChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -113,11 +116,22 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		/*
 		 * Async Create Channels dynamically from ea-config.xml file
 		 */
-		this.configFuture = configExecutor.schedule(() -> {
+		this.configFuture = this.configExecutor.schedule(() -> {
 			try {
 				Document doc = Wago.downloadConfigXml(this.ipAddress, config.username(), config.password());
 				this.modules.addAll(this.parseXml(doc));
 				this.createProtocolFromModules(this.modules);
+
+				this.logInfo(this.log, "Initialized WAGO Fieldbus Coupler 750-352");
+				for (FieldbusModule module : this.modules) {
+					this.logInfo(this.log, "Found [" + module.getName() + "]"//
+							+ " with Channels [" //
+							+ Stream.of(module.getChannels()) //
+									.map(c -> c.address().toString()) //
+									.collect(Collectors.joining(", ")) //
+							+ "]");
+				}
+
 			} catch (SAXException | IOException | ParserConfigurationException | OpenemsException e) {
 				e.printStackTrace();
 			}
@@ -146,7 +160,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	}
 
 	private static Document downloadConfigXml(InetAddress ip, String filename, String username, String password)
-			throws SAXException, IOException, ParserConfigurationException {
+			throws ParserConfigurationException, SAXException, IOException {
 		URL url = new URL(String.format("http://%s/etc/%s", ip.getHostAddress(), filename));
 		String authStr = String.format("%s:%s", username, password);
 		byte[] bytesEncoded = Base64.getEncoder().encode(authStr.getBytes());
@@ -157,6 +171,11 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		connection.setRequestMethod("GET");
 		connection.connect();
 		InputStream is = connection.getInputStream();
+		return parseXmlToDocument(is);
+	}
+
+	protected static Document parseXmlToDocument(InputStream is)
+			throws ParserConfigurationException, SAXException, IOException {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		Document doc = dBuilder.parse(is);
@@ -165,17 +184,17 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	}
 
 	/**
-	 * Parses the config xml file
+	 * Parses the config xml file.
 	 * 
 	 * @param doc the XML document
 	 * @return a list of FieldbusModules
 	 */
-	private List<FieldbusModule> parseXml(Document doc) {
+	protected List<FieldbusModule> parseXml(Document doc) {
 		FieldbusModuleFactory factory = new FieldbusModuleFactory();
 		List<FieldbusModule> result = new ArrayList<>();
 		Element wagoElement = doc.getDocumentElement();
-		int inputOffset = 0;
-		int outputOffset = 512;
+		int offset0 = 0;
+		int offset512 = 512;
 
 		// parse all "Module" XML elements
 		NodeList moduleNodes = wagoElement.getElementsByTagName("Module");
@@ -203,9 +222,10 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 				kanals[j] = new FieldbusModuleKanal(channelName, channelType);
 			}
 			// Create FieldbusModule instance using factory method
-			FieldbusModule module = factory.of(this, moduleArtikelnr, moduleType, kanals, inputOffset, outputOffset);
-			inputOffset += module.getInputCoils();
-			outputOffset += module.getOutputCoils();
+			FieldbusModule module = factory.of(this, moduleArtikelnr, moduleType, kanals, offset0, offset512);
+			assert module.getInputCoil512Elements().length == module.getOutputCoil512Elements().length;
+			offset0 += module.getInputCoil0Elements().length;
+			offset512 += module.getOutputCoil512Elements().length;
 			result.add(module);
 		}
 		return result;
@@ -215,45 +235,51 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	 * Takes a list of FieldbusModules and adds Modbus tasks to the protocol.
 	 * 
 	 * @param modules lit of {@link FieldbusModule}s
-	 * @throws OpenemsException
+	 * @throws OpenemsException on error
 	 */
-	private void createProtocolFromModules(List<FieldbusModule> modules) throws OpenemsException {
-		List<AbstractModbusElement<?>> readElements0 = new ArrayList<>();
-		List<AbstractModbusElement<?>> readElements512 = new ArrayList<>();
+	protected void createProtocolFromModules(List<FieldbusModule> modules) throws OpenemsException {
+		List<ModbusCoilElement> readCoilElements0 = new ArrayList<>();
+		List<ModbusCoilElement> readCoilElements512 = new ArrayList<>();
 		for (FieldbusModule module : modules) {
-			for (AbstractModbusElement<?> element : module.getInputElements()) {
-				if (element.getStartAddress() > 511) {
-					readElements512.add(element);
-				} else {
-					readElements0.add(element);
-				}
+			for (ModbusCoilElement element : module.getInputCoil0Elements()) {
+				readCoilElements0.add(element);
 			}
-			for (AbstractModbusElement<?> element : module.getOutputElements()) {
+			for (ModbusCoilElement element : module.getInputCoil512Elements()) {
+				readCoilElements512.add(element);
+			}
+			for (ModbusCoilElement element : module.getOutputCoil512Elements()) {
 				FC5WriteCoilTask writeCoilTask = new FC5WriteCoilTask(element.getStartAddress(), element);
 				this.protocol.addTask(writeCoilTask);
 			}
 		}
-		if (!readElements0.isEmpty()) {
-			this.protocol.addTask(//
-					new FC1ReadCoilsTask(0, Priority.LOW,
-							readElements0.toArray(new AbstractModbusElement<?>[readElements0.size()])));
+		if (!readCoilElements0.isEmpty()) {
+			this.protocol.addTask(new FC1ReadCoilsTask(0, Priority.LOW,
+					readCoilElements0.toArray(new AbstractModbusElement<?>[readCoilElements0.size()])));
 		}
-		if (!readElements512.isEmpty()) {
-			this.protocol.addTask(//
-					new FC1ReadCoilsTask(512, Priority.LOW,
-							readElements512.toArray(new AbstractModbusElement<?>[readElements512.size()])));
+		if (!readCoilElements512.isEmpty()) {
+			this.protocol.addTask(new FC1ReadCoilsTask(512, Priority.LOW,
+					readCoilElements512.toArray(new AbstractModbusElement<?>[readCoilElements512.size()])));
 		}
 	}
 
-	protected AbstractModbusElement<?> createModbusElement(io.openems.edge.common.channel.ChannelId channelId,
-			int address) {
+	/**
+	 * Creates a Modbus {@link CoilElement} on the address and maps it to the given
+	 * Channel-ID.
+	 * 
+	 * @param channelId the Channel-ID
+	 * @param address   the modbus start address of the coil
+	 * @return the modbus {@link CoilElement}
+	 */
+	protected CoilElement createModbusCoilElement(io.openems.edge.common.channel.ChannelId channelId, int address) {
 		return m(channelId, new CoilElement(address));
 	}
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		this.protocol = new ModbusProtocol(this);
-		return protocol;
+		if (this.protocol == null) {
+			this.protocol = new ModbusProtocol(this);
+		}
+		return this.protocol;
 	}
 
 	@Deactivate

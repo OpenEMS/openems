@@ -215,7 +215,7 @@ export class SinglethresholdModalComponent {
             this.minimumSwitchingTime.setValue(this.component.properties.minimumSwitchingTime);
             this.threshold.setValue(this.component.properties.threshold);
             this.switchedLoadPower.setValue(this.component.properties.switchedLoadPower);
-            this.inputMode.setValue(this.convertToInputMode(this.component.properties.inputChannelAddress, this.component.properties.treshold));
+            this.inputMode.setValue(this.convertToInputMode(this.component.properties.inputChannelAddress, this.component.properties.threshold));
             this.invert.setValue(this.component.properties.invert);
             this.loading = false;
             this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');

@@ -199,7 +199,7 @@ public class SocomecMeterSinglephaseImpl extends AbstractSocomecMeter implements
 	}
 
 	@Override
-	protected void identifiedCountisE23_E24() throws OpenemsException {
+	protected void identifiedCountisE23_E24_E27_E28() throws OpenemsException {
 		this.thisIsNotASinglePhaseMeter();
 	}
 
