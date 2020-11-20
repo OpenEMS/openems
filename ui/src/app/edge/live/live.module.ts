@@ -40,6 +40,8 @@ import { StorageComponent } from './storage/storage.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetricpeakshaving.component';
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
+import { HeatPumpComponent } from './heatpump/heatpump.component';
+import { HeatPumpModalComponent } from './heatpump/modal/modal.component';
 
 @NgModule({
   imports: [
@@ -54,19 +56,20 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     AutarchyModalComponent,
     ChpsocModalComponent,
     ConsumptionModalComponent,
+    DigitalInputComponent,
+    DigitalInputModalComponent,
     EvcsModalComponent,
     EvcsPopoverComponent,
     FixDigitalOutputModalComponent,
     GridModalComponent,
     HeatingElementModalComponent,
+    HeatPumpModalComponent,
     ModalComponentEvcsCluster,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
     SinglethresholdModalComponent,
     StorageModalComponent,
     SymmetricPeakshavingModalComponent,
-    DigitalInputComponent,
-    DigitalInputModalComponent,
   ],
   declarations: [
     AdministrationComponent,
@@ -79,6 +82,8 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     ChpsocModalComponent,
     ConsumptionComponent,
     ConsumptionModalComponent,
+    DigitalInputComponent,
+    DigitalInputModalComponent,
     EvcsChart,
     EvcsClusterComponent,
     EvcsComponent,
@@ -91,6 +96,8 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     GridModalComponent,
     HeatingElementComponent,
     HeatingElementModalComponent,
+    HeatPumpComponent,
+    HeatPumpModalComponent,
     InfoComponent,
     LiveComponent,
     ModalComponentEvcsCluster,
@@ -105,8 +112,6 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     StorageModalComponent,
     SymmetricPeakshavingComponent,
     SymmetricPeakshavingModalComponent,
-    DigitalInputComponent,
-    DigitalInputModalComponent,
   ]
 })
 export class LiveModule { }
