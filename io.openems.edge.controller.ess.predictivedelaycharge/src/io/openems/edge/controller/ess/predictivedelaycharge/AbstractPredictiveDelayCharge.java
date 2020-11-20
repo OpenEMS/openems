@@ -123,8 +123,8 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 			ZonedDateTime predictionStartHour = productionHourlyPredictor.get24hPrediction().getStart();
 
 			// For Debug Purpose
-			hourlyProduction = this.hourlyProduction;
-			hourlyConsumption = this.hourlyConsumption;
+			this.hourlyProduction = hourlyProduction;
+			this.hourlyConsumption = hourlyConsumption;
 
 			// calculating target hour
 			this.targetHour = this.calculateTargetHour(hourlyProduction, hourlyConsumption, predictionStartHour);

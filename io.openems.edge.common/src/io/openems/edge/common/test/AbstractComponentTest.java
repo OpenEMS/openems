@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -257,6 +258,13 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		// If this is an OpenemsComponent -> store it for later
 		if (object instanceof OpenemsComponent) {
 			this.addComponent((OpenemsComponent) object);
+		}
+		if (object instanceof Collection<?>) {
+			for (Object o : (Collection<?>) object) {
+				if (o instanceof OpenemsComponent) {
+					this.addComponent((OpenemsComponent) o);
+				}
+			}
 		}
 		return this.self();
 	}

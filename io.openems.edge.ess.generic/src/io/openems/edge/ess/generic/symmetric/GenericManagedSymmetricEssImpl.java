@@ -76,7 +76,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 	/**
 	 * Helper wrapping class to handle everything related to Channels.
 	 */
-	private final ChannelHandler channelHandler = new ChannelHandler(this);
+	private final ChannelManager channelHandler = new ChannelManager(this);
 
 	private Config config = null;
 

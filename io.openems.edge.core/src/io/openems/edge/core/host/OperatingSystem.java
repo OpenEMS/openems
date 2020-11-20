@@ -3,6 +3,9 @@ package io.openems.edge.core.host;
 import java.util.concurrent.CompletableFuture;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
+import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 
 public interface OperatingSystem {
 
@@ -25,11 +28,21 @@ public interface OperatingSystem {
 			SetNetworkConfigRequest request) throws OpenemsNamedException;
 
 	/**
+	 * Gets the USB configuration.
+	 * 
+	 * @return the original configuration in textual form
+	 * @throws OpenemsNamedException on error
+	 */
+	public String getUsbConfiguration() throws OpenemsNamedException;
+
+	/**
 	 * Executes a command.
 	 * 
 	 * @param request the ExecuteCommandRequest
 	 * @return a ExecuteCommandResponse
+	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteCommandRequest(ExecuteSystemCommandRequest request);
+	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteCommandRequest(
+			ExecuteSystemCommandRequest request) throws OpenemsNamedException;
 
 }

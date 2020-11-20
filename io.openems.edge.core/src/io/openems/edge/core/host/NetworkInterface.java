@@ -47,7 +47,7 @@ public class NetworkInterface<A> {
 
 		@Override
 		public String toString() {
-			return this.inet4Address.getHostAddress() + "/" + netmask;
+			return this.inet4Address.getHostAddress() + "/" + this.netmask;
 		}
 
 		/**
@@ -181,28 +181,71 @@ public class NetworkInterface<A> {
 		this.attachment = attachment;
 	}
 
+	/**
+	 * Gets the network interface name.
+	 * 
+	 * @return the name
+	 */
 	public String getName() {
 		return this.name;
 	}
 
+	/**
+	 * Gets the network interface DHCP option.
+	 * 
+	 * @return the DHCP option; true for enabled; false for disabled
+	 */
 	public ConfigurationProperty<Boolean> getDhcp() {
 		return this.dhcp;
 	}
 
+	/**
+	 * Gets the network interface LinkLocalAddressing option.
+	 * 
+	 * @return the LinkLocalAddressing option; true for enabled; false for disabled
+	 */
 	public ConfigurationProperty<Boolean> getLinkLocalAddressing() {
 		return this.linkLocalAddressing;
 	}
 
+	/**
+	 * Gets the network interface Gateway.
+	 * 
+	 * @return the Gateway
+	 */
 	public ConfigurationProperty<Inet4Address> getGateway() {
 		return this.gateway;
 	}
 
+	/**
+	 * Gets the network interface DNS server.
+	 * 
+	 * @return the DNS server
+	 */
 	public ConfigurationProperty<Inet4Address> getDns() {
 		return this.dns;
 	}
 
+	/**
+	 * Gets the network interface addresses.
+	 * 
+	 * @return the addresses
+	 */
 	public ConfigurationProperty<Set<Inet4AddressWithNetmask>> getAddresses() {
 		return this.addresses;
+	}
+
+	/**
+	 * Gets the network interface attachment.
+	 * 
+	 * <p>
+	 * An arbitrary attachment to this NetworkInterface. Can be used to store e.g. a
+	 * configuration file path.
+	 * 
+	 * @return the attachment
+	 */
+	public A getAttachment() {
+		return this.attachment;
 	}
 
 	/**
@@ -312,7 +355,4 @@ public class NetworkInterface<A> {
 		return isChanged;
 	}
 
-	public A getAttachment() {
-		return this.attachment;
-	}
 }
