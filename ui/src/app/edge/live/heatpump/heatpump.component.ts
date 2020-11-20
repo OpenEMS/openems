@@ -1,9 +1,9 @@
 import { ActivatedRoute } from '@angular/router';
-import { Component, Input } from '@angular/core';
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
-import { ModalController } from '@ionic/angular';
-import { HeatPumpModalComponent } from './modal/modal.component';
 import { BehaviorSubject } from 'rxjs';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
+import { Component, Input } from '@angular/core';
+import { HeatPumpModalComponent } from './modal/modal.component';
+import { ModalController } from '@ionic/angular';
 
 @Component({
   selector: HeatPumpComponent.SELECTOR,

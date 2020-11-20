@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
 type ManualMode = 'FORCE_ON' | 'RECOMMENDATION' | 'REGULAR' | 'LOCK';
 type AutomaticEnableMode = 'automaticRecommendationCtrlEnabled' | 'automaticForceOnCtrlEnabled' | 'automaticLockCtrlEnabled'
@@ -44,7 +44,6 @@ export class HeatPumpModalComponent {
       automaticRecommendationSurplusPower: new FormControl(this.component.properties.automaticRecommendationSurplusPower),
       minimumSwitchingTime: new FormControl(this.component.properties.minimumSwitchingTime),
     })
-    console.log("component", this.component)
   };
 
   public updateControllerMode(event: CustomEvent) {
@@ -77,26 +76,29 @@ export class HeatPumpModalComponent {
   }
 
   public applyChanges() {
-    let updateComponentArray = [];
-    Object.keys(this.formGroup.controls).forEach((element, index) => {
-      if (this.formGroup.controls[element].dirty) {
-        updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
-      }
-    });
-
-    if (this.edge != null) {
-      this.loading = true;
-      this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
-        this.component.properties.manualState = this.formGroup.value.manualState;
-        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-        this.loading = false;
-      }).catch(reason => {
-        this.formGroup.controls['minTime'].setValue(this.component.properties.manualState);
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
-        this.loading = false;
-        console.warn(reason);
+    if (this.formGroup.controls['automaticRecommendationSurplusPower'].value > this.formGroup.controls['automaticForceOnSurplusPower'].value) {
+      let updateComponentArray = [];
+      Object.keys(this.formGroup.controls).forEach((element, index) => {
+        if (this.formGroup.controls[element].dirty) {
+          updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+        }
       });
-      this.formGroup.markAsPristine();
+      if (this.edge != null) {
+        this.loading = true;
+        this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
+          this.component.properties.manualState = this.formGroup.value.manualState;
+          this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+          this.loading = false;
+        }).catch(reason => {
+          this.formGroup.controls['minTime'].setValue(this.component.properties.manualState);
+          this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+          this.loading = false;
+          console.warn(reason);
+        });
+        this.formGroup.markAsPristine();
+      }
+    } else {
+      this.service.toast(this.translate.instant('Edge.Index.Widgets.HeatPump.relationError'), 'danger');
     }
   }
 }
