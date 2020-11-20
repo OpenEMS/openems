@@ -76,7 +76,7 @@ export class HeatPumpModalComponent {
   }
 
   public applyChanges() {
-    if (this.formGroup.controls['automaticRecommendationSurplusPower'].value > this.formGroup.controls['automaticForceOnSurplusPower'].value) {
+    if (this.formGroup.controls['automaticRecommendationSurplusPower'].value < this.formGroup.controls['automaticForceOnSurplusPower'].value) {
       let updateComponentArray = [];
       Object.keys(this.formGroup.controls).forEach((element, index) => {
         if (this.formGroup.controls[element].dirty) {
