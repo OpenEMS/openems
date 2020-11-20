@@ -51,15 +51,8 @@ export class HeatingElementRtuInstallerComponent {
           this.loading = false;
           break;
         }
-        case 1: {
-          this.loadingStrings.push({ string: 'Es konnten nicht alle Komponenten gefunden werden', type: 'danger' });
-          setTimeout(() => {
-            this.addHeatingElementComponents();
-          }, 2000);
-          break;
-        }
-        case 2: {
-          this.loadingStrings.push({ string: 'Es konnten nicht alle Komponenten gefunden werden', type: 'danger' });
+        case 1: case 2: {
+          this.loadingStrings.push({ string: 'Teile dieser App sind bereits installiert', type: 'setup' });
           setTimeout(() => {
             this.addHeatingElementComponents();
           }, 2000);
@@ -110,9 +103,13 @@ export class HeatingElementRtuInstallerComponent {
       fields.push(field);
       if (property.defaultValue != null) {
         model[property_id] = property.defaultValue;
+
+        if (property.name == 'Component-ID') {
+          model[property_id] = 'io1';
+        }
         // set costum modbus-id
         if (property.name == 'Modbus-ID') {
-          model[property_id] = 'modbus10';
+          model[property_id] = 'modbus20';
         }
       }
     }
@@ -140,17 +137,21 @@ export class HeatingElementRtuInstallerComponent {
       fields.push(field);
       if (property.defaultValue != null) {
         model[property_id] = property.defaultValue;
+
+        if (property.name == 'Component-ID') {
+          model[property_id] = 'ctrlIoHeatingElement1';
+        }
         if (property.name == 'Mode') {
           model[property_id] = 'MANUAL_OFF';
         }
         if (property.name == 'Output Channel Phase L1') {
-          model[property_id] = "io0/Relay4";
+          model[property_id] = "io1/Relay4";
         }
         if (property.name == 'Output Channel Phase L2') {
-          model[property_id] = "io0/Relay5";
+          model[property_id] = "io1/Relay5";
         }
         if (property.name == 'Output Channel Phase L3') {
-          model[property_id] = "io0/Relay6";
+          model[property_id] = "io1/Relay6";
         }
       }
     }
@@ -180,7 +181,7 @@ export class HeatingElementRtuInstallerComponent {
         model[property_id] = property.defaultValue;
         // set costum component id
         if (property.name == 'Component-ID') {
-          model[property_id] = 'modbus10';
+          model[property_id] = 'modbus20';
         }
       }
     }
@@ -188,6 +189,9 @@ export class HeatingElementRtuInstallerComponent {
     return properties;
   }
 
+  /**
+   * Main method, to add all required components.
+   */
   public addHeatingElementComponents() {
 
     let addedComponents: number = 0;
@@ -195,18 +199,17 @@ export class HeatingElementRtuInstallerComponent {
     this.loading = true;
     this.showInit = false;
 
-    this.loadingStrings.push({ string: 'Versuche Bridge.Modbus.Serial hinzuzufügen..', type: 'setup' });
-    this.loadingStrings.push({ string: 'Versuche IO.KMtronic hinzuzufügen..', type: 'setup' });
-    this.loadingStrings.push({ string: 'Versuche Controller.IO.HeatingElement hinzuzufügen..', type: 'setup' });
+    // Adding modbus rtu bridge 
+    this.loadingStrings.push({ string: 'Versuche Bridge.Modbus.Serial (RTU) hinzuzufügen..', type: 'setup' });
     this.edge.createComponentConfig(this.websocket, 'Bridge.Modbus.Serial', this.gatherCommunication(this.config)).then(() => {
       setTimeout(() => {
-        this.loadingStrings.push({ string: 'Bridge.Modbus.Serial wird hinzugefügt', type: 'success' });
+        this.loadingStrings.push({ string: 'Bridge.Modbus.Serial wurde hinzugefügt', type: 'success' });
         addedComponents += 1;
       }, 2000);
     }).catch(reason => {
       if (reason.error.code == 1) {
         setTimeout(() => {
-          this.loadingStrings.push({ string: 'Bridge.Modbus.Serial existiert bereits', type: 'danger' });
+          this.loadingStrings.push({ string: 'Bridge.Modbus.Serial existiert bereits', type: 'success' });
           addedComponents += 1;
         }, 2000);
         return;
@@ -217,43 +220,51 @@ export class HeatingElementRtuInstallerComponent {
       }, 2000);
     });
 
-    this.edge.createComponentConfig(this.websocket, 'IO.KMtronic', this.gatherType(this.config)).then(() => {
-      setTimeout(() => {
-        this.loadingStrings.push({ string: 'IO.KMtronic wird hinzugefügt', type: 'success' });
-        addedComponents += 1;
-      }, 2000);
-    }).catch(reason => {
-      if (reason.error.code == 1) {
+    // Adding kmtronic relay board
+    setTimeout(() => {
+      this.loadingStrings.push({ string: 'Versuche IO.KMtronic hinzuzufügen..', type: 'setup' });
+      this.edge.createComponentConfig(this.websocket, 'IO.KMtronic', this.gatherType(this.config)).then(() => {
         setTimeout(() => {
-          this.loadingStrings.push({ string: 'IO.KMtronic existiert bereits', type: 'danger' });
+          this.loadingStrings.push({ string: 'IO.KMtronic wurde hinzugefügt', type: 'success' });
           addedComponents += 1;
-        }, 2000);
-        return;
-      }
-      setTimeout(() => {
-        this.loadingStrings.push({ string: 'Fehler IO.KMtronic hinzuzufügen', type: 'danger' });
-        addedComponents += 1;
-      }, 2000);
-    });
+        }, 1000);
+      }).catch(reason => {
+        if (reason.error.code == 1) {
+          setTimeout(() => {
+            this.loadingStrings.push({ string: 'IO.KMtronic existiert bereits', type: 'success' });
+            addedComponents += 1;
+          }, 1000);
+          return;
+        }
+        setTimeout(() => {
+          this.loadingStrings.push({ string: 'Fehler IO.KMtronic hinzuzufügen', type: 'danger' });
+          addedComponents += 1;
+        }, 1000);
+      });
+    }, 3000);
 
-    this.edge.createComponentConfig(this.websocket, 'Controller.IO.HeatingElement', this.gatherApp(this.config)).then(() => {
-      setTimeout(() => {
-        this.loadingStrings.push({ string: 'Controller.IO.HeatingElement wird hinzugefügt', type: 'success' });
-        addedComponents += 1;
-      }, 2000);
-    }).catch(reason => {
-      if (reason.error.code == 1) {
+    // Adding heating element controller
+    setTimeout(() => {
+      this.loadingStrings.push({ string: 'Versuche Controller.IO.HeatingElement hinzuzufügen..', type: 'setup' });
+      this.edge.createComponentConfig(this.websocket, 'Controller.IO.HeatingElement', this.gatherApp(this.config)).then(() => {
         setTimeout(() => {
-          this.loadingStrings.push({ string: 'Controller.IO.HeatingElement existiert bereits', type: 'danger' });
+          this.loadingStrings.push({ string: 'Controller.IO.HeatingElement wurde hinzugefügt', type: 'success' });
           addedComponents += 1;
-        }, 2000);
-        return;
-      }
-      setTimeout(() => {
-        this.loadingStrings.push({ string: 'Fehler Controller.IO.HeatingElement hinzuzufügen', type: 'danger' });
-        addedComponents += 1;
-      }, 2000);
-    });
+        }, 1000);
+      }).catch(reason => {
+        if (reason.error.code == 1) {
+          setTimeout(() => {
+            this.loadingStrings.push({ string: 'Controller.IO.HeatingElement existiert bereits', type: 'success' });
+            addedComponents += 1;
+          }, 1000);
+          return;
+        }
+        setTimeout(() => {
+          this.loadingStrings.push({ string: 'Fehler Controller.IO.HeatingElement hinzuzufügen', type: 'danger' });
+          addedComponents += 1;
+        }, 1000);
+      });
+    }, 5000);
 
     var percentageInterval = setInterval(() => {
       while (addedComponents == 3) {
@@ -265,41 +276,45 @@ export class HeatingElementRtuInstallerComponent {
 
     setTimeout(() => {
       this.checkConfiguration();
-    }, 6000);
+    }, 8000);
   }
 
   private gatherAddedComponents(): EdgeConfig.Component[] {
     let result = [];
     this.config.getComponentsByFactory('Bridge.Modbus.Serial').forEach(component => {
-      if (component.id == 'modbus10') {
+      if (component.id == 'modbus20') {
         result.push(component)
       }
     })
     this.config.getComponentsByFactory('IO.KMtronic').forEach(component => {
-      if (component.properties['modbus.id'] == 'modbus10') {
+      if (component.properties['modbus.id'] == 'modbus20') {
         result.push(component)
       }
     })
     this.config.getComponentsByFactory('Controller.IO.HeatingElement').forEach(component => {
-      result.push(component)
+      if (component.id == 'ctrlIoHeatingElement1') {
+        result.push(component)
+      }
     })
     return result
   }
 
   private gatherAddedComponentsIntoArray() {
     this.config.getComponentsByFactory('Bridge.Modbus.Serial').forEach(component => {
-      if (component.id == 'modbus10') {
+      if (component.id == 'modbus20') {
         this.components.push(component)
       }
     })
     this.config.getComponentsByFactory('IO.KMtronic').forEach(component => {
-      if (component.properties['modbus.id'] == 'modbus10') {
+      if (component.properties['modbus.id'] == 'modbus20') {
         this.components.push(component)
       }
     })
     this.config.getComponentsByFactory('Controller.IO.HeatingElement').forEach(component => {
-      this.heatingElementId = component.id;
-      this.components.push(component)
+      if (component.id == 'ctrlIoHeatingElement1') {
+        this.heatingElementId = component.id;
+        this.components.push(component)
+      }
     })
     this.edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
       let workState = 0;
@@ -328,7 +343,8 @@ export class HeatingElementRtuInstallerComponent {
       this.service.getConfig().then(config => {
         this.config = config;
       }).then(() => {
-        if (this.gatherAddedComponents().length == 3) {
+        //TODO: Check it properly
+        if (this.gatherAddedComponents().length >= 3) {
           this.loadingStrings.push({ string: 'Komponenten korrekt hinzugefügt', type: 'success' });
           this.progressPercentage = 0.95;
           this.gatherAddedComponentsIntoArray();

@@ -56,7 +56,7 @@ export class EvcsInstallerComponent {
           break;
         }
         case 1: {
-          this.loadingStrings.push({ string: 'Es konnten nicht alle Komponenten gefunden werden', type: 'danger' });
+          this.loadingStrings.push({ string: 'Teile dieser App sind bereits installiert', type: 'setup' });
           setTimeout(() => {
             this.addEVCSComponents();
           }, 2000);
@@ -76,7 +76,7 @@ export class EvcsInstallerComponent {
     let result: { name: string, value: any }[] = [];
     fields.forEach(field => {
       if (field.key == 'alias') {
-        result.push({ name: 'alias', value: 'Ladesäule' })
+        result.push({ name: 'alias', value: 'Ladestation' })
       }
       Object.keys(model).forEach(modelKey => {
         if (field.key == modelKey) {
@@ -108,7 +108,7 @@ export class EvcsInstallerComponent {
       if (property.defaultValue != null) {
         model[property_id] = property.defaultValue;
         if (property.name == 'IP-Address') {
-          model[property_id] = '192.168.1.44';
+          model[property_id] = '192.168.25.11';
         }
       }
     }
@@ -142,6 +142,9 @@ export class EvcsInstallerComponent {
     return properties;
   }
 
+  /**
+   * Main method, to add all required components.
+   */
   public addEVCSComponents() {
 
     let addedComponents: number = 0;
@@ -150,16 +153,15 @@ export class EvcsInstallerComponent {
     this.showInit = false;
 
     this.loadingStrings.push({ string: 'Versuche Evcs.Keba.KeContact hinzuzufügen..', type: 'setup' });
-    this.loadingStrings.push({ string: 'Versuche Controller.Evcs hinzuzufügen..', type: 'setup' });
     this.edge.createComponentConfig(this.websocket, 'Evcs.Keba.KeContact', this.gatherChargingStation(this.config)).then(() => {
       setTimeout(() => {
-        this.loadingStrings.push({ string: 'Evcs.Keba.KeContact wird hinzugefügt', type: 'success' });
+        this.loadingStrings.push({ string: 'Evcs.Keba.KeContact wurde hinzugefügt', type: 'success' });
         addedComponents += 1;
       }, 2000);
     }).catch(reason => {
       if (reason.error.code == 1) {
         setTimeout(() => {
-          this.loadingStrings.push({ string: 'Evcs.Keba.KeContact existiert bereits', type: 'danger' });
+          this.loadingStrings.push({ string: 'Evcs.Keba.KeContact existiert bereits', type: 'success' });
           addedComponents += 1;
         }, 2000);
         return;
@@ -170,25 +172,27 @@ export class EvcsInstallerComponent {
       }, 2000);
     });
 
-    this.edge.createComponentConfig(this.websocket, 'Controller.Evcs', this.gatherController(this.config)).then(() => {
-      setTimeout(() => {
-        this.loadingStrings.push({ string: 'Controller.Evcs wird hinzugefügt', type: 'success' });
-        addedComponents += 1;
-      }, 2000);
-    }).catch(reason => {
-      if (reason.error.code == 1) {
+    setTimeout(() => {
+      this.loadingStrings.push({ string: 'Versuche Controller.Evcs hinzuzufügen..', type: 'setup' });
+      this.edge.createComponentConfig(this.websocket, 'Controller.Evcs', this.gatherController(this.config)).then(() => {
         setTimeout(() => {
-          this.loadingStrings.push({ string: 'Controller.Evcs existiert bereits', type: 'danger' });
+          this.loadingStrings.push({ string: 'Controller.Evcs wurde hinzugefügt', type: 'success' });
           addedComponents += 1;
-        }, 2000);
-        return;
-      }
-      setTimeout(() => {
-        this.loadingStrings.push({ string: 'Fehler Controller.Evcs hinzuzufügen', type: 'danger' });
-        addedComponents += 1;
-      }, 2000);
-    });
-
+        }, 1000);
+      }).catch(reason => {
+        if (reason.error.code == 1) {
+          setTimeout(() => {
+            this.loadingStrings.push({ string: 'Controller.Evcs existiert bereits', type: 'success' });
+            addedComponents += 1;
+          }, 1000);
+          return;
+        }
+        setTimeout(() => {
+          this.loadingStrings.push({ string: 'Fehler Controller.Evcs hinzuzufügen', type: 'danger' });
+          addedComponents += 1;
+        }, 1000);
+      });
+    }, 3000);
 
     var percentageInterval = setInterval(() => {
       while (addedComponents == 2) {
@@ -198,46 +202,15 @@ export class EvcsInstallerComponent {
       }
     }, 300)
 
-
     setTimeout(() => {
       this.loadingStrings = [];
       this.loadingStrings.push({ string: 'Versuche statische IP-Adresse anzulegen..', type: 'setup' });
     }, 6000);
 
-
     setTimeout(() => {
-      this.edge.sendRequest(this.websocket,
-        new ComponentJsonApiRequest({ componentId: "_host", payload: new GetNetworkConfigRequest() })).then(response => {
-          let result = (response as GetNetworkConfigResponse).result;
 
-          if (result.interfaces['eth0'].addresses.includes('192.168.1.10/24')) {
-            this.loadingStrings.push({ string: 'Statische IP-Adresse existiert bereits', type: 'success' });
-            addedComponents += 1;
-          } else {
-            let request = {
-              interfaces: {
-                eth0: {
-                  addresses: ["192.168.1.10/24"],
-                  dhcp: true,
-                  dns: null,
-                  gateway: null,
-                  linkLocalAddressing: true
-                }
-              }
-            };
-            this.edge.sendRequest(this.websocket,
-              new ComponentJsonApiRequest({
-                componentId: "_host", payload: new SetNetworkConfigRequest(request)
-              })).then(response => {
-                this.loadingStrings.push({ string: 'Statische IP-Adresse wird hinzugefügt', type: 'success' });
-                addedComponents += 1;
-              }).catch(reason => {
-                this.loadingStrings.push({ string: 'Fehler statische IP-Adresse hinzuzufügen', type: 'danger' });
-                addedComponents += 1;
-              })
-          }
-        })
-
+      // Adding the ip address
+      addedComponents += this.addIpAddress('eth0', '192.168.25.10/24') == true ? 1 : 0;
     }, 10000);
 
     var ipAddressInterval = setInterval(() => {
@@ -291,6 +264,40 @@ export class EvcsInstallerComponent {
     this.subscribeOnAddedComponents();
   }
 
+  /**
+   * Adds an ip address.
+   * Returns false if it is already present.
+   * 
+   * @param interfaceName Interface default 'eth0'
+   * @param ip Ip that should be added
+   */
+  private addIpAddress(interfaceName: string, ip: string): boolean {
+
+    this.edge.sendRequest(this.websocket,
+      new ComponentJsonApiRequest({ componentId: "_host", payload: new GetNetworkConfigRequest() })).then(response => {
+
+        let result = (response as GetNetworkConfigResponse).result;
+        if (result.interfaces[interfaceName].addresses.includes(ip)) {
+          this.loadingStrings.push({ string: 'Statische IP-Adresse existiert bereits', type: 'success' });
+          return false;
+        } else {
+          result.interfaces[interfaceName].addresses.push(ip);
+
+          this.edge.sendRequest(this.websocket,
+            new ComponentJsonApiRequest({
+              componentId: "_host", payload: new SetNetworkConfigRequest(result)
+            })).then(response => {
+              this.loadingStrings.push({ string: 'Statische IP-Adresse wird hinzugefügt', type: 'success' });
+              return true;
+            }).catch(reason => {
+              this.loadingStrings.push({ string: 'Fehler statische IP-Adresse hinzuzufügen', type: 'danger' });
+              return true;
+            })
+        }
+      })
+    return false;
+  }
+
   private checkConfiguration() {
     this.loadingStrings = [];
     this.loadingStrings.push({ string: 'Überprüfe ob Komponenten korrekt hinzugefügt wurden..', type: 'setup' });
@@ -299,7 +306,8 @@ export class EvcsInstallerComponent {
       this.service.getConfig().then(config => {
         this.config = config;
       }).then(() => {
-        if (this.gatherAddedComponents().length == 2) {
+        //TODO: Check it properly
+        if (this.gatherAddedComponents().length >= 2) {
           this.loadingStrings.push({ string: 'Komponenten korrekt hinzugefügt', type: 'success' });
           this.progressPercentage = 0.95;
           this.gatherAddedComponentsIntoArray();
