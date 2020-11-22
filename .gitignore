@@ -224,3 +224,4 @@ gradle-app.setting
 /tools/docker/openems-backend/build
 /tools/docker/openems-edge/build
 /tools/docker/openems-ui/build
+.atom-build.yml
