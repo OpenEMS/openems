@@ -46,7 +46,8 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 
 	private final Logger log = LoggerFactory.getLogger(DynamicBatteryControl.class);
 	private final Bci bci = new Bci();
-	private boolean isTargetHoursCalculated = false;
+	private boolean isPredictionValuesTaken = false;
+	private boolean isAllowedToCalculateHours = false;
 	private ZonedDateTime proLessThanCon = null;
 	private ZonedDateTime proMoreThanCon = null;
 	private List<ZonedDateTime> cheapHours = new ArrayList<ZonedDateTime>();
@@ -55,7 +56,6 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 	private ZonedDateTime startHour = null;
 	private Integer[] productionValues = new Integer[24];
 	private Integer[] consumptionValues = new Integer[24];
-	private boolean debugMode;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -99,7 +99,6 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		this.debugMode = this.config.debugMode();
 
 		// update filter for 'ess'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
@@ -115,76 +114,95 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 	@Override
 	public void run() throws OpenemsNamedException {
 
-		// Get required variables
-//		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 		ZonedDateTime now = ZonedDateTime.now();
-		int nettcapacity = ess.getCapacity().getOrError();
-		Integer availableCapacity = (100 / ess.getSoc().getOrError()) * nettcapacity;
 
-		// Every Day at 16:00 the prices are updated, SO we receive the predictions at
-		// 16:00 till next day 15:00.
-		if (now.getHour() == 15 && !isTargetHoursCalculated) {
+		// Every Day at 14:00 the BCI list is updated, SO we receive the predictions at
+		// 14:00 till next day 15:00.
+		if (now.getHour() == 15 && !this.isPredictionValuesTaken) {
 			Integer[] productionValues = productionHourlyPredictor.get24hPrediction().getValues();
 			Integer[] consumptionValues = consumptionHourlyPredictor.get24hPrediction().getValues();
 			ZonedDateTime startHour = productionHourlyPredictor.get24hPrediction().getStart();
-
-			// Structuring the data in TreeMap format for easy calculations later
-			TreeMap<ZonedDateTime, Integer> hourlyProduction = new TreeMap<ZonedDateTime, Integer>();
-			TreeMap<ZonedDateTime, Integer> hourlyConsumption = new TreeMap<ZonedDateTime, Integer>();
-
-			for (int i = 0; i < 24; i++) {
-				if (consumptionValues[i] != null && productionValues[i] != null) {
-					hourlyProduction.put(startHour.plusHours(i), productionValues[i]);
-					hourlyConsumption.put(startHour.plusHours(i), consumptionValues[i]);
-				}
-			}
 
 			// resetting values
 			this.cheapHours.clear();
 			this.proLessThanCon = null;
 			this.proMoreThanCon = null;
 
-			// For Debug Purpose
+			// Storing in a global variables for later calculations during the hour when the
+			// production is less than the consumption.
 			this.productionValues = productionValues;
 			this.consumptionValues = consumptionValues;
 			this.startHour = startHour;
 
-			// calculates the boundary hours, within which the controller needs to work
-			this.calculateBoundaryHours(hourlyProduction, hourlyConsumption);
-
-			Integer requiredEnergy = this.calculateRequiredEnergy(availableCapacity, hourlyProduction,
-					hourlyConsumption);
-
-			TreeMap<ZonedDateTime, Float> bciList = this.bci.houlryPrices(config.url());
-
-			if (bciList == null) {
-				return;
-			}
-
-			// list of hours, during which battery should be avoided.
-			this.calculateTargetHours(requiredEnergy, hourlyConsumption, bciList);
-			this.isTargetHoursCalculated = true;
-
-		}
-
-		if (now.getHour() == 16 && this.isTargetHoursCalculated) {
-			this.isTargetHoursCalculated = false;
-		}
-
-		// Displays the values in log.
-		if (this.debugMode) {
 			// Print the Predicted Values
 			for (int i = 0; i < 24; i++) {
-				log.info("Production[" + i + "] " + " - " + this.productionValues[i] + " Consumption[" + i + "] "
-						+ " - " + this.consumptionValues[i]);
+				log.info("Production[" + i + "] " + " - " + productionValues[i] + " Consumption[" + i + "] " + " - "
+						+ consumptionValues[i]);
 			}
 
-			// Print the boundary Hours
-			log.info("ProLessThanCon: " + this.proLessThanCon + " ProMoreThanCon " + this.proMoreThanCon);
+			// calculates the boundary hours, within which the controller needs to work
+			this.calculateBoundaryHours(productionValues, consumptionValues, startHour);
 
-			// Print the Cheap Hours calculated.
-			this.cheapHours.forEach(value -> System.out.println(value));
-			this.debugMode = false;
+			this.isAllowedToCalculateHours = true;
+			this.isPredictionValuesTaken = true;
+
+		}
+
+		if (now.getHour() == 16 && this.isPredictionValuesTaken) {
+			this.isPredictionValuesTaken = false;
+		}
+
+		if (this.proLessThanCon != null) {
+			if (ZonedDateTime.now().getHour() == this.proLessThanCon.getHour() && this.isAllowedToCalculateHours) { // ***
+				int nettCapacity = ess.getCapacity().getOrError();
+
+				int availableCapacity = (nettCapacity * ess.getSoc().getOrError()) / 100;
+
+				log.info("availableCapacity = " + availableCapacity);
+
+				// Structuring the data in TreeMap format for easy calculations later
+				TreeMap<ZonedDateTime, Integer> hourlyProduction = new TreeMap<ZonedDateTime, Integer>();
+				TreeMap<ZonedDateTime, Integer> hourlyConsumption = new TreeMap<ZonedDateTime, Integer>();
+
+				for (int i = 0; i < 24; i++) {
+					if (this.consumptionValues[i] != null && this.productionValues[i] != null) {
+						hourlyProduction.put(this.startHour.plusHours(i), this.productionValues[i]);
+						hourlyConsumption.put(this.startHour.plusHours(i), this.consumptionValues[i]);
+					}
+				}
+
+				if (hourlyProduction.isEmpty() || hourlyConsumption.isEmpty()) {
+					return;
+				}
+
+				Integer requiredEnergy = this.calculateRequiredEnergy(availableCapacity, hourlyProduction,
+						hourlyConsumption);
+
+				log.info("requiredEnergy: " + requiredEnergy);
+
+				if (requiredEnergy != null) {
+
+					TreeMap<ZonedDateTime, Float> bciList = this.bci.houlryPrices(config.url());
+
+					if (bciList != null) {
+
+						// Printing Bci List
+						for (Map.Entry<ZonedDateTime, Float> Entry : bciList.entrySet()) {
+							log.info("Time: " + Entry.getKey() + " bci: " + Entry.getValue());
+						}
+
+						// list of hours, during which battery should be avoided.
+						this.calculateTargetHours(requiredEnergy, hourlyConsumption, bciList);
+
+						// Print the Cheap Hours calculated.
+						this.cheapHours.forEach(value -> System.out.println(value));
+
+					}
+				}
+
+				this.isAllowedToCalculateHours = false;
+
+			}
 		}
 
 		// Avoiding Discharging during cheapest hours
@@ -192,7 +210,7 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 			for (ZonedDateTime entry : cheapHours) {
 				if (now.getHour() == entry.getHour()) {
 					// set result
-					ess.addPowerConstraintAndValidate("SymmetricActivePower", Phase.ALL, Pwr.ACTIVE,
+					ess.addPowerConstraintAndValidate("DynamicBatteryControl", Phase.ALL, Pwr.ACTIVE,
 							Relationship.EQUALS, 0);
 				}
 			}
@@ -204,20 +222,22 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 			TreeMap<ZonedDateTime, Integer> hourlyConsumption) {
 
 		int consumptionTotal = 0;
-		int requiredEnergy = 0;
+		Integer requiredEnergy = null;
 
-		for (Entry<ZonedDateTime, Integer> entry : hourlyConsumption.subMap(proLessThanCon, proMoreThanCon)
-				.entrySet()) {
-			consumptionTotal += entry.getValue() - hourlyProduction.get(entry.getKey());
+		if (hourlyConsumption.containsKey(proLessThanCon) && hourlyConsumption.containsKey(proMoreThanCon)) {
+			for (Entry<ZonedDateTime, Integer> entry : hourlyConsumption.subMap(proLessThanCon, proMoreThanCon)
+					.entrySet()) {
+				consumptionTotal += entry.getValue() - hourlyProduction.get(entry.getKey());
+			}
+
+			// remaining amount of energy that should be covered from grid.
+			requiredEnergy = consumptionTotal - availableCapacity;
 		}
-
-		// remaining amount of energy that should be covered from grid.
-		requiredEnergy = consumptionTotal - availableCapacity;
 
 		return requiredEnergy;
 	}
 
-	// list of hours, during which battery is avoided.
+	// list of hours, during which battery should be avoided.
 	private void calculateTargetHours(Integer requiredEnergy, TreeMap<ZonedDateTime, Integer> hourlyConsumption,
 			TreeMap<ZonedDateTime, Float> bciList) {
 		Float minPrice = Float.MAX_VALUE;
@@ -256,39 +276,41 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 		}
 	}
 
-	private void calculateBoundaryHours(TreeMap<ZonedDateTime, Integer> hourlyProduction,
-			TreeMap<ZonedDateTime, Integer> hourlyConsumption) {
+	private void calculateBoundaryHours(Integer[] productionValues, Integer[] consumptionValues,
+			ZonedDateTime startHour) {
 
-		for (ZonedDateTime key : hourlyConsumption.keySet()) {
-			Integer production = hourlyProduction.get(key);
-			Integer consumption = hourlyConsumption.get(key);
+		for (int i = 0; i < 24; i++) {
+			Integer production = productionValues[i];
+			Integer consumption = consumptionValues[i];
 
 			if (production != null && consumption != null) {
 				// last hour of the day when production was greater than consumption
 				if ((production > consumption) //
-						&& (key.getDayOfYear() == ZonedDateTime.now().getDayOfYear())) {
-					this.proLessThanCon = key;
+						&& (startHour.plusHours(i).getDayOfYear() == ZonedDateTime.now().getDayOfYear())) {
+					this.proLessThanCon = startHour.plusHours(i);
 				}
 
 				// First hour of the day when production was greater than consumption
 				if ((production > consumption) //
-						&& (key.getDayOfYear() == ZonedDateTime.now().plusDays(1).getDayOfYear())
-						&& (this.proMoreThanCon == null)) {
-					this.proMoreThanCon = key;
+						&& (startHour.plusHours(i).getDayOfYear() == ZonedDateTime.now().plusDays(1).getDayOfYear()) //
+						&& (this.proMoreThanCon == null) //
+						&& (startHour.plusHours(i).getHour() <= 10)) {
+					this.proMoreThanCon = startHour.plusHours(i);
 				}
 			}
 		}
 
 		// if there is no enough production available.
 		if (this.proLessThanCon == null) {
-			ZonedDateTime now = ZonedDateTime.now();
-			this.proLessThanCon = now.withHour(0).withMinute(0).withSecond(0).withNano(0)
+			this.proLessThanCon = ZonedDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0)
 					.plusHours(config.maxEndHour());
 		}
 		if (this.proMoreThanCon == null) {
-			ZonedDateTime now = ZonedDateTime.now();
-			this.proMoreThanCon = now.withHour(0).withMinute(0).withSecond(0).withNano(0)
+			this.proMoreThanCon = ZonedDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0)
 					.plusHours(config.maxStratHour()).plusDays(1);
 		}
+
+		// Print the boundary Hours
+		log.info("ProLessThanCon: " + this.proLessThanCon + " ProMoreThanCon " + this.proMoreThanCon);
 	}
 }

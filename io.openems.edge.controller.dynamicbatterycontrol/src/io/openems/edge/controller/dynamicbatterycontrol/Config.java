@@ -26,15 +26,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "url", description = "URL to connect API", type = AttributeType.STRING)
 	String url() default "https://portal.blogpv.net/api/bci/signal";
-	
+
 	@AttributeDefinition(name = "Start-Hour", description = "Fallback start hour if no pv.")
 	int maxStratHour() default 9;
 
 	@AttributeDefinition(name = "End-Hour", description = "fallback end hour if no pv.")
 	int maxEndHour() default 17;
-	
-	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode (Displays the Predicted Energy Values in the Log")
-	boolean debugMode() default false;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Dynamic Battery-Control [{id}]";
 

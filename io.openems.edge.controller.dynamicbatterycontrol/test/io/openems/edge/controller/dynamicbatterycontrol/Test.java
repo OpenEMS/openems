@@ -11,6 +11,8 @@ public class Test {
 
 	private static TreeMap<ZonedDateTime, Integer> Consumption = new TreeMap<ZonedDateTime, Integer>();
 	private static TreeMap<ZonedDateTime, Integer> production = new TreeMap<ZonedDateTime, Integer>();
+	private static Integer[] productionValues = new Integer[24];
+	private static Integer[] consumptionValues = new Integer[24];
 	private static TreeMap<ZonedDateTime, Float> bci = new TreeMap<ZonedDateTime, Float>();
 	private static List<ZonedDateTime> cheapHours = new ArrayList<ZonedDateTime>();
 //	private static Integer remainingCapacity = 0;
@@ -58,15 +60,24 @@ public class Test {
 		// generating Dummy Consumption for 24 hours
 		for (int i = 0; i < 24; i++) {
 			Consumption.put(now.plusHours(i), (200 + (100 * i)));
+			consumptionValues[i] = 200 + (100 * i);
 		}
 
 		// generating Dummy Production for 24 hours
 		for (int i = 0; i < 24; i++) {
 			if (now.plusHours(i).getHour() > 8 && now.plusHours(i).getHour() < 17) {
 				production.put(now.plusHours(i), (250 + (200 * i)));
+				productionValues[i] = 250 + (200 * i);
 			} else {
 				production.put(now.plusHours(i), 0);
+				productionValues[i] = 0;
 			}
+		}
+
+		// Print the Values
+		for (int i = 0; i < 24; i++) {
+			System.out.println("Production[" + i + "] " + " - " + productionValues[i] + " Consumption[" + i + "] "
+					+ " - " + consumptionValues[i]);
 		}
 
 		// printing Consumption
@@ -88,11 +99,9 @@ public class Test {
 			System.out.println("Time: " + Entry.getKey() + " bci: " + Entry.getValue());
 		}
 
-//		remainingCapacity = 12000;
-
 		System.out.println("=========================================================================");
 		ZonedDateTime startHour = now.withMinute(0).withSecond(0).withNano(0);
-		calculateBoundaryHours(production, Consumption);
+		calculateBoundaryHours(production, Consumption, startHour);
 
 		// Print the boundary Hours
 		System.out.println("ProLessThanCon: " + proLessThanCon + " ProMoreThanCon " + proMoreThanCon);
@@ -172,24 +181,24 @@ public class Test {
 	}
 
 	private static void calculateBoundaryHours(TreeMap<ZonedDateTime, Integer> hourlyProduction,
-			TreeMap<ZonedDateTime, Integer> hourlyConsumption) {
+			TreeMap<ZonedDateTime, Integer> hourlyConsumption, ZonedDateTime startHour) {
 
-		for (ZonedDateTime key : hourlyConsumption.keySet()) {
-			Integer production = hourlyProduction.get(key);
-			Integer consumption = hourlyConsumption.get(key);
+		for (int i = 0; i < 24; i++) {
+			Integer production = productionValues[i];
+			Integer consumption = consumptionValues[i];
 
 			if (production != null && consumption != null) {
 				// last hour of the day when production was greater than consumption
 				if ((production > consumption) //
-						&& (key.getDayOfYear() == ZonedDateTime.now().getDayOfYear())) {
-					proLessThanCon = key;
+						&& (startHour.plusHours(i).getDayOfYear() == ZonedDateTime.now().getDayOfYear())) {
+					proLessThanCon = startHour.plusHours(i);
 				}
 
 				// First hour of the day when production was greater than consumption
 				if ((production > consumption) //
-						&& (key.getDayOfYear() == ZonedDateTime.now().plusDays(1).getDayOfYear())
+						&& (startHour.plusHours(i).getDayOfYear() == ZonedDateTime.now().plusDays(1).getDayOfYear())
 						&& (proMoreThanCon == null)) {
-					proMoreThanCon = key;
+					proMoreThanCon = startHour.plusHours(i);
 				}
 			}
 		}
