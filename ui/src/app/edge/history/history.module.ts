@@ -30,7 +30,7 @@ import { HeatingelementChartComponent } from './heatingelement/chart.component';
 import { HeatingelementChartOverviewComponent } from './heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
 import { HeatingelementWidgetComponent } from './heatingelement/widget.component';
 import { HeatPumptChartComponent } from './heatpump/chart.component';
-import { HeatPumptChartOverviewComponent } from './heatpump/autarchychartoverview/heatpumpchartoverview.component';
+import { HeatPumptChartOverviewComponent } from './heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
 import { HeatpumptWidgetComponent } from './heatpump/widget.component';
 import { HistoryComponent } from './history.component';
 import { NgModule } from '@angular/core';

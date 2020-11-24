@@ -1,9 +1,8 @@
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Service, Utils } from '../../../shared/shared';
+import { ChannelAddress, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
@@ -15,6 +14,7 @@ import { TranslateService } from '@ngx-translate/core';
 export class HeatPumptChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
     @Input() private period: DefaultTypes.HistoryPeriod;
+    @Input() public component: EdgeConfig.Component;
 
     ngOnChanges() {
         this.updateChart();
@@ -30,7 +30,7 @@ export class HeatPumptChartComponent extends AbstractHistoryChart implements OnI
 
 
     ngOnInit() {
-        this.spinnerId = "autarchy-chart";
+        this.spinnerId = "heatpump-chart";
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
     }
@@ -56,58 +56,26 @@ export class HeatPumptChartComponent extends AbstractHistoryChart implements OnI
             // convert datasets
             let datasets = [];
 
-            // required data for autarchy
-            let buyFromGridData: number[] = [];
-            let consumptionData: number[] = [];
+            if (this.component.id + '/Status' in result.data) {
 
-            if ('_sum/ConsumptionActivePower' in result.data) {
-                /*
-                 * Consumption
-                 */
-                consumptionData = result.data['_sum/ConsumptionActivePower'].map(value => {
+                let stateTimeData = result.data[this.component.id + '/Status'].map(value => {
                     if (value == null) {
                         return null
                     } else {
-                        return value;
-                    }
-                });
-            }
-
-            if ('_sum/GridActivePower' in result.data) {
-                /*
-                 * Buy From Grid
-                 */
-                buyFromGridData = result.data['_sum/GridActivePower'].map(value => {
-                    if (value == null) {
-                        return null
-                    } else if (value > 0) {
-                        return value;
-                    } else {
-                        return 0;
+                        return value
                     }
                 })
-            };
 
-            /*
-            * Autarchy
-            */
-            let autarchy = consumptionData.map((value, index) => {
-                if (value == null) {
-                    return null
-                } else {
-                    return CurrentData.calculateAutarchy(buyFromGridData[index], value);
-                }
-            })
-
-            datasets.push({
-                label: this.translate.instant('General.autarchy'),
-                data: autarchy,
-                hidden: false
-            })
-            this.colors.push({
-                backgroundColor: 'rgba(0,152,204,0.05)',
-                borderColor: 'rgba(0,152,204,1)'
-            })
+                datasets.push({
+                    label: this.translate.instant('General.state'),
+                    data: stateTimeData,
+                    hidden: false
+                })
+                this.colors.push({
+                    backgroundColor: 'rgba(200,0,0,0.05)',
+                    borderColor: 'rgba(200,0,0,1)',
+                })
+            }
             this.datasets = datasets;
             this.loading = false;
             this.service.stopSpinner(this.spinnerId);
@@ -120,23 +88,58 @@ export class HeatPumptChartComponent extends AbstractHistoryChart implements OnI
 
     protected getChannelAddresses(): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'GridActivePower'),
-                new ChannelAddress('_sum', 'ConsumptionActivePower')
-            ];
-            resolve(result);
+            resolve([new ChannelAddress(this.component.id, 'Status')]);
         })
     }
 
     protected setLabel() {
         let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-        options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
+        let translate = this.translate;
+        options.scales.yAxes[0].id = 'yAxis1'
+        options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.state');
+        options.scales.yAxes[0].ticks.callback = function (label, index, labels) {
+            switch (label) {
+                case -1:
+                    return translate.instant('Edge.Index.Widgets.HeatPump.undefined');
+                case 0:
+                    return translate.instant('Edge.Index.Widgets.HeatPump.lock');
+                case 1:
+                    return translate.instant('Edge.Index.Widgets.HeatPump.normalOperation');
+                case 2:
+                    return translate.instant('Edge.Index.Widgets.HeatPump.switchOnRec');
+                case 3:
+                    return translate.instant('Edge.Index.Widgets.HeatPump.switchOnCom');
+            }
+        }
+        options.scales.yAxes[0].ticks.max = 3;
+        options.scales.yAxes[0].ticks.stepSize = 1;
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
-            return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
+            let toolTipValue;
+            switch (value) {
+                case -1:
+                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.undefined');
+                    break;
+                case 0:
+                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.lock');
+                    break;
+
+                case 1:
+                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.normalOperation');
+                    break;
+                case 2:
+                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.switchOnRec');
+                    break;
+                case 3:
+                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.switchOnCom');
+                    break;
+                default:
+                    toolTipValue = '';
+                    break;
+            }
+            return label + ": " + toolTipValue; // TODO get locale dynamically
         }
-        options.scales.yAxes[0].ticks.max = 100;
         this.options = options;
     }
 

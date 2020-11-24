@@ -7,40 +7,28 @@
         <ng-container *ngIf="edge.currentData | async as currentData">
             <ion-card-content>
                 <table class="full_width">
-                    <tr *ngIf="activeTimeOverPeriodForceOn != null">
+                    <tr *ngIf="activeTimeOverPeriodRegular != null && activeTimeOverPeriodRegular > 59">
                         <td style="width:65%">Einschaltdauer Normal</td>
-                        <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodForceOn / 60 > 59">
-                            {{ activeTimeOverPeriodForceOn * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+                        <td style="width:35%" class="align_right">
+                            {{ activeTimeOverPeriodRegular | sectohour }}
                         </td>
-                        <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodForceOn / 60 < 59">
-                            {{ activeTimeOverPeriodForceOn * 1000 | date:'m':'UTC' }}&nbsp;m
-                        </td>
-                    <tr>
-                    <tr *ngIf="activeTimeOverPeriodForceOn != null">
+                    </tr>
+                    <tr *ngIf="activeTimeOverPeriodRecommendation != null && activeTimeOverPeriodRecommendation > 59">
                         <td style="width:65%">Einschaltdauer Einschaltempfehlung</td>
-                        <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodRegular / 60 > 59">
-                            {{ activeTimeOverPeriodRegular * 1000 | date:'H:mm':'UTC'}}&nbsp;h
-                        </td>
-                        <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodRegular / 60 <= 59">
-                            {{ activeTimeOverPeriodRegular / 60 | date: 'm' }}&nbsp;m
+                        <td style="width:35%" class="align_right">
+                            {{ activeTimeOverPeriodRecommendation | sectohour }}
                         </td>
                     <tr>
-                    <tr *ngIf="activeTimeOverPeriodForceOn != null">
+                    <tr *ngIf="activeTimeOverPeriodForceOn != null && activeTimeOverPeriodForceOn > 59">
                         <td style="width:65%">Einschaltdauer Einschaltbefehl</td>
-                        <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodRecommendation / 60 > 59">
-                            {{ activeTimeOverPeriodRecommendation * 1000 | date:'H:mm':'UTC' }}&nbsp;h
-                        </td>
-                        <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodForceOn / 60 < 59">
-                            {{ activeTimeOverPeriodRecommendation * 1000 | date:'m':'UTC' }}&nbsp;m
+                        <td style="width:35%" class="align_right">
+                            {{ activeTimeOverPeriodForceOn | sectohour }}
                         </td>
                     <tr>
-                    <tr *ngIf="activeTimeOverPeriodForceOn != null">
+                    <tr *ngIf="activeTimeOverPeriodLock != null && activeTimeOverPeriodLock > 59">
                         <td style="width:65%">Einschaltdauer Sperre</td>
-                        <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLock / 60 > 59">
-                            {{ activeTimeOverPeriodLock * 1000 | date:'H:mm':'UTC' }}&nbsp;h
-                        </td>
-                        <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLock / 60 < 59">
-                            {{ activeTimeOverPeriodLock * 1000 | date:'m':'UTC' }}&nbsp;m
+                        <td style="width:35%" class="align_right">
+                            {{ activeTimeOverPeriodLock | sectohour }}
                         </td>
                     <tr>
                 </table>

@@ -1,7 +1,7 @@
 import { ActivatedRoute } from '@angular/router';
 import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { Service, Edge } from '../../../../shared/shared';
+import { Service, Edge, EdgeConfig } from '../../../../shared/shared';
 
 @Component({
     selector: HeatPumptChartOverviewComponent.SELECTOR,
@@ -12,6 +12,7 @@ export class HeatPumptChartOverviewComponent {
     private static readonly SELECTOR = "heatpumpt-chart-overview";
 
     public edge: Edge = null;
+    public component: EdgeConfig.Component = null;
 
     constructor(
         public service: Service,
@@ -21,7 +22,13 @@ export class HeatPumptChartOverviewComponent {
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
-            this.edge = edge;
-        });
+            this.service.getConfig().then(config => {
+                this.component = config.getComponent(this.route.snapshot.params.componentId);
+                this.service.getConfig().then(config => {
+                    this.edge = edge;
+                    this.component = config.getComponent(this.route.snapshot.params.componentId);
+                })
+            })
+        })
     }
 }

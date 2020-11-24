@@ -28,7 +28,7 @@ import { StorageChartOverviewComponent } from './edge/history/storage/storagecha
 import { SymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component';
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
-import { HeatPumptChartOverviewComponent } from './edge/history/heatpump/autarchychartoverview/heatpumpchartoverview.component';
+import { HeatPumptChartOverviewComponent } from './edge/history/heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
 
 
 const routes: Routes = [

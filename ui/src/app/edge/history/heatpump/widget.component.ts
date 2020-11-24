@@ -1,6 +1,5 @@
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 import { ActivatedRoute } from '@angular/router';
-import { calculateActiveTimeOverPeriod } from '../shared';
 import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
