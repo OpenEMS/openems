@@ -59,9 +59,14 @@
                         </tr>
                         <tr>
                             <td style="width: 50%">Energy Provider Limit:</td>
-                            <td style="width: 50%" class="align_right">
-                                {{ currentData[component.id + '/EpLimit'] }} %
-                            </td>
+                            <ng-container [ngSwitch]="currentData[component.id + '/EpLimit']">
+                                <td style="width: 50%" class="align_right" *ngSwitchCase="-1">
+                                    -
+                                </td>
+                                <td style="width: 50%" class="align_right" *ngSwitchDefault>
+                                    {{ currentData[component.id + '/EpLimit'] }} %
+                                </td>
+                            </ng-container>
                         </tr>
                         <ng-container *ngIf="currentData[component.id + '/HasError'] === 1">
 
