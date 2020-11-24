@@ -1,5 +1,0 @@
-= Symmetric Reactive-Power Voltage-Characteristics
-
-Controls a symmetric energy storage system using a Q-by-U reference function.
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic[Source Code icon:github[]]

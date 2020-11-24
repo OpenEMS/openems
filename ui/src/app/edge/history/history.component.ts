@@ -42,7 +42,7 @@ export class HistoryComponent implements OnInit {
       this.edge = edge;
     });
     this.service.getConfig().then(config => {
-      // gather ControllerIds of Channeltreshold Components
+      // gather ControllerIds of Channelthreshold Components
       // for (let controllerId of
       //   config.getComponentIdsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
       //     .concat(config.getComponentIdsByFactory("Controller.ChannelThreshold"))) {
