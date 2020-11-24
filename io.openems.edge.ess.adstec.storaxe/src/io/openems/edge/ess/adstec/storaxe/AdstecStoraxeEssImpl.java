@@ -18,9 +18,10 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
-import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -69,19 +70,20 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+		final int offset = -1; // The Modbus library seems to use 0 offsets.
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(1, Priority.LOW, //
-						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(1), GRID_MODE_CONVERTER),
-						m(SymmetricEss.ChannelId.ACTIVE_POWER, new UnsignedWordElement(2), ElementToChannelConverter.SCALE_FACTOR_2),
-						m(SymmetricEss.ChannelId.REACTIVE_POWER, new UnsignedWordElement(3), ElementToChannelConverter.SCALE_FACTOR_2)),
-				new FC3ReadRegistersTask(125, Priority.LOW, //
-						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(125), ElementToChannelConverter.SCALE_FACTOR_2),
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(126), ElementToChannelConverter.DIRECT_1_TO_1)),
-				new FC3ReadRegistersTask(134, Priority.LOW, //
-						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, new UnsignedDoublewordElement(134), ElementToChannelConverter.SCALE_FACTOR_3),
-						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(136), ElementToChannelConverter.SCALE_FACTOR_3),
-						m(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(138), ElementToChannelConverter.DIRECT_1_TO_1),
-						m(SymmetricEss.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(139), ElementToChannelConverter.DIRECT_1_TO_1)
+				new FC4ReadInputRegistersTask(1+offset, Priority.LOW, //
+						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(1+offset), GRID_MODE_CONVERTER),
+						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(2+offset), ElementToChannelConverter.SCALE_FACTOR_2),
+						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(3+offset), ElementToChannelConverter.SCALE_FACTOR_2)),
+				new FC4ReadInputRegistersTask(125+offset, Priority.LOW, //
+						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(125+offset), ElementToChannelConverter.SCALE_FACTOR_2),
+						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(126+offset), ElementToChannelConverter.DIRECT_1_TO_1)),
+				new FC4ReadInputRegistersTask(134+offset, Priority.LOW, //
+						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, new UnsignedDoublewordElement(134+offset), ElementToChannelConverter.SCALE_FACTOR_3),
+						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(136+offset), ElementToChannelConverter.SCALE_FACTOR_3),
+						m(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(138+offset), ElementToChannelConverter.DIRECT_1_TO_1),
+						m(SymmetricEss.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(139+offset), ElementToChannelConverter.DIRECT_1_TO_1)
 				) //
 		);
 	}
