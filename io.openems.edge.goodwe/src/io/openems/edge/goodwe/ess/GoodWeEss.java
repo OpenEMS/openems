@@ -26,10 +26,6 @@ import io.openems.edge.goodwe.ess.enums.WorkMode;
 
 public interface GoodWeEss extends SymmetricEss, OpenemsComponent {
 
-	public Integer getUnitId();
-
-	public String getModbusBridgeId();
-
 	public void addCharger(AbstractGoodWeEtCharger charger);
 
 	public void removeCharger(AbstractGoodWeEtCharger charger);
