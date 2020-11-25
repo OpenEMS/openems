@@ -25,6 +25,7 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
+import io.openems.common.utils.ConfigUtils;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -220,48 +221,24 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 	private void migrateConfigurationOnVersion_2020_23_4(List<Config> existingConfigs,
 			AtomicBoolean configurationFailed) {
 		/*
-		 * Upgrade GoodWe configuration.
+		 * Fix GoodWe configuration upgrade for Chargers
 		 */
 		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
-		"GoodWe.ET.Charger-PV1".equals(c.factoryPid) //
-		)).forEach(c -> {
-			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
-			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
+		("GoodWe.Charger-PV1".equals(c.factoryPid) || "GoodWe.Charger-PV2".equals(c.factoryPid)) //
+				&& DictionaryUtils.getAsOptionalString(c.properties, "ess.target").orElse("").isEmpty()) //
+		).forEach(c -> {
+			String servicePid = DictionaryUtils.getAsString(c.properties, "service.pid");
 			String essId = DictionaryUtils.getAsString(c.properties, "ess.id");
-			int modbusUnitId = DictionaryUtils.getAsOptionalInteger(c.properties, "unit.id").orElse(0xF7);
-			String modbusId = DictionaryUtils.getAsString(c.properties, "modbus.id");
+			String essTarget = ConfigUtils.generateReferenceTargetFilter(servicePid, essId);
 
-			this.deleteConfiguration(configurationFailed, c.componentId.get());
-
-			this.createConfiguration(configurationFailed, "GoodWe.Charger-PV1", Arrays.asList(//
-					new Property("id", c.componentId.get()), //
-					new Property("alias", alias), //
-					new Property("enabled", enabled), //
-					new Property("ess.id", essId), //
-					new Property("modbus.id", modbusId), //
-					new Property("modbusUnitId", modbusUnitId) //
+			this.updateConfiguration(configurationFailed, c.componentId.get(), Arrays.asList(//
+					new Property("ess.target", essTarget) //
 			));
 		});
-		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
-		"GoodWe.ET.Charger-PV2".equals(c.factoryPid) //
-		)).forEach(c -> {
-			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
-			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
-			String essId = DictionaryUtils.getAsString(c.properties, "ess.id");
-			int modbusUnitId = DictionaryUtils.getAsOptionalInteger(c.properties, "unit.id").orElse(0xF7);
-			String modbusId = DictionaryUtils.getAsString(c.properties, "modbus.id");
 
-			this.deleteConfiguration(configurationFailed, c.componentId.get());
-
-			this.createConfiguration(configurationFailed, "GoodWe.Charger-PV2", Arrays.asList(//
-					new Property("id", c.componentId.get()), //
-					new Property("alias", alias), //
-					new Property("enabled", enabled), //
-					new Property("ess.id", essId), //
-					new Property("modbus.id", modbusId), //
-					new Property("modbusUnitId", modbusUnitId) //
-			));
-		});
+		/*
+		 * Upgrade GoodWe configuration.
+		 */
 		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
 		"GoodWe.ET.Grid-Meter".equals(c.factoryPid) //
 		)).forEach(c -> {
@@ -302,6 +279,52 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 					new Property("modbusUnitId", modbusUnitId), //
 					new Property("capacity", capacity), //
 					new Property("maxBatteryPower", maxBatteryPower) //
+			));
+		});
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
+		"GoodWe.ET.Charger-PV1".equals(c.factoryPid) //
+		)).forEach(c -> {
+			String servicePid = DictionaryUtils.getAsString(c.properties, "service.pid");
+			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
+			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
+			String essId = DictionaryUtils.getAsString(c.properties, "ess.id");
+			String essTarget = ConfigUtils.generateReferenceTargetFilter(servicePid, essId);
+			int modbusUnitId = DictionaryUtils.getAsOptionalInteger(c.properties, "unit.id").orElse(0xF7);
+			String modbusId = DictionaryUtils.getAsString(c.properties, "modbus.id");
+
+			this.deleteConfiguration(configurationFailed, c.componentId.get());
+
+			this.createConfiguration(configurationFailed, "GoodWe.Charger-PV1", Arrays.asList(//
+					new Property("id", c.componentId.get()), //
+					new Property("alias", alias), //
+					new Property("enabled", enabled), //
+					new Property("ess.id", essId), //
+					new Property("ess.target", essTarget), //
+					new Property("modbus.id", modbusId), //
+					new Property("modbusUnitId", modbusUnitId) //
+			));
+		});
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
+		"GoodWe.ET.Charger-PV2".equals(c.factoryPid) //
+		)).forEach(c -> {
+			String servicePid = DictionaryUtils.getAsString(c.properties, "service.pid");
+			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
+			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
+			String essId = DictionaryUtils.getAsString(c.properties, "ess.id");
+			String essTarget = ConfigUtils.generateReferenceTargetFilter(servicePid, essId);
+			int modbusUnitId = DictionaryUtils.getAsOptionalInteger(c.properties, "unit.id").orElse(0xF7);
+			String modbusId = DictionaryUtils.getAsString(c.properties, "modbus.id");
+
+			this.deleteConfiguration(configurationFailed, c.componentId.get());
+
+			this.createConfiguration(configurationFailed, "GoodWe.Charger-PV2", Arrays.asList(//
+					new Property("id", c.componentId.get()), //
+					new Property("alias", alias), //
+					new Property("enabled", enabled), //
+					new Property("ess.id", essId), //
+					new Property("ess.target", essTarget), //
+					new Property("modbus.id", modbusId), //
+					new Property("modbusUnitId", modbusUnitId) //
 			));
 		});
 	}
