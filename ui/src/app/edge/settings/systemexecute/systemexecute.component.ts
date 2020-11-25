@@ -45,7 +45,6 @@ export class SystemExecuteComponent implements OnInit {
     templateOptions: {
       options: [
         { value: 'openems-restart', label: 'Restart OpenEMS Edge service' },
-        { value: 'install-latest-debian-package', label: 'Install latest Debian package' },
         { value: 'pagekite-log', label: 'Show Pagekite log' },
         { value: 'pagekite-restart', label: 'Restart Pagekite' }
       ]
@@ -90,9 +89,6 @@ export class SystemExecuteComponent implements OnInit {
           break;
         case "openems-restart":
           command = "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; echo 'systemctl restart openems' | at now";
-          break;
-        case "install-latest-debian-package":
-          command = "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; echo 'wget http://fenecon.de/debian-test/openems_core-latest.deb -O /tmp/openems_core-latest.deb && DEBIAN_FRONTEND=noninteractive nohup dpkg -i /tmp/openems_core-latest.deb' | at now";
           break;
         case "pagekite-log":
           command = "journalctl -lu fems-pagekite --since=\"2 minutes ago\"";

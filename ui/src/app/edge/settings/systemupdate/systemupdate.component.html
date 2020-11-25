@@ -1,0 +1,115 @@
+<header></header>
+<ion-content>
+  <ion-grid *ngIf="edge">
+    <!--
+      Is FEMS online?
+    -->
+    <ion-row *ngIf="!edge.isOnline">
+      <ion-col size="12">
+        <ion-card>
+          <ion-item lines="full" color="danger">
+            <ion-icon slot="start" name="alert-circle-outline" color="primary"></ion-icon>
+            <ion-label>FEMS ist nicht online!</ion-label>
+          </ion-item>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <!--
+      Is dpkg running?
+    -->
+    <ion-row *ngIf="isDpkgRunning">
+      <ion-col size="12">
+        <ion-card>
+          <ion-item lines="full" color="secondary">
+            <ion-icon slot="start" name="chatbubble-ellipses-outline" color="primary"></ion-icon>
+            <ion-label>Derzeit wird ein Paket installiert</ion-label>
+          </ion-item>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <!--
+      Show packages and versions    
+    -->
+    <ion-row>
+      <ion-col size="12">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" name="cloud-download-outline" color="primary"></ion-icon>
+            <ion-label>FEMS Systemupdate</ion-label>
+          </ion-item>
+
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col></ion-col>
+                <ion-col>Installierte Version</ion-col>
+                <ion-col>Neueste Version</ion-col>
+                <ion-col></ion-col>
+              </ion-row>
+              <ion-row *ngFor="let pkg of packages">
+                <ion-col>
+                  {{ pkg.description }}
+                </ion-col>
+                <ion-col>{{ pkg.currentVersion }}</ion-col>
+                <ion-col>{{ pkg.latestVersion }}</ion-col>
+                <ion-col>
+                  <ion-button [disabled]="isDpkgRunning" *ngIf="pkg.isUpdateAvailable == true"
+                    (click)="updatePackage(pkg)">Neueste Version
+                    installieren
+                  </ion-button>
+                  <p *ngIf="pkg.isUpdateAvailable == false">
+                    <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+                    Version ist aktuell
+                  </p>
+                  <p *ngIf="pkg.isUpdateAvailable == null">
+                    <ion-icon name="refresh-circle-outline"></ion-icon>
+                    Version wird gelesen...
+                  </p>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <!--
+      Show relevant system logs
+    -->
+    <ion-row>
+      <ion-col size="12">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
+            <ion-label>Systemnachrichten</ion-label>
+          </ion-item>
+
+          <ion-card-content>
+            <ion-grid *ngFor="let line of logLines" class="ion-no-padding">
+              <ion-row style="font-family: monospace; font-size: small" style.color="black">
+                <ion-col size-sm="2" size="6">
+                  {{ line.time }}
+                </ion-col>
+                <ion-col size-sm="1" size="6">
+                  {{ line.level }}
+                </ion-col>
+                <ion-col size-sm="auto" size="12">
+                  {{ line.source }}
+                </ion-col>
+              </ion-row>
+              <ion-row style="font-family: monospace" [style.color]="line.color">
+                <ion-col size="12">
+                  {{ line.message }}
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
