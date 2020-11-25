@@ -170,6 +170,10 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 	protected void createConfiguration(AtomicBoolean defaultConfigurationFailed, String factoryPid,
 			List<Property> properties) {
 		try {
+			this.parent.logInfo(this.log,
+					"Creating Component configuration [" + factoryPid + "]: " + properties.stream() //
+							.map(p -> p.getName() + ":" + p.getValue().toString()) //
+							.collect(Collectors.joining(", ")));
 			CompletableFuture<JsonrpcResponseSuccess> response = this.parent.handleCreateComponentConfigRequest(
 					null /* no user */, new CreateComponentConfigRequest(factoryPid, properties));
 			response.get(60, TimeUnit.SECONDS);
@@ -193,6 +197,11 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 	protected void updateConfiguration(AtomicBoolean defaultConfigurationFailed, String componentId,
 			List<Property> properties) {
 		try {
+			this.parent.logInfo(this.log,
+					"Updating Component configuration [" + componentId + "]: " + properties.stream() //
+							.map(p -> p.getName() + ":" + p.getValue().toString()) //
+							.collect(Collectors.joining(", ")));
+
 			CompletableFuture<JsonrpcResponseSuccess> response = this.parent.handleUpdateComponentConfigRequest(
 					null /* no user */, new UpdateComponentConfigRequest(componentId, properties));
 			response.get(60, TimeUnit.SECONDS);
@@ -214,6 +223,8 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 	 */
 	protected void deleteConfiguration(AtomicBoolean defaultConfigurationFailed, String componentId) {
 		try {
+			this.parent.logInfo(this.log, "Deleting Component [" + componentId + "]");
+
 			CompletableFuture<JsonrpcResponseSuccess> response = this.parent.handleDeleteComponentConfigRequest(
 					null /* no user */, new DeleteComponentConfigRequest(componentId));
 			response.get(60, TimeUnit.SECONDS);
