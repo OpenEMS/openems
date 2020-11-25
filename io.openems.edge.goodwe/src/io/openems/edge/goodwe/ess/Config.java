@@ -22,11 +22,11 @@ import io.openems.edge.goodwe.GoodWeConstants;
 	@AttributeDefinition(name = "Read-Only mode", description = "Enables Read-Only mode")
 	boolean readOnlyMode() default true;
 
-	@AttributeDefinition(name = "Modbus Unit-id", description = "Unit-id")
-	int unit_id() default GoodWeConstants.DEFAULT_UNIT_ID;
-
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
+
+	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
+	int modbusUnitId() default GoodWeConstants.DEFAULT_UNIT_ID;
 
 	@AttributeDefinition(name = "Capacity", description = "Capacity of the battery in [Wh]")
 	int capacity() default 9_000;
