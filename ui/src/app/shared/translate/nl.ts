@@ -124,6 +124,7 @@ export const TRANSLATION = {
                     currentValue: 'Huidige waarde',
                     dependendOn: 'Afhankelijk van',
                     minSwitchingTime: 'Minimum omschakeling',
+                    moreThanMaxPower: 'De waarde mag niet lager zijn dan het maximale vermogen van het gecontroleerde apparaat',
                     other: 'Anders',
                     relationError: 'Drempel moet groter zijn dan de geschakelde belasting',
                     switchedLoadPower: 'Geschakelde belasting',
@@ -224,6 +225,19 @@ export const TRANSLATION = {
                     minimalEnergyAmount: 'Minimale hoeveelheid energie',
                     minimumRunTime: 'Minimale looptijd',
                     timeCountdown: 'Tijd om te beginnen',
+                },
+                HeatPump: {
+                    aboveSoc: 'en over de staat van beschuldiging van',
+                    belowSoc: 'en onder staat van beschuldiging van',
+                    gridBuy: 'Vanaf netaankoop van',
+                    gridSell: 'Van overtollige toevoer van',
+                    lock: 'Slot',
+                    moreThanHpPower: 'De waarde mag niet lager zijn dan het maximale vermogen van de warmtepomp',
+                    normalOperation: 'Normale operatie',
+                    relationError: 'Overwaarde inschakelcommando moet groter zijn dan aanbevolen inschakelwaarde',
+                    switchOnCom: 'Inschakelcommando',
+                    switchOnRec: 'Inschakeladvies',
+                    undefined: 'Ongedefinieerd',
                 }
             }
         },

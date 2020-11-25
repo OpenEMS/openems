@@ -9,8 +9,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id = null;
 		public boolean readOnlyMode;
-		public int modbusUnitId;
 		public String modbusId;
+		public int modbusUnitId;
 		public int capacity;
 		public int maxBatteryPower;
 
