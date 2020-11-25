@@ -42,22 +42,20 @@ const routes: Routes = [
   { path: 'device/:edgeId/history', component: EdgeHistoryComponent },
 
   // History Chart Pages
-  { path: 'device/:edgeId/history/autarchychart', component: AutarchyChartOverviewComponent },
-  { path: 'device/:edgeId/history/selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
-  { path: 'device/:edgeId/history/consumptionchart', component: ConsumptionChartOverviewComponent },
-  { path: 'device/:edgeId/history/gridchart', component: GridChartOverviewComponent },
-  { path: 'device/:edgeId/history/productionchart', component: ProductionChartOverviewComponent },
-  { path: 'device/:edgeId/history/storagechart', component: StorageChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/asymmetricpeakshavingchart', component: AsymmetricPeakshavingChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/channelthresholdchart', component: ChannelthresholdChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/fixdigitaloutputchart', component: FixDigitalOutputChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/heatingelementchart', component: HeatingelementChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/singlethresholdchart', component: SinglethresholdChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/symmetricpeakshavingchart', component: SymmetricPeakshavingChartOverviewComponent },
+  { path: 'device/:edgeId/history/autarchychart', component: AutarchyChartOverviewComponent },
+  { path: 'device/:edgeId/history/consumptionchart', component: ConsumptionChartOverviewComponent },
+  { path: 'device/:edgeId/history/gridchart', component: GridChartOverviewComponent },
+  { path: 'device/:edgeId/history/productionchart', component: ProductionChartOverviewComponent },
+  { path: 'device/:edgeId/history/selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
+  { path: 'device/:edgeId/history/storagechart', component: StorageChartOverviewComponent },
 
   { path: 'device/:edgeId/settings', component: EdgeSettingsComponent },
-  { path: 'device/:edgeId/settings/systemlog', component: EdgeSettingsSystemLogComponent },
-  { path: 'device/:edgeId/settings/systemexecute', component: EdgeSettingsSystemExecuteComponent },
   { path: 'device/:edgeId/settings/channels', component: EdgeSettingsChannelsComponent },
   { path: 'device/:edgeId/settings/component.install', component: EdgeSettingsComponentInstallIndexComponentComponent },
   { path: 'device/:edgeId/settings/component.install/:factoryId', component: EdgeSettingsComponentInstallComponentComponent },
@@ -66,6 +64,8 @@ const routes: Routes = [
   { path: 'device/:edgeId/settings/network', component: EdgeSettingsNetworkComponent },
   { path: 'device/:edgeId/settings/profile', component: EdgeSettingsProfileComponent },
   { path: 'device/:edgeId/settings/profile/:componentId', component: AliasUpdateComponent },
+  { path: 'device/:edgeId/settings/systemexecute', component: EdgeSettingsSystemExecuteComponent },
+  { path: 'device/:edgeId/settings/systemlog', component: EdgeSettingsSystemLogComponent },
 ];
 
 export const appRoutingProviders: any[] = [

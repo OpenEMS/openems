@@ -130,6 +130,7 @@ export const TRANSLATION = {
                     currentValue: 'Aktuální hodnota',
                     dependendOn: 'Podle toho',
                     minSwitchingTime: 'Minimální přepínací',
+                    moreThanMaxPower: 'Hodnota nesmí být nižší než maximální výkon ovládaného zařízení',
                     other: 'Ostatní',
                     relationError: 'Prahová hodnota musí být větší než spínané zatížení',
                     switchedLoadPower: 'Spínané zatížení',
@@ -230,6 +231,19 @@ export const TRANSLATION = {
                     priority: 'Priorita',
                     time: 'čas',
                     timeCountdown: 'Čas začít',
+                },
+                HeatPump: {
+                    aboveSoc: 'a o stavu poplatku za',
+                    belowSoc: 'a za stavu nabití',
+                    gridBuy: 'Z mřížkového nákupu',
+                    gridSell: 'Z nadměrného napájení',
+                    lock: 'Zámek',
+                    moreThanHpPower: 'Hodnota nesmí být nižší než maximální výkon tepelného čerpadla',
+                    normalOperation: 'Normální operace',
+                    relationError: 'Překročení hodnoty povelu k zapnutí musí být větší než doporučená hodnota pro zapnutí',
+                    switchOnCom: 'Příkaz k zapnutí',
+                    switchOnRec: 'Doporučení k zapnutí',
+                    undefined: 'Nedefinováno',
                 }
             }
         },

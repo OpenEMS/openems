@@ -133,6 +133,7 @@ export const TRANSLATION = {
                     currentValue: 'Current value',
                     dependendOn: 'Dependend on',
                     minSwitchingTime: 'Minimum swichting time',
+                    moreThanMaxPower: 'La valeur ne doit pas être inférieure à la puissance maximale de l appareil contrôlé',
                     other: 'Other',
                     relationError: 'Threshold must be greater than the switched load power',
                     switchedLoadPower: 'Switched load power',
@@ -227,6 +228,19 @@ export const TRANSLATION = {
                     minimalEnergyAmount: 'Minimal charge amount',
                     minimumRunTime: 'Minimum runtime',
                     timeCountdown: 'time until start',
+                },
+                HeatPump: {
+                    aboveSoc: 'et sur l état de charge de',
+                    belowSoc: 'et en charge de',
+                    gridBuy: 'De l achat du réseau de',
+                    gridSell: 'Par excès d alimentatio de',
+                    lock: 'Fermer à clé',
+                    moreThanHpPower: 'La valeur ne doit pas être inférieure à la puissance maximale de la pompe à chaleur',
+                    normalOperation: 'Fonctionnement normal',
+                    relationError: 'La valeur excédentaire de la commande de mise en marche doit être supérieure à la valeur recommandée de mise en marche',
+                    switchOnCom: 'Commande de mise en marche',
+                    switchOnRec: 'Recommandation de mise en marche',
+                    undefined: 'Indéfinie',
                 }
             }
         },

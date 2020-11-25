@@ -493,7 +493,7 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * Specifies a platform appropriate port name for this adapter. Note that even
 	 * though the port has been selected, it's ownership may be relinquished if it
 	 * is not currently held in a 'exclusive' block. This class will then try to
-	 * re-acquire the port when needed. If the port cannot be re-acquired ehen the
+	 * re-acquire the port when needed. If the port cannot be re-acquired when the
 	 * exception <code>PortInUseException</code> will be thrown.
 	 *
 	 * @param portName Address to connect this NetAdapter to, in the form of
