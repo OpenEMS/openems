@@ -71,6 +71,7 @@
 	bnd.identity;id='io.openems.edge.controller.io.channelsinglethreshold',\
 	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
 	bnd.identity;id='io.openems.edge.controller.io.heatingelement',\
+	bnd.identity;id='io.openems.edge.controller.io.heatpump.sgready',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.fixpowerlimit',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.selltogridlimit',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancing',\
@@ -95,6 +96,7 @@
 	bnd.identity;id='io.openems.edge.ess.sma',\
 	bnd.identity;id='io.openems.edge.ess.streetscooter',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
+	bnd.identity;id='io.openems.edge.evcs.core',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.abl',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.common',\
@@ -195,6 +197,7 @@
 	io.openems.edge.controller.io.channelsinglethreshold;version=snapshot,\
 	io.openems.edge.controller.io.fixdigitaloutput;version=snapshot,\
 	io.openems.edge.controller.io.heatingelement;version=snapshot,\
+	io.openems.edge.controller.io.heatpump.sgready;version=snapshot,\
 	io.openems.edge.controller.pvinverter.fixpowerlimit;version=snapshot,\
 	io.openems.edge.controller.pvinverter.selltogridlimit;version=snapshot,\
 	io.openems.edge.controller.symmetric.balancing;version=snapshot,\
@@ -221,6 +224,7 @@
 	io.openems.edge.ess.streetscooter;version=snapshot,\
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
+	io.openems.edge.evcs.core;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.evcs.ocpp.abl;version=snapshot,\
 	io.openems.edge.evcs.ocpp.common;version=snapshot,\

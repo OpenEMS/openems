@@ -7,10 +7,10 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 
 @Component({
-    selector: ChanneltresholdWidgetComponent.SELECTOR,
+    selector: ChannelthresholdWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class ChanneltresholdWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
+export class ChannelthresholdWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
