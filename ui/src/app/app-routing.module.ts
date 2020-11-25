@@ -27,6 +27,7 @@ import { ProfileComponent as EdgeSettingsProfileComponent } from './edge/setting
 import { SettingsComponent as EdgeSettingsComponent } from './edge/settings/settings.component';
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
+import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
 import { IndexComponent } from './index/index.component';
 import { SettingsComponent } from './settings/settings.component';
 
@@ -68,6 +69,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/settings/profile/:componentId', component: AliasUpdateComponent },
   { path: 'device/:edgeId/settings/systemexecute', component: EdgeSettingsSystemExecuteComponent },
   { path: 'device/:edgeId/settings/systemlog', component: EdgeSettingsSystemLogComponent },
+  { path: 'device/:edgeId/settings/systemupdate', component: EdgeSettingsSystemUpdateComponent },
 ];
 
 export const appRoutingProviders: any[] = [
