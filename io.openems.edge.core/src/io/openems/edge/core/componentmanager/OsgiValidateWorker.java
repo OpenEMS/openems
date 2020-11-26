@@ -125,6 +125,11 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 		for (ComponentDescriptionDTO description : descriptions) {
 			Collection<ComponentConfigurationDTO> configurations = scr.getComponentConfigurationDTOs(description);
 			for (ComponentConfigurationDTO configuration : configurations) {
+				if (!MapUtils.getAsOptionalBoolean(configuration.properties, "enabled").orElse(true)) {
+					// Component is not enabled -> ignore
+					continue;
+				}
+
 				final String defectDetails;
 				switch (configuration.state) {
 				case ComponentConfigurationDTO.ACTIVE:
