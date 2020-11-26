@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -57,6 +58,15 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 	 * Map from Component-ID to defect details.
 	 */
 	private final Map<String, String> defectiveComponents = new HashMap<>();
+
+	/**
+	 * Delays announcement of defective Components by one execution Cycle.
+	 */
+	private final Set<String> lastDefectiveComponents = new HashSet<>();
+
+	/**
+	 * Components with duplicated Component-IDs.
+	 */
 	private final Set<String> duplicatedComponentIds = new HashSet<String>();
 
 	public OsgiValidateWorker(ComponentManagerImpl parent) {
@@ -65,9 +75,12 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 
 	@Override
 	protected void forever() {
-		final Configuration[] configs = this.readEnabledConfigurations();
+		this.findDuplicatedComponentIds();
+		this.findDefectiveComponents();
+	}
 
-		// Handle duplicated Component-IDs
+	private void findDuplicatedComponentIds() {
+		final Configuration[] configs = this.readAllConfigurations();
 		final Set<String> duplicatedComponentIds = new HashSet<String>();
 		updateDuplicatedComponentIds(duplicatedComponentIds, configs);
 		this.parent._setDuplicatedComponentId(!this.duplicatedComponentIds.isEmpty());
@@ -75,8 +88,10 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 			this.duplicatedComponentIds.clear();
 			this.duplicatedComponentIds.addAll(duplicatedComponentIds);
 		}
+	}
 
-		// Handle defective Components
+	private void findDefectiveComponents() {
+		final Configuration[] configs = this.readEnabledConfigurations();
 		final Map<String, String> defectiveComponents = new HashMap<>();
 		updateInactiveComponentsUsingScr(defectiveComponents, this.parent.serviceComponentRuntime);
 		updateInactiveComponentsUsingConfigurationAdmin(defectiveComponents, this.parent.getEnabledComponents(),
@@ -84,7 +99,13 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 		this.parent._setConfigNotActivated(!defectiveComponents.isEmpty());
 		synchronized (this.defectiveComponents) {
 			this.defectiveComponents.clear();
-			this.defectiveComponents.putAll(defectiveComponents);
+			for (Entry<String, String> c : defectiveComponents.entrySet()) {
+				if (this.lastDefectiveComponents.contains(c.getKey())) {
+					// Delay announcement of defective Components by one execution Cycle.
+					this.defectiveComponents.put(c.getKey(), c.getValue());
+				}
+			}
+			this.lastDefectiveComponents.addAll(defectiveComponents.keySet());
 		}
 	}
 
@@ -104,6 +125,11 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 		for (ComponentDescriptionDTO description : descriptions) {
 			Collection<ComponentConfigurationDTO> configurations = scr.getComponentConfigurationDTOs(description);
 			for (ComponentConfigurationDTO configuration : configurations) {
+				if (!MapUtils.getAsOptionalBoolean(configuration.properties, "enabled").orElse(true)) {
+					// Component is not enabled -> ignore
+					continue;
+				}
+
 				final String defectDetails;
 				switch (configuration.state) {
 				case ComponentConfigurationDTO.ACTIVE:
@@ -159,6 +185,29 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 					defectiveComponents.putIfAbsent(componentId, "Missing Bundle");
 				}
 			}
+		}
+	}
+
+	/**
+	 * Read all configurations from ConfigurationAdmin - no matter if enabled or
+	 * not.
+	 * 
+	 * @return {@link Configuration}s from {@link ConfigurationAdmin}; empty array
+	 *         on error
+	 */
+	private Configuration[] readAllConfigurations() {
+		try {
+			ConfigurationAdmin cm = this.parent.cm;
+			Configuration[] configs = cm.listConfigurations(null);
+			if (configs != null) {
+				return configs;
+			} else {
+				return new Configuration[0];
+			}
+		} catch (Exception e) {
+			this.parent.logError(this.log, e.getMessage());
+			e.printStackTrace();
+			return new Configuration[0];
 		}
 	}
 

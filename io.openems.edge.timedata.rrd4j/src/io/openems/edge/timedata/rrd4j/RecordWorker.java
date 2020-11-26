@@ -69,18 +69,22 @@ public class RecordWorker extends AbstractImmediateWorker {
 		final LocalDateTime nextReadChannelValuesSince = LocalDateTime.now();
 
 		// Increase CycleCount
-		if (++this.cycleCount < this.noOfCycles) {
-			// Stop here if not reached CycleCount
-			return;
-		}
-		// reset Cycle-Count
-		this.cycleCount = 0;
+		this.cycleCount += 1;
 
 		// Same second as last run? -> RRD4j can only handle one sample per second per
 		// database. Timestamps are all stored "truncated to seconds".
 		if (timestamp.equals(this.lastTimestamp)) {
 			return;
 		}
+
+		// Stop here if not reached CycleCount
+		if (this.cycleCount < this.noOfCycles) {
+			return;
+		}
+
+		// Reset Cycle-Count
+		this.cycleCount = 0;
+
 		this.lastTimestamp = timestamp;
 
 		for (OpenemsComponent component : this.parent.componentManager.getEnabledComponents()) {
@@ -115,8 +119,9 @@ public class RecordWorker extends AbstractImmediateWorker {
 						new Record(timestamp.getEpochSecond(), channel.address(), channel.channelDoc().getUnit(),
 								value.getAsDouble()))) {
 					this.parent._setQueueIsFull(false);
+
 				} else {
-					this.log.warn("Unable to add record [" + channel.address() + "]. Queue is full!");
+					this.parent.logWarn(this.log, "Unable to add record [" + channel.address() + "]. Queue is full!");
 					this.parent._setQueueIsFull(true);
 				}
 			}
@@ -238,6 +243,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 		case PERCENT:
 		case ON_OFF:
 			return DoubleStream::average;
+		case CUMULATED_SECONDS:
 		case WATT_HOURS:
 		case KILOWATT_HOURS:
 		case VOLT_AMPERE_HOURS:

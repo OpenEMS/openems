@@ -221,9 +221,8 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: Hz
 		 * </ul>
 		 */
-		FREQUENCY(Doc.of(OpenemsType.STRING).unit(Unit.HERTZ).accessMode(AccessMode.READ_ONLY)
-				.text("Frequency")),
-		
+		FREQUENCY(Doc.of(OpenemsType.STRING).unit(Unit.HERTZ).accessMode(AccessMode.READ_ONLY).text("Frequency")),
+
 		/**
 		 * Active power to grid (export)
 		 * 
@@ -329,7 +328,7 @@ public interface MeasuringEvcs extends Evcs {
 		 * </ul>
 		 */
 		VOLTAGE(Doc.of(OpenemsType.STRING).accessMode(AccessMode.READ_ONLY).text("Voltage")),
-		
+
 		/**
 		 * Temperature.
 		 * 
