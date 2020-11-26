@@ -53,7 +53,7 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
 
   public edge: Edge = null;
   private ngUnsubscribe = new Subject<void>();
-  public isDpkgRunning: Boolean = null;
+  public isCurrentlyInstalling: Boolean = null;
 
   public logLines: {
     time: string,
@@ -108,7 +108,7 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
       command += "echo -n \"" + pkg.name + " latest:\"; "
         + "wget -qO- http://fenecon.de/debian-test/" + pkg.getNameUnderscore() + "-latest.version; ";
     }
-    command += "lsof /var/lib/dpkg/lock >/dev/null 2>&1; [ $? = 0 ] && echo \"dpkg is running\"";
+    command += "ps ax | grep 'wget.*deb\\|dpkg' | wc -l";
 
     this.edge.sendRequest(this.websocket,
       new ComponentJsonApiRequest({
@@ -127,10 +127,21 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
             let pkg = this.packages[i];
             pkg.setVersions(result.stdout[i * 2].split(":")[1], result.stdout[i * 2 + 1].split(":")[1]);
           }
-          if (result.stdout[result.stdout.length - 1] == "dpkg is running") {
-            this.isDpkgRunning = true;
+          let isCurrentlyInstallingLog = result.stdout[result.stdout.length - 1];
+          if (isCurrentlyInstallingLog && parseInt(isCurrentlyInstallingLog) > 2) {
+            this.isCurrentlyInstalling = true;
           } else {
-            this.isDpkgRunning = false;
+            this.isCurrentlyInstalling = false;
+          }
+
+          let isAnyUpdateAvailable = false;
+          for (let pkg of this.packages) {
+            if (pkg.isUpdateAvailable) {
+              isAnyUpdateAvailable = true;
+            }
+          }
+          if (!isAnyUpdateAvailable) {
+            this.unsubscribeSystemLog();
           }
         }
 
@@ -140,7 +151,9 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
   }
 
   public updatePackage(pkg: Package) {
+    this.isCurrentlyInstalling = true;
     let filename = pkg.getNameUnderscore() + "-" + pkg.latestVersion + ".deb";
+    this.log("INFO", "Downloading [" + filename + "]");
 
     // Start Download
     this.edge.sendRequest(this.websocket,
@@ -155,10 +168,8 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
             + "wget http://fenecon.de/debian-test/" + filename + " -q --show-progress --progress=dot:mega -O /tmp/" + filename + " "
             + "&& echo 'DEBIAN_FRONTEND=noninteractive nohup dpkg -i /tmp/" + filename + "' | at now"
         })
-      })).then(response => {
-        this.log("INFO", "Downloading [" + filename + "]");
 
-      }).catch(reason => {
+      })).catch(reason => {
         this.log("ERROR", reason.error.message);
       });
   }
@@ -213,7 +224,15 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
     return 'black';
   }
 
+  private wasNotConnected: boolean = false;
+
   private log(level: 'INFO' | 'ERROR', message: string) {
+    if (message.endsWith("is not connected")) {
+      this.wasNotConnected = true;
+    } else if (this.wasNotConnected) {
+      // send request to Edge
+      this.edge.subscribeSystemLog(this.websocket);
+    }
     this.logLines.unshift({
       time: new Date().toLocaleString(),
       color: this.getColor(level),
