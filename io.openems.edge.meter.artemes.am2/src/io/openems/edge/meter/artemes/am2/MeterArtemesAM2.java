@@ -69,7 +69,7 @@ public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 	}
 
 	@Deactivate
-	protected void deativate() {
+	protected void deactivate() {
 		super.deactivate();
 	}
 

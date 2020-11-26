@@ -155,7 +155,7 @@ public class GoodWeEssImpl extends AbstractOpenemsModbusComponent implements Goo
 													break;
 												}
 											}
-											// Log on first occurance
+											// Log on first occurrence
 											if (result != this.getGoodweType()) {
 												switch (result) {
 												case GOODWE_10K_BT:

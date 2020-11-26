@@ -59,7 +59,7 @@ import com.dalsemi.onewire.utils.Bit;
  * <P>
  * Setting the latch on the DS2409 to 'on' (see
  * {@link #setLatchState(int,boolean,boolean,byte[]) seLatchState}) connects the
- * channel [Main(0) or Auxillary(1)] to the 1-Wire data line. Note that this is
+ * channel [Main(0) or Auxiliary(1)] to the 1-Wire data line. Note that this is
  * the opposite of the {@link com.dalsemi.onewire.container.OneWireContainer12
  * DS2406} and {@link com.dalsemi.onewire.container.OneWireContainer05 DS2405}
  * which connect their I/O lines to ground.
