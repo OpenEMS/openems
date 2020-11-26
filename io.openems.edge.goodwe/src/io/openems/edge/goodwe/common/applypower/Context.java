@@ -1,7 +1,7 @@
-package io.openems.edge.goodwe.ess.applypower;
+package io.openems.edge.goodwe.common.applypower;
 
+import io.openems.edge.goodwe.common.enums.PowerModeEms;
 import io.openems.edge.goodwe.ess.GoodWeEssImpl;
-import io.openems.edge.goodwe.ess.enums.PowerModeEms;
 
 public class Context {
 

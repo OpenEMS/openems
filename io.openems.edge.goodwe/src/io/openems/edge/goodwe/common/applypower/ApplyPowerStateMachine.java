@@ -1,9 +1,9 @@
-package io.openems.edge.goodwe.ess.applypower;
+package io.openems.edge.goodwe.common.applypower;
 
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.statemachine.AbstractStateMachine;
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.goodwe.ess.enums.GoodweType;
+import io.openems.edge.goodwe.common.enums.GoodweType;
 
 public class ApplyPowerStateMachine extends AbstractStateMachine<ApplyPowerStateMachine.State, Context> {
 
@@ -101,12 +101,12 @@ public class ApplyPowerStateMachine extends AbstractStateMachine<ApplyPowerState
 	 * Evaluates the State we are currently in.
 	 * 
 	 * @param readOnlyMode
-	 * @param pvProduction
+	 * @param pvProduction        pv production or null
 	 * @param soc
 	 * @param activePowerSetPoint
 	 * @return
 	 */
-	public static State evaluateState(GoodweType goodweType, boolean readOnlyMode, int pvProduction, int soc,
+	public static State evaluateState(GoodweType goodweType, boolean readOnlyMode, Integer pvProduction, int soc,
 			int activePowerSetPoint) {
 		if (readOnlyMode) {
 			// Read-Only-Mode: fall-back to internal self-consumption optimization
@@ -128,7 +128,7 @@ public class ApplyPowerStateMachine extends AbstractStateMachine<ApplyPowerState
 					// battery is full
 					if (activePowerSetPoint > 0) {
 						// Set-Point is positive -> take power either from pv or battery
-						if (activePowerSetPoint > pvProduction) {
+						if (pvProduction == null || activePowerSetPoint > pvProduction) {
 							return State.ET_FULL_POSITIVE_DISCHARGE;
 
 						} else {

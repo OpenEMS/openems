@@ -1,17 +1,19 @@
-package io.openems.edge.goodwe.ess.enums;
+package io.openems.edge.goodwe.common.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum MeterConnectCheckFlag implements OptionsEnum {
+public enum MeterConnectStatus implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	STOP(0, "Stop Checking"), //
-	CHECKING(1, "Checking"), //
-	WAIT(2, "Wait for check"); //
+	NOT_CHECKED(0, "Not Checked"), //
+	CORRECT(1, "connect correctly"), //
+	REVERSE(2, "connect reverse"), //
+	INCORRRECT(3, "connect incorrectly"), //
+	FAULT(4, "Fault,fault mode,something is in fault mode"); //
 
 	private final int value;
 	private final String option;
 
-	private MeterConnectCheckFlag(int value, String option) {
+	private MeterConnectStatus(int value, String option) {
 		this.value = value;
 		this.option = option;
 	}

@@ -1,18 +1,17 @@
-package io.openems.edge.goodwe.ess.enums;
+package io.openems.edge.goodwe.common.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum AppModeIndex implements OptionsEnum {
+public enum MeterConnectCheckFlag implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	SELF_USE(0, "Self use mode"), //
-	OFF_GRID(1, "Off grid mode"), //
-	BACKUP(2, "backup mode"), //
-	ECONOMIC(3, "economic mode"); //
+	STOP(0, "Stop Checking"), //
+	CHECKING(1, "Checking"), //
+	WAIT(2, "Wait for check"); //
 
 	private final int value;
 	private final String option;
 
-	private AppModeIndex(int value, String option) {
+	private MeterConnectCheckFlag(int value, String option) {
 		this.value = value;
 		this.option = option;
 	}

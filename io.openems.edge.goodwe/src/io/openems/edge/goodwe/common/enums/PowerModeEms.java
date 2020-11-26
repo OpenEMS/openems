@@ -1,4 +1,4 @@
-package io.openems.edge.goodwe.ess.enums;
+package io.openems.edge.goodwe.common.enums;
 
 import io.openems.common.types.OptionsEnum;
 

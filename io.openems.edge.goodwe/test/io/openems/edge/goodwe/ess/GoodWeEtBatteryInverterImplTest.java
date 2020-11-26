@@ -11,8 +11,8 @@ import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 import io.openems.edge.goodwe.GoodWeConstants;
 import io.openems.edge.goodwe.charger.GoodWeChargerPv1;
-import io.openems.edge.goodwe.ess.enums.GoodweType;
-import io.openems.edge.goodwe.ess.enums.PowerModeEms;
+import io.openems.edge.goodwe.common.enums.GoodweType;
+import io.openems.edge.goodwe.common.enums.PowerModeEms;
 
 public class GoodWeEtBatteryInverterImplTest {
 
