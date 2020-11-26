@@ -62,6 +62,8 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	 */
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
+	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
+
 	private Config config;
 
 	public FeneconHomeBatteryImpl() {
@@ -131,7 +133,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		ModbusProtocol protocol = new ModbusProtocol(this, //
+		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(500, Priority.LOW, //
 						m(new BitsWordElement(500, this) //
 								.bit(0, FeneconHomeBattery.ChannelId.RACK_PRE_ALARM_CELL_OVER_VOLTAGE) //
@@ -397,7 +399,6 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(44000, Priority.HIGH, //
 						m(FeneconHomeBattery.ChannelId.BMS_CONTROL, new UnsignedWordElement(44000)) //
 				));//
-		return protocol;
 	}
 
 	@Override
@@ -412,8 +413,6 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 				Battery.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
-
-	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
 
 	@Override
 	public void setStartStop(StartStop value) {

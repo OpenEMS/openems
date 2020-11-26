@@ -848,11 +848,10 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BMU Sum Voltage")),
 		BMS_CONTROL(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMS CONTROL(1: Shutdown 0:no action)")),
+				.text("BMS CONTROL(1: Shutdown, 0: no action)")),
 		KEEP_FET_OPEN(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE) //
-				.text("Keep FET Open (Disconnect the relay; 1:Keep open , 0: normal operation)")),
+				.text("Keep FET Open (Disconnect the relay; 1:Keep open, 0: normal operation)")),
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
 		RUN_FAILED(Doc.of(Level.FAULT) //
