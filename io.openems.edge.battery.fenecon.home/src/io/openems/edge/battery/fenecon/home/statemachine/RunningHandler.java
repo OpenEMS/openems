@@ -1,6 +1,6 @@
 package io.openems.edge.battery.fenecon.home.statemachine;
 
-import io.openems.edge.battery.fenecon.home.enums.BMSControl;
+import io.openems.edge.battery.fenecon.home.enums.BmsControl;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
@@ -13,7 +13,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 			return State.UNDEFINED;
 		}
 
-		if (context.component.getBMSControl() != BMSControl.SWITCHED_ON) {
+		if (context.component.getBmsControl() != BmsControl.SWITCHED_ON) {
 			return State.UNDEFINED;
 		}
 

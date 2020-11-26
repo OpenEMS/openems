@@ -115,7 +115,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		Context context = new Context(this, this.config);
+		Context context = new Context(this);
 
 		// Call the StateMachine
 		try {
@@ -252,9 +252,11 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 								.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [%]
 								.build(), //
-						m(FeneconHomeBattery.ChannelId.MAX_DC_CHARGE_CURRENT_LIMIT_PER_BCU, new UnsignedWordElement(520), //
+						m(FeneconHomeBattery.ChannelId.MAX_DC_CHARGE_CURRENT_LIMIT_PER_BCU,
+								new UnsignedWordElement(520), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(FeneconHomeBattery.ChannelId.MAX_DC_DISCHARGE_CURRENT_LIMIT_PER_BCU, new UnsignedWordElement(521), //
+						m(FeneconHomeBattery.ChannelId.MAX_DC_DISCHARGE_CURRENT_LIMIT_PER_BCU,
+								new UnsignedWordElement(521), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(FeneconHomeBattery.ChannelId.RACK_NUMBER_OF_BATTERY_BCU, new UnsignedWordElement(522)), //
 						m(FeneconHomeBattery.ChannelId.RACK_NUMBER_OF_CELLS_IN_SERIES_PER_MODULE,

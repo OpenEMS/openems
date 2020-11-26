@@ -6,10 +6,9 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.fenecon.home.enums.BMSControl;
+import io.openems.edge.battery.fenecon.home.enums.BmsControl;
 import io.openems.edge.battery.fenecon.home.enums.State;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -19,97 +18,41 @@ import io.openems.edge.common.startstop.StartStoppable;
 public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStoppable {
 
 	/**
-	 * Gets the Channel for {@link ChannelId#PRE_CHARGE_CONTROL}.
+	 * Gets the Channel for {@link ChannelId#BMS_CONTROL}.
 	 * 
 	 * @return the Channel
 	 */
-	public default WriteChannel<BMSControl> getBMSControlChannel() {
+	public default WriteChannel<BmsControl> getBmsControlChannel() {
 		return this.channel(ChannelId.BMS_CONTROL);
 	}
 
 	/**
-	 * Gets the PreChargeControl, see {@link ChannelId#PRE_CHARGE_CONTROL}.
+	 * Gets the BmsControl, see {@link ChannelId#BMS_CONTROL}.
 	 * 
 	 * @return the Channel {@link Value}
 	 */
-	public default BMSControl getBMSControl() {
-		return this.getBMSControlChannel().value().asEnum();
+	public default BmsControl getBmsControl() {
+		return this.getBmsControlChannel().value().asEnum();
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#PRE_CHARGE_CONTROL} Channel.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setBMSControl(BMSControl value) {
-		this.getBMSControlChannel().setNextValue(value);
-	}
-
-	/**
-	 * Writes the value to the {@link ChannelId#PRE_CHARGE_CONTROL} Register.
-	 * 
-	 * @param value the next value
-	 * @throws OpenemsNamedException on error
-	 */
-	public default void setBMSControl(BMSControl value) throws OpenemsNamedException {
-		this.getBMSControlChannel().setNextWriteValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
-	 * 
-	 * @return the Channel
-	 */
-	public default StateChannel getMaxStartAttemptsChannel() {
-		return this.channel(ChannelId.MAX_START_ATTEMPTS);
-	}
-
-	/**
-	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_START_ATTEMPTS}.
-	 * 
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Boolean> getMaxStartAttempts() {
-		return this.getMaxStartAttemptsChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#MAX_START_ATTEMPTS} Channel.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setMaxStartAttempts(Boolean value) {
-		this.getMaxStartAttemptsChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#MAX_STOP_ATTEMPTS}.
-	 * 
-	 * @return the Channel
-	 */
-	public default StateChannel getMaxStopAttemptsChannel() {
-		return this.channel(ChannelId.MAX_STOP_ATTEMPTS);
-	}
-
-	/**
-	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_STOP_ATTEMPTS}.
-	 * 
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Boolean> getMaxStopAttempts() {
-		return this.getMaxStopAttemptsChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_STOP_ATTEMPTS}
+	 * Internal method to set the 'nextValue' on {@link ChannelId#BMS_CONTROL}
 	 * Channel.
 	 * 
 	 * @param value the next value
 	 */
-	public default void _setMaxStopAttempts(Boolean value) {
-		this.getMaxStopAttemptsChannel().setNextValue(value);
+	public default void _setBmsControl(BmsControl value) {
+		this.getBmsControlChannel().setNextValue(value);
+	}
+
+	/**
+	 * Writes the value to the {@link ChannelId#BMS_CONTROL} Register.
+	 * 
+	 * @param value the next value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setBmsControl(BmsControl value) throws OpenemsNamedException {
+		this.getBmsControlChannel().setNextWriteValue(value);
 	}
 
 	/**
@@ -914,10 +857,6 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.text("Current State of State-Machine")), //
 		RUN_FAILED(Doc.of(Level.FAULT) //
 				.text("Running the Logic failed")), //
-		MAX_START_ATTEMPTS(Doc.of(Level.FAULT) //
-				.text("The maximum number of start attempts failed")), //
-		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
-				.text("The maximum number of stop attempts failed")), //
 		;
 
 		private final Doc doc;
