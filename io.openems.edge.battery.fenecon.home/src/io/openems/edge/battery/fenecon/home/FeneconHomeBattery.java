@@ -1,4 +1,4 @@
-package io.openems.edge.battery.poweramp;
+package io.openems.edge.battery.fenecon.home;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
@@ -6,8 +6,8 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.fenecon.home.enums.State;
 import io.openems.edge.battery.poweramp.enums.BMSControl;
-import io.openems.edge.battery.poweramp.enums.State;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.WriteChannel;
@@ -16,7 +16,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
-public interface PowerAmpATL extends Battery, OpenemsComponent, StartStoppable {
+public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStoppable {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#PRE_CHARGE_CONTROL}.

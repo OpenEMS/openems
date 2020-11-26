@@ -1,7 +1,7 @@
-package io.openems.edge.battery.poweramp.statemachine;
+package io.openems.edge.battery.fenecon.home.statemachine;
 
+import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
 import io.openems.edge.battery.poweramp.enums.BMSControl;
-import io.openems.edge.battery.poweramp.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
 

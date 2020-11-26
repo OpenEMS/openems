@@ -1,4 +1,4 @@
-package io.openems.edge.battery.poweramp.enums;
+package io.openems.edge.battery.fenecon.home.enums;
 
 import io.openems.common.types.OptionsEnum;
 

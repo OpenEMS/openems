@@ -1,11 +1,11 @@
-package io.openems.edge.battery.poweramp.statemachine;
+package io.openems.edge.battery.fenecon.home.statemachine;
 
 import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
 import io.openems.edge.battery.poweramp.enums.BMSControl;
-import io.openems.edge.battery.poweramp.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class ErrorHandler extends StateHandler<State, Context> {

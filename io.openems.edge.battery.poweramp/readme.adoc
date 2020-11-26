@@ -1,3 +1,0 @@
-= io.openems.edge.battery,powerampatl
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery,powerampatl[Source Code icon:github[]]
