@@ -248,9 +248,12 @@ export const TRANSLATION = {
                     lock: 'Sperre',
                     moreThanMaxPower: 'Wert darf nicht niedriger als Maximalleistung der Wärmepumpe sein',
                     normalOperation: 'Normalbetrieb',
+                    normalOperationShort: 'Normal',
                     relationError: 'Einschaltbefehl Überschusswert muss größer als Einschaltempfehlungswert sein',
                     switchOnCom: 'Einschaltbefehl',
+                    switchOnComShort: 'Befehl',
                     switchOnRec: 'Einschaltempfehlung',
+                    switchOnRecShort: 'Empfehlung',
                     undefined: 'Nicht definiert',
                 }
             }

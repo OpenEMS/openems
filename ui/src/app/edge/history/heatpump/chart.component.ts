@@ -104,11 +104,11 @@ export class HeatPumptChartComponent extends AbstractHistoryChart implements OnI
                 case 0:
                     return translate.instant('Edge.Index.Widgets.HeatPump.lock');
                 case 1:
-                    return translate.instant('Edge.Index.Widgets.HeatPump.normalOperation');
+                    return translate.instant('Edge.Index.Widgets.HeatPump.normalOperationShort');
                 case 2:
-                    return translate.instant('Edge.Index.Widgets.HeatPump.switchOnRec');
+                    return translate.instant('Edge.Index.Widgets.HeatPump.switchOnRecShort');
                 case 3:
-                    return translate.instant('Edge.Index.Widgets.HeatPump.switchOnCom');
+                    return translate.instant('Edge.Index.Widgets.HeatPump.switchOnComShort');
             }
         }
         options.scales.yAxes[0].ticks.max = 3;

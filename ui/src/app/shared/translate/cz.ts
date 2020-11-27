@@ -240,9 +240,12 @@ export const TRANSLATION = {
                     lock: 'Zámek',
                     moreThanHpPower: 'Hodnota nesmí být nižší než maximální výkon tepelného čerpadla',
                     normalOperation: 'Normální operace',
+                    normalOperationShort: 'Normální',
                     relationError: 'Překročení hodnoty povelu k zapnutí musí být větší než doporučená hodnota pro zapnutí',
                     switchOnCom: 'Příkaz k zapnutí',
+                    switchOnComShort: 'Příkaz',
                     switchOnRec: 'Doporučení k zapnutí',
+                    switchOnRecShort: 'Doporučení',
                     undefined: 'Nedefinováno',
                 }
             }
