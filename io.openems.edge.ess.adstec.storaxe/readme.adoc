@@ -1,4 +1,6 @@
-= adstec StoraXe
+= ADS-TEC StoraXe Energy Storage System
+
+For the moment, this is a read-only implementation. Control of the ESS is not yet supported.
 
 Implemented Natures::
 - AsymmetricEss
