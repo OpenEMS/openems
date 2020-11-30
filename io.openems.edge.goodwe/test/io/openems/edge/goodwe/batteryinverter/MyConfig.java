@@ -1,16 +1,15 @@
-package io.openems.edge.goodwe.charger;
+package io.openems.edge.goodwe.batteryinverter;
 
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
-public class MyConfig extends AbstractComponentConfig implements ConfigPV1, ConfigPV2 {
+public class MyConfig extends AbstractComponentConfig implements Config {
 
-	public static class Builder {
+	protected static class Builder {
 		private String id = null;
-		public String batteryInverterId;
-		public int unitId;
 		public String modbusId;
+		public int modbusUnitId;
 
 		private Builder() {
 
@@ -21,18 +20,13 @@ public class MyConfig extends AbstractComponentConfig implements ConfigPV1, Conf
 			return this;
 		}
 
-		public Builder setBatteryInverterId(String batteryInverterId) {
-			this.batteryInverterId = batteryInverterId;
-			return this;
-		}
-
 		public Builder setModbusId(String modbusId) {
 			this.modbusId = modbusId;
 			return this;
 		}
 
-		public Builder setUnitId(int unitId) {
-			this.unitId = unitId;
+		public Builder setModbusUnitId(int modbusUnitId) {
+			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
 
@@ -53,13 +47,13 @@ public class MyConfig extends AbstractComponentConfig implements ConfigPV1, Conf
 	private final Builder builder;
 
 	private MyConfig(Builder builder) {
-		super(ConfigPV1.class, builder.id);
+		super(Config.class, builder.id);
 		this.builder = builder;
 	}
 
 	@Override
-	public int unit_id() {
-		return this.builder.unitId;
+	public int modbusUnitId() {
+		return this.builder.modbusUnitId;
 	}
 
 	@Override
@@ -70,16 +64,6 @@ public class MyConfig extends AbstractComponentConfig implements ConfigPV1, Conf
 	@Override
 	public String Modbus_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
-	}
-
-	@Override
-	public String ess_id() {
-		return this.builder.batteryInverterId;
-	}
-
-	@Override
-	public String Ess_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
 	}
 
 }

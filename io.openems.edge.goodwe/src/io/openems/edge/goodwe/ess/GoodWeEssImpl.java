@@ -14,8 +14,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -50,8 +48,6 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 ) //
 public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, HybridEss, ManagedSymmetricEss,
 		SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler {
-
-	private final Logger log = LoggerFactory.getLogger(GoodWeEssImpl.class);
 
 	private Config config;
 

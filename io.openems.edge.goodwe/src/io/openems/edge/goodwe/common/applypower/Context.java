@@ -1,18 +1,18 @@
 package io.openems.edge.goodwe.common.applypower;
 
+import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.goodwe.common.enums.PowerModeEms;
-import io.openems.edge.goodwe.ess.GoodWeEssImpl;
 
 public class Context {
 
-	protected final GoodWeEssImpl component;
+	protected final GoodWe component;
 	protected final int pvProduction;
 	protected final int activePowerSetPoint;
 
 	private PowerModeEms nextPowerMode;
 	private int essPowerSet;
 
-	public Context(GoodWeEssImpl component, int pvProduction, int activePowerSetPoint) {
+	public Context(GoodWe component, int pvProduction, int activePowerSetPoint) {
 		super();
 		this.component = component;
 		this.pvProduction = pvProduction;

@@ -14,7 +14,7 @@ import io.openems.edge.goodwe.charger.GoodWeChargerPv1;
 import io.openems.edge.goodwe.common.enums.GoodweType;
 import io.openems.edge.goodwe.common.enums.PowerModeEms;
 
-public class GoodWeEtBatteryInverterImplTest {
+public class GoodWeEssImplTest {
 
 	private static final String MODBUS_ID = "modbus0";
 
@@ -37,7 +37,7 @@ public class GoodWeEtBatteryInverterImplTest {
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(io.openems.edge.goodwe.charger.MyConfig.create() //
 						.setId(CHARGER_ID) //
-						.setEssId(ESS_ID) //
+						.setBatteryInverterId(ESS_ID) //
 						.setModbusId(MODBUS_ID) //
 						.setUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.build());
