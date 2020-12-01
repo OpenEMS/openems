@@ -54,6 +54,33 @@ public class ChannelManager extends AbstractChannelListenerManager {
 				this.parent._setAllowedChargePower(0);
 				this.parent._setAllowedDischargePower(0);
 			}
+
+//			Value<Integer> forceChargeCurrent = battery.getForceChargeCurrentChannel().getNextValue();
+//			Value<Integer> forceDischargeCurrent = battery.getForceDischargeCurrentChannel().getNextValue();
+//
+//			final int allowedChargePower;
+//			final int allowedDischargePower;
+//			
+//			if(!voltage.isDefined()) {
+//				allowedChargePower = 0;
+//				allowedDischargePower = 0;
+//			} else {
+//				if(forceChargeCurrent.isDefined() && forceChargeCurrent.get) {
+//					allowedDischargePower = forceChargeCurrent
+//				}
+//			}
+//			
+//			if (voltage.isDefined() && dischargeMaxCurrent.isDefined() && chargeMaxCurrent.isDefined()) {
+//				// efficiency factor is not considered in chargeMaxCurrent (DC Power > AC Power)
+//				this.parent._setAllowedChargePower(//
+//						(int) (chargeMaxCurrent.get() * voltage.get() * -1));
+//				this.parent._setAllowedDischargePower(//
+//						(int) (dischargeMaxCurrent.get() * voltage.get() * efficiencyFactor));
+//			} else {
+//			}
+
+//			this.parent._setAllowedChargePower(allowedChargePower);
+//			this.parent._setAllowedDischargePower(allowedDischargePower);
 		};
 
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,

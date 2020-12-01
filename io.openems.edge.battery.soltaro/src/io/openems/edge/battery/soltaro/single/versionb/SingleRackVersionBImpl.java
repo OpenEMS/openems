@@ -28,8 +28,11 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.soltaro.CellCharacteristic;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.ModuleParameters;
+import io.openems.edge.battery.soltaro.SoltaroCellCharacteristic;
+import io.openems.edge.battery.soltaro.Util;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.Context;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.ControlAndLogic;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine;
@@ -62,8 +65,10 @@ import io.openems.edge.common.taskmanager.Priority;
 @Component(//
 		name = "Bms.Soltaro.SingleRack.VersionB", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //		
+		property = { 
+			EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+			EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
 public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		implements Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable, SingleRackVersionB {
@@ -86,6 +91,8 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 
 	private Config config;
 	private Map<String, Channel<?>> channelMap;
+	
+	private CellCharacteristic cellCharacteristic = new SoltaroCellCharacteristic();
 
 	public SingleRackVersionBImpl() {
 		super(//
@@ -127,7 +134,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		Context context = new Context(this, this.config);
+		Context context = new Context(this, this.config, this.cellCharacteristic);
 
 		// Call the StateMachine
 		try {
@@ -157,10 +164,27 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		}
 		switch (event.getTopic()) {
 
+		
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+						
+			this.setAllowedCurrents();
+			
+			break;
+		
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.handleStateMachine();
 			break;
 		}
+	}
+
+	private void setAllowedCurrents() {
+		IntegerReadChannel maxChargeCurrentChannel =  this.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT);
+		int maxChargeCurrentFromBMS = maxChargeCurrentChannel.value().orElse(0) / 1000;
+		
+		IntegerReadChannel maxDischargeChannel =  this.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT);
+		int maxDischargeCurrentFromBMS = maxDischargeChannel.value().orElse(0) / 1000;
+		
+		Util.setMaxAllowedCurrents(cellCharacteristic, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS, this);
 	}
 
 	@Override
@@ -496,14 +520,11 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 
 						m(new UnsignedWordElement(0x2160)) //
 								.m(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT,
-										ElementToChannelConverter.SCALE_FACTOR_2) //
-								.m(Battery.ChannelId.CHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+										ElementToChannelConverter.SCALE_FACTOR_2) //								
 								.build(), //
 						m(new UnsignedWordElement(0x2161)) //
 								.m(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_2) //
-								.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT,
-										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build() //
 				), //
 

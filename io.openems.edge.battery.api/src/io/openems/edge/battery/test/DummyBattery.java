@@ -31,4 +31,40 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 		this._setStartStop(value);
 	}
 
+	public DummyBattery withCapacity(int value) {
+		this._setCapacity(value);
+		this.getCapacityChannel().nextProcessImage();
+		return this;
+	}
+
+	public DummyBattery withVoltage(int value) {
+		this._setVoltage(value);
+		this.getVoltageChannel().nextProcessImage();
+		return this;
+	}
+
+	public DummyBattery withDischargeMaxCurrent(int value) {
+		this._setDischargeMaxCurrent(value);
+		this.getDischargeMaxCurrentChannel().nextProcessImage();
+		return this;
+	}
+
+	public DummyBattery withChargeMaxCurrent(int value) {
+		this._setChargeMaxCurrent(value);
+		this.getChargeMaxCurrentChannel().nextProcessImage();
+		return this;
+	}
+
+	public DummyBattery withMinCellVoltage(int value) {
+		this._setMinCellVoltage(value);
+		this.getMinCellVoltageChannel().nextProcessImage();
+		return this;
+	}
+
+	public DummyBattery withMaxCellVoltage(int value) {
+		this._setMaxCellVoltage(value);
+		this.getMaxCellVoltageChannel().nextProcessImage();
+		return this;
+	}
+
 }

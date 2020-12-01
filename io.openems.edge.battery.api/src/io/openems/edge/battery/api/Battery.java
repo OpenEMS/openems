@@ -3,10 +3,12 @@ package io.openems.edge.battery.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -113,6 +115,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
 		 * <li>Unit: A
+		 * <li>Usually positive, negative for force discharge mode; see
+		 * {@link ChannelId#FORCE_DISCHARGE_ACTIVE}
 		 * </ul>
 		 */
 		CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
@@ -137,6 +141,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
 		 * <li>Unit: A
+		 * <li>Usually positive, negative for force charge mode; see
+		 * {@link ChannelId#FORCE_CHARGE_ACTIVE}
 		 * </ul>
 		 */
 		DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
@@ -189,7 +195,29 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT));
+				.unit(Unit.MILLIVOLT)),
+
+		/**
+		 * Force charge active.
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Indicates that battery is in force charge mode
+		 * </ul>
+		 */
+		FORCE_CHARGE_ACTIVE(Doc.of(Level.INFO).text("Force charge mode is active")), //
+
+		/**
+		 * Force discharge active.
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Indicates that battery is in force discharge mode
+		 * </ul>
+		 */
+		FORCE_DISCHARGE_ACTIVE(Doc.of(Level.INFO).text("Force discharge mode is active")), //
+
+		;
 
 		private final Doc doc;
 
@@ -709,5 +737,83 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	 */
 	public default void _setMaxCellVoltage(int value) {
 		this.getMaxCellVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#FORCE_CHARGE_ACTIVE}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getForceChargeActiveChannel() {
+		return this.channel(ChannelId.FORCE_CHARGE_ACTIVE);
+	}
+
+	/**
+	 * Gets the State. See
+	 * {@link ChannelId#FORCE_CHARGE_ACTIVE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getForceChargeActive() {
+		return this.getForceChargeActiveChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#FORCE_CHARGE_ACTIVE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setForceChargeActive(Boolean value) {
+		this.getForceChargeActiveChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#FORCE_CHARGE_ACTIVE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setForceChargeActive(boolean value) {
+		this.getForceChargeActiveChannel().setNextValue(value);
+	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#FORCE_DISCHARGE_ACTIVE}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getForceDischargeActiveChannel() {
+		return this.channel(ChannelId.FORCE_DISCHARGE_ACTIVE);
+	}
+
+	/**
+	 * Gets the State. See
+	 * {@link ChannelId#FORCE_DISCHARGE_ACTIVE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getForceDischargeActive() {
+		return this.getForceDischargeActiveChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#FORCE_DISCHARGE_ACTIVE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setForceDischargeActive(Boolean value) {
+		this.getForceDischargeActiveChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#FORCE_DISCHARGE_ACTIVE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setForceDischargeActive(boolean value) {
+		this.getForceDischargeActiveChannel().setNextValue(value);
 	}
 }
