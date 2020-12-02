@@ -18,12 +18,14 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
@@ -43,12 +45,11 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 ) //
-public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeBatteryInverter, GoodWe,
+public class GoodWeBatteryInverterImpl extends AbstractGoodWe
+		implements GoodWeBatteryInverter, GoodWe, HybridManagedSymmetricBatteryInverter,
 		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, TimedataProvider {
 
 	private final Logger log = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
-
-	private Config config;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -67,6 +68,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	private final ApplyPowerStateMachine applyPowerStateMachine = new ApplyPowerStateMachine(
 			ApplyPowerStateMachine.State.UNDEFINED);
 
+	/**
+	 * Holds the latest known SoC. Updated in {@link #run(Battery, int, int)}.
+	 */
+	private Value<Integer> lastSoc = null;
+
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -74,7 +80,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -92,6 +97,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				StartStoppable.ChannelId.values(), //
 				SymmetricBatteryInverter.ChannelId.values(), //
 				ManagedSymmetricBatteryInverter.ChannelId.values(), //
+				HybridManagedSymmetricBatteryInverter.ChannelId.values(), //
 				GoodWe.ChannelId.values(), //
 				GoodWeBatteryInverter.ChannelId.values() //
 		);
@@ -136,18 +142,17 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		return this.timedata;
 	}
 
-	// TODO move to GenericHybridEss
-//	@Override
-//	public Integer getSurplusPower() {
-//		if (this.getSoc().orElse(0) < 99) {
-//			return null;
-//		}
-//		Integer productionPower = this.calculatePvProduction();
-//		if (productionPower == null || productionPower < 100) {
-//			return null;
-//		}
-//		return productionPower;
-//	}
+	@Override
+	public Integer getSurplusPower() {
+		if (this.lastSoc.orElse(0) < 99) {
+			return null;
+		}
+		Integer productionPower = this.calculatePvProduction();
+		if (productionPower == null || productionPower < 100) {
+			return null;
+		}
+		return productionPower;
+	}
 
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
@@ -158,6 +163,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
 		// Calculate ActivePower and Energy values.
 		this.updatechannels();
+		this.lastSoc = battery.getSoc();
 
 		// Update ApplyPowerStateMachine
 		Integer pvProduction = this.calculatePvProduction();

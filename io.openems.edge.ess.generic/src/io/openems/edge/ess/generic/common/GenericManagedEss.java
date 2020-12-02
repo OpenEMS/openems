@@ -1,4 +1,4 @@
-package io.openems.edge.ess.generic.symmetric;
+package io.openems.edge.ess.generic.common;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
@@ -14,9 +14,9 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
+import io.openems.edge.ess.generic.common.statemachine.StateMachine.State;
 
-public interface GenericManagedSymmetricEss extends ManagedSymmetricEss, StartStoppable, ModbusSlave {
+public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, ModbusSlave {
 
 	/**
 	 * Retry set-command after x Seconds, e.g. for starting battery or
@@ -62,8 +62,8 @@ public interface GenericManagedSymmetricEss extends ManagedSymmetricEss, StartSt
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				StartStoppable.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(GenericManagedSymmetricEss.class, accessMode, 100) //
-						.channel(0, GenericManagedSymmetricEss.ChannelId.STATE_MACHINE, ModbusType.UINT16) //
+				ModbusSlaveNatureTable.of(GenericManagedEss.class, accessMode, 100) //
+						.channel(0, GenericManagedEss.ChannelId.STATE_MACHINE, ModbusType.UINT16) //
 						.build());
 
 	}

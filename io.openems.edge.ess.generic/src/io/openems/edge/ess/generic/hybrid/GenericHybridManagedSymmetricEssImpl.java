@@ -1,4 +1,4 @@
-package io.openems.edge.ess.generic.symmetric;
+package io.openems.edge.ess.generic.hybrid;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -16,10 +16,11 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
+import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.AbstractGenericManagedEss;
@@ -28,16 +29,16 @@ import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Ess.Generic.ManagedSymmetric", //
+		name = "Ess.Generic.HybridManagedSymmetric", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		} //
 )
-public class GenericManagedSymmetricEssImpl extends AbstractGenericManagedEss<Battery, ManagedSymmetricBatteryInverter>
-		implements GenericManagedEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler,
-		StartStoppable {
+public class GenericHybridManagedSymmetricEssImpl
+		extends AbstractGenericManagedEss<Battery, HybridManagedSymmetricBatteryInverter> implements HybridEss,
+		GenericManagedEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, StartStoppable {
 
 	@Reference
 	private Power power;
@@ -46,20 +47,21 @@ public class GenericManagedSymmetricEssImpl extends AbstractGenericManagedEss<Ba
 	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private ManagedSymmetricBatteryInverter batteryInverter;
+	private HybridManagedSymmetricBatteryInverter batteryInverter;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private Battery battery;
 
 	private final ChannelManager channelManager = new ChannelManager(this);
 
-	public GenericManagedSymmetricEssImpl() {
+	public GenericHybridManagedSymmetricEssImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
-				GenericManagedEss.ChannelId.values() //
+				GenericManagedEss.ChannelId.values(), //
+				HybridEss.ChannelId.values() //
 		);
 	}
 
@@ -95,8 +97,13 @@ public class GenericManagedSymmetricEssImpl extends AbstractGenericManagedEss<Ba
 	}
 
 	@Override
-	protected ManagedSymmetricBatteryInverter getBatteryInverter() {
+	protected HybridManagedSymmetricBatteryInverter getBatteryInverter() {
 		return this.batteryInverter;
+	}
+
+	@Override
+	public Integer getSurplusPower() {
+		return this.batteryInverter.getSurplusPower();
 	}
 
 }

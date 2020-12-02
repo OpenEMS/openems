@@ -1,7 +1,7 @@
-package io.openems.edge.ess.generic.symmetric.statemachine;
+package io.openems.edge.ess.generic.common.statemachine;
 
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
+import io.openems.edge.ess.generic.common.statemachine.StateMachine.State;
 
 public class UndefinedHandler extends StateHandler<State, Context> {
 

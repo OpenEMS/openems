@@ -6,12 +6,15 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -187,10 +190,10 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent impl
 						m(GoodWe.ChannelId.OPERATION_MODE, new UnsignedDoublewordElement(35188))), //
 
 				new FC3ReadRegistersTask(35206, Priority.LOW, //
-						m(HybridEss.ChannelId.DC_CHARGE_ENERGY, new UnsignedDoublewordElement(35206), //
+						m(this.getDcChargeEnergyChannel(), new UnsignedDoublewordElement(35206), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(35208), //
-						m(HybridEss.ChannelId.DC_DISCHARGE_ENERGY, new UnsignedDoublewordElement(35209),
+						m(this.getDcDischargeEnergyChannel(), new UnsignedDoublewordElement(35209),
 								ElementToChannelConverter.SCALE_FACTOR_2)), //
 
 				new FC3ReadRegistersTask(36003, Priority.LOW, //
@@ -203,25 +206,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent impl
 						m(GoodWe.ChannelId.BMS_PACK_TEMPERATURE, new UnsignedWordElement(37003),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodWe.ChannelId.BMS_CHARGE_IMAX, new UnsignedWordElement(37004)), //
-						m(GoodWe.ChannelId.BMS_DISCHARGE_IMAX, new UnsignedWordElement(37005))), //
-
-				new FC3ReadRegistersTask(37007, Priority.LOW, //
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(37007), new ElementToChannelConverter(
-								// element -> channel
-								value -> {
-									// Set SoC to undefined if there is No Battery
-									EnumReadChannel batteryModeChannel = this.channel(GoodWe.ChannelId.BATTERY_MODE);
-									BatteryMode batteryMode = batteryModeChannel.value().asEnum();
-									if (batteryMode == BatteryMode.NO_BATTERY || batteryMode == BatteryMode.UNDEFINED) {
-										return null;
-									} else {
-										return value;
-									}
-								},
-								// channel -> element
-								value -> value))), //
-
-				new FC3ReadRegistersTask(37008, Priority.LOW, //
+						m(GoodWe.ChannelId.BMS_DISCHARGE_IMAX, new UnsignedWordElement(37005)), //
+						new DummyRegisterElement(37006), //
+						this.getSocModbusElement(37007), //
 						m(GoodWe.ChannelId.BMS_SOH, new UnsignedWordElement(37008)), //
 						m(GoodWe.ChannelId.BMS_BATTERY_STRINGS, new UnsignedWordElement(37009))), //
 
@@ -357,6 +344,49 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent impl
 								.bit(0, GoodWe.ChannelId.STATE_79) //
 								.bit(1, GoodWe.ChannelId.STATE_80) //
 								.bit(2, GoodWe.ChannelId.STATE_81))));
+	}
+
+	protected AbstractModbusElement<?> getSocModbusElement(int address) throws NotImplementedException {
+		if (this instanceof HybridEss) {
+			return m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(address), new ElementToChannelConverter(
+					// element -> channel
+					value -> {
+						// Set SoC to undefined if there is No Battery
+						EnumReadChannel batteryModeChannel = this.channel(GoodWe.ChannelId.BATTERY_MODE);
+						BatteryMode batteryMode = batteryModeChannel.value().asEnum();
+						if (batteryMode == BatteryMode.NO_BATTERY || batteryMode == BatteryMode.UNDEFINED) {
+							return null;
+						} else {
+							return value;
+						}
+					},
+					// channel -> element
+					value -> value));
+		} else if (this instanceof HybridManagedSymmetricBatteryInverter) {
+			return new DummyRegisterElement(address);
+		} else {
+			throw new NotImplementedException("Wrong implementation of AbstractGoodWe");
+		}
+	}
+
+	private io.openems.edge.common.channel.ChannelId getDcDischargeEnergyChannel() throws NotImplementedException {
+		if (this instanceof HybridEss) {
+			return HybridEss.ChannelId.DC_DISCHARGE_ENERGY;
+		} else if (this instanceof HybridManagedSymmetricBatteryInverter) {
+			return HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_ENERGY;
+		} else {
+			throw new NotImplementedException("Wrong implementation of AbstractGoodWe");
+		}
+	}
+
+	private io.openems.edge.common.channel.ChannelId getDcChargeEnergyChannel() throws OpenemsException {
+		if (this instanceof HybridEss) {
+			return HybridEss.ChannelId.DC_CHARGE_ENERGY;
+		} else if (this instanceof HybridManagedSymmetricBatteryInverter) {
+			return HybridManagedSymmetricBatteryInverter.ChannelId.DC_CHARGE_ENERGY;
+		} else {
+			throw new NotImplementedException("Wrong implementation of AbstractGoodWe");
+		}
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package io.openems.edge.ess.generic.symmetric.statemachine;
+package io.openems.edge.ess.generic.common.statemachine;
 
 import com.google.common.base.CaseFormat;
 

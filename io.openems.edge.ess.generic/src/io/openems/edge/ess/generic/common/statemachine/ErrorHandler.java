@@ -1,4 +1,4 @@
-package io.openems.edge.ess.generic.symmetric.statemachine;
+package io.openems.edge.ess.generic.common.statemachine;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -6,7 +6,7 @@ import java.time.Instant;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
+import io.openems.edge.ess.generic.common.statemachine.StateMachine.State;
 
 public class ErrorHandler extends StateHandler<State, Context> {
 
