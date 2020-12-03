@@ -167,6 +167,15 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	@Override
 	protected void forever() throws InterruptedException {
 		Task task = this.tasksQueue.takeLast();
+
+		// If there are no tasks in the bridge, there will always be only one
+		// 'WaitTask'.
+		if (task instanceof WaitTask && !this.hasTasks()) {
+			// Make sure to unset the 'SlaveCommunicationFailed' Status in that case.
+			this.parent._setSlaveCommunicationFailed(false);
+			return;
+		}
+
 		try {
 			// execute the task
 			int noOfExecutedSubTasks = task.execute(this.parent);
@@ -246,6 +255,15 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	private List<WriteTask> getAllWriteTasks() {
 		Multimap<String, WriteTask> tasks = this.writeTasksManager.getAllTasksBySourceId();
 		return this.filterDefectiveComponents(tasks);
+	}
+
+	/**
+	 * Does this {@link ModbusWorker} have any Tasks?.
+	 * 
+	 * @return true if there are Tasks
+	 */
+	private boolean hasTasks() {
+		return this.writeTasksManager.hasTasks() && this.readTasksManager.hasTasks();
 	}
 
 	/**
