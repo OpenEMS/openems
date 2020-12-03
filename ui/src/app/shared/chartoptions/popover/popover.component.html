@@ -4,7 +4,7 @@
         <ion-label translate>
             General.phases
         </ion-label>
-        <ion-toggle [checked]="showPhases"></ion-toggle>
+        <ion-toggle style="pointer-events: none" [checked]="showPhases"></ion-toggle>
     </ion-item>
     <ion-item mode="md" [class.active]="showTotal" (click)="setTotal()" class="ion-text-center" lines="none" button
         *ngIf="showTotal != null">

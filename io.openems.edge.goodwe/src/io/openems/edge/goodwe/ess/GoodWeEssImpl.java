@@ -101,9 +101,11 @@ public class GoodWeEssImpl extends AbstractOpenemsModbusComponent implements Goo
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
-				config.modbus_id());
 		this.config = config;
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
 		this._setCapacity(this.config.capacity());
 	}
 
@@ -122,33 +124,54 @@ public class GoodWeEssImpl extends AbstractOpenemsModbusComponent implements Goo
 		);
 	}
 
-	public String getModbusBridgeId() {
-		return this.config.modbus_id();
-	}
-
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 
-				new FC3ReadRegistersTask(35001, Priority.ONCE, //
+				new FC3ReadRegistersTask(35001, Priority.LOW, //
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(35001)), //
 						new DummyRegisterElement(35002), //
 						m(GoodWeEss.ChannelId.SERIAL_NUMBER, new StringWordElement(35003, 8)), //
 						m(GoodWeEss.ChannelId.GOODWE_TYPE, new StringWordElement(35011, 5),
-								new ElementToChannelConverter((value) -> {
-									String stringValue = TypeUtils.<String>getAsType(OpenemsType.STRING, value);
-									switch (stringValue) {
-									case "GW10K-BT":
-										this.logInfo(this.log, "Identified GoodWe GW10K-BT");
-										return GoodweType.GOODWE_10K_BT;
-									case "GW10K-ET":
-										this.logInfo(this.log, "Identified GoodWe GW10K-ET");
-										return GoodweType.GOODWE_10K_ET;
-									default:
-										this.logError(this.log, "Unable to identify GoodWe [" + stringValue + "]");
-										return GoodweType.UNDEFINED;
-									}
-								}))), //
+								new ElementToChannelConverter(
+										// element -> channel
+										value -> {
+											// Evaluate GoodweType
+											final GoodweType result;
+											if (value == null) {
+												result = GoodweType.UNDEFINED;
+											} else {
+												String stringValue = TypeUtils.<String>getAsType(OpenemsType.STRING,
+														value);
+												switch (stringValue) {
+												case "GW10K-BT":
+													result = GoodweType.GOODWE_10K_BT;
+													break;
+												case "GW10K-ET":
+													result = GoodweType.GOODWE_10K_ET;
+													break;
+												default:
+													result = GoodweType.UNDEFINED;
+													break;
+												}
+											}
+											// Log on first occurance
+											if (result != this.getGoodweType()) {
+												switch (result) {
+												case GOODWE_10K_BT:
+													this.logInfo(this.log, "Identified GoodWe GW10K-BT");
+													break;
+												case GOODWE_10K_ET:
+													this.logInfo(this.log, "Identified GoodWe GW10K-ET");
+													break;
+												case UNDEFINED:
+													break;
+												}
+											}
+											return result;
+										}, //
+											// channel -> element
+										value -> value))),
 
 				new FC3ReadRegistersTask(35111, Priority.LOW, //
 						m(GoodWeEss.ChannelId.V_PV3, new UnsignedWordElement(35111),
@@ -236,7 +259,8 @@ public class GoodWeEssImpl extends AbstractOpenemsModbusComponent implements Goo
 						m(GoodWeEss.ChannelId.I_BATTERY1, new SignedWordElement(35181),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(35182), //
-						m(GoodWeEss.ChannelId.P_BATTERY1, new SignedWordElement(35183)), // required for ActivePower
+						// required for calculation of ActivePower
+						m(GoodWeEss.ChannelId.P_BATTERY1, new SignedWordElement(35183)),
 						m(GoodWeEss.ChannelId.BATTERY_MODE, new UnsignedWordElement(35184))), //
 
 				new FC3ReadRegistersTask(35185, Priority.LOW, //
