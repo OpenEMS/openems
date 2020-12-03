@@ -1,7 +1,7 @@
 = FEMS - FENECON Energy Management System
 ifndef::toc[]
 (c) 2020 OpenEMS Association e.V.
-Version 2020.25.1
+Version 2020.25.2-SNAPSHOT
 :sectnums:
 :sectnumlevels: 4
 :toc:
