@@ -18,7 +18,7 @@
     <!--
       Is dpkg running?
     -->
-    <ion-row *ngIf="isDpkgRunning">
+    <ion-row *ngIf="isCurrentlyInstalling">
       <ion-col size="12">
         <ion-card>
           <ion-item lines="full" color="secondary">
@@ -55,7 +55,7 @@
                 <ion-col>{{ pkg.currentVersion }}</ion-col>
                 <ion-col>{{ pkg.latestVersion }}</ion-col>
                 <ion-col>
-                  <ion-button [disabled]="isDpkgRunning" *ngIf="pkg.isUpdateAvailable == true"
+                  <ion-button [disabled]="isCurrentlyInstalling" *ngIf="pkg.isUpdateAvailable == true"
                     (click)="updatePackage(pkg)">Neueste Version
                     installieren
                   </ion-button>
