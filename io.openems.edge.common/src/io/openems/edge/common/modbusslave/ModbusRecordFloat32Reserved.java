@@ -3,7 +3,7 @@ package io.openems.edge.common.modbusslave;
 public class ModbusRecordFloat32Reserved extends ModbusRecordFloat32 {
 
 	public ModbusRecordFloat32Reserved(int offset) {
-		super(offset, "Reserved", null);
+		super(offset, "Reserved", (Float) null);
 	}
 
 	@Override

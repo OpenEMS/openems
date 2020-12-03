@@ -1,11 +1,12 @@
 package io.openems.edge.common.modbusslave;
 
 import java.nio.ByteBuffer;
+import java.util.function.Supplier;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.type.TypeUtils;
 
-public class ModbusRecordUint32 extends ModbusRecordConstant {
+public class ModbusRecordUint32 extends AbstractModbusRecordSupplier {
 
 	public final static byte[] UNDEFINED_VALUE = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 
@@ -18,21 +19,40 @@ public class ModbusRecordUint32 extends ModbusRecordConstant {
 		this.value = value;
 	}
 
+	public ModbusRecordUint32(int offset, String name, Supplier<Integer> valueSupplier) {
+		super(offset, name, ModbusType.UINT32, () -> {
+			return toByteArray(valueSupplier.get());
+		});
+		this.value = null;
+	}
+
 	@Override
 	public String toString() {
-		return "ModbusRecordUInt32 [value=" + value + "/0x" + Integer.toHexString(value) + ", type=" + getType() + "]";
+		if (this.value == null) {
+			return "ModbusRecordUInt32 [value=UNDEFINED" + ", type=" + getType() + "]";
+		} else {
+			return "ModbusRecordUInt32 [value=" + value + "/0x" + Integer.toHexString(value) + ", type=" + getType()
+					+ "]";
+		}
 	}
 
-	public static byte[] toByteArray(int value) {
-		return ByteBuffer.allocate(BYTE_LENGTH).putInt(value).array();
-	}
-
+	/**
+	 * Converts a Integer value to a byte-array.
+	 * 
+	 * @param value the Short value
+	 * @return the byte-array
+	 */
 	public static byte[] toByteArray(Object value) {
 		if (value == null || (value instanceof io.openems.common.types.OptionsEnum
 				&& ((io.openems.common.types.OptionsEnum) value).isUndefined())) {
 			return UNDEFINED_VALUE;
 		} else {
-			return toByteArray((int) TypeUtils.getAsType(OpenemsType.INTEGER, value));
+			Integer intValue = (Integer) TypeUtils.getAsType(OpenemsType.INTEGER, value);
+			if (intValue == null) {
+				return UNDEFINED_VALUE;
+			} else {
+				return ByteBuffer.allocate(BYTE_LENGTH).putInt(intValue).array();
+			}
 		}
 	}
 

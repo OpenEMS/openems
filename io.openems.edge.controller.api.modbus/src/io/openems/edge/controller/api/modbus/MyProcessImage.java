@@ -18,6 +18,7 @@ import com.ghgande.j2mod.modbus.procimg.SimpleInputRegister;
 
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusRecord;
+import io.openems.edge.common.modbusslave.ModbusRecordChannel;
 
 /**
  * This implementation answers Modbus-TCP Slave requests.
@@ -99,15 +100,26 @@ public class MyProcessImage implements ProcessImage {
 	 */
 	private Register[] getRecordValueRegisters(ModbusRecord record) {
 		MyRegister[] result = new MyRegister[record.getType().getWords()];
-		OpenemsComponent component = this.parent.getComponent(record.getComponentId());
-		byte[] value = record.getValue(component);
+		final byte[] value;
+		if (record instanceof ModbusRecordChannel) {
+			ModbusRecordChannel r = (ModbusRecordChannel) record;
+			OpenemsComponent component = this.parent.getComponent(r.getComponentId());
+			value = r.getValue(component);
+		} else {
+			value = record.getValue();
+		}
 		for (int j = 0; j < value.length / 2; j++) {
 			result[j] = new MyRegister(j, value[j * 2], value[j * 2 + 1], //
 					/*
 					 * On Set-Value event:
 					 */
 					(register) -> {
-						record.writeValue(component, register.getIndex(), register.getByte1(), register.getByte2());
+						if (record instanceof ModbusRecordChannel) {
+							((ModbusRecordChannel) record).writeValue(register.getIndex(), register.getByte1(),
+									register.getByte2());
+						} else {
+							this.parent.logWarn(this.log, "ModbusRecord [" + record + "] does not support writing");
+						}
 					});
 		}
 		return result;

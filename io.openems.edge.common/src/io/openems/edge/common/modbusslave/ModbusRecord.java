@@ -2,47 +2,63 @@ package io.openems.edge.common.modbusslave;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
-import io.openems.edge.common.component.OpenemsComponent;
 
-public abstract class ModbusRecord {
+/**
+ * Represents one record in a ModbusSlave implementation.
+ */
+public interface ModbusRecord {
 
-	private final int offset;
-	private final ModbusType type;
+	/**
+	 * Gets the Name of this Record.
+	 * 
+	 * @return the Name
+	 */
+	public String getName();
 
-	private String componentId = null;
+	/**
+	 * Gets the Modbus Address offset.
+	 * 
+	 * @return the offset
+	 */
+	public int getOffset();
 
-	public ModbusRecord(int offset, ModbusType type) {
-		this.offset = offset;
-		this.type = type;
-	}
+	/**
+	 * Gets the ModbusType of this record.
+	 * 
+	 * @return the ModbusType
+	 */
+	public ModbusType getType();
 
-	public int getOffset() {
-		return offset;
-	}
+	/**
+	 * Gets the value description for this record.
+	 * 
+	 * <p>
+	 * Example: "Range between 0 and 100 %"
+	 * 
+	 * @return the value description
+	 */
+	public String getValueDescription();
 
-	public ModbusType getType() {
-		return type;
-	}
+	/**
+	 * Gets the actual value as a byte-array of the appropriate length for the
+	 * ModbusType.
+	 * 
+	 * @return the byte-array
+	 */
+	public byte[] getValue();
 
-	public void setComponentId(String componentId) {
-		this.componentId = componentId;
-	}
+	/**
+	 * Gets the AccessMode of this record.
+	 * 
+	 * @return the AccessMode
+	 */
+	public AccessMode getAccessMode();
 
-	public String getComponentId() {
-		return componentId;
-	}
+	/**
+	 * Gets the Unit of this record.
+	 * 
+	 * @return the Unit
+	 */
+	public Unit getUnit();
 
-	public abstract String getName();
-
-	public abstract String getValueDescription();
-
-	public Unit getUnit() {
-		return Unit.NONE;
-	}
-
-	public abstract byte[] getValue(OpenemsComponent component);
-
-	public abstract void writeValue(OpenemsComponent component, int index, byte byte1, byte byte2);
-
-	public abstract AccessMode getAccessMode();
 }

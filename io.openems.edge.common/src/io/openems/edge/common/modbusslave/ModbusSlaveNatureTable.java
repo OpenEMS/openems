@@ -3,6 +3,7 @@ package io.openems.edge.common.modbusslave;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.edge.common.channel.ChannelId;
@@ -34,7 +35,7 @@ public final class ModbusSlaveNatureTable {
 					// Filter for WRITE_ONLY channels
 					(filter == AccessMode.WRITE_ONLY
 							&& (channel == AccessMode.WRITE_ONLY || channel == AccessMode.READ_WRITE))) {
-				this.add(new ModbusRecordChannel(offset, type, channelId, filter));
+				this.add(new AbstractModbusRecordChannel(offset, type, channelId, filter));
 
 			} else {
 				// Channel did not pass filter -> show as Reserved
@@ -64,6 +65,11 @@ public final class ModbusSlaveNatureTable {
 			return this;
 		}
 
+		public Builder uint16(int offset, String name, Supplier<Short> valueSupplier) {
+			this.add(new ModbusRecordUint16(offset, name, valueSupplier));
+			return this;
+		}
+
 		public Builder uint16Hash(int offset, String text) {
 			this.add(new ModbusRecordUint16Hash(offset, text));
 			return this;
@@ -71,6 +77,16 @@ public final class ModbusSlaveNatureTable {
 
 		public Builder uint16Reserved(int offset) {
 			this.add(new ModbusRecordUint16Reserved(offset));
+			return this;
+		}
+
+		public Builder uint32(int offset, String name, int value) {
+			this.add(new ModbusRecordUint32(offset, name, value));
+			return this;
+		}
+
+		public Builder uint32(int offset, String name, Supplier<Integer> valueSupplier) {
+			this.add(new ModbusRecordUint32(offset, name, valueSupplier));
 			return this;
 		}
 
@@ -109,7 +125,7 @@ public final class ModbusSlaveNatureTable {
 			return this;
 		}
 
-		private void add(ModbusRecord record) throws IllegalArgumentException {
+		private void add(AbstractModbusRecord record) throws IllegalArgumentException {
 			if (record.getOffset() != this.nextOffset) {
 				throw new IllegalArgumentException("Expected offset [" + this.nextOffset + "] but got ["
 						+ record.getOffset() + "] for Record [" + record + "]");
@@ -123,7 +139,8 @@ public final class ModbusSlaveNatureTable {
 			Collections.sort(this.maps, (m1, m2) -> {
 				return Integer.compare(m1.getOffset(), m2.getOffset());
 			});
-			return new ModbusSlaveNatureTable(nature, length, this.maps.toArray(new ModbusRecord[this.maps.size()]));
+			return new ModbusSlaveNatureTable(nature, length,
+					this.maps.toArray(new AbstractModbusRecord[this.maps.size()]));
 		}
 
 	}
@@ -134,9 +151,9 @@ public final class ModbusSlaveNatureTable {
 
 	private final Class<?> nature;
 	private final int length;
-	private final ModbusRecord[] modbusRecords;
+	private final AbstractModbusRecord[] modbusRecords;
 
-	private ModbusSlaveNatureTable(Class<?> nature, int length, ModbusRecord[] modbusRecords) {
+	private ModbusSlaveNatureTable(Class<?> nature, int length, AbstractModbusRecord[] modbusRecords) {
 		this.nature = nature;
 		this.length = length;
 		this.modbusRecords = modbusRecords;
@@ -150,7 +167,7 @@ public final class ModbusSlaveNatureTable {
 		return length;
 	}
 
-	public ModbusRecord[] getModbusRecords() {
+	public AbstractModbusRecord[] getModbusRecords() {
 		return modbusRecords;
 	}
 }

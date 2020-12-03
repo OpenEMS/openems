@@ -269,7 +269,9 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 	 * @return the next address after this record
 	 */
 	private int addRecordToProcessImage(int address, ModbusRecord record, OpenemsComponent component) {
-		record.setComponentId(component.id());
+		if (record instanceof ModbusRecordChannel) {
+			((ModbusRecordChannel) record).setComponentId(component.id());
+		}
 
 		// Handle writes to the Channel; limited to ModbusRecordChannels
 		if (record instanceof ModbusRecordChannel) {
