@@ -1,11 +1,12 @@
 package io.openems.edge.common.modbusslave;
 
 import java.nio.ByteBuffer;
+import java.util.function.Supplier;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.type.TypeUtils;
 
-public class ModbusRecordUint16 extends ModbusRecordConstant {
+public class ModbusRecordUint16 extends AbstractModbusRecordSupplier {
 
 	public final static byte[] UNDEFINED_VALUE = new byte[] { (byte) 0xFF, (byte) 0xFF };
 
@@ -18,21 +19,40 @@ public class ModbusRecordUint16 extends ModbusRecordConstant {
 		this.value = value;
 	}
 
+	public ModbusRecordUint16(int offset, String name, Supplier<Short> valueSupplier) {
+		super(offset, name, ModbusType.UINT16, () -> {
+			return toByteArray(valueSupplier.get());
+		});
+		this.value = null;
+	}
+
 	@Override
 	public String toString() {
-		return "ModbusRecordUInt16 [value=" + value + "/0x" + Integer.toHexString(value) + ", type=" + getType() + "]";
+		if (this.value == null) {
+			return "ModbusRecordUInt16 [value=" + this.value + ", type=" + getType() + "]";
+		} else {
+			return "ModbusRecordUInt16 [value=" + this.value + "/0x" + Integer.toHexString(this.value) + ", type="
+					+ getType() + "]";
+		}
 	}
 
-	public static byte[] toByteArray(short value) {
-		return ByteBuffer.allocate(BYTE_LENGTH).putShort(value).array();
-	}
-
+	/**
+	 * Converts a Short value to a byte-array.
+	 * 
+	 * @param value the Short value
+	 * @return the byte-array
+	 */
 	public static byte[] toByteArray(Object value) {
 		if (value == null || (value instanceof io.openems.common.types.OptionsEnum
 				&& ((io.openems.common.types.OptionsEnum) value).isUndefined())) {
 			return UNDEFINED_VALUE;
 		} else {
-			return toByteArray((short) TypeUtils.getAsType(OpenemsType.SHORT, value));
+			Short shortValue = (Short) TypeUtils.getAsType(OpenemsType.SHORT, value);
+			if (shortValue == null) {
+				return UNDEFINED_VALUE;
+			} else {
+				return ByteBuffer.allocate(BYTE_LENGTH).putShort(shortValue).array();
+			}
 		}
 	}
 
