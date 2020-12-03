@@ -8,7 +8,7 @@ public class MyConfig extends AbstractComponentConfig implements ConfigPV1, Conf
 
 	public static class Builder {
 		private String id = null;
-		public String batteryInverterId;
+		public String essOrBatteryInverter;
 		public int unitId;
 		public String modbusId;
 
@@ -21,8 +21,8 @@ public class MyConfig extends AbstractComponentConfig implements ConfigPV1, Conf
 			return this;
 		}
 
-		public Builder setBatteryInverterId(String batteryInverterId) {
-			this.batteryInverterId = batteryInverterId;
+		public Builder setBatteryInverterId(String essOrBatteryInverter) {
+			this.essOrBatteryInverter = essOrBatteryInverter;
 			return this;
 		}
 
@@ -73,13 +73,13 @@ public class MyConfig extends AbstractComponentConfig implements ConfigPV1, Conf
 	}
 
 	@Override
-	public String ess_id() {
-		return this.builder.batteryInverterId;
+	public String essOrBatteryInverter_id() {
+		return this.builder.essOrBatteryInverter;
 	}
 
 	@Override
-	public String Ess_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
+	public String essOrBatteryInverter_target() {
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.essOrBatteryInverter_id());
 	}
 
 }
