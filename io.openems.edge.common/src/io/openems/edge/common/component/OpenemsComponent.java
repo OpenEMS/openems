@@ -139,8 +139,13 @@ public interface OpenemsComponent {
 		Channel<?> channel = this._channel(channelName);
 		// check for null
 		if (channel == null) {
-			throw new IllegalArgumentException(
-					"Channel [" + channelName + "] is not defined for ID [" + this.id() + "].");
+			if (this.id() == null) {
+				throw new IllegalArgumentException("Channel [" + channelName + "] is not defined for implementation ["
+						+ this.getClass().getCanonicalName() + "].");
+			} else {
+				throw new IllegalArgumentException("Channel [" + channelName + "] is not defined for ID [" + this.id()
+						+ "]. Implementation [" + this.getClass().getCanonicalName() + "]");
+			}
 		}
 		// check correct type
 		T typedChannel;
