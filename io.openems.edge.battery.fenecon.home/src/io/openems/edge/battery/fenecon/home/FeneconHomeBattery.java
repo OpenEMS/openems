@@ -3,13 +3,12 @@ package io.openems.edge.battery.fenecon.home;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.home.enums.BmsControl;
 import io.openems.edge.battery.fenecon.home.enums.State;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
@@ -22,7 +21,7 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 	 * 
 	 * @return the Channel
 	 */
-	public default WriteChannel<BmsControl> getBmsControlChannel() {
+	public default Channel<BmsControl> getBmsControlChannel() {
 		return this.channel(ChannelId.BMS_CONTROL);
 	}
 
@@ -43,16 +42,6 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 	 */
 	public default void _setBmsControl(BmsControl value) {
 		this.getBmsControlChannel().setNextValue(value);
-	}
-
-	/**
-	 * Writes the value to the {@link ChannelId#BMS_CONTROL} Register.
-	 * 
-	 * @param value the next value
-	 * @throws OpenemsNamedException on error
-	 */
-	public default void setBmsControl(BmsControl value) throws OpenemsNamedException {
-		this.getBmsControlChannel().setNextWriteValue(value);
 	}
 
 	/**
