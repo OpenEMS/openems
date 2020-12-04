@@ -1,0 +1,189 @@
+<ion-header>
+    <ion-toolbar class="ion-justify-content-center" color="primary">
+        <ion-title>{{ component.alias }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ng-container *ngIf="!loading">
+        <ion-card-content class="underline" *ngIf="(edge.currentData | async)['channel'] as currentData">
+            <ng-container *ngIf="component.properties['meter.id'] as meterId">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            General.measuredValue
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ng-container *ngIf="(currentData[meterId + '/ActivePower'] || true) as value">
+                                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
+                            </ng-container>
+                        </td>
+                    </tr>
+                </table>
+            </ng-container>
+        </ion-card-content>
+        <form [formGroup]="formGroup">
+            <ion-card-content class="underline">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.Peakshaving.peakshavingPower
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="number" formControlName="peakShavingPower"
+                                    style="text-align: end;">
+                                </ion-input>
+                                <ion-label class="regularFont">&nbsp;W</ion-label>
+                            </ion-item>
+                        </td>
+                    </tr>
+                </table>
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.Peakshaving.rechargePower
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="number" formControlName="rechargePower"
+                                    style="text-align: end;">
+                                </ion-input>
+                                <ion-label class="regularFont">&nbsp;W</ion-label>
+                            </ion-item>
+                        </td>
+                    </tr>
+                </table>
+            </ion-card-content>
+            <ion-card-content class="underline">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%">
+                            Start Datum
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-datetime displayFormat="D MMM YYYY" formControlName="startDate">
+                            </ion-datetime>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 65%">
+                            Startzeit</td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-datetime display-format="h:mm A" picker-format="h:mm A" value="1990-02-19T07:43Z">
+                            </ion-datetime>
+                        </td>
+                    </tr>
+                </table>
+            </ion-card-content>
+            <ion-card-content class="underline">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%">
+                            End Datum
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-datetime displayFormat="MM.DD.YYYY" formControlName="endDate"></ion-datetime>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 65%">
+                            Endzeit</td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-datetime display-format="h:mm A" picker-format="h:mm A" value="1990-02-19T07:43Z">
+                            </ion-datetime>
+                        </td>
+                    </tr>
+                </table>
+            </ion-card-content>
+            <ion-card-content class="underline">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%">
+                            Aufladeleistung
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            XYZ
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 65%">
+                            Startzeit
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-datetime display-format="h:mm A" picker-format="h:mm A" value="1990-02-19T07:43Z">
+                            </ion-datetime>
+                        </td>
+                    </tr>
+                </table>
+            </ion-card-content>
+            <ion-card-content>
+                <ion-row class="ion-justify-content-center">
+                    <ion-col>
+                        <ion-item lines="none">
+                            <ion-label>Mo</ion-label>
+                            <ion-checkbox>
+                            </ion-checkbox>
+                        </ion-item>
+                    </ion-col>
+                    <ion-col>
+                        <ion-item lines="none">
+                            <ion-label>Di</ion-label>
+                            <ion-checkbox>
+                            </ion-checkbox>
+                        </ion-item>
+                    </ion-col>
+                    <ion-col>
+                        <ion-item lines="none">
+                            <ion-label>Mi</ion-label>
+                            <ion-checkbox>
+                            </ion-checkbox>
+                        </ion-item>
+                    </ion-col>
+                    <ion-col>
+                        <ion-item lines="none">
+                            <ion-label>Do</ion-label>
+                            <ion-checkbox>
+                            </ion-checkbox>
+                        </ion-item>
+                    </ion-col>
+                    <ion-col>
+                        <ion-item lines="none">
+                            <ion-label>Fr</ion-label>
+                            <ion-checkbox>
+                            </ion-checkbox>
+                        </ion-item>
+                    </ion-col>
+                    <ion-col>
+                        <ion-item lines="none">
+                            <ion-label>Sa</ion-label>
+                            <ion-checkbox>
+                            </ion-checkbox>
+                        </ion-item>
+                    </ion-col>
+                    <ion-col>
+                        <ion-item lines="none">
+                            <ion-label>So</ion-label>
+                            <ion-checkbox>
+                            </ion-checkbox>
+                        </ion-item>
+                    </ion-col>
+                </ion-row>
+            </ion-card-content>
+        </form>
+    </ng-container>
+    <ion-fab *ngIf="formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button (click)="applyChanges()">
+            <ion-icon size="large" name="checkmark-circle-outline">
+            </ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+    <ion-grid *ngIf="loading == true">
+        <ion-progress-bar type="indeterminate"></ion-progress-bar>
+    </ion-grid>
+</ion-content>

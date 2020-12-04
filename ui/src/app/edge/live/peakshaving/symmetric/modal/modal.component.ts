@@ -40,37 +40,41 @@ export class SymmetricPeakshavingModalComponent {
     }
 
     applyChanges() {
-        let peakShavingPower = this.formGroup.controls['peakShavingPower'];
-        let rechargePower = this.formGroup.controls['rechargePower'];
-        if (peakShavingPower.valid && rechargePower.valid) {
-            if (peakShavingPower.value >= rechargePower.value) {
-                let updateComponentArray = [];
-                Object.keys(this.formGroup.controls).forEach((element, index) => {
-                    if (this.formGroup.controls[element].dirty) {
-                        updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
-                    }
-                })
-                if (this.edge != null) {
-                    this.loading = true;
-                    this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
-                        this.component.properties.peakShavingPower = peakShavingPower.value;
-                        this.component.properties.rechargePower = rechargePower.value;
-                        this.loading = false;
-                        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-                    }).catch(reason => {
-                        peakShavingPower.setValue(this.component.properties.peakShavingPower);
-                        rechargePower.setValue(this.component.properties.rechargePower);
-                        this.loading = false;
-                        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-                        console.warn(reason);
+        if (this.edge.roleIsAtLeast('owner')) {
+            let peakShavingPower = this.formGroup.controls['peakShavingPower'];
+            let rechargePower = this.formGroup.controls['rechargePower'];
+            if (peakShavingPower.valid && rechargePower.valid) {
+                if (peakShavingPower.value >= rechargePower.value) {
+                    let updateComponentArray = [];
+                    Object.keys(this.formGroup.controls).forEach((element, index) => {
+                        if (this.formGroup.controls[element].dirty) {
+                            updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                        }
                     })
-                    this.formGroup.markAsPristine()
+                    if (this.edge != null) {
+                        this.loading = true;
+                        this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
+                            this.component.properties.peakShavingPower = peakShavingPower.value;
+                            this.component.properties.rechargePower = rechargePower.value;
+                            this.loading = false;
+                            this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+                        }).catch(reason => {
+                            peakShavingPower.setValue(this.component.properties.peakShavingPower);
+                            rechargePower.setValue(this.component.properties.rechargePower);
+                            this.loading = false;
+                            this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+                            console.warn(reason);
+                        })
+                        this.formGroup.markAsPristine()
+                    }
+                } else {
+                    this.service.toast(this.translate.instant('Edge.Index.Widgets.Peakshaving.relationError'), 'danger');
                 }
             } else {
-                this.service.toast(this.translate.instant('Edge.Index.Widgets.Peakshaving.relationError'), 'danger');
+                this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
             }
         } else {
-            this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
+            this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
         }
     }
 }

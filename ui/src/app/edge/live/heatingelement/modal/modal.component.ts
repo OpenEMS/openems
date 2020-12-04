@@ -101,34 +101,37 @@ export class HeatingElementModalComponent implements OnInit {
     }
 
     applyChanges() {
-        let updateComponentArray = [];
-        Object.keys(this.formGroup.controls).forEach((element, index) => {
-            if (this.formGroup.controls[element].dirty) {
-                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
-            }
-        });
-
-        if (this.edge != null) {
-            this.loading = true;
-            this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
-                this.component.properties.minTime = this.formGroup.value.minTime;
-                this.component.properties.minkwh = this.formGroup.value.minkwh;
-                this.component.properties.endTime = this.formGroup.value.endTime;
-                this.component.properties.workMode = this.formGroup.value.workMode;
-                this.component.properties.defaultLevel = this.formGroup.value.defaultLevel;
-                this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-                this.loading = false;
-            }).catch(reason => {
-                this.formGroup.controls['minTime'].setValue(this.component.properties.minTime);
-                this.formGroup.controls['minKwh'].setValue(this.component.properties.minkwh);
-                this.formGroup.controls['endTime'].setValue(this.component.properties.endTime);
-                this.formGroup.controls['workMode'].setValue(this.component.properties.workMode);
-                this.formGroup.controls['defaultLevel'].setValue(this.component.properties.defaultLevel);
-                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
-                this.loading = false;
-                console.warn(reason);
+        if (this.edge.roleIsAtLeast('owner')) {
+            let updateComponentArray = [];
+            Object.keys(this.formGroup.controls).forEach((element, index) => {
+                if (this.formGroup.controls[element].dirty) {
+                    updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                }
             });
-            this.formGroup.markAsPristine()
+            if (this.edge != null) {
+                this.loading = true;
+                this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
+                    this.component.properties.minTime = this.formGroup.value.minTime;
+                    this.component.properties.minkwh = this.formGroup.value.minkwh;
+                    this.component.properties.endTime = this.formGroup.value.endTime;
+                    this.component.properties.workMode = this.formGroup.value.workMode;
+                    this.component.properties.defaultLevel = this.formGroup.value.defaultLevel;
+                    this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+                    this.loading = false;
+                }).catch(reason => {
+                    this.formGroup.controls['minTime'].setValue(this.component.properties.minTime);
+                    this.formGroup.controls['minKwh'].setValue(this.component.properties.minkwh);
+                    this.formGroup.controls['endTime'].setValue(this.component.properties.endTime);
+                    this.formGroup.controls['workMode'].setValue(this.component.properties.workMode);
+                    this.formGroup.controls['defaultLevel'].setValue(this.component.properties.defaultLevel);
+                    this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+                    this.loading = false;
+                    console.warn(reason);
+                });
+                this.formGroup.markAsPristine()
+            }
+        } else {
+            this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
         }
     }
 }

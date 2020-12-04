@@ -42,6 +42,8 @@ import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetric
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
 import { HeatPumpComponent } from './heatpump/heatpump.component';
 import { HeatPumpModalComponent } from './heatpump/modal/modal.component';
+import { TimeslotPeakshavingComponent } from './peakshaving/timeslot/timeslotpeakshaving.component';
+import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/modal.component';
 
 @NgModule({
   imports: [
@@ -70,6 +72,7 @@ import { HeatPumpModalComponent } from './heatpump/modal/modal.component';
     SinglethresholdModalComponent,
     StorageModalComponent,
     SymmetricPeakshavingModalComponent,
+    TimeslotPeakshavingModalComponent,
   ],
   declarations: [
     AdministrationComponent,
@@ -112,6 +115,8 @@ import { HeatPumpModalComponent } from './heatpump/modal/modal.component';
     StorageModalComponent,
     SymmetricPeakshavingComponent,
     SymmetricPeakshavingModalComponent,
+    TimeslotPeakshavingComponent,
+    TimeslotPeakshavingModalComponent,
   ]
 })
 export class LiveModule { }

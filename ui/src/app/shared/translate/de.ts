@@ -33,6 +33,7 @@ export const TRANSLATION = {
         inactive: 'Inaktiv',
         info: 'Info',
         inputNotValid: 'Eingabe ungültig',
+        insufficientRights: 'Unzureichende Rechte',
         live: 'Live',
         load: 'Last',
         manually: 'Manuell',

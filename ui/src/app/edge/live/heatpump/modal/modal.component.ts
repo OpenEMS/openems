@@ -76,29 +76,33 @@ export class HeatPumpModalComponent {
   }
 
   public applyChanges() {
-    if (this.formGroup.controls['automaticRecommendationSurplusPower'].value < this.formGroup.controls['automaticForceOnSurplusPower'].value) {
-      let updateComponentArray = [];
-      Object.keys(this.formGroup.controls).forEach((element, index) => {
-        if (this.formGroup.controls[element].dirty) {
-          updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
-        }
-      });
-      if (this.edge != null) {
-        this.loading = true;
-        this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
-          this.component.properties.manualState = this.formGroup.value.manualState;
-          this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-          this.loading = false;
-        }).catch(reason => {
-          this.formGroup.controls['minTime'].setValue(this.component.properties.manualState);
-          this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
-          this.loading = false;
-          console.warn(reason);
+    if (this.edge.roleIsAtLeast('owner')) {
+      if (this.formGroup.controls['automaticRecommendationSurplusPower'].value < this.formGroup.controls['automaticForceOnSurplusPower'].value) {
+        let updateComponentArray = [];
+        Object.keys(this.formGroup.controls).forEach((element, index) => {
+          if (this.formGroup.controls[element].dirty) {
+            updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+          }
         });
-        this.formGroup.markAsPristine();
+        if (this.edge != null) {
+          this.loading = true;
+          this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
+            this.component.properties.manualState = this.formGroup.value.manualState;
+            this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+            this.loading = false;
+          }).catch(reason => {
+            this.formGroup.controls['minTime'].setValue(this.component.properties.manualState);
+            this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+            this.loading = false;
+            console.warn(reason);
+          });
+          this.formGroup.markAsPristine();
+        }
+      } else {
+        this.service.toast(this.translate.instant('Edge.Index.Widgets.HeatPump.relationError'), 'danger');
       }
     } else {
-      this.service.toast(this.translate.instant('Edge.Index.Widgets.HeatPump.relationError'), 'danger');
+      this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
     }
   }
 }

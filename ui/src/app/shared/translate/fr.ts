@@ -29,6 +29,7 @@ export const TRANSLATION = {
         inactive: 'Désactivé',
         info: 'Info',
         inputNotValid: 'Input not valid',
+        insufficientRights: 'Droits insuffisants',
         live: 'Direct',
         load: 'Charge',
         manually: 'Manuellement',

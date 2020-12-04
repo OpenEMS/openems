@@ -18,14 +18,15 @@ export enum WidgetNature {
 }
 
 export enum WidgetFactory {
+    'Controller.Asymmetric.PeakShaving',
     'Controller.ChannelThreshold',
-    'Controller.Io.FixDigitalOutput',
+    'Controller.CHP.SoC',
     'Controller.IO.ChannelSingleThreshold',
+    'Controller.Io.FixDigitalOutput',
     'Controller.IO.HeatingElement',
     'Controller.Io.HeatPump.SgReady',
-    'Controller.CHP.SoC',
-    'Controller.Asymmetric.PeakShaving',
     'Controller.Symmetric.PeakShaving',
+    'Controller.TimeslotPeakshaving',
     'Evcs.Cluster.PeakShaving',
     'Evcs.Cluster.SelfConsumption',
 }

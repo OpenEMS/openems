@@ -30,6 +30,7 @@ export const TRANSLATION = {
         inactive: 'Inactivo',
         info: 'Informacion',
         inputNotValid: 'Entrada inválida',
+        insufficientRights: 'Derechos insuficientes',
         live: 'Live',
         load: 'la cantidad',
         manually: 'a mano',

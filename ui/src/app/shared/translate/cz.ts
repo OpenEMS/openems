@@ -32,6 +32,7 @@ export const TRANSLATION = {
         inactive: 'Neaktivní',
         info: 'Informace',
         inputNotValid: 'Vstup je neplatný',
+        insufficientRights: 'Nedostatečná práva',
         live: 'Live',
         load: 'nálož',
         manually: 'Ruční',
