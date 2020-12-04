@@ -28,6 +28,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.fenecon.commercial40.EssFeneconCommercial40;
 import io.openems.edge.ess.fenecon.commercial40.EssFeneconCommercial40Impl;
 import io.openems.edge.ess.fenecon.commercial40.charger.EssDcChargerFeneconCommercial40;
 import io.openems.edge.ess.power.api.Phase;
@@ -167,9 +168,9 @@ public class SurplusFeedInController extends AbstractOpenemsComponent implements
 		}
 
 		IntegerReadChannel allowedChargeChannel = ess
-				.channel(EssFeneconCommercial40Impl.ChannelId.ORIGINAL_ALLOWED_CHARGE_POWER);
+				.channel(EssFeneconCommercial40.ChannelId.ORIGINAL_ALLOWED_CHARGE_POWER);
 		IntegerReadChannel allowedDischargeChannel = ess
-				.channel(EssFeneconCommercial40Impl.ChannelId.ORIGINAL_ALLOWED_DISCHARGE_POWER);
+				.channel(EssFeneconCommercial40.ChannelId.ORIGINAL_ALLOWED_DISCHARGE_POWER);
 		if (
 		// Is battery Allowed Charge bigger than the limit? (and Discharge is allowed)
 		(allowedChargeChannel.value().orElse(0) < this.config.allowedChargePowerLimit()
@@ -204,7 +205,7 @@ public class SurplusFeedInController extends AbstractOpenemsComponent implements
 			// Limit PV-Power to maximum apparent power of inverter
 			// this avoids filling the battery faster than we can empty it
 			StateChannel powerDecreaseCausedByOvertemperatureChannel = ess
-					.channel(EssFeneconCommercial40Impl.ChannelId.STATE_105);
+					.channel(EssFeneconCommercial40.ChannelId.STATE_105);
 			if (powerDecreaseCausedByOvertemperatureChannel.value().orElse(false)) {
 				// Always decrease if POWER_DECREASE_CAUSED_BY_OVERTEMPERATURE StateChannel is
 				// set
