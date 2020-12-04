@@ -67,10 +67,23 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent impl
 										case "GW10K-BT":
 											result = GoodweType.GOODWE_10K_BT;
 											break;
+										case "GW8K-BT":
+											result = GoodweType.GOODWE_8K_BT;
+											break;
+										case "GW5K-BT":
+											result = GoodweType.GOODWE_5K_BT;
+											break;
 										case "GW10K-ET":
 											result = GoodweType.GOODWE_10K_ET;
 											break;
+										case "GW8K-ET":
+											result = GoodweType.GOODWE_8K_ET;
+											break;
+										case "GW5K-ET":
+											result = GoodweType.GOODWE_5K_ET;
+											break;
 										default:
+											this.logInfo(this.log, "Unable to identify GoodWe by name [" + value + "]");
 											result = GoodweType.UNDEFINED;
 											break;
 										}
@@ -79,10 +92,12 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent impl
 									if (result != this.getGoodweType()) {
 										switch (result) {
 										case GOODWE_10K_BT:
-											this.logInfo(this.log, "Identified GoodWe GW10K-BT");
-											break;
+										case GOODWE_8K_BT:
+										case GOODWE_5K_BT:
 										case GOODWE_10K_ET:
-											this.logInfo(this.log, "Identified GoodWe GW10K-ET");
+										case GOODWE_8K_ET:
+										case GOODWE_5K_ET:
+											this.logInfo(this.log, "Identified " + result.getName());
 											break;
 										case UNDEFINED:
 											break;

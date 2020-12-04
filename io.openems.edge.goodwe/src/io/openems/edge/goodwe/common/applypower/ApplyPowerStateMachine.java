@@ -115,6 +115,8 @@ public class ApplyPowerStateMachine extends AbstractStateMachine<ApplyPowerState
 		} else {
 			switch (goodweType) {
 			case GOODWE_10K_BT:
+			case GOODWE_8K_BT:
+			case GOODWE_5K_BT:
 				if (activePowerSetPoint > 0) {
 					// Set-Point is positive
 					return State.BT_DISCHARGE;
@@ -124,6 +126,8 @@ public class ApplyPowerStateMachine extends AbstractStateMachine<ApplyPowerState
 				}
 
 			case GOODWE_10K_ET:
+			case GOODWE_8K_ET:
+			case GOODWE_5K_ET:
 				if (soc > 99) {
 					// battery is full
 					if (activePowerSetPoint > 0) {

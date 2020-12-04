@@ -4,8 +4,12 @@ import io.openems.common.types.OptionsEnum;
 
 public enum GoodweType implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	GOODWE_10K_BT(1, "GoodWe GW10K-BT"), //
-	GOODWE_10K_ET(2, "GoodWe GW10K-ET");
+	GOODWE_10K_BT(10, "GoodWe GW10K-BT"), //
+	GOODWE_8K_BT(11, "GoodWe GW8K-BT"), //
+	GOODWE_5K_BT(12, "GoodWe GW5K-BT"), //
+	GOODWE_10K_ET(20, "GoodWe GW10K-ET"), //
+	GOODWE_8K_ET(21, "GoodWe GW8K-ET"), //
+	GOODWE_5K_ET(22, "GoodWe GW5K-ET");
 
 	private final int value;
 	private final String option;
