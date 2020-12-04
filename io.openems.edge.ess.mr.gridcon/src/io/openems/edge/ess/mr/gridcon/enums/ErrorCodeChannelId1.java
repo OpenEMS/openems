@@ -432,7 +432,7 @@ public enum ErrorCodeChannelId1 implements ChannelId {
 			.needsHardReset(false) //
 			.code(0x010013) //
 			.text("voltage not zero for Blackstart")),
-	STATE_VOLTAGE_SYNC_NOT_SUCCEDDED_SOFTWARE_1(new ErrorDoc(Level.WARNING) //
+	STATE_VOLTAGE_SYNC_NOT_SUCCEEDED_SOFTWARE_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.UNDEFINED) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
 			.needsHardReset(false) //

@@ -121,6 +121,16 @@
                       </td>
                     </tr>
                   </table>
+                  <table class="full_width"
+                    *ngIf="formGroup.controls.switchedLoadPower.dirty && formGroup.controls.inputMode.value == 'GRIDSELL'">
+                    <tr>
+                      <td style="width: 100%">
+                        <ion-text color="danger" translate>
+                          Edge.Index.Widgets.Singlethreshold.moreThanMaxPower
+                        </ion-text>
+                      </td>
+                    </tr>
+                  </table>
                 </ion-card-content>
               </ng-container>
 

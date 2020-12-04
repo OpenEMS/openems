@@ -1055,9 +1055,6 @@ public class EdgeConfig {
 	 * @return true if it should get ignored
 	 */
 	public static boolean ignorePropertyKey(String key) {
-		if (key.endsWith(".target")) {
-			return true;
-		}
 		switch (key) {
 		case OpenemsConstants.PROPERTY_COMPONENT_ID:
 		case OpenemsConstants.PROPERTY_OSGI_COMPONENT_ID:
