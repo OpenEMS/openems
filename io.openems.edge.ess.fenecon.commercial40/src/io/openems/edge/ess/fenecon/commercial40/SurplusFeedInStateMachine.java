@@ -1,8 +1,8 @@
-package io.openems.edge.ess.fenecon.commercial40.surplusfeedin;
+package io.openems.edge.ess.fenecon.commercial40;
 
 import io.openems.common.types.OptionsEnum;
 
-enum StateMachine implements OptionsEnum {
+public enum SurplusFeedInStateMachine implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	DEACTIVATED(0, "Deactivated"), //
 	ACTIVATED(1, "Activated"), //
@@ -12,7 +12,7 @@ enum StateMachine implements OptionsEnum {
 	private final int value;
 	private final String name;
 
-	private StateMachine(int value, String name) {
+	private SurplusFeedInStateMachine(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}

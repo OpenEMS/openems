@@ -91,6 +91,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
 			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
 	private final List<EssDcChargerFeneconCommercial40> chargers = new ArrayList<>();
+	private final SurplusFeedInHandler surplusFeedInHandler = new SurplusFeedInHandler(this);
 
 	private Config config;
 
@@ -711,7 +712,9 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				+ "|Allowed:"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
-				+ "|" + this.getGridModeChannel().value().asOptionString();
+				+ "|" + this.getGridModeChannel().value().asOptionString() //
+				+ "|Feed-In:"
+				+ this.channel(EssFeneconCommercial40.ChannelId.SURPLUS_FEED_IN_STATE_MACHINE).value().asOptionString();
 	}
 
 	@Override
@@ -842,8 +845,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 
 	@Override
 	public Integer getSurplusPower() {
-		// this is handled by the specific SurplusFeedInController
-		return null;
+		return this.surplusFeedInHandler.run(this.chargers, this.config, this.componentManager);
 	}
 
 	@Override

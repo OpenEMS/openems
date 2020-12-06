@@ -19,6 +19,12 @@ public class EssFeneconCommercial40ImplTest {
 				.activate(MyConfig.create() //
 						.setId(ESS_ID) //
 						.setModbusId(MODBUS_ID) //
+						.setSurplusFeedInSocLimit(90) //
+						.setSurplusFeedInAllowedChargePowerLimit(-8000) //
+						.setSurplusFeedInIncreasePowerFactor(1.1) //
+						.setSurplusFeedInMaxIncreasePowerFactor(2000) //
+						.setSurplusFeedInPvLimitOnPowerDecreaseCausedByOvertemperature(5000) //
+						.setSurplusFeedInOffTime("17:00:00") //
 						.build()) //
 		;
 	}

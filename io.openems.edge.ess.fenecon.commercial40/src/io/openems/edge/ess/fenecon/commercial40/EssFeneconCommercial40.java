@@ -41,6 +41,9 @@ public interface EssFeneconCommercial40
 		BATTERY_STRING_SWITCH_STATE(Doc.of(BatteryStringSwitchState.values())), //
 		BMS_DCDC_WORK_STATE(Doc.of(BmsDcdcWorkState.values())), //
 		BMS_DCDC_WORK_MODE(Doc.of(BmsDcdcWorkMode.values())), //
+		SURPLUS_FEED_IN_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		SURPLUS_FEED_IN_STATE_MACHINE(Doc.of(SurplusFeedInStateMachine.values())),
 
 		// EnumWriteChannels
 		SET_WORK_STATE(Doc.of(SetWorkState.values()) //
