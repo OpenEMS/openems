@@ -9,35 +9,19 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 
 public abstract class AbstractFeneconDessCharger extends AbstractOpenemsModbusComponent
-		implements EssDcCharger, OpenemsComponent {
+		implements FeneconDessCharger, EssDcCharger, OpenemsComponent {
 
 	public AbstractFeneconDessCharger() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				EssDcCharger.ChannelId.values(), //
-				ChannelId.values() //
+				FeneconDessCharger.ChannelId.values() //
 		);
-	}
-
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
 	}
 
 	@Override

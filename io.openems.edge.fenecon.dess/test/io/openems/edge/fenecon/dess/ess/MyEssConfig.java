@@ -1,12 +1,12 @@
-package io.openems.edge.fenecon.dess.charger;
+package io.openems.edge.fenecon.dess.ess;
 
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
-public class MyConfig extends AbstractComponentConfig implements Config1, Config2 {
+public class MyEssConfig extends AbstractComponentConfig implements Config {
 
-	protected static class Builder {
+	public static class Builder {
 		private String id = null;
 		private String modbusId = null;
 
@@ -23,8 +23,8 @@ public class MyConfig extends AbstractComponentConfig implements Config1, Config
 			return this;
 		}
 
-		public MyConfig build() {
-			return new MyConfig(this);
+		public MyEssConfig build() {
+			return new MyEssConfig(this);
 		}
 	}
 
@@ -39,8 +39,8 @@ public class MyConfig extends AbstractComponentConfig implements Config1, Config
 
 	private final Builder builder;
 
-	private MyConfig(Builder builder) {
-		super(Config1.class, builder.id);
+	private MyEssConfig(Builder builder) {
+		super(Config.class, builder.id);
 		this.builder = builder;
 	}
 

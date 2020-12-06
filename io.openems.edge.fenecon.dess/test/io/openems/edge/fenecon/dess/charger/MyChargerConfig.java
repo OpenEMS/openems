@@ -1,14 +1,15 @@
-package io.openems.edge.fenecon.dess.ess;
+package io.openems.edge.fenecon.dess.charger;
 
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
-public class MyConfig extends AbstractComponentConfig implements Config {
+public class MyChargerConfig extends AbstractComponentConfig implements Config1, Config2 {
 
 	protected static class Builder {
 		private String id = null;
 		private String modbusId = null;
+		private String essId = null;
 
 		private Builder() {
 		}
@@ -18,13 +19,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setEssId(String essId) {
+			this.essId = essId;
+			return this;
+		}
+
 		public Builder setModbusId(String modbusId) {
 			this.modbusId = modbusId;
 			return this;
 		}
 
-		public MyConfig build() {
-			return new MyConfig(this);
+		public MyChargerConfig build() {
+			return new MyChargerConfig(this);
 		}
 	}
 
@@ -39,19 +45,28 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	private final Builder builder;
 
-	private MyConfig(Builder builder) {
-		super(Config.class, builder.id);
+	private MyChargerConfig(Builder builder) {
+		super(Config1.class, builder.id);
 		this.builder = builder;
 	}
 
-	@Override
-	public String modbus_id() {
+	public String modbusId() {
 		return this.builder.modbusId;
 	}
 
 	@Override
 	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbusId());
+	}
+
+	@Override
+	public String ess_id() {
+		return this.builder.essId;
+	}
+
+	@Override
+	public String Ess_target() {
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
 	}
 
 }

@@ -16,14 +16,15 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.fenecon.dess.FeneconDessConstants;
+import io.openems.edge.fenecon.dess.ess.FeneconDessEss;
 
 @Designate(ocd = Config2.class, factory = true)
 @Component(//
 		name = "Fenecon.Dess.Charger2", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class FeneconDessCharger2 extends AbstractFeneconDessCharger implements EssDcCharger, OpenemsComponent {
+public class FeneconDessCharger2 extends AbstractFeneconDessCharger
+		implements FeneconDessCharger, EssDcCharger, OpenemsComponent {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -33,20 +34,31 @@ public class FeneconDessCharger2 extends AbstractFeneconDessCharger implements E
 		super.setModbus(modbus);
 	}
 
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	private FeneconDessEss ess;
+
 	public FeneconDessCharger2() {
 		super();
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config2 config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), FeneconDessConstants.UNIT_ID,
-				this.cm, "Modbus", config.modbus_id())) {
+	void activate(ComponentContext context, Config1 config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm,
+				"Modbus", this.ess.getModbusBridgeId())) {
 			return;
 		}
+
+		// update filter for 'Ess'
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
+			return;
+		}
+
+		this.ess.addCharger(this);
 	}
 
 	@Deactivate
 	protected void deactivate() {
+		this.ess.removeCharger(this);
 		super.deactivate();
 	}
 
