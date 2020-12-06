@@ -149,6 +149,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		super.deactivate();
 	}
 
+	@Override
 	public String getModbusBridgeId() {
 		return this.config.modbus_id();
 	}
@@ -725,7 +726,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.applyPowerLimitOnPowerDecreaseCausedByOvertemperatureError();
-			this.updatechannels();
+			this.calculateEnergy();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			this.defineWorkState();
@@ -853,7 +854,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		return this.timedata;
 	}
 
-	private void updatechannels() {
+	private void calculateEnergy() {
 		/*
 		 * Calculate AC Energy
 		 */
