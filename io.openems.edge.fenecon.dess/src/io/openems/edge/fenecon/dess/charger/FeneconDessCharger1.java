@@ -10,24 +10,35 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.fenecon.dess.ess.FeneconDessEss;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
 
 @Designate(ocd = Config1.class, factory = true)
 @Component(//
 		name = "Fenecon.Dess.Charger1", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
 public class FeneconDessCharger1 extends AbstractFeneconDessCharger
-		implements FeneconDessCharger, EssDcCharger, OpenemsComponent {
+		implements FeneconDessCharger, EssDcCharger, OpenemsComponent, EventHandler, TimedataProvider {
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -67,4 +78,8 @@ public class FeneconDessCharger1 extends AbstractFeneconDessCharger
 		return 11240;
 	}
 
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
 }
