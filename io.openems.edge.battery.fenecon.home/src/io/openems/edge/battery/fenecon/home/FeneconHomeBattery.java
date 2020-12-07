@@ -263,7 +263,7 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Battery Rack Voltage")), //
 		BATTERY_RACK_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.MILLIAMPERE) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Battery Rack Current")), //
 		BATTERY_RACK_SOC(Doc.of(OpenemsType.INTEGER) //
