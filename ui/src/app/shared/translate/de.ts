@@ -151,6 +151,7 @@ export const TRANSLATION = {
                     currentValue: 'Aktueller Wert',
                     dependendOn: 'Abhängig von',
                     minSwitchingTime: 'Mindestumschaltzeit',
+                    moreThanMaxPower: 'Wert darf nicht niedriger als Maximalleistung des angesteuerten Geräts sein',
                     other: 'Sonstige',
                     relationError: 'Schwellenwert muss größer als die geschaltete Last sein',
                     switchedLoadPower: 'Geschaltete Last',
@@ -250,6 +251,19 @@ export const TRANSLATION = {
                     priority: 'Priorität',
                     time: 'Zeit',
                     timeCountdown: 'Spätester Start',
+                },
+                HeatPump: {
+                    aboveSoc: 'und über Ladezustand von',
+                    belowSoc: 'und unter Ladezustand von',
+                    gridBuy: 'Ab Netzbezug von',
+                    gridSell: 'Ab Überschusseinspeisung von',
+                    lock: 'Sperre',
+                    moreThanMaxPower: 'Wert darf nicht niedriger als Maximalleistung der Wärmepumpe sein',
+                    normalOperation: 'Normalbetrieb',
+                    relationError: 'Einschaltbefehl Überschusswert muss größer als Einschaltempfehlungswert sein',
+                    switchOnCom: 'Einschaltbefehl',
+                    switchOnRec: 'Einschaltempfehlung',
+                    undefined: 'Nicht definiert',
                 }
             }
         },

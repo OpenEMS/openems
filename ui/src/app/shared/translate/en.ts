@@ -150,6 +150,7 @@ export const TRANSLATION = {
                     currentValue: 'Current value',
                     dependendOn: 'Dependend on',
                     minSwitchingTime: 'Minimum swichting time',
+                    moreThanMaxPower: 'Value must not be lower than the maximum power of the controlled device',
                     other: 'Other',
                     relationError: 'Threshold must be greater than the switched load power',
                     switchedLoadPower: 'Switched load power',
@@ -250,6 +251,19 @@ export const TRANSLATION = {
                     minimalEnergyAmount: 'Minimal charge amount',
                     minimumRunTime: 'Minimum runtime',
                     timeCountdown: 'time until start',
+                },
+                HeatPump: {
+                    aboveSoc: 'and above the state of charge of',
+                    belowSoc: 'and below state of charge of',
+                    gridBuy: 'From grid purchase of',
+                    gridSell: 'From excess feed-in of',
+                    lock: 'Lock',
+                    moreThanHpPower: 'The value must not be lower than the maximum output of the heat pump',
+                    normalOperation: 'Normal operation',
+                    relationError: 'Switch-on command excess value must be greater than switch-on recommended value',
+                    switchOnCom: 'Switch-on command',
+                    switchOnRec: 'Switch-on recommendation',
+                    undefined: 'Undefined',
                 }
             }
         },

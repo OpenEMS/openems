@@ -127,6 +127,7 @@ export const TRANSLATION = {
                     currentValue: 'Valor actual',
                     dependendOn: 'Dependiendo de',
                     minSwitchingTime: 'Conmutación mínimo',
+                    moreThanMaxPower: 'El valor no debe ser inferior a la potencia máxima del dispositivo controlado',
                     other: 'Otro',
                     relationError: 'El umbral debe ser mayor que la carga conmutada',
                     switchedLoadPower: 'Carga conmutada',
@@ -227,6 +228,19 @@ export const TRANSLATION = {
                     priority: 'Prioridad',
                     time: 'Tiempo',
                     timeCountdown: 'Hora de empezar',
+                },
+                HeatPump: {
+                    aboveSoc: 'y sobre el estado de carga de',
+                    belowSoc: 'y bajo el estado de cargo de',
+                    gridBuy: 'De la compra de la red de',
+                    gridSell: 'Por exceso de alimentación de',
+                    lock: 'Bloquear',
+                    moreThanHpPower: 'El valor no debe ser inferior a la potencia máxima de la bomba de calor',
+                    normalOperation: 'Operación normal',
+                    relationError: 'El valor de exceso del comando de encendido debe ser mayor que el valor recomendado de encendido',
+                    switchOnCom: 'Mando de encendido',
+                    switchOnRec: 'Recomendación de encendido',
+                    undefined: 'Indefinido',
                 }
             }
         },

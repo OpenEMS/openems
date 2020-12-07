@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,9 +24,11 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -209,8 +212,37 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 */
 	private final SUT sut;
 
-	public AbstractComponentTest(SUT sut) {
+	/**
+	 * Constructs the Component-Test and validates the implemented Channel-IDs.
+	 * 
+	 * @param sut the 'system-under-test'
+	 * @throws OpenemsException on error
+	 */
+	public AbstractComponentTest(SUT sut) throws OpenemsException {
 		this.sut = sut;
+
+		// Of all implemented interfaces...
+		for (Class<?> iface : sut.getClass().getInterfaces()) {
+			// get the ones which contain a subclass...
+			for (Class<?> subclass : iface.getDeclaredClasses()) {
+				// that implements 'ChannelId'.
+				if (Arrays.asList(subclass.getInterfaces()).contains(io.openems.edge.common.channel.ChannelId.class)) {
+					// Then read all the Channel-IDs...
+					for (Object enumConstant : subclass.getEnumConstants()) {
+						ChannelId channelId = (ChannelId) enumConstant;
+						// and validate that they were initialized in the constructor.
+						try {
+							sut.channel(channelId);
+						} catch (IllegalArgumentException e) {
+							throw new OpenemsException(
+									"OpenEMS Nature [" + iface.getSimpleName() + "] was not properly implemented. " //
+											+ "Please make sure to initialize the Channel-IDs in the constructor.",
+									e);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	/**
