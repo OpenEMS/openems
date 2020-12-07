@@ -23,6 +23,12 @@ public class EssDcChargerFeneconCommercial40ImplTest {
 				.activate(io.openems.edge.ess.fenecon.commercial40.MyConfig.create() //
 						.setId(ESS_ID) //
 						.setModbusId(MODBUS_ID) //
+						.setSurplusFeedInSocLimit(90) //
+						.setSurplusFeedInAllowedChargePowerLimit(-8000) //
+						.setSurplusFeedInIncreasePowerFactor(1.1) //
+						.setSurplusFeedInMaxIncreasePowerFactor(2000) //
+						.setSurplusFeedInPvLimitOnPowerDecreaseCausedByOvertemperature(5000) //
+						.setSurplusFeedInOffTime("17:00:00") //
 						.build());
 
 		new ComponentTest(new EssDcChargerFeneconCommercial40Pv1Impl()) //
