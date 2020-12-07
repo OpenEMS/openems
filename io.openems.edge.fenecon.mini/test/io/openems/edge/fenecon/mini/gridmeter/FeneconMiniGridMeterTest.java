@@ -13,7 +13,7 @@ public class FeneconMiniGridMeterTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new FeneconMiniGridMeter()) //
+		new ComponentTest(new FeneconMiniGridMeterImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

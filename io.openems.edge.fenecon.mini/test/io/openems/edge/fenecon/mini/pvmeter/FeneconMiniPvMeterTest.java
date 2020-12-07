@@ -13,7 +13,7 @@ public class FeneconMiniPvMeterTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new FeneconMiniPvMeter()) //
+		new ComponentTest(new FeneconMiniPvMeterImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
