@@ -19,6 +19,7 @@ export enum WidgetNature {
 
 export enum WidgetFactory {
     'Controller.ChannelThreshold',
+    'Controller.Ess.FixActivePower',
     'Controller.Io.FixDigitalOutput',
     'Controller.IO.ChannelSingleThreshold',
     'Controller.IO.HeatingElement',

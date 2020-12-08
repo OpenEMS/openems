@@ -42,6 +42,8 @@ import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetric
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
 import { HeatPumpComponent } from './heatpump/heatpump.component';
 import { HeatPumpModalComponent } from './heatpump/modal/modal.component';
+import { FixActivePowerModalComponent } from './fixactivepower/modal/modal.component';
+import { FixActivePowerComponent } from './fixactivepower/fixactivepower.component';
 
 @NgModule({
   imports: [
@@ -60,6 +62,7 @@ import { HeatPumpModalComponent } from './heatpump/modal/modal.component';
     DigitalInputModalComponent,
     EvcsModalComponent,
     EvcsPopoverComponent,
+    FixActivePowerModalComponent,
     FixDigitalOutputModalComponent,
     GridModalComponent,
     HeatingElementModalComponent,
@@ -89,6 +92,8 @@ import { HeatPumpModalComponent } from './heatpump/modal/modal.component';
     EvcsComponent,
     EvcsModalComponent,
     EvcsPopoverComponent,
+    FixActivePowerComponent,
+    FixActivePowerModalComponent,
     FixDigitalOutputComponent,
     FixDigitalOutputModalComponent,
     FixDigitalOutputModalComponent,
