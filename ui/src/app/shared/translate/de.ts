@@ -152,11 +152,16 @@ export const TRANSLATION = {
                 },
                 Peakshaving: {
                     asymmetricInfo: 'Eingetragene Leistungswerte beziehen sich auf einzelne Phasen. Es wird auf die jeweils am stärksten belastete Phase ausgeregelt.',
+                    endDate: 'End Datum',
+                    endTime: 'Endzeit',
                     mostStressedPhase: 'Meist belastete Phase',
                     peakshaving: 'Lastspitzenkappung',
                     peakshavingPower: 'Entladung über',
+                    recharge: 'Aufladeleistung',
                     rechargePower: 'Beladung unter',
                     relationError: 'Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein',
+                    startDate: 'Start Datum',
+                    startTime: 'Startzeit',
                 },
                 CHP: {
                     highThreshold: 'Oberer Schwellenwert',

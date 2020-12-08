@@ -62,7 +62,6 @@ export class TimeslotPeakshavingModalComponent {
             saturday: new FormControl(this.component.properties.saturday),
             sunday: new FormControl(this.component.properties.sunday),
         })
-        console.log("comp", this.component)
     }
 
     applyChanges() {

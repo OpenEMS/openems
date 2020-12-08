@@ -140,11 +140,16 @@ export const TRANSLATION = {
                 },
                 Peakshaving: {
                     asymmetricInfo: 'Los valores de rendimiento introducidos se refieren a fases individuales. Se ajusta a la fase más estresada.',
+                    endDate: 'Fecha final',
+                    endTime: 'Hora de finalización',
                     mostStressedPhase: 'Fase mayormente estresada',
                     peakshaving: 'Afeitado máximo',
                     peakshavingPower: 'Descarga sobre',
+                    recharge: 'Poder de carga',
                     rechargePower: 'Cargando debajo',
                     relationError: 'Límite de descarga debe ser mayor o igual que el límite de carga',
+                    startDate: 'Fecha de inicio',
+                    startTime: 'Hora de inicio',
                 },
                 CHP: {
                     highThreshold: 'Umbral alto',

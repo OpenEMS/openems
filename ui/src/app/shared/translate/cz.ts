@@ -143,11 +143,16 @@ export const TRANSLATION = {
                 },
                 Peakshaving: {
                     asymmetricInfo: 'Zadané hodnoty výkonu se vztahují k jednotlivým fázím. Je nastavena na nejvíce namáhanou fázi.',
+                    endDate: 'Datum Ukončení',
+                    endTime: 'Cas ukončení',
                     mostStressedPhase: 'Většinou stresovaná fáze',
                     peakshaving: 'špičkové holení',
                     peakshavingPower: 'Uvolnění',
+                    recharge: 'Nabíjecí Výkon',
                     rechargePower: 'Načítání pod',
                     relationError: 'Mez vypouštění musí být větší nebo rovna limitu zatížení',
+                    startDate: 'Datum Začátku',
+                    startTime: 'Doba spuštění',
                 },
                 CHP: {
                     highThreshold: 'vysoký práh',

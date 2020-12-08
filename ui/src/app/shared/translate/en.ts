@@ -151,11 +151,16 @@ export const TRANSLATION = {
                 },
                 Peakshaving: {
                     asymmetricInfo: 'The entered performance values ​​refer to individual phases. It is adjusted to the most stressed phase.',
+                    endDate: 'End date',
+                    endTime: 'End time',
                     mostStressedPhase: 'Most stressed phase',
                     peakshaving: 'Peak-Shaving',
                     peakshavingPower: 'Discharge above',
+                    recharge: 'Recharge Power',
                     rechargePower: 'Charge below',
                     relationError: 'Discharge limit must be greater than or equal to the load limit',
+                    startDate: 'Start date',
+                    startTime: 'Start time',
                 },
                 CHP: {
                     highThreshold: 'High Threshold',

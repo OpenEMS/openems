@@ -137,11 +137,16 @@ export const TRANSLATION = {
                 },
                 Peakshaving: {
                     asymmetricInfo: 'De ingevoerde prestatiewaarden verwijzen naar afzonderlijke fasen. Het is aangepast aan de meest gestresste fase.',
+                    endDate: 'Einddatum',
+                    endTime: 'Eindtijd',
                     mostStressedPhase: 'Meest gestresste fase',
                     peakshaving: 'Piek scheren',
                     peakshavingPower: 'Afvoer voorbij',
+                    recharge: 'Laadvermogen',
                     rechargePower: 'Bezig met laden onder',
                     relationError: 'Ontladingslimiet moet groter zijn dan of gelijk zijn aan de belastingslimiet',
+                    startDate: 'Startdatum',
+                    startTime: 'Starttijd',
                 },
                 CHP: {
                     highThreshold: 'hoge drempel',
