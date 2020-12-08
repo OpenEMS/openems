@@ -13,6 +13,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String batteryId;
 		private int toppingCharge;
 		private InverterState inverterState;
+		private int EmsTimeout;
+		private int BmsTimeout;
 
 		private Builder() {
 		}
@@ -39,6 +41,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setInverterState(InverterState inverterState) {
 			this.inverterState = inverterState;
+			return this;
+		}
+		
+		public Builder setEmsTimeout(int EmsTimeout) {
+			this.EmsTimeout = EmsTimeout;
+			return this;
+		}
+		
+		public Builder setBmsTimeout(int BmsTimeout) {
+			this.BmsTimeout = BmsTimeout;
 			return this;
 		}
 
@@ -91,6 +103,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public InverterState InverterState() {
 		return this.builder.inverterState;
+	}
+
+	@Override
+	public int Ems_timeout() {
+		return this.builder.EmsTimeout;
+	}
+
+	@Override
+	public int Bms_timeout() {
+		return this.builder.BmsTimeout;
 	}
 
 }

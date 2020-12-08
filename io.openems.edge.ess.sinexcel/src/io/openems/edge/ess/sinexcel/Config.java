@@ -35,6 +35,12 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 	
  	@AttributeDefinition(name = "Start and stop", description = "Turn ON and turn OFF the Inverter")
 	InverterState InverterState() default InverterState.ON;
+ 	
+ 	@AttributeDefinition(name = "Ems timeout", description = "Setting the ems timeout, 0 = disabled")
+	int Ems_timeout() default 60;
+ 	
+ 	@AttributeDefinition(name = "Bms timeout", description = "Setting the Bms timeout, Enable ONLY when remote BMS-inverter connection is needed. 0 = disabled")
+	int Bms_timeout() default 0;
 
 	String webconsole_configurationFactory_nameHint() default "ESS Sinexcel [{id}]";
 }

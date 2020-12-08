@@ -209,6 +209,35 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 	}
 
 	/**
+	 * Prevent unexpected results of communication failures. when EMS timeout
+	 * enabled, watchdog will work and even reading will feed the watchdog 0 =
+	 * disabled
+	 * 
+	 */
+	private void setEmsTimeout() {
+		IntegerWriteChannel setEmsTimeOut = this.channel(EssSinexcel.ChannelId.EMS_TIMEOUT_SETTING);
+		try {
+			setEmsTimeOut.setNextWriteValue(this.config.Ems_timeout());
+		} catch (OpenemsNamedException e) {
+			log.error("EMS timout could not be written!" + e.getMessage());
+		}
+	}
+
+	/**
+	 * Enable ONLY when remote BMS-inverter connection is needed. If the inverter
+	 * does not need to communicate with the BMS, set the BMS timeout to 0. 0 is for
+	 * disabling. *
+	 */
+	private void setBmsTimeout() {
+		IntegerWriteChannel setBmsTimeOut = this.channel(EssSinexcel.ChannelId.BMS_TIMEOUT_SETTING);
+		try {
+			setBmsTimeOut.setNextWriteValue(this.config.Bms_timeout());
+		} catch (OpenemsNamedException e) {
+			log.error("BMS timout could not be written!" + e.getMessage());
+		}
+	}
+
+	/**
 	 * Starts the inverter.
 	 * 
 	 * @throws OpenemsNamedException on error
@@ -385,6 +414,11 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 				// m(EssSinexcel.ChannelId.SET_ANALOG_DC_DISCHARGE_ENERGY, new
 				// UnsignedWordElement(0x0093))),
 
+				new FC16WriteRegistersTask(0x0147,
+						m(EssSinexcel.ChannelId.EMS_TIMEOUT_SETTING, new UnsignedDoublewordElement(0x0147)), //
+						new DummyRegisterElement(0x0148), //
+						m(EssSinexcel.ChannelId.BMS_TIMEOUT_SETTING, new UnsignedDoublewordElement(0x0149))), //
+
 				new FC3ReadRegistersTask(0x0001, Priority.ONCE, //
 						m(EssSinexcel.ChannelId.MODEL, new StringWordElement(0x0001, 16)), //
 						m(EssSinexcel.ChannelId.SERIAL, new StringWordElement(0x0011, 8))), //
@@ -433,8 +467,8 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(0x0256), //
 						m(EssSinexcel.ChannelId.DC_VOLTAGE, new UnsignedWordElement(0x0257),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						new DummyRegisterElement(0x0258, 0x0259), //
-						m(EssSinexcel.ChannelId.SINEXCEL_STATE, new UnsignedWordElement(0x025A))), //
+						new DummyRegisterElement(0x0258, 0x025F), //
+						m(EssSinexcel.ChannelId.SINEXCEL_STATE, new UnsignedWordElement(0x0260))), //
 
 				new FC3ReadRegistersTask(0x032D, Priority.LOW,
 						m(EssSinexcel.ChannelId.LOWER_VOLTAGE_LIMIT, new UnsignedWordElement(0x032D), //
@@ -633,6 +667,8 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			try {
+				this.setBmsTimeout();
+				this.setEmsTimeout();
 				this.setBatteryRanges();
 				this.doHandlingSlowFloatVoltage();
 				this.stateMachine.run();
