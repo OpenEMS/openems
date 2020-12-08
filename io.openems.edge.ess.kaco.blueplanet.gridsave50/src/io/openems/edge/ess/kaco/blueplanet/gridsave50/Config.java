@@ -26,7 +26,7 @@ import io.openems.edge.ess.kaco.blueplanet.gridsave50.EssKacoBlueplanetGridsave5
 	String Modbus_target() default "";
 
 	@AttributeDefinition(name = "Watchdog", description = "Sets the watchdog timer interval in seconds, 0=disable")
-	int watchdoginterval() default 0;
+	int watchdoginterval() default 60;
 
 	@AttributeDefinition(name = "Battery-ID", description = "ID of Battery.")
 	String battery_id() default "bms0";
