@@ -42,16 +42,16 @@ export class AsymmetricPeakshavingModalComponent {
     }
 
     applyChanges() {
-        if (this.edge.roleIsAtLeast('owner')) {
-            if (this.formGroup.controls['peakShavingPower'].valid && this.formGroup.controls['rechargePower'].valid) {
-                if (this.formGroup.controls['peakShavingPower'].value >= this.formGroup.controls['rechargePower'].value) {
-                    let updateComponentArray = [];
-                    Object.keys(this.formGroup.controls).forEach((element, index) => {
-                        if (this.formGroup.controls[element].dirty) {
-                            updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
-                        }
-                    })
-                    if (this.edge != null) {
+        if (this.edge != null) {
+            if (this.edge.roleIsAtLeast('owner')) {
+                if (this.formGroup.controls['peakShavingPower'].valid && this.formGroup.controls['rechargePower'].valid) {
+                    if (this.formGroup.controls['peakShavingPower'].value >= this.formGroup.controls['rechargePower'].value) {
+                        let updateComponentArray = [];
+                        Object.keys(this.formGroup.controls).forEach((element, index) => {
+                            if (this.formGroup.controls[element].dirty) {
+                                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                            }
+                        })
                         this.loading = true;
                         this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
                             this.component.properties.peakShavingPower = this.formGroup.value.peakShavingPower;
@@ -66,15 +66,15 @@ export class AsymmetricPeakshavingModalComponent {
                             console.warn(reason);
                         })
                         this.formGroup.markAsPristine()
+                    } else {
+                        this.service.toast(this.translate.instant('Edge.Index.Widgets.Peakshaving.relationError'), 'danger');
                     }
                 } else {
-                    this.service.toast(this.translate.instant('Edge.Index.Widgets.Peakshaving.relationError'), 'danger');
+                    this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
                 }
             } else {
-                this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
+                this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
             }
-        } else {
-            this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
         }
     }
 }

@@ -67,16 +67,22 @@
                             Start Datum
                         </td>
                         <td style="width: 35%" class="align_right">
-                            <ion-datetime displayFormat="D MMM YYYY" formControlName="startDate">
-                            </ion-datetime>
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="text" formControlName="startDate"
+                                    style="text-align: end;">
+                                </ion-input>
+                            </ion-item>
                         </td>
                     </tr>
                     <tr>
                         <td style="width: 65%">
                             Startzeit</td>
                         <td style="width: 35%" class="align_right">
-                            <ion-datetime display-format="h:mm A" picker-format="h:mm A" value="1990-02-19T07:43Z">
-                            </ion-datetime>
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="text" formControlName="startTime"
+                                    style="text-align: end;">
+                                </ion-input>
+                            </ion-item>
                         </td>
                     </tr>
                 </table>
@@ -88,15 +94,22 @@
                             End Datum
                         </td>
                         <td style="width: 35%" class="align_right">
-                            <ion-datetime displayFormat="MM.DD.YYYY" formControlName="endDate"></ion-datetime>
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="text" formControlName="endDate"
+                                    style="text-align: end;">
+                                </ion-input>
+                            </ion-item>
                         </td>
                     </tr>
                     <tr>
                         <td style="width: 65%">
                             Endzeit</td>
                         <td style="width: 35%" class="align_right">
-                            <ion-datetime display-format="h:mm A" picker-format="h:mm A" value="1990-02-19T07:43Z">
-                            </ion-datetime>
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="text" formControlName="endTime"
+                                    style="text-align: end;">
+                                </ion-input>
+                            </ion-item>
                         </td>
                     </tr>
                 </table>
@@ -108,7 +121,11 @@
                             Aufladeleistung
                         </td>
                         <td style="width: 35%" class="align_right">
-                            XYZ
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="text" formControlName="slowChargePower"
+                                    style="text-align: end;">
+                                </ion-input>
+                            </ion-item>
                         </td>
                     </tr>
                     <tr>
@@ -116,62 +133,65 @@
                             Startzeit
                         </td>
                         <td style="width: 35%" class="align_right">
-                            <ion-datetime display-format="h:mm A" picker-format="h:mm A" value="1990-02-19T07:43Z">
-                            </ion-datetime>
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="text" formControlName="slowChargeStartTime"
+                                    style="text-align: end;">
+                                </ion-input>
+                            </ion-item>
                         </td>
                     </tr>
                 </table>
             </ion-card-content>
             <ion-card-content>
-                <ion-row class="ion-justify-content-center">
+                <ion-row mode="md" class="ion-justify-content-center">
                     <ion-col>
-                        <ion-item lines="none">
+                        <div>
                             <ion-label>Mo</ion-label>
-                            <ion-checkbox>
+                            <ion-checkbox formControlName="monday">
                             </ion-checkbox>
-                        </ion-item>
+                        </div>
                     </ion-col>
                     <ion-col>
-                        <ion-item lines="none">
+                        <div>
                             <ion-label>Di</ion-label>
-                            <ion-checkbox>
+                            <ion-checkbox formControlName="tuesday">
                             </ion-checkbox>
-                        </ion-item>
+                        </div>
                     </ion-col>
                     <ion-col>
-                        <ion-item lines="none">
+                        <div>
                             <ion-label>Mi</ion-label>
-                            <ion-checkbox>
+                            <ion-checkbox formControlName="wednesday">
                             </ion-checkbox>
-                        </ion-item>
+                        </div>
                     </ion-col>
                     <ion-col>
-                        <ion-item lines="none">
+                        <div>
                             <ion-label>Do</ion-label>
-                            <ion-checkbox>
+                            <ion-checkbox formControlName="thursday">
                             </ion-checkbox>
-                        </ion-item>
+                        </div>
                     </ion-col>
                     <ion-col>
-                        <ion-item lines="none">
+                        <div>
                             <ion-label>Fr</ion-label>
-                            <ion-checkbox>
+                            <ion-checkbox formControlName="friday">
                             </ion-checkbox>
-                        </ion-item>
+                        </div>
                     </ion-col>
                     <ion-col>
-                        <ion-item lines="none">
+                        <div>
                             <ion-label>Sa</ion-label>
-                            <ion-checkbox>
+                            <ion-checkbox formControlName="saturday">
                             </ion-checkbox>
-                        </ion-item>
+                        </div>
                     </ion-col>
                     <ion-col>
-                        <ion-item lines="none">
+                        <div>
                             <ion-label>So</ion-label>
-                            <ion-checkbox>
+                            <ion-checkbox formControlName="sunday">
                             </ion-checkbox>
-                        </ion-item>
+                        </div>
                     </ion-col>
                 </ion-row>
             </ion-card-content>

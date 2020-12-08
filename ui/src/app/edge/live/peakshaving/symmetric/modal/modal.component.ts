@@ -40,18 +40,18 @@ export class SymmetricPeakshavingModalComponent {
     }
 
     applyChanges() {
-        if (this.edge.roleIsAtLeast('owner')) {
-            let peakShavingPower = this.formGroup.controls['peakShavingPower'];
-            let rechargePower = this.formGroup.controls['rechargePower'];
-            if (peakShavingPower.valid && rechargePower.valid) {
-                if (peakShavingPower.value >= rechargePower.value) {
-                    let updateComponentArray = [];
-                    Object.keys(this.formGroup.controls).forEach((element, index) => {
-                        if (this.formGroup.controls[element].dirty) {
-                            updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
-                        }
-                    })
-                    if (this.edge != null) {
+        if (this.edge != null) {
+            if (this.edge.roleIsAtLeast('owner')) {
+                let peakShavingPower = this.formGroup.controls['peakShavingPower'];
+                let rechargePower = this.formGroup.controls['rechargePower'];
+                if (peakShavingPower.valid && rechargePower.valid) {
+                    if (peakShavingPower.value >= rechargePower.value) {
+                        let updateComponentArray = [];
+                        Object.keys(this.formGroup.controls).forEach((element, index) => {
+                            if (this.formGroup.controls[element].dirty) {
+                                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                            }
+                        })
                         this.loading = true;
                         this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
                             this.component.properties.peakShavingPower = peakShavingPower.value;
@@ -66,15 +66,15 @@ export class SymmetricPeakshavingModalComponent {
                             console.warn(reason);
                         })
                         this.formGroup.markAsPristine()
+                    } else {
+                        this.service.toast(this.translate.instant('Edge.Index.Widgets.Peakshaving.relationError'), 'danger');
                     }
                 } else {
-                    this.service.toast(this.translate.instant('Edge.Index.Widgets.Peakshaving.relationError'), 'danger');
+                    this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
                 }
             } else {
-                this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
+                this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
             }
-        } else {
-            this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
         }
     }
 }

@@ -76,15 +76,15 @@ export class HeatPumpModalComponent {
   }
 
   public applyChanges() {
-    if (this.edge.roleIsAtLeast('owner')) {
-      if (this.formGroup.controls['automaticRecommendationSurplusPower'].value < this.formGroup.controls['automaticForceOnSurplusPower'].value) {
-        let updateComponentArray = [];
-        Object.keys(this.formGroup.controls).forEach((element, index) => {
-          if (this.formGroup.controls[element].dirty) {
-            updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
-          }
-        });
-        if (this.edge != null) {
+    if (this.edge != null) {
+      if (this.edge.roleIsAtLeast('owner')) {
+        if (this.formGroup.controls['automaticRecommendationSurplusPower'].value < this.formGroup.controls['automaticForceOnSurplusPower'].value) {
+          let updateComponentArray = [];
+          Object.keys(this.formGroup.controls).forEach((element, index) => {
+            if (this.formGroup.controls[element].dirty) {
+              updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+            }
+          });
           this.loading = true;
           this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
             this.component.properties.manualState = this.formGroup.value.manualState;
@@ -97,12 +97,12 @@ export class HeatPumpModalComponent {
             console.warn(reason);
           });
           this.formGroup.markAsPristine();
+        } else {
+          this.service.toast(this.translate.instant('Edge.Index.Widgets.HeatPump.relationError'), 'danger');
         }
       } else {
-        this.service.toast(this.translate.instant('Edge.Index.Widgets.HeatPump.relationError'), 'danger');
+        this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
       }
-    } else {
-      this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
     }
   }
 }

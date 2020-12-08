@@ -101,14 +101,14 @@ export class HeatingElementModalComponent implements OnInit {
     }
 
     applyChanges() {
-        if (this.edge.roleIsAtLeast('owner')) {
-            let updateComponentArray = [];
-            Object.keys(this.formGroup.controls).forEach((element, index) => {
-                if (this.formGroup.controls[element].dirty) {
-                    updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
-                }
-            });
-            if (this.edge != null) {
+        if (this.edge != null) {
+            if (this.edge.roleIsAtLeast('owner')) {
+                let updateComponentArray = [];
+                Object.keys(this.formGroup.controls).forEach((element, index) => {
+                    if (this.formGroup.controls[element].dirty) {
+                        updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                    }
+                });
                 this.loading = true;
                 this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
                     this.component.properties.minTime = this.formGroup.value.minTime;
@@ -129,9 +129,9 @@ export class HeatingElementModalComponent implements OnInit {
                     console.warn(reason);
                 });
                 this.formGroup.markAsPristine()
+            } else {
+                this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
             }
-        } else {
-            this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
         }
     }
 }

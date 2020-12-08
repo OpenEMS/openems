@@ -51,6 +51,11 @@ export class TimeslotPeakshavingComponent {
                 edge: this.edge
             }
         });
+        modal.onDidDismiss().then(() => {
+            this.service.getConfig().then(config => {
+                this.component = config.components[this.componentId];
+            })
+        })
         return await modal.present();
     }
 }
