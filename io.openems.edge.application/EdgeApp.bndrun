@@ -127,6 +127,7 @@
 	bnd.identity;id='io.openems.edge.meter.virtual',\
 	bnd.identity;id='io.openems.edge.meter.weidmueller',\
 	bnd.identity;id='io.openems.edge.onewire.thermometer',\
+	bnd.identity;id='io.openems.edge.predictor.holtwinters',\
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
 	bnd.identity;id='io.openems.edge.pvinverter.cluster',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
@@ -259,6 +260,7 @@
 	io.openems.edge.meter.weidmueller;version=snapshot,\
 	io.openems.edge.onewire.thermometer;version=snapshot,\
 	io.openems.edge.predictor.api;version=snapshot,\
+	io.openems.edge.predictor.holtwinters;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
 	io.openems.edge.pvinverter.api;version=snapshot,\
 	io.openems.edge.pvinverter.cluster;version=snapshot,\
