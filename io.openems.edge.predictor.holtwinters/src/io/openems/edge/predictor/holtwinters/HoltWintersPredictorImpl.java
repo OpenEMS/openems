@@ -1,6 +1,5 @@
 package io.openems.edge.predictor.holtwinters;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -32,7 +31,6 @@ import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
 import io.openems.edge.predictor.holtwinters.lib.HoltWinters;
 import io.openems.edge.timedata.api.Timedata;
-import io.openems.edge.timedata.test.DummyTimedata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -55,7 +53,7 @@ public class HoltWintersPredictorImpl extends AbstractOpenemsComponent implement
 	private final static int ENTRIES_PER_PERIOD = 96; // 96 x 15 minutes values
 	private final static int NUMBER_OF_INPUT_SEASONS = 7; // days for input data
 
-//	@Reference
+	@Reference
 	private Timedata timedata;
 
 	@Reference
@@ -77,23 +75,24 @@ public class HoltWintersPredictorImpl extends AbstractOpenemsComponent implement
 				HoltWintersPredictor.ChannelId.values() //
 		);
 
-		int[] values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 146, 348, 636, 1192, 2092,
-				2882, 3181, 3850, 5169, 6005, 6710, 7372, 8138, 8918, 9736, 10615, 11281, 11898, 12435, 11982, 14287,
-				15568, 16747, 16934, 17221, 17573, 15065, 16726, 16670, 16696, 16477, 16750, 16991, 17132, 17567, 17003,
-				17686, 17753, 17773, 17381, 17059, 17110, 16395, 15803, 15044, 14413, 13075, 12975, 6748, 7845, 10781,
-				8605, 6202, 3049, 1697, 1184, 1142, 1015, 568, 1093, 414, 121, 110, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 6, 146, 297, 489, 1111, 1953, 3825, 2346,
-				3356, 3407, 3482, 4238, 7179, 11642, 5486, 4265, 5488, 5559, 6589, 7608, 9285, 7668, 6077, 3918, 4498,
-				7221, 9628, 11962, 9483, 11746, 10401, 8875, 8825, 13945, 16488, 13038, 17702, 16772, 7319, 228, 477,
-				501, 547, 589, 1067, 13304, 17367, 14825, 13654, 12545, 8371, 10468, 9810, 8537, 6228, 3758, 4131, 3572,
-				1698, 1017, 569, 188, 14, 2, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-		DummyTimedata timedata = new DummyTimedata("timedata0");
-		ZonedDateTime start = ZonedDateTime.of(2019, 12, 30, 0, 0, 0, 0, ZoneId.of("UTC"));
-		for (int i = 0; i < values.length; i++) {
-			timedata.add(start.plusMinutes(i * 15), ChannelAddress.fromString("meter1/ActivePower"), values[i]);
-		}
-		this.timedata = timedata;
+// This is a dummy to simulate a timedata service
+//		int[] values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 146, 348, 636, 1192, 2092,
+//				2882, 3181, 3850, 5169, 6005, 6710, 7372, 8138, 8918, 9736, 10615, 11281, 11898, 12435, 11982, 14287,
+//				15568, 16747, 16934, 17221, 17573, 15065, 16726, 16670, 16696, 16477, 16750, 16991, 17132, 17567, 17003,
+//				17686, 17753, 17773, 17381, 17059, 17110, 16395, 15803, 15044, 14413, 13075, 12975, 6748, 7845, 10781,
+//				8605, 6202, 3049, 1697, 1184, 1142, 1015, 568, 1093, 414, 121, 110, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+//				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 6, 146, 297, 489, 1111, 1953, 3825, 2346,
+//				3356, 3407, 3482, 4238, 7179, 11642, 5486, 4265, 5488, 5559, 6589, 7608, 9285, 7668, 6077, 3918, 4498,
+//				7221, 9628, 11962, 9483, 11746, 10401, 8875, 8825, 13945, 16488, 13038, 17702, 16772, 7319, 228, 477,
+//				501, 547, 589, 1067, 13304, 17367, 14825, 13654, 12545, 8371, 10468, 9810, 8537, 6228, 3758, 4131, 3572,
+//				1698, 1017, 569, 188, 14, 2, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+//
+//		DummyTimedata timedata = new DummyTimedata("timedata0");
+//		ZonedDateTime start = ZonedDateTime.of(2020, 12, 04, 0, 0, 0, 0, ZoneId.of("UTC"));
+//		for (int i = 0; i < values.length; i++) {
+//			timedata.add(start.plusMinutes(i * 15), ChannelAddress.fromString("meter1/ActivePower"), values[i]);
+//		}
+//		this.timedata = timedata;
 	}
 
 	@Activate
@@ -178,7 +177,12 @@ public class HoltWintersPredictorImpl extends AbstractOpenemsComponent implement
 
 			// Create result
 			for (int i = 0; i < Prediction24Hours.NUMBER_OF_VALUES; i++) {
-				result[i] = (int) Math.round(prediction[prediction.length - Prediction24Hours.NUMBER_OF_VALUES + i]);
+				int value = (int) Math.round(prediction[prediction.length - Prediction24Hours.NUMBER_OF_VALUES + i]);
+				// post-process
+				if (value == 1) {
+					value = 0; // replace 1 with 0 because we had removed 1s before
+				}
+				result[i] = value;
 			}
 		}
 		return new Prediction24Hours(result);
@@ -192,6 +196,6 @@ public class HoltWintersPredictorImpl extends AbstractOpenemsComponent implement
 	 */
 	private static ZonedDateTime roundZonedDateTimeDownTo15Minutes(ZonedDateTime d) {
 		int minuteOfDay = d.get(ChronoField.MINUTE_OF_DAY);
-		return d.with(ChronoField.NANO_OF_DAY, 0).plus(minuteOfDay / 15 * minuteOfDay, ChronoUnit.MINUTES);
+		return d.with(ChronoField.NANO_OF_DAY, 0).plus(minuteOfDay / 15 * 15, ChronoUnit.MINUTES);
 	}
 }
