@@ -15,18 +15,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
-@Designate(ocd = Config.class, factory = true)
-@Component(//
-		name = "$basePackageName$", //
-		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
-		} //
-)
-public class MyDevice extends AbstractOpenemsComponent implements OpenemsComponent, EventHandler {
-
-	private Config config = null;
+public interface MyDevice extends OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -42,39 +31,5 @@ public class MyDevice extends AbstractOpenemsComponent implements OpenemsCompone
 			return this.doc;
 		}
 	}
-
-	public MyDevice() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				ChannelId.values() //
-		);
-	}
-
-	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.config = config;
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
-	}
-
-	@Override
-	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			// TODO: fill channels
-			break;
-		}
-	}
-
-	@Override
-	public String debugLog() {
-		return "Hello World";
-	}
+	
 }
