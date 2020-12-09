@@ -45,6 +45,18 @@ public class DummyComponentManager implements ComponentManager {
 		return Collections.unmodifiableList(this.components);
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends OpenemsComponent> List<T> getEnabledComponentsOfType(Class<T> clazz) {
+		List<T> result = new ArrayList<>();
+		for (OpenemsComponent component : this.components) {
+			if (component.getClass().isInstance(clazz)) {
+				result.add((T) component);
+			}
+		}
+		return result;
+	}
+
 	/**
 	 * Specific for this Dummy implementation.
 	 * 

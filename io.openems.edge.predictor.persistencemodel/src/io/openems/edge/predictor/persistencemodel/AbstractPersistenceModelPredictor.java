@@ -18,8 +18,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.predictor.api.HourlyPrediction;
-import io.openems.edge.predictor.api.HourlyPredictor;
+import io.openems.edge.predictor.api.hourly.HourlyPrediction;
+import io.openems.edge.predictor.api.hourly.HourlyPredictor;
 
 public abstract class AbstractPersistenceModelPredictor extends AbstractOpenemsComponent implements HourlyPredictor {
 

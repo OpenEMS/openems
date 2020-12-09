@@ -16,7 +16,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.Sum;
-import io.openems.edge.predictor.api.ProductionHourlyPredictor;
+import io.openems.edge.predictor.api.hourly.ProductionHourlyPredictor;
 import io.openems.edge.predictor.persistencemodel.AbstractPersistenceModelPredictor;
 
 @Designate(ocd = Config.class, factory = true)

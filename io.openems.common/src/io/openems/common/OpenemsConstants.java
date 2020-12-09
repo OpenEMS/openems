@@ -89,6 +89,7 @@ public class OpenemsConstants {
 	 */
 	public final static String CYCLE_ID = "_cycle";
 	public final static String COMPONENT_MANAGER_ID = "_componentManager";
+	public final static String PREDICTOR_MANAGER_ID = "_predictorManager";
 	public final static String META_ID = "_meta";
 	public final static String SUM_ID = "_sum";
 	public final static String HOST_ID = "_host";

@@ -10,10 +10,10 @@ import org.junit.Test;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
+import io.openems.edge.predictor.api.hourly.HourlyPrediction;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.TimeLeapClock;
-import io.openems.edge.predictor.api.HourlyPrediction;
 
 public class ProductionPredictorTest {
 

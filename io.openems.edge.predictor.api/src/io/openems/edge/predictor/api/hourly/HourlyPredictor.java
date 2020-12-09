@@ -1,4 +1,4 @@
-package io.openems.edge.predictor.api;
+package io.openems.edge.predictor.api.hourly;
 
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -8,6 +8,7 @@ import io.openems.edge.common.component.OpenemsComponent;
  * Provides a prediction for the next 24 h.
  */
 @ProviderType
+@Deprecated
 public interface HourlyPredictor extends OpenemsComponent {
 
 	/**

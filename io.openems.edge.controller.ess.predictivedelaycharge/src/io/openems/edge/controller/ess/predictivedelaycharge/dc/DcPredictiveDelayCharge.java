@@ -18,8 +18,8 @@ import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.predictor.api.ConsumptionHourlyPredictor;
-import io.openems.edge.predictor.api.ProductionHourlyPredictor;
+import io.openems.edge.predictor.api.hourly.ConsumptionHourlyPredictor;
+import io.openems.edge.predictor.api.hourly.ProductionHourlyPredictor;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//

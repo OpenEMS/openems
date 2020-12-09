@@ -1,10 +1,11 @@
-package io.openems.edge.predictor.api;
+package io.openems.edge.predictor.api.hourly;
 
 import java.time.ZonedDateTime;
 
 /**
  * Holds a prediction for 24 h; one value per hour; starting from 'start' time.
  */
+@Deprecated
 public class HourlyPrediction {
 
 	private final Integer[] values = new Integer[24];
