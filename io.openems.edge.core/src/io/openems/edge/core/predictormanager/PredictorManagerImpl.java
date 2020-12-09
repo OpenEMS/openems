@@ -68,10 +68,18 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Op
 	@Override
 	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
 			throws OpenemsNamedException {
-		System.out.println(request);
-
-		// TODO Auto-generated method stub
+		switch (request.getMethod()) {
+		case Get24HourPredictionRequest.METHOD:
+			return this.handleGet24HourPredictionRequest(user, Get24HourPredictionRequest.from(request));
+		}
 		return null;
+	}
+
+	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGet24HourPredictionRequest(User user,
+			Get24HourPredictionRequest request) throws OpenemsNamedException {
+		Prediction24Hours prediction = this.get24HoursPrediction(ChannelAddress.fromString(request.getChannel()));
+		return CompletableFuture
+				.completedFuture(new Get24HourPredictionResponse(request.getId(), prediction.getValues()));
 	}
 
 	/**
@@ -204,7 +212,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Op
 		if (predictor == null) {
 			return Prediction24Hours.EMPTY;
 		} else {
-			return predictor.get24HoursPrediction();
+			return predictor.get24HoursPrediction(channelAddress);
 		}
 	}
 

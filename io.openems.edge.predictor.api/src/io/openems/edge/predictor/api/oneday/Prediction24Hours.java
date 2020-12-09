@@ -4,6 +4,11 @@ import io.openems.edge.common.type.TypeUtils;
 
 /**
  * Holds a prediction for 24 h; one value per 15 minutes; 96 values in total.
+ * 
+ * <p>
+ * Values have the same unit as the base Channel, i.e. if the Prediction relates
+ * to _sum/ProductionGridActivePower, the value is in unit Watt and represents
+ * the average Watt within a 15 minutes period.
  */
 public class Prediction24Hours {
 

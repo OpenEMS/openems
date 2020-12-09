@@ -1,0 +1,3 @@
+= io.openems.edge.predictor.holtwinters
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.predictor.holtwinters[Source Code icon:github[]]
