@@ -79,7 +79,7 @@ image::eclipse-edge-initial-log-output.png[OpenEMS Edge initial log output]
 +
 Login with username *admin* and password *admin*.
 
-Note: *Apache Felix Web Console Configuration* only works with a running console, otherwise you will receive a *error message* on your Browser.
+Note: *Apache Felix Web Console Configuration* only works with a running console, otherwise you will receive an *error message* on your Browser.
 +
 .Apache Felix Web Console Configuration
 image::apache-felix-console-configuration.png[Apache Felix Web Console Configuration]
