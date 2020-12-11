@@ -5,7 +5,7 @@ image::OpenEMS-Logo.png[the Feneco - OpenEMS Logo,400, align="left"]
 
 == Open Energy Management System
 
-OpenEMS - the Open Source Energy Management System - is a modular platform for energy management applications. It was developed around the requirements of monitoring, controlling, and integrating energy storage together with renewable energy sources and complementary devices and services like electric vehicle charging stations, heat-pumps, electrolysers, time-of-use electricity tariffs and more.
+OpenEMS -- the Open Source Energy Management System -- is a modular platform for energy management applications. It was developed around the requirements of monitoring, controlling, and integrating energy storage together with renewable energy sources and complementary devices and services like electric vehicle charging stations, heat-pumps, electrolysers, time-of-use electricity tariffs and more.
 
 If you plan to use OpenEMS for your own projects, please consider joining the https://openems.io/association[OpenEMS Association e.V. icon:external-link[]], a network of universities, hardware manufacturers, software companies as well as commercial and private owners, and get in touch in the https://community.openems.io[OpenEMS Community forum icon:external-link[]]. 
 
