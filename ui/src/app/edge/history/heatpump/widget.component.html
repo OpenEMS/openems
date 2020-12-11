@@ -14,13 +14,13 @@
                         </td>
                     </tr>
                     <tr *ngIf="activeTimeOverPeriodRecommendation != null && activeTimeOverPeriodRecommendation > 59">
-                        <td style="width:65%">Edge.Index.Widgets.HeatPump.switchOnRec</td>
+                        <td style="width:65%" translate>Edge.Index.Widgets.HeatPump.switchOnRec</td>
                         <td style="width:35%" class="align_right">
                             {{ activeTimeOverPeriodRecommendation | sectohour }}
                         </td>
                     <tr>
                     <tr *ngIf="activeTimeOverPeriodForceOn != null && activeTimeOverPeriodForceOn > 59">
-                        <td style="width:65%">Edge.Index.Widgets.HeatPump.switchOnCom</td>
+                        <td style="width:65%" translate>Edge.Index.Widgets.HeatPump.switchOnCom</td>
                         <td style="width:35%" class="align_right">
                             {{ activeTimeOverPeriodForceOn | sectohour }}
                         </td>
