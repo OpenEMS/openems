@@ -40,7 +40,7 @@ image::ui-history.png[OpenEMS UI History View]
 == System architecture
 
 OpenEMS is generally used in combination with external hardware and software components
-(the exception is a simulated development environment - see xref:gettingstarted.adoc[Getting Started])
+(the exception is a simulated development environment - see xref:gettingstarted.adoc[Getting Started]).
 As a brief overview, this is how OpenEMS is used in production setups:
 
 .OpenEMS system architecture
