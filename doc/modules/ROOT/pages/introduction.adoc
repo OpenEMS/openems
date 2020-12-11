@@ -57,7 +57,7 @@ Git development follows the https://www.atlassian.com/git/tutorials/comparing-wo
 For Edge and Backend Java development we recommend the https://www.eclipse.org/ide/[Eclipse IDE icon:external-link[]].
 For the UI (TypeScript + Angular.io) we recommend https://code.visualstudio.com/[Visual Studio Code icon:external-link[]]. 
 The documentation is generated using http://asciidoc.org[AsciiDoc icon:external-link[]]. 
-For handling git we recommend https://www.sourcetreeapp.com/[Sourctree by Atlassian icon:external-link[]].
+For handling git we recommend https://www.sourcetreeapp.com/[Sourcetree by Atlassian icon:external-link[]].
 
 ## Open Source philosophy
 

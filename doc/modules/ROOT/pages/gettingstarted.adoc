@@ -13,7 +13,7 @@ This quick 'Getting Started' should help you setup a complete development enviro
 
 == Download the source code
 
-. Download any https://git-scm.com[git client icon:external-link[]] and install it. Our recommendation is https://www.sourcetreeapp.com/[Sourctree by Atlassian icon:external-link[]]
+. Download any https://git-scm.com[git client icon:external-link[]] and install it. Our recommendation is https://www.sourcetreeapp.com/[Sourcetree by Atlassian icon:external-link[]]
 
 . Clone the OpenEMS git repository
 
