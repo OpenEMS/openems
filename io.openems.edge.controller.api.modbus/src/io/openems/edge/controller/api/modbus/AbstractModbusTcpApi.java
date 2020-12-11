@@ -49,7 +49,7 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 	public static final int DEFAULT_PORT = 502;
 	public static final int DEFAULT_MAX_CONCURRENT_CONNECTIONS = 5;
 
-	protected final ApiWorker apiWorker = new ApiWorker();
+	protected final ApiWorker apiWorker = new ApiWorker(this);
 
 	private final Logger log = LoggerFactory.getLogger(AbstractModbusTcpApi.class);
 	private final MyProcessImage processImage;

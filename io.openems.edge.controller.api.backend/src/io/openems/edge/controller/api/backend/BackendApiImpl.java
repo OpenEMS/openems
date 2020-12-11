@@ -56,7 +56,7 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 	protected final BackendWorker worker = new BackendWorker(this);
 
-	protected final ApiWorker apiWorker = new ApiWorker();
+	protected final ApiWorker apiWorker = new ApiWorker(this);
 
 	private final Logger log = LoggerFactory.getLogger(BackendApiImpl.class);
 

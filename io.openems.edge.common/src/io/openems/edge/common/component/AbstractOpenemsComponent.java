@@ -405,8 +405,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param message the message
 	 */
 	protected void logDebug(Logger log, String message) {
-		// TODO use log.debug(String, Object...) to improve speed
-		log.debug("[" + this.id() + "] " + message);
+		OpenemsComponent.logDebug(this, log, message);
 	}
 
 	/**
@@ -416,7 +415,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param message the message
 	 */
 	protected void logInfo(Logger log, String message) {
-		log.info("[" + this.id() + "] " + message);
+		OpenemsComponent.logInfo(this, log, message);
 	}
 
 	/**
@@ -426,7 +425,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param message the message
 	 */
 	protected void logWarn(Logger log, String message) {
-		log.warn("[" + this.id() + "] " + message);
+		OpenemsComponent.logWarn(this, log, message);
 	}
 
 	/**
@@ -436,7 +435,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param message the message
 	 */
 	protected void logError(Logger log, String message) {
-		log.error("[" + this.id() + "] " + message);
+		OpenemsComponent.logError(this, log, message);
 	}
 
 	/**
