@@ -119,6 +119,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * {@link ChannelId#FORCE_DISCHARGE_ACTIVE}
 		 * </ul>
 		 */
+		// TODO every Battery-Inverter implementation needs to be adjusted accordingly!
+		// Usually this register might be UINT16 and not accept negative values!
 		CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE)),
 
@@ -749,8 +751,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	}
 
 	/**
-	 * Gets the State. See
-	 * {@link ChannelId#FORCE_CHARGE_ACTIVE}.
+	 * Gets the State. See {@link ChannelId#FORCE_CHARGE_ACTIVE}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -759,8 +760,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#FORCE_CHARGE_ACTIVE}
-	 * Channel.
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#FORCE_CHARGE_ACTIVE} Channel.
 	 *
 	 * @param value the next value
 	 */
@@ -769,15 +770,15 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#FORCE_CHARGE_ACTIVE}
-	 * Channel.
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#FORCE_CHARGE_ACTIVE} Channel.
 	 *
 	 * @param value the next value
 	 */
 	public default void _setForceChargeActive(boolean value) {
 		this.getForceChargeActiveChannel().setNextValue(value);
 	}
-	
+
 	/**
 	 * Gets the Channel for {@link ChannelId#FORCE_DISCHARGE_ACTIVE}.
 	 *
@@ -788,8 +789,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	}
 
 	/**
-	 * Gets the State. See
-	 * {@link ChannelId#FORCE_DISCHARGE_ACTIVE}.
+	 * Gets the State. See {@link ChannelId#FORCE_DISCHARGE_ACTIVE}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -798,8 +798,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#FORCE_DISCHARGE_ACTIVE}
-	 * Channel.
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#FORCE_DISCHARGE_ACTIVE} Channel.
 	 *
 	 * @param value the next value
 	 */
@@ -808,8 +808,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#FORCE_DISCHARGE_ACTIVE}
-	 * Channel.
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#FORCE_DISCHARGE_ACTIVE} Channel.
 	 *
 	 * @param value the next value
 	 */

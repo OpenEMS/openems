@@ -11,8 +11,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 	public static int refreshIntervalSeconds = 900;
 	LocalDateTime refreshTime = null;
-	
-	
+
 	@Override
 	protected void onExit(Context context) throws OpenemsNamedException {
 		refreshTime = null;
@@ -37,7 +36,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 		// Mark as started
 		context.component._setStartStop(StartStop.START);
-		
+
 		refreshBatteryValues(context);
 
 		return State.RUNNING;
@@ -45,16 +44,20 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 	private void refreshBatteryValues(Context context) throws OpenemsNamedException {
 		if (refreshTime.plusSeconds(refreshIntervalSeconds).isBefore(LocalDateTime.now())) {
-			refreshTime = LocalDateTime.now();	
+			refreshTime = LocalDateTime.now();
 			setBatteryValues(context);
 		}
-		
+
 	}
 
 	private void setBatteryValues(Context context) throws OpenemsNamedException {
-		
-		//TODO first step is only to check the values and if there is a difference show a warning
-		
+
+		// TODO first step is only to check the values and if there is a difference show
+		// a warning
+		// TODO this should not be done only in Running, but tested on every cycle. It
+		// might be that, because of wrong values the battery does not start properly,
+		// which would look us out.
+
 //			// 0x2086 ==> 2800
 //			WriteChannel<Integer> channel = context.component.channel(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_VOLTAGE_ALARM);
 //			channel.setNextWriteValue(context.cellCharacteristic.getFinalCellDischargeVoltage_mV());

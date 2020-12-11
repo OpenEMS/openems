@@ -25,7 +25,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.CellCharacteristic;
-import io.openems.edge.battery.soltaro.SoltaroCellCharacteristic;
 import io.openems.edge.battery.soltaro.Util;
 import io.openems.edge.battery.soltaro.single.versionb.SingleRackVersionB;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.Context;
@@ -59,10 +58,10 @@ import io.openems.edge.common.taskmanager.Priority;
 		name = "Bms.Soltaro.SingleRack.VersionC", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-				property = { 
-						EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-						EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-					})
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
 public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 		implements SingleRackVersionC, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
@@ -77,27 +76,28 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private Config config;
-	
-	// TODO Test cell characteristic, remove after test and replace it by correct ones
+
+	// TODO Test cell characteristic, remove after test and replace it by correct
+	// ones
 	private CellCharacteristic cellCharacteristic = new CellCharacteristic() {
-		
+
 		@Override
 		public int getForceDischargeCellVoltage_mV() {
 			// TODO Auto-generated method stub
 			return 3_680;
 		}
-		
+
 		@Override
-		public int getForceChargeCellVoltage_mV() {			
+		public int getForceChargeCellVoltage_mV() {
 			return 3_250;
 		}
-		
+
 		@Override
 		public int getFinalCellDischargeVoltage_mV() {
 			// TODO Auto-generated method stub
 			return 3_300;
 		}
-		
+
 		@Override
 		public int getFinalCellChargeVoltage_mV() {
 			// TODO Auto-generated method stub
@@ -154,13 +154,12 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		
+
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			
+
 			this.setAllowedCurrents();
-			
+
 			break;
-		
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.handleStateMachine();
@@ -169,15 +168,17 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void setAllowedCurrents() {
-		IntegerReadChannel maxChargeCurrentChannel =  this.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT);
+		IntegerReadChannel maxChargeCurrentChannel = this
+				.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT);
 		int maxChargeCurrentFromBMS = maxChargeCurrentChannel.value().orElse(0) / 1000;
-		
-		IntegerReadChannel maxDischargeChannel =  this.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT);
+
+		IntegerReadChannel maxDischargeChannel = this
+				.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT);
 		int maxDischargeCurrentFromBMS = maxDischargeChannel.value().orElse(0) / 1000;
-		
+
 		Util.setMaxAllowedCurrents(cellCharacteristic, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS, this);
 	}
-	
+
 	/**
 	 * Handles the State-Machine.
 	 */

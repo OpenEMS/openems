@@ -4,12 +4,12 @@ public class SoltaroCellCharacteristic implements CellCharacteristic {
 
 	@Override
 	public int getFinalCellDischargeVoltage_mV() {
-		return 2_800; // x2086 Cell under voltage Alarm 
+		return 2_800; // 0x2086 Cell under voltage Alarm 
 	}
 
 	@Override
 	public int getForceChargeCellVoltage_mV() {
-		return 2_750; // x2047 Cell under voltage Protection  recover
+		return 2_750; // 0x2047 Cell under voltage Protection  recover
 	}
 	
 	@Override

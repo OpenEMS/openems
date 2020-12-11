@@ -26,8 +26,6 @@ public class ErrorHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		System.out.println("Stuck in ERROR_HANDLING: " + context.component.getStateChannel().listStates());
-
 		if (Duration.between(this.entryAt, Instant.now()).getSeconds() > context.config.errorLevel2Delay()) {
 			ControlAndLogic.resetSystem(context.component);
 			ControlAndLogic.sleepSystem(context.component);
