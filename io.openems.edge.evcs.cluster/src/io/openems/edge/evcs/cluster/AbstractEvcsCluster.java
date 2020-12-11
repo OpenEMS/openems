@@ -234,7 +234,7 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 				 * Set the next charge power of the EVCS
 				 */
 				if (nextChargePower > evcs.getChargePower().orElse(0)) {
-					evcs.setChargePowerLimitWithPid(nextChargePower);
+					evcs.setChargePowerLimitWithFilter(nextChargePower);
 				} else {
 					evcs.setChargePowerLimit(nextChargePower);
 				}

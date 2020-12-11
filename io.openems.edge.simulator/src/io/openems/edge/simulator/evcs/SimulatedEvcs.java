@@ -104,7 +104,7 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 		}
 		try {
 			if (chargePowerLimit > this.getChargePower().orElse(0)) {
-				this.setChargePowerLimitWithPid(chargePowerLimit);
+				this.setChargePowerLimitWithFilter(chargePowerLimit);
 			} else {
 				this.setChargePowerLimit(chargePowerLimit);
 			}

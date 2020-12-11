@@ -56,7 +56,7 @@ public interface ManagedEvcs extends Evcs {
 				.accessMode(AccessMode.READ_WRITE)),
 
 		/**
-		 * Applies the PID filter and then sets a fixed Active Power.
+		 * Applies the configured filter in {@link EvcsPowerComponent} and sets a the charge power limit.
 		 * 
 		 * <ul>
 		 * <li>Interface: ManagedEvcs
@@ -65,7 +65,7 @@ public interface ManagedEvcs extends Evcs {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		SET_CHARGE_POWER_LIMIT_WITH_PID(new IntegerDoc() //
+		SET_CHARGE_POWER_LIMIT_WITH_FILTER(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_WRITE).onInit(channel -> {
 					((IntegerWriteChannel) channel).onSetNextWrite(value -> {
@@ -206,53 +206,53 @@ public interface ManagedEvcs extends Evcs {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_PID}.
+	 * Gets the Channel for {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_FILTER}.
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerWriteChannel getSetChargePowerLimitWithPidChannel() {
-		return this.channel(ChannelId.SET_CHARGE_POWER_LIMIT_WITH_PID);
+	public default IntegerWriteChannel getSetChargePowerLimitWithFilterChannel() {
+		return this.channel(ChannelId.SET_CHARGE_POWER_LIMIT_WITH_FILTER);
 	}
 
 	/**
-	 * Gets the set charge power limit of the EVCS in [W] with applied PID filter.
-	 * See {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_PID}.
+	 * Gets the set charge power limit of the EVCS in [W] with applied filter.
+	 * See {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_FILTER}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getSetChargePowerLimitWithPid() {
-		return this.getSetChargePowerLimitWithPidChannel().value();
+	public default Value<Integer> getSetChargePowerLimitWithFilter() {
+		return this.getSetChargePowerLimitWithFilterChannel().value();
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_PID} Channel.
+	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_FILTER} Channel.
 	 *
 	 * @param value the next value
 	 */
-	public default void _setSetChargePowerLimitWithPid(Integer value) {
-		this.getSetChargePowerLimitWithPidChannel().setNextValue(value);
+	public default void _setSetChargePowerLimitWithFilter(Integer value) {
+		this.getSetChargePowerLimitWithFilterChannel().setNextValue(value);
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_PID} Channel.
+	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_FILTER} Channel.
 	 *
 	 * @param value the next value
 	 */
-	public default void _setSetChargePowerLimitWithPid(int value) {
-		this.getSetChargePowerLimitWithPidChannel().setNextValue(value);
+	public default void _setSetChargePowerLimitWithFilter(int value) {
+		this.getSetChargePowerLimitWithFilterChannel().setNextValue(value);
 	}
 
 	/**
-	 * Sets the charge power limit of the EVCS in [W] with applied PID filter. See
-	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_PID}.
+	 * Sets the charge power limit of the EVCS in [W] with applied filter. See
+	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_FILTER}.
 	 * 
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
-	public default void setChargePowerLimitWithPid(Integer value) throws OpenemsNamedException {
-		this.getSetChargePowerLimitWithPidChannel().setNextWriteValue(value);
+	public default void setChargePowerLimitWithFilter(Integer value) throws OpenemsNamedException {
+		this.getSetChargePowerLimitWithFilterChannel().setNextWriteValue(value);
 	}
 
 	/**

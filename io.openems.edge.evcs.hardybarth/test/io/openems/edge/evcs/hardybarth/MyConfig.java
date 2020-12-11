@@ -12,14 +12,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String ip;
 		private int minHwCurrent;
+		private int maxHwCurrent;
 
 		private Builder() {
 		}
 
-		public Builder Builder(String id, String ip, int minHwCurrent) {
+		public Builder Builder(String id, String ip, int minHwCurrent, int maxHwCurrent) {
 			this.id = id;
 			this.ip = ip;
 			this.minHwCurrent = minHwCurrent;
+			this.maxHwCurrent = maxHwCurrent;
 			return this;
 		}
 
@@ -35,6 +37,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setMinHwCurrent(int minHwCurrent) {
 			this.minHwCurrent = minHwCurrent;
+			return this;
+		}
+		
+		public Builder setMaxHwCurrent(int maxHwCurrent) {
+			this.maxHwCurrent = maxHwCurrent;
 			return this;
 		}
 
@@ -72,5 +79,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int minHwCurrent() {
 		return this.builder.minHwCurrent;
+	}
+
+	@Override
+	public int maxHwCurrent() {
+		return this.builder.maxHwCurrent;
 	}
 }

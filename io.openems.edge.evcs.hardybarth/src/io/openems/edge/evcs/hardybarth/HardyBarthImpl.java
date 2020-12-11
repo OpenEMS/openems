@@ -5,6 +5,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -17,6 +18,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.EvcsPower;
+import io.openems.edge.evcs.api.ManagedEvcs;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -28,17 +31,24 @@ import io.openems.edge.evcs.api.Evcs;
 		} //
 )
 public class HardyBarthImpl extends AbstractOpenemsComponent
-		implements OpenemsComponent, EventHandler, HardyBarth, Evcs {
+		implements OpenemsComponent, EventHandler, HardyBarth, Evcs, ManagedEvcs {
 
 	protected final Logger log = LoggerFactory.getLogger(HardyBarthImpl.class);
-	private Config config = null;
-	private HardyBarthApi api = null;
-	private HardyBarthWorker worker = null;
+	protected HardyBarthApi api;
+	private Config config;
+	final private HardyBarthReadWorker readWorker = new HardyBarthReadWorker(this);
+	final private HardyBarthWriteHandler writeHandler = new HardyBarthWriteHandler(this);
+	private boolean firmwareUpdated = false;
+	protected boolean masterEVCS = true;
+
+	@Reference
+	private EvcsPower evcsPower;
 
 	public HardyBarthImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
+				ManagedEvcs.ChannelId.values(), //
 				HardyBarth.ChannelId.values() //
 		);
 	}
@@ -46,14 +56,15 @@ public class HardyBarthImpl extends AbstractOpenemsComponent
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.config = config;
 		this._setChargingType(ChargingType.AC);
+		this._setMinimumHardwarePower(config.minHwCurrent() * 3 * 230);
+		this._setMaximumHardwarePower(config.maxHwCurrent() * 3 * 230);
 
 		if (config.enabled()) {
-			this.api = new HardyBarthApi(config.ip());
-
-			this.worker = new HardyBarthWorker(this, this.api);
-			this.worker.activate(config.id());
-			this.worker.triggerNextRun();
+			this.api = new HardyBarthApi(config.ip(), this);
+			this.readWorker.activate(config.id());
+			this.readWorker.triggerNextRun();
 		}
 	}
 
@@ -61,8 +72,8 @@ public class HardyBarthImpl extends AbstractOpenemsComponent
 	protected void deactivate() {
 		super.deactivate();
 
-		if (this.worker != null) {
-			this.worker.deactivate();
+		if (this.readWorker != null) {
+			this.readWorker.deactivate();
 		}
 	}
 
@@ -74,17 +85,21 @@ public class HardyBarthImpl extends AbstractOpenemsComponent
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 
-			this.worker.triggerNextRun();
-			// TODO: Need to be set.
-			// this._setChargePower(); // possible
-			// this._setChargingstationCommunicationFailed(); // possible
-			// this._setEnergySession(); // seems like only total energy given
-			// this._setMaximumHardwarePower(); // possible
-			// this._setMinimumHardwarePower(); // given by config
-			// this._setPhases(); // could be calculated out of the power/L1 ... or maybe
-			// given on basic/phase_count
-			// this._setStatus(); // Missing infos: Plug: "unlocked", cp: "A",
-			// contactor: "opened", pwm: "100"
+			this.readWorker.triggerNextRun();
+
+			// handle writes
+			this.writeHandler.run();
+
+			if (!this.firmwareUpdated) {
+				// TODO: intelligent firmware update
+				// try {
+				// Update Firmware
+				// this.api.sendPutRequest("/api/secc", "salia/updatefirmware", "http://moon.echarge.de/firmware/stable/");
+				// this.firmwareUpdated = true;
+				// } catch (OpenemsNamedException e) {
+				// 		e.printStackTrace();
+				// }
+			}
 			break;
 		}
 	}
@@ -106,5 +121,10 @@ public class HardyBarthImpl extends AbstractOpenemsComponent
 	@Override
 	protected void logError(Logger log, String message) {
 		super.logError(log, message);
+	}
+
+	@Override
+	public EvcsPower getEvcsPower() {
+		return this.evcsPower;
 	}
 }
