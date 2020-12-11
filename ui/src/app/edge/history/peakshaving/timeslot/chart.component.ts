@@ -49,7 +49,21 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                 let meterIdActivePower = config.getComponent(this.componentId).properties['meter.id'] + '/ActivePower';
                 let peakshavingPower = this.componentId + '/_PropertyPeakShavingPower';
                 let rechargePower = this.componentId + '/_PropertyRechargePower';
+                let stateMachine = this.componentId + '/StateMachine';
+                let essActivePower = '_sum/ProductionDcActualPower'
+                let productionDcActualPower = '_sum/EssActivePower'
                 let result = response.result;
+
+                Object.keys(result.data).forEach(key => {
+                    if (key != stateMachine && key != meterIdActivePower && key != essActivePower && key != productionDcActualPower) {
+                        result.data[stateMachine].forEach((value, stateIndex) => {
+                            if (value != 3) {
+                                result.data[key][stateIndex] = null;
+                            }
+                        })
+                    }
+                })
+
                 // convert labels
                 let labels: Date[] = [];
                 for (let timestamp of result.timestamps) {
@@ -194,6 +208,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
             let result: ChannelAddress[] = [
                 new ChannelAddress(this.componentId, '_PropertyRechargePower'),
                 new ChannelAddress(this.componentId, '_PropertyPeakShavingPower'),
+                new ChannelAddress(this.componentId, 'StateMachine'),
                 new ChannelAddress(config.getComponent(this.componentId).properties['meter.id'], 'ActivePower'),
                 new ChannelAddress('_sum', 'ProductionDcActualPower'),
                 new ChannelAddress('_sum', 'EssActivePower')

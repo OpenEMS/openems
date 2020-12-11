@@ -21,6 +21,10 @@ export class ChannelsComponent {
     private route: ActivatedRoute
   ) { }
 
+  public customAlertOptions: any = {
+    cssClass: 'wide-alert',
+  };
+
   ngOnInit() {
     this.service.setCurrentComponent("Channels" /* TODO translate */, this.route).then(edge => {
       this.edge = edge;
