@@ -8,7 +8,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 
 /**
- * Wraps a JSON-RPC Response to "get24HourPrediction" Request.
+ * Wraps a JSON-RPC Response to "get24HoursPrediction" Request.
  * 
  * <p>
  * 
@@ -22,11 +22,11 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
  * }
  * </pre>
  */
-public class Get24HourPredictionResponse extends JsonrpcResponseSuccess {
+public class Get24HoursPredictionResponse extends JsonrpcResponseSuccess {
 
 	private final Integer[] values;
 
-	public Get24HourPredictionResponse(UUID id, Integer[] values) {
+	public Get24HoursPredictionResponse(UUID id, Integer[] values) {
 		super(id);
 		this.values = values;
 	}

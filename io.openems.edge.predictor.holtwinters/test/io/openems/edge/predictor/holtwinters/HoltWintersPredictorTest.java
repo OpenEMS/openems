@@ -54,9 +54,9 @@ public class HoltWintersPredictorTest {
 
 		Prediction24Hours prediction = sut.get24HoursPrediction(METER1_ACTIVE_POWER);
 
-//		for (int value : prediction.getValues()) {
-//			System.out.println(value);
-//		}
+		for (int value : values) {
+			System.out.println(value);
+		}
 		System.out.println(Arrays.toString(prediction.getValues()));
 	}
 
