@@ -5,15 +5,15 @@ import { Service, EdgeConfig, Edge, Websocket } from '../../../../../shared/shar
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-    selector: SymmetricPeakshavingModalComponent.SELECTOR,
+    selector: TimeslotPeakshavingModalComponent.SELECTOR,
     templateUrl: './modal.component.html'
 })
-export class SymmetricPeakshavingModalComponent {
+export class TimeslotPeakshavingModalComponent {
 
-    @Input() component: EdgeConfig.Component;
-    @Input() edge: Edge;
+    @Input() component: EdgeConfig.Component | null = null;
+    @Input() edge: Edge | null = null;
 
-    private static readonly SELECTOR = "symmetricpeakshaving-modal";
+    private static readonly SELECTOR = "timeslotpeakshaving-modal";
 
     public formGroup: FormGroup;
     public loading: boolean = false;
@@ -35,7 +35,32 @@ export class SymmetricPeakshavingModalComponent {
             rechargePower: new FormControl(this.component.properties.rechargePower, Validators.compose([
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
                 Validators.required
-            ]))
+            ])),
+            slowChargePower: new FormControl((this.component.properties.slowChargePower) * -1),
+            slowChargeStartTime: new FormControl(this.component.properties.slowChargeStartTime, Validators.compose([
+                Validators.pattern('^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'),
+                Validators.required
+            ])),
+            startDate: new FormControl(this.component.properties.startDate, Validators.compose([
+                Validators.pattern('^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)[0-9]{2}$'),
+                Validators.required
+            ])),
+            startTime: new FormControl(this.component.properties.startTime, Validators.compose([
+                Validators.pattern('^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'),
+                Validators.required
+            ])),
+            endDate: new FormControl(this.component.properties.endDate),
+            endTime: new FormControl(this.component.properties.endTime, Validators.compose([
+                Validators.pattern('^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'),
+                Validators.required
+            ])),
+            monday: new FormControl(this.component.properties.monday),
+            tuesday: new FormControl(this.component.properties.tuesday),
+            wednesday: new FormControl(this.component.properties.wednesday),
+            thursday: new FormControl(this.component.properties.thursday),
+            friday: new FormControl(this.component.properties.friday),
+            saturday: new FormControl(this.component.properties.saturday),
+            sunday: new FormControl(this.component.properties.sunday),
         })
     }
 
@@ -49,7 +74,11 @@ export class SymmetricPeakshavingModalComponent {
                         let updateComponentArray = [];
                         Object.keys(this.formGroup.controls).forEach((element, index) => {
                             if (this.formGroup.controls[element].dirty) {
-                                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                                if (Object.keys(this.formGroup.controls)[index] == 'slowChargePower') {
+                                    updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: (this.formGroup.controls[element].value) * -1 })
+                                } else {
+                                    updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                                }
                             }
                         })
                         this.loading = true;

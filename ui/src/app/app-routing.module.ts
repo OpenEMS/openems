@@ -28,7 +28,9 @@ import { StorageChartOverviewComponent } from './edge/history/storage/storagecha
 import { SymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component';
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
+import { TimeslotPeakshavingChartOverviewComponent } from './edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
 import { HeatPumptChartOverviewComponent } from './edge/history/heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
+
 
 
 const routes: Routes = [
@@ -50,6 +52,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/history/:componentId/heatpumpchart', component: HeatPumptChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/singlethresholdchart', component: SinglethresholdChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/symmetricpeakshavingchart', component: SymmetricPeakshavingChartOverviewComponent },
+  { path: 'device/:edgeId/history/:componentId/timeslotpeakshavingchart', component: TimeslotPeakshavingChartOverviewComponent },
   { path: 'device/:edgeId/history/autarchychart', component: AutarchyChartOverviewComponent },
   { path: 'device/:edgeId/history/consumptionchart', component: ConsumptionChartOverviewComponent },
   { path: 'device/:edgeId/history/gridchart', component: GridChartOverviewComponent },

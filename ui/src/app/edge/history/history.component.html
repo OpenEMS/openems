@@ -44,6 +44,10 @@
           <asymmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
           </asymmetricPeakshavingWidget>
         </ion-col>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.TimeslotPeakshaving'">
+          <timeslotPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
+          </timeslotPeakshavingWidget>
+        </ion-col>
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'">
           <singlethresholdWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
           </singlethresholdWidget>
