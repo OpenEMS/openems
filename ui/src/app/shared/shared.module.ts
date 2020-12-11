@@ -18,6 +18,7 @@ import { NgxSpinnerModule } from "ngx-spinner";
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
 import { PickDateComponent } from './pickdate/pickdate.component';
 import { RouterModule } from '@angular/router';
+import { SecToHourMinPipe } from './pipe/sectohour/sectohour.pipe';
 import { Service } from './service/service';
 import { SignPipe } from './pipe/sign/sign.pipe';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -45,6 +46,7 @@ import { Websocket } from './service/websocket';
     HasclassPipe,
     IsclassPipe,
     KeysPipe,
+    SecToHourMinPipe,
     SignPipe,
     UnitvaluePipe,
     // components
@@ -59,6 +61,7 @@ import { Websocket } from './service/websocket';
     HasclassPipe,
     IsclassPipe,
     KeysPipe,
+    SecToHourMinPipe,
     SignPipe,
     UnitvaluePipe,
     // modules
@@ -82,6 +85,7 @@ import { Websocket } from './service/websocket';
   providers: [
     appRoutingProviders,
     DecimalPipe,
+    SecToHourMinPipe,
     Service,
     UnitvaluePipe,
     Utils,

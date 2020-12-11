@@ -254,9 +254,12 @@ export const TRANSLATION = {
                     lock: 'Lock',
                     moreThanHpPower: 'The value must not be lower than the maximum output of the heat pump',
                     normalOperation: 'Normal operation',
+                    normalOperationShort: 'Normal',
                     relationError: 'Switch-on command excess value must be greater than switch-on recommended value',
                     switchOnCom: 'Switch-on command',
+                    switchOnComShort: 'Command',
                     switchOnRec: 'Switch-on recommendation',
+                    switchOnRecShort: 'Recommendation',
                     undefined: 'Undefined',
                 }
             }

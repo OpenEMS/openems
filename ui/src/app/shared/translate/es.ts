@@ -247,6 +247,9 @@ export const TRANSLATION = {
                     switchOnCom: 'Mando de encendido',
                     switchOnRec: 'Recomendación de encendido',
                     undefined: 'Indefinido',
+                    normalOperationShort: 'Normal',
+                    switchOnComShort: 'Mando',
+                    switchOnRecShort: 'Recomendación',
                 }
             }
         },

@@ -243,9 +243,12 @@ export const TRANSLATION = {
                     lock: 'Fermer à clé',
                     moreThanHpPower: 'La valeur ne doit pas être inférieure à la puissance maximale de la pompe à chaleur',
                     normalOperation: 'Fonctionnement normal',
+                    normalOperationShort: 'Normal',
                     relationError: 'La valeur excédentaire de la commande de mise en marche doit être supérieure à la valeur recommandée de mise en marche',
                     switchOnCom: 'Commande de mise en marche',
+                    switchOnComShort: 'Commenade',
                     switchOnRec: 'Recommandation de mise en marche',
+                    switchOnRecShort: 'Recommandation',
                     undefined: 'Indéfinie',
                 }
             }
