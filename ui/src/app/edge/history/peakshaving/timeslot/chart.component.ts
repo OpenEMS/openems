@@ -50,12 +50,11 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                 let peakshavingPower = this.componentId + '/_PropertyPeakShavingPower';
                 let rechargePower = this.componentId + '/_PropertyRechargePower';
                 let stateMachine = this.componentId + '/StateMachine';
-                let essActivePower = '_sum/ProductionDcActualPower'
-                let productionDcActualPower = '_sum/EssActivePower'
                 let result = response.result;
 
+
                 Object.keys(result.data).forEach(key => {
-                    if (key != stateMachine && key != meterIdActivePower && key != essActivePower && key != productionDcActualPower) {
+                    if (key != stateMachine && key != meterIdActivePower) {
                         result.data[stateMachine].forEach((value, stateIndex) => {
                             if (value != 3) {
                                 result.data[key][stateIndex] = null;
