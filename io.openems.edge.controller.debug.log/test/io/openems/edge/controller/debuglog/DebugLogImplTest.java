@@ -21,6 +21,8 @@ public class DebugLogImplTest {
 	private static final String DUMMY0_ID = "dummy0";
 	private static final String DUMMY1_ID = "dummy1";
 
+	private static final String ANY_DUMMY = "dummy*";
+
 	private final static ChannelAddress SUM_ESS_SOC = new ChannelAddress("_sum", "EssSoc");
 
 	@Test
@@ -52,6 +54,7 @@ public class DebugLogImplTest {
 				.addComponent(components.get(1)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
+						.setCondensedOutput(true) //
 						.setAdditionalChannels(new String[] { //
 								SUM_ESS_SOC.toString() //
 						}) //
@@ -63,6 +66,50 @@ public class DebugLogImplTest {
 						.input(SUM_ESS_SOC, 50));
 
 		assertEquals("_sum[foo:bar|EssSoc:50 %] dummy1[def:uvw]", sut.getLogMessage());
+
+	}
+
+	@Test
+	public void testWildcard() throws Exception {
+		List<OpenemsComponent> components = new ArrayList<>();
+		components.add(new DummySum() {
+			@Override
+			public String debugLog() {
+				return "foo:bar";
+			}
+		});
+		components.add(new DummyController(DUMMY0_ID) {
+			@Override
+			public String debugLog() {
+				return "abc:xyz";
+			}
+		});
+		components.add(new DummyController(DUMMY1_ID) {
+			@Override
+			public String debugLog() {
+				return "def:uvw";
+			}
+		});
+
+		DebugLogImpl sut = new DebugLogImpl();
+		new ControllerTest(sut) //
+				.addReference("components", components) //
+				.addComponent(components.get(0)) //
+				.addComponent(components.get(1)) //
+				.activate(MyConfig.create() //
+						.setId(CTRL_ID) //
+						.setCondensedOutput(true) //
+						.setAdditionalChannels(new String[] { //
+								SUM_ESS_SOC.toString() //
+						}) //
+						.setIgnoreComponents(new String[] { //
+								ANY_DUMMY //
+						}) //
+						.build()) //
+				.next(new TestCase() //
+						.input(SUM_ESS_SOC, 50));
+
+		assertEquals("_sum[foo:bar|EssSoc:50 %]", sut.getLogMessage());
 
 	}
 

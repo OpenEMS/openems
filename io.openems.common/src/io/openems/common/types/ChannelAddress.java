@@ -2,6 +2,7 @@ package io.openems.common.types;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.StringUtils;
 
 public class ChannelAddress implements Comparable<ChannelAddress> {
 
@@ -78,5 +79,40 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 		}
 		ChannelAddress other = (ChannelAddress) obj;
 		return this.toString().equals(other.toString());
+	}
+
+	/**
+	 * Match two ChannelAddresses, considering wildcards.
+	 * 
+	 * <ul>
+	 * <li>if {@link #equals(Object)} is true -> return 0
+	 * <li>if both {@link ChannelAddress}es match via wildcards -> return value > 1;
+	 * bigger values represent a better match
+	 * <li>if both {@link ChannelAddress}es do not match -> return -1
+	 * </ul>
+	 * 
+	 * <p>
+	 * See {@link StringUtils#matchWildcard(String, String)} for implementation
+	 * details.
+	 * 
+	 * @param source  the source {@link ChannelAddress}
+	 * @param pattern the pattern {@link ChannelAddress}
+	 * @return an integer value representing the degree of matching
+	 */
+	public static int match(ChannelAddress source, ChannelAddress pattern) {
+		int componentIdMatch = StringUtils.matchWildcard(source.componentId, pattern.componentId);
+		int channelIdMatch = StringUtils.matchWildcard(source.channelId, pattern.channelId);
+		if (componentIdMatch < 0 || channelIdMatch < 0) {
+			return -1;
+		} else if (componentIdMatch == 0 && channelIdMatch == 0) {
+			return 0;
+		}
+		if (componentIdMatch == 0) {
+			return Integer.MAX_VALUE / 2 + channelIdMatch;
+		} else if (channelIdMatch == 0) {
+			return Integer.MAX_VALUE / 2 + componentIdMatch;
+		} else {
+			return componentIdMatch + channelIdMatch;
+		}
 	}
 }
