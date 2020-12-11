@@ -92,6 +92,7 @@ export type ChartOptions = {
                 max?: number,
                 padding?: number,
                 stepSize?: number,
+                callback?(value: number | string, index: number, values: number[] | string[]): string | number | null | undefined;
             }
         }],
         xAxes: [{

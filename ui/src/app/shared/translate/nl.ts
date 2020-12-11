@@ -238,6 +238,9 @@ export const TRANSLATION = {
                     switchOnCom: 'Inschakelcommando',
                     switchOnRec: 'Inschakeladvies',
                     undefined: 'Ongedefinieerd',
+                    normalOperationShort: '',
+                    switchOnComShort: '',
+                    switchOnRecShort: '',
                 }
             }
         },
