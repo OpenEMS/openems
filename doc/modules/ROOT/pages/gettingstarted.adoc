@@ -78,7 +78,7 @@ image::eclipse-edge-initial-log-output.png[OpenEMS Edge initial log output]
 .. Open the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]].
 +
 Login with username *admin* and password *admin*.
-
++
 Note: *Apache Felix Web Console Configuration* only works with a running console, otherwise you will receive an *error message* on your Browser.
 +
 .Apache Felix Web Console Configuration
