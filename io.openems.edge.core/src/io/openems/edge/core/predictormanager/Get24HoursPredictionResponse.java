@@ -1,11 +1,15 @@
 package io.openems.edge.core.predictormanager;
 
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.types.ChannelAddress;
+import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 
 /**
  * Wraps a JSON-RPC Response to "get24HoursPrediction" Request.
@@ -17,29 +21,37 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
- *     "values": number[96] // one value per 15 minutes
+ *     "componentId/channelId": [
+ *         value1, value2,... // 96 values; one value per 15 minutes
+ *     ]
  *   }
  * }
  * </pre>
  */
 public class Get24HoursPredictionResponse extends JsonrpcResponseSuccess {
 
-	private final Integer[] values;
+	private final Map<ChannelAddress, Prediction24Hours> predictions;
 
-	public Get24HoursPredictionResponse(UUID id, Integer[] values) {
+	public Get24HoursPredictionResponse(UUID id, Map<ChannelAddress, Prediction24Hours> predictions) {
 		super(id);
-		this.values = values;
+		this.predictions = predictions;
 	}
 
 	@Override
 	public JsonObject getResult() {
-		JsonArray values = new JsonArray();
-		for (Integer value : this.values) {
-			values.add(value);
-		}
 		JsonObject j = new JsonObject();
-		j.add("values", values);
+		for (Entry<ChannelAddress, Prediction24Hours> entry : this.predictions.entrySet()) {
+			JsonArray values = new JsonArray();
+			for (Integer value : entry.getValue().getValues()) {
+				values.add(value);
+			}
+			j.add(entry.getKey().toString(), values);
+		}
 		return j;
+	}
+
+	public Map<ChannelAddress, Prediction24Hours> getPredictions() {
+		return predictions;
 	}
 
 }

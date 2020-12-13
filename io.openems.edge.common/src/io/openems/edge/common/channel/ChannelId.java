@@ -36,6 +36,24 @@ public interface ChannelId {
 	}
 
 	/**
+	 * Converts a Channel-ID in UPPER_CAMEL format to the UPPER_UNDERSCORE format.
+	 * 
+	 * <p>
+	 * Examples: converts "ActivePower" to "ACTIVE_POWER".
+	 * 
+	 * @param name Channel-ID in UPPER_CAMEL format.
+	 * @return the a Channel-ID in UPPER_UNDERSCORE format
+	 */
+	public static String channelIdCamelToUpper(String name) {
+		if (name.startsWith("_")) {
+			// special handling for reserved Channel-IDs starting with "_".
+			return "_" + CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, name.substring(1));
+		} else {
+			return CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, name);
+		}
+	}
+
+	/**
 	 * Gets the name in format {@link CaseFormat#UPPER_UNDERSCORE}. This is
 	 * available by default for an Enum.
 	 * 

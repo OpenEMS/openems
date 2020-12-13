@@ -1,12 +1,15 @@
-import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
+import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets } from 'chart.js';
-import { ChartOptions, EMPTY_DATASET } from './shared';
+import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
+import { Get24HoursPredictionRequest } from 'src/app/shared/jsonrpc/request/get24HoursPredictionRequest';
+import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
+import { Get24HoursPredictionResponse } from 'src/app/shared/jsonrpc/response/get24HoursPredictionResponse';
+import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
-import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
-import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { TranslateService } from '@ngx-translate/core';
+import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
+import { ChartOptions, EMPTY_DATASET } from './shared';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
@@ -110,6 +113,20 @@ export abstract class AbstractHistoryChart {
                     }).catch(reason => reject(reason));
                 })
             });
+        });
+    }
+
+    /**
+     * Sends a Get24HoursPredictionRequest and returns the Reponse.
+     */
+    protected get24HoursPrediction(channels: ChannelAddress[]): Promise<Get24HoursPredictionResponse> {
+        return new Promise((resolve, reject) => {
+            this.service.getCurrentEdge().then(edge => {
+                let request = new ComponentJsonApiRequest({ componentId: '_predictorManager', payload: new Get24HoursPredictionRequest(channels) });
+                edge.sendRequest(this.service.websocket, request).then(response => {
+                    resolve(response as Get24HoursPredictionResponse);
+                }).catch(reason => reject(reason));
+            }).catch(reason => reject(reason));
         });
     }
 

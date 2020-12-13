@@ -1,6 +1,8 @@
 package io.openems.edge.core.predictormanager;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -77,26 +79,35 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Op
 
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGet24HoursPredictionRequest(User user,
 			Get24HoursPredictionRequest request) throws OpenemsNamedException {
-		Prediction24Hours prediction = this.get24HoursPrediction(ChannelAddress.fromString(request.getChannel()));
-		return CompletableFuture
-				.completedFuture(new Get24HoursPredictionResponse(request.getId(), prediction.getValues()));
+		final Map<ChannelAddress, Prediction24Hours> predictions = new HashMap<>();
+		for (ChannelAddress channel : request.getChannels()) {
+			predictions.put(channel, this.get24HoursPrediction(channel));
+		}
+		return CompletableFuture.completedFuture(new Get24HoursPredictionResponse(request.getId(), predictions));
 	}
 
 	/**
-	 * Gets the {@link Prediction24Hours} for the given {@link ChannelAddress}.
+	 * Gets the {@link Prediction24Hours} by the best matching
+	 * {@link Predictor24Hours} for the given {@link ChannelAddress}.
 	 * 
 	 * @param channelAddress the {@link ChannelAddress}
-	 * @return the {@link Prediction24Hours}
+	 * @return the {@link Prediction24Hours} - all values null if no Predictor
+	 *         matches the Channel-Address
 	 */
 	public Prediction24Hours get24HoursPrediction(ChannelAddress channelAddress) {
-		if (channelAddress.getComponentId().equals(OpenemsConstants.SUM_ID)) {
-			// Prediction for Sum-Channel. Need to get predictions for each individual input
-			// value.
-			Sum.ChannelId channelId = Sum.ChannelId.valueOf(channelAddress.getChannelId().toUpperCase());
-			return this.getPredictionSum(channelId);
+		Predictor24Hours predictor = this.getPredictorBestMatch(channelAddress);
+		if (predictor == null) {
+			// No explicit predictor found
+			if (channelAddress.getComponentId().equals(OpenemsConstants.SUM_ID)) {
+				// This is a Sum-Channel. Try to get predictions for each source channel.
+				Sum.ChannelId channelId = Sum.ChannelId.valueOf(
+						io.openems.edge.common.channel.ChannelId.channelIdCamelToUpper(channelAddress.getChannelId()));
+				return this.getPredictionSum(channelId);
+			} else {
+				return Prediction24Hours.EMPTY;
+			}
 		} else {
-			// Non-Sum-Channel
-			return this.getPredictionNotSum(channelAddress);
+			return predictor.get24HoursPrediction(channelAddress);
 		}
 	}
 
@@ -156,7 +167,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Op
 			Prediction24Hours[] predictions = new Prediction24Hours[chargers.size()];
 			for (int i = 0; i < chargers.size(); i++) {
 				EssDcCharger charger = chargers.get(i);
-				predictions[i] = this.getPredictionNotSum(
+				predictions[i] = this.get24HoursPrediction(
 						new ChannelAddress(charger.id(), EssDcCharger.ChannelId.ACTUAL_POWER.id()));
 			}
 			return Prediction24Hours.sum(predictions);
@@ -182,7 +193,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Op
 			Prediction24Hours[] predictions = new Prediction24Hours[meters.size()];
 			for (int i = 0; i < meters.size(); i++) {
 				SymmetricMeter meter = meters.get(i);
-				predictions[i] = this.getPredictionNotSum(
+				predictions[i] = this.get24HoursPrediction(
 						new ChannelAddress(meter.id(), SymmetricMeter.ChannelId.ACTIVE_POWER.id()));
 			}
 			return Prediction24Hours.sum(predictions);
@@ -197,23 +208,6 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Op
 
 		// should never come here
 		return Prediction24Hours.EMPTY;
-	}
-
-	/**
-	 * Gets the {@link Prediction24Hours} by the best matching
-	 * {@link Predictor24Hours} for the given {@link ChannelAddress}.
-	 * 
-	 * @param channelAddress the {@link ChannelAddress}; never Sum-Channel
-	 * @return the {@link Prediction24Hours} - all values null if no Predictor
-	 *         matches the Channel-Address
-	 */
-	private Prediction24Hours getPredictionNotSum(ChannelAddress channelAddress) {
-		Predictor24Hours predictor = this.getPredictorBestMatch(channelAddress);
-		if (predictor == null) {
-			return Prediction24Hours.EMPTY;
-		} else {
-			return predictor.get24HoursPrediction(channelAddress);
-		}
 	}
 
 	/**
