@@ -65,7 +65,7 @@ public class RampFilter {
 		// Make sure that there is a highLimit set
 		if (this.highLimit == null) {
 			throw new OpenemsException(
-					"No high limit given in EvcsFilter. Please call setLimits bevore applying the filter.");
+					"No high limit given in EvcsFilter. Please call setLimits before applying the filter.");
 		}
 
 		// We are already there
