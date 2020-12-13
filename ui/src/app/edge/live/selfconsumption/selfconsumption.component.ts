@@ -1,6 +1,6 @@
 import { ActivatedRoute } from '@angular/router';
 import { Component } from '@angular/core';
-import { Edge, Service } from '../../../shared/shared';
+import { Edge, Service, Utils } from '../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 import { SelfconsumptionModalComponent } from './modal/modal.component';
 
@@ -23,6 +23,26 @@ export class SelfConsumptionComponent {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
         });
+        let x = Math.max(
+            Utils.orElse(
+                (
+                    1 - (
+                        Utils.divideSafely(
+                            Utils.orElse(0, 0), (
+                            Math.max(Utils.orElse(1600, 0), 0)
+                        )
+                        )
+                    )
+                ) * 100, 0
+            ), 0)
+        let y = (
+            Utils.divideSafely(
+                Utils.orElse(0, 0), (
+                Math.max(Utils.orElse(1600, 0), 0)
+            )
+            )
+        )
+        console.log("x", x, "y", y)
     }
 
     async presentModal() {

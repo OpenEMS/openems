@@ -16,6 +16,7 @@ public class ReadWorker extends AbstractWorker {
 	private boolean validateReport1 = false;
 	private boolean validateReport2 = false;
 	private boolean validateReport3 = false;
+	private static int MAX_TIME_TILL_REPLY = 15; // sec
 
 	public ReadWorker(KebaKeContact parent) {
 		this.parent = parent;
@@ -60,16 +61,16 @@ public class ReadWorker extends AbstractWorker {
 
 		// RESULTS
 		// Sets the state of the component if the report doesn't answer in a few seconds
-		if (this.validateReport1 && this.lastReport1.isBefore(LocalDateTime.now().minusSeconds(2))) {
+		if (this.validateReport1 && this.lastReport1.isBefore(LocalDateTime.now().minusSeconds(MAX_TIME_TILL_REPLY))) {
 			currentCommunication(this.parent.getReadHandler().hasResultandReset(Report.REPORT1));
 			this.validateReport1 = false;
 		}
-		if (this.validateReport2 && this.lastReport2.isBefore(LocalDateTime.now().minusSeconds(2))) {
+		if (this.validateReport2 && this.lastReport2.isBefore(LocalDateTime.now().minusSeconds(MAX_TIME_TILL_REPLY))) {
 			currentCommunication(this.parent.getReadHandler().hasResultandReset(Report.REPORT2));
 			this.validateReport2 = false;
 		}
 
-		if (this.validateReport3 && this.lastReport3.isBefore(LocalDateTime.now().minusSeconds(2))) {
+		if (this.validateReport3 && this.lastReport3.isBefore(LocalDateTime.now().minusSeconds(MAX_TIME_TILL_REPLY))) {
 			currentCommunication(this.parent.getReadHandler().hasResultandReset(Report.REPORT3));
 			this.validateReport3 = false;
 		}

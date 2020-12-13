@@ -36,7 +36,7 @@ public class ErrorHandler implements Runnable {
 	}
 
 	private State currentSystemStateHandling = State.GO_START;
-	private LocalDateTime errorOccured = null;
+	private LocalDateTime errorOccurred = null;
 	private LocalDateTime lastErrorReset = LocalDateTime.MIN;
 
 	@Override
@@ -99,8 +99,8 @@ public class ErrorHandler implements Runnable {
 			break;
 
 		case GO_ERROR_HANDLING:
-			if (this.errorOccured == null) {
-				this.errorOccured = LocalDateTime.now();
+			if (this.errorOccurred == null) {
+				this.errorOccurred = LocalDateTime.now();
 			}
 			try {
 				setWorkStateChannel.setNextWriteValue(StopStart.STOP.getValue());
@@ -110,10 +110,10 @@ public class ErrorHandler implements Runnable {
 			if (this.lastErrorReset.isAfter(LocalDateTime.now().minusHours(2))) {
 				// last reset more than 2 hours
 				this.currentSystemStateHandling = State.WAIT_TILL_NEXT_ERROR_HANDLING;
-			} else if (this.errorOccured.isBefore(LocalDateTime.now().minusSeconds(30))) {
+			} else if (this.errorOccurred.isBefore(LocalDateTime.now().minusSeconds(30))) {
 				// error handling since 30 seconds
 				this.currentSystemStateHandling = State.RESET_ERROR_ON;
-				this.errorOccured = null;
+				this.errorOccurred = null;
 			}
 			break;
 

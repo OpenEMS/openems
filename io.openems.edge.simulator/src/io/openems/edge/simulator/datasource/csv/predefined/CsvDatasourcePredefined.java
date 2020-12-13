@@ -51,7 +51,7 @@ public class CsvDatasourcePredefined extends AbstractCsvDatasource
 
 	@Override
 	protected DataContainer getData() throws NumberFormatException, IOException {
-		return CsvUtils.readCsvFileFromRessource(CsvDatasourcePredefined.class, this.config.source().filename,
+		return CsvUtils.readCsvFileFromResource(CsvDatasourcePredefined.class, this.config.source().filename,
 				this.config.format(), this.config.factor());
 	}
 }
