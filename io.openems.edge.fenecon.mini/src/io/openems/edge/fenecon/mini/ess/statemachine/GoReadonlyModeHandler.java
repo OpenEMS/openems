@@ -9,8 +9,8 @@ public class GoReadonlyModeHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		if(context.component.getSetupMode() == SetupMode.OFF) {
-			switch(context.component.getPcsMode()) {
+		if (context.component.getSetupMode() == SetupMode.OFF) {
+			switch (context.component.getPcsMode()) {
 			case CONSUMERS_PEAK_PATTERN:
 			case ECO:
 			case ECONOMIC:
@@ -18,6 +18,7 @@ public class GoReadonlyModeHandler extends StateHandler<State, Context> {
 			case RIYUAN:
 			case SMOOTH_PV:
 			case TIMING:
+				// Not in setup-mode and PCS-Mode is valid
 				return State.READONLY_MODE;
 			case REMOTE:
 			case DEBUG:
@@ -26,6 +27,7 @@ public class GoReadonlyModeHandler extends StateHandler<State, Context> {
 			}
 		}
 
+		// Every other state
 		return State.ACTIVATE_ECONOMIC_MODE_1;
 	}
 
