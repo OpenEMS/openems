@@ -10,7 +10,7 @@ import io.openems.edge.common.jsonapi.JsonApi;
 public interface Host extends OpenemsComponent, JsonApi {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		DISK_IS_FULL(Doc.of(Level.WARNING) //
+		DISK_IS_FULL(Doc.of(Level.INFO) //
 				.text("Disk is full")); //
 
 		private final Doc doc;
