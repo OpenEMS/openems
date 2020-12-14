@@ -57,10 +57,10 @@ public class StateChannel extends AbstractReadChannel<AbstractDoc<Boolean>, Bool
 					channel.setNextValue(!activeSourceStates.isEmpty());
 					// TODO replace with OpenemsComponent.logInfo() once #1329 is merged
 					this.log.info("Setting [" + channel.channelId().id() + "] because of ["
-							+ String.join(", ", activeSourceStates));
+							+ String.join(", ", activeSourceStates) + "]");
 				}
 			};
-			
+
 			// Register callback on each Source-Channel
 			for (ChannelId sourceChannelId : this.sourceChannelIds) {
 				Channel<Boolean> sourceChannel = parent.channel(sourceChannelId);
