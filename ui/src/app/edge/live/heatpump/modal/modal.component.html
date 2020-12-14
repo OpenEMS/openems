@@ -80,21 +80,24 @@
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('FORCE_ON')"
               lines="none">
               <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnCom</ion-label>
-              <ion-toggle [checked]="formGroup.value.manualState == 'FORCE_ON'"></ion-toggle>
+              <ion-toggle style="pointer-events: none" [checked]="formGroup.value.manualState == 'FORCE_ON'">
+              </ion-toggle>
             </ion-item>
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('RECOMMENDATION')"
               lines="none">
               <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnRec</ion-label>
-              <ion-toggle [checked]="formGroup.value.manualState == 'RECOMMENDATION'"></ion-toggle>
+              <ion-toggle style="pointer-events: none" [checked]="formGroup.value.manualState == 'RECOMMENDATION'">
+              </ion-toggle>
             </ion-item>
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('REGULAR')"
               lines="none">
               <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.normalOperation</ion-label>
-              <ion-toggle [checked]="formGroup.value.manualState == 'REGULAR'"></ion-toggle>
+              <ion-toggle style="pointer-events: none" [checked]="formGroup.value.manualState == 'REGULAR'">
+              </ion-toggle>
             </ion-item>
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('LOCK')" lines="none">
               <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.lock</ion-label>
-              <ion-toggle [checked]="formGroup.value.manualState == 'LOCK'"></ion-toggle>
+              <ion-toggle style="pointer-events: none" [checked]="formGroup.value.manualState == 'LOCK'"></ion-toggle>
             </ion-item>
           </ion-list>
         </ion-card-content>

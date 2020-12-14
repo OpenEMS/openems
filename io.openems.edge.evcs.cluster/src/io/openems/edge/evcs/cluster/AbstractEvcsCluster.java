@@ -43,7 +43,7 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 		MAXIMUM_AVAILABLE_GRID_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT).text("Maximum available grid power.")),
 		USED_ESS_MAXIMUM_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT).text("Dynamic maximum discharge power, that could be limited by us to ensure the possibillity to discharge the battery."));
+				.unit(Unit.WATT).text("Dynamic maximum discharge power, that could be limited by us to ensure the possibility to discharge the battery."));
 
 		private final Doc doc;
 

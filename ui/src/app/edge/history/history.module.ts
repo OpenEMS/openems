@@ -29,6 +29,9 @@ import { GridComponent } from './grid/widget.component';
 import { HeatingelementChartComponent } from './heatingelement/chart.component';
 import { HeatingelementChartOverviewComponent } from './heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
 import { HeatingelementWidgetComponent } from './heatingelement/widget.component';
+import { HeatPumptChartComponent } from './heatpump/chart.component';
+import { HeatPumptChartOverviewComponent } from './heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
+import { HeatpumptWidgetComponent } from './heatpump/widget.component';
 import { HistoryComponent } from './history.component';
 import { NgModule } from '@angular/core';
 import { ProductionChargerChartComponent } from './production/chargerchart.component';
@@ -56,6 +59,9 @@ import { StorageTotalChartComponent } from './storage/totalchart.component';
 import { SymmetricPeakshavingChartComponent } from './peakshaving/symmetric/chart.component';
 import { SymmetricPeakshavingChartOverviewComponent } from './peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component';
 import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/widget.component';
+import { TimeslotPeakshavingChartComponent } from './peakshaving/timeslot/chart.component';
+import { TimeslotPeakshavingChartOverviewComponent } from './peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
+import { TimeslotPeakshavingWidgetComponent } from './peakshaving/timeslot/widget.component';
 
 @NgModule({
   imports: [
@@ -96,6 +102,9 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     HeatingelementChartComponent,
     HeatingelementChartOverviewComponent,
     HeatingelementWidgetComponent,
+    HeatPumptChartComponent,
+    HeatPumptChartOverviewComponent,
+    HeatpumptWidgetComponent,
     HistoryComponent,
     ProductionChargerChartComponent,
     ProductionChartOverviewComponent,
@@ -118,6 +127,9 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     StorageESSChartComponent,
     StorageSingleChartComponent,
     StorageTotalChartComponent,
+    TimeslotPeakshavingChartComponent,
+    TimeslotPeakshavingChartOverviewComponent,
+    TimeslotPeakshavingWidgetComponent,
     SymmetricPeakshavingChartComponent,
     SymmetricPeakshavingChartOverviewComponent,
     SymmetricPeakshavingWidgetComponent,

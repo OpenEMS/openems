@@ -3,6 +3,7 @@ package io.openems.edge.ess.test;
 import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.test.AbstractComponentTest;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
@@ -11,7 +12,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
  */
 public class ManagedSymmetricEssTest extends AbstractComponentTest<ManagedSymmetricEssTest, ManagedSymmetricEss> {
 
-	public ManagedSymmetricEssTest(ManagedSymmetricEss sut) {
+	public ManagedSymmetricEssTest(ManagedSymmetricEss sut) throws OpenemsException {
 		super(sut);
 	}
 

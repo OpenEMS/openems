@@ -18,7 +18,7 @@ public class CsvUtils {
 	 * @throws IOException           on error
 	 * @throws NumberFormatException on error
 	 */
-	public static DataContainer readCsvFileFromRessource(Class<?> clazz, String filename, CsvFormat csvFormat,
+	public static DataContainer readCsvFileFromResource(Class<?> clazz, String filename, CsvFormat csvFormat,
 			float factor) throws NumberFormatException, IOException {
 		DataContainer result = new DataContainer();
 		boolean isTitleLine = true;

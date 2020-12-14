@@ -10,8 +10,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id = null;
 		public boolean readOnlyMode;
-		public int unitId;
 		public String modbusId;
+		public int modbusUnitId;
 		public int capacity;
 		public int maxBatteryPower;
 
@@ -44,8 +44,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setUnitId(int unitId) {
-			this.unitId = unitId;
+		public Builder setModbusUnitId(int modbusUnitId) {
+			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
 
@@ -76,8 +76,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int unit_id() {
-		return this.builder.unitId;
+	public int modbusUnitId() {
+		return this.builder.modbusUnitId;
 	}
 
 	@Override
