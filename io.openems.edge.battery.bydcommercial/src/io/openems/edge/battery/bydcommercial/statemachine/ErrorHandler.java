@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.battery.bydcommercial.BatteryBoxC130;
 import io.openems.edge.battery.bydcommercial.PowerCircuitControl;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
@@ -17,13 +18,15 @@ public class ErrorHandler extends StateHandler<State, Context> {
 		this.entryAt = Instant.now();
 
 		// Try to stop system
-		context.component._setPowerCircuitControl(PowerCircuitControl.SWITCH_OFF);
+		BatteryBoxC130 battery = context.getParent();
+		battery._setPowerCircuitControl(PowerCircuitControl.SWITCH_OFF);
 	}
 
 	@Override
 	protected void onExit(Context context) throws OpenemsNamedException {
-		context.component._setMaxStartAttempts(false);
-		context.component._setMaxStopAttempts(false);
+		BatteryBoxC130 battery = context.getParent();
+		battery._setMaxStartAttempts(false);
+		battery._setMaxStopAttempts(false);
 	}
 
 	@Override

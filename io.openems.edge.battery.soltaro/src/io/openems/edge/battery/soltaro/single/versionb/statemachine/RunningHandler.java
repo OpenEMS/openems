@@ -3,6 +3,7 @@ package io.openems.edge.battery.soltaro.single.versionb.statemachine;
 import java.time.LocalDateTime;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.battery.soltaro.single.versionb.SingleRackVersionBImpl;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
@@ -14,28 +15,30 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 	@Override
 	protected void onExit(Context context) throws OpenemsNamedException {
-		refreshTime = null;
+		this.refreshTime = null;
 		super.onExit(context);
 	}
 
 	@Override
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		super.onEntry(context);
-		refreshTime = LocalDateTime.now();
+		this.refreshTime = LocalDateTime.now();
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		if (ControlAndLogic.hasError(context.component, context.config.numberOfSlaves())) {
+		SingleRackVersionBImpl battery = context.getParent();
+
+		if (ControlAndLogic.hasError(battery, context.config.numberOfSlaves())) {
 			return State.UNDEFINED;
 		}
 
-		if (!ControlAndLogic.isSystemRunning(context.component)) {
+		if (!ControlAndLogic.isSystemRunning(battery)) {
 			return State.UNDEFINED;
 		}
 
 		// Mark as started
-		context.component._setStartStop(StartStop.START);
+		battery._setStartStop(StartStop.START);
 
 		refreshBatteryValues(context);
 

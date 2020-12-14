@@ -6,6 +6,7 @@ import java.time.Instant;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
+import io.openems.edge.ess.generic.symmetric.GenericManagedSymmetricEss;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 
 public class ErrorHandler extends StateHandler<State, Context> {
@@ -23,8 +24,10 @@ public class ErrorHandler extends StateHandler<State, Context> {
 
 	@Override
 	protected void onExit(Context context) throws OpenemsNamedException {
-		context.component._setMaxBatteryStartAttemptsFault(false);
-		context.component._setMaxBatteryInverterStopAttemptsFault(false);
+		GenericManagedSymmetricEss ess = context.getParent();
+
+		ess._setMaxBatteryStartAttemptsFault(false);
+		ess._setMaxBatteryInverterStopAttemptsFault(false);
 	}
 
 	@Override
