@@ -11,7 +11,7 @@ import io.openems.edge.fenecon.mini.ess.statemachine.StateMachine.State;
 public class UndefinedHandler extends StateHandler<State, Context> {
 
 	private final Logger log = LoggerFactory.getLogger(UndefinedHandler.class);
-	
+
 	@Override
 	public State runAndGetNextState(Context context) {
 		if (context.component.getPcsMode() == PcsMode.UNDEFINED) {
@@ -22,7 +22,7 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 			this.log.info("Wait for Setup-Mode to be defined");
 			return State.UNDEFINED;
 		}
-		
+
 		if (context.config.readonly()) {
 			return State.GO_READONLY_MODE;
 		} else {

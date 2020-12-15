@@ -8,7 +8,7 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.fenecon.commercial40.EssFeneconCommercial40Impl;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 
-public class EssDcChargerFeneconCommercial40Test {
+public class EssDcChargerFeneconCommercial40ImplTest {
 
 	private static final String CHARGER_ID = "charger0";
 	private static final String ESS_ID = "ess0";
@@ -23,13 +23,19 @@ public class EssDcChargerFeneconCommercial40Test {
 				.activate(io.openems.edge.ess.fenecon.commercial40.MyConfig.create() //
 						.setId(ESS_ID) //
 						.setModbusId(MODBUS_ID) //
+						.setSurplusFeedInSocLimit(90) //
+						.setSurplusFeedInAllowedChargePowerLimit(-8000) //
+						.setSurplusFeedInIncreasePowerFactor(1.1) //
+						.setSurplusFeedInMaxIncreasePowerFactor(2000) //
+						.setSurplusFeedInPvLimitOnPowerDecreaseCausedByOvertemperature(5000) //
+						.setSurplusFeedInOffTime("17:00:00") //
 						.build());
 
-		new ComponentTest(new EssDcChargerFeneconCommercial40()) //
+		new ComponentTest(new EssDcChargerFeneconCommercial40Pv1Impl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ess) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
-				.activate(MyConfig.create() //
+				.activate(MyConfigPV1.create() //
 						.setId(CHARGER_ID) //
 						.setModbusId(MODBUS_ID) //
 						.setEssId(ESS_ID) //
