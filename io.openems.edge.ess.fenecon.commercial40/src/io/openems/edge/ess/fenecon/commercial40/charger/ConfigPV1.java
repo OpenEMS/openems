@@ -3,7 +3,7 @@ package io.openems.edge.ess.fenecon.commercial40.charger;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "ESS FENECON Commercial 40 DC Charger PV1", //
 		description = "Implements the FENECON Commercial 40 DC Charger.")
 @interface ConfigPV1 {

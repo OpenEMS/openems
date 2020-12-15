@@ -62,7 +62,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Ess.Fenecon.Commercial40", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
@@ -75,12 +75,12 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 
 	private final Logger log = LoggerFactory.getLogger(EssFeneconCommercial40Impl.class);
 
-	protected final static int MAX_APPARENT_POWER = 40000;
-	protected final static int NET_CAPACITY = 40000;
+	protected static final int MAX_APPARENT_POWER = 40000;
+	protected static final int NET_CAPACITY = 40000;
 
-	private final static int UNIT_ID = 100;
-	private final static int MIN_REACTIVE_POWER = -10000;
-	private final static int MAX_REACTIVE_POWER = 10000;
+	private static final int UNIT_ID = 100;
+	private static final int MIN_REACTIVE_POWER = -10000;
+	private static final int MAX_REACTIVE_POWER = 10000;
 
 	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
@@ -743,7 +743,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		// TODO this should be smarter: set in energy saving mode if there was no output
 		// power for a while and we don't need emergency power.
 		LocalDateTime now = LocalDateTime.now();
-		if (lastDefineWorkState == null || now.minusMinutes(1).isAfter(this.lastDefineWorkState)) {
+		if (this.lastDefineWorkState == null || now.minusMinutes(1).isAfter(this.lastDefineWorkState)) {
 			this.lastDefineWorkState = now;
 			EnumWriteChannel setWorkStateChannel = this.channel(EssFeneconCommercial40.ChannelId.SET_WORK_STATE);
 			try {
@@ -784,7 +784,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
@@ -818,11 +818,11 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 					this.power.addConstraintAndValidate(
 							this.createPowerConstraint("Limit On PowerDecreaseCausedByOvertemperature Error", Phase.ALL,
 									Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS,
-									config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel() * -1));
+									this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel() * -1));
 					this.power.addConstraintAndValidate(
 							this.createPowerConstraint("Limit On PowerDecreaseCausedByOvertemperature Error", Phase.ALL,
 									Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
-									config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel()));
+									this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel()));
 				} catch (OpenemsException e) {
 					this.logError(this.log, e.getMessage());
 				}

@@ -22,12 +22,32 @@ import io.openems.edge.timedata.api.TimedataProvider;
 public interface EssFeneconCommercial40
 		extends ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
 
+	/**
+	 * Gets the Modbus Unit-ID.
+	 * 
+	 * @return the Unit-ID
+	 */
 	public Integer getUnitId();
 
+	/**
+	 * Gets the Modbus-Bridge Component-ID, i.e. "modbus0".
+	 * 
+	 * @return the Component-ID
+	 */
 	public String getModbusBridgeId();
 
+	/**
+	 * Registers a Charger with this ESS.
+	 * 
+	 * @param charger the Charger
+	 */
 	public void addCharger(EssDcChargerFeneconCommercial40 charger);
 
+	/**
+	 * Unregisters a Charger from this ESS.
+	 * 
+	 * @param charger the Charger
+	 */
 	public void removeCharger(EssDcChargerFeneconCommercial40 charger);
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

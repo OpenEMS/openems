@@ -22,12 +22,32 @@ public interface FeneconDessEss extends AsymmetricEss, SymmetricEss, OpenemsComp
 	public static final int MAX_APPARENT_POWER = 9_000; // [VA]
 	public static final int CAPACITY = 10_000; // [Wh]
 
+	/**
+	 * Gets the Modbus Unit-ID.
+	 * 
+	 * @return the Unit-ID
+	 */
 	public Integer getUnitId();
 
+	/**
+	 * Gets the Modbus-Bridge Component-ID, i.e. "modbus0".
+	 * 
+	 * @return the Component-ID
+	 */
 	public String getModbusBridgeId();
 
+	/**
+	 * Registers a Charger with this ESS.
+	 * 
+	 * @param charger the Charger
+	 */
 	public void addCharger(AbstractFeneconDessCharger charger);
 
+	/**
+	 * Unregisters a Charger from this ESS.
+	 * 
+	 * @param charger the Charger
+	 */
 	public void removeCharger(AbstractFeneconDessCharger charger);
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

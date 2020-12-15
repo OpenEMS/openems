@@ -60,7 +60,7 @@ public class FeneconDessCharger1 extends AbstractFeneconDessCharger
 		}
 
 		// update filter for 'Ess'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
 

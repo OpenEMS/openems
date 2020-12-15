@@ -50,6 +50,9 @@ public class MyChargerConfig extends AbstractComponentConfig implements Config1,
 		this.builder = builder;
 	}
 
+	/**
+	 * Gets the Modbus-ID
+	 */
 	public String modbusId() {
 		return this.builder.modbusId;
 	}

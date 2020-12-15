@@ -28,7 +28,7 @@ public abstract class AbstractEssDcChargerFeneconCommercial40 extends AbstractOp
 			EssDcCharger.ChannelId.ACTUAL_ENERGY);
 
 	/**
-	 * Is this PV1 or PV2 charger?
+	 * Is this PV1 or PV2 charger?.
 	 * 
 	 * @return true for PV1, false for PV2
 	 */
