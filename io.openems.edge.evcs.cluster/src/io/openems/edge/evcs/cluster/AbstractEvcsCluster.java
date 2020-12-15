@@ -39,11 +39,12 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 		MAXIMUM_POWER_TO_DISTRIBUTE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT).text("Maximum power to distribute, for all given Evcss.")),
 		MAXIMUM_AVAILABLE_ESS_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT).text("Maximum available ess power.")), 
+				.unit(Unit.WATT).text("Maximum available ess power.")),
 		MAXIMUM_AVAILABLE_GRID_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT).text("Maximum available grid power.")),
 		USED_ESS_MAXIMUM_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT).text("Dynamic maximum discharge power, that could be limited by us to ensure the possibility to discharge the battery."));
+				.unit(Unit.WATT)
+				.text("Dynamic maximum discharge power, that could be limited by us to ensure the possibility to discharge the battery."));
 
 		private final Doc doc;
 
@@ -169,8 +170,8 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 							managedEvcs.setChargePowerLimit(guaranteedPower);
 							// TODO: managedEvcs._setStatus(Status.UNCONFIRMED_CHARGING); or put this in the
 							// setChargePowerLimit
-							totalPowerLeftMinusGuarantee -= guaranteedPower;
 						}
+						totalPowerLeftMinusGuarantee -= guaranteedPower;
 						break;
 
 					// EVCS is active.

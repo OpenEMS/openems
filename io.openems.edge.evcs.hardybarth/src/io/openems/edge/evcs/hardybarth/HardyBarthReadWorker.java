@@ -68,7 +68,7 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 			}
 			return Math.round((Integer) value * 0.1);
 		}, "secc", "port0", "metering", "power", "active_total", "actual");
-		this.parent._setChargePower(chargePower.intValue());
+		this.parent._setChargePower(chargePower == null ? null : chargePower.intValue());
 
 		// ENERGY_SESSION
 		Double energy = (Double) this.getValueFromJson(Evcs.ChannelId.ENERGY_SESSION, OpenemsType.STRING, json,
