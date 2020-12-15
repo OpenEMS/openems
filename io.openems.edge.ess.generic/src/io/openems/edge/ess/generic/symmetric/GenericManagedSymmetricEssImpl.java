@@ -21,6 +21,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
@@ -29,6 +30,8 @@ import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -52,7 +55,7 @@ import io.openems.edge.ess.power.api.Relationship;
 		} //
 )
 public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent implements GenericManagedSymmetricEss,
-		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, StartStoppable {
+		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	@Reference
 	private Power power;
@@ -218,7 +221,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 	}
 
 	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
-
+	
 	@Override
 	public void setStartStop(StartStop value) {
 		if (this.startStopTarget.getAndSet(value) != value) {
@@ -247,4 +250,12 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 		return StartStop.UNDEFINED; // can never happen
 	}
 
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
+		);
+	}	
 }

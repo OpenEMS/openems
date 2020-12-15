@@ -7,9 +7,11 @@ import { ConsumptionChartOverviewComponent } from './edge/history/consumption/co
 import { FixDigitalOutputChartOverviewComponent } from './edge/history/fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
 import { GridChartOverviewComponent } from './edge/history/grid/gridchartoverview/gridchartoverview.component';
 import { HeatingelementChartOverviewComponent } from './edge/history/heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
+import { HeatPumptChartOverviewComponent } from './edge/history/heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
 import { HistoryComponent as EdgeHistoryComponent } from './edge/history/history.component';
 import { AsymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component';
 import { SymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component';
+import { TimeslotPeakshavingChartOverviewComponent } from './edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
 import { ProductionChartOverviewComponent } from './edge/history/production/productionchartoverview/productionchartoverview.component';
 import { SelfconsumptionChartOverviewComponent } from './edge/history/selfconsumption/selfconsumptionchartoverview/selfconsumptionchartoverview.component';
 import { SinglethresholdChartOverviewComponent } from './edge/history/singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
@@ -31,7 +33,6 @@ import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './ed
 import { IndexComponent } from './index/index.component';
 import { SettingsComponent } from './settings/settings.component';
 
-
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
   { path: 'index', component: IndexComponent },
@@ -48,8 +49,10 @@ const routes: Routes = [
   { path: 'device/:edgeId/history/:componentId/channelthresholdchart', component: ChannelthresholdChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/fixdigitaloutputchart', component: FixDigitalOutputChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/heatingelementchart', component: HeatingelementChartOverviewComponent },
+  { path: 'device/:edgeId/history/:componentId/heatpumpchart', component: HeatPumptChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/singlethresholdchart', component: SinglethresholdChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/symmetricpeakshavingchart', component: SymmetricPeakshavingChartOverviewComponent },
+  { path: 'device/:edgeId/history/:componentId/timeslotpeakshavingchart', component: TimeslotPeakshavingChartOverviewComponent },
   { path: 'device/:edgeId/history/autarchychart', component: AutarchyChartOverviewComponent },
   { path: 'device/:edgeId/history/consumptionchart', component: ConsumptionChartOverviewComponent },
   { path: 'device/:edgeId/history/gridchart', component: GridChartOverviewComponent },

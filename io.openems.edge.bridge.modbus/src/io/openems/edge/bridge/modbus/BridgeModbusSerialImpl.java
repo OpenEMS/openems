@@ -21,7 +21,6 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusSerial;
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
@@ -68,26 +67,11 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 	 */
 	private Parity parity;
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
-
 	public BridgeModbusSerialImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				BridgeModbus.ChannelId.values(), //
-				ChannelId.values() //
+				BridgeModbusSerial.ChannelId.values() //
 		);
 	}
 

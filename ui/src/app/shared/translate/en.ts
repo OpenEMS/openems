@@ -32,6 +32,7 @@ export const TRANSLATION = {
         inactive: 'Inactive',
         info: 'Info',
         inputNotValid: 'Input not valid',
+        insufficientRights: 'Insufficient rights',
         live: 'Live',
         load: 'Load',
         manual: 'Manual',
@@ -151,11 +152,16 @@ export const TRANSLATION = {
                 },
                 Peakshaving: {
                     asymmetricInfo: 'The entered performance values ​​refer to individual phases. It is adjusted to the most stressed phase.',
+                    endDate: 'End date',
+                    endTime: 'End time',
                     mostStressedPhase: 'Most stressed phase',
                     peakshaving: 'Peak-Shaving',
                     peakshavingPower: 'Discharge above',
+                    recharge: 'Recharge Power',
                     rechargePower: 'Charge below',
                     relationError: 'Discharge limit must be greater than or equal to the load limit',
+                    startDate: 'Start date',
+                    startTime: 'Start time',
                 },
                 CHP: {
                     highThreshold: 'High Threshold',
@@ -249,9 +255,12 @@ export const TRANSLATION = {
                     lock: 'Lock',
                     moreThanHpPower: 'The value must not be lower than the maximum output of the heat pump',
                     normalOperation: 'Normal operation',
+                    normalOperationShort: 'Normal',
                     relationError: 'Switch-on command excess value must be greater than switch-on recommended value',
                     switchOnCom: 'Switch-on command',
+                    switchOnComShort: 'Command',
                     switchOnRec: 'Switch-on recommendation',
+                    switchOnRecShort: 'Recommendation',
                     undefined: 'Undefined',
                 }
             }

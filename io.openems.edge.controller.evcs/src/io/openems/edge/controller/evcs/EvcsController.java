@@ -255,7 +255,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	}
 
 	/**
-	 * Reseting the minimum and maximum power channels.
+	 * Resetting the minimum and maximum power channels.
 	 */
 	private void resetMinMaxChannels() {
 		evcs._setMinimumPower(0);
