@@ -13,22 +13,20 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.BridgeModbusSerial;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.Parity;
-import io.openems.edge.bridge.modbus.api.Stopbit;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Simulator.Modbus", //
-		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Simulator.Modbus", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class ModbusSimulator extends AbstractOpenemsComponent
-		implements BridgeModbus, BridgeModbusSerial, BridgeModbusTcp, OpenemsComponent {
-
-	// private final Logger log = LoggerFactory.getLogger(ModbusSimulator.class);
+		implements BridgeModbus, BridgeModbusTcp, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -57,6 +55,7 @@ public class ModbusSimulator extends AbstractOpenemsComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				BridgeModbus.ChannelId.values(), //
+				BridgeModbusTcp.ChannelId.values(), //
 				ChannelId.values() //
 		);
 	}
@@ -69,31 +68,6 @@ public class ModbusSimulator extends AbstractOpenemsComponent
 			e.printStackTrace();
 		}
 		return null;
-	}
-
-	@Override
-	public String getPortName() {
-		return "PortName";
-	}
-
-	@Override
-	public int getBaudrate() {
-		return 9600;
-	}
-
-	@Override
-	public int getDatabits() {
-		return 8;
-	}
-
-	@Override
-	public Stopbit getStopbits() {
-		return Stopbit.ONE;
-	}
-
-	@Override
-	public Parity getParity() {
-		return Parity.NONE;
 	}
 
 	@Override

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -36,6 +38,8 @@ import io.openems.edge.controller.api.Controller;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, Controller, OpenemsComponent {
+
+	private static final Pattern COMPONENT_ID_PATTERN = Pattern.compile("([^0-9]+)([0-9]+)$");
 
 	private final Logger log = LoggerFactory.getLogger(DebugLogImpl.class);
 
@@ -95,7 +99,25 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 		 * message of those channelIds and their current values.
 		 */
 		this.components.stream() //
-				.sorted((c1, c2) -> c1.id().compareTo(c2.id())) // sorted by Component-ID
+				.sorted((c1, c2) -> {
+					Matcher c1Matcher = COMPONENT_ID_PATTERN.matcher(c1.id());
+					Matcher c2Matcher = COMPONENT_ID_PATTERN.matcher(c2.id());
+					if (c1Matcher.find() && c2Matcher.find()) {
+						String c1Name = c1Matcher.group(1);
+						int c1Number = Integer.parseInt(c1Matcher.group(2));
+						String c2Name = c2Matcher.group(1);
+						int c2Number = Integer.parseInt(c2Matcher.group(2));
+						if (c1Name.equals(c2Name)) {
+							// Sort by Component-ID numbers
+							return Integer.compare(c1Number, c2Number);
+						} else {
+							// Sort by full Component-ID
+							return c1.id().compareTo(c2.id());
+						}
+					}
+					// Sort by full Component-ID
+					return c1.id().compareTo(c2.id());
+				}) //
 				.forEachOrdered(component -> {
 					final List<String> logs = new ArrayList<>();
 

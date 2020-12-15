@@ -20,6 +20,8 @@ public class DebugLogImplTest {
 
 	private static final String DUMMY0_ID = "dummy0";
 	private static final String DUMMY1_ID = "dummy1";
+	private static final String DUMMY2_ID = "dummy2";
+	private static final String DUMMY10_ID = "dummy10";
 
 	private final static ChannelAddress SUM_ESS_SOC = new ChannelAddress("_sum", "EssSoc");
 
@@ -44,12 +46,22 @@ public class DebugLogImplTest {
 				return "def:uvw";
 			}
 		});
+		components.add(new DummyController(DUMMY2_ID) {
+			@Override
+			public String debugLog() {
+				return "ghi:rst";
+			}
+		});
+		components.add(new DummyController(DUMMY10_ID) {
+			@Override
+			public String debugLog() {
+				return "jkl:opq";
+			}
+		});
 
 		DebugLogImpl sut = new DebugLogImpl();
 		new ControllerTest(sut) //
 				.addReference("components", components) //
-				.addComponent(components.get(0)) //
-				.addComponent(components.get(1)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setAdditionalChannels(new String[] { //
@@ -62,7 +74,7 @@ public class DebugLogImplTest {
 				.next(new TestCase() //
 						.input(SUM_ESS_SOC, 50));
 
-		assertEquals("_sum[foo:bar|EssSoc:50 %] dummy1[def:uvw]", sut.getLogMessage());
+		assertEquals("_sum[foo:bar|EssSoc:50 %] dummy1[def:uvw] dummy2[ghi:rst] dummy10[jkl:opq]", sut.getLogMessage());
 
 	}
 

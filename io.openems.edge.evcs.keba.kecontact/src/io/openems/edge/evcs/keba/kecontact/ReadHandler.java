@@ -82,10 +82,9 @@ public class ReadHandler implements Consumer<String> {
 					receiveReport2 = true;
 					setInt(KebaChannelId.STATUS_KEBA, jsonMessage, "State");
 
-					// The setenergy value of KEBA is not used because it is reset by the currtime 0
-					// 1 command
+					// Value "setenergy" not used, because it is reset by the currtime 0 1 command
 
-					// Set STATUS and Warning STATE Channel
+					// Set Evcs status
 					Channel<Status> stateChannel = this.parent.channel(KebaChannelId.STATUS_KEBA);
 					Channel<Status> plugChannel = this.parent.channel(KebaChannelId.PLUG);
 
@@ -128,7 +127,6 @@ public class ReadHandler implements Consumer<String> {
 					int energy = this.parent.getEnergySession().orElse(0);
 					if (energy >= limit && limit != 0) {
 						try {
-
 							this.parent.setDisplayText(limit + "Wh erreicht");
 							status = Status.ENERGY_LIMIT_REACHED;
 						} catch (OpenemsNamedException e) {
@@ -136,13 +134,9 @@ public class ReadHandler implements Consumer<String> {
 						}
 					}
 
-					this.parent.channel(Evcs.ChannelId.STATUS).setNextValue(status);
-
-					if (status == Status.ERROR) {
-						this.parent.channel(KebaChannelId.CHARGINGSTATION_STATE_ERROR).setNextValue(true);
-					} else {
-						this.parent.channel(KebaChannelId.CHARGINGSTATION_STATE_ERROR).setNextValue(false);
-					}
+					this.parent._setStatus(status);
+					boolean errorState = status == Status.ERROR ? true : false;
+					this.parent.channel(KebaChannelId.CHARGINGSTATION_STATE_ERROR).setNextValue(errorState);
 
 					setInt(KebaChannelId.ERROR_1, jsonMessage, "Error1");
 					setInt(KebaChannelId.ERROR_2, jsonMessage, "Error2");
@@ -183,17 +177,17 @@ public class ReadHandler implements Consumer<String> {
 					int currentSum = currentL1.value().orElse(0) + currentL2.value().orElse(0)
 							+ currentL3.value().orElse(0);
 
-					if (currentSum > 100) {
+					if (currentSum > 300) {
 
 						int phases = 0;
 
-						if (currentL1.value().orElse(0) > 100) {
+						if (currentL1.value().orElse(0) >= 100) {
 							phases += 1;
 						}
-						if (currentL2.value().orElse(0) > 100) {
+						if (currentL2.value().orElse(0) >= 100) {
 							phases += 1;
 						}
-						if (currentL3.value().orElse(0) > 100) {
+						if (currentL3.value().orElse(0) >= 100) {
 							phases += 1;
 						}
 						this.parent._setPhases(phases);

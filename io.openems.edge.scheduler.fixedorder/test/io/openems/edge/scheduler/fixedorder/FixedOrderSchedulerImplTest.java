@@ -11,7 +11,6 @@ import org.junit.Test;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.scheduler.api.Scheduler;
 
@@ -29,7 +28,6 @@ public class FixedOrderSchedulerImplTest {
 	public void test() throws Exception {
 		final FixedOrderScheduler sut = new FixedOrderSchedulerImpl();
 		ComponentTest test = new ComponentTest(sut) //
-				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummyController(CTRL0_ID)) //
 				.addComponent(new DummyController(CTRL1_ID)) //
 				.addComponent(new DummyController(CTRL2_ID)) //
@@ -49,7 +47,6 @@ public class FixedOrderSchedulerImplTest {
 
 	private static List<String> getControllerIds(Scheduler scheduler) throws OpenemsNamedException {
 		return scheduler.getControllers().stream() //
-				.map(c -> c.id()) //
 				.collect(Collectors.toList());
 	}
 

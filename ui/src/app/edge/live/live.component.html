@@ -89,12 +89,20 @@
                 <heatingelement [componentId]="widget.componentId"></heatingelement>
               </ion-col>
 
+              <ion-col *ngSwitchCase="'Controller.Io.HeatPump.SgReady'" size="12" size-lg="6" class="ion-no-padding">
+                <heatpump [componentId]="widget.componentId"></heatpump>
+              </ion-col>
+
               <ion-col *ngSwitchCase="'Controller.Symmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
                 <symmetricpeakshaving [componentId]="widget.componentId"></symmetricpeakshaving>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Asymmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
                 <asymmetricpeakshaving [componentId]="widget.componentId"></asymmetricpeakshaving>
+              </ion-col>
+
+              <ion-col *ngSwitchCase="'Controller.TimeslotPeakshaving'" size="12" size-lg="6" class="ion-no-padding">
+                <timeslotpeakshaving [componentId]="widget.componentId"></timeslotpeakshaving>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'" size="12" size-lg="6"
@@ -105,6 +113,10 @@
               <ion-col *ngSwitchCase="'io.openems.edge.io.api.DigitalInput'" size="12" size-lg="6"
                 class="ion-no-padding">
                 <digitalinput></digitalinput>
+              </ion-col>
+
+              <ion-col size="12" *ngSwitchCase="'Controller.Ess.FixActivePower'" size-lg="6" class="ion-no-padding">
+                <fixactivepower [componentId]="widget.componentId"></fixactivepower>
               </ion-col>
             </ng-container>
 

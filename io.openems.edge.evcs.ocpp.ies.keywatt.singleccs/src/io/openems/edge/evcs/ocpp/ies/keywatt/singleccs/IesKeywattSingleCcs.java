@@ -25,6 +25,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
@@ -37,7 +38,10 @@ import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
 		name = "Evcs.Ocpp.IesKeywattSingle", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
 public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 		implements Evcs, ManagedEvcs, MeasuringEvcs, OpenemsComponent, EventHandler {
 
@@ -52,6 +56,9 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 			Arrays.asList(OcppInformations.values()));
 
 	private Config config;
+
+	@Reference
+	private EvcsPower evcsPower;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -135,4 +142,15 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 	public List<Request> getRequiredRequestsDuringConnection() {
 		return new ArrayList<Request>();
 	}
+
+	@Override
+	public EvcsPower getEvcsPower() {
+		return this.evcsPower;
+	}
+
+	@Override
+	public boolean returnsSessionEnergy() {
+		return true;
+	}
+
 }
