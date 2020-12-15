@@ -332,7 +332,7 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	// ***********************************************************************
 	// Modifier Methods
 	// - setiButton is the only essential modifier. It updates all
-	// data members based on consquences of the account file alone.
+	// data members based on consequences of the account file alone.
 	// ***********************************************************************
 
 	/**
