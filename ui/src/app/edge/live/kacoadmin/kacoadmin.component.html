@@ -1,0 +1,29 @@
+<ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.roleIsAtLeast('admin') && env.backend === 'OpenEMS Backend'">
+        <ion-card>
+            <ion-item color="light" lines="full">
+                <ion-icon slot="start" name="warning" color="danger"></ion-icon>
+                <ion-label>ADMIN</ion-label>
+            </ion-item>
+            <ion-card-content>
+                <form (ngSubmit)="send(updateEdge.checked, updateUI.checked)">
+                    <ion-item>
+                        <ion-label>Update Edge</ion-label>
+                        <ion-toggle value="5" #updateEdge></ion-toggle>
+                    </ion-item>
+                    <ion-item>
+                        <ion-label>Update UI</ion-label>
+                        <ion-toggle value="5" #updateUI></ion-toggle>
+                    </ion-item>
+                    <ion-item>
+                        <ion-button type="submit" slot="end" color="light">
+                            <ion-icon slot="icon-only" name="send-outline"></ion-icon>
+                        </ion-button>
+                    </ion-item>
+                </form>
+
+            </ion-card-content>
+
+        </ion-card>
+    </ng-container>
+</ng-container>

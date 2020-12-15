@@ -46,6 +46,7 @@ import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetric
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
 import { HeatPumpComponent } from './heatpump/heatpump.component';
 import { HeatPumpModalComponent } from './heatpump/modal/modal.component';
+import { KacoAdminComponent } from './kacoadmin/kacoadmin.component';
 
 @NgModule({
   imports: [
@@ -67,6 +68,7 @@ import { HeatPumpModalComponent } from './heatpump/modal/modal.component';
     FixDigitalOutputModalComponent,
     KacoErrorModalComponent,
     KacoUpdateModalComponent,
+    KacoAdminComponent,
     GridModalComponent,
     HeatingElementModalComponent,
     HeatPumpModalComponent,
@@ -116,6 +118,7 @@ import { HeatPumpModalComponent } from './heatpump/modal/modal.component';
     KacoErrorModalComponent,
     KacoUpdateComponent,
     KacoUpdateModalComponent,
+    KacoAdminComponent,
     SinglethresholdComponent,
     SinglethresholdModalComponent,
     StorageComponent,

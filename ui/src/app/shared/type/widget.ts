@@ -9,7 +9,8 @@ export enum WidgetClass {
     'Grid',
     'Production',
     'Consumption',
-    'KacoError'
+    'KacoError',
+    'KacoAdmin'
 }
 
 export enum WidgetNature {
@@ -64,6 +65,7 @@ export class Widgets {
                     case 'Selfconsumption':
                         return config.hasProducer();
                     case 'KacoError':
+                    case 'KacoAdmin':
                         return true;
                 };
                 return false;
