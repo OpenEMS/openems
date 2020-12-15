@@ -104,8 +104,7 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 
 			BridgeModbus modbusBridge = meter.getModbus();
 
-			StateChannel slaveCommunicationFailedChannel = modbusBridge
-					.channel(BridgeModbus.ChannelId.SLAVE_COMMUNICATION_FAILED);
+			StateChannel slaveCommunicationFailedChannel = modbusBridge.getSlaveCommunicationFailedChannel();
 			Optional<Boolean> communicationFailedOpt = slaveCommunicationFailedChannel.value().asOptional();
 			// If the channel value is present and it is set then the communication is
 			// broken
