@@ -4,9 +4,9 @@ import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
-public class MyConfig extends AbstractComponentConfig implements Config {
+public class MyEssConfig extends AbstractComponentConfig implements Config {
 
-	protected static class Builder {
+	public static class Builder {
 		private String id = null;
 		private String modbusId = null;
 
@@ -23,8 +23,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public MyConfig build() {
-			return new MyConfig(this);
+		public MyEssConfig build() {
+			return new MyEssConfig(this);
 		}
 	}
 
@@ -39,7 +39,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	private final Builder builder;
 
-	private MyConfig(Builder builder) {
+	private MyEssConfig(Builder builder) {
 		super(Config.class, builder.id);
 		this.builder = builder;
 	}

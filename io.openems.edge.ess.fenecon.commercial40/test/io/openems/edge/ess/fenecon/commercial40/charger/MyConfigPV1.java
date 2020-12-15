@@ -4,7 +4,7 @@ import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
-public class MyConfig extends AbstractComponentConfig implements Config {
+public class MyConfigPV1 extends AbstractComponentConfig implements ConfigPV1 {
 
 	protected static class Builder {
 		private String id = null;
@@ -35,8 +35,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public MyConfig build() {
-			return new MyConfig(this);
+		public MyConfigPV1 build() {
+			return new MyConfigPV1(this);
 		}
 	}
 
@@ -51,8 +51,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	private final Builder builder;
 
-	private MyConfig(Builder builder) {
-		super(Config.class, builder.id);
+	private MyConfigPV1(Builder builder) {
+		super(ConfigPV1.class, builder.id);
 		this.builder = builder;
 	}
 
@@ -69,11 +69,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String Ess_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
-	}
-
-	@Override
-	public int maxActualPower() {
-		return this.builder.maxActualPower;
 	}
 
 }

@@ -87,7 +87,7 @@
           <ion-card-content>
             <ion-item>
               <ion-label>Component</ion-label>
-              <ion-select #selectedComponentId>
+              <ion-select interface="alert" #selectedComponentId>
                 <ion-select-option *ngFor="let entry of (config.components | keys)" [value]="entry.key">
                   {{ entry.value.id }} ({{ entry.value.alias }})</ion-select-option>
               </ion-select>
@@ -96,7 +96,7 @@
             <ion-item [hidden]="!(selectedComponentId && selectedComponentId.value)">
               <!-- <ion-label>{{ config.components[selectedComponentId.value].channels | json }}</ion-label> -->
               <ion-label>Channel</ion-label>
-              <ion-select #selectedChannelId>
+              <ion-select interface="alert" #selectedChannelId>
                 <ng-container *ngIf="selectedComponentId && selectedComponentId.value">
                   <ion-select-option
                     *ngFor="let entry of (config.components[selectedComponentId.value].channels | keys)"
