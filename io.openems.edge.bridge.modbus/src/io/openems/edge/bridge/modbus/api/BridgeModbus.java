@@ -16,8 +16,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface BridgeModbus extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT) //
-				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)), //
 		CYCLE_TIME_IS_TOO_SHORT(Doc.of(Level.INFO) //
 				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)), //
 		EXECUTION_DURATION(Doc.of(OpenemsType.LONG) //
@@ -40,9 +38,7 @@ public interface BridgeModbus extends OpenemsComponent {
 	 * 
 	 * @return the Channel
 	 */
-	public default StateChannel getSlaveCommunicationFailedChannel() {
-		return this.channel(ChannelId.SLAVE_COMMUNICATION_FAILED);
-	}
+	public StateChannel getSlaveCommunicationFailedChannel();
 
 	/**
 	 * Gets the Slave Communication Failed State. See
