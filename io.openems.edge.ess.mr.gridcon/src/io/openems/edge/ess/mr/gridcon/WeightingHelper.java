@@ -4,6 +4,15 @@ import io.openems.edge.battery.api.Battery;
 
 public class WeightingHelper {
 
+	/**
+	 * Calculates the weighting for Gridcon depending on connected batteries and given active power.
+	 * 
+	 * @param activePower
+	 * @param b1
+	 * @param b2
+	 * @param b3
+	 * @return
+	 */
 	public static Float[] getWeighting(float activePower, Battery b1, Battery b2, Battery b3) {
 
 		Float[] ret = { 0f, 0f, 0f };
@@ -26,7 +35,7 @@ public class WeightingHelper {
 		return ret;
 	}
 
-	protected static Float[] getWeightingForNoPower(Battery b1, Battery b2, Battery b3) {
+	static Float[] getWeightingForNoPower(Battery b1, Battery b2, Battery b3) {
 
 		float weightA = 0;
 		if (isBatteryReady(b1)) {
@@ -65,25 +74,25 @@ public class WeightingHelper {
 		return weight;
 	}
 
-	protected static boolean isBatteryReady(Battery battery) {
+	static boolean isBatteryReady(Battery battery) {
 		if (battery == null) {
 			return false;
 		}
-		return !Helper.isUndefined(battery) && Helper.isRunning(battery);
+		return !Helper.isUndefined(battery) && battery.isStarted();
 	}
 
 	public static int getStringControlMode(Battery battery1, Battery battery2, Battery battery3) {
 		int weightingMode = 0;
 
-		boolean useBatteryStringA = (battery1 != null && Helper.isRunning(battery1));
+		boolean useBatteryStringA = (battery1 != null && battery1.isStarted());
 		if (useBatteryStringA) {
 			weightingMode = weightingMode + 1; // battA = 1 (2^0)
 		}
-		boolean useBatteryStringB = (battery2 != null && Helper.isRunning(battery2));
+		boolean useBatteryStringB = (battery2 != null && battery2.isStarted());
 		if (useBatteryStringB) {
 			weightingMode = weightingMode + 8; // battB = 8 (2^3)
 		}
-		boolean useBatteryStringC = (battery3 != null && Helper.isRunning(battery3));
+		boolean useBatteryStringC = (battery3 != null && battery3.isStarted());
 		if (useBatteryStringC) {
 			weightingMode = weightingMode + 64; // battC = 64 (2^6)
 		}

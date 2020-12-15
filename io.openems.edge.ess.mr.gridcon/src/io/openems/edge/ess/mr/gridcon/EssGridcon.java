@@ -68,6 +68,20 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		);
 	}
 
+	/**
+	 * Activates this component.
+	 * 
+	 * @param context
+	 * @param id
+	 * @param alias
+	 * @param enabled
+	 * @param gridconId
+	 * @param bmsA
+	 * @param bmsB
+	 * @param bmsC
+	 * @param offsetCurrent
+	 * @throws OpenemsNamedException
+	 */
 	@Activate
 	public void activate(ComponentContext context, String id, String alias, boolean enabled, String gridconId,
 			String bmsA, String bmsB, String bmsC, float offsetCurrent) throws OpenemsNamedException {

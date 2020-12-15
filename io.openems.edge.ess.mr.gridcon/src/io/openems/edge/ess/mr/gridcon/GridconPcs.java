@@ -16,7 +16,7 @@ public interface GridconPcs {
 	public static final int MAX_POWER_PER_INVERTER = 42_000;
 	public static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
 	public static final float Q_LIMIT = 1f;
-	public static final int POWER_PRECISION_WATT = 1; // 100 TODO estimated value;
+	public static final int POWER_PRECISION_WATT = 420; // Estimated value, 1% of max;
 	public static final float DEFAULT_GRID_FREQUENCY = 50;
 	public static final float DEFAULT_GRID_VOLTAGE = 230;
 
@@ -47,9 +47,6 @@ public interface GridconPcs {
 
 	float getReactivePower();
 
-	// float getActivePowerInverter1();
-	// float getActivePowerInverter2();
-	// float getActivePowerInverter3();
 	float getDcLinkPositiveVoltage();
 
 	boolean isCommunicationBroken();
@@ -60,12 +57,9 @@ public interface GridconPcs {
 
 	void setEnableIpu3(boolean enabled);
 
-	// void setEnableIPU4(boolean enabled);
 	void enableDcDc();
 
 	void disableDcDc();
-
-	// void setParameterSet(ParameterSet set1);
 
 	void setBalancingMode(BalancingMode balancingMode);
 
@@ -73,12 +67,8 @@ public interface GridconPcs {
 
 	void setHarmonicCompensationMode(HarmonicCompensationMode harmonicCompensationMode);
 
-	// void setShortCircuitHAndling(boolean b);
-
 	// ------ Methods that are important for 'grid situation'
 	void setMode(Mode mode); // the mode indicates blackstart or sync approval
-	// void setSyncApproval(boolean b);
-	// void setBlackStartApproval(boolean b);
 
 	void setU0(float voltageFactor);
 

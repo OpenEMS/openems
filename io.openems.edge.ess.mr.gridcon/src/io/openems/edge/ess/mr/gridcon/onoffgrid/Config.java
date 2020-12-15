@@ -9,7 +9,7 @@ import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 		name = "ESS Gridcon On Off Grid", //
 		description = "ESS MR Gridcon PCS on off grid variant" //
 )
-public @interface Config {
+@interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ess0";

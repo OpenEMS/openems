@@ -108,8 +108,7 @@ public abstract class BaseState implements StateObject {
 	}
 
 	private boolean isGridconDefined() {
-		// TODO when is it defined
-		return true;
+		return !this.getGridconPcs().isUndefined();
 	}
 
 	protected boolean isNextStateError() {
@@ -117,15 +116,15 @@ public abstract class BaseState implements StateObject {
 			return true;
 		}
 
-		if (this.getBattery1() != null && Helper.isError(this.getBattery1())) {
+		if (this.getBattery1() != null && this.getBattery1().hasFaults()) {
 			return true;
 		}
 
-		if (this.getBattery2() != null && Helper.isError(this.getBattery2())) {
+		if (this.getBattery2() != null && this.getBattery2().hasFaults()) {
 			return true;
 		}
 
-		if (this.getBattery3() != null && Helper.isError(this.getBattery3())) {
+		if (this.getBattery3() != null && this.getBattery3().hasFaults()) {
 			return true;
 		}
 
@@ -251,22 +250,16 @@ public abstract class BaseState implements StateObject {
 		return false;
 	}
 
-	protected void startBatteries() {
-		Helper.startBattery(this.getBattery1());
-		Helper.startBattery(this.getBattery2());
-		Helper.startBattery(this.getBattery3());
-	}
-
 	protected boolean isBatteriesStarted() {
 		boolean running = true;
 		if (this.getBattery1() != null) {
-			running = running && Helper.isRunning(this.getBattery1());
+			running = running && this.getBattery1().isStarted();
 		}
 		if (this.getBattery2() != null) {
-			running = running && Helper.isRunning(this.getBattery2());
+			running = running && this.getBattery2().isStarted();
 		}
 		if (this.getBattery3() != null) {
-			running = running && Helper.isRunning(this.getBattery3());
+			running = running && this.getBattery3().isStarted();
 		}
 		return running;
 	}

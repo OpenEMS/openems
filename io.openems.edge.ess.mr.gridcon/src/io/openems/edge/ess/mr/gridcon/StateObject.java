@@ -27,6 +27,7 @@ public interface StateObject {
 	void act() throws OpenemsNamedException;
 
 	/**
+	 * Getter for GridconSettings.
 	 * 
 	 * @return the relevant settings for the gridcon
 	 */

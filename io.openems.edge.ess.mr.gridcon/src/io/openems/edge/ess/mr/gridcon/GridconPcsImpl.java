@@ -69,15 +69,9 @@ import io.openems.edge.ess.mr.gridcon.writewords.IpuParameter;
 public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 		implements OpenemsComponent, GridconPcs, EventHandler {
 
-	private static final int START_ADDRESS_GRID_MEASUREMENTS = 33456; // TODO CHECK if it is varible
+	private static final int START_ADDRESS_GRID_MEASUREMENTS = 33456; 
 
 	private static final int START_ADDRESS_DCDC_MEASUREMENTS = 33488;
-	// private static final int START_ADDRESS_DCDC_MEASUREMENTS_WITH_ONE_IPU =
-	// 33520;
-	// private static final int START_ADDRESS_DCDC_MEASUREMENTS_WITH_TWO_IPUS =
-	// 33552;
-	// private static final int START_ADDRESS_DCDC_MEASUREMENTS_WITH_THREE_IPUS =
-	// 33584;
 
 	private static final int START_ADDRESS_DCDC_STATE_WITH_TWO_IPUS = 33232;
 	private static final int START_ADDRESS_DCDC_STATE_WITH_ONE_IPU = 33200;
@@ -206,76 +200,6 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	}
 
-	// private String getGridMeasurements() {
-	// StringBuilder s = new StringBuilder();
-	//
-	// s.append("Current L1: ");
-	// s.append(getCurrentL1Grid());
-	// s.append("\n");
-	//
-	// s.append("Current L2: ");
-	// s.append(getCurrentL2Grid());
-	// s.append("\n");
-	//
-	// s.append("Current L3: ");
-	// s.append(getCurrentL3Grid());
-	// s.append("\n");
-	//
-	// s.append("Current N: ");
-	// s.append(getCurrentLNGrid());
-	// s.append("\n");
-	//
-	// s.append("Active Power L1: ");
-	// s.append(getActivePowerL1Grid());
-	// s.append("\n");
-	//
-	// s.append("Active Power L2: ");
-	// s.append(getActivePowerL2Grid());
-	// s.append("\n");
-	//
-	// s.append("Active Power L3: ");
-	// s.append(getActivePowerL3Grid());
-	// s.append("\n");
-	//
-	// s.append("Active Power Sum: ");
-	// s.append(getActivePowerSumGrid());
-	// s.append("\n");
-	//
-	// s.append("Reactive Power L1: ");
-	// s.append(getReactivePowerL1Grid());
-	// s.append("\n");
-	//
-	// s.append("Reactive Power L2: ");
-	// s.append(getReactivePowerL2Grid());
-	// s.append("\n");
-	//
-	// s.append("Reactive Power L3: ");
-	// s.append(getReactivePowerL3Grid());
-	// s.append("\n");
-	//
-	// s.append("Reactive Power Sum: ");
-	// s.append(getReactivePowerSumGrid());
-	// s.append("\n");
-	//
-	// s.append("Apparent Power L1: ");
-	// s.append(getApparentPowerL1Grid());
-	// s.append("\n");
-	//
-	// s.append("Apparent Power L2: ");
-	// s.append(getApparentPowerL2Grid());
-	// s.append("\n");
-	//
-	// s.append("Apparent Power L3: ");
-	// s.append(getApparentPowerL3Grid());
-	// s.append("\n");
-	//
-	// s.append("Apparent Power Sum: ");
-	// s.append(getApparentPowerSumGrid());
-	// s.append("\n");
-	//
-	//
-	// return s.toString();
-	// }
 
 	@Override
 	public void setPower(int activePower, int reactivePower) {
@@ -945,8 +869,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 			 * 
 			 * if one inverter is used, dc dc converter is ipu2 ...
 			 */
-			int startAddressIpuControl = DcDcParameter.DC_DC_ADRESS; // DCDC has now a fix address
-			// int startAddressIpuControlMirror = 33040;
+			int startAddressIpuControl = DcDcParameter.DC_DC_ADRESS;
 
 			int startAddressDcDcState = START_ADDRESS_DCDC_STATE_WITH_THREE_IPUS;
 			int startAddressDcdcMeasurements = START_ADDRESS_DCDC_MEASUREMENTS;
@@ -1193,23 +1116,23 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 		return this.getInteger(GridConChannelId.CCU_ERROR_CODE);
 	}
 
-	// TODO Check sign, round!?
-	// TODO ODER get CCU-Power * Max Power?!
-	public float getActivePowerInverter1() {
+	private float getActivePowerInverter1() {
 		FloatReadChannel c = this.channel(GridConChannelId.INVERTER_1_STATUS_DC_LINK_ACTIVE_POWER);
 		return c.getNextValue().orElse(0f);
 	}
 
-	public float getActivePowerInverter2() {
+	private float getActivePowerInverter2() {
 		FloatReadChannel c = this.channel(GridConChannelId.INVERTER_2_STATUS_DC_LINK_ACTIVE_POWER);
 		return c.getNextValue().orElse(0f);
 	}
 
-	public float getActivePowerInverter3() {
+	private float getActivePowerInverter3() {
 		FloatReadChannel c = this.channel(GridConChannelId.INVERTER_3_STATUS_DC_LINK_ACTIVE_POWER);
 		return c.getNextValue().orElse(0f);
 	}
 
+	// TODO Check sign, round!?
+	// TODO OR get CCU-Power * Max Power?!
 	@Override
 	public float getActivePower() {
 		return this.getActivePowerInverter1() + this.getActivePowerInverter2() + this.getActivePowerInverter3();

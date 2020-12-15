@@ -9,7 +9,6 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
 import io.openems.edge.ess.mr.gridcon.GridconPcsImpl;
 import io.openems.edge.ess.mr.gridcon.GridconSettings;
-import io.openems.edge.ess.mr.gridcon.Helper;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 
@@ -73,25 +72,36 @@ public class Run extends BaseState {
 		try {
 			this.getGridconPcs().doWriteTasks();
 		} catch (OpenemsNamedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			this.log.error(e.getMessage());
 		}
 	}
 
 	private void checkBatteries() {
 		if (getBattery1() != null) {
-			if (!Helper.isRunning(getBattery1()) && !Helper.isError(getBattery1())) {
-				Helper.startBattery(getBattery1());
+			if (!this.getBattery1().isStarted() && !getBattery1().hasFaults()) {
+				try {
+					this.getBattery1().start();
+				} catch (OpenemsNamedException e) {
+					System.out.println("Was not able to start battery " + this.getBattery1().id() + "!\n" + e.getMessage());
+				}
 			}
 		}
 		if (getBattery2() != null) {
-			if (!Helper.isRunning(getBattery2()) && !Helper.isError(getBattery2())) {
-				Helper.startBattery(getBattery2());
+			if (!this.getBattery2().isStarted() && !getBattery2().hasFaults()) {
+				try {
+					this.getBattery2().start();
+				} catch (OpenemsNamedException e) {
+					System.out.println("Was not able to start battery " + this.getBattery2().id() + "!\n" + e.getMessage());
+				}
 			}
 		}
 		if (getBattery3() != null) {
-			if (!Helper.isRunning(getBattery3()) && !Helper.isError(getBattery3())) {
-				Helper.startBattery(getBattery3());
+			if (!this.getBattery3().isStarted() && !getBattery3().hasFaults()) {
+				try {
+					this.getBattery3().start();
+				} catch (OpenemsNamedException e) {
+					System.out.println("Was not able to start battery " + this.getBattery3().id() + "!\n" + e.getMessage());
+				}
 			}
 		}
 	}

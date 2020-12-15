@@ -75,15 +75,15 @@ public abstract class BaseState implements GridconStateObject {
 			return true;
 		}
 
-		if (this.getBattery1() != null && Helper.isError(this.getBattery1())) {
+		if (this.getBattery1() != null && this.getBattery1().hasFaults()) {
 			return true;
 		}
 
-		if (this.getBattery2() != null && Helper.isError(this.getBattery2())) {
+		if (this.getBattery2() != null && this.getBattery2().hasFaults()) {
 			return true;
 		}
 
-		if (this.getBattery3() != null && Helper.isError(this.getBattery3())) {
+		if (this.getBattery3() != null && this.getBattery3().hasFaults()) {
 			return true;
 		}
 
@@ -100,18 +100,30 @@ public abstract class BaseState implements GridconStateObject {
 
 	protected void startBatteries() {
 		if (this.getBattery1() != null) {
-			if (!Helper.isRunning(this.getBattery1())) {
-				Helper.startBattery(this.getBattery1());
+			if (!this.getBattery1().isStarted()) {
+				try {
+					this.getBattery1().start();
+				} catch (OpenemsNamedException e) {
+					System.out.println("Was not able to start battery " + this.getBattery1().id() + "!\n" + e.getMessage());
+				}
 			}
 		}
 		if (this.getBattery2() != null) {
-			if (!Helper.isRunning(this.getBattery2())) {
-				Helper.startBattery(this.getBattery2());
+			if (!this.getBattery2().isStarted()) {
+				try {
+					this.getBattery2().start();
+				} catch (OpenemsNamedException e) {
+					System.out.println("Was not able to start battery " + this.getBattery2().id() + "!\n" + e.getMessage());
+				}
 			}
 		}
 		if (this.getBattery3() != null) {
-			if (!Helper.isRunning(this.getBattery3())) {
-				Helper.startBattery(this.getBattery3());
+			if (!this.getBattery3().isStarted()) {
+				try {
+					this.getBattery3().start();
+				} catch (OpenemsNamedException e) {
+					System.out.println("Was not able to start battery " + this.getBattery3().id() + "!\n" + e.getMessage());
+				}
 			}
 		}
 	}
@@ -119,13 +131,13 @@ public abstract class BaseState implements GridconStateObject {
 	protected boolean isBatteriesStarted() {
 		boolean running = true;
 		if (this.getBattery1() != null) {
-			running = running && Helper.isRunning(this.getBattery1());
+			running = running && this.getBattery1().isStarted();
 		}
 		if (this.getBattery2() != null) {
-			running = running && Helper.isRunning(this.getBattery2());
+			running = running && this.getBattery2().isStarted();
 		}
 		if (this.getBattery3() != null) {
-			running = running && Helper.isRunning(this.getBattery3());
+			running = running && this.getBattery3().isStarted();
 		}
 		return running;
 	}
