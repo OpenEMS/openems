@@ -56,7 +56,7 @@ public class Helper {
 	}
 
 	public static void stopBattery(Battery battery) {
-		if (battery != null && Helper.isStopped(battery)) {
+		if (battery != null && !Helper.isStopped(battery)) {
 			try {
 				battery.stop();
 			} catch (OpenemsNamedException e) {
