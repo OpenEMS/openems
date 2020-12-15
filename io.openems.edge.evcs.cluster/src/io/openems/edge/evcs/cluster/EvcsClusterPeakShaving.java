@@ -68,10 +68,14 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	@Reference
 	private ManagedSymmetricEss ess;
 
+	@Reference
+	private SymmetricMeter meter;
+
 	public EvcsClusterPeakShaving() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				Evcs.ChannelId.values());
+				Evcs.ChannelId.values(), //
+				AbstractEvcsCluster.ChannelId.values());
 	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
@@ -106,6 +110,9 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 			return;
 		}
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
+			return;
+		}
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "meter", config.meter_id())) {
 			return;
 		}
 	}
@@ -176,20 +183,29 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 		long maxAvailableStoragePower = 0;
 
 		maxEssDischarge = this.ess.getAllowedDischargePower().orElse(0);
+		if (this.config.enable_secure_ess_discharge()) {
+			maxEssDischarge = this.getSecureEssDischargePower(maxEssDischarge);
+			this.channel(AbstractEvcsCluster.ChannelId.USED_ESS_MAXIMUM_DISCHARGE_POWER).setNextValue(maxEssDischarge);
+		}
 		// TODO: Should I use power component here
-
 		// TODO: Calculate the available ESS charge power, depending on a specific ESS
 		// component (e.g. If there is a ESS cluster)
+		
+		// Calculate maximum ess power
 		long essDischargePower = this.sum.getEssActivePower().orElse(0);
 		int essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
-
 		maxAvailableStoragePower = maxEssDischarge - (essDischargePower - essActivePowerDC);
+		this.channel(AbstractEvcsCluster.ChannelId.MAXIMUM_AVAILABLE_ESS_POWER).setNextValue(maxAvailableStoragePower);
 
+		// Calculate maximum grid power
 		int gridPower = getGridPower();
+		int maxAvailableGridPower = (this.config.hardwarePowerLimitPerPhase() * DEFAULT_PHASES) - gridPower;
+		this.channel(AbstractEvcsCluster.ChannelId.MAXIMUM_AVAILABLE_GRID_POWER).setNextValue(maxAvailableGridPower);
+		
+		// Current evcs charge power
 		int evcsCharge = this.getChargePower().orElse(0);
 
-		allowedChargePower = (int) (evcsCharge + maxAvailableStoragePower
-				+ (this.config.hardwarePowerLimitPerPhase() * DEFAULT_PHASES) - gridPower);
+		allowedChargePower = (int) (evcsCharge + maxAvailableStoragePower + maxAvailableGridPower);
 
 		this.logInfoInDebugmode(log, "Calculation of the maximum charge Power: EVCS Charge [" + evcsCharge
 				+ "]  +  Max. available storage power [" + maxAvailableStoragePower
@@ -198,34 +214,49 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 
 		allowedChargePower = allowedChargePower > 0 ? allowedChargePower : 0;
 		return allowedChargePower;
-
 	}
 
-	private int getGridPower() {
-		SymmetricMeter meter;
-		try {
-			meter = this.componentManager.getComponent(this.config.meter_id());
+	/**
+	 * Calculate the reduced maximum discharge power.
+	 * 
+	 * @param maxEssDischarge original maximum ess discharge power
+	 * @return reduced ess discharge power
+	 */
+	private int getSecureEssDischargePower(int maxEssDischarge) {
+		int soc = this.ess.getSoc().orElse(0);
+		int startSoc = this.config.ess_secure_discharge_soc();
+		int minSoc = this.config.ess_secure_discharge_min_soc();
+		double factor = 1.0 / (startSoc - minSoc);
 
-			int gridPower = meter.getActivePower().orElse(0);
-
-			if (meter instanceof AsymmetricMeter) {
-				AsymmetricMeter asymmetricMeter = (AsymmetricMeter) meter;
-
-				int gridPowerL1 = asymmetricMeter.getActivePowerL1().orElse(0);
-				int gridPowerL2 = asymmetricMeter.getActivePowerL2().orElse(0);
-				int gridPowerL3 = asymmetricMeter.getActivePowerL3().orElse(0);
-
-				int maxPowerOnPhase = Math.max(Math.max(gridPowerL1, gridPowerL2), gridPowerL3);
-				gridPower = maxPowerOnPhase * 3;
-			}
-
-			return gridPower;
-
-		} catch (OpenemsNamedException e) {
-			this.logWarn(log, "The component " + this.config.meter_id()
-					+ " is not configured. Maximum power for all EVCS will be calculated without grid power.");
-			return 0;
+		if (soc >= startSoc) {
+			return maxEssDischarge;
 		}
+		if (soc <= minSoc) {
+			return (int) (maxEssDischarge * factor);
+		}
+		factor = factor * (startSoc - soc);
+		return (int) (maxEssDischarge - (maxEssDischarge * factor));
+	}
+
+	/**
+	 * Calculates the current grid power depending on the phases if possible.
+	 * 
+	 * @return calculated grid power
+	 */
+	private int getGridPower() {
+		int gridPower = this.meter.getActivePower().orElse(0);
+
+		if (this.meter instanceof AsymmetricMeter) {
+			AsymmetricMeter asymmetricMeter = (AsymmetricMeter) this.meter;
+
+			int gridPowerL1 = asymmetricMeter.getActivePowerL1().orElse(0);
+			int gridPowerL2 = asymmetricMeter.getActivePowerL2().orElse(0);
+			int gridPowerL3 = asymmetricMeter.getActivePowerL3().orElse(0);
+
+			int maxPowerOnPhase = Math.max(Math.max(gridPowerL1, gridPowerL2), gridPowerL3);
+			gridPower = maxPowerOnPhase * 3;
+		}
+		return gridPower;
 	}
 
 	@Override

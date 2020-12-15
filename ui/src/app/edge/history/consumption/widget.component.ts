@@ -98,13 +98,5 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
         })
         return this.data["_sum/ConsumptionActiveEnergy"] - otherEnergy;
     }
-
-    public hasOtherPowerOnly(): boolean {
-        if (this.data["_sum/ConsumptionActiveEnergy"] == this.totalOtherEnergy) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 }
 

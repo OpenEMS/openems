@@ -8,6 +8,7 @@ import java.time.temporal.ChronoUnit;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.test.DummyBattery;
@@ -45,7 +46,7 @@ public class KacoBlueplanetGridsaveTest {
 
 		private final Battery battery = new DummyBattery(BATTERY_ID);
 
-		public MyComponentTest(OpenemsComponent sut) {
+		public MyComponentTest(OpenemsComponent sut) throws OpenemsException {
 			super(sut);
 		}
 

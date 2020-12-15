@@ -25,7 +25,7 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 				.text("A configured OpenEMS Component was not activated")), //
 		DUPLICATED_COMPONENT_ID(Doc.of(Level.FAULT) //
 				.text("Configuration has duplicated Component-IDs")), //
-		WAS_OUT_OF_MEMORY(Doc.of(Level.FAULT) //
+		WAS_OUT_OF_MEMORY(Doc.of(Level.INFO) //
 				.text("OutOfMemory had happened. Found heap dump files.")),
 		DEFAULT_CONFIGURATION_FAILED(Doc.of(Level.FAULT) //
 				.text("Applying the default configuration failed.")),;

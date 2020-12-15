@@ -48,7 +48,6 @@ public class AllAlphabeticallyTest {
 
 	private static List<String> getControllerIds(Scheduler scheduler) throws OpenemsNamedException {
 		return scheduler.getControllers().stream() //
-				.map(c -> c.id()) //
 				.collect(Collectors.toList());
 	}
 }

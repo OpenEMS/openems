@@ -7,6 +7,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -151,6 +152,19 @@ public interface Evcs extends OpenemsComponent {
 				.unit(Unit.WATT_HOURS) //
 				.accessMode(AccessMode.READ_ONLY)),
 
+		/**
+		 * Active Consumption Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Evcs
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		ACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS) //
+				.accessMode(AccessMode.READ_ONLY)),
+		
 		/**
 		 * Failed state channel for a failed communication to the EVCS.
 		 * 
@@ -497,6 +511,45 @@ public interface Evcs extends OpenemsComponent {
 	 */
 	public default void _setEnergySession(int value) {
 		this.getEnergySessionChannel().setNextValue(value);
+	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getActiveConsumptionEnergyChannel() {
+		return this.channel(ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+	}
+
+	/**
+	 * Gets the Active Consumption Energy in [Wh]. This relates to negative
+	 * ACTIVE_POWER. See {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getActiveConsumptionEnergy() {
+		return this.getActiveConsumptionEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActiveConsumptionEnergy(Long value) {
+		this.getActiveConsumptionEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActiveConsumptionEnergy(long value) {
+		this.getActiveConsumptionEnergyChannel().setNextValue(value);
 	}
 
 	/**

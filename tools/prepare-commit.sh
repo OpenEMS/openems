@@ -1,3 +1,5 @@
+#!/bin/bash -e
+#
 # Prepares a Commit
 #
 # - Adds .gitignore file to empty test directories.
@@ -14,6 +16,8 @@
 #   When Eclipse 'Build All' is called, all .classpath files are touched and
 #   unnecessarily marked as changed. Using this script those files are reset
 #   to origin.
+#
+# - Resolves EdgeApp and BackendApp bndrun files
 #
 
 # Check bundles
@@ -101,6 +105,9 @@ EOT
 		esac
 	fi
 done
+
+# Build
+./gradlew build
 
 # Update EdgeApp.bndrun
 bndrun='io.openems.edge.application/EdgeApp.bndrun'

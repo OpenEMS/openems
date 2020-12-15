@@ -4937,7 +4937,7 @@ msgstr ""
 #: gettingstarted.adoc:17
 msgid ""
 "Download any https://git-scm.com[git client icon:external-link[]] and "
-"install it. Our recommendation is https://www.sourcetreeapp.com/[Sourctree "
+"install it. Our recommendation is https://www.sourcetreeapp.com/[Sourcetree "
 "by Atlassian icon:external-link[]]"
 msgstr ""
 

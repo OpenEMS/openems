@@ -57,7 +57,8 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	public EvcsClusterSelfConsumption() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				Evcs.ChannelId.values());
+				Evcs.ChannelId.values(), //
+				AbstractEvcsCluster.ChannelId.values());
 	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)

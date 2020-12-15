@@ -119,7 +119,8 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 				}
 
 				ChannelDef chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
-				FetchRequest request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp);
+				FetchRequest request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp,
+						resolution);
 				FetchData data = request.fetchData();
 				database.close();
 
@@ -421,6 +422,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 			return new ChannelDef(DsType.GAUGE, Double.NaN, 100, ConsolFun.AVERAGE);
 		case ON_OFF:
 			return new ChannelDef(DsType.GAUGE, Double.NaN, 1, ConsolFun.AVERAGE);
+		case CUMULATED_SECONDS:
 		case WATT_HOURS:
 		case KILOWATT_HOURS:
 		case VOLT_AMPERE_HOURS:
