@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.common.KacoConstants;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -36,6 +37,7 @@ import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.request.UpdateSoftwareAdminRequest;
 import io.openems.common.jsonrpc.request.UpdateSoftwareRequest;
 import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
@@ -156,7 +158,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case UpdateSoftwareRequest.METHOD:
 			resultFuture = this.handleUpdateSoftwareRequest(this.parent, wsData, UpdateSoftwareRequest.from(request));
 			break;
-
+			
+		case UpdateSoftwareAdminRequest.METHOD:
+			resultFuture = this.handleUpdateSoftwareAdminRequest(this.parent, wsData, UpdateSoftwareAdminRequest.from(request));
+			break;
+			
 		default:
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
@@ -174,6 +180,58 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			}
 		});
 		return result;
+	}
+	
+	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateSoftwareAdminRequest(WebsocketApi parent, WsData wsData,
+			UpdateSoftwareAdminRequest request) throws OpenemsNamedException {
+		JsonObject result = new JsonObject();
+		int success = 0;
+		int error = 0;
+		boolean updateUI = request.getParams().get("updateUi").getAsBoolean();
+		boolean updateEdge = request.getParams().get("updateEdge").getAsBoolean();
+		
+		WebSocket ws = wsData.getWebsocket();
+
+		
+
+		try {
+
+			if (updateUI) {
+
+				KacoUpdateHandler.updateUI(parent, ws, KacoConstants.UPDATE_URL_DEV);
+				success++;
+				
+			}
+
+		} catch (IllegalArgumentException | IOException e) {
+			error++;
+			e.printStackTrace();
+			this.log.error(e.getMessage(), e);
+			try {
+				KacoUpdateHandler.uiRestore(parent, ws);
+			} catch (IOException e1) {
+
+				this.log.error(e1.getMessage(), e1);
+			}
+		}
+		try {
+
+			if (updateEdge) {
+
+				KacoUpdateHandler.updateEdge(ws, parent, KacoConstants.UPDATE_URL_DEV);
+				success += 2;
+				
+
+			}
+		} catch (IllegalArgumentException | IOException e) {
+			error += 2;
+			KacoUpdateHandler.restoreEdge();
+			this.log.error(e.getMessage(), e);
+		}
+		
+		result.addProperty("Success", success);
+		result.addProperty("Error", error);
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), result));
 	}
 
 	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateSoftwareRequest(WebsocketApi parent, WsData wsData,

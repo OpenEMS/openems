@@ -15,6 +15,7 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
+import io.openems.common.jsonrpc.request.UpdateSoftwareAdminRequest;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
@@ -99,6 +100,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			resultFuture = this.handleSubscribeSystemLogRequest(wsData, edgeId, user,
 					SubscribeSystemLogRequest.from(request));
 			break;
+			
+		case UpdateSoftwareAdminRequest.METHOD:
+			resultFuture = this.handleUpdateSoftwareAdminRequest(wsData, edgeId, user,
+					UpdateSoftwareAdminRequest.from(request));
+			break;	
 
 		default:
 			// unable to handle; try generic handler
@@ -118,6 +124,12 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			}
 		});
 		return result;
+	}
+
+	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateSoftwareAdminRequest(WsData wsData, String edgeId,
+			User user, UpdateSoftwareAdminRequest from) throws OpenemsNamedException {
+		
+		return this.parent.edgeWebsocket.send(edgeId, user, from);
 	}
 
 	/**

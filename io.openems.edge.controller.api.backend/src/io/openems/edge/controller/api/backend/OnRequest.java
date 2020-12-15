@@ -1,11 +1,15 @@
 package io.openems.edge.controller.api.backend;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
+
+import io.openems.common.KacoConstants;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -21,11 +25,13 @@ import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.request.UpdateSoftwareAdminRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
+
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
@@ -42,7 +48,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		switch (request.getMethod()) {
 
 		case AuthenticatedRpcRequest.METHOD:
-			return this.handleAuthenticatedRpcRequest(AuthenticatedRpcRequest.from(request));
+			return this.handleAuthenticatedRpcRequest(AuthenticatedRpcRequest.from(request), ws);
 
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
@@ -58,7 +64,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<AuthenticatedRpcResponse> handleAuthenticatedRpcRequest(
-			AuthenticatedRpcRequest authenticatedRpcRequest) throws OpenemsNamedException {
+			AuthenticatedRpcRequest authenticatedRpcRequest, WebSocket ws) throws OpenemsNamedException {
 		User user = authenticatedRpcRequest.getUser();
 		JsonrpcRequest request = authenticatedRpcRequest.getPayload();
 
@@ -92,7 +98,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case SubscribeSystemLogRequest.METHOD:
 			resultFuture = this.handleSubscribeSystemLogRequest(user, SubscribeSystemLogRequest.from(request));
 			break;
-
+			
+		case UpdateSoftwareAdminRequest.METHOD:
+			resultFuture = this.handleUpdateSoftwareAdminRequest(this.parent, ws, UpdateSoftwareAdminRequest.from(request));
+			break;
+			
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
@@ -112,6 +122,57 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		return result;
 	}
 
+	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateSoftwareAdminRequest(BackendApiImpl parent, WebSocket ws,
+			UpdateSoftwareAdminRequest request) throws OpenemsNamedException {
+		JsonObject result = new JsonObject();
+		int success = 0;
+		int error = 0;
+		boolean updateUI = request.getParams().get("updateUi").getAsBoolean();
+		boolean updateEdge = request.getParams().get("updateEdge").getAsBoolean();
+		
+		
+
+		
+
+		try {
+
+			if (updateUI) {
+
+				KacoUpdateHandler.updateUI(parent, ws, KacoConstants.UPDATE_URL_DEV);
+				success++;
+				
+			}
+
+		} catch (IllegalArgumentException | IOException e) {
+			error++;
+			e.printStackTrace();
+			this.log.error(e.getMessage(), e);
+			try {
+				KacoUpdateHandler.uiRestore(parent, ws);
+			} catch (IOException e1) {
+
+				this.log.error(e1.getMessage(), e1);
+			}
+		}
+		try {
+
+			if (updateEdge) {
+
+				KacoUpdateHandler.updateEdge(ws, parent, KacoConstants.UPDATE_URL_DEV);
+				success += 2;
+				
+
+			}
+		} catch (IllegalArgumentException | IOException e) {
+			error += 2;
+			KacoUpdateHandler.restoreEdge();
+			this.log.error(e.getMessage(), e);
+		}
+		
+		result.addProperty("Success", success);
+		result.addProperty("Error", error);
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), result));
+	}
 	/**
 	 * Handles a GetEdgeConfigRequest.
 	 *

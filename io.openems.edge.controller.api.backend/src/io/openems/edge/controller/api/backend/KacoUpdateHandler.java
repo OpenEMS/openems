@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.websocket;
+package io.openems.edge.controller.api.backend;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -15,12 +15,14 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.java_websocket.WebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
 import io.openems.common.KacoConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.UpdateDataNotification;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
@@ -34,12 +36,14 @@ public class KacoUpdateHandler {
 	static final int EDGE_DOWNLOAD_STEP = 4;
 	static final int EDGE_INSTALL_STEP = 5;
 	static final int UI_RESTORE_STEP = 6;
+	
+	private final Logger log = LoggerFactory.getLogger(KacoUpdateHandler.class);
 
-	public static void updateUI(WebsocketApi parent, WebSocket ws) throws IllegalArgumentException, IOException, OpenemsNamedException {
+	public static void updateUI(BackendApiImpl parent, WebSocket ws) throws IllegalArgumentException, IOException, OpenemsNamedException {
 		updateUI(parent, ws, KacoConstants.UPDATE_URL);
 	}
 	
-	public static void updateUI(WebsocketApi parent, WebSocket ws, String url)
+	public static void updateUI(BackendApiImpl parent, WebSocket ws, String url)
 			throws IOException, IllegalArgumentException, OpenemsNamedException {
 		File uiDirectory = new File(KacoConstants.UI_FOLDER);
 		File uiBackup = new File(KacoConstants.UI_FOLDER_BACKUP);
@@ -53,7 +57,7 @@ public class KacoUpdateHandler {
 		sendProgressNotification(100, 0, ws, parent);
 	}
 
-	public static void uiRestore(WebsocketApi parent, WebSocket ws) throws IOException {
+	public static void uiRestore(BackendApiImpl parent, WebSocket ws) throws IOException {
 		sendProgressNotification(0, UI_RESTORE_STEP, ws, parent);
 		File uiDirectory = new File(KacoConstants.UI_FOLDER);
 		File uiBackup = new File(KacoConstants.UI_FOLDER_BACKUP);
@@ -62,11 +66,11 @@ public class KacoUpdateHandler {
 		sendProgressNotification(100, 0, ws, parent);
 	}
 	
-	public static void updateEdge(WebSocket ws, WebsocketApi parent) throws IllegalArgumentException, IOException, OpenemsNamedException {
+	public static void updateEdge(WebSocket ws, BackendApiImpl parent) throws IllegalArgumentException, IOException, OpenemsNamedException {
 		updateEdge(ws, parent, KacoConstants.UPDATE_URL);
 	}
 
-	public static void updateEdge(WebSocket ws, WebsocketApi parent, String url)
+	public static void updateEdge(WebSocket ws, BackendApiImpl parent, String url)
 			throws IOException, IllegalArgumentException, OpenemsNamedException {
 		sendProgressNotification(0, EDGE_DOWNLOAD_STEP, ws, parent);
 		downloadFile(url + KacoConstants.EDGE_FILE,
@@ -93,7 +97,7 @@ public class KacoUpdateHandler {
 				KacoConstants.LOCAL_FOLDER + KacoConstants.EDGE_FILE);
 	}
 
-	private static void downloadFile(String source, String dest, WebsocketApi parent, WebSocket ws, int step)
+	private static void downloadFile(String source, String dest, BackendApiImpl parent, WebSocket ws, int step)
 			throws IOException, IllegalArgumentException, OpenemsNamedException {
 
 		URL sourceUrl = new URL(source);
@@ -108,7 +112,7 @@ public class KacoUpdateHandler {
 
 	}
 
-	private static void unzipUI(WebsocketApi parent, WebSocket ws)
+	private static void unzipUI(BackendApiImpl parent, WebSocket ws)
 			throws IOException, IllegalArgumentException, OpenemsNamedException {
 		String fileZip = KacoConstants.LOCAL_FOLDER + KacoConstants.UI_FILE;
 		File destDir = new File(KacoConstants.UI_FOLDER);
@@ -174,7 +178,7 @@ public class KacoUpdateHandler {
 	}
 
 	private static void copyInputStreamToFileNew(final InputStream source, final File destination, int fileSize,
-			WebsocketApi parent, WebSocket ws, int step)
+			BackendApiImpl parent, WebSocket ws, int step)
 			throws IOException, IllegalArgumentException, OpenemsNamedException {
 		final int EOF = -1;
 		final int DEFAULT_BUFFER_SIZE = 1024 * 4;
@@ -216,17 +220,23 @@ public class KacoUpdateHandler {
 		progressChannel.setNextValue(-1);
 	}
 
-	private static void sendProgressNotification(int progress, int step, WebSocket ws, WebsocketApi parent) {
+	private static void sendProgressNotification(int progress, int step, WebSocket ws, BackendApiImpl parent) {
 		Gson gson = new Gson();
 		UpdateDataNotification progressNotification = new UpdateDataNotification();
 		progressNotification.add(new ChannelAddress("_kacoUpdate", "Progress"), gson.toJsonTree(progress));
 		progressNotification.add(new ChannelAddress("_kacoUpdate", "UpdateStep"), gson.toJsonTree(step));
-		EdgeRpcNotification noti = new EdgeRpcNotification(WebsocketApi.EDGE_ID, progressNotification);
+		
+		LoggerFactory.getLogger(KacoUpdateHandler.class).error("UpdateStep: " + gson.toJsonTree(step) + System.lineSeparator() + "Progress: " + gson.toJsonTree(progress));
 
-		parent.server.sendMessage(ws, noti);
+		try {
+			parent.websocket.sendMessageOrError(progressNotification);
+		} catch (OpenemsException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	private static void makeUiBackup(File uiDirectory, File uiBackup, WebSocket ws, WebsocketApi parent, int step)
+	private static void makeUiBackup(File uiDirectory, File uiBackup, WebSocket ws, BackendApiImpl parent, int step)
 			throws IOException {
 
 		long uiSize = FileUtils.sizeOfDirectory(uiDirectory);
@@ -255,7 +265,7 @@ public class KacoUpdateHandler {
 
 	}
 
-	private static void copyEdgeFile(String srcPath, String destPath, int step, WebSocket ws, WebsocketApi parent)
+	private static void copyEdgeFile(String srcPath, String destPath, int step, WebSocket ws, BackendApiImpl parent)
 			throws IllegalArgumentException, IOException, OpenemsNamedException {
 		File src = new File(srcPath);
 		InputStream iStream = new FileInputStream(src);

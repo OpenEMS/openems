@@ -2,7 +2,7 @@ package io.openems.common;
 
 public class KacoConstants {
 
-	// public final static String UPDATE_URL = "https://www.energydepot.de/primus-dev/update/";
+	public final static String UPDATE_URL_DEV = "https://www.energydepot.de/primus-dev/update/";
 	public final static String UPDATE_URL = "https://www.energydepot.de/hy-control/update/";
 	public final static String LOCAL_FOLDER = "/usr/lib/hy-control/";
 	public final static String EDGE_FILE = "hy-control.jar";
