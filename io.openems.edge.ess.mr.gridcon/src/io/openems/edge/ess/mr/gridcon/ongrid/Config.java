@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "ESS Gridcon On Grid", //
+		name = "MR Gridcon ESS On Grid", //
 		description = "ESS MR Gridcon PCS on grid variant" //
 )
 @interface Config {
@@ -48,6 +48,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Output Gridcon Hard Reset", description = "Output for hard reset for gridcon")
 	String outputHardReset() default "io0/DigitalOutputM1C2";
 
-	String webconsole_configurationFactory_nameHint() default "ESS MR Gridcon PCS[{id}]";
+	String webconsole_configurationFactory_nameHint() default "MR Gridcon ESS On Grid [{id}]";
 
 }

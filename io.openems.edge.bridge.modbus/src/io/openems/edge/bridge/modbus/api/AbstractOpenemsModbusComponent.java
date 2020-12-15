@@ -160,8 +160,14 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			modbus.removeProtocol(this.id());
 		}
 	}
-		
-	public BridgeModbus getModbus() {
+
+	/**
+	 * Gets the Modbus-Bridge.
+	 * 
+	 * @return the {@link BridgeModbus} - either {@link BridgeModbusSerial} or
+	 *         {@link BridgeModbusTcp}
+	 */
+	public BridgeModbus getBridgeModbus() {
 		return modbus.get();
 	}
 

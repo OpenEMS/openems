@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 
 @ObjectClassDefinition(//
-		name = "ESS Gridcon On Off Grid", //
+		name = "MR Gridcon ESS On-Off-Grid", //
 		description = "ESS MR Gridcon PCS on off grid variant" //
 )
 @interface Config {
@@ -92,5 +92,5 @@ import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 	@AttributeDefinition(name = "Delta Voltage For Sync", description = "Delta Voltage For Sync")
 	float deltaVoltage() default 5.0f;
 
-	String webconsole_configurationFactory_nameHint() default "ESS MR Gridcon PCS On Off[{id}]";
+	String webconsole_configurationFactory_nameHint() default "MR Gridcon ESS On-Off-Grid [{id}]";
 }

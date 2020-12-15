@@ -94,12 +94,12 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		int max_voltage = this.config.numberOfSlaves() * MAX_ALLOWED_VOLTAGE_PER_MODULE;
-		_setChargeMaxVoltage(max_voltage);
-		
-		int min_voltage = this.config.numberOfSlaves() * MIN_ALLOWED_VOLTAGE_PER_MODULE;
-		_setDischargeMinVoltage(min_voltage);
-		
+		int maxVoltage = this.config.numberOfSlaves() * MAX_ALLOWED_VOLTAGE_PER_MODULE;
+		_setChargeMaxVoltage(maxVoltage);
+
+		int minVoltage = this.config.numberOfSlaves() * MIN_ALLOWED_VOLTAGE_PER_MODULE;
+		_setDischargeMinVoltage(minVoltage);
+
 		int capacity = (int) (this.config.numberOfSlaves() * CAPACITY_PER_MODULE);
 		_setCapacity(capacity);
 	}
