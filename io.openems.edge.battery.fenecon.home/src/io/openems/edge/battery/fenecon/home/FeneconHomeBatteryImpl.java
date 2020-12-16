@@ -379,7 +379,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(FeneconHomeBattery.ChannelId.BCU_MIN_CELL_VOLTAGE, new UnsignedWordElement(10012)), // [mV]
 						m(FeneconHomeBattery.ChannelId.BCU_MAX_CELL_VOLTAGE, new UnsignedWordElement(10013)), // [mV]
-						m(FeneconHomeBattery.ChannelId.BCU_AVARAGE_CELL_VOLTAGE, new UnsignedWordElement(10014)), //
+						m(FeneconHomeBattery.ChannelId.BCU_AVERAGE_CELL_VOLTAGE, new UnsignedWordElement(10014)), //
 						m(FeneconHomeBattery.ChannelId.BCU_MAX_CHARGE_CURRENT, new UnsignedWordElement(10015)), //
 						m(FeneconHomeBattery.ChannelId.BCU_MIN_CHARGE_CURRENT, new UnsignedWordElement(10016)), //
 						m(FeneconHomeBattery.ChannelId.BMS_SERIAL_NUMBER, new UnsignedWordElement(10017)), //
@@ -387,7 +387,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 						m(FeneconHomeBattery.ChannelId.DESIGN_CAPACITY, new UnsignedWordElement(10019), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
 						m(new UnsignedWordElement(10020)) //
-								.m(FeneconHomeBattery.ChannelId.USEABLE_CAPACITY,
+								.m(FeneconHomeBattery.ChannelId.USABLE_CAPACITY,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [mV]
 								.m(Battery.ChannelId.CAPACITY, ElementToChannelConverter.DIRECT_1_TO_1) // [V]
 								.build(), //
