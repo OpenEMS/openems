@@ -94,50 +94,53 @@ public class CycleWorker extends AbstractWorker {
 				this.parent.logWarn(this.log, "There are no Schedulers configured!");
 			} else {
 				for (Scheduler scheduler : this.parent.schedulers) {
-					boolean schedulerHasError = false;
+					boolean schedulerControllerIsMissing = false;
 
-					try {
-						for (Controller controller : scheduler.getControllers()) {
-							if (!controller.isEnabled()) {
-								hasDisabledController = true;
-								continue;
-							}
+					for (String controllerId : scheduler.getControllers()) {
+						Controller controller;
+						try {
+							controller = this.parent.componentManager.getPossiblyDisabledComponent(controllerId);
 
-							try {
-								// Execute Controller logic
-								controller.run();
-
-								// announce running was ok
-								controller._setRunFailed(false);
-
-							} catch (OpenemsNamedException e) {
-								this.parent.logWarn(this.log,
-										"Error in Controller [" + controller.id() + "]: " + e.getMessage());
-
-								// announce running failed
-								controller._setRunFailed(true);
-
-							} catch (Exception e) {
-								this.parent.logWarn(this.log, "Error in Controller [" + controller.id() + "]. "
-										+ e.getClass().getSimpleName() + ": " + e.getMessage());
-								if (e instanceof ClassCastException || e instanceof NullPointerException
-										|| e instanceof IllegalArgumentException) {
-									e.printStackTrace();
-								}
-								// announce running failed
-								controller._setRunFailed(true);
-							}
+						} catch (OpenemsNamedException e) {
+							this.parent.logWarn(this.log, "Scheduler [" + scheduler.id() + "]: Controller ["
+									+ controllerId + "] is missing. " + e.getMessage());
+							schedulerControllerIsMissing = true;
+							continue;
 						}
 
-						// announce running was ok or not ok.
-						scheduler._setRunFailed(schedulerHasError);
+						if (!controller.isEnabled()) {
+							hasDisabledController = true;
+							continue;
+						}
 
-					} catch (Exception e) {
-						this.parent.logWarn(this.log, "Error in Scheduler [" + scheduler.id() + "]: " + e.getMessage());
+						try {
+							// Execute Controller logic
+							controller.run();
 
-						// announce running failed
-						scheduler._setRunFailed(true);
+							// announce running was ok
+							controller._setRunFailed(false);
+
+						} catch (OpenemsNamedException e) {
+							this.parent.logWarn(this.log,
+									"Error in Controller [" + controller.id() + "]: " + e.getMessage());
+
+							// announce running failed
+							controller._setRunFailed(true);
+
+						} catch (Exception e) {
+							this.parent.logWarn(this.log, "Error in Controller [" + controller.id() + "]. "
+									+ e.getClass().getSimpleName() + ": " + e.getMessage());
+							if (e instanceof ClassCastException || e instanceof NullPointerException
+									|| e instanceof IllegalArgumentException) {
+								e.printStackTrace();
+							}
+							// announce running failed
+							controller._setRunFailed(true);
+						}
 					}
+
+					// announce Scheduler Controller is missing
+					scheduler._setControllerIsMissing(schedulerControllerIsMissing);
 				}
 			}
 

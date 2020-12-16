@@ -1,9 +1,7 @@
 package io.openems.edge.scheduler.daily;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -23,7 +21,6 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.controller.api.Controller;
 import io.openems.edge.scheduler.api.Scheduler;
 
 @Designate(ocd = Config.class, factory = true)
@@ -35,10 +32,10 @@ import io.openems.edge.scheduler.api.Scheduler;
 public class DailySchedulerImpl extends AbstractOpenemsComponent
 		implements DailyScheduler, Scheduler, OpenemsComponent {
 
-	private final TreeMap<LocalTime, List<String>> controllerSchedule = new TreeMap<>();
-
 	@Reference
 	protected ComponentManager componentManager;
+
+	private final TreeMap<LocalTime, LinkedHashSet<String>> controllerSchedule = new TreeMap<>();
 
 	private Config config = null;
 
@@ -70,7 +67,7 @@ public class DailySchedulerImpl extends AbstractOpenemsComponent
 		for (JsonElement period : schedule) {
 			LocalTime time = LocalTime.parse(JsonUtils.getAsString(period, "time"));
 			JsonArray jControllerIds = JsonUtils.getAsJsonArray(period, "controllers");
-			List<String> controllerIds = new ArrayList<>();
+			LinkedHashSet<String> controllerIds = new LinkedHashSet<String>();
 			for (JsonElement controllerId : jControllerIds) {
 				controllerIds.add(JsonUtils.getAsString(controllerId));
 			}
@@ -79,8 +76,8 @@ public class DailySchedulerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public LinkedHashSet<Controller> getControllers() throws OpenemsNamedException {
-		LinkedHashSet<Controller> result = new LinkedHashSet<>();
+	public LinkedHashSet<String> getControllers() {
+		LinkedHashSet<String> result = new LinkedHashSet<>();
 
 		// add "Always Run Before" Controllers
 		for (String controllerId : this.config.alwaysRunBeforeController_ids()) {
@@ -88,7 +85,7 @@ public class DailySchedulerImpl extends AbstractOpenemsComponent
 		}
 
 		// add "Daily Schedule" Controllers
-		Entry<LocalTime, List<String>> scheduledIds = this.controllerSchedule
+		Entry<LocalTime, LinkedHashSet<String>> scheduledIds = this.controllerSchedule
 				.lowerEntry(LocalTime.now(this.componentManager.getClock()));
 		if (scheduledIds == null) {
 			// No entry found -> take the one with highest time, i.e. the one before
@@ -110,12 +107,11 @@ public class DailySchedulerImpl extends AbstractOpenemsComponent
 		return result;
 	}
 
-	private void addControllerById(LinkedHashSet<Controller> result, String controllerId) throws OpenemsNamedException {
+	private void addControllerById(LinkedHashSet<String> result, String controllerId) {
 		if (controllerId.equals("")) {
 			return;
 		}
-		Controller controller = this.componentManager.getPossiblyDisabledComponent(controllerId);
-		result.add(controller);
+		result.add(controllerId);
 	}
 
 	@Deactivate

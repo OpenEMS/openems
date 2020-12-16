@@ -12,6 +12,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public int modbusUnitId;
 		public int powerLimitOnPowerDecreaseCausedByOvertemperatureChannel;
 		public boolean readOnlyMode;
+		public int surplusFeedInSocLimit;
+		public int surplusFeedInAllowedChargePowerLimit;
+		public double surplusFeedInIncreasePowerFactor;
+		public int surplusFeedInMaxIncreasePowerFactor;
+		public int surplusFeedInPvLimitOnPowerDecreaseCausedByOvertemperature;
+		public String surplusFeedInOffTime;
 
 		private Builder() {
 		}
@@ -34,6 +40,37 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setReadOnlyMode(boolean readOnlyMode) {
 			this.readOnlyMode = readOnlyMode;
+			return this;
+		}
+
+		public Builder setSurplusFeedInSocLimit(int socLimit) {
+			this.surplusFeedInSocLimit = socLimit;
+			return this;
+		}
+
+		public Builder setSurplusFeedInAllowedChargePowerLimit(int allowedChargePowerLimit) {
+			this.surplusFeedInAllowedChargePowerLimit = allowedChargePowerLimit;
+			return this;
+		}
+
+		public Builder setSurplusFeedInIncreasePowerFactor(double increasePowerFactor) {
+			this.surplusFeedInIncreasePowerFactor = increasePowerFactor;
+			return this;
+		}
+
+		public Builder setSurplusFeedInMaxIncreasePowerFactor(int maxIncreasePowerFactor) {
+			this.surplusFeedInMaxIncreasePowerFactor = maxIncreasePowerFactor;
+			return this;
+		}
+
+		public Builder setSurplusFeedInPvLimitOnPowerDecreaseCausedByOvertemperature(
+				int pvLimitOnPowerDecreaseCausedByOvertemperature) {
+			this.surplusFeedInPvLimitOnPowerDecreaseCausedByOvertemperature = pvLimitOnPowerDecreaseCausedByOvertemperature;
+			return this;
+		}
+
+		public Builder setSurplusFeedInOffTime(String offTime) {
+			this.surplusFeedInOffTime = offTime;
 			return this;
 		}
 
@@ -76,6 +113,36 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int powerLimitOnPowerDecreaseCausedByOvertemperatureChannel() {
 		return this.builder.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel;
+	}
+
+	@Override
+	public int surplusFeedInSocLimit() {
+		return this.builder.surplusFeedInSocLimit;
+	}
+
+	@Override
+	public int surplusFeedInAllowedChargePowerLimit() {
+		return this.builder.surplusFeedInAllowedChargePowerLimit;
+	}
+
+	@Override
+	public double surplusFeedInIncreasePowerFactor() {
+		return this.builder.surplusFeedInIncreasePowerFactor;
+	}
+
+	@Override
+	public int surplusFeedInMaxIncreasePowerFactor() {
+		return this.builder.surplusFeedInMaxIncreasePowerFactor;
+	}
+
+	@Override
+	public int surplusFeedInPvLimitOnPowerDecreaseCausedByOvertemperature() {
+		return this.builder.surplusFeedInPvLimitOnPowerDecreaseCausedByOvertemperature;
+	}
+
+	@Override
+	public String surplusFeedInOffTime() {
+		return this.builder.surplusFeedInOffTime;
 	}
 
 }
