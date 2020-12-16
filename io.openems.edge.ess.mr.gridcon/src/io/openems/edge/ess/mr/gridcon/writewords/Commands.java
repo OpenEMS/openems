@@ -29,7 +29,7 @@ public class Commands {
 	private Boolean blackstartApproval = false;
 	private Boolean syncApproval = false;
 	private Boolean shortCircuitHandling = false;
-	private Mode mode = null; // Mode.CURRENT_CONTROL;
+	private Mode mode = Mode.CURRENT_CONTROL;
 	private Boolean triggerSia = false;
 	private BalancingMode balancingMode = BalancingMode.DISABLED;
 	private FundamentalFrequencyMode fundamentalFrequencyMode = FundamentalFrequencyMode.DISABLED;
