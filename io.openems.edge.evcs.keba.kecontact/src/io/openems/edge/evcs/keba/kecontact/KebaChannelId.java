@@ -75,7 +75,7 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	DIP_SWITCH_INFO_2_8_SET_FOR_INSTALLATION(Doc.of(Level.WARNING) //
 			.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
 			.text("Installation mode is configured. If the installation has finished, Dip-Switch 2.8. should be off")), //
-	PRODUKT_SERIES_IS_NOT_COMPATIBLE(Doc.of(Level.FAULT) //
+	PRODUCT_SERIES_IS_NOT_COMPATIBLE(Doc.of(Level.FAULT) //
 			.text("Keba e- and b-series cannot be controlled because their software and hardware are not designed for it.")), //
 	NO_ENERGY_METER_INSTALLED(Doc.of(Level.INFO) //
 			.text("This keba cannot measure energy values, because there is no energy meter in it.")), //

@@ -7,14 +7,10 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.controller.api.Controller;
 import io.openems.edge.scheduler.api.Scheduler;
 
 /**
@@ -29,10 +25,7 @@ import io.openems.edge.scheduler.api.Scheduler;
 )
 public class FixedOrderSchedulerImpl extends AbstractOpenemsComponent implements FixedOrderScheduler, Scheduler {
 
-	@Reference
-	protected ComponentManager componentManager;
-
-	private Config config;
+	private LinkedHashSet<String> controllerIds = new LinkedHashSet<>();
 
 	public FixedOrderSchedulerImpl() {
 		super(//
@@ -45,7 +38,12 @@ public class FixedOrderSchedulerImpl extends AbstractOpenemsComponent implements
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.config = config;
+		for (String id : config.controllers_ids()) {
+			if (id.equals("")) {
+				continue;
+			}
+			this.controllerIds.add(id);
+		}
 	}
 
 	@Deactivate
@@ -54,19 +52,8 @@ public class FixedOrderSchedulerImpl extends AbstractOpenemsComponent implements
 	}
 
 	@Override
-	public LinkedHashSet<Controller> getControllers() throws OpenemsNamedException {
-		LinkedHashSet<Controller> result = new LinkedHashSet<>();
-
-		// add sorted controllers
-		for (String id : this.config.controllers_ids()) {
-			if (id.equals("")) {
-				continue;
-			}
-			Controller controller = this.componentManager.getPossiblyDisabledComponent(id);
-			result.add(controller);
-		}
-
-		return result;
+	public LinkedHashSet<String> getControllers() {
+		return this.controllerIds;
 	}
 
 }
