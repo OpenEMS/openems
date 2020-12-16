@@ -44,7 +44,7 @@ public class HardyBarthApi {
 		JsonObject result = null;
 
 		try {
-			// Create URL like "http://192.168.8.101/api/secc/"
+			// Create URL like "http://192.168.8.101/api/"
 			URL url = new URL(this.baseUrl + endpoint);
 
 			// Open http url connection
@@ -90,20 +90,28 @@ public class HardyBarthApi {
 		return result;
 	}
 
-	// TODO: Change topic from String to Topic enum
 	/**
-	 * Sends a get request to the Hardy Barth.
+	 * 
 	 * 
 	 * @param endpoint the REST Api endpoint @return a JsonObject or
 	 *                 JsonArray @throws OpenemsNamedException on error @throws
 	 * @return
 	 */
-	public JsonObject sendPutRequest(String endpoint, String topic, String value) throws OpenemsNamedException {
+	/**
+	 * Sends a get request to the Hardy Barth.
+	 * 
+	 * @param endpoint The REST Api endpoint @return a JsonObject or
+	 * @param key      The key in the properties
+	 * @param value    The value of the key property
+	 * @return A JsonObject
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject sendPutRequest(String endpoint, String key, String value) throws OpenemsNamedException {
 		boolean putRequestFailed = false;
 		JsonObject result = null;
 
 		try {
-			// Create URL like "http://192.168.8.101/api/secc/"
+			// Create URL like "http://192.168.8.101/api/"
 			URL url = new URL(this.baseUrl + endpoint);
 
 			// Open http url connection
@@ -118,12 +126,10 @@ public class HardyBarthApi {
 
 			// Write "topic" and "value" on request properties
 			OutputStreamWriter osw = new OutputStreamWriter(connection.getOutputStream());
-			osw.write("{\"" + topic + "\":\"" + value + "\"}");
+			osw.write("{\"" + key + "\":\"" + value + "\"}");
 			osw.flush();
 			osw.close();
 
-			// TODO: Find out when the charger is responding something else then
-			// {"result":"ok"}
 			String body;
 			try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
 

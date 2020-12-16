@@ -2,6 +2,7 @@ package io.openems.edge.evcs.ocpp.server;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,8 +58,8 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 		this.logDebug("Handle BootNotificationRequest: " + request);
 
-		BootNotificationConfirmation response = new BootNotificationConfirmation(ZonedDateTime.now(), 100,
-				RegistrationStatus.Accepted);
+		BootNotificationConfirmation response = new BootNotificationConfirmation(Instant.now().atZone(ZoneOffset.UTC),
+				100, RegistrationStatus.Accepted);
 		this.logDebug("Send BootNotificationConfirmation: " + response.toString());
 
 		return response;
@@ -88,7 +89,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	public HeartbeatConfirmation handleHeartbeatRequest(UUID sessionIndex, HeartbeatRequest request) {
 
 		this.logDebug("Handle HeartbeatRequest: " + request);
-		return new HeartbeatConfirmation(ZonedDateTime.now());
+		return new HeartbeatConfirmation(Instant.now().atZone(ZoneOffset.UTC));
 	}
 
 	@Override
@@ -332,7 +333,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 		IdTagInfo idTagInfo = new IdTagInfo(AuthorizationStatus.Accepted);
 		idTagInfo.setParentIdTag(request.getIdTag());
-
+		
 		StartTransactionConfirmation response = new StartTransactionConfirmation(idTagInfo, request.getConnectorId());
 		return response;
 	}

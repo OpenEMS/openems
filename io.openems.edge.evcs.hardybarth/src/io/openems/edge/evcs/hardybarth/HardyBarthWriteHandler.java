@@ -24,7 +24,7 @@ public class HardyBarthWriteHandler implements Runnable {
 	/*
 	 * Minimum pause between two consecutive writes.
 	 */
-	private static final int WRITE_INTERVAL_SECONDS = 10;
+	private static final int WRITE_INTERVAL_SECONDS = 30;
 
 	public HardyBarthWriteHandler(HardyBarthImpl parent) {
 		this.parent = parent;
@@ -91,14 +91,17 @@ public class HardyBarthWriteHandler implements Runnable {
 				Value<Integer> phases = this.parent.getPhases();
 				Integer current = (int) Math.round(power / (double) phases.orElse(3) / 230.0);
 
-				// TODO: Dynamically
-				if (current > 32) {
-					current = 32;
+				// TODO: Read separate saliaconf.json and set minimum and maximum dynamically
+				int maximum = this.parent.config.maxHwCurrent();
+				int minimum = this.parent.config.minHwCurrent();
+				if (current > maximum) {
+					current = maximum;
 				}
-				if (current < 6) {
+				if (current < minimum) {
 					current = 0;
 				}
 
+				// Send every WRITE_INTERVAL_SECONDS or if the current to send changed
 				if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
 
 					try {
@@ -108,11 +111,14 @@ public class HardyBarthWriteHandler implements Runnable {
 						// Send charge power limit
 						JsonElement result = this.parent.api.sendPutRequest("/api/secc", "grid_current_limit",
 								current.toString());
-						
-						this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
-						this.lastCurrent = current;
+
+						// Set results
 						this.parent._setSetChargePowerLimit(power);
 						this.parent.debugLog(result.toString());
+
+						// Prepare next write
+						this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
+						this.lastCurrent = current;
 					} catch (OpenemsNamedException e) {
 						e.printStackTrace();
 					}
@@ -136,16 +142,18 @@ public class HardyBarthWriteHandler implements Runnable {
 		if (valueOpt.isPresent()) {
 			Integer energyLimit = valueOpt.get();
 
-			/*
-			 * Only if the target has changed or a time has passed.
-			 */
-			if (!energyLimit.equals(lastEnergySession) || this.nextEnergySessionWrite.isBefore(LocalDateTime.now())) {
 
+			// Set every WRITE_INTERVAL_SECONDS or if the energy target to set changed
+			if (!energyLimit.equals(this.lastEnergySession) || this.nextEnergySessionWrite.isBefore(LocalDateTime.now())) {
+
+				// Set energy limit
 				this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT).setNextValue(energyLimit);
 				this.parent.debugLog("Setting EVCS " + this.parent.alias() + " Energy Limit in this Session to ["
 						+ energyLimit + " Wh]");
-				lastEnergySession = energyLimit;
-				nextEnergySessionWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
+				
+				// Prepare next write
+				this.lastEnergySession = energyLimit;
+				this.nextEnergySessionWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
 			}
 		}
 	}

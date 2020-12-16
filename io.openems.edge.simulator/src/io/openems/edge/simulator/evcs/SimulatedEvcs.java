@@ -72,7 +72,7 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 		this._setMinimumHardwarePower(6000);
 		this._setPhases(3);
 		this._setStatus(Status.CHARGING);
-
+		this._setPowerPrecision(1);
 	}
 
 	@Deactivate

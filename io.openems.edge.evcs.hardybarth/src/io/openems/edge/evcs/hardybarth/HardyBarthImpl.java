@@ -34,12 +34,17 @@ public class HardyBarthImpl extends AbstractOpenemsComponent
 		implements OpenemsComponent, EventHandler, HardyBarth, Evcs, ManagedEvcs {
 
 	protected final Logger log = LoggerFactory.getLogger(HardyBarthImpl.class);
+	protected Config config;
+
+	// API for main REST API functions
 	protected HardyBarthApi api;
-	private Config config;
-	final private HardyBarthReadWorker readWorker = new HardyBarthReadWorker(this);
-	final private HardyBarthWriteHandler writeHandler = new HardyBarthWriteHandler(this);
-	private boolean firmwareUpdated = false;
-	protected boolean masterEVCS = true;
+
+	// ReadWorker and WriteHandler: Reading and sending data to the EVCS
+	private final HardyBarthReadWorker readWorker = new HardyBarthReadWorker(this);
+	private final HardyBarthWriteHandler writeHandler = new HardyBarthWriteHandler(this);
+
+	// Master EVCS is responsible for RFID authentication (Not implemented for now)
+	protected boolean masterEvcs = true;
 
 	@Reference
 	private EvcsPower evcsPower;
@@ -60,9 +65,12 @@ public class HardyBarthImpl extends AbstractOpenemsComponent
 		this._setChargingType(ChargingType.AC);
 		this._setMinimumHardwarePower(config.minHwCurrent() * 3 * 230);
 		this._setMaximumHardwarePower(config.maxHwCurrent() * 3 * 230);
+		this._setPowerPrecision(230);
 
 		if (config.enabled()) {
 			this.api = new HardyBarthApi(config.ip(), this);
+			
+			// Reading the given values
 			this.readWorker.activate(config.id());
 			this.readWorker.triggerNextRun();
 		}
@@ -87,19 +95,10 @@ public class HardyBarthImpl extends AbstractOpenemsComponent
 
 			this.readWorker.triggerNextRun();
 
-			// handle writes
+			// Handle writes
 			this.writeHandler.run();
 
-			if (!this.firmwareUpdated) {
-				// TODO: intelligent firmware update
-				// try {
-				// Update Firmware
-				// this.api.sendPutRequest("/api/secc", "salia/updatefirmware", "http://moon.echarge.de/firmware/stable/");
-				// this.firmwareUpdated = true;
-				// } catch (OpenemsNamedException e) {
-				// 		e.printStackTrace();
-				// }
-			}
+			// TODO: intelligent firmware update
 			break;
 		}
 	}

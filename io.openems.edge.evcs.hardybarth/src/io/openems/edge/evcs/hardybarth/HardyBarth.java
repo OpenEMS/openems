@@ -2,16 +2,17 @@ package io.openems.edge.evcs.hardybarth;
 
 import java.util.function.Function;
 
+import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
 
 interface HardyBarth {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		// TODO: Find out what Type & Unit it is -> e.g. current
-		// TODO: Delete unnecessary channelIds e.g. marked with (only for internal use)
+		// TODO: Correct Type & Unit (Waiting for Manufacturer instructions)
 
 		// EVSE
 		RAW_EVSE_GRID_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE), "secc", "port0", "ci", "evse", //
@@ -20,9 +21,22 @@ interface HardyBarth {
 
 		// CHARGE
 		RAW_CHARGE_STATUS_PLUG(Doc.of(OpenemsType.STRING), "secc", "port0", "ci", "charge", "plug", "status"), //
-		RAW_CHARGE_STATUS_CHARGEPOINT(Doc.of(OpenemsType.STRING), "secc", "port0", "ci", "charge", "cp", "status"), //
 		RAW_CHARGE_STATUS_CONTACTOR(Doc.of(OpenemsType.STRING), "secc", "port0", "ci", "charge", "contactor", "status"), //
 		RAW_CHARGE_STATUS_PWM(Doc.of(OpenemsType.STRING), "secc", "port0", "ci", "charge", "pwm", "status"), //
+		/**
+		 * States of the Hardy Barth.
+		 * 
+		 * <p>
+		 * <ul>
+		 * <li>A = Free (no EV connected)
+		 * <li>B = EV connected, no charging (pause state)
+		 * <li>C = Charging
+		 * <li>D = Charging (With ventilation)
+		 * <li>E = Deactivated Socket
+		 * <li>F = Failure
+		 * </ul>
+		 */
+		RAW_CHARGE_STATUS_CHARGEPOINT(Doc.of(OpenemsType.STRING), "secc", "port0", "ci", "charge", "cp", "status"), //
 
 		// SALIA
 		RAW_SALIA_CHARGE_MODE(Doc.of(OpenemsType.STRING), "secc", "port0", "salia", "chargemode"), //
@@ -45,9 +59,18 @@ interface HardyBarth {
 		RAW_CONTACTOR_ERROR(Doc.of(OpenemsType.STRING), "secc", "port0", "contactor", "error"), //
 
 		// METERING - METER
+
 		RAW_METER_SERIALNUMBER(Doc.of(OpenemsType.STRING), "secc", "port0", "metering", "meter", "serialnumber"), //
 		RAW_METER_TYPE(Doc.of(OpenemsType.STRING), "secc", "port0", "metering", "meter", "type"), //
-		RAW_METER_AVAILABLE(Doc.of(OpenemsType.BOOLEAN), "secc", "port0", "metering", "meter", "available"), //
+		METER_NOT_AVAILABLE(Doc.of(Level.INFO) //
+				.text("No meter values available. The communication cable of the internal meter may be loose.")), //
+		RAW_METER_AVAILABLE(Doc.of(OpenemsType.BOOLEAN).onInit(channel -> {
+			((BooleanReadChannel) channel).onSetNextValue(value -> {
+				HardyBarthImpl hardyBarth = (HardyBarthImpl) channel.getComponent();
+				Boolean notAvailable = value.get() == null ? null : !value.get();
+				hardyBarth.channel(HardyBarth.ChannelId.METER_NOT_AVAILABLE).setNextValue(notAvailable);
+			});
+		}), "secc", "port0", "metering", "meter", "available"), //
 
 		// METERING - POWER
 		RAW_ACTIVE_POWER_L1(Doc.of(OpenemsType.LONG), "secc", "port0", "metering", "power", "active", "ac", "l1",
@@ -67,7 +90,7 @@ interface HardyBarth {
 				"actual"), //
 		RAW_ACTIVE_ENERGY_EXPORT(Doc.of(OpenemsType.DOUBLE), "secc", "port0", "metering", "energy", "active_export",
 				"actual"), //
-		
+
 		// EMERGENCY SHUTDOWN
 		RAW_EMERGENCY_SHUTDOWN(Doc.of(OpenemsType.STRING), "secc", "port0", "emergency_shutdown"), //
 
@@ -149,13 +172,5 @@ interface HardyBarth {
 		public String[] getJsonPaths() {
 			return this.jsonPaths;
 		}
-
-//		/**
-//		 * Get the last member name of the whole path.
-//		 * 
-//		 * @return Last member name
-//		 */
-//		public String getLastMemberName() {
-//		}
 	}
 }

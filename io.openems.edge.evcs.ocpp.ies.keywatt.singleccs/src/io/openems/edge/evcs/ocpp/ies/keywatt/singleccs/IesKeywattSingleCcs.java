@@ -82,6 +82,7 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this._setChargingType(ChargingType.CCS);
+		this._setPowerPrecision(1);
 	}
 
 	@Override
@@ -154,5 +155,4 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 	public boolean returnsSessionEnergy() {
 		return true;
 	}
-
 }

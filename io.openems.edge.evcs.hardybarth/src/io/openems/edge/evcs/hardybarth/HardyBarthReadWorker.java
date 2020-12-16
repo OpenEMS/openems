@@ -23,11 +23,9 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 	@Override
 	protected void forever() throws OpenemsNamedException {
 
-		// TODO: Check correct scale-factor and units for every HardyBarth and Evcs
-		// ChannelId
 		// TODO: Read separate JSON files
-		// - separate configuration -> this.api.sendGetRequest("/saliaconf.json"); e.g.
-		// min & max hardware power
+		// - separate configuration -> this.api.sendGetRequest("/saliaconf.json");
+		// e.g. min & max hardware power
 		// - customeredit values -> this.api.sendGetRequest("/customer.json");
 		// - rfidtags -> this.api.sendGetRequest("/rfidtags.json");
 		// - chargelogs -> this.api.sendGetRequest("/chargelogs.json");
@@ -46,7 +44,7 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 			this.parent.channel(channelId).setNextValue(value);
 
 			if (channelId.equals(HardyBarth.ChannelId.RAW_SALIA_PUBLISH)) {
-				this.parent.masterEVCS = false;
+				this.parent.masterEvcs = false;
 			}
 		}
 
@@ -55,7 +53,7 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 	}
 
 	/**
-	 * Set the value for every Evcs.ChannelId
+	 * Set the value for every Evcs.ChannelId.
 	 * 
 	 * @param json Given raw data in JSON
 	 */
@@ -84,12 +82,12 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 					return rawEnergy;
 
 				}, "secc", "port0", "salia", "chargedata");
-		this.parent._setEnergySession( energy == null ? null : (int) Math.round(energy));
+		this.parent._setEnergySession(energy == null ? null : (int) Math.round(energy));
 
-		// TODO: Check correct scale-factor and unit
 		// ACTIVE_CONSUMPTION_ENERGY
 		Long activeConsumptionEnergy = (Long) this.getValueFromJson(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY, json,
-				(value) -> (long)(Double.parseDouble(value.toString()) * 0.1), "secc", "port0", "metering", "energy", "active_import", "actual"); //
+				(value) -> (long) (Double.parseDouble(value.toString()) * 0.1), "secc", "port0", "metering", "energy",
+				"active_import", "actual"); //
 		this.parent._setActiveConsumptionEnergy(activeConsumptionEnergy);
 
 		// PHASES
@@ -122,16 +120,11 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 			}
 		}
 		this.parent._setPhases(phases);
-		this.parent.debugLog("Used phases: " + phases);
+		if (phases != null) {
+			this.parent.debugLog("Used phases: " + phases);
+		}
 
 		// STATUS
-		// States of the Hardy Barth
-		// A = Free (no EV connected)
-		// B = EV connected, no charging (pause state)
-		// C = Charging
-		// D = Charging (With ventilation)
-		// E = Deactivated Socket
-		// F = Failure
 		Status status = (Status) this.getValueFromJson(HardyBarth.ChannelId.RAW_CHARGE_STATUS_CHARGEPOINT, json,
 				(value) -> {
 					Status rawStatus = Status.UNDEFINED;
@@ -141,7 +134,8 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 						break;
 					case "B":
 						rawStatus = Status.CHARGING_REJECTED;
-						if (this.parent.getSetChargePowerLimit().orElse(0) > this.parent.getMinimumHardwarePower().orElse(0)) {
+						if (this.parent.getSetChargePowerLimit().orElse(0) > this.parent.getMinimumHardwarePower()
+								.orElse(0)) {
 							rawStatus = Status.CHARGING_FINISHED;
 						}
 						break;
@@ -161,16 +155,43 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 					}
 					return rawStatus;
 				}, "secc", "port0", "ci", "charge", "cp", "status");
-		
+
 		this.parent._setStatus(status);
 	}
 
+	/**
+	 * Call the getValueFromJson without a divergent type in the raw json.
+	 * 
+	 * @param channelId Channel that value will be detect.
+	 * @param json      Raw JsonElement.
+	 * @param converter Converter, to convert the raw JSON value into a proper
+	 *                  Channel.
+	 * @param jsonPaths Whole JSON path, where the JsonElement for the given channel
+	 *                  is located.
+	 * @return Value of the last JsonElement by running through the specified JSON
+	 *         path.
+	 */
 	private Object getValueFromJson(ChannelId channelId, JsonElement json, Function<Object, Object> converter,
 			String... jsonPaths) {
 		return this.getValueFromJson(channelId, null, json, converter, jsonPaths);
 	}
 
-	private Object getValueFromJson(ChannelId channelId, OpenemsType divergentTypeInJson, JsonElement json,
+	/**
+	 * Get the last JSON element and it's value, by running through the given
+	 * jsonPath.
+	 * 
+	 * @param channelId              Channel that value will be detect.
+	 * @param divergentTypeInRawJson Divergent type of the value in the depending
+	 *                               JsonElement.
+	 * @param json                   Raw JsonElement.
+	 * @param converter              Converter, to convert the raw JSON value into a
+	 *                               proper Channel.
+	 * @param jsonPaths              Whole JSON path, where the JsonElement for the
+	 *                               given channel is located.
+	 * @return Value of the last JsonElement by running through the specified JSON
+	 *         path.
+	 */
+	private Object getValueFromJson(ChannelId channelId, OpenemsType divergentTypeInRawJson, JsonElement json,
 			Function<Object, Object> converter, String... jsonPaths) {
 
 		JsonElement currentJsonElement = json;
@@ -184,8 +205,8 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 					currentJsonElement = JsonUtils.getAsJsonObject(currentJsonElement, currentPathMember);
 				} else {
 					//
-					OpenemsType openemsType = divergentTypeInJson == null ? channelId.doc().getType()
-							: divergentTypeInJson;
+					OpenemsType openemsType = divergentTypeInRawJson == null ? channelId.doc().getType()
+							: divergentTypeInRawJson;
 
 					// Last path element
 					Object value = this.getJsonElementValue(currentJsonElement, openemsType, jsonPaths[i]);
@@ -203,6 +224,15 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 		return null;
 	}
 
+	/**
+	 * Get Value of the given JsonElement in the required type.
+	 * 
+	 * @param jsonElement Element as JSON.
+	 * @param openemsType Required type.
+	 * @param memberName  Member name of the JSON Element.
+	 * @return Value in the required type.
+	 * @throws OpenemsNamedException Failed to get the value.
+	 */
 	private Object getJsonElementValue(JsonElement jsonElement, OpenemsType openemsType, String memberName)
 			throws OpenemsNamedException {
 		final Object value;

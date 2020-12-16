@@ -8,6 +8,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.DoubleReadChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StringWriteChannel;
@@ -23,6 +24,29 @@ public interface ManagedEvcs extends Evcs {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
+		/**
+		 * Gets the smallest power steps that can be set (given in W). 
+		 * 
+		 * <p>
+		 * Example:
+		 * <ul>
+		 * <li>KEBA-series allows setting of milli Ampere. It should return 0.23 W
+		 * (0.001A * 230V).
+		 * <li>Hardy Barth allows setting in Ampere. It should return 230 W (1A * 230V).
+		 * </ul>
+		 * 
+		 * <p>
+		 * <ul>
+		 * <li>Interface: ManagedEvcs
+		 * <li>Writable
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */
+		POWER_PRECISION(Doc.of(OpenemsType.DOUBLE) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_ONLY)),
+		
 		/**
 		 * Sets the charge power limit of the EVCS in [W].
 		 * 
@@ -56,7 +80,8 @@ public interface ManagedEvcs extends Evcs {
 				.accessMode(AccessMode.READ_WRITE)),
 
 		/**
-		 * Applies the configured filter in {@link EvcsPowerComponent} and sets a the charge power limit.
+		 * Applies the configured filter in {@link EvcsPowerComponent} and sets a the
+		 * charge power limit.
 		 * 
 		 * <ul>
 		 * <li>Interface: ManagedEvcs
@@ -156,6 +181,45 @@ public interface ManagedEvcs extends Evcs {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#POWER_PRECISION}.
+	 *
+	 * @return the Channel
+	 */
+	public default DoubleReadChannel getPowerPrecisionChannel() {
+		return this.channel(ChannelId.POWER_PRECISION);
+	}
+
+	/**
+	 * Gets the power precision value of the EVCS in [W]. See
+	 * {@link ChannelId#POWER_PRECISION}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Double> getPowerPrecision() {
+		return this.getPowerPrecisionChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#POWER_PRECISION} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setPowerPrecision(Double value) {
+		this.getPowerPrecisionChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#POWER_PRECISION} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setPowerPrecision(double value) {
+		this.getPowerPrecisionChannel().setNextValue(value);
+	}
+	
+	/**
 	 * Gets the Channel for {@link ChannelId#SET_CHARGE_POWER_LIMIT}.
 	 *
 	 * @return the Channel
@@ -215,8 +279,8 @@ public interface ManagedEvcs extends Evcs {
 	}
 
 	/**
-	 * Gets the set charge power limit of the EVCS in [W] with applied filter.
-	 * See {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_FILTER}.
+	 * Gets the set charge power limit of the EVCS in [W] with applied filter. See
+	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_FILTER}.
 	 *
 	 * @return the Channel {@link Value}
 	 */

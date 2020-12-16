@@ -39,7 +39,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.minHwCurrent = minHwCurrent;
 			return this;
 		}
-		
+
 		public Builder setMaxHwCurrent(int maxHwCurrent) {
 			this.maxHwCurrent = maxHwCurrent;
 			return this;

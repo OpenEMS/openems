@@ -22,13 +22,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the charging station.", required = true)
 	String ip() default "192.168.8.101";
-	
+
 	@AttributeDefinition(name = "Minimum power", description = "Minimum current of the Charger in A.", required = true)
 	int minHwCurrent() default 6;
 
 	@AttributeDefinition(name = "Maximum power", description = "Maximum current of the Charger in A.", required = true)
 	int maxHwCurrent() default 32;
-	
+
 	String webconsole_configurationFactory_nameHint() default "EVCS Hardy Barth [{id}]";
 
 }
