@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -38,6 +39,8 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -55,6 +58,9 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.ess.sinexcel.statemachine.StateMachine;
+import io.openems.edge.ess.sinexcel.statemachine.StateMachine.State;
+import io.openems.edge.ess.sinexcel.statemachine.Context;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -83,8 +89,10 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 	private int counterOn = 0;
 	private int counterOff = 0;
 
-	// State-Machines
-	private final StateMachine stateMachine;
+	/**
+	 * Manages the {@link State}s of the StateMachine.
+	 */
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	/**
 	 * Helper wrapping class to handle listeners on battery Channels.
@@ -148,7 +156,6 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 				EssSinexcel.ChannelId.values() //
 		);
 		this._setMaxApparentPower(EssSinexcelImpl.MAX_APPARENT_POWER);
-		this.stateMachine = new StateMachine(this);
 	}
 
 //	private void getNoOfCells() throws OpenemsNamedException {
@@ -247,7 +254,28 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 			setDcRelay.setNextWriteValue(0);
 		}
 	}
-
+    
+	/**
+	 * set the module to on grid mode. Reading back value makes no sense
+	 * 
+	 * @throws OpenemsNamedException
+	 */
+	public void setOngridCommand() throws OpenemsNamedException {
+		EnumWriteChannel setdataGridOffCmd = this.channel(EssSinexcel.ChannelId.ON_GRID_CMD);
+		//IntegerWriteChannel setdataGridOffCmd = this.channel(EssSinexcel.ChannelId.ON_GRID_CMD);
+		setdataGridOffCmd.setNextWriteValue(FalseTrue.TRUE); // 1: true, other: illegal
+	}
+	
+	/**
+	 * set the module to off grid mode. Reading back value makes no sense
+	 * 
+	 * @throws OpenemsNamedException
+	 */
+	public void setOffgridCommand() throws OpenemsNamedException {
+		EnumWriteChannel setdataGridOffCmd = this.channel(EssSinexcel.ChannelId.OFF_GRID_CMD);
+		setdataGridOffCmd.setNextWriteValue(FalseTrue.TRUE); // 1: true, other: illegal
+	}	
+	
 	/**
 	 * At first the PCS needs a stop command, then is required to remove the AC
 	 * connection, after that the Grid OFF command.
@@ -293,6 +321,66 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 		BooleanReadChannel v = this.channel(EssSinexcel.ChannelId.STATE_18);
 		Optional<Boolean> stateOff = v.getNextValue().asOptional();
 		return stateOff.isPresent() && stateOff.get();
+	}
+
+	public CurrentState getSinexcelState() {
+		EnumReadChannel currentState = this.channel(EssSinexcel.ChannelId.SINEXCEL_STATE);
+		CurrentState curState = currentState.value().asEnum();
+		return curState;
+	}
+
+	/**
+	 * Helper to set all the digital output based on the param
+	 * 
+	 * @param value1 boolean true to set-on the relay, false to set-off the relay
+	 * 
+	 * @throws IllegalArgumentException on error
+	 * @throws OpenemsNamedException    on error
+	 */
+
+	public void handleWritingDigitalOutputForGrounding(boolean value)
+			throws IllegalArgumentException, OpenemsNamedException {
+
+		setOutput(this.componentManager.getChannel(ChannelAddress.fromString(this.config.digitalOutput2())), value);
+
+	}
+	
+	
+	public void handleWritingDigitalOutputForMain(boolean value) throws IllegalArgumentException, OpenemsNamedException {
+		// TODO Auto-generated method stub
+		setOutput(this.componentManager.getChannel(ChannelAddress.fromString(this.config.digitalOutput1())), value);
+		
+	}
+
+	/**
+	 * Helper function to switch an output if it was not switched before.
+	 *
+	 * @param value true to switch ON, false to switch ON
+	 */
+	private void setOutput(BooleanWriteChannel channel, boolean value)
+			throws IllegalArgumentException, OpenemsNamedException {
+		try {
+			Optional<Boolean> currentValueOpt = channel.value().asOptional();
+			if (!currentValueOpt.isPresent() || currentValueOpt.get() != value) {
+				this.log.info("Set output [" + channel.address() + "] " + (value) + ".");
+				channel.setNextWriteValue(value);
+			}
+		} catch (OpenemsNamedException e) {
+			this.log.error("Unable to set output: [" + channel.address() + "] " + e.getMessage());
+
+		}
+	}
+
+	/**
+	 * Setting the frequency in the off grid mode
+	 * 
+	 * @throws OpenemsNamedException
+	 */
+	public void setFrequency() throws OpenemsNamedException {
+
+		IntegerWriteChannel setFreq = this.channel(EssSinexcel.ChannelId.SET_OFF_GRID_FREQUENCY);
+		setFreq.setNextWriteValue(52); // 52 hz frequency
+
 	}
 
 //	/**
@@ -635,7 +723,7 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 			try {
 				this.setBatteryRanges();
 				this.doHandlingSlowFloatVoltage();
-				this.stateMachine.run();
+				handleStateMachine();
 			} catch (OpenemsNamedException e) {
 				this.logError(this.log, "EventHandler failed: " + e.getMessage());
 			}
@@ -650,6 +738,18 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 			break;
 		}
 
+	}
+
+	private void handleStateMachine() {
+		this.channel(EssSinexcel.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
+		// Prepare Context
+		Context context = new Context(this, this.componentManager, this.battery, this.config);
+		// Call the StateMachine
+		try {
+			this.stateMachine.run(context);
+		} catch (OpenemsNamedException e) {
+			this.logError(this.log, "StateMachine failed: " + e.getMessage());
+		}
 	}
 
 	@Override
@@ -670,4 +770,7 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
+
+
+
 }

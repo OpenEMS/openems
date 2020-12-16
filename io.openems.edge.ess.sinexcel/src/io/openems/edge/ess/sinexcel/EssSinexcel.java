@@ -17,11 +17,15 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.sinexcel.statemachine.StateMachine.State;;
 
 public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHandler, OpenemsComponent, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-
+		
+		
+		STATE_MACHINE(Doc.of(State.values()) //
+			.text("Current State of State-Machine")), //
 		MOD_ON_CMD(Doc.of(FalseTrue.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		MOD_OFF_CMD(Doc.of(FalseTrue.values()) //
@@ -117,6 +121,9 @@ public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHan
 
 		FREQUENCY(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.HERTZ)), //
+		SET_OFF_GRID_FREQUENCY(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.HERTZ)),
 		DC_CURRENT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE)), //
 		DC_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
@@ -342,7 +349,7 @@ public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHan
 		STATE_70(Doc.of(Level.WARNING) //
 				.text("DC relay short-circuit")), //
 		STATE_71(Doc.of(Level.WARNING) //
-				.text("DC relay short open")), //
+				.text("DC realy short open")), //
 		STATE_72(Doc.of(Level.WARNING) //
 				.text("Battery power over load")), //
 		STATE_73(Doc.of(Level.FAULT) //
