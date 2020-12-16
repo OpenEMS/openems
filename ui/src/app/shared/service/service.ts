@@ -433,6 +433,9 @@ export class Service implements ErrorHandler {
     if (['PRO Hybrid 9-10', 'Pro Hybrid 10-Serie', 'Pro Hybrid GW', 'Commercial 30-Serie'].includes(edge.producttype)) {
       return true;
     }
+    if (edge.isVersionAtLeast('2020.25')) {
+      return true;
+    }
     return false;
   }
 

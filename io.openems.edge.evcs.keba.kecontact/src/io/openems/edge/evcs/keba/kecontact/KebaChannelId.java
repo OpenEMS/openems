@@ -59,7 +59,6 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	ENERGY_TOTAL(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)
 			.text("Total power consumption (persistent) without current loading session. "
 					+ "Is summed up after each completed charging session")), //
-
 	DIP_SWITCH_ERROR_1_3_NOT_SET_FOR_COMM(Doc.of(Level.FAULT) //
 			.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
 			.text("Dip-Switch 1.3. for communication must be on")), //
@@ -75,6 +74,10 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	DIP_SWITCH_INFO_2_8_SET_FOR_INSTALLATION(Doc.of(Level.WARNING) //
 			.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
 			.text("Installation mode is configured. If the installation has finished, Dip-Switch 2.8. should be off")), //
+	PRODUCT_SERIES_IS_NOT_COMPATIBLE(Doc.of(Level.FAULT) //
+			.text("Keba e- and b-series cannot be controlled because their software and hardware are not designed for it.")), //
+	NO_ENERGY_METER_INSTALLED(Doc.of(Level.INFO) //
+			.text("This keba cannot measure energy values, because there is no energy meter in it.")), //
 	CHARGINGSTATION_STATE_ERROR(Doc.of(Level.WARNING) //
 			.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE));
 
