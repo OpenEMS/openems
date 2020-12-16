@@ -313,7 +313,7 @@ public class ReadHandler implements Consumer<String> {
 		// e- and b-series cannot be controlled
 		char series = blocks[2].charAt(6);
 		boolean oldSeries = series == '0' || series == '1' ? true : false;
-		setnextStateChannelValue(KebaChannelId.PRODUKT_SERIES_IS_NOT_COMPATIBLE, oldSeries);
+		setnextStateChannelValue(KebaChannelId.PRODUCT_SERIES_IS_NOT_COMPATIBLE, oldSeries);
 
 		// Energy cannot be measured if there is no meter installed
 		char meter = blocks[3].charAt(0);
