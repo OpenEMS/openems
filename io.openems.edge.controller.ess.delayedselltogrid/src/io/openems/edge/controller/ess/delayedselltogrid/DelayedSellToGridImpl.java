@@ -115,14 +115,9 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 			calculatedPower = this.config.continuousSellToGridPower() + gridPower
 					+ ess.getActivePower().orElse(0) /* current charge/discharge Ess */;
 
-		} else if (-gridPower >= this.config.continuousSellToGridPower()) {
+		} else if (-gridPower >= this.config.continuousSellToGridPower() || -gridPower <= this.config.continuousSellToGridPower()) {
 			/*
-			 * Continuous Sell To Grid
-			 */
-			calculatedPower = ess.getActivePower().orElse(0) /* current charge/discharge Ess */;
-		} else if (-gridPower <= this.config.continuousSellToGridPower()) {
-			/*
-			 * Continuous Sell To Grid
+			 * In Between 
 			 */
 			calculatedPower = ess.getActivePower().orElse(0) /* current charge/discharge Ess */;
 		} else {
