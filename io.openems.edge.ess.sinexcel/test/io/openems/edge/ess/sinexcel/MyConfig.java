@@ -106,12 +106,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int Ems_timeout() {
+	public int EmsTimeout() {
 		return this.builder.EmsTimeout;
 	}
 
 	@Override
-	public int Bms_timeout() {
+	public int BmsTimeout() {
 		return this.builder.BmsTimeout;
 	}
 

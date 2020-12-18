@@ -217,7 +217,7 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 	private void setEmsTimeout() {
 		IntegerWriteChannel setEmsTimeOut = this.channel(EssSinexcel.ChannelId.EMS_TIMEOUT_SETTING);
 		try {
-			setEmsTimeOut.setNextWriteValue(this.config.Ems_timeout());
+			setEmsTimeOut.setNextWriteValue(this.config.EmsTimeout());
 		} catch (OpenemsNamedException e) {
 			log.error("EMS timout could not be written!" + e.getMessage());
 		}
@@ -231,7 +231,7 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 	private void setBmsTimeout() {
 		IntegerWriteChannel setBmsTimeOut = this.channel(EssSinexcel.ChannelId.BMS_TIMEOUT_SETTING);
 		try {
-			setBmsTimeOut.setNextWriteValue(this.config.Bms_timeout());
+			setBmsTimeOut.setNextWriteValue(this.config.BmsTimeout());
 		} catch (OpenemsNamedException e) {
 			log.error("BMS timout could not be written!" + e.getMessage());
 		}
