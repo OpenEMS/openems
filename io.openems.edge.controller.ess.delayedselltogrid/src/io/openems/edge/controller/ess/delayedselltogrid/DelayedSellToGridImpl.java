@@ -51,7 +51,6 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 	private SymmetricMeter meter;
 
 	private Config config;
-	private int calculatedPower;
 
 	public DelayedSellToGridImpl() {
 		super(//
@@ -99,34 +98,29 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 		}
 
 		// Calculate 'real' grid-power (without current ESS charge/discharge)
-		int gridPower = meter.getActivePower().orElse(0);
+		int gridPower = meter.getActivePower().orElse(0)
+				+ ess.getActivePower().orElse(0);/* current charge/discharge Ess */
 
-		if (-gridPower > this.config.sellToGridPowerLimit()) {
+		int calculatedPower;
+		if (-gridPower >= this.config.sellToGridPowerLimit()) {
 			/*
 			 * Exceeds the Sell To Grid Power Limit
 			 */
-			calculatedPower = this.config.sellToGridPowerLimit() + gridPower
-					- ess.getActivePower().orElse(0);/* current charge/discharge Ess */
+			calculatedPower = this.config.sellToGridPowerLimit() + gridPower;
 
-		} else if (-gridPower < this.config.continuousSellToGridPower()) {
+		} else if (-gridPower <= this.config.continuousSellToGridPower()) {
 			/*
 			 * Continuous Sell To Grid
 			 */
-			calculatedPower = this.config.continuousSellToGridPower() + gridPower
-					+ ess.getActivePower().orElse(0) /* current charge/discharge Ess */;
+			calculatedPower = this.config.continuousSellToGridPower() + gridPower;
 
-		} else if (-gridPower >= this.config.continuousSellToGridPower() || -gridPower <= this.config.continuousSellToGridPower()) {
-			/*
-			 * In Between 
-			 */
-			calculatedPower = ess.getActivePower().orElse(0) /* current charge/discharge Ess */;
 		} else {
 
 			/*
 			 * Do nothing
 			 */
 			// TODO DO Nothing Or Set zero ?
-//			calculatedPower = 0;
+			calculatedPower = 0;
 		}
 
 		/*

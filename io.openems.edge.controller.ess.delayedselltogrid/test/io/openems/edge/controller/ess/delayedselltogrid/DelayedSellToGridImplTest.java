@@ -52,7 +52,7 @@ public class DelayedSellToGridImplTest {
 				.next(new TestCase() //
 						.input(ESS_ACTIVE_POWER, -50_000) //
 						.input(METER_ACTIVE_POWER, -500_000)//
-						.output(ESS_SET_ACTIVE_POWER_EQUALS, -50_000)) //
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, 0)) //
 				.next(new TestCase() //
 						.input(ESS_ACTIVE_POWER, 150_000) //
 						.input(METER_ACTIVE_POWER, -500_000)//
