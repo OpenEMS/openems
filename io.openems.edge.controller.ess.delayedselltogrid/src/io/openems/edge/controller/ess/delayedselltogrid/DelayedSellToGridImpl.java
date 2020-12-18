@@ -34,7 +34,6 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 		implements DelayedSellToGrid, Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(DelayedSellToGridImpl.class);
-	private State state = State.DO_NOTHING;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -52,6 +51,7 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 	private SymmetricMeter meter;
 
 	private Config config;
+	private int calculatedPower;
 
 	public DelayedSellToGridImpl() {
 		super(//
@@ -80,7 +80,13 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		GridMode gridMode = this.ess.getGridMode();
+		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
+		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
+
+		/*
+		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
+		 */
+		GridMode gridMode = ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -92,83 +98,46 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 			return;
 		}
 
-		int calculatedPower = 0;
-		int gridPower = this.meter.getActivePower().orElse(0);
+		// Calculate 'real' grid-power (without current ESS charge/discharge)
+		int gridPower = meter.getActivePower().orElse(0);
 
-		boolean stateChanged;
+		if (-gridPower > this.config.sellToGridPowerLimit()) {
+			/*
+			 * Exceeds the Sell To Grid Power Limit
+			 */
+			calculatedPower = this.config.sellToGridPowerLimit() + gridPower
+					- ess.getActivePower().orElse(0);/* current charge/discharge Ess */
 
-		do {
-			stateChanged = false;
-			switch (this.state) {
-			case ABOVE_SELL_TO_GRID_LIMIT:
-				if (-gridPower < this.config.continuousSellToGridPower()) {
-					stateChanged = this.changeState(State.UNDER_CONTINUOUS_SELL_TO_GRID);
-					break;
-				}
-				if (-gridPower > this.config.continuousSellToGridPower()
-						&& -gridPower < this.config.sellToGridPowerLimit()) {
-					stateChanged = this.changeState(State.DO_NOTHING);
-					break;
-				}
-				calculatedPower = gridPower + this.config.sellToGridPowerLimit();
-				break;
+		} else if (-gridPower < this.config.continuousSellToGridPower()) {
+			/*
+			 * Continuous Sell To Grid
+			 */
+			calculatedPower = this.config.continuousSellToGridPower() + gridPower
+					+ ess.getActivePower().orElse(0) /* current charge/discharge Ess */;
 
-			case DO_NOTHING:
-				if (-gridPower > this.config.sellToGridPowerLimit()) {
-					stateChanged = this.changeState(State.ABOVE_SELL_TO_GRID_LIMIT);
-					break;
-				}
-				if (-gridPower < this.config.continuousSellToGridPower()) {
-					stateChanged = this.changeState(State.UNDER_CONTINUOUS_SELL_TO_GRID);
-					break;
-				}
-
-				calculatedPower = 0;
-				break;
-
-			case UNDER_CONTINUOUS_SELL_TO_GRID:
-				if (-gridPower > this.config.sellToGridPowerLimit()) {
-					stateChanged = this.changeState(State.ABOVE_SELL_TO_GRID_LIMIT);
-					break;
-				}
-
-				if (-gridPower > this.config.continuousSellToGridPower()
-						&& -gridPower < this.config.sellToGridPowerLimit()) {
-					stateChanged = this.changeState(State.DO_NOTHING);
-					break;
-				}
-				calculatedPower = this.config.continuousSellToGridPower() - Math.abs(gridPower);
-				break;
-			}
-		} while (stateChanged);
-
-		// Set calculate power channel
-		this.channel(DelayedSellToGrid.ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
-
-		// Set the power
-		this.setResult(calculatedPower);
-
-		// set the State machine
-		this.channel(DelayedSellToGrid.ChannelId.STATE_MACHINE).setNextValue(this.state);
-	}
-
-	protected void setResult(int calculatedPower) throws OpenemsNamedException {
-		this.ess.setActivePowerEquals(calculatedPower);
-		this.ess.setReactivePowerEquals(0);
-	}
-
-	/**
-	 * Changes the state updated, to avoid too quick changes.
-	 * 
-	 * @param nextState the target state
-	 * @return whether the state was changed
-	 */
-	private boolean changeState(State nextState) {
-		if (this.state != nextState) {
-			this.state = nextState;
-			return true;
+		} else if (-gridPower >= this.config.continuousSellToGridPower()) {
+			/*
+			 * Continuous Sell To Grid
+			 */
+			calculatedPower = ess.getActivePower().orElse(0) /* current charge/discharge Ess */;
+		} else if (-gridPower <= this.config.continuousSellToGridPower()) {
+			/*
+			 * Continuous Sell To Grid
+			 */
+			calculatedPower = ess.getActivePower().orElse(0) /* current charge/discharge Ess */;
 		} else {
-			return false;
+
+			/*
+			 * Do nothing
+			 */
+			// TODO DO Nothing Or Set zero ?
+//			calculatedPower = 0;
 		}
+
+		/*
+		 * set result
+		 */
+		ess.setActivePowerEquals(calculatedPower);
+		ess.setReactivePowerEquals(0);
 	}
 }
