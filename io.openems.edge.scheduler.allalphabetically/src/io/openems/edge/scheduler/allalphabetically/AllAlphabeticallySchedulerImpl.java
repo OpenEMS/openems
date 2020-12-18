@@ -10,7 +10,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -54,23 +53,22 @@ public class AllAlphabeticallySchedulerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public LinkedHashSet<Controller> getControllers() throws OpenemsNamedException {
-		LinkedHashSet<Controller> result = new LinkedHashSet<>();
+	public LinkedHashSet<String> getControllers() {
+		LinkedHashSet<String> result = new LinkedHashSet<>();
 
 		// add sorted controllers
 		for (String id : this.config.controllers_ids()) {
 			if (id.equals("")) {
 				continue;
 			}
-			Controller controller = this.componentManager.getPossiblyDisabledComponent(id);
-			result.add(controller);
+			result.add(id);
 		}
 
 		// add remaining controllers
 		this.componentManager.getEnabledComponents().stream() //
 				.filter(c -> c instanceof Controller) //
 				.sorted((c1, c2) -> c1.id().compareTo(c2.id())) //
-				.forEach(c -> result.add((Controller) c));
+				.forEach(c -> result.add(c.id()));
 
 		return result;
 	}

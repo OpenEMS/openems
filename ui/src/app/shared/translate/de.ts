@@ -33,6 +33,7 @@ export const TRANSLATION = {
         inactive: 'Inaktiv',
         info: 'Info',
         inputNotValid: 'Eingabe ungültig',
+        insufficientRights: 'Unzureichende Rechte',
         live: 'Live',
         load: 'Last',
         manually: 'Manuell',
@@ -151,11 +152,16 @@ export const TRANSLATION = {
                 },
                 Peakshaving: {
                     asymmetricInfo: 'Eingetragene Leistungswerte beziehen sich auf einzelne Phasen. Es wird auf die jeweils am stärksten belastete Phase ausgeregelt.',
+                    endDate: 'End Datum',
+                    endTime: 'Endzeit',
                     mostStressedPhase: 'Meist belastete Phase',
                     peakshaving: 'Lastspitzenkappung',
                     peakshavingPower: 'Entladung über',
+                    recharge: 'Aufladeleistung',
                     rechargePower: 'Beladung unter',
                     relationError: 'Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein',
+                    startDate: 'Start Datum',
+                    startTime: 'Startzeit',
                 },
                 CHP: {
                     highThreshold: 'Oberer Schwellenwert',
@@ -248,9 +254,12 @@ export const TRANSLATION = {
                     lock: 'Sperre',
                     moreThanMaxPower: 'Wert darf nicht niedriger als Maximalleistung der Wärmepumpe sein',
                     normalOperation: 'Normalbetrieb',
+                    normalOperationShort: 'Normal',
                     relationError: 'Einschaltbefehl Überschusswert muss größer als Einschaltempfehlungswert sein',
                     switchOnCom: 'Einschaltbefehl',
+                    switchOnComShort: 'Befehl',
                     switchOnRec: 'Einschaltempfehlung',
+                    switchOnRecShort: 'Empfehlung',
                     undefined: 'Nicht definiert',
                 }
             }

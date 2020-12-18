@@ -9,7 +9,7 @@
                 <ion-card-content>
                     <table class="full_width">
                         <tr [ngSwitch]="currentData[component.id + '/Status']">
-                            <td style="width:65%">Zustand</td>
+                            <td style="width:65%" translate>General.state</td>
                             <td *ngIf="currentData[this.component.id + '/State'] != 3" style="width:35%"
                                 class="align_right" translate>
                                 <ng-container *ngSwitchCase="-1">

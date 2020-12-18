@@ -63,16 +63,23 @@ public class ReadHandler implements Consumer<String> {
 					 * Reply to report 1
 					 */
 					receiveReport1 = true;
-					setString(KebaChannelId.PRODUCT, jsonMessage, "Product");
 					setString(KebaChannelId.SERIAL, jsonMessage, "Serial");
 					setString(KebaChannelId.FIRMWARE, jsonMessage, "Firmware");
 					setInt(KebaChannelId.COM_MODULE, jsonMessage, "COM-module");
 
+					// Dip-Switches
 					Optional<String> dipSwitch1 = JsonUtils.getAsOptionalString(jsonMessage, "DIP-Sw1");
 					Optional<String> dipSwitch2 = JsonUtils.getAsOptionalString(jsonMessage, "DIP-Sw2");
 
 					if (dipSwitch1.isPresent() && dipSwitch2.isPresent()) {
-						checkDipSwitchSettings(dipSwitch1.get(), dipSwitch2.get());
+						this.checkDipSwitchSettings(dipSwitch1.get(), dipSwitch2.get());
+					}
+
+					// Product information
+					Optional<String> product = JsonUtils.getAsOptionalString(jsonMessage, "Product");
+					if (product.isPresent()) {
+						this.parent.channel(KebaChannelId.PRODUCT).setNextValue(product.get());
+						this.checkProductInformation(product.get());
 					}
 
 				} else if (id.equals("2")) {
@@ -263,7 +270,7 @@ public class ReadHandler implements Consumer<String> {
 
 		this.parent.channel(KebaChannelId.DIP_SWITCH_1).setNextValue(dipSwitch1);
 		this.parent.channel(KebaChannelId.DIP_SWITCH_2).setNextValue(dipSwitch2);
-		
+
 		boolean setState = false;
 		boolean hasStaticIp = false;
 
@@ -293,6 +300,25 @@ public class ReadHandler implements Consumer<String> {
 		// Set Channel for "installation mode set"
 		setState = dipSwitch2.charAt(7) == '1' ? true : false;
 		setnextStateChannelValue(KebaChannelId.DIP_SWITCH_INFO_2_8_SET_FOR_INSTALLATION, setState);
+	}
+
+	/**
+	 * Sets the associated channels depending on the product information.
+	 * 
+	 * @param product Detailed product information as string
+	 */
+	private void checkProductInformation(String product) {
+		String[] blocks = product.split("-");
+
+		// e- and b-series cannot be controlled
+		char series = blocks[2].charAt(6);
+		boolean oldSeries = series == '0' || series == '1' ? true : false;
+		setnextStateChannelValue(KebaChannelId.PRODUCT_SERIES_IS_NOT_COMPATIBLE, oldSeries);
+
+		// Energy cannot be measured if there is no meter installed
+		char meter = blocks[3].charAt(0);
+		boolean noMeter = meter == '0' ? true : false;
+		setnextStateChannelValue(KebaChannelId.NO_ENERGY_METER_INSTALLED, noMeter);
 	}
 
 	/**

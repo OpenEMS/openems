@@ -636,10 +636,10 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.unit(Unit.MILLIVOLT) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BCU Maxc Cell Voltage")),
-		BCU_AVARAGE_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		BCU_AVERAGE_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT) //
 				.accessMode(AccessMode.READ_WRITE) //
-				.text("BCU Avarage Of All Cell Voltages")),
+				.text("BCU Average Of All Cell Voltages")),
 		BCU_MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE) //
 				.accessMode(AccessMode.READ_WRITE) //
@@ -658,14 +658,14 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.unit(Unit.AMPERE_HOURS) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Design Capacity Of the Module")),
-		USEABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
+		USABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE_HOURS) //
 				.accessMode(AccessMode.READ_WRITE) //
-				.text("Useable Cpacity Of The Module")),
+				.text("Usable Capacity Of The Module")),
 		REMAINING_CAPACITY(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE_HOURS) //
 				.accessMode(AccessMode.READ_WRITE) //
-				.text("Remaning Cpacity Of The Module")),
+				.text("Remaining Capacity Of The Module")),
 		BCU_MAX_CELL_VOLTAGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT) //
 				.accessMode(AccessMode.READ_WRITE) //
