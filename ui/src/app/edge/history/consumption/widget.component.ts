@@ -83,7 +83,6 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                     new ChannelAddress(component.id, 'ActiveConsumptionEnergy'),
                 )
             }
-
             resolve(channels);
         });
     }
