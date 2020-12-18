@@ -1,9 +1,6 @@
 package io.openems.edge.evcs.hardybarth;
 
-import org.osgi.service.metatype.annotations.AttributeDefinition;
-
 import io.openems.edge.common.test.AbstractComponentConfig;
-import io.openems.edge.evcs.hardybarth.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -15,14 +12,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int maxHwCurrent;
 
 		private Builder() {
-		}
-
-		public Builder Builder(String id, String ip, int minHwCurrent, int maxHwCurrent) {
-			this.id = id;
-			this.ip = ip;
-			this.minHwCurrent = minHwCurrent;
-			this.maxHwCurrent = maxHwCurrent;
-			return this;
 		}
 
 		public Builder setId(String id) {

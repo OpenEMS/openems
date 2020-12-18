@@ -91,16 +91,10 @@ public class HardyBarthApi {
 	}
 
 	/**
-	 * 
+	 * Sends a get request to the Hardy Barth.
 	 * 
 	 * @param endpoint the REST Api endpoint @return a JsonObject or
 	 *                 JsonArray @throws OpenemsNamedException on error @throws
-	 * @return
-	 */
-	/**
-	 * Sends a get request to the Hardy Barth.
-	 * 
-	 * @param endpoint The REST Api endpoint @return a JsonObject or
 	 * @param key      The key in the properties
 	 * @param value    The value of the key property
 	 * @return A JsonObject

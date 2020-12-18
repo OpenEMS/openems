@@ -3,7 +3,6 @@ package io.openems.edge.evcs.hardybarth;
 import org.junit.Test;
 
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
-import io.openems.edge.evcs.hardybarth.HardyBarthImpl;
 import io.openems.edge.common.test.ComponentTest;
 
 public class MyDeviceTest {

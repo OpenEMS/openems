@@ -23,7 +23,7 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "io.openems.edge.evcs.hardybarth", //
+		name = "Evcs.HardyBarth", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
