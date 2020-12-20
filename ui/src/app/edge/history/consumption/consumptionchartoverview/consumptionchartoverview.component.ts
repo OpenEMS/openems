@@ -31,10 +31,10 @@ export class ConsumptionChartOverviewComponent {
                 this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED');
                 // determine if singlechart is the only chart that is shown
                 // disable total option to choose for chartoptions component
-                if (this.evcsComponents.length > 0) {
+                if (this.evcsComponents.length > 0 || this.consumptionMeterComponents.length > 0) {
                     this.showTotal = true;
                     this.isOnlyChart = false;
-                } else if (this.evcsComponents.length == 0) {
+                } else {
                     this.isOnlyChart = true;
                 }
             })
