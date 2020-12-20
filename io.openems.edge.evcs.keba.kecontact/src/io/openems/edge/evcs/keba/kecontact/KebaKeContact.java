@@ -84,6 +84,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 		this.ip = Inet4Address.getByName(config.ip());
 
 		this.config = config;
+		this._setPowerPrecision(0.23);
 
 		/*
 		 * subscribe on replies to report queries

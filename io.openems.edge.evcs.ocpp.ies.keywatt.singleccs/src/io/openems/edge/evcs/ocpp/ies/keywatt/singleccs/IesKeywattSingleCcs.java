@@ -28,6 +28,7 @@ import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.MeasuringEvcs;
+import io.openems.edge.evcs.api.SocEvcs;
 import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.common.OcppInformations;
 import io.openems.edge.evcs.ocpp.common.OcppProfileType;
@@ -43,7 +44,7 @@ import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
 public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
-		implements Evcs, ManagedEvcs, MeasuringEvcs, OpenemsComponent, EventHandler {
+		implements Evcs, ManagedEvcs, MeasuringEvcs, OpenemsComponent, EventHandler, SocEvcs {
 
 	// Profiles that a Ies KeyWatt is supporting
 	private static final OcppProfileType[] PROFILE_TYPES = { //
@@ -70,7 +71,8 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 				Evcs.ChannelId.values(), //
 				AbstractOcppEvcsComponent.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
-				MeasuringEvcs.ChannelId.values() //
+				MeasuringEvcs.ChannelId.values(), //
+				SocEvcs.ChannelId.values() //
 		);
 	}
 
@@ -80,6 +82,7 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this._setChargingType(ChargingType.CCS);
+		this._setPowerPrecision(1);
 	}
 
 	@Override
@@ -152,5 +155,4 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 	public boolean returnsSessionEnergy() {
 		return true;
 	}
-
 }
