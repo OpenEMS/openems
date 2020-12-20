@@ -166,7 +166,7 @@ public class SurplusFeedInHandler {
 			// Limit PV-Power to maximum apparent power of inverter
 			// this avoids filling the battery faster than we can empty it
 			StateChannel powerDecreaseCausedByOvertemperatureChannel = this.parent
-					.channel(EssFeneconCommercial40.ChannelId.STATE_105);
+					.channel(EssFeneconCommercial40.ChannelId.POWER_DECREASE_CAUSED_BY_OVERTEMPERATURE);
 			if (powerDecreaseCausedByOvertemperatureChannel.value().orElse(false)) {
 				// Always decrease if POWER_DECREASE_CAUSED_BY_OVERTEMPERATURE StateChannel is
 				// set
