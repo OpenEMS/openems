@@ -37,14 +37,47 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 		return this.modbusProtocol;
 	}
 
+	/**
+	 * Applies the modbus protocol for Socomec Countis E23, E24, E27 and E28. All
+	 * are identical.
+	 * 
+	 * @throws OpenemsException on error
+	 */
 	protected abstract void identifiedCountisE23_E24_E27_E28() throws OpenemsException;
 
+	/**
+	 * Applies the modbus protocol for Socomec Countis E44.
+	 * 
+	 * @throws OpenemsException on error
+	 */
+	protected abstract void identifiedCountisE44() throws OpenemsException;
+
+	/**
+	 * Applies the modbus protocol for Socomec Diris A10.
+	 * 
+	 * @throws OpenemsException on error
+	 */
 	protected abstract void identifiedDirisA10() throws OpenemsException;
 
+	/**
+	 * Applies the modbus protocol for Socomec Diris A14.
+	 * 
+	 * @throws OpenemsException on error
+	 */
 	protected abstract void identifiedDirisA14() throws OpenemsException;
 
+	/**
+	 * Applies the modbus protocol for Socomec Diris B30.
+	 * 
+	 * @throws OpenemsException on error
+	 */
 	protected abstract void identifiedDirisB30() throws OpenemsException;
 
+	/**
+	 * Applies the modbus protocol for Socomec Countis E14.
+	 * 
+	 * @throws OpenemsException on error
+	 */
 	protected abstract void identifiedCountisE14() throws OpenemsException;
 
 	protected final void identifySocomecMeter() {
@@ -66,6 +99,10 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 				} else if (name.startsWith("countis e28")) {
 					this.logInfo(this.log, "Identified Socomec Countis E28 meter");
 					this.identifiedCountisE23_E24_E27_E28();
+
+				} else if (name.startsWith("countis e44")) {
+					this.logInfo(this.log, "Identified Socomec Countis E44 meter");
+					this.identifiedCountisE44();
 
 				} else if (name.startsWith("diris a-10") || name.startsWith("diris a10")) {
 					this.logInfo(this.log, "Identified Socomec Diris A10 meter");
