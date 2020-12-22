@@ -48,8 +48,8 @@ public class UtilTest {
 		boolean actualdischargeForce = battery.getForceDischargeActive().get();
 		assertEquals(expectedDischargeForce, actualdischargeForce);
 		
-		// Min Voltage has risen above force level, but is still under final discharge level
-		battery.setMinimalCellVoltage(DummyCellCharacteristic.FINAL_CELL_DISCHARGE_VOLTAGE_MV - 1);
+		// Min Voltage has risen above force level, but is still under final discharge level minus tolerance 
+		battery.setMinimalCellVoltage(DummyCellCharacteristic.FINAL_CELL_DISCHARGE_VOLTAGE_MV - Util.TOLERANCE_MV - 1);
 		Util.setMaxAllowedCurrents(cellCharacteristic, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS, battery);
 				
 		battery.getChargeMaxCurrentChannel().nextProcessImage();
@@ -399,10 +399,10 @@ public class UtilTest {
 		battery.setForceChargeActive(true);
 		assertTrue(Util.isFurtherChargingNecessary(cellCharacteristic, battery));
 		
-		battery.setMinimalCellVoltage(DummyCellCharacteristic.FINAL_CELL_DISCHARGE_VOLTAGE_MV - 1);
+		battery.setMinimalCellVoltage(DummyCellCharacteristic.FINAL_CELL_DISCHARGE_VOLTAGE_MV - Util.TOLERANCE_MV - 1);
 		assertTrue(Util.isFurtherChargingNecessary(cellCharacteristic, battery));
 		
-		battery.setMinimalCellVoltage(DummyCellCharacteristic.FINAL_CELL_DISCHARGE_VOLTAGE_MV);
+		battery.setMinimalCellVoltage(DummyCellCharacteristic.FINAL_CELL_DISCHARGE_VOLTAGE_MV - Util.TOLERANCE_MV);
 		assertFalse(Util.isFurtherChargingNecessary(cellCharacteristic, battery));
 	}
 

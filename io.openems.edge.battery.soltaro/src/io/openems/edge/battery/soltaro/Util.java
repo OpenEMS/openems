@@ -6,6 +6,7 @@ public class Util {
 
 	public static final double CHARGE_DISCHARGE_FACTOR = 0.02;
 	public static final int MINIMUM_CURRENT = 1;
+	public static final int TOLERANCE_MV = 10;
 
 	public static void setMaxAllowedCurrents(CellCharacteristic cellCharacteristic, int maxChargeCurrentFromBMS,
 			int maxDischargeCurrentFromBMS, Battery battery) {
@@ -118,7 +119,7 @@ public class Util {
 			return false;
 		}
 		return battery.getForceChargeActive().get()
-				&& battery.getMinCellVoltage().get() < cellCharacteristic.getFinalCellDischargeVoltage_mV();
+				&& battery.getMinCellVoltage().get() < (cellCharacteristic.getFinalCellDischargeVoltage_mV() - TOLERANCE_MV );
 	}
 
 	protected static boolean isChargingAlready(Battery battery) {
