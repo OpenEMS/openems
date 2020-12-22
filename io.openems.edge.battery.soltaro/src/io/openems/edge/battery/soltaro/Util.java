@@ -16,12 +16,18 @@ public class Util {
 		if (!areApiValuesPresent(battery)) {
 			maxChargeCurrent = 0;
 			maxDischargeCurrent = 0;
-
 		} else {
-
 			if (isChargingAlready(battery)) {
 				if (isFurtherChargingNecessary(cellCharacteristic, battery)) {
 					maxDischargeCurrent = calculateForceDischargeCurrent(battery);
+				}
+			} else {
+				if (isVoltageBelowFinalDischargingVoltage(cellCharacteristic, battery)) {
+					if (isVoltageHigherThanForceChargeVoltage(cellCharacteristic, battery)) {
+						maxDischargeCurrent = 0;
+					} else {
+						maxDischargeCurrent = calculateForceDischargeCurrent(battery);
+					}
 				}
 			}
 
@@ -29,21 +35,13 @@ public class Util {
 				if (isFurtherDischargingNecessary(cellCharacteristic, battery)) {
 					maxChargeCurrent = calculateForceChargeCurrent(battery);
 				}
-			}
-
-			if (isVoltageBelowFinalDischargingVoltage(cellCharacteristic, battery)) {
-				if (isVoltageHigherThanForceChargeVoltage(cellCharacteristic, battery)) {
-					maxDischargeCurrent = 0;
-				} else {
-					maxDischargeCurrent = calculateForceDischargeCurrent(battery);
-				}
-			}
-
-			if (isVoltageAboveFinalChargingVoltage(cellCharacteristic, battery)) {
-				if (isVoltageLowerThanForceDischargeVoltage(cellCharacteristic, battery)) {
-					maxChargeCurrent = 0;
-				} else {
-					maxChargeCurrent = calculateForceChargeCurrent(battery);
+			} else {
+				if (isVoltageAboveFinalChargingVoltage(cellCharacteristic, battery)) {
+					if (isVoltageLowerThanForceDischargeVoltage(cellCharacteristic, battery)) {
+						maxChargeCurrent = 0;
+					} else {
+						maxChargeCurrent = calculateForceChargeCurrent(battery);
+					}
 				}
 			}
 		}

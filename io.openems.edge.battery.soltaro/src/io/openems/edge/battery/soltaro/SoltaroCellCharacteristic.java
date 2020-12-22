@@ -9,7 +9,7 @@ public class SoltaroCellCharacteristic implements CellCharacteristic {
 
 	@Override
 	public int getForceChargeCellVoltage_mV() {
-		return 2_800; // 0x2046 Cell under voltage Protection
+		return 2_850; // 0x2046 Cell under voltage Protection + 50 mV (i.e. x2046 ==> 2800)
 	}
 	
 	@Override

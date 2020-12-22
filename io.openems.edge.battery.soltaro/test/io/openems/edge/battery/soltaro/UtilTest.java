@@ -19,6 +19,87 @@ public class UtilTest {
 	}
 
 	@Test
+	public void testBatteryIsChargedUntilFinalDischargeIsReached() { 
+		// Battery has to be charged
+		int maxDischargeCurrentFromBMS = 0;
+		int maxChargeCurrentFromBMS = DummyBattery.DEFAULT_MAX_CHARGE_CURRENT;
+		battery.setMinimalCellVoltage(DummyCellCharacteristic.FORCE_CHARGE_CELL_VOLTAGE_MV);
+
+		Util.setMaxAllowedCurrents(cellCharacteristic, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS, battery);
+				
+		battery.getChargeMaxCurrentChannel().nextProcessImage();
+		battery.getForceDischargeActiveChannel().nextProcessImage();
+		battery.getDischargeMaxCurrentChannel().nextProcessImage();
+		battery.getForceChargeActiveChannel().nextProcessImage();
+		
+		int expectedMaxChargeCurrent = maxChargeCurrentFromBMS;
+		int actualMaxChargeCurrent = battery.getChargeMaxCurrent().get();
+		assertEquals(expectedMaxChargeCurrent, actualMaxChargeCurrent);
+		
+		int expectedMaxDischargeCurrent = - (int) Math.max(1, battery.getCapacity().get() * 0.02 / battery.getVoltage().get());
+		int actualMaxDischargeCurrent = battery.getDischargeMaxCurrent().get();
+		assertEquals(expectedMaxDischargeCurrent, actualMaxDischargeCurrent);
+		
+		boolean expectedChargeForce = true;
+		boolean actualChargeForce = battery.getForceChargeActive().get();
+		assertEquals(expectedChargeForce, actualChargeForce);
+		
+		boolean expectedDischargeForce = false;
+		boolean actualdischargeForce = battery.getForceDischargeActive().get();
+		assertEquals(expectedDischargeForce, actualdischargeForce);
+		
+		// Min Voltage has risen above force level, but is still under final discharge level
+		battery.setMinimalCellVoltage(DummyCellCharacteristic.FINAL_CELL_DISCHARGE_VOLTAGE_MV - 1);
+		Util.setMaxAllowedCurrents(cellCharacteristic, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS, battery);
+				
+		battery.getChargeMaxCurrentChannel().nextProcessImage();
+		battery.getForceDischargeActiveChannel().nextProcessImage();
+		battery.getDischargeMaxCurrentChannel().nextProcessImage();
+		battery.getForceChargeActiveChannel().nextProcessImage();
+		
+		expectedMaxChargeCurrent = maxChargeCurrentFromBMS;
+		actualMaxChargeCurrent = battery.getChargeMaxCurrent().get();
+		assertEquals(expectedMaxChargeCurrent, actualMaxChargeCurrent);
+		
+		expectedMaxDischargeCurrent = - (int) Math.max(1, battery.getCapacity().get() * 0.02 / battery.getVoltage().get());
+		actualMaxDischargeCurrent = battery.getDischargeMaxCurrent().get();
+		assertEquals(expectedMaxDischargeCurrent, actualMaxDischargeCurrent);
+		
+		expectedChargeForce = true;
+		actualChargeForce = battery.getForceChargeActive().get();
+		assertEquals(expectedChargeForce, actualChargeForce);
+		
+		expectedDischargeForce = false;
+		actualdischargeForce = battery.getForceDischargeActive().get();
+		assertEquals(expectedDischargeForce, actualdischargeForce);
+		
+		// Min Voltage has risen above final discharge level  
+		battery.setMinimalCellVoltage(DummyCellCharacteristic.FINAL_CELL_DISCHARGE_VOLTAGE_MV + 1);
+		Util.setMaxAllowedCurrents(cellCharacteristic, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS, battery);
+				
+		battery.getChargeMaxCurrentChannel().nextProcessImage();
+		battery.getForceDischargeActiveChannel().nextProcessImage();
+		battery.getDischargeMaxCurrentChannel().nextProcessImage();
+		battery.getForceChargeActiveChannel().nextProcessImage();
+		
+		expectedMaxChargeCurrent = maxChargeCurrentFromBMS;
+		actualMaxChargeCurrent = battery.getChargeMaxCurrent().get();
+		assertEquals(expectedMaxChargeCurrent, actualMaxChargeCurrent);
+		
+		expectedMaxDischargeCurrent = maxDischargeCurrentFromBMS;
+		actualMaxDischargeCurrent = battery.getDischargeMaxCurrent().get();
+		assertEquals(expectedMaxDischargeCurrent, actualMaxDischargeCurrent);
+		
+		expectedChargeForce = false;
+		actualChargeForce = battery.getForceChargeActive().get();
+		assertEquals(expectedChargeForce, actualChargeForce);
+		
+		expectedDischargeForce = false;
+		actualdischargeForce = battery.getForceDischargeActive().get();
+		assertEquals(expectedDischargeForce, actualdischargeForce);
+	}
+	
+	@Test
 	public void testSetMaxAllowedCurrents() { 
 		// Nothing is necessary
 		int maxDischargeCurrentFromBMS = DummyBattery.DEFAULT_MAX_DISCHARGE_CURRENT;
