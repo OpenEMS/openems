@@ -6,7 +6,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.home.enums.BmsControl;
-import io.openems.edge.battery.fenecon.home.enums.State;
+import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;

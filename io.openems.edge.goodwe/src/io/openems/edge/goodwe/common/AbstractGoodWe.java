@@ -215,7 +215,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent impl
 						m(GoodWe.ChannelId.B_METER_COMMUNICATE_STATUS, new UnsignedWordElement(36003)), //
 						m(GoodWe.ChannelId.METER_COMMUNICATE_STATUS, new UnsignedWordElement(36004))), //
 
-				new FC3ReadRegistersTask(37001, Priority.LOW,
+				new FC3ReadRegistersTask(37001, Priority.HIGH,
 						m(GoodWe.ChannelId.BATTERY_TYPE_INDEX, new UnsignedWordElement(37001)), //
 						m(GoodWe.ChannelId.BMS_STATUS, new UnsignedWordElement(37002)), //
 						m(GoodWe.ChannelId.BMS_PACK_TEMPERATURE, new UnsignedWordElement(37003),
@@ -226,6 +226,32 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent impl
 						this.getSocModbusElement(37007), //
 						m(GoodWe.ChannelId.BMS_SOH, new UnsignedWordElement(37008)), //
 						m(GoodWe.ChannelId.BMS_BATTERY_STRINGS, new UnsignedWordElement(37009))), //
+
+				new FC16WriteRegistersTask(45350, //
+						m(GoodWe.ChannelId.LEAD_BAT_CAPACITY, new UnsignedWordElement(45350),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(GoodWe.ChannelId.BATT_STRINGS, new UnsignedWordElement(45351)), //
+						m(GoodWe.ChannelId.BATT_CHARGE_VOLT_MAX, new UnsignedWordElement(45352),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+						m(GoodWe.ChannelId.BATT_CHARGE_CURR_MAX, new UnsignedWordElement(45353),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(GoodWe.ChannelId.BATT_VOLT_UNDER_MIN, new UnsignedWordElement(45354),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(GoodWe.ChannelId.BATT_DISCHARGE_CURR_MAX, new UnsignedWordElement(45355),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
+
+				new FC3ReadRegistersTask(45350, Priority.HIGH, //
+						m(GoodWe.ChannelId.LEAD_BAT_CAPACITY, new UnsignedWordElement(45350), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(GoodWe.ChannelId.BATT_STRINGS, new UnsignedWordElement(45351)), //
+						m(GoodWe.ChannelId.BATT_CHARGE_VOLT_MAX, new UnsignedWordElement(45352),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+						m(GoodWe.ChannelId.BATT_CHARGE_CURR_MAX, new UnsignedWordElement(45353),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(GoodWe.ChannelId.BATT_VOLT_UNDER_MIN, new UnsignedWordElement(45354),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(GoodWe.ChannelId.BATT_DISCHARGE_CURR_MAX, new UnsignedWordElement(45355),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
 
 				new FC16WriteRegistersTask(47000, //
 						m(GoodWe.ChannelId.APP_MODE_INDEX, new UnsignedWordElement(47000)), //
@@ -275,7 +301,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent impl
 						m(GoodWe.ChannelId.WBMS_BAT_CURRENT, new UnsignedWordElement(47907)), //
 						m(GoodWe.ChannelId.WBMS_BAT_SOC, new UnsignedWordElement(47908)), //
 						m(GoodWe.ChannelId.WBMS_BAT_SOH, new UnsignedWordElement(47909)), //
-						m(GoodWe.ChannelId.WBMS_BAT_TEMPERATURE, new UnsignedWordElement(47910)), //
+						m(GoodWe.ChannelId.WBMS_BAT_TEMPERATURE, new SignedWordElement(47910)), //
 						m(new BitsWordElement(47911, this) //
 								.bit(0, GoodWe.ChannelId.STATE_58) //
 								.bit(1, GoodWe.ChannelId.STATE_59) //
@@ -313,7 +339,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent impl
 								.bit(1, GoodWe.ChannelId.STATE_80) //
 								.bit(2, GoodWe.ChannelId.STATE_81))), //
 
-				new FC3ReadRegistersTask(47902, Priority.LOW, //
+				new FC3ReadRegistersTask(47901, Priority.HIGH, //
+						m(GoodWe.ChannelId.BATT_STRINGS_RS485, new UnsignedWordElement(47901)), //
 						m(GoodWe.ChannelId.WBMS_BAT_CHARGE_VMAX, new UnsignedWordElement(47902)), //
 						m(GoodWe.ChannelId.WBMS_BAT_CHARGE_IMAX, new UnsignedWordElement(47903)), //
 						m(GoodWe.ChannelId.WBMS_BAT_DISCHARGE_VMIN, new UnsignedWordElement(47904)), //
@@ -322,7 +349,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent impl
 						m(GoodWe.ChannelId.WBMS_BAT_CURRENT, new UnsignedWordElement(47907)), //
 						m(GoodWe.ChannelId.WBMS_BAT_SOC, new UnsignedWordElement(47908)), //
 						m(GoodWe.ChannelId.WBMS_BAT_SOH, new UnsignedWordElement(47909)), //
-						m(GoodWe.ChannelId.WBMS_BAT_TEMPERATURE, new UnsignedWordElement(47910)), //
+						m(GoodWe.ChannelId.WBMS_BAT_TEMPERATURE, new UnsignedWordElement(47910))), //
+				new FC3ReadRegistersTask(47911, Priority.LOW, //
 						m(new BitsWordElement(47911, this) //
 								.bit(0, GoodWe.ChannelId.STATE_58) //
 								.bit(1, GoodWe.ChannelId.STATE_59) //

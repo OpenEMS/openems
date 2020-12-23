@@ -121,6 +121,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 		EnumWriteChannel emsPowerModeChannel = this.channel(GoodWe.ChannelId.EMS_POWER_MODE);
 		emsPowerModeChannel.setNextWriteValue(context.getNextPowerMode());
+		
 	}
 
 	@Override

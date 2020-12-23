@@ -1,5 +1,9 @@
 package io.openems.edge.battery.fenecon.home;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -20,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
@@ -30,9 +35,13 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -65,6 +74,10 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
 
 	private Config config;
+	private Map<String, Channel<?>> channelMap;
+	private static final String KEY_TEMPERATURE = "_TEMPERATURE";
+	private static final String KEY_VOLTAGE = "_VOLTAGE";
+	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
 
 	public FeneconHomeBatteryImpl() {
 		super(//
@@ -82,13 +95,18 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
+		this.config = config;
+		this.channelMap = this.createDynamicChannels();
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
-		this.config = config;
 	}
 
 	@Deactivate
 	protected void deactivate() {
+		// Remove dynamically created channels when component is deactivated
+		for (Channel<?> c : this.channelMap.values()) {
+			this.removeChannel(c);
+		}
 		super.deactivate();
 	}
 
@@ -133,7 +151,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		return new ModbusProtocol(this, //
+		ModbusProtocol protocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(500, Priority.LOW, //
 						m(new BitsWordElement(500, this) //
 								.bit(0, FeneconHomeBattery.ChannelId.RACK_PRE_ALARM_CELL_OVER_VOLTAGE) //
@@ -241,12 +259,13 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 						m(FeneconHomeBattery.ChannelId.MIN_TEMPERATURE, new UnsignedWordElement(514), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(FeneconHomeBattery.ChannelId.ID_OF_MIN_TEMPERATURE, new UnsignedWordElement(515)), //
-						m(FeneconHomeBattery.ChannelId.MAX_TEMPERATURE, new UnsignedWordElement(516)), //
+						m(FeneconHomeBattery.ChannelId.MAX_TEMPERATURE, new UnsignedWordElement(516),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(FeneconHomeBattery.ChannelId.ID_OF_MAX_TEMPERATURE, new UnsignedWordElement(517)), //
 						m(new UnsignedWordElement(518)) //
 								.m(FeneconHomeBattery.ChannelId.MAX_CHARGE_CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-								.m(Battery.ChannelId.CHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [%]
+								.m(Battery.ChannelId.CHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [A]
 								.build(), //
 						m(new UnsignedWordElement(519)) //
 								.m(FeneconHomeBattery.ChannelId.MAX_DISCHARGE_CURRENT,
@@ -384,21 +403,123 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 						m(FeneconHomeBattery.ChannelId.BCU_MIN_CHARGE_CURRENT, new UnsignedWordElement(10016)), //
 						m(FeneconHomeBattery.ChannelId.BMS_SERIAL_NUMBER, new UnsignedWordElement(10017)), //
 						m(FeneconHomeBattery.ChannelId.NO_OF_CYCLES, new UnsignedWordElement(10018)), //
-						m(FeneconHomeBattery.ChannelId.DESIGN_CAPACITY, new UnsignedWordElement(10019), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
-						m(new UnsignedWordElement(10020)) //
-								.m(FeneconHomeBattery.ChannelId.USEABLE_CAPACITY,
-										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [mV]
-								.m(Battery.ChannelId.CAPACITY, ElementToChannelConverter.DIRECT_1_TO_1) // [V]
+						m(new UnsignedWordElement(10019)) //
+								.m(FeneconHomeBattery.ChannelId.DESIGN_CAPACITY,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [Ah]
+								.m(Battery.ChannelId.CAPACITY, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
 								.build(), //
+						m(FeneconHomeBattery.ChannelId.USEABLE_CAPACITY, new UnsignedWordElement(10020), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
 						m(FeneconHomeBattery.ChannelId.REMAINING_CAPACITY, new UnsignedWordElement(10021), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
 						m(FeneconHomeBattery.ChannelId.BCU_MAX_CELL_VOLTAGE_LIMIT, new UnsignedWordElement(10022)), //
 						m(FeneconHomeBattery.ChannelId.BCU_MIN_CELL_VOLTAGE_LIMIT, new UnsignedWordElement(10023)), //
-						m(FeneconHomeBattery.ChannelId.BMU_NUMBER, new UnsignedWordElement(10024))), //
+						m(FeneconHomeBattery.ChannelId.BMU_NUMBER, new UnsignedWordElement(10024),
+								new ElementToChannelConverter( // element -> channel
+										value -> {
+											if (value == null) {
+												return null;
+											}
+											int moduleNumber = (Integer) value;
+											IntegerReadChannel maxChargeVoltageChannel = this
+													.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE);
+											int chargeMaxVoltageValue = moduleNumber
+													* ModuleParameters.MODULE_MAX_VOLTAGE.getValue();
+											maxChargeVoltageChannel.setNextValue(chargeMaxVoltageValue);
+
+											IntegerReadChannel minDischargeVoltageChannel = this
+													.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE);
+											int minDischargeVoltageValue = moduleNumber
+													* ModuleParameters.MODULE_MIN_VOLTAGE.getValue();
+											minDischargeVoltageChannel.setNextValue(minDischargeVoltageValue);
+											return value;
+										}, // channel -> element
+										value -> value)) //
+				), //
 				new FC3ReadRegistersTask(44000, Priority.HIGH, //
 						m(FeneconHomeBattery.ChannelId.BMS_CONTROL, new UnsignedWordElement(44000)) //
 				));//
+
+		int towerNumber = this.config.towerNumber();
+		int offset = ModuleParameters.ADDRESS_OFFSET.getValue();
+		int voltOffset = ModuleParameters.VOLTAGE_ADDRESS_OFFSET.getValue();
+		int voltSensors = ModuleParameters.VOLTAGE_SENSORS_PER_MODULE.getValue();
+		int bmuNumber = 5;
+		for (int t = 1; t <= towerNumber; t++) {
+			String towerString = "TOWER_" + t + "_OFFSET";
+			int towerOffset = ModuleParameters.valueOf(towerString).getValue();
+			for (int i = 1; i < bmuNumber + 1; i++) {
+				Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
+				for (int j = 0; j < voltSensors; j++) {
+					String key = this.getSingleCellPrefix(j, i, t) + KEY_VOLTAGE;
+					UnsignedWordElement uwe = new UnsignedWordElement(towerOffset + i * offset + voltOffset + j);
+					AbstractModbusElement<?> ame = m(this.channelMap.get(key).channelId(), uwe);
+					elements.add(ame);
+				}
+				protocol.addTask(new FC3ReadRegistersTask(towerOffset + offset * i + voltOffset, Priority.LOW,
+						elements.toArray(new AbstractModbusElement<?>[0])));
+			}
+		}
+
+		int tempOffset = ModuleParameters.TEMPERATURE_ADDRESS_OFFSET.getValue();
+		int tempSensors = ModuleParameters.TEMPERATURE_SENSORS_PER_MODULE.getValue();
+		for (int t = 1; t <= towerNumber; t++) {
+			String towerString = "TOWER_" + t + "_OFFSET";
+			int towerOffset = ModuleParameters.valueOf(towerString).getValue();
+			for (int i = 1; i < bmuNumber + 1; i++) {
+				Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
+				for (int j = 0; j < tempSensors; j++) {
+					String key = this.getSingleCellPrefix(j, i, t) + KEY_TEMPERATURE;
+					UnsignedWordElement uwe = new UnsignedWordElement(towerOffset + i * offset + tempOffset + j);
+					AbstractModbusElement<?> ame = m(this.channelMap.get(key).channelId(), uwe);
+					elements.add(ame);
+				}
+				protocol.addTask(new FC3ReadRegistersTask(towerOffset + offset * i + tempOffset, Priority.LOW,
+						elements.toArray(new AbstractModbusElement<?>[0])));
+			}
+		}
+		return protocol;
+	}
+
+	private String getSingleCellPrefix(int num, int module, int tower) {
+		return "TOWER_" + tower + "_MODULE_" + module + "_CELL_" + String.format(NUMBER_FORMAT, num);
+	}
+
+	/*
+	 * creates a map containing channels for voltage and temperature depending on
+	 * the number of modules
+	 */
+	private Map<String, Channel<?>> createDynamicChannels() {
+		Map<String, Channel<?>> map = new HashMap<>();
+		int bmuNumber = 5;
+		int towerNumber = this.config.towerNumber();
+		int voltSensors = ModuleParameters.VOLTAGE_SENSORS_PER_MODULE.getValue();
+		for (int t = 1; t <= towerNumber; t++) {
+			for (int i = 1; i <= bmuNumber; i++) {
+				for (int j = 0; j < voltSensors; j++) {
+					String key = this.getSingleCellPrefix(j, i, t) + KEY_VOLTAGE;
+					IntegerDoc doc = new IntegerDoc();
+					io.openems.edge.common.channel.ChannelId channelId = new ChannelIdImpl(key,
+							doc.unit(Unit.MILLIVOLT));
+					IntegerReadChannel integerReadChannel = (IntegerReadChannel) this.addChannel(channelId);
+					map.put(key, integerReadChannel);
+				}
+			}
+		}
+		int tempSensors = ModuleParameters.TEMPERATURE_SENSORS_PER_MODULE.getValue();
+		for (int t = 1; t <= towerNumber; t++) {
+			for (int i = 1; i <= bmuNumber; i++) {
+				for (int j = 0; j < tempSensors; j++) {
+					String key = this.getSingleCellPrefix(j, i, t) + KEY_TEMPERATURE;
+					IntegerDoc doc = new IntegerDoc();
+					io.openems.edge.common.channel.ChannelId channelId = new ChannelIdImpl(key,
+							doc.unit(Unit.MILLIVOLT));
+					IntegerReadChannel integerReadChannel = (IntegerReadChannel) this.addChannel(channelId);
+					map.put(key, integerReadChannel);
+				}
+			}
+		}
+		return map;
 	}
 
 	@Override

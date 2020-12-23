@@ -1,6 +1,6 @@
 package io.openems.edge.common.type;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -40,6 +40,15 @@ public class TypeUtilsTest {
 
 		// mixed values
 		assertEquals(Integer.valueOf(3), TypeUtils.averageRounded(2, null, 3));
+	}
+
+	@Test
+	public void testMin() {
+		assertEquals(25, (int) TypeUtils.min(null, 25, null, 40, null));
+		assertEquals(null, TypeUtils.min(null, null, null));
+		assertEquals(null, TypeUtils.min());
+		assertEquals(17, (int)TypeUtils.min(null, 17, 25, 40));
+		assertEquals(34, (int)TypeUtils.min(null, 34, 40));
 	}
 
 }

@@ -211,7 +211,7 @@ public interface GoodWe extends OpenemsComponent {
 		E_DISCHARGE_DAY(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_ONLY)), //
 		BATT_STRINGS(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 		CPLD_WARNING_CODE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 		W_CHARGER_CTRL_FLAG(Doc.of(OpenemsType.INTEGER) //

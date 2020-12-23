@@ -22,7 +22,6 @@ import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -68,6 +67,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	private final ApplyPowerStateMachine applyPowerStateMachine = new ApplyPowerStateMachine(
 			ApplyPowerStateMachine.State.UNDEFINED);
 
+	private final int DISCHARGE_MIN_VOLTAGE = 200;
+	private final int LEAD_BATT_CAPACITY = 200;
+	private final int CHARGE_MAX_CURRENT = 25;
+	private final int BATTERY_MODULE_NUMBER = 5;
+
 	/**
 	 * Holds the latest known SoC. Updated in {@link #run(Battery, int, int)}.
 	 */
@@ -109,9 +113,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		/*
 		 * Update ActivePower from P_BATTERY1 and chargers ACTUAL_POWER
 		 */
-		Integer productionPower = this.calculatePvProduction();
-		final Channel<Integer> batteryPower = this.channel(GoodWe.ChannelId.P_BATTERY1);
-		Integer activePower = TypeUtils.sum(productionPower, batteryPower.value().get());
+		Integer activePower = this.calculateActivePower();
 		this._setActivePower(activePower);
 
 		/*
@@ -130,6 +132,72 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			this.calculateAcChargeEnergy.update(activePower * -1);
 			this.calculateAcDischargeEnergy.update(0);
 		}
+	}
+
+	/**
+	 * Sets the Battery Limits.
+	 * 
+	 * @param battery the linked {@link Battery}
+	 * @throws OpenemsNamedException on error
+	 */
+	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
+
+		// Batt Discharge Min Volt
+		IntegerWriteChannel bmsVoltUnderMin = this.channel(GoodWe.ChannelId.BATT_VOLT_UNDER_MIN);
+		bmsVoltUnderMin.setNextWriteValue(TypeUtils.min(DISCHARGE_MIN_VOLTAGE, battery.getDischargeMinVoltage().get()));
+//
+		// Battery String
+		IntegerWriteChannel bmsBatteryString = this.channel(GoodWe.ChannelId.BATT_STRINGS);
+		bmsBatteryString.setNextWriteValue(BATTERY_MODULE_NUMBER);
+
+		// Lead Battery Capacity
+		IntegerWriteChannel bmsLeadBatCapacity = this.channel(GoodWe.ChannelId.LEAD_BAT_CAPACITY);
+		bmsLeadBatCapacity.setNextWriteValue(TypeUtils.max(LEAD_BATT_CAPACITY, battery.getCapacity().get()));
+
+//		// Batt Charge Volt Max
+//		IntegerWriteChannel battChargeVoltMax = this.channel(GoodWe.ChannelId.BATT_CHARGE_VOLT_MAX);
+//		battChargeVoltMax.setNextWriteValue(battery.getChargeMaxVoltage().get());
+//		
+//		// Batt Charge Curr Max
+//		IntegerWriteChannel battChargeCurrMax = this.channel(GoodWe.ChannelId.BATT_CHARGE_CURR_MAX);
+//		battChargeCurrMax.setNextWriteValue(TypeUtils.limitValue(25, battery.getChargeMaxCurrent().get()));
+//
+//		IntegerWriteChannel bmsDischargeCurrMax = this.channel(GoodWe.ChannelId.BATT_DISCHARGE_CURR_MAX);
+//		bmsDischargeCurrMax.setNextWriteValue(battery.getDischargeMaxCurrent().get());
+//
+//		IntegerWriteChannel bmsSocUnderMin = this.channel(GoodWe.ChannelId.BATT_SOC_UNDER_MIN);
+//		bmsSocUnderMin.setNextWriteValue(20);
+//
+//		IntegerWriteChannel bmsOffMinDischarge = this.channel(GoodWe.ChannelId.BATT_OFF_LINE_VOLT_UNDER_MIN);
+//		bmsOffMinDischarge.setNextWriteValue(battery.getDischargeMinVoltage().get());
+//
+//		IntegerWriteChannel battOffSocUnderMin = this.channel(GoodWe.ChannelId.BATT_OFFLINE_SOC_UNDER_MIN);
+//		battOffSocUnderMin.setNextWriteValue(20);
+//
+//		IntegerWriteChannel batDischargeVoltMin = this.channel(GoodWe.ChannelId.WBMS_BAT_DISCHARGE_VMIN);
+//		batDischargeVoltMin.setNextWriteValue(battery.getDischargeMinVoltage().get());
+//
+		IntegerWriteChannel wbatChargeCurrentMax = this.channel(GoodWe.ChannelId.WBMS_BAT_CHARGE_IMAX);
+		wbatChargeCurrentMax.setNextWriteValue(TypeUtils.min(CHARGE_MAX_CURRENT, battery.getChargeMaxCurrent().get()));
+
+//		IntegerWriteChannel batDischargeCurrentMax = this.channel(GoodWe.ChannelId.WBMS_BAT_DISCHARGE_IMAX);
+//		batDischargeCurrentMax.setNextWriteValue(battery.getDischargeMaxCurrent().get());
+//
+		// Batt Charge Voltage
+		IntegerWriteChannel batChargeVoltMax = this.channel(GoodWe.ChannelId.WBMS_BAT_CHARGE_VMAX);
+		batChargeVoltMax.setNextWriteValue(battery.getChargeMaxVoltage().get());
+//
+		// Batt Soc
+		IntegerWriteChannel batSoc = this.channel(GoodWe.ChannelId.WBMS_BAT_SOC);
+		batSoc.setNextWriteValue(battery.getSoc().get());
+
+		// Batt Voltage
+		IntegerWriteChannel batVoltage = this.channel(GoodWe.ChannelId.WBMS_BAT_VOLTAGE);
+		batVoltage.setNextWriteValue(battery.getVoltage().get());
+
+		// Batt Current
+		IntegerWriteChannel batCurrent = this.channel(GoodWe.ChannelId.WBMS_BAT_CURRENT);
+		batCurrent.setNextWriteValue(battery.getCurrent().get());
 	}
 
 	@Override
@@ -161,6 +229,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Override
 	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
+
+		// Set Battery Limits
+		this.setBatteryLimits(battery);
+
 		// Calculate ActivePower and Energy values.
 		this.updatechannels();
 		this.lastSoc = battery.getSoc();
