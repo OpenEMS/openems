@@ -15,7 +15,7 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		GO_STOPPED(20), //
 		STOPPED(21), //
 
-		ERROR(30) //
+		ERROR(30), //
 		;
 
 		private final int value;
