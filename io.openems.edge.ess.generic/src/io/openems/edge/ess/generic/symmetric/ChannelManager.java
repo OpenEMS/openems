@@ -62,14 +62,6 @@ public class ChannelManager extends AbstractChannelListenerManager {
 				allowedDischargePower = 0;
 			}
 
-			// Make sure solution is feasible
-			if (allowedChargePower > allowedDischargePower) { // Force Discharge
-				allowedDischargePower = allowedChargePower;
-			}
-			if (allowedDischargePower < allowedChargePower) { // Force Charge
-				allowedChargePower = allowedDischargePower;
-			}
-
 			// Allow max increase of 1 %
 			if (allowedDischargePower > lastAllowedDischargePower + allowedDischargePower * 0.01F) {
 				allowedDischargePower = lastAllowedDischargePower + allowedDischargePower * 0.01F;
@@ -80,6 +72,14 @@ public class ChannelManager extends AbstractChannelListenerManager {
 				allowedChargePower = lastAllowedChargePower + allowedChargePower * 0.01F;
 			}
 			ChannelManager.this.lastAllowedChargePower = allowedChargePower;
+
+			// Make sure solution is feasible
+			if (allowedChargePower > allowedDischargePower) { // Force Discharge
+				allowedDischargePower = allowedChargePower;
+			}
+			if (allowedDischargePower < allowedChargePower) { // Force Charge
+				allowedChargePower = allowedDischargePower;
+			}
 
 			this.parent._setAllowedChargePower(Math.round(allowedChargePower));
 			this.parent._setAllowedDischargePower(Math.round(allowedDischargePower));
