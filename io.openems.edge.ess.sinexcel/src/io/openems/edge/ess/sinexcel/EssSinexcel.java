@@ -193,8 +193,8 @@ public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHan
 				.text("Grid shutdown")), //
 		STATE_5(Doc.of(Level.WARNING) //
 				.text("Cabinet open")), //
-		STATE_6(Doc.of(Level.WARNING) //
-				.text("Manual shutdown")), //
+		STATE_6(Doc.of(Level.INFO) //
+				.text("Automatic Standby-Mode")), //
 		STATE_7(Doc.of(Level.WARNING) //
 				.text("Over temperature")), //
 		STATE_8(Doc.of(Level.WARNING) //
