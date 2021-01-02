@@ -1,5 +1,6 @@
 package io.openems.edge.common.test;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
@@ -9,7 +10,7 @@ import io.openems.edge.common.component.OpenemsComponent;
  */
 public class ComponentTest extends AbstractComponentTest<ComponentTest, OpenemsComponent> {
 
-	public ComponentTest(OpenemsComponent sut) {
+	public ComponentTest(OpenemsComponent sut) throws OpenemsException {
 		super(sut);
 	}
 

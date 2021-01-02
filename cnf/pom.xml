@@ -138,7 +138,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty</artifactId>
-			<version>4.1.2</version>
+			<version>4.1.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
@@ -239,7 +239,7 @@
 			<!-- Used by io.openems.edge.timedata.rrd4j -->
 			<groupId>org.rrd4j</groupId>
 			<artifactId>rrd4j</artifactId>
-			<version>3.7</version>
+			<version>3.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

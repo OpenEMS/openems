@@ -88,6 +88,7 @@ public class Abl extends AbstractOcppEvcsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this._setChargingType(ChargingType.AC);
+		this._setPowerPrecision(230);
 	}
 
 	@Override

@@ -85,6 +85,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	public BmwBatteryImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				BMWChannelId.values() //
 		);
