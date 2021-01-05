@@ -8,14 +8,11 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
-import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.SymmetricMeter;
 
@@ -146,59 +143,31 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 
 		// Search for Socomec identifier register. Needs to be "SOCO".
 		try {
-			this.readELementOnce(new UnsignedQuadruplewordElement(0xC350)).thenAccept(value -> {
-				if (value != 0x0053004F0043004FL /* SOCO */) {
-					this.channel(SocomecMeter.ChannelId.NO_SOCOMEC_METER).setNextValue(true);
-					return;
-				}
-				// Found Socomec meter
-				try {
-					this.readELementOnce(new StringWordElement(0xC38A, 8)).thenAccept(name -> {
-						result.complete(name.toLowerCase());
-					});
+			ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedQuadruplewordElement(0xC350), true)
+					.thenAccept(value -> {
+						if (value != 0x0053004F0043004FL /* SOCO */) {
+							this.channel(SocomecMeter.ChannelId.NO_SOCOMEC_METER).setNextValue(true);
+							return;
+						}
+						// Found Socomec meter
+						try {
+							ModbusUtils.readELementOnce(this.modbusProtocol, new StringWordElement(0xC38A, 8), true)
+									.thenAccept(name -> {
+										result.complete(name.toLowerCase());
+									});
 
-				} catch (OpenemsException e) {
-					this.logWarn(this.log, "Error while trying to identify Socomec meter: " + e.getMessage());
-					e.printStackTrace();
-					result.complete("");
-				}
-			});
+						} catch (OpenemsException e) {
+							this.logWarn(this.log, "Error while trying to identify Socomec meter: " + e.getMessage());
+							e.printStackTrace();
+							result.complete("");
+						}
+					});
 
 		} catch (OpenemsException e) {
 			this.logWarn(this.log, "Error while trying to identify Socomec meter: " + e.getMessage());
 			e.printStackTrace();
 			result.complete("");
 		}
-
-		return result;
-	}
-
-	/**
-	 * Reads given Element once from Modbus.
-	 * 
-	 * @param <T>     the Type of the element
-	 * @param element the element
-	 * @return a future value, e.g. a integer
-	 * @throws OpenemsException on error
-	 */
-	private <T> CompletableFuture<T> readELementOnce(AbstractModbusElement<T> element) throws OpenemsException {
-		// Prepare result
-		final CompletableFuture<T> result = new CompletableFuture<T>();
-
-		// Activate task
-		final Task task = new FC3ReadRegistersTask(element.getStartAddress(), Priority.HIGH, element);
-		this.modbusProtocol.addTask(task);
-
-		// Register listener for element
-		element.onUpdateCallback(value -> {
-			if (value == null) {
-				// try again
-				return;
-			}
-			// do not try again
-			this.modbusProtocol.removeTask(task);
-			result.complete(value);
-		});
 
 		return result;
 	}

@@ -1,6 +1,6 @@
 package io.openems.edge.battery.bydcommercial.statemachine;
 
-import io.openems.edge.battery.bydcommercial.PowerCircuitControl;
+import io.openems.edge.battery.bydcommercial.enums.PowerCircuitControl;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;

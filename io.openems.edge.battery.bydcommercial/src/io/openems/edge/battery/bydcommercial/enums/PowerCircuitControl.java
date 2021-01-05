@@ -1,4 +1,4 @@
-package io.openems.edge.battery.bydcommercial;
+package io.openems.edge.battery.bydcommercial.enums;
 
 import io.openems.common.types.OptionsEnum;
 
