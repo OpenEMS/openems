@@ -1,19 +1,17 @@
-package io.openems.edge.battery.bydcommercial;
+package io.openems.edge.battery.bydcommercial.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum ClusterRunState implements OptionsEnum {
+public enum BatteryWorkState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	NORMAL(0, "Normal"), //
-	FULL(0x1, "Full"), //
-	EMPTY(0x2, "Empty"), //
-	STANDBY(0x3, "Standby"), //
-	STOP(0x4, "Stop");
+	STANDBY(0, "Standby"), //
+	DISCHARGE(1, "Discharge"), //
+	CHARGE(2, "Charge");
 
-	private int value;
-	private String name;
+	int value;
+	String name;
 
-	private ClusterRunState(int value, String name) {
+	private BatteryWorkState(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
