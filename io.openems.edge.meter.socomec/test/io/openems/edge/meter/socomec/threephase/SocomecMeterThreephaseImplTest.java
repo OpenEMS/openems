@@ -27,6 +27,7 @@ public class SocomecMeterThreephaseImplTest {
 
 		meter.identifiedCountisE14();
 		meter.identifiedCountisE23_E24_E27_E28();
+		meter.identifiedCountisE44();
 		meter.identifiedDirisA10();
 		meter.identifiedDirisA14();
 		meter.identifiedDirisB30();

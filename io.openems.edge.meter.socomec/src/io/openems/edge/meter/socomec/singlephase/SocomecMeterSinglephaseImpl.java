@@ -91,11 +91,7 @@ public class SocomecMeterSinglephaseImpl extends AbstractSocomecMeter implements
 		return this.config.type();
 	}
 
-	/**
-	 * Applies the modbus protocol for Socomec Countis E14.
-	 * 
-	 * @throws OpenemsException on error
-	 */
+	@Override
 	protected void identifiedCountisE14() throws OpenemsException {
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
@@ -200,6 +196,11 @@ public class SocomecMeterSinglephaseImpl extends AbstractSocomecMeter implements
 
 	@Override
 	protected void identifiedCountisE23_E24_E27_E28() throws OpenemsException {
+		this.thisIsNotASinglePhaseMeter();
+	}
+
+	@Override
+	protected void identifiedCountisE44() throws OpenemsException {
 		this.thisIsNotASinglePhaseMeter();
 	}
 
