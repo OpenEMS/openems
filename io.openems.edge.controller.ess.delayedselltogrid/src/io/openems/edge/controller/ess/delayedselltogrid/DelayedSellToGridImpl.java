@@ -98,37 +98,34 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 
 		int essPower = ess.getActivePower().orElse(0);/* current charge/discharge Ess */
 		// Calculate 'real' grid-power (without current ESS charge/discharge)
-		int gridPower = meter.getActivePower().orElse(0)
-				+ essPower;
+		int gridPower = meter.getActivePower().orElse(0) + essPower;
 
 		int calculatedPower;
-		if (-gridPower >= this.config.sellToGridPowerLimit()) {
+		if (gridPower <= -this.config.sellToGridPowerLimit()) {
 			/*
 			 * Exceeds the Sell To Grid Power Limit
 			 */
-			calculatedPower = gridPower += this.config.sellToGridPowerLimit();
+			calculatedPower = gridPower - (-this.config.sellToGridPowerLimit());
 
-		} else if (-gridPower <= this.config.continuousSellToGridPower() && essPower < this.config.sellToGridPowerLimit() ) {
+		} else if (gridPower >= -this.config.continuousSellToGridPower()
+				&& essPower < this.config.sellToGridPowerLimit()) { //See Test Case Sell to Grid Limit Border
+
 			/*
 			 * Continuous Sell To Grid
 			 */
-			calculatedPower = gridPower += this.config.continuousSellToGridPower();
+			calculatedPower = gridPower - (-this.config.continuousSellToGridPower());
 
-		} else if (gridPower == 0) {
-			calculatedPower = ess.getActivePower().orElse(0);
 		} else {
-
 			/*
 			 * Do nothing
 			 */
-			// TODO DO Nothing Or Set zero ?
 			calculatedPower = 0;
 		}
 
 		/*
 		 * set result
 		 */
-		ess.setActivePowerEquals(calculatedPower);
+		ess.setActivePowerEqualsWithPid(calculatedPower);
 		ess.setReactivePowerEquals(0);
 	}
 }

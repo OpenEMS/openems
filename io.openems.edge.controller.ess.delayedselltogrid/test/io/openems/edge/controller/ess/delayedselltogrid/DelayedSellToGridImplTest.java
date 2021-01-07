@@ -8,6 +8,7 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
+import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.meter.test.DummySymmetricMeter;
 
 public class DelayedSellToGridImplTest {
@@ -26,7 +27,7 @@ public class DelayedSellToGridImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("meter", new DummySymmetricMeter(METER_ID)) //
-				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID, new DummyPower())) //
 				.activate(MyConfig.create()//
 						.setId(CTRL_ID)//
 						.setEssId(ESS_ID)//
@@ -57,10 +58,10 @@ public class DelayedSellToGridImplTest {
 						.input(ESS_ACTIVE_POWER, 150_000) //
 						.input(METER_ACTIVE_POWER, -500_000)//
 						.output(ESS_SET_ACTIVE_POWER_EQUALS, 150_000)) //
-				.next(new TestCase() //
+				.next(new TestCase("Sell to grid limit border") //
 						.input(ESS_ACTIVE_POWER, 12_500_000) //
 						.input(METER_ACTIVE_POWER, -12_500_000)//
-						.output(ESS_SET_ACTIVE_POWER_EQUALS, 12_500_000)) //
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, 0)) //
 				.next(new TestCase() //
 						.input(ESS_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -1_500_000)//
