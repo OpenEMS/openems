@@ -134,15 +134,15 @@ export class HeaderComponent {
         // Enable Segment Navigation for Edge-Index-Page
         if ((file == 'history' || file == 'live') && urlArray.length == 3) {
             if (file == 'history') {
-                this.currentPage = 'IndexHistory';
+                this.service.currentPage = 'IndexHistory';
             } else {
-                this.currentPage = 'IndexLive';
+                this.service.currentPage = 'IndexLive';
             }
         } else if (file == 'settings' && urlArray.length > 1) {
-            this.currentPage = 'EdgeSettings';
+            this.service.currentPage = 'EdgeSettings';
         }
         else {
-            this.currentPage = 'Other';
+            this.service.currentPage = 'Other';
         }
     }
 

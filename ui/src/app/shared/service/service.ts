@@ -34,7 +34,14 @@ export class Service implements ErrorHandler {
   public isSmartphoneResolutionSubject: Subject<boolean> = new Subject<boolean>();
 
   /**
-   * Holds the currenty selected Page Title.
+   * Holds the currently selected main page
+   * is set by header.component.ts
+   * e.g. History, Live etc.
+   */
+  public currentPage: string;
+
+  /**
+   * Holds the currenty selected page title.
    */
   public currentPageTitle: string;
 
