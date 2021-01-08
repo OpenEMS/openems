@@ -83,7 +83,6 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                     new ChannelAddress(component.id, 'ActiveConsumptionEnergy'),
                 )
             }
-
             resolve(channels);
         });
     }
@@ -97,14 +96,6 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
             otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'];
         })
         return this.data["_sum/ConsumptionActiveEnergy"] - otherEnergy;
-    }
-
-    public hasOtherPowerOnly(): boolean {
-        if (this.data["_sum/ConsumptionActiveEnergy"] == this.totalOtherEnergy) {
-            return true;
-        } else {
-            return false;
-        }
     }
 }
 

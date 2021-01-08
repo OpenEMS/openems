@@ -6,6 +6,8 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.bydcommercial.enums.BatteryWorkState;
+import io.openems.edge.battery.bydcommercial.enums.PowerCircuitControl;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
@@ -124,7 +126,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 		BATTERY_WORK_STATE(Doc.of(BatteryWorkState.values())), //
 
 		// IntegerReadChannels
-		POWER_CIRCUIT_CONTROL(Doc.of(PowerCircuitControl.values()) // 
+		POWER_CIRCUIT_CONTROL(Doc.of(PowerCircuitControl.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		CLUSTER_1_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
@@ -841,7 +843,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 		ALARM_BCU_NTC(Doc.of(Level.WARNING) //
 				.text("BCU NTC Alarm")), //
 		ALARM_SLAVE_CONTROL_SUMMARY(Doc.of(Level.WARNING) //
-				.text(" Slave Control Summary Alarm")), //
+				.text("Slave Control Summary Alarm")), //
 		FAILURE_INITIALIZATION(Doc.of(Level.FAULT) //
 				.text("Initialization failure")), //
 		FAILURE_EEPROM(Doc.of(Level.FAULT) //

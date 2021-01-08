@@ -1,5 +1,8 @@
 package io.openems.edge.common.channel;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.google.common.base.CaseFormat;
 
 /**
@@ -33,6 +36,26 @@ public interface ChannelId {
 		} else {
 			return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name);
 		}
+	}
+
+	/**
+	 * Lists all Channel-IDs of the given Channel-ID Enum in a form that is suitable
+	 * for a InfluxDB-Query in a Grafana Dashboard.
+	 * 
+	 * <p>
+	 * To create a query, call this function like `ChannelId.printChannelIdsForInfluxQuery(FeneconMiniEss.ServiceInfoChannelId.values());`
+	 * 
+	 * @param channelIds the {@link ChannelId}s, e.g. from ChannelId.values().
+	 */
+	public static <T extends Enum<T>> void printChannelIdsForInfluxQuery(ChannelId[] channelIds) {
+		System.out.println(Stream.of(channelIds) //
+				.map(c -> {
+					String name = c.doc().getText();
+					if (name.isEmpty()) {
+						name = c.id();
+					}
+					return "mean(\"$ess/" + c.id() + "\") as \"" + name + "\"";
+				}).collect(Collectors.joining(", ")));
 	}
 
 	/**

@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.bydcommercial.PowerCircuitControl;
+import io.openems.edge.battery.bydcommercial.enums.PowerCircuitControl;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.battery.bydcommercial.utils.Constants;
 import io.openems.edge.common.statemachine.StateHandler;

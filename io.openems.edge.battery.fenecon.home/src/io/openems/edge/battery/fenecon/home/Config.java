@@ -22,7 +22,7 @@ import io.openems.edge.common.startstop.StartStopConfig;
 	@AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stop?")
 	StartStopConfig startStop() default StartStopConfig.AUTO;
 
-	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
+	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")

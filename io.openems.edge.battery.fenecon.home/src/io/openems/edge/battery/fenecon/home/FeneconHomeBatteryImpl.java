@@ -398,7 +398,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(FeneconHomeBattery.ChannelId.BCU_MIN_CELL_VOLTAGE, new UnsignedWordElement(10012)), // [mV]
 						m(FeneconHomeBattery.ChannelId.BCU_MAX_CELL_VOLTAGE, new UnsignedWordElement(10013)), // [mV]
-						m(FeneconHomeBattery.ChannelId.BCU_AVARAGE_CELL_VOLTAGE, new UnsignedWordElement(10014)), //
+						m(FeneconHomeBattery.ChannelId.BCU_AVERAGE_CELL_VOLTAGE, new UnsignedWordElement(10014)), //
 						m(FeneconHomeBattery.ChannelId.BCU_MAX_CHARGE_CURRENT, new UnsignedWordElement(10015)), //
 						m(FeneconHomeBattery.ChannelId.BCU_MIN_CHARGE_CURRENT, new UnsignedWordElement(10016)), //
 						m(FeneconHomeBattery.ChannelId.BMS_SERIAL_NUMBER, new UnsignedWordElement(10017)), //

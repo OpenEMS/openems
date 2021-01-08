@@ -1947,7 +1947,7 @@ public class OWFileDescriptor {
 	 * Get the first free page from the page bitmap.
 	 *
 	 * @param counterPage <code> true </code> if page needed is a 'counter' page
-	 *                    (used in for monitary files)
+	 *                    (used in for monetary files)
 	 *
 	 * @return first page number that is free to write
 	 *
@@ -1973,7 +1973,7 @@ public class OWFileDescriptor {
 	 * Get the next free page from the page bitmap.
 	 *
 	 * @param counterPage <code> true </code> if page needed is a 'counter' page
-	 *                    (used in for monitary files)
+	 *                    (used in for monetary files)
 	 *
 	 * @return next page number that is free to write
 	 *
