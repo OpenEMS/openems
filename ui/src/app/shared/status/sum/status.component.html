@@ -1,8 +1,7 @@
 <ng-container *ngIf="service.currentEdge | async as edge">
     <ng-container *ngIf="edge.currentData | async as currentData">
         <ng-container *ngIf="currentData.summary.system as sum">
-            <ng-container *ngIf="stateAllowance == 'admin'">
-                admin
+            <ng-container *ngIf="roleState == 'admin'">
                 <ion-button (click)="presentSingleStatusModal()"
                     *ngIf="service.currentPage == 'IndexLive' || service.currentPage == 'IndexHistory' || service.currentPage == 'EdgeSettings'"
                     color="light" fill="solid" shape="round">
@@ -15,8 +14,7 @@
                 </ion-button>
             </ng-container>
 
-            <ng-container *ngIf="stateAllowance == 'user'">
-                user
+            <ng-container *ngIf="roleState == 'user'">
                 <ng-container *ngIf="sum.state == 2 || sum.state == 3">
                     <ion-button (click)="presentSingleStatusModal()"
                         *ngIf="service.currentPage == 'IndexLive' || service.currentPage == 'IndexHistory' || service.currentPage == 'EdgeSettings'"

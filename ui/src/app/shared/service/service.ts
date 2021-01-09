@@ -423,6 +423,21 @@ export class Service implements ErrorHandler {
   }
 
   /**
+   * Checks if this Edge is allowed to show warnings and faults
+   */
+  public isStatusAllowed(edge: Edge) {
+    //////////////////////////////////////
+    //FENECON ONLY CODE CARE WHEN REVIEW//
+    //////////////////////////////////////
+    if (edge.producttype == 'Pro 9-12' ||
+      edge.producttype.includes('MiniES')) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
    * Currently selected history period
    */
   public historyPeriod: DefaultTypes.HistoryPeriod;

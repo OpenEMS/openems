@@ -4,7 +4,7 @@ import { ModalController } from '@ionic/angular';
 import { StatusSingleComponent } from '../single/status.component';
 import { Edge } from '../../edge/edge';
 
-type stateAllowance = 'admin' | 'user' | 'none';
+type RoleState = 'admin' | 'user' | 'none';
 
 @Component({
     selector: StatusSumComponent.SELECTOR,
@@ -16,7 +16,7 @@ export class StatusSumComponent {
 
     private static readonly SELECTOR = "status-sum";
 
-    public stateAllowance: stateAllowance = 'none';
+    public roleState: RoleState = 'none';
 
     constructor(
         public modalCtrl: ModalController,
@@ -24,29 +24,29 @@ export class StatusSumComponent {
     ) { }
 
     ngOnInit() {
-        console.log(this.edge.roleIsAtLeast('admin'))
-        if (this.edge.roleIsAtLeast('admin')) {
-            this.stateAllowance = 'admin';
-        } else if (this.edge.roleIsAtLeast('user') && this.isProducttypeAllowed(this.edge)) {
-            this.stateAllowance = 'user';
-        } else {
-            this.stateAllowance = 'none';
+        ///////////////////////////////////////////
+        //this.service.isStatusAllowed(this.edge)//
+        ///////////IS FENECON ONLY CODE////////////
+        //////////// CARE WHEN REVIEW//////////////
+        ///////////////////////////////////////////
+        if (this.edge != null) {
+            if (this.edge.roleIsAtLeast('admin')) {
+                this.roleState = 'admin';
+            } else if (this.edge.roleIsAtLeast('user') && this.service.isStatusAllowed(this.edge)) {
+                this.roleState = 'user';
+            } else {
+                this.roleState = 'none';
+            }
         }
-        console.log("state", this.stateAllowance)
     }
 
-    private isProducttypeAllowed(edge: Edge) {
-        if (edge.producttype == 'Pro 9-12' || edge.producttype.includes('MiniES')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     async presentSingleStatusModal() {
-        console.log("edge", this.edge)
         const modal = await this.modalCtrl.create({
             component: StatusSingleComponent,
+            componentProps: {
+                roleState: this.roleState
+            }
         });
         return await modal.present();
     }
