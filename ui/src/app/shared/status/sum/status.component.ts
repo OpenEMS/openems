@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
-import { Service } from '../../../shared/shared';
-import { ModalController } from '@ionic/angular';
-import { StatusSingleComponent } from '../single/status.component';
 import { Edge } from '../../edge/edge';
+import { ModalController } from '@ionic/angular';
+import { Service } from '../../../shared/shared';
+import { StatusSingleComponent } from '../single/status.component';
 
 type RoleState = 'admin' | 'user' | 'none';
 
