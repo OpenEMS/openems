@@ -157,11 +157,12 @@ export const TRANSLATION = {
                     mostStressedPhase: 'Meist belastete Phase',
                     peakshaving: 'Lastspitzenkappung',
                     peakshavingPower: 'Entladung über',
-                    recharge: 'Aufladeleistung',
+                    recharge: 'Beladeleistung',
                     rechargePower: 'Beladung unter',
                     relationError: 'Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein',
                     startDate: 'Start Datum',
                     startTime: 'Startzeit',
+                    startTimeCharge: 'Start-Zeit Beladung',
                 },
                 CHP: {
                     highThreshold: 'Oberer Schwellenwert',
