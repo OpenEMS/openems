@@ -154,6 +154,7 @@ export const TRANSLATION = {
                     relationError: 'Mez vypouštění musí být větší nebo rovna limitu zatížení',
                     startDate: 'Datum Začátku',
                     startTime: 'Doba spuštění',
+                    startTimeCharge: 'Čas zahájení načítání',
                 },
                 CHP: {
                     highThreshold: 'vysoký práh',

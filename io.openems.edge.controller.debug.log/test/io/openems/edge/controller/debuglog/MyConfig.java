@@ -10,6 +10,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String rule = null;
 		public String[] additionalChannels;
 		public String[] ignoreComponents;
+		public boolean condensedOutput;
 
 		private Builder() {
 
@@ -24,12 +25,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.additionalChannels = additionalChannels;
 			return this;
 		}
-		
+
 		public Builder setIgnoreComponents(String[] ignoreComponents) {
 			this.ignoreComponents = ignoreComponents;
 			return this;
 		}
-		
+
+		public Builder setCondensedOutput(boolean condensedOutput) {
+			this.condensedOutput = condensedOutput;
+			return this;
+		}
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -54,6 +60,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String[] ignoreComponents() {
 		return this.builder.ignoreComponents;
+	}
+
+	@Override
+	public boolean condensedOutput() {
+		return this.builder.condensedOutput;
 	}
 
 }

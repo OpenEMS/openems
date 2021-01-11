@@ -150,6 +150,7 @@ export const TRANSLATION = {
                     relationError: 'Límite de descarga debe ser mayor o igual que el límite de carga',
                     startDate: 'Fecha de inicio',
                     startTime: 'Hora de inicio',
+                    startTimeCharge: 'Hora de inicio de carga',
                 },
                 CHP: {
                     highThreshold: 'Umbral alto',
