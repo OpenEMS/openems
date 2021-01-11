@@ -28,8 +28,11 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.soltaro.CellCharacteristic;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.ModuleParameters;
+import io.openems.edge.battery.soltaro.SoltaroCellCharacteristic;
+import io.openems.edge.battery.soltaro.Util;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.Context;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.ControlAndLogic;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine;
@@ -63,7 +66,9 @@ import io.openems.edge.common.taskmanager.Priority;
 		name = "Bms.Soltaro.SingleRack.VersionB", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
 public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		implements Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable, SingleRackVersionB {
@@ -86,6 +91,8 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 
 	private Config config;
 	private Map<String, Channel<?>> channelMap;
+
+	private final CellCharacteristic cellCharacteristic = new SoltaroCellCharacteristic();
 
 	public SingleRackVersionBImpl() {
 		super(//
@@ -127,7 +134,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		Context context = new Context(this, this.config);
+		Context context = new Context(this, this.config, this.cellCharacteristic);
 
 		// Call the StateMachine
 		try {
@@ -157,10 +164,46 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		}
 		switch (event.getTopic()) {
 
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+
+			this.setAllowedCurrents();
+
+			break;
+
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.handleStateMachine();
 			break;
 		}
+	}
+
+	private final static int MAX_INCREASE_MILLIAMPERE = 300;
+
+	private int lastMaxChargeCurrentFromBMS = 0;
+	private int lastMaxDischargeCurrentFromBMS = 0;
+
+	private void setAllowedCurrents() {
+		IntegerReadChannel maxChargeCurrentChannel = this
+				.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT);
+		int maxChargeCurrentFromBMS = maxChargeCurrentChannel.value().orElse(0);
+
+		// Allow max increase of 1 A
+		if (maxChargeCurrentFromBMS > lastMaxChargeCurrentFromBMS + MAX_INCREASE_MILLIAMPERE) {
+			maxChargeCurrentFromBMS = lastMaxChargeCurrentFromBMS + MAX_INCREASE_MILLIAMPERE;
+		}
+		this.lastMaxChargeCurrentFromBMS = maxChargeCurrentFromBMS;
+
+		IntegerReadChannel maxDischargeChannel = this
+				.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT);
+		int maxDischargeCurrentFromBMS = maxDischargeChannel.value().orElse(0);
+
+		// Allow max increase of 1 A
+		if (maxDischargeCurrentFromBMS > lastMaxDischargeCurrentFromBMS + MAX_INCREASE_MILLIAMPERE) {
+			maxDischargeCurrentFromBMS = lastMaxDischargeCurrentFromBMS + MAX_INCREASE_MILLIAMPERE;
+		}
+		this.lastMaxDischargeCurrentFromBMS = maxDischargeCurrentFromBMS;
+
+		Util.setMaxAllowedCurrents(this.cellCharacteristic, maxChargeCurrentFromBMS / 1000,
+				maxDischargeCurrentFromBMS / 1000, this);
 	}
 
 	@Override
@@ -204,7 +247,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		return "SoC:" + this.getSoc() //
 				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
 				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
-				+ "|State:" + this.stateMachine.getCurrentState();
+				+ "|State:" + this.stateMachine.getCurrentState().asCamelCase();
 	}
 
 	/*
@@ -497,13 +540,10 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(new UnsignedWordElement(0x2160)) //
 								.m(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_2) //
-								.m(Battery.ChannelId.CHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build(), //
 						m(new UnsignedWordElement(0x2161)) //
 								.m(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_2) //
-								.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT,
-										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build() //
 				), //
 
@@ -611,152 +651,152 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(0x21B4)), //
 						m(SingleRackVersionB.ChannelId.SLAVE_TEMPERATURE_COMMUNICATION_ERROR_LOW,
 								new UnsignedWordElement(0x21B5)) //
-				) //
-		); //
+				), //
+					// Add tasks to read/write work and warn parameters
+					// Stop parameter
+				new FC16WriteRegistersTask(0x2040, //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_VOLTAGE_PROTECTION,
+								new UnsignedWordElement(0x2040)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_VOLTAGE_RECOVER,
+								new UnsignedWordElement(0x2041)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_OVER_VOLTAGE_PROTECTION,
+								new UnsignedWordElement(0x2042), ElementToChannelConverter.SCALE_FACTOR_2),
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_OVER_VOLTAGE_RECOVER,
+								new UnsignedWordElement(0x2043), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_CHARGE_OVER_CURRENT_PROTECTION,
+								new UnsignedWordElement(0x2044), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_CHARGE_OVER_CURRENT_RECOVER,
+								new UnsignedWordElement(0x2045), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_UNDER_VOLTAGE_PROTECTION,
+								new UnsignedWordElement(0x2046)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_UNDER_VOLTAGE_RECOVER,
+								new UnsignedWordElement(0x2047)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_UNDER_VOLTAGE_PROTECTION,
+								new UnsignedWordElement(0x2048), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_UNDER_VOLTAGE_RECOVER,
+								new UnsignedWordElement(0x2049), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_DISCHARGE_OVER_CURRENT_PROTECTION,
+								new UnsignedWordElement(0x204A), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER,
+								new UnsignedWordElement(0x204B), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_TEMPERATURE_PROTECTION,
+								new UnsignedWordElement(0x204C)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_TEMPERATURE_RECOVER,
+								new UnsignedWordElement(0x204D)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_UNDER_TEMPERATURE_PROTECTION,
+								new UnsignedWordElement(0x204E)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_UNDER_TEMPERATURE_RECOVER,
+								new UnsignedWordElement(0x204F)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION,
+								new UnsignedWordElement(0x2050)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION_RECOVER,
+								new UnsignedWordElement(0x2051)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SOC_HIGH_PROTECTION,
+								new UnsignedWordElement(0x2052)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SOC_HIGH_PROTECTION_RECOVER,
+								new UnsignedWordElement(0x2053)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CONNECTOR_TEMPERATURE_HIGH_PROTECTION,
+								new UnsignedWordElement(0x2054)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CONNECTOR_TEMPERATURE_HIGH_PROTECTION_RECOVER,
+								new UnsignedWordElement(0x2055)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_INSULATION_PROTECTION,
+								new UnsignedWordElement(0x2056)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_INSULATION_PROTECTION_RECOVER,
+								new UnsignedWordElement(0x2057)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_VOLTAGE_DIFFERENCE_PROTECTION,
+								new UnsignedWordElement(0x2058)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER,
+								new UnsignedWordElement(0x2059)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION,
+								new UnsignedWordElement(0x205A), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER,
+								new UnsignedWordElement(0x205B), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_DISCHARGE_TEMPERATURE_HIGH_PROTECTION,
+								new UnsignedWordElement(0x205C)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_DISCHARGE_TEMPERATURE_HIGH_PROTECTION_RECOVER,
+								new UnsignedWordElement(0x205D)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_DISCHARGE_TEMPERATURE_LOW_PROTECTION,
+								new UnsignedWordElement(0x205E)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_DISCHARGE_TEMPERATURE_LOW_PROTECTION_RECOVER,
+								new UnsignedWordElement(0x205F)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TEMPERATURE_DIFFERENCE_PROTECTION,
+								new UnsignedWordElement(0x2060)), //
+						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TEMPERATURE_DIFFERENCE_PROTECTION_RECOVER,
+								new UnsignedWordElement(0x2061)) //
+				),
+
+				// Warn parameter
+				new FC16WriteRegistersTask(0x2080, //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_VOLTAGE_ALARM,
+								new UnsignedWordElement(0x2080)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_VOLTAGE_RECOVER,
+								new UnsignedWordElement(0x2081)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM,
+								new UnsignedWordElement(0x2082), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_RECOVER,
+								new UnsignedWordElement(0x2083), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_CHARGE_OVER_CURRENT_ALARM,
+								new UnsignedWordElement(0x2084), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_CHARGE_OVER_CURRENT_RECOVER,
+								new UnsignedWordElement(0x2085), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_VOLTAGE_ALARM,
+								new UnsignedWordElement(0x2086)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_VOLTAGE_RECOVER,
+								new UnsignedWordElement(0x2087)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM,
+								new UnsignedWordElement(0x2088), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_RECOVER,
+								new UnsignedWordElement(0x2089), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_DISCHARGE_OVER_CURRENT_ALARM,
+								new UnsignedWordElement(0x208A), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER,
+								new UnsignedWordElement(0x208B), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_TEMPERATURE_ALARM,
+								new UnsignedWordElement(0x208C)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_TEMPERATURE_RECOVER,
+								new UnsignedWordElement(0x208D)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_TEMPERATURE_ALARM,
+								new UnsignedWordElement(0x208E)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_TEMPERATURE_RECOVER,
+								new UnsignedWordElement(0x208F)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SOC_LOW_ALARM, new UnsignedWordElement(0x2090)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SOC_LOW_ALARM_RECOVER,
+								new UnsignedWordElement(0x2091)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SOC_HIGH_ALARM, new UnsignedWordElement(0x2092)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SOC_HIGH_ALARM_RECOVER,
+								new UnsignedWordElement(0x2093)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CONNECTOR_TEMPERATURE_HIGH_ALARM,
+								new UnsignedWordElement(0x2094)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CONNECTOR_TEMPERATURE_HIGH_ALARM_RECOVER,
+								new UnsignedWordElement(0x2095)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_INSULATION_ALARM,
+								new UnsignedWordElement(0x2096)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_INSULATION_ALARM_RECOVER,
+								new UnsignedWordElement(0x2097)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_VOLTAGE_DIFFERENCE_ALARM,
+								new UnsignedWordElement(0x2098)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_VOLTAGE_DIFFERENCE_ALARM_RECOVER,
+								new UnsignedWordElement(0x2099)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TOTAL_VOLTAGE_DIFFERENCE_ALARM,
+								new UnsignedWordElement(0x209A), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TOTAL_VOLTAGE_DIFFERENCE_ALARM_RECOVER,
+								new UnsignedWordElement(0x209B), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_DISCHARGE_TEMPERATURE_HIGH_ALARM,
+								new UnsignedWordElement(0x209C)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_DISCHARGE_TEMPERATURE_HIGH_ALARM_RECOVER,
+								new UnsignedWordElement(0x209D)), //
+						new DummyRegisterElement(0x209E),
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_DISCHARGE_TEMPERATURE_LOW_ALARM,
+								new UnsignedWordElement(0x209F)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_DISCHARGE_TEMPERATURE_LOW_ALARM_RECOVER,
+								new UnsignedWordElement(0x20A0)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM,
+								new UnsignedWordElement(0x20A1)), //
+						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM_RECOVER,
+								new UnsignedWordElement(0x20A2)) //
+				));
 
 		if (!this.config.ReduceTasks()) {
-
-			// Add tasks to read/write work and warn parameters
-			// Stop parameter
-			Task writeStopParameters = new FC16WriteRegistersTask(0x2040, //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_VOLTAGE_PROTECTION,
-							new UnsignedWordElement(0x2040)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_VOLTAGE_RECOVER,
-							new UnsignedWordElement(0x2041)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_OVER_VOLTAGE_PROTECTION,
-							new UnsignedWordElement(0x2042), ElementToChannelConverter.SCALE_FACTOR_2),
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_OVER_VOLTAGE_RECOVER,
-							new UnsignedWordElement(0x2043), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_CHARGE_OVER_CURRENT_PROTECTION,
-							new UnsignedWordElement(0x2044), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_CHARGE_OVER_CURRENT_RECOVER,
-							new UnsignedWordElement(0x2045), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_UNDER_VOLTAGE_PROTECTION,
-							new UnsignedWordElement(0x2046)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_UNDER_VOLTAGE_RECOVER,
-							new UnsignedWordElement(0x2047)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_UNDER_VOLTAGE_PROTECTION,
-							new UnsignedWordElement(0x2048), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_UNDER_VOLTAGE_RECOVER,
-							new UnsignedWordElement(0x2049), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_DISCHARGE_OVER_CURRENT_PROTECTION,
-							new UnsignedWordElement(0x204A), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER,
-							new UnsignedWordElement(0x204B), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_TEMPERATURE_PROTECTION,
-							new UnsignedWordElement(0x204C)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_TEMPERATURE_RECOVER,
-							new UnsignedWordElement(0x204D)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_UNDER_TEMPERATURE_PROTECTION,
-							new UnsignedWordElement(0x204E)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_UNDER_TEMPERATURE_RECOVER,
-							new UnsignedWordElement(0x204F)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION, new UnsignedWordElement(0x2050)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION_RECOVER,
-							new UnsignedWordElement(0x2051)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SOC_HIGH_PROTECTION, new UnsignedWordElement(0x2052)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SOC_HIGH_PROTECTION_RECOVER,
-							new UnsignedWordElement(0x2053)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CONNECTOR_TEMPERATURE_HIGH_PROTECTION,
-							new UnsignedWordElement(0x2054)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CONNECTOR_TEMPERATURE_HIGH_PROTECTION_RECOVER,
-							new UnsignedWordElement(0x2055)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_INSULATION_PROTECTION,
-							new UnsignedWordElement(0x2056)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_INSULATION_PROTECTION_RECOVER,
-							new UnsignedWordElement(0x2057)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_VOLTAGE_DIFFERENCE_PROTECTION,
-							new UnsignedWordElement(0x2058)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER,
-							new UnsignedWordElement(0x2059)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION,
-							new UnsignedWordElement(0x205A), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER,
-							new UnsignedWordElement(0x205B), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_DISCHARGE_TEMPERATURE_HIGH_PROTECTION,
-							new UnsignedWordElement(0x205C)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_DISCHARGE_TEMPERATURE_HIGH_PROTECTION_RECOVER,
-							new UnsignedWordElement(0x205D)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_DISCHARGE_TEMPERATURE_LOW_PROTECTION,
-							new UnsignedWordElement(0x205E)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_DISCHARGE_TEMPERATURE_LOW_PROTECTION_RECOVER,
-							new UnsignedWordElement(0x205F)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TEMPERATURE_DIFFERENCE_PROTECTION,
-							new UnsignedWordElement(0x2060)), //
-					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TEMPERATURE_DIFFERENCE_PROTECTION_RECOVER,
-							new UnsignedWordElement(0x2061)) //
-			);
-
-			// Warn parameter
-			Task writeWarnParameters = new FC16WriteRegistersTask(0x2080, //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_VOLTAGE_ALARM,
-							new UnsignedWordElement(0x2080)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_VOLTAGE_RECOVER,
-							new UnsignedWordElement(0x2081)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM,
-							new UnsignedWordElement(0x2082), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_RECOVER,
-							new UnsignedWordElement(0x2083), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_CHARGE_OVER_CURRENT_ALARM,
-							new UnsignedWordElement(0x2084), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_CHARGE_OVER_CURRENT_RECOVER,
-							new UnsignedWordElement(0x2085), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_VOLTAGE_ALARM,
-							new UnsignedWordElement(0x2086)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_VOLTAGE_RECOVER,
-							new UnsignedWordElement(0x2087)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM,
-							new UnsignedWordElement(0x2088), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_RECOVER,
-							new UnsignedWordElement(0x2089), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_DISCHARGE_OVER_CURRENT_ALARM,
-							new UnsignedWordElement(0x208A), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER,
-							new UnsignedWordElement(0x208B), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_TEMPERATURE_ALARM,
-							new UnsignedWordElement(0x208C)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_TEMPERATURE_RECOVER,
-							new UnsignedWordElement(0x208D)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_TEMPERATURE_ALARM,
-							new UnsignedWordElement(0x208E)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_TEMPERATURE_RECOVER,
-							new UnsignedWordElement(0x208F)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SOC_LOW_ALARM, new UnsignedWordElement(0x2090)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SOC_LOW_ALARM_RECOVER,
-							new UnsignedWordElement(0x2091)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SOC_HIGH_ALARM, new UnsignedWordElement(0x2092)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SOC_HIGH_ALARM_RECOVER,
-							new UnsignedWordElement(0x2093)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CONNECTOR_TEMPERATURE_HIGH_ALARM,
-							new UnsignedWordElement(0x2094)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CONNECTOR_TEMPERATURE_HIGH_ALARM_RECOVER,
-							new UnsignedWordElement(0x2095)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_INSULATION_ALARM, new UnsignedWordElement(0x2096)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_INSULATION_ALARM_RECOVER,
-							new UnsignedWordElement(0x2097)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_VOLTAGE_DIFFERENCE_ALARM,
-							new UnsignedWordElement(0x2098)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_VOLTAGE_DIFFERENCE_ALARM_RECOVER,
-							new UnsignedWordElement(0x2099)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TOTAL_VOLTAGE_DIFFERENCE_ALARM,
-							new UnsignedWordElement(0x209A), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TOTAL_VOLTAGE_DIFFERENCE_ALARM_RECOVER,
-							new UnsignedWordElement(0x209B), ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_DISCHARGE_TEMPERATURE_HIGH_ALARM,
-							new UnsignedWordElement(0x209C)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_DISCHARGE_TEMPERATURE_HIGH_ALARM_RECOVER,
-							new UnsignedWordElement(0x209D)), //
-					new DummyRegisterElement(0x209E),
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_DISCHARGE_TEMPERATURE_LOW_ALARM,
-							new UnsignedWordElement(0x209F)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_DISCHARGE_TEMPERATURE_LOW_ALARM_RECOVER,
-							new UnsignedWordElement(0x20A0)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM,
-							new UnsignedWordElement(0x20A1)), //
-					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM_RECOVER,
-							new UnsignedWordElement(0x20A2)) //
-			);
-
 			// Stop parameter
 			Task readStopParameters = new FC3ReadRegistersTask(0x2040, Priority.LOW, //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_VOLTAGE_PROTECTION,
@@ -897,8 +937,6 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 
 			protocol.addTask(readStopParameters);
 			protocol.addTask(readWarnParameters);
-			protocol.addTask(writeStopParameters);
-			protocol.addTask(writeWarnParameters);
 
 			// Add tasks for cell voltages and temperatures according to the number of
 			// slaves, one task per module is created

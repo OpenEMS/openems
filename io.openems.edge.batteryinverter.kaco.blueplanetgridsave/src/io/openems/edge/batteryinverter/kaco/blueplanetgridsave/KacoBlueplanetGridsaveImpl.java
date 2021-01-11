@@ -188,7 +188,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 		if (this.config.activateWatchdog()) {
 			// Trigger the Watchdog
 			this.triggerWatchdog();
-		}		
+		}
 
 		// Set State-Channels
 		this.setStateChannels();
@@ -248,12 +248,14 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 		chaMaxVChannel.setNextWriteValue(chargeMaxVoltage);
 
 		// Discharge Max Current
+		// negative value is corrected as zero
 		IntegerWriteChannel disMaxAChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64202.DIS_MAX_A_0);
-		disMaxAChannel.setNextWriteValue(battery.getDischargeMaxCurrent().get());
+		disMaxAChannel.setNextWriteValue(Math.max(0, battery.getDischargeMaxCurrent().orElse(0)));
 
 		// Charge Max Current
+		// negative value is corrected as zero
 		IntegerWriteChannel chaMaxAChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64202.CHA_MAX_A_0);
-		chaMaxAChannel.setNextWriteValue(battery.getChargeMaxCurrent().get());
+		chaMaxAChannel.setNextWriteValue(Math.max(0, battery.getChargeMaxCurrent().orElse(0)));
 
 		// Activate Battery values
 		EnumWriteChannel enLimitChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64202.EN_LIMIT_0);
@@ -469,7 +471,6 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
-	
 
 	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
 		super.addBlock(startAddress, model, priority);

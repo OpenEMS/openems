@@ -27,7 +27,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 
 	public static final boolean DEFAULT_DEBUG_MODE = true;
 
-	protected final ApiWorker apiWorker = new ApiWorker();
+	protected final ApiWorker apiWorker = new ApiWorker(this);
 
 	private final Logger log = LoggerFactory.getLogger(RestApiReadOnlyImpl.class);
 	private final String implementationName;

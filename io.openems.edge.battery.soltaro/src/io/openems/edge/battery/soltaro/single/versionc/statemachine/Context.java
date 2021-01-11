@@ -2,14 +2,14 @@ package io.openems.edge.battery.soltaro.single.versionc.statemachine;
 
 import io.openems.edge.battery.soltaro.single.versionc.Config;
 import io.openems.edge.battery.soltaro.single.versionc.SingleRackVersionC;
+import io.openems.edge.common.statemachine.AbstractContext;
 
-public class Context {
-	protected final SingleRackVersionC component;
+public class Context extends AbstractContext<SingleRackVersionC> {
+
 	protected final Config config;
 
-	public Context(SingleRackVersionC component, Config config) {
-		super();
-		this.component = component;
+	public Context(SingleRackVersionC parent, Config config) {
+		super(parent);
 		this.config = config;
 	}
 }

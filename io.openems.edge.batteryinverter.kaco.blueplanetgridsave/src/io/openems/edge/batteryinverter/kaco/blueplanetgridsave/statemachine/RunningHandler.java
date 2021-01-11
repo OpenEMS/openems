@@ -2,6 +2,7 @@ package io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoBlueplanetGridsave;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -13,11 +14,13 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		if (context.component.hasFaults()) {
+		KacoBlueplanetGridsave inverter = context.getParent();
+
+		if (inverter.hasFaults()) {
 			return State.UNDEFINED;
 		}
 
-		switch (context.component.getCurrentState()) {
+		switch (inverter.getCurrentState()) {
 		case FAULT:
 		case GRID_PRE_CONNECTED:
 		case MPPT:
@@ -40,7 +43,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 		}
 
 		// Mark as started
-		context.component._setStartStop(StartStop.START);
+		inverter._setStartStop(StartStop.START);
 
 		// Apply Active and Reactive Power Set-Points
 		this.applyPower(context);
@@ -55,10 +58,11 @@ public class RunningHandler extends StateHandler<State, Context> {
 	 * @throws OpenemsNamedException on error
 	 */
 	private void applyPower(Context context) throws OpenemsNamedException {
+		KacoBlueplanetGridsave inverter = context.getParent();
+
 		// TODO apply reactive power
-		IntegerWriteChannel wSetPctChannel = context.component
-				.getSunSpecChannelOrError(KacoSunSpecModel.S64201.W_SET_PCT);
-		IntegerReadChannel maxApparentPowerChannel = context.component
+		IntegerWriteChannel wSetPctChannel = inverter.getSunSpecChannelOrError(KacoSunSpecModel.S64201.W_SET_PCT);
+		IntegerReadChannel maxApparentPowerChannel = inverter
 				.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER);
 		int maxApparentPower = maxApparentPowerChannel.value().getOrError();
 
