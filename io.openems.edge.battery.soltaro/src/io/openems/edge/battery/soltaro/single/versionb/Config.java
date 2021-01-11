@@ -30,7 +30,7 @@ public @interface Config {
 	StartStopConfig startStop() default StartStopConfig.AUTO;
 
 	@AttributeDefinition(name = "Number of slaves", description = "The number of slaves in this battery rack (max. 20)", min = "1", max = "20")
-	int numberOfSlaves() default 20;
+	int numberOfSlaves() default 20; // TODO can be removed because it can be read out from BMS 
 	
 	@AttributeDefinition(name = "Module type", description = "The type of modules in the rack")
 	ModuleType moduleType() default ModuleType.MODULE_3_5_KWH;
