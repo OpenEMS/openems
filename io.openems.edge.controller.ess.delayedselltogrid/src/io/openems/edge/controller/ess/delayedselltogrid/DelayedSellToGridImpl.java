@@ -107,8 +107,7 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 			 */
 			calculatedPower = gridPower - (-this.config.sellToGridPowerLimit());
 
-		} else if (gridPower >= -this.config.continuousSellToGridPower()
-				&& essPower < this.config.sellToGridPowerLimit()) { //See Test Case Sell to Grid Limit Border
+		} else if (gridPower >= -this.config.continuousSellToGridPower()) { 
 
 			/*
 			 * Continuous Sell To Grid
@@ -121,7 +120,6 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 			 */
 			calculatedPower = 0;
 		}
-
 		/*
 		 * set result
 		 */

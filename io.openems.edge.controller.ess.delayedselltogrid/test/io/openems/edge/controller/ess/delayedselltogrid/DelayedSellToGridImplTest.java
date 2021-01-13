@@ -58,10 +58,6 @@ public class DelayedSellToGridImplTest {
 						.input(ESS_ACTIVE_POWER, 150_000) //
 						.input(METER_ACTIVE_POWER, -500_000)//
 						.output(ESS_SET_ACTIVE_POWER_EQUALS, 150_000)) //
-				.next(new TestCase("Sell to grid limit border") //
-						.input(ESS_ACTIVE_POWER, 12_500_000) //
-						.input(METER_ACTIVE_POWER, -12_500_000)//
-						.output(ESS_SET_ACTIVE_POWER_EQUALS, 0)) //
 				.next(new TestCase() //
 						.input(ESS_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -1_500_000)//
