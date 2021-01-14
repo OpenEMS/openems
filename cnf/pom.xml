@@ -122,9 +122,11 @@
 			<version>1.9.20</version>
 		</dependency>
 		<dependency>
+			<!-- Apache Felix EventAdmin -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/eventadmin/impl/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.eventadmin</artifactId>
-			<version>1.5.0</version>
+			<version>1.6.2</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Inventory -->
