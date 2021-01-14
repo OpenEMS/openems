@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.battery.bydcommercial.BatteryBoxC130;
 import io.openems.edge.battery.bydcommercial.enums.PowerCircuitControl;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.battery.bydcommercial.utils.Constants;
@@ -18,12 +19,13 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		this.lastAttempt = Instant.MIN;
 		this.attemptCounter = 0;
-		context.component._setMaxStartAttempts(false);
+		context.getParent()._setMaxStartAttempts(false);
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		PowerCircuitControl preChargeControl = context.component.getPowerCircuitControl();
+		BatteryBoxC130 battery = context.getParent();
+		PowerCircuitControl preChargeControl = battery.getPowerCircuitControl();
 
 		if (preChargeControl == PowerCircuitControl.SWITCH_ON) {
 			return State.RUNNING;
@@ -36,12 +38,12 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 
 			if (this.attemptCounter > Constants.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				context.component._setMaxStartAttempts(true);
+				battery._setMaxStartAttempts(true);
 				return State.UNDEFINED;
 
 			} else {
 				// Trying to switch on
-				context.component.setPowerCircuitControl(PowerCircuitControl.PRE_CHARGING_1);
+				battery.setPowerCircuitControl(PowerCircuitControl.PRE_CHARGING_1);
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
 				return State.GO_RUNNING;

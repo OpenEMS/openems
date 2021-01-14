@@ -15,7 +15,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
  * @param <CONTEXT> the context type, i.e. a class wrapping a State-Machine
  *                  context
  */
-public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT> {
+public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT extends AbstractContext<?>> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractStateMachine.class);
 

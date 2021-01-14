@@ -156,6 +156,7 @@ export const TRANSLATION = {
                     relationError: 'Discharge limit must be greater than or equal to the load limit',
                     startDate: 'Date de début',
                     startTime: 'Heure de début',
+                    startTimeCharge: 'Heure de début du chargement',
                 },
                 CHP: {
                     highThreshold: 'Seuil Haut',
