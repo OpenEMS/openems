@@ -13,14 +13,14 @@ public class OpenemsConstants {
 	 * 
 	 * This is usually the year of the release
 	 */
-	public final static short VERSION_MAJOR = 2020;
+	public final static short VERSION_MAJOR = 2021;
 
 	/**
 	 * The minor version of OpenEMS.
 	 * 
 	 * This is usually the number of the sprint within the year
 	 */
-	public final static short VERSION_MINOR = 26;
+	public final static short VERSION_MINOR = 1;
 
 	/**
 	 * The patch version of OpenEMS.

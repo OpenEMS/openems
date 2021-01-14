@@ -40,10 +40,7 @@ import io.openems.edge.ess.generic.symmetric.statemachine.Context;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -210,13 +207,6 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 			result.add(this.power.createSimpleConstraint(c.description, this, c.phase, c.pwr, c.relationship, c.value));
 		}
 
-		// If the GenericEss is not in State "STARTED" block ACTIVE and REACTIVE Power!
-		if (!this.isStarted()) {
-			result.add(this.createPowerConstraint("ActivePower Constraint ESS not Started", Phase.ALL, Pwr.ACTIVE,
-					Relationship.EQUALS, 0));
-			result.add(this.createPowerConstraint("ReactivePower Constraint ESS not Started", Phase.ALL, Pwr.REACTIVE,
-					Relationship.EQUALS, 0));
-		}
 		return result.toArray(new Constraint[result.size()]);
 	}
 
