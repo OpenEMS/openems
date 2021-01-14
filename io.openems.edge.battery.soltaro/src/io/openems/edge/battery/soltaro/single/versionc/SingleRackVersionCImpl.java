@@ -24,6 +24,9 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.soltaro.CellCharacteristic;
+import io.openems.edge.battery.soltaro.Util;
+import io.openems.edge.battery.soltaro.single.versionb.SingleRackVersionB;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.Context;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.State;
@@ -40,6 +43,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -55,7 +59,8 @@ import io.openems.edge.common.taskmanager.Priority;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
 public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 		implements SingleRackVersionC, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
@@ -71,6 +76,34 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private Config config;
+
+	// TODO Test cell characteristic, remove after test and replace it by correct
+	// ones
+	private CellCharacteristic cellCharacteristic = new CellCharacteristic() {
+
+		@Override
+		public int getForceDischargeCellVoltage_mV() {
+			// TODO Auto-generated method stub
+			return 3_680;
+		}
+
+		@Override
+		public int getForceChargeCellVoltage_mV() {
+			return 3_250;
+		}
+
+		@Override
+		public int getFinalCellDischargeVoltage_mV() {
+			// TODO Auto-generated method stub
+			return 3_300;
+		}
+
+		@Override
+		public int getFinalCellChargeVoltage_mV() {
+			// TODO Auto-generated method stub
+			return 3_650;
+		}
+	};
 
 	public SingleRackVersionCImpl() {
 		super(//
@@ -122,10 +155,28 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 		}
 		switch (event.getTopic()) {
 
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+
+			this.setAllowedCurrents();
+
+			break;
+
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.handleStateMachine();
 			break;
 		}
+	}
+
+	private void setAllowedCurrents() {
+		IntegerReadChannel maxChargeCurrentChannel = this
+				.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT);
+		int maxChargeCurrentFromBMS = maxChargeCurrentChannel.value().orElse(0) / 1000;
+
+		IntegerReadChannel maxDischargeChannel = this
+				.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT);
+		int maxDischargeCurrentFromBMS = maxDischargeChannel.value().orElse(0) / 1000;
+
+		Util.setMaxAllowedCurrents(cellCharacteristic, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS, this);
 	}
 
 	/**
@@ -273,13 +324,13 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 						m(new UnsignedWordElement(0x210F)) //
 								.m(SingleRackVersionC.ChannelId.SYSTEM_MAX_CHARGE_CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_2) //
-								.m(Battery.ChannelId.CHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+//								.m(Battery.ChannelId.CHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build(), //
 						m(new UnsignedWordElement(0x2110)) //
 								.m(SingleRackVersionC.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_2) //
-								.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT,
-										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+//								.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT,
+//										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build(), //
 						m(SingleRackVersionC.ChannelId.POSITIVE_INSULATION, new UnsignedWordElement(0x2111)), //
 						m(SingleRackVersionC.ChannelId.NEGATIVE_INSULATION, new UnsignedWordElement(0x2112)), //

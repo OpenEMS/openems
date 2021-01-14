@@ -147,6 +147,7 @@ export const TRANSLATION = {
                     relationError: 'Ontladingslimiet moet groter zijn dan of gelijk zijn aan de belastingslimiet',
                     startDate: 'Startdatum',
                     startTime: 'Starttijd',
+                    startTimeCharge: 'Starttijd laden',
                 },
                 CHP: {
                     highThreshold: 'hoge drempel',

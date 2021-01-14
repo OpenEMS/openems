@@ -42,7 +42,6 @@ export class SelfConsumptionComponent {
             )
             )
         )
-        console.log("x", x, "y", y)
     }
 
     async presentModal() {
