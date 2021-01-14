@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
+import io.openems.edge.fenecon.mini.ess.FeneconMiniEss;
 import io.openems.edge.fenecon.mini.ess.PcsMode;
 import io.openems.edge.fenecon.mini.ess.SetupMode;
 import io.openems.edge.fenecon.mini.ess.statemachine.StateMachine.State;
@@ -15,16 +16,18 @@ public class GoWriteModeHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		if (context.component.getPcsMode() == PcsMode.UNDEFINED) {
-			this.log.info("Wait for PCS Mode to be defined");
+		FeneconMiniEss ess = context.getParent();
+
+		if (ess.getPcsMode() == PcsMode.UNDEFINED) {
+			context.logInfo(this.log, "Wait for PCS Mode to be defined");
 			return State.GO_WRITE_MODE;
 		}
-		if (context.component.getSetupMode() == SetupMode.UNDEFINED) {
-			this.log.info("Wait for Setup-Mode to be defined");
+		if (ess.getSetupMode() == SetupMode.UNDEFINED) {
+			context.logInfo(this.log, "Wait for Setup-Mode to be defined");
 			return State.GO_WRITE_MODE;
 		}
 
-		if (context.component.getPcsMode() == PcsMode.DEBUG && context.component.getSetupMode() == SetupMode.OFF) {
+		if (ess.getPcsMode() == PcsMode.DEBUG && ess.getSetupMode() == SetupMode.OFF) {
 			return State.WRITE_MODE;
 		}
 

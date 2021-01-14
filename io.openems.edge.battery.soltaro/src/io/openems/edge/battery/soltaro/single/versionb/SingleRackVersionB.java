@@ -731,39 +731,39 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 				.text("Enable/Disable protect soc high")), //
 		PROTECT_FLAG_REGISTER_2_SOC_LOW(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Enable/Disable protect soc low")), //
-		
-		//Faults and warnings
-		ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW(Doc.of(Level.FAULT) //
+
+		// Faults and warnings
+		ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cell Discharge Temperature Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("Cell Discharge Temperature High Alarm Level 2")), //
-		ALARM_LEVEL_2_TOTAL_VOLTAGE_DIFFERENCE_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_TOTAL_VOLTAGE_DIFFERENCE_HIGH(Doc.of(Level.WARNING) //
 				.text("Total voltage difference too high Alarm Level 2")), //
-		ALARM_LEVEL_2_INSULATION_LOW(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_INSULATION_LOW(Doc.of(Level.WARNING) //
 				.text("Insulation Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_VOLTAGE_DIFFERENCE_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_CELL_VOLTAGE_DIFFERENCE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cell voltage difference is too high Alarm Level 2")), //
-		ALARM_LEVEL_2_POLES_TEMPERATURE_DIFFERENCE_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_POLES_TEMPERATURE_DIFFERENCE_HIGH(Doc.of(Level.WARNING) //
 				.text("Poles temperature difference is too high Alarm Level 2")), //
-		ALARM_LEVEL_2_TEMPERATURE_DIFFERENCE_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_TEMPERATURE_DIFFERENCE_HIGH(Doc.of(Level.WARNING) //
 				.text("Temperature difference is too high Alarm Level 2")), //
-		ALARM_LEVEL_2_SOC_LOW(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_SOC_LOW(Doc.of(Level.WARNING) //
 				.text("SoC Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_CHA_TEMP_LOW(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_CELL_CHA_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cell Charge Temperature Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("Cell Charge Temperature High Alarm Level 2")), //
-		ALARM_LEVEL_2_DISCHA_CURRENT_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_DISCHA_CURRENT_HIGH(Doc.of(Level.WARNING) //
 				.text("Discharge Current High Alarm Level 2")), //
-		ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 				.text("Total Voltage Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_VOLTAGE_LOW(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 				.text("Cell Voltage Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CHA_CURRENT_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_CHA_CURRENT_HIGH(Doc.of(Level.WARNING) //
 				.text("Charge Current High Alarm Level 2")), //
-		ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("Total Voltage High Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_VOLTAGE_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cell Voltage High Alarm Level 2")), //
 		ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cell Discharge Temperature Low Alarm Level 1")), //
@@ -779,7 +779,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 				.text("Pole temperature too high Alarm Level 1")), //
 		ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH(Doc.of(Level.WARNING) //
 				.text("Cell temperature Diff High Alarm Level 1")), //
-		ALARM_LEVEL_1_SOC_LOW(Doc.of(Level.WARNING) //
+		ALARM_LEVEL_1_SOC_LOW(Doc.of(OpenemsType.BOOLEAN) //
 				.text("SOC Low Alarm Level 1")), //
 		ALARM_LEVEL_1_CELL_CHA_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cell Charge Temperature Low Alarm Level 1")), //
@@ -838,35 +838,35 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 				.text("Slave 19 communication error")), //
 		SLAVE_20_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Slave 20 communication error")), //
-		FAILURE_INITIALIZATION(Doc.of(Level.FAULT) //
+		FAILURE_INITIALIZATION(Doc.of(Level.WARNING) //
 				.text("Initialization failure")), //
-		FAILURE_EEPROM(Doc.of(Level.FAULT) //
+		FAILURE_EEPROM(Doc.of(Level.WARNING) //
 				.text("EEPROM fault")), //
-		FAILURE_INTRANET_COMMUNICATION(Doc.of(Level.FAULT) //
+		FAILURE_INTRANET_COMMUNICATION(Doc.of(Level.WARNING) //
 				.text("Intranet communication fault")), //
-		FAILURE_TEMP_SAMPLING_LINE(Doc.of(Level.FAULT) //
+		FAILURE_TEMP_SAMPLING_LINE(Doc.of(Level.WARNING) //
 				.text("Temperature sampling line fault")), //
 		FAILURE_BALANCING_MODULE(Doc.of(Level.OK) //
 				.text("Balancing module fault")), //
-		FAILURE_PCB(Doc.of(Level.FAULT) //
+		FAILURE_PCB(Doc.of(Level.WARNING) //
 				.text("PCB error")), //
-		FAILURE_GR_T(Doc.of(Level.FAULT) //
+		FAILURE_GR_T(Doc.of(Level.WARNING) //
 				.text("GR T error")), //
-		FAILURE_TEMP_SENSOR(Doc.of(Level.FAULT) //
+		FAILURE_TEMP_SENSOR(Doc.of(Level.WARNING) //
 				.text("Temperature sensor fault")), //
-		FAILURE_TEMP_SAMPLING(Doc.of(Level.FAULT) //
+		FAILURE_TEMP_SAMPLING(Doc.of(Level.WARNING) //
 				.text("Temperature sampling fault")), //
-		FAILURE_VOLTAGE_SAMPLING(Doc.of(Level.FAULT) //
+		FAILURE_VOLTAGE_SAMPLING(Doc.of(Level.WARNING) //
 				.text("Voltage sampling fault")), //
-		FAILURE_LTC6803(Doc.of(Level.FAULT) //
+		FAILURE_LTC6803(Doc.of(Level.WARNING) //
 				.text("LTC6803 fault")), //
-		FAILURE_CONNECTOR_WIRE(Doc.of(Level.FAULT) //
+		FAILURE_CONNECTOR_WIRE(Doc.of(Level.WARNING) //
 				.text("connector wire fault")), //
-		FAILURE_SAMPLING_WIRE(Doc.of(Level.FAULT) //
+		FAILURE_SAMPLING_WIRE(Doc.of(Level.WARNING) //
 				.text("sampling wire fault")), //
-		PRECHARGE_TAKING_TOO_LONG(Doc.of(Level.FAULT) //
+		PRECHARGE_TAKING_TOO_LONG(Doc.of(Level.WARNING) //
 				.text("precharge time was too long")),
-		
+
 		// OpenEMS Faults
 		RUN_FAILED(Doc.of(Level.FAULT) //
 				.text("Running the Logic failed")), //
@@ -874,7 +874,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 				.text("The maximum number of start attempts failed")), //
 		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
 				.text("The maximum number of stop attempts failed")), //
-		
+
 		;
 
 		private final Doc doc;

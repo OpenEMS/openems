@@ -12,7 +12,7 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		this.log.warn("Stopping a FENECON Home Battery is not supported");
+		context.logWarn(this.log, "Stopping a FENECON Home Battery is not supported");
 		return State.GO_STOPPED;
 	}
 

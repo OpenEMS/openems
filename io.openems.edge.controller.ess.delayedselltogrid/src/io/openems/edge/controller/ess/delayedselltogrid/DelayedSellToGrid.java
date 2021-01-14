@@ -12,8 +12,6 @@ public interface DelayedSellToGrid extends Controller, OpenemsComponent {
 		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)//
 				.text("Calculated Power")), //
-		STATE_MACHINE(Doc.of(State.values())//
-				.text("Calculated Power"))//
 		;
 
 		private final Doc doc;

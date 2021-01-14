@@ -1,20 +1,19 @@
 package io.openems.edge.goodwe.ess.applypower;
 
+import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.goodwe.ess.GoodWeEssImpl;
 import io.openems.edge.goodwe.ess.enums.PowerModeEms;
 
-public class Context {
+public class Context extends AbstractContext<GoodWeEssImpl> {
 
-	protected final GoodWeEssImpl component;
 	protected final int pvProduction;
 	protected final int activePowerSetPoint;
 
 	private PowerModeEms nextPowerMode;
 	private int essPowerSet;
 
-	public Context(GoodWeEssImpl component, int pvProduction, int activePowerSetPoint) {
-		super();
-		this.component = component;
+	public Context(GoodWeEssImpl parent, int pvProduction, int activePowerSetPoint) {
+		super(parent);
 		this.pvProduction = pvProduction;
 		this.activePowerSetPoint = activePowerSetPoint;
 	}
