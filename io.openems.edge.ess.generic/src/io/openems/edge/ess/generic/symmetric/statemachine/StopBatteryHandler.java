@@ -17,11 +17,14 @@ public class StopBatteryHandler extends StateHandler<State, Context> {
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		this.lastAttempt = Instant.MIN;
 		this.attemptCounter = 0;
-		context.component._setMaxBatteryStopAttemptsFault(false);
+		GenericManagedSymmetricEss ess = context.getParent();
+		ess._setMaxBatteryStopAttemptsFault(false);
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
+		GenericManagedSymmetricEss ess = context.getParent();
+
 		if (context.battery.isStopped()) {
 			return State.STOPPED;
 		}
@@ -33,7 +36,7 @@ public class StopBatteryHandler extends StateHandler<State, Context> {
 
 			if (this.attemptCounter > GenericManagedSymmetricEss.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				context.component._setMaxBatteryStopAttemptsFault(true);
+				ess._setMaxBatteryStopAttemptsFault(true);
 				return State.UNDEFINED;
 
 			} else {
