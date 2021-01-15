@@ -30,25 +30,22 @@
                 </ng-container>
                 <ng-container *ngIf="consumptionMeterComponents.length > 0">
                     <ng-container *ngFor="let component of consumptionMeterComponents">
-                        <ng-container *ngIf="data[component.id + '/ActiveConsumptionEnergy'] > 0">
+                        <ng-container *ngIf="data[component.id + '/ActiveProductionEnergy'] > 0">
                             <tr>
                                 <td style="width:65%">{{ component.alias }}</td>
                                 <td style="width:35%" class="align_right">
-                                    {{ data[component.id + "/ActiveConsumptionEnergy"] | unitvalue:'kWh' }}
+                                    {{ data[component.id + "/ActiveProductionEnergy"] | unitvalue:'kWh' }}
                                 </td>
                             </tr>
                         </ng-container>
                     </ng-container>
                 </ng-container>
-                <tr *ngIf="evcsComponents.length != 0 || consumptionMeterComponents.length != 0">
+                <tr
+                    *ngIf="(evcsComponents.length != 0 || consumptionMeterComponents.length != 0) && totalOtherEnergy > 0">
                     <td style="width:65%" translate>General.otherConsumption</td>
-                    <ng-container
-                        *ngIf="data['_sum/ConsumptionActiveEnergy'] - getTotalOtherEnergy() as totalOtherEnergy">
-
-                        <td style="width:35%" class="align_right">
-                            {{ totalOtherEnergy | unitvalue:'kWh' }}
-                        </td>
-                    </ng-container>
+                    <td style="width:35%" class="align_right">
+                        {{ totalOtherEnergy | unitvalue:'kWh' }}
+                    </td>
                 </tr>
             </ng-container>
 

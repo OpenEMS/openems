@@ -49,8 +49,8 @@ public class RestApiReadOnlyImpl extends AbstractRestApi
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.debugMode(), 0 /* no timeout */,
-				config.port());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.debugMode(), 0, /* no timeout */
+				config.port(), config.connectionlimit());
 	}
 
 	@Deactivate
