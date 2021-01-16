@@ -18,7 +18,7 @@ public class ChannelRecord {
 	 * device id or meter type.
 	 * 
 	 * @param channel  the Channel
-	 * @param dataType thee dataType
+	 * @param dataType the dataType
 	 */
 	public ChannelRecord(Channel<?> channel, DataType dataType) {
 		this.channel = channel;
