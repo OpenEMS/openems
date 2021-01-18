@@ -34,7 +34,7 @@ public class PeriodicWriteWorker {
 	 */
 	private static final boolean DEBUG_MODE = true;
 
-	private static final int UPDATE_INTERVAL_IN_SECONDS = 60;
+	private static final int UPDATE_INTERVAL_IN_SECONDS = 120;
 
 	private final Logger log = LoggerFactory.getLogger(PeriodicWriteWorker.class);
 	private final PostgresHandler parent;
