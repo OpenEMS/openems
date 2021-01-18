@@ -174,8 +174,9 @@ public class ReadHandler implements Consumer<String> {
 					setInt(KebaChannelId.ACTUAL_POWER, jsonMessage, "P");
 					setInt(KebaChannelId.COS_PHI, jsonMessage, "PF");
 
-					this.parent.channel(KebaChannelId.ENERGY_TOTAL)
-							.setNextValue((JsonUtils.getAsOptionalInt(jsonMessage, "E total").orElse(0)) * 0.1);
+					long totalEnergy = Math.round((JsonUtils.getAsOptionalInt(jsonMessage, "E total").orElse(0)) * 0.1);
+					this.parent.channel(KebaChannelId.ENERGY_TOTAL).setNextValue((int)totalEnergy);
+					this.parent._setActiveConsumptionEnergy(totalEnergy);
 
 					// Set the count of the Phases that are currently used
 					Channel<Integer> currentL1 = parent.channel(KebaChannelId.CURRENT_L1);
