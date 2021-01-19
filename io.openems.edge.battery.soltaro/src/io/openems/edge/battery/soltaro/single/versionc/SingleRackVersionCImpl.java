@@ -25,6 +25,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.CellCharacteristic;
+import io.openems.edge.battery.soltaro.SoltaroCellCharacteristic;
 import io.openems.edge.battery.soltaro.Util;
 import io.openems.edge.battery.soltaro.single.versionb.SingleRackVersionB;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.Context;
@@ -77,33 +78,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 
 	private Config config;
 
-	// TODO Test cell characteristic, remove after test and replace it by correct
-	// ones
-	private CellCharacteristic cellCharacteristic = new CellCharacteristic() {
-
-		@Override
-		public int getForceDischargeCellVoltage_mV() {
-			// TODO Auto-generated method stub
-			return 3_680;
-		}
-
-		@Override
-		public int getForceChargeCellVoltage_mV() {
-			return 3_250;
-		}
-
-		@Override
-		public int getFinalCellDischargeVoltage_mV() {
-			// TODO Auto-generated method stub
-			return 3_300;
-		}
-
-		@Override
-		public int getFinalCellChargeVoltage_mV() {
-			// TODO Auto-generated method stub
-			return 3_650;
-		}
-	};
+	private final CellCharacteristic cellCharacteristic = new SoltaroCellCharacteristic();
 
 	public SingleRackVersionCImpl() {
 		super(//
