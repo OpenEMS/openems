@@ -175,7 +175,7 @@ public class ReadHandler implements Consumer<String> {
 					setInt(KebaChannelId.COS_PHI, jsonMessage, "PF");
 
 					long totalEnergy = Math.round((JsonUtils.getAsOptionalInt(jsonMessage, "E total").orElse(0)) * 0.1);
-					this.parent.channel(KebaChannelId.ENERGY_TOTAL).setNextValue((int)totalEnergy);
+					this.parent.channel(KebaChannelId.ENERGY_TOTAL).setNextValue((int) totalEnergy);
 					this.parent._setActiveConsumptionEnergy(totalEnergy);
 
 					// Set the count of the Phases that are currently used
@@ -206,11 +206,11 @@ public class ReadHandler implements Consumer<String> {
 					/*
 					 * Set MAXIMUM_HARDWARE_POWER of Evcs
 					 */
-					Channel<Integer> maxHW = this.parent.channel(KebaChannelId.MAX_CURR);
+					Channel<Integer> maxHW = this.parent.channel(KebaChannelId.DIP_SWITCH_MAX_HW);
 					int phases = this.parent.getPhases().orElse(3);
 
-					this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER).setNextValue(
-							230 /* Spannung */ * (maxHW.value().orElse(32000) / 1000) /* max Strom */ * phases);
+					this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER)
+							.setNextValue(230 /* Spannung */ * maxHW.value().orElse(32) /* max Strom */ * phases);
 					/*
 					 * Set default MINIMUM_HARDWARE_POWER of Evcs
 					 */
@@ -301,6 +301,27 @@ public class ReadHandler implements Consumer<String> {
 		// Set Channel for "installation mode set"
 		setState = dipSwitch2.charAt(7) == '1' ? true : false;
 		setnextStateChannelValue(KebaChannelId.DIP_SWITCH_INFO_2_8_SET_FOR_INSTALLATION, setState);
+
+		// Set Channel for the configured maximum limit in mA
+		Integer hwLimit = null;
+		String hwLimitDips = dipSwitch1.substring(5);
+
+		switch (hwLimitDips) {
+		case "000":
+			hwLimit = 10;
+			break;
+		case "100":
+			hwLimit = 13;
+		case "010":
+			hwLimit = 16;
+		case "110":
+			hwLimit = 20;
+		case "001":
+			hwLimit = 25;
+		case "101":
+			hwLimit = 32;
+		}
+		this.parent.channel(KebaChannelId.DIP_SWITCH_MAX_HW).setNextValue(hwLimit);
 	}
 
 	/**
