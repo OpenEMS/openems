@@ -79,7 +79,7 @@ testpath: \
 	Edge_Controller_Api;member=${filter;${p};io\.openems\.edge\.controller\.api\..*},\
 	Edge_Controller_Debug;member=${filter;${p};io\.openems\.edge\.controller\.debug\..*},\
 	Edge_Controller_Ess;member=${filter;${p};io\.openems\.edge\.controller\.asymmetric\..*|io\.openems\.edge\.controller\.symmetric\..*|io\.openems\.edge\.controller\.ess\..*},\
-	Edge_Controller_Evcs;member=${filter;${p};io\.openems\.edge\.controller\.evcs\..*},\
+	Edge_Controller_Evcs;member=${filter;${p};io\.openems\.edge\.controller\.evcs.*},\
 	Edge_Controller_Generic;member=${filter;${p};io\.openems\.edge\.controller\.generic\..*},\
 	Edge_Controller_IO;member=${filter;${p};io\.openems\.edge\.controller\.io\..*},\
 	Edge_Controller_PVinverter;member=${filter;${p};io\.openems\.edge\.controller\.pvinverter\..*},\

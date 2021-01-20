@@ -179,7 +179,7 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 
 		// reduce limit to MaxApparentPower to avoid very high values in the last
 		// seconds
-		calculatedPower = Math.min(calculatedPower, ess.getMaxApparentPower().orElse(0));
+		calculatedPower = Math.min(calculatedPower, ess.getMaxApparentPower().getOrError());
 
 		this.setChannels(State.ACTIVE_LIMIT, calculatedPower);
 
