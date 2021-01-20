@@ -124,21 +124,24 @@ public class ReadHandler implements Consumer<String> {
 								status = Status.CHARGING_FINISHED;
 							}
 						}
-					}
-
-					/*
-					 * Check if the maximum energy limit is reached, informs the user and sets the
-					 * status
-					 */
-					int limit = this.parent.getSetEnergyLimit().orElse(0);
-					int energy = this.parent.getEnergySession().orElse(0);
-					if (energy >= limit && limit != 0) {
-						try {
-							this.parent.setDisplayText(limit + "Wh erreicht");
-							status = Status.ENERGY_LIMIT_REACHED;
-						} catch (OpenemsNamedException e) {
-							e.printStackTrace();
+						
+						/*
+						 * Check if the maximum energy limit is reached, informs the user and sets the
+						 * status
+						 */
+						int limit = this.parent.getSetEnergyLimit().orElse(0);
+						int energy = this.parent.getEnergySession().orElse(0);
+						if (energy >= limit && limit != 0) {
+							try {
+								this.parent.setDisplayText(limit + "Wh erreicht");
+								status = Status.ENERGY_LIMIT_REACHED;
+							} catch (OpenemsNamedException e) {
+								e.printStackTrace();
+							}
 						}
+					} else {
+						// Plug not fully connected
+						status = Status.NOT_READY_FOR_CHARGING;
 					}
 
 					this.parent._setStatus(status);
@@ -174,8 +177,8 @@ public class ReadHandler implements Consumer<String> {
 					setInt(KebaChannelId.ACTUAL_POWER, jsonMessage, "P");
 					setInt(KebaChannelId.COS_PHI, jsonMessage, "PF");
 
-					long totalEnergy = Math.round((JsonUtils.getAsOptionalInt(jsonMessage, "E total").orElse(0)) * 0.1);
-					this.parent.channel(KebaChannelId.ENERGY_TOTAL).setNextValue((int) totalEnergy);
+					long totalEnergy = Math.round((JsonUtils.getAsOptionalLong(jsonMessage, "E total").orElse(0L)) * 0.1F);
+					this.parent.channel(KebaChannelId.ENERGY_TOTAL).setNextValue(totalEnergy);
 					this.parent._setActiveConsumptionEnergy(totalEnergy);
 
 					// Set the count of the Phases that are currently used
