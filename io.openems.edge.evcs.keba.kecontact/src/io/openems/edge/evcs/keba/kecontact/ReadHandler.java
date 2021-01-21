@@ -124,21 +124,24 @@ public class ReadHandler implements Consumer<String> {
 								status = Status.CHARGING_FINISHED;
 							}
 						}
-					}
-
-					/*
-					 * Check if the maximum energy limit is reached, informs the user and sets the
-					 * status
-					 */
-					int limit = this.parent.getSetEnergyLimit().orElse(0);
-					int energy = this.parent.getEnergySession().orElse(0);
-					if (energy >= limit && limit != 0) {
-						try {
-							this.parent.setDisplayText(limit + "Wh erreicht");
-							status = Status.ENERGY_LIMIT_REACHED;
-						} catch (OpenemsNamedException e) {
-							e.printStackTrace();
+						
+						/*
+						 * Check if the maximum energy limit is reached, informs the user and sets the
+						 * status
+						 */
+						int limit = this.parent.getSetEnergyLimit().orElse(0);
+						int energy = this.parent.getEnergySession().orElse(0);
+						if (energy >= limit && limit != 0) {
+							try {
+								this.parent.setDisplayText(limit + "Wh erreicht");
+								status = Status.ENERGY_LIMIT_REACHED;
+							} catch (OpenemsNamedException e) {
+								e.printStackTrace();
+							}
 						}
+					} else {
+						// Plug not fully connected
+						status = Status.NOT_READY_FOR_CHARGING;
 					}
 
 					this.parent._setStatus(status);
@@ -174,8 +177,9 @@ public class ReadHandler implements Consumer<String> {
 					setInt(KebaChannelId.ACTUAL_POWER, jsonMessage, "P");
 					setInt(KebaChannelId.COS_PHI, jsonMessage, "PF");
 
-					this.parent.channel(KebaChannelId.ENERGY_TOTAL)
-							.setNextValue((JsonUtils.getAsOptionalInt(jsonMessage, "E total").orElse(0)) * 0.1);
+					long totalEnergy = Math.round((JsonUtils.getAsOptionalLong(jsonMessage, "E total").orElse(0L)) * 0.1F);
+					this.parent.channel(KebaChannelId.ENERGY_TOTAL).setNextValue(totalEnergy);
+					this.parent._setActiveConsumptionEnergy(totalEnergy);
 
 					// Set the count of the Phases that are currently used
 					Channel<Integer> currentL1 = parent.channel(KebaChannelId.CURRENT_L1);
@@ -205,11 +209,11 @@ public class ReadHandler implements Consumer<String> {
 					/*
 					 * Set MAXIMUM_HARDWARE_POWER of Evcs
 					 */
-					Channel<Integer> maxHW = this.parent.channel(KebaChannelId.MAX_CURR);
+					Channel<Integer> maxHW = this.parent.channel(KebaChannelId.DIP_SWITCH_MAX_HW);
 					int phases = this.parent.getPhases().orElse(3);
 
-					this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER).setNextValue(
-							230 /* Spannung */ * (maxHW.value().orElse(32000) / 1000) /* max Strom */ * phases);
+					this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER)
+							.setNextValue(230 /* Spannung */ * maxHW.value().orElse(32) /* max Strom */ * phases);
 					/*
 					 * Set default MINIMUM_HARDWARE_POWER of Evcs
 					 */
@@ -300,6 +304,27 @@ public class ReadHandler implements Consumer<String> {
 		// Set Channel for "installation mode set"
 		setState = dipSwitch2.charAt(7) == '1' ? true : false;
 		setnextStateChannelValue(KebaChannelId.DIP_SWITCH_INFO_2_8_SET_FOR_INSTALLATION, setState);
+
+		// Set Channel for the configured maximum limit in mA
+		Integer hwLimit = null;
+		String hwLimitDips = dipSwitch1.substring(5);
+
+		switch (hwLimitDips) {
+		case "000":
+			hwLimit = 10;
+			break;
+		case "100":
+			hwLimit = 13;
+		case "010":
+			hwLimit = 16;
+		case "110":
+			hwLimit = 20;
+		case "001":
+			hwLimit = 25;
+		case "101":
+			hwLimit = 32;
+		}
+		this.parent.channel(KebaChannelId.DIP_SWITCH_MAX_HW).setNextValue(hwLimit);
 	}
 
 	/**
