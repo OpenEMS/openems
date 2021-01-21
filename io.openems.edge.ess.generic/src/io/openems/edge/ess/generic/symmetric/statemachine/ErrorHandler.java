@@ -27,6 +27,8 @@ public class ErrorHandler extends StateHandler<State, Context> {
 		GenericManagedSymmetricEss ess = context.getParent();
 
 		ess._setMaxBatteryStartAttemptsFault(false);
+		ess._setMaxBatteryStopAttemptsFault(false);
+		ess._setMaxBatteryInverterStartAttemptsFault(false);
 		ess._setMaxBatteryInverterStopAttemptsFault(false);
 	}
 
