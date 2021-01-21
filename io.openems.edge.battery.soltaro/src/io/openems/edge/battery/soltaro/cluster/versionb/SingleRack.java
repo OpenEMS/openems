@@ -121,30 +121,59 @@ public class SingleRack {
 		this.channelMap = this.createChannelMap();
 	}
 
+	/**
+	 * Gets the Channels.
+	 * @return Collection
+	 */
 	public Collection<Channel<?>> getChannels() {
 		return this.channelMap.values();
 	}
 
+	/**
+	 * Gets the Channel.
+	 * @param key the Key
+	 * @return Channel
+	 */
 	public Channel<?> getChannel(String key) {
 		return this.channelMap.get(key);
 	}
 
+	/**
+	 * Gets the SoC.
+	 * @return int
+	 */
 	public int getSoC() {
 		return this.getIntFromChannel(KEY_SOC, 0);
 	}
 
+	/**
+	 * Gets the MinimalCellVoltage.
+	 * @return int
+	 */
 	public int getMinimalCellVoltage() {
 		return this.getIntFromChannel(KEY_MIN_CELL_VOLTAGE, -1);
 	}
-
+	
+	/**
+	 * Gets the MaximalCellVoltage.
+	 * @return int
+	 */
 	public int getMaximalCellVoltage() {
 		return this.getIntFromChannel(KEY_MAX_CELL_VOLTAGE, -1);
 	}
-
+	
+	/**
+	 * Gets the MinimalCellTemperature.
+	 * @return int
+	 */
 	public int getMinimalCellTemperature() {
 		return this.getIntFromChannel(KEY_MIN_CELL_TEMPERATURE, -1);
 	}
 
+	/**
+	 * Gets the MaximalCellTemperature.
+	 * @return int
+	 */
 	public int getMaximalCellTemperature() {
 		return this.getIntFromChannel(KEY_MAX_CELL_TEMPERATURE, -1);
 	}
@@ -378,7 +407,7 @@ public class SingleRack {
 			}
 		}
 		// Cell temperatures formatted like : "RACK_1_BATTERY_000_TEMPERATURE"
-		for (int i = 0; i < numberOfSlaves; i++) {
+		for (int i = 0; i < this.numberOfSlaves; i++) {
 			for (int j = i * TEMPERATURE_SENSORS_PER_MODULE; j < (i + 1) * TEMPERATURE_SENSORS_PER_MODULE; j++) {
 				String key = this.getSingleCellPrefix(j) + "_" + TEMPERATURE;
 				this.addEntry(map, key, new IntegerDoc().unit(Unit.DEZIDEGREE_CELSIUS));
@@ -388,6 +417,10 @@ public class SingleRack {
 		return map;
 	}
 
+	/**
+	 * Gets the Tasks.
+	 * @return Collection
+	 */
 	public Collection<Task> getTasks() {
 		Collection<Task> tasks = new ArrayList<>();
 
@@ -537,10 +570,18 @@ public class SingleRack {
 		return tasks;
 	}
 
+	/**
+	 * Gets the RackNumber.
+	 * @return int
+	 */
 	public int getRackNumber() {
 		return this.rackNumber;
 	}
 
+	/**
+	 * Gets the AddressOffset.
+	 * @return int
+	 */
 	public int getAddressOffset() {
 		return this.addressOffset;
 	}

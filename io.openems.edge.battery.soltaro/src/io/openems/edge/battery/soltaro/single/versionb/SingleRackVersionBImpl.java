@@ -28,11 +28,9 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.CellCharacteristic;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.ModuleParameters;
-import io.openems.edge.battery.soltaro.SoltaroCellCharacteristic;
-import io.openems.edge.battery.soltaro.Util;
+import io.openems.edge.battery.soltaro.SetAllowedCurrents;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.Context;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.ControlAndLogic;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine;
@@ -92,7 +90,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 	private Config config;
 	private Map<String, Channel<?>> channelMap;
 
-	private final CellCharacteristic cellCharacteristic = new SoltaroCellCharacteristic();
+	private final SetAllowedCurrents setAllowedCurrents;
 
 	public SingleRackVersionBImpl() {
 		super(//
@@ -101,6 +99,12 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				StartStoppable.ChannelId.values(), //
 				SingleRackVersionB.ChannelId.values() //
 		);
+		
+		this.setAllowedCurrents = new SetAllowedCurrents(//
+				this.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT), //
+				this.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT), //
+				this //
+			);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -134,7 +138,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		Context context = new Context(this, this.config, this.cellCharacteristic);
+		Context context = new Context(this, this.config);
 
 		// Call the StateMachine
 		try {
@@ -166,7 +170,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 
-			this.setAllowedCurrents();
+			this.setAllowedCurrents.act();;
 
 			break;
 
@@ -174,36 +178,6 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 			this.handleStateMachine();
 			break;
 		}
-	}
-
-	private final static int MAX_INCREASE_MILLIAMPERE = 300;
-
-	private int lastMaxChargeCurrentFromBMS = 0;
-	private int lastMaxDischargeCurrentFromBMS = 0;
-
-	private void setAllowedCurrents() {
-		IntegerReadChannel maxChargeCurrentChannel = this
-				.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT);
-		int maxChargeCurrentFromBMS = maxChargeCurrentChannel.value().orElse(0);
-
-		// Allow max increase of 1 A
-		if (maxChargeCurrentFromBMS > lastMaxChargeCurrentFromBMS + MAX_INCREASE_MILLIAMPERE) {
-			maxChargeCurrentFromBMS = lastMaxChargeCurrentFromBMS + MAX_INCREASE_MILLIAMPERE;
-		}
-		this.lastMaxChargeCurrentFromBMS = maxChargeCurrentFromBMS;
-
-		IntegerReadChannel maxDischargeChannel = this
-				.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT);
-		int maxDischargeCurrentFromBMS = maxDischargeChannel.value().orElse(0);
-
-		// Allow max increase of 1 A
-		if (maxDischargeCurrentFromBMS > lastMaxDischargeCurrentFromBMS + MAX_INCREASE_MILLIAMPERE) {
-			maxDischargeCurrentFromBMS = lastMaxDischargeCurrentFromBMS + MAX_INCREASE_MILLIAMPERE;
-		}
-		this.lastMaxDischargeCurrentFromBMS = maxDischargeCurrentFromBMS;
-
-		Util.setMaxAllowedCurrents(this.cellCharacteristic, maxChargeCurrentFromBMS / 1000,
-				maxDischargeCurrentFromBMS / 1000, this);
 	}
 
 	@Override
@@ -652,8 +626,8 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.SLAVE_TEMPERATURE_COMMUNICATION_ERROR_LOW,
 								new UnsignedWordElement(0x21B5)) //
 				), //
-					// Add tasks to read/write work and warn parameters
-					// Stop parameter
+				// Add tasks to read/write work and warn parameters
+				// Stop parameter
 				new FC16WriteRegistersTask(0x2040, //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_VOLTAGE_PROTECTION,
 								new UnsignedWordElement(0x2040)), //

@@ -30,6 +30,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.ChargeIndication;
+import io.openems.edge.battery.soltaro.SetAllowedCurrents;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -58,8 +59,10 @@ import io.openems.edge.common.taskmanager.Priority;
 		name = "Bms.Soltaro.SingleRack.VersionA", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
 public class SingleRack extends AbstractOpenemsModbusComponent
 		implements Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
@@ -95,6 +98,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	private LocalDateTime pendingTimestamp;
 
+	private final SetAllowedCurrents setAllowedCurrents;
+
 	public SingleRack() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -106,6 +111,12 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		this._setChargeMaxVoltage(SingleRack.CHARGE_MAX_V);
 		this._setDischargeMaxCurrent(SingleRack.DISCHARGE_MAX_A);
 		this._setDischargeMinVoltage(SingleRack.DISCHARGE_MIN_V);
+		
+		this.setAllowedCurrents = new SetAllowedCurrents(//
+				this.channel(SingleRack.ChannelId.SYSTEM_ACCEPT_MAX_CHARGE_CURRENT), //
+				this.channel(SingleRack.ChannelId.SYSTEM_ACCEPT_MAX_DISCHARGE_CURRENT), //
+				this //
+			);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -161,6 +172,11 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
+
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+
+			this.setAllowedCurrents.act();
+			break;
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.handleBatteryState();
@@ -321,6 +337,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Checks whether system has an undefined state.
+	 * @return true when the system is pending
 	 */
 	private boolean isSystemStatePending() {
 		return !this.isSystemRunning() && !this.isSystemStopped();
@@ -332,15 +349,27 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		return bOpt.isPresent() && bOpt.get();
 	}
 
+	/**
+	 * Returns the statemachine state.
+	 * @return the statemachine state
+	 */
 	public State getStateMachineState() {
 		return this.state;
 	}
 
+	/**
+	 * Sets the state.
+	 * @param state the State
+	 */
 	public void setStateMachineState(State state) {
 		this.state = state;
 		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
 	}
 
+	/**
+	 * Returns the modbus bridge id.
+	 * @return the modbus bridge id
+	 */
 	public String getModbusBridgeId() {
 		return this.modbusBridgeId;
 	}
@@ -349,11 +378,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return "SoC:" + this.getSoc() //
 				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
-				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent()
-				+ "|Running: " + this.isSystemRunning()
-				+ "|U: " + this.getVoltage()
-				+ "|I: " + this.getCurrent()
-				;
+				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() + "|Running: "
+				+ this.isSystemRunning() + "|U: " + this.getVoltage() + "|I: " + this.getCurrent();
 	}
 
 	private void startSystem() {
@@ -1149,10 +1175,10 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 						m(SingleRack.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x2116)) //
 				), //
 				new FC3ReadRegistersTask(0x2160, Priority.HIGH, //
-						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(0x2160), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new UnsignedWordElement(0x2161), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+						m(SingleRack.ChannelId.SYSTEM_ACCEPT_MAX_CHARGE_CURRENT, new UnsignedWordElement(0x2160), //
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRack.ChannelId.SYSTEM_ACCEPT_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(0x2161), //
+								ElementToChannelConverter.SCALE_FACTOR_2) //
 				), //
 				new FC3ReadRegistersTask(0x2140, Priority.LOW, //
 						m(new BitsWordElement(0x2140, this) //
@@ -1511,6 +1537,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
 		// TODO start stop is not implemented
-		throw new NotImplementedException("Start Stop is not implemented for Soltaro SingleRackVersionBImpl Version B");
+		throw new NotImplementedException("Start Stop is not implemented for Soltaro Version A");
 	}
 }

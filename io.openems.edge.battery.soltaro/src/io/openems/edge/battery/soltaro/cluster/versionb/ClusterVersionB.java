@@ -29,6 +29,7 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.ModuleParameters;
 import io.openems.edge.battery.soltaro.ResetState;
+import io.openems.edge.battery.soltaro.SetAllowedCurrents;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
 import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
@@ -62,7 +63,10 @@ import io.openems.edge.common.taskmanager.Priority;
 		name = "Bms.Soltaro.Cluster.VersionB", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		}
 )
 public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		implements SoltaroCluster, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
@@ -81,7 +85,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 	// are used or not
 	private static final Map<Integer, RackInfo> RACK_INFO = createRackInfo();
 	private final Logger log = LoggerFactory.getLogger(ClusterVersionB.class);
-
+	private final SetAllowedCurrents setAllowedCurrents;
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -109,6 +113,11 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 				StartStoppable.ChannelId.values(), //
 				SoltaroCluster.ChannelId.values(), //
 				ClusterVersionBChannelId.values() //
+		);
+		this.setAllowedCurrents = new SetAllowedCurrents(//
+				this.channel(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_CHARGE_CURRENT), //
+				this.channel(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_DISCHARGE_CURRENT), //
+				this //
 		);
 	}
 
@@ -155,7 +164,12 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
+		
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 
+			this.setAllowedCurrents.act();
+
+			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.handleBatteryState();
 			break;
@@ -367,6 +381,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 	 * Checks whether system has an undefined state, e.g. rack 1 & 2 are configured,
 	 * but only rack 1 is running. This state can only be reached at startup coming
 	 * from state undefined
+	 * @return boolean
 	 */
 	private boolean isSystemStatePending() {
 		boolean b = true;
@@ -454,14 +469,26 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	/**
+	 * Gets the ModbusBridgeId.
+	 * @return String
+	 */
 	public String getModbusBridgeId() {
 		return this.modbusBridgeId;
 	}
 
+	/**
+	 * Gets the StateMachineState.
+	 * @return State
+	 */
 	public State getStateMachineState() {
 		return this.state;
 	}
 
+	/**
+	 * Sets the StateMachineState.
+	 * @param state the {@link State}
+	 */
 	public void setStateMachineState(State state) {
 		this.state = state;
 		this.channel(ClusterVersionBChannelId.STATE_MACHINE).setNextValue(this.state);
@@ -570,10 +597,10 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(0x104A, Priority.HIGH, //
 						m(SoltaroCluster.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x104A)), //
 						new DummyRegisterElement(0x104B, 0x104D), //
-						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(0x104E),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new UnsignedWordElement(0x104F),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+						m(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_CHARGE_CURRENT, new UnsignedWordElement(0x104E),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_DISCHARGE_CURRENT, new UnsignedWordElement(0x104F),
+								ElementToChannelConverter.SCALE_FACTOR_2) //
 				), //
 
 				new FC3ReadRegistersTask(0x1081, Priority.LOW, //
