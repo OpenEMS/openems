@@ -13,7 +13,7 @@
         <ion-content>
             <ion-card-content>
                 <!-- Role State User: show Warnings and Faults only -->
-                <ion-list *ngIf="roleState == 'user'">
+                <ion-list *ngIf="roleState == 'owner'">
                     <ng-container *ngFor="let category of components">
                         <ng-container *ngFor="let item of category.components">
                             <ng-container

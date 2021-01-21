@@ -1,4 +1,3 @@
-import { ActivatedRoute } from '@angular/router';
 import { CategorizedComponents, EdgeConfig } from '../../edge/edgeconfig';
 import { Component, Input } from '@angular/core';
 import { Edge, Service, Websocket, ChannelAddress } from '../../../shared/shared';
@@ -7,15 +6,13 @@ import { ModalController } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-type RoleState = 'admin' | 'user' | 'none';
-
 @Component({
     selector: StatusSingleComponent.SELECTOR,
     templateUrl: './status.component.html'
 })
 export class StatusSingleComponent {
 
-    @Input() public roleState: RoleState | null = null;
+    @Input() public roleState: string | null = null;
 
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
@@ -32,7 +29,6 @@ export class StatusSingleComponent {
 
 
     constructor(
-        private route: ActivatedRoute,
         public modalCtrl: ModalController,
         public service: Service,
         private websocket: Websocket,

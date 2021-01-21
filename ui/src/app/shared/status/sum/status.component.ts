@@ -4,7 +4,6 @@ import { ModalController } from '@ionic/angular';
 import { Service } from '../../../shared/shared';
 import { StatusSingleComponent } from '../single/status.component';
 
-type RoleState = 'admin' | 'user' | 'none';
 
 @Component({
     selector: StatusSumComponent.SELECTOR,
@@ -16,7 +15,7 @@ export class StatusSumComponent {
 
     private static readonly SELECTOR = "status-sum";
 
-    public roleState: RoleState = 'none';
+    public roleState: string = 'none';
 
     constructor(
         public modalCtrl: ModalController,
@@ -24,20 +23,7 @@ export class StatusSumComponent {
     ) { }
 
     ngOnInit() {
-        ///////////////////////////////////////////
-        //this.service.isStatusAllowed(this.edge)//
-        ///////////IS FENECON ONLY CODE////////////
-        //////////// CARE WHEN REVIEW//////////////
-        ///////////////////////////////////////////
-        if (this.edge != null) {
-            if (this.edge.roleIsAtLeast('admin')) {
-                this.roleState = 'admin';
-            } else if (this.edge.roleIsAtLeast('user') && this.service.isStatusAllowed(this.edge)) {
-                this.roleState = 'user';
-            } else {
-                this.roleState = 'none';
-            }
-        }
+        this.roleState = this.service.getInfoStates(this.edge);
     }
 
 
