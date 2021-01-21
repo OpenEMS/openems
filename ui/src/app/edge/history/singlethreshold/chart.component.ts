@@ -191,7 +191,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
     let inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
     let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
     let labelString;
-    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    let options = this.createDefaultChartOptions();
     let translate = this.translate;
 
     if (inputChannel.channelId == 'EssSoc') {

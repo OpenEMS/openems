@@ -6,6 +6,7 @@ import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
+import { differenceInDays } from 'date-fns';
 
 @Component({
     selector: 'socStorageChart',
@@ -131,7 +132,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
     }
 
     protected setLabel() {
-        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+        let options = this.createDefaultChartOptions();
         options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;

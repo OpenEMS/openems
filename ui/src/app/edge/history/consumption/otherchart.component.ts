@@ -7,6 +7,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { TranslateService } from '@ngx-translate/core';
+import { differenceInDays } from 'date-fns';
 
 @Component({
     selector: 'consumptionOtherChart',
@@ -117,7 +118,7 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
     }
 
     protected setLabel() {
-        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+        let options = this.createDefaultChartOptions();
         options.scales.yAxes[0].scaleLabel.labelString = "kW";
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;

@@ -1,6 +1,6 @@
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
+import { ChannelAddress, Edge, Service, EdgeConfig, Utils, } from '../../../shared/shared';
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -14,6 +14,9 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
     @Input() public period: DefaultTypes.HistoryPeriod;
 
     private static readonly SELECTOR = "storageWidget";
+
+    // reference to the Utils method to access via html
+    public isLastElement = Utils.isLastElement;
 
     public data: Cumulated = null;
     public edge: Edge = null;

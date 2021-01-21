@@ -93,7 +93,7 @@ export class HeatPumptChartComponent extends AbstractHistoryChart implements OnI
     }
 
     protected setLabel() {
-        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+        let options = this.createDefaultChartOptions();
         let translate = this.translate;
         options.scales.yAxes[0].id = 'yAxis1'
         options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.state');

@@ -400,10 +400,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         // Direct Consumption
         let directConsumptionData: null | number[] = null;
 
-        if ('_sum/ProductionActiveEnergy' in result.data && '_sum/EssDcChargeEnergy' in result.data && '_sum/GridSellActiveEnergy' in result.data) {
+        if ('_sum/ProductionActiveEnergy' in result.data && '_sum/EssActiveChargeEnergy' in result.data && '_sum/GridSellActiveEnergy' in result.data) {
           let directConsumption = [];
           result.data['_sum/ProductionActiveEnergy'].forEach((value, index) => {
-            directConsumption.push(value - result.data['_sum/GridSellActiveEnergy'][index] - result.data['_sum/EssDcChargeEnergy'][index]);
+            directConsumption.push(value - result.data['_sum/GridSellActiveEnergy'][index] - result.data['_sum/EssActiveChargeEnergy'][index]);
           });
           directConsumptionData = directConsumption.map(value => {
             if (value == null) {
@@ -486,8 +486,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         /*
          * Storage Charge
          */
-        if ('_sum/EssDcChargeEnergy' in result.data) {
-          let chargeData = result.data['_sum/EssDcChargeEnergy'].map(value => {
+        if ('_sum/EssActiveChargeEnergy' in result.data) {
+          let chargeData = result.data['_sum/EssActiveChargeEnergy'].map(value => {
             if (value == null) {
               return null
             } else {
@@ -556,8 +556,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         /*
          * Storage Discharge
          */
-        if ('_sum/EssDcDischargeEnergy' in result.data) {
-          let dischargeData = result.data['_sum/EssDcDischargeEnergy'].map(value => {
+        if ('_sum/EssActiveDischargeEnergy' in result.data) {
+          let dischargeData = result.data['_sum/EssActiveDischargeEnergy'].map(value => {
             if (value == null) {
               return null
             } else {
@@ -649,8 +649,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             result.push(new ChannelAddress('_sum', 'GridSellActiveEnergy'));
             break;
           case 'Storage':
-            result.push(new ChannelAddress('_sum', 'EssDcChargeEnergy'))
-            result.push(new ChannelAddress('_sum', 'EssDcDischargeEnergy'));
+            result.push(new ChannelAddress('_sum', 'EssActiveChargeEnergy'));
+            result.push(new ChannelAddress('_sum', 'EssActiveDischargeEnergy'));
             break;
           case 'Production':
             result.push(
@@ -675,7 +675,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             result.push(new ChannelAddress('_sum', 'ConsumptionActivePower'));
             break;
           case 'Storage':
-            result.push(new ChannelAddress('_sum', 'EssSoc'))
+            result.push(new ChannelAddress('_sum', 'EssSoc'));
             result.push(new ChannelAddress('_sum', 'EssActivePower'));
             break;
           case 'Production':
@@ -720,23 +720,23 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
               labels.gridSell += " " + this.unitpipe.transform(kwhGridSellValue, "kWh").toString();
             }
-            if ('_sum/EssDcChargeEnergy' in result.data && response.result.data["_sum/EssDcChargeEnergy"] != null) {
-              let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
+            if ('_sum/EssActiveChargeEnergy' in result.data && response.result.data["_sum/EssActiveChargeEnergy"] != null) {
+              let kwhChargeValue = response.result.data["_sum/EssActiveChargeEnergy"];
               labels.charge += " " + this.unitpipe.transform(kwhChargeValue, "kWh").toString();
             }
-            if ('_sum/EssDcDischargeEnergy' in result.data && response.result.data["_sum/EssDcDischargeEnergy"] != null) {
-              let kwhDischargeValue = response.result.data["_sum/EssDcDischargeEnergy"];
+            if ('_sum/EssActiveDischargeEnergy' in result.data && response.result.data["_sum/EssActiveDischargeEnergy"] != null) {
+              let kwhDischargeValue = response.result.data["_sum/EssActiveDischargeEnergy"];
               labels.discharge += " " + this.unitpipe.transform(kwhDischargeValue, "kWh").toString();
             }
             if ('_sum/ConsumptionActiveEnergy' in result.data && response.result.data["_sum/ConsumptionActiveEnergy"] != null) {
               let kwhConsumptionValue = response.result.data["_sum/ConsumptionActiveEnergy"];
               labels.consumption += " " + this.unitpipe.transform(kwhConsumptionValue, "kWh").toString();
             }
-            if ('_sum/ProductionActiveEnergy' in result.data && '_sum/EssDcChargeEnergy' in result.data && '_sum/GridSellActiveEnergy' in result.data
-              && response.result.data["_sum/ProductionActiveEnergy"] != null && response.result.data["_sum/EssDcChargeEnergy"] != null
+            if ('_sum/ProductionActiveEnergy' in result.data && '_sum/EssActiveChargeEnergy' in result.data && '_sum/GridSellActiveEnergy' in result.data
+              && response.result.data["_sum/ProductionActiveEnergy"] != null && response.result.data["_sum/EssActiveChargeEnergy"] != null
               && response.result.data["_sum/GridSellActiveEnergy"]) {
               let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"]
-              let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
+              let kwhChargeValue = response.result.data["_sum/EssActiveChargeEnergy"];
               let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
               let directConsumptionValue = kwhProductionValue - kwhGridSellValue - kwhChargeValue;
               labels.directConsumption += " " + this.unitpipe.transform(directConsumptionValue, "kWh").toString();
@@ -753,7 +753,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   }
 
   private setKwhLabel() {
-    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    let options = this.createDefaultChartOptions();
     // general
     options.responsive = true;
     options.layout = {
@@ -941,7 +941,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   protected setLabel() {
     let translate = this.translate;
-    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    let options = this.createDefaultChartOptions();
     // adds second y-axis to chart
     options.scales.yAxes.push({
       id: 'yAxis2',
@@ -969,12 +969,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         top: 0,
         bottom: 0
       }
-    }
-    //x-axis
-    if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 5) {
-      options.scales.xAxes[0].time.unit = "day";
-    } else {
-      options.scales.xAxes[0].time.unit = "hour";
     }
 
     //y-axis
