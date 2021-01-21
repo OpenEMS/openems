@@ -1,6 +1,5 @@
-import { ActivatedRoute } from '@angular/router';
 import { CategorizedComponents, EdgeConfig } from '../../edge/edgeconfig';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Edge, Service, Websocket, ChannelAddress } from '../../../shared/shared';
 import { environment } from 'src/environments';
 import { ModalController } from '@ionic/angular';
@@ -12,6 +11,9 @@ import { takeUntil } from 'rxjs/operators';
     templateUrl: './status.component.html'
 })
 export class StatusSingleComponent {
+
+    @Input() public roleState: string | null = null;
+
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
 
@@ -27,7 +29,6 @@ export class StatusSingleComponent {
 
 
     constructor(
-        private route: ActivatedRoute,
         public modalCtrl: ModalController,
         public service: Service,
         private websocket: Websocket,
@@ -37,6 +38,9 @@ export class StatusSingleComponent {
         this.service.getConfig().then(config => {
             this.config = config;
             let categorizedComponentIds: string[] = []
+            if (this.roleState == 'user') {
+                categorizedComponentIds = ["componentManager", "_cycle", "_meta", "_power", "_sum"]
+            }
             this.components = config.listActiveComponents(categorizedComponentIds);
             this.components.forEach(categorizedComponent => {
                 categorizedComponent.components.forEach(component => {

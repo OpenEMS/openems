@@ -25,6 +25,7 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { UnitvaluePipe } from './pipe/unitvalue/unitvalue.pipe';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
+import { StatusSumComponent } from './status/sum/status.component';
 
 @NgModule({
   imports: [
@@ -52,6 +53,7 @@ import { Websocket } from './service/websocket';
     // components
     ChartOptionsComponent,
     HeaderComponent,
+    StatusSumComponent,
     PercentageBarComponent,
     PickDateComponent,
   ],
@@ -79,6 +81,7 @@ import { Websocket } from './service/websocket';
     // components
     ChartOptionsComponent,
     HeaderComponent,
+    StatusSumComponent,
     PercentageBarComponent,
     PickDateComponent,
   ],

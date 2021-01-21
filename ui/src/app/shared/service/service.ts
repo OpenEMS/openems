@@ -34,7 +34,14 @@ export class Service implements ErrorHandler {
   public isSmartphoneResolutionSubject: Subject<boolean> = new Subject<boolean>();
 
   /**
-   * Holds the currenty selected Page Title.
+   * Holds the currently selected main page
+   * is set by header.component.ts
+   * e.g. History, Live etc.
+   */
+  public currentPage: string;
+
+  /**
+   * Holds the currenty selected page title.
    */
   public currentPageTitle: string;
 
@@ -413,6 +420,31 @@ export class Service implements ErrorHandler {
    */
   public isKwhAllowed(edge: Edge): boolean {
     return false;
+  }
+
+  /**
+   * Checks if this Edge is allowed edge states
+   * 
+   * admin: show everything
+   * owner: show warnings and faults
+   * 
+   * use in status component
+   */
+  public getInfoStates(edge: Edge): string {
+    // if (edge != null) {
+    //   if (edge.roleIsAtLeast(0)) {
+    //     return 'admin';
+    //   } else if (edge.roleIsAtLeast(2)
+    //     &&
+    //     (edge.producttype == 'Pro 9-12' ||
+    //       edge.producttype.includes('MiniES'))
+    //   ) {
+    //     return 'owner';
+    //   } else {
+    //     return 'none';
+    //   }
+    // },
+    return 'none';
   }
 
   /**
