@@ -2,7 +2,6 @@ package io.openems.edge.battery.soltaro;
 
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.api.CellCharacteristic;
-import io.openems.edge.battery.soltaro.single.Constants;
 import io.openems.edge.common.channel.IntegerReadChannel;
 
 public class SetAllowedCurrents {
@@ -10,6 +9,7 @@ public class SetAllowedCurrents {
 	public static final double CHARGE_DISCHARGE_FACTOR = 0.02;
 	public static final int MINIMUM_CURRENT = 1;
 	public static final int TOLERANCE_MV = 10;
+	public static final int MAX_INCREASE_MILLIAMPERE = 300;
 	
 	private int lastMaxChargeCurrentFromBmsMilliAmpere = 0;
 	private int lastMaxDischargeCurrentFromBmsMilliAmpere = 0;
@@ -37,16 +37,16 @@ public class SetAllowedCurrents {
 		int maxChargeCurrentFromBmsMilliAmpere = this.maxChargeCurrentChannel.value().orElse(0);
 
 		// limit increasing
-		if (maxChargeCurrentFromBmsMilliAmpere > this.lastMaxChargeCurrentFromBmsMilliAmpere + Constants.MAX_INCREASE_MILLIAMPERE) {
-			maxChargeCurrentFromBmsMilliAmpere = this.lastMaxChargeCurrentFromBmsMilliAmpere + Constants.MAX_INCREASE_MILLIAMPERE;
+		if (maxChargeCurrentFromBmsMilliAmpere > this.lastMaxChargeCurrentFromBmsMilliAmpere + MAX_INCREASE_MILLIAMPERE) {
+			maxChargeCurrentFromBmsMilliAmpere = this.lastMaxChargeCurrentFromBmsMilliAmpere + MAX_INCREASE_MILLIAMPERE;
 		}
 		this.lastMaxChargeCurrentFromBmsMilliAmpere = maxChargeCurrentFromBmsMilliAmpere;
 
 		int maxDischargeCurrentFromBmsMilliAmpere = this.maxDischargeCurrentChannel.value().orElse(0);
 
 		// limit increasing
-		if (maxDischargeCurrentFromBmsMilliAmpere > this.lastMaxDischargeCurrentFromBmsMilliAmpere + Constants.MAX_INCREASE_MILLIAMPERE) {
-			maxDischargeCurrentFromBmsMilliAmpere = this.lastMaxDischargeCurrentFromBmsMilliAmpere + Constants.MAX_INCREASE_MILLIAMPERE;
+		if (maxDischargeCurrentFromBmsMilliAmpere > this.lastMaxDischargeCurrentFromBmsMilliAmpere + MAX_INCREASE_MILLIAMPERE) {
+			maxDischargeCurrentFromBmsMilliAmpere = this.lastMaxDischargeCurrentFromBmsMilliAmpere + MAX_INCREASE_MILLIAMPERE;
 		}
 		this.lastMaxDischargeCurrentFromBmsMilliAmpere = maxDischargeCurrentFromBmsMilliAmpere;
 
