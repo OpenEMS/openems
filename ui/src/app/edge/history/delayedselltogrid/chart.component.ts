@@ -1,17 +1,17 @@
-import { AbstractHistoryChart } from '../../abstracthistorychart';
+import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
+import { Data, TooltipItem } from './../shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Data, TooltipItem } from './../../shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-    selector: 'symmetricpeakshavingchart',
-    templateUrl: '../../abstracthistorychart.html'
+    selector: 'delayedselltogridgchart',
+    templateUrl: '../abstracthistorychart.html'
 })
-export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class DelayedSellToGridChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
     @Input() private period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
@@ -30,7 +30,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
 
 
     ngOnInit() {
-        this.spinnerId = 'symmetricpeakshaving-chart';
+        this.spinnerId = 'delayedsellTogrid-chart';
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
     }
@@ -47,8 +47,8 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getConfig().then(config => {
                 let meterIdActivePower = config.getComponent(this.componentId).properties['meter.id'] + '/ActivePower';
-                let peakshavingPower = this.componentId + '/_PropertyPeakShavingPower';
-                let rechargePower = this.componentId + '/_PropertyRechargePower';
+                let sellToGridPowerLimit = this.componentId + '/_PropertySellToGridPowerLimit';
+                let continuousSellToGridPower = this.componentId + '/_PropertycontinuousSellToGridPower';
                 let result = response.result;
                 // convert labels
                 let labels: Date[] = [];
@@ -62,16 +62,16 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
 
                 if (meterIdActivePower in result.data) {
                     let data = result.data[meterIdActivePower].map(value => {
-                        if (value == null) {
-                            return null
-                        } else if (value == 0) {
+                        if (value < 0) {
+                            return (value * -1) / 1000 // convert to kW + positive GridSell values;
+                        } else if (value >= 0) {
                             return 0;
                         } else {
-                            return value / 1000; // convert to kW
+                            return null;
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant('General.measuredValue'),
+                        label: this.translate.instant('General.gridSell'),
                         data: data,
                         hidden: false
                     });
@@ -80,8 +80,8 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                         borderColor: 'rgba(0,0,0,1)'
                     })
                 }
-                if (rechargePower in result.data) {
-                    let data = result.data[rechargePower].map(value => {
+                if (sellToGridPowerLimit in result.data) {
+                    let data = result.data[sellToGridPowerLimit].map(value => {
                         if (value == null) {
                             return null
                         } else if (value == 0) {
@@ -91,7 +91,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant('Edge.Index.Widgets.Peakshaving.rechargePower'),
+                        label: this.translate.instant('Edge.Index.Widgets.Delayedselltogrid.sellToGridPowerLimit'),
                         data: data,
                         hidden: false,
                         borderDash: [3, 3]
@@ -101,8 +101,8 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                         borderColor: 'rgba(0,223,0,1)',
                     })
                 }
-                if (peakshavingPower in result.data) {
-                    let data = result.data[peakshavingPower].map(value => {
+                if (continuousSellToGridPower in result.data) {
+                    let data = result.data[continuousSellToGridPower].map(value => {
                         if (value == null) {
                             return null
                         } else if (value == 0) {
@@ -112,7 +112,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant('Edge.Index.Widgets.Peakshaving.peakshavingPower'),
+                        label: this.translate.instant('Edge.Index.Widgets.Delayedselltogrid.continuousSellToGridPower'),
                         data: data,
                         hidden: false,
                         borderDash: [3, 3]
@@ -192,8 +192,8 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, '_PropertyRechargePower'),
-                new ChannelAddress(this.componentId, '_PropertyPeakShavingPower'),
+                new ChannelAddress(this.componentId, '_PropertySellToGridPowerLimit'),
+                new ChannelAddress(this.componentId, '_PropertyContinuousSellToGridPower'),
                 new ChannelAddress(config.getComponent(this.componentId).properties['meter.id'], 'ActivePower'),
                 new ChannelAddress('_sum', 'ProductionDcActualPower'),
                 new ChannelAddress('_sum', 'EssActivePower')

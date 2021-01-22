@@ -144,6 +144,11 @@ export const TRANSLATION = {
                     switchOnBelow: 'Switch on below',
                     threshold: 'Threshold',
                 },
+                Delayedselltogrid: {
+                    sellToGridPowerLimit: 'Charge ci-dessus',
+                    continuousSellToGridPower: 'Décharge ci-dessous',
+                    relationError: 'La limite de charge doit être supérieure à la limite de décharge',
+                },
                 Peakshaving: {
                     asymmetricInfo: 'The entered performance values ​​refer to individual phases. It is adjusted to the most stressed phase.',
                     endDate: 'Date de fin',

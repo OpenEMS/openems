@@ -43,27 +43,35 @@ export class DelayedSellToGridModalComponent {
         if (this.edge != null) {
             if (this.edge.roleIsAtLeast('owner')) {
                 let continuousSellToGridPower = this.formGroup.controls['continuousSellToGridPower'];
-                let sellToGridPowerLimit = this.formGroup.controls['rechargePower'];
-                let updateComponentArray = [];
-                Object.keys(this.formGroup.controls).forEach((element, index) => {
-                    if (this.formGroup.controls[element].dirty) {
-                        updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                let sellToGridPowerLimit = this.formGroup.controls['sellToGridPowerLimit'];
+                if (continuousSellToGridPower.valid && sellToGridPowerLimit.valid) {
+                    if (sellToGridPowerLimit.value > continuousSellToGridPower.value) {
+                        let updateComponentArray = [];
+                        Object.keys(this.formGroup.controls).forEach((element, index) => {
+                            if (this.formGroup.controls[element].dirty) {
+                                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                            }
+                        })
+                        this.loading = true;
+                        this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
+                            this.component.properties.continuousSellToGridPower = continuousSellToGridPower.value;
+                            this.component.properties.sellToGridPowerLimit = sellToGridPowerLimit.value;
+                            this.loading = false;
+                            this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+                        }).catch(reason => {
+                            continuousSellToGridPower.setValue(this.component.properties.continuousSellToGridPower);
+                            sellToGridPowerLimit.setValue(this.component.properties.sellToGridPowerLimit);
+                            this.loading = false;
+                            this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+                            console.warn(reason);
+                        })
+                        this.formGroup.markAsPristine()
+                    } else {
+                        this.service.toast(this.translate.instant('Edge.Index.Widgets.Delayedselltogrid.relationError'), 'danger');
                     }
-                })
-                this.loading = true;
-                this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
-                    this.component.properties.continuousSellToGridPower = continuousSellToGridPower.value;
-                    this.component.properties.sellToGridPowerLimit = sellToGridPowerLimit.value;
-                    this.loading = false;
-                    this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-                }).catch(reason => {
-                    continuousSellToGridPower.setValue(this.component.properties.continuousSellToGridPower);
-                    sellToGridPowerLimit.setValue(this.component.properties.sellToGridPowerLimit);
-                    this.loading = false;
-                    this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-                    console.warn(reason);
-                })
-                this.formGroup.markAsPristine()
+                } else {
+                    this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
+                }
             } else {
                 this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
             }

@@ -1,12 +1,11 @@
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Service, Utils, Edge, EdgeConfig } from '../../../shared/shared';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
+import { ChannelAddress, Service, Edge, EdgeConfig } from '../../../shared/shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Data, TooltipItem } from './../shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
-import { differenceInDays } from 'date-fns';
 
 @Component({
     selector: 'chpsocchart',
@@ -45,7 +44,7 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getCurrentEdge().then(edge => {
+            this.service.getCurrentEdge().then(() => {
                 this.service.getConfig().then(config => {
                     let outputChannel = config.getComponentProperties(this.componentId)['outputChannelAddress'];
                     let inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];

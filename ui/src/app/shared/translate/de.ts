@@ -150,6 +150,11 @@ export const TRANSLATION = {
                     switchOnBelow: 'Einschalten unter',
                     threshold: 'Schwellenwert',
                 },
+                Delayedselltogrid: {
+                    sellToGridPowerLimit: 'Beladung über',
+                    continuousSellToGridPower: 'Entladung unter',
+                    relationError: 'Beladungsgrenze muss größer der Entladungsgrenze sein',
+                },
                 Peakshaving: {
                     asymmetricInfo: 'Eingetragene Leistungswerte beziehen sich auf einzelne Phasen. Es wird auf die jeweils am stärksten belastete Phase ausgeregelt.',
                     endDate: 'End Datum',

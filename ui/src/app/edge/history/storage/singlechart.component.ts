@@ -1,12 +1,11 @@
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Data, TooltipItem } from '../shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
-import { differenceInDays } from 'date-fns';
 
 @Component({
     selector: 'storageSingleChart',
