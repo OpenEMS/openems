@@ -78,6 +78,7 @@ public class DynamicDischarge extends AbstractOpenemsComponent
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		BUYING_FROM_GRID(Doc.of(Level.INFO)//
 				.text("The controller selfoptimization ran succefully"));
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -106,8 +107,8 @@ public class DynamicDischarge extends AbstractOpenemsComponent
 		// Get required variables
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 		LocalDateTime now = LocalDateTime.now();
-		int nettcapacity = ess.getCapacity().value().getOrError();
-		Integer availableCapacity = (100 / ess.getSoc().value().getOrError()) * nettcapacity;
+		int nettcapacity = ess.getCapacity().getOrError();
+		Integer availableCapacity = (100 / ess.getSoc().getOrError()) * nettcapacity;
 
 		if (now.getHour() == this.config.startHour() && !isTargetHoursCalculated) {
 			Integer[] productionValues = productionHourlyPredictor.get24hPrediction().getValues();
@@ -131,8 +132,8 @@ public class DynamicDischarge extends AbstractOpenemsComponent
 			this.proMoreThanCon = null;
 
 			TreeMap<LocalDateTime, Float> hourlyPrices = this.prices.houlryPrices(config.url(), config.apikey());
-			
-			if(hourlyPrices==null) {
+
+			if (hourlyPrices == null) {
 				return;
 			}
 
@@ -219,7 +220,7 @@ public class DynamicDischarge extends AbstractOpenemsComponent
 		// remaining amount of energy that should be covered from grid.
 		this.remainingCapacity = consumptionTotal - availableCapacity;
 	}
-	
+
 //	@SuppressWarnings("unused")
 //	private void calculateBoundaryhours(Integer[] productionValues, Integer[] consumptionValues,
 //			LocalDateTime startHour) {
@@ -285,14 +286,14 @@ public class DynamicDischarge extends AbstractOpenemsComponent
 		Float minPrice = Float.MAX_VALUE;
 		Integer remainingEnergy = this.remainingCapacity;
 
-			for (Map.Entry<LocalDateTime, Float> entry : hourlyPrices.entrySet()) {
-				if (!this.cheapHours.contains(entry.getKey())) {
-					if (entry.getValue() < minPrice) {
-						this.cheapTimeStamp = entry.getKey();
-						minPrice = entry.getValue();
-					}
+		for (Map.Entry<LocalDateTime, Float> entry : hourlyPrices.entrySet()) {
+			if (!this.cheapHours.contains(entry.getKey())) {
+				if (entry.getValue() < minPrice) {
+					this.cheapTimeStamp = entry.getKey();
+					minPrice = entry.getValue();
 				}
 			}
+		}
 		this.cheapHours.add(this.cheapTimeStamp);
 		log.info("cheapTimeStamp: " + this.cheapTimeStamp);
 
