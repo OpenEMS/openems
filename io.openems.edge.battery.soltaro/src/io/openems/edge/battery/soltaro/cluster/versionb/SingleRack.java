@@ -414,13 +414,13 @@ public class SingleRack {
 							this.parent.recalculateMinCellVoltage();
 						}), //
 				this.parent.map(this.channelIds.get(KEY_MAX_CELL_TEMPERATURE_ID), this.getUwe(0x109)), //
-				this.parent.map(this.channelIds.get(KEY_MAX_CELL_TEMPERATURE), this.getUwe(0x10A),
+				this.parent.map(this.channelIds.get(KEY_MAX_CELL_TEMPERATURE), this.getSwe(0x10A),
 						ElementToChannelConverter.SCALE_FACTOR_MINUS_1). //
 						onUpdateCallback(val -> {
 							this.parent.recalculateMaxCellTemperature();
 						}), //
 				this.parent.map(this.channelIds.get(KEY_MIN_CELL_TEMPERATURE_ID), this.getUwe(0x10B)), //
-				this.parent.map(this.channelIds.get(KEY_MIN_CELL_TEMPERATURE), this.getUwe(0x10C),
+				this.parent.map(this.channelIds.get(KEY_MIN_CELL_TEMPERATURE), this.getSwe(0x10C),
 						ElementToChannelConverter.SCALE_FACTOR_MINUS_1). //
 						onUpdateCallback(val -> {
 							this.parent.recalculateMinCellTemperature();
