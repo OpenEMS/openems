@@ -10,7 +10,7 @@ import { TranslateService } from '@ngx-translate/core';
     selector: 'heatpumpchart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class HeatPumptChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class HeatPumpChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
     @Input() private period: DefaultTypes.HistoryPeriod;
     @Input() public component: EdgeConfig.Component;

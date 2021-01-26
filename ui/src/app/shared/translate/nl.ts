@@ -149,7 +149,7 @@ export const TRANSLATION = {
                     startTime: 'Starttijd',
                     startTimeCharge: 'Starttijd laden',
                 },
-                Delayedselltogrid: {
+                DelayedSellToGrid: {
                     sellToGridPowerLimit: 'Laad hierboven op',
                     continuousSellToGridPower: 'Ontlading hieronder',
                     relationError: 'De kostenlimiet moet groter zijn dan de ontladingslimiet',

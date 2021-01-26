@@ -150,7 +150,7 @@ export const TRANSLATION = {
                     switchOnBelow: 'Einschalten unter',
                     threshold: 'Schwellenwert',
                 },
-                Delayedselltogrid: {
+                DelayedSellToGrid: {
                     sellToGridPowerLimit: 'Beladung über',
                     continuousSellToGridPower: 'Entladung unter',
                     relationError: 'Beladungsgrenze muss größer der Entladungsgrenze sein',

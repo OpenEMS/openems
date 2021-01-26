@@ -91,7 +91,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant('Edge.Index.Widgets.Delayedselltogrid.sellToGridPowerLimit'),
+                        label: this.translate.instant('Edge.Index.Widgets.DelayedSellToGrid.sellToGridPowerLimit'),
                         data: data,
                         hidden: false,
                         borderDash: [3, 3]
@@ -112,7 +112,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant('Edge.Index.Widgets.Delayedselltogrid.continuousSellToGridPower'),
+                        label: this.translate.instant('Edge.Index.Widgets.DelayedSellToGrid.continuousSellToGridPower'),
                         data: data,
                         hidden: false,
                         borderDash: [3, 3]

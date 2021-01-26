@@ -141,7 +141,7 @@ export const TRANSLATION = {
                     switchOnBelow: 'Zapněte pod',
                     threshold: 'Prahována',
                 },
-                Delayedselltogrid: {
+                DelayedSellToGrid: {
                     sellToGridPowerLimit: 'Poplatek výše',
                     continuousSellToGridPower: 'Výboj níže',
                     relationError: 'Limit poplatku musí být vyšší než limit vybití',

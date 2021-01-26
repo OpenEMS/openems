@@ -67,7 +67,7 @@ export class DelayedSellToGridModalComponent {
                         })
                         this.formGroup.markAsPristine()
                     } else {
-                        this.service.toast(this.translate.instant('Edge.Index.Widgets.Delayedselltogrid.relationError'), 'danger');
+                        this.service.toast(this.translate.instant('Edge.Index.Widgets.DelayedSellToGrid.relationError'), 'danger');
                     }
                 } else {
                     this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');

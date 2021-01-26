@@ -114,7 +114,7 @@ export abstract class AbstractHistoryChart {
         });
     }
 
-    public createDefaultChartOptions(): ChartOptions {
+    protected createDefaultChartOptions(): ChartOptions {
         let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
         //x-axis
         if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 5) {

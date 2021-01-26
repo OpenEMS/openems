@@ -11,7 +11,7 @@ import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayeds
 import { FixDigitalOutputChartOverviewComponent } from './edge/history/fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
 import { GridChartOverviewComponent } from './edge/history/grid/gridchartoverview/gridchartoverview.component';
 import { HeatingelementChartOverviewComponent } from './edge/history/heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
-import { HeatPumptChartOverviewComponent } from './edge/history/heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
+import { HeatPumpChartOverviewComponent } from './edge/history/heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
 import { HistoryComponent as EdgeHistoryComponent } from './edge/history/history.component';
 import { IndexComponent } from './index/index.component';
 import { IndexComponent as EdgeSettingsComponentInstallIndexComponentComponent } from './edge/settings/component/install/index.component';
@@ -51,7 +51,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/history/:componentId/delayedselltogridchart', component: DelayedSellToGridChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/fixdigitaloutputchart', component: FixDigitalOutputChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/heatingelementchart', component: HeatingelementChartOverviewComponent },
-  { path: 'device/:edgeId/history/:componentId/heatpumpchart', component: HeatPumptChartOverviewComponent },
+  { path: 'device/:edgeId/history/:componentId/heatpumpchart', component: HeatPumpChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/singlethresholdchart', component: SinglethresholdChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/symmetricpeakshavingchart', component: SymmetricPeakshavingChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/timeslotpeakshavingchart', component: TimeslotPeakshavingChartOverviewComponent },

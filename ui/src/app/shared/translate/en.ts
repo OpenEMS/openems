@@ -149,7 +149,7 @@ export const TRANSLATION = {
                     switchOnBelow: 'Switch on below',
                     threshold: 'Threshold',
                 },
-                Delayedselltogrid: {
+                DelayedSellToGrid: {
                     sellToGridPowerLimit: 'Charge above',
                     continuousSellToGridPower: 'Discharge below',
                     relationError: 'Charge limit must be greater than the Discharge limit',

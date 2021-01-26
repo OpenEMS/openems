@@ -12,7 +12,7 @@ export class DelayedSellToGridWidgetComponent implements OnInit {
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
 
-    private static readonly SELECTOR = "delayedselltogridWidget";
+    private static readonly SELECTOR = "delayedSellToGridWidget";
 
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;
