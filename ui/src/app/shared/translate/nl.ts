@@ -149,6 +149,11 @@ export const TRANSLATION = {
                     startTime: 'Starttijd',
                     startTimeCharge: 'Starttijd laden',
                 },
+                DelayedSellToGrid: {
+                    sellToGridPowerLimit: 'Laad hierboven op',
+                    continuousSellToGridPower: 'Ontlading hieronder',
+                    relationError: 'De kostenlimiet moet groter zijn dan de ontladingslimiet',
+                },
                 CHP: {
                     highThreshold: 'hoge drempel',
                     lowThreshold: 'Lage drempelwaarde',

@@ -16,6 +16,9 @@ import { ConsumptionOtherChartComponent } from './consumption/otherchart.compone
 import { ConsumptionSingleChartComponent } from './consumption/singlechart.component';
 import { ConsumptionTotalChartComponent } from './consumption/totalchart.component';
 import { ConsumptionComponent } from './consumption/widget.component';
+import { DelayedSellToGridChartComponent } from './delayedselltogrid/chart.component';
+import { DelayedSellToGridChartOverviewComponent } from './delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
+import { DelayedSellToGridWidgetComponent } from './delayedselltogrid/widget.component';
 import { EnergyComponent } from './energy/energy.component';
 import { EnergyModalComponent } from './energy/modal/modal.component';
 import { FixDigitalOutputChartOverviewComponent } from './fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
@@ -28,9 +31,9 @@ import { GridComponent } from './grid/widget.component';
 import { HeatingelementChartComponent } from './heatingelement/chart.component';
 import { HeatingelementChartOverviewComponent } from './heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
 import { HeatingelementWidgetComponent } from './heatingelement/widget.component';
-import { HeatPumptChartComponent } from './heatpump/chart.component';
-import { HeatPumptChartOverviewComponent } from './heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
-import { HeatpumptWidgetComponent } from './heatpump/widget.component';
+import { HeatPumpChartComponent } from './heatpump/chart.component';
+import { HeatPumpChartOverviewComponent } from './heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
+import { HeatpumpWidgetComponent } from './heatpump/widget.component';
 import { HistoryComponent } from './history.component';
 import { AsymmetricPeakshavingChartOverviewComponent } from './peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component';
 import { AsymmetricPeakshavingChartComponent } from './peakshaving/asymmetric/chart.component';
@@ -90,6 +93,9 @@ import { StorageComponent } from './storage/widget.component';
     ConsumptionOtherChartComponent,
     ConsumptionSingleChartComponent,
     ConsumptionTotalChartComponent,
+    DelayedSellToGridChartComponent,
+    DelayedSellToGridChartOverviewComponent,
+    DelayedSellToGridWidgetComponent,
     EnergyComponent,
     EnergyModalComponent,
     FixDigitalOutputChartOverviewComponent,
@@ -102,9 +108,9 @@ import { StorageComponent } from './storage/widget.component';
     HeatingelementChartComponent,
     HeatingelementChartOverviewComponent,
     HeatingelementWidgetComponent,
-    HeatPumptChartComponent,
-    HeatPumptChartOverviewComponent,
-    HeatpumptWidgetComponent,
+    HeatPumpChartComponent,
+    HeatPumpChartOverviewComponent,
+    HeatpumpWidgetComponent,
     HistoryComponent,
     ProductionChargerChartComponent,
     ProductionChartOverviewComponent,
@@ -127,12 +133,12 @@ import { StorageComponent } from './storage/widget.component';
     StorageESSChartComponent,
     StorageSingleChartComponent,
     StorageTotalChartComponent,
-    TimeslotPeakshavingChartComponent,
-    TimeslotPeakshavingChartOverviewComponent,
-    TimeslotPeakshavingWidgetComponent,
     SymmetricPeakshavingChartComponent,
     SymmetricPeakshavingChartOverviewComponent,
     SymmetricPeakshavingWidgetComponent,
+    TimeslotPeakshavingChartComponent,
+    TimeslotPeakshavingChartOverviewComponent,
+    TimeslotPeakshavingWidgetComponent,
   ]
 })
 export class HistoryModule { }

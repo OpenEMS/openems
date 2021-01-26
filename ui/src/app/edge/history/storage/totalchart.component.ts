@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
+import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'storageTotalChart',
@@ -225,8 +225,9 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
 
     protected setLabel() {
         let translate = this.translate; // enables access to TranslateService
-        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+        let options = this.createDefaultChartOptions();
         options.scales.yAxes[0].scaleLabel.labelString = "kW";
+
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
