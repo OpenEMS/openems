@@ -76,6 +76,7 @@ import { StorageComponent } from './storage/storage.component';
     BydModalComponent,
     ChpsocModalComponent,
     ConsumptionModalComponent,
+    DelayedSellToGridModalComponent,
     DigitalInputComponent,
     DigitalInputModalComponent,
     EvcsModalComponent,
