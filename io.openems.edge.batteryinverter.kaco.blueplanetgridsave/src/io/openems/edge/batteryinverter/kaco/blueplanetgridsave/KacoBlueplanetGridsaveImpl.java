@@ -100,7 +100,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	private Config config;
 
 	/**
-	 * Kaco 92 does not have model 64203
+	 * Kaco 92 does not have model 64203.
 	 */
 	private boolean hasSunSpecModel64203 = false;
 
