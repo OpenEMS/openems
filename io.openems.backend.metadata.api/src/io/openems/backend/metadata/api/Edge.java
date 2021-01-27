@@ -3,7 +3,6 @@ package io.openems.backend.metadata.api;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
@@ -13,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Objects;
 import com.google.gson.JsonObject;
 
-import io.openems.common.types.ChannelAddress;
+import io.openems.common.channel.Level;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
@@ -31,17 +30,20 @@ public class Edge {
 	private State state;
 	private SemanticVersion version;
 	private String producttype;
+	private Level sumState;
 	private EdgeConfig config;
 	private ZonedDateTime lastMessage = null;
 	private ZonedDateTime lastUpdate = null;
 	private boolean isOnline = false;
 
-	public Edge(String id, String comment, State state, String version, String producttype, EdgeConfig config) {
+	public Edge(String id, String comment, State state, String version, String producttype, Level sumState,
+			EdgeConfig config) {
 		this.id = id;
 		this.comment = comment;
 		this.state = state;
 		this.version = SemanticVersion.fromStringOrZero(version);
 		this.producttype = producttype;
+		this.sumState = sumState;
 		this.config = config;
 	}
 
@@ -298,16 +300,40 @@ public class Edge {
 	}
 
 	/*
-	 * Component States
+	 * Sum-State (value of channel "_sum/State").
 	 */
-	private final List<Consumer<Map<ChannelAddress, EdgeConfig.Component.Channel>>> onSetComponentStates = new CopyOnWriteArrayList<>();
-
-	public void onSetComponentState(Consumer<Map<ChannelAddress, EdgeConfig.Component.Channel>> listener) {
-		this.onSetComponentStates.add(listener);
+	public Level getSumState() {
+		return this.sumState;
 	}
 
-	public synchronized void setComponentState(Map<ChannelAddress, EdgeConfig.Component.Channel> activeStateChannels) {
-		this.onSetComponentStates.forEach(listener -> listener.accept(activeStateChannels));
+	private final List<Consumer<Level>> onSetSumState = new CopyOnWriteArrayList<>();
+
+	public void onSetSumState(Consumer<Level> listener) {
+		this.onSetSumState.add(listener);
+	}
+
+	/**
+	 * Sets the sumState and calls the SetSumState-Listeners.
+	 * 
+	 * @param sumState the sumState
+	 */
+	public synchronized void setSumState(Level sumState) {
+		this.setSumState(sumState, true);
+	}
+
+	/**
+	 * Sets the version.
+	 * 
+	 * @param sumState      the sumState
+	 * @param callListeners whether to call the SetSumState-Listeners
+	 */
+	public synchronized void setSumState(Level sumState, boolean callListeners) {
+		if (!Objects.equal(this.sumState, sumState)) { // on change
+			if (callListeners) {
+				this.onSetSumState.forEach(listener -> listener.accept(sumState));
+			}
+			this.sumState = sumState;
+		}
 	}
 
 }

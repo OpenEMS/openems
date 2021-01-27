@@ -31,6 +31,7 @@ import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.api.BackendUser;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -162,6 +163,7 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 							State.ACTIVE, // State
 							"", // Version
 							"", // Product-Type
+							Level.OK, // Sum-State
 							new EdgeConfig() // Config
 					));
 				}
