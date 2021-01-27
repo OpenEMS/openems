@@ -1,4 +1,4 @@
-package io.openems.edge.battery.soltaro;
+package io.openems.edge.battery.api;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -7,15 +7,25 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-public class UtilTest {
+import io.openems.edge.battery.api.SetAllowedCurrents;
+import io.openems.edge.battery.api.Settings;
+
+public class SetAllowedCurrentsTest {
 
 	private DummyBattery battery;
 	private DummyCellCharacteristic cellCharacteristic; 
+	private Settings settings;
+	
+	private static int MAX_INCREASE_MILLI_AMPERE = 300;
+	private static double MIN_CURRENT_AMPERE = 1;
+	private static int TOLERANCE_MILLI_VOLT = 10;
+	private static double POWER_FACTOR = 0.02;
 	
 	@Before
 	public void setUp() throws Exception {
 		battery = new DummyBattery();
 		cellCharacteristic = new DummyCellCharacteristic();
+		settings = new SettingsImpl(TOLERANCE_MILLI_VOLT, MIN_CURRENT_AMPERE, POWER_FACTOR, MAX_INCREASE_MILLI_AMPERE);
 	}
 
 	@Test
@@ -25,7 +35,7 @@ public class UtilTest {
 		int maxChargeCurrentFromBMS = DummyBattery.DEFAULT_MAX_CHARGE_CURRENT;
 		battery.setMinimalCellVoltage(DummyCellCharacteristic.FORCE_CHARGE_CELL_VOLTAGE_MV);
 
-		SetAllowedCurrents.setMaxAllowedCurrents(cellCharacteristic, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS, battery);
+		SetAllowedCurrents.setMaxAllowedCurrents(battery, cellCharacteristic, settings, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS);
 				
 		battery.getChargeMaxCurrentChannel().nextProcessImage();
 		battery.getForceDischargeActiveChannel().nextProcessImage();
@@ -36,7 +46,7 @@ public class UtilTest {
 		int actualMaxChargeCurrent = battery.getChargeMaxCurrent().get();
 		assertEquals(expectedMaxChargeCurrent, actualMaxChargeCurrent);
 		
-		int expectedMaxDischargeCurrent = - (int) Math.max(1, battery.getCapacity().get() * 0.02 / battery.getVoltage().get());
+		int expectedMaxDischargeCurrent = - (int) Math.max(MIN_CURRENT_AMPERE, battery.getCapacity().get() * POWER_FACTOR / battery.getVoltage().get());
 		int actualMaxDischargeCurrent = battery.getDischargeMaxCurrent().get();
 		assertEquals(expectedMaxDischargeCurrent, actualMaxDischargeCurrent);
 		
@@ -49,8 +59,8 @@ public class UtilTest {
 		assertEquals(expectedDischargeForce, actualdischargeForce);
 		
 		// Min Voltage has risen above force level, but is still under final discharge level minus tolerance 
-		battery.setMinimalCellVoltage(DummyCellCharacteristic.FINAL_CELL_DISCHARGE_VOLTAGE_MV - SetAllowedCurrents.TOLERANCE_MV - 1);
-		SetAllowedCurrents.setMaxAllowedCurrents(cellCharacteristic, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS, battery);
+		battery.setMinimalCellVoltage(DummyCellCharacteristic.FINAL_CELL_DISCHARGE_VOLTAGE_MV - settings.getToleranceMilliVolt() - 1);
+		SetAllowedCurrents.setMaxAllowedCurrents(battery, cellCharacteristic, settings, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS);
 				
 		battery.getChargeMaxCurrentChannel().nextProcessImage();
 		battery.getForceDischargeActiveChannel().nextProcessImage();
@@ -61,7 +71,7 @@ public class UtilTest {
 		actualMaxChargeCurrent = battery.getChargeMaxCurrent().get();
 		assertEquals(expectedMaxChargeCurrent, actualMaxChargeCurrent);
 		
-		expectedMaxDischargeCurrent = - (int) Math.max(1, battery.getCapacity().get() * 0.02 / battery.getVoltage().get());
+		expectedMaxDischargeCurrent = - (int) Math.max(MIN_CURRENT_AMPERE, battery.getCapacity().get() * POWER_FACTOR / battery.getVoltage().get());
 		actualMaxDischargeCurrent = battery.getDischargeMaxCurrent().get();
 		assertEquals(expectedMaxDischargeCurrent, actualMaxDischargeCurrent);
 		
@@ -75,7 +85,7 @@ public class UtilTest {
 		
 		// Min Voltage has risen above final discharge level  
 		battery.setMinimalCellVoltage(DummyCellCharacteristic.FINAL_CELL_DISCHARGE_VOLTAGE_MV + 1);
-		SetAllowedCurrents.setMaxAllowedCurrents(cellCharacteristic, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS, battery);
+		SetAllowedCurrents.setMaxAllowedCurrents(battery, cellCharacteristic, settings, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS);
 				
 		battery.getChargeMaxCurrentChannel().nextProcessImage();
 		battery.getForceDischargeActiveChannel().nextProcessImage();
@@ -104,7 +114,7 @@ public class UtilTest {
 		// Nothing is necessary
 		int maxDischargeCurrentFromBMS = DummyBattery.DEFAULT_MAX_DISCHARGE_CURRENT;
 		int maxChargeCurrentFromBMS = DummyBattery.DEFAULT_MAX_CHARGE_CURRENT;
-		SetAllowedCurrents.setMaxAllowedCurrents(cellCharacteristic, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS, battery);
+		SetAllowedCurrents.setMaxAllowedCurrents(battery, cellCharacteristic, settings, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS);
 				
 		battery.getChargeMaxCurrentChannel().nextProcessImage();
 		battery.getForceDischargeActiveChannel().nextProcessImage();
@@ -128,7 +138,7 @@ public class UtilTest {
 		maxDischargeCurrentFromBMS = 0;
 		battery.setMinimalCellVoltage(DummyCellCharacteristic.FORCE_CHARGE_CELL_VOLTAGE_MV);
 		
-		SetAllowedCurrents.setMaxAllowedCurrents(cellCharacteristic, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS, battery);
+		SetAllowedCurrents.setMaxAllowedCurrents(battery, cellCharacteristic, settings, maxChargeCurrentFromBMS, maxDischargeCurrentFromBMS);
 				
 		battery.getChargeMaxCurrentChannel().nextProcessImage();
 		battery.getForceDischargeActiveChannel().nextProcessImage();
@@ -139,7 +149,7 @@ public class UtilTest {
 		actualMaxChargeCurrent = battery.getChargeMaxCurrent().get();
 		assertEquals(expectedMaxChargeCurrent, actualMaxChargeCurrent);
 		
-		expectedMaxDischargeCurrent = - (int) Math.max(1, battery.getCapacity().get() * 0.02 / battery.getVoltage().get());
+		expectedMaxDischargeCurrent = - (int) Math.max(MIN_CURRENT_AMPERE, battery.getCapacity().get() * POWER_FACTOR / battery.getVoltage().get());
 		actualMaxDischargeCurrent = battery.getDischargeMaxCurrent().get();
 		assertEquals(expectedMaxDischargeCurrent, actualMaxDischargeCurrent);
 		expectedChargeForce = true;
@@ -342,68 +352,68 @@ public class UtilTest {
 
 	@Test
 	public void testCalculateForceCurrent() {		
-		int expected = - (int) Math.max(1, DummyBattery.DEFAULT_CAPACITY * 0.02 / DummyBattery.DEFAULT_VOLTAGE); // 1.333 => 1
-		assertEquals(expected, SetAllowedCurrents.calculateForceCurrent(battery));
+		int expected = - (int) Math.max(MIN_CURRENT_AMPERE, DummyBattery.DEFAULT_CAPACITY * POWER_FACTOR / DummyBattery.DEFAULT_VOLTAGE); // 1.333 => 1
+		assertEquals(expected, SetAllowedCurrents.calculateForceCurrent(battery, settings));
 		
 		int newCapacity = 200_000;
 		battery.setCapacity(newCapacity);
-		expected = - (int) Math.max(1, newCapacity * 0.02 / DummyBattery.DEFAULT_VOLTAGE); // 5.333 => 5
-		assertEquals(expected, SetAllowedCurrents.calculateForceCurrent(battery));
+		expected = - (int) Math.max(MIN_CURRENT_AMPERE, newCapacity * POWER_FACTOR / DummyBattery.DEFAULT_VOLTAGE); // 5.333 => 5
+		assertEquals(expected, SetAllowedCurrents.calculateForceCurrent(battery, settings));
 		
 		int newVoltage = 850;
 		battery.setCapacity(newCapacity);
 		battery.setVoltage(newVoltage);
-		expected = - (int) Math.max(1, newCapacity * 0.02 / newVoltage); // 4.706 => 4
-		assertEquals(expected, SetAllowedCurrents.calculateForceCurrent(battery));
+		expected = - (int) Math.max(MIN_CURRENT_AMPERE, newCapacity * POWER_FACTOR / newVoltage); // 4.706 => 4
+		assertEquals(expected, SetAllowedCurrents.calculateForceCurrent(battery, settings));
 		
 		newCapacity =  30_000;
 		newVoltage = 700;
 		battery.setCapacity(newCapacity);
 		battery.setVoltage(newVoltage);
-		expected = - (int) Math.max(1, newCapacity * 0.02 / newVoltage); // 0.857 => 1
-		assertEquals(expected, SetAllowedCurrents.calculateForceCurrent(battery));
+		expected = - (int) Math.max(MIN_CURRENT_AMPERE, newCapacity * POWER_FACTOR / newVoltage); // 0.857 => 1
+		assertEquals(expected, SetAllowedCurrents.calculateForceCurrent(battery, settings));
 		
 		newCapacity =  10_000;
 		battery.setCapacity(newCapacity);
 		battery.setVoltage(newVoltage);
-		expected = - (int) Math.max(1, newCapacity * 0.02 / newVoltage); // 0.286 => 1
-		assertEquals(expected, SetAllowedCurrents.calculateForceCurrent(battery));
+		expected = - (int) Math.max(MIN_CURRENT_AMPERE, newCapacity * POWER_FACTOR / newVoltage); // 0.286 => 1
+		assertEquals(expected, SetAllowedCurrents.calculateForceCurrent(battery, settings));
 	}
 	
 	
 	@Test
 	public void testCalculateForceDischargeCurrent() {
-		int expected = - (int) Math.max(1, DummyBattery.DEFAULT_CAPACITY * 0.02 / DummyBattery.DEFAULT_VOLTAGE); // 1.333 => 1
-		assertEquals(expected, SetAllowedCurrents.calculateForceDischargeCurrent(battery));		
+		int expected = - (int) Math.max(MIN_CURRENT_AMPERE, DummyBattery.DEFAULT_CAPACITY * POWER_FACTOR / DummyBattery.DEFAULT_VOLTAGE); // 1.333 => 1
+		assertEquals(expected, SetAllowedCurrents.calculateForceDischargeCurrent(battery, settings));		
 	}
 	
 	@Test
 	public void testCalculateForceChargeCurrent() {		
-		int expected = - (int) Math.max(1, DummyBattery.DEFAULT_CAPACITY * 0.02 / DummyBattery.DEFAULT_VOLTAGE); // 1.333 => 1
-		assertEquals(expected, SetAllowedCurrents.calculateForceChargeCurrent(battery));
+		int expected = - (int) Math.max(MIN_CURRENT_AMPERE, DummyBattery.DEFAULT_CAPACITY * POWER_FACTOR / DummyBattery.DEFAULT_VOLTAGE); // 1.333 => 1
+		assertEquals(expected, SetAllowedCurrents.calculateForceDischargeCurrent(battery, settings));
 	}
 
 	@Test
 	public void testIsFurtherChargingNecessary() {
-		assertFalse(SetAllowedCurrents.isFurtherChargingNecessary(cellCharacteristic, battery));
+		assertFalse(SetAllowedCurrents.isFurtherChargingNecessary(battery, cellCharacteristic, settings));
 		
 		battery.setMinimalCellVoltage(DummyCellCharacteristic.FINAL_CELL_DISCHARGE_VOLTAGE_MV - 1);
-		assertFalse(SetAllowedCurrents.isFurtherChargingNecessary(cellCharacteristic, battery));
+		assertFalse(SetAllowedCurrents.isFurtherChargingNecessary(battery, cellCharacteristic, settings));
 		
 		battery.setMinimalCellVoltage(DummyCellCharacteristic.FORCE_CHARGE_CELL_VOLTAGE_MV - 1);
-		assertFalse(SetAllowedCurrents.isFurtherChargingNecessary(cellCharacteristic, battery));
+		assertFalse(SetAllowedCurrents.isFurtherChargingNecessary(battery, cellCharacteristic, settings));
 		
 		battery.setForceChargeActive(false);
-		assertFalse(SetAllowedCurrents.isFurtherChargingNecessary(cellCharacteristic, battery));
+		assertFalse(SetAllowedCurrents.isFurtherChargingNecessary(battery, cellCharacteristic, settings));
 		
 		battery.setForceChargeActive(true);
-		assertTrue(SetAllowedCurrents.isFurtherChargingNecessary(cellCharacteristic, battery));
+		assertTrue(SetAllowedCurrents.isFurtherChargingNecessary(battery, cellCharacteristic, settings));
 		
-		battery.setMinimalCellVoltage(DummyCellCharacteristic.FINAL_CELL_DISCHARGE_VOLTAGE_MV - SetAllowedCurrents.TOLERANCE_MV - 1);
-		assertTrue(SetAllowedCurrents.isFurtherChargingNecessary(cellCharacteristic, battery));
+		battery.setMinimalCellVoltage(DummyCellCharacteristic.FINAL_CELL_DISCHARGE_VOLTAGE_MV - settings.getToleranceMilliVolt() - 1);
+		assertTrue(SetAllowedCurrents.isFurtherChargingNecessary(battery, cellCharacteristic, settings));
 		
-		battery.setMinimalCellVoltage(DummyCellCharacteristic.FINAL_CELL_DISCHARGE_VOLTAGE_MV - SetAllowedCurrents.TOLERANCE_MV);
-		assertFalse(SetAllowedCurrents.isFurtherChargingNecessary(cellCharacteristic, battery));
+		battery.setMinimalCellVoltage(DummyCellCharacteristic.FINAL_CELL_DISCHARGE_VOLTAGE_MV - settings.getToleranceMilliVolt());
+		assertFalse(SetAllowedCurrents.isFurtherChargingNecessary(battery, cellCharacteristic, settings));
 	}
 
 	@Test

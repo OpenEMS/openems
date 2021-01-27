@@ -25,7 +25,9 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.SetAllowedCurrents;
+import io.openems.edge.battery.api.SetAllowedCurrents;
+import io.openems.edge.battery.soltaro.SoltaroCellCharacteristic;
+import io.openems.edge.battery.soltaro.cluster.ClusterSettings;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.Context;
@@ -84,6 +86,8 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	private final SetAllowedCurrents setAllowedCurrents;
 	private Config config;
 	private Set<Rack> racks = new HashSet<>();
+	private ClusterSettings clusterSettings = new ClusterSettings();
+	
 
 	public ClusterVersionCImpl() {
 		super(//
@@ -96,9 +100,11 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		);
 		
 		this.setAllowedCurrents = new SetAllowedCurrents(//
+				this, //
+				new SoltaroCellCharacteristic(), //
+				clusterSettings, //
 				this.channel(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_CHARGE_CURRENT), //
-				this.channel(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_DISCHARGE_CURRENT), //
-				this //
+				this.channel(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_DISCHARGE_CURRENT) //
 			);
 	}
 
@@ -145,6 +151,8 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		this._setDischargeMaxCurrent(0 /* default value 0 to avoid damages */);
 		this._setChargeMaxVoltage(this.config.numberOfSlaves() * Constants.MAX_VOLTAGE_MILLIVOLT / 1000);
 		this._setDischargeMinVoltage(this.config.numberOfSlaves() * Constants.MIN_VOLTAGE_MILLIVOLT / 1000);
+		
+		clusterSettings.setNumberOfUsedRacks(calculateUsedRacks(config));
 	}
 
 	@Override
@@ -957,4 +965,23 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		return StartStop.UNDEFINED; // can never happen
 	}
 
+	private static int calculateUsedRacks(Config conf) {
+		int num = 0;
+		if (conf.isRack1Used()) {
+			num = num + 1;
+		}
+		if (conf.isRack2Used()) {
+			num = num + 1;
+		}
+		if (conf.isRack3Used()) {
+			num = num + 1;
+		}
+		if (conf.isRack4Used()) {
+			num = num + 1;
+		}
+		if (conf.isRack5Used()) {
+			num = num + 1;
+		}
+		return num;
+	}
 }

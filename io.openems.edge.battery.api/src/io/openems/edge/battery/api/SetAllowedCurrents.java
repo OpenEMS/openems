@@ -1,32 +1,31 @@
-package io.openems.edge.battery.soltaro;
+package io.openems.edge.battery.api;
 
-import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.api.CellCharacteristic;
 import io.openems.edge.common.channel.IntegerReadChannel;
 
 public class SetAllowedCurrents {
 
-	public static final double CHARGE_DISCHARGE_FACTOR = 0.02;
-	public static final int MINIMUM_CURRENT = 1;
-	public static final int TOLERANCE_MV = 10;
-	public static final int MAX_INCREASE_MILLIAMPERE = 300;
-	
 	private int lastMaxChargeCurrentFromBmsMilliAmpere = 0;
 	private int lastMaxDischargeCurrentFromBmsMilliAmpere = 0;
 	
-	private final CellCharacteristic cellCharacteristic = new SoltaroCellCharacteristic();
+	private Battery battery;
+	private CellCharacteristic cellCharacteristic;
+	private Settings settings;
+	private IntegerReadChannel maxChargeCurrentChannel;
+	private IntegerReadChannel maxDischargeCurrentChannel;
 	
-	IntegerReadChannel maxChargeCurrentChannel;
-	IntegerReadChannel maxDischargeCurrentChannel;
-	Battery battery;
-	
-	
-	public SetAllowedCurrents(IntegerReadChannel maxChargeCurrentChannel,
-			IntegerReadChannel maxDischargeCurrentChannel, Battery battery) {
+	public SetAllowedCurrents( //
+			Battery battery, //
+			CellCharacteristic cellCharacteristic, //
+			Settings settings, //
+			IntegerReadChannel maxChargeCurrentChannel, //
+			IntegerReadChannel maxDischargeCurrentChannel // 
+	) {
 		super();
+		this.battery = battery;
+		this.cellCharacteristic = cellCharacteristic;
+		this.settings = settings;
 		this.maxChargeCurrentChannel = maxChargeCurrentChannel;
 		this.maxDischargeCurrentChannel = maxDischargeCurrentChannel;
-		this.battery = battery;
 	}
 	
 	/**
@@ -37,33 +36,39 @@ public class SetAllowedCurrents {
 		int maxChargeCurrentFromBmsMilliAmpere = this.maxChargeCurrentChannel.value().orElse(0);
 
 		// limit increasing
-		if (maxChargeCurrentFromBmsMilliAmpere > this.lastMaxChargeCurrentFromBmsMilliAmpere + MAX_INCREASE_MILLIAMPERE) {
-			maxChargeCurrentFromBmsMilliAmpere = this.lastMaxChargeCurrentFromBmsMilliAmpere + MAX_INCREASE_MILLIAMPERE;
+		if (maxChargeCurrentFromBmsMilliAmpere > this.lastMaxChargeCurrentFromBmsMilliAmpere + settings.getMaxIncreaseMilliAmpere()) {//MAX_INCREASE_MILLIAMPERE) {
+			maxChargeCurrentFromBmsMilliAmpere = this.lastMaxChargeCurrentFromBmsMilliAmpere + settings.getMaxIncreaseMilliAmpere();//MAX_INCREASE_MILLIAMPERE;
 		}
 		this.lastMaxChargeCurrentFromBmsMilliAmpere = maxChargeCurrentFromBmsMilliAmpere;
 
 		int maxDischargeCurrentFromBmsMilliAmpere = this.maxDischargeCurrentChannel.value().orElse(0);
 
 		// limit increasing
-		if (maxDischargeCurrentFromBmsMilliAmpere > this.lastMaxDischargeCurrentFromBmsMilliAmpere + MAX_INCREASE_MILLIAMPERE) {
-			maxDischargeCurrentFromBmsMilliAmpere = this.lastMaxDischargeCurrentFromBmsMilliAmpere + MAX_INCREASE_MILLIAMPERE;
+		if (maxDischargeCurrentFromBmsMilliAmpere > this.lastMaxDischargeCurrentFromBmsMilliAmpere + settings.getMaxIncreaseMilliAmpere()) {//MAX_INCREASE_MILLIAMPERE) {
+			maxDischargeCurrentFromBmsMilliAmpere = this.lastMaxDischargeCurrentFromBmsMilliAmpere + settings.getMaxIncreaseMilliAmpere();//MAX_INCREASE_MILLIAMPERE;
 		}
 		this.lastMaxDischargeCurrentFromBmsMilliAmpere = maxDischargeCurrentFromBmsMilliAmpere;
 
-		setMaxAllowedCurrents(this.cellCharacteristic, maxChargeCurrentFromBmsMilliAmpere / 1000,
-				maxDischargeCurrentFromBmsMilliAmpere / 1000, this.battery);
+		setMaxAllowedCurrents(this.battery, this.cellCharacteristic, this.settings, maxChargeCurrentFromBmsMilliAmpere / 1000,
+				maxDischargeCurrentFromBmsMilliAmpere / 1000);
 		
 	}
 	
 	/**
 	 * Sets the MaxAllowedCurrents.
+	 * @param battery the {@link Battery}
 	 * @param cellCharacteristic the {@link CellCharacteristic}
+	 * @param settings the {@link SettingsImpl}
 	 * @param maxChargeCurrentFromBms int
 	 * @param maxDischargeCurrentFromBms int
-	 * @param battery the {@link Battery}
 	 */
-	public static void setMaxAllowedCurrents(CellCharacteristic cellCharacteristic, int maxChargeCurrentFromBms,
-			int maxDischargeCurrentFromBms, Battery battery) {
+	public static void setMaxAllowedCurrents( //
+			Battery battery, //
+			CellCharacteristic cellCharacteristic, //
+			Settings settings, //
+			int maxChargeCurrentFromBms, //
+			int maxDischargeCurrentFromBms //
+	) {
 
 		int maxChargeCurrent = maxChargeCurrentFromBms;
 		int maxDischargeCurrent = maxDischargeCurrentFromBms;
@@ -73,29 +78,29 @@ public class SetAllowedCurrents {
 			maxDischargeCurrent = 0;
 		} else {
 			if (isChargingAlready(battery)) {
-				if (isFurtherChargingNecessary(cellCharacteristic, battery)) {
-					maxDischargeCurrent = calculateForceDischargeCurrent(battery);
+				if (isFurtherChargingNecessary(battery, cellCharacteristic,settings)) {
+					maxDischargeCurrent = calculateForceDischargeCurrent(battery, settings);
 				}
 			} else {
 				if (isVoltageBelowFinalDischargingVoltage(cellCharacteristic, battery)) {
 					if (isVoltageHigherThanForceChargeVoltage(cellCharacteristic, battery)) {
 						maxDischargeCurrent = 0;
 					} else {
-						maxDischargeCurrent = calculateForceDischargeCurrent(battery);
+						maxDischargeCurrent = calculateForceDischargeCurrent(battery, settings);
 					}
 				}
 			}
 
 			if (isDischargingAlready(battery)) {
 				if (isFurtherDischargingNecessary(cellCharacteristic, battery)) {
-					maxChargeCurrent = calculateForceChargeCurrent(battery);
+					maxChargeCurrent = calculateForceChargeCurrent(battery, settings);
 				}
 			} else {
 				if (isVoltageAboveFinalChargingVoltage(cellCharacteristic, battery)) {
 					if (isVoltageLowerThanForceDischargeVoltage(cellCharacteristic, battery)) {
 						maxChargeCurrent = 0;
 					} else {
-						maxChargeCurrent = calculateForceChargeCurrent(battery);
+						maxChargeCurrent = calculateForceChargeCurrent(battery, settings);
 					}
 				}
 			}
@@ -151,29 +156,29 @@ public class SetAllowedCurrents {
 		return (battery.getForceDischargeActive().isDefined() && battery.getForceDischargeActive().get());
 	}
 
-	protected static int calculateForceDischargeCurrent(Battery battery) {
-		return calculateForceCurrent(battery);
+	protected static int calculateForceDischargeCurrent(Battery battery, Settings settings) {
+		return calculateForceCurrent(battery, settings);
 	}
 
-	protected static int calculateForceChargeCurrent(Battery battery) {
-		return calculateForceCurrent(battery);
+	protected static int calculateForceChargeCurrent(Battery battery, Settings settings) {
+		return calculateForceCurrent(battery, settings);
 	}
 
-	protected static int calculateForceCurrent(Battery battery) {
+	protected static int calculateForceCurrent(Battery battery, Settings settings) {
 		double capacity = battery.getCapacity().get();
 		double voltage = battery.getVoltage().get();
-		double power = capacity * CHARGE_DISCHARGE_FACTOR;
+		double power = capacity * settings.getPowerFactor();//POWER_FACTOR;
 		double current = power / voltage;
-		int value = -(int) Math.max(MINIMUM_CURRENT, current);
+		int value = -(int) Math.max(settings.getMinimumCurrentAmpere(), current);//MINIMUM_CURRENT_AMPERE, current);
 		return value;
 	}
 
-	protected static boolean isFurtherChargingNecessary(CellCharacteristic cellCharacteristic, Battery battery) {
+	protected static boolean isFurtherChargingNecessary(Battery battery, CellCharacteristic cellCharacteristic, Settings settings) {
 		if (!battery.getForceChargeActive().isDefined()) {
 			return false;
 		}
 		return battery.getForceChargeActive().get()
-				&& battery.getMinCellVoltage().get() < (cellCharacteristic.getFinalCellDischargeVoltage_mV() - TOLERANCE_MV);
+				&& battery.getMinCellVoltage().get() < ( cellCharacteristic.getFinalCellDischargeVoltage_mV() - settings.getToleranceMilliVolt() );//TOLERANCE_MILLI_VOLT);
 	}
 
 	protected static boolean isChargingAlready(Battery battery) {

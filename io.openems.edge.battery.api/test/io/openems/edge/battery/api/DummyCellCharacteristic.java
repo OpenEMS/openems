@@ -1,4 +1,4 @@
-package io.openems.edge.battery.soltaro;
+package io.openems.edge.battery.api;
 
 import io.openems.edge.battery.api.CellCharacteristic;
 

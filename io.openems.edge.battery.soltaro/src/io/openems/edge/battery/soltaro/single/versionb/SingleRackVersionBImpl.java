@@ -28,9 +28,11 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.api.SetAllowedCurrents;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.ModuleParameters;
-import io.openems.edge.battery.soltaro.SetAllowedCurrents;
+import io.openems.edge.battery.soltaro.SoltaroCellCharacteristic;
+import io.openems.edge.battery.soltaro.single.SingleRackSettings;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.Context;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.ControlAndLogic;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine;
@@ -101,9 +103,11 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		);
 		
 		this.setAllowedCurrents = new SetAllowedCurrents(//
+				this,//
+				new SoltaroCellCharacteristic(), //
+				new SingleRackSettings(),
 				this.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT), //
-				this.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT), //
-				this //
+				this.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT) //
 			);
 	}
 
@@ -170,7 +174,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 
-			this.setAllowedCurrents.act();;
+			this.setAllowedCurrents.act();
 
 			break;
 
