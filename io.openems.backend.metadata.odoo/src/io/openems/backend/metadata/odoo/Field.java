@@ -40,8 +40,7 @@ public interface Field {
 		OPENEMS_CONFIG_COMPONENTS("openems_config_components", false), //
 		LAST_MESSAGE("lastmessage", false), //
 		LAST_UPDATE("lastupdate", false), //
-		OPENEMS_SUM_STATE("openems_sum_state_level", false), //
-		OPENEMS_SUM_STATE_TEXT("openems_sum_state_text", false), //
+		OPENEMS_SUM_STATE("openems_sum_state_level", true), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false);
 
 		public final static String ODOO_MODEL = "fems.device";
