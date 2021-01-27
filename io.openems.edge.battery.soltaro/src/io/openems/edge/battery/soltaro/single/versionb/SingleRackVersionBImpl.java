@@ -176,34 +176,34 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		}
 	}
 
-	private final static int MAX_INCREASE_MILLIAMPERE = 300;
+	private static final int MAX_INCREASE_MILLIAMPERE = 300;
 
-	private int lastMaxChargeCurrentFromBMS = 0;
-	private int lastMaxDischargeCurrentFromBMS = 0;
+	private int lastMaxChargeCurrentFromBms = 0;
+	private int lastMaxDischargeCurrentFromBms = 0;
 
 	private void setAllowedCurrents() {
 		IntegerReadChannel maxChargeCurrentChannel = this
 				.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT);
-		int maxChargeCurrentFromBMS = maxChargeCurrentChannel.value().orElse(0);
+		int maxChargeCurrentFromBms = maxChargeCurrentChannel.value().orElse(0);
 
 		// Allow max increase of 1 A
-		if (maxChargeCurrentFromBMS > lastMaxChargeCurrentFromBMS + MAX_INCREASE_MILLIAMPERE) {
-			maxChargeCurrentFromBMS = lastMaxChargeCurrentFromBMS + MAX_INCREASE_MILLIAMPERE;
+		if (maxChargeCurrentFromBms > this.lastMaxChargeCurrentFromBms + MAX_INCREASE_MILLIAMPERE) {
+			maxChargeCurrentFromBms = this.lastMaxChargeCurrentFromBms + MAX_INCREASE_MILLIAMPERE;
 		}
-		this.lastMaxChargeCurrentFromBMS = maxChargeCurrentFromBMS;
+		this.lastMaxChargeCurrentFromBms = maxChargeCurrentFromBms;
 
 		IntegerReadChannel maxDischargeChannel = this
 				.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT);
-		int maxDischargeCurrentFromBMS = maxDischargeChannel.value().orElse(0);
+		int maxDischargeCurrentFromBms = maxDischargeChannel.value().orElse(0);
 
 		// Allow max increase of 1 A
-		if (maxDischargeCurrentFromBMS > lastMaxDischargeCurrentFromBMS + MAX_INCREASE_MILLIAMPERE) {
-			maxDischargeCurrentFromBMS = lastMaxDischargeCurrentFromBMS + MAX_INCREASE_MILLIAMPERE;
+		if (maxDischargeCurrentFromBms > this.lastMaxDischargeCurrentFromBms + MAX_INCREASE_MILLIAMPERE) {
+			maxDischargeCurrentFromBms = this.lastMaxDischargeCurrentFromBms + MAX_INCREASE_MILLIAMPERE;
 		}
-		this.lastMaxDischargeCurrentFromBMS = maxDischargeCurrentFromBMS;
+		this.lastMaxDischargeCurrentFromBms = maxDischargeCurrentFromBms;
 
-		Util.setMaxAllowedCurrents(this.cellCharacteristic, maxChargeCurrentFromBMS / 1000,
-				maxDischargeCurrentFromBMS / 1000, this);
+		Util.setMaxAllowedCurrents(this.cellCharacteristic, maxChargeCurrentFromBms / 1000,
+				maxDischargeCurrentFromBms / 1000, this);
 	}
 
 	@Override
@@ -541,15 +541,11 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 
 				// Allowed Currents high prioritized because it is necessary to react fast on changes 
 				new FC3ReadRegistersTask(0x2160, Priority.HIGH, //
-						m(new UnsignedWordElement(0x2160)) //
-						.m(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT, ElementToChannelConverter.SCALE_FACTOR_2) //
-						.build(), //
-						
-						m(new UnsignedWordElement(0x2161)) //
-						.m(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT, ElementToChannelConverter.SCALE_FACTOR_2) //
-						.build() //
+						m(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT, new UnsignedWordElement(0x2160),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(0x2161),
+								ElementToChannelConverter.SCALE_FACTOR_2) //
 				),
-
 				// Cluster info
 				new FC3ReadRegistersTask(0x2180, Priority.LOW, //
 						m(SingleRackVersionB.ChannelId.CYCLE_TIME, new UnsignedWordElement(0x2180)), //
@@ -655,8 +651,8 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.SLAVE_TEMPERATURE_COMMUNICATION_ERROR_LOW,
 								new UnsignedWordElement(0x21B5)) //
 				), //
-					// Add tasks to read/write work and warn parameters
-					// Stop parameter
+				// Add tasks to read/write work and warn parameters
+				// Stop parameter
 				new FC16WriteRegistersTask(0x2040, //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_VOLTAGE_PROTECTION,
 								new UnsignedWordElement(0x2040)), //
@@ -951,9 +947,9 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
 				for (int j = i * voltSensors; j < (i + 1) * voltSensors; j++) {
 					String key = this.getSingleCellPrefix(j) + KEY_VOLTAGE;
-					UnsignedWordElement uwe = new UnsignedWordElement(offset + voltOffset + j);
-					AbstractModbusElement<?> ame = m(this.channelMap.get(key).channelId(), uwe);
-					elements.add(ame);
+					UnsignedWordElement wordElement = new UnsignedWordElement(offset + voltOffset + j);
+					AbstractModbusElement<?> modbusElement = m(this.channelMap.get(key).channelId(), wordElement);
+					elements.add(modbusElement);
 				}
 				protocol.addTask(new FC3ReadRegistersTask(offset + voltOffset + i * voltSensors, Priority.LOW,
 						elements.toArray(new AbstractModbusElement<?>[0])));
@@ -966,9 +962,9 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
 				for (int j = i * tempSensors; j < (i + 1) * tempSensors; j++) {
 					String key = this.getSingleCellPrefix(j) + KEY_TEMPERATURE;
-					SignedWordElement swe = new SignedWordElement(offset + tempOffset + j);
-					AbstractModbusElement<?> ame = m(this.channelMap.get(key).channelId(), swe);
-					elements.add(ame);
+					SignedWordElement wordElement = new SignedWordElement(offset + tempOffset + j);
+					AbstractModbusElement<?> modbusElement = m(this.channelMap.get(key).channelId(), wordElement);
+					elements.add(modbusElement);
 				}
 				protocol.addTask(new FC3ReadRegistersTask(offset + tempOffset + i * tempSensors, Priority.LOW,
 						elements.toArray(new AbstractModbusElement<?>[0])));
