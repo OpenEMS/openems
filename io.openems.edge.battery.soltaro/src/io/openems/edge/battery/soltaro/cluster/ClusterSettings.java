@@ -11,13 +11,17 @@ public class ClusterSettings implements Settings {
 	
 	private int numberOfUsedRacks = 1;
 	
+	/**
+	 * Sets the number of used racks.
+	 * @param numberOfUsedRacks int
+	 */
 	public void setNumberOfUsedRacks(int numberOfUsedRacks) {
 		this.numberOfUsedRacks = numberOfUsedRacks;
 	}
 	
 	@Override
 	public int getMaxIncreaseMilliAmpere() {
-		return MAX_INCREASE_MILLIAMPERE * numberOfUsedRacks;
+		return MAX_INCREASE_MILLIAMPERE * this.numberOfUsedRacks;
 	}
 
 	@Override
@@ -27,7 +31,7 @@ public class ClusterSettings implements Settings {
 
 	@Override
 	public double getMinimumCurrentAmpere() {
-		return MINIMUM_CURRENT_AMPERE * numberOfUsedRacks;
+		return MINIMUM_CURRENT_AMPERE * this.numberOfUsedRacks;
 	}
 
 	@Override

@@ -121,7 +121,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		this.setAllowedCurrents = new SetAllowedCurrents(//
 				this, //
 				new SoltaroCellCharacteristic(), //
-				clusterSettings, //
+				this.clusterSettings, //
 				this.channel(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_CHARGE_CURRENT), //
 				this.channel(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_DISCHARGE_CURRENT) //
 		);
@@ -162,7 +162,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		this._setCapacity(
 				this.config.racks().length * this.config.numberOfSlaves() * this.config.moduleType().getCapacity_Wh());
 	
-		clusterSettings.setNumberOfUsedRacks(calculateUsedRacks(config));
+		this.clusterSettings.setNumberOfUsedRacks(calculateUsedRacks(config));
 	}
 
 	private static int calculateUsedRacks(Config conf) {

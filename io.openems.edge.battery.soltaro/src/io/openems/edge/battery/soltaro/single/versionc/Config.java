@@ -96,8 +96,8 @@ public @interface Config {
 	int pendingTolerance() default 15;
 
 	/**
-	 * Return the SoCLowAlarm.
-	 * @return SoCLowAlarm
+	 * Return the soCLowAlarm.
+	 * @return soCLowAlarm
 	 */
 	@AttributeDefinition(name = "SoC Low Alarm", description = "Sets the value for BMS SoC protection (0..100)", min = "0", max = "100")
 	int SocLowAlarm() default 0;

@@ -5,7 +5,7 @@ import io.openems.edge.battery.api.Settings;
 public class SettingsImpl implements Settings {
 
 	private int toleranceMilliVolt;
-	private double MinimumCurrentAmpere;
+	private double minimumCurrentAmpere;
 	private double powerFactor;
 	private int maxIncreaseMilliAmpere;
 
@@ -13,7 +13,7 @@ public class SettingsImpl implements Settings {
 			int maxIncreaseMilliAmpere) {
 		super();
 		this.toleranceMilliVolt = toleranceMilliVolt;
-		MinimumCurrentAmpere = minimumCurrentAmpere;
+		this.minimumCurrentAmpere = minimumCurrentAmpere;
 		this.powerFactor = powerFactor;
 		this.maxIncreaseMilliAmpere = maxIncreaseMilliAmpere;
 	}
@@ -30,7 +30,7 @@ public class SettingsImpl implements Settings {
 
 	@Override
 	public double getMinimumCurrentAmpere() {
-		return this.MinimumCurrentAmpere;
+		return this.minimumCurrentAmpere;
 	}
 
 	@Override
