@@ -176,34 +176,34 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		}
 	}
 
-	private final static int MAX_INCREASE_MILLIAMPERE = 300;
+	private static final int MAX_INCREASE_MILLIAMPERE = 300;
 
-	private int lastMaxChargeCurrentFromBMS = 0;
-	private int lastMaxDischargeCurrentFromBMS = 0;
+	private int lastMaxChargeCurrentFromBms = 0;
+	private int lastMaxDischargeCurrentFromBms = 0;
 
 	private void setAllowedCurrents() {
 		IntegerReadChannel maxChargeCurrentChannel = this
 				.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT);
-		int maxChargeCurrentFromBMS = maxChargeCurrentChannel.value().orElse(0);
+		int maxChargeCurrentFromBms = maxChargeCurrentChannel.value().orElse(0);
 
 		// Allow max increase of 1 A
-		if (maxChargeCurrentFromBMS > lastMaxChargeCurrentFromBMS + MAX_INCREASE_MILLIAMPERE) {
-			maxChargeCurrentFromBMS = lastMaxChargeCurrentFromBMS + MAX_INCREASE_MILLIAMPERE;
+		if (maxChargeCurrentFromBms > this.lastMaxChargeCurrentFromBms + MAX_INCREASE_MILLIAMPERE) {
+			maxChargeCurrentFromBms = this.lastMaxChargeCurrentFromBms + MAX_INCREASE_MILLIAMPERE;
 		}
-		this.lastMaxChargeCurrentFromBMS = maxChargeCurrentFromBMS;
+		this.lastMaxChargeCurrentFromBms = maxChargeCurrentFromBms;
 
 		IntegerReadChannel maxDischargeChannel = this
 				.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT);
-		int maxDischargeCurrentFromBMS = maxDischargeChannel.value().orElse(0);
+		int maxDischargeCurrentFromBms = maxDischargeChannel.value().orElse(0);
 
 		// Allow max increase of 1 A
-		if (maxDischargeCurrentFromBMS > lastMaxDischargeCurrentFromBMS + MAX_INCREASE_MILLIAMPERE) {
-			maxDischargeCurrentFromBMS = lastMaxDischargeCurrentFromBMS + MAX_INCREASE_MILLIAMPERE;
+		if (maxDischargeCurrentFromBms > this.lastMaxDischargeCurrentFromBms + MAX_INCREASE_MILLIAMPERE) {
+			maxDischargeCurrentFromBms = this.lastMaxDischargeCurrentFromBms + MAX_INCREASE_MILLIAMPERE;
 		}
-		this.lastMaxDischargeCurrentFromBMS = maxDischargeCurrentFromBMS;
+		this.lastMaxDischargeCurrentFromBms = maxDischargeCurrentFromBms;
 
-		Util.setMaxAllowedCurrents(this.cellCharacteristic, maxChargeCurrentFromBMS / 1000,
-				maxDischargeCurrentFromBMS / 1000, this);
+		Util.setMaxAllowedCurrents(this.cellCharacteristic, maxChargeCurrentFromBms / 1000,
+				maxDischargeCurrentFromBms / 1000, this);
 	}
 
 	@Override
@@ -394,7 +394,8 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 										ElementToChannelConverter.SCALE_FACTOR_2) //
 								.m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build(), //
-						new DummyRegisterElement(0x2083, 0x2087), m(new UnsignedWordElement(0x2088)) //
+						new DummyRegisterElement(0x2083, 0x2087), //
+						m(new UnsignedWordElement(0x2088)) //
 								.m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM,
 										ElementToChannelConverter.SCALE_FACTOR_2) //
 								.m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
@@ -535,18 +536,16 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(0x2153)), //
 						new DummyRegisterElement(0x2154, 0x215A), //
 						m(SingleRackVersionB.ChannelId.OTHER_ALARM_EQUIPMENT_FAILURE, new UnsignedWordElement(0x215B)), //
-						new DummyRegisterElement(0x215C, 0x215F), //
-
-						m(new UnsignedWordElement(0x2160)) //
-								.m(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT,
-										ElementToChannelConverter.SCALE_FACTOR_2) //
-								.build(), //
-						m(new UnsignedWordElement(0x2161)) //
-								.m(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT,
-										ElementToChannelConverter.SCALE_FACTOR_2) //
-								.build() //
+						new DummyRegisterElement(0x215C, 0x215F) //
 				), //
 
+				// Allowed Currents high prioritized because it is necessary to react fast on changes 
+				new FC3ReadRegistersTask(0x2160, Priority.HIGH, //
+						m(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT, new UnsignedWordElement(0x2160),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(0x2161),
+								ElementToChannelConverter.SCALE_FACTOR_2) //
+				),
 				// Cluster info
 				new FC3ReadRegistersTask(0x2180, Priority.LOW, //
 						m(SingleRackVersionB.ChannelId.CYCLE_TIME, new UnsignedWordElement(0x2180)), //
@@ -652,8 +651,8 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.SLAVE_TEMPERATURE_COMMUNICATION_ERROR_LOW,
 								new UnsignedWordElement(0x21B5)) //
 				), //
-					// Add tasks to read/write work and warn parameters
-					// Stop parameter
+				// Add tasks to read/write work and warn parameters
+				// Stop parameter
 				new FC16WriteRegistersTask(0x2040, //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_VOLTAGE_PROTECTION,
 								new UnsignedWordElement(0x2040)), //
@@ -680,13 +679,13 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER,
 								new UnsignedWordElement(0x204B), ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_TEMPERATURE_PROTECTION,
-								new UnsignedWordElement(0x204C)), //
+								new SignedWordElement(0x204C)), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_TEMPERATURE_RECOVER,
-								new UnsignedWordElement(0x204D)), //
+								new SignedWordElement(0x204D)), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_UNDER_TEMPERATURE_PROTECTION,
-								new UnsignedWordElement(0x204E)), //
+								new SignedWordElement(0x204E)), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_UNDER_TEMPERATURE_RECOVER,
-								new UnsignedWordElement(0x204F)), //
+								new SignedWordElement(0x204F)), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION,
 								new UnsignedWordElement(0x2050)), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION_RECOVER,
@@ -696,9 +695,9 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SOC_HIGH_PROTECTION_RECOVER,
 								new UnsignedWordElement(0x2053)), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CONNECTOR_TEMPERATURE_HIGH_PROTECTION,
-								new UnsignedWordElement(0x2054)), //
+								new SignedWordElement(0x2054)), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CONNECTOR_TEMPERATURE_HIGH_PROTECTION_RECOVER,
-								new UnsignedWordElement(0x2055)), //
+								new SignedWordElement(0x2055)), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_INSULATION_PROTECTION,
 								new UnsignedWordElement(0x2056)), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_INSULATION_PROTECTION_RECOVER,
@@ -712,17 +711,17 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER,
 								new UnsignedWordElement(0x205B), ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_DISCHARGE_TEMPERATURE_HIGH_PROTECTION,
-								new UnsignedWordElement(0x205C)), //
+								new SignedWordElement(0x205C)), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_DISCHARGE_TEMPERATURE_HIGH_PROTECTION_RECOVER,
-								new UnsignedWordElement(0x205D)), //
+								new SignedWordElement(0x205D)), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_DISCHARGE_TEMPERATURE_LOW_PROTECTION,
-								new UnsignedWordElement(0x205E)), //
+								new SignedWordElement(0x205E)), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_DISCHARGE_TEMPERATURE_LOW_PROTECTION_RECOVER,
-								new UnsignedWordElement(0x205F)), //
+								new SignedWordElement(0x205F)), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TEMPERATURE_DIFFERENCE_PROTECTION,
-								new UnsignedWordElement(0x2060)), //
+								new SignedWordElement(0x2060)), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TEMPERATURE_DIFFERENCE_PROTECTION_RECOVER,
-								new UnsignedWordElement(0x2061)) //
+								new SignedWordElement(0x2061)) //
 				),
 
 				// Warn parameter
@@ -752,13 +751,13 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER,
 								new UnsignedWordElement(0x208B), ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_TEMPERATURE_ALARM,
-								new UnsignedWordElement(0x208C)), //
+								new SignedWordElement(0x208C)), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_TEMPERATURE_RECOVER,
-								new UnsignedWordElement(0x208D)), //
+								new SignedWordElement(0x208D)), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_TEMPERATURE_ALARM,
-								new UnsignedWordElement(0x208E)), //
+								new SignedWordElement(0x208E)), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_TEMPERATURE_RECOVER,
-								new UnsignedWordElement(0x208F)), //
+								new SignedWordElement(0x208F)), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SOC_LOW_ALARM, new UnsignedWordElement(0x2090)), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SOC_LOW_ALARM_RECOVER,
 								new UnsignedWordElement(0x2091)), //
@@ -766,9 +765,9 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SOC_HIGH_ALARM_RECOVER,
 								new UnsignedWordElement(0x2093)), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CONNECTOR_TEMPERATURE_HIGH_ALARM,
-								new UnsignedWordElement(0x2094)), //
+								new SignedWordElement(0x2094)), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CONNECTOR_TEMPERATURE_HIGH_ALARM_RECOVER,
-								new UnsignedWordElement(0x2095)), //
+								new SignedWordElement(0x2095)), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_INSULATION_ALARM,
 								new UnsignedWordElement(0x2096)), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_INSULATION_ALARM_RECOVER,
@@ -782,18 +781,18 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TOTAL_VOLTAGE_DIFFERENCE_ALARM_RECOVER,
 								new UnsignedWordElement(0x209B), ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_DISCHARGE_TEMPERATURE_HIGH_ALARM,
-								new UnsignedWordElement(0x209C)), //
+								new SignedWordElement(0x209C)), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_DISCHARGE_TEMPERATURE_HIGH_ALARM_RECOVER,
-								new UnsignedWordElement(0x209D)), //
+								new SignedWordElement(0x209D)), //
 						new DummyRegisterElement(0x209E),
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_DISCHARGE_TEMPERATURE_LOW_ALARM,
-								new UnsignedWordElement(0x209F)), //
+								new SignedWordElement(0x209F)), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_DISCHARGE_TEMPERATURE_LOW_ALARM_RECOVER,
-								new UnsignedWordElement(0x20A0)), //
+								new SignedWordElement(0x20A0)), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM,
-								new UnsignedWordElement(0x20A1)), //
+								new SignedWordElement(0x20A1)), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM_RECOVER,
-								new UnsignedWordElement(0x20A2)) //
+								new SignedWordElement(0x20A2)) //
 				));
 
 		if (!this.config.ReduceTasks()) {
@@ -824,13 +823,13 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER,
 							new UnsignedWordElement(0x204B), ElementToChannelConverter.SCALE_FACTOR_2), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_TEMPERATURE_PROTECTION,
-							new UnsignedWordElement(0x204C)), //
+							new SignedWordElement(0x204C)), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_TEMPERATURE_RECOVER,
-							new UnsignedWordElement(0x204D)), //
+							new SignedWordElement(0x204D)), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_UNDER_TEMPERATURE_PROTECTION,
-							new UnsignedWordElement(0x204E)), //
+							new SignedWordElement(0x204E)), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_UNDER_TEMPERATURE_RECOVER,
-							new UnsignedWordElement(0x204F)), //
+							new SignedWordElement(0x204F)), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION, new UnsignedWordElement(0x2050)), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION_RECOVER,
 							new UnsignedWordElement(0x2051)), //
@@ -838,9 +837,9 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_SOC_HIGH_PROTECTION_RECOVER,
 							new UnsignedWordElement(0x2053)), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CONNECTOR_TEMPERATURE_HIGH_PROTECTION,
-							new UnsignedWordElement(0x2054)), //
+							new SignedWordElement(0x2054)), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CONNECTOR_TEMPERATURE_HIGH_PROTECTION_RECOVER,
-							new UnsignedWordElement(0x2055)), //
+							new SignedWordElement(0x2055)), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_INSULATION_PROTECTION,
 							new UnsignedWordElement(0x2056)), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_INSULATION_PROTECTION_RECOVER,
@@ -854,17 +853,17 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER,
 							new UnsignedWordElement(0x205B), ElementToChannelConverter.SCALE_FACTOR_2), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_DISCHARGE_TEMPERATURE_HIGH_PROTECTION,
-							new UnsignedWordElement(0x205C)), //
+							new SignedWordElement(0x205C)), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_DISCHARGE_TEMPERATURE_HIGH_PROTECTION_RECOVER,
-							new UnsignedWordElement(0x205D)), //
+							new SignedWordElement(0x205D)), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_DISCHARGE_TEMPERATURE_LOW_PROTECTION,
-							new UnsignedWordElement(0x205E)), //
+							new SignedWordElement(0x205E)), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_DISCHARGE_TEMPERATURE_LOW_PROTECTION_RECOVER,
-							new UnsignedWordElement(0x205F)), //
+							new SignedWordElement(0x205F)), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TEMPERATURE_DIFFERENCE_PROTECTION,
-							new UnsignedWordElement(0x2060)), //
+							new SignedWordElement(0x2060)), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TEMPERATURE_DIFFERENCE_PROTECTION_RECOVER,
-							new UnsignedWordElement(0x2061)) //
+							new SignedWordElement(0x2061)) //
 			);
 
 			// Warn parameter
@@ -892,13 +891,13 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER,
 							new UnsignedWordElement(0x208B), ElementToChannelConverter.SCALE_FACTOR_2), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_TEMPERATURE_ALARM,
-							new UnsignedWordElement(0x208C)), //
+							new SignedWordElement(0x208C)), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_TEMPERATURE_RECOVER,
-							new UnsignedWordElement(0x208D)), //
+							new SignedWordElement(0x208D)), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_TEMPERATURE_ALARM,
-							new UnsignedWordElement(0x208E)), //
+							new SignedWordElement(0x208E)), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_TEMPERATURE_RECOVER,
-							new UnsignedWordElement(0x208F)), //
+							new SignedWordElement(0x208F)), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SOC_LOW_ALARM, new UnsignedWordElement(0x2090)), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SOC_LOW_ALARM_RECOVER,
 							new UnsignedWordElement(0x2091)), //
@@ -906,9 +905,9 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_SOC_HIGH_ALARM_RECOVER,
 							new UnsignedWordElement(0x2093)), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CONNECTOR_TEMPERATURE_HIGH_ALARM,
-							new UnsignedWordElement(0x2094)), //
+							new SignedWordElement(0x2094)), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CONNECTOR_TEMPERATURE_HIGH_ALARM_RECOVER,
-							new UnsignedWordElement(0x2095)), //
+							new SignedWordElement(0x2095)), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_INSULATION_ALARM, new UnsignedWordElement(0x2096)), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_INSULATION_ALARM_RECOVER,
 							new UnsignedWordElement(0x2097)), //
@@ -921,18 +920,18 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TOTAL_VOLTAGE_DIFFERENCE_ALARM_RECOVER,
 							new UnsignedWordElement(0x209B), ElementToChannelConverter.SCALE_FACTOR_2), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_DISCHARGE_TEMPERATURE_HIGH_ALARM,
-							new UnsignedWordElement(0x209C)), //
+							new SignedWordElement(0x209C)), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_DISCHARGE_TEMPERATURE_HIGH_ALARM_RECOVER,
-							new UnsignedWordElement(0x209D)), //
+							new SignedWordElement(0x209D)), //
 					new DummyRegisterElement(0x209E),
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_DISCHARGE_TEMPERATURE_LOW_ALARM,
-							new UnsignedWordElement(0x209F)), //
+							new SignedWordElement(0x209F)), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_DISCHARGE_TEMPERATURE_LOW_ALARM_RECOVER,
-							new UnsignedWordElement(0x20A0)), //
+							new SignedWordElement(0x20A0)), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM,
-							new UnsignedWordElement(0x20A1)), //
+							new SignedWordElement(0x20A1)), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM_RECOVER,
-							new UnsignedWordElement(0x20A2)) //
+							new SignedWordElement(0x20A2)) //
 			);
 
 			protocol.addTask(readStopParameters);
@@ -948,9 +947,9 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
 				for (int j = i * voltSensors; j < (i + 1) * voltSensors; j++) {
 					String key = this.getSingleCellPrefix(j) + KEY_VOLTAGE;
-					UnsignedWordElement uwe = new UnsignedWordElement(offset + voltOffset + j);
-					AbstractModbusElement<?> ame = m(this.channelMap.get(key).channelId(), uwe);
-					elements.add(ame);
+					UnsignedWordElement wordElement = new UnsignedWordElement(offset + voltOffset + j);
+					AbstractModbusElement<?> modbusElement = m(this.channelMap.get(key).channelId(), wordElement);
+					elements.add(modbusElement);
 				}
 				protocol.addTask(new FC3ReadRegistersTask(offset + voltOffset + i * voltSensors, Priority.LOW,
 						elements.toArray(new AbstractModbusElement<?>[0])));
@@ -963,9 +962,9 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
 				for (int j = i * tempSensors; j < (i + 1) * tempSensors; j++) {
 					String key = this.getSingleCellPrefix(j) + KEY_TEMPERATURE;
-					SignedWordElement swe = new SignedWordElement(offset + tempOffset + j);
-					AbstractModbusElement<?> ame = m(this.channelMap.get(key).channelId(), swe);
-					elements.add(ame);
+					SignedWordElement wordElement = new SignedWordElement(offset + tempOffset + j);
+					AbstractModbusElement<?> modbusElement = m(this.channelMap.get(key).channelId(), wordElement);
+					elements.add(modbusElement);
 				}
 				protocol.addTask(new FC3ReadRegistersTask(offset + tempOffset + i * tempSensors, Priority.LOW,
 						elements.toArray(new AbstractModbusElement<?>[0])));

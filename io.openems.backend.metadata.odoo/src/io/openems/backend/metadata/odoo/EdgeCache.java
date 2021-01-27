@@ -219,9 +219,10 @@ public class EdgeCache {
 			this.parent.getPostgresHandler().getQueueWriteWorker()
 					.addTask(new UpdateEdgeVersion(edge.getOdooId(), version));
 		});
-		edge.onSetComponentState(activeStateChannels -> {
-			this.parent.postgresHandler.updateDeviceStates(edge, activeStateChannels);
-		});
+		// XXX Disabled to reduce stress on Postgres database
+		// edge.onSetComponentState(activeStateChannels -> {
+		// this.parent.postgresHandler.updateDeviceStates(edge, activeStateChannels);
+		// });
 		edge.onSetProducttype(producttype -> {
 			// Set Producttype in Odoo/Postgres
 			this.parent.getPostgresHandler().getQueueWriteWorker()
