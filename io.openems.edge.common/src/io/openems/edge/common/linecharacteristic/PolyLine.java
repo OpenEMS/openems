@@ -17,7 +17,57 @@ import io.openems.common.utils.JsonUtils;
  */
 public class PolyLine {
 
-	private final TreeMap<Float, Float> points;
+	private final TreeMap<Double, Double> points;
+
+	public static class Builder {
+		private final TreeMap<Double, Double> points = new TreeMap<>();
+
+		private Builder() {
+		}
+
+		public Builder addPoint(double x, Double y) {
+			this.points.put(x, y);
+			return this;
+		}
+
+		public Builder addPoint(double x, double y) {
+			this.points.put(x, y);
+			return this;
+		}
+
+		public PolyLine build() {
+			return new PolyLine(this.points);
+		}
+	}
+
+	/**
+	 * Create a PolyLine builder.
+	 * 
+	 * @return a {@link Builder}
+	 */
+	public static Builder create() {
+		return new Builder();
+	}
+
+	/**
+	 * Create a PolyLine that returns null for every 'x'.
+	 * 
+	 * @return a {@link PolyLine}
+	 */
+	public static PolyLine empty() {
+		return new PolyLine((Double) null);
+	}
+
+	/**
+	 * Creates a static PolyLine, i.e. the 'y' value is the same for each 'x'.
+	 * 
+	 * @param y 'y' value
+	 */
+	public PolyLine(Double y) {
+		TreeMap<Double, Double> points = new TreeMap<>();
+		points.put(0D, y);
+		this.points = points;
+	}
 
 	/**
 	 * Creates a PolyLine from two points.
@@ -26,12 +76,20 @@ public class PolyLine {
 	 * @param y1 'y' value of point 1
 	 * @param x2 'x' value of point 2
 	 * @param y2 'y' value of point 2
-	 * @throws OpenemsNamedException on error
 	 */
-	public PolyLine(Float x1, Float y1, Float x2, Float y2) throws OpenemsNamedException {
-		TreeMap<Float, Float> points = new TreeMap<>();
+	public PolyLine(double x1, Double y1, double x2, Double y2) {
+		TreeMap<Double, Double> points = new TreeMap<>();
 		points.put(x1, y1);
 		points.put(x2, y2);
+		this.points = points;
+	}
+
+	/**
+	 * Creates a PolyLine from a map of points.
+	 * 
+	 * @param points a map of points
+	 */
+	public PolyLine(TreeMap<Double, Double> points) {
 		this.points = points;
 	}
 
@@ -69,10 +127,10 @@ public class PolyLine {
 	 * @throws OpenemsNamedException on error
 	 */
 	public PolyLine(String x, String y, JsonArray lineConfig) throws OpenemsNamedException {
-		TreeMap<Float, Float> points = new TreeMap<>();
+		TreeMap<Double, Double> points = new TreeMap<>();
 		for (JsonElement element : lineConfig) {
-			Float xValue = JsonUtils.getAsFloat(element, x);
-			Float yValue = JsonUtils.getAsFloat(element, y);
+			Double xValue = JsonUtils.getAsDouble(element, x);
+			Double yValue = JsonUtils.getAsDouble(element, y);
 			points.put(xValue, yValue);
 		}
 		this.points = points;
@@ -83,11 +141,10 @@ public class PolyLine {
 	 * 
 	 * @param x the 'x' value
 	 * @return the 'y' value
-	 * @throws OpenemsNamedException on error
 	 */
-	public Float getValue(float x) throws OpenemsNamedException {
-		Entry<Float, Float> floorEntry = this.points.floorEntry(x);
-		Entry<Float, Float> ceilingEntry = this.points.ceilingEntry(x);
+	public Double getValue(double x) {
+		Entry<Double, Double> floorEntry = this.points.floorEntry(x);
+		Entry<Double, Double> ceilingEntry = this.points.ceilingEntry(x);
 
 		if (floorEntry == null && ceilingEntry == null) {
 			return null;
@@ -102,9 +159,17 @@ public class PolyLine {
 			return floorEntry.getValue();
 
 		} else {
-			Float m = (ceilingEntry.getValue() - floorEntry.getValue()) / (ceilingEntry.getKey() - floorEntry.getKey());
-			Float t = floorEntry.getValue() - m * floorEntry.getKey();
+			Double m = (ceilingEntry.getValue() - floorEntry.getValue())
+					/ (ceilingEntry.getKey() - floorEntry.getKey());
+			Double t = floorEntry.getValue() - m * floorEntry.getKey();
 			return m * x + t;
+		}
+	}
+
+	public static void printAsCsv(PolyLine polyLine) {
+		System.out.println("x;y");
+		for (Entry<Double, Double> point : polyLine.points.entrySet()) {
+			System.out.println(point.getKey() + ";" + point.getValue());
 		}
 	}
 }
