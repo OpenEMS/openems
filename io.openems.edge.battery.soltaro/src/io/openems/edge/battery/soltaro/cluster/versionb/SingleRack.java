@@ -34,8 +34,11 @@ import io.openems.edge.common.taskmanager.Priority;
  *
  */
 public class SingleRack {
-	public static final String KEY_RESET = "RESET";
-	public static final String KEY_SLEEP = "SLEEP";
+		private static final String KEY_VOLTAGE = "VOLTAGE";
+	private static final String KEY_CURRENT = "CURRENT";
+	private static final String KEY_CHARGE_INDICATION = "CHARGE_INDICATION";
+	private static final String KEY_SOC = "SOC";
+	private static final String KEY_SOH = "SOH";
 	public static final String KEY_MAX_CELL_VOLTAGE_ID = "MAX_CELL_VOLTAGE_ID";
 	public static final String KEY_MAX_CELL_VOLTAGE = "MAX_CELL_VOLTAGE";
 	public static final String KEY_MIN_CELL_VOLTAGE_ID = "MIN_CELL_VOLTAGE_ID";
@@ -43,14 +46,6 @@ public class SingleRack {
 	public static final String KEY_ALARM_LEVEL_1_CELL_VOLTAGE_LOW = "ALARM_LEVEL_1_CELL_VOLTAGE_LOW";
 	public static final String KEY_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH = "ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH";
 
-	private static final int VOLTAGE_SENSORS_PER_MODULE = 12;
-	private static final int TEMPERATURE_SENSORS_PER_MODULE = 12;
-
-	private static final String KEY_VOLTAGE = "VOLTAGE";
-	private static final String KEY_CURRENT = "CURRENT";
-	private static final String KEY_CHARGE_INDICATION = "CHARGE_INDICATION";
-	private static final String KEY_SOC = "SOC";
-	private static final String KEY_SOH = "SOH";
 	private static final String KEY_MAX_CELL_TEMPERATURE_ID = "MAX_CELL_TEMPERATURE_ID";
 	private static final String KEY_MAX_CELL_TEMPERATURE = "MAX_CELL_TEMPERATURE";
 	private static final String KEY_MIN_CELL_TEMPERATURE_ID = "MIN_CELL_TEMPERATURE_ID";
@@ -76,6 +71,7 @@ public class SingleRack {
 	private static final String KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH = "ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH";
 	private static final String KEY_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH = "ALARM_LEVEL_1_DISCHA_CURRENT_HIGH";
 	private static final String KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW = "ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW";
+
 	private static final String KEY_ALARM_LEVEL_1_CHA_CURRENT_HIGH = "ALARM_LEVEL_1_CHA_CURRENT_HIGH";
 	private static final String KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH = "ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH";
 	private static final String KEY_ALARM_LEVEL_1_CELL_VOLTAGE_HIGH = "ALARM_LEVEL_1_CELL_VOLTAGE_HIGH";
@@ -93,11 +89,16 @@ public class SingleRack {
 	private static final String KEY_FAILURE_LTC6803 = "FAILURE_LTC6803";
 	private static final String KEY_FAILURE_CONNECTOR_WIRE = "FAILURE_CONNECTOR_WIRE";
 	private static final String KEY_FAILURE_SAMPLING_WIRE = "FAILURE_SAMPLING_WIRE";
+	public static final String KEY_RESET = "RESET";
+	public static final String KEY_SLEEP = "SLEEP";
 
 	private static final String VOLTAGE = "VOLTAGE";
 	private static final String BATTERY = "BATTERY";
 	private static final String RACK = "RACK";
 	private static final String TEMPERATURE = "TEMPERATURE";
+
+	public static final int VOLTAGE_SENSORS_PER_MODULE = 12;
+	public static final int TEMPERATURE_SENSORS_PER_MODULE = 12;
 
 	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
 	private static final int VOLTAGE_ADDRESS_OFFSET = 0x800;
@@ -145,14 +146,6 @@ public class SingleRack {
 
 	protected int getMaximalCellTemperature() {
 		return this.getIntFromChannel(KEY_MAX_CELL_TEMPERATURE, -1);
-	}
-
-	protected int getRackNumber() {
-		return this.rackNumber;
-	}
-
-	protected int getAddressOffset() {
-		return this.addressOffset;
 	}
 
 	protected Collection<Task> getTasks() {
@@ -531,6 +524,14 @@ public class SingleRack {
 		}
 
 		return map;
+	}
+
+	protected int getRackNumber() {
+		return this.rackNumber;
+	}
+
+	protected int getAddressOffset() {
+		return this.addressOffset;
 	}
 
 	private ChannelId createChannelId(String key, Doc doc) {
