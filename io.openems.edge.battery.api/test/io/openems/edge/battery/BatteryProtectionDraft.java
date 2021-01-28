@@ -23,12 +23,32 @@ import io.openems.edge.common.type.TypeUtils;
 public class BatteryProtectionDraft {
 
 	private static class MaxChargeCurrentHandler {
+		private static class ForceDischargeParams {
+			private final int startDischargeAboveCellVoltage;
+			private final int dischargeAboveCellVoltage;
+			private final int blockChargeAboveCellVoltage;
+
+			public ForceDischargeParams(int startDischargeAboveCellVoltage, int dischargeAboveCellVoltage,
+					int blockChargeAboveCellVoltage) {
+				if (blockChargeAboveCellVoltage > dischargeAboveCellVoltage
+						|| dischargeAboveCellVoltage > startDischargeAboveCellVoltage) {
+					throw new IllegalArgumentException(
+							"Make sure that startDischargeAboveCellVoltage > dischargeAboveCellVoltage > blockChargeAboveCellVoltage.");
+				}
+
+				this.startDischargeAboveCellVoltage = startDischargeAboveCellVoltage;
+				this.dischargeAboveCellVoltage = dischargeAboveCellVoltage;
+				this.blockChargeAboveCellVoltage = blockChargeAboveCellVoltage;
+			}
+		}
+
 		public static class Builder {
 			private final ClockProvider clockProvider;
 			private final int bmsMaxEverAllowedChargeCurrent;
 			private PolyLine voltageToPercent = PolyLine.empty();
 			private PolyLine temperatureToPercent = PolyLine.empty();
 			private double maxIncreasePerSecond = Double.MAX_VALUE;
+			private ForceDischargeParams forceChargeParams = null;
 
 			private Builder(ClockProvider clockProvider, int bmsMaxEverAllowedChargeCurrent) {
 				this.clockProvider = clockProvider;
@@ -50,9 +70,30 @@ public class BatteryProtectionDraft {
 				return this;
 			}
 
+			/**
+			 * Configure 'Force Discharge' parameters.
+			 * 
+			 * @param startDischargeAboveCellVoltage start force discharge if maxCellVoltage
+			 *                                       is above this value, e.g. 3660
+			 * @param dischargeAboveCellVoltage      force discharge as long as
+			 *                                       maxCellVoltage is above this value,
+			 *                                       e.g. 3640
+			 * @param blockChargeAboveCellVoltage    after 'force discharge', block charging
+			 *                                       as long as maxCellVoltage is above this
+			 *                                       value, e.g. 3450
+			 * @return {@link Builder}
+			 */
+			public Builder setForceDischarge(int startDischargeAboveCellVoltage, int dischargeAboveCellVoltage,
+					int blockChargeAboveCellVoltage) {
+				this.forceChargeParams = new ForceDischargeParams(startDischargeAboveCellVoltage,
+						dischargeAboveCellVoltage, blockChargeAboveCellVoltage);
+				return this;
+			}
+
 			public MaxChargeCurrentHandler build() {
 				return new MaxChargeCurrentHandler(this.clockProvider, this.bmsMaxEverAllowedChargeCurrent,
-						this.voltageToPercent, this.temperatureToPercent, this.maxIncreasePerSecond);
+						this.voltageToPercent, this.temperatureToPercent, this.maxIncreasePerSecond,
+						this.forceChargeParams);
 			}
 		}
 
@@ -70,18 +111,28 @@ public class BatteryProtectionDraft {
 		private final int bmsMaxEverAllowedChargeCurrent;
 		private final PolyLine voltageToPercent;
 		private final PolyLine temperatureToPercent;
+
+		// used by 'getMaxIncreaseAmpereLimit()'
 		private final double maxIncreasePerSecond;
-
 		private Instant lastResultTimestamp = null;
-		private Double lastResultLimit = null;
+		private Double lastMaxIncreaseAmpereLimit = null;
 
-		public MaxChargeCurrentHandler(ClockProvider clockProvider, int bmsMaxEverAllowedChargeCurrent,
-				PolyLine voltageToPercent, PolyLine temperatureToPercent, double maxIncreasePerSecond) {
+		// used by 'getForceDischargeAmpere()'
+		private final ForceDischargeParams forceDischargeParams;
+		private boolean forceDischargeActive = false;
+
+		private MaxChargeCurrentHandler(ClockProvider clockProvider, int bmsMaxEverAllowedChargeCurrent,
+				PolyLine voltageToPercent, PolyLine temperatureToPercent, double maxIncreasePerSecond,
+				ForceDischargeParams forceChargeParams) {
 			this.clockProvider = clockProvider;
 			this.bmsMaxEverAllowedChargeCurrent = bmsMaxEverAllowedChargeCurrent;
+
 			this.voltageToPercent = voltageToPercent;
 			this.temperatureToPercent = temperatureToPercent;
+
 			this.maxIncreasePerSecond = maxIncreasePerSecond;
+
+			this.forceDischargeParams = forceChargeParams;
 		}
 
 		private synchronized int calculateCurrentLimit(int minCellVoltage, int maxCellVoltage, int minCellTemperature,
@@ -102,13 +153,16 @@ public class BatteryProtectionDraft {
 					this.percentToAmpere(this.temperatureToPercent.getValue(minCellTemperature)),
 
 					// Calculate Ampere limit for Min-Cell-Temperature
-					this.percentToAmpere(this.temperatureToPercent.getValue(maxCellTemperature)), //
+					this.percentToAmpere(this.temperatureToPercent.getValue(maxCellTemperature)),
 
 					// Calculate Max Increase Ampere Limit
-					this.getMaxIncreaseAmpereLimit() //
+					this.getMaxIncreaseAmpereLimit(),
+
+					// Calculate Force Discharge
+					this.getForceDischargeAmpere(maxCellVoltage) //
 			);
 
-			this.lastResultLimit = limit;
+			this.lastMaxIncreaseAmpereLimit = limit;
 
 			return (int) Math.round(limit);
 		}
@@ -126,14 +180,61 @@ public class BatteryProtectionDraft {
 		private synchronized Double getMaxIncreaseAmpereLimit() {
 			Instant now = Instant.now(this.clockProvider.getClock());
 			final Double result;
-			if (this.lastResultTimestamp != null && this.lastResultLimit != null) {
-				result = this.lastResultLimit
+			if (this.lastResultTimestamp != null && this.lastMaxIncreaseAmpereLimit != null) {
+				result = this.lastMaxIncreaseAmpereLimit
 						+ (Duration.between(this.lastResultTimestamp, now).toMillis() * maxIncreasePerSecond) //
 								/ 1000.; // convert [mA] to [A]
 			} else {
 				result = null;
 			}
 			this.lastResultTimestamp = now;
+			return result;
+		}
+
+		/**
+		 * Calculates the Ampere limit for force discharge mode. Returns:
+		 * 
+		 * <ul>
+		 * <li>-1 -> in force discharge mode
+		 * <li>0 -> in block charge mode
+		 * <li>null -> otherwise
+		 * </ul>
+		 * 
+		 * @return the limit or null
+		 */
+		private Double getForceDischargeAmpere(int maxCellVoltage) {
+			if (this.forceDischargeParams == null) {
+				// Force Discharge is not configured
+				return null;
+			}
+
+			final Double result;
+			if (maxCellVoltage >= this.forceDischargeParams.startDischargeAboveCellVoltage) {
+				// Activate Force-Discharge mode
+				result = -1.;
+				this.forceDischargeActive = true;
+
+			} else if (this.forceDischargeActive) {
+				if (maxCellVoltage >= this.forceDischargeParams.dischargeAboveCellVoltage) {
+					// Below 'startDischargeAboveCellVoltage', but 'forceDischargeActive' and above
+					// 'dischargeAboveCellVoltage', so keep force-discharging
+					result = -1.;
+
+				} else if (maxCellVoltage >= this.forceDischargeParams.blockChargeAboveCellVoltage) {
+					// Finished Force-Discharge mode - now in Block-Charge mode
+					result = 0.;
+
+				} else {
+					// Neither 'Force-Discharge' nor 'Block-Charge'. No limit.
+					result = null;
+					this.forceDischargeActive = false;
+				}
+
+			} else {
+				// Neither 'Force-Discharge' nor 'Block-Charge'. No limit.
+				result = null;
+			}
+
 			return result;
 		}
 
@@ -152,10 +253,10 @@ public class BatteryProtectionDraft {
 		private Double percentToAmpere(Double percent) {
 			if (percent == null) {
 				return null;
-			} else if (percent == 0D) {
-				return 0D;
+			} else if (percent == 0.) {
+				return 0.;
 			} else {
-				return Math.max(1D, this.bmsMaxEverAllowedChargeCurrent * percent);
+				return Math.max(1., this.bmsMaxEverAllowedChargeCurrent * percent);
 			}
 		}
 
@@ -190,6 +291,7 @@ public class BatteryProtectionDraft {
 						.addPoint(55, 0) //
 						.build()) //
 				.setMaxIncreasePerSecond(0.5) //
+				.setForceDischarge(3660, 3640, 3450) //
 				.build();
 
 		// Min-Cell-Voltage
@@ -214,6 +316,31 @@ public class BatteryProtectionDraft {
 		assertEquals(4, maxChargeCurrentHandler.calculateCurrentLimit(3000, 3300, 16, 17, 40));
 		clock.leap(900, ChronoUnit.MILLIS);
 		assertEquals(5, maxChargeCurrentHandler.calculateCurrentLimit(3050, 3300, 16, 17, 40));
+		clock.leap(10, ChronoUnit.SECONDS);
+		assertEquals(10, maxChargeCurrentHandler.calculateCurrentLimit(3050, 3300, 16, 17, 40));
+		clock.leap(1, ChronoUnit.HOURS);
+		assertEquals(40, maxChargeCurrentHandler.calculateCurrentLimit(3050, 3300, 16, 17, 40));
+		clock.leap(1, ChronoUnit.HOURS);
+		assertEquals(40, maxChargeCurrentHandler.calculateCurrentLimit(3050, 3449, 16, 17, 40));
+		clock.leap(1, ChronoUnit.HOURS);
+		assertEquals(1, maxChargeCurrentHandler.calculateCurrentLimit(3400, 3649, 16, 17, 40));
+		clock.leap(1, ChronoUnit.HOURS);
+		assertEquals(0, maxChargeCurrentHandler.calculateCurrentLimit(3400, 3650, 16, 17, 40));
+		
+		// Start Force-Discharge
+		clock.leap(1, ChronoUnit.HOURS);
+		assertEquals(-1, maxChargeCurrentHandler.calculateCurrentLimit(3400, 3660, 16, 17, 40));
+		assertEquals(-1, maxChargeCurrentHandler.calculateCurrentLimit(3400, 3650, 16, 17, 40));
+		// Block Charge
+		clock.leap(1, ChronoUnit.SECONDS);
+		assertEquals(0, maxChargeCurrentHandler.calculateCurrentLimit(3400, 3639, 16, 17, 40));
+		assertEquals(0, maxChargeCurrentHandler.calculateCurrentLimit(3400, 3600, 16, 17, 40));
+		assertEquals(0, maxChargeCurrentHandler.calculateCurrentLimit(3400, 3450, 16, 17, 40));
+		// Finish Force-Discharge logic
+		clock.leap(2, ChronoUnit.SECONDS);
+		assertEquals(1, maxChargeCurrentHandler.calculateCurrentLimit(3400, 3449, 16, 17, 40));
+		clock.leap(2, ChronoUnit.SECONDS);
+		assertEquals(2, maxChargeCurrentHandler.calculateCurrentLimit(3400, 3449, 16, 17, 40));
 
 		PolyLine.printAsCsv(maxChargeCurrentHandler.voltageToPercent);
 		PolyLine.printAsCsv(maxChargeCurrentHandler.temperatureToPercent);
@@ -290,19 +417,35 @@ public class BatteryProtectionDraft {
 		MaxChargeCurrentHandler sut = MaxChargeCurrentHandler.create(cm, 40) //
 				.setMaxIncreasePerSecond(0.5) //
 				.build();
-		sut.lastResultLimit = 0D;
+		sut.lastMaxIncreaseAmpereLimit = 0.;
 		sut.lastResultTimestamp = Instant.now(clock);
 
 		clock.leap(1, ChronoUnit.SECONDS);
 		assertEquals(0.5, (double) sut.getMaxIncreaseAmpereLimit(), 0.001);
-		sut.lastResultLimit = 0.5;
+		sut.lastMaxIncreaseAmpereLimit = 0.5;
 
 		clock.leap(1, ChronoUnit.SECONDS);
 		assertEquals(1, (double) sut.getMaxIncreaseAmpereLimit(), 0.001);
-		sut.lastResultLimit = 1.;
+		sut.lastMaxIncreaseAmpereLimit = 1.;
 
 		clock.leap(800, ChronoUnit.MILLIS);
 		assertEquals(1.4, (double) sut.getMaxIncreaseAmpereLimit(), 0.001);
+	}
+
+	@Test
+	public void testForceDischarge() {
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+		MaxChargeCurrentHandler sut = MaxChargeCurrentHandler.create(cm, 40) //
+				.setForceDischarge(3660, 3640, 3450) //
+				.build();
+		assertEquals(null, sut.getForceDischargeAmpere(3650));
+		assertEquals(-1., sut.getForceDischargeAmpere(3660), 0.001);
+		assertEquals(-1., sut.getForceDischargeAmpere(3650), 0.001);
+		assertEquals(0, sut.getForceDischargeAmpere(3639), 0.001);
+		assertEquals(0, sut.getForceDischargeAmpere(3600), 0.001);
+		assertEquals(0, sut.getForceDischargeAmpere(3500), 0.001);
+		assertEquals(null, sut.getForceDischargeAmpere(3449));
 	}
 
 }
