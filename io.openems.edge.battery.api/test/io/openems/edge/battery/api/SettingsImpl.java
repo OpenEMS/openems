@@ -1,5 +1,7 @@
 package io.openems.edge.battery.api;
 
+import io.openems.edge.battery.api.Settings;
+
 public class SettingsImpl implements Settings {
 
 	private int toleranceMilliVolt;
