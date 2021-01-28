@@ -23,7 +23,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public ModuleType moduleType;
 		public int watchdog;
 		public int socLowAlarm;
-		public boolean ReduceTasks;
+		public boolean reduceTasks;
 
 		private Builder() {
 		}

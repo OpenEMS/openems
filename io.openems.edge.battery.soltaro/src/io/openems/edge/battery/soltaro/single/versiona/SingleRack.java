@@ -28,9 +28,12 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.api.SetAllowedCurrents;
 import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.ChargeIndication;
+import io.openems.edge.battery.soltaro.SoltaroCellCharacteristic;
 import io.openems.edge.battery.soltaro.State;
+import io.openems.edge.battery.soltaro.single.SingleRackSettings;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -38,6 +41,7 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.Doc;
@@ -57,8 +61,10 @@ import io.openems.edge.common.taskmanager.Priority;
 		name = "Bms.Soltaro.SingleRack.VersionA", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
 public class SingleRack extends AbstractOpenemsModbusComponent
 		implements Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
@@ -94,6 +100,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	private LocalDateTime pendingTimestamp;
 
+	private final SetAllowedCurrents setAllowedCurrents;
+
 	public SingleRack() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -105,6 +113,14 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		this._setChargeMaxVoltage(SingleRack.CHARGE_MAX_V);
 		this._setDischargeMaxCurrent(SingleRack.DISCHARGE_MAX_A);
 		this._setDischargeMinVoltage(SingleRack.DISCHARGE_MIN_V);
+		
+		this.setAllowedCurrents = new SetAllowedCurrents(//
+				this, //
+				new SoltaroCellCharacteristic(), //
+				new SingleRackSettings(), //
+				this.channel(SingleRack.ChannelId.SYSTEM_ACCEPT_MAX_CHARGE_CURRENT), //
+				this.channel(SingleRack.ChannelId.SYSTEM_ACCEPT_MAX_DISCHARGE_CURRENT) //
+			);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -160,6 +176,11 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
+
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+
+			this.setAllowedCurrents.act();
+			break;
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.handleBatteryState();
@@ -320,6 +341,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Checks whether system has an undefined state.
+	 * @return true when the system is pending
 	 */
 	private boolean isSystemStatePending() {
 		return !this.isSystemRunning() && !this.isSystemStopped();
@@ -331,20 +353,32 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		return bOpt.isPresent() && bOpt.get();
 	}
 
+	/**
+	 * Returns the statemachine state.
+	 * @return the statemachine state
+	 */
 	public State getStateMachineState() {
 		return this.state;
 	}
 
+	/**
+	 * Sets the state.
+	 * @param state the State
+	 */
 	public void setStateMachineState(State state) {
 		this.state = state;
 		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
 	}
 
+	/**
+	 * Returns the modbus bridge id.
+	 * @return the modbus bridge id
+	 */
 	public String getModbusBridgeId() {
 		return this.modbusBridgeId;
 	}
 
-	@Override
+		@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc() //
 				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
@@ -1101,57 +1135,57 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		}
 	}
 
-	@Override
+@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC6WriteRegisterTask(0x2010, //
-						m(SingleRack.ChannelId.BMS_CONTACTOR_CONTROL, new SignedWordElement(0x2010)) //
+						m(SingleRack.ChannelId.BMS_CONTACTOR_CONTROL, new UnsignedWordElement(0x2010)) //
 				), //
 				new FC3ReadRegistersTask(0x2010, Priority.HIGH, //
-						m(SingleRack.ChannelId.BMS_CONTACTOR_CONTROL, new SignedWordElement(0x2010)) //
+						m(SingleRack.ChannelId.BMS_CONTACTOR_CONTROL, new UnsignedWordElement(0x2010)) //
 				), //
 				new FC3ReadRegistersTask(0x2042, Priority.HIGH, //
-						m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new SignedWordElement(0x2042), //
+						m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(0x2042), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), //
 				new FC3ReadRegistersTask(0x2046, Priority.HIGH, //
-						m(SingleRack.ChannelId.CELL_VOLTAGE_PROTECT, new SignedWordElement(0x2046)), //
-						m(SingleRack.ChannelId.CELL_VOLTAGE_RECOVER, new SignedWordElement(0x2047)), //
-						m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, new SignedWordElement(0x2048), //
+						m(SingleRack.ChannelId.CELL_VOLTAGE_PROTECT, new UnsignedWordElement(0x2046)), //
+						m(SingleRack.ChannelId.CELL_VOLTAGE_RECOVER, new UnsignedWordElement(0x2047)), //
+						m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(0x2048), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), //
 				new FC6WriteRegisterTask(0x2046, //
-						m(SingleRack.ChannelId.CELL_VOLTAGE_PROTECT, new SignedWordElement(0x2046)) //
+						m(SingleRack.ChannelId.CELL_VOLTAGE_PROTECT, new UnsignedWordElement(0x2046)) //
 				), //
 				new FC6WriteRegisterTask(0x2047, //
-						m(SingleRack.ChannelId.CELL_VOLTAGE_RECOVER, new SignedWordElement(0x2047)) //
+						m(SingleRack.ChannelId.CELL_VOLTAGE_RECOVER, new UnsignedWordElement(0x2047)) //
 				), //
 				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
-						m(Battery.ChannelId.VOLTAGE, new SignedWordElement(0x2100), //
+						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x2100), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.CURRENT, new SignedWordElement(0x2101), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(SingleRack.ChannelId.CHARGE_INDICATION, new SignedWordElement(0x2102)), //
-						m(Battery.ChannelId.SOC, new SignedWordElement(0x2103)), //
-						m(Battery.ChannelId.SOH, new SignedWordElement(0x2104)), //
-						m(SingleRack.ChannelId.CLUSTER_1_MAX_CELL_VOLTAGE_ID, new SignedWordElement(0x2105)), //
-						m(Battery.ChannelId.MAX_CELL_VOLTAGE, new SignedWordElement(0x2106)), //
-						m(SingleRack.ChannelId.CLUSTER_1_MIN_CELL_VOLTAGE_ID, new SignedWordElement(0x2107)), //
-						m(Battery.ChannelId.MIN_CELL_VOLTAGE, new SignedWordElement(0x2108)), //
-						m(SingleRack.ChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE_ID, new SignedWordElement(0x2109)), //
+						m(SingleRack.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x2102)), //
+						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), //
+						m(Battery.ChannelId.SOH, new UnsignedWordElement(0x2104)), //
+						m(SingleRack.ChannelId.CLUSTER_1_MAX_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2105)), //
+						m(Battery.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(0x2106)), //
+						m(SingleRack.ChannelId.CLUSTER_1_MIN_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2107)), //
+						m(Battery.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(0x2108)), //
+						m(SingleRack.ChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x2109)), //
 						m(Battery.ChannelId.MAX_CELL_TEMPERATURE, new SignedWordElement(0x210A),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(SingleRack.ChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE_ID, new SignedWordElement(0x210B)), //
+						m(SingleRack.ChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x210B)), //
 						m(Battery.ChannelId.MIN_CELL_TEMPERATURE, new SignedWordElement(0x210C),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(0x210D, 0x2115), //
-						m(SingleRack.ChannelId.SYSTEM_INSULATION, new SignedWordElement(0x2116)) //
+						m(SingleRack.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x2116)) //
 				), //
 				new FC3ReadRegistersTask(0x2160, Priority.HIGH, //
-						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new SignedWordElement(0x2160), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new SignedWordElement(0x2161), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+						m(SingleRack.ChannelId.SYSTEM_ACCEPT_MAX_CHARGE_CURRENT, new UnsignedWordElement(0x2160), //
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SingleRack.ChannelId.SYSTEM_ACCEPT_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(0x2161), //
+								ElementToChannelConverter.SCALE_FACTOR_2) //
 				), //
 				new FC3ReadRegistersTask(0x2140, Priority.LOW, //
 						m(new BitsWordElement(0x2140, this) //
@@ -1184,7 +1218,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 								.bit(14, SingleRack.ChannelId.ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH) //
 								.bit(15, SingleRack.ChannelId.ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW) //
 						), //
-						m(SingleRack.ChannelId.CLUSTER_RUN_STATE, new SignedWordElement(0x2142)) //
+						m(SingleRack.ChannelId.CLUSTER_RUN_STATE, new UnsignedWordElement(0x2142)) //
 				), //
 				new FC3ReadRegistersTask(0x2185, Priority.LOW, //
 						m(new BitsWordElement(0x2185, this) //
@@ -1202,249 +1236,249 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 						) //
 				), //
 				new FC3ReadRegistersTask(0x2800, Priority.LOW, //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_000_VOLTAGE, new SignedWordElement(0x2800)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_001_VOLTAGE, new SignedWordElement(0x2801)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_002_VOLTAGE, new SignedWordElement(0x2802)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_003_VOLTAGE, new SignedWordElement(0x2803)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_004_VOLTAGE, new SignedWordElement(0x2804)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_005_VOLTAGE, new SignedWordElement(0x2805)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_006_VOLTAGE, new SignedWordElement(0x2806)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_007_VOLTAGE, new SignedWordElement(0x2807)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_008_VOLTAGE, new SignedWordElement(0x2808)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_009_VOLTAGE, new SignedWordElement(0x2809)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_010_VOLTAGE, new SignedWordElement(0x280A)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_011_VOLTAGE, new SignedWordElement(0x280B)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_012_VOLTAGE, new SignedWordElement(0x280C)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_013_VOLTAGE, new SignedWordElement(0x280D)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_014_VOLTAGE, new SignedWordElement(0x280E)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_015_VOLTAGE, new SignedWordElement(0x280F)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_016_VOLTAGE, new SignedWordElement(0x2810)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_017_VOLTAGE, new SignedWordElement(0x2811)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_018_VOLTAGE, new SignedWordElement(0x2812)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_019_VOLTAGE, new SignedWordElement(0x2813)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_020_VOLTAGE, new SignedWordElement(0x2814)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_021_VOLTAGE, new SignedWordElement(0x2815)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_022_VOLTAGE, new SignedWordElement(0x2816)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_023_VOLTAGE, new SignedWordElement(0x2817)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_024_VOLTAGE, new SignedWordElement(0x2818)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_025_VOLTAGE, new SignedWordElement(0x2819)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_026_VOLTAGE, new SignedWordElement(0x281A)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_027_VOLTAGE, new SignedWordElement(0x281B)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_028_VOLTAGE, new SignedWordElement(0x281C)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_029_VOLTAGE, new SignedWordElement(0x281D)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_030_VOLTAGE, new SignedWordElement(0x281E)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_031_VOLTAGE, new SignedWordElement(0x281F)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_032_VOLTAGE, new SignedWordElement(0x2820)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_033_VOLTAGE, new SignedWordElement(0x2821)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_034_VOLTAGE, new SignedWordElement(0x2822)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_035_VOLTAGE, new SignedWordElement(0x2823)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_036_VOLTAGE, new SignedWordElement(0x2824)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_037_VOLTAGE, new SignedWordElement(0x2825)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_038_VOLTAGE, new SignedWordElement(0x2826)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_039_VOLTAGE, new SignedWordElement(0x2827)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_040_VOLTAGE, new SignedWordElement(0x2828)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_041_VOLTAGE, new SignedWordElement(0x2829)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_042_VOLTAGE, new SignedWordElement(0x282A)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_043_VOLTAGE, new SignedWordElement(0x282B)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_044_VOLTAGE, new SignedWordElement(0x282C)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_045_VOLTAGE, new SignedWordElement(0x282D)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_046_VOLTAGE, new SignedWordElement(0x282E)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_047_VOLTAGE, new SignedWordElement(0x282F)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_048_VOLTAGE, new SignedWordElement(0x2830)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_049_VOLTAGE, new SignedWordElement(0x2831)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_050_VOLTAGE, new SignedWordElement(0x2832)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_051_VOLTAGE, new SignedWordElement(0x2833)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_052_VOLTAGE, new SignedWordElement(0x2834)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_053_VOLTAGE, new SignedWordElement(0x2835)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_054_VOLTAGE, new SignedWordElement(0x2836)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_055_VOLTAGE, new SignedWordElement(0x2837)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_056_VOLTAGE, new SignedWordElement(0x2838)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_057_VOLTAGE, new SignedWordElement(0x2839)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_058_VOLTAGE, new SignedWordElement(0x283A)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_059_VOLTAGE, new SignedWordElement(0x283B)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_060_VOLTAGE, new SignedWordElement(0x283C)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_061_VOLTAGE, new SignedWordElement(0x283D)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_062_VOLTAGE, new SignedWordElement(0x283E)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_063_VOLTAGE, new SignedWordElement(0x283F)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_064_VOLTAGE, new SignedWordElement(0x2840)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_065_VOLTAGE, new SignedWordElement(0x2841)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_066_VOLTAGE, new SignedWordElement(0x2842)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_067_VOLTAGE, new SignedWordElement(0x2843)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_068_VOLTAGE, new SignedWordElement(0x2844)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_069_VOLTAGE, new SignedWordElement(0x2845)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_070_VOLTAGE, new SignedWordElement(0x2846)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_071_VOLTAGE, new SignedWordElement(0x2847)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_072_VOLTAGE, new SignedWordElement(0x2848)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_073_VOLTAGE, new SignedWordElement(0x2849)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_074_VOLTAGE, new SignedWordElement(0x284A)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_075_VOLTAGE, new SignedWordElement(0x284B)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_076_VOLTAGE, new SignedWordElement(0x284C)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_077_VOLTAGE, new SignedWordElement(0x284D)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_078_VOLTAGE, new SignedWordElement(0x284E)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_079_VOLTAGE, new SignedWordElement(0x284F)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_080_VOLTAGE, new SignedWordElement(0x2850)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_081_VOLTAGE, new SignedWordElement(0x2851)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_082_VOLTAGE, new SignedWordElement(0x2852)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_083_VOLTAGE, new SignedWordElement(0x2853)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_084_VOLTAGE, new SignedWordElement(0x2854)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_085_VOLTAGE, new SignedWordElement(0x2855)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_086_VOLTAGE, new SignedWordElement(0x2856)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_087_VOLTAGE, new SignedWordElement(0x2857)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_088_VOLTAGE, new SignedWordElement(0x2858)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_089_VOLTAGE, new SignedWordElement(0x2859)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_090_VOLTAGE, new SignedWordElement(0x285A)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_091_VOLTAGE, new SignedWordElement(0x285B)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_092_VOLTAGE, new SignedWordElement(0x285C)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_093_VOLTAGE, new SignedWordElement(0x285D)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_094_VOLTAGE, new SignedWordElement(0x285E)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_095_VOLTAGE, new SignedWordElement(0x285F)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_096_VOLTAGE, new SignedWordElement(0x2860)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_097_VOLTAGE, new SignedWordElement(0x2861)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_098_VOLTAGE, new SignedWordElement(0x2862)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_099_VOLTAGE, new SignedWordElement(0x2863)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_100_VOLTAGE, new SignedWordElement(0x2864)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_101_VOLTAGE, new SignedWordElement(0x2865)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_102_VOLTAGE, new SignedWordElement(0x2866)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_103_VOLTAGE, new SignedWordElement(0x2867)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_104_VOLTAGE, new SignedWordElement(0x2868)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_105_VOLTAGE, new SignedWordElement(0x2869)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_106_VOLTAGE, new SignedWordElement(0x286A)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_107_VOLTAGE, new SignedWordElement(0x286B)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_108_VOLTAGE, new SignedWordElement(0x286C)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_109_VOLTAGE, new SignedWordElement(0x286D)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_110_VOLTAGE, new SignedWordElement(0x286E)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_111_VOLTAGE, new SignedWordElement(0x286F)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_112_VOLTAGE, new SignedWordElement(0x2870)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_113_VOLTAGE, new SignedWordElement(0x2871)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_114_VOLTAGE, new SignedWordElement(0x2872)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_115_VOLTAGE, new SignedWordElement(0x2873)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_116_VOLTAGE, new SignedWordElement(0x2874)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_117_VOLTAGE, new SignedWordElement(0x2875)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_118_VOLTAGE, new SignedWordElement(0x2876)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_119_VOLTAGE, new SignedWordElement(0x2877)) //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_000_VOLTAGE, new UnsignedWordElement(0x2800)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_001_VOLTAGE, new UnsignedWordElement(0x2801)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_002_VOLTAGE, new UnsignedWordElement(0x2802)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_003_VOLTAGE, new UnsignedWordElement(0x2803)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_004_VOLTAGE, new UnsignedWordElement(0x2804)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_005_VOLTAGE, new UnsignedWordElement(0x2805)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_006_VOLTAGE, new UnsignedWordElement(0x2806)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_007_VOLTAGE, new UnsignedWordElement(0x2807)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_008_VOLTAGE, new UnsignedWordElement(0x2808)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_009_VOLTAGE, new UnsignedWordElement(0x2809)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_010_VOLTAGE, new UnsignedWordElement(0x280A)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_011_VOLTAGE, new UnsignedWordElement(0x280B)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_012_VOLTAGE, new UnsignedWordElement(0x280C)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_013_VOLTAGE, new UnsignedWordElement(0x280D)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_014_VOLTAGE, new UnsignedWordElement(0x280E)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_015_VOLTAGE, new UnsignedWordElement(0x280F)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_016_VOLTAGE, new UnsignedWordElement(0x2810)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_017_VOLTAGE, new UnsignedWordElement(0x2811)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_018_VOLTAGE, new UnsignedWordElement(0x2812)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_019_VOLTAGE, new UnsignedWordElement(0x2813)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_020_VOLTAGE, new UnsignedWordElement(0x2814)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_021_VOLTAGE, new UnsignedWordElement(0x2815)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_022_VOLTAGE, new UnsignedWordElement(0x2816)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_023_VOLTAGE, new UnsignedWordElement(0x2817)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_024_VOLTAGE, new UnsignedWordElement(0x2818)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_025_VOLTAGE, new UnsignedWordElement(0x2819)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_026_VOLTAGE, new UnsignedWordElement(0x281A)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_027_VOLTAGE, new UnsignedWordElement(0x281B)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_028_VOLTAGE, new UnsignedWordElement(0x281C)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_029_VOLTAGE, new UnsignedWordElement(0x281D)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_030_VOLTAGE, new UnsignedWordElement(0x281E)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_031_VOLTAGE, new UnsignedWordElement(0x281F)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_032_VOLTAGE, new UnsignedWordElement(0x2820)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_033_VOLTAGE, new UnsignedWordElement(0x2821)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_034_VOLTAGE, new UnsignedWordElement(0x2822)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_035_VOLTAGE, new UnsignedWordElement(0x2823)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_036_VOLTAGE, new UnsignedWordElement(0x2824)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_037_VOLTAGE, new UnsignedWordElement(0x2825)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_038_VOLTAGE, new UnsignedWordElement(0x2826)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_039_VOLTAGE, new UnsignedWordElement(0x2827)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_040_VOLTAGE, new UnsignedWordElement(0x2828)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_041_VOLTAGE, new UnsignedWordElement(0x2829)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_042_VOLTAGE, new UnsignedWordElement(0x282A)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_043_VOLTAGE, new UnsignedWordElement(0x282B)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_044_VOLTAGE, new UnsignedWordElement(0x282C)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_045_VOLTAGE, new UnsignedWordElement(0x282D)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_046_VOLTAGE, new UnsignedWordElement(0x282E)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_047_VOLTAGE, new UnsignedWordElement(0x282F)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_048_VOLTAGE, new UnsignedWordElement(0x2830)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_049_VOLTAGE, new UnsignedWordElement(0x2831)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_050_VOLTAGE, new UnsignedWordElement(0x2832)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_051_VOLTAGE, new UnsignedWordElement(0x2833)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_052_VOLTAGE, new UnsignedWordElement(0x2834)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_053_VOLTAGE, new UnsignedWordElement(0x2835)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_054_VOLTAGE, new UnsignedWordElement(0x2836)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_055_VOLTAGE, new UnsignedWordElement(0x2837)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_056_VOLTAGE, new UnsignedWordElement(0x2838)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_057_VOLTAGE, new UnsignedWordElement(0x2839)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_058_VOLTAGE, new UnsignedWordElement(0x283A)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_059_VOLTAGE, new UnsignedWordElement(0x283B)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_060_VOLTAGE, new UnsignedWordElement(0x283C)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_061_VOLTAGE, new UnsignedWordElement(0x283D)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_062_VOLTAGE, new UnsignedWordElement(0x283E)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_063_VOLTAGE, new UnsignedWordElement(0x283F)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_064_VOLTAGE, new UnsignedWordElement(0x2840)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_065_VOLTAGE, new UnsignedWordElement(0x2841)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_066_VOLTAGE, new UnsignedWordElement(0x2842)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_067_VOLTAGE, new UnsignedWordElement(0x2843)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_068_VOLTAGE, new UnsignedWordElement(0x2844)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_069_VOLTAGE, new UnsignedWordElement(0x2845)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_070_VOLTAGE, new UnsignedWordElement(0x2846)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_071_VOLTAGE, new UnsignedWordElement(0x2847)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_072_VOLTAGE, new UnsignedWordElement(0x2848)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_073_VOLTAGE, new UnsignedWordElement(0x2849)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_074_VOLTAGE, new UnsignedWordElement(0x284A)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_075_VOLTAGE, new UnsignedWordElement(0x284B)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_076_VOLTAGE, new UnsignedWordElement(0x284C)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_077_VOLTAGE, new UnsignedWordElement(0x284D)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_078_VOLTAGE, new UnsignedWordElement(0x284E)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_079_VOLTAGE, new UnsignedWordElement(0x284F)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_080_VOLTAGE, new UnsignedWordElement(0x2850)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_081_VOLTAGE, new UnsignedWordElement(0x2851)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_082_VOLTAGE, new UnsignedWordElement(0x2852)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_083_VOLTAGE, new UnsignedWordElement(0x2853)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_084_VOLTAGE, new UnsignedWordElement(0x2854)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_085_VOLTAGE, new UnsignedWordElement(0x2855)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_086_VOLTAGE, new UnsignedWordElement(0x2856)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_087_VOLTAGE, new UnsignedWordElement(0x2857)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_088_VOLTAGE, new UnsignedWordElement(0x2858)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_089_VOLTAGE, new UnsignedWordElement(0x2859)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_090_VOLTAGE, new UnsignedWordElement(0x285A)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_091_VOLTAGE, new UnsignedWordElement(0x285B)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_092_VOLTAGE, new UnsignedWordElement(0x285C)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_093_VOLTAGE, new UnsignedWordElement(0x285D)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_094_VOLTAGE, new UnsignedWordElement(0x285E)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_095_VOLTAGE, new UnsignedWordElement(0x285F)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_096_VOLTAGE, new UnsignedWordElement(0x2860)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_097_VOLTAGE, new UnsignedWordElement(0x2861)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_098_VOLTAGE, new UnsignedWordElement(0x2862)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_099_VOLTAGE, new UnsignedWordElement(0x2863)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_100_VOLTAGE, new UnsignedWordElement(0x2864)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_101_VOLTAGE, new UnsignedWordElement(0x2865)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_102_VOLTAGE, new UnsignedWordElement(0x2866)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_103_VOLTAGE, new UnsignedWordElement(0x2867)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_104_VOLTAGE, new UnsignedWordElement(0x2868)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_105_VOLTAGE, new UnsignedWordElement(0x2869)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_106_VOLTAGE, new UnsignedWordElement(0x286A)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_107_VOLTAGE, new UnsignedWordElement(0x286B)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_108_VOLTAGE, new UnsignedWordElement(0x286C)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_109_VOLTAGE, new UnsignedWordElement(0x286D)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_110_VOLTAGE, new UnsignedWordElement(0x286E)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_111_VOLTAGE, new UnsignedWordElement(0x286F)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_112_VOLTAGE, new UnsignedWordElement(0x2870)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_113_VOLTAGE, new UnsignedWordElement(0x2871)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_114_VOLTAGE, new UnsignedWordElement(0x2872)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_115_VOLTAGE, new UnsignedWordElement(0x2873)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_116_VOLTAGE, new UnsignedWordElement(0x2874)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_117_VOLTAGE, new UnsignedWordElement(0x2875)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_118_VOLTAGE, new UnsignedWordElement(0x2876)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_119_VOLTAGE, new UnsignedWordElement(0x2877)) //
 
 				), //
 				new FC3ReadRegistersTask(0x2878, Priority.LOW, //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_120_VOLTAGE, new SignedWordElement(0x2878)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_121_VOLTAGE, new SignedWordElement(0x2879)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_122_VOLTAGE, new SignedWordElement(0x287A)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_123_VOLTAGE, new SignedWordElement(0x287B)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_124_VOLTAGE, new SignedWordElement(0x287C)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_125_VOLTAGE, new SignedWordElement(0x287D)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_126_VOLTAGE, new SignedWordElement(0x287E)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_127_VOLTAGE, new SignedWordElement(0x287F)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_128_VOLTAGE, new SignedWordElement(0x2880)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_129_VOLTAGE, new SignedWordElement(0x2881)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_130_VOLTAGE, new SignedWordElement(0x2882)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_131_VOLTAGE, new SignedWordElement(0x2883)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_132_VOLTAGE, new SignedWordElement(0x2884)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_133_VOLTAGE, new SignedWordElement(0x2885)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_134_VOLTAGE, new SignedWordElement(0x2886)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_135_VOLTAGE, new SignedWordElement(0x2887)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_136_VOLTAGE, new SignedWordElement(0x2888)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_137_VOLTAGE, new SignedWordElement(0x2889)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_138_VOLTAGE, new SignedWordElement(0x288A)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_139_VOLTAGE, new SignedWordElement(0x288B)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_140_VOLTAGE, new SignedWordElement(0x288C)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_141_VOLTAGE, new SignedWordElement(0x288D)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_142_VOLTAGE, new SignedWordElement(0x288E)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_143_VOLTAGE, new SignedWordElement(0x288F)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_144_VOLTAGE, new SignedWordElement(0x2890)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_145_VOLTAGE, new SignedWordElement(0x2891)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_146_VOLTAGE, new SignedWordElement(0x2892)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_147_VOLTAGE, new SignedWordElement(0x2893)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_148_VOLTAGE, new SignedWordElement(0x2894)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_149_VOLTAGE, new SignedWordElement(0x2895)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_150_VOLTAGE, new SignedWordElement(0x2896)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_151_VOLTAGE, new SignedWordElement(0x2897)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_152_VOLTAGE, new SignedWordElement(0x2898)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_153_VOLTAGE, new SignedWordElement(0x2899)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_154_VOLTAGE, new SignedWordElement(0x289A)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_155_VOLTAGE, new SignedWordElement(0x289B)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_156_VOLTAGE, new SignedWordElement(0x289C)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_157_VOLTAGE, new SignedWordElement(0x289D)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_158_VOLTAGE, new SignedWordElement(0x289E)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_159_VOLTAGE, new SignedWordElement(0x289F)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_160_VOLTAGE, new SignedWordElement(0x28A0)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_161_VOLTAGE, new SignedWordElement(0x28A1)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_162_VOLTAGE, new SignedWordElement(0x28A2)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_163_VOLTAGE, new SignedWordElement(0x28A3)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_164_VOLTAGE, new SignedWordElement(0x28A4)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_165_VOLTAGE, new SignedWordElement(0x28A5)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_166_VOLTAGE, new SignedWordElement(0x28A6)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_167_VOLTAGE, new SignedWordElement(0x28A7)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_168_VOLTAGE, new SignedWordElement(0x28A8)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_169_VOLTAGE, new SignedWordElement(0x28A9)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_170_VOLTAGE, new SignedWordElement(0x28AA)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_171_VOLTAGE, new SignedWordElement(0x28AB)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_172_VOLTAGE, new SignedWordElement(0x28AC)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_173_VOLTAGE, new SignedWordElement(0x28AD)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_174_VOLTAGE, new SignedWordElement(0x28AE)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_175_VOLTAGE, new SignedWordElement(0x28AF)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_176_VOLTAGE, new SignedWordElement(0x28B0)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_177_VOLTAGE, new SignedWordElement(0x28B1)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_178_VOLTAGE, new SignedWordElement(0x28B2)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_179_VOLTAGE, new SignedWordElement(0x28B3)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_180_VOLTAGE, new SignedWordElement(0x28B4)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_181_VOLTAGE, new SignedWordElement(0x28B5)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_182_VOLTAGE, new SignedWordElement(0x28B6)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_183_VOLTAGE, new SignedWordElement(0x28B7)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_184_VOLTAGE, new SignedWordElement(0x28B8)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_185_VOLTAGE, new SignedWordElement(0x28B9)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_186_VOLTAGE, new SignedWordElement(0x28BA)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_187_VOLTAGE, new SignedWordElement(0x28BB)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_188_VOLTAGE, new SignedWordElement(0x28BC)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_189_VOLTAGE, new SignedWordElement(0x28BD)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_190_VOLTAGE, new SignedWordElement(0x28BE)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_191_VOLTAGE, new SignedWordElement(0x28BF)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_192_VOLTAGE, new SignedWordElement(0x28C0)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_193_VOLTAGE, new SignedWordElement(0x28C1)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_194_VOLTAGE, new SignedWordElement(0x28C2)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_195_VOLTAGE, new SignedWordElement(0x28C3)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_196_VOLTAGE, new SignedWordElement(0x28C4)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_197_VOLTAGE, new SignedWordElement(0x28C5)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_198_VOLTAGE, new SignedWordElement(0x28C6)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_199_VOLTAGE, new SignedWordElement(0x28C7)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_200_VOLTAGE, new SignedWordElement(0x28C8)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_201_VOLTAGE, new SignedWordElement(0x28C9)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_202_VOLTAGE, new SignedWordElement(0x28CA)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_203_VOLTAGE, new SignedWordElement(0x28CB)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_204_VOLTAGE, new SignedWordElement(0x28CC)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_205_VOLTAGE, new SignedWordElement(0x28CD)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_206_VOLTAGE, new SignedWordElement(0x28CE)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_207_VOLTAGE, new SignedWordElement(0x28CF)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_208_VOLTAGE, new SignedWordElement(0x28D0)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_209_VOLTAGE, new SignedWordElement(0x28D1)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_210_VOLTAGE, new SignedWordElement(0x28D2)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_211_VOLTAGE, new SignedWordElement(0x28D3)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_212_VOLTAGE, new SignedWordElement(0x28D4)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_213_VOLTAGE, new SignedWordElement(0x28D5)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_214_VOLTAGE, new SignedWordElement(0x28D6)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_215_VOLTAGE, new SignedWordElement(0x28D7)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_216_VOLTAGE, new SignedWordElement(0x28D8)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_217_VOLTAGE, new SignedWordElement(0x28D9)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_218_VOLTAGE, new SignedWordElement(0x28DA)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_219_VOLTAGE, new SignedWordElement(0x28DB)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_220_VOLTAGE, new SignedWordElement(0x28DC)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_221_VOLTAGE, new SignedWordElement(0x28DD)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_222_VOLTAGE, new SignedWordElement(0x28DE)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_223_VOLTAGE, new SignedWordElement(0x28DF)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_224_VOLTAGE, new SignedWordElement(0x28E0)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_225_VOLTAGE, new SignedWordElement(0x28E1)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_226_VOLTAGE, new SignedWordElement(0x28E2)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_227_VOLTAGE, new SignedWordElement(0x28E3)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_228_VOLTAGE, new SignedWordElement(0x28E4)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_229_VOLTAGE, new SignedWordElement(0x28E5)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_230_VOLTAGE, new SignedWordElement(0x28E6)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_231_VOLTAGE, new SignedWordElement(0x28E7)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_232_VOLTAGE, new SignedWordElement(0x28E8)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_233_VOLTAGE, new SignedWordElement(0x28E9)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_234_VOLTAGE, new SignedWordElement(0x28EA)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_235_VOLTAGE, new SignedWordElement(0x28EB)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_236_VOLTAGE, new SignedWordElement(0x28EC)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_237_VOLTAGE, new SignedWordElement(0x28ED)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_238_VOLTAGE, new SignedWordElement(0x28EE)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_239_VOLTAGE, new SignedWordElement(0x28EF)) //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_120_VOLTAGE, new UnsignedWordElement(0x2878)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_121_VOLTAGE, new UnsignedWordElement(0x2879)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_122_VOLTAGE, new UnsignedWordElement(0x287A)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_123_VOLTAGE, new UnsignedWordElement(0x287B)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_124_VOLTAGE, new UnsignedWordElement(0x287C)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_125_VOLTAGE, new UnsignedWordElement(0x287D)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_126_VOLTAGE, new UnsignedWordElement(0x287E)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_127_VOLTAGE, new UnsignedWordElement(0x287F)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_128_VOLTAGE, new UnsignedWordElement(0x2880)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_129_VOLTAGE, new UnsignedWordElement(0x2881)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_130_VOLTAGE, new UnsignedWordElement(0x2882)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_131_VOLTAGE, new UnsignedWordElement(0x2883)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_132_VOLTAGE, new UnsignedWordElement(0x2884)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_133_VOLTAGE, new UnsignedWordElement(0x2885)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_134_VOLTAGE, new UnsignedWordElement(0x2886)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_135_VOLTAGE, new UnsignedWordElement(0x2887)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_136_VOLTAGE, new UnsignedWordElement(0x2888)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_137_VOLTAGE, new UnsignedWordElement(0x2889)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_138_VOLTAGE, new UnsignedWordElement(0x288A)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_139_VOLTAGE, new UnsignedWordElement(0x288B)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_140_VOLTAGE, new UnsignedWordElement(0x288C)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_141_VOLTAGE, new UnsignedWordElement(0x288D)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_142_VOLTAGE, new UnsignedWordElement(0x288E)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_143_VOLTAGE, new UnsignedWordElement(0x288F)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_144_VOLTAGE, new UnsignedWordElement(0x2890)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_145_VOLTAGE, new UnsignedWordElement(0x2891)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_146_VOLTAGE, new UnsignedWordElement(0x2892)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_147_VOLTAGE, new UnsignedWordElement(0x2893)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_148_VOLTAGE, new UnsignedWordElement(0x2894)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_149_VOLTAGE, new UnsignedWordElement(0x2895)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_150_VOLTAGE, new UnsignedWordElement(0x2896)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_151_VOLTAGE, new UnsignedWordElement(0x2897)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_152_VOLTAGE, new UnsignedWordElement(0x2898)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_153_VOLTAGE, new UnsignedWordElement(0x2899)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_154_VOLTAGE, new UnsignedWordElement(0x289A)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_155_VOLTAGE, new UnsignedWordElement(0x289B)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_156_VOLTAGE, new UnsignedWordElement(0x289C)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_157_VOLTAGE, new UnsignedWordElement(0x289D)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_158_VOLTAGE, new UnsignedWordElement(0x289E)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_159_VOLTAGE, new UnsignedWordElement(0x289F)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_160_VOLTAGE, new UnsignedWordElement(0x28A0)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_161_VOLTAGE, new UnsignedWordElement(0x28A1)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_162_VOLTAGE, new UnsignedWordElement(0x28A2)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_163_VOLTAGE, new UnsignedWordElement(0x28A3)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_164_VOLTAGE, new UnsignedWordElement(0x28A4)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_165_VOLTAGE, new UnsignedWordElement(0x28A5)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_166_VOLTAGE, new UnsignedWordElement(0x28A6)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_167_VOLTAGE, new UnsignedWordElement(0x28A7)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_168_VOLTAGE, new UnsignedWordElement(0x28A8)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_169_VOLTAGE, new UnsignedWordElement(0x28A9)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_170_VOLTAGE, new UnsignedWordElement(0x28AA)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_171_VOLTAGE, new UnsignedWordElement(0x28AB)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_172_VOLTAGE, new UnsignedWordElement(0x28AC)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_173_VOLTAGE, new UnsignedWordElement(0x28AD)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_174_VOLTAGE, new UnsignedWordElement(0x28AE)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_175_VOLTAGE, new UnsignedWordElement(0x28AF)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_176_VOLTAGE, new UnsignedWordElement(0x28B0)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_177_VOLTAGE, new UnsignedWordElement(0x28B1)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_178_VOLTAGE, new UnsignedWordElement(0x28B2)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_179_VOLTAGE, new UnsignedWordElement(0x28B3)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_180_VOLTAGE, new UnsignedWordElement(0x28B4)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_181_VOLTAGE, new UnsignedWordElement(0x28B5)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_182_VOLTAGE, new UnsignedWordElement(0x28B6)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_183_VOLTAGE, new UnsignedWordElement(0x28B7)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_184_VOLTAGE, new UnsignedWordElement(0x28B8)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_185_VOLTAGE, new UnsignedWordElement(0x28B9)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_186_VOLTAGE, new UnsignedWordElement(0x28BA)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_187_VOLTAGE, new UnsignedWordElement(0x28BB)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_188_VOLTAGE, new UnsignedWordElement(0x28BC)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_189_VOLTAGE, new UnsignedWordElement(0x28BD)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_190_VOLTAGE, new UnsignedWordElement(0x28BE)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_191_VOLTAGE, new UnsignedWordElement(0x28BF)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_192_VOLTAGE, new UnsignedWordElement(0x28C0)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_193_VOLTAGE, new UnsignedWordElement(0x28C1)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_194_VOLTAGE, new UnsignedWordElement(0x28C2)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_195_VOLTAGE, new UnsignedWordElement(0x28C3)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_196_VOLTAGE, new UnsignedWordElement(0x28C4)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_197_VOLTAGE, new UnsignedWordElement(0x28C5)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_198_VOLTAGE, new UnsignedWordElement(0x28C6)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_199_VOLTAGE, new UnsignedWordElement(0x28C7)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_200_VOLTAGE, new UnsignedWordElement(0x28C8)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_201_VOLTAGE, new UnsignedWordElement(0x28C9)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_202_VOLTAGE, new UnsignedWordElement(0x28CA)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_203_VOLTAGE, new UnsignedWordElement(0x28CB)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_204_VOLTAGE, new UnsignedWordElement(0x28CC)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_205_VOLTAGE, new UnsignedWordElement(0x28CD)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_206_VOLTAGE, new UnsignedWordElement(0x28CE)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_207_VOLTAGE, new UnsignedWordElement(0x28CF)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_208_VOLTAGE, new UnsignedWordElement(0x28D0)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_209_VOLTAGE, new UnsignedWordElement(0x28D1)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_210_VOLTAGE, new UnsignedWordElement(0x28D2)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_211_VOLTAGE, new UnsignedWordElement(0x28D3)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_212_VOLTAGE, new UnsignedWordElement(0x28D4)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_213_VOLTAGE, new UnsignedWordElement(0x28D5)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_214_VOLTAGE, new UnsignedWordElement(0x28D6)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_215_VOLTAGE, new UnsignedWordElement(0x28D7)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_216_VOLTAGE, new UnsignedWordElement(0x28D8)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_217_VOLTAGE, new UnsignedWordElement(0x28D9)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_218_VOLTAGE, new UnsignedWordElement(0x28DA)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_219_VOLTAGE, new UnsignedWordElement(0x28DB)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_220_VOLTAGE, new UnsignedWordElement(0x28DC)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_221_VOLTAGE, new UnsignedWordElement(0x28DD)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_222_VOLTAGE, new UnsignedWordElement(0x28DE)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_223_VOLTAGE, new UnsignedWordElement(0x28DF)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_224_VOLTAGE, new UnsignedWordElement(0x28E0)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_225_VOLTAGE, new UnsignedWordElement(0x28E1)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_226_VOLTAGE, new UnsignedWordElement(0x28E2)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_227_VOLTAGE, new UnsignedWordElement(0x28E3)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_228_VOLTAGE, new UnsignedWordElement(0x28E4)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_229_VOLTAGE, new UnsignedWordElement(0x28E5)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_230_VOLTAGE, new UnsignedWordElement(0x28E6)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_231_VOLTAGE, new UnsignedWordElement(0x28E7)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_232_VOLTAGE, new UnsignedWordElement(0x28E8)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_233_VOLTAGE, new UnsignedWordElement(0x28E9)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_234_VOLTAGE, new UnsignedWordElement(0x28EA)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_235_VOLTAGE, new UnsignedWordElement(0x28EB)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_236_VOLTAGE, new UnsignedWordElement(0x28EC)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_237_VOLTAGE, new UnsignedWordElement(0x28ED)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_238_VOLTAGE, new UnsignedWordElement(0x28EE)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_239_VOLTAGE, new UnsignedWordElement(0x28EF)) //
 
 				), //
 				new FC3ReadRegistersTask(0x2C00, Priority.LOW, //
@@ -1510,6 +1544,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
 		// TODO start stop is not implemented
-		throw new NotImplementedException("Start Stop is not implemented for Soltaro SingleRackVersionBImpl Version B");
+		throw new NotImplementedException("Start Stop is not implemented for Soltaro Version A");
 	}
 }

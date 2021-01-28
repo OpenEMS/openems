@@ -28,11 +28,11 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.CellCharacteristic;
+import io.openems.edge.battery.api.SetAllowedCurrents;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.ModuleParameters;
 import io.openems.edge.battery.soltaro.SoltaroCellCharacteristic;
-import io.openems.edge.battery.soltaro.Util;
+import io.openems.edge.battery.soltaro.single.SingleRackSettings;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.Context;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.ControlAndLogic;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine;
@@ -92,7 +92,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 	private Config config;
 	private Map<String, Channel<?>> channelMap;
 
-	private final CellCharacteristic cellCharacteristic = new SoltaroCellCharacteristic();
+	private final SetAllowedCurrents setAllowedCurrents;
 
 	public SingleRackVersionBImpl() {
 		super(//
@@ -101,6 +101,14 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				StartStoppable.ChannelId.values(), //
 				SingleRackVersionB.ChannelId.values() //
 		);
+		
+		this.setAllowedCurrents = new SetAllowedCurrents(//
+				this,//
+				new SoltaroCellCharacteristic(), //
+				new SingleRackSettings(),
+				this.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT), //
+				this.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT) //
+			);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -134,7 +142,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		Context context = new Context(this, this.config, this.cellCharacteristic);
+		Context context = new Context(this, this.config);
 
 		// Call the StateMachine
 		try {
@@ -166,7 +174,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 
-			this.setAllowedCurrents();
+			this.setAllowedCurrents.act();
 
 			break;
 
@@ -176,35 +184,6 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		}
 	}
 
-	private static final int MAX_INCREASE_MILLIAMPERE = 300;
-
-	private int lastMaxChargeCurrentFromBms = 0;
-	private int lastMaxDischargeCurrentFromBms = 0;
-
-	private void setAllowedCurrents() {
-		IntegerReadChannel maxChargeCurrentChannel = this
-				.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT);
-		int maxChargeCurrentFromBms = maxChargeCurrentChannel.value().orElse(0);
-
-		// Allow max increase of 1 A
-		if (maxChargeCurrentFromBms > this.lastMaxChargeCurrentFromBms + MAX_INCREASE_MILLIAMPERE) {
-			maxChargeCurrentFromBms = this.lastMaxChargeCurrentFromBms + MAX_INCREASE_MILLIAMPERE;
-		}
-		this.lastMaxChargeCurrentFromBms = maxChargeCurrentFromBms;
-
-		IntegerReadChannel maxDischargeChannel = this
-				.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT);
-		int maxDischargeCurrentFromBms = maxDischargeChannel.value().orElse(0);
-
-		// Allow max increase of 1 A
-		if (maxDischargeCurrentFromBms > this.lastMaxDischargeCurrentFromBms + MAX_INCREASE_MILLIAMPERE) {
-			maxDischargeCurrentFromBms = this.lastMaxDischargeCurrentFromBms + MAX_INCREASE_MILLIAMPERE;
-		}
-		this.lastMaxDischargeCurrentFromBms = maxDischargeCurrentFromBms;
-
-		Util.setMaxAllowedCurrents(this.cellCharacteristic, maxChargeCurrentFromBms / 1000,
-				maxDischargeCurrentFromBms / 1000, this);
-	}
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
@@ -247,6 +226,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		return "SoC:" + this.getSoc() //
 				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
 				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
+				+ "|Cell Voltages: Min:" + this.getMinCellVoltage() + "; Max:" + this.getMaxCellVoltage() //
 				+ "|State:" + this.stateMachine.getCurrentState().asCamelCase();
 	}
 
@@ -310,8 +290,11 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				),
 
 				// Work parameter
-				new FC6WriteRegisterTask(0x20C1, m(SingleRackVersionB.ChannelId.WORK_PARAMETER_PCS_COMMUNICATION_RATE,
+				new FC6WriteRegisterTask(0x20C1, m(SingleRackVersionB.ChannelId.WORK_PARAMETER_NUMBER_OF_MODULES,
 						new UnsignedWordElement(0x20C1)) //
+				),
+				new FC3ReadRegistersTask(0x20C1, Priority.LOW, 
+						m(SingleRackVersionB.ChannelId.WORK_PARAMETER_NUMBER_OF_MODULES, new UnsignedWordElement(0x20C1)) //
 				),
 
 				// Paramaeters for configuring
@@ -793,7 +776,11 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 								new SignedWordElement(0x20A1)), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM_RECOVER,
 								new SignedWordElement(0x20A2)) //
-				));
+				),
+				
+				new FC6WriteRegisterTask(0x20DF, m(SingleRackVersionB.ChannelId.SET_SOC, new UnsignedWordElement(0x2080)))
+				
+				);
 
 		if (!this.config.ReduceTasks()) {
 			// Stop parameter

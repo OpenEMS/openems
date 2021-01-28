@@ -25,6 +25,9 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.api.SetAllowedCurrents;
+import io.openems.edge.battery.soltaro.SoltaroCellCharacteristic;
+import io.openems.edge.battery.soltaro.cluster.ClusterSettings;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.Context;
@@ -74,14 +77,18 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 	@Reference
 	protected ConfigurationAdmin cm;
+	
 
 	/**
 	 * Manages the {@link State}s of the StateMachine.
 	 */
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
+	private final SetAllowedCurrents setAllowedCurrents;
 	private Config config;
 	private Set<Rack> racks = new HashSet<>();
+	private ClusterSettings clusterSettings = new ClusterSettings();
+	
 
 	public ClusterVersionCImpl() {
 		super(//
@@ -92,6 +99,14 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 				StartStoppable.ChannelId.values(), //
 				ClusterVersionC.ChannelId.values() //
 		);
+		
+		this.setAllowedCurrents = new SetAllowedCurrents(//
+				this, //
+				new SoltaroCellCharacteristic(), //
+				this.clusterSettings, //
+				this.channel(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_CHARGE_CURRENT), //
+				this.channel(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_DISCHARGE_CURRENT) //
+			);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -137,6 +152,8 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		this._setDischargeMaxCurrent(0 /* default value 0 to avoid damages */);
 		this._setChargeMaxVoltage(this.config.numberOfSlaves() * Constants.MAX_VOLTAGE_MILLIVOLT / 1000);
 		this._setDischargeMinVoltage(this.config.numberOfSlaves() * Constants.MIN_VOLTAGE_MILLIVOLT / 1000);
+		
+		this.clusterSettings.setNumberOfUsedRacks(calculateUsedRacks(config));
 	}
 
 	@Override
@@ -148,6 +165,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this.updateChannels();
+			this.setAllowedCurrents.act();
 			break;
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
@@ -225,7 +243,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 				 */
 				new FC3ReadRegistersTask(0x1044, Priority.HIGH, //
 						m(SoltaroCluster.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
-						m(SoltaroCluster.ChannelId.SYSTEM_CURRENT, new SignedWordElement(0x1045), //
+						m(SoltaroCluster.ChannelId.SYSTEM_CURRENT, new UnsignedWordElement(0x1045), //
 								ElementToChannelConverter.SCALE_FACTOR_2),
 						new DummyRegisterElement(0x1046), //
 						m(ClusterVersionC.ChannelId.ORIGINAL_SOC, new UnsignedWordElement(0x1047)), //
@@ -234,10 +252,10 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(SoltaroCluster.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x104A)), //
 						new DummyRegisterElement(0x104B, 0x104D), //
-						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(0x104E),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new UnsignedWordElement(0x104F),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
+						m(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_CHARGE_CURRENT, new UnsignedWordElement(0x104E),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_DISCHARGE_CURRENT, new UnsignedWordElement(0x104F),
+								ElementToChannelConverter.SCALE_FACTOR_2)), //
 				new FC3ReadRegistersTask(0x1081, Priority.LOW, //
 						m(new BitsWordElement(0x1081, this) //
 								.bit(0, ClusterVersionC.ChannelId.MASTER_PCS_COMMUNICATION_FAILURE) //
@@ -402,7 +420,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 					new FC3ReadRegistersTask(r.offset + 0x100, Priority.HIGH, //
 							m(this.rack(r, RackChannel.VOLTAGE), new UnsignedWordElement(r.offset + 0x100),
 									ElementToChannelConverter.SCALE_FACTOR_2),
-							m(this.rack(r, RackChannel.CURRENT), new UnsignedWordElement(r.offset + 0x101),
+							m(this.rack(r, RackChannel.CURRENT), new SignedWordElement(r.offset + 0x101),
 									ElementToChannelConverter.SCALE_FACTOR_2),
 							m(this.rack(r, RackChannel.CHARGE_INDICATION), new UnsignedWordElement(r.offset + 0x102)),
 							m(this.rack(r, RackChannel.SOC), new UnsignedWordElement(r.offset + 0x103)),
@@ -430,7 +448,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 							m(this.rack(r, RackChannel.POSITIVE_INSULATION), new UnsignedWordElement(r.offset + 0x111)),
 							m(this.rack(r, RackChannel.NEGATIVE_INSULATION), new UnsignedWordElement(r.offset + 0x112)),
 							m(this.rack(r, RackChannel.CLUSTER_RUN_STATE), new UnsignedWordElement(r.offset + 0x113)),
-							m(this.rack(r, RackChannel.AVG_TEMPERATURE), new UnsignedWordElement(r.offset + 0x114))),
+							m(this.rack(r, RackChannel.AVG_TEMPERATURE), new SignedWordElement(r.offset + 0x114))),
 					new FC3ReadRegistersTask(r.offset + 0x18b, Priority.LOW,
 							m(this.rack(r, RackChannel.PROJECT_ID), new UnsignedWordElement(r.offset + 0x18b)),
 							m(this.rack(r, RackChannel.VERSION_MAJOR), new UnsignedWordElement(r.offset + 0x18c)),
@@ -813,6 +831,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	/**
 	 * Calculates the average of RackChannel over all active Racks.
 	 * 
+	 * @param rackChannel the {@link RackChannel}
 	 * @return the average value or null
 	 */
 	private Integer calculateRackAverage(RackChannel rackChannel) {
@@ -838,6 +857,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	/**
 	 * Finds the maximum of a RackChannel over all active Racks.
 	 * 
+	 * @param rackChannel the {@link RackChannel}
 	 * @return the maximum value or null
 	 */
 	private Integer calculateRackMax(RackChannel rackChannel) {
@@ -859,6 +879,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	/**
 	 * Finds the minimum of a RackChannel over all active Racks.
 	 * 
+	 * @param rackChannel the {@link RackChannel}
 	 * @return the minimum value or null
 	 */
 	private Integer calculateRackMin(RackChannel rackChannel) {
@@ -945,4 +966,23 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		return StartStop.UNDEFINED; // can never happen
 	}
 
+	private static int calculateUsedRacks(Config conf) {
+		int num = 0;
+		if (conf.isRack1Used()) {
+			num = num + 1;
+		}
+		if (conf.isRack2Used()) {
+			num = num + 1;
+		}
+		if (conf.isRack3Used()) {
+			num = num + 1;
+		}
+		if (conf.isRack4Used()) {
+			num = num + 1;
+		}
+		if (conf.isRack5Used()) {
+			num = num + 1;
+		}
+		return num;
+	}
 }
