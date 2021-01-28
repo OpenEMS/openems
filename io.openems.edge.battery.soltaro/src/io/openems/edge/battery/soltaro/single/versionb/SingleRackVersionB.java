@@ -302,7 +302,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 		EMS_COMMUNICATION_TIMEOUT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.SECONDS) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_PARAMETER_PCS_COMMUNICATION_RATE(Doc.of(OpenemsType.INTEGER) //
+		WORK_PARAMETER_NUMBER_OF_MODULES(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		AUTO_SET_SLAVES_ID(Doc.of(AutoSetFunction.values()) //
@@ -517,6 +517,10 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 		WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM_RECOVER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEZIDEGREE_CELSIUS) //
 				.accessMode(AccessMode.READ_WRITE)), //
+		SET_SOC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT) //
+				.accessMode(AccessMode.WRITE_ONLY)), //
+		
 
 		// EnumReadChannels
 		STATE_MACHINE(Doc.of(State.values()) //

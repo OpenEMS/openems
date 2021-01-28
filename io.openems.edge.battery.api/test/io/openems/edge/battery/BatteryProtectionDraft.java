@@ -1,4 +1,4 @@
-package io.openems.edge.battery.soltaro;
+package io.openems.edge.battery;
 
 import static org.junit.Assert.assertEquals;
 
@@ -20,7 +20,7 @@ import io.openems.edge.common.type.TypeUtils;
  * [degC].
  */
 
-public class SetAllowedCurrentsTest {
+public class BatteryProtectionDraft {
 
 	private static class MaxChargeCurrentHandler {
 		public static class Builder {

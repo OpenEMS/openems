@@ -1,6 +1,4 @@
-package io.openems.edge.battery.soltaro;
-
-import io.openems.edge.battery.api.CellCharacteristic;
+package io.openems.edge.battery.api;
 
 public class DummyCellCharacteristic implements CellCharacteristic {
 	

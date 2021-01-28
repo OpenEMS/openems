@@ -137,7 +137,7 @@ public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent
 		// which is used in calculation of reactive power:
 		// Otherwise should not calcula the reactive power and has to return here
 		Value<Integer> apparentPower = this.ess.getMaxApparentPower();
-		Integer power = (int) (apparentPower.orElse(0) * percent * 0.01);
+		Integer power = (int) (apparentPower.getOrError() * percent * 0.01);
 		this._setCalculatedPower(power);
 
 		// Apply Power

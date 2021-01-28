@@ -110,8 +110,8 @@ public @interface Config {
 	int pendingTolerance() default 15;
 	
 	/**
-	 * Return the SoCLowAlarm.
-	 * @return SoCLowAlarm
+	 * Return the soCLowAlarm.
+	 * @return soCLowAlarm
 	 */
 	@AttributeDefinition(name = "SoC Low Alarm", description = "Sets the value for BMS SoC protection (0..100)", min = "0", max = "100")
 	int SoCLowAlarm() default 0;
@@ -124,8 +124,8 @@ public @interface Config {
 	int minimalCellVoltage() default 2800;
 
 	/**
-	 * Return the ReduceTasks.
-	 * @return ReduceTasks
+	 * Return the reduceTasks.
+	 * @return reduceTasks
 	 */
 	@AttributeDefinition(name = "Reduce tasks", description = "Reduces read and write tasks to avoid errors")
 	boolean ReduceTasks() default false;

@@ -26,14 +26,17 @@ import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.api.SetAllowedCurrents;
 import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.ModuleParameters;
 import io.openems.edge.battery.soltaro.ResetState;
-import io.openems.edge.battery.soltaro.SetAllowedCurrents;
+import io.openems.edge.battery.soltaro.SoltaroCellCharacteristic;
 import io.openems.edge.battery.soltaro.State;
+import io.openems.edge.battery.soltaro.cluster.ClusterSettings;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
 import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
 import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
+import io.openems.edge.battery.soltaro.cluster.versionb.Config;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -105,6 +108,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 
 	private ResetState resetState = ResetState.NONE;
 	private boolean resetDone;
+	private ClusterSettings clusterSettings = new ClusterSettings();
 
 	public ClusterVersionB() {
 		super(//
@@ -115,9 +119,11 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 				ClusterVersionBChannelId.values() //
 		);
 		this.setAllowedCurrents = new SetAllowedCurrents(//
+				this, //
+				new SoltaroCellCharacteristic(), //
+				this.clusterSettings, //
 				this.channel(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_CHARGE_CURRENT), //
-				this.channel(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_DISCHARGE_CURRENT), //
-				this //
+				this.channel(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_DISCHARGE_CURRENT) //
 		);
 	}
 
@@ -155,6 +161,17 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 				this.config.numberOfSlaves() * ModuleParameters.MIN_VOLTAGE_MILLIVOLT.getValue() / 1000);
 		this._setCapacity(
 				this.config.racks().length * this.config.numberOfSlaves() * this.config.moduleType().getCapacity_Wh());
+	
+		this.clusterSettings.setNumberOfUsedRacks(calculateUsedRacks(config));
+	}
+
+	private static int calculateUsedRacks(Config conf) {
+		int num = 0;
+		if (conf.racks() != null) {
+			num = conf.racks().length;
+		}
+
+		return num;
 	}
 
 	@Override

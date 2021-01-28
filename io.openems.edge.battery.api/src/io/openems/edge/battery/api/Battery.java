@@ -235,7 +235,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 
 	/**
 	 * Gets the ModbusSlaveNatureTable.
-	 * @param accessMode
+	 * @param accessMode the {@link AccessMode}
 	 * @return ModbusSlaveNatureTable
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
