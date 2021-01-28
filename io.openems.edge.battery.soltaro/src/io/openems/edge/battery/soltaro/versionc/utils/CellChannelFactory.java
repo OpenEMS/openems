@@ -37,10 +37,18 @@ public class CellChannelFactory {
 			this.sensorsPerModule = sensorsPerModule;
 		}
 
+		/**
+		 * Gets the Offset.
+		 * @return int
+		 */
 		public int getOffset() {
 			return this.offset;
 		}
 
+		/**
+		 * Gets the SensorsPerModule.
+		 * @return int
+		 */
 		public int getSensorsPerModule() {
 			return this.sensorsPerModule;
 		}
