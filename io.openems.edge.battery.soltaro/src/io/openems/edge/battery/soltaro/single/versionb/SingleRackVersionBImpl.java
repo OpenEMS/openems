@@ -778,7 +778,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 								new SignedWordElement(0x20A2)) //
 				),
 				
-				new FC6WriteRegisterTask(0x20DF, m(SingleRackVersionB.ChannelId.SET_SOC, new UnsignedWordElement(0x2080)))
+				new FC6WriteRegisterTask(0x20DF, m(SingleRackVersionB.ChannelId.SET_SOC, new UnsignedWordElement(0x20DF)))
 				
 				);
 
