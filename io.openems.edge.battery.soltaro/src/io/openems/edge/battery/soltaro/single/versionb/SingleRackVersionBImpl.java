@@ -226,6 +226,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		return "SoC:" + this.getSoc() //
 				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
 				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
+				+ "|Cell Voltages: Min:" + this.getMinCellVoltage() + "; Max:" + this.getMaxCellVoltage() //
 				+ "|State:" + this.stateMachine.getCurrentState().asCamelCase();
 	}
 
@@ -289,8 +290,11 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				),
 
 				// Work parameter
-				new FC6WriteRegisterTask(0x20C1, m(SingleRackVersionB.ChannelId.WORK_PARAMETER_PCS_COMMUNICATION_RATE,
+				new FC6WriteRegisterTask(0x20C1, m(SingleRackVersionB.ChannelId.WORK_PARAMETER_NUMBER_OF_MODULES,
 						new UnsignedWordElement(0x20C1)) //
+				),
+				new FC3ReadRegistersTask(0x20C1, Priority.LOW, 
+						m(SingleRackVersionB.ChannelId.WORK_PARAMETER_NUMBER_OF_MODULES, new UnsignedWordElement(0x20C1)) //
 				),
 
 				// Paramaeters for configuring
@@ -772,7 +776,11 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 								new SignedWordElement(0x20A1)), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM_RECOVER,
 								new SignedWordElement(0x20A2)) //
-				));
+				),
+				
+				new FC6WriteRegisterTask(0x20DF, m(SingleRackVersionB.ChannelId.SET_SOC, new UnsignedWordElement(0x2080)))
+				
+				);
 
 		if (!this.config.ReduceTasks()) {
 			// Stop parameter
