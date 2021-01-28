@@ -437,6 +437,24 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely multiply Doubles.
+	 * 
+	 * @param factors the factors of the multiplication
+	 * @return the result, possibly null if all factors are null
+	 */
+	public static Double multiply(Double... factors) {
+		Double result = null;
+		for (Double factor : factors) {
+			if (result == null) {
+				result = factor;
+			} else if (factor != null) {
+				result *= factor;
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Safely divides Integers.
 	 * 
 	 * <ul>
@@ -485,6 +503,25 @@ public class TypeUtils {
 					result = value;
 				} else {
 					result = Math.max(result, value);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Safely finds the min value of all values.
+	 * 
+	 * @return the min value; or null if all values are null
+	 */
+	public static Double min(Double... values) {
+		Double result = null;
+		for (Double value : values) {
+			if (value != null) {
+				if (result == null) {
+					result = value;
+				} else {
+					result = Math.min(result, value);
 				}
 			}
 		}
