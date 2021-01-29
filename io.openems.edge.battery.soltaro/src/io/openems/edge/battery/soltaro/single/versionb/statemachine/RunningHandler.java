@@ -40,15 +40,15 @@ public class RunningHandler extends StateHandler<State, Context> {
 		// Mark as started
 		battery._setStartStop(StartStop.START);
 
-		refreshBatteryValues(context);
+		this.refreshBatteryValues(context);
 
 		return State.RUNNING;
 	}
 
 	private void refreshBatteryValues(Context context) throws OpenemsNamedException {
-		if (refreshTime.plusSeconds(refreshIntervalSeconds).isBefore(LocalDateTime.now())) {
-			refreshTime = LocalDateTime.now();
-			setBatteryValues(context);
+		if (this.refreshTime.plusSeconds(refreshIntervalSeconds).isBefore(LocalDateTime.now())) {
+			this.refreshTime = LocalDateTime.now();
+			this.setBatteryValues(context);
 		}
 
 	}
@@ -61,37 +61,37 @@ public class RunningHandler extends StateHandler<State, Context> {
 		// might be that, because of wrong values the battery does not start properly,
 		// which would look us out.
 
-//			// 0x2086 ==> 2800
-//			WriteChannel<Integer> channel = context.component.channel(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_VOLTAGE_ALARM);
-//			channel.setNextWriteValue(context.cellCharacteristic.getFinalCellDischargeVoltage_mV());
-//			
-//			// 0x2087 ==> 2850
-//			channel = context.component.channel(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_VOLTAGE_RECOVER);
-//			channel.setNextWriteValue(context.cellCharacteristic.getFinalCellDischargeVoltage_mV() + 50);
-//			
-//			// 0x2047 ==> 2750
-//			channel = context.component.channel(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_UNDER_VOLTAGE_RECOVER);
-//			channel.setNextWriteValue(context.cellCharacteristic.getForceChargeCellVoltage_mV());
-//			
-//			// 0x2046 ==> 2700
-//			channel = context.component.channel(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_UNDER_VOLTAGE_PROTECTION);
-//			channel.setNextWriteValue(context.cellCharacteristic.getForceChargeCellVoltage_mV() - 50);
-//			
-//			// 0x2080 ==> 3650
-//			channel = context.component.channel(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_VOLTAGE_ALARM);
-//			channel.setNextWriteValue(context.cellCharacteristic.getFinalCellChargeVoltage_mV());
-//			
-//			// 0x2081 ==> 3600
-//			channel = context.component.channel(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_VOLTAGE_RECOVER);
-//			channel.setNextWriteValue(context.cellCharacteristic.getFinalCellChargeVoltage_mV() - 50);
-//			
-//			// 0x2041 ==> 3680
-//			channel = context.component.channel(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_VOLTAGE_RECOVER);
-//			channel.setNextWriteValue(context.cellCharacteristic.getForceDischargeCellVoltage_mV());
-//			
-//			// 0x2040 ==> 3730
-//			channel = context.component.channel(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_VOLTAGE_PROTECTION);
-//			channel.setNextWriteValue(context.cellCharacteristic.getForceDischargeCellVoltage_mV() + 50);
+		//			// 0x2086 ==> 2800
+		//			WriteChannel<Integer> channel = context.component.channel(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_VOLTAGE_ALARM);
+		//			channel.setNextWriteValue(context.cellCharacteristic.getFinalCellDischargeVoltage_mV());
+		//			
+		//			// 0x2087 ==> 2850
+		//			channel = context.component.channel(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_UNDER_VOLTAGE_RECOVER);
+		//			channel.setNextWriteValue(context.cellCharacteristic.getFinalCellDischargeVoltage_mV() + 50);
+		//			
+		//			// 0x2047 ==> 2750
+		//			channel = context.component.channel(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_UNDER_VOLTAGE_RECOVER);
+		//			channel.setNextWriteValue(context.cellCharacteristic.getForceChargeCellVoltage_mV());
+		//			
+		//			// 0x2046 ==> 2700
+		//			channel = context.component.channel(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_UNDER_VOLTAGE_PROTECTION);
+		//			channel.setNextWriteValue(context.cellCharacteristic.getForceChargeCellVoltage_mV() - 50);
+		//			
+		//			// 0x2080 ==> 3650
+		//			channel = context.component.channel(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_VOLTAGE_ALARM);
+		//			channel.setNextWriteValue(context.cellCharacteristic.getFinalCellChargeVoltage_mV());
+		//			
+		//			// 0x2081 ==> 3600
+		//			channel = context.component.channel(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_VOLTAGE_RECOVER);
+		//			channel.setNextWriteValue(context.cellCharacteristic.getFinalCellChargeVoltage_mV() - 50);
+		//			
+		//			// 0x2041 ==> 3680
+		//			channel = context.component.channel(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_VOLTAGE_RECOVER);
+		//			channel.setNextWriteValue(context.cellCharacteristic.getForceDischargeCellVoltage_mV());
+		//			
+		//			// 0x2040 ==> 3730
+		//			channel = context.component.channel(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_VOLTAGE_PROTECTION);
+		//			channel.setNextWriteValue(context.cellCharacteristic.getForceDischargeCellVoltage_mV() + 50);
 	}
 
 }

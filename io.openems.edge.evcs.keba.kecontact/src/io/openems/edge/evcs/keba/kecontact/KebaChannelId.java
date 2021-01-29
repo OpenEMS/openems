@@ -19,7 +19,8 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	COM_MODULE(Doc.of(OpenemsType.STRING).text("Communication module is installed; KeContact P30 only")),
 	DIP_SWITCH_1(Doc.of(OpenemsType.STRING).text("The first eight dip switch settings as binary")),
 	DIP_SWITCH_2(Doc.of(OpenemsType.STRING).text("The second eight dip switch settings as binary")),
-
+	DIP_SWITCH_MAX_HW(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).text("The raw maximum limit configured by the dip switches")),
+	
 	/*
 	 * Report 2
 	 */
@@ -56,7 +57,7 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	CURRENT_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current on L3")), //
 	ACTUAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIWATT).text("Total real power")), //
 	COS_PHI(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT).text("Power factor")), //
-	ENERGY_TOTAL(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)
+	ENERGY_TOTAL(Doc.of(OpenemsType.LONG).unit(Unit.WATT_HOURS)
 			.text("Total power consumption (persistent) without current loading session. "
 					+ "Is summed up after each completed charging session")), //
 	DIP_SWITCH_ERROR_1_3_NOT_SET_FOR_COMM(Doc.of(Level.FAULT) //

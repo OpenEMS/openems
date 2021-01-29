@@ -162,19 +162,34 @@ public class ControlAndLogic {
 		return bOpt.isPresent() && bOpt.get();
 	}
 
+	/**
+	 * Sets the capacity.
+	 * @param singleRackVersionB the battery
+	 * @param config the config
+	 */
 	public static void setCapacity(SingleRackVersionB singleRackVersionB, Config config) {
 		int capacity = config.numberOfSlaves() * config.moduleType().getCapacity_Wh();
 		singleRackVersionB._setCapacity(capacity);
 	}
 
-	public static void setWatchdog(SingleRackVersionB singleRackVersionB, int time_seconds) {
+	/**
+	 * Sets the watchdog.
+	 * @param singleRackVersionB the battery
+	 * @param timeSeconds the time in seconds
+	 */
+	public static void setWatchdog(SingleRackVersionB singleRackVersionB, int timeSeconds) {
 		try {
-			singleRackVersionB.setWatchdog(time_seconds);
+			singleRackVersionB.setWatchdog(timeSeconds);
 		} catch (OpenemsNamedException e) {
 			System.out.println(e.getMessage());
 		}
 	}
 
+	/**
+	 * Sets the soc low alarm.
+	 * @param singleRackVersionB the battery
+	 * @param soCLowAlarm the value to set
+	 */
 	public static void setSoCLowAlarm(SingleRackVersionB singleRackVersionB, int soCLowAlarm) {
 		try {
 			singleRackVersionB.setSocLowProtection(soCLowAlarm);

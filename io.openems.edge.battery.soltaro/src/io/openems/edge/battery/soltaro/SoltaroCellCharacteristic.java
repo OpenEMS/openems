@@ -1,5 +1,7 @@
 package io.openems.edge.battery.soltaro;
 
+import io.openems.edge.battery.api.CellCharacteristic;
+
 public class SoltaroCellCharacteristic implements CellCharacteristic {
 
 	@Override
