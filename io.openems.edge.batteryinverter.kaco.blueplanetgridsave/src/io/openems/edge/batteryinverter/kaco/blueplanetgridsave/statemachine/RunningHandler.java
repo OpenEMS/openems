@@ -5,8 +5,8 @@ import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoBlueplanetGridsave;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
+import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
 
@@ -60,15 +60,19 @@ public class RunningHandler extends StateHandler<State, Context> {
 	private void applyPower(Context context) throws OpenemsNamedException {
 		KacoBlueplanetGridsave inverter = context.getParent();
 
-		// TODO apply reactive power
-		IntegerWriteChannel wSetPctChannel = inverter.getSunSpecChannelOrError(KacoSunSpecModel.S64201.W_SET_PCT);
 		IntegerReadChannel maxApparentPowerChannel = inverter
 				.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER);
 		int maxApparentPower = maxApparentPowerChannel.value().getOrError();
 
 		// Active Power Set-Point is set in % of maximum active power
-		int wSetPct = context.setActivePower * 100 / maxApparentPower;
+		FloatWriteChannel wSetPctChannel = inverter.getSunSpecChannelOrError(KacoSunSpecModel.S64201.W_SET_PCT);
+		float wSetPct = context.setActivePower * 100F / maxApparentPower;
 		wSetPctChannel.setNextWriteValue(wSetPct);
+
+		// Reactive Power Set-Point is set in % of maximum active power
+		FloatWriteChannel varSetPctChannel = inverter.getSunSpecChannelOrError(KacoSunSpecModel.S64201.VAR_SET_PCT);
+		float varSetPct = context.setReactivePower * 100F / maxApparentPower;
+		varSetPctChannel.setNextWriteValue(varSetPct);
 	}
 
 }

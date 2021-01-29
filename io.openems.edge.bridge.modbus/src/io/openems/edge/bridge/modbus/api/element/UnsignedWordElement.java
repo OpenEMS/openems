@@ -3,6 +3,7 @@ package io.openems.edge.bridge.modbus.api.element;
 import java.nio.ByteBuffer;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.type.TypeUtils;
 
 /**
  * An UnsignedWordElement represents an Integer value in an
@@ -23,7 +24,8 @@ public class UnsignedWordElement extends AbstractWordElement<UnsignedWordElement
 		return Short.toUnsignedInt(buff.getShort(0));
 	}
 
-	protected ByteBuffer toByteBuffer(ByteBuffer buff, Integer value) {
+	protected ByteBuffer toByteBuffer(ByteBuffer buff, Object object) {
+		Integer value = TypeUtils.getAsType(OpenemsType.INTEGER, object);
 		return buff.putShort(value.shortValue());
 	}
 
