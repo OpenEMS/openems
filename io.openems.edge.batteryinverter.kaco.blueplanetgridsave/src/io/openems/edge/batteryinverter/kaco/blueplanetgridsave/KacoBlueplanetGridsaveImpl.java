@@ -289,16 +289,16 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	private Instant lastTriggerWatchdog = Instant.MIN;
 
 	/**
-	 * Triggers the Watchdog after half of the WATCHDOG_CYCLES passed.
+	 * Triggers the Watchdog after WATCHDOG_TRIGGER passed.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
 	private void triggerWatchdog() throws OpenemsNamedException {
-		int watchdogSeconds = Math.round(this.cycle.getCycleTime() / 1000f * KacoBlueplanetGridsave.WATCHDOG_CYCLES);
 		Instant now = Instant.now(this.componentManager.getClock());
-		if (Duration.between(this.lastTriggerWatchdog, now).getSeconds() >= watchdogSeconds / 2) {
+		if (Duration.between(this.lastTriggerWatchdog, now)
+				.getSeconds() >= KacoBlueplanetGridsave.WATCHDOG_TRIGGER_SECONDS) {
 			IntegerWriteChannel watchdogChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64201.WATCHDOG);
-			watchdogChannel.setNextWriteValue(watchdogSeconds);
+			watchdogChannel.setNextWriteValue(KacoBlueplanetGridsave.WATCHDOG_TIMEOUT_SECONDS);
 			this.lastTriggerWatchdog = now;
 		}
 	}
