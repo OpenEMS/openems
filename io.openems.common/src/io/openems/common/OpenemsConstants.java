@@ -27,7 +27,7 @@ public class OpenemsConstants {
 	 * 
 	 * This is the number of the bugfix release
 	 */
-	public final static short VERSION_PATCH = 12;
+	public final static short VERSION_PATCH = 13;
 
 	/**
 	 * The additional version string
