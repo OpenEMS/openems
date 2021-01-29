@@ -3,6 +3,7 @@ package io.openems.edge.bridge.modbus.api.element;
 import java.nio.ByteBuffer;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.type.TypeUtils;
 
 /**
  * An SignedWordElement represents a Short value in an
@@ -23,7 +24,8 @@ public class SignedWordElement extends AbstractWordElement<SignedWordElement, Sh
 		return buff.order(getByteOrder()).getShort(0);
 	}
 
-	protected ByteBuffer toByteBuffer(ByteBuffer buff, Short value) {
+	protected ByteBuffer toByteBuffer(ByteBuffer buff, Object object) {
+		Short value = TypeUtils.getAsType(OpenemsType.SHORT, object);
 		return buff.putShort(value.shortValue());
 	}
 
