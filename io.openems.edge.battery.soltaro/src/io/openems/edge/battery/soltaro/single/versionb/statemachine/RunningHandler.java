@@ -29,7 +29,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 		SingleRackVersionBImpl battery = context.getParent();
 
-		if (ControlAndLogic.hasError(battery, context.config.numberOfSlaves())) {
+		if (battery.hasFaults()) {
 			return State.UNDEFINED;
 		}
 
