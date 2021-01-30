@@ -30,6 +30,7 @@ export const TRANSLATION = {
         inactive: 'Inactief',
         info: 'Info',
         inputNotValid: 'Invoer ongeldig',
+        insufficientRights: 'Onvoldoende rechten',
         live: 'Live',
         load: 'Laden',
         manually: 'handmatig',
@@ -136,11 +137,22 @@ export const TRANSLATION = {
                 },
                 Peakshaving: {
                     asymmetricInfo: 'De ingevoerde prestatiewaarden verwijzen naar afzonderlijke fasen. Het is aangepast aan de meest gestresste fase.',
+                    endDate: 'Einddatum',
+                    endTime: 'Eindtijd',
                     mostStressedPhase: 'Meest gestresste fase',
                     peakshaving: 'Piek scheren',
                     peakshavingPower: 'Afvoer voorbij',
+                    recharge: 'Laadvermogen',
                     rechargePower: 'Bezig met laden onder',
                     relationError: 'Ontladingslimiet moet groter zijn dan of gelijk zijn aan de belastingslimiet',
+                    startDate: 'Startdatum',
+                    startTime: 'Starttijd',
+                    startTimeCharge: 'Starttijd laden',
+                },
+                DelayedSellToGrid: {
+                    sellToGridPowerLimit: 'Laad hierboven op',
+                    continuousSellToGridPower: 'Ontlading hieronder',
+                    relationError: 'De kostenlimiet moet groter zijn dan de ontladingslimiet',
                 },
                 CHP: {
                     highThreshold: 'hoge drempel',
@@ -238,6 +250,9 @@ export const TRANSLATION = {
                     switchOnCom: 'Inschakelcommando',
                     switchOnRec: 'Inschakeladvies',
                     undefined: 'Ongedefinieerd',
+                    normalOperationShort: '',
+                    switchOnComShort: '',
+                    switchOnRecShort: '',
                 }
             }
         },

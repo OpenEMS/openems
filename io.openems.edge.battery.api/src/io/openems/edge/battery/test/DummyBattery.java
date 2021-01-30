@@ -31,4 +31,70 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 		this._setStartStop(value);
 	}
 
+	/**
+	 * withCapacity.
+	 * @param value int
+	 * @return DummyBattery
+	 */
+	public DummyBattery withCapacity(int value) {
+		this._setCapacity(value);
+		this.getCapacityChannel().nextProcessImage();
+		return this;
+	}
+
+	/**
+	 * withVoltage.
+	 * @param value int
+	 * @return DummyBattery
+	 */
+	public DummyBattery withVoltage(int value) {
+		this._setVoltage(value);
+		this.getVoltageChannel().nextProcessImage();
+		return this;
+	}
+
+	/**
+	 * withDischargeMaxCurrent.
+	 * @param value int
+	 * @return DummyBattery
+	 */
+	public DummyBattery withDischargeMaxCurrent(int value) {
+		this._setDischargeMaxCurrent(value);
+		this.getDischargeMaxCurrentChannel().nextProcessImage();
+		return this;
+	}
+
+	/**
+	 * withChargeMaxCurrent.
+	 * @param value int
+	 * @return DummyBattery
+	 */
+	public DummyBattery withChargeMaxCurrent(int value) {
+		this._setChargeMaxCurrent(value);
+		this.getChargeMaxCurrentChannel().nextProcessImage();
+		return this;
+	}
+
+	/**
+	 * withMinCellVoltage.
+	 * @param value int
+	 * @return DummyBattery
+	 */
+	public DummyBattery withMinCellVoltage(int value) {
+		this._setMinCellVoltage(value);
+		this.getMinCellVoltageChannel().nextProcessImage();
+		return this;
+	}
+
+	/**
+	 * withMaxCellVoltage.
+	 * @param value int
+	 * @return DummyBattery
+	 */
+	public DummyBattery withMaxCellVoltage(int value) {
+		this._setMaxCellVoltage(value);
+		this.getMaxCellVoltageChannel().nextProcessImage();
+		return this;
+	}
+
 }

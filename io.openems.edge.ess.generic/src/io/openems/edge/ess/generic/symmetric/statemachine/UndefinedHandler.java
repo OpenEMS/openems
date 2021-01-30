@@ -1,20 +1,22 @@
 package io.openems.edge.ess.generic.symmetric.statemachine;
 
 import io.openems.edge.common.statemachine.StateHandler;
+import io.openems.edge.ess.generic.symmetric.GenericManagedSymmetricEss;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 
 public class UndefinedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		switch (context.component.getStartStopTarget()) {
+		GenericManagedSymmetricEss ess = context.getParent();
+		switch (ess.getStartStopTarget()) {
 		case UNDEFINED:
 			// Stuck in UNDEFINED State
 			return State.UNDEFINED;
 
 		case START:
 			// force START
-			if (context.component.hasFaults()) {
+			if (ess.hasFaults()) {
 				// TODO should we consider also Battery-Inverter and Battery Faults?
 				// TODO should the Modbus-Device also be on error, when then Modbus-Bridge is on
 				// error?

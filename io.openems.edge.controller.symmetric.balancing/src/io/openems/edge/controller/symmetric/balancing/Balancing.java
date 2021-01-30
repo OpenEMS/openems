@@ -10,6 +10,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -74,10 +75,11 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	 * @param ess   the Ess
 	 * @param meter the Meter
 	 * @return the required power
+	 * @throws InvalidValueException on error
 	 */
-	private int calculateRequiredPower(ManagedSymmetricEss ess, SymmetricMeter meter) {
-		return meter.getActivePower().orElse(0) /* current buy-from/sell-to grid */
-				+ ess.getActivePower().orElse(0) /* current charge/discharge Ess */
+	private int calculateRequiredPower(ManagedSymmetricEss ess, SymmetricMeter meter) throws InvalidValueException {
+		return meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
+				+ ess.getActivePower().getOrError() /* current charge/discharge Ess */
 				- config.targetGridSetpoint(); /* the configured target setpoint */
 	}
 

@@ -30,6 +30,7 @@ export const TRANSLATION = {
         inactive: 'Inactivo',
         info: 'Informacion',
         inputNotValid: 'Entrada inválida',
+        insufficientRights: 'Derechos insuficientes',
         live: 'Live',
         load: 'la cantidad',
         manually: 'a mano',
@@ -137,13 +138,24 @@ export const TRANSLATION = {
                     switchOnBelow: 'Encender debajo',
                     threshold: 'Thresholded',
                 },
+                DelayedSellToGrid: {
+                    sellToGridPowerLimit: 'Cargar arriba',
+                    continuousSellToGridPower: 'Descarga a continuación',
+                    relationError: 'El límite de carga debe ser mayor que el límite de descarga',
+                },
                 Peakshaving: {
                     asymmetricInfo: 'Los valores de rendimiento introducidos se refieren a fases individuales. Se ajusta a la fase más estresada.',
+                    endDate: 'Fecha final',
+                    endTime: 'Hora de finalización',
                     mostStressedPhase: 'Fase mayormente estresada',
                     peakshaving: 'Afeitado máximo',
                     peakshavingPower: 'Descarga sobre',
+                    recharge: 'Poder de carga',
                     rechargePower: 'Cargando debajo',
                     relationError: 'Límite de descarga debe ser mayor o igual que el límite de carga',
+                    startDate: 'Fecha de inicio',
+                    startTime: 'Hora de inicio',
+                    startTimeCharge: 'Hora de inicio de carga',
                 },
                 CHP: {
                     highThreshold: 'Umbral alto',
@@ -241,6 +253,9 @@ export const TRANSLATION = {
                     switchOnCom: 'Mando de encendido',
                     switchOnRec: 'Recomendación de encendido',
                     undefined: 'Indefinido',
+                    normalOperationShort: 'Normal',
+                    switchOnComShort: 'Mando',
+                    switchOnRecShort: 'Recomendación',
                 }
             }
         },

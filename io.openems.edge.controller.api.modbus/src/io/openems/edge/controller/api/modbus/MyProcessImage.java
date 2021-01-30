@@ -79,6 +79,12 @@ public class MyProcessImage implements ProcessImage {
 		this.parent.logDebug(this.log, "Get Register. Address [" + ref + "].");
 		ModbusRecord record = this.parent.records.get(ref);
 
+		// make sure the ModbusRecord is available
+		if(record == null) {
+			throw new MyIllegalAddressException(this,
+					"Record for Modbus address [" + ref + "] is not available.");
+		}
+		
 		// Get Registers from Record
 		Register[] registers = this.getRecordValueRegisters(record);
 
