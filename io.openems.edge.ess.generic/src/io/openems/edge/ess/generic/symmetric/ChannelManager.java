@@ -84,6 +84,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 			 */
 			if (allowedChargePower > 0 && allowedDischargePower < 0) {
 				// Both Force Charge and Discharge are active -> cannot do anything
+				// TODO show error and stop system
 				allowedChargePower = 0;
 				allowedDischargePower = 0;
 
