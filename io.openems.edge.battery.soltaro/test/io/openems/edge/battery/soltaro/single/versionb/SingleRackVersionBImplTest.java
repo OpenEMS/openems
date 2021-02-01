@@ -49,12 +49,12 @@ public class SingleRackVersionBImplTest {
 				
 				/* set min cell voltage below limit, capacity and voltage are needed to calculate charge current */
 				.next(new TestCase("test charge necessary")
-						.input(minCellVoltageAdress, 2750)
-						.input(maxCellVoltageAdress, 3050)
-						.input(capacityAdress, 70000)
-						.input(voltageAdress, 600)	
+						.input(this.minCellVoltageAdress, 2750)
+						.input(this.maxCellVoltageAdress, 3050)
+						.input(this.capacityAdress, 70000)
+						.input(this.voltageAdress, 600)	
 						)
-				.next(new TestCase().output(maxDischargeCurrentAdress, -2))
+				.next(new TestCase().output(this.maxDischargeCurrentAdress, -2))
 				
 				
 		;

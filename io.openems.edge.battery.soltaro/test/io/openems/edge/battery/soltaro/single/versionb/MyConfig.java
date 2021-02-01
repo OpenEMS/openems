@@ -22,8 +22,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public int numberOfSlaves;
 		public ModuleType moduleType;
 		public int watchdog;
-		public int SoCLowAlarm;
-		public boolean ReduceTasks;
+		public int soCLowAlarm;
+		public boolean reduceTasks;
 
 		private Builder() {
 		}
@@ -94,12 +94,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		}
 
 		public Builder setReduceTasks(boolean reduceTasks) {
-			this.ReduceTasks = reduceTasks;
+			this.reduceTasks = reduceTasks;
 			return this;
 		}
 		
 		public Builder setSoCLowAlarm(int soCLowAlarm) {
-			this.SoCLowAlarm = soCLowAlarm;
+			this.soCLowAlarm = soCLowAlarm;
 			return this;
 		}
 		
@@ -191,12 +191,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public int SoCLowAlarm() {
-		return this.builder.SoCLowAlarm;
+		return this.builder.soCLowAlarm;
 	}
 
 	@Override
 	public boolean ReduceTasks() {
-		return this.builder.ReduceTasks;
+		return this.builder.reduceTasks;
 	}
 
 }
