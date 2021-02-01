@@ -67,7 +67,9 @@ public class ChannelManager extends AbstractChannelListenerManager {
 			}
 
 			/*
-			 * Allow max increase of 1 % per Cycle
+			 * Allow max increase of 1 % per Call.
+			 * 
+			 * NOTE: This code might be called multiple times per Cycle.
 			 */
 			if (allowedChargePower < 0 && this.lastAllowedChargePower < 0) {
 				allowedChargePower = Math.max(allowedChargePower, this.lastAllowedChargePower * 1.01F);
