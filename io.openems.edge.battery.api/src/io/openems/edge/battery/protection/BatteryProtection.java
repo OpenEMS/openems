@@ -6,8 +6,6 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.type.TypeUtils;
 
-// TODO bmsMaxEver ist immer mindestens 80 bei Soltaro
-
 /**
  * This utility class provides algorithms to calculate maximum allowed charge
  * and discharge currents for batteries.
@@ -150,7 +148,7 @@ public class BatteryProtection {
 		Integer bmsAllowedChargeCurrent = bmsAllowedChargeCurrentChannel.value().get();
 		IntegerReadChannel bmsAllowedDischargeCurrentChannel = this.battery
 				.channel(this.bmsDischargeMaxCurrentChannelId);
-		int bmsAllowedDischargeCurrent = bmsAllowedDischargeCurrentChannel.value().get();
+		Integer bmsAllowedDischargeCurrent = bmsAllowedDischargeCurrentChannel.value().get();
 
 		// Use MaxCurrentHandlers to calculate max charge and discharge currents
 		int chargeMaxCurrent = this.chargeMaxCurrentHandler.calculateCurrentLimit(minCellVoltage, maxCellVoltage,

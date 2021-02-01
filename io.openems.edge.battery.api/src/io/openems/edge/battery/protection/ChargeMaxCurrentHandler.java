@@ -88,7 +88,7 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 	}
 
 	protected ChargeMaxCurrentHandler(ClockProvider clockProvider, int initialBmsMaxEverAllowedChargeCurrent,
-			PolyLine voltageToPercent, PolyLine temperatureToPercent, double maxIncreasePerSecond,
+			PolyLine voltageToPercent, PolyLine temperatureToPercent, Double maxIncreasePerSecond,
 			ForceDischargeParams forceChargeParams) {
 		super(clockProvider, initialBmsMaxEverAllowedChargeCurrent, voltageToPercent, temperatureToPercent,
 				maxIncreasePerSecond);

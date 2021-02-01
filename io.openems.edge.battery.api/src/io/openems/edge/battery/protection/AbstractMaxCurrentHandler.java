@@ -52,7 +52,7 @@ public abstract class AbstractMaxCurrentHandler {
 	Double lastMaxIncreaseAmpereLimit = null;
 
 	protected AbstractMaxCurrentHandler(ClockProvider clockProvider, int initialBmsMaxEverCurrent,
-			PolyLine voltageToPercent, PolyLine temperatureToPercent, double maxIncreasePerSecond) {
+			PolyLine voltageToPercent, PolyLine temperatureToPercent, Double maxIncreasePerSecond) {
 		this.clockProvider = clockProvider;
 		this.bmsMaxEverCurrent = initialBmsMaxEverCurrent;
 
@@ -89,7 +89,8 @@ public abstract class AbstractMaxCurrentHandler {
 	protected synchronized int calculateCurrentLimit(Integer minCellVoltage, Integer maxCellVoltage,
 			Integer minCellTemperature, Integer maxCellTemperature, Integer bmsMaxCurrent) {
 		// Update 'bmsMaxEverAllowedCurrent'
-		this.bmsMaxEverCurrent = Math.max(this.bmsMaxEverCurrent, bmsMaxCurrent);
+		this.bmsMaxEverCurrent = TypeUtils.max(this.bmsMaxEverCurrent, bmsMaxCurrent);
+
 
 		// Get the minimum limit of all limits in Ampere
 		Double limit = TypeUtils.min(//
