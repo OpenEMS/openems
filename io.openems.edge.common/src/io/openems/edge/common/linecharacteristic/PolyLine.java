@@ -8,6 +8,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.type.TypeUtils;
 
 /**
  * Defines a polyline built of multiple points defined by a JsonArray.
@@ -139,10 +140,14 @@ public class PolyLine {
 	/**
 	 * Gets the Y-value for the given X.
 	 * 
-	 * @param x the 'x' value
-	 * @return the 'y' value
+	 * @param x the 'x' value, possibly null
+	 * @return the 'y' value, possibly null
 	 */
-	public Double getValue(double x) {
+	public Double getValue(Double x) {
+		if (x == null) {
+			return null;
+		}
+
 		Entry<Double, Double> floorEntry = this.points.floorEntry(x);
 		Entry<Double, Double> ceilingEntry = this.points.ceilingEntry(x);
 
@@ -164,6 +169,28 @@ public class PolyLine {
 			Double t = floorEntry.getValue() - m * floorEntry.getKey();
 			return m * x + t;
 		}
+	}
+
+	/**
+	 * Gets the Y-value for the given X. Convenience method that internally converts
+	 * the Float to a Double.
+	 * 
+	 * @param x the 'x' value, possibly null
+	 * @return the 'y' value, possibly null
+	 */
+	public Double getValue(Float x) {
+		return this.getValue(TypeUtils.toDouble(x));
+	}
+
+	/**
+	 * Gets the Y-value for the given X. Convenience method that internally converts
+	 * the Integer to a Double.
+	 * 
+	 * @param x the 'x' value, possibly null
+	 * @return the 'y' value, possibly null
+	 */
+	public Double getValue(Integer x) {
+		return this.getValue(TypeUtils.toDouble(x));
 	}
 
 	public static void printAsCsv(PolyLine polyLine) {

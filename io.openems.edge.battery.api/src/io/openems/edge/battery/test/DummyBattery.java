@@ -15,10 +15,15 @@ import io.openems.edge.common.startstop.StartStoppable;
 public class DummyBattery extends AbstractOpenemsComponent implements Battery, OpenemsComponent, StartStoppable {
 
 	public DummyBattery(String id) {
+		this(id, new io.openems.edge.common.channel.ChannelId[0]);
+	}
+
+	public DummyBattery(String id, io.openems.edge.common.channel.ChannelId[] additionalChannelIds) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
-				Battery.ChannelId.values() //
+				Battery.ChannelId.values(), //
+				additionalChannelIds //
 		);
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
@@ -33,6 +38,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 
 	/**
 	 * withCapacity.
+	 * 
 	 * @param value int
 	 * @return DummyBattery
 	 */
@@ -44,6 +50,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 
 	/**
 	 * withVoltage.
+	 * 
 	 * @param value int
 	 * @return DummyBattery
 	 */
@@ -55,6 +62,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 
 	/**
 	 * withDischargeMaxCurrent.
+	 * 
 	 * @param value int
 	 * @return DummyBattery
 	 */
@@ -66,6 +74,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 
 	/**
 	 * withChargeMaxCurrent.
+	 * 
 	 * @param value int
 	 * @return DummyBattery
 	 */
@@ -77,6 +86,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 
 	/**
 	 * withMinCellVoltage.
+	 * 
 	 * @param value int
 	 * @return DummyBattery
 	 */
@@ -88,12 +98,37 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 
 	/**
 	 * withMaxCellVoltage.
+	 * 
 	 * @param value int
 	 * @return DummyBattery
 	 */
 	public DummyBattery withMaxCellVoltage(int value) {
 		this._setMaxCellVoltage(value);
 		this.getMaxCellVoltageChannel().nextProcessImage();
+		return this;
+	}
+
+	/**
+	 * Sets the MinCellTemperature.
+	 * 
+	 * @param value the MinCellTemperature
+	 * @return DummyBattery myself
+	 */
+	public DummyBattery withMinCellTemperature(int value) {
+		this._setMinCellTemperature(value);
+		this.getMinCellTemperatureChannel().nextProcessImage();
+		return this;
+	}
+
+	/**
+	 * Sets the MaxCellTemperature.
+	 * 
+	 * @param value the MaxCellTemperature
+	 * @return DummyBattery myself
+	 */
+	public DummyBattery withMaxCellTemperature(int value) {
+		this._setMaxCellTemperature(value);
+		this.getMaxCellTemperatureChannel().nextProcessImage();
 		return this;
 	}
 

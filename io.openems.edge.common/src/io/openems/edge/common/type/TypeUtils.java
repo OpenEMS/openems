@@ -7,7 +7,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.value.Value;
@@ -564,15 +563,45 @@ public class TypeUtils {
 	}
 
 	/**
-	 * Throws an descriptive exception if the object is null.
+	 * Throws a descriptive exception if any of the objects is null.
 	 * 
 	 * @param description text that is added to the exception
-	 * @param object      the object
-	 * @throws OpenemsException if object is null
+	 * @param objects     the objects
+	 * @throws IllegalArgumentException if any object is null
 	 */
-	public static void assertNull(String description, Object object) throws OpenemsException {
-		if (object == null) {
-			throw new OpenemsException(description + " value is null!");
+	public static void assertNull(String description, Object... objects) throws IllegalArgumentException {
+		for (Object object : objects) {
+			if (object == null) {
+				throw new IllegalArgumentException(description + ": value is null!");
+			}
+		}
+	}
+
+	/**
+	 * Safely convert from {@link Integer} to {@link Double}
+	 * 
+	 * @param value the Integer value, possibly null
+	 * @return the Double value, possibly null
+	 */
+	public static Double toDouble(Integer value) {
+		if (value == null) {
+			return (Double) null;
+		} else {
+			return Double.valueOf(value);
+		}
+	}
+
+	/**
+	 * Safely convert from {@link Float} to {@link Double}
+	 * 
+	 * @param value the Float value, possibly null
+	 * @return the Double value, possibly null
+	 */
+	public static Double toDouble(Float value) {
+		if (value == null) {
+			return (Double) null;
+		} else {
+			return Double.valueOf(value);
 		}
 	}
 

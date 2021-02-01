@@ -95,6 +95,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		private final String description;
 		private final List<ChannelValue> inputs = new ArrayList<>();
 		private final List<ChannelValue> outputs = new ArrayList<>();
+		private final List<Runnable> onAfterProcessImageCallbacks = new ArrayList<>();
 
 		private TimeLeap timeleap = null;
 
@@ -123,6 +124,13 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 		public TestCase timeleap(TimeLeapClock clock, long amountToAdd, TemporalUnit unit) {
 			this.timeleap = new TimeLeap(clock, amountToAdd, unit);
+			return this;
+		}
+
+		// TODO: add for each event
+		// TODO: check existing JUnit tests where this improvement could be applied
+		public TestCase onAfterProcessImage(Runnable callback) {
+			this.onAfterProcessImageCallbacks.add(callback);
 			return this;
 		}
 
@@ -474,6 +482,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		}
 		testCase.applyInputs(this.components);
 		this.onAfterProcessImage();
+		testCase.onAfterProcessImageCallbacks.forEach(c -> c.run());
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE);
 		this.onBeforeControllers();
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS);
