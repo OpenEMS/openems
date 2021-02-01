@@ -28,11 +28,10 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.api.SetAllowedCurrents;
+import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.ModuleParameters;
-import io.openems.edge.battery.soltaro.SoltaroCellCharacteristic;
-import io.openems.edge.battery.soltaro.single.SingleRackSettings;
+import io.openems.edge.battery.soltaro.SoltaroBatteryProtectionDefinition;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.Context;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.ControlAndLogic;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine;
@@ -53,6 +52,7 @@ import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -80,6 +80,9 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Reference
+	protected ComponentManager componentManager;
+
 	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
 
 	/**
@@ -91,8 +94,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 
 	private Config config;
 	private Map<String, Channel<?>> channelMap;
-
-	private final SetAllowedCurrents setAllowedCurrents;
+	private BatteryProtection batteryProtection = null;
 
 	public SingleRackVersionBImpl() {
 		super(//
@@ -101,14 +103,6 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				StartStoppable.ChannelId.values(), //
 				SingleRackVersionB.ChannelId.values() //
 		);
-		
-		this.setAllowedCurrents = new SetAllowedCurrents(//
-				this,//
-				new SoltaroCellCharacteristic(), //
-				new SingleRackSettings(),
-				this.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT), //
-				this.channel(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT) //
-			);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -128,6 +122,12 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				"Modbus", config.modbus_id())) {
 			return;
 		}
+
+		this.batteryProtection = BatteryProtection.create(this) //
+				.setBmsAllowedChargeCurrent(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT) //
+				.setBmsAllowedDischargeCurrent(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT) //
+				.applyBatteryProtectionDefinition(new SoltaroBatteryProtectionDefinition(), this.componentManager) //
+				.build();
 
 		ControlAndLogic.setWatchdog(this, config.watchdog());
 		ControlAndLogic.setSoCLowAlarm(this, config.SoCLowAlarm());
@@ -173,9 +173,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		switch (event.getTopic()) {
 
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-
-			this.setAllowedCurrents.act();
-
+			this.batteryProtection.apply();
 			break;
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
@@ -529,9 +527,9 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				// changes
 				new FC3ReadRegistersTask(0x2160, Priority.HIGH, //
 						m(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT, new UnsignedWordElement(0x2160),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(0x2161),
-								ElementToChannelConverter.SCALE_FACTOR_2) //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				),
 				// Cluster info
 				new FC3ReadRegistersTask(0x2180, Priority.LOW, //
