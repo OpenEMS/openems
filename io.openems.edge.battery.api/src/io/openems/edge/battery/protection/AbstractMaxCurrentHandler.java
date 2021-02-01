@@ -15,7 +15,7 @@ public abstract class AbstractMaxCurrentHandler {
 
 		protected PolyLine voltageToPercent = PolyLine.empty();
 		protected PolyLine temperatureToPercent = PolyLine.empty();
-		protected double maxIncreasePerSecond = Double.MAX_VALUE;
+		protected Double maxIncreasePerSecond = null;
 
 		protected Builder(ClockProvider clockProvider, int initialBmsMaxEverCurrent) {
 			this.clockProvider = clockProvider;
@@ -47,7 +47,7 @@ public abstract class AbstractMaxCurrentHandler {
 	protected int bmsMaxEverCurrent;
 
 	// used by 'getMaxIncreaseAmpereLimit()'
-	private final double maxIncreasePerSecond;
+	private final Double maxIncreasePerSecond;
 	Instant lastResultTimestamp = null;
 	Double lastMaxIncreaseAmpereLimit = null;
 
@@ -136,7 +136,10 @@ public abstract class AbstractMaxCurrentHandler {
 	 * 
 	 * @return the limit or null
 	 */
-	synchronized Double getMaxIncreaseAmpereLimit() {
+	protected synchronized Double getMaxIncreaseAmpereLimit() {
+		if (this.maxIncreasePerSecond == null) {
+			return null;
+		}
 		Instant now = Instant.now(this.clockProvider.getClock());
 		final Double result;
 		if (this.lastResultTimestamp != null && this.lastMaxIncreaseAmpereLimit != null) {
@@ -148,14 +151,6 @@ public abstract class AbstractMaxCurrentHandler {
 		}
 		this.lastResultTimestamp = now;
 		return result;
-	}
-
-	protected Instant getLastResultTimestamp() {
-		return this.lastResultTimestamp;
-	}
-
-	protected Double getLastMaxIncreaseAmpereLimit() {
-		return this.lastMaxIncreaseAmpereLimit;
 	}
 
 	protected abstract Double getForceCurrent(int minCellVoltage, int maxCellVoltage);

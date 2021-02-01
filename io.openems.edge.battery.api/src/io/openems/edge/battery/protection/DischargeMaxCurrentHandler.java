@@ -80,7 +80,7 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 	 *                                          reference for percentage values. If
 	 *                                          during runtime a higher value is
 	 *                                          provided, that one is taken from
-	 *                                          then one.
+	 *                                          then on.
 	 * @return a {@link Builder}
 	 */
 	public static Builder create(ClockProvider clockProvider, int initialBmsMaxEverChargeCurrent) {

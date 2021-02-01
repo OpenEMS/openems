@@ -3,13 +3,17 @@ package io.openems.edge.battery.protection;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.type.TypeUtils;
 
 // TODO bmsMaxEver ist immer mindestens 80 bei Soltaro
 
 /**
  * This utility class provides algorithms to calculate maximum allowed charge
- * and discharge currents for batteries based on
+ * and discharge currents for batteries.
+ * 
+ * <p>
+ * The logic uses:
  * 
  * <ul>
  * <li>Allowed Current Limit provided by Battery Management System
@@ -34,6 +38,32 @@ public class BatteryProtection {
 
 		protected Builder(Battery battery) {
 			this.battery = battery;
+		}
+
+		/**
+		 * Applies all values from a {@link BatteryProtectionDefinition}
+		 * 
+		 * @param def           the {@link BatteryProtectionDefinition}
+		 * @param clockProvider a {@link ClockProvider}
+		 * @return a {@link Builder}
+		 */
+		public Builder applyBatteryProtectionDefinition(BatteryProtectionDefinition def, ClockProvider clockProvider) {
+			return this //
+					.setChargeMaxCurrentHandler(
+							ChargeMaxCurrentHandler.create(clockProvider, def.getInitialBmsMaxEverChargeCurrent()) //
+									.setVoltageToPercent(def.getChargeVoltageToPercent()) //
+									.setTemperatureToPercent(def.getChargeTemperatureToPercent()) //
+									.setMaxIncreasePerSecond(def.getMaxIncreaseAmperePerSecond()) //
+									.setForceDischarge(def.getForceDischargeParams()) //
+									.build()) //
+					.setDischargeMaxCurrentHandler(
+							DischargeMaxCurrentHandler.create(clockProvider, def.getInitialBmsMaxEverDischargeCurrent()) //
+									.setVoltageToPercent(def.getDischargeVoltageToPercent())
+									.setTemperatureToPercent(def.getDischargeTemperatureToPercent()) //
+									.setMaxIncreasePerSecond(def.getMaxIncreaseAmperePerSecond()) //
+									.setForceCharge(def.getForceChargeParams()) //
+									.build()) //
+			;
 		}
 
 		/**
@@ -72,6 +102,12 @@ public class BatteryProtection {
 		}
 	}
 
+	/**
+	 * Create a {@link BatteryProtection} using builder pattern.
+	 * 
+	 * @param battery the {@link Battery}
+	 * @return a {@link Builder}
+	 */
 	public static Builder create(Battery battery) {
 		return new Builder(battery);
 	}
@@ -94,6 +130,16 @@ public class BatteryProtection {
 		this.bmsDischargeMaxCurrentChannelId = bmsDischargeMaxCurrentChannelId;
 	}
 
+	/**
+	 * Apply the logic on the {@link Battery}.
+	 * 
+	 * <ul>
+	 * <li>Set CHARGE_MAX_CURRENT Channel
+	 * <li>Set DISCHARGE_MAX_CURRENT Channel
+	 * <li>Set FORCE_DISCHARGE_ACTIVE State-Channel if Charge-Max-Current < 0
+	 * <li>Set FORCE_CHARGE_ACTIVE State-Channel if Discharge-Max-Current < 0
+	 * </ul>
+	 */
 	public void apply() {
 		// Read input parameters from Battery
 		Integer minCellVoltage = this.battery.getMinCellVoltage().get();
