@@ -111,9 +111,8 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 	 * 
 	 * @return the limit or null
 	 */
-	protected Double getForceCurrent(int minCellVoltage, int maxCellVoltage) {
-		if (this.forceChargeParams == null) {
-			// Force Charge is not configured
+	protected Double getForceCurrent(Integer minCellVoltage, Integer maxCellVoltage) {
+		if (this.forceChargeParams == null || minCellVoltage == null || maxCellVoltage == null) {
 			return null;
 		}
 

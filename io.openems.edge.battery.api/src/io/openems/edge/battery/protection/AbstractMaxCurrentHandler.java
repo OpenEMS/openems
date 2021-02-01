@@ -154,7 +154,14 @@ public abstract class AbstractMaxCurrentHandler {
 		return result;
 	}
 
-	protected abstract Double getForceCurrent(int minCellVoltage, int maxCellVoltage);
+	/**
+	 * Calculates Current in Force-Mode.
+	 * 
+	 * @param minCellVoltage the Min-Cell-Voltage, possibly null
+	 * @param maxCellVoltage the Max-Cell-Voltage, possibly null
+	 * @return the Current, possibly null
+	 */
+	protected abstract Double getForceCurrent(Integer minCellVoltage, Integer maxCellVoltage);
 
 	/**
 	 * Convert a Percent value to a concrete Ampere value in [A] by multiplying it
