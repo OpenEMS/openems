@@ -184,7 +184,6 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		}
 	}
 
-
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
@@ -282,19 +281,21 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				),
 
 				// EMS timeout --> Watchdog
-				new FC6WriteRegisterTask(0x201C,
+				new FC6WriteRegisterTask(0x201C, //
 						m(SingleRackVersionB.ChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x201C)) //
 				),
 				// Sleep
-				new FC6WriteRegisterTask(0x201D, m(SingleRackVersionB.ChannelId.SLEEP, new UnsignedWordElement(0x201D)) //
+				new FC6WriteRegisterTask(0x201D, //
+						m(SingleRackVersionB.ChannelId.SLEEP, new UnsignedWordElement(0x201D)) //
 				),
 
 				// Work parameter
-				new FC6WriteRegisterTask(0x20C1, m(SingleRackVersionB.ChannelId.WORK_PARAMETER_NUMBER_OF_MODULES,
-						new UnsignedWordElement(0x20C1)) //
-				),
-				new FC3ReadRegistersTask(0x20C1, Priority.LOW, 
-						m(SingleRackVersionB.ChannelId.WORK_PARAMETER_NUMBER_OF_MODULES, new UnsignedWordElement(0x20C1)) //
+				new FC6WriteRegisterTask(0x20C1, //
+						m(SingleRackVersionB.ChannelId.WORK_PARAMETER_NUMBER_OF_MODULES,
+								new UnsignedWordElement(0x20C1)) //
+				), new FC3ReadRegistersTask(0x20C1, Priority.LOW, //
+						m(SingleRackVersionB.ChannelId.WORK_PARAMETER_NUMBER_OF_MODULES,
+								new UnsignedWordElement(0x20C1)) //
 				),
 
 				// Paramaeters for configuring
@@ -387,10 +388,12 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				),
 
 				// Summary state
-				new FC3ReadRegistersTask(0x2100, Priority.LOW, m(new UnsignedWordElement(0x2100)) //
-						.m(SingleRackVersionB.ChannelId.CLUSTER_1_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_2) //
-						.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-						.build(), //
+				new FC3ReadRegistersTask(0x2100, Priority.LOW, //
+						m(new UnsignedWordElement(0x2100)) //
+								.m(SingleRackVersionB.ChannelId.CLUSTER_1_VOLTAGE,
+										ElementToChannelConverter.SCALE_FACTOR_2) //
+								.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.build(), //
 						m(new SignedWordElement(0x2101)) //
 								.m(SingleRackVersionB.ChannelId.CLUSTER_1_CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_2) //
@@ -522,7 +525,8 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(0x215C, 0x215F) //
 				), //
 
-				// Allowed Currents high prioritized because it is necessary to react fast on changes 
+				// Allowed Currents high prioritized because it is necessary to react fast on
+				// changes
 				new FC3ReadRegistersTask(0x2160, Priority.HIGH, //
 						m(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT, new UnsignedWordElement(0x2160),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
@@ -634,8 +638,8 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.SLAVE_TEMPERATURE_COMMUNICATION_ERROR_LOW,
 								new UnsignedWordElement(0x21B5)) //
 				), //
-				// Add tasks to read/write work and warn parameters
-				// Stop parameter
+					// Add tasks to read/write work and warn parameters
+					// Stop parameter
 				new FC16WriteRegistersTask(0x2040, //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_VOLTAGE_PROTECTION,
 								new UnsignedWordElement(0x2040)), //
@@ -777,10 +781,11 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM_RECOVER,
 								new SignedWordElement(0x20A2)) //
 				),
-				
-				new FC6WriteRegisterTask(0x20DF, m(SingleRackVersionB.ChannelId.SET_SOC, new UnsignedWordElement(0x20DF)))
-				
-				);
+
+				new FC6WriteRegisterTask(0x20DF,
+						m(SingleRackVersionB.ChannelId.SET_SOC, new UnsignedWordElement(0x20DF)))
+
+		);
 
 		if (!this.config.ReduceTasks()) {
 			// Stop parameter

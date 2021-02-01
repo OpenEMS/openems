@@ -1,9 +1,7 @@
 package io.openems.edge.battery.api;
 
-import io.openems.edge.battery.api.CellCharacteristic;
-
 public class DummyCellCharacteristic implements CellCharacteristic {
-	
+
 	public static final int FINAL_CELL_CHARGE_VOLTAGE_MV = 3_650;
 	public static final int FINAL_CELL_DISCHARGE_VOLTAGE_MV = 2_900;
 	public static final int FORCE_CHARGE_CELL_VOLTAGE_MV = 2_800;

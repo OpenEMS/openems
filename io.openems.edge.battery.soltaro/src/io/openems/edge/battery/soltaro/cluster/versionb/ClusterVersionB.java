@@ -36,7 +36,6 @@ import io.openems.edge.battery.soltaro.cluster.ClusterSettings;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
 import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
 import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
-import io.openems.edge.battery.soltaro.cluster.versionb.Config;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -69,8 +68,7 @@ import io.openems.edge.common.taskmanager.Priority;
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		}
-)
+		})
 public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		implements SoltaroCluster, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
@@ -161,7 +159,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 				this.config.numberOfSlaves() * ModuleParameters.MIN_VOLTAGE_MILLIVOLT.getValue() / 1000);
 		this._setCapacity(
 				this.config.racks().length * this.config.numberOfSlaves() * this.config.moduleType().getCapacity_Wh());
-	
+
 		this.clusterSettings.setNumberOfUsedRacks(calculateUsedRacks(config));
 	}
 
@@ -181,7 +179,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		
+
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 
 			this.setAllowedCurrents.act();
@@ -398,6 +396,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 	 * Checks whether system has an undefined state, e.g. rack 1 & 2 are configured,
 	 * but only rack 1 is running. This state can only be reached at startup coming
 	 * from state undefined
+	 * 
 	 * @return boolean
 	 */
 	private boolean isSystemStatePending() {
@@ -412,16 +411,13 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		return b && !this.isSystemRunning() && !this.isSystemStopped();
 	}
 
-	 @Override
-		public String debugLog() {
-			return "SoC:" + this.getSoc() //
-					+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
-					+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent()
-					+ "|Running: " + this.isSystemRunning()
-					+ "|U: " + this.getVoltage()
-					+ "|I: " + this.getCurrent()
-					;
-		}
+	@Override
+	public String debugLog() {
+		return "SoC:" + this.getSoc() //
+				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
+				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() + "|Running: "
+				+ this.isSystemRunning() + "|U: " + this.getVoltage() + "|I: " + this.getCurrent();
+	}
 
 	private void sleepSystem() {
 		// Write sleep and reset to all racks
@@ -488,6 +484,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Gets the ModbusBridgeId.
+	 * 
 	 * @return String
 	 */
 	public String getModbusBridgeId() {
@@ -496,6 +493,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Gets the StateMachineState.
+	 * 
 	 * @return State
 	 */
 	public State getStateMachineState() {
@@ -504,6 +502,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Sets the StateMachineState.
+	 * 
 	 * @param state the {@link State}
 	 */
 	public void setStateMachineState(State state) {
@@ -616,8 +615,8 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(0x104B, 0x104D), //
 						m(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_CHARGE_CURRENT, new UnsignedWordElement(0x104E),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_DISCHARGE_CURRENT, new UnsignedWordElement(0x104F),
-								ElementToChannelConverter.SCALE_FACTOR_2) //
+						m(SoltaroCluster.ChannelId.CLUSTER_MAX_ALLOWED_DISCHARGE_CURRENT,
+								new UnsignedWordElement(0x104F), ElementToChannelConverter.SCALE_FACTOR_2) //
 				), //
 
 				new FC3ReadRegistersTask(0x1081, Priority.LOW, //

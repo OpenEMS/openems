@@ -2,7 +2,6 @@ package io.openems.edge.battery.api;
 
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
@@ -42,7 +41,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, S
 	void setMinimalCellVoltage(int minimalCellVoltage) {
 		this._setMinCellVoltage(minimalCellVoltage);
 		this.getMinCellVoltageChannel().nextProcessImage();
-	}	
+	}
 
 	void setMinimalCellVoltageToUndefined() {
 		this._setMinCellVoltage(null);
@@ -88,7 +87,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, S
 		this._setSoc(null);
 		this.getSocChannel().nextProcessImage();
 	}
-	
+
 	void setVoltage(int voltage) {
 		this._setVoltage(voltage);
 		this.getVoltageChannel().nextProcessImage();
@@ -98,7 +97,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, S
 		this._setVoltage(null);
 		this.getVoltageChannel().nextProcessImage();
 	}
-	
+
 	void setCapacity(int capacity) {
 		this._setCapacity(capacity);
 		this.getCapacityChannel().nextProcessImage();
@@ -108,7 +107,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, S
 		this._setCapacity(null);
 		this.getCapacityChannel().nextProcessImage();
 	}
-	
+
 	void setForceDischargeActive(boolean active) {
 		this._setForceDischargeActive(active);
 		this.getForceDischargeActiveChannel().nextProcessImage();
@@ -118,7 +117,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, S
 		this._setForceDischargeActive(null);
 		this.getForceDischargeActiveChannel().nextProcessImage();
 	}
-	
+
 	void setForceChargeActive(boolean active) {
 		this._setForceChargeActive(active);
 		this.getForceChargeActiveChannel().nextProcessImage();
@@ -128,7 +127,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, S
 		this._setForceChargeActive(null);
 		this.getForceChargeActiveChannel().nextProcessImage();
 	}
-	
+
 	void setChargeMaxCurrent(int value) {
 		this._setChargeMaxCurrent(value);
 		this.getChargeMaxCurrentChannel().nextProcessImage();
@@ -138,7 +137,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, S
 		this._setChargeMaxCurrent(null);
 		this.getChargeMaxCurrentChannel().nextProcessImage();
 	}
-	
+
 	void setDischargeMaxCurrent(int value) {
 		this._setDischargeMaxCurrent(value);
 		this.getDischargeMaxCurrentChannel().nextProcessImage();
@@ -148,7 +147,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, S
 		this._setDischargeMaxCurrent(null);
 		this.getDischargeMaxCurrentChannel().nextProcessImage();
 	}
-	
+
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
 		// TODO start stop is not implemented
