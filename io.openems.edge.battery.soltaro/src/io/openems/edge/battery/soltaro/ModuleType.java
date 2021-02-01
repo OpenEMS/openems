@@ -14,6 +14,10 @@ public enum ModuleType {
 
 	private int capacity;
 
+	/**
+	 * Gets the capacity.
+	 * @return int
+	 */
 	public int getCapacity_Wh() {
 		return this.capacity;
 	}
