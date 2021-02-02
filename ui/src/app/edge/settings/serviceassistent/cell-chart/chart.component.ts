@@ -18,7 +18,7 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
     @Input() battery: string;
     @Input() refresh: boolean;
 
-    private static DEFAULT_PERIOD: DefaultTypes.HistoryPeriod = new DefaultTypes.HistoryPeriod((new Date(Date.now() - 1800000)), new Date());
+    private static DEFAULT_PERIOD: DefaultTypes.HistoryPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
 
     private importantCellChannels: Channel[] = [
         {
@@ -53,7 +53,6 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
         super(service, translate);
     }
 
-
     ngOnInit() {
         this.spinnerId = "soltarocell-chart";
         this.service.startSpinner(this.spinnerId);
@@ -70,8 +69,6 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.colors = [];
-        console.log("From", SoltaroCellChartComponent.DEFAULT_PERIOD.from);
-        console.log("From", SoltaroCellChartComponent.DEFAULT_PERIOD.to);
         this.queryHistoricTimeseriesData(SoltaroCellChartComponent.DEFAULT_PERIOD.from, SoltaroCellChartComponent.DEFAULT_PERIOD.to).then(response => {
             let result = response.result;
             // convert labels
@@ -83,12 +80,6 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
 
             // convert datasets
             let datasets = [];
-
-            // required data for soltaro cells
-            let buyFromGridData: number[] = [];
-            let consumptionData: number[] = [];
-
-
 
             this.importantCellChannels.forEach(channel => {
                 if (this.battery + '/' + channel.channelName in result.data) {
@@ -112,33 +103,6 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
                     })
                 }
             });
-
-            /*
-            if ('_sum/ConsumptionActivePower' in result.data) {
-                
-                consumptionData = result.data['_sum/ConsumptionActivePower'].map(value => {
-                    if (value == null) {
-                        return null
-                    } else {
-                        return value;
-                    }
-                });
-            }
-
-            if ('_sum/GridActivePower' in result.data) {
-                
-                buyFromGridData = result.data['_sum/GridActivePower'].map(value => {
-                    if (value == null) {
-                        return null
-                    } else if (value > 0) {
-                        return value;
-                    } else {
-                        return 0;
-                    }
-                })
-            };
-        */
-
 
             this.datasets = datasets;
             this.loading = false;
@@ -172,7 +136,6 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-0') + " mV";
         }
-        //options.scales.yAxes[0].ticks.max = 4000;
         options.scales.yAxes[0].ticks.beginAtZero = false;
         this.options = options;
     }
