@@ -2,7 +2,6 @@ package io.openems.edge.core.componentmanager;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -25,12 +24,51 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
-import io.openems.common.utils.JsonUtils;
 
 /**
  * This Worker checks if certain OpenEMS-Components are configured and - if not
  * - configures them. It is used to make sure a set of standard components are
  * always activated by default on a deployed energy management system.
+ * 
+ * <p>
+ * Example 1: Add JSON/REST-Api Controller by default:
+ * 
+ * <pre>
+ * if (existingConfigs.stream().noneMatch(c -> //
+ * // Check if either "Controller.Api.Rest.ReadOnly" or
+ * // "Controller.Api.Rest.ReadWrite" exist
+ * "Controller.Api.Rest.ReadOnly".equals(c.factoryPid) || "Controller.Api.Rest.ReadWrite".equals(c.factoryPid))) {
+ * 	// if not -> create configuration for "Controller.Api.Rest.ReadOnly"
+ * 	this.createConfiguration(defaultConfigurationFailed, "Controller.Api.Rest.ReadOnly", Arrays.asList(//
+ * 			new Property("id", "ctrlApiRest0"), //
+ * 			new Property("alias", ""), //
+ * 			new Property("enabled", true), //
+ * 			new Property("port", 8084), //
+ * 			new Property("debugMode", false) //
+ * 	));
+ * }
+ * </pre>
+ * 
+ * <p>
+ * Example 2: Add Modbus/TCP-Api Controller by default:
+ * 
+ * <pre>
+ * if (existingConfigs.stream().noneMatch(c -> //
+ * // Check if either "Controller.Api.Rest.ReadOnly" or
+ * // "Controller.Api.Rest.ReadWrite" exist
+ * "Controller.Api.ModbusTcp.ReadOnly".equals(c.factoryPid)
+ * 		|| "Controller.Api.ModbusTcp.ReadWrite".equals(c.factoryPid))) {
+ * 	// if not -> create configuration for "Controller.Api.Rest.ReadOnly"
+ * 	this.createConfiguration(defaultConfigurationFailed, "Controller.Api.ModbusTcp.ReadOnly", Arrays.asList(//
+ * 			new Property("id", "ctrlApiModbusTcp0"), //
+ * 			new Property("alias", ""), //
+ * 			new Property("enabled", true), //
+ * 			new Property("port", 502), //
+ * 			new Property("component.ids", JsonUtils.buildJsonArray().add("_sum").build()), //
+ * 			new Property("maxConcurrentConnections", 5) //
+ * 	));
+ * }
+ * </pre>
  */
 public class DefaultConfigurationWorker extends ComponentManagerWorker {
 
@@ -77,42 +115,6 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 				e.printStackTrace();
 				defaultConfigurationFailed.set(true);
 			}
-		}
-
-		/*
-		 * Create Controller.Api.Rest.ReadOnly
-		 */
-		if (existingConfigs.stream().noneMatch(c -> //
-		// Check if either "Controller.Api.Rest.ReadOnly" or
-		// "Controller.Api.Rest.ReadWrite" exist
-		"Controller.Api.Rest.ReadOnly".equals(c.factoryPid) || "Controller.Api.Rest.ReadWrite".equals(c.factoryPid))) {
-			// if not -> create configuration for "Controller.Api.Rest.ReadOnly"
-			this.createConfiguration(defaultConfigurationFailed, "Controller.Api.Rest.ReadOnly", Arrays.asList(//
-					new Property("id", "ctrlApiRest0"), //
-					new Property("alias", ""), //
-					new Property("enabled", true), //
-					new Property("port", 8084), //
-					new Property("debugMode", false) //
-			));
-		}
-
-		/*
-		 * Create Controller.Api.Modbus.ReadOnly
-		 */
-		if (existingConfigs.stream().noneMatch(c -> //
-		// Check if either "Controller.Api.Rest.ReadOnly" or
-		// "Controller.Api.Rest.ReadWrite" exist
-		"Controller.Api.ModbusTcp.ReadOnly".equals(c.factoryPid)
-				|| "Controller.Api.ModbusTcp.ReadWrite".equals(c.factoryPid))) {
-			// if not -> create configuration for "Controller.Api.Rest.ReadOnly"
-			this.createConfiguration(defaultConfigurationFailed, "Controller.Api.ModbusTcp.ReadOnly", Arrays.asList(//
-					new Property("id", "ctrlApiModbusTcp0"), //
-					new Property("alias", ""), //
-					new Property("enabled", true), //
-					new Property("port", 502), //
-					new Property("component.ids", JsonUtils.buildJsonArray().add("_sum").build()), //
-					new Property("maxConcurrentConnections", 5) //
-			));
 		}
 
 		return defaultConfigurationFailed.get();

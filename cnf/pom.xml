@@ -81,7 +81,7 @@
 			<!-- HikariCP A solid, high-performance, JDBC connection pool at last. -->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>3.4.5</version>
+			<version>4.0.1</version>
 		</dependency>
 		<!-- commons -->
 		<dependency>
@@ -179,7 +179,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.10.18</version>
+			<version>0.12.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
