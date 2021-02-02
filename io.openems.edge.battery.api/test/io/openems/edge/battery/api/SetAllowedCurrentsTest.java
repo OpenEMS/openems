@@ -7,9 +7,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.openems.edge.battery.api.SetAllowedCurrents;
-import io.openems.edge.battery.api.Settings;
-
 public class SetAllowedCurrentsTest {
 
 	private DummyBattery battery;
