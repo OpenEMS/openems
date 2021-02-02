@@ -25,6 +25,10 @@ public class GenericManagedSymmetricEssTest {
 			"AllowedDischargePower");
 
 	private static final ChannelAddress BATTERY_START_STOP = new ChannelAddress(BATTERY_ID, "StartStop");
+	private static final ChannelAddress BATTERY_CHARGE_MAX_CURRENT = new ChannelAddress(BATTERY_ID, "ChargeMaxCurrent");
+	private static final ChannelAddress BATTERY_DISCHARGE_MAX_CURRENT = new ChannelAddress(BATTERY_ID,
+			"DischargeMaxCurrent");
+
 	private static final ChannelAddress BATTERY_INVERTER_START_STOP = new ChannelAddress(BATTERY_INVERTER_ID,
 			"StartStop");
 	private static final ChannelAddress BATTERY_INVERTER_ACTIVE_POWER = new ChannelAddress(BATTERY_INVERTER_ID,
@@ -74,10 +78,18 @@ public class GenericManagedSymmetricEssTest {
 						.setBatteryInverterId(BATTERY_INVERTER_ID) //
 						.setBatteryId(BATTERY_ID) //
 						.build()) //
+				.next(new TestCase("Start the Battery") //
+						.input(BATTERY_START_STOP, StartStop.START) //
+						.output(ESS_ALLOWED_DISCHARGE_POWER, 0) //
+						.output(BATTERY_INVERTER_ACTIVE_POWER, 0)) //
+				.next(new TestCase()) //
+				.next(new TestCase("Start the Battery-Inverter") //
+						.input(BATTERY_INVERTER_START_STOP, StartStop.START)) //
+				.next(new TestCase()) //
 				.next(new TestCase() //
+						.input(BATTERY_CHARGE_MAX_CURRENT, 50) //
+						.input(BATTERY_DISCHARGE_MAX_CURRENT, -5) //
 						.output(ESS_ALLOWED_DISCHARGE_POWER,
-								(int) (-2500 * GenericManagedSymmetricEss.EFFICIENCY_FACTOR)) //
-						.output(BATTERY_INVERTER_ACTIVE_POWER,
 								(int) (-2500 * GenericManagedSymmetricEss.EFFICIENCY_FACTOR))) //
 		;
 	}
