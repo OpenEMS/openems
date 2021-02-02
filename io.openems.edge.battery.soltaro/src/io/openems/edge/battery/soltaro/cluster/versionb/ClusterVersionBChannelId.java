@@ -115,8 +115,9 @@ public enum ClusterVersionBChannelId implements io.openems.edge.common.channel.C
 	RACK_5_CYCLE_OVER_CURRENT(Doc.of(Level.FAULT) //
 			.text("Rack 1 Cycle over current")),
 	RACK_5_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
-			.text("Rack 1 Voltage difference"));
-
+			.text("Rack 1 Voltage difference")),
+	;
+	
 	private final Doc doc;
 
 	private ClusterVersionBChannelId(Doc doc) {

@@ -81,7 +81,7 @@
 			<!-- HikariCP A solid, high-performance, JDBC connection pool at last. -->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>3.4.5</version>
+			<version>4.0.1</version>
 		</dependency>
 		<!-- commons -->
 		<dependency>
@@ -159,7 +159,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>4.5.4</version>
+			<version>4.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
@@ -179,7 +179,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.10.18</version>
+			<version>0.12.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
@@ -199,7 +199,7 @@
 		<dependency>
 			<groupId>org.msgpack</groupId>
 			<artifactId>msgpack-core</artifactId>
-			<version>0.8.21</version>
+			<version>0.8.22</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openmuc</groupId>

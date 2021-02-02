@@ -42,7 +42,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 	}
 
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
-			boolean isDebugModeEnabled, int apiTimeout, int port) {
+			boolean isDebugModeEnabled, int apiTimeout, int port, int connectionlimit) {
 		super.activate(context, id, alias, enabled);
 		this.isDebugModeEnabled = isDebugModeEnabled;
 
@@ -60,7 +60,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 			this.server = new Server(port);
 			this.server.setHandler(new RestHandler(this));
 			this.server.addBean(new AcceptRateLimit(10, 5, TimeUnit.SECONDS, this.server));
-			this.server.addBean(new ConnectionLimit(5, this.server));
+			this.server.addBean(new ConnectionLimit(connectionlimit, this.server));
 			this.server.start();
 			this.logInfo(this.log, this.implementationName + " started on port [" + port + "].");
 			this._setUnableToStart(false);

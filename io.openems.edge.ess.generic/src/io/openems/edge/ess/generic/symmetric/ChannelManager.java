@@ -50,37 +50,57 @@ public class ChannelManager extends AbstractChannelListenerManager {
 			float allowedChargePower;
 			float allowedDischargePower;
 
-			// If the GenericEss is not in State "STARTED" block ACTIVE and REACTIVE Power!
-			if (this.parent.isStarted() && voltage.isDefined() && dischargeMaxCurrent.isDefined()
-					&& chargeMaxCurrent.isDefined()) {
+			/*
+			 * Calculate initial AllowedChargePower and AllowedDischargePower
+			 */
+			if (!this.parent.isStarted()) {
+				// If the GenericEss is not in State "STARTED" block ACTIVE and REACTIVE Power!
+				allowedChargePower = 0;
+				allowedDischargePower = 0;
+
+			} else {
+				// Calculate AllowedChargePower and AllowedDischargePower from battery current
+				// limits and voltage
 				// efficiency factor is not considered in chargeMaxCurrent (DC Power > AC Power)
 				allowedChargePower = chargeMaxCurrent.get() * voltage.get() * -1;
 				allowedDischargePower = dischargeMaxCurrent.get() * voltage.get() * efficiencyFactor;
+			}
 
-			} else {
+			/*
+			 * Allow max increase of 1 % per Call.
+			 * 
+			 * NOTE: This code might be called multiple times per Cycle.
+			 */
+			if (allowedChargePower < 0 && this.lastAllowedChargePower < 0) {
+				allowedChargePower = Math.max(allowedChargePower, this.lastAllowedChargePower * 1.01F);
+			}
+			this.lastAllowedChargePower = allowedChargePower;
+
+			if (allowedDischargePower > 0 && this.lastAllowedDischargePower > 0) {
+				allowedDischargePower = Math.min(allowedDischargePower, this.lastAllowedDischargePower * 1.01F);
+			}
+			this.lastAllowedDischargePower = allowedDischargePower;
+
+			/*
+			 * Handle Force Charge and Discharge
+			 */
+			if (allowedChargePower > 0 && allowedDischargePower < 0) {
+				// Both Force Charge and Discharge are active -> cannot do anything
 				allowedChargePower = 0;
 				allowedDischargePower = 0;
+
+			} else if (allowedDischargePower < 0) {
+				// Force Charge is active
+				// Make sure AllowedChargePower is less-or-equals AllowedDischargePower
+				allowedChargePower = Math.min(allowedChargePower, allowedDischargePower);
+
+			} else if (allowedChargePower > 0) {
+				// Force Discharge is active
+				// Make sure AllowedDischargePower is greater-or-equals AllowedChargePower
+				allowedDischargePower = Math.max(allowedChargePower, allowedDischargePower);
 			}
 
-			// Allow max increase of 1 %
-			if (allowedDischargePower > lastAllowedDischargePower + allowedDischargePower * 0.01F) {
-				allowedDischargePower = lastAllowedDischargePower + allowedDischargePower * 0.01F;
-			}
-			ChannelManager.this.lastAllowedDischargePower = allowedDischargePower;
-
-			if (allowedChargePower < lastAllowedChargePower + allowedChargePower * 0.01F) {
-				allowedChargePower = lastAllowedChargePower + allowedChargePower * 0.01F;
-			}
-			ChannelManager.this.lastAllowedChargePower = allowedChargePower;
-
-			// Make sure solution is feasible
-			if (allowedChargePower > allowedDischargePower) { // Force Discharge
-				allowedDischargePower = allowedChargePower;
-			}
-			if (allowedDischargePower < allowedChargePower) { // Force Charge
-				allowedChargePower = allowedDischargePower;
-			}
-
+			// Apply AllowedChargePower and AllowedDischargePower
 			this.parent._setAllowedChargePower(Math.round(allowedChargePower));
 			this.parent._setAllowedDischargePower(Math.round(allowedDischargePower));
 		};

@@ -92,11 +92,11 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 				// Voltage, Power and Reactive Power
 				new FC3ReadRegistersTask(31253, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(31253),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(31255),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(31257),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L1, new UnsignedDoublewordElement(31259)),
 						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L2, new UnsignedDoublewordElement(31261)),
 						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L3, new UnsignedDoublewordElement(31263)),
@@ -109,16 +109,13 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(31277))),
 				// Current
 				new FC3ReadRegistersTask(31435, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new SignedDoublewordElement(31435),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new SignedDoublewordElement(31437),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new SignedDoublewordElement(31439),
-								ElementToChannelConverter.SCALE_FACTOR_3)),
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new SignedDoublewordElement(31435)),
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new SignedDoublewordElement(31437)),
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new SignedDoublewordElement(31439))),
 				// Frequency
 				new FC3ReadRegistersTask(31447, Priority.LOW, //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(31447),
-								ElementToChannelConverter.SCALE_FACTOR_3)));
+								ElementToChannelConverter.SCALE_FACTOR_1)));
 
 		// Calculates required Channels from other existing Channels.
 		this.addCalculateChannelListeners();
