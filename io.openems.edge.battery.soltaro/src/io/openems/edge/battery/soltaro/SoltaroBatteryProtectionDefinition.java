@@ -33,7 +33,8 @@ public class SoltaroBatteryProtectionDefinition implements BatteryProtectionDefi
 	@Override
 	public PolyLine getDischargeVoltageToPercent() {
 		return PolyLine.create() //
-				.addPoint(Math.nextDown(3000), 0) //
+				.addPoint(Math.nextDown(2900), 0) //
+				.addPoint(2900, 0.1) //
 				.addPoint(3000, 1) //
 				.addPoint(3700, 1) //
 				.addPoint(Math.nextUp(3700), 0) //
