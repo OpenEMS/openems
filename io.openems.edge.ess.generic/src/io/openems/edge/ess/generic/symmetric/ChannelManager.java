@@ -21,8 +21,8 @@ public class ChannelManager extends AbstractChannelListenerManager {
 
 	private final GenericManagedSymmetricEss parent;
 
-	private float lastAllowedChargePower = 0;
-	private float lastAllowedDischargePower = 0;
+	private int lastAllowedChargePower = 0;
+	private int lastAllowedDischargePower = 0;
 
 	public ChannelManager(GenericManagedSymmetricEss parent) {
 		this.parent = parent;
@@ -47,8 +47,8 @@ public class ChannelManager extends AbstractChannelListenerManager {
 			Value<Integer> dischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue();
 			Value<Integer> voltage = battery.getVoltageChannel().getNextValue();
 
-			float allowedChargePower;
-			float allowedDischargePower;
+			int allowedChargePower;
+			int allowedDischargePower;
 
 			/*
 			 * Calculate initial AllowedChargePower and AllowedDischargePower
@@ -63,21 +63,8 @@ public class ChannelManager extends AbstractChannelListenerManager {
 				// limits and voltage
 				// efficiency factor is not considered in chargeMaxCurrent (DC Power > AC Power)
 				allowedChargePower = chargeMaxCurrent.get() * voltage.get() * -1;
-				allowedDischargePower = dischargeMaxCurrent.get() * voltage.get() * efficiencyFactor;
+				allowedDischargePower = Math.round(dischargeMaxCurrent.get() * voltage.get() * efficiencyFactor);
 			}
-
-			/*
-			 * Allow max increase of 1 % per Cycle
-			 */
-			if (allowedChargePower < 0 && this.lastAllowedChargePower < 0) {
-				allowedChargePower = Math.max(allowedChargePower, this.lastAllowedChargePower * 1.01F);
-			}
-			this.lastAllowedChargePower = allowedChargePower;
-
-			if (allowedDischargePower > 0 && this.lastAllowedDischargePower > 0) {
-				allowedDischargePower = Math.min(allowedDischargePower, this.lastAllowedDischargePower * 1.01F);
-			}
-			this.lastAllowedDischargePower = allowedDischargePower;
 
 			/*
 			 * Handle Force Charge and Discharge
@@ -96,11 +83,23 @@ public class ChannelManager extends AbstractChannelListenerManager {
 				// Force Discharge is active
 				// Make sure AllowedDischargePower is greater-or-equals AllowedChargePower
 				allowedDischargePower = Math.max(allowedChargePower, allowedDischargePower);
+
+			} else {
+				// Neither Force Charge nor Discharge
+				// Allow max increase of 1 % per Cycle; minimum 1 W
+				allowedChargePower = Math.max(allowedChargePower, //
+						Math.min(Math.round(lastAllowedChargePower * 1.01F) /* 1 % increase */,
+								this.lastAllowedChargePower - 1 /* minimum 1 W */));
+				allowedDischargePower = Math.min(allowedDischargePower, //
+						Math.max(Math.round(lastAllowedDischargePower * 1.01F) /* 1 % increase */,
+								this.lastAllowedDischargePower + 1 /* minimum 1 W */));
 			}
+			this.lastAllowedDischargePower = allowedDischargePower;
+			this.lastAllowedChargePower = allowedChargePower;
 
 			// Apply AllowedChargePower and AllowedDischargePower
-			this.parent._setAllowedChargePower(Math.round(allowedChargePower));
-			this.parent._setAllowedDischargePower(Math.round(allowedDischargePower));
+			this.parent._setAllowedChargePower(allowedChargePower);
+			this.parent._setAllowedDischargePower(allowedDischargePower);
 		};
 
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
