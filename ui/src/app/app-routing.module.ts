@@ -26,6 +26,7 @@ import { ComponentUpdateComponent as EdgeSettingsComponentUpdateComponentCompone
 import { NetworkComponent as EdgeSettingsNetworkComponent } from './edge/settings/network/network.component';
 import { AliasUpdateComponent } from './edge/settings/profile/aliasupdate.component';
 import { ProfileComponent as EdgeSettingsProfileComponent } from './edge/settings/profile/profile.component';
+import { ServiceAssistent as EdgeSettingsServiceAssistent } from './edge/settings/serviceassistent/index.component';
 import { SettingsComponent as EdgeSettingsComponent } from './edge/settings/settings.component';
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
@@ -70,6 +71,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/settings/network', component: EdgeSettingsNetworkComponent },
   { path: 'device/:edgeId/settings/profile', component: EdgeSettingsProfileComponent },
   { path: 'device/:edgeId/settings/profile/:componentId', component: AliasUpdateComponent },
+  { path: 'device/:edgeId/settings/serviceassistent', component: EdgeSettingsServiceAssistent },
   { path: 'device/:edgeId/settings/systemexecute', component: EdgeSettingsSystemExecuteComponent },
   { path: 'device/:edgeId/settings/systemlog', component: EdgeSettingsSystemLogComponent },
   { path: 'device/:edgeId/settings/systemupdate', component: EdgeSettingsSystemUpdateComponent },

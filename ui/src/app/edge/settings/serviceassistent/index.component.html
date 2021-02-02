@@ -1,0 +1,313 @@
+<header></header>
+<ion-content>
+  <ion-list>
+
+    <ng-container *ngFor="let item of batteries">
+
+      <ion-item lines="full" color="light">
+        <ion-label style="cursor: pointer" class="ion-text-wrap">
+          {{ item.alias }}
+          <span *ngIf="item.id != item.alias"> ({{ item.id }})</span>
+          <small *ngIf="!item.isEnabled"> (<span translate>General.componentInactive</span>)</small>
+
+          <ng-container *ngIf="config.factories[item.factoryId] as factory">
+            <p>{{ factory.name }} <small>({{ factory.description }})</small></p>
+          </ng-container>
+        </ion-label>
+      </ion-item>
+
+      <ion-grid *ngIf="(edge.currentData | async)['channel'] as currentData">
+        <ion-row>
+          <ion-col size="12" size-md="6">
+
+            <ion-card>
+              <ion-item color="light" lines="full">
+                <ion-label>Gelesene Werte</ion-label>
+              </ion-item>
+              <ion-list>
+                <ion-item-group>
+                  <ion-item>
+                    <ion-label>Anzahl der angeschlossenen Module</ion-label>
+
+                    <p *ngIf="currentData[item.id + '/WorkParameterNumberOfModules']">
+                      {{ currentData[item.id + "/WorkParameterNumberOfModules"] }}
+                    </p>
+                    <p *ngIf="!currentData[item.id + '/WorkParameterNumberOfModules']">
+                      Ab Version 2021.1.11 für Soltaro-Batterien verfügbar
+                    </p>
+                    <!--
+                    {{ currentData[item.id + "/WorkParameterNumberOfModules"] }}
+                    Wird noch hinzugefügt-->
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Interner Ladezustand</ion-label>
+                    {{ currentData[item.id + "/Soc"] }}
+                  </ion-item>
+
+                  <ion-item-divider color="light">
+                    <ion-label>Zellspannungen </ion-label>
+                  </ion-item-divider>
+
+                  <ion-item>
+                    <ion-label>Gesamptspannung</ion-label>
+                    {{ currentData[item.id + "/Voltage"] }}
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Minimale Zellspannung (Entsprechende Id)</ion-label>
+                    {{ currentData[item.id + "/Cluster1MinCellVoltage"] }} ({{ currentData[item.id +
+                    "/Cluster1MinCellVoltageId"]}})
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Maximale Zellspannung (Entsprechende Id)</ion-label>
+                    {{ currentData[item.id + "/Cluster1MaxCellVoltage"] }} ({{ currentData[item.id +
+                    "/Cluster1MaxCellVoltageId"] }})
+                  </ion-item>
+
+                  <ion-item>
+                    <ion-label>Untere Zuschaltspannungen (Protection/Recover)</ion-label>
+                    {{ currentData[item.id + "/StopParameterCellUnderVoltageProtection"] }}/{{ currentData[item.id +
+                    "/StopParameterCellUnderVoltageRecover"] }}
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Obere Abschaltspannungen (Protection/Recover)</ion-label>
+                    {{ currentData[item.id + "/StopParameterCellOverVoltageProtection"] }}/{{ currentData[item.id +
+                    "/StopParameterCellOverVoltageRecover"] }}
+                  </ion-item>
+
+                  <ion-item lines="none">
+                    <ion-label> Gesamtchart:</ion-label>
+
+                    <p style="font-size: small">
+                      <ion-icon name="alert-circle-outline"></ion-icon>
+                      Muss manuell aktualisiert werden
+                    </p>
+                  </ion-item>
+                  <ion-item padding-bottom padding-top class="ion-text-wrap">
+                    <!--padding-bottom padding-top lines="none"-->
+                    <soltarocellchart padding-bottom padding-top style="width: 90%" [battery]="item.id">
+                    </soltarocellchart>
+                  </ion-item>
+
+                  <ion-item>
+                    <ion-label>Zellspannungsdifferenz</ion-label>
+                    {{ currentData[item.id + "/CellVoltageDifference"] }}
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Maximale Zellspannungsdifferenz (Protection/Recover)</ion-label>
+                    {{ currentData[item.id + "/StopParameterCellVoltageDifferenceProtection"] }}/{{ currentData[item.id
+                    +
+                    "/StopParameterCellVoltageDifferenceRecover"] }}
+                  </ion-item>
+
+                  <ion-item-divider color="light">
+                    <ion-label>Zelltemperaturen</ion-label>
+                  </ion-item-divider>
+
+                  <ion-item>
+                    <ion-label>Minimale Zelltemperatur (Id)</ion-label>
+                    {{ currentData[item.id + "/MinCellTemperature"] }} ({{currentData[item.id +
+                    "/Cluster1MinCellTemperatureId"]}})
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Maximale Zellspannung (Id)</ion-label>
+                    {{ currentData[item.id + "/MaxCellTemperature"] }} ({{ currentData[item.id +
+                    "/Cluster1MaxCellTemperatureId"] }})
+                  </ion-item>
+
+                  <ion-item>
+                    <ion-label>Untere Zelltemperaturen (Protection/Recover)</ion-label>
+                    {{ currentData[item.id + "/StopParameterCellUnderTemperatureProtection"] }}/{{ currentData[item.id +
+                    "/StopParameterCellUnderTemperatureRecover"] }}
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Obere Zelltemperaturen (Protection/Recover)</ion-label>
+                    {{ currentData[item.id + "/StopParameterCellOverTemperatureProtection"] }}/{{ currentData[item.id +
+                    "/StopParameterCellOverTemperatureRecover"] }}
+                  </ion-item>
+
+                </ion-item-group>
+              </ion-list>
+            </ion-card>
+          </ion-col>
+
+          <!--Actions (Area to set values and start assistents. eg. for undervoltage) -->
+          <ion-col size="12" size-md="6">
+            <ion-card>
+              <ion-item color="light" lines="full">
+                <ion-label>Aktionen</ion-label>
+              </ion-item>
+
+              <ion-grid *ngIf="config">
+                <ion-row class="ion-justify-content-center">
+                  <ion-item color="danger" style="border-radius: 10px;" lines none>
+                    Nachdem Systemrelevante Stop- und Warnungsgrenzen verändert wurden, müssen diese nach Beendigung der
+                    Arbeit wieder manuell auf die Standardwerte gesetzt werden!
+                  </ion-item>
+
+                  <ion-col *ngFor="let channelDescription of importantWriteChannelsDescriptions" size="12" size-md="6">
+                    <ion-card *ngIf="getChannelAddress(item.id, channelDescription.channelName) as address">
+                      <ion-item color="light" lines="full">
+                        <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
+                        <ion-label style="font-size:small;" class="ion-text-wrap">{{ channelDescription.channelName
+                          }}({{channelDescription.register}})</ion-label>
+                      </ion-item>
+                      <ion-card-content *ngIf="config.getChannel(address) as channelConfig">
+                        <ion-item>
+                          <ion-text class="ion-text-wrap" style="font-size:small;">
+                            {{ channelDescription.description }}
+
+                            <!--<span *ngIf="channelConfig.text">/ Text:{{ channelConfig.text }}</span> 
+                            Currently not used because of missing descriptions in the most components -->
+                          </ion-text>
+                        </ion-item>
+                        <ion-item>
+                          <ion-text class="ion-text-wrap" color="medium" style="font-size:small;">
+                            Type: {{ channelConfig.type.toLowerCase() }}
+                            / Access-Mode: {{ channelConfig.accessMode }}
+                          </ion-text>
+                        </ion-item>
+
+
+                        <ion-item *ngIf="channelConfig.accessMode != 'WO'">
+                          <ion-label style="font-size:small;">Value</ion-label>
+                          <ion-text style="font-size:small;">
+                            <!-- show current value of Channel-->
+                            {{ currentData[address.toString()] }} {{ channelConfig.unit }}
+                            <!-- show value as string for enum values -->
+                            <ng-container *ngIf="channelConfig.category == 'ENUM'">
+                              <ng-container *ngFor="let option of (channelConfig.options | keys)">
+                                <span *ngIf="option.value == currentData[address.toString()]">
+                                  ({{ option.key }})
+                                </span>
+                              </ng-container>
+                            </ng-container>
+                            <!-- show active/inactive string for StateChannels -->
+                            <ng-container *ngIf="channelConfig.category == 'STATE'">
+                              <span *ngIf="currentData[address.toString()] == 1">(State is SET)</span>
+                              <span *ngIf="currentData[address.toString()] == 0">(State is not set)</span>
+                            </ng-container>
+                            <!-- show active/inactive string for StateChannels -->
+                            <ng-container
+                              *ngIf="channelConfig.category == 'OPENEMS_TYPE' && channelConfig.type == 'BOOLEAN'">
+                              <span *ngIf="currentData[address.toString()] == 1">(On)</span>
+                              <span *ngIf="currentData[address.toString()] == 0">(Off)</span>
+                            </ng-container>
+                          </ion-text>
+                        </ion-item>
+
+                        <!-- show input field to write value for RW/RO channels -->
+                        <ion-item *ngIf="['RW', 'WO'].includes(channelConfig.accessMode)">
+                          <ion-label style="font-size:small;">Set value</ion-label>
+                          <ng-container *ngIf="channelConfig.type == 'BOOLEAN'; else no_boolean">
+                            <!-- show Toggle for boolean value  -->
+                            <ion-toggle #valueToggle></ion-toggle>
+                            <ion-button (click)="setChannelValue(address, valueToggle.checked)" slot="end"
+                              color="light">
+                              <ion-icon slot="icon-only" name="send-outline"></ion-icon>
+                            </ion-button>
+                          </ng-container>
+                          <ng-template #no_boolean>
+                            <ion-input style="font-size:small;" placeholder="value" #value></ion-input>
+                            <ion-button (click)="setChannelValue(address, value.value)" slot="end" color="light">
+                              <ion-icon slot="icon-only" name="send-outline"></ion-icon>
+                            </ion-button>
+                          </ng-template>
+                        </ion-item>
+                      </ion-card-content>
+                      <ion-card-content *ngIf="!config.getChannel(address)">
+                        <ion-item>
+                          <ion-label style="font-size:small;" class="ion-text-wrap" color="medium" lines="none">
+                            Für diese Batterie aktuell noch nicht verfügbar
+                          </ion-label>
+                        </ion-item>
+                      </ion-card-content>
+                    </ion-card>
+                  </ion-col>
+
+
+
+
+
+
+                  <ion-col *ngFor="let address of subscribedChannels" size="12" size-md="6">
+
+                    <ion-card>
+                      <ion-item color="light" lines="full">
+                        <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
+                        <ion-label>Channel {{ address.toString() }}</ion-label>
+                        <!-- TODO translate  -->
+                        <ion-button (click)="unsubscribeChannel(address)" slot="end" color="light">
+                          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                        </ion-button>
+                      </ion-item>
+
+                      <ion-card-content *ngIf="config.getChannel(address) as channelConfig">
+                        <!-- show meta information -->
+                        <ion-item>
+                          <ion-label>Meta</ion-label>
+                          <ion-text class="ion-text-wrap" color="medium">
+                            Type: {{ channelConfig.type.toLowerCase() }}
+                            / Access-Mode: {{ channelConfig.accessMode }}
+                            <span *ngIf="channelConfig.text">/ Text:{{ channelConfig.text }}</span>
+                          </ion-text>
+                        </ion-item>
+
+                        <!-- show Channel value (if it is not a Write-Only Channel) -->
+                        <ion-item *ngIf="channelConfig.accessMode != 'WO'">
+                          <ion-label>Value</ion-label>
+                          <ion-text>
+                            <!-- show current value of Channel-->
+                            {{ currentData.channel[address.toString()] }} {{ channelConfig.unit }}
+                            <!-- show value as string for enum values -->
+                            <ng-container *ngIf="channelConfig.category == 'ENUM'">
+                              <ng-container *ngFor="let option of (channelConfig.options | keys)">
+                                <span *ngIf="option.value == currentData.channel[address.toString()]">
+                                  ({{ option.key }})
+                                </span>
+                              </ng-container>
+                            </ng-container>
+                            <!-- show active/inactive string for StateChannels -->
+                            <ng-container *ngIf="channelConfig.category == 'STATE'">
+                              <span *ngIf="currentData.channel[address.toString()] == 1">(State is SET)</span>
+                              <span *ngIf="currentData.channel[address.toString()] == 0">(State is not set)</span>
+                            </ng-container>
+                            <!-- show active/inactive string for StateChannels -->
+                            <ng-container
+                              *ngIf="channelConfig.category == 'OPENEMS_TYPE' && channelConfig.type == 'BOOLEAN'">
+                              <span *ngIf="currentData.channel[address.toString()] == 1">(On)</span>
+                              <span *ngIf="currentData.channel[address.toString()] == 0">(Off)</span>
+                            </ng-container>
+                          </ion-text>
+                        </ion-item>
+
+                        <!-- show input field to write value for RW/RO channels -->
+                        <ion-item *ngIf="['RW', 'WO'].includes(channelConfig.accessMode)">
+                          <ion-label>Set value</ion-label>
+                          <ng-container *ngIf="channelConfig.type == 'BOOLEAN'; else no_boolean">
+                            <!-- show Toggle for boolean value  -->
+                            <ion-toggle #valueToggle></ion-toggle>
+                            <ion-button (click)="setChannelValue(address, valueToggle.checked)" slot="end"
+                              color="light">
+                              <ion-icon slot="icon-only" name="send-outline"></ion-icon>
+                            </ion-button>
+                          </ng-container>
+                          <ng-template #no_boolean>
+                            <ion-input placeholder="value" #value></ion-input>
+                            <ion-button (click)="setChannelValue(address, value.value)" slot="end" color="light">
+                              <ion-icon slot="icon-only" name="send-outline"></ion-icon>
+                            </ion-button>
+                          </ng-template>
+                        </ion-item>
+                      </ion-card-content>
+                    </ion-card>
+                  </ion-col>
+                  <!--Maybe another Add Channel Widget-->
+                </ion-row>
+              </ion-grid>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ng-container>
+  </ion-list>
+</ion-content>
