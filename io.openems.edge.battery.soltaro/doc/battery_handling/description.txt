@@ -1,6 +1,0 @@
-UNDEFINED: 		Undefined status is always reached when one of the values are undefined 
-NORMAL: 		If no limit is reached this is the normal state
-LIMIT:			If voltage or temperature limits are reached, charging or discharging will be denied 
-FORCE_CHARGE:	If cell voltage is for a certain below a limit value, charging is forced
-FULL_CHARGE:	If battery is not charged or discharged for a certain time period a full charge has to be done
-CHECK:			If charging was forced, discharging is only allowed if SoC has increased

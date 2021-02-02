@@ -22,6 +22,7 @@ import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
@@ -99,16 +100,11 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 			id = this.nextEdgeId.incrementAndGet();
 			edgeId = "edge" + id;
 		}
-		MyEdge edge = new MyEdge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "", new EdgeConfig());
+		MyEdge edge = new MyEdge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "", Level.OK,
+				new EdgeConfig());
 		edge.onSetConfig(config -> {
 			this.logInfo(this.log, "Edge [" + edgeId + "]. Update config: "
 					+ StringUtils.toShortString(EdgeConfigDiff.diff(config, edge.getConfig()).getAsHtml(), 100));
-		});
-		edge.onSetComponentState(activeStateChannels -> {
-			String states = Metadata.activeStateChannelsToString(activeStateChannels);
-			if (!states.isEmpty()) {
-				this.logInfo(this.log, "Edge [" + edgeId + "]. Set State: " + states);
-			}
 		});
 		this.edges.put(edgeId, edge);
 		return Optional.ofNullable(edgeId);

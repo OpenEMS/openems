@@ -28,98 +28,200 @@ import io.openems.edge.common.startstop.StartStoppable;
 
 public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStoppable {
 	
+	/**
+	 * Gets the ContactorControlChannel.
+	 * @return WriteChannel
+	 */
 	public default WriteChannel<ContactorControl> getContactorControlChannel() {
 		return this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
 	}
 	
+	/**
+	 * Gets the ContactorControl.
+	 * @return ContactorControl
+	 */
 	public default ContactorControl getContactorControl() {
 		return this.getContactorControlChannel().value().asEnum();
 	}
 	
+	/**
+	 * Sets the ContactorControl.
+	 * @param value the value
+	 */
 	public default void _setContactorControl(ContactorControl value) {
 		this.getContactorControlChannel().setNextValue(value);
 	}
 	
+	/**
+	 * Sets the ContactorControl.
+	 * @param value the value
+	 * @throws OpenemsNamedException the Exception
+	 */
 	public default void setContactorControl(ContactorControl value) throws OpenemsNamedException {
 		this.getContactorControlChannel().setNextWriteValue(value);
 	}
 	
+	/**
+	 * Gets the SystemResetChannel.
+	 * @return IntegerWriteChannel
+	 */
 	public default IntegerWriteChannel getSystemResetChannel() {
 		return this.channel(ChannelId.SYSTEM_RESET);
 	}
 	
+	/**
+	 * Gets the SystemReset.
+	 * @return Value
+	 */
 	public default Value<Integer> getSystemReset() {
 		return this.getSystemResetChannel().value();
 	}
 	
+	/**
+	 * Sets the SystemReset.
+	 * @param value the value
+	 */
 	public default void _setSystemReset(Integer value) {
 		this.getSystemResetChannel().setNextValue(value);
 	}
 	
+	/**
+	 * Sets the SystemReset.
+	 * @param value the value
+	 * @throws OpenemsNamedException the exception
+	 */
 	public default void setSystemReset(Integer value) throws OpenemsNamedException {
 		this.getSystemResetChannel().setNextWriteValue(value);
 	}
 	
+	/**
+	 * Gets the SleepChannel.
+	 * @return IntegerWriteChannel
+	 */
 	public default IntegerWriteChannel getSleepChannel() {
 		return this.channel(ChannelId.SLEEP);
 	}
 	
+	/**
+	 * Gets the Sleep.
+	 * @return Value
+	 */
 	public default Value<Integer> getSleep() {
 		return this.getSleepChannel().value();
 	}
 	
+	/**
+	 * Sets the Sleep.
+	 * @param value Integer
+	 */
 	public default void _setSleep(Integer value) {
 		this.getSleepChannel().setNextValue(value);
 	}
 	
+	/**
+	 * Sets the Sleep.
+	 * @param value Integer
+	 * @throws OpenemsNamedException the exception
+	 */
 	public default void setSleep(Integer value) throws OpenemsNamedException {
 		this.getSleepChannel().setNextWriteValue(value);
 	}
 	
+	/**
+	 * Gets the SocLowProtectionChannel.
+	 * @return IntegerWriteChannel
+	 */
 	public default IntegerWriteChannel getSocLowProtectionChannel() {
 		return this.channel(ChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION);
 	}
 	
+	/**
+	 * Gets the SocLowProtection.
+	 * @return Value
+	 */
 	public default Value<Integer> getSocLowProtection() {
 		return this.getSocLowProtectionChannel().value();
 	}
 	
+	/**
+	 * Sets SocLowProtection.
+	 * @param value Integer
+	 */
 	public default void _setSocLowProtection(Integer value) {
 		this.getSocLowProtectionChannel().setNextValue(value);
 	}
 	
+	/**
+	 * Sets SocLowProtection.
+	 * @param value Integer
+	 * @throws OpenemsNamedException the exception
+	 */
 	public default void setSocLowProtection(Integer value) throws OpenemsNamedException {
 		this.getSocLowProtectionChannel().setNextWriteValue(value);
 	}
 	
+	/**
+	 * Gets the SocLowProtectionRecoverChannel.
+	 * @return IntegerWriteChannel
+	 */
 	public default IntegerWriteChannel getSocLowProtectionRecoverChannel() {
 		return this.channel(ChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION_RECOVER);
 	}
 	
+	/**
+	 * Gets the SocLowProtectionRecover.
+	 * @return Value
+	 */
 	public default Value<Integer> getSocLowProtectionRecover() {
 		return this.getSocLowProtectionRecoverChannel().value();
 	}
 	
+	/**
+	 * Sets the SocLowProtectionRecover.
+	 * @param value Integer
+	 */
 	public default void _setSocLowProtectionRecover(Integer value) {
 		this.getSocLowProtectionRecoverChannel().setNextValue(value);
 	}
 	
+	/**
+	 * Sets the SocLowProtectionRecover.
+	 * @param value Integer
+	 * @throws OpenemsNamedException OpenemsNamedException
+	 */
 	public default void setSocLowProtectionRecover(Integer value) throws OpenemsNamedException {
 		this.getSocLowProtectionRecoverChannel().setNextWriteValue(value);
 	}
 	
+	/**
+	 * Gets the WatchdogChannel.
+	 * @return IntegerWriteChannel
+	 */
 	public default IntegerWriteChannel getWatchdogChannel() {
 		return this.channel(ChannelId.EMS_COMMUNICATION_TIMEOUT);
 	}
 	
+	/**
+	 * Gets the Watchdog.
+	 * @return Value
+	 */
 	public default Value<Integer> getWatchdog() {
 		return this.getWatchdogChannel().value();
 	}
 	
+	/**
+	 * Sets the Watchdog.
+	 * @param value Integer
+	 */
 	public default void _setWatchdog(Integer value) {
 		this.getWatchdogChannel().setNextValue(value);
 	}
 	
+	/**
+	 * sets the watchdog.
+	 * @param value the value
+	 * @throws OpenemsNamedException the exception
+	 */
 	public default void setWatchdog(Integer value) throws OpenemsNamedException {
 		this.getWatchdogChannel().setNextWriteValue(value);
 	}
@@ -200,7 +302,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 		EMS_COMMUNICATION_TIMEOUT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.SECONDS) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_PARAMETER_PCS_COMMUNICATION_RATE(Doc.of(OpenemsType.INTEGER) //
+		WORK_PARAMETER_NUMBER_OF_MODULES(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		AUTO_SET_SLAVES_ID(Doc.of(AutoSetFunction.values()) //
@@ -415,6 +517,10 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 		WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM_RECOVER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEZIDEGREE_CELSIUS) //
 				.accessMode(AccessMode.READ_WRITE)), //
+		SET_SOC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT) //
+				.accessMode(AccessMode.WRITE_ONLY)), //
+		
 
 		// EnumReadChannels
 		STATE_MACHINE(Doc.of(State.values()) //

@@ -52,7 +52,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: Integer/Enum
-		 * <li>Range: -1=Undefined, 1=On-Grid, 2=Off-Grid
+		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
 		 * </ul>
 		 */
 		GRID_MODE(Doc.of(GridMode.values())),
@@ -198,6 +198,7 @@ public interface SymmetricEss extends OpenemsComponent {
 				.channel(0, ChannelId.SOC, ModbusType.UINT16) //
 				.channel(1, ChannelId.GRID_MODE, ModbusType.UINT16) //
 				.channel(2, ChannelId.ACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(4, ChannelId.REACTIVE_POWER, ModbusType.FLOAT32) //
 				.build();
 	}
 
