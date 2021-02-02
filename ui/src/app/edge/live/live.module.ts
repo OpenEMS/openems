@@ -19,6 +19,8 @@ import { ConsumptionModalComponent } from './consumption/modal/modal.component';
 import { CorrentlyComponent } from './corrently/corrently.component';
 import { CorrentlyChartComponent } from './corrently/modal/chart.component';
 import { CorrentlyModalComponent } from './corrently/modal/modal.component';
+import { DelayedSellToGridComponent } from './delayedselltogrid/delayedselltogrid.component';
+import { DelayedSellToGridModalComponent } from './delayedselltogrid/modal/modal.component';
 import { DigitalInputComponent } from './digitalinput/digitalinput.component';
 import { DigitalInputModalComponent } from './digitalinput/modal/modal.component';
 import { EnergymonitorModule } from './energymonitor/energymonitor.module';
@@ -74,7 +76,7 @@ import { StorageComponent } from './storage/storage.component';
     BydModalComponent,
     ChpsocModalComponent,
     ConsumptionModalComponent,
-    CorrentlyModalComponent,
+    DelayedSellToGridModalComponent,
     DigitalInputComponent,
     DigitalInputModalComponent,
     EvcsModalComponent,
@@ -112,6 +114,8 @@ import { StorageComponent } from './storage/storage.component';
     CorrentlyChartComponent,
     CorrentlyComponent,
     CorrentlyModalComponent,
+    DelayedSellToGridComponent,
+    DelayedSellToGridModalComponent,
     DigitalInputComponent,
     DigitalInputModalComponent,
     EvcsChart,

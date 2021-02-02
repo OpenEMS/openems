@@ -1,7 +1,5 @@
 package io.openems.backend.edgewebsocket.impl;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -11,11 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.metadata.api.Edge;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
@@ -23,9 +20,6 @@ import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
-import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.EdgeConfig.Component.Channel;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
 
@@ -127,6 +121,11 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			}
 
 			// set specific Edge values
+			if (data.has("_sum/State") && data.get("_sum/State").isJsonPrimitive()) {
+				Level sumState = Level.fromJson(data, "_sum/State").orElse(Level.FAULT);
+				edge.setSumState(sumState);
+			}
+
 			if (data.has("_meta/Version") && data.get("_meta/Version").isJsonPrimitive()) {
 				String version = JsonUtils.getAsPrimitive(data, "_meta/Version").getAsString();
 				edge.setVersion(SemanticVersion.fromString(version));
@@ -137,33 +136,6 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 					&& JsonUtils.getAsOptionalInt(data, "ess0/BecuNum").orElse(0) == 2) {
 				edge.setProducttype("MiniES 3-6");
 			}
-
-			// parse State-Channels
-			Map<ChannelAddress, EdgeConfig.Component.Channel> activeStateChannels = new HashMap<>();
-			for (Entry<String, JsonElement> dataEntry : data.entrySet()) {
-				JsonElement value = dataEntry.getValue();
-				if (value == JsonNull.INSTANCE || !value.isJsonPrimitive()) {
-					// not active -> ignore
-					continue;
-				}
-				JsonPrimitive primitive = value.getAsJsonPrimitive();
-				if (!primitive.isNumber()) {
-					// cannot be a StateChannel
-					continue;
-				}
-				Number number = primitive.getAsNumber();
-				if (number.intValue() != 1) {
-					// not active -> ignore
-					continue;
-				}
-
-				ChannelAddress channelAddress = ChannelAddress.fromString(dataEntry.getKey());
-				Optional<Channel> channel = edge.getConfig().getStateChannel(channelAddress);
-				if (channel.isPresent()) {
-					activeStateChannels.put(channelAddress, channel.get());
-				}
-			}
-			edge.setComponentState(activeStateChannels);
 		}
 	}
 

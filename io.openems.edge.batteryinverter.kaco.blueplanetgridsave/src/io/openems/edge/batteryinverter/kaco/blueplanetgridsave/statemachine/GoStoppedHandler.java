@@ -26,6 +26,7 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 		switch (inverter.getCurrentState()) {
 		case OFF:
+		case STANDBY:
 			// All Good
 			return State.STOPPED;
 
@@ -38,7 +39,6 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 		case PRECHARGE:
 		case SHUTTING_DOWN:
 		case SLEEPING:
-		case STANDBY:
 		case STARTING:
 		case UNDEFINED:
 			// Not yet running...
