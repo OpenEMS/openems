@@ -25,7 +25,8 @@ public class BatteryProtectionTest {
 	private final static double MAX_INCREASE_AMPERE_PER_SECOND = 0.5;
 
 	private final static PolyLine CHARGE_VOLTAGE_TO_PERCENT = PolyLine.create() //
-			.addPoint(Math.nextDown(3000), 0.1) //
+			.addPoint(Math.nextDown(2900), 0) //
+			.addPoint(2900, 0.1) //
 			.addPoint(3000, 1) //
 			.addPoint(3450, 1) //
 			.addPoint(Math.nextDown(3650), 0.01) //
@@ -247,6 +248,52 @@ public class BatteryProtectionTest {
 		assertEquals(0.01, p.getValue(Math.nextDown(3650)), 0.001);
 		assertEquals(0, p.getValue(3650), 0.001);
 		assertEquals(0, p.getValue(4000), 0.001);
+	}
+
+	@Test
+	public void testGetMinCellVoltageToPercentLimit() {
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+		ChargeMaxCurrentHandler sut = ChargeMaxCurrentHandler.create(cm, INITIAL_BMS_MAX_EVER_CURRENT) //
+				.setVoltageToPercent(CHARGE_VOLTAGE_TO_PERCENT) //
+				.build();
+		assertEquals(80,
+				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MIN_CELL, 3000), 0.1);
+		assertEquals(51.2,
+				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MIN_CELL, 2960), 0.1);
+		assertEquals(29.6,
+				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MIN_CELL, 2930), 0.1);
+		assertEquals(8, (double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MIN_CELL, 2900),
+				0.1);
+		assertEquals(8, (double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MIN_CELL, 2999),
+				0.1);
+		assertEquals(80,
+				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MIN_CELL, 3000), 0.1);
+		assertEquals(51.2,
+				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MIN_CELL, 2960), 0.1);
+	}
+
+	@Test
+	public void testGetMaxCellVoltageToPercentLimit() {
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+		ChargeMaxCurrentHandler sut = ChargeMaxCurrentHandler.create(cm, INITIAL_BMS_MAX_EVER_CURRENT) //
+				.setVoltageToPercent(CHARGE_VOLTAGE_TO_PERCENT) //
+				.build();
+		assertEquals(80,
+				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MAX_CELL, 3450), 0.1);
+		assertEquals(76,
+				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MAX_CELL, 3460), 0.1);
+		assertEquals(72,
+				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MAX_CELL, 3470), 0.1);
+		assertEquals(72,
+				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MAX_CELL, 3460), 0.1);
+		assertEquals(72,
+				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MAX_CELL, 3451), 0.1);
+		assertEquals(80,
+				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MAX_CELL, 3450), 0.1);
+		assertEquals(76,
+				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MAX_CELL, 3460), 0.1);
 	}
 
 	@Test

@@ -2,6 +2,8 @@ package io.openems.edge.battery.protection;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.EnumMap;
+import java.util.Map;
 
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.linecharacteristic.PolyLine;
@@ -51,6 +53,9 @@ public abstract class AbstractMaxCurrentHandler {
 	Instant lastResultTimestamp = null;
 	Double lastMaxIncreaseAmpereLimit = null;
 
+	// used by 'getVoltageToPercentLimit()'
+	private Map<VOLTAGE_REF, Double> activeCellVoltageToPercentLimit = new EnumMap<>(VOLTAGE_REF.class);
+
 	protected AbstractMaxCurrentHandler(ClockProvider clockProvider, int initialBmsMaxEverCurrent,
 			PolyLine voltageToPercent, PolyLine temperatureToPercent, Double maxIncreasePerSecond) {
 		this.clockProvider = clockProvider;
@@ -99,10 +104,10 @@ public abstract class AbstractMaxCurrentHandler {
 				TypeUtils.toDouble(bmsMaxCurrent),
 
 				// Calculate Ampere limit for Min-Cell-Voltage
-				this.percentToAmpere(this.voltageToPercent.getValue(minCellVoltage)),
+				this.getCellVoltageToPercentLimit(VOLTAGE_REF.MIN_CELL, minCellVoltage),
 
 				// Calculate Ampere limit for Max-Cell-Voltage
-				this.percentToAmpere(this.voltageToPercent.getValue(maxCellVoltage)),
+				this.getCellVoltageToPercentLimit(VOLTAGE_REF.MAX_CELL, maxCellVoltage),
 
 				// Calculate Ampere limit for Min-Cell-Temperature
 				this.percentToAmpere(this.temperatureToPercent.getValue(minCellTemperature)),
@@ -125,6 +130,49 @@ public abstract class AbstractMaxCurrentHandler {
 		this.lastMaxIncreaseAmpereLimit = limit;
 
 		return (int) Math.round(limit);
+	}
+
+	protected static enum VOLTAGE_REF {
+		MIN_CELL, MAX_CELL;
+	}
+
+	/**
+	 * Calculates the current limit based on Min-/Max-Cell-Voltage according to the
+	 * 'voltageToPercent' characteristics.
+	 * 
+	 * <p>
+	 * If for the given 'cellVoltage' value 'voltageToPercent' defines a limitation
+	 * (i.e. the given percentage is less than 100 %), that limitation stays active
+	 * until a future 'cellVoltage' results in no limitation (i.e. percentage == 100
+	 * %). This is implemented to reduce fluctuations due to physical effects in the
+	 * battery.
+	 * 
+	 * @param voltageRef
+	 * @param cellVoltage
+	 * @return
+	 */
+	protected synchronized Double getCellVoltageToPercentLimit(VOLTAGE_REF voltageRef, Integer cellVoltage) {
+		if (cellVoltage == null) {
+			return null;
+		}
+		Double percentage = this.voltageToPercent.getValue(cellVoltage);
+		if (percentage == null) {
+			return null;
+		}
+
+		double thisCurrent = this.percentToAmpere(percentage);
+		final double result;
+		if (percentage > 0.9999) {
+			// We are in the 'no limitation' zone of the PolyLine -> unset all limitations
+			result = thisCurrent;
+			this.activeCellVoltageToPercentLimit.put(voltageRef, null);
+
+		} else {
+			// Current limit is active -> from now on only reduction of the limit is allowed
+			result = TypeUtils.min(this.activeCellVoltageToPercentLimit.get(voltageRef), thisCurrent);
+			this.activeCellVoltageToPercentLimit.put(voltageRef, result);
+		}
+		return result;
 	}
 
 	/**
