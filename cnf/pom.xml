@@ -143,9 +143,11 @@
 			<version>4.1.4</version>
 		</dependency>
 		<dependency>
+			<!-- Apache Felix Metatype Service -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/metatype/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.metatype</artifactId>
-			<version>1.2.2</version>
+			<version>1.2.4</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Service Component Runtime (SCR) -->
