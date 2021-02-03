@@ -25,8 +25,8 @@ public class SoltaroBatteryProtectionDefinition implements BatteryProtectionDefi
 				.addPoint(3000, 0.1) //
 				.addPoint(Math.nextUp(3000), 1) //
 				.addPoint(3450, 1) //
-				.addPoint(3600, 0.01) //
-				.addPoint(Math.nextDown(3650), 0.01) //
+				.addPoint(3600, 0.02) //
+				.addPoint(Math.nextDown(3650), 0.02) //
 				.addPoint(3650, 0) //
 				.build();
 	}
@@ -91,6 +91,6 @@ public class SoltaroBatteryProtectionDefinition implements BatteryProtectionDefi
 
 	@Override
 	public Double getMaxIncreaseAmperePerSecond() {
-		return 0.5; // [A] per second
+		return 0.2; // [A] per second
 	}
 }
