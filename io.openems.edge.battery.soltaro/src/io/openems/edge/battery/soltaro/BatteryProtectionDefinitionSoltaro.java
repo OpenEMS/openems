@@ -7,7 +7,7 @@ import io.openems.edge.battery.protection.DischargeMaxCurrentHandler;
 import io.openems.edge.battery.protection.DischargeMaxCurrentHandler.ForceChargeParams;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 
-public class SoltaroBatteryProtectionDefinition implements BatteryProtectionDefinition {
+public abstract class BatteryProtectionDefinitionSoltaro implements BatteryProtectionDefinition {
 
 	@Override
 	public int getInitialBmsMaxEverChargeCurrent() {

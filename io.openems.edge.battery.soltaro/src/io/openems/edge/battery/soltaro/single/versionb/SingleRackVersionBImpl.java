@@ -31,7 +31,6 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.ModuleParameters;
-import io.openems.edge.battery.soltaro.SoltaroBatteryProtectionDefinition;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.Context;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.ControlAndLogic;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine;
@@ -124,9 +123,8 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		}
 
 		this.batteryProtection = BatteryProtection.create(this) //
-				.setBmsAllowedChargeCurrent(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT) //
-				.setBmsAllowedDischargeCurrent(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT) //
-				.applyBatteryProtectionDefinition(new SoltaroBatteryProtectionDefinition(), this.componentManager) //
+				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaroSingleB(),
+						this.componentManager) //
 				.build();
 
 		ControlAndLogic.setWatchdog(this, config.watchdog());
@@ -173,6 +171,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		switch (event.getTopic()) {
 
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			// TODO set soltaro protect/recover registers
 			this.batteryProtection.apply();
 			break;
 
@@ -636,8 +635,10 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.SLAVE_TEMPERATURE_COMMUNICATION_ERROR_LOW,
 								new UnsignedWordElement(0x21B5)) //
 				), //
-					// Add tasks to read/write work and warn parameters
-					// Stop parameter
+
+				// Add tasks to read/write work and warn parameters
+
+				// Stop parameter
 				new FC16WriteRegistersTask(0x2040, //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_VOLTAGE_PROTECTION,
 								new UnsignedWordElement(0x2040)), //
