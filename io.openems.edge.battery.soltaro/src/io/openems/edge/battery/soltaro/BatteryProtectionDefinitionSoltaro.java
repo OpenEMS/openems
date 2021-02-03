@@ -46,19 +46,11 @@ public abstract class BatteryProtectionDefinitionSoltaro implements BatteryProte
 	@Override
 	public PolyLine getChargeTemperatureToPercent() {
 		return PolyLine.create() //
-				.addPoint(Math.nextDown(-10), 0) //
-				.addPoint(-10, 0.215) //
-				.addPoint(0, 0.215) //
-				.addPoint(1, 0.325) //
-				.addPoint(5, 0.325) //
-				.addPoint(6, 0.65) //
-				.addPoint(15, 0.65) //
-				.addPoint(16, 1) //
-				.addPoint(44, 1) //
-				.addPoint(45, 0.65) //
-				.addPoint(49, 0.65) //
-				.addPoint(50, 0.325) //
-				.addPoint(54, 0.325) //
+				.addPoint(0, 0) //
+				.addPoint(Math.nextUp(0), 0.01) //
+				.addPoint(18, 1) //
+				.addPoint(45, 1) //
+				.addPoint(Math.nextDown(55), 0.01) //
 				.addPoint(55, 0) //
 				.build();
 	}
@@ -66,15 +58,11 @@ public abstract class BatteryProtectionDefinitionSoltaro implements BatteryProte
 	@Override
 	public PolyLine getDischargeTemperatureToPercent() {
 		return PolyLine.create() //
-				.addPoint(Math.nextDown(-10), 0) //
-				.addPoint(-10, 0.215) //
-				.addPoint(0, 0.215) //
-				.addPoint(1, 1) //
-				.addPoint(44, 1) //
-				.addPoint(45, 0.865) //
-				.addPoint(49, 0.865) //
-				.addPoint(50, 0.325) //
-				.addPoint(54, 0.325) //
+				.addPoint(0, 0) //
+				.addPoint(Math.nextUp(0), 0.01) //
+				.addPoint(12, 1) //
+				.addPoint(45, 1) //
+				.addPoint(Math.nextDown(55), 0.01) //
 				.addPoint(55, 0) //
 				.build();
 	}
