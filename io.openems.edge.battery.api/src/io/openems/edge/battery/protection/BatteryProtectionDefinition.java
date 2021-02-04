@@ -1,5 +1,7 @@
 package io.openems.edge.battery.protection;
 
+import io.openems.edge.battery.protection.force.ForceCharge;
+import io.openems.edge.battery.protection.force.ForceDischarge;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 
@@ -72,16 +74,16 @@ public interface BatteryProtectionDefinition {
 	/**
 	 * Defines the parameters for Force-Discharge mode.
 	 * 
-	 * @return the ForceChargeParams
+	 * @return the parameters
 	 */
-	public ChargeMaxCurrentHandler.ForceDischargeParams getForceDischargeParams();
+	public ForceDischarge.Params getForceDischargeParams();
 
 	/**
 	 * Defines the parameters for Force-Charge mode.
 	 * 
 	 * @return the ForceChargeParams
 	 */
-	public DischargeMaxCurrentHandler.ForceChargeParams getForceChargeParams();
+	public ForceCharge.Params getForceChargeParams();
 
 	/**
 	 * Limits the maximum increase in [A] per second. Decrease is never limited for
@@ -95,6 +97,9 @@ public interface BatteryProtectionDefinition {
 	 * Sets the Channel that holds the original Allowed-Charge-Current provided by
 	 * the Battery-Management-System.
 	 * 
+	 * <p>
+	 * The Channel must be in the Unit Ampere [A]!
+	 * 
 	 * @return the {@link ChannelId}
 	 */
 	public ChannelId getBmsAllowedChargeCurrent();
@@ -102,6 +107,9 @@ public interface BatteryProtectionDefinition {
 	/**
 	 * Sets the Channel that holds the original Allowed-Discharge-Current provided
 	 * by the Battery-Management-System.
+	 * 
+	 * <p>
+	 * The Channel must be in the Unit Ampere [A]!
 	 * 
 	 * @return the {@link ChannelId}
 	 */

@@ -1,35 +1,14 @@
 package io.openems.edge.battery.protection;
 
+import io.openems.edge.battery.protection.force.ForceCharge;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 
 public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 
-	/**
-	 * Holds parameters for 'Force Charge' mode.
-	 */
-	public static class ForceChargeParams {
-		private final int startChargeBelowCellVoltage;
-		private final int chargeBelowCellVoltage;
-		private final int blockDischargeBelowCellVoltage;
-
-		public ForceChargeParams(int startChargeBelowCellVoltage, int chargeBelowCellVoltage,
-				int blockDischargeBelowCellVoltage) {
-			if (blockDischargeBelowCellVoltage < chargeBelowCellVoltage
-					|| chargeBelowCellVoltage < startChargeBelowCellVoltage) {
-				throw new IllegalArgumentException(
-						"Make sure that startChargeBelowCellVoltage < chargeBelowCellVoltage < blockDischargeBelowCellVoltage.");
-			}
-
-			this.startChargeBelowCellVoltage = startChargeBelowCellVoltage;
-			this.chargeBelowCellVoltage = chargeBelowCellVoltage;
-			this.blockDischargeBelowCellVoltage = blockDischargeBelowCellVoltage;
-		}
-	}
-
 	public static class Builder extends AbstractMaxCurrentHandler.Builder<Builder> {
 
-		private ForceChargeParams forceChargeParams = null;
+		private ForceCharge.Params forceChargeParams = null;
 
 		protected Builder(ClockProvider clockProvider, int initialBmsMaxEverChargeCurrent) {
 			super(clockProvider, initialBmsMaxEverChargeCurrent);
@@ -49,12 +28,12 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 		 */
 		public Builder setForceCharge(int startChargeBelowCellVoltage, int chargeBelowCellVoltage,
 				int blockDischargeBelowCellVoltage) {
-			this.forceChargeParams = new ForceChargeParams(startChargeBelowCellVoltage, chargeBelowCellVoltage,
+			this.forceChargeParams = new ForceCharge.Params(startChargeBelowCellVoltage, chargeBelowCellVoltage,
 					blockDischargeBelowCellVoltage);
 			return this;
 		}
 
-		public Builder setForceCharge(ForceChargeParams forceChargeParams) {
+		public Builder setForceCharge(ForceCharge.Params forceChargeParams) {
 			this.forceChargeParams = forceChargeParams;
 			return this;
 		}
@@ -62,7 +41,7 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 		public DischargeMaxCurrentHandler build() {
 			return new DischargeMaxCurrentHandler(this.clockProvider, this.initialBmsMaxEverCurrent,
 					this.voltageToPercent, this.temperatureToPercent, this.maxIncreasePerSecond,
-					this.forceChargeParams);
+					new ForceCharge(this.forceChargeParams));
 		}
 
 		@Override
@@ -89,60 +68,8 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 
 	protected DischargeMaxCurrentHandler(ClockProvider clockProvider, int initialBmsMaxEverDischargeCurrent,
 			PolyLine voltageToPercent, PolyLine temperatureToPercent, double maxIncreasePerSecond,
-			ForceChargeParams forceChargeParams) {
+			ForceCharge forceCharge) {
 		super(clockProvider, initialBmsMaxEverDischargeCurrent, voltageToPercent, temperatureToPercent,
-				maxIncreasePerSecond);
-
-		this.forceChargeParams = forceChargeParams;
-	}
-
-	// used by 'getForceCurrent()'
-	private final ForceChargeParams forceChargeParams;
-	private boolean forceChargeActive = false;
-
-	/**
-	 * Calculates the Ampere limit for force charge mode. Returns:
-	 * 
-	 * <ul>
-	 * <li>-1 -> in force charge mode
-	 * <li>0 -> in block discharge mode
-	 * <li>null -> otherwise
-	 * </ul>
-	 * 
-	 * @return the limit or null
-	 */
-	protected Double getForceCurrent(Integer minCellVoltage, Integer maxCellVoltage) {
-		if (this.forceChargeParams == null || minCellVoltage == null || maxCellVoltage == null) {
-			return null;
-		}
-
-		final Double result;
-		if (minCellVoltage <= this.forceChargeParams.startChargeBelowCellVoltage) {
-			// Activate Force-Charge mode
-			result = -1.;
-			this.forceChargeActive = true;
-
-		} else if (this.forceChargeActive) {
-			if (minCellVoltage <= this.forceChargeParams.chargeBelowCellVoltage) {
-				// Below 'startChargeBelowCellVoltage', but 'forceChargeActive' and above
-				// 'chargeBelowCellVoltage', so keep force-charging
-				result = -1.;
-
-			} else if (minCellVoltage <= this.forceChargeParams.blockDischargeBelowCellVoltage) {
-				// Finished Force-Charge mode - now in Block-Discharge mode
-				result = 0.;
-
-			} else {
-				// Neither 'Force-Charge' nor 'Block-Discharge'. No limit.
-				result = null;
-				this.forceChargeActive = false;
-			}
-
-		} else {
-			// Neither 'Force-Charge' nor 'Block-Discharge'. No limit.
-			result = null;
-		}
-
-		return result;
+				maxIncreasePerSecond, forceCharge);
 	}
 }

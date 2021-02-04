@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.util.EnumMap;
 import java.util.Map;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.battery.protection.force.AbstractForceChargeDischarge;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 import io.openems.edge.common.type.TypeUtils;
@@ -45,26 +47,27 @@ public abstract class AbstractMaxCurrentHandler {
 	protected final ClockProvider clockProvider;
 	protected final PolyLine voltageToPercent;
 	protected final PolyLine temperatureToPercent;
+	protected final AbstractForceChargeDischarge forceChargeDischarge;
 
 	protected int bmsMaxEverCurrent;
 
 	// used by 'getMaxIncreaseAmpereLimit()'
 	private final Double maxIncreasePerSecond;
-	Instant lastResultTimestamp = null;
-	Double lastMaxIncreaseAmpereLimit = null;
+	protected Instant lastResultTimestamp = null;
+	protected Double lastMaxIncreaseAmpereLimit = null;
 
 	// used by 'getVoltageToPercentLimit()'
 	private Map<VOLTAGE_REF, Double> activeCellVoltageToPercentLimit = new EnumMap<>(VOLTAGE_REF.class);
 
 	protected AbstractMaxCurrentHandler(ClockProvider clockProvider, int initialBmsMaxEverCurrent,
-			PolyLine voltageToPercent, PolyLine temperatureToPercent, Double maxIncreasePerSecond) {
+			PolyLine voltageToPercent, PolyLine temperatureToPercent, Double maxIncreasePerSecond,
+			AbstractForceChargeDischarge forceChargeDischarge) {
 		this.clockProvider = clockProvider;
 		this.bmsMaxEverCurrent = initialBmsMaxEverCurrent;
-
 		this.voltageToPercent = voltageToPercent;
 		this.temperatureToPercent = temperatureToPercent;
-
 		this.maxIncreasePerSecond = maxIncreasePerSecond;
+		this.forceChargeDischarge = forceChargeDischarge;
 	}
 
 	/**
@@ -203,13 +206,49 @@ public abstract class AbstractMaxCurrentHandler {
 	}
 
 	/**
-	 * Calculates Current in Force-Mode.
+	 * Calculates the Ampere limit in Force Charge/Discharge mode. Returns:
+	 * 
+	 * <ul>
+	 * <li>-1 -> in force charge/discharge mode
+	 * <li>0 -> in block discharge/charge mode
+	 * <li>null -> otherwise
+	 * </ul>
 	 * 
 	 * @param minCellVoltage the Min-Cell-Voltage, possibly null
 	 * @param maxCellVoltage the Max-Cell-Voltage, possibly null
 	 * @return the Current, possibly null
 	 */
-	protected abstract Double getForceCurrent(Integer minCellVoltage, Integer maxCellVoltage);
+	protected Double getForceCurrent(Integer minCellVoltage, Integer maxCellVoltage) {
+		final AbstractForceChargeDischarge.State state;
+
+		// Apply State-Machine
+		if (minCellVoltage == null || maxCellVoltage == null) {
+			this.forceChargeDischarge.forceNextState(AbstractForceChargeDischarge.State.UNDEFINED);
+			state = AbstractForceChargeDischarge.State.UNDEFINED;
+
+		} else {
+			try {
+				this.forceChargeDischarge.run(
+						new AbstractForceChargeDischarge.Context(this.clockProvider, minCellVoltage, maxCellVoltage));
+			} catch (OpenemsNamedException e) {
+				e.printStackTrace();
+			}
+			state = this.forceChargeDischarge.getCurrentState();
+		}
+
+		// Evaluate force charge/discharge current from current state
+		switch (state) {
+		case UNDEFINED:
+		case WAIT_FOR_FORCE_MODE:
+			return null;
+		case FORCE_MODE:
+			return -1.;
+		case BLOCK_MODE:
+			return 0.;
+		}
+		// will never happen
+		return null;
+	}
 
 	/**
 	 * Convert a Percent value to a concrete Ampere value in [A] by multiplying it

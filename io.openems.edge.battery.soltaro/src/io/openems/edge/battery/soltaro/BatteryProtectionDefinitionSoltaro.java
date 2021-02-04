@@ -1,13 +1,16 @@
 package io.openems.edge.battery.soltaro;
 
 import io.openems.edge.battery.protection.BatteryProtectionDefinition;
-import io.openems.edge.battery.protection.ChargeMaxCurrentHandler;
-import io.openems.edge.battery.protection.ChargeMaxCurrentHandler.ForceDischargeParams;
-import io.openems.edge.battery.protection.DischargeMaxCurrentHandler;
-import io.openems.edge.battery.protection.DischargeMaxCurrentHandler.ForceChargeParams;
+import io.openems.edge.battery.protection.force.ForceCharge;
+import io.openems.edge.battery.protection.force.ForceDischarge;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 
 public abstract class BatteryProtectionDefinitionSoltaro implements BatteryProtectionDefinition {
+
+	// TODO [13:20] Ludwig Asen
+//    bzgl. Servicefreundlichkeit: wäre es sinnvoll erlaubte be-/entladeströme für temp und spannung als channel mitzuschreiben
+//    dann kann der service sofort sagen lieber kunde deinem speicher ist zu kalt
+//    Ok. Eine andere Alternative wäre, dass ich Enum setze, das sagt "Batterie wird gerade durch Temperaturlimit reduziert" usw. Das wären weniger Daten (nur ein Wert), aber ich habe das Problem, dass mehrere Begrenzungen gleichzeitig aktiv sein können.
 
 	@Override
 	public int getInitialBmsMaxEverChargeCurrent() {
@@ -68,17 +71,17 @@ public abstract class BatteryProtectionDefinitionSoltaro implements BatteryProte
 	}
 
 	@Override
-	public ForceDischargeParams getForceDischargeParams() {
-		return new ChargeMaxCurrentHandler.ForceDischargeParams(3660, 3640, 3450);
+	public ForceDischarge.Params getForceDischargeParams() {
+		return new ForceDischarge.Params(3660, 3640, 3450);
 	}
 
 	@Override
-	public ForceChargeParams getForceChargeParams() {
-		return new DischargeMaxCurrentHandler.ForceChargeParams(2850, 2910, 3000);
+	public ForceCharge.Params getForceChargeParams() {
+		return new ForceCharge.Params(2850, 2910, 3000);
 	}
 
 	@Override
 	public Double getMaxIncreaseAmperePerSecond() {
-		return 0.2; // [A] per second
+		return 0.1; // [A] per second
 	}
 }

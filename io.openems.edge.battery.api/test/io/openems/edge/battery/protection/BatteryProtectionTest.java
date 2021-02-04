@@ -8,10 +8,11 @@ import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.battery.protection.ChargeMaxCurrentHandler.ForceDischargeParams;
-import io.openems.edge.battery.protection.DischargeMaxCurrentHandler.ForceChargeParams;
+import io.openems.edge.battery.protection.force.ForceCharge;
+import io.openems.edge.battery.protection.force.ForceDischarge;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.linecharacteristic.PolyLine;
@@ -50,8 +51,7 @@ public class BatteryProtectionTest {
 			.addPoint(55, 0) //
 			.build();
 
-	private final static ForceDischargeParams FORCE_DISCHARGE = new ChargeMaxCurrentHandler.ForceDischargeParams(3660,
-			3640, 3450);
+	private final static ForceDischarge.Params FORCE_DISCHARGE = new ForceDischarge.Params(3660, 3640, 3450);
 
 	private final static PolyLine DISCHARGE_VOLTAGE_TO_PERCENT = PolyLine.create() //
 			.addPoint(Math.nextDown(3000), 0) //
@@ -73,14 +73,15 @@ public class BatteryProtectionTest {
 			.addPoint(55, 0) //
 			.build();
 
-	private final static ForceChargeParams FORCE_CHARGE = new DischargeMaxCurrentHandler.ForceChargeParams(2850, 2910,
-			3000);
+	private final static ForceCharge.Params FORCE_CHARGE = new ForceCharge.Params(2850, 2910, 3000);
 
 	private final static int INITIAL_BMS_MAX_EVER_CURRENT = 80;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		ORIGINAL_CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER)), //
-		ORIGINAL_DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER));
+		ORIGINAL_CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)), //
+		ORIGINAL_DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)); //
 
 		private final Doc doc;
 
@@ -112,7 +113,6 @@ public class BatteryProtectionTest {
 
 	@Test
 	public void test() throws Exception {
-		System.out.println("Test");
 		final DummyBattery battery = new DummyBattery(BATTERY_ID, ChannelId.values());
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 		final DummyComponentManager cm = new DummyComponentManager(clock);
@@ -142,24 +142,24 @@ public class BatteryProtectionTest {
 						.input(BATTERY_MIN_CELL_TEMPERATURE, 16) //
 						.input(BATTERY_MAX_CELL_TEMPERATURE, 17) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 8) //
+						.output(BATTERY_CHARGE_MAX_CURRENT, 44) //
 						.output(BATTERY_DISCHARGE_MAX_CURRENT, 0)) //
-				.next(new TestCase() //
+				.next(new TestCase("open, but maxIncreasAmpereLimit") //
 						.timeleap(clock, 900, ChronoUnit.MILLIS) //
 						.input(BATTERY_MIN_CELL_VOLTAGE, 3000) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 8) //
+						.output(BATTERY_CHARGE_MAX_CURRENT, 44) //
 						.output(BATTERY_DISCHARGE_MAX_CURRENT, 0)) //
 				.next(new TestCase() //
 						.timeleap(clock, 900, ChronoUnit.MILLIS) //
 						.input(BATTERY_MIN_CELL_VOLTAGE, 3050) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 9) //
+						.output(BATTERY_CHARGE_MAX_CURRENT, 45) //
 						.output(BATTERY_DISCHARGE_MAX_CURRENT, 1)) //
 				.next(new TestCase() //
 						.timeleap(clock, 10, ChronoUnit.SECONDS) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 14) //
+						.output(BATTERY_CHARGE_MAX_CURRENT, 50) //
 						.output(BATTERY_DISCHARGE_MAX_CURRENT, 6)) //
 				.next(new TestCase() //
 						.timeleap(clock, 10, ChronoUnit.MINUTES) //
@@ -191,8 +191,14 @@ public class BatteryProtectionTest {
 						.onAfterProcessImage(() -> sut.apply()) //
 						.output(BATTERY_CHARGE_MAX_CURRENT, 0) //
 						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
-				.next(new TestCase("Start Force-Discharge") //
+				.next(new TestCase("Start Force-Discharge: wait 60 seconds") //
 						.timeleap(clock, 1, ChronoUnit.SECONDS) //
+						.input(BATTERY_MAX_CELL_VOLTAGE, 3660) //
+						.onAfterProcessImage(() -> sut.apply()) //
+						.output(BATTERY_CHARGE_MAX_CURRENT, 0) //
+						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+				.next(new TestCase("Start Force-Discharge") //
+						.timeleap(clock, 60, ChronoUnit.SECONDS) //
 						.input(BATTERY_MAX_CELL_VOLTAGE, 3660) //
 						.onAfterProcessImage(() -> sut.apply()) //
 						.output(BATTERY_CHARGE_MAX_CURRENT, -1) //

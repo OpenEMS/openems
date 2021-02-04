@@ -1,5 +1,6 @@
 package io.openems.edge.battery.protection;
 
+import io.openems.common.channel.Unit;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -47,6 +48,8 @@ public class BatteryProtection {
 		 */
 		public Builder applyBatteryProtectionDefinition(BatteryProtectionDefinition def, ClockProvider clockProvider) {
 			return this //
+					.setBmsAllowedChargeCurrent(def.getBmsAllowedChargeCurrent()) //
+					.setBmsAllowedDischargeCurrent(def.getBmsAllowedDischargeCurrent()) //
 					.setChargeMaxCurrentHandler(
 							ChargeMaxCurrentHandler.create(clockProvider, def.getInitialBmsMaxEverChargeCurrent()) //
 									.setVoltageToPercent(def.getChargeVoltageToPercent()) //
@@ -124,6 +127,11 @@ public class BatteryProtection {
 		this.battery = battery;
 		this.chargeMaxCurrentHandler = chargeMaxCurrentHandler;
 		this.dischargeMaxCurrentHandler = dischargeMaxCurrentHandler;
+
+		if (bmsChargeMaxCurrentChannelId.doc().getUnit() != Unit.AMPERE
+				|| bmsDischargeMaxCurrentChannelId.doc().getUnit() != Unit.AMPERE) {
+			throw new IllegalArgumentException("'bmsChargeMaxCurrentChannelId' and 'bmsDischargeMaxCurrentChannelId' must be of Unit AMPERE");
+		}
 		this.bmsChargeMaxCurrentChannelId = bmsChargeMaxCurrentChannelId;
 		this.bmsDischargeMaxCurrentChannelId = bmsDischargeMaxCurrentChannelId;
 	}
