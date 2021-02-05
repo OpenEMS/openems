@@ -52,9 +52,9 @@ public abstract class BatteryProtectionDefinitionSoltaro implements BatteryProte
 				.addPoint(0, 0) //
 				.addPoint(Math.nextUp(0), 0.01) //
 				.addPoint(18, 1) //
-				.addPoint(45, 1) //
-				.addPoint(Math.nextDown(55), 0.01) //
-				.addPoint(55, 0) //
+				.addPoint(35, 1) //
+				.addPoint(Math.nextDown(40), 0.01) //
+				.addPoint(40, 0) //
 				.build();
 	}
 
