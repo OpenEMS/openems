@@ -22,8 +22,11 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		switch (context.component.getCurrentState()) {
+		KacoBlueplanetGridsave inverter = context.getParent();
+
+		switch (inverter.getCurrentState()) {
 		case OFF:
+		case STANDBY:
 			// All Good
 			return State.STOPPED;
 
@@ -36,7 +39,6 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 		case PRECHARGE:
 		case SHUTTING_DOWN:
 		case SLEEPING:
-		case STANDBY:
 		case STARTING:
 		case UNDEFINED:
 			// Not yet running...
@@ -49,12 +51,12 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 			if (this.attemptCounter > KacoBlueplanetGridsave.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				context.component._setMaxStopAttempts(true);
+				inverter._setMaxStopAttempts(true);
 				return State.UNDEFINED;
 
 			} else {
 				// Trying to switch off
-				context.component.setRequestedState(S64201RequestedState.OFF);
+				inverter.setRequestedState(S64201RequestedState.OFF);
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
 				return State.GO_STOPPED;

@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.battery.soltaro.single.versionb.SingleRackVersionBImpl;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
@@ -20,8 +21,9 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
+		SingleRackVersionBImpl battery = context.getParent();
 
-		if (ControlAndLogic.isSystemStopped(context.component)) {
+		if (ControlAndLogic.isSystemStopped(battery)) {
 			return State.STOPPED;
 		}
 
@@ -32,12 +34,12 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 			if (this.attemptCounter > ControlAndLogic.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				context.component._setMaxStopAttempts(true);
+				battery._setMaxStopAttempts(true);
 				return State.UNDEFINED;
 
 			} else {
 				// Trying to switch off
-				ControlAndLogic.stopSystem(context.component);
+				ControlAndLogic.stopSystem(battery);
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
 				return State.GO_STOPPED;

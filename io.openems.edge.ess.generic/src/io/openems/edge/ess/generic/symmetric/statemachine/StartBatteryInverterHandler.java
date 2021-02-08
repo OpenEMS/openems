@@ -17,11 +17,14 @@ public class StartBatteryInverterHandler extends StateHandler<State, Context> {
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		this.lastAttempt = Instant.MIN;
 		this.attemptCounter = 0;
-		context.component._setMaxBatteryInverterStartAttemptsFault(false);
+		GenericManagedSymmetricEss ess = context.getParent();
+		ess._setMaxBatteryInverterStartAttemptsFault(false);
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
+		GenericManagedSymmetricEss ess = context.getParent();
+
 		if (context.batteryInverter.isStarted()) {
 			return State.STARTED;
 		}
@@ -33,7 +36,7 @@ public class StartBatteryInverterHandler extends StateHandler<State, Context> {
 
 			if (this.attemptCounter > GenericManagedSymmetricEss.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				context.component._setMaxBatteryInverterStartAttemptsFault(true);
+				ess._setMaxBatteryInverterStartAttemptsFault(true);
 				return State.UNDEFINED;
 
 			} else {

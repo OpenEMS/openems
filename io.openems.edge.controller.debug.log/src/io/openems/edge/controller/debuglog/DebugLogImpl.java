@@ -26,6 +26,7 @@ import com.google.common.collect.TreeMultimap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -49,8 +50,9 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 			target = "(&(enabled=true)(!(service.factoryPid=Controller.Debug.Log)))")
 	private volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
 
-	private TreeMultimap<String, String> additionalChannels = TreeMultimap.create();
-	private Set<String> ignoreComponents = new HashSet<>();
+	private Config config;
+	private final TreeMultimap<String, String> additionalChannels = TreeMultimap.create();
+	private final Set<String> ignoreComponents = new HashSet<>();
 
 	public DebugLogImpl() {
 		super(//
@@ -62,6 +64,7 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// Parse Additional Channels
@@ -122,7 +125,8 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 					final List<String> logs = new ArrayList<>();
 
 					// Should the default logs of this Component be ignored?
-					if (!this.ignoreComponents.contains(component.id())) {
+					if (this.ignoreComponents.stream() //
+							.noneMatch(pattern -> StringUtils.matchWildcard(component.id(), pattern) >= 0)) {
 						// Component Debug-Log
 						String debugLog = component.debugLog();
 						if (debugLog != null) {
@@ -148,6 +152,12 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 						result.add(component.id() + "[" + String.join("|", logs) + "]");
 					}
 				});
-		return String.join(" ", result);
+		if (this.config.condensedOutput()) {
+			// separate components by space; one line in total
+			return String.join(" ", result);
+		} else {
+			// separate components by newline
+			return String.join("\n", result);
+		}
 	}
 }

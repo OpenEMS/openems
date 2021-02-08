@@ -21,6 +21,9 @@ import io.openems.edge.controller.api.rest.AbstractRestApi;
 
 	@AttributeDefinition(name = "Port", description = "Port on which the webserver should listen.")
 	int port() default 8084;
+	
+	@AttributeDefinition(name = "Connection limit", description = "Maximum number of connections")
+	int connectionlimit() default 5;
 
 	@AttributeDefinition(name = "Api-Timeout", description = "Sets the timeout in seconds for updates on Channels set by this Api.")
 	int apiTimeout() default 60;

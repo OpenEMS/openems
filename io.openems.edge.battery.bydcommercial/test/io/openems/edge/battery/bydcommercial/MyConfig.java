@@ -12,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String modbusId = null;
 		public int modbusUnitId;
 		public StartStopConfig startStop;
+		public int numberOfSlaves;
 
 		private Builder() {
 		}
@@ -28,6 +29,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setStartStop(StartStopConfig startStop) {
 			this.startStop = startStop;
+			return this;
+		}
+
+		public Builder setNumberOfSlaves(int numberOfSlaves) {
+			this.numberOfSlaves = numberOfSlaves;
 			return this;
 		}
 
@@ -70,6 +76,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public StartStopConfig startStop() {
 		return this.builder.startStop;
+	}
+
+	@Override
+	public int numberOfSlaves() {
+		return this.builder.numberOfSlaves;
 	}
 
 }

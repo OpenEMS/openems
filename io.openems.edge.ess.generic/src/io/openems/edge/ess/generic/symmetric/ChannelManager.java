@@ -21,6 +21,9 @@ public class ChannelManager extends AbstractChannelListenerManager {
 
 	private final GenericManagedSymmetricEss parent;
 
+	private float lastAllowedChargePower = 0;
+	private float lastAllowedDischargePower = 0;
+
 	public ChannelManager(GenericManagedSymmetricEss parent) {
 		this.parent = parent;
 	}
@@ -38,22 +41,68 @@ public class ChannelManager extends AbstractChannelListenerManager {
 		final Consumer<Value<Integer>> allowedChargeDischargeCallback = (value) -> {
 			// TODO: find proper efficiency factor to calculate AC Charge/Discharge limits
 			// from DC
-			final double efficiencyFactor = 0.95;
+			final float efficiencyFactor = 0.95F;
 
 			Value<Integer> chargeMaxCurrent = battery.getChargeMaxCurrentChannel().getNextValue();
 			Value<Integer> dischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue();
 			Value<Integer> voltage = battery.getVoltageChannel().getNextValue();
 
-			if (voltage.isDefined() && dischargeMaxCurrent.isDefined() && chargeMaxCurrent.isDefined()) {
-				// efficiency factor is not considered in chargeMaxCurrent (DC Power > AC Power)
-				this.parent._setAllowedChargePower(//
-						(int) (chargeMaxCurrent.get() * voltage.get() * -1));
-				this.parent._setAllowedDischargePower(//
-						(int) (dischargeMaxCurrent.get() * voltage.get() * efficiencyFactor));
+			float allowedChargePower;
+			float allowedDischargePower;
+
+			/*
+			 * Calculate initial AllowedChargePower and AllowedDischargePower
+			 */
+			if (!this.parent.isStarted()) {
+				// If the GenericEss is not in State "STARTED" block ACTIVE and REACTIVE Power!
+				allowedChargePower = 0;
+				allowedDischargePower = 0;
+
 			} else {
-				this.parent._setAllowedChargePower(0);
-				this.parent._setAllowedDischargePower(0);
+				// Calculate AllowedChargePower and AllowedDischargePower from battery current
+				// limits and voltage
+				// efficiency factor is not considered in chargeMaxCurrent (DC Power > AC Power)
+				allowedChargePower = chargeMaxCurrent.get() * voltage.get() * -1;
+				allowedDischargePower = dischargeMaxCurrent.get() * voltage.get() * efficiencyFactor;
 			}
+
+			/*
+			 * Allow max increase of 1 % per Call.
+			 * 
+			 * NOTE: This code might be called multiple times per Cycle.
+			 */
+			if (allowedChargePower < 0 && this.lastAllowedChargePower < 0) {
+				allowedChargePower = Math.max(allowedChargePower, this.lastAllowedChargePower * 1.01F);
+			}
+			this.lastAllowedChargePower = allowedChargePower;
+
+			if (allowedDischargePower > 0 && this.lastAllowedDischargePower > 0) {
+				allowedDischargePower = Math.min(allowedDischargePower, this.lastAllowedDischargePower * 1.01F);
+			}
+			this.lastAllowedDischargePower = allowedDischargePower;
+
+			/*
+			 * Handle Force Charge and Discharge
+			 */
+			if (allowedChargePower > 0 && allowedDischargePower < 0) {
+				// Both Force Charge and Discharge are active -> cannot do anything
+				allowedChargePower = 0;
+				allowedDischargePower = 0;
+
+			} else if (allowedDischargePower < 0) {
+				// Force Charge is active
+				// Make sure AllowedChargePower is less-or-equals AllowedDischargePower
+				allowedChargePower = Math.min(allowedChargePower, allowedDischargePower);
+
+			} else if (allowedChargePower > 0) {
+				// Force Discharge is active
+				// Make sure AllowedDischargePower is greater-or-equals AllowedChargePower
+				allowedDischargePower = Math.max(allowedChargePower, allowedDischargePower);
+			}
+
+			// Apply AllowedChargePower and AllowedDischargePower
+			this.parent._setAllowedChargePower(Math.round(allowedChargePower));
+			this.parent._setAllowedDischargePower(Math.round(allowedDischargePower));
 		};
 
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
@@ -90,6 +139,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 		this.<Long>addCopyListener(batteryInverter, //
 				SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, //
 				SymmetricEss.ChannelId.REACTIVE_POWER);
+
 	}
 
 	/**

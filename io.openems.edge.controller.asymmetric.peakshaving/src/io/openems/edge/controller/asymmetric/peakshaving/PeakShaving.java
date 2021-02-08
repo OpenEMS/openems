@@ -100,17 +100,17 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		if (meter instanceof AsymmetricMeter) {
 			AsymmetricMeter asymmetricMeter = (AsymmetricMeter) meter;
 
-			int gridPowerL1 = asymmetricMeter.getActivePowerL1().orElse(0);
-			int gridPowerL2 = asymmetricMeter.getActivePowerL2().orElse(0);
-			int gridPowerL3 = asymmetricMeter.getActivePowerL3().orElse(0);
+			int gridPowerL1 = asymmetricMeter.getActivePowerL1().getOrError();
+			int gridPowerL2 = asymmetricMeter.getActivePowerL2().getOrError();
+			int gridPowerL3 = asymmetricMeter.getActivePowerL3().getOrError();
 
 			int maxPowerOnPhase = Math.max(Math.max(gridPowerL1, gridPowerL2), gridPowerL3);
 			gridPower = maxPowerOnPhase * 3;
 
 		} else {
-			gridPower = meter.getActivePower().orElse(0);
+			gridPower = meter.getActivePower().getOrError();
 		}
-		int effectiveGridPower = gridPower + ess.getActivePower().orElse(0);
+		int effectiveGridPower = gridPower + ess.getActivePower().getOrError();
 
 		int calculatedPower;
 		int wholePeakShavingPower = this.config.peakShavingPower() * 3;

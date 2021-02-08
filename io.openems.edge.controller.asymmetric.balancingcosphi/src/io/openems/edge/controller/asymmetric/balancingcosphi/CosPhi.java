@@ -99,8 +99,8 @@ public class CosPhi extends AbstractOpenemsComponent implements Controller, Open
 			Value<Integer> meterReactivePower, Value<Integer> essActivePower, Value<Integer> essReactivePower)
 			throws OpenemsException {
 		// Calculate the startpoint of the cosPhi line in relation to the ess zero power
-		long pNull = meterActivePower.orElse(0) + essActivePower.orElse(0);
-		long qNull = meterReactivePower.orElse(0) + essReactivePower.orElse(0);
+		long pNull = meterActivePower.getOrError() + essActivePower.getOrError();
+		long qNull = meterReactivePower.getOrError() + essReactivePower.getOrError();
 		double m = Math.tan(Math.acos(Math.abs(cosPhi)));
 		if (this.direction == CosPhiDirection.INDUCTIVE) {
 			m *= -1;

@@ -93,6 +93,9 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 								// configure PID filter
 								int minPower = power.getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
 								int maxPower = power.getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
+								if (maxPower < minPower) {
+									maxPower = minPower; // avoid rounding error
+								}
 								pidFilter.setLimits(minPower, maxPower);
 
 								int currentActivePower = ess.getActivePower().orElse(0);
