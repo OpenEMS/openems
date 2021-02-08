@@ -1,13 +1,9 @@
 package io.openems.edge.controller.symmetric.timeslotonefullcycle;
 
-import static java.time.temporal.TemporalAdjusters.firstInMonth;
-
 import java.time.Clock;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalAmount;
-import java.util.Calendar;
+import java.time.format.DateTimeFormatter;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -35,6 +31,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -46,19 +43,16 @@ public class OneFullCycle extends AbstractOpenemsComponent implements Controller
 
 	private final Logger log = LoggerFactory.getLogger(OneFullCycle.class);
 	private final Clock clock;
-	private final TemporalAmount hysteresis = Duration.ofMinutes(1);
 	private Config config;
 	private boolean fullCycleActivated = false;
-//	private boolean fullCycleFinished = false;
-
+	public static final String TIME_FORMAT = "HH:mm";
 	private CycleOrder cycleOrder = CycleOrder.UNDEFINED;
 	private State state = State.UNDEFINED;
-//	private int year, month, day, hour, minute;
 
 	/**
 	 * Length of hysteresis. States are not changed quicker than this.
 	 */
-	private LocalDateTime lastStateChange = LocalDateTime.MIN;
+	private LocalDateTime lastStateChange = LocalDateTime.now();
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -68,6 +62,9 @@ public class OneFullCycle extends AbstractOpenemsComponent implements Controller
 
 	@Reference
 	protected ComponentManager componentManager;
+
+	@Reference(policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	protected Timedata timedata;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
@@ -106,7 +103,7 @@ public class OneFullCycle extends AbstractOpenemsComponent implements Controller
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 		this.cycleOrder = config.cycleorder();
@@ -122,13 +119,13 @@ public class OneFullCycle extends AbstractOpenemsComponent implements Controller
 
 	@Override
 	public void run() throws OpenemsNamedException {
+//		this.state = this.timedata.getLatestValue(ChannelId.);
 		this.initializeTime();
 		if (!this.fullCycleActivated) {
 			return;
 		}
 		// store current state in StateMachine channel
 		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
-
 		if (this.state == State.FINISHED) {
 			this.log.info("State == FINISHED");
 			return;
@@ -146,36 +143,13 @@ public class OneFullCycle extends AbstractOpenemsComponent implements Controller
 	}
 
 	private void initializeTime() throws OpenemsNamedException {
-		Calendar nowCalendar = Calendar.getInstance();
-		LocalDate nowDate = LocalDate.now();
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.HOUR_OF_DAY, this.config.hour());
-		if (this.config.isFixedDayTimeEnabled()) {
-			LocalDate firstDay = nowDate.with(firstInMonth(this.config.dayOfWeek()));
-			if ((nowDate == firstDay) && (nowCalendar.after(calendar))) {
-				this.fullCycleActivated = true;
-				return;
-			}
-		} else {
-			LocalDate dayOfMonth = nowDate.withDayOfMonth(this.config.dayOfMonth());
-			if ((nowDate == dayOfMonth) && (nowCalendar.after(calendar))) {
-				this.fullCycleActivated = true;
-				return;
-			}
+		LocalDateTime time = LocalDateTime.now();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm");
+		LocalDateTime dateTime = LocalDateTime.parse(this.config.startTime(), formatter);
+		if (time.isAfter(dateTime)) {
+			this.fullCycleActivated = true;
+			return;
 		}
-//		else {
-//			this.jsonTime(this.config.anyDateTime());
-//			LocalDate setDate = LocalDate.of(this.year, this.month, this.day);
-//			ChronoLocalDate setNextDate = LocalDate.of(this.year, this.month, this.day + 1);
-//			LocalTime setTime = LocalTime.of(this.hour, this.minute);
-//			LocalTime nowTime = LocalTime.now();
-//			if (nowDate.isEqual(setDate) && nowTime.isAfter(setTime) && nowDate.isBefore(setNextDate)
-//					&& this.fullCycleFinished) {
-//				this.fullCycleActivated = true;
-//				return;
-//			}
-//		}
-
 		this.fullCycleActivated = false;
 	}
 
@@ -208,28 +182,10 @@ public class OneFullCycle extends AbstractOpenemsComponent implements Controller
 		}
 	}
 
-//	private void jsonTime(String anyDateTime) throws OpenemsNamedException {
-//		try {
-//			JsonArray time = JsonUtils.getAsJsonArray(JsonUtils.parse(anyDateTime));
-//			for (JsonElement element : time) {
-//				this.year = JsonUtils.getAsInt(element, "year");
-//				this.month = JsonUtils.getAsInt(element, "month");
-//				this.day = JsonUtils.getAsInt(element, "day");
-//				this.hour = JsonUtils.getAsInt(element, "hour");
-//				this.minute = JsonUtils.getAsInt(element, "minute");
-//			}
-//		} catch (NullPointerException e) {
-//			throw new OpenemsException("Unable to find values [" + anyDateTime + "] " + e.getMessage());
-//		}
-//	}
-
 	private void applyPower(ManagedSymmetricEss ess, int maxChargePower, int maxDischargePower)
 			throws OpenemsNamedException {
 		switch (this.state) {
 		case FIRST_CHARGE: {
-			/*
-			 * Charge till full
-			 */
 			if (maxChargePower == 0) {
 				switch (this.cycleOrder) {
 				case START_WITH_CHARGE:
@@ -301,6 +257,7 @@ public class OneFullCycle extends AbstractOpenemsComponent implements Controller
 			 * Nothing to do
 			 */
 			ess.getSetActivePowerGreaterOrEqualsChannel().deactivate();
+			this.logInfo(this.log, "FINISHED ");
 //			this.fullCycleFinished = true;
 			return;
 		}
@@ -313,8 +270,12 @@ public class OneFullCycle extends AbstractOpenemsComponent implements Controller
 	 * @return whether the state was changed
 	 */
 	private boolean changeState(State nextState) {
-		if (this.state != nextState) {
-			if (this.lastStateChange.plus(this.hysteresis).isBefore(LocalDateTime.now(this.clock))) {
+		if (nextState == State.FINISHED) {
+			this.state = nextState;
+			return true;
+		} else if (this.state != nextState) {
+			if (this.lastStateChange.plus(Duration.ofMinutes(this.config.standbyTime()))
+					.isBefore(LocalDateTime.now(this.clock))) {
 				this.state = nextState;
 				this.lastStateChange = LocalDateTime.now(this.clock);
 				this.channel(ChannelId.AWAITING_HYSTERESIS).setNextValue(false);

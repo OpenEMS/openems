@@ -1,7 +1,5 @@
 package io.openems.edge.controller.symmetric.timeslotonefullcycle;
 
-import java.time.DayOfWeek;
-
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
@@ -25,21 +23,18 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "CycleOrder [Charge/Discharge]", description = "Charge/discharge CycleOrder for Operation")
 	CycleOrder cycleorder() default CycleOrder.START_WITH_DISCHARGE;
 
-	@AttributeDefinition(name = " Is Fixed Date Enabled", description = " If yes Day Of Week will take into account otherwise, any day of month can be select")
-	boolean isFixedDayTimeEnabled() default false;
+	@AttributeDefinition(name = " Standby Time in Minute", description = "Wait Between Charge and Discharge (Just Integer in time).")
+	int standbyTime() default 1;
 
-	@AttributeDefinition(name = "Choose Day In Month ", description = "Choosen Day In Month [ Ex. Monday of each Month]")
-	DayOfWeek dayOfWeek() default DayOfWeek.MONDAY;
-
-	@AttributeDefinition(name = "Choose Day of Month ", description = "Choosen Day of Month [ Ex. First..last day of Month]")
-	int dayOfMonth() default 1;
-
-	@AttributeDefinition(name = " Start Time in Hour", description = "Start Charge/Discharge Hour (Just Integer in time).")
-	int hour() default 8;
-
-//	@AttributeDefinition(name = " ", description = " ")
-//	String anyDateTime() default "[{ \"year\" :2019, \"month\" : 9 , \"day\" : 19, \"hour\" : 12,\"minute\" : 06}]";
-
+	@AttributeDefinition(name = " Start Time in Hour", description = "Start Charge/Discharge Hour (2021-02-08[space in between]13:35).")
+	String startTime() default "2021-02-08 13:35";
+	
+	@AttributeDefinition(name = "Maximum Soc [%]", description = "Limit Charge ")
+	int maxSoc() default 90;
+	
+	@AttributeDefinition(name = "Minimum Soc [%]", description = "Limit Discharge")
+	int minSoc() default 5;
+	
 	@AttributeDefinition(name = "Power [W]", description = "Charge/discharge power")
 	int power();
 
