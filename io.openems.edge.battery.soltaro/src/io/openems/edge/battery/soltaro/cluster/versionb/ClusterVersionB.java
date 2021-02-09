@@ -415,8 +415,10 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return "SoC:" + this.getSoc() //
 				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
-				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() + "|Running: "
-				+ this.isSystemRunning() + "|U: " + this.getVoltage() + "|I: " + this.getCurrent();
+				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
+				+ "|Running: " + this.isSystemRunning() //
+				+ "|U: " + this.getVoltage() //
+				+ "|I: " + this.getCurrent();
 	}
 
 	private void sleepSystem() {

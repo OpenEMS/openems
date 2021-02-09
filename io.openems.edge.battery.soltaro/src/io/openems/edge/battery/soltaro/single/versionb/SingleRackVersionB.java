@@ -599,7 +599,8 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 		TOTAL_CAPACITY_LOW_BITS(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE)), //
 		ALARM_FLAG_REGISTER_1(Doc.of(OpenemsType.INTEGER)), //
-		ALARM_FLAG_REGISTER_2(Doc.of(OpenemsType.INTEGER)), PROTECT_FLAG_REGISTER_1(Doc.of(OpenemsType.INTEGER)),
+		ALARM_FLAG_REGISTER_2(Doc.of(OpenemsType.INTEGER)), //
+		PROTECT_FLAG_REGISTER_1(Doc.of(OpenemsType.INTEGER)), //
 		TESTING_IO(Doc.of(OpenemsType.INTEGER)), //
 		SOFT_SHUTDOWN(Doc.of(OpenemsType.INTEGER)), //
 		CURRENT_BOX_SELF_CALIBRATION(Doc.of(OpenemsType.INTEGER)), //
@@ -607,7 +608,8 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 		INSULATION_SENSOR_FUNCTION(Doc.of(OpenemsType.INTEGER)), //
 		TRANSPARENT_MASTER(Doc.of(OpenemsType.INTEGER)), //
 		SET_EMS_ADDRESS(Doc.of(OpenemsType.INTEGER)), //
-		SLEEP(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)), // ), //
+		SLEEP(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //
 		VOLTAGE_LOW_PROTECTION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
 		WORK_PARAMETER_CURRENT_FIX_COEFFICIENT(Doc.of(OpenemsType.INTEGER)), //

@@ -25,6 +25,7 @@ import org.osgi.service.event.EventHandler;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.ThrowingRunnable;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -95,7 +96,14 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		private final String description;
 		private final List<ChannelValue> inputs = new ArrayList<>();
 		private final List<ChannelValue> outputs = new ArrayList<>();
-		private final List<Runnable> onAfterProcessImageCallbacks = new ArrayList<>();
+		private final List<ThrowingRunnable<Exception>> onBeforeProcessImageCallbacks = new ArrayList<>();
+		private final List<ThrowingRunnable<Exception>> onAfterProcessImageCallbacks = new ArrayList<>();
+		private final List<ThrowingRunnable<Exception>> onBeforeControllersCallbacks = new ArrayList<>();
+		private final List<ThrowingRunnable<Exception>> onExecuteControllersCallbacks = new ArrayList<>();
+		private final List<ThrowingRunnable<Exception>> onAfterControllersCallbacks = new ArrayList<>();
+		private final List<ThrowingRunnable<Exception>> onBeforeWriteCallbacks = new ArrayList<>();
+		private final List<ThrowingRunnable<Exception>> onExecuteWriteCallbacks = new ArrayList<>();
+		private final List<ThrowingRunnable<Exception>> onAfterWriteCallbacks = new ArrayList<>();
 
 		private TimeLeap timeleap = null;
 
@@ -129,8 +137,101 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 		// TODO: add for each event
 		// TODO: check existing JUnit tests where this improvement could be applied
-		public TestCase onAfterProcessImage(Runnable callback) {
+
+		/**
+		 * Adds a Callback that is called on
+		 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_PROCESS_IMAGE} event.
+		 * 
+		 * @param callback the callback
+		 * @return myself
+		 */
+		public TestCase onBeforeProcessImage(ThrowingRunnable<Exception> callback) {
+			this.onBeforeProcessImageCallbacks.add(callback);
+			return this;
+		}
+
+		/**
+		 * Adds a Callback that is called on
+		 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_PROCESS_IMAGE} event.
+		 * 
+		 * @param callback the callback
+		 * @return myself
+		 */
+		public TestCase onAfterProcessImage(ThrowingRunnable<Exception> callback) {
 			this.onAfterProcessImageCallbacks.add(callback);
+			return this;
+		}
+
+		/**
+		 * Adds a Callback that is called on
+		 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_CONTROLLERS} event.
+		 * 
+		 * @param callback the callback
+		 * @return myself
+		 */
+		public TestCase onBeforeControllersCallbacks(ThrowingRunnable<Exception> callback) {
+			this.onBeforeControllersCallbacks.add(callback);
+			return this;
+		}
+
+		/**
+		 * Adds a Callback that is called after
+		 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_CONTROLLERS} and before
+		 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_CONTROLLERS}. events.
+		 * 
+		 * @param callback the callback
+		 * @return myself
+		 */
+		public TestCase onExecuteControllersCallbacks(ThrowingRunnable<Exception> callback) {
+			this.onExecuteControllersCallbacks.add(callback);
+			return this;
+		}
+
+		/**
+		 * Adds a Callback that is called on
+		 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_CONTROLLERS} event.
+		 * 
+		 * @param callback the callback
+		 * @return myself
+		 */
+		public TestCase onAfterControllersCallbacks(ThrowingRunnable<Exception> callback) {
+			this.onAfterControllersCallbacks.add(callback);
+			return this;
+		}
+
+		/**
+		 * Adds a Callback that is called on
+		 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_WRITE} event.
+		 * 
+		 * @param callback the callback
+		 * @return myself
+		 */
+		public TestCase onBeforeWriteCallbacks(ThrowingRunnable<Exception> callback) {
+			this.onBeforeWriteCallbacks.add(callback);
+			return this;
+		}
+
+		/**
+		 * Adds a Callback that is called on
+		 * {@link EdgeEventConstants#TOPIC_CYCLE_EXECUTE_WRITE} event.
+		 * 
+		 * @param callback the callback
+		 * @return myself
+		 */
+		public TestCase onExecuteWriteCallbacks(ThrowingRunnable<Exception> callback) {
+			this.onExecuteWriteCallbacks.add(callback);
+			return this;
+		}
+
+		/**
+		 * Adds a Callback that is called on
+		 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_WRITE} event.
+		 * 
+		 * @param callback the callback
+		 * @return myself
+		 */
+		public TestCase onAfterWriteCallbacks(ThrowingRunnable<Exception> callback) {
+			this.onAfterWriteCallbacks.add(callback);
 			return this;
 		}
 
@@ -476,27 +577,40 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	public SELF next(TestCase testCase) throws Exception {
 		testCase.applyTimeLeap();
 		this.onBeforeProcessImage();
+		executeCallbacks(testCase.onBeforeProcessImageCallbacks);
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE);
 		for (Channel<?> channel : this.getSut().channels()) {
 			channel.nextProcessImage();
 		}
 		testCase.applyInputs(this.components);
 		this.onAfterProcessImage();
-		testCase.onAfterProcessImageCallbacks.forEach(c -> c.run());
+		executeCallbacks(testCase.onAfterProcessImageCallbacks);
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE);
 		this.onBeforeControllers();
+		executeCallbacks(testCase.onBeforeControllersCallbacks);
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS);
 		this.onExecuteControllers();
+		executeCallbacks(testCase.onExecuteControllersCallbacks);
 		this.onAfterControllers();
+		executeCallbacks(testCase.onAfterControllersCallbacks);
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS);
 		this.onBeforeWrite();
+		executeCallbacks(testCase.onBeforeWriteCallbacks);
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE);
 		this.onExecuteWrite();
+		executeCallbacks(testCase.onExecuteWriteCallbacks);
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE);
 		this.onAfterWrite();
+		executeCallbacks(testCase.onAfterWriteCallbacks);
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE);
 		testCase.validateOutputs(this.components);
 		return this.self();
+	}
+
+	private static void executeCallbacks(List<ThrowingRunnable<Exception>> callbacks) throws Exception {
+		for (ThrowingRunnable<Exception> callback : callbacks) {
+			callback.run();
+		}
 	}
 
 	/**
@@ -516,7 +630,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * This method is executed before the
-	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_PROCESS_IMAGE event.
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_PROCESS_IMAGE} event.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
@@ -525,7 +639,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * This method is executed before the
-	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_PROCESS_IMAGE event.
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_PROCESS_IMAGE} event.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
@@ -534,7 +648,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * This method is executed before the
-	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_CONTROLLERS event.
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_CONTROLLERS} event.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
@@ -542,8 +656,9 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	}
 
 	/**
-	 * This method is executed after TOPIC_CYCLE_BEFORE_CONTROLLERS and before
-	 * TOPIC_CYCLE_AFTER_CONTROLLERS.
+	 * This method is executed after
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_CONTROLLERS} and before
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_CONTROLLERS}.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
@@ -552,7 +667,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * This method is executed before the
-	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_CONTROLLERS event.
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_CONTROLLERS} event.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
@@ -561,7 +676,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * This method is executed before the
-	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_WRITE event.
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_WRITE} event.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
@@ -570,7 +685,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * This method is executed before the
-	 * {@link EdgeEventConstants#TOPIC_CYCLE_EXECUTE_WRITE event.
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_EXECUTE_WRITE} event.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
@@ -579,7 +694,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * This method is executed before
-	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_WRITE.
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_WRITE}.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */

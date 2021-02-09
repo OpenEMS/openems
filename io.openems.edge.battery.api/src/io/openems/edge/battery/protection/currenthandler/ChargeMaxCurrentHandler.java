@@ -36,11 +36,22 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 			return this;
 		}
 
+		/**
+		 * Sets the {@link ForceDischarge.Params} parameters.
+		 * 
+		 * @param forceDischargeParams the {@link ForceDischarge.Params}
+		 * @return a {@link Builder}
+		 */
 		public Builder setForceDischarge(ForceDischarge.Params forceDischargeParams) {
 			this.forceDischargeParams = forceDischargeParams;
 			return this;
 		}
 
+		/**
+		 * Builds the {@link ChargeMaxCurrentHandler} instance.
+		 * 
+		 * @return a {@link ChargeMaxCurrentHandler}
+		 */
 		public ChargeMaxCurrentHandler build() {
 			return new ChargeMaxCurrentHandler(this.clockProvider, this.initialBmsMaxEverCurrent, this.voltageToPercent,
 					this.temperatureToPercent, this.maxIncreasePerSecond, this.forceDischargeParams);

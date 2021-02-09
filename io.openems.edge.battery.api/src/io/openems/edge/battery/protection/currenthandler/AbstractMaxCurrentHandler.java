@@ -28,16 +28,34 @@ public abstract class AbstractMaxCurrentHandler {
 			this.initialBmsMaxEverCurrent = initialBmsMaxEverCurrent;
 		}
 
+		/**
+		 * Sets the Voltage-To-Percent characteristics.
+		 * 
+		 * @param voltageToPercent the {@link PolyLine}
+		 * @return a {@link Builder}
+		 */
 		public T setVoltageToPercent(PolyLine voltageToPercent) {
 			this.voltageToPercent = voltageToPercent;
 			return this.self();
 		}
 
+		/**
+		 * Sets the Temperature-To-Percent characteristics.
+		 * 
+		 * @param temperatureToPercent the {@link PolyLine}
+		 * @return a {@link Builder}
+		 */
 		public T setTemperatureToPercent(PolyLine temperatureToPercent) {
 			this.temperatureToPercent = temperatureToPercent;
 			return this.self();
 		}
 
+		/**
+		 * Sets the Max-Increase-Per-Second parameter in [A].
+		 * 
+		 * @param maxIncreasePerSecond value in [A] per Second.
+		 * @return a {@link Builder}
+		 */
 		public T setMaxIncreasePerSecond(double maxIncreasePerSecond) {
 			this.maxIncreasePerSecond = maxIncreasePerSecond;
 			return this.self();
@@ -226,18 +244,6 @@ public abstract class AbstractMaxCurrentHandler {
 			limit = 0.;
 		}
 
-		System.out.println(this.getClass().getSimpleName() + ": " //
-				+ "BMS [" + bpBms + "] " //
-				+ "minCellVoltage [" + minCellVoltageLimit + "] " //
-				+ "maxCellVoltage [" + maxCellVoltageLimit + "] " //
-				+ "minCellTemperature [" + minCellTemperatureLimit + "] " //
-				+ "maxCellTemperature [" + maxCellTemperatureLimit + "] " //
-				+ "maxIncreaseAmpereLimit [" + maxIncreaseAmpereLimit + "] " //
-				+ "force [" + forceCurrent + "] " //
-				+ "bmsMaxEverCurrent [" + bmsMaxEverCurrent + "] " //
-				+ "isStarted [" + battery.isStarted() + "] " //
-		);
-
 		this.lastCurrentLimit = limit;
 
 		return (int) Math.round(limit);
@@ -291,13 +297,13 @@ public abstract class AbstractMaxCurrentHandler {
 	private final AtomicReference<Double> activeMinCellVoltageToPercentLimit = new AtomicReference<>();
 
 	protected Double getMinCellVoltageToPercentLimit(Integer minCellVoltage) {
-		return this.getCellVoltageToPercentLimit(activeMinCellVoltageToPercentLimit, minCellVoltage);
+		return this.getCellVoltageToPercentLimit(this.activeMinCellVoltageToPercentLimit, minCellVoltage);
 	}
 
 	private final AtomicReference<Double> activeMaxCellVoltageToPercentLimit = new AtomicReference<>();
 
 	protected Double getMaxCellVoltageToPercentLimit(Integer minCellVoltage) {
-		return this.getCellVoltageToPercentLimit(activeMaxCellVoltageToPercentLimit, minCellVoltage);
+		return this.getCellVoltageToPercentLimit(this.activeMaxCellVoltageToPercentLimit, minCellVoltage);
 	}
 
 	/**
@@ -318,7 +324,7 @@ public abstract class AbstractMaxCurrentHandler {
 		final Double result;
 		if (this.lastResultTimestamp != null && this.lastCurrentLimit != null) {
 			result = this.lastCurrentLimit
-					+ (Duration.between(this.lastResultTimestamp, now).toMillis() * maxIncreasePerSecond) //
+					+ (Duration.between(this.lastResultTimestamp, now).toMillis() * this.maxIncreasePerSecond) //
 							/ 1000.; // convert [mA] to [A]
 		} else {
 			result = 0.;
@@ -384,6 +390,7 @@ public abstract class AbstractMaxCurrentHandler {
 	 * <li>null % -> null
 	 * <li>0 % -> 0
 	 * <li>anything else -> calculate percent; at least '1 A'.
+	 * </ul>
 	 * 
 	 * @param percent the percent value in [0,1]
 	 * @return the ampere value in [A]

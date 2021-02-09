@@ -28,6 +28,12 @@ public class ForceDischarge extends AbstractForceChargeDischarge {
 
 	private final Params params;
 
+	/**
+	 * Builds a {@link ForceDischarge} instance from {@link ForceDischarge.Params}.
+	 * 
+	 * @param params the parameter object
+	 * @return a {@link ForceDischarge} instance
+	 */
 	public static ForceDischarge from(Params params) {
 		if (params == null) {
 			return null;

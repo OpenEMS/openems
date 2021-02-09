@@ -207,7 +207,7 @@ public class BatteryProtection {
 		}
 
 		/**
-		 * Applies all values from a {@link BatteryProtectionDefinition}
+		 * Applies all values from a {@link BatteryProtectionDefinition}.
 		 * 
 		 * @param def           the {@link BatteryProtectionDefinition}
 		 * @param clockProvider a {@link ClockProvider}
@@ -235,6 +235,7 @@ public class BatteryProtection {
 		/**
 		 * Sets the {@link ChargeMaxCurrentHandler}.
 		 * 
+		 * @param chargeMaxCurrentHandler the {@link ChargeMaxCurrentHandler}
 		 * @return a {@link Builder}
 		 */
 		public Builder setChargeMaxCurrentHandler(ChargeMaxCurrentHandler chargeMaxCurrentHandler) {
@@ -245,6 +246,7 @@ public class BatteryProtection {
 		/**
 		 * Sets the {@link DischargeMaxCurrentHandler}.
 		 * 
+		 * @param dischargeMaxCurrentHandler the {@link DischargeMaxCurrentHandler}
 		 * @return a {@link Builder}
 		 */
 		public Builder setDischargeMaxCurrentHandler(DischargeMaxCurrentHandler dischargeMaxCurrentHandler) {
@@ -252,6 +254,11 @@ public class BatteryProtection {
 			return this;
 		}
 
+		/**
+		 * Builds the {@link BatteryProtection} instance.
+		 * 
+		 * @return a {@link BatteryProtection}
+		 */
 		public BatteryProtection build() {
 			return new BatteryProtection(this.battery, this.chargeMaxCurrentHandler, this.dischargeMaxCurrentHandler);
 		}
@@ -299,7 +306,7 @@ public class BatteryProtection {
 		int dischargeMaxCurrent = this.dischargeMaxCurrentHandler.calculateCurrentLimit(this.battery);
 
 		// Set max charge and discharge currents
-		battery._setChargeMaxCurrent(chargeMaxCurrent);
-		battery._setDischargeMaxCurrent(dischargeMaxCurrent);
+		this.battery._setChargeMaxCurrent(chargeMaxCurrent);
+		this.battery._setDischargeMaxCurrent(dischargeMaxCurrent);
 	}
 }

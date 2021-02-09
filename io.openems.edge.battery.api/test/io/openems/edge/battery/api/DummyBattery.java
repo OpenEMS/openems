@@ -7,6 +7,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
+// TODO merge with io.openems.edge.battery.test.DummyBattery
 public class DummyBattery extends AbstractOpenemsComponent implements Battery, StartStoppable {
 
 	public static final int DEFAULT_SOC = 50;

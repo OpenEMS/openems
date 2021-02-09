@@ -14,7 +14,7 @@ import io.openems.edge.common.statemachine.StateHandler;
 public abstract class AbstractForceChargeDischarge
 		extends AbstractStateMachine<AbstractForceChargeDischarge.State, AbstractForceChargeDischarge.Context> {
 
-	protected final static int WAIT_FOR_FORCE_MODE_SECONDS = 60;
+	protected static final int WAIT_FOR_FORCE_MODE_SECONDS = 60;
 
 	public static class Context extends AbstractContext<OpenemsComponent> {
 
@@ -82,7 +82,7 @@ public abstract class AbstractForceChargeDischarge
 				protected State runAndGetNextState(Context context) throws OpenemsNamedException {
 					return AbstractForceChargeDischarge.this.handleUndefinedState(context.minCellVoltage,
 							context.maxCellVoltage);
-				};
+				}
 			};
 
 		case WAIT_FOR_FORCE_MODE:
@@ -91,7 +91,7 @@ public abstract class AbstractForceChargeDischarge
 
 				protected void onEntry(Context context) throws OpenemsNamedException {
 					this.enteredAt = context.now();
-				};
+				}
 
 				@Override
 				protected State runAndGetNextState(Context context) throws OpenemsNamedException {

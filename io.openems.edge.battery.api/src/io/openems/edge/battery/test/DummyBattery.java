@@ -37,10 +37,10 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 	}
 
 	/**
-	 * withCapacity.
+	 * Sets and applies the {@link Battery.ChannelId#CAPACITY}.
 	 * 
-	 * @param value int
-	 * @return DummyBattery
+	 * @param value the Capacity in [Wh]
+	 * @return myself
 	 */
 	public DummyBattery withCapacity(int value) {
 		this._setCapacity(value);
@@ -49,10 +49,10 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 	}
 
 	/**
-	 * withVoltage.
+	 * Sets and applies the {@link Battery.ChannelId#VOLTAGE}.
 	 * 
-	 * @param value int
-	 * @return DummyBattery
+	 * @param value the Capacity in [V]
+	 * @return myself
 	 */
 	public DummyBattery withVoltage(int value) {
 		this._setVoltage(value);
@@ -61,10 +61,10 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 	}
 
 	/**
-	 * withDischargeMaxCurrent.
+	 * Sets and applies the {@link Battery.ChannelId#DISCHARGE_MAX_CURRENT}.
 	 * 
-	 * @param value int
-	 * @return DummyBattery
+	 * @param value the Discharge Max Current in [A]
+	 * @return myself
 	 */
 	public DummyBattery withDischargeMaxCurrent(int value) {
 		this._setDischargeMaxCurrent(value);
@@ -73,10 +73,10 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 	}
 
 	/**
-	 * withChargeMaxCurrent.
+	 * Sets and applies the {@link Battery.ChannelId#CHARGE_MAX_CURRENT}.
 	 * 
-	 * @param value int
-	 * @return DummyBattery
+	 * @param value the Charge Max Current in [A]
+	 * @return myself
 	 */
 	public DummyBattery withChargeMaxCurrent(int value) {
 		this._setChargeMaxCurrent(value);
@@ -85,10 +85,10 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 	}
 
 	/**
-	 * withMinCellVoltage.
+	 * Sets and applies the {@link Battery.ChannelId#MIN_CELL_VOLTAGE}.
 	 * 
-	 * @param value int
-	 * @return DummyBattery
+	 * @param value the Min-Cell-Voltage in [mV]
+	 * @return myself
 	 */
 	public DummyBattery withMinCellVoltage(int value) {
 		this._setMinCellVoltage(value);
@@ -97,10 +97,10 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 	}
 
 	/**
-	 * withMaxCellVoltage.
+	 * Sets and applies the {@link Battery.ChannelId#MAX_CELL_VOLTAGE}.
 	 * 
-	 * @param value int
-	 * @return DummyBattery
+	 * @param value the Max-Cell-Voltage in [mV]
+	 * @return myself
 	 */
 	public DummyBattery withMaxCellVoltage(int value) {
 		this._setMaxCellVoltage(value);
@@ -109,10 +109,10 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 	}
 
 	/**
-	 * Sets the MinCellTemperature.
+	 * Sets and applies the {@link Battery.ChannelId#MIN_CELL_TEMPERATURE}.
 	 * 
-	 * @param value the MinCellTemperature
-	 * @return DummyBattery myself
+	 * @param value the Min-Cell-Temperature in [degC]
+	 * @return myself
 	 */
 	public DummyBattery withMinCellTemperature(int value) {
 		this._setMinCellTemperature(value);
@@ -121,10 +121,10 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 	}
 
 	/**
-	 * Sets the MaxCellTemperature.
+	 * Sets and applies the {@link Battery.ChannelId#MAX_CELL_TEMPERATURE}.
 	 * 
-	 * @param value the MaxCellTemperature
-	 * @return DummyBattery myself
+	 * @param value the Max-Cell-Temperature in [degC]
+	 * @return myself
 	 */
 	public DummyBattery withMaxCellTemperature(int value) {
 		this._setMaxCellTemperature(value);
