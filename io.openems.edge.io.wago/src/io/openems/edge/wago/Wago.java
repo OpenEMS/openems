@@ -53,12 +53,12 @@ import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.io.api.DigitalInput;
+import io.openems.edge.io.api.AnalogInput;
 import io.openems.edge.io.api.DigitalOutput;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "IO.WAGO", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutput, DigitalInput, OpenemsComponent {
+public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutput, AnalogInput, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(Wago.class);
 
@@ -89,7 +89,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
-				DigitalInput.ChannelId.values(), //
+				AnalogInput.ChannelId.values(), //
 				ThisChannelId.values() //
 		);
 	}

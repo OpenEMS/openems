@@ -19,7 +19,7 @@ import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.io.api.DigitalInput;
+import io.openems.edge.io.api.AnalogInput;
 import io.openems.edge.io.api.DigitalOutput;
 
 @Designate(ocd = Config.class, factory = true)
@@ -30,7 +30,7 @@ import io.openems.edge.io.api.DigitalOutput;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 )
 public class DigitalInputOutput extends AbstractOpenemsComponent
-		implements DigitalInput, DigitalOutput, OpenemsComponent {
+		implements AnalogInput, DigitalOutput, OpenemsComponent {
 
 	public static final String CHANNEL_NAME = "INPUT_OUTPUT%d";
 
@@ -43,7 +43,7 @@ public class DigitalInputOutput extends AbstractOpenemsComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
-				DigitalInput.ChannelId.values() //
+				AnalogInput.ChannelId.values() //
 		);
 	}
 
