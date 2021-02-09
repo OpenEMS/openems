@@ -1,9 +1,12 @@
 package io.openems.edge.battery.protection;
 
 import io.openems.common.channel.Unit;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.battery.protection.currenthandler.ChargeMaxCurrentHandler;
+import io.openems.edge.battery.protection.currenthandler.DischargeMaxCurrentHandler;
+import io.openems.edge.battery.protection.force.AbstractForceChargeDischarge;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.type.TypeUtils;
 
@@ -24,6 +27,173 @@ import io.openems.edge.common.type.TypeUtils;
  * </ul>
  */
 public class BatteryProtection {
+
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		/**
+		 * Charge Current limit provided by the Battery/BMS.
+		 * 
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * <li>Type: Integer
+		 * <li>Unit: Ampere
+		 * </ul>
+		 */
+		BP_CHARGE_BMS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)),
+		/**
+		 * Discharge Current limit provided by the Battery/BMS.
+		 * 
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * <li>Type: Integer
+		 * <li>Unit: Ampere
+		 * </ul>
+		 */
+		BP_DISCHARGE_BMS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)),
+		/**
+		 * Charge Current limit derived from Min-Cell-Voltage.
+		 * 
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * <li>Type: Integer
+		 * <li>Unit: Ampere
+		 * </ul>
+		 */
+		BP_CHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)),
+		/**
+		 * Discharge Current limit derived from Min-Cell-Voltage.
+		 * 
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * <li>Type: Integer
+		 * <li>Unit: Ampere
+		 * </ul>
+		 */
+		BP_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)),
+		/**
+		 * Charge Current limit derived from Max-Cell-Voltage.
+		 * 
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * <li>Type: Integer
+		 * <li>Unit: Ampere
+		 * </ul>
+		 */
+		BP_CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)),
+		/**
+		 * Discharge Current limit derived from Max-Cell-Voltage.
+		 * 
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * <li>Type: Integer
+		 * <li>Unit: Ampere
+		 * </ul>
+		 */
+		BP_DISCHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)),
+		/**
+		 * Charge Current limit derived from Min-Cell-Temperature.
+		 * 
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * <li>Type: Integer
+		 * <li>Unit: Ampere
+		 * </ul>
+		 */
+		BP_CHARGE_MIN_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)),
+		/**
+		 * Discharge Current limit derived from Min-Cell-Temperature.
+		 * 
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * <li>Type: Integer
+		 * <li>Unit: Ampere
+		 * </ul>
+		 */
+		BP_DISCHARGE_MIN_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)),
+		/**
+		 * Charge Current limit derived from Max-Cell-Temperature.
+		 * 
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * <li>Type: Integer
+		 * <li>Unit: Ampere
+		 * </ul>
+		 */
+		BP_CHARGE_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)),
+		/**
+		 * Discharge Current limit derived from Max-Cell-Temperature.
+		 * 
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * <li>Type: Integer
+		 * <li>Unit: Ampere
+		 * </ul>
+		 */
+		BP_DISCHARGE_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)),
+		/**
+		 * Charge Max-Increase Current limit.
+		 * 
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * <li>Type: Integer
+		 * <li>Unit: Ampere
+		 * </ul>
+		 */
+		BP_CHARGE_INCREASE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)),
+		/**
+		 * Discharge Max-Increase Current limit.
+		 * 
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * <li>Type: Integer
+		 * <li>Unit: Ampere
+		 * </ul>
+		 */
+		BP_DISCHARGE_INCREASE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)),
+		/**
+		 * Force-Discharge State.
+		 * 
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * <li>Type: Integer
+		 * <li>Unit: Ampere
+		 * </ul>
+		 */
+		BP_FORCE_DISCHARGE(Doc.of(AbstractForceChargeDischarge.State.values())), //
+		/**
+		 * Force-Charge State.
+		 * 
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * <li>Type: Integer
+		 * <li>Unit: Ampere
+		 * </ul>
+		 */
+		BP_FORCE_CHARGE(Doc.of(AbstractForceChargeDischarge.State.values())) //
+		;
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
 
 	public static class Builder {
 
@@ -48,8 +218,6 @@ public class BatteryProtection {
 		 */
 		public Builder applyBatteryProtectionDefinition(BatteryProtectionDefinition def, ClockProvider clockProvider) {
 			return this //
-					.setBmsAllowedChargeCurrent(def.getBmsAllowedChargeCurrent()) //
-					.setBmsAllowedDischargeCurrent(def.getBmsAllowedDischargeCurrent()) //
 					.setChargeMaxCurrentHandler(
 							ChargeMaxCurrentHandler.create(clockProvider, def.getInitialBmsMaxEverChargeCurrent()) //
 									.setVoltageToPercent(def.getChargeVoltageToPercent()) //
@@ -116,8 +284,6 @@ public class BatteryProtection {
 	private final Battery battery;
 	private final ChargeMaxCurrentHandler chargeMaxCurrentHandler;
 	private final DischargeMaxCurrentHandler dischargeMaxCurrentHandler;
-	private final ChannelId bmsChargeMaxCurrentChannelId;
-	private final ChannelId bmsDischargeMaxCurrentChannelId;
 
 	protected BatteryProtection(Battery battery, ChargeMaxCurrentHandler chargeMaxCurrentHandler,
 			DischargeMaxCurrentHandler dischargeMaxCurrentHandler, ChannelId bmsChargeMaxCurrentChannelId,
@@ -127,13 +293,6 @@ public class BatteryProtection {
 		this.battery = battery;
 		this.chargeMaxCurrentHandler = chargeMaxCurrentHandler;
 		this.dischargeMaxCurrentHandler = dischargeMaxCurrentHandler;
-
-		if (bmsChargeMaxCurrentChannelId.doc().getUnit() != Unit.AMPERE
-				|| bmsDischargeMaxCurrentChannelId.doc().getUnit() != Unit.AMPERE) {
-			throw new IllegalArgumentException("'bmsChargeMaxCurrentChannelId' and 'bmsDischargeMaxCurrentChannelId' must be of Unit AMPERE");
-		}
-		this.bmsChargeMaxCurrentChannelId = bmsChargeMaxCurrentChannelId;
-		this.bmsDischargeMaxCurrentChannelId = bmsDischargeMaxCurrentChannelId;
 	}
 
 	/**
@@ -144,32 +303,16 @@ public class BatteryProtection {
 	 * <li>Set DISCHARGE_MAX_CURRENT Channel
 	 * <li>Set FORCE_DISCHARGE_ACTIVE State-Channel if Charge-Max-Current < 0
 	 * <li>Set FORCE_CHARGE_ACTIVE State-Channel if Discharge-Max-Current < 0
+	 * <li>SET
 	 * </ul>
 	 */
 	public void apply() {
-		// Read input parameters from Battery
-		Integer minCellVoltage = this.battery.getMinCellVoltage().get();
-		Integer maxCellVoltage = this.battery.getMaxCellVoltage().get();
-		Integer minCellTemperature = this.battery.getMinCellTemperature().get();
-		Integer maxCellTemperature = this.battery.getMaxCellTemperature().get();
-		IntegerReadChannel bmsAllowedChargeCurrentChannel = this.battery.channel(this.bmsChargeMaxCurrentChannelId);
-		Integer bmsAllowedChargeCurrent = bmsAllowedChargeCurrentChannel.value().get();
-		IntegerReadChannel bmsAllowedDischargeCurrentChannel = this.battery
-				.channel(this.bmsDischargeMaxCurrentChannelId);
-		Integer bmsAllowedDischargeCurrent = bmsAllowedDischargeCurrentChannel.value().get();
-
 		// Use MaxCurrentHandlers to calculate max charge and discharge currents
-		int chargeMaxCurrent = this.chargeMaxCurrentHandler.calculateCurrentLimit(minCellVoltage, maxCellVoltage,
-				minCellTemperature, maxCellTemperature, bmsAllowedChargeCurrent);
-		int dischargeMaxCurrent = this.dischargeMaxCurrentHandler.calculateCurrentLimit(minCellVoltage, maxCellVoltage,
-				minCellTemperature, maxCellTemperature, bmsAllowedDischargeCurrent);
+		int chargeMaxCurrent = this.chargeMaxCurrentHandler.calculateCurrentLimit(this.battery);
+		int dischargeMaxCurrent = this.dischargeMaxCurrentHandler.calculateCurrentLimit(this.battery);
 
 		// Set max charge and discharge currents
 		battery._setChargeMaxCurrent(chargeMaxCurrent);
 		battery._setDischargeMaxCurrent(dischargeMaxCurrent);
-
-		// Set State-Channels on 'Force Charge' or 'Force Discharge' mode
-		battery._setForceDischargeActive(chargeMaxCurrent < 0);
-		battery._setForceChargeActive(dischargeMaxCurrent < 0);
 	}
 }

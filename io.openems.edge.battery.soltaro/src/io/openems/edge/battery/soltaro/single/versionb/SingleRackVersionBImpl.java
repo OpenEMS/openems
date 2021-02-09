@@ -29,6 +29,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.protection.BatteryProtection;
+import io.openems.edge.battery.soltaro.BatteryProtectionDefinitionSoltaro;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.ModuleParameters;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.Context;
@@ -100,7 +101,8 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
-				SingleRackVersionB.ChannelId.values() //
+				SingleRackVersionB.ChannelId.values(), //
+				BatteryProtection.ChannelId.values() //
 		);
 	}
 
@@ -123,8 +125,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		}
 
 		this.batteryProtection = BatteryProtection.create(this) //
-				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaroSingleB(),
-						this.componentManager) //
+				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro(), this.componentManager) //
 				.build();
 
 		ControlAndLogic.setWatchdog(this, config.watchdog());
@@ -525,9 +526,9 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				// Allowed Currents high prioritized because it is necessary to react fast on
 				// changes
 				new FC3ReadRegistersTask(0x2160, Priority.HIGH, //
-						m(SingleRackVersionB.ChannelId.SYSTEM_MAX_CHARGE_CURRENT, new UnsignedWordElement(0x2160),
+						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new UnsignedWordElement(0x2160),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(SingleRackVersionB.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(0x2161),
+						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new UnsignedWordElement(0x2161),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				),
 				// Cluster info

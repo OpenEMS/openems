@@ -11,6 +11,9 @@ import org.junit.Test;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.battery.protection.currenthandler.AbstractMaxCurrentHandler;
+import io.openems.edge.battery.protection.currenthandler.ChargeMaxCurrentHandler;
+import io.openems.edge.battery.protection.currenthandler.DischargeMaxCurrentHandler;
 import io.openems.edge.battery.protection.force.ForceCharge;
 import io.openems.edge.battery.protection.force.ForceDischarge;
 import io.openems.edge.battery.test.DummyBattery;
@@ -117,8 +120,6 @@ public class BatteryProtectionTest {
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 		final BatteryProtection sut = BatteryProtection.create(battery) //
-				.setBmsAllowedChargeCurrent(ChannelId.ORIGINAL_CHARGE_MAX_CURRENT) //
-				.setBmsAllowedDischargeCurrent(ChannelId.ORIGINAL_DISCHARGE_MAX_CURRENT) //
 				.setChargeMaxCurrentHandler(ChargeMaxCurrentHandler.create(cm, INITIAL_BMS_MAX_EVER_CURRENT) //
 						.setVoltageToPercent(CHARGE_VOLTAGE_TO_PERCENT) //
 						.setTemperatureToPercent(CHARGE_TEMPERATURE_TO_PERCENT) //

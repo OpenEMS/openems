@@ -2,7 +2,6 @@ package io.openems.edge.battery.protection;
 
 import io.openems.edge.battery.protection.force.ForceCharge;
 import io.openems.edge.battery.protection.force.ForceDischarge;
-import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 
 public interface BatteryProtectionDefinition {
@@ -92,27 +91,5 @@ public interface BatteryProtectionDefinition {
 	 * @return the limit or null
 	 */
 	public Double getMaxIncreaseAmperePerSecond();
-
-	/**
-	 * Sets the Channel that holds the original Allowed-Charge-Current provided by
-	 * the Battery-Management-System.
-	 * 
-	 * <p>
-	 * The Channel must be in the Unit Ampere [A]!
-	 * 
-	 * @return the {@link ChannelId}
-	 */
-	public ChannelId getBmsAllowedChargeCurrent();
-
-	/**
-	 * Sets the Channel that holds the original Allowed-Discharge-Current provided
-	 * by the Battery-Management-System.
-	 * 
-	 * <p>
-	 * The Channel must be in the Unit Ampere [A]!
-	 * 
-	 * @return the {@link ChannelId}
-	 */
-	public ChannelId getBmsAllowedDischargeCurrent();
 
 }

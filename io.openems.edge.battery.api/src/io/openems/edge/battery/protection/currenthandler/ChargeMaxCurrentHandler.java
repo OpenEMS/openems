@@ -1,5 +1,7 @@
-package io.openems.edge.battery.protection;
+package io.openems.edge.battery.protection.currenthandler;
 
+import io.openems.edge.battery.protection.BatteryProtection;
+import io.openems.edge.battery.protection.BatteryProtection.ChannelId;
 import io.openems.edge.battery.protection.force.ForceDischarge;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.linecharacteristic.PolyLine;
@@ -71,6 +73,31 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 			ForceDischarge.Params forceDischargeParams) {
 		super(clockProvider, initialBmsMaxEverAllowedChargeCurrent, voltageToPercent, temperatureToPercent,
 				maxIncreasePerSecond, new ForceDischarge(forceDischargeParams));
+	}
+
+	@Override
+	protected ChannelId getBpBmsChannelId() {
+		return BatteryProtection.ChannelId.BP_CHARGE_BMS;
+	}
+
+	@Override
+	protected ChannelId getBpMinVoltageChannelId() {
+		return BatteryProtection.ChannelId.BP_CHARGE_MIN_VOLTAGE;
+	}
+
+	@Override
+	protected ChannelId getBpMaxVoltageChannelId() {
+		return BatteryProtection.ChannelId.BP_CHARGE_MAX_VOLTAGE;
+	}
+
+	@Override
+	protected ChannelId getBpMinTemperatureChannelId() {
+		return BatteryProtection.ChannelId.BP_CHARGE_MIN_TEMPERATURE;
+	}
+
+	@Override
+	protected ChannelId getBpMaxTemperatureChannelId() {
+		return BatteryProtection.ChannelId.BP_CHARGE_MAX_TEMPERATURE;
 	}
 
 }

@@ -592,10 +592,6 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 				.unit(Unit.MILLIAMPERE)), //
 		NUMBER_OF_TEMPERATURE_WHEN_ALARM(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE)), //
-		SYSTEM_MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)), //
-		SYSTEM_MAX_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)), //
 		CYCLE_TIME(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE)), //
 		TOTAL_CAPACITY_HIGH_BITS(Doc.of(OpenemsType.INTEGER) //
