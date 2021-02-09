@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +34,8 @@ import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.ClockProvider;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
@@ -54,17 +57,27 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 			this.value = value;
 		}
 
+		/**
+		 * Gets the {@link ChannelAddress}.
+		 * 
+		 * @return the {@link ChannelAddress}
+		 */
 		public ChannelAddress getAddress() {
-			return address;
+			return this.address;
 		}
 
+		/**
+		 * Gets the value {@link Object}.
+		 * 
+		 * @return the {@link Object}
+		 */
 		public Object getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String toString() {
-			return address.toString() + ":" + value;
+			return this.address.toString() + ":" + this.value;
 		}
 	}
 
@@ -120,23 +133,45 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 			this.description = "#" + (++instanceCounter) + (description.isEmpty() ? "" : ": " + description);
 		}
 
+		/**
+		 * Adds an input value for a Channel.
+		 * 
+		 * @param address the {@link ChannelAddress}
+		 * @param value   the value {@link Object}
+		 * @return myself
+		 */
 		public TestCase input(ChannelAddress address, Object value) {
 			this.inputs.add(new ChannelValue(address, value));
 			return this;
 		}
 
+		/**
+		 * Adds an expected output value for a Channel.
+		 * 
+		 * @param address the {@link ChannelAddress}
+		 * @param value   the value {@link Object}
+		 * @return myself
+		 */
 		public TestCase output(ChannelAddress address, Object value) {
 			this.outputs.add(new ChannelValue(address, value));
 			return this;
 		}
 
+		/**
+		 * Adds a simulated timeleap, i.e. simulates that a given amount of time passed.
+		 * 
+		 * @param clock       the active {@link TimeLeapClock}, i.e. provided to the
+		 *                    system-under-test by a {@link ClockProvider} like
+		 *                    {@link ComponentManager}.
+		 * @param amountToAdd the amount that should be simulated
+		 * @param unit        the {@link TemporalUnit} of the amount, e.g. using the
+		 *                    {@link ChronoUnit} enum
+		 * @return myself
+		 */
 		public TestCase timeleap(TimeLeapClock clock, long amountToAdd, TemporalUnit unit) {
 			this.timeleap = new TimeLeap(clock, amountToAdd, unit);
 			return this;
 		}
-
-		// TODO: add for each event
-		// TODO: check existing JUnit tests where this improvement could be applied
 
 		/**
 		 * Adds a Callback that is called on
@@ -273,7 +308,6 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 * Validates the output values.
 		 * 
 		 * @param components Referenced components
-		 * @param index
 		 * @throws Exception on validation failure
 		 */
 		protected void validateOutputs(Map<String, OpenemsComponent> components) throws Exception {
@@ -410,13 +444,35 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		return this.self();
 	}
 
+	private boolean addReference(Class<?> clazz, String memberName, Object object)
+			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+		try {
+			Field field = clazz.getDeclaredField(memberName);
+			field.setAccessible(true);
+			field.set(this.sut, object);
+			return true;
+		} catch (NoSuchFieldException e) {
+			// Ignore. Try method.
+			if (this.invokeSingleArgMethod(clazz, memberName, object)) {
+				return true;
+			}
+		}
+		// If we are here, no matching field or method was found. Search in parent
+		// classes.
+		Class<?> parent = clazz.getSuperclass();
+		if (parent == null) {
+			return false; // reached 'java.lang.Object'
+		}
+		return this.addReference(parent, memberName, object);
+	}
+
 	/**
 	 * Adds an available {@link OpenemsComponent}.
 	 * 
 	 * <p>
 	 * If the provided Component is a {@link DummyComponentManager}.
 	 * 
-	 * @param component
+	 * @param component the {@link OpenemsComponent}s
 	 * @return itself, to use as a builder
 	 */
 	public SELF addComponent(OpenemsComponent component) {
@@ -461,7 +517,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		}
 
 		// Now SUT can be added to the list, as it does have an ID now
-		this.addComponent(sut);
+		this.addComponent(this.sut);
 		return this.self();
 	}
 
@@ -518,28 +574,6 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		Method method = clazz.getDeclaredMethod("deactivate");
 		method.setAccessible(true);
 		method.invoke(this.sut);
-	}
-
-	private boolean addReference(Class<?> clazz, String memberName, Object object)
-			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-		try {
-			Field field = clazz.getDeclaredField(memberName);
-			field.setAccessible(true);
-			field.set(this.sut, object);
-			return true;
-		} catch (NoSuchFieldException e) {
-			// Ignore. Try method.
-			if (this.invokeSingleArgMethod(clazz, memberName, object)) {
-				return true;
-			}
-		}
-		// If we are here, no matching field or method was found. Search in parent
-		// classes.
-		Class<?> parent = clazz.getSuperclass();
-		if (parent == null) {
-			return false; // reached 'java.lang.Object'
-		}
-		return addReference(parent, memberName, object);
 	}
 
 	private boolean invokeSingleArgMethod(Class<?> clazz, String methodName, Object arg)
