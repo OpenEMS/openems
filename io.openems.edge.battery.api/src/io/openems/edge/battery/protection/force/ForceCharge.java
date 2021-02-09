@@ -57,7 +57,7 @@ public class ForceCharge extends AbstractForceChargeDischarge {
 
 	@Override
 	protected State handleWaitForForceModeState(int minCellVoltage, int maxCellVoltage, Duration durationSinceStart) {
-		if (maxCellVoltage > this.params.startChargeBelowCellVoltage) {
+		if (minCellVoltage > this.params.startChargeBelowCellVoltage) {
 			return State.UNDEFINED;
 
 		} else if (durationSinceStart.getSeconds() < WAIT_FOR_FORCE_MODE_SECONDS) {
