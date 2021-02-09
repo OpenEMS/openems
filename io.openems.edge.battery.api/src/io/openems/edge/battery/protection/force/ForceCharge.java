@@ -27,7 +27,15 @@ public class ForceCharge extends AbstractForceChargeDischarge {
 
 	private final Params params;
 
-	public ForceCharge(Params params) {
+	public static ForceCharge from(Params params) {
+		if (params == null) {
+			return null;
+		} else {
+			return new ForceCharge(params);
+		}
+	}
+
+	private ForceCharge(Params params) {
 		super();
 		this.params = params;
 	}

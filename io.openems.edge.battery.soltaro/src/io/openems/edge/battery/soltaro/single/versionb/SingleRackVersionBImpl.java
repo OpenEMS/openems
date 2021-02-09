@@ -112,7 +112,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	protected void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 
 		// adds dynamically created channels and save them into a map to access them

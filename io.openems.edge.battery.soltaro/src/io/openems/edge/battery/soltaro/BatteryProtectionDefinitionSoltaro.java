@@ -5,12 +5,7 @@ import io.openems.edge.battery.protection.force.ForceCharge;
 import io.openems.edge.battery.protection.force.ForceDischarge;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 
-public abstract class BatteryProtectionDefinitionSoltaro implements BatteryProtectionDefinition {
-
-	// TODO [13:20] Ludwig Asen
-//    bzgl. Servicefreundlichkeit: wäre es sinnvoll erlaubte be-/entladeströme für temp und spannung als channel mitzuschreiben
-//    dann kann der service sofort sagen lieber kunde deinem speicher ist zu kalt
-//    Ok. Eine andere Alternative wäre, dass ich Enum setze, das sagt "Batterie wird gerade durch Temperaturlimit reduziert" usw. Das wären weniger Daten (nur ein Wert), aber ich habe das Problem, dass mehrere Begrenzungen gleichzeitig aktiv sein können.
+public class BatteryProtectionDefinitionSoltaro implements BatteryProtectionDefinition {
 
 	@Override
 	public int getInitialBmsMaxEverChargeCurrent() {

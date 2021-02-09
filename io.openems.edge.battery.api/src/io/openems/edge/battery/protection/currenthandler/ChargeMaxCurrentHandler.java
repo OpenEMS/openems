@@ -72,7 +72,7 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 			PolyLine voltageToPercent, PolyLine temperatureToPercent, Double maxIncreasePerSecond,
 			ForceDischarge.Params forceDischargeParams) {
 		super(clockProvider, initialBmsMaxEverAllowedChargeCurrent, voltageToPercent, temperatureToPercent,
-				maxIncreasePerSecond, new ForceDischarge(forceDischargeParams));
+				maxIncreasePerSecond, ForceDischarge.from(forceDischargeParams));
 	}
 
 	@Override
@@ -98,6 +98,16 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 	@Override
 	protected ChannelId getBpMaxTemperatureChannelId() {
 		return BatteryProtection.ChannelId.BP_CHARGE_MAX_TEMPERATURE;
+	}
+
+	@Override
+	protected ChannelId getBpMaxIncreaseAmpereChannelId() {
+		return BatteryProtection.ChannelId.BP_CHARGE_INCREASE;
+	}
+
+	@Override
+	protected ChannelId getBpForceCurrentChannelId() {
+		return BatteryProtection.ChannelId.BP_FORCE_DISCHARGE;
 	}
 
 }

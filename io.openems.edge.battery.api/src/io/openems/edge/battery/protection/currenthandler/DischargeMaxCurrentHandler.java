@@ -43,7 +43,7 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 		public DischargeMaxCurrentHandler build() {
 			return new DischargeMaxCurrentHandler(this.clockProvider, this.initialBmsMaxEverCurrent,
 					this.voltageToPercent, this.temperatureToPercent, this.maxIncreasePerSecond,
-					new ForceCharge(this.forceChargeParams));
+					ForceCharge.from(this.forceChargeParams));
 		}
 
 		@Override
@@ -69,7 +69,7 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 	}
 
 	protected DischargeMaxCurrentHandler(ClockProvider clockProvider, int initialBmsMaxEverDischargeCurrent,
-			PolyLine voltageToPercent, PolyLine temperatureToPercent, double maxIncreasePerSecond,
+			PolyLine voltageToPercent, PolyLine temperatureToPercent, Double maxIncreasePerSecond,
 			ForceCharge forceCharge) {
 		super(clockProvider, initialBmsMaxEverDischargeCurrent, voltageToPercent, temperatureToPercent,
 				maxIncreasePerSecond, forceCharge);
@@ -77,6 +77,37 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 
 	@Override
 	protected ChannelId getBpBmsChannelId() {
-		return BatteryProtection.ChannelId.BP_CHARGE_BMS;
+		return BatteryProtection.ChannelId.BP_DISCHARGE_BMS;
 	}
+
+	@Override
+	protected ChannelId getBpMinVoltageChannelId() {
+		return BatteryProtection.ChannelId.BP_DISCHARGE_MIN_VOLTAGE;
+	}
+
+	@Override
+	protected ChannelId getBpMaxVoltageChannelId() {
+		return BatteryProtection.ChannelId.BP_DISCHARGE_MAX_VOLTAGE;
+	}
+
+	@Override
+	protected ChannelId getBpMinTemperatureChannelId() {
+		return BatteryProtection.ChannelId.BP_DISCHARGE_MIN_TEMPERATURE;
+	}
+
+	@Override
+	protected ChannelId getBpMaxTemperatureChannelId() {
+		return BatteryProtection.ChannelId.BP_DISCHARGE_MAX_TEMPERATURE;
+	}
+
+	@Override
+	protected ChannelId getBpMaxIncreaseAmpereChannelId() {
+		return BatteryProtection.ChannelId.BP_DISCHARGE_INCREASE;
+	}
+
+	@Override
+	protected ChannelId getBpForceCurrentChannelId() {
+		return BatteryProtection.ChannelId.BP_FORCE_DISCHARGE;
+	}
+
 }

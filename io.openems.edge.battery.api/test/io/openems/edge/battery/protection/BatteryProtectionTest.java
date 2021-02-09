@@ -1,7 +1,5 @@
 package io.openems.edge.battery.protection;
 
-import static org.junit.Assert.assertEquals;
-
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
@@ -11,7 +9,6 @@ import org.junit.Test;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.battery.protection.currenthandler.AbstractMaxCurrentHandler;
 import io.openems.edge.battery.protection.currenthandler.ChargeMaxCurrentHandler;
 import io.openems.edge.battery.protection.currenthandler.DischargeMaxCurrentHandler;
 import io.openems.edge.battery.protection.force.ForceCharge;
@@ -19,6 +16,8 @@ import io.openems.edge.battery.protection.force.ForceDischarge;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.linecharacteristic.PolyLine;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -26,18 +25,18 @@ import io.openems.edge.common.test.TimeLeapClock;
 
 public class BatteryProtectionTest {
 
-	private final static double MAX_INCREASE_AMPERE_PER_SECOND = 0.5;
+	public final static double MAX_INCREASE_AMPERE_PER_SECOND = 0.5;
 
-	private final static PolyLine CHARGE_VOLTAGE_TO_PERCENT = PolyLine.create() //
-			.addPoint(Math.nextDown(2900), 0) //
-			.addPoint(2900, 0.1) //
-			.addPoint(3000, 1) //
+	public final static PolyLine CHARGE_VOLTAGE_TO_PERCENT = PolyLine.create() //
+			.addPoint(3000, 0.1) //
+			.addPoint(Math.nextUp(3000), 1) //
 			.addPoint(3450, 1) //
-			.addPoint(Math.nextDown(3650), 0.01) //
+			.addPoint(3600, 0.02) //
+			.addPoint(Math.nextDown(3650), 0.02) //
 			.addPoint(3650, 0) //
 			.build();
 
-	private final static PolyLine CHARGE_TEMPERATURE_TO_PERCENT = PolyLine.create() //
+	public final static PolyLine CHARGE_TEMPERATURE_TO_PERCENT = PolyLine.create() //
 			.addPoint(Math.nextDown(-10), 0) //
 			.addPoint(-10, 0.215) //
 			.addPoint(0, 0.215) //
@@ -54,16 +53,18 @@ public class BatteryProtectionTest {
 			.addPoint(55, 0) //
 			.build();
 
-	private final static ForceDischarge.Params FORCE_DISCHARGE = new ForceDischarge.Params(3660, 3640, 3450);
+	public final static ForceDischarge.Params FORCE_DISCHARGE = new ForceDischarge.Params(3660, 3640, 3450);
 
-	private final static PolyLine DISCHARGE_VOLTAGE_TO_PERCENT = PolyLine.create() //
-			.addPoint(Math.nextDown(3000), 0) //
+	public final static PolyLine DISCHARGE_VOLTAGE_TO_PERCENT = PolyLine.create() //
+			.addPoint(2900, 0) //
+			.addPoint(Math.nextUp(2900), 0.05) //
+			.addPoint(2920, 0.05) //
 			.addPoint(3000, 1) //
 			.addPoint(3700, 1) //
 			.addPoint(Math.nextUp(3700), 0) //
 			.build();
 
-	private final static PolyLine DISCHARGE_TEMPERATURE_TO_PERCENT = PolyLine.create() //
+	public final static PolyLine DISCHARGE_TEMPERATURE_TO_PERCENT = PolyLine.create() //
 			.addPoint(Math.nextDown(-10), 0) //
 			.addPoint(-10, 0.215) //
 			.addPoint(0, 0.215) //
@@ -76,9 +77,9 @@ public class BatteryProtectionTest {
 			.addPoint(55, 0) //
 			.build();
 
-	private final static ForceCharge.Params FORCE_CHARGE = new ForceCharge.Params(2850, 2910, 3000);
+	public final static ForceCharge.Params FORCE_CHARGE = new ForceCharge.Params(2850, 2910, 3000);
 
-	private final static int INITIAL_BMS_MAX_EVER_CURRENT = 80;
+	public final static int INITIAL_BMS_MAX_EVER_CURRENT = 80;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		ORIGINAL_CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
@@ -100,10 +101,12 @@ public class BatteryProtectionTest {
 
 	private static final String BATTERY_ID = "battery0";
 
-	private final static ChannelAddress BATTERY_ORIGINAL_CHARGE_MAX_CURRENT = new ChannelAddress(BATTERY_ID,
-			ChannelId.ORIGINAL_CHARGE_MAX_CURRENT.id());
-	private final static ChannelAddress BATTERY_ORIGINAL_DISCHARGE_MAX_CURRENT = new ChannelAddress(BATTERY_ID,
-			ChannelId.ORIGINAL_DISCHARGE_MAX_CURRENT.id());
+	private final static ChannelAddress BATTERY_START_STOP = new ChannelAddress(BATTERY_ID,
+			StartStoppable.ChannelId.START_STOP.id());
+	private final static ChannelAddress BATTERY_BP_CHARGE_BMS = new ChannelAddress(BATTERY_ID,
+			BatteryProtection.ChannelId.BP_CHARGE_BMS.id());
+	private final static ChannelAddress BATTERY_BP_DISCHARGE_BMS = new ChannelAddress(BATTERY_ID,
+			BatteryProtection.ChannelId.BP_DISCHARGE_BMS.id());
 	private final static ChannelAddress BATTERY_MIN_CELL_VOLTAGE = new ChannelAddress(BATTERY_ID, "MinCellVoltage");
 	private final static ChannelAddress BATTERY_MAX_CELL_VOLTAGE = new ChannelAddress(BATTERY_ID, "MaxCellVoltage");
 	private final static ChannelAddress BATTERY_MIN_CELL_TEMPERATURE = new ChannelAddress(BATTERY_ID,
@@ -116,7 +119,7 @@ public class BatteryProtectionTest {
 
 	@Test
 	public void test() throws Exception {
-		final DummyBattery battery = new DummyBattery(BATTERY_ID, ChannelId.values());
+		final DummyBattery battery = new DummyBattery(BATTERY_ID, BatteryProtection.ChannelId.values());
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 		final BatteryProtection sut = BatteryProtection.create(battery) //
@@ -136,32 +139,33 @@ public class BatteryProtectionTest {
 		new ComponentTest(new DummyBattery(BATTERY_ID)) //
 				.addComponent(battery) //
 				.next(new TestCase() //
-						.input(BATTERY_ORIGINAL_CHARGE_MAX_CURRENT, 80) //
-						.input(BATTERY_ORIGINAL_DISCHARGE_MAX_CURRENT, 80) //
+						.input(BATTERY_START_STOP, StartStop.START) //
+						.input(BATTERY_BP_CHARGE_BMS, 80) //
+						.input(BATTERY_BP_DISCHARGE_BMS, 80) //
 						.input(BATTERY_MIN_CELL_VOLTAGE, 2950) //
 						.input(BATTERY_MAX_CELL_VOLTAGE, 3300) //
 						.input(BATTERY_MIN_CELL_TEMPERATURE, 16) //
 						.input(BATTERY_MAX_CELL_TEMPERATURE, 17) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 44) //
+						.output(BATTERY_CHARGE_MAX_CURRENT, 0) //
 						.output(BATTERY_DISCHARGE_MAX_CURRENT, 0)) //
-				.next(new TestCase("open, but maxIncreasAmpereLimit") //
-						.timeleap(clock, 900, ChronoUnit.MILLIS) //
+				.next(new TestCase("open, but maxIncreaseAmpereLimit") //
+						.timeleap(clock, 2, ChronoUnit.SECONDS) //
 						.input(BATTERY_MIN_CELL_VOLTAGE, 3000) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 44) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 0)) //
+						.output(BATTERY_CHARGE_MAX_CURRENT, 1) //
+						.output(BATTERY_DISCHARGE_MAX_CURRENT, 1)) //
 				.next(new TestCase() //
-						.timeleap(clock, 900, ChronoUnit.MILLIS) //
+						.timeleap(clock, 2, ChronoUnit.SECONDS) //
 						.input(BATTERY_MIN_CELL_VOLTAGE, 3050) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 45) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 1)) //
+						.output(BATTERY_CHARGE_MAX_CURRENT, 2) //
+						.output(BATTERY_DISCHARGE_MAX_CURRENT, 2)) //
 				.next(new TestCase() //
 						.timeleap(clock, 10, ChronoUnit.SECONDS) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 50) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 6)) //
+						.output(BATTERY_CHARGE_MAX_CURRENT, 7) //
+						.output(BATTERY_DISCHARGE_MAX_CURRENT, 7)) //
 				.next(new TestCase() //
 						.timeleap(clock, 10, ChronoUnit.MINUTES) //
 						.input(BATTERY_MAX_CELL_VOLTAGE, 3300) //
@@ -172,19 +176,19 @@ public class BatteryProtectionTest {
 						.timeleap(clock, 10, ChronoUnit.MINUTES) //
 						.input(BATTERY_MAX_CELL_VOLTAGE, 3499) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 61) //
+						.output(BATTERY_CHARGE_MAX_CURRENT, 54) //
 						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase() //
 						.timeleap(clock, 10, ChronoUnit.MINUTES) //
 						.input(BATTERY_MAX_CELL_VOLTAGE, 3649) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 1) //
+						.output(BATTERY_CHARGE_MAX_CURRENT, 2) //
 						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase() //
 						.timeleap(clock, 10, ChronoUnit.MINUTES) //
 						.input(BATTERY_MAX_CELL_VOLTAGE, 3649) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 1) //
+						.output(BATTERY_CHARGE_MAX_CURRENT, 2) //
 						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase() //
 						.timeleap(clock, 10, ChronoUnit.MINUTES) //
@@ -243,128 +247,4 @@ public class BatteryProtectionTest {
 		;
 	}
 
-	@Test
-	public void testChargeVoltageToPercent() {
-		PolyLine p = CHARGE_VOLTAGE_TO_PERCENT;
-		assertEquals(0.1, p.getValue(2500), 0.001);
-		assertEquals(0.1, p.getValue(Math.nextDown(3000)), 0.001);
-		assertEquals(1, p.getValue(3000), 0.001);
-		assertEquals(1, p.getValue(3450), 0.001);
-		assertEquals(0.752, p.getValue(3500), 0.001);
-		assertEquals(0.257, p.getValue(3600), 0.001);
-		assertEquals(0.01, p.getValue(Math.nextDown(3650)), 0.001);
-		assertEquals(0, p.getValue(3650), 0.001);
-		assertEquals(0, p.getValue(4000), 0.001);
-	}
-
-	@Test
-	public void testGetMinCellVoltageToPercentLimit() {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
-		ChargeMaxCurrentHandler sut = ChargeMaxCurrentHandler.create(cm, INITIAL_BMS_MAX_EVER_CURRENT) //
-				.setVoltageToPercent(CHARGE_VOLTAGE_TO_PERCENT) //
-				.build();
-		assertEquals(80,
-				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MIN_CELL, 3000), 0.1);
-		assertEquals(51.2,
-				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MIN_CELL, 2960), 0.1);
-		assertEquals(29.6,
-				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MIN_CELL, 2930), 0.1);
-		assertEquals(8, (double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MIN_CELL, 2900),
-				0.1);
-		assertEquals(8, (double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MIN_CELL, 2999),
-				0.1);
-		assertEquals(80,
-				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MIN_CELL, 3000), 0.1);
-		assertEquals(51.2,
-				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MIN_CELL, 2960), 0.1);
-	}
-
-	@Test
-	public void testGetMaxCellVoltageToPercentLimit() {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
-		ChargeMaxCurrentHandler sut = ChargeMaxCurrentHandler.create(cm, INITIAL_BMS_MAX_EVER_CURRENT) //
-				.setVoltageToPercent(CHARGE_VOLTAGE_TO_PERCENT) //
-				.build();
-		assertEquals(80,
-				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MAX_CELL, 3450), 0.1);
-		assertEquals(76,
-				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MAX_CELL, 3460), 0.1);
-		assertEquals(72,
-				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MAX_CELL, 3470), 0.1);
-		assertEquals(72,
-				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MAX_CELL, 3460), 0.1);
-		assertEquals(72,
-				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MAX_CELL, 3451), 0.1);
-		assertEquals(80,
-				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MAX_CELL, 3450), 0.1);
-		assertEquals(76,
-				(double) sut.getCellVoltageToPercentLimit(AbstractMaxCurrentHandler.VOLTAGE_REF.MAX_CELL, 3460), 0.1);
-	}
-
-	@Test
-	public void testChargeTemperatureToPercent() {
-		PolyLine p = CHARGE_TEMPERATURE_TO_PERCENT;
-		assertEquals(0, p.getValue(-20), 0.001);
-		assertEquals(0, p.getValue(Math.nextDown(-10)), 0.001);
-		assertEquals(0.215, p.getValue(-10), 0.001);
-		assertEquals(0.215, p.getValue(0), 0.001);
-		assertEquals(0.27, p.getValue(0.5), 0.001);
-		assertEquals(0.325, p.getValue(1), 0.001);
-		assertEquals(0.325, p.getValue(5), 0.001);
-		assertEquals(0.4875, p.getValue(5.5), 0.001);
-		assertEquals(0.65, p.getValue(6), 0.001);
-		assertEquals(0.65, p.getValue(15), 0.001);
-		assertEquals(0.825, p.getValue(15.5), 0.001);
-		assertEquals(1, p.getValue(16), 0.001);
-		assertEquals(1, p.getValue(44), 0.001);
-		assertEquals(0.825, p.getValue(44.5), 0.001);
-		assertEquals(0.65, p.getValue(45), 0.001);
-		assertEquals(0.65, p.getValue(49), 0.001);
-		assertEquals(0.4875, p.getValue(49.5), 0.001);
-		assertEquals(0.325, p.getValue(50), 0.001);
-		assertEquals(0.325, p.getValue(54), 0.001);
-		assertEquals(0.1625, p.getValue(54.5), 0.001);
-		assertEquals(0, p.getValue(55), 0.001);
-		assertEquals(0, p.getValue(100), 0.001);
-	}
-
-	@Test
-	public void testForceDischarge() {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
-		ChargeMaxCurrentHandler sut = ChargeMaxCurrentHandler.create(cm, 40) //
-				.setForceDischarge(3660, 3640, 3450) //
-				.build();
-		assertEquals(null, sut.getForceCurrent(3000, 3650));
-		assertEquals(-1., sut.getForceCurrent(3000, 3660), 0.001);
-		assertEquals(-1., sut.getForceCurrent(3000, 3650), 0.001);
-		assertEquals(0, sut.getForceCurrent(3000, 3639), 0.001);
-		assertEquals(0, sut.getForceCurrent(3000, 3600), 0.001);
-		assertEquals(0, sut.getForceCurrent(3000, 3500), 0.001);
-		assertEquals(null, sut.getForceCurrent(3000, 3449));
-	}
-
-	@Test
-	public void testMaxIncreasePerSecond() {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
-		ChargeMaxCurrentHandler sut = ChargeMaxCurrentHandler.create(cm, 40) //
-				.setMaxIncreasePerSecond(MAX_INCREASE_AMPERE_PER_SECOND) //
-				.build();
-		sut.lastMaxIncreaseAmpereLimit = 0.;
-		sut.lastResultTimestamp = Instant.now(clock);
-
-		clock.leap(1, ChronoUnit.SECONDS);
-		assertEquals(0.5, (double) sut.getMaxIncreaseAmpereLimit(), 0.001);
-		sut.lastMaxIncreaseAmpereLimit = 0.5;
-
-		clock.leap(1, ChronoUnit.SECONDS);
-		assertEquals(1, (double) sut.getMaxIncreaseAmpereLimit(), 0.001);
-		sut.lastMaxIncreaseAmpereLimit = 1.;
-
-		clock.leap(800, ChronoUnit.MILLIS);
-		assertEquals(1.4, (double) sut.getMaxIncreaseAmpereLimit(), 0.001);
-	}
 }

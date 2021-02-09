@@ -202,9 +202,6 @@ public class BatteryProtection {
 		private ChargeMaxCurrentHandler chargeMaxCurrentHandler;
 		private DischargeMaxCurrentHandler dischargeMaxCurrentHandler;
 
-		private ChannelId bmsAllowedChargeCurrentChannelId;
-		private ChannelId bmsAllowedDischargeCurrentChannelId;
-
 		protected Builder(Battery battery) {
 			this.battery = battery;
 		}
@@ -255,19 +252,8 @@ public class BatteryProtection {
 			return this;
 		}
 
-		public Builder setBmsAllowedChargeCurrent(ChannelId bmsAllowedChargeCurrentChannelId) {
-			this.bmsAllowedChargeCurrentChannelId = bmsAllowedChargeCurrentChannelId;
-			return this;
-		}
-
-		public Builder setBmsAllowedDischargeCurrent(ChannelId bmsAllowedDischargeCurrentChannelId) {
-			this.bmsAllowedDischargeCurrentChannelId = bmsAllowedDischargeCurrentChannelId;
-			return this;
-		}
-
 		public BatteryProtection build() {
-			return new BatteryProtection(this.battery, this.chargeMaxCurrentHandler, this.dischargeMaxCurrentHandler,
-					this.bmsAllowedChargeCurrentChannelId, this.bmsAllowedDischargeCurrentChannelId);
+			return new BatteryProtection(this.battery, this.chargeMaxCurrentHandler, this.dischargeMaxCurrentHandler);
 		}
 	}
 
@@ -286,10 +272,9 @@ public class BatteryProtection {
 	private final DischargeMaxCurrentHandler dischargeMaxCurrentHandler;
 
 	protected BatteryProtection(Battery battery, ChargeMaxCurrentHandler chargeMaxCurrentHandler,
-			DischargeMaxCurrentHandler dischargeMaxCurrentHandler, ChannelId bmsChargeMaxCurrentChannelId,
-			ChannelId bmsDischargeMaxCurrentChannelId) {
+			DischargeMaxCurrentHandler dischargeMaxCurrentHandler) {
 		TypeUtils.assertNull("BatteryProtection algorithm is missing data", battery, chargeMaxCurrentHandler,
-				dischargeMaxCurrentHandler, bmsChargeMaxCurrentChannelId, bmsDischargeMaxCurrentChannelId);
+				dischargeMaxCurrentHandler);
 		this.battery = battery;
 		this.chargeMaxCurrentHandler = chargeMaxCurrentHandler;
 		this.dischargeMaxCurrentHandler = dischargeMaxCurrentHandler;
@@ -307,7 +292,9 @@ public class BatteryProtection {
 	 * </ul>
 	 */
 	public void apply() {
-		// Use MaxCurrentHandlers to calculate max charge and discharge currents
+		// Use MaxCurrentHandlers to calculate max charge and discharge currents.
+		// These methods also write debug information to BatteryProtection-Channels, so
+		// it is feasible to always execute them, even if battery is not started.
 		int chargeMaxCurrent = this.chargeMaxCurrentHandler.calculateCurrentLimit(this.battery);
 		int dischargeMaxCurrent = this.dischargeMaxCurrentHandler.calculateCurrentLimit(this.battery);
 
