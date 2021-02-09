@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.bmw.enums.BmsState;
 import io.openems.edge.battery.bmw.enums.State;
@@ -85,19 +84,17 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	public BmwBatteryImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				StartStoppable.ChannelId.values(), //
 				Battery.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
 				BMWChannelId.values() //
 		);
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	void activate(ComponentContext context, Config config) {
 		this.config = config;
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+				config.modbus_id());
 	}
 
 	private void handleStateMachine() {
@@ -340,7 +337,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 
 		return new ModbusProtocol(this, //
 
@@ -360,20 +357,20 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 				),
 
 				new FC4ReadInputRegistersTask(999, Priority.HIGH,
-						m(BMWChannelId.LIFE_SIGN, new UnsignedWordElement(999)),
+						m(BMWChannelId.LIFE_SIGN, new UnsignedWordElement(999)),	// seems working, but not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
 						m(BMWChannelId.BMS_STATE, new UnsignedWordElement(1000)), //
 						m(BMWChannelId.ERROR_BITS_1, new UnsignedWordElement(1001)), //
 						m(BMWChannelId.ERROR_BITS_2, new UnsignedWordElement(1002)), //
 						m(BMWChannelId.WARNING_BITS_1, new UnsignedWordElement(1003)), //
 						m(BMWChannelId.WARNING_BITS_2, new UnsignedWordElement(1004)), //
-						m(BMWChannelId.INFO_BITS, new UnsignedWordElement(1005)), //
-						m(BMWChannelId.MAXIMUM_OPERATING_CURRENT, new UnsignedWordElement(1006)), //
+						m(BMWChannelId.INFO_BITS, new UnsignedWordElement(1005)), // not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
+						m(BMWChannelId.MAXIMUM_OPERATING_CURRENT, new SignedWordElement(1006)), //
 						m(BMWChannelId.MINIMUM_OPERATING_CURRENT, new SignedWordElement(1007)), //
 						m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(1008),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(1009),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new UnsignedWordElement(1010)), //
+						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new SignedWordElement(1010)), //
 						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new SignedWordElement(1011),
 								ElementToChannelConverter.INVERT), //
 						m(BMWChannelId.MAXIMUM_LIMIT_DYNAMIC_VOLTAGE, new UnsignedWordElement(1012),
@@ -401,19 +398,19 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 						m(BMWChannelId.DC_VOLTAGE_AVERAGE, new UnsignedWordElement(1028),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
 				new FC4ReadInputRegistersTask(1029, Priority.HIGH, //
-						m(new UnsignedWordElement(1029)) //
+						m(new SignedWordElement(1029)) //
 								.m(BMWChannelId.DC_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_3) //
+								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build()), //
 				new FC4ReadInputRegistersTask(1030, Priority.HIGH, //
-						m(BMWChannelId.AVERAGE_TEMPERATURE, new UnsignedWordElement(1030))), //
+						m(BMWChannelId.AVERAGE_TEMPERATURE, new SignedWordElement(1030))), //
 				new FC4ReadInputRegistersTask(1031, Priority.HIGH, //
-						m(new UnsignedWordElement(1031)) //
+						m(new SignedWordElement(1031)) //
 								.m(BMWChannelId.MINIMUM_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(Battery.ChannelId.MIN_CELL_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.build()), //
 				new FC4ReadInputRegistersTask(1032, Priority.HIGH, //
-						m(new UnsignedWordElement(1032)) //
+						m(new SignedWordElement(1032)) //
 								.m(BMWChannelId.MAXIMUM_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(Battery.ChannelId.MAX_CELL_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.build()), //
@@ -421,25 +418,25 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 						m(Battery.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(1033)), //
 						m(Battery.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(1034)), //
 						m(BMWChannelId.AVERAGE_CELL_VOLTAGE, new UnsignedWordElement(1035)), //
-						m(BMWChannelId.INTERNAL_RESISTANCE, new UnsignedWordElement(1036)), //
+						m(BMWChannelId.INTERNAL_RESISTANCE, new UnsignedWordElement(1036)), // not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
 						m(BMWChannelId.INSULATION_RESISTANCE, new UnsignedWordElement(1037),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								ElementToChannelConverter.DIRECT_1_TO_1), //
 						m(BMWChannelId.CONTAINER_TEMPERATURE, new UnsignedWordElement(1038),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
 						m(BMWChannelId.AMBIENT_TEMPERATURE, new UnsignedWordElement(1039),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
 						m(BMWChannelId.HUMIDITY_CONTAINER, new UnsignedWordElement(1040),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(BMWChannelId.MAXIMUM_LIMIT_DYNAMIC_CURRENT_HIGH_RES, new UnsignedWordElement(1041),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
+						m(BMWChannelId.MAXIMUM_LIMIT_DYNAMIC_CURRENT_HIGH_RES, new SignedWordElement(1041),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(BMWChannelId.MINIMUM_LIMIT_DYNAMIC_CURRENT_HIGH_RES, new UnsignedWordElement(1042),
+						m(BMWChannelId.MINIMUM_LIMIT_DYNAMIC_CURRENT_HIGH_RES, new SignedWordElement(1042),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(BMWChannelId.FULL_CYCLE_COUNT, new UnsignedWordElement(1043)), //
-						m(BMWChannelId.OPERATING_TIME_COUNT, new UnsignedDoublewordElement(1044)), //
-						m(BMWChannelId.COM_PRO_VERSION, new UnsignedDoublewordElement(1046)), //
-						m(BMWChannelId.SERIAL_NUMBER, new UnsignedDoublewordElement(1048)), //
-						m(BMWChannelId.SERIAL_NUMBER, new UnsignedDoublewordElement(1050)), //
-						m(BMWChannelId.SOFTWARE_VERSION, new UnsignedDoublewordElement(1052)) //
+						m(BMWChannelId.OPERATING_TIME_COUNT, new UnsignedDoublewordElement(1044)), // not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
+						m(BMWChannelId.COM_PRO_VERSION, new UnsignedDoublewordElement(1046)), // not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
+						m(BMWChannelId.SERIAL_NUMBER, new UnsignedDoublewordElement(1048)), // not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
+						m(BMWChannelId.SERIAL_NUMBER, new UnsignedDoublewordElement(1050)), // not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
+						m(BMWChannelId.SOFTWARE_VERSION, new UnsignedDoublewordElement(1052)) // not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
 				)
 
 		);
