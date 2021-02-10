@@ -1,5 +1,6 @@
 package io.openems.edge.ess.generic.symmetric;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,6 +29,8 @@ import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ClockProvider;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -52,13 +55,16 @@ import io.openems.edge.ess.power.api.Power;
 		} //
 )
 public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent implements GenericManagedSymmetricEss,
-		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
+		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, StartStoppable, ModbusSlave, ClockProvider {
 
 	@Reference
 	private Power power;
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricBatteryInverter batteryInverter;
@@ -211,7 +217,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 	}
 
 	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
-	
+
 	@Override
 	public void setStartStop(StartStop value) {
 		if (this.startStopTarget.getAndSet(value) != value) {
@@ -247,5 +253,15 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
 		);
-	}	
+	}
+
+	@Override
+	public Clock getClock() {
+		ClockProvider clockProvider = this.componentManager;
+		if (clockProvider != null) {
+			return clockProvider.getClock();
+		} else {
+			return Clock.systemDefaultZone();
+		}
+	}
 }
