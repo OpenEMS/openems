@@ -27,6 +27,7 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverterChain;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -457,7 +458,8 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 
 				new FC3ReadRegistersTask(0x0248, Priority.HIGH, //
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(0x0248), //
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								new ElementToChannelConverterChain(
+										ElementToChannelConverter.SCALE_FACTOR_1, IGNORE_LESS_THAN_100)),
 						new DummyRegisterElement(0x0249),
 						m(EssSinexcel.ChannelId.FREQUENCY, new SignedWordElement(0x024A),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
@@ -706,4 +708,24 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
+
+	/**
+	 * The Sinexcel Battery Inverter claims to outputting a little bit of power even
+	 * if it does not. This little filter ignores values for ActivePower less than
+	 * 100 (charge/discharge).
+	 */
+	private static final ElementToChannelConverter IGNORE_LESS_THAN_100 = new ElementToChannelConverter(//
+			obj -> {
+				if (obj == null) {
+					return null;
+				}
+				int value = (Short) obj;
+				if (Math.abs(value) < 100) {
+					return 0;
+				} else {
+					return value;
+				}
+			}, //
+			value -> value);
+
 }
