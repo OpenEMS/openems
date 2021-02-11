@@ -470,7 +470,7 @@ export class Service implements ErrorHandler {
    * Checks if this Edge is allowed to show BYD Battery Box Firmware Update Widget
    */
   public isBatteryBoxAllowed(edge: Edge): boolean {
-    if (['Pro Hybrid 10-Serie', 'Pro Hybrid GW'].includes(edge.producttype)) {
+    if (['Pro Hybrid GW'].includes(edge.producttype)) {
       return true;
     } else {
       return false;
