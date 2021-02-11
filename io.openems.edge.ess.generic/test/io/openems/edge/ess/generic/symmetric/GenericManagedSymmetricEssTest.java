@@ -1,5 +1,8 @@
 package io.openems.edge.ess.generic.symmetric;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
+
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
@@ -9,7 +12,9 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
@@ -36,8 +41,10 @@ public class GenericManagedSymmetricEssTest {
 
 	@Test
 	public void testStart() throws Exception {
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 		new ComponentTest(new GenericManagedSymmetricEssImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("batteryInverter", new DummyManagedSymmetricBatteryInverter(BATTERY_INVERTER_ID)) //
 				.addReference("battery", new DummyBattery(BATTERY_ID)) //
 				.activate(MyConfig.create() //

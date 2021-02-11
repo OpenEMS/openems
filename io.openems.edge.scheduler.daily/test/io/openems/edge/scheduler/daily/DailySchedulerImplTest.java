@@ -34,7 +34,7 @@ public class DailySchedulerImplTest {
 	public void test() throws Exception {
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
 		final DailyScheduler sut = new DailySchedulerImpl();
-		ComponentTest test = new ComponentTest(sut) //
+		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addComponent(new DummyController(CTRL0_ID)) //
 				.addComponent(new DummyController(CTRL1_ID)) //
@@ -58,24 +58,21 @@ public class DailySchedulerImplTest {
 										.build()) //
 								.build().toString())
 						.setAlwaysRunAfterControllerIds(CTRL3_ID, CTRL1_ID) //
-						.build()); //
-
-		test.next(new TestCase("00:00")); //
-		assertEquals(//
-				Arrays.asList(CTRL2_ID, CTRL4_ID, CTRL3_ID, CTRL1_ID), //
-				getControllerIds(sut));
-
-		test.next(new TestCase("12:00") //
-				.timeleap(clock, 12, ChronoUnit.HOURS)); //
-		assertEquals(//
-				Arrays.asList(CTRL2_ID, CTRL0_ID, CTRL3_ID, CTRL1_ID), //
-				getControllerIds(sut));
-
-		test.next(new TestCase("14:00") //
-				.timeleap(clock, 12, ChronoUnit.HOURS)); //
-		assertEquals(//
-				Arrays.asList(CTRL2_ID, CTRL4_ID, CTRL3_ID, CTRL1_ID), //
-				getControllerIds(sut));
+						.build()) //
+				.next(new TestCase("00:00") //
+						.onBeforeControllersCallbacks(() -> assertEquals(//
+								Arrays.asList(CTRL2_ID, CTRL4_ID, CTRL3_ID, CTRL1_ID), //
+								getControllerIds(sut)))) //
+				.next(new TestCase("12:00") //
+						.timeleap(clock, 12, ChronoUnit.HOURS) //
+						.onBeforeControllersCallbacks(() -> assertEquals(//
+								Arrays.asList(CTRL2_ID, CTRL0_ID, CTRL3_ID, CTRL1_ID), //
+								getControllerIds(sut))))
+				.next(new TestCase("14:00") //
+						.timeleap(clock, 12, ChronoUnit.HOURS) //
+						.onBeforeControllersCallbacks(() -> assertEquals(//
+								Arrays.asList(CTRL2_ID, CTRL4_ID, CTRL3_ID, CTRL1_ID), //
+								getControllerIds(sut))));
 	}
 
 	private static List<String> getControllerIds(Scheduler scheduler) throws OpenemsNamedException {

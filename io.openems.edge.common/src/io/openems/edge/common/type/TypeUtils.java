@@ -7,7 +7,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.value.Value;
@@ -437,6 +436,24 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely multiply Doubles.
+	 * 
+	 * @param factors the factors of the multiplication
+	 * @return the result, possibly null if all factors are null
+	 */
+	public static Double multiply(Double... factors) {
+		Double result = null;
+		for (Double factor : factors) {
+			if (result == null) {
+				result = factor;
+			} else if (factor != null) {
+				result *= factor;
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Safely divides Integers.
 	 * 
 	 * <ul>
@@ -492,6 +509,25 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely finds the min value of all values.
+	 * 
+	 * @return the min value; or null if all values are null
+	 */
+	public static Double min(Double... values) {
+		Double result = null;
+		for (Double value : values) {
+			if (value != null) {
+				if (result == null) {
+					result = value;
+				} else {
+					result = Math.min(result, value);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Safely finds the average value of all values.
 	 * 
 	 * @return the average value; or null if all values are null
@@ -527,15 +563,45 @@ public class TypeUtils {
 	}
 
 	/**
-	 * Throws an descriptive exception if the object is null.
+	 * Throws a descriptive exception if any of the objects is null.
 	 * 
 	 * @param description text that is added to the exception
-	 * @param object      the object
-	 * @throws OpenemsException if object is null
+	 * @param objects     the objects
+	 * @throws IllegalArgumentException if any object is null
 	 */
-	public static void assertNull(String description, Object object) throws OpenemsException {
-		if (object == null) {
-			throw new OpenemsException(description + " value is null!");
+	public static void assertNull(String description, Object... objects) throws IllegalArgumentException {
+		for (Object object : objects) {
+			if (object == null) {
+				throw new IllegalArgumentException(description + ": value is null!");
+			}
+		}
+	}
+
+	/**
+	 * Safely convert from {@link Integer} to {@link Double}
+	 * 
+	 * @param value the Integer value, possibly null
+	 * @return the Double value, possibly null
+	 */
+	public static Double toDouble(Integer value) {
+		if (value == null) {
+			return (Double) null;
+		} else {
+			return Double.valueOf(value);
+		}
+	}
+
+	/**
+	 * Safely convert from {@link Float} to {@link Double}
+	 * 
+	 * @param value the Float value, possibly null
+	 * @return the Double value, possibly null
+	 */
+	public static Double toDouble(Float value) {
+		if (value == null) {
+			return (Double) null;
+		} else {
+			return Double.valueOf(value);
 		}
 	}
 
