@@ -1,8 +1,8 @@
-package io.openems.edge.ess.sinexcel;
+package io.openems.edge.batteryinverter.sinexcel.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum CurrentState implements OptionsEnum {
+public enum SinexcelState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	OFF(1, "Off"), //
 	SLEEPING(2, "Sleeping"), //
@@ -17,7 +17,7 @@ public enum CurrentState implements OptionsEnum {
 	private final int value;
 	private final String option;
 
-	private CurrentState(int value, String option) {
+	private SinexcelState(int value, String option) {
 		this.value = value;
 		this.option = option;
 	}

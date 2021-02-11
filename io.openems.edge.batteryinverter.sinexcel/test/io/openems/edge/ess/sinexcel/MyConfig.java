@@ -1,6 +1,8 @@
 package io.openems.edge.ess.sinexcel;
 
 import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.batteryinverter.sinexcel.Config;
+import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
@@ -9,10 +11,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id = null;
 		private String modbusId = null;
+		private StartStopConfig startStopConfig = null;
 		private int modbusUnitId;
-		private String batteryId;
 		private int toppingCharge;
-		private InverterState inverterState;
 
 		private Builder() {
 		}
@@ -22,23 +23,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setStartStopConfig(StartStopConfig startStopConfig) {
+			this.startStopConfig = startStopConfig;
+			return this;
+		}
+
 		public Builder setModbusId(String modbusId) {
 			this.modbusId = modbusId;
 			return this;
 		}
 
-		public Builder setBatteryId(String batteryId) {
-			this.batteryId = batteryId;
-			return this;
-		}
-
 		public Builder setToppingCharge(int toppingCharge) {
 			this.toppingCharge = toppingCharge;
-			return this;
-		}
-
-		public Builder setInverterState(InverterState inverterState) {
-			this.inverterState = inverterState;
 			return this;
 		}
 
@@ -64,6 +60,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public StartStopConfig startStop() {
+		return this.builder.startStopConfig;
+	}
+
+	@Override
 	public String modbus_id() {
 		return this.builder.modbusId;
 	}
@@ -74,23 +75,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String battery_id() {
-		return this.builder.batteryId;
-	}
-
-	@Override
-	public String Battery_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.battery_id());
-	}
-
-	@Override
 	public int toppingCharge() {
 		return this.builder.toppingCharge;
-	}
-
-	@Override
-	public InverterState InverterState() {
-		return this.builder.inverterState;
 	}
 
 }

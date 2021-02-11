@@ -1,4 +1,4 @@
-package io.openems.edge.ess.sinexcel;
+package io.openems.edge.batteryinverter.sinexcel.enums;
 
 import io.openems.common.types.OptionsEnum;
 
@@ -20,12 +20,12 @@ public enum FalseTrue implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

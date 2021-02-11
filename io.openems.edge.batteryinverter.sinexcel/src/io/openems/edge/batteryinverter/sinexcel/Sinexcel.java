@@ -1,26 +1,36 @@
-package io.openems.edge.ess.sinexcel;
+package io.openems.edge.batteryinverter.sinexcel;
 
 import java.util.Optional;
-
-import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
+import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
+import io.openems.edge.batteryinverter.sinexcel.enums.FalseTrue;
+import io.openems.edge.batteryinverter.sinexcel.enums.SinexcelState;
+import io.openems.edge.batteryinverter.sinexcel.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.api.SymmetricEss;
 
-public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHandler, OpenemsComponent, ModbusSlave {
+public interface Sinexcel extends ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent,
+		StartStoppable, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		STATE_MACHINE(Doc.of(State.values()) //
+				.text("Current State of State-Machine")), //
+		RUN_FAILED(Doc.of(Level.FAULT) //
+				.text("Running the Logic failed")), //
 
 		MOD_ON_CMD(Doc.of(FalseTrue.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
@@ -51,12 +61,12 @@ public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHan
 		CHARGE_MAX_A(new IntegerDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.unit(Unit.AMPERE) //
-				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(EssSinexcel.ChannelId.DEBUG_CHARGE_MAX_A))), //
+				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(Sinexcel.ChannelId.DEBUG_CHARGE_MAX_A))), //
 
 		DISCHARGE_MAX_A(new IntegerDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.unit(Unit.AMPERE) //
-				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(EssSinexcel.ChannelId.DEBUG_DISCHARGE_MAX_A))), //
+				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(Sinexcel.ChannelId.DEBUG_DISCHARGE_MAX_A))), //
 
 		SET_SLOW_CHARGE_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE) //
@@ -72,11 +82,11 @@ public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHan
 		DISCHARGE_MIN_V(new IntegerDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.unit(Unit.VOLT) //
-				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(EssSinexcel.ChannelId.DEBUG_DIS_MIN_V))), //
+				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(Sinexcel.ChannelId.DEBUG_DIS_MIN_V))), //
 		CHARGE_MAX_V(new IntegerDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.unit(Unit.VOLT) //
-				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(EssSinexcel.ChannelId.DEBUG_CHA_MAX_V))), //
+				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(Sinexcel.ChannelId.DEBUG_CHA_MAX_V))), //
 
 		SET_ANALOG_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE) //
@@ -122,7 +132,7 @@ public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHan
 		DC_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT)), //
 
-		SINEXCEL_STATE(Doc.of(CurrentState.values())), //
+		SINEXCEL_STATE(Doc.of(SinexcelState.values())), //
 
 		SERIAL(Doc.of(OpenemsType.STRING) //
 				.unit(Unit.NONE)), //
@@ -143,14 +153,9 @@ public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHan
 
 		BAT_MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)),
-		BAT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)),
 		BAT_TEMP(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.unit(Unit.DEGREE_CELSIUS)),
-		BAT_SOC(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.unit(Unit.PERCENT)),
 		BAT_SOH(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.unit(Unit.PERCENT)),
@@ -159,7 +164,7 @@ public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHan
 		EN_LIMIT(new IntegerDoc() //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.text("new battery limits are activated when EnLimit is 1") //
-				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(EssSinexcel.ChannelId.DEBUG_EN_LIMIT))), //
+				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(Sinexcel.ChannelId.DEBUG_EN_LIMIT))), //
 
 		SINEXCEL_STATE_1(Doc.of(Level.INFO) //
 				.text("OFF")), //
@@ -195,7 +200,7 @@ public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHan
 				.text("Cabinet open")), //
 		// Automatic Standby-Mode is activated after giving a active-power setpoint of
 		// zero for a while.
-		STATE_6(Doc.of(Level.INFO) //
+		AUTOMATIC_STANDBY_MODE(Doc.of(Level.INFO) //
 				.text("Automatic Standby-Mode")), //
 		STATE_7(Doc.of(Level.WARNING) //
 				.text("Over temperature")), //
@@ -221,13 +226,13 @@ public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHan
 				.text("Fault Status")), //
 		STATE_17(Doc.of(Level.WARNING) //
 				.text("Alert Status")), //
-		STATE_18(Doc.of(OpenemsType.BOOLEAN) //
-				.text("On/Off Status")), //
+		STATE_ON(Doc.of(OpenemsType.BOOLEAN) //
+				.text("System is ON")), //
 		STATE_19(Doc.of(OpenemsType.BOOLEAN) //
 				.text("On Grid") //
 				.onInit(c -> { //
 					BooleanReadChannel channel = (BooleanReadChannel) c;
-					EssSinexcel self = (EssSinexcel) channel.getComponent();
+					Sinexcel self = (Sinexcel) channel.getComponent();
 					channel.onChange((oldValue, newValue) -> {
 						Optional<Boolean> value = newValue.asOptional();
 						if (!value.isPresent()) {
@@ -364,4 +369,28 @@ public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHan
 		}
 	}
 
+	/**
+	 * Gets the target Start/Stop mode from config or StartStop-Channel.
+	 * 
+	 * @return {@link StartStop}
+	 */
+	public StartStop getStartStopTarget();
+
+	/**
+	 * Gets the Channel for {@link ChannelId#STATE_ON}.
+	 * 
+	 * @return the Channel
+	 */
+	public default BooleanReadChannel getStateOnChannel() {
+		return this.channel(ChannelId.STATE_ON);
+	}
+
+	/**
+	 * Gets the {@link StateChannel} for {@link ChannelId#STATE_ON}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getStateOn() {
+		return this.getStateOnChannel().value();
+	}
 }
