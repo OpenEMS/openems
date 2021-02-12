@@ -10,7 +10,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id = null;
 		public String modbusId;
 		public int modbusUnitId;
-
+		public int batteryString;
+		public int leadBatteryCapacity;
+		
 		private Builder() {
 
 		}
@@ -27,6 +29,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setModbusUnitId(int modbusUnitId) {
 			this.modbusUnitId = modbusUnitId;
+			return this;
+		}
+
+		public Builder setBatteyString(int batteryString) {
+			this.batteryString = batteryString;
+			return this;
+		}
+		
+		public Builder setLeadBatteryCapacity(int leadBatteryCapacity) {
+			this.leadBatteryCapacity= leadBatteryCapacity;
 			return this;
 		}
 
@@ -64,6 +76,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String Modbus_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
+	}
+
+	@Override
+	public int batteryString() {
+		return this.builder.batteryString;
+	}
+
+	@Override
+	public int leadBatteryCapacity() {
+		return this.builder.leadBatteryCapacity;
 	}
 
 }

@@ -12,7 +12,7 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 		BmsControl bmsControl = context.component.getBmsControl();
 
 		// We can no nothing but wait...
-		if (bmsControl == BmsControl.SWITCHED_ON) {
+		if (bmsControl == BmsControl.SWITCHED_ON || bmsControl ==  BmsControl.IGNORED) {
 			return State.RUNNING;
 
 		} else {

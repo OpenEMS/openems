@@ -28,7 +28,6 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.GoodWe;
@@ -67,10 +66,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	private final ApplyPowerStateMachine applyPowerStateMachine = new ApplyPowerStateMachine(
 			ApplyPowerStateMachine.State.UNDEFINED);
 
-	private final int DISCHARGE_MIN_VOLTAGE = 200;
-	private final int LEAD_BATT_CAPACITY = 200;
-	private final int CHARGE_MAX_CURRENT = 25;
-	private final int BATTERY_MODULE_NUMBER = 5;
+	private int batteryModuleNumber;
+	private int leadBatteryCapacity;
 
 	/**
 	 * Holds the latest known SoC. Updated in {@link #run(Battery, int, int)}.
@@ -88,6 +85,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				"Modbus", config.modbus_id())) {
 			return;
 		}
+		this.batteryModuleNumber = config.batteryString();
+		this.leadBatteryCapacity = config.leadBatteryCapacity();
 	}
 
 	@Deactivate
@@ -141,63 +140,28 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 * @throws OpenemsNamedException on error
 	 */
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
-
-		// Batt Discharge Min Volt
-		IntegerWriteChannel bmsVoltUnderMin = this.channel(GoodWe.ChannelId.BATT_VOLT_UNDER_MIN);
-		bmsVoltUnderMin.setNextWriteValue(TypeUtils.min(DISCHARGE_MIN_VOLTAGE, battery.getDischargeMinVoltage().get()));
-//
 		// Battery String
 		IntegerWriteChannel bmsBatteryString = this.channel(GoodWe.ChannelId.BATT_STRINGS);
-		bmsBatteryString.setNextWriteValue(BATTERY_MODULE_NUMBER);
+		if (bmsBatteryString.value().get().intValue() != this.batteryModuleNumber) {
+			bmsBatteryString.setNextWriteValue(this.batteryModuleNumber);
+		}
 
-		// Lead Battery Capacity
 		IntegerWriteChannel bmsLeadBatCapacity = this.channel(GoodWe.ChannelId.LEAD_BAT_CAPACITY);
-		bmsLeadBatCapacity.setNextWriteValue(TypeUtils.max(LEAD_BATT_CAPACITY, battery.getCapacity().get()));
+		if (bmsLeadBatCapacity.value().get().intValue() != this.leadBatteryCapacity) {
+			bmsLeadBatCapacity.setNextWriteValue(this.leadBatteryCapacity);
+		}
 
-//		// Batt Charge Volt Max
-//		IntegerWriteChannel battChargeVoltMax = this.channel(GoodWe.ChannelId.BATT_CHARGE_VOLT_MAX);
-//		battChargeVoltMax.setNextWriteValue(battery.getChargeMaxVoltage().get());
-//		
-//		// Batt Charge Curr Max
-//		IntegerWriteChannel battChargeCurrMax = this.channel(GoodWe.ChannelId.BATT_CHARGE_CURR_MAX);
-//		battChargeCurrMax.setNextWriteValue(TypeUtils.limitValue(25, battery.getChargeMaxCurrent().get()));
-//
-//		IntegerWriteChannel bmsDischargeCurrMax = this.channel(GoodWe.ChannelId.BATT_DISCHARGE_CURR_MAX);
-//		bmsDischargeCurrMax.setNextWriteValue(battery.getDischargeMaxCurrent().get());
-//
-//		IntegerWriteChannel bmsSocUnderMin = this.channel(GoodWe.ChannelId.BATT_SOC_UNDER_MIN);
-//		bmsSocUnderMin.setNextWriteValue(20);
-//
-//		IntegerWriteChannel bmsOffMinDischarge = this.channel(GoodWe.ChannelId.BATT_OFF_LINE_VOLT_UNDER_MIN);
-//		bmsOffMinDischarge.setNextWriteValue(battery.getDischargeMinVoltage().get());
-//
-//		IntegerWriteChannel battOffSocUnderMin = this.channel(GoodWe.ChannelId.BATT_OFFLINE_SOC_UNDER_MIN);
-//		battOffSocUnderMin.setNextWriteValue(20);
-//
-//		IntegerWriteChannel batDischargeVoltMin = this.channel(GoodWe.ChannelId.WBMS_BAT_DISCHARGE_VMIN);
-//		batDischargeVoltMin.setNextWriteValue(battery.getDischargeMinVoltage().get());
-//
-		IntegerWriteChannel wbatChargeCurrentMax = this.channel(GoodWe.ChannelId.WBMS_BAT_CHARGE_IMAX);
-		wbatChargeCurrentMax.setNextWriteValue(TypeUtils.min(CHARGE_MAX_CURRENT, battery.getChargeMaxCurrent().get()));
-
-//		IntegerWriteChannel batDischargeCurrentMax = this.channel(GoodWe.ChannelId.WBMS_BAT_DISCHARGE_IMAX);
-//		batDischargeCurrentMax.setNextWriteValue(battery.getDischargeMaxCurrent().get());
-//
-		// Batt Charge Voltage
-		IntegerWriteChannel batChargeVoltMax = this.channel(GoodWe.ChannelId.WBMS_BAT_CHARGE_VMAX);
-		batChargeVoltMax.setNextWriteValue(battery.getChargeMaxVoltage().get());
-//
 		// Batt Soc
 		IntegerWriteChannel batSoc = this.channel(GoodWe.ChannelId.WBMS_BAT_SOC);
-		batSoc.setNextWriteValue(battery.getSoc().get());
+		batSoc.setNextWriteValue(battery.getSoc().get().intValue());
 
 		// Batt Voltage
 		IntegerWriteChannel batVoltage = this.channel(GoodWe.ChannelId.WBMS_BAT_VOLTAGE);
-		batVoltage.setNextWriteValue(battery.getVoltage().get());
+		batVoltage.setNextWriteValue(battery.getVoltage().get().intValue());
 
 		// Batt Current
 		IntegerWriteChannel batCurrent = this.channel(GoodWe.ChannelId.WBMS_BAT_CURRENT);
-		batCurrent.setNextWriteValue(battery.getCurrent().get());
+		batCurrent.setNextWriteValue(battery.getCurrent().get().intValue());
 	}
 
 	@Override

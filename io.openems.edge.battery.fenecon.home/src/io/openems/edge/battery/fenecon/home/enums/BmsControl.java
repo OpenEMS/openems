@@ -4,8 +4,9 @@ import io.openems.common.types.OptionsEnum;
 
 public enum BmsControl implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
+	SWITCHED_ON(0, "Switch ON Pre-charge & Main Power Contactor"),//
 	SWITCHED_OFF(0x1, "Shut Down Main Power Contactor & Pre-charge"), //
-	SWITCHED_ON(0, "Switch ON Pre-charge & Main Power Contactor");
+	IGNORED(0x2, "Switch ON Pre-charge & Main Power Contactor");
 
 	private final int value;
 	private final String name;

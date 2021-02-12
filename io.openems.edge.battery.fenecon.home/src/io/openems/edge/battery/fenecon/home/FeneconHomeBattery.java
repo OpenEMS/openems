@@ -672,150 +672,6 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 		BMU_HARDWARE_VERSION(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BMU Hardware Version")),
-		CELL_1_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell Voltage of Block 1")),
-		CELL_2_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell Voltage of Block 2")),
-		CELL_3_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell Voltage of Block 3")),
-		CELL_4_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell Voltage of Block 4")),
-		CELL_5_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell Voltage of Block 5")),
-		CELL_6_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell Voltage of Block 6")),
-		CELL_7_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell Voltage of Block 7")),
-		CELL_8_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell Voltage of Block 8")),
-		CELL_9_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell Voltage of Block 9")),
-		CELL_10_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell Voltage of Block 10")),
-		CELL_11_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell Voltage of Block 11")),
-		CELL_12_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell Voltage of Block 12")),
-		CELL_13_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell Voltage of Block 13")),
-		CELL_14_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell Voltage of Block 14")),
-		CELL_15_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell Voltage of Block 15")),
-		CELL_16_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell Voltage of Block 16")),
-		BMU_TEMPERATURE_1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS)//
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Temperature 1")),
-		BMU_TEMPERATURE_2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS)//
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Temperature 2")),
-		BMU_TEMPERATURE_3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS)//
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Temperature 3")),
-		BMU_TEMPERATURE_4(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS)//
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Temperature 4")),
-		BMU_TEMPERATURE_5(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS)//
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Temperature 5")),
-		BMU_TEMPERATURE_6(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS)//
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Temperature 6")),
-		BMU_TEMPERATURE_7(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS)//
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Temperature 7")),
-		BMU_TEMPERATURE_8(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS)//
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Temperature 8")),
-		BMU_CELL_1_BALANCING_STATUS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell 1 Balancing Status ")),
-		BMU_CELL_2_BALANCING_STATUS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell 2 Balancing Status ")),
-		BMU_CELL_3_BALANCING_STATUS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell 3 Balancing Status ")),
-		BMU_CELL_4_BALANCING_STATUS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell 4 Balancing Status ")),
-		BMU_CELL_5_BALANCING_STATUS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell 5 Balancing Status ")),
-		BMU_CELL_6_BALANCING_STATUS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell 6 Balancing Status ")),
-		BMU_CELL_7_BALANCING_STATUS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell 7 Balancing Status ")),
-		BMU_CELL_8_BALANCING_STATUS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell 8 Balancing Status ")),
-		BMU_CELL_9_BALANCING_STATUS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell 9 Balancing Status ")),
-		BMU_CELL_10_BALANCING_STATUS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell 10 Balancing Status ")),
-		BMU_CELL_11_BALANCING_STATUS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell 11 Balancing Status ")),
-		BMU_CELL_12_BALANCING_STATUS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell 12 Balancing Status ")),
-		BMU_CELL_13_BALANCING_STATUS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell 13 Balancing Status ")),
-		BMU_CELL_14_BALANCING_STATUS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell 14 Balancing Status ")),
-		BMU_CELL_15_BALANCING_STATUS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell 15 Balancing Status ")),
-		BMU_CELL_16_BALANCING_STATUS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("BMU Cell 16 Balancing Status ")),
 		BMU_MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)//
 				.accessMode(AccessMode.READ_WRITE) //
@@ -837,7 +693,19 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("BMU Sum Voltage")),
 		BMS_CONTROL(Doc.of(BmsControl.values()) //
-				.text("BMS CONTROL(1: Shutdown, 0: no action)")),
+				.text("BMS CONTROL(1: Shutdown, 0: no action, 2: Ignore)")),
+//		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+//				.accessMode(AccessMode.READ_ONLY) //
+//				.text("Maximum Cell Voltage")),
+//		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+//				.accessMode(AccessMode.READ_ONLY) //
+//				.text("Minimum Cell Voltage")),
+//		MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+//				.accessMode(AccessMode.READ_ONLY) //
+//				.text("Maximum Cell Voltage")),
+//		MIN_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+//				.accessMode(AccessMode.READ_ONLY) //
+//				.text("Maximum Cell Voltage")),
 		KEEP_FET_OPEN(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("Keep FET Open (Disconnect the relay; 1:Keep open, 0: normal operation)")),
