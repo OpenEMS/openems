@@ -36,7 +36,6 @@ import io.openems.edge.battery.soltaro.cluster.ClusterSettings;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
 import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
 import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
-import io.openems.edge.battery.soltaro.cluster.versionb.Config;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
