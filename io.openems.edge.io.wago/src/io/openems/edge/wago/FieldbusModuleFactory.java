@@ -6,7 +6,7 @@ public class FieldbusModuleFactory {
 	private int moduleCount523RO1Ch = 0;
 	private int moduleCount5xxDO = 0;
 
-	public FieldbusModule of(Wago parent, String moduleArtikelnr, String moduleType, FieldbusModuleKanal[] kanals,
+	public FieldbusDigitalModule of(Wago parent, String moduleArtikelnr, String moduleType, FieldbusModuleKanal[] kanals,
 			int inputOffset, int outputOffset) {
 		switch (moduleArtikelnr) {
 		case "750-4xx":

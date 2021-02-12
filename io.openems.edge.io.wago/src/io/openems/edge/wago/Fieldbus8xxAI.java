@@ -1,26 +1,26 @@
 package io.openems.edge.wago;
 
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
-import io.openems.edge.common.channel.BooleanDoc;
-import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.StringDoc;
+import io.openems.edge.common.channel.StringReadChannel;
 
-public class Fieldbus4xxDI extends FieldbusDigitalModule {
+public class Fieldbus8xxAI extends FieldbusDigitalModule {
 
-	private static final String ID_TEMPLATE = "DIGITAL_INPUT_M";
+	private static final String ID_TEMPLATE = "ANALOG_INPUT_M";
 
 	private final AbstractModbusElement<?>[] inputElements;
 	private final AbstractModbusElement<?>[] outputElements;
-	private final BooleanReadChannel[] readChannels;
+	private final StringReadChannel[] readChannels;
 
-	public Fieldbus4xxDI(Wago parent, int moduleCount, int inputOffset, int outputOffset, int channelsCount) {
+	public Fieldbus8xxAI(Wago parent, int moduleCount, int inputOffset, int outputOffset, int channelsCount) {
 		String id = ID_TEMPLATE + moduleCount;
 
-		this.readChannels = new BooleanReadChannel[channelsCount];
+		this.readChannels = new StringReadChannel[channelsCount];
 		this.inputElements = new AbstractModbusElement<?>[channelsCount];
 		for (int i = 0; i < channelsCount; i++) {
-			BooleanDoc doc = new BooleanDoc();
-			FieldbusDigitalChannelId channelId = new FieldbusDigitalChannelId(id + "_C" + (i + 1), doc);
-			BooleanReadChannel channel = parent.addChannel(channelId);
+			StringDoc doc = new StringDoc();
+			FieldbusAnalogChannelId channelId = new FieldbusAnalogChannelId(id + "_C" + (i + 1), doc);
+			StringReadChannel channel = parent.addChannel(channelId);
 			this.readChannels[i] = channel;
 
 			AbstractModbusElement<?> element = parent.createModbusElement(channel.channelId(), inputOffset + i);
@@ -55,7 +55,7 @@ public class Fieldbus4xxDI extends FieldbusDigitalModule {
 	}
 
 	@Override
-	public BooleanReadChannel[] getChannels() {
+	public StringReadChannel[] getChannels() {
 		return this.readChannels;
 	}
 

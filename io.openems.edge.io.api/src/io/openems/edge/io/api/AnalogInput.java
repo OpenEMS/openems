@@ -2,9 +2,8 @@ package io.openems.edge.io.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StringReadChannel;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 
 @ProviderType
@@ -26,5 +25,5 @@ public interface AnalogInput extends OpenemsComponent {
 	/**
 	 * Gets all Output Channels
 	 */
-	public StringReadChannel[] digitalInputChannels();
+	public StringReadChannel[] analogInputChannels();
 }

@@ -8,7 +8,7 @@ import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 
-public class Fieldbus523RO1Ch extends FieldbusModule {
+public class Fieldbus523RO1Ch extends FieldbusDigitalModule {
 
 	private static final String ID_TEMPLATE = "RELAY_M";
 
@@ -23,13 +23,13 @@ public class Fieldbus523RO1Ch extends FieldbusModule {
 		{
 			OpenemsTypeDoc<Boolean> doc = new BooleanDoc() //
 					.accessMode(AccessMode.READ_WRITE);
-			FieldbusChannelId channelId = new FieldbusChannelId(id, doc);
+			FieldbusDigitalChannelId channelId = new FieldbusDigitalChannelId(id, doc);
 			channel1 = (BooleanWriteChannel) parent.addChannel(channelId);
 		}
 		BooleanReadChannel channel2;
 		{
 			OpenemsTypeDoc<Boolean> doc = new BooleanDoc();
-			FieldbusChannelId channelId = new FieldbusChannelId(id + "_HAND", doc);
+			FieldbusDigitalChannelId channelId = new FieldbusDigitalChannelId(id + "_HAND", doc);
 			channel2 = parent.addChannel(channelId);
 		}
 		this.readChannels = new BooleanReadChannel[] { channel1, channel2 };
