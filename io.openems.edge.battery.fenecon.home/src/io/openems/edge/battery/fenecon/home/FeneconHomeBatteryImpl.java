@@ -516,7 +516,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	 * 
 	 * 'onRegister0x2100Update()' callback is called when register 0x2100 is read.
 	 */
-
+	private boolean areChannelsInitialized = false;
 	private final Consumer<Integer> onRegister10024Update = (value) -> {
 		if (value == null) {
 			// ignore invalid values; modbus bridge has no connection yet
@@ -527,7 +527,11 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 			ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(10024), false)
 					.thenAccept(moduleQtyValue -> {
 						if (moduleQtyValue != null) {
-							this.channelMap = this.createDynamicChannels(moduleQtyValue);
+							// Are Channel Initialized ? 
+							if (!FeneconHomeBatteryImpl.this.areChannelsInitialized) {
+								this.channelMap = this.createDynamicChannels(moduleQtyValue);
+								FeneconHomeBatteryImpl.this.areChannelsInitialized = true;
+							}
 							// Register is available -> add Registers for current hardware to protocol
 							try {
 								int towerNumber = this.config.towerNumber();
@@ -552,7 +556,6 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 														elements.toArray(new AbstractModbusElement<?>[0])));
 									}
 								}
-
 								int tempOffset = ModuleParameters.TEMPERATURE_ADDRESS_OFFSET.getValue();
 								int tempSensors = ModuleParameters.TEMPERATURE_SENSORS_PER_MODULE.getValue();
 								for (int t = 1; t <= towerNumber; t++) {
@@ -572,20 +575,13 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 														Priority.HIGH,
 														elements.toArray(new AbstractModbusElement<?>[0])));
 									}
-
 								}
 							} catch (OpenemsException e) {
 								FeneconHomeBatteryImpl.this.logError(FeneconHomeBatteryImpl.this.log,
 										"Unable to add registers for detected hardware version: " + e.getMessage());
 								e.printStackTrace();
 							} //
-						} else {
-//							FeneconHomeBatteryImpl.this.logInfo(FeneconHomeBatteryImpl.this.log,
-//									"Detected old hardware version. Registers are not available. Setting default values.");
-//
-//							this._setChargeMaxVoltage(OLD_VERSION_DEFAULT_CHARGE_MAX_VOLTAGE);
-//							this._setDischargeMinVoltage(OLD_VERSION_DEFAULT_DISCHARGE_MIN_VOLTAGE);
-						}
+						} 
 					});
 		} catch (OpenemsException e) {
 			FeneconHomeBatteryImpl.this.logError(FeneconHomeBatteryImpl.this.log,
