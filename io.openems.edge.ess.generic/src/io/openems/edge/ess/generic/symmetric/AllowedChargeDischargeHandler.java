@@ -1,11 +1,15 @@
 package io.openems.edge.ess.generic.symmetric;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.function.Consumer;
 
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.ClockProvider;
+import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 /**
  * Helper class to handle calculation of Allowed-Charge-Power and
@@ -24,9 +28,9 @@ public class AllowedChargeDischargeHandler implements Consumer<Battery> {
 	 */
 	public final static float MAX_INCREASE_PERCENTAGE = 0.05F;
 
-	private final GenericManagedSymmetricEss parent;
+	private final ManagedSymmetricEss parent;
 
-	protected AllowedChargeDischargeHandler(GenericManagedSymmetricEss parent) {
+	public AllowedChargeDischargeHandler(ManagedSymmetricEss parent) {
 		this.parent = parent;
 	}
 
@@ -40,7 +44,14 @@ public class AllowedChargeDischargeHandler implements Consumer<Battery> {
 		Value<Integer> dischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue();
 		Value<Integer> voltage = battery.getVoltageChannel().getNextValue();
 
-		this.calculateAllowedChargeDischargePower(this.parent.isStarted(), //
+		final boolean isStarted;
+		if (this.parent instanceof StartStoppable) {
+			isStarted = ((StartStoppable) this.parent).isStarted();
+		} else {
+			isStarted = true;
+		}
+
+		this.calculateAllowedChargeDischargePower(isStarted, //
 				chargeMaxCurrent.get(), dischargeMaxCurrent.get(), voltage.get());
 
 		// Apply AllowedChargePower and AllowedDischargePower
@@ -60,7 +71,7 @@ public class AllowedChargeDischargeHandler implements Consumer<Battery> {
 	 */
 	protected void calculateAllowedChargeDischargePower(boolean isStarted, Integer chargeMaxCurrent,
 			Integer dischargeMaxCurrent, Integer voltage) {
-		final Instant now = Instant.now(this.parent.getClock());
+		final Instant now = Instant.now(this.getClock());
 		float charge;
 		float discharge;
 
@@ -143,4 +154,11 @@ public class AllowedChargeDischargeHandler implements Consumer<Battery> {
 				lastValue + (thisValue * millis * MAX_INCREASE_PERCENTAGE) / 1000.F /* convert [mW] to [W] */);
 	}
 
+	private Clock getClock() {
+		if (this.parent instanceof ClockProvider) {
+			return ((ClockProvider) this.parent).getClock();
+		} else {
+			return Clock.systemDefaultZone();
+		}
+	}
 }

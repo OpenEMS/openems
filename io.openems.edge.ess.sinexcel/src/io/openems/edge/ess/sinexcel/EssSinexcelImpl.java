@@ -80,8 +80,6 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 	protected int slowChargeVoltage = 4370; // for new batteries - 3940
 	protected int floatChargeVoltage = 4370; // for new batteries - 3940
 
-	private int a = 0;
-	private int counterOn = 0;
 	private int counterOff = 0;
 
 	// State-Machines
@@ -159,21 +157,16 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 
 	private final static int MAX_CURRENT = 90; // [A]
 
-	private float lastAllowedChargePower = 0;
-	private float lastAllowedDischargePower = 0;
-
 	/**
 	 * Sets the Battery Ranges. Executed on TOPIC_CYCLE_AFTER_PROCESS_IMAGE.
 	 * 
 	 * @throws OpenemsNamedException
 	 */
 	private void setBatteryRanges() throws OpenemsNamedException {
-		final float efficiencyFactor = 0.95F;
 		final int disMaxA;
 		final int chaMaxA;
 		final int disMinV;
 		final int chaMaxV;
-		final int voltage;
 
 		// Evaluate input data
 		if (battery == null) {
@@ -181,13 +174,11 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 			chaMaxA = 0;
 			disMinV = 0;
 			chaMaxV = 0;
-			voltage = 0;
 		} else {
 			disMaxA = battery.getDischargeMaxCurrent().orElse(0);
 			chaMaxA = battery.getChargeMaxCurrent().orElse(0);
 			disMinV = battery.getDischargeMinVoltage().orElse(0);
 			chaMaxV = battery.getChargeMaxVoltage().orElse(0);
-			voltage = battery.getVoltage().orElse(0);
 		}
 
 		// Set Inverter Registers
@@ -213,36 +204,6 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 			IntegerWriteChannel chargeMaxVoltageChannel = this.channel(EssSinexcel.ChannelId.CHARGE_MAX_V);
 			chargeMaxVoltageChannel.setNextWriteValue(chaMaxV * 10);
 		}
-
-		// Calculate AllowedCharge- and -DischargePower
-		float allowedChargePower;
-		float allowedDischargePower;
-
-		// efficiency factor is not considered in chargeMaxCurrent (DC Power > AC Power)
-		allowedChargePower = chaMaxA * voltage * -1;
-		allowedDischargePower = disMaxA * voltage * efficiencyFactor;
-
-		// Allow max increase of 1 %
-		if (allowedDischargePower > lastAllowedDischargePower + allowedDischargePower * 0.01F) {
-			allowedDischargePower = lastAllowedDischargePower + allowedDischargePower * 0.01F;
-		}
-		this.lastAllowedDischargePower = allowedDischargePower;
-
-		if (allowedChargePower < lastAllowedChargePower + allowedChargePower * 0.01F) {
-			allowedChargePower = lastAllowedChargePower + allowedChargePower * 0.01F;
-		}
-		this.lastAllowedChargePower = allowedChargePower;
-
-		// Make sure solution is feasible
-		if (allowedChargePower > allowedDischargePower) { // Force Discharge
-			allowedDischargePower = allowedChargePower;
-		}
-		if (allowedDischargePower < allowedChargePower) { // Force Charge
-			allowedChargePower = allowedDischargePower;
-		}
-
-		this._setAllowedChargePower(Math.round(allowedChargePower));
-		this._setAllowedDischargePower(Math.round(allowedDischargePower));
 	}
 
 	/**
@@ -628,27 +589,16 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 			IntegerWriteChannel setReactivePower = this.channel(EssSinexcel.ChannelId.SET_REACTIVE_POWER);
 			setReactivePower.setNextWriteValue(reactivePower / 100);
 
-			if (this.stateOnOff() == false) {
-				a = 1;
-			}
-
-			if (this.stateOnOff() == true) {
-				a = 0;
-			}
-
-			if (activePower == 0 && reactivePower == 0 && a == 0) {
+			boolean isOn = this.stateOnOff();
+			if (activePower == 0 && reactivePower == 0 && isOn) {
 				this.counterOff++;
 				if (this.counterOff == 48) {
 					this.inverterOff();
 					this.counterOff = 0;
 				}
 
-			} else if ((activePower != 0 || reactivePower != 0) && a == 1) {
-				this.counterOn++;
-				if (this.counterOn == 48) {
-					this.inverterOn();
-					this.counterOn = 0;
-				}
+			} else if ((activePower != 0 || reactivePower != 0) && !isOn) {
+				this.inverterOn();
 			}
 			break;
 
