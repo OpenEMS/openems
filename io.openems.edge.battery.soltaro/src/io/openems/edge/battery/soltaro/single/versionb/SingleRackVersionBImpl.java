@@ -291,7 +291,8 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				new FC6WriteRegisterTask(0x20C1, //
 						m(SingleRackVersionB.ChannelId.WORK_PARAMETER_NUMBER_OF_MODULES,
 								new UnsignedWordElement(0x20C1)) //
-				), new FC3ReadRegistersTask(0x20C1, Priority.LOW, //
+				), //
+				new FC3ReadRegistersTask(0x20C1, Priority.LOW, //
 						m(SingleRackVersionB.ChannelId.WORK_PARAMETER_NUMBER_OF_MODULES,
 								new UnsignedWordElement(0x20C1)) //
 				),
@@ -386,7 +387,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				),
 
 				// Summary state
-				new FC3ReadRegistersTask(0x2100, Priority.LOW, //
+				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
 						m(new UnsignedWordElement(0x2100)) //
 								.m(SingleRackVersionB.ChannelId.CLUSTER_1_VOLTAGE,
 										ElementToChannelConverter.SCALE_FACTOR_2) //
@@ -520,12 +521,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(0x2153)), //
 						new DummyRegisterElement(0x2154, 0x215A), //
 						m(SingleRackVersionB.ChannelId.OTHER_ALARM_EQUIPMENT_FAILURE, new UnsignedWordElement(0x215B)), //
-						new DummyRegisterElement(0x215C, 0x215F) //
-				), //
-
-				// Allowed Currents high prioritized because it is necessary to react fast on
-				// changes
-				new FC3ReadRegistersTask(0x2160, Priority.HIGH, //
+						new DummyRegisterElement(0x215C, 0x215F), //
 						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new UnsignedWordElement(0x2160),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new UnsignedWordElement(0x2161),
