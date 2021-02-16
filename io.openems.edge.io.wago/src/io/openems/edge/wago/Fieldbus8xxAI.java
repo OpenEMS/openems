@@ -1,8 +1,8 @@
 package io.openems.edge.wago;
 
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
-import io.openems.edge.common.channel.StringDoc;
-import io.openems.edge.common.channel.StringReadChannel;
+import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 
 public class Fieldbus8xxAI extends FieldbusAnalogModule {
 
@@ -10,17 +10,17 @@ public class Fieldbus8xxAI extends FieldbusAnalogModule {
 
 	private final AbstractModbusElement<?>[] inputElements;
 	private final AbstractModbusElement<?>[] outputElements;
-	private final StringReadChannel[] readChannels;
+	private final IntegerReadChannel[] readChannels;
 
 	public Fieldbus8xxAI(Wago parent, int moduleCount, int inputOffset, int outputOffset, int channelsCount) {
 		String id = ID_TEMPLATE + moduleCount;
 
-		this.readChannels = new StringReadChannel[channelsCount];
+		this.readChannels = new IntegerReadChannel[channelsCount];
 		this.inputElements = new AbstractModbusElement<?>[channelsCount];
 		for (int i = 0; i < channelsCount; i++) {
-			StringDoc doc = new StringDoc();
+			IntegerDoc doc = new IntegerDoc();
 			FieldbusAnalogChannelId channelId = new FieldbusAnalogChannelId(id + "_C" + (i + 1), doc);
-			StringReadChannel channel = parent.addAnalogChannel(channelId);
+			IntegerReadChannel channel = parent.addAnalogChannel(channelId);
 			this.readChannels[i] = channel;
 
 			AbstractModbusElement<?> element = parent.createAnalogModbusElement(channel.channelId(), inputOffset + i);
@@ -55,7 +55,7 @@ public class Fieldbus8xxAI extends FieldbusAnalogModule {
 	}
 
 	@Override
-	public StringReadChannel[] getChannels() {
+	public IntegerReadChannel[] getChannels() {
 		return this.readChannels;
 	}
 

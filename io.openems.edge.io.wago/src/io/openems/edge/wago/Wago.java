@@ -53,7 +53,7 @@ import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.StringReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.io.api.AnalogInput;
@@ -73,6 +73,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 
 	private InetAddress ipAddress = null;
 	private ModbusProtocol protocol = null;
+	private double multiplicationFactor = 1;
 	private CopyOnWriteArrayList<FieldbusDigitalModule> digitalModules = new CopyOnWriteArrayList<FieldbusDigitalModule>();
 	private CopyOnWriteArrayList<FieldbusAnalogModule> analogModules = new CopyOnWriteArrayList<FieldbusAnalogModule>();
 	
@@ -112,6 +113,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
+		this.multiplicationFactor = config.multiplicationFactor();
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id())) {
 			return;
@@ -201,7 +203,6 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 			NodeList kanalNodes = moduleElement.getElementsByTagName("Kanal");
 			FieldbusModuleKanal[] kanals = new FieldbusModuleKanal[kanalNodes.getLength()];
 			for (int j = 0; j < kanalNodes.getLength(); j++) {
-				//System.out.println(kanalNodes.getLength());
 				Node kanalNode = kanalNodes.item(j);
 				if (kanalNode.getNodeType() != Node.ELEMENT_NODE) {
 					continue;
@@ -212,7 +213,6 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 				kanals[j] = new FieldbusModuleKanal(channelName, channelType);
 			}
 			// Create FieldbusModule instance using factory method
-			//System.out.println("moduleArtikelnr;" + moduleArtikelnr+ "moduleType:"+moduleType);
 			if(moduleArtikelnr.equals("750-4xx") || moduleArtikelnr.equals("750-5xx")) {
 				FieldbusDigitalModule module = factory.ofDigital(this, moduleArtikelnr, moduleType, kanals, inputOffset, outputOffset);
 				inputOffset += module.getInputCoils();
@@ -220,8 +220,6 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 				result.add(module);
 			}
 		}
-		//System.out.println("result");
-		//System.out.println("result parse xml digital: " + result.toString());
 		return result;
 	}
 	
@@ -258,7 +256,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 				kanals[j] = new FieldbusModuleKanal(channelName, channelType);
 			}
 			// Create FieldbusModule instance using factory method
-			if(moduleArtikelnr.equals("750-496/000-000")) {
+			if(moduleArtikelnr.equals("750-496/000-000") || moduleArtikelnr.equals("750-497/000-000")) {
 				FieldbusAnalogModule module = factory.ofAnalog(this, moduleArtikelnr, moduleType, kanals, inputOffset, outputOffset);
 				inputOffset += module.getInputCoils();
 				outputOffset += module.getOutputCoils();
@@ -384,11 +382,11 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		}
 		for (int i = 0; i < this.analogModules.size(); i++) {
 			b.append("Analog M" + i + ":");
-			StringReadChannel[] channels = this.analogModules.get(i).getChannels();
+			IntegerReadChannel[] channels = this.analogModules.get(i).getChannels();
 			for (int j = 0; j < channels.length; j++) {
-				Optional<String> valueOpt = channels[j].value().asOptional();
+				Optional<Integer> valueOpt = channels[j].value().asOptional();
 				if (valueOpt.isPresent()) {
-					b.append(valueOpt.get()+":");
+					b.append(valueOpt.get()*multiplicationFactor + ":");
 				} else {
 					b.append("?");
 				}
@@ -436,19 +434,19 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		return (BooleanReadChannel) super.addChannel(channelId);
 	}
 	
-	protected StringReadChannel addAnalogChannel(FieldbusAnalogChannelId channelId) {
-		return (StringReadChannel) super.addChannel(channelId);
+	protected IntegerReadChannel addAnalogChannel(FieldbusAnalogChannelId channelId) {
+		return (IntegerReadChannel) super.addChannel(channelId);
 	}
 
 	@Override
-	public StringReadChannel[] analogInputChannels() {
-		List<StringReadChannel> channels = new ArrayList<>();
+	public IntegerReadChannel[] analogInputChannels() {
+		List<IntegerReadChannel> channels = new ArrayList<>();
 		for (FieldbusAnalogModule module : this.analogModules) {
-			for (StringReadChannel channel : module.getChannels()) {
+			for (IntegerReadChannel channel : module.getChannels()) {
 				channels.add(channel);
 			}
 		}
-		StringReadChannel[] result = new StringReadChannel[channels.size()];
+		IntegerReadChannel[] result = new IntegerReadChannel[channels.size()];
 		for (int i = 0; i < channels.size(); i++) {
 			result[i] = channels.get(i);
 		}

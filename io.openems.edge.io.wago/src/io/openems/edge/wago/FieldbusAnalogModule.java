@@ -1,7 +1,7 @@
 package io.openems.edge.wago;
 
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
-import io.openems.edge.common.channel.StringReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 
 public abstract class FieldbusAnalogModule {
 
@@ -15,6 +15,6 @@ public abstract class FieldbusAnalogModule {
 
 	public abstract int getInputCoils();
 
-	public abstract StringReadChannel[] getChannels();
+	public abstract IntegerReadChannel[] getChannels();
 
 }

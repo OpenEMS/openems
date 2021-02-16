@@ -34,11 +34,6 @@ public class FieldbusModuleFactory {
 			int inputOffset, int outputOffset) {
 		switch (moduleArtikelnr) {
 		case "750-496/000-000":
-			switch (moduleType) {
-			case "AI":
-				return new Fieldbus8xxAI(parent, ++this.moduleCount8xxAI, inputOffset, outputOffset, kanals.length);
-			}
-			break;
 		case "750-497/000-000":
 			switch (moduleType) {
 			case "AI":
