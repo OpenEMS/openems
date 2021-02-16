@@ -24,25 +24,25 @@ public class Fieldbus523RO1Ch extends FieldbusDigitalModule {
 			OpenemsTypeDoc<Boolean> doc = new BooleanDoc() //
 					.accessMode(AccessMode.READ_WRITE);
 			FieldbusDigitalChannelId channelId = new FieldbusDigitalChannelId(id, doc);
-			channel1 = (BooleanWriteChannel) parent.addChannel(channelId);
+			channel1 = (BooleanWriteChannel) parent.addDigitalChannel(channelId);
 		}
 		BooleanReadChannel channel2;
 		{
 			OpenemsTypeDoc<Boolean> doc = new BooleanDoc();
 			FieldbusDigitalChannelId channelId = new FieldbusDigitalChannelId(id + "_HAND", doc);
-			channel2 = parent.addChannel(channelId);
+			channel2 = parent.addDigitalChannel(channelId);
 		}
 		this.readChannels = new BooleanReadChannel[] { channel1, channel2 };
 
 		this.inputElements = new AbstractModbusElement<?>[] { //
-				parent.createModbusElement(channel1.channelId(), outputOffset), //
+				parent.createDigitalModbusElement(channel1.channelId(), outputOffset), //
 				new DummyCoilElement(outputOffset + 1), //
-				parent.createModbusElement(channel2.channelId(), inputOffset), //
+				parent.createDigitalModbusElement(channel2.channelId(), inputOffset), //
 				new DummyCoilElement(inputOffset + 1) //
 		};
 
 		this.outputElements = new AbstractModbusElement<?>[] { //
-				parent.createModbusElement(channel1.channelId(), outputOffset), //
+				parent.createDigitalModbusElement(channel1.channelId(), outputOffset), //
 				new DummyCoilElement(outputOffset + 1) //
 		};
 	}

@@ -46,21 +46,23 @@ import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
+import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StringReadChannel;
-import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.io.api.AnalogInput;
+import io.openems.edge.io.api.DigitalInput;
 import io.openems.edge.io.api.DigitalOutput;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "IO.WAGO", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutput, AnalogInput, OpenemsComponent {
+public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutput, DigitalInput, AnalogInput, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(Wago.class);
 
@@ -93,6 +95,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
+				DigitalInput.ChannelId.values(), //
 				AnalogInput.ChannelId.values(), //
 				ThisChannelId.values() //
 		);
@@ -120,8 +123,9 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		this.configFuture = configExecutor.schedule(() -> {
 			try {
 				Document doc = Wago.downloadConfigXml(this.ipAddress, config.username(), config.password());
-				this.digitalModules.addAll(this.parseXml(doc));
-				this.createProtocolFromModules(this.digitalModules);
+				this.digitalModules.addAll(this.parseXmlForDigital(doc));
+				this.analogModules.addAll(this.parseXmlForAnalog(doc));
+				this.createProtocolFromModules(this.digitalModules, this.analogModules);
 			} catch (SAXException | IOException | ParserConfigurationException | OpenemsException e) {
 				e.printStackTrace();
 			}
@@ -174,9 +178,56 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	 * @param doc the XML document
 	 * @return a list of FieldbusModules
 	 */
-	private List<FieldbusDigitalModule> parseXml(Document doc) {
+	private List<FieldbusDigitalModule> parseXmlForDigital(Document doc) {
 		FieldbusModuleFactory factory = new FieldbusModuleFactory();
 		List<FieldbusDigitalModule> result = new ArrayList<>();
+		Element wagoElement = doc.getDocumentElement();
+		int inputOffset = 0;
+		int outputOffset = 512;
+
+		// parse all "Module" XML elements
+		NodeList moduleNodes = wagoElement.getElementsByTagName("Module");
+		for (int i = 0; i < moduleNodes.getLength(); i++) {
+			Node moduleNode = moduleNodes.item(i);
+			// get "Module" node attributes
+			NamedNodeMap moduleAttrs = moduleNode.getAttributes();
+			String moduleArtikelnr = moduleAttrs.getNamedItem("ARTIKELNR").getNodeValue();
+			String moduleType = moduleAttrs.getNamedItem("MODULETYPE").getNodeValue();
+			if (moduleNode.getNodeType() != Node.ELEMENT_NODE) {
+				continue;
+			}
+			Element moduleElement = (Element) moduleNode;
+			// parse all "Kanal" XML elements inside the "Module" element
+			NodeList kanalNodes = moduleElement.getElementsByTagName("Kanal");
+			FieldbusModuleKanal[] kanals = new FieldbusModuleKanal[kanalNodes.getLength()];
+			for (int j = 0; j < kanalNodes.getLength(); j++) {
+				//System.out.println(kanalNodes.getLength());
+				Node kanalNode = kanalNodes.item(j);
+				if (kanalNode.getNodeType() != Node.ELEMENT_NODE) {
+					continue;
+				}
+				NamedNodeMap kanalAttrs = kanalNode.getAttributes();
+				String channelName = kanalAttrs.getNamedItem("CHANNELNAME").getNodeValue();
+				String channelType = kanalAttrs.getNamedItem("CHANNELTYPE").getNodeValue();
+				kanals[j] = new FieldbusModuleKanal(channelName, channelType);
+			}
+			// Create FieldbusModule instance using factory method
+			//System.out.println("moduleArtikelnr;" + moduleArtikelnr+ "moduleType:"+moduleType);
+			if(moduleArtikelnr.equals("750-4xx") || moduleArtikelnr.equals("750-5xx")) {
+				FieldbusDigitalModule module = factory.ofDigital(this, moduleArtikelnr, moduleType, kanals, inputOffset, outputOffset);
+				inputOffset += module.getInputCoils();
+				outputOffset += module.getOutputCoils();
+				result.add(module);
+			}
+		}
+		//System.out.println("result");
+		//System.out.println("result parse xml digital: " + result.toString());
+		return result;
+	}
+	
+	private List<FieldbusAnalogModule> parseXmlForAnalog(Document doc) {
+		FieldbusModuleFactory factory = new FieldbusModuleFactory();
+		List<FieldbusAnalogModule> result = new ArrayList<>();
 		Element wagoElement = doc.getDocumentElement();
 		int inputOffset = 0;
 		int outputOffset = 512;
@@ -207,10 +258,12 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 				kanals[j] = new FieldbusModuleKanal(channelName, channelType);
 			}
 			// Create FieldbusModule instance using factory method
-			FieldbusDigitalModule module = factory.of(this, moduleArtikelnr, moduleType, kanals, inputOffset, outputOffset);
-			inputOffset += module.getInputCoils();
-			outputOffset += module.getOutputCoils();
-			result.add(module);
+			if(moduleArtikelnr.equals("750-496/000-000")) {
+				FieldbusAnalogModule module = factory.ofAnalog(this, moduleArtikelnr, moduleType, kanals, inputOffset, outputOffset);
+				inputOffset += module.getInputCoils();
+				outputOffset += module.getOutputCoils();
+				result.add(module);
+			}
 		}
 		return result;
 	}
@@ -221,15 +274,17 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	 * @param modules lit of {@link FieldbusDigitalModule}s
 	 * @throws OpenemsException
 	 */
-	private void createProtocolFromModules(List<FieldbusDigitalModule> modules) throws OpenemsException {
-		List<AbstractModbusElement<?>> readElements0 = new ArrayList<>();
-		List<AbstractModbusElement<?>> readElements512 = new ArrayList<>();
-		for (FieldbusDigitalModule module : modules) {
+	private void createProtocolFromModules(List<FieldbusDigitalModule> digitalModules, List<FieldbusAnalogModule> analogModules) throws OpenemsException {
+		List<AbstractModbusElement<?>> readElements0Digital = new ArrayList<>();
+		List<AbstractModbusElement<?>> readElements0Analog = new ArrayList<>();
+		List<AbstractModbusElement<?>> readElements512Digital = new ArrayList<>();
+		List<AbstractModbusElement<?>> readElements512Analog = new ArrayList<>();
+		for (FieldbusDigitalModule module : digitalModules) {
 			for (AbstractModbusElement<?> element : module.getInputElements()) {
 				if (element.getStartAddress() > 511) {
-					readElements512.add(element);
+					readElements512Digital.add(element);
 				} else {
-					readElements0.add(element);
+					readElements0Digital.add(element);
 				}
 			}
 			for (AbstractModbusElement<?> element : module.getOutputElements()) {
@@ -237,21 +292,46 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 				this.protocol.addTask(writeCoilTask);
 			}
 		}
-		if (!readElements0.isEmpty()) {
+		
+		for (FieldbusAnalogModule module : analogModules) {
+			for (AbstractModbusElement<?> element : module.getInputElements()) {
+				if (element.getStartAddress() > 511) {
+					readElements512Analog.add(element);
+				} else {
+					readElements0Analog.add(element);
+				}
+			}
+		}
+		if (!readElements0Digital.isEmpty()) {
 			this.protocol.addTask(//
 					new FC1ReadCoilsTask(0, Priority.LOW,
-							readElements0.toArray(new AbstractModbusElement<?>[readElements0.size()])));
+							readElements0Digital.toArray(new AbstractModbusElement<?>[readElements0Digital.size()])));
 		}
-		if (!readElements512.isEmpty()) {
+		if (!readElements512Digital.isEmpty()) {
 			this.protocol.addTask(//
 					new FC1ReadCoilsTask(512, Priority.LOW,
-							readElements512.toArray(new AbstractModbusElement<?>[readElements512.size()])));
+							readElements512Digital.toArray(new AbstractModbusElement<?>[readElements512Digital.size()])));
+		}
+		if (!readElements0Analog.isEmpty()) {
+			this.protocol.addTask(//
+					new FC3ReadRegistersTask(0, Priority.LOW,
+							readElements0Analog.toArray(new AbstractModbusElement<?>[readElements0Analog.size()])));
+		}
+		if (!readElements0Analog.isEmpty()) {
+			this.protocol.addTask(//
+					new FC3ReadRegistersTask(512, Priority.LOW,
+							readElements0Analog.toArray(new AbstractModbusElement<?>[readElements0Analog.size()])));
 		}
 	}
 
-	protected AbstractModbusElement<?> createModbusElement(io.openems.edge.common.channel.ChannelId channelId,
+	protected AbstractModbusElement<?> createDigitalModbusElement(io.openems.edge.common.channel.ChannelId channelId,
 			int address) {
 		return m(channelId, new CoilElement(address));
+	}
+	
+	protected AbstractModbusElement<?> createAnalogModbusElement(io.openems.edge.common.channel.ChannelId channelId,
+			int address) {
+		return m(channelId, new UnsignedWordElement(address));
 	}
 
 	@Override
@@ -275,7 +355,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 			this.logWarn(this.log, "tasks interrupted");
 		} finally {
 			if (!this.configExecutor.isTerminated()) {
-				this.logWarn(this.log, "cancel non-finished tasks");
+				this.logWarn(this.log, "cancel non-finished tasks"); 
 			}
 			this.configExecutor.shutdownNow();
 		}
@@ -283,12 +363,12 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 
 	@Override
 	public String debugLog() {
-		if (this.digitalModules.isEmpty()) {
+		if (this.digitalModules.isEmpty() && this.analogModules.isEmpty()) {
 			return "";
 		}
 		StringBuilder b = new StringBuilder();
 		for (int i = 0; i < this.digitalModules.size(); i++) {
-			b.append("M" + i + ":");
+			b.append("Digital M" + i + ":");
 			BooleanReadChannel[] channels = this.digitalModules.get(i).getChannels();
 			for (int j = 0; j < channels.length; j++) {
 				Optional<Boolean> valueOpt = channels[j].value().asOptional();
@@ -299,6 +379,21 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 				}
 			}
 			if (i < this.digitalModules.size() - 1) {
+				b.append("|");
+			}
+		}
+		for (int i = 0; i < this.analogModules.size(); i++) {
+			b.append("Analog M" + i + ":");
+			StringReadChannel[] channels = this.analogModules.get(i).getChannels();
+			for (int j = 0; j < channels.length; j++) {
+				Optional<String> valueOpt = channels[j].value().asOptional();
+				if (valueOpt.isPresent()) {
+					b.append(valueOpt.get()+":");
+				} else {
+					b.append("?");
+				}
+			}
+			if (i < this.analogModules.size() - 1) {
 				b.append("|");
 			}
 		}
@@ -337,8 +432,12 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		return result;
 	}
 
-	protected BooleanReadChannel addChannel(FieldbusDigitalChannelId channelId) {
+	protected BooleanReadChannel addDigitalChannel(FieldbusDigitalChannelId channelId) {
 		return (BooleanReadChannel) super.addChannel(channelId);
+	}
+	
+	protected StringReadChannel addAnalogChannel(FieldbusAnalogChannelId channelId) {
+		return (StringReadChannel) super.addChannel(channelId);
 	}
 
 	@Override

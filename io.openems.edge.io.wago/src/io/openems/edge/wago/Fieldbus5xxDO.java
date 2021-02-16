@@ -26,12 +26,12 @@ public class Fieldbus5xxDO extends FieldbusDigitalModule {
 			OpenemsTypeDoc<Boolean> doc = new BooleanDoc() //
 					.accessMode(AccessMode.READ_WRITE);
 			FieldbusDigitalChannelId channelId = new FieldbusDigitalChannelId(id + "_C" + (i + 1), doc);
-			BooleanWriteChannel channel = (BooleanWriteChannel) parent.addChannel(channelId);
+			BooleanWriteChannel channel = (BooleanWriteChannel) parent.addDigitalChannel(channelId);
 
 			this.readChannels[i] = channel;
 
-			this.inputElements[i] = parent.createModbusElement(channel.channelId(), outputOffset + i);
-			this.outputElements[i] = parent.createModbusElement(channel.channelId(), outputOffset + i);
+			this.inputElements[i] = parent.createDigitalModbusElement(channel.channelId(), outputOffset + i);
+			this.outputElements[i] = parent.createDigitalModbusElement(channel.channelId(), outputOffset + i);
 		}
 	}
 

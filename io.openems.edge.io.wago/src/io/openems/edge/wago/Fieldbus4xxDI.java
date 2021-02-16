@@ -20,10 +20,10 @@ public class Fieldbus4xxDI extends FieldbusDigitalModule {
 		for (int i = 0; i < channelsCount; i++) {
 			BooleanDoc doc = new BooleanDoc();
 			FieldbusDigitalChannelId channelId = new FieldbusDigitalChannelId(id + "_C" + (i + 1), doc);
-			BooleanReadChannel channel = parent.addChannel(channelId);
+			BooleanReadChannel channel = parent.addDigitalChannel(channelId);
 			this.readChannels[i] = channel;
 
-			AbstractModbusElement<?> element = parent.createModbusElement(channel.channelId(), inputOffset + i);
+			AbstractModbusElement<?> element = parent.createDigitalModbusElement(channel.channelId(), inputOffset + i);
 			this.inputElements[i] = element;
 		}
 		this.outputElements = new AbstractModbusElement<?>[] {};

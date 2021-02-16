@@ -23,6 +23,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.AnalogInput;
+import io.openems.edge.io.api.DigitalInput;
 import io.openems.edge.io.api.DigitalOutput;
 
 @Designate(ocd = Config.class, factory = true)
@@ -35,7 +36,7 @@ import io.openems.edge.io.api.DigitalOutput;
 		} //
 )
 public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
-		implements DigitalOutput, AnalogInput, OpenemsComponent, EventHandler {
+		implements DigitalOutput, DigitalInput, OpenemsComponent, EventHandler {
 
 	private static final Object INVALIDATE_CHANNEL = null;
 

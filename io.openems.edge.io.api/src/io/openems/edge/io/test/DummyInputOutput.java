@@ -11,15 +11,16 @@ import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.io.api.AnalogInput;
+import io.openems.edge.io.api.DigitalInput;
 import io.openems.edge.io.api.DigitalOutput;
 
 /**
  * Provides a simple, simulated Digital Input/Output component that can be used
  * together with the OpenEMS Component test framework.
  */
-public class DummyInputOutput extends AbstractOpenemsComponent implements AnalogInput, DigitalOutput {
+public class DummyInputOutput extends AbstractOpenemsComponent implements DigitalInput, DigitalOutput {
 
-	private final StringWriteChannel[] ioChannels;
+	private final BooleanWriteChannel[] ioChannels;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		INPUT_OUTPUT_0(Doc.of(OpenemsType.BOOLEAN) //
@@ -57,19 +58,19 @@ public class DummyInputOutput extends AbstractOpenemsComponent implements Analog
 	public DummyInputOutput(String id) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				AnalogInput.ChannelId.values(), //
+				DigitalInput.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
 				ChannelId.values() //
 		);
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		this.ioChannels = new StringWriteChannel[] { //
+		this.ioChannels = new BooleanWriteChannel[] { //
 				this.channel(ChannelId.INPUT_OUTPUT_0), //
 				this.channel(ChannelId.INPUT_OUTPUT_1), //
 				this.channel(ChannelId.INPUT_OUTPUT_2), //
 				this.channel(ChannelId.INPUT_OUTPUT_3), //
-				this.channel(ChannelId.INPUT_OUTPUT_4), //
+				this.channel(ChannelId.INPUT_OUTPUT_4), //Analog
 				this.channel(ChannelId.INPUT_OUTPUT_5), //
 				this.channel(ChannelId.INPUT_OUTPUT_6), //
 				this.channel(ChannelId.INPUT_OUTPUT_7), //
@@ -80,12 +81,12 @@ public class DummyInputOutput extends AbstractOpenemsComponent implements Analog
 	}
 
 	@Override
-	public StringWriteChannel[] digitalOutputChannels() {
+	public BooleanWriteChannel[] digitalOutputChannels() {
 		return this.ioChannels;
 	}
 
 	@Override
-	public StringReadChannel[] digitalInputChannels() {
+	public BooleanReadChannel[] digitalInputChannels() {
 		return this.ioChannels;
 	}
 

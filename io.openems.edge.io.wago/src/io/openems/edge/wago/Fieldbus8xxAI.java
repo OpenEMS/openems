@@ -4,7 +4,7 @@ import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.common.channel.StringDoc;
 import io.openems.edge.common.channel.StringReadChannel;
 
-public class Fieldbus8xxAI extends FieldbusDigitalModule {
+public class Fieldbus8xxAI extends FieldbusAnalogModule {
 
 	private static final String ID_TEMPLATE = "ANALOG_INPUT_M";
 
@@ -20,10 +20,10 @@ public class Fieldbus8xxAI extends FieldbusDigitalModule {
 		for (int i = 0; i < channelsCount; i++) {
 			StringDoc doc = new StringDoc();
 			FieldbusAnalogChannelId channelId = new FieldbusAnalogChannelId(id + "_C" + (i + 1), doc);
-			StringReadChannel channel = parent.addChannel(channelId);
+			StringReadChannel channel = parent.addAnalogChannel(channelId);
 			this.readChannels[i] = channel;
 
-			AbstractModbusElement<?> element = parent.createModbusElement(channel.channelId(), inputOffset + i);
+			AbstractModbusElement<?> element = parent.createAnalogModbusElement(channel.channelId(), inputOffset + i);
 			this.inputElements[i] = element;
 		}
 		this.outputElements = new AbstractModbusElement<?>[] {};
@@ -31,7 +31,7 @@ public class Fieldbus8xxAI extends FieldbusDigitalModule {
 
 	@Override
 	public String getName() {
-		return "WAGO I/O 750-400 " + this.readChannels.length + "-channel digital input module";
+		return "WAGO I/O 750-496/000-000 " + this.readChannels.length + "-channel digital input module";
 	}
 
 	@Override
