@@ -1,6 +1,5 @@
 package io.openems.edge.ess.generic.symmetric;
 
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -29,7 +28,6 @@ import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -55,7 +53,7 @@ import io.openems.edge.ess.power.api.Power;
 		} //
 )
 public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent implements GenericManagedSymmetricEss,
-		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, StartStoppable, ModbusSlave, ClockProvider {
+		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	@Reference
 	private Power power;
@@ -111,7 +109,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 			return;
 		}
 
-		this.channelHandler.activate(this.battery, this.batteryInverter);
+		this.channelHandler.activate(this.componentManager, this.battery, this.batteryInverter);
 		this.config = config;
 	}
 
@@ -253,15 +251,5 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
 		);
-	}
-
-	@Override
-	public Clock getClock() {
-		ClockProvider clockProvider = this.componentManager;
-		if (clockProvider != null) {
-			return clockProvider.getClock();
-		} else {
-			return Clock.systemDefaultZone();
-		}
 	}
 }

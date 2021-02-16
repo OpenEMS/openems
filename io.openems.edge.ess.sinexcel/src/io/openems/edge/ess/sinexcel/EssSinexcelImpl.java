@@ -124,7 +124,7 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Battery", config.battery_id())) {
 			return;
 		}
-		this.channelHandler.activate(this.battery);
+		this.channelHandler.activate(this.componentManager, this.battery);
 
 		this.slowChargeVoltage = config.toppingCharge();
 		this.floatChargeVoltage = config.toppingCharge();

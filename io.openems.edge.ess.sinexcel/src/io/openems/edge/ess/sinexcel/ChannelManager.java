@@ -2,6 +2,7 @@ package io.openems.edge.ess.sinexcel;
 
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.AbstractChannelListenerManager;
+import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.ess.generic.symmetric.AllowedChargeDischargeHandler;
 
 public class ChannelManager extends AbstractChannelListenerManager {
@@ -19,16 +20,16 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	 * 
 	 * @param battery the {@link Battery}
 	 */
-	public void activate(Battery battery) {
+	public void activate(ClockProvider clockProvider, Battery battery) {
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
-				(ignored) -> this.allowedChargeDischargeHandler.accept(battery));
+				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MAX_CURRENT,
-				(ignored) -> this.allowedChargeDischargeHandler.accept(battery));
+				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_VOLTAGE,
-				(ignored) -> this.allowedChargeDischargeHandler.accept(battery));
+				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_CURRENT,
-				(ignored) -> this.allowedChargeDischargeHandler.accept(battery));
-		
+				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
+
 		this.<Integer>addOnChangeListener(battery, Battery.ChannelId.SOC, (oldValue, newValue) -> {
 			this.parent._setSoc(newValue.get());
 			this.parent.channel(EssSinexcel.ChannelId.BAT_SOC).setNextValue(newValue.get());

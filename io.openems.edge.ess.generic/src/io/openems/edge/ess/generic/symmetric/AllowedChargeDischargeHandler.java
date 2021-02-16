@@ -1,9 +1,8 @@
 package io.openems.edge.ess.generic.symmetric;
 
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.value.Value;
@@ -16,7 +15,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
  * Allowed-Discharge-Power. This class is used by {@link ChannelManager} as a
  * callback to updates of Battery Channels.
  */
-public class AllowedChargeDischargeHandler implements Consumer<Battery> {
+public class AllowedChargeDischargeHandler implements BiConsumer<ClockProvider, Battery> {
 
 	public final static float DISCHARGE_EFFICIENCY_FACTOR = 0.95F;
 
@@ -39,7 +38,7 @@ public class AllowedChargeDischargeHandler implements Consumer<Battery> {
 	private Instant lastCalculate = null;
 
 	@Override
-	public void accept(Battery battery) {
+	public void accept(ClockProvider clockProvider, Battery battery) {
 		Value<Integer> chargeMaxCurrent = battery.getChargeMaxCurrentChannel().getNextValue();
 		Value<Integer> dischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue();
 		Value<Integer> voltage = battery.getVoltageChannel().getNextValue();
@@ -51,7 +50,7 @@ public class AllowedChargeDischargeHandler implements Consumer<Battery> {
 			isStarted = true;
 		}
 
-		this.calculateAllowedChargeDischargePower(isStarted, //
+		this.calculateAllowedChargeDischargePower(clockProvider, isStarted, //
 				chargeMaxCurrent.get(), dischargeMaxCurrent.get(), voltage.get());
 
 		// Apply AllowedChargePower and AllowedDischargePower
@@ -69,9 +68,9 @@ public class AllowedChargeDischargeHandler implements Consumer<Battery> {
 	 * @param dischargeMaxCurrent the {@link Battery.ChannelId#DISHARGE_MAX_CURRENT}
 	 * @param voltage             the {@link Battery.ChannelId#VOLTAGE}
 	 */
-	protected void calculateAllowedChargeDischargePower(boolean isStarted, Integer chargeMaxCurrent,
-			Integer dischargeMaxCurrent, Integer voltage) {
-		final Instant now = Instant.now(this.getClock());
+	protected void calculateAllowedChargeDischargePower(ClockProvider clockProvider, boolean isStarted,
+			Integer chargeMaxCurrent, Integer dischargeMaxCurrent, Integer voltage) {
+		final Instant now = Instant.now(clockProvider.getClock());
 		float charge;
 		float discharge;
 
@@ -152,13 +151,5 @@ public class AllowedChargeDischargeHandler implements Consumer<Battery> {
 		}
 		return Math.min(thisValue, //
 				lastValue + (thisValue * millis * MAX_INCREASE_PERCENTAGE) / 1000.F /* convert [mW] to [W] */);
-	}
-
-	private Clock getClock() {
-		if (this.parent instanceof ClockProvider) {
-			return ((ClockProvider) this.parent).getClock();
-		} else {
-			return Clock.systemDefaultZone();
-		}
 	}
 }

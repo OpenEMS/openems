@@ -6,6 +6,7 @@ import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.channel.AbstractChannelListenerManager;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.SymmetricEss;
 
@@ -30,18 +31,19 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	 * @param battery         the {@link Battery}
 	 * @param batteryInverter the {@link ManagedSymmetricBatteryInverter}
 	 */
-	public void activate(Battery battery, ManagedSymmetricBatteryInverter batteryInverter) {
+	public void activate(ClockProvider clockProvider, Battery battery,
+			ManagedSymmetricBatteryInverter batteryInverter) {
 		/*
 		 * Battery
 		 */
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
-				(ignored) -> this.allowedChargeDischargeHandler.accept(battery));
+				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MAX_CURRENT,
-				(ignored) -> this.allowedChargeDischargeHandler.accept(battery));
+				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_VOLTAGE,
-				(ignored) -> this.allowedChargeDischargeHandler.accept(battery));
+				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_CURRENT,
-				(ignored) -> this.allowedChargeDischargeHandler.accept(battery));
+				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
 		this.addCopyListener(battery, //
 				Battery.ChannelId.CAPACITY, //
 				SymmetricEss.ChannelId.CAPACITY);

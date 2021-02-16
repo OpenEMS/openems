@@ -5,7 +5,6 @@ import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -17,7 +16,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 
-public interface GenericManagedSymmetricEss extends ManagedSymmetricEss, StartStoppable, ModbusSlave, ClockProvider {
+public interface GenericManagedSymmetricEss extends ManagedSymmetricEss, StartStoppable, ModbusSlave {
 
 	/**
 	 * Efficiency factor to calculate AC Charge/Discharge limits from DC. Used at
