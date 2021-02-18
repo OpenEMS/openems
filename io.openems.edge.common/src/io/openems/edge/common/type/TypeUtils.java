@@ -512,6 +512,28 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely finds the average value of all values.
+	 * 
+	 * @return the average value; or Double.NaN if all values are invalid.
+	 */
+	public static double average(double... values) {
+		int count = 0;
+		double sum = 0.;
+		for (double value : values) {
+			if (Double.isNaN(value)) {
+				continue;
+			} else {
+				count++;
+				sum += value;
+			}
+		}
+		if (count == 0) {
+			return Double.NaN;
+		}
+		return sum / count;
+	}
+
+	/**
 	 * Safely finds the average value of all values and rounds the result to an
 	 * Integer using {@link Math#round(float)}.
 	 * 
