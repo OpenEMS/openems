@@ -280,7 +280,7 @@ public abstract class AbstractMaxCurrentHandler {
 
 		double thisCurrent = this.percentToAmpere(percentage);
 		final double result;
-		if (percentage > 0.9999) {
+		if (percentage > Math.nextDown(1)) {
 			// We are in the 'no limitation' zone of the PolyLine -> unset all limitations
 			result = thisCurrent;
 			activeLimit.set(null);
