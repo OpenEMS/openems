@@ -1,5 +1,9 @@
 import { JsonrpcResponseSuccess } from "../base";
 
+export class Prediction {
+    [channelAddress: string]: number[]
+}
+
 /**
  * Wraps a JSON-RPC Response for a Get24HoursPredictionRequest.
  * 
@@ -19,9 +23,7 @@ export class Get24HoursPredictionResponse extends JsonrpcResponseSuccess {
 
     public constructor(
         public readonly id: string,
-        public readonly result: {
-            [channelAddress: string]: number[]
-        }
+        public readonly result: Prediction
     ) {
         super(id, result);
     }

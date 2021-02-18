@@ -36,6 +36,8 @@ import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal
 import { NgModule } from '@angular/core';
 import { OfflineComponent } from './offline/offline.component';
 import { ProductionComponent } from './production/production.component';
+import { PredictionModalComponent } from './prediction/modal/modal.component';
+import { PredictionComponent } from './prediction/prediction.component';
 import { ProductionModalComponent } from './production/modal/modal.component';
 import { SelfConsumptionComponent } from './selfconsumption/selfconsumption.component';
 import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.component';
@@ -73,6 +75,7 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     HeatingElementModalComponent,
     HeatPumpModalComponent,
     ModalComponentEvcsCluster,
+    PredictionModalComponent,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
     SinglethresholdModalComponent,
@@ -115,6 +118,8 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     LiveComponent,
     ModalComponentEvcsCluster,
     OfflineComponent,
+    PredictionComponent,
+    PredictionModalComponent,
     ProductionComponent,
     ProductionModalComponent,
     SelfConsumptionComponent,
