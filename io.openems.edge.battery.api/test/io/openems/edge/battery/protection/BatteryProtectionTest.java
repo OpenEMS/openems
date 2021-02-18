@@ -30,7 +30,8 @@ public class BatteryProtectionTest {
 	public final static PolyLine CHARGE_VOLTAGE_TO_PERCENT = PolyLine.create() //
 			.addPoint(3000, 0.1) //
 			.addPoint(Math.nextUp(3000), 1) //
-			.addPoint(3450, 1) //
+			.addPoint(3350, 1) //
+			.addPoint(3450, 0.9999) //
 			.addPoint(3600, 0.02) //
 			.addPoint(Math.nextDown(3650), 0.02) //
 			.addPoint(3650, 0) //
@@ -236,13 +237,19 @@ public class BatteryProtectionTest {
 						.timeleap(clock, 1, ChronoUnit.SECONDS) //
 						.input(BATTERY_MAX_CELL_VOLTAGE, 3449) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 1) //
+						.output(BATTERY_CHARGE_MAX_CURRENT, 0) //
 						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase() //
-						.timeleap(clock, 3, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3449) //
+						.timeleap(clock, 1, ChronoUnit.SECONDS) //
+						.input(BATTERY_MAX_CELL_VOLTAGE, 3400) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 2) //
+						.output(BATTERY_CHARGE_MAX_CURRENT, 0) //
+						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+				.next(new TestCase("Allow Charge") //
+						.timeleap(clock, 1, ChronoUnit.SECONDS) //
+						.input(BATTERY_MAX_CELL_VOLTAGE, 3350) //
+						.onAfterProcessImage(() -> sut.apply()) //
+						.output(BATTERY_CHARGE_MAX_CURRENT, 1) //
 						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
 		;
 	}
