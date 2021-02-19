@@ -59,6 +59,7 @@
 	io.openems.wrapper.fastexcel;version=snapshot,\
 	io.openems.wrapper.influxdb-java;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
+	io.openems.wrapper.paho-mqttv5;version=snapshot,\
 	org.apache.commons.commons-fileupload;version='[1.4.0,1.4.1)',\
 	org.apache.commons.io;version='[2.6.0,2.6.1)',\
 	org.apache.felix.configadmin;version='[1.9.20,1.9.21)',\

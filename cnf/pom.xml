@@ -184,6 +184,12 @@
 			<version>0.12.3</version>
 		</dependency>
 		<dependency>
+			<!-- Eclipse Paho MQTTv5 Client -->
+			<groupId>org.eclipse.paho</groupId>
+			<artifactId>org.eclipse.paho.mqttv5.client</artifactId>
+			<version>1.2.5</version>
+		</dependency>
+		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.osgi</artifactId>
 			<version>3.16.100</version>

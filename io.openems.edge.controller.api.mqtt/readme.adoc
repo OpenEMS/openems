@@ -1,0 +1,5 @@
+= Api Backend
+
+Connects to OpenEMS Backend and sends all Channel data regularly. It is implemented as a Controller, as Channels can be written from OpenEMS Backend. 
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api.backend[Source Code icon:github[]]
