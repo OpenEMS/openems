@@ -42,7 +42,8 @@ public class BatteryDummy extends AbstractOpenemsComponent
 	public BatteryDummy() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				Battery.ChannelId.values() //
+				Battery.ChannelId.values(), //
+				StartStoppable.ChannelId.values() //
 		);
 	}
 
