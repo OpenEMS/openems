@@ -73,6 +73,7 @@ public class GenericManagedSymmetricEssTest {
 		new ManagedSymmetricEssTest(new GenericManagedSymmetricEssImpl()) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("batteryInverter", new DummyManagedSymmetricBatteryInverter(BATTERY_INVERTER_ID)) //
 				.addReference("battery", new DummyBattery(BATTERY_ID) //
 						.withVoltage(500) //
