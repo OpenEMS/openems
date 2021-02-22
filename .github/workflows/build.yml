@@ -67,7 +67,7 @@ jobs:
       - name: Deploy to GitHub pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.DOCS }}
           external_repository: OpenEMS/openems.io
           publish_branch: master
           publish_dir: build/www
