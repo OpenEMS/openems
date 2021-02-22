@@ -355,6 +355,14 @@ export const TRANSLATION = {
                 newConnection: 'Nové připojení...',
                 newDevice: 'Nové zařízení...',
             }
+        },
+        Service: {
+            entireSystem: "Celý systém",
+            Cell: {
+                voltages: "Napětí článků",
+                temperatures: "Teplota buňky",
+                insulation: "Izolace",
+            }
         }
     },
     About: {

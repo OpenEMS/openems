@@ -363,6 +363,14 @@ export const TRANSLATION = {
                 newConnection: 'New connection...',
                 newDevice: 'New device...',
             }
+        },
+        Service: {
+            entireSystem: "Entire system",
+            Cell: {
+                voltages: "Cell-voltages",
+                temperatures: "Cell-temperatures",
+                insulation: "Isolation",
+            }
         }
     },
     About: {
