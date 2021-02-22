@@ -1,4 +1,4 @@
-name: Build OpenEMS code and docs
+name: Build OpenEMS code
 on: [push]
 jobs:
   build:
@@ -57,17 +57,3 @@ jobs:
 
       - name: Build OpenEMS UI
         run: ./gradlew buildUiForEdge --continue
-
-#      - name: Build Javadocs
-#        run: ./gradlew buildAggregatedJavadocs --continue
-
-      - name: Build Antora-docs for openems.io
-        run: ./gradlew buildAntoraDocs --continue
-
-      - name: Deploy to GitHub pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          personal_token: ${{ secrets.DOCS }}
-          external_repository: OpenEMS/openems.io
-          publish_branch: master
-          publish_dir: build/www
