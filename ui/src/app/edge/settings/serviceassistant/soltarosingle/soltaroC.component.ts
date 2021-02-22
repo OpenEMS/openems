@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: "soltaroVersionC",
-    templateUrl: './../abstractBattery.component.html'
+    templateUrl: './../abstractbattery.component.html'
 })
 export class SoltaroVersionC extends AbstractBattery {
 
