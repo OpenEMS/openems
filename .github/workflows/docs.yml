@@ -11,8 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-#      - name: Build Javadocs
-#        run: ./gradlew buildAggregatedJavadocs --continue
+      - name: Build Javadocs
+        run: ./gradlew buildAggregatedJavadocs --continue
 
       - name: Build Antora-docs for openems.io
         run: ./gradlew buildAntoraDocs --continue
