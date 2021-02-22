@@ -1,4 +1,4 @@
-name: build-openems
+name: Build OpenEMS Edge & Backend and docs
 on: [push]
 jobs:
   build-edge-backend:
@@ -10,4 +10,11 @@ jobs:
           java-version: '8'
           java-package: jdk
           architecture: x64
-      - run: ./gradlew build
+      - run: |
+        ./gradlew build
+        ./gradlew resolve.BackendApp
+        git diff --exit-code io.openems.backend.application/BackendApp.bndrun
+        ./gradlew resolve.EdgeApp
+        git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
+        ./gradlew buildAggregatedJavadocs --continue
+        ./gradlew buildAntoraDocs --continue
