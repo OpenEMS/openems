@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - develop
-      - github-actions
+      - feature/github-actions
 
 jobs:
   build:
