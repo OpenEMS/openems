@@ -170,7 +170,7 @@ public class MyJsonServer {
 	 * Sending initially all required requests to the EVCS.
 	 * 
 	 * @param sessionIndex given session
-	 * @param evcs         given evcs
+	 * @param ocppEvcs     given evcs
 	 */
 	protected void sendInitialRequests(UUID sessionIndex, AbstractOcppEvcsComponent ocppEvcs) {
 		// Setting the Evcss of this session id to available

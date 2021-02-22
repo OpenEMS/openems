@@ -57,13 +57,16 @@ package com.dalsemi.onewire.container;
  *
  * <H3>Usage</H3>
  * <OL>
- * <LI><code><pre>
- *   byte[] buffer = {(byte)0x90, (byte)0x00, (byte)0x00, (byte)0x00, 
- *                    (byte)0x01, (byte)0x02, (byte)0x03};
- *   CommandAPDU capdu = new CommandAPDU(buffer); </pre></code>
- * <LI><code><pre>
- *   CommandAPDU capdu = new CommandAPDU((byte)0x90, (byte)0x00, (byte)0x00, (byte)0x00, 
- *                                       (byte)0x01, (byte)0x02, (byte)0x03);</pre></code>
+ * 
+ * <pre>
+ * byte[] buffer = { (byte) 0x90, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03 };
+ * CommandAPDU capdu = new CommandAPDU(buffer);
+ * </pre>
+ * 
+ * <pre>
+ * CommandAPDU capdu = new CommandAPDU((byte) 0x90, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x02,
+ * 		(byte) 0x03);
+ * </pre>
  * </OL>
  * 
  * <H3>Additional information</H3>
@@ -72,8 +75,6 @@ package com.dalsemi.onewire.container;
  * </DL>
  * 
  * @see com.dalsemi.onewire.container.ResponseAPDU
- * @see com.dalsemi.onewire.container.OneWireContainer16
- * 
  * @version 0.00, 28 Aug 2000
  * @author YL
  *

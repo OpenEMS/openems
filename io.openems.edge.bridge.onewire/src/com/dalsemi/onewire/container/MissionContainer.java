@@ -184,7 +184,6 @@ public interface MissionContainer extends ClockContainer {
 	 * channel's readings will be recorded in the mission log.
 	 *
 	 * @param channel the channel to enable/disable
-	 * @param enable  if true, the channel is enabled
 	 */
 	boolean getMissionChannelEnable(int channel) throws OneWireException, OneWireIOException;
 

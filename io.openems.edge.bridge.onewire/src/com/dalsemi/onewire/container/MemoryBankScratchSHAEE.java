@@ -736,11 +736,7 @@ public class MemoryBankScratchSHAEE extends MemoryBankScratchEx {
 	/**
 	 * Computes the next secret.
 	 *
-	 * @param addr          the physical address of the page to use for secret
-	 *                      computation
-	 * @param partialsecret byte array containing next partial secret for writing to
-	 *                      the scratchpad
-	 *
+	 * @param addr the physical address of the page to use for secret computation
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */

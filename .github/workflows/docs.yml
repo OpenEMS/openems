@@ -6,7 +6,7 @@ on:
       - feature/github-actions
 
 jobs:
-  build:
+  build-docs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
