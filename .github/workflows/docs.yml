@@ -1,9 +1,8 @@
-name: Build OpenEMS docs
+name: Build Docs
 on:
   push:
     branches:
       - develop
-      - feature/github-actions
 
 jobs:
   build-docs:

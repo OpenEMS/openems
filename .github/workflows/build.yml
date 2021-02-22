@@ -1,4 +1,4 @@
-name: Build OpenEMS code
+name: Build OpenEMS
 on: [push]
 jobs:
   build-code:
