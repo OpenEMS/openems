@@ -1,0 +1,294 @@
+<ngx-spinner [name]="spinnerId"></ngx-spinner>
+<ngx-spinner [name]="_abstractBatterySpinner"></ngx-spinner>
+<ng-container *ngIf="edge">
+    <ion-grid *ngIf="(edge.currentData | async)['channel'] as currentData">
+        <ng-container *ngIf="component">
+            <ng-container *ngIf="importantWriteChannelDescriptions">
+                <ng-container *ngIf="config">
+
+                    <ion-row>
+                        <ion-col size="12" size-md="6">
+
+                            <ion-card>
+                                <ion-item color="light" lines="full">
+                                    <ion-label style="font-weight: bold;">Gelesene Werte</ion-label>
+                                </ion-item>
+                                <ion-list
+                                    *ngFor="let categorizedReadChannelDescriptions of importantReadChannelDescriptions">
+
+                                    <ion-item-group>
+                                        <ion-item-divider color="light">
+                                            <ion-label translate style="font-weight: bold;">
+                                                {{categorizedReadChannelDescriptions.category}}</ion-label>
+                                        </ion-item-divider>
+
+                                        <ng-container *ngFor="let channelDescription of
+                                            categorizedReadChannelDescriptions.channels">
+                                            <ng-container
+                                                *ngIf="getChannelAddress(component.id, channelDescription.channelName) as address">
+                                                <ng-container *ngIf="config.getChannel(address) as channelConfig">
+
+                                                    <ion-item *ngIf="channelConfig.accessMode != 'WO'">
+                                                        <ion-label>
+                                                            {{channelDescription.description}}
+                                                        </ion-label>
+                                                        <ng-container *ngIf="currentData[address.toString()] != null">
+                                                            <ion-text>
+                                                                <!-- show current value of Channel-->
+                                                                {{ currentData[address.toString()] }}
+
+                                                                <ion-text *ngIf="channelConfig.unit">
+                                                                    {{ channelConfig.unit }}
+                                                                </ion-text>
+                                                                <ion-text *ngIf="!channelConfig.unit">
+                                                                    {{ channelDescription.unit }}
+                                                                </ion-text>
+                                                                <ion-text
+                                                                    *ngIf="channelDescription.dependentChannelNames">
+                                                                    (
+                                                                    <ng-container
+                                                                        *ngFor="let dependentChannel of channelDescription.dependentChannelNames">
+                                                                        {{ currentData[component.id
+                                                                        +"/"+dependentChannel.channelName]
+                                                                        }}
+                                                                        {{dependentChannel.unit}}
+                                                                    </ng-container>
+                                                                    )
+                                                                </ion-text>
+                                                                <!-- show value as string for enum values -->
+                                                                <ng-container *ngIf="channelConfig.category == 'ENUM'">
+                                                                    <ng-container
+                                                                        *ngFor="let option of (channelConfig.options | keys)">
+                                                                        <span
+                                                                            *ngIf="option.value == currentData[address.toString()]">
+                                                                            ({{ option.key }})
+                                                                        </span>
+                                                                    </ng-container>
+                                                                </ng-container>
+                                                                <!-- show active/inactive string for StateChannels -->
+                                                                <ng-container *ngIf="channelConfig.category == 'STATE'">
+                                                                    <span *ngIf="currentData[address.toString()] == 1">
+                                                                        (State is SET)</span>
+                                                                    <span *ngIf="currentData[address.toString()] == 0">
+                                                                        (State is not set)</span>
+                                                                </ng-container>
+                                                                <!-- show active/inactive string for StateChannels -->
+                                                                <ng-container
+                                                                    *ngIf="channelConfig.category == 'OPENEMS_TYPE' && channelConfig.type == 'BOOLEAN'">
+                                                                    <span
+                                                                        *ngIf="currentData[address.toString()] == 1">(On)</span>
+                                                                    <span
+                                                                        *ngIf="currentData[address.toString()] == 0">(Off)</span>
+                                                                </ng-container>
+                                                            </ion-text>
+                                                        </ng-container>
+                                                        <ion-text *ngIf="currentData[address.toString()] == null">
+                                                            -
+                                                        </ion-text>
+                                                    </ion-item>
+
+                                                </ng-container>
+                                            </ng-container>
+                                            <ng-container
+                                                *ngIf="!getChannelAddress(component.id, channelDescription.channelName) as address">
+                                                <ion-item *ngIf="channelConfig.accessMode != 'WO'">
+                                                    <ion-label>
+                                                        {{channelDescription.channelName}} nicht in {{component.id}}
+                                                        vorhanden
+                                                    </ion-label>
+                                                </ion-item>
+                                            </ng-container>
+                                        </ng-container>
+                                        <ng-container
+                                            *ngIf="categorizedReadChannelDescriptions.category == 'Edge.Service.Cell.voltages'">
+
+                                            <ion-item lines="none">
+                                                <ion-label> Gesamtchart:</ion-label>
+
+                                                <p style="font-size: small">
+                                                    <ion-icon name="alert-circle-outline"></ion-icon>
+                                                    Muss manuell aktualisiert werden
+                                                </p>
+                                            </ion-item>
+                                            <ion-item padding-bottom padding-top class="ion-text-wrap">
+                                                <!--padding-bottom padding-top lines="none"-->
+                                                <soltarocellchart padding-bottom padding-top style="width: 90%"
+                                                    [battery]="component.id"
+                                                    [channels]="importantCellChartChannelDescriptions">
+                                                </soltarocellchart>
+                                            </ion-item>
+                                            <ion-item lines="none" padding-bottom padding-top style="font-size: small">
+                                                <ion-text class="ion-text-wrap">
+
+                                                    Zuschaltspannungen und Abschaltspannungen sowie weitere Channels
+                                                    können
+                                                    für längere Zeit Lehr/Undefined bleiben, nachdem das Backend
+                                                    neugestartet wurde</ion-text>
+                                            </ion-item>
+                                            <ion-item *ngIf="currentData[component.id +'/_PropertyReduceTasks']"
+                                                padding-bottom padding-top style="font-size: small"
+                                                class="ion-text-wrap">
+                                                <ion-text color="danger">
+                                                    Reduce Tasks ist in der Komponente {{component.id}} aktiviert:
+                                                    <br />
+                                                    Zuschaltspannungen und Abschaltspannungen sowie weitere Channels
+                                                    bleiben für sehr lange Zeit Lehr/Undefined um performance
+                                                    einzusparen
+                                                </ion-text>
+                                            </ion-item>
+
+                                        </ng-container>
+                                    </ion-item-group>
+                                </ion-list>
+                            </ion-card>
+                        </ion-col>
+
+                        <!--Actions (Area to set values and start assistants. eg. for undervoltage) -->
+                        <ion-col size="12" size-md="6">
+                            <ion-card>
+                                <ion-item color="light" lines="full">
+                                    <ion-label style="font-weight: bold;">Aktionen</ion-label>
+                                </ion-item>
+
+                                <ion-grid>
+                                    <ion-item style="border-radius: 5px;" color="danger" lines="none">
+                                        <ion-label class="ion-text-wrap">
+                                            Nachdem Systemrelevante Stop- und Warnungsgrenzen verändert wurden, müssen
+                                            diese nach Beendigung der Arbeit wieder manuell auf die Standardwerte
+                                            gesetzt werden! <br />
+                                            Bis der gesetzte Wert von der Batterie übernommen wird und daraufhin
+                                            ausgelesen wird, kann es einige Sekunden dauern.
+                                        </ion-label>
+                                    </ion-item>
+                                    <ion-row style="padding-top: 20px;" class="ion-justify-content-center"
+                                        *ngFor="let categorizedChannelDescriptions of importantWriteChannelDescriptions">
+
+                                        <ion-item-divider padding-top color="light">
+                                            <ion-label style="font-weight: bold;">
+                                                {{categorizedChannelDescriptions.category}}</ion-label>
+                                        </ion-item-divider>
+
+                                        <ion-col
+                                            *ngFor="let channelDescription of categorizedChannelDescriptions.channels"
+                                            size="12" size-lg="6" size-md="12">
+                                            <ion-list>
+                                                <ion-card
+                                                    *ngIf="getChannelAddress(component.id, channelDescription.channelName) as address">
+                                                    <ion-item color="light" lines="full">
+                                                        <ion-icon slot="start" name="today-outline" color="primary">
+                                                        </ion-icon>
+                                                        <ion-label class="ion-text-wrap">{{
+                                                            channelDescription.channelName
+                                                            }}({{channelDescription.register}})</ion-label>
+                                                    </ion-item>
+                                                    <ion-card-content
+                                                        *ngIf="config.getChannel(address) as channelConfig">
+                                                        <ion-item>
+                                                            <ion-text class="ion-text-wrap">
+                                                                {{ channelDescription.description }}
+
+                                                                <!--<span *ngIf="channelConfig.text">/ Text:{{ channelConfig.text }}</span> 
+                        Currently not used because of missing descriptions in the most components -->
+                                                            </ion-text>
+                                                        </ion-item>
+                                                        <ion-item style="font-size:small;">
+                                                            <ion-text class="ion-text-wrap" color="medium">
+                                                                Type: {{ channelConfig.type.toLowerCase() }}
+                                                                / Access-Mode: {{ channelConfig.accessMode }}
+                                                            </ion-text>
+                                                            <ion-text color="medium"
+                                                                *ngIf="channelDescription.requiredInput as default">
+                                                                &nbsp;/ Required: {{default}}</ion-text>
+                                                        </ion-item>
+
+
+                                                        <ion-item *ngIf="channelConfig.accessMode != 'WO'">
+                                                            <ion-label>Value
+                                                            </ion-label>
+                                                            <ion-text>
+                                                                <!-- show current value of Channel-->
+                                                                {{ currentData[address.toString()] }}
+
+                                                                <ion-text *ngIf="channelConfig.unit">
+                                                                    {{ channelConfig.unit }}
+                                                                </ion-text>
+                                                                <ion-text *ngIf="!channelConfig.unit">
+                                                                    {{ channelDescription.unit }}
+                                                                </ion-text>
+                                                                <!-- show value as string for enum values -->
+                                                                <ng-container *ngIf="channelConfig.category == 'ENUM'">
+                                                                    <ng-container
+                                                                        *ngFor="let option of (channelConfig.options | keys)">
+                                                                        <span
+                                                                            *ngIf="option.value == currentData[address.toString()]">
+                                                                            ({{ option.key }})
+                                                                        </span>
+                                                                    </ng-container>
+                                                                </ng-container>
+                                                                <!-- show active/inactive string for StateChannels -->
+                                                                <ng-container *ngIf="channelConfig.category == 'STATE'">
+                                                                    <span *ngIf="currentData[address.toString()] == 1">
+                                                                        (State is SET)</span>
+                                                                    <span *ngIf="currentData[address.toString()] == 0">
+                                                                        (State is not set)</span>
+                                                                </ng-container>
+                                                                <!-- show active/inactive string for StateChannels -->
+                                                                <ng-container
+                                                                    *ngIf="channelConfig.category == 'OPENEMS_TYPE' && channelConfig.type == 'BOOLEAN'">
+                                                                    <span
+                                                                        *ngIf="currentData[address.toString()] == 1">(On)</span>
+                                                                    <span
+                                                                        *ngIf="currentData[address.toString()] == 0">(Off)</span>
+                                                                </ng-container>
+                                                            </ion-text>
+                                                        </ion-item>
+
+                                                        <!-- show input field to write value for RW/RO channels -->
+                                                        <ion-item
+                                                            *ngIf="['RW', 'WO'].includes(channelConfig.accessMode)">
+                                                            <ion-label>Set value
+                                                            </ion-label>
+                                                            <ng-container
+                                                                *ngIf="channelConfig.type == 'BOOLEAN'; else no_boolean">
+                                                                <!-- show Toggle for boolean value  -->
+                                                                <ion-toggle #valueToggle></ion-toggle>
+                                                                <ion-button
+                                                                    (click)="setChannelValue(address, valueToggle.checked)"
+                                                                    slot="end" color="light">
+                                                                    <ion-icon slot="icon-only" name="send-outline">
+                                                                    </ion-icon>
+                                                                </ion-button>
+                                                            </ng-container>
+                                                            <ng-template #no_boolean>
+                                                                <ion-input placeholder="value" #value>
+                                                                </ion-input>
+                                                                <ion-button
+                                                                    (click)="setChannelValue(address, value.value)"
+                                                                    slot="end" color="light">
+                                                                    <ion-icon slot="icon-only" name="send-outline">
+                                                                    </ion-icon>
+                                                                </ion-button>
+                                                            </ng-template>
+                                                        </ion-item>
+                                                    </ion-card-content>
+                                                    <ion-card-content *ngIf="!config.getChannel(address)">
+                                                        <ion-item>
+                                                            <ion-label class="ion-text-wrap" color="medium"
+                                                                lines="none">
+                                                                Für diese Batterie aktuell noch nicht verfügbar
+                                                            </ion-label>
+                                                        </ion-item>
+                                                    </ion-card-content>
+                                                </ion-card>
+                                            </ion-list>
+                                        </ion-col>
+                                    </ion-row>
+                                </ion-grid>
+                            </ion-card>
+                        </ion-col>
+                    </ion-row>
+                </ng-container>
+            </ng-container>
+        </ng-container>
+    </ion-grid>
+</ng-container>

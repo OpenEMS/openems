@@ -14,15 +14,15 @@ import { ComponentUpdateComponent } from './component/update/update.component';
 import { NetworkComponent } from './network/network.component';
 import { AliasUpdateComponent } from './profile/aliasupdate.component';
 import { ProfileComponent } from './profile/profile.component';
-import { SoltaroCellChartComponent } from './serviceassistent/cell-chart/chart.component';
-import { ServiceAssistent } from './serviceassistent/index.component';
+import { ServiceAssistantModule } from './serviceassistant/serviceassistant.module';
 import { SettingsComponent } from './settings.component';
 import { SystemExecuteComponent } from './systemexecute/systemexecute.component';
 import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
 
 @NgModule({
   imports: [
-    SharedModule
+    SharedModule,
+    ServiceAssistantModule
   ],
   declarations: [
     AliasUpdateComponent,
@@ -39,8 +39,6 @@ import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
     NetworkComponent,
     ProfileComponent,
     ReadWriteModbusTCPInstallerComponent,
-    ServiceAssistent,
-    SoltaroCellChartComponent,
     SettingsComponent,
     SystemExecuteComponent,
     SystemUpdateComponent,

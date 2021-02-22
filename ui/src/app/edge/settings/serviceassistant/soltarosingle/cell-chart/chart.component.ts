@@ -7,39 +7,19 @@ import { TranslateService } from '@ngx-translate/core';
 import { ChannelAddress, Service, Utils } from 'src/app/shared/shared';
 import { ChartOptions, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from 'src/app/edge/history/shared';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
-import { ChartLegendLabelItem } from 'chart.js';
+import { ChannelChartDescription } from '../../abstractbattery.component';
 
 @Component({
     selector: 'soltarocellchart',
-    templateUrl: '../../../history/abstracthistorychart.html'
+    templateUrl: '../../../../history/abstracthistorychart.html'
 })
 export class SoltaroCellChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
     @Input() battery: string;
+    @Input() channels: ChannelChartDescription[];
     @Input() refresh: boolean;
 
     private static DEFAULT_PERIOD: DefaultTypes.HistoryPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
-
-    private importantCellChannels: Channel[] = [
-        {
-            label: "Minimale Zellspannung", channelName: "Cluster1MinCellVoltage", datasets: [], colorRgb: '45, 171, 91'
-        },
-        {
-            label: "Maximale Zellspannung", channelName: "Cluster1MaxCellVoltage", datasets: [], colorRgb: '45, 123, 171'
-        },
-        {
-            label: "Untere Zuschaltspannungen (Recover)", channelName: "StopParameterCellUnderVoltageRecover", datasets: [], colorRgb: '217, 149, 4'
-        },
-        {
-            label: "Untere Zuschaltspannungen (Protection)", channelName: "StopParameterCellUnderVoltageProtection", datasets: [], colorRgb: '173, 24, 24'
-        },
-        {
-            label: "Obere Abschaltspannungen (Recover)", channelName: "StopParameterCellOverVoltageRecover", datasets: [], colorRgb: '217, 149, 4'
-        },
-        {
-            label: "Obere Abschaltspannungen (Protection)", channelName: "StopParameterCellOverVoltageProtection", datasets: [], colorRgb: '173, 24, 24'
-        }
-    ];
 
     ngOnChanges() {
         this.updateChart();
@@ -81,7 +61,7 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
             // convert datasets
             let datasets = [];
 
-            this.importantCellChannels.forEach(channel => {
+            this.channels.forEach(channel => {
                 if (this.battery + '/' + channel.channelName in result.data) {
 
                     channel.datasets = result.data[this.battery + '/' + channel.channelName].map(value => {
@@ -108,7 +88,7 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
             this.loading = false;
             this.service.stopSpinner(this.spinnerId);
         }).catch(reason => {
-            console.error(reason); // TODO error message
+            console.error(reason); // TODO error message 
             this.initializeChart();
             return;
         });
@@ -116,14 +96,10 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
 
     protected getChannelAddresses(): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let result: ChannelAddress[] = [
-                new ChannelAddress(this.battery, 'Cluster1MinCellVoltage'),
-                new ChannelAddress(this.battery, 'Cluster1MaxCellVoltage'),
-                new ChannelAddress(this.battery, 'StopParameterCellUnderVoltageRecover'),
-                new ChannelAddress(this.battery, 'StopParameterCellUnderVoltageProtection'),
-                new ChannelAddress(this.battery, 'StopParameterCellOverVoltageRecover'),
-                new ChannelAddress(this.battery, 'StopParameterCellOverVoltageProtection'),
-            ];
+            let result: ChannelAddress[] = [];
+            this.channels.forEach(channel => {
+                result.push(new ChannelAddress(this.battery, channel.channelName));
+            });
             resolve(result);
         })
     }
@@ -143,11 +119,4 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
     public getChartHeight(): number {
         return window.innerHeight / 3;
     }
-
-}
-export type Channel = {
-    label: string,
-    channelName: string,
-    datasets: number[],
-    colorRgb: string,
 }

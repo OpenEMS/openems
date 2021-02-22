@@ -1,0 +1,45 @@
+<header></header>
+<ion-content>
+
+    <ngx-spinner [name]="servcieAssistantSpinnerId"></ngx-spinner>
+    <ion-list>
+        <ng-container *ngFor="let item of batteries; index as i" [ngSwitch]="item.factoryId">
+            <ion-item style="cursor: pointer" lines="full" color="light" (click)="item.isClicked = !item.isClicked">
+
+                <ion-icon slot="start" *ngIf="(item.isClicked && i !=0) || (!item.isClicked && i == 0)"
+                    name="chevron-down-outline"></ion-icon>
+                <ion-icon slot="start" *ngIf="(!item.isClicked && i !=0) || (item.isClicked && i == 0)"
+                    name="chevron-forward-outline"></ion-icon>
+                <ion-label class="ion-text-wrap">
+                    {{ item.alias }}
+                    <span *ngIf="item.id != item.alias"> ({{ item.id }})</span>
+                    <small *ngIf="!item.isEnabled"> (<span translate>General.componentInactive</span>)</small>
+
+                    <ng-container *ngIf="config.factories[item.factoryId] as factory">
+                        <p>{{ factory.name }} <small>({{ factory.description }})</small></p>
+                    </ng-container>
+                </ion-label>
+            </ion-item>
+            <ng-container *ngIf="(item.isClicked && i !=0) || (!item.isClicked && i == 0)">
+
+                <ion-col *ngSwitchCase="'Bms.Soltaro.SingleRack.VersionB'" class="ion-no-padding">
+                    <soltaroVersionB [edge]="edge" [config]="config" [componentId]="item.id">
+                    </soltaroVersionB>
+                </ion-col>
+
+                <ion-col *ngSwitchCase="'Bms.Soltaro.SingleRack.VersionC'" class="ion-no-padding">
+                    <soltaroVersionC [edge]="edge" [config]="config" [componentId]="item.id">
+                    </soltaroVersionC>
+                </ion-col>
+
+                <ion-col *ngSwitchDefault class="ion-no-padding">
+                    <ion-item>
+                        <ion-label>
+                            Für diese Batterie gibt es noch kein Service Dashboard
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+            </ng-container>
+        </ng-container>
+    </ion-list>
+</ion-content>

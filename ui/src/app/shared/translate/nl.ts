@@ -348,6 +348,14 @@ export const TRANSLATION = {
                 newConnection: 'Nieuwe verbinding...',
                 newDevice: 'Nieuw apparaat…',
             }
+        },
+        Service: {
+            entireSystem: "Hele systeem",
+            Cell: {
+                voltages: "Celspanningen",
+                temperatures: "Celtemperaturen",
+                insulation: "Isolatie",
+            }
         }
     },
     About: {
