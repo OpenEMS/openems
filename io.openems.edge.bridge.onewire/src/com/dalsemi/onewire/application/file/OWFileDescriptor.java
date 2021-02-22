@@ -504,9 +504,9 @@ public class OWFileDescriptor {
 	 * <li>filePosition - (file only) overall file position when reading
 	 * </ul>
 	 *
-	 * @throws FileNotFoundException when the file/directory path is invalid or
-	 *                               there was an IOException thrown when trying to
-	 *                               read the device.
+	 * @throws OWFileNotFoundException when the file/directory path is invalid or
+	 *                                 there was an IOException thrown when trying
+	 *                                 to read the device.
 	 */
 	protected void open() throws OWFileNotFoundException {
 		String last_error = null;
@@ -600,18 +600,18 @@ public class OWFileDescriptor {
 	/**
 	 * Creates a directory or file to write.
 	 *
-	 * @param append       for files only, true to append data to end of file, false
-	 *                     to reset the file
-	 * @param isDirectory  true if creating a directory, false for a file
-	 * @param makeParents  true if creating all needed parent directories in order
-	 *                     to create the file/directory
-	 * @param startPageNum starting page of file/directory, -1 if not renaming
-	 * @param numberPages  number of pages in file/directory, -1 if not renaming
+	 * @param append      for files only, true to append data to end of file, false
+	 *                    to reset the file
+	 * @param isDirectory true if creating a directory, false for a file
+	 * @param makeParents true if creating all needed parent directories in order to
+	 *                    create the file/directory
+	 * @param startPage   starting page of file/directory, -1 if not renaming
+	 * @param numberPages number of pages in file/directory, -1 if not renaming
 	 *
-	 * @throws FileNotFoundException if file already opened to write, if
-	 *                               makeParents=false and parent directories not
-	 *                               found, if file is read only, or if there is an
-	 *                               IO error reading filesystem
+	 * @throws OWFileNotFoundException if file already opened to write, if
+	 *                                 makeParents=false and parent directories not
+	 *                                 found, if file is read only, or if there is
+	 *                                 an IO error reading filesystem
 	 */
 	protected void create(boolean append, boolean isDirectory, boolean makeParents, int startPage, int numberPages)
 			throws OWFileNotFoundException {
@@ -783,7 +783,8 @@ public class OWFileDescriptor {
 	 * WARNING: all files/directories will be deleted in the process.
 	 *
 	 * @throws OneWireException   when adapter is not setup properly
-	 * @throws OneWireIOException when an IO error occurred reading the 1-Wire device
+	 * @throws OneWireIOException when an IO error occurred reading the 1-Wire
+	 *                            device
 	 */
 	protected void format() throws OneWireException, OneWireIOException {
 		int i, j, len, next_page, cnt, cdcnt = 0, device_map_pages, dm_bytes = 0;
@@ -2853,17 +2854,17 @@ public class OWFileDescriptor {
 	/**
 	 * Verify the Device Map of a MASTER device is correct.
 	 *
-	 * @param page               starting page number of the device map file
+	 * @param startPage          starting page number of the device map file
 	 * @param numberOfContainers to re-create the OneWireContainer array in the
 	 *                           instance variable from the devices listed in the
 	 *                           device map 'owd[]'. Zero indicates leave the list
-	 *                           alone. >0 means recreate the array keeping the same
-	 *                           MASTER device.
+	 *                           alone. &gt;0 means recreate the array keeping the
+	 *                           same MASTER device.
 	 * @param setOverdrive       <code> true </code> if set new containers to do a
 	 *                           max speed of overdrive if possible
 	 *
-	 * @returns the number of devices in the device map if the current device list
-	 *          is INVALID and returns zero if the current device list is VALID.
+	 * @return the number of devices in the device map if the current device list is
+	 *         INVALID and returns zero if the current device list is VALID.
 	 *
 	 * @throws OneWireException when an IO error occurs
 	 */
@@ -3116,8 +3117,8 @@ public class OWFileDescriptor {
 	 * codes. On UNIX systems, the hash code of an abstract pathname is equal to the
 	 * exclusive <em>or</em> of its pathname string and the decimal value
 	 * <code>1234321</code>. On Win32 systems, the hash code is equal to the
-	 * exclusive <em>or</em> of its pathname string, converted to lower case, and the
-	 * decimal value <code>1234321</code>.
+	 * exclusive <em>or</em> of its pathname string, converted to lower case, and
+	 * the decimal value <code>1234321</code>.
 	 *
 	 * @return A hash code for this abstract pathname
 	 */

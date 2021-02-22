@@ -28,10 +28,10 @@ public class StringUtils {
 	 * Match two Strings, considering wildcards.
 	 * 
 	 * <ul>
-	 * <li>if {@link #equals(Object)} is true -> return 0
-	 * <li>if 'pattern' matches 'source' -> return value > 1; bigger values
+	 * <li>if {@link #equals(Object)} is true -&gt; return 0
+	 * <li>if 'pattern' matches 'source' -&gt; return value &gt; 1; bigger values
 	 * represent a better match
-	 * <li>if both Strings do not match -> return -1
+	 * <li>if both Strings do not match -&gt; return -1
 	 * </ul>
 	 * 
 	 * <p>

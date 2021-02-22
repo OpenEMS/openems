@@ -507,7 +507,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * This method is executed before the
-	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_PROCESS_IMAGE event.
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_PROCESS_IMAGE} event.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
@@ -516,7 +516,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * This method is executed before the
-	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_PROCESS_IMAGE event.
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_PROCESS_IMAGE} event.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
@@ -525,7 +525,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * This method is executed before the
-	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_CONTROLLERS event.
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_CONTROLLERS} event.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
@@ -533,7 +533,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	}
 
 	/**
-	 * This method is executed after TOPIC_CYCLE_BEFORE_CONTROLLERS and before
+	 * This method is executed after TOPIC_CYCLE_BEFORE_CONTROLLERS} and before
 	 * TOPIC_CYCLE_AFTER_CONTROLLERS.
 	 * 
 	 * @throws OpenemsNamedException on error
@@ -543,7 +543,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * This method is executed before the
-	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_CONTROLLERS event.
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_CONTROLLERS} event.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
@@ -552,7 +552,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * This method is executed before the
-	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_WRITE event.
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_WRITE} event.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
@@ -561,7 +561,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * This method is executed before the
-	 * {@link EdgeEventConstants#TOPIC_CYCLE_EXECUTE_WRITE event.
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_EXECUTE_WRITE} event.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
@@ -570,11 +570,11 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * This method is executed before
-	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_WRITE.
+	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_WRITE}.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
-	protected void onAfterWrite() {
+	protected void onAfterWrite() throws OpenemsNamedException {
 
 	}
 
