@@ -1,0 +1,39 @@
+name: Build OpenEMS Edge & Backend and docs
+on: [push]
+jobs:
+  build-edge-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup JDK 8
+        uses: actions/setup-java@v1
+        with:
+          java-version: '8'
+
+      - name: Build all Java packages
+        run: ./gradlew build
+
+      - name: Resolve OpenEMS Backend bundles
+        run: ./gradlew resolve.BackendApp
+
+      - name: Validate BackendApp.bndrun
+        run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun
+
+      - name: Resolve OpenEMS Edge bundles
+        run: ./gradlew resolve.EdgeApp
+
+      - name: Validate EdgeApp.bndrun
+        run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
+
+#      - name: Build Javadocs
+#        run: ./gradlew buildAggregatedJavadocs --continue
+
+      - name: Build Antora-docs for openems.io
+        run: ./gradlew buildAntoraDocs --continue
+
+      - name: Deploy to GitHub pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
