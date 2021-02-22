@@ -375,9 +375,9 @@ public class TypeUtils {
 	 * Safely subtract Integers.
 	 * 
 	 * <ul>
-	 * <li>if minuend is null -> result is null
-	 * <li>if subtrahend is null -> result is minuend
-	 * <li>if both are null -> result is null
+	 * <li>if minuend is null -&gt; result is null
+	 * <li>if subtrahend is null -&gt; result is minuend
+	 * <li>if both are null -&gt; result is null
 	 * </ul>
 	 * 
 	 * @param minuend    the minuend of the subtraction
@@ -398,9 +398,9 @@ public class TypeUtils {
 	 * Safely subtract Longs.
 	 * 
 	 * <ul>
-	 * <li>if minuend is null -> result is null
-	 * <li>if subtrahend is null -> result is minuend
-	 * <li>if both are null -> result is null
+	 * <li>if minuend is null -&gt; result is null
+	 * <li>if subtrahend is null -&gt; result is minuend
+	 * <li>if both are null -&gt; result is null
 	 * </ul>
 	 * 
 	 * @param minuend    the minuend of the subtraction
@@ -457,11 +457,11 @@ public class TypeUtils {
 	 * Safely divides Integers.
 	 * 
 	 * <ul>
-	 * <li>if dividend is null -> result is null
+	 * <li>if dividend is null -&gt; result is null
 	 * </ul>
 	 * 
-	 * @param minuend    the dividend of the division
-	 * @param subtrahend the divisor of the division
+	 * @param dividend the dividend of the division
+	 * @param divisor  the divisor of the division
 	 * @return the result, possibly null
 	 */
 	public static Integer divide(Integer dividend, int divisor) {
@@ -475,11 +475,11 @@ public class TypeUtils {
 	 * Safely divides Longs.
 	 * 
 	 * <ul>
-	 * <li>if dividend is null -> result is null
+	 * <li>if dividend is null -&gt; result is null
 	 * </ul>
 	 * 
-	 * @param minuend    the dividend of the division
-	 * @param subtrahend the divisor of the division
+	 * @param dividend the dividend of the division
+	 * @param divisor  the divisor of the division
 	 * @return the result, possibly null
 	 */
 	public static Long divide(Long dividend, long divisor) {

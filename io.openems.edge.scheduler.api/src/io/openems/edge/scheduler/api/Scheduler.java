@@ -67,7 +67,6 @@ public interface Scheduler extends OpenemsComponent {
 	 * {@link LinkedHashSet} is used, as it preserves insertion order
 	 * 
 	 * @return a ordered set of Component-IDs of Controllers
-	 * @throws OpenemsNamedException on error
 	 */
 	public LinkedHashSet<String> getControllers();
 

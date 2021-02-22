@@ -16,13 +16,13 @@ import io.openems.edge.common.component.OpenemsComponent;
  * Possible meta information include:
  * <ul>
  * <li>access-mode (read-only/read-write/write-only) flag
- * {@link #accessMode(AccessMode)}. Defaults to Read-Only.
- * <li>expected OpenemsType via {@link #getType()}
- * <li>descriptive text via {@link #getText()}
- * <li>is debug mode activated via {@link #isDebug()}
- * <li>callback on initialization of a Channel via {@link #getOnInitCallback()}
+ * {@link Doc#accessMode(AccessMode)}. Defaults to Read-Only.
+ * <li>expected OpenemsType via {@link Doc#getType()}
+ * <li>descriptive text via {@link Doc#getText()}
+ * <li>is debug mode activated via {@link Doc#isDebug()}
+ * <li>callback on initialization of a Channel via
+ * {@link Doc#getOnInitCallback()}
  * </ul>
- * 
  */
 public interface Doc {
 
