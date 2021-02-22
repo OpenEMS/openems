@@ -10,11 +10,10 @@ jobs:
           java-version: '8'
           java-package: jdk
           architecture: x64
-      - run: |
-        ./gradlew build
-        ./gradlew resolve.BackendApp
-        git diff --exit-code io.openems.backend.application/BackendApp.bndrun
-        ./gradlew resolve.EdgeApp
-        git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
-        ./gradlew buildAggregatedJavadocs --continue
-        ./gradlew buildAntoraDocs --continue
+      - run: ./gradlew build
+      - run: ./gradlew resolve.BackendApp
+      - run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun
+      - run: ./gradlew resolve.EdgeApp
+      - run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
+      - run: ./gradlew buildAggregatedJavadocs --continue
+      - run: ./gradlew buildAntoraDocs --continue
