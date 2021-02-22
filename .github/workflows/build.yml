@@ -1,7 +1,7 @@
 name: Build OpenEMS Edge & Backend and docs
 on: [push]
 jobs:
-  build-edge-backend:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -11,7 +11,7 @@ jobs:
         with:
           java-version: '8'
 
-      - name: Setup Cache for Java
+      - name: Setup Cache for Java/Gradle
         uses: actions/cache@v2
         with:
           path: |
@@ -19,6 +19,14 @@ jobs:
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
+
+      - name: Setup Cache for Java/Maven
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
       - name: Setup Node.js
         uses: actions/setup-node@v1
@@ -61,3 +69,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
+          external_repository: OpenEMS/openems.io
+          publish_branch: master
+          publish_dir: build/www
