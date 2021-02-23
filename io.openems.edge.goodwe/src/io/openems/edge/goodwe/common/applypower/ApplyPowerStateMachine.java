@@ -176,9 +176,10 @@ public class ApplyPowerStateMachine extends AbstractStateMachine<ApplyPowerState
 				return State.UNDEFINED;
 			}
 
-		}
+//		}
 
 		// should not come here
 		return State.UNDEFINED;
 	}
+}
 }

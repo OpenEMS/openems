@@ -141,27 +141,31 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 */
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
 		// Battery String
-		IntegerWriteChannel bmsBatteryString = this.channel(GoodWe.ChannelId.BATT_STRINGS);
-		if (bmsBatteryString.value().get().intValue() != this.batteryModuleNumber) {
-			bmsBatteryString.setNextWriteValue(this.batteryModuleNumber);
+		try {
+			IntegerWriteChannel bmsBatteryString = this.channel(GoodWe.ChannelId.BATT_STRINGS);
+			if (bmsBatteryString.value().orElse(0).intValue() != this.batteryModuleNumber) {
+				bmsBatteryString.setNextWriteValue(this.batteryModuleNumber);
+			}
+
+			IntegerWriteChannel bmsLeadBatCapacity = this.channel(GoodWe.ChannelId.LEAD_BAT_CAPACITY);
+			if (bmsLeadBatCapacity.value().orElse(0).intValue() != this.leadBatteryCapacity) {
+				bmsLeadBatCapacity.setNextWriteValue(this.leadBatteryCapacity);
+			}
+
+			// Batt Soc
+			IntegerWriteChannel batSoc = this.channel(GoodWe.ChannelId.WBMS_BAT_SOC);
+			batSoc.setNextWriteValue(battery.getSoc().orElse(0).intValue());
+
+			// Batt Voltage
+			IntegerWriteChannel batVoltage = this.channel(GoodWe.ChannelId.WBMS_BAT_VOLTAGE);
+			batVoltage.setNextWriteValue(battery.getVoltage().orElse(180).intValue());
+
+			// Batt Current
+			IntegerWriteChannel batCurrent = this.channel(GoodWe.ChannelId.WBMS_BAT_CURRENT);
+			batCurrent.setNextWriteValue(battery.getCurrent().orElse(0).intValue());
+		} catch (NullPointerException e) {
+			this.logInfo(log, "Registers have not been read yet");
 		}
-
-		IntegerWriteChannel bmsLeadBatCapacity = this.channel(GoodWe.ChannelId.LEAD_BAT_CAPACITY);
-		if (bmsLeadBatCapacity.value().get().intValue() != this.leadBatteryCapacity) {
-			bmsLeadBatCapacity.setNextWriteValue(this.leadBatteryCapacity);
-		}
-
-		// Batt Soc
-		IntegerWriteChannel batSoc = this.channel(GoodWe.ChannelId.WBMS_BAT_SOC);
-		batSoc.setNextWriteValue(battery.getSoc().get().intValue());
-
-		// Batt Voltage
-		IntegerWriteChannel batVoltage = this.channel(GoodWe.ChannelId.WBMS_BAT_VOLTAGE);
-		batVoltage.setNextWriteValue(battery.getVoltage().get().intValue());
-
-		// Batt Current
-		IntegerWriteChannel batCurrent = this.channel(GoodWe.ChannelId.WBMS_BAT_CURRENT);
-		batCurrent.setNextWriteValue(battery.getCurrent().get().intValue());
 	}
 
 	@Override
