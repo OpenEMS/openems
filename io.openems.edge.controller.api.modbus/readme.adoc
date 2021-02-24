@@ -1,5 +1,29 @@
 = Api Modbus
 
-Provides a Modbus-Slave implementation for OpenEMS Edge. It provides access to Channels from an external device via Modbus/TCP.
+The OpenEMS Edge Modbus-Slave-API is provided by the "Modbus-API Controller".
+As the Modbus protocol is widely used in industrial monitoring and automation, this allows for easy access to OpenEMS channels from external systems.
+
+The configuration of the Modbus-API controller defines which OpenEMS Components should be exported and made available via the API.
+It then generates a dynamic Modbus protocol that is structured in address blocks that map to OpenEMS Components and Modbus register addresses that map to OpenEMS channels.
+
+The modbus table is designed in a way that allows dynamic parsing of all available registers. 
+
+The following example describes a Controller that is configured to export the Sum-Component (`_sum`). By reading the headers of the individual blocks, the entire Modbus protocol can be parsed dynamically:
+
+. Register `0` identifies the system as an OpenEMS by the hash value `0x17ed6201`.
+
+. Register `1` shows the length of the first block. Adding the length (`199`) the current address (`1`) gives the starting address of the next block (`200`).
+
+. Register `200` gives a string with fixed length of 16 characters with the Component-ID.
+
+. Register `216` shows the length of the complete block. Adding the length (`300`) to the starting address of the block (`200`) gives the starting address of the next block (`500`) and so forth.
+
+. Register `220` identifies the first sub-block as Nature `OpenemsComponent`. The length of the sub-block follows in Register `221` and gives the starting address of the next sub-block (`300`) and so on.
+
+Instead of parsing the Modbus protocol, it is also possible to download the EMS specific Excel file via OpenEMS UI "System Profile" menu. An example export is available in the 'doc' folder of this bundle.
+
+To communicate with specific channels, it is then sufficient to read or write to the matching registers, e.g.
+- Read register `302 _sum/EssSoc` to get the total average state of charge of the ESS.
+- Write to register `806 ess0/SetActivePowerEquals` to trigger charging or discharging of the ESS with ID `ess0`.
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api.modbus[Source Code icon:github[]]

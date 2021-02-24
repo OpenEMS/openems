@@ -8,8 +8,8 @@ public interface SunSpecModel {
 	/**
 	 * The name of the SunSpec Model.
 	 * 
-	 * It is expected to be "S_<Block-ID>", e.g. for the common Block-ID "1" the
-	 * expected name is "S_1".
+	 * It is expected to be "S_&lt;Block-ID&gt;", e.g. for the common Block-ID "1"
+	 * the expected name is "S_1".
 	 * 
 	 * @return the name as String
 	 */

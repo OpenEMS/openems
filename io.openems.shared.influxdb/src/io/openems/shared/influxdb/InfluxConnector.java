@@ -65,7 +65,7 @@ public class InfluxConnector {
 	 * @param isReadOnly   If true, a 'Read-Only-Mode' is activated, where no data
 	 *                     is actually written to the database
 	 * @param onWriteError A callback for write-errors, i.e. '(failedPoints,
-	 *                     throwable) -> {}'
+	 *                     throwable) -&gt; {}'
 	 */
 	public InfluxConnector(String ip, int port, String username, String password, String database,
 			String retentionPolicy, boolean isReadOnly, BiConsumer<Iterable<Point>, Throwable> onWriteError) {

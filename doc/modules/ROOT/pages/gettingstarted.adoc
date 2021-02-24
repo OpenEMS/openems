@@ -352,7 +352,7 @@ It is again noteworthy here, that:
 .UI via Backend
 image::ui-via-backend.png[UI via Backend]
 
-# Next steps
+## Next steps
 
 Now that you setup a complete development environment and have a working instance of OpenEMS Edge, OpenEMS Backend an OpenEMS UI, you can continue implementing your first device driver in OpenEMS. We provide a tutorial that explains the steps to implement an electric meter in OpenEMS Edge that is connected via Modbus/TCP. The meter itself is simulated using a small Modbus slave application, so no external hardware is required for this guide. → xref:edge/implement.adoc[Implementing a Device]
 
