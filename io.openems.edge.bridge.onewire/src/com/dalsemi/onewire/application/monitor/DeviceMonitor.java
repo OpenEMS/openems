@@ -54,7 +54,7 @@ public class DeviceMonitor extends AbstractDeviceMonitor {
 	/**
 	 * Create a simple monitor that does not search branches
 	 *
-	 * @param the DSPortAdapter this monitor should search
+	 * @param adapter the DSPortAdapter this monitor should search
 	 */
 	public DeviceMonitor(DSPortAdapter adapter) {
 		setAdapter(adapter);
@@ -63,7 +63,7 @@ public class DeviceMonitor extends AbstractDeviceMonitor {
 	/**
 	 * Sets this monitor to search a new DSPortAdapter
 	 *
-	 * @param the DSPortAdapter this monitor should search
+	 * @param adapter the DSPortAdapter this monitor should search
 	 */
 	public void setAdapter(DSPortAdapter adapter) {
 		if (adapter == null)
@@ -88,9 +88,9 @@ public class DeviceMonitor extends AbstractDeviceMonitor {
 	}
 
 	/**
-	 * Sets this monitor to search for alarming parts
+	 * Sets this monitor to search for alarming parts.
 	 *
-	 * @param the DSPortAdapter this monitor should search
+	 * @param findAlarmingParts
 	 */
 	public void setDoAlarmSearch(boolean findAlarmingParts) {
 		synchronized (sync_flag) {
@@ -99,9 +99,7 @@ public class DeviceMonitor extends AbstractDeviceMonitor {
 	}
 
 	/**
-	 * See if Gets this monitor to search for alarming parts
-	 *
-	 * @param the DSPortAdapter this monitor should search
+	 * See if Gets this monitor to search for alarming parts.
 	 */
 	public boolean getDoAlarmSearch() {
 		return doAlarmSearch;

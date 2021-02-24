@@ -102,7 +102,6 @@ import com.dalsemi.onewire.utils.IOHelper;
  * <code>readAuthenticatedPage</code>}
  * <li>{@link #writeDataPage(int,byte[]) <code>writeDataPage</code>}
  * </ul>
- * </p>
  *
  * <P>
  * The memory can also be accessed through the objects that are returned from
@@ -797,55 +796,56 @@ public class OneWireContainer18 extends OneWireContainer {
 	 * the DS1963S to stop sending 0x0ff's and begin alternating its output bits.
 	 * This method reads until it finds a non-0x0ff <code>byte</code> or until it
 	 * reaches a specified number of tries, indicating failure.
-	 * </p>
 	 *
 	 * <p>
 	 * This method can often be optimized away. A normal 1-Wire transaction involves
 	 * writing and reading a known number of bytes. If a few more bytes are read, a
 	 * program can check to see if the DS1963S has started alternating its output
 	 * much quicker than calling this method will. For instance, to copy the
-	 * scratchpad, the source code might look like this: <code><pre>
-	 *    buffer [0] = COPY_SCRATCHPAD;
-	 *    buffer [1] = TA1;
-	 *    buffer [2] = TA2;
-	 *    buffer [3] = ES;
+	 * scratchpad, the source code might look like this:
+	 * 
+	 * <pre>
+	 * buffer[0] = COPY_SCRATCHPAD;
+	 * buffer[1] = TA1;
+	 * buffer[2] = TA2;
+	 * buffer[3] = ES;
 	 *
-	 *    adapter.dataBlock(buffer,0,4);
-	 *    return waitForSuccessfulFinish();
-	 * </pre></code> To optimize the code, read more bytes than required:
-	 * <code><pre>
-	 *    buffer [0] = COPY_SCRATCHPAD;
-	 *    buffer [1] = TA1;
-	 *    buffer [2] = TA2;
-	 *    buffer [3] = ES;
+	 * adapter.dataBlock(buffer, 0, 4);
+	 * return waitForSuccessfulFinish();
+	 * </pre>
+	 * 
+	 * To optimize the code, read more bytes than required:
+	 * 
+	 * <pre>
+	 * buffer[0] = COPY_SCRATCHPAD;
+	 * buffer[1] = TA1;
+	 * buffer[2] = TA2;
+	 * buffer[3] = ES;
 	 *
-	 *    //copy 0x0FF into the buffer, this effectively reads
-	 *    System.arraycopy(FF, 0, buffer, 4, 5);
+	 * // copy 0x0FF into the buffer, this effectively reads
+	 * System.arraycopy(FF, 0, buffer, 4, 5);
 	 *
-	 *    //read 5 extra bytes
-	 *    adapter.dataBlock(buffer, 0, 9);
+	 * // read 5 extra bytes
+	 * adapter.dataBlock(buffer, 0, 9);
 	 *
-	 *    //if the last byte has not shown alternating output,
-	 *    //still call waitForSuccessfulFinish(), else
-	 *    //we are already done
-	 *    if (buffer [8] == ( byte ) 0x0ff)
-	 *         return waitForSuccessfulFinish();
-	 *     else
-	 *         return true;
-	 * </pre></code>
-	 * </p>
+	 * // if the last byte has not shown alternating output,
+	 * // still call waitForSuccessfulFinish(), else
+	 * // we are already done
+	 * if (buffer[8] == (byte) 0x0ff)
+	 * 	return waitForSuccessfulFinish();
+	 * else
+	 * 	return true;
+	 * </pre>
 	 *
 	 * <p>
 	 * The second method is faster because it is more expensive to invoke another
 	 * method that goes down to the native access layer than it is to just read a
 	 * few more bytes while the program is already at the native access layer.
-	 * </p>
 	 *
 	 * <p>
 	 * See the datasheet for which operations function in this manner. Only call
 	 * this method after another method which has successfully communicated with the
 	 * DS1963S.
-	 * </p>
 	 *
 	 * @return <code>true</code> if the DS1963S completed its operation successfully
 	 *
@@ -1668,7 +1668,6 @@ public class OneWireContainer18 extends OneWireContainer {
 	 * However, this method makes several optimizations to help it run faster.
 	 * Because of the optimizations, this is the preferred way of writing data to a
 	 * normal memory page on the DS1963S.
-	 * </p>
 	 *
 	 * @param page_number page number to write
 	 * @param page_data   page data to write (must be at least 32 bytes long)

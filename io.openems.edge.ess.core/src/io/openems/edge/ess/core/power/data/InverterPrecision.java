@@ -22,19 +22,19 @@ public class InverterPrecision {
 	 * Rounds each solution value to the Inverter precision; following this logic.
 	 *
 	 * <p>
-	 * On Discharge (Power > 0)
+	 * On Discharge (Power &gt; 0)
 	 *
 	 * <ul>
-	 * <li>if SoC > 50 %: round up (more discharge)
-	 * <li>if SoC < 50 %: round down (less discharge)
+	 * <li>if SoC &gt; 50 %: round up (more discharge)
+	 * <li>if SoC &lt; 50 %: round down (less discharge)
 	 * </ul>
 	 *
 	 * <p>
-	 * On Charge (Power < 0)
+	 * On Charge (Power &lt; 0)
 	 *
 	 * <ul>
-	 * <li>if SoC > 50 %: round down (less charge)
-	 * <li>if SoC < 50 %: round up (more discharge)
+	 * <li>if SoC &gt; 50 %: round down (less charge)
+	 * <li>if SoC &lt; 50 %: round up (more discharge)
 	 * </ul>
 	 *
 	 * @param coefficients    the {@link Coefficients}

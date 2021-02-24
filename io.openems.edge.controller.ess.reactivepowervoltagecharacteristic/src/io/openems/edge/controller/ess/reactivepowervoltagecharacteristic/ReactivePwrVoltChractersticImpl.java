@@ -125,7 +125,7 @@ public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent
 		if (this.qByUCharacteristics == null) {
 			percent = null;
 		} else {
-			Float p = this.qByUCharacteristics.getValue(voltageRatio);
+			Double p = this.qByUCharacteristics.getValue(voltageRatio);
 			if (p == null) {
 				percent = null;
 			} else {

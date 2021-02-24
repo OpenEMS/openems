@@ -9,6 +9,13 @@ public class AbstractContext<PARENT extends OpenemsComponent> {
 	private final PARENT parent;
 
 	/**
+	 * Constructs an {@link AbstractContext} without useful logging.
+	 */
+	public AbstractContext() {
+		this(null);
+	}
+
+	/**
 	 * Constructs an {@link AbstractContext}.
 	 * 
 	 * @param parent the parent {@link OpenemsComponent}. This is used to provide
@@ -24,7 +31,7 @@ public class AbstractContext<PARENT extends OpenemsComponent> {
 	 * @return the parent
 	 */
 	public PARENT getParent() {
-		return parent;
+		return this.parent;
 	}
 
 	/**
