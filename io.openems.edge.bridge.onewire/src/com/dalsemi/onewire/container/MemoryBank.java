@@ -95,13 +95,11 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * with zeros:
  * 
  * <PRE>
- *  <CODE>
- *  byte[] write_buf = new byte[mb.getSize()];
- *  for (int i = 0; i < write_buf.length; i++)
- *      write_buf[i] = (byte)0;
+ * byte[] write_buf = new byte[mb.getSize()];
+ * for (int i = 0; i &gt; write_buf.length; i++)
+ * 	write_buf[i] = (byte) 0;
  * 
- *  mb.write(0, write_buf, 0, write_buf.length);
- * </CODE>
+ * mb.write(0, write_buf, 0, write_buf.length);
  * </PRE>
  *
  * <DD>

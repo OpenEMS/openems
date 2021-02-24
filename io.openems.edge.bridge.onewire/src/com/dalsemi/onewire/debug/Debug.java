@@ -80,8 +80,8 @@ public class Debug {
 	/**
 	 * Sets the debug printing mode for this application.
 	 *
-	 * @param <code>true</code> to see debug messages, <code>false</code> to
-	 *                          suppress them
+	 * @param onoff <code>true</code> to see debug messages, <code>false</code> to
+	 *              suppress them
 	 */
 	public static final void setDebugMode(boolean onoff) {
 		DEBUG = onoff;
@@ -100,7 +100,7 @@ public class Debug {
 	/**
 	 * Sets the output stream for printing the debug info.
 	 *
-	 * @param out the output stream for printing the debug info.
+	 * @param outStream the output stream for printing the debug info.
 	 */
 	public static final void setPrintStream(PrintStream outStream) {
 		out = outStream;
@@ -109,12 +109,18 @@ public class Debug {
 	/**
 	 * Prints the specified <code>java.lang.String</code> object if debug mode is
 	 * enabled. This method calls <code>PrintStream.println(String)</code>, and
-	 * pre-pends the <code>String</code> ">> " to the message, so that if a program
-	 * were to call (when debug mode was enabled): <code><pre>
-	 *     com.dalsemi.onewire.debug.Debug.debug("Some notification...");
-	 * </pre></code> the resulting output would look like: <code><pre>
-	 *     >> Some notification...
-	 * </pre></code>
+	 * pre-pends the <code>String</code> "&gt;&gt; " to the message, so that if a
+	 * program were to call (when debug mode was enabled):
+	 * 
+	 * <pre>
+	 * com.dalsemi.onewire.debug.Debug.debug("Some notification...");
+	 * </pre>
+	 * 
+	 * the resulting output would look like:
+	 * 
+	 * <pre>
+	 *     &gt;&gt; Some notification...
+	 * </pre>
 	 *
 	 * @param x the message to print out if in debug mode
 	 */
@@ -126,13 +132,19 @@ public class Debug {
 	/**
 	 * Prints the specified array of bytes with a given label if debug mode is
 	 * enabled. This method calls <code>PrintStream.println(String)</code>, and
-	 * pre-pends the <code>String</code> ">> " to the message, so that if a program
-	 * were to call (when debug mode was enabled): <code><pre>
-	 *     com.dalsemi.onewire.debug.Debug.debug("Some notification...", myBytes);
-	 * </pre></code> the resulting output would look like: <code><pre>
+	 * pre-pends the <code>String</code> "&gt;&gt; " to the message, so that if a
+	 * program were to call (when debug mode was enabled):
+	 * 
+	 * <pre>
+	 * com.dalsemi.onewire.debug.Debug.debug("Some notification...", myBytes);
+	 * </pre>
+	 * 
+	 * the resulting output would look like:
+	 * 
+	 * <pre>
 	 *     >> my label
 	 *     >>   FF F1 F2 F3 F4 F5 F6 FF
-	 * </pre></code>
+	 * </pre>
 	 *
 	 * @param lbl   the message to print out above the array
 	 * @param bytes the byte array to print out
@@ -145,13 +157,19 @@ public class Debug {
 	/**
 	 * Prints the specified array of bytes with a given label if debug mode is
 	 * enabled. This method calls <code>PrintStream.println(String)</code>, and
-	 * pre-pends the <code>String</code> ">> " to the message, so that if a program
-	 * were to call (when debug mode was enabled): <code><pre>
-	 *     com.dalsemi.onewire.debug.Debug.debug("Some notification...", myBytes, 0, 8);
-	 * </pre></code> the resulting output would look like: <code><pre>
-	 *     >> my label
-	 *     >>   FF F1 F2 F3 F4 F5 F6 FF
-	 * </pre></code>
+	 * pre-pends the <code>String</code> "&gt;&gt; " to the message, so that if a
+	 * program were to call (when debug mode was enabled):
+	 * 
+	 * <pre>
+	 * com.dalsemi.onewire.debug.Debug.debug("Some notification...", myBytes, 0, 8);
+	 * </pre>
+	 * 
+	 * the resulting output would look like:
+	 * 
+	 * <pre>
+	 *     &gt;&gt; my label
+	 *     &gt;&gt; FF F1 F2 F3 F4 F5 F6 FF
+	 * </pre>
 	 *
 	 * @param lbl    the message to print out above the array
 	 * @param bytes  the byte array to print out
@@ -182,18 +200,16 @@ public class Debug {
 	/**
 	 * Prints the specified exception with a given label if debug mode is enabled.
 	 * This method calls <code>PrintStream.println(String)</code>, and pre-pends the
-	 * <code>String</code> ">> " to the message, so that if a program were to call
-	 * (when debug mode was enabled): <code><pre>
+	 * <code>String</code> "&gt;&gt;" to the message, so that if a program were to
+	 * call (when debug mode was enabled): <code><pre>
 	 *     com.dalsemi.onewire.debug.Debug.debug("Some notification...", exception);
 	 * </pre></code> the resulting output would look like: <code><pre>
-	 *     >> my label
-	 *     >>   OneWireIOException: Device Not Present
+	 *     &gt;&gt; my label
+	 *     &gt;&gt; OneWireIOException: Device Not Present
 	 * </pre></code>
 	 *
-	 * @param lbl    the message to print out above the array
-	 * @param bytes  the byte array to print out
-	 * @param offset the offset to start printing from the array
-	 * @param length the number of bytes to print from the array
+	 * @param lbl the message to print out above the array
+	 * @param t
 	 */
 	public static final void debug(String lbl, Throwable t) {
 		if (DEBUG) {

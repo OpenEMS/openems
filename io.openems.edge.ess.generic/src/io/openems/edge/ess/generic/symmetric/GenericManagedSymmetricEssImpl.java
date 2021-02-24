@@ -28,6 +28,7 @@ import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -59,6 +60,9 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricBatteryInverter batteryInverter;
@@ -105,7 +109,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 			return;
 		}
 
-		this.channelHandler.activate(this.battery, this.batteryInverter);
+		this.channelHandler.activate(this.componentManager, this.battery, this.batteryInverter);
 		this.config = config;
 	}
 
@@ -211,7 +215,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 	}
 
 	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
-	
+
 	@Override
 	public void setStartStop(StartStop value) {
 		if (this.startStopTarget.getAndSet(value) != value) {
@@ -247,5 +251,5 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
 		);
-	}	
+	}
 }
