@@ -66,18 +66,13 @@ import com.dalsemi.onewire.utils.OWPath;
  * environment. Instead of reporting the exception on each failed search
  * attempt, the monitor will default to retrying the search a handful of times
  * before finally reporting the exception.
- * 
- * @see #getMaxErrorCount(). To disable this feature, set the max error count to
- *      1.
- * @see #setMaxErrorCount(int).
- *      </P>
+ * </P>
  *
- *      <P>
- *      To receive events, an object must implement the
- *      <code>DeviceMonitorEventListener</code> interface.
- * @see DeviceMonitorEventListener. And the object must be added to the list of
- *      listeners. @see #addDeviceMonitorEventListener.
- *      </P>
+ * <P>
+ * To receive events, an object must implement the
+ * <code>DeviceMonitorEventListener</code> interface. And the object must be
+ * added to the list of listeners. @see #addDeviceMonitorEventListener.
+ * </P>
  *
  * @author SH
  * @version 1.00

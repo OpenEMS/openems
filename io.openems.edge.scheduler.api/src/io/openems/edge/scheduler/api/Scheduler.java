@@ -5,7 +5,6 @@ import java.util.LinkedHashSet;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.Level;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -67,7 +66,6 @@ public interface Scheduler extends OpenemsComponent {
 	 * {@link LinkedHashSet} is used, as it preserves insertion order
 	 * 
 	 * @return a ordered set of Component-IDs of Controllers
-	 * @throws OpenemsNamedException on error
 	 */
 	public LinkedHashSet<String> getControllers();
 
