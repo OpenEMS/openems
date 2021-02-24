@@ -365,9 +365,8 @@ public class SetAllowedCurrentsTest {
 
 		int newCapacity = 200_000;
 		this.battery.setCapacity(newCapacity);
-		expected = -(int) Math.max(MIN_CURRENT_AMPERE, newCapacity * POWER_FACTOR / DummyBattery.DEFAULT_VOLTAGE); // 5.333
-																													// =>
-																													// 5
+		// 5.333 => 5
+		expected = -(int) Math.max(MIN_CURRENT_AMPERE, newCapacity * POWER_FACTOR / DummyBattery.DEFAULT_VOLTAGE);
 		assertEquals(expected, SetAllowedCurrents.calculateForceCurrent(this.battery, this.settings));
 
 		int newVoltage = 850;

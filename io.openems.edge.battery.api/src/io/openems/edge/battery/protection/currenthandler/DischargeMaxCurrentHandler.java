@@ -12,8 +12,20 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 
 		private ForceCharge.Params forceChargeParams = null;
 
-		protected Builder(ClockProvider clockProvider, int initialBmsMaxEverChargeCurrent) {
-			super(clockProvider, initialBmsMaxEverChargeCurrent);
+		/**
+		 * Creates a {@link Builder} for {@link DischargeMaxCurrentHandler}.
+		 * 
+		 * @param clockProvider                     a {@link ClockProvider}, mainly for
+		 *                                          JUnit tests
+		 * @param initialBmsMaxEverDischargeCurrent the (estimated) maximum allowed
+		 *                                          discharge current. This is used as a
+		 *                                          reference for percentage values. If
+		 *                                          during runtime a higher value is
+		 *                                          provided, that one is taken from
+		 *                                          then on.
+		 */
+		protected Builder(ClockProvider clockProvider, int initialBmsMaxEverDischargeCurrent) {
+			super(clockProvider, initialBmsMaxEverDischargeCurrent);
 		}
 
 		/**

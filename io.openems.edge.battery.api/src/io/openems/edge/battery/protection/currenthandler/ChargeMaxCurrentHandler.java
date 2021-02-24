@@ -12,6 +12,18 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 
 		private ForceDischarge.Params forceDischargeParams = null;
 
+		/**
+		 * Creates a {@link Builder} for {@link ChargeMaxCurrentHandler}.
+		 * 
+		 * @param clockProvider                         a {@link ClockProvider}, mainly
+		 *                                              for JUnit tests
+		 * @param initialBmsMaxEverAllowedChargeCurrent the (estimated) maximum allowed
+		 *                                              charge current. This is used as
+		 *                                              a reference for percentage
+		 *                                              values. If during runtime a
+		 *                                              higher value is provided, that
+		 *                                              one is taken from then on.
+		 */
 		protected Builder(ClockProvider clockProvider, int initialBmsMaxEverAllowedChargeCurrent) {
 			super(clockProvider, initialBmsMaxEverAllowedChargeCurrent);
 		}

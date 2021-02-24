@@ -25,9 +25,9 @@ import io.openems.edge.common.test.TimeLeapClock;
 
 public class BatteryProtectionTest {
 
-	public final static double MAX_INCREASE_AMPERE_PER_SECOND = 0.5;
+	public static final double MAX_INCREASE_AMPERE_PER_SECOND = 0.5;
 
-	public final static PolyLine CHARGE_VOLTAGE_TO_PERCENT = PolyLine.create() //
+	public static final PolyLine CHARGE_VOLTAGE_TO_PERCENT = PolyLine.create() //
 			.addPoint(3000, 0.1) //
 			.addPoint(Math.nextUp(3000), 1) //
 			.addPoint(3350, 1) //
@@ -37,7 +37,7 @@ public class BatteryProtectionTest {
 			.addPoint(3650, 0) //
 			.build();
 
-	public final static PolyLine CHARGE_TEMPERATURE_TO_PERCENT = PolyLine.create() //
+	public static final PolyLine CHARGE_TEMPERATURE_TO_PERCENT = PolyLine.create() //
 			.addPoint(Math.nextDown(-10), 0) //
 			.addPoint(-10, 0.215) //
 			.addPoint(0, 0.215) //
@@ -54,9 +54,9 @@ public class BatteryProtectionTest {
 			.addPoint(55, 0) //
 			.build();
 
-	public final static ForceDischarge.Params FORCE_DISCHARGE = new ForceDischarge.Params(3660, 3640, 3450);
+	public static final ForceDischarge.Params FORCE_DISCHARGE = new ForceDischarge.Params(3660, 3640, 3450);
 
-	public final static PolyLine DISCHARGE_VOLTAGE_TO_PERCENT = PolyLine.create() //
+	public static final PolyLine DISCHARGE_VOLTAGE_TO_PERCENT = PolyLine.create() //
 			.addPoint(2900, 0) //
 			.addPoint(Math.nextUp(2900), 0.05) //
 			.addPoint(2920, 0.05) //
@@ -65,7 +65,7 @@ public class BatteryProtectionTest {
 			.addPoint(Math.nextUp(3700), 0) //
 			.build();
 
-	public final static PolyLine DISCHARGE_TEMPERATURE_TO_PERCENT = PolyLine.create() //
+	public static final PolyLine DISCHARGE_TEMPERATURE_TO_PERCENT = PolyLine.create() //
 			.addPoint(Math.nextDown(-10), 0) //
 			.addPoint(-10, 0.215) //
 			.addPoint(0, 0.215) //
@@ -78,9 +78,9 @@ public class BatteryProtectionTest {
 			.addPoint(55, 0) //
 			.build();
 
-	public final static ForceCharge.Params FORCE_CHARGE = new ForceCharge.Params(2850, 2910, 3000);
+	public static final ForceCharge.Params FORCE_CHARGE = new ForceCharge.Params(2850, 2910, 3000);
 
-	public final static int INITIAL_BMS_MAX_EVER_CURRENT = 80;
+	public static final int INITIAL_BMS_MAX_EVER_CURRENT = 80;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		ORIGINAL_CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
@@ -102,20 +102,20 @@ public class BatteryProtectionTest {
 
 	private static final String BATTERY_ID = "battery0";
 
-	private final static ChannelAddress BATTERY_START_STOP = new ChannelAddress(BATTERY_ID,
+	private static final ChannelAddress BATTERY_START_STOP = new ChannelAddress(BATTERY_ID,
 			StartStoppable.ChannelId.START_STOP.id());
-	private final static ChannelAddress BATTERY_BP_CHARGE_BMS = new ChannelAddress(BATTERY_ID,
+	private static final ChannelAddress BATTERY_BP_CHARGE_BMS = new ChannelAddress(BATTERY_ID,
 			BatteryProtection.ChannelId.BP_CHARGE_BMS.id());
-	private final static ChannelAddress BATTERY_BP_DISCHARGE_BMS = new ChannelAddress(BATTERY_ID,
+	private static final ChannelAddress BATTERY_BP_DISCHARGE_BMS = new ChannelAddress(BATTERY_ID,
 			BatteryProtection.ChannelId.BP_DISCHARGE_BMS.id());
-	private final static ChannelAddress BATTERY_MIN_CELL_VOLTAGE = new ChannelAddress(BATTERY_ID, "MinCellVoltage");
-	private final static ChannelAddress BATTERY_MAX_CELL_VOLTAGE = new ChannelAddress(BATTERY_ID, "MaxCellVoltage");
-	private final static ChannelAddress BATTERY_MIN_CELL_TEMPERATURE = new ChannelAddress(BATTERY_ID,
+	private static final ChannelAddress BATTERY_MIN_CELL_VOLTAGE = new ChannelAddress(BATTERY_ID, "MinCellVoltage");
+	private static final ChannelAddress BATTERY_MAX_CELL_VOLTAGE = new ChannelAddress(BATTERY_ID, "MaxCellVoltage");
+	private static final ChannelAddress BATTERY_MIN_CELL_TEMPERATURE = new ChannelAddress(BATTERY_ID,
 			"MinCellTemperature");
-	private final static ChannelAddress BATTERY_MAX_CELL_TEMPERATURE = new ChannelAddress(BATTERY_ID,
+	private static final ChannelAddress BATTERY_MAX_CELL_TEMPERATURE = new ChannelAddress(BATTERY_ID,
 			"MaxCellTemperature");
-	private final static ChannelAddress BATTERY_CHARGE_MAX_CURRENT = new ChannelAddress(BATTERY_ID, "ChargeMaxCurrent");
-	private final static ChannelAddress BATTERY_DISCHARGE_MAX_CURRENT = new ChannelAddress(BATTERY_ID,
+	private static final ChannelAddress BATTERY_CHARGE_MAX_CURRENT = new ChannelAddress(BATTERY_ID, "ChargeMaxCurrent");
+	private static final ChannelAddress BATTERY_DISCHARGE_MAX_CURRENT = new ChannelAddress(BATTERY_ID,
 			"DischargeMaxCurrent");
 
 	@Test
