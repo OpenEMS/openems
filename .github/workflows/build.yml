@@ -11,15 +11,6 @@ jobs:
         with:
           java-version: '8'
 
-      - name: Setup Cache for Java/Gradle
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-gradle-
-
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
