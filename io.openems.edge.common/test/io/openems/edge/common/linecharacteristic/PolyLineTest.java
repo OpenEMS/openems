@@ -35,19 +35,19 @@ public class PolyLineTest {
 		PolyLine polyline = new PolyLine("xCoord", "yCoord", lineConfig);
 
 		// exactly first
-		assertEquals(60f, polyline.getValue(0.9f), 0.00001);
+		assertEquals(60f, polyline.getValue(0.9), 0.00001);
 
 		// exactly last
-		assertEquals(-60f, polyline.getValue(1.1f), 0.00001);
+		assertEquals(-60f, polyline.getValue(1.1), 0.00001);
 
 		// beyond last
-		assertEquals(-60f, polyline.getValue(1.2f), 0.00001);
+		assertEquals(-60f, polyline.getValue(1.2), 0.00001);
 
 		// before first
-		assertEquals(60f, polyline.getValue(0.7f), 0.00001);
+		assertEquals(60f, polyline.getValue(0.7), 0.00001);
 
 		// between first two
-		assertEquals(30f, polyline.getValue(0.915f), 0.001);
+		assertEquals(30f, polyline.getValue(0.915), 0.001);
 	}
 
 	@Test
@@ -57,7 +57,7 @@ public class PolyLineTest {
 		PolyLine polyline = new PolyLine("xCoord", "yCoord", lineConfig);
 
 		// exactly first
-		assertEquals(null, polyline.getValue(0.9f));
+		assertEquals(null, polyline.getValue(0.9));
 	}
 
 }

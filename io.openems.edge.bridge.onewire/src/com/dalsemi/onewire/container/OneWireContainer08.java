@@ -50,8 +50,7 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * <LI>256-bit (32-byte) scratchpad ensures integrity of data transfer
  * <LI>Memory partitioned into 256-bit (32-byte) pages for packetizing data
  * <LI>Data integrity assured with strict read/write protocols
- * <LI>Operating temperature range from -40@htmlonly &#176C @endhtmlonly to
- * +70@htmlonly &#176C @endhtmlonly
+ * <LI>Operating temperature range from -40 to +70
  * <LI>Over 10 years of data retention
  * </UL>
  * 
