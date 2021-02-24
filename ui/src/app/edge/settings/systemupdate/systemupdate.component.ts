@@ -108,7 +108,7 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
       command += "echo -n \"" + pkg.name + " latest:\"; "
         + "wget -qO- http://fenecon.de/debian-test/" + pkg.getNameUnderscore() + "-latest.version; ";
     }
-    command += "ps ax | grep 'wget.*deb\\|dpkg' | wc -l";
+    command += "ps ax | grep 'wget.*deb\\|dpkg ' | wc -l";
 
     this.edge.sendRequest(this.websocket,
       new ComponentJsonApiRequest({
@@ -127,7 +127,11 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
             let pkg = this.packages[i];
             pkg.setVersions(result.stdout[i * 2].split(":")[1], result.stdout[i * 2 + 1].split(":")[1]);
           }
+          let array = [1,2,3,4];
+          array[0]
           let isCurrentlyInstallingLog = result.stdout[result.stdout.length - 1];
+          console.log("ParseInt gibt " +parseInt(isCurrentlyInstallingLog)+" zurück");
+          console.log("\n isCurrentlyInstallingLog gibt "+isCurrentlyInstallingLog+" zurück.");
           if (isCurrentlyInstallingLog && parseInt(isCurrentlyInstallingLog) > 2) {
             this.isCurrentlyInstalling = true;
           } else {
