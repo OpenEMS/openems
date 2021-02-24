@@ -709,11 +709,8 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 * Checks if the 'PIO Level' Conditional Search is set for input and if not sets
 	 * it.
 	 *
-	 * @param pinActivity if true, the activity latch for the pin is used for the
-	 *                    conditional search. Otherwise, the sensed level of the pin
-	 *                    is used for the conditional search.
-	 * @param register    current register for conditional search, which if returned
-	 *                    from <code>readRegister()</code>
+	 * @param register current register for conditional search, which if returned
+	 *                 from <code>readRegister()</code>
 	 */
 	public void setConditionalSearchLogicLevel(byte[] register) {
 		if ((register[2] & (byte) 0x01) == (byte) 0x01) {

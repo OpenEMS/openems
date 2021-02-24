@@ -67,8 +67,7 @@ import com.dalsemi.onewire.utils.Convert;
  * timekeeping
  * <LI>Clock accuracy is better than @htmlonly &#177 @endhtmlonly 2 minute/
  * month at 25@htmlonly &#176C @endhtmlonly
- * <LI>Operating temperature range from -40@htmlonly &#176C @endhtmlonly to
- * +70@htmlonly &#176C @endhtmlonly
+ * <LI>Operating temperature range from -40 to +70
  * <LI>Over 10 years of data retention
  * </UL>
  *
@@ -732,8 +731,8 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @param state current state of the device returned from
 	 *              <code>readDevice()</code>
 	 *
-	 * @return time in milliseconds that have occurred since the interval counter was
-	 *         started
+	 * @return time in milliseconds that have occurred since the interval counter
+	 *         was started
 	 *
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #setIntervalTimer(long,byte[])

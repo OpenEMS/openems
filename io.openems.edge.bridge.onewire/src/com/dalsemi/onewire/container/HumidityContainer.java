@@ -67,8 +67,6 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  *
  * <H3>Usage</H3>
  *
- * <DL>
- * <DD>
  * <H4>Example</H4> Gets humidity reading from a HumidityContainer instance
  * '<code>hc</code>':
  * 
