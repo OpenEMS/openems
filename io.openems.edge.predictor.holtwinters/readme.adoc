@@ -1,3 +1,0 @@
-= Holt-Winters Predictor
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.predictor.holtwinters[Source Code icon:github[]]

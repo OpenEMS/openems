@@ -8,7 +8,7 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 
 	private final String componentId;
 	private final String channelId;
-	
+
 	public ChannelAddress(String componentId, String channelId) {
 		super();
 		this.componentId = componentId;
