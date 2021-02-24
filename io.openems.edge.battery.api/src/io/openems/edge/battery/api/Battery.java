@@ -115,12 +115,9 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
 		 * <li>Unit: A
-		 * <li>Usually positive, negative for force discharge mode; see
-		 * {@link ChannelId#FORCE_DISCHARGE_ACTIVE}
+		 * <li>Usually positive, negative for force discharge mode
 		 * </ul>
 		 */
-		// TODO every Battery-Inverter implementation needs to be adjusted accordingly!
-		// Usually this register might be UINT16 and not accept negative values!
 		CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE)),
 
@@ -143,8 +140,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
 		 * <li>Unit: A
-		 * <li>Usually positive, negative for force charge mode; see
-		 * {@link ChannelId#FORCE_CHARGE_ACTIVE}
+		 * <li>Usually positive, negative for force charge mode
 		 * </ul>
 		 */
 		DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
@@ -199,6 +195,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)),
 
+		// TODO FORCE_CHARGE_ACTIVE and FORCE_DISCHARGE_ACTIVE channels are
+		// deprecated/obsolete by BatteryProtection channels
 		/**
 		 * Force charge active.
 		 * 
@@ -235,6 +233,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 
 	/**
 	 * Gets the ModbusSlaveNatureTable.
+	 * 
 	 * @param accessMode the {@link AccessMode}
 	 * @return ModbusSlaveNatureTable
 	 */
@@ -821,4 +820,5 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	public default void _setForceDischargeActive(boolean value) {
 		this.getForceDischargeActiveChannel().setNextValue(value);
 	}
+
 }

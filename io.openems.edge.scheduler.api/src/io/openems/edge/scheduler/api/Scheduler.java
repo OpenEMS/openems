@@ -5,7 +5,6 @@ import java.util.LinkedHashSet;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.Level;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
