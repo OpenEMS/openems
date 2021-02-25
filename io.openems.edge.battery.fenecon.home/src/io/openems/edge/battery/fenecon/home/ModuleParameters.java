@@ -1,18 +1,24 @@
 package io.openems.edge.battery.fenecon.home;
 
 public enum ModuleParameters {
-	MODULE_MAX_VOLTAGE(50), //
+	
+	
+	
+	VOLTAGE_ADDRESS_OFFSET(2), //
+
+	VOLTAGE_SENSORS_PER_MODULE(14), //
+	TEMPERATURE_SENSORS_PER_MODULE(14), //
+	TEMPERATURE_ADDRESS_OFFSET(18), //
+
 	MODULE_MIN_VOLTAGE(40), //
+	MODULE_MAX_VOLTAGE(50), //
+
+	ADDRESS_OFFSET_FOR_CELL_VOLT_AND_TEMP(100), //
+
 	MIN_CELL_VOLTAGE_MILLIVOLT(10127), //
 	MAX_CELL_VOLTAGE_MILLIVOLT(10128), //
 	MAX_CELL_TEMPERATURE(10129), //
 	MIN_CELL_TEMPERATURE(10130), //
-
-	VOLTAGE_SENSORS_PER_MODULE(14), //
-	TEMPERATURE_SENSORS_PER_MODULE(14), //
-	ADDRESS_OFFSET(100), //
-	VOLTAGE_ADDRESS_OFFSET(2), //
-	TEMPERATURE_ADDRESS_OFFSET(18), //
 
 	TOWER_1_OFFSET(10000), //
 	TOWER_2_OFFSET(12000), //
@@ -31,4 +37,13 @@ public enum ModuleParameters {
 		return this.value;
 	}
 
+	public static ModuleParameters getEnum(int enumValue) {
+
+		for (ModuleParameters i : ModuleParameters.values()) {
+			if (i.getValue() == enumValue) {
+				return i;
+			}
+		}
+	     throw new IllegalArgumentException("the given number doesn't match any Status.");
+	}
 }
