@@ -29,6 +29,7 @@ import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
 
@@ -39,7 +40,8 @@ import io.openems.edge.predictor.api.oneday.Predictor24Hours;
 				"id=" + OpenemsConstants.PREDICTOR_MANAGER_ID, //
 				"enabled=true" //
 		})
-public class PredictorManagerImpl extends AbstractOpenemsComponent implements OpenemsComponent, JsonApi {
+public class PredictorManagerImpl extends AbstractOpenemsComponent
+		implements PredictorManager, OpenemsComponent, JsonApi {
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -86,14 +88,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Op
 		return CompletableFuture.completedFuture(new Get24HoursPredictionResponse(request.getId(), predictions));
 	}
 
-	/**
-	 * Gets the {@link Prediction24Hours} by the best matching
-	 * {@link Predictor24Hours} for the given {@link ChannelAddress}.
-	 * 
-	 * @param channelAddress the {@link ChannelAddress}
-	 * @return the {@link Prediction24Hours} - all values null if no Predictor
-	 *         matches the Channel-Address
-	 */
+	@Override
 	public Prediction24Hours get24HoursPrediction(ChannelAddress channelAddress) {
 		Predictor24Hours predictor = this.getPredictorBestMatch(channelAddress);
 		if (predictor == null) {
