@@ -1,10 +1,7 @@
 import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets } from 'chart.js';
 import { differenceInDays } from 'date-fns';
-import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { Get24HoursPredictionRequest } from 'src/app/shared/jsonrpc/request/get24HoursPredictionRequest';
 import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
-import { Get24HoursPredictionResponse } from 'src/app/shared/jsonrpc/response/get24HoursPredictionResponse';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
@@ -126,20 +123,6 @@ export abstract class AbstractHistoryChart {
             options.scales.xAxes[0].time.unit = "hour";
         }
         return options
-    }
-
-    /**
-     * Sends a Get24HoursPredictionRequest and returns the Reponse.
-     */
-    protected get24HoursPrediction(channels: ChannelAddress[]): Promise<Get24HoursPredictionResponse> {
-        return new Promise((resolve, reject) => {
-            this.service.getCurrentEdge().then(edge => {
-                let request = new ComponentJsonApiRequest({ componentId: '_predictorManager', payload: new Get24HoursPredictionRequest(channels) });
-                edge.sendRequest(this.service.websocket, request).then(response => {
-                    resolve(response as Get24HoursPredictionResponse);
-                }).catch(reason => reject(reason));
-            }).catch(reason => reject(reason));
-        });
     }
 
     /**

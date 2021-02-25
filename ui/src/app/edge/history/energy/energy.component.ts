@@ -174,13 +174,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   private loadLineChart(chartLabels: EnergyChartLabels) {
     this.chartType = "line";
-
-    this.get24HoursPrediction([new ChannelAddress('_sum', 'ProductionActivePower')]).then(response => {
-      console.log(response);
-
-      // TODO show prediction in Chart
-    });
-
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
 

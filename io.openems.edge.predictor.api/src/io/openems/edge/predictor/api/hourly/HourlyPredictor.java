@@ -8,7 +8,7 @@ import io.openems.edge.common.component.OpenemsComponent;
  * Provides a prediction for the next 24 h.
  */
 @ProviderType
-@Deprecated
+//TODO remove the HourlyPredictor in favor of PredictorManager API
 public interface HourlyPredictor extends OpenemsComponent {
 
 	/**

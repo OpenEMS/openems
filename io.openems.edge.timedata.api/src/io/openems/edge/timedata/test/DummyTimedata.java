@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
@@ -84,7 +85,7 @@ public class DummyTimedata extends AbstractOpenemsComponent implements Timedata 
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
 		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException("DummyTimedata.queryHistoricEnergy() is not implemented");
 	}
 
 	@Override
@@ -92,13 +93,13 @@ public class DummyTimedata extends AbstractOpenemsComponent implements Timedata 
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException {
 		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException("DummyTimedata.queryHistoricEnergyPerPeriod() is not implemented");
 	}
 
 	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
 		// TODO Auto-generated method stub
-		return null;
+		throw new IllegalArgumentException("DummyTimedata.getLatestValue() is not implemented");
 	}
 
 }

@@ -12,10 +12,10 @@ public class TypeUtilsTest {
 		assertEquals(null, TypeUtils.average(null, null, null));
 
 		// int value
-//		assertEquals(2, Math.round(TypeUtils.average(1, 2, 3)));
+		assertEquals(Integer.valueOf(2), TypeUtils.averageRounded(1, 2, 3));
 
 		// float values
-//		assertEquals(2.5f, TypeUtils.average(2, 3), 0.001);
+		assertEquals(2.5f, TypeUtils.average(2F, 3F), 0.001);
 
 		// mixed values
 		assertEquals(2.5f, TypeUtils.average(2, null, 3), 0.001);

@@ -5,7 +5,7 @@ import java.time.ZonedDateTime;
 /**
  * Holds a prediction for 24 h; one value per hour; starting from 'start' time.
  */
-@Deprecated
+//TODO remove the HourlyPrediction in favor of PredictorManager API
 public class HourlyPrediction {
 
 	private final Integer[] values = new Integer[24];

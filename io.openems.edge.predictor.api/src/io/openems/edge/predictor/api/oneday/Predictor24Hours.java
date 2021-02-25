@@ -21,7 +21,7 @@ public interface Predictor24Hours extends OpenemsComponent {
 	 * 
 	 * @return an array of {@link ChannelAddress}es
 	 */
-	ChannelAddress[] getChannelAddresses();
+	public ChannelAddress[] getChannelAddresses();
 
 	/**
 	 * Gives a prediction for the next 24 h for the given {@link ChannelAddress};
@@ -34,6 +34,6 @@ public interface Predictor24Hours extends OpenemsComponent {
 	 * @param channelAddress the {@link ChannelAddress}
 	 * @return the {@link Prediction24Hours}
 	 */
-	Prediction24Hours get24HoursPrediction(ChannelAddress channelAddress);
+	public Prediction24Hours get24HoursPrediction(ChannelAddress channelAddress);
 
 }
