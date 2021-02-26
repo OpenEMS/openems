@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  * This Worker constantly checks for heap-dump files in /usr/lib/openems
  * directory. Those get created on OutOfMemory-Errors. All but the latest
  * heap-dump file are deleted and the
- * {@link ComponentManagerImpl.ChannelId#WAS_OUT_OF_MEMORY} StateChannel is set.
+ * {@link ComponentManager.ChannelId#WAS_OUT_OF_MEMORY} StateChannel is set.
  */
 public class OutOfMemoryHeapDumpWorker extends ComponentManagerWorker {
 

@@ -61,9 +61,7 @@ public class Event extends TaggedDevice implements TaggedSensor {
 	 * The readSensor method returns the "max" string if the Sensor (a switch) has
 	 * had activity since last time it was checked for activity.
 	 * 
-	 * @param--none.
-	 *
-	 *               @return String The "max" string associated with this Sensor.
+	 * @return String The "max" string associated with this Sensor.
 	 */
 	public String readSensor() throws OneWireException {
 		String returnString = "";

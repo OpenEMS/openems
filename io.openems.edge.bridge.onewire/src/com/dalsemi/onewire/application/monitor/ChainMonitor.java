@@ -58,7 +58,7 @@ public class ChainMonitor extends AbstractDeviceMonitor {
 	/**
 	 * Create a simple monitor that does not search branches
 	 *
-	 * @param the DSPortAdapter this monitor should search
+	 * @param adapter the DSPortAdapter this monitor should search
 	 */
 	public ChainMonitor(DSPortAdapter adapter) {
 		setAdapter(adapter);
@@ -67,7 +67,7 @@ public class ChainMonitor extends AbstractDeviceMonitor {
 	/**
 	 * Sets this monitor to search a new DSPortAdapter
 	 *
-	 * @param the DSPortAdapter this monitor should search
+	 * @param adapter the DSPortAdapter this monitor should search
 	 */
 	public void setAdapter(DSPortAdapter adapter) {
 		if (adapter == null)
@@ -94,7 +94,6 @@ public class ChainMonitor extends AbstractDeviceMonitor {
 	/**
 	 * chainOn sends the chain mode "ON" command sequence to all chain devices.
 	 * 
-	 * @param none
 	 * @return true if successful, false otherwise
 	 */
 	public boolean chainOn() throws OneWireException, OneWireIOException {
@@ -128,7 +127,7 @@ public class ChainMonitor extends AbstractDeviceMonitor {
 	 * chainConditionalReadRom sends the chain mode "DONE" command sequence to
 	 * current chain device.
 	 * 
-	 * @param 8-byte array for chain 1-Wire net address
+	 * @param chainDeviceAddress 8-byte array for chain 1-Wire net address
 	 * @return true if successful, false otherwise
 	 */
 	public boolean chainConditionalReadRom(byte[] chainDeviceAddress) throws OneWireException, OneWireIOException {
@@ -170,7 +169,6 @@ public class ChainMonitor extends AbstractDeviceMonitor {
 	 * chainDone sends the chain mode "DONE" command sequence to current chain
 	 * device.
 	 * 
-	 * @param none
 	 * @return true if successful, false otherwise
 	 */
 	public boolean chainDone() throws OneWireException, OneWireIOException {
@@ -203,7 +201,6 @@ public class ChainMonitor extends AbstractDeviceMonitor {
 	/**
 	 * chainOff sends the chain mode "OFF" command sequence to all chain devices.
 	 * 
-	 * @param none
 	 * @return true if successful, false otherwise
 	 */
 	public boolean chainOff() throws OneWireException, OneWireIOException {

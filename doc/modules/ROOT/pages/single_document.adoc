@@ -1,7 +1,7 @@
 = OpenEMS - Open Energy Management System
 ifndef::toc[]
 (c) 2020 OpenEMS Association e.V.
-Version 2021.3.0
+Version 2021.4.0
 :sectnums:
 :sectnumlevels: 4
 :toc:
@@ -30,16 +30,17 @@ include::edge/build.adoc[leveloffset=+2]
 include::edge/deploy.adoc[leveloffset=+2]
 
 == OpenEMS UI
+include::ui/architecture.adoc[leveloffset=+2]
 include::ui/build.adoc[leveloffset=+2]
 
 == OpenEMS Backend
 include::backend/architecture.adoc[leveloffset=+2]
-include::backend/configuration.adoc[leveloffset=+2]
 include::backend/backend-to-backend.adoc[leveloffset=+2]
 include::backend/build.adoc[leveloffset=+2]
 include::backend/deploy.adoc[leveloffset=+2]
 
 include::component-communication/index.adoc[leveloffset=+1]
-include::simulation.adoc[leveloffset=+1]
+include::simulation/realtime.adoc[leveloffset=+1]
+include::simulation/ui-history.adoc[leveloffset=+1]
 include::documentation.adoc[leveloffset=+1]
 include::randd.adoc[leveloffset=+1]

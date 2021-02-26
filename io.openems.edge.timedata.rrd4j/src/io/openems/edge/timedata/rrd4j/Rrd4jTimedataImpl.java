@@ -50,6 +50,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -60,10 +61,11 @@ import io.openems.edge.timedata.api.Timedata;
 public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		implements Rrd4jTimedata, Timedata, OpenemsComponent, EventHandler {
 
+	protected static final String DEFAULT_DATASOURCE_NAME = "value";
+	protected static final int DEFAULT_STEP_SECONDS = 60;
+	protected static final int DEFAULT_HEARTBEAT_SECONDS = DEFAULT_STEP_SECONDS;
+
 	private static final String RRD4J_PATH = "rrd4j";
-	private static final String DEFAULT_DATASOURCE_NAME = "value";
-	private static final int DEFAULT_STEP_SECONDS = 60;
-	private static final int DEFAULT_HEARTBEAT_SECONDS = DEFAULT_STEP_SECONDS;
 
 	private final Logger log = LoggerFactory.getLogger(Rrd4jTimedataImpl.class);
 
@@ -112,6 +114,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 			long toTimeStamp = toDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
 
 			for (ChannelAddress channelAddress : channels) {
+
 				Channel<?> channel = this.componentManager.getChannel(channelAddress);
 				database = this.getExistingRrdDb(channel.address());
 				if (database == null) {
@@ -121,23 +124,30 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 				ChannelDef chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
 				FetchRequest request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp,
 						resolution);
-				FetchData data = request.fetchData();
+
+				// Post-Process data
+				double[] result = postProcessData(request, resolution);
 				database.close();
 
-				for (int i = 0; i < data.getTimestamps().length; i++) {
-					Instant timestampInstant = Instant.ofEpochSecond(data.getTimestamps()[i]);
+				for (int i = 0; i < result.length; i++) {
+					long timestamp = fromTimestamp + (i * resolution);
+
+					// Prepare result table row
+					Instant timestampInstant = Instant.ofEpochSecond(timestamp);
 					ZonedDateTime dateTime = ZonedDateTime.ofInstant(timestampInstant, ZoneOffset.UTC)
 							.withZoneSameInstant(timezone);
 					SortedMap<ChannelAddress, JsonElement> tableRow = table.get(dateTime);
 					if (tableRow == null) {
 						tableRow = new TreeMap<>();
 					}
-					double value = data.getValues(0)[i];
+
+					double value = result[i];
 					if (Double.isNaN(value)) {
 						tableRow.put(channelAddress, JsonNull.INSTANCE);
 					} else {
 						tableRow.put(channelAddress, new JsonPrimitive(value));
 					}
+
 					table.put(dateTime, tableRow);
 				}
 			}
@@ -153,6 +163,77 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 			}
 		}
 		return table;
+	}
+
+	/**
+	 * Post-Process the received data.
+	 * 
+	 * <p>
+	 * This mainly makes sure the data has the correct resolution.
+	 * 
+	 * @param request    the RRD4j {@link FetchRequest}
+	 * @param resolution the resolution in seconds
+	 * @return the result array
+	 * @throws IOException              on error
+	 * @throws IllegalArgumentException on error
+	 */
+	protected static double[] postProcessData(FetchRequest request, int resolution)
+			throws IOException, IllegalArgumentException {
+		FetchData data = request.fetchData();
+		long step = data.getStep();
+		double[] input = data.getValues()[0];
+
+		// Initialize result array
+		final double[] result = new double[(int) ((request.getFetchEnd() - request.getFetchStart()) / resolution)];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = Double.NaN;
+		}
+
+		if (step < resolution) {
+			// Merge multiple entries to resolution
+			if (resolution % step != 0) {
+				throw new IllegalArgumentException(
+						"Requested resolution [" + resolution + "] is not dividable by RRD4j Step [" + step + "]");
+			}
+			int merge = (int) (resolution / step);
+			double[] buffer = new double[merge];
+			for (int i = 1; i < input.length; i += merge) {
+				for (int j = 0; j < merge; j++) {
+					if (i + j < input.length) {
+						buffer[j] = input[i + j];
+					} else {
+						buffer[j] = Double.NaN;
+					}
+				}
+
+				// put in result; avoid index rounding error
+				int resultIndex = (i - 1) / merge;
+				if (resultIndex >= result.length) {
+					break;
+				}
+				result[resultIndex] = TypeUtils.average(buffer);
+			}
+
+		} else if (step > resolution) {
+			// Split each entry to multiple values
+			if (step % resolution != 0) {
+				throw new IllegalArgumentException(
+						"RRD4j Step [" + step + "] is not dividable by requested resolution [" + resolution + "]");
+			}
+			int split = (int) (step / resolution);
+			for (int i = 1; i < input.length; i++) {
+				for (int j = 0; j < split; j++) {
+					result[(i - 1) * split + j] = input[i];
+				}
+			}
+
+		} else {
+			// Data already matches resolution
+			for (int i = 1; i < input.length; i++) {
+				result[i - 1] = input[i];
+			}
+		}
+		return result;
 	}
 
 	@Override
