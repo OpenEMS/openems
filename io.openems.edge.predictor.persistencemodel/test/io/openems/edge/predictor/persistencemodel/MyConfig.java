@@ -1,18 +1,25 @@
-package io.openems.edge.predictor.persistencemodel.production;
+package io.openems.edge.predictor.persistencemodel;
 
 import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.edge.predictor.persistencemodel.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
+		public String[] channelAddresses;
 
 		private Builder() {
 		}
 
 		public Builder setId(String id) {
 			this.id = id;
+			return this;
+		}
+
+		public Builder setChannelAddresses(String... channelAddresses) {
+			this.channelAddresses = channelAddresses;
 			return this;
 		}
 
@@ -35,6 +42,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	private MyConfig(Builder builder) {
 		super(Config.class, builder.id);
 		this.builder = builder;
+	}
+
+	@Override
+	public String[] channelAddresses() {
+		return this.builder.channelAddresses;
 	}
 
 }

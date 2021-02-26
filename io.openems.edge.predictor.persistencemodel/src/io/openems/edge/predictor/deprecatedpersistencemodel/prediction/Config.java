@@ -1,4 +1,4 @@
-package io.openems.edge.predictor.persistencemodel.production;
+package io.openems.edge.predictor.deprecatedpersistencemodel.prediction;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;

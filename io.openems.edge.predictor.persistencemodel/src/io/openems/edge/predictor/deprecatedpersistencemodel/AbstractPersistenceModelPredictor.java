@@ -1,4 +1,4 @@
-package io.openems.edge.predictor.persistencemodel;
+package io.openems.edge.predictor.deprecatedpersistencemodel;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -18,9 +18,10 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.predictor.api.HourlyPrediction;
-import io.openems.edge.predictor.api.HourlyPredictor;
+import io.openems.edge.predictor.api.hourly.HourlyPrediction;
+import io.openems.edge.predictor.api.hourly.HourlyPredictor;
 
+//TODO remove the AbstractPersistenceModelPredictor in favor of PredictorManager API 
 public abstract class AbstractPersistenceModelPredictor extends AbstractOpenemsComponent implements HourlyPredictor {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractPersistenceModelPredictor.class);

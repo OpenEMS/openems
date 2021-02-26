@@ -1,4 +1,4 @@
-package io.openems.edge.predictor.persistencemodel;
+package io.openems.edge.predictor.deprecatedpersistencemodel;
 
 import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;

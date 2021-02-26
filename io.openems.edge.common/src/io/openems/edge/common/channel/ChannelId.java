@@ -39,11 +39,30 @@ public interface ChannelId {
 	}
 
 	/**
+	 * Converts a Channel-ID in UPPER_CAMEL format to the UPPER_UNDERSCORE format.
+	 * 
+	 * <p>
+	 * Examples: converts "ActivePower" to "ACTIVE_POWER".
+	 * 
+	 * @param name Channel-ID in UPPER_CAMEL format.
+	 * @return the a Channel-ID in UPPER_UNDERSCORE format
+	 */
+	public static String channelIdCamelToUpper(String name) {
+		if (name.startsWith("_")) {
+			// special handling for reserved Channel-IDs starting with "_".
+			return "_" + CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, name.substring(1));
+		} else {
+			return CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, name);
+		}
+	}
+
+	/**
 	 * Lists all Channel-IDs of the given Channel-ID Enum in a form that is suitable
 	 * for a InfluxDB-Query in a Grafana Dashboard.
 	 * 
 	 * <p>
-	 * To create a query, call this function like `ChannelId.printChannelIdsForInfluxQuery(FeneconMiniEss.ServiceInfoChannelId.values());`
+	 * To create a query, call this function like
+	 * `ChannelId.printChannelIdsForInfluxQuery(FeneconMiniEss.ServiceInfoChannelId.values());`
 	 * 
 	 * @param channelIds the {@link ChannelId}s, e.g. from ChannelId.values().
 	 */
