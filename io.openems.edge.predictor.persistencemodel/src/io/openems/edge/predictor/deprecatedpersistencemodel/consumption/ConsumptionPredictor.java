@@ -1,4 +1,4 @@
-package io.openems.edge.predictor.persistencemodel.production;
+package io.openems.edge.predictor.deprecatedpersistencemodel.consumption;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -16,23 +16,23 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.Sum;
-import io.openems.edge.predictor.api.ProductionHourlyPredictor;
-import io.openems.edge.predictor.persistencemodel.AbstractPersistenceModelPredictor;
+import io.openems.edge.predictor.api.hourly.ConsumptionHourlyPredictor;
+import io.openems.edge.predictor.deprecatedpersistencemodel.AbstractPersistenceModelPredictor;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Predictor.Production.PersistenceModel", //
+@Component(name = "Predictor.Consumption.PersistenceModel", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
 
-public class ProductionPredictor extends AbstractPersistenceModelPredictor
-		implements ProductionHourlyPredictor, OpenemsComponent, EventHandler {
+public class ConsumptionPredictor extends AbstractPersistenceModelPredictor
+		implements ConsumptionHourlyPredictor, OpenemsComponent, EventHandler {
 
 	@Reference
 	protected ComponentManager componentManager;
 
-	public ProductionPredictor() {
-		super(OpenemsConstants.SUM_ID, Sum.ChannelId.PRODUCTION_ACTIVE_ENERGY);
+	public ConsumptionPredictor() {
+		super(OpenemsConstants.SUM_ID, Sum.ChannelId.CONSUMPTION_ACTIVE_ENERGY);
 	}
 
 	@Activate
@@ -49,4 +49,5 @@ public class ProductionPredictor extends AbstractPersistenceModelPredictor
 	protected ComponentManager getComponentManager() {
 		return this.componentManager;
 	}
+
 }
