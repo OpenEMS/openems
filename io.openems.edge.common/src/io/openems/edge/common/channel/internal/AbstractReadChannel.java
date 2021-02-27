@@ -23,12 +23,6 @@ import io.openems.edge.common.type.CircularTreeMap;
 
 public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implements Channel<T> {
 
-	/**
-	 * Holds the number of past values for this Channel that are kept in the
-	 * 'pastValues' variable.
-	 */
-	public static final int NO_OF_PAST_VALUES = 100;
-
 	private final Logger log = LoggerFactory.getLogger(AbstractReadChannel.class);
 
 	protected final OpenemsComponent parent;
