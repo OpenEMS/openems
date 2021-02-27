@@ -1,6 +1,7 @@
 package io.openems.edge.evcs.api;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -28,7 +29,8 @@ public interface SocEvcs extends Evcs {
 		 */
 		SOC(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT) //
-				.accessMode(AccessMode.READ_ONLY));
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)); //
 
 		// TODO: If there are EVCSs with more information maybe a Channel
 		// TIME_TILL_CHARGING_FINISHED is possible
