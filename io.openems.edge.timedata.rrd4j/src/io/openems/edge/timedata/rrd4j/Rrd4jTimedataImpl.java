@@ -226,10 +226,10 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 						"RRD4j Step [" + step + "] is not dividable by requested resolution [" + resolution + "]");
 			}
 			int split = (int) (step / resolution);
-			for (int i = 0; i < input.length; i++) {
+			for (int i = 1; i < input.length; i++) {
 				for (int j = 0; j < split; j++) {
-					if (i * split + j < result.length) {
-						result[i * split + j] = input[i];
+					if ((i - 1) * split + j < result.length) {
+						result[(i - 1) * split + j] = input[i];
 					}
 				}
 			}
