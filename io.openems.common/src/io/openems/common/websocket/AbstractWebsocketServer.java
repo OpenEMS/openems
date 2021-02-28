@@ -27,12 +27,14 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	private final WebSocketServer ws;
 
 	/**
-	 * @param name      to identify this server
-	 * @param port      to listen on
-	 * @param debugMode activate a regular debug log about the state of the tasks
+	 * @param name            to identify this server
+	 * @param port            to listen on
+	 * @param maximumPoolSize maximum pool size of the task executor
+	 * @param debugMode       activate a regular debug log about the state of the
+	 *                        tasks
 	 */
-	protected AbstractWebsocketServer(String name, int port, boolean debugMode) {
-		super(name, debugMode);
+	protected AbstractWebsocketServer(String name, int port, int maximumPoolSize, boolean debugMode) {
+		super(name, maximumPoolSize, debugMode);
 		this.port = port;
 		this.ws = new WebSocketServer(new InetSocketAddress(port)) {
 

@@ -13,8 +13,8 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnError onError;
 	private final OnClose onClose;
 
-	public WebsocketServer(WebsocketApi parent, String name, int port, boolean debugMode) {
-		super(name, port, debugMode);
+	public WebsocketServer(WebsocketApi parent, String name, int port, int maximumPoolSize, boolean debugMode) {
+		super(name, port, maximumPoolSize, debugMode);
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
 		this.onRequest = new OnRequest(parent);
