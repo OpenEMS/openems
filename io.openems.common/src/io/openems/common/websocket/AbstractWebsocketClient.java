@@ -58,14 +58,14 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 	protected AbstractWebsocketClient(String name, URI serverUri, Draft draft, Map<String, String> httpHeaders,
 			Proxy proxy) {
-		super(name);
+		super(name, false /* debugMode */);
 		this.serverUri = serverUri;
 		this.ws = new WebSocketClient(serverUri, draft, httpHeaders) {
 
 			@Override
 			public void onOpen(ServerHandshake handshake) {
 				JsonObject jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
-				CompletableFuture.runAsync(
+				AbstractWebsocketClient.this.execute(
 						new OnOpenHandler(AbstractWebsocketClient.this, AbstractWebsocketClient.this.ws, jHandshake));
 			}
 
@@ -74,17 +74,17 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 				try {
 					JsonrpcMessage message = JsonrpcMessage.from(stringMessage);
 					if (message instanceof JsonrpcRequest) {
-						CompletableFuture.runAsync(new OnRequestHandler(AbstractWebsocketClient.this, ws,
+						AbstractWebsocketClient.this.execute(new OnRequestHandler(AbstractWebsocketClient.this, ws,
 								(JsonrpcRequest) message, (response) -> {
 									AbstractWebsocketClient.this.sendMessage(response);
 								}));
 
 					} else if (message instanceof JsonrpcResponse) {
-						CompletableFuture.runAsync(
+						AbstractWebsocketClient.this.execute(
 								new OnResponseHandler(AbstractWebsocketClient.this, ws, (JsonrpcResponse) message));
 
 					} else if (message instanceof JsonrpcNotification) {
-						CompletableFuture.runAsync(new OnNotificationHandler(AbstractWebsocketClient.this, ws,
+						AbstractWebsocketClient.this.execute(new OnNotificationHandler(AbstractWebsocketClient.this, ws,
 								(JsonrpcNotification) message));
 
 					}
@@ -95,12 +95,13 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 			@Override
 			public void onError(Exception ex) {
-				CompletableFuture.runAsync(new OnErrorHandler(AbstractWebsocketClient.this, ws, ex));
+				AbstractWebsocketClient.this.execute(new OnErrorHandler(AbstractWebsocketClient.this, ws, ex));
 			}
 
 			@Override
 			public void onClose(int code, String reason, boolean remote) {
-				CompletableFuture.runAsync(new OnCloseHandler(AbstractWebsocketClient.this, ws, code, reason, remote));
+				AbstractWebsocketClient.this
+						.execute(new OnCloseHandler(AbstractWebsocketClient.this, ws, code, reason, remote));
 
 				AbstractWebsocketClient.this.log.info(
 						"Websocket [" + serverUri.toString() + "] closed. Code [" + code + "] Reason [" + reason + "]");

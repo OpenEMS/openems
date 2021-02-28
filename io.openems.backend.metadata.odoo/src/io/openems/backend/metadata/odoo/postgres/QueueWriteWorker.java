@@ -2,8 +2,8 @@ package io.openems.backend.metadata.odoo.postgres;
 
 import java.sql.SQLException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,8 +25,6 @@ import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeVersion;
  */
 public class QueueWriteWorker {
 
-	private final static int NUMBER_OF_THREADS = 10;
-
 	/**
 	 * DEBUG_MODE activates printing of reqular statistics about queued tasks.
 	 */
@@ -36,9 +34,10 @@ public class QueueWriteWorker {
 	private final PostgresHandler parent;
 	private final HikariDataSource dataSource;
 
-	// Executor for subscriptions task.
-	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(NUMBER_OF_THREADS, NUMBER_OF_THREADS, 0L,
-			TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+	// Executor for subscriptions task. Like a CachedThreadPool, but properly typed
+	// for DEBUG_MODE.
+	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+			new SynchronousQueue<Runnable>());
 
 	private final ScheduledExecutorService debugLogExecutor;
 

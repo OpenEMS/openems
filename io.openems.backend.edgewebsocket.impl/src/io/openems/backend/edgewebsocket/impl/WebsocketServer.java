@@ -37,8 +37,8 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnError onError;
 	private final OnClose onClose;
 
-	public WebsocketServer(EdgeWebsocketImpl parent, String name, int port) {
-		super(name, port);
+	public WebsocketServer(EdgeWebsocketImpl parent, String name, int port, boolean debugMode) {
+		super(name, port, debugMode);
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
 		this.onRequest = new OnRequest(parent);

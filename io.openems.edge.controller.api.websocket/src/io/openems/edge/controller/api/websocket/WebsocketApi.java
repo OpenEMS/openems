@@ -111,7 +111,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 			return;
 		}
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
-		this.startServer(config.port());
+		this.startServer(config.port(), false);
 	}
 
 	@Deactivate
@@ -123,10 +123,11 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	/**
 	 * Create and start new server.
 	 * 
-	 * @param port the port
+	 * @param port      the port
+	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port) {
-		this.server = new WebsocketServer(this, "Websocket Api", port);
+	private synchronized void startServer(int port, boolean debugMode) {
+		this.server = new WebsocketServer(this, "Websocket Api", port, debugMode);
 		this.server.start();
 	}
 
