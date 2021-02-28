@@ -29,9 +29,9 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 		name = "Metadata.Odoo", //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class MetadataOdoo extends AbstractMetadata implements Metadata {
+public class OdooMetadata extends AbstractMetadata implements Metadata {
 
-	private final Logger log = LoggerFactory.getLogger(MetadataOdoo.class);
+	private final Logger log = LoggerFactory.getLogger(OdooMetadata.class);
 	private final EdgeCache edgeCache;
 
 	protected OdooHandler odooHandler = null;
@@ -42,7 +42,7 @@ public class MetadataOdoo extends AbstractMetadata implements Metadata {
 	 */
 	private ConcurrentHashMap<String, BackendUser> users = new ConcurrentHashMap<>();
 
-	public MetadataOdoo() {
+	public OdooMetadata() {
 		super("Metadata.Odoo");
 
 		this.edgeCache = new EdgeCache(this);

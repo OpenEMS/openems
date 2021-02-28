@@ -32,7 +32,7 @@ import io.openems.common.utils.JsonUtils;
 public class EdgeCache {
 
 	private final Logger log = LoggerFactory.getLogger(EdgeCache.class);
-	private final MetadataOdoo parent;
+	private final OdooMetadata parent;
 
 	/**
 	 * Map Edge-ID (String) to Edge.
@@ -49,7 +49,7 @@ public class EdgeCache {
 	 */
 	private Map<String, String> apikeyToEdgeId = new HashMap<>();
 
-	public EdgeCache(MetadataOdoo parent) {
+	public EdgeCache(OdooMetadata parent) {
 		this.parent = parent;
 	}
 
