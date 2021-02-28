@@ -6,10 +6,15 @@
 
 -runproperties: \
 	org.osgi.service.http.port=8079,\
-	felix.cm.dir=c:/openems-backend-config
+	felix.cm.dir=c:/openems-backend-config,\
+	org.ops4j.pax.logging.DefaultServiceLog.level=INFO
 
 -runsystempackages: \
 	sun.misc
+
+-runbundles+: \
+	org.apache.felix.scr;startlevel=10,\
+    org.ops4j.pax.logging.pax-logging-log4j1;startlevel=12
 
 -runrequires: \
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\
