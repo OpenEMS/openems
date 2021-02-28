@@ -42,7 +42,7 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 
 	@Activate
 	void activate(Config config) {
-		this.startServer(config.port(), config.debugMode());
+		this.startServer(config.port(), config.maximumPoolSize(), config.debugMode());
 	}
 
 	@Deactivate
@@ -55,8 +55,8 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 	 * 
 	 * @param port the port
 	 */
-	private synchronized void startServer(int port, boolean debugMode) {
-		this.server = new WebsocketServer(this, this.getName(), port, debugMode);
+	private synchronized void startServer(int port, int maximumPoolSize, boolean debugMode) {
+		this.server = new WebsocketServer(this, this.getName(), port, maximumPoolSize, debugMode);
 		this.server.start();
 	}
 
