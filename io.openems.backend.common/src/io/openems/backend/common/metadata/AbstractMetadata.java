@@ -26,8 +26,8 @@ public abstract class AbstractMetadata extends AbstractOpenemsBackendComponent i
 	 */
 	protected void setInitialized() {
 		this.isInitialized.set(true);
-		synchronized (onIsInitializedListeners) {
-			for (Runnable callback : onIsInitializedListeners) {
+		synchronized (this.onIsInitializedListeners) {
+			for (Runnable callback : this.onIsInitializedListeners) {
 				callback.run();
 			}
 		}
@@ -40,7 +40,7 @@ public abstract class AbstractMetadata extends AbstractOpenemsBackendComponent i
 
 	@Override
 	public final void addOnIsInitializedListener(Runnable callback) {
-		synchronized (onIsInitializedListeners) {
+		synchronized (this.onIsInitializedListeners) {
 			this.onIsInitializedListeners.add(callback);
 		}
 		// Run callback if I was already initialized
@@ -51,7 +51,7 @@ public abstract class AbstractMetadata extends AbstractOpenemsBackendComponent i
 
 	@Override
 	public final void removeOnIsInitializedListener(Runnable callback) {
-		synchronized (onIsInitializedListeners) {
+		synchronized (this.onIsInitializedListeners) {
 			this.onIsInitializedListeners.remove(callback);
 		}
 	}
