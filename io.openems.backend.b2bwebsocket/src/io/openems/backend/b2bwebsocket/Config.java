@@ -11,6 +11,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Port", description = "The port of the websocket server.")
 	int port() default B2bWebsocket.DEFAULT_PORT;
 
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+	boolean debugMode() default false;
+
 	String webconsole_configurationFactory_nameHint() default "Backend2Backend Websocket";
 
 }

@@ -11,6 +11,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Port", description = "The port of the websocket server.")
 	int port() default 8081;
 
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+	boolean debugMode() default false;
+
 	String webconsole_configurationFactory_nameHint() default "Edge Websocket";
 
 }

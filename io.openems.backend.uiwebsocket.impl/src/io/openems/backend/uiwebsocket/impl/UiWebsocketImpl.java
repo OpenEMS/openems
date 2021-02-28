@@ -62,7 +62,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	private Config config;
 
 	private final Runnable startServerWhenMetadataIsInitialized = () -> {
-		this.startServer(config.port());
+		this.startServer(config.port(), config.debugMode());
 	};
 
 	@Activate
@@ -80,10 +80,11 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	/**
 	 * Create and start new server.
 	 * 
-	 * @param port the port
+	 * @param port      the port
+	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port) {
-		this.server = new WebsocketServer(this, "Ui.Websocket", port);
+	private synchronized void startServer(int port, boolean debugMode) {
+		this.server = new WebsocketServer(this, "Ui.Websocket", port, debugMode);
 		this.server.start();
 	}
 

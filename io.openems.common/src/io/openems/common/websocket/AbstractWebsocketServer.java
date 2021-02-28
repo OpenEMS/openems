@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
-import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -28,11 +27,12 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	private final WebSocketServer ws;
 
 	/**
-	 * @param name to identify this server
-	 * @param port to listen on
+	 * @param name      to identify this server
+	 * @param port      to listen on
+	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	protected AbstractWebsocketServer(String name, int port) {
-		super(name);
+	protected AbstractWebsocketServer(String name, int port, boolean debugMode) {
+		super(name, debugMode);
 		this.port = port;
 		this.ws = new WebSocketServer(new InetSocketAddress(port)) {
 
@@ -46,7 +46,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				wsData.setWebsocket(ws);
 				ws.setAttachment(wsData);
 				JsonObject jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
-				CompletableFuture.runAsync(new OnOpenHandler(AbstractWebsocketServer.this, ws, jHandshake));
+				AbstractWebsocketServer.this.execute(new OnOpenHandler(AbstractWebsocketServer.this, ws, jHandshake));
 			}
 
 			@Override
@@ -62,17 +62,17 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 					}
 
 					if (message instanceof JsonrpcRequest) {
-						CompletableFuture.runAsync(new OnRequestHandler(AbstractWebsocketServer.this, ws,
+						AbstractWebsocketServer.this.execute(new OnRequestHandler(AbstractWebsocketServer.this, ws,
 								(JsonrpcRequest) message, (response) -> {
 									AbstractWebsocketServer.this.sendMessage(ws, response);
 								}));
 
 					} else if (message instanceof JsonrpcResponse) {
-						CompletableFuture.runAsync(
+						AbstractWebsocketServer.this.execute(
 								new OnResponseHandler(AbstractWebsocketServer.this, ws, (JsonrpcResponse) message));
 
 					} else if (message instanceof JsonrpcNotification) {
-						CompletableFuture.runAsync(new OnNotificationHandler(AbstractWebsocketServer.this, ws,
+						AbstractWebsocketServer.this.execute(new OnNotificationHandler(AbstractWebsocketServer.this, ws,
 								(JsonrpcNotification) message));
 
 					}
@@ -86,13 +86,14 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				if (ws == null) {
 					AbstractWebsocketServer.this.handleInternalErrorAsync(ex);
 				} else {
-					CompletableFuture.runAsync(new OnErrorHandler(AbstractWebsocketServer.this, ws, ex));
+					AbstractWebsocketServer.this.execute(new OnErrorHandler(AbstractWebsocketServer.this, ws, ex));
 				}
 			}
 
 			@Override
 			public void onClose(WebSocket ws, int code, String reason, boolean remote) {
-				CompletableFuture.runAsync(new OnCloseHandler(AbstractWebsocketServer.this, ws, code, reason, remote));
+				AbstractWebsocketServer.this
+						.execute(new OnCloseHandler(AbstractWebsocketServer.this, ws, code, reason, remote));
 			}
 		};
 		// Allow the port to be reused. See
@@ -139,7 +140,9 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	/**
 	 * Starts the websocket server
 	 */
+	@Override
 	public void start() {
+		super.start();
 		this.log.info("Starting [" + this.getName() + "] websocket server [port=" + this.port + "]");
 		this.ws.start();
 	}
@@ -147,6 +150,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	/**
 	 * Stops the websocket server
 	 */
+	@Override
 	public void stop() {
 		int tries = 3;
 		while (tries-- > 0) {
@@ -164,6 +168,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 			}
 		}
 		this.log.error("Stopping websocket server [" + this.getName() + "] failed too often.");
+		super.stop();
 	}
 
 	/**
