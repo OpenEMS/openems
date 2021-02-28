@@ -1,6 +1,6 @@
 package io.openems.backend.metadata.odoo;
 
-import io.openems.backend.metadata.api.BackendUser;
+import io.openems.backend.common.metadata.BackendUser;
 
 public class MyUser extends BackendUser {
 

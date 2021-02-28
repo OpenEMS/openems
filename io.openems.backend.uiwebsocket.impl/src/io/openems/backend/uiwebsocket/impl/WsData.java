@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import io.openems.backend.metadata.api.BackendUser;
-import io.openems.backend.metadata.api.Metadata;
+import io.openems.backend.common.metadata.BackendUser;
+import io.openems.backend.common.metadata.Metadata;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 

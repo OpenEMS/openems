@@ -6,8 +6,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import io.openems.backend.metadata.api.Edge;
-import io.openems.backend.metadata.api.Metadata;
+import io.openems.backend.common.metadata.Edge;
+import io.openems.backend.common.metadata.Metadata;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.utils.StringUtils;

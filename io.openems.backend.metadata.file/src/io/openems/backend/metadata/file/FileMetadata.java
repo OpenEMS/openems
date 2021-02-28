@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -25,13 +24,13 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.metadata.api.Edge;
-import io.openems.backend.metadata.api.Edge.State;
-import io.openems.backend.metadata.api.Metadata;
-import io.openems.backend.metadata.api.BackendUser;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.backend.common.metadata.AbstractMetadata;
+import io.openems.backend.common.metadata.BackendUser;
+import io.openems.backend.common.metadata.Edge;
+import io.openems.backend.common.metadata.Edge.State;
+import io.openems.backend.common.metadata.Metadata;
 import io.openems.common.channel.Level;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -57,18 +56,20 @@ import io.openems.common.utils.JsonUtils;
  * user, which has 'ADMIN'-permissions on all given Edges.
  */
 @Designate(ocd = Config.class, factory = false)
-@Component(name = "Metadata.File", configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class File extends AbstractOpenemsBackendComponent implements Metadata {
+@Component(//
+		name = "Metadata.File", //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+public class FileMetadata extends AbstractMetadata implements Metadata {
 
-	private final Logger log = LoggerFactory.getLogger(File.class);
+	private final Logger log = LoggerFactory.getLogger(FileMetadata.class);
 
 	private final BackendUser user = new BackendUser("admin", "Administrator");
 	private final Map<String, MyEdge> edges = new HashMap<>();
-	private final AtomicBoolean isInitialized = new AtomicBoolean(false);
 
 	private String path = "";
 
-	public File() {
+	public FileMetadata() {
 		super("Metadata.File");
 	}
 
@@ -179,11 +180,7 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 				this.user.addEdgeRole(edge.getId(), Role.ADMIN);
 			}
 		}
-		this.isInitialized.set(true);
+		this.setInitialized();
 	}
 
-	@Override
-	public boolean isInitialized() {
-		return this.isInitialized.get();
-	}
 }
