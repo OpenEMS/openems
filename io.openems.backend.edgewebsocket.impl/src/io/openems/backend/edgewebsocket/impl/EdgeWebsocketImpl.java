@@ -56,13 +56,21 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		this.systemLogHandler = new SystemLogHandler(this);
 	}
 
+	private Config config;
+
+	private final Runnable startServerWhenMetadataIsInitialized = () -> {
+		this.startServer(config.port());
+	};
+
 	@Activate
 	void activate(Config config) {
-		this.startServer(config.port());
+		this.config = config;
+		this.metadata.addOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 	}
 
 	@Deactivate
 	void deactivate() {
+		this.metadata.removeOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 		this.stopServer();
 	}
 
@@ -115,7 +123,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 						AuthenticatedRpcResponse response = AuthenticatedRpcResponse.from(r);
 						result.complete(response.getPayload());
 					} catch (OpenemsNamedException e) {
-	                    this.logError(this.log, e.getMessage());
+						this.logError(this.log, e.getMessage());
 						result.completeExceptionally(e);
 					}
 				} else {
