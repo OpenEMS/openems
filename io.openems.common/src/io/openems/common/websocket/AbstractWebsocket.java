@@ -2,8 +2,8 @@ package io.openems.common.websocket;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -79,27 +79,23 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	/**
 	 * Construct this {@link AbstractWebsocket}.
 	 * 
-	 * @param name            a name that is used to identify log messages
-	 * @param maximumPoolSize maximum pool size of the task executor
-	 * @param debugMode       activate a regular debug log about the state of the
-	 *                        tasks
+	 * @param name      a name that is used to identify log messages
+	 * @param poolSize  number of threads dedicated to handle the tasks
+	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	public AbstractWebsocket(String name, int maximumPoolSize, boolean debugMode) {
+	public AbstractWebsocket(String name, int poolSize, boolean debugMode) {
 		this.name = name;
-		this.executor = new ThreadPoolExecutor(0, maximumPoolSize, 60L, TimeUnit.SECONDS,
-				new SynchronousQueue<Runnable>(), new ThreadPoolExecutor.DiscardOldestPolicy());
+		this.executor = new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS,
+				new LinkedBlockingQueue<Runnable>());
 		if (debugMode) {
 			this.debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 			this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-				this.logInfo(this.log, String.format(
-						"[monitor] [%d/%d] Active: %d, Completed: %d, Task: %d, isShutdown: %s, isTerminated: %s",
-						this.executor.getPoolSize(), //
-						this.executor.getCorePoolSize(), //
-						this.executor.getActiveCount(), //
-						this.executor.getCompletedTaskCount(), //
-						this.executor.getTaskCount(), //
-						this.executor.isShutdown(), //
-						this.executor.isTerminated()));
+				this.logInfo(this.log,
+						String.format("[monitor] Pool: %d, Active: %d, Completed: %d, Tasks: %d",
+								this.executor.getPoolSize(), //
+								this.executor.getActiveCount(), //
+								this.executor.getCompletedTaskCount(), //
+								this.executor.getTaskCount())); //
 			}, 10, 10, TimeUnit.SECONDS);
 		} else {
 			this.debugLogExecutor = null;
