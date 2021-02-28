@@ -40,23 +40,33 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 		super("Backend2Backend.Websocket");
 	}
 
+	private Config config;
+
+	private final Runnable startServerWhenMetadataIsInitialized = () -> {
+		this.startServer(config.port(), config.poolSize(), config.debugMode());
+	};
+
 	@Activate
 	void activate(Config config) {
-		this.startServer(config.port(), config.maximumPoolSize(), config.debugMode());
+		this.config = config;
+		this.metadata.addOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 	}
 
 	@Deactivate
 	void deactivate() {
+		this.metadata.removeOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 		this.stopServer();
 	}
 
 	/**
 	 * Create and start new server.
 	 * 
-	 * @param port the port
+	 * @param port      the port
+	 * @param poolSize  number of threads dedicated to handle the tasks
+	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port, int maximumPoolSize, boolean debugMode) {
-		this.server = new WebsocketServer(this, this.getName(), port, maximumPoolSize, debugMode);
+	private synchronized void startServer(int port, int poolSize, boolean debugMode) {
+		this.server = new WebsocketServer(this, this.getName(), port, poolSize, debugMode);
 		this.server.start();
 	}
 

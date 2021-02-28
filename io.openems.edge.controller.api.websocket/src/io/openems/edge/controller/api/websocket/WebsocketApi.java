@@ -60,7 +60,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	public static final int DEFAULT_PORT = 8075;
 
-	private final static int MAXIMUM_POOL_SIZE = 10;
+	private final static int POOL_SIZE = 10;
 
 	protected final ApiWorker apiWorker = new ApiWorker(this);
 
@@ -113,7 +113,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 			return;
 		}
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
-		this.startServer(config.port(), MAXIMUM_POOL_SIZE, false);
+		this.startServer(config.port(), POOL_SIZE, false);
 	}
 
 	@Deactivate
@@ -126,10 +126,11 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	 * Create and start new server.
 	 * 
 	 * @param port      the port
+	 * @param poolSize  number of threads dedicated to handle the tasks
 	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port, int maximumPoolSize, boolean debugMode) {
-		this.server = new WebsocketServer(this, "Websocket Api", port, maximumPoolSize, debugMode);
+	private synchronized void startServer(int port, int poolSize, boolean debugMode) {
+		this.server = new WebsocketServer(this, "Websocket Api", port, poolSize, debugMode);
 		this.server.start();
 	}
 
