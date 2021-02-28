@@ -19,8 +19,7 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	 * Shared {@link ExecutorService}. Configuration is equal to
 	 * Executors.newCachedThreadPool(), but with DiscardOldestPolicy.
 	 */
-	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
-			new SynchronousQueue<Runnable>(), new ThreadPoolExecutor.DiscardOldestPolicy());
+	private final ThreadPoolExecutor executor;
 
 	/*
 	 * This Executor is used if Debug-Mode is activated.
@@ -80,15 +79,28 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	/**
 	 * Construct this {@link AbstractWebsocket}.
 	 * 
-	 * @param name      a name that is used to identify log messages
-	 * @param debugMode activate a regular debug log about the state of the tasks
+	 * @param name            a name that is used to identify log messages
+	 * @param maximumPoolSize maximum pool size of the task executor
+	 * @param debugMode       activate a regular debug log about the state of the
+	 *                        tasks
 	 */
-	public AbstractWebsocket(String name, boolean debugMode) {
+	public AbstractWebsocket(String name, int maximumPoolSize, boolean debugMode) {
 		this.name = name;
-
+		this.executor = new ThreadPoolExecutor(0, maximumPoolSize, 60L, TimeUnit.SECONDS,
+				new SynchronousQueue<Runnable>(), new ThreadPoolExecutor.DiscardOldestPolicy());
 		if (debugMode) {
 			this.debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
-			this.debugLogExecutor.scheduleWithFixedDelay(this.threadPoolMonitor, 10, 10, TimeUnit.SECONDS);
+			this.debugLogExecutor.scheduleWithFixedDelay(() -> {
+				this.logInfo(this.log, String.format(
+						"[monitor] [%d/%d] Active: %d, Completed: %d, Task: %d, isShutdown: %s, isTerminated: %s",
+						this.executor.getPoolSize(), //
+						this.executor.getCorePoolSize(), //
+						this.executor.getActiveCount(), //
+						this.executor.getCompletedTaskCount(), //
+						this.executor.getTaskCount(), //
+						this.executor.isShutdown(), //
+						this.executor.isTerminated()));
+			}, 10, 10, TimeUnit.SECONDS);
 		} else {
 			this.debugLogExecutor = null;
 		}
@@ -170,15 +182,4 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	 */
 	protected abstract void logWarn(Logger log, String message);
 
-	private final Runnable threadPoolMonitor = () -> {
-		this.logInfo(this.log,
-				String.format("[monitor] [%d/%d] Active: %d, Completed: %d, Task: %d, isShutdown: %s, isTerminated: %s",
-						this.executor.getPoolSize(), //
-						this.executor.getCorePoolSize(), //
-						this.executor.getActiveCount(), //
-						this.executor.getCompletedTaskCount(), //
-						this.executor.getTaskCount(), //
-						this.executor.isShutdown(), //
-						this.executor.isTerminated()));
-	};
 }

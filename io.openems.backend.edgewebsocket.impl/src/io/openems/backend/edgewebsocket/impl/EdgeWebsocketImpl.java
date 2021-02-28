@@ -59,7 +59,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	private Config config;
 
 	private final Runnable startServerWhenMetadataIsInitialized = () -> {
-		this.startServer(config.port(), config.debugMode());
+		this.startServer(config.port(), config.maximumPoolSize(), config.debugMode());
 	};
 
 	@Activate
@@ -80,8 +80,8 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	 * @param port      the port
 	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port, boolean debugMode) {
-		this.server = new WebsocketServer(this, this.getName(), port, debugMode);
+	private synchronized void startServer(int port, int maximumPoolSize, boolean debugMode) {
+		this.server = new WebsocketServer(this, this.getName(), port, maximumPoolSize, debugMode);
 		this.server.start();
 	}
 
