@@ -1,4 +1,4 @@
-package io.openems.backend.metadata.api;
+package io.openems.backend.common.metadata;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,6 +33,16 @@ public interface Metadata {
 	 * @return true if it is initialized
 	 */
 	public boolean isInitialized();
+
+	/**
+	 * See {@link #isInitialized()}.
+	 */
+	public void addOnIsInitializedListener(Runnable callback);
+
+	/**
+	 * See {@link #isInitialized()}.
+	 */
+	public void removeOnIsInitializedListener(Runnable callback);
 
 	/**
 	 * Authenticates a User without any information.

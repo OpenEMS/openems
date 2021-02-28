@@ -17,11 +17,11 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.metadata.api.BackendUser;
-import io.openems.backend.metadata.api.Edge;
-import io.openems.backend.metadata.api.Edge.State;
-import io.openems.backend.metadata.api.Metadata;
+import io.openems.backend.common.metadata.AbstractMetadata;
+import io.openems.backend.common.metadata.BackendUser;
+import io.openems.backend.common.metadata.Edge;
+import io.openems.backend.common.metadata.Edge.State;
+import io.openems.backend.common.metadata.Metadata;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -31,12 +31,15 @@ import io.openems.common.types.EdgeConfigDiff;
 import io.openems.common.utils.StringUtils;
 
 @Designate(ocd = Config.class, factory = false)
-@Component(name = "Metadata.Dummy", configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
+@Component(//
+		name = "Metadata.Dummy", //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+public class DummyMetadata extends AbstractMetadata implements Metadata {
 
 	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
-	private final Logger log = LoggerFactory.getLogger(Dummy.class);
+	private final Logger log = LoggerFactory.getLogger(DummyMetadata.class);
 
 	private final AtomicInteger nextUserId = new AtomicInteger(-1);
 	private final AtomicInteger nextEdgeId = new AtomicInteger(-1);
@@ -44,8 +47,9 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 	private final Map<String, BackendUser> users = new HashMap<>();
 	private final Map<String, MyEdge> edges = new HashMap<>();
 
-	public Dummy() {
+	public DummyMetadata() {
 		super("Metadata.Dummy");
+		this.setInitialized();
 	}
 
 	@Activate
@@ -89,7 +93,7 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 			return Optional.ofNullable(edgeOpt.get().getId());
 		}
 		// not found. Is apikey a valid Edge-ID?
-		Optional<Integer> idOpt = Dummy.parseNumberFromName(apikey);
+		Optional<Integer> idOpt = DummyMetadata.parseNumberFromName(apikey);
 		int id;
 		String edgeId;
 		if (idOpt.isPresent()) {
@@ -138,10 +142,5 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 			/* ignore */
 		}
 		return Optional.empty();
-	}
-
-	@Override
-	public boolean isInitialized() {
-		return true;
 	}
 }

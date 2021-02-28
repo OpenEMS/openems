@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
-import io.openems.backend.metadata.api.Metadata;
+import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -42,7 +42,7 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 
 	@Activate
 	void activate(Config config) {
-		this.startServer(config.port());
+		this.startServer(config.port(), config.debugMode());
 	}
 
 	@Deactivate
@@ -55,8 +55,8 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 	 * 
 	 * @param port the port
 	 */
-	private synchronized void startServer(int port) {
-		this.server = new WebsocketServer(this, this.getName(), port);
+	private synchronized void startServer(int port, boolean debugMode) {
+		this.server = new WebsocketServer(this, this.getName(), port, debugMode);
 		this.server.start();
 	}
 

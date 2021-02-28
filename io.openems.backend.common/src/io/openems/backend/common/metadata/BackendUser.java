@@ -1,4 +1,4 @@
-package io.openems.backend.metadata.api;
+package io.openems.backend.common.metadata;
 
 import java.util.ArrayList;
 import java.util.Collections;

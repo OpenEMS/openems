@@ -18,7 +18,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.EdgeCache;
-import io.openems.backend.metadata.odoo.MetadataOdoo;
+import io.openems.backend.metadata.odoo.OdooMetadata;
 import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.postgres.task.InsertOrUpdateDeviceStates;
 import io.openems.common.channel.Level;
@@ -31,13 +31,13 @@ public class PostgresHandler {
 
 	protected final EdgeCache edgeCache;
 
-	private final MetadataOdoo parent;
+	private final OdooMetadata parent;
 	private final HikariDataSource dataSource;
 	private final InitializeEdgesWorker initializeEdgesWorker;
 	private final PeriodicWriteWorker periodicWriteWorker;
 	private final QueueWriteWorker queueWriteWorker;
 
-	public PostgresHandler(MetadataOdoo parent, EdgeCache edgeCache, Config config, Runnable onInitialized)
+	public PostgresHandler(OdooMetadata parent, EdgeCache edgeCache, Config config, Runnable onInitialized)
 			throws SQLException {
 		this.parent = parent;
 		this.edgeCache = edgeCache;

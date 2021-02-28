@@ -16,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
-import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.timedata.api.Timedata;
 import io.openems.backend.uiwebsocket.api.UiWebsocket;
 import io.openems.common.exceptions.OpenemsError;
@@ -56,23 +56,32 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		this.systemLogHandler = new SystemLogHandler(this);
 	}
 
+	private Config config;
+
+	private final Runnable startServerWhenMetadataIsInitialized = () -> {
+		this.startServer(config.port(), config.debugMode());
+	};
+
 	@Activate
 	void activate(Config config) {
-		this.startServer(config.port());
+		this.config = config;
+		this.metadata.addOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 	}
 
 	@Deactivate
 	void deactivate() {
+		this.metadata.removeOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 		this.stopServer();
 	}
 
 	/**
 	 * Create and start new server.
 	 * 
-	 * @param port the port
+	 * @param port      the port
+	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port) {
-		this.server = new WebsocketServer(this, this.getName(), port);
+	private synchronized void startServer(int port, boolean debugMode) {
+		this.server = new WebsocketServer(this, this.getName(), port, debugMode);
 		this.server.start();
 	}
 
@@ -115,7 +124,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 						AuthenticatedRpcResponse response = AuthenticatedRpcResponse.from(r);
 						result.complete(response.getPayload());
 					} catch (OpenemsNamedException e) {
-	                    this.logError(this.log, e.getMessage());
+						this.logError(this.log, e.getMessage());
 						result.completeExceptionally(e);
 					}
 				} else {
