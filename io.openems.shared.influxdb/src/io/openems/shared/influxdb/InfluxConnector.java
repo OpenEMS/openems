@@ -9,9 +9,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -58,8 +58,8 @@ public class InfluxConnector {
 	private final String retentionPolicy;
 	private final boolean isReadOnly;
 	private final BiConsumer<Iterable<Point>, Throwable> onWriteError;
-	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(50, 50, 60L, TimeUnit.SECONDS,
-			new SynchronousQueue<Runnable>(), new ThreadPoolExecutor.DiscardOldestPolicy());
+	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 50, 60L, TimeUnit.SECONDS,
+			new ArrayBlockingQueue<>(100), new ThreadPoolExecutor.DiscardPolicy());
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	/**
