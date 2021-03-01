@@ -83,6 +83,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	private static final String KEY_TEMPERATURE = "_TEMPERATURE";
 	private static final String KEY_VOLTAGE = "_VOLTAGE";
 	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
+	private int towerNum = 1;
 
 	public FeneconHomeBatteryImpl() {
 		super(//
@@ -475,6 +476,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 		this.getBcuNumberIdentifier().thenAccept(value -> {
 			try {
 				this.BcuDynamicChannels(value);
+				this.towerNum = value;
 			} catch (OpenemsException e) {
 				e.printStackTrace();
 			}
@@ -532,9 +534,8 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	 */
 	private Map<String, Channel<?>> createCellVoltAndTempDynamicChannels(int bmuNumber) {
 		Map<String, Channel<?>> map = new HashMap<>();
-		int towerNumber = this.config.towerNumber();
 		int voltSensors = ModuleParameters.VOLTAGE_SENSORS_PER_MODULE.getValue();
-		for (int t = 1; t <= towerNumber; t++) {
+		for (int t = 1; t <= towerNum; t++) {
 			for (int i = 1; i <= bmuNumber; i++) {
 				for (int j = 0; j < voltSensors; j++) {
 					String key = this.getSingleCellPrefix(j, i, t) + KEY_VOLTAGE;
@@ -547,7 +548,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 			}
 		}
 		int tempSensors = ModuleParameters.TEMPERATURE_SENSORS_PER_MODULE.getValue();
-		for (int t = 1; t <= towerNumber; t++) {
+		for (int t = 1; t <= this.towerNum; t++) {
 			for (int i = 1; i <= bmuNumber; i++) {
 				for (int j = 0; j < tempSensors; j++) {
 					String key = this.getSingleCellPrefix(j, i, t) + KEY_TEMPERATURE;
@@ -587,8 +588,8 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	 * Handle incompatibility with old hardware protocol.
 	 * 
 	 * 'onRegister0x10024update()' callback is called when register 0x10024 is read.
-	 * 10024 is the read register for Module Number of Bcu 1
-	 * All Tower should have same amount of module number
+	 * 10024 is the read register for Module Number of Bcu 1 All Tower should have
+	 * same amount of module number
 	 */
 	private boolean areChannelsInitialized = false;
 	private final Consumer<Integer> onRegister10024Update = (value) -> {
@@ -608,11 +609,10 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 							}
 							// Register is available -> add Registers for current hardware to protocol
 							try {
-								int towerNumber = this.config.towerNumber();
 								int offset = ModuleParameters.ADDRESS_OFFSET_FOR_CELL_VOLT_AND_TEMP.getValue();
 								int voltOffset = ModuleParameters.VOLTAGE_ADDRESS_OFFSET.getValue();
 								int voltSensors = ModuleParameters.VOLTAGE_SENSORS_PER_MODULE.getValue();
-								for (int t = 1; t <= towerNumber; t++) {
+								for (int t = 1; t <= this.towerNum; t++) {
 									String towerString = "TOWER_" + t + "_OFFSET";
 									int towerOffset = ModuleParameters.valueOf(towerString).getValue();
 									for (int i = 1; i < moduleQtyValue + 1; i++) {
@@ -633,7 +633,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 
 								int tempOffset = ModuleParameters.TEMPERATURE_ADDRESS_OFFSET.getValue();
 								int tempSensors = ModuleParameters.TEMPERATURE_SENSORS_PER_MODULE.getValue();
-								for (int t = 1; t <= towerNumber; t++) {
+								for (int t = 1; t <= this.towerNum; t++) {
 									String towerString = "TOWER_" + t + "_OFFSET";
 									int towerOffset = ModuleParameters.valueOf(towerString).getValue();
 									for (int i = 1; i < moduleQtyValue + 1; i++) {
