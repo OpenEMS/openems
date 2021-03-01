@@ -9,6 +9,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
@@ -39,10 +43,12 @@ public class InfluxConnector {
 
 	public static final String MEASUREMENT = "data";
 
-	private static final Logger log = LoggerFactory.getLogger(InfluxConnector.class);
+	private static final Logger LOG = LoggerFactory.getLogger(InfluxConnector.class);
 	private static final int CONNECT_TIMEOUT = 10; // [s]
 	private static final int READ_TIMEOUT = 10; // [s]
 	private static final int WRITE_TIMEOUT = 10; // [s]
+
+	private final Logger log = LoggerFactory.getLogger(InfluxConnector.class);
 
 	private final String ip;
 	private final int port;
@@ -52,6 +58,9 @@ public class InfluxConnector {
 	private final String retentionPolicy;
 	private final boolean isReadOnly;
 	private final BiConsumer<Iterable<Point>, Throwable> onWriteError;
+	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(50, 50, 60L, TimeUnit.SECONDS,
+			new SynchronousQueue<Runnable>(), new ThreadPoolExecutor.DiscardOldestPolicy());
+	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	/**
 	 * The Constructor.
@@ -78,6 +87,13 @@ public class InfluxConnector {
 		this.retentionPolicy = retentionPolicy;
 		this.isReadOnly = isReadOnly;
 		this.onWriteError = onWriteError;
+		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
+			this.log.info(String.format("[monitor] Pool: %d, Active: %d, Pending: %d, Completed: %d",
+					this.executor.getPoolSize(), //
+					this.executor.getActiveCount(), //
+					this.executor.getQueue().size(), //
+					this.executor.getCompletedTaskCount())); //
+		}, 10, 10, TimeUnit.SECONDS);
 	}
 
 	private InfluxDB _influxDB = null;
@@ -108,7 +124,7 @@ public class InfluxConnector {
 			influxDB.setRetentionPolicy(this.retentionPolicy);
 			influxDB.enableBatch(BatchOptions.DEFAULTS //
 					.precision(TimeUnit.MILLISECONDS) //
-					.flushDuration(5_000 /* milliseconds */) //
+					.flushDuration(1_000 /* milliseconds */) //
 					.jitterDuration(1_000 /* milliseconds */) //
 					.actions(1_000 /* entries */) //
 					.bufferLimit(1_000_000 /* entries */) //
@@ -119,6 +135,20 @@ public class InfluxConnector {
 	}
 
 	public void deactivate() {
+		// Shutdown executor
+		if (this.executor != null) {
+			try {
+				this.executor.shutdown();
+				this.executor.awaitTermination(5, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				this.log.warn("tasks interrupted");
+			} finally {
+				if (!this.executor.isTerminated()) {
+					this.log.warn("cancel non-finished tasks");
+				}
+				this.executor.shutdownNow();
+			}
+		}
 		if (this._influxDB != null) {
 			this._influxDB.close();
 		}
@@ -415,7 +445,7 @@ public class InfluxConnector {
 								Number number = (Number) valueObj;
 								if (number.intValue() < 0) {
 									// do not consider negative values
-									log.warn("Got negative Energy value [" + number + "] for query: " + query);
+									LOG.warn("Got negative Energy value [" + number + "] for query: " + query);
 									value = JsonNull.INSTANCE;
 								} else {
 									value = new JsonPrimitive(number);
@@ -487,7 +517,9 @@ public class InfluxConnector {
 			return;
 		}
 		try {
-			this.getConnection().write(point);
+			this.executor.execute(() -> {
+				this.getConnection().write(point);
+			});
 		} catch (InfluxDBIOException e) {
 			throw new OpenemsException("Unable to write point: " + e.getMessage());
 		}

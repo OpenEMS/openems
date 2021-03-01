@@ -1,7 +1,14 @@
 package io.openems.backend.timedata.api;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.SortedMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 
@@ -9,37 +16,72 @@ import io.openems.common.types.ChannelAddress;
 
 public class EdgeCache {
 
-	private long timestamp = 0l;
-	private final ConcurrentHashMap<ChannelAddress, JsonElement> channelValueCache = new ConcurrentHashMap<>();
-
-	public synchronized final Optional<JsonElement> getChannelValue(ChannelAddress address) {
-		return Optional.ofNullable(this.channelValueCache.get(address));
-	}
-
-	public synchronized final ConcurrentHashMap<ChannelAddress, JsonElement> getChannelCacheEntries() {
-		return this.channelValueCache;
-	}
+	private final Logger log = LoggerFactory.getLogger(EdgeCache.class);
 
 	/**
-	 * Adds the channel value to the cache
-	 *
-	 * @param channel the Channel-Address
-	 * @param value the Value as a JsonElement
+	 * The Timestamp of the data in the Cache.
 	 */
-	public synchronized void putToChannelCache(ChannelAddress channel, JsonElement value) {
-		this.channelValueCache.put(channel, value);
+	private long cacheTimestamp = 0l;
+
+	/**
+	 * The Timestamp when the Cache was last applied to the incoming data.
+	 */
+	private long lastAppliedTimestamp = 0l;
+
+	private final HashMap<ChannelAddress, JsonElement> cacheData = new HashMap<>();
+
+	public synchronized final Optional<JsonElement> getChannelValue(ChannelAddress address) {
+		return Optional.ofNullable(this.cacheData.get(address));
 	}
 
-	public long getTimestamp() {
-		return timestamp;
-	}
+	public synchronized void complementDataFromCache(String edgeId,
+			SortedMap<Long, Map<ChannelAddress, JsonElement>> incomingDatas) {
+		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : incomingDatas.entrySet()) {
+			Long incomingTimestamp = entry.getKey();
+			Map<ChannelAddress, JsonElement> incomingData = entry.getValue();
 
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
-	}
+			// Check if cache should be applied
+			if (incomingTimestamp < this.cacheTimestamp) {
+				// Incoming data is older than cache -> do not apply cache
 
-	public void clear() {
-		this.channelValueCache.clear();
+			} else {
+				// Incoming data is more recent than cache
+
+				if (incomingTimestamp > this.cacheTimestamp + 5 * 60 * 1000) {
+					// Cache is not anymore valid (elder than 5 minutes)
+					if (this.cacheTimestamp != 0L) {
+						this.log.info("Edge [" + edgeId + "]: invalidate cache. Incoming ["
+								+ Instant.ofEpochMilli(incomingTimestamp) + "]. Cache ["
+								+ Instant.ofEpochMilli(cacheTimestamp) + "]");
+					}
+					// Clear Cache
+					this.cacheData.clear();
+
+				} else if (incomingTimestamp < this.lastAppliedTimestamp + 60 * 1000) {
+					// Apply Cache only once every minute to throttle writes
+
+				} else {
+					// Apply Cache
+
+					// cache is valid (not elder than 5 minutes)
+					this.lastAppliedTimestamp = incomingTimestamp;
+					for (Entry<ChannelAddress, JsonElement> cacheEntry : this.cacheData.entrySet()) {
+						ChannelAddress channel = cacheEntry.getKey();
+						// check if there is a current value for this timestamp + channel
+						if (!incomingData.containsKey(channel)) {
+							// if not -> add cache data to write data
+							incomingData.put(channel, cacheEntry.getValue());
+						}
+					}
+				}
+
+				// update cache
+				this.cacheTimestamp = incomingTimestamp;
+				for (Entry<ChannelAddress, JsonElement> channelEntry : incomingData.entrySet()) {
+					this.cacheData.put(channelEntry.getKey(), channelEntry.getValue());
+				}
+			}
+		}
 	}
 
 }
