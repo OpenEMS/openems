@@ -91,11 +91,11 @@ public abstract class AbstractWebsocket<T extends WsData> {
 			this.debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 			this.debugLogExecutor.scheduleWithFixedDelay(() -> {
 				this.logInfo(this.log,
-						String.format("[monitor] Pool: %d, Active: %d, Completed: %d, Tasks: %d",
+						String.format("[monitor] Pool: %d, Active: %d, Pending: %d, Completed: %d",
 								this.executor.getPoolSize(), //
 								this.executor.getActiveCount(), //
-								this.executor.getCompletedTaskCount(), //
-								this.executor.getTaskCount())); //
+								this.executor.getQueue().size(), //
+								this.executor.getCompletedTaskCount())); //
 			}, 10, 10, TimeUnit.SECONDS);
 		} else {
 			this.debugLogExecutor = null;

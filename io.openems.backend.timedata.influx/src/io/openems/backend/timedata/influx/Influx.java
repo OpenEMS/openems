@@ -45,7 +45,10 @@ import io.openems.shared.influxdb.InfluxConnector;
 import io.openems.shared.influxdb.InfluxConstants;
 
 @Designate(ocd = Config.class, factory = false)
-@Component(name = "Timedata.InfluxDB", configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Timedata.InfluxDB", //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class Influx extends AbstractOpenemsBackendComponent implements Timedata {
 
 	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
@@ -111,50 +114,9 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			this.edgeCacheMap.put(edgeId, edgeCache);
 		}
 
-		/*
-		 * Prepare data table. Takes entries starting with eldest timestamp (ascending
-		 * order)
-		 */
-		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : data.rowMap().entrySet()) {
-			Long timestamp = entry.getKey();
-
-			// Check if cache is valid (it is not elder than 5 minutes compared to this
-			// timestamp)
-			long cacheTimestamp = edgeCache.getTimestamp();
-			if (timestamp < cacheTimestamp) {
-				// incoming data is older than cache -> do not apply cache
-
-			} else {
-				// incoming data is more recent than cache
-				if (timestamp < cacheTimestamp + 5 * 60 * 1000) {
-					// cache is valid (not elder than 5 minutes)
-					for (Entry<ChannelAddress, JsonElement> cacheEntry : edgeCache.getChannelCacheEntries()
-							.entrySet()) {
-						ChannelAddress channel = cacheEntry.getKey();
-						// check if there is a current value for this timestamp + channel
-						JsonElement existingValue = data.get(timestamp, channel);
-						if (existingValue == null) {
-							// if not -> add cache data to write data
-							data.put(timestamp, channel, cacheEntry.getValue());
-						}
-					}
-				} else {
-					// cache is not anymore valid (elder than 5 minutes)
-					if (cacheTimestamp != 0L) {
-						this.logInfo(this.log, "Edge [" + edgeId + "]: invalidate cache for influxId [" + influxEdgeId
-								+ "]. This timestamp [" + timestamp + "]. Cache timestamp [" + cacheTimestamp + "]");
-					}
-					// clear cache
-					edgeCache.clear();
-				}
-
-				// update cache
-				edgeCache.setTimestamp(timestamp);
-				for (Entry<ChannelAddress, JsonElement> channelEntry : entry.getValue().entrySet()) {
-					edgeCache.putToChannelCache(channelEntry.getKey(), channelEntry.getValue());
-				}
-			}
-		}
+		// Complement incoming data with data from Cache, because only changed values
+		// are transmitted
+		edgeCache.complementDataFromCache(edgeId, data.rowMap());
 
 		// Write data to default location
 		this.writeData(influxEdgeId, data);
