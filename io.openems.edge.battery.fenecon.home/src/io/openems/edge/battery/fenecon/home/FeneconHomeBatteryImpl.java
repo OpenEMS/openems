@@ -600,11 +600,11 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 		// Try to read MODULE_QTY Register
 		try {
 			ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(10024), false)
-					.thenAccept(moduleQtyValue -> {
-						if (moduleQtyValue != null) {
+					.thenAccept(moduleNumValue -> {
+						if (moduleNumValue != null) {
 							// Are Channel Initialized ?
 							if (!FeneconHomeBatteryImpl.this.areChannelsInitialized) {
-								this.channelMap = this.createCellVoltAndTempDynamicChannels(moduleQtyValue);
+								this.channelMap = this.createCellVoltAndTempDynamicChannels(moduleNumValue);
 								FeneconHomeBatteryImpl.this.areChannelsInitialized = true;
 							}
 							// Register is available -> add Registers for current hardware to protocol
@@ -615,7 +615,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 								for (int t = 1; t <= this.towerNum; t++) {
 									String towerString = "TOWER_" + t + "_OFFSET";
 									int towerOffset = ModuleParameters.valueOf(towerString).getValue();
-									for (int i = 1; i < moduleQtyValue + 1; i++) {
+									for (int i = 1; i < moduleNumValue + 1; i++) {
 										Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
 										for (int j = 0; j < voltSensors; j++) {
 											String key = this.getSingleCellPrefix(j, i, t) + KEY_VOLTAGE;
@@ -636,7 +636,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 								for (int t = 1; t <= this.towerNum; t++) {
 									String towerString = "TOWER_" + t + "_OFFSET";
 									int towerOffset = ModuleParameters.valueOf(towerString).getValue();
-									for (int i = 1; i < moduleQtyValue + 1; i++) {
+									for (int i = 1; i < moduleNumValue + 1; i++) {
 										Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
 										for (int j = 0; j < tempSensors; j++) {
 											String key = this.getSingleCellPrefix(j, i, t) + KEY_TEMPERATURE;
