@@ -1,16 +1,16 @@
 import { ActivatedRoute } from '@angular/router';
-import { AutarchyModalComponent } from './modal/modal.component';
 import { Component } from '@angular/core';
 import { Edge, Service } from '../../../shared/shared';
 import { ModalController } from '@ionic/angular';
+import { LukasModalComponent } from './modal/modal.component';
 
 @Component({
-  selector: AutarchyComponent.SELECTOR,
-  templateUrl: './autarchy.component.html'
+  selector: LukasComponent.SELECTOR,
+  templateUrl: './lukas.component.html'
 })
-export class AutarchyComponent {
+export class LukasComponent {
 
-  private static readonly SELECTOR = "autarchy";
+  private static readonly SELECTOR = "lukas";
 
   private edge: Edge = null;
 
@@ -23,11 +23,9 @@ export class AutarchyComponent {
   ngOnInit() {
     this.service.setCurrentComponent('', this.route)
   }
-
   async presentModal() {
     const modal = await this.modalCtrl.create({
-      component: AutarchyModalComponent,
-
+      component: LukasModalComponent,
     });
     return await modal.present();
   }

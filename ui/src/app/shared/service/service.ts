@@ -33,9 +33,13 @@ export class Service implements ErrorHandler {
   public isSmartphoneResolution: boolean = false;
   public isSmartphoneResolutionSubject: Subject<boolean> = new Subject<boolean>();
 
+
+  // public bsubject = new BehaviorSubject(0);
+  // bsubject.next(1);
+  // bsubject.subscribe(x => console.log(x));
   /**
-   * Holds the currenty selected Page Title.
-   */
+ * Holds the currenty selected Page Title.
+ */
   public currentPageTitle: string;
 
   /**
@@ -412,7 +416,7 @@ export class Service implements ErrorHandler {
    * Checks if this Edge is allowed to show kWh values
    */
   public isKwhAllowed(edge: Edge): boolean {
-    return false;
+    return true;
   }
 
   /**

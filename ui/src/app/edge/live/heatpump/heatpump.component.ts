@@ -32,6 +32,7 @@ export class HeatPumpComponent {
       this.edge = edge;
       this.service.getConfig().then(config => {
         this.component = config.components[this.componentId];
+        console.log("HEATPUMNPTCOMP", this.component)
         let channels = [
           new ChannelAddress(this.component.id, 'Status'),
           new ChannelAddress(this.component.id, 'State'),

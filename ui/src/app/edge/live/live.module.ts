@@ -2,6 +2,8 @@ import { AdministrationComponent } from './evcs/modal/administration/administrat
 import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmetricpeakshaving.component';
 import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
 import { AutarchyComponent } from './autarchy/autarchy.component';
+import { LukasComponent } from './lukas/lukas.component';
+import { LukasModalComponent } from './lukas/modal/modal.component';
 import { AutarchyModalComponent } from './autarchy/modal/modal.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
@@ -60,6 +62,7 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     AdministrationComponent,
     AsymmetricPeakshavingModalComponent,
     AutarchyModalComponent,
+    LukasModalComponent,
     ChpsocModalComponent,
     ConsumptionModalComponent,
     DelayedSellToGridModalComponent,
@@ -86,6 +89,8 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     AsymmetricPeakshavingModalComponent,
     AutarchyComponent,
     AutarchyModalComponent,
+    LukasComponent,
+    LukasModalComponent,
     ChannelthresholdComponent,
     ChpSocComponent,
     ChpsocModalComponent,
