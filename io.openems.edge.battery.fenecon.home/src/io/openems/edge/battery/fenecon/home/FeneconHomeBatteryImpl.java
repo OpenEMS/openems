@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -83,7 +82,6 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	private static final String KEY_TEMPERATURE = "_TEMPERATURE";
 	private static final String KEY_VOLTAGE = "_VOLTAGE";
 	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
-	private int towerNum = 1;
 
 	public FeneconHomeBatteryImpl() {
 		super(//
@@ -102,7 +100,19 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
-		this.identifyBcuNumberChannels();
+		// Asynchronously read numberOfTowers and numberOfModulesPerTower to initialise
+		// available Tower- and Module-Channels dynamically.
+		this.getNumberOfTowers().thenAccept(numberOfTowers -> {
+			this.getNumberOfModulesPerTowers().thenAccept(numberOfModulesPerTower -> {
+				int chargeMaxVoltageValue = numberOfModulesPerTower * ModuleParameters.MODULE_MAX_VOLTAGE.getValue();
+				//Set Battery Charge Max Voltage
+				this._setChargeMaxVoltage(chargeMaxVoltageValue);
+				//Set Battery Discharge Min Voltage
+				int minDischargeVoltageValue = numberOfModulesPerTower * ModuleParameters.MODULE_MIN_VOLTAGE.getValue();
+				this._setDischargeMinVoltage(minDischargeVoltageValue);
+				this.initializeTowerModulesChannels(numberOfTowers, numberOfModulesPerTower);
+			});
+		});
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 	}
@@ -319,16 +329,16 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 								.bit(6, FeneconHomeBattery.ChannelId.RACK_SYSTEM_HIGH_CELL_VOLTAGE_PERMANENT_FAILURE) //
 								.bit(7, FeneconHomeBattery.ChannelId.RACK_SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE) //
 								.bit(8, FeneconHomeBattery.ChannelId.RACK_SYSTEM_SHORT_CIRCUIT)), //
-						m(FeneconHomeBattery.ChannelId.UPPER_VOLTAGE, new UnsignedWordElement(528)))); //
-		new FC3ReadRegistersTask(44000, Priority.HIGH, //
-				m(FeneconHomeBattery.ChannelId.BMS_CONTROL, new UnsignedWordElement(44000)) //
-		);
+						m(FeneconHomeBattery.ChannelId.UPPER_VOLTAGE, new UnsignedWordElement(528))), //
+				new FC3ReadRegistersTask(44000, Priority.HIGH, //
+						m(FeneconHomeBattery.ChannelId.BMS_CONTROL, new UnsignedWordElement(44000)) //
+				));
 		return protocol;
 	}
 
-	private void BcuDynamicChannels(int bcuNumber) throws OpenemsException {
+	private void initializeTowerModulesChannels(int numberOfTowers, int numberOfModulePerTower) {
 		try {
-			for (int i = 1; i <= bcuNumber; i++) {
+			for (int i = 1; i <= numberOfTowers; i++) {
 				String towerString = "TOWER_" + i + "_OFFSET";
 				int towerOffset = ModuleParameters.valueOf(towerString).getValue();
 				this.getModbusProtocol().addTasks(//
@@ -440,81 +450,119 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 								m(generateBcuChannel(i, "_MAX_CELL_VOLTAGE_LIMIT"),
 										new UnsignedWordElement(towerOffset + 22)), //
 								m(generateBcuChannel(i, "_MIN_CELL_VOLTAGE_LIMIT"),
-										new UnsignedWordElement(towerOffset + 23))), //
-						new FC3ReadRegistersTask(towerOffset + 24, Priority.HIGH, //
-								m(new UnsignedWordElement(towerOffset + 24)
-										.onUpdateCallback(this.onRegister10024Update))//
-												.m(generateBcuChannel(i, "_BMU_NUMBER"), new ElementToChannelConverter( //
-														value -> {
-															if (value == null) {
-																return null;
-															}
-															int moduleNumber = (Integer) value;
-															IntegerReadChannel maxChargeVoltageChannel = this
-																	.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE);
-															int chargeMaxVoltageValue = moduleNumber
-																	* ModuleParameters.MODULE_MAX_VOLTAGE.getValue();
-															maxChargeVoltageChannel.setNextValue(chargeMaxVoltageValue);
-
-															IntegerReadChannel minDischargeVoltageChannel = this
-																	.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE);
-															int minDischargeVoltageValue = moduleNumber
-																	* ModuleParameters.MODULE_MIN_VOLTAGE.getValue();
-															minDischargeVoltageChannel
-																	.setNextValue(minDischargeVoltageValue);
-															return value;
-														}, // channel -> element
-														value -> value) //
-												).build()));//
+										new UnsignedWordElement(towerOffset + 23))));
 			}
 		} catch (OpenemsException e) {
-			this.log.info("Dynamic Bcu Channels could not created");
-		} //
-	}
+			this.log.info("Dynamic Channels could not created");
+		}
 
-	protected final void identifyBcuNumberChannels() {
-		this.getBcuNumberIdentifier().thenAccept(value -> {
-			try {
-				this.BcuDynamicChannels(value);
-				this.towerNum = value;
-			} catch (OpenemsException e) {
-				e.printStackTrace();
+		this.channelMap = this.createCellVoltAndTempDynamicChannels(numberOfTowers, numberOfModulePerTower);
+		try {
+			// Register is available -> add Registers for current hardware to protocol
+			int offset = ModuleParameters.ADDRESS_OFFSET_FOR_CELL_VOLT_AND_TEMP.getValue();
+			int voltOffset = ModuleParameters.VOLTAGE_ADDRESS_OFFSET.getValue();
+			int voltSensors = ModuleParameters.VOLTAGE_SENSORS_PER_MODULE.getValue();
+			for (int t = 1; t <= numberOfTowers; t++) {
+				String towerString = "TOWER_" + t + "_OFFSET";
+				int towerOffset = ModuleParameters.valueOf(towerString).getValue();
+				for (int i = 1; i < numberOfModulePerTower + 1; i++) {
+					Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
+					for (int j = 0; j < voltSensors; j++) {
+						String key = this.getSingleCellPrefix(j, i, t) + KEY_VOLTAGE;
+						UnsignedWordElement uwe = new UnsignedWordElement(towerOffset + i * offset + voltOffset + j);
+						AbstractModbusElement<?> ame = m(this.channelMap.get(key).channelId(), uwe);
+						elements.add(ame);
+					}
+					this.getModbusProtocol().addTask(new FC3ReadRegistersTask(towerOffset + offset * i + voltOffset,
+							Priority.HIGH, elements.toArray(new AbstractModbusElement<?>[0])));
+				}
 			}
-		});
+
+			int tempOffset = ModuleParameters.TEMPERATURE_ADDRESS_OFFSET.getValue();
+			int tempSensors = ModuleParameters.TEMPERATURE_SENSORS_PER_MODULE.getValue();
+			for (int t = 1; t <= numberOfTowers; t++) {
+				String towerString = "TOWER_" + t + "_OFFSET";
+				int towerOffset = ModuleParameters.valueOf(towerString).getValue();
+				for (int i = 1; i < numberOfModulePerTower + 1; i++) {
+					Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
+					for (int j = 0; j < tempSensors; j++) {
+						String key = this.getSingleCellPrefix(j, i, t) + KEY_TEMPERATURE;
+						UnsignedWordElement uwe = new UnsignedWordElement(towerOffset + i * offset + tempOffset + j);
+						AbstractModbusElement<?> ame = m(this.channelMap.get(key).channelId(), uwe);
+						elements.add(ame);
+					}
+					this.getModbusProtocol().addTask(new FC3ReadRegistersTask(towerOffset + offset * i + tempOffset,
+							Priority.HIGH, elements.toArray(new AbstractModbusElement<?>[0])));
+				}
+			}
+		} catch (OpenemsException e) {
+			this.log.info("Cell Temperature and Voltage Dynamic Channels could not created");
+		}
 	}
 
 	/**
-	 * Gets the Bcu/Tower Number identifier via Modbus.
+	 * Gets the Number of Modules Per Tower.
 	 * 
-	 * @return the future Integer; returns a default value as 1 on error
+	 * @return the Number of Modules Per Tower as a {@link CompletableFuture}.
+	 * @throws OpenemsException on error
 	 */
-	private CompletableFuture<Integer> getBcuNumberIdentifier() {
-		final CompletableFuture<Integer> numbOfBCU = new CompletableFuture<Integer>();
+	private CompletableFuture<Integer> getNumberOfModulesPerTowers() {
+		final CompletableFuture<Integer> result = new CompletableFuture<Integer>();
 		try {
-			ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(12000), true)
-					.thenAccept(value -> {
-						if ((value != 0 && value != null)) {
-							numbOfBCU.complete(2);
+			ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(10024), true)
+					.thenAccept(numberOfModulesPerTower -> {
+						if (numberOfModulesPerTower == null) {
+							return;
 						}
-						try {
-							ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(14000), true)
-									.thenAccept(name -> {
-										if (value != 0 && value != null) {
-											numbOfBCU.complete(3);
-										}
-									});
-						} catch (OpenemsException e) {
-							this.logWarn(this.log, "Error while trying to identify Bcu Number: " + e.getMessage());
-							e.printStackTrace();
-							numbOfBCU.complete(2);
+						result.complete(numberOfModulesPerTower);
+					});
+		} catch (OpenemsException e) {
+			this.log.info("Number of modules per tower could not read");
+		}
+		return result;
+	}
+
+	/**
+	 * Gets the Number of Towers.
+	 * 
+	 * @return the Number of Towers as a {@link CompletableFuture}.
+	 */
+	private CompletableFuture<Integer> getNumberOfTowers() {
+		final CompletableFuture<Integer> result = new CompletableFuture<Integer>();
+		try {
+			ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(14000), true)
+					.thenAccept(softwareVersionOfTower3 -> {
+						if (softwareVersionOfTower3 == null) {
+							return;
+						}
+						if (softwareVersionOfTower3 != 0) {
+							// Three Towers available
+							result.complete(3);
+						} else {
+							try {
+								ModbusUtils
+										.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(12000), true)
+										.thenAccept(softwareVersionOfTower2 -> {
+											if (softwareVersionOfTower2 == null) {
+												return;
+											}
+											if (softwareVersionOfTower2 != 0) {
+												// Two Towers available
+												result.complete(2);
+											} else {
+												// One Tower available
+												result.complete(1);
+											}
+										});
+							} catch (OpenemsException e) {
+								this.log.info("softwareVersionOfTower2 could not detect ");
+							}
 						}
 					});
 		} catch (OpenemsException e) {
-			this.logWarn(this.log, "Error while trying to identify Bcu Number: " + e.getMessage());
-			e.printStackTrace();
-			numbOfBCU.complete(1);
+			this.log.info("softwareVersionOfTower3 could not detect ");
 		}
-		return numbOfBCU;
+		return result;
 	}
 
 	private String getSingleCellPrefix(int num, int module, int tower) {
@@ -532,11 +580,12 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	 * creates a map containing channels for voltage and temperature depending on
 	 * the number of modules
 	 */
-	private Map<String, Channel<?>> createCellVoltAndTempDynamicChannels(int bmuNumber) {
+	private Map<String, Channel<?>> createCellVoltAndTempDynamicChannels(int numberOfTowers,
+			int numberOfModulePerTower) {
 		Map<String, Channel<?>> map = new HashMap<>();
 		int voltSensors = ModuleParameters.VOLTAGE_SENSORS_PER_MODULE.getValue();
-		for (int t = 1; t <= towerNum; t++) {
-			for (int i = 1; i <= bmuNumber; i++) {
+		for (int t = 1; t <= numberOfTowers; t++) {
+			for (int i = 1; i <= numberOfModulePerTower; i++) {
 				for (int j = 0; j < voltSensors; j++) {
 					String key = this.getSingleCellPrefix(j, i, t) + KEY_VOLTAGE;
 					IntegerDoc doc = new IntegerDoc();
@@ -548,8 +597,8 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 			}
 		}
 		int tempSensors = ModuleParameters.TEMPERATURE_SENSORS_PER_MODULE.getValue();
-		for (int t = 1; t <= this.towerNum; t++) {
-			for (int i = 1; i <= bmuNumber; i++) {
+		for (int t = 1; t <= numberOfTowers; t++) {
+			for (int i = 1; i <= numberOfModulePerTower; i++) {
 				for (int j = 0; j < tempSensors; j++) {
 					String key = this.getSingleCellPrefix(j, i, t) + KEY_TEMPERATURE;
 					IntegerDoc doc = new IntegerDoc();
@@ -583,87 +632,6 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 			this.stateMachine.forceNextState(State.UNDEFINED);
 		}
 	}
-
-	/*
-	 * Handle incompatibility with old hardware protocol.
-	 * 
-	 * 'onRegister0x10024update()' callback is called when register 0x10024 is read.
-	 * 10024 is the read register for Module Number of Bcu 1 All Tower should have
-	 * same amount of module number
-	 */
-	private boolean areChannelsInitialized = false;
-	private final Consumer<Integer> onRegister10024Update = (value) -> {
-		if (value == null) {
-			// ignore invalid values; modbus bridge has no connection yet
-			return;
-		}
-		// Try to read MODULE_QTY Register
-		try {
-			ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(10024), false)
-					.thenAccept(moduleNumValue -> {
-						if (moduleNumValue != null) {
-							// Are Channel Initialized ?
-							if (!FeneconHomeBatteryImpl.this.areChannelsInitialized) {
-								this.channelMap = this.createCellVoltAndTempDynamicChannels(moduleNumValue);
-								FeneconHomeBatteryImpl.this.areChannelsInitialized = true;
-							}
-							// Register is available -> add Registers for current hardware to protocol
-							try {
-								int offset = ModuleParameters.ADDRESS_OFFSET_FOR_CELL_VOLT_AND_TEMP.getValue();
-								int voltOffset = ModuleParameters.VOLTAGE_ADDRESS_OFFSET.getValue();
-								int voltSensors = ModuleParameters.VOLTAGE_SENSORS_PER_MODULE.getValue();
-								for (int t = 1; t <= this.towerNum; t++) {
-									String towerString = "TOWER_" + t + "_OFFSET";
-									int towerOffset = ModuleParameters.valueOf(towerString).getValue();
-									for (int i = 1; i < moduleNumValue + 1; i++) {
-										Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
-										for (int j = 0; j < voltSensors; j++) {
-											String key = this.getSingleCellPrefix(j, i, t) + KEY_VOLTAGE;
-											UnsignedWordElement uwe = new UnsignedWordElement(
-													towerOffset + i * offset + voltOffset + j);
-											AbstractModbusElement<?> ame = m(this.channelMap.get(key).channelId(), uwe);
-											elements.add(ame);
-										}
-										this.getModbusProtocol()
-												.addTask(new FC3ReadRegistersTask(towerOffset + offset * i + voltOffset,
-														Priority.HIGH,
-														elements.toArray(new AbstractModbusElement<?>[0])));
-									}
-								}
-
-								int tempOffset = ModuleParameters.TEMPERATURE_ADDRESS_OFFSET.getValue();
-								int tempSensors = ModuleParameters.TEMPERATURE_SENSORS_PER_MODULE.getValue();
-								for (int t = 1; t <= this.towerNum; t++) {
-									String towerString = "TOWER_" + t + "_OFFSET";
-									int towerOffset = ModuleParameters.valueOf(towerString).getValue();
-									for (int i = 1; i < moduleNumValue + 1; i++) {
-										Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
-										for (int j = 0; j < tempSensors; j++) {
-											String key = this.getSingleCellPrefix(j, i, t) + KEY_TEMPERATURE;
-											UnsignedWordElement uwe = new UnsignedWordElement(
-													towerOffset + i * offset + tempOffset + j);
-											AbstractModbusElement<?> ame = m(this.channelMap.get(key).channelId(), uwe);
-											elements.add(ame);
-										}
-										this.getModbusProtocol()
-												.addTask(new FC3ReadRegistersTask(towerOffset + offset * i + tempOffset,
-														Priority.HIGH,
-														elements.toArray(new AbstractModbusElement<?>[0])));
-									}
-								}
-							} catch (OpenemsException e) {
-								FeneconHomeBatteryImpl.this.logError(FeneconHomeBatteryImpl.this.log,
-										"Unable to add registers for detected hardware version: " + e.getMessage());
-								e.printStackTrace();
-							} //
-						}
-					});
-		} catch (OpenemsException e) {
-			FeneconHomeBatteryImpl.this.logError(FeneconHomeBatteryImpl.this.log,
-					"Unable to detect hardware version: " + e.getMessage());
-			e.printStackTrace();
-		}
-	};
 
 	@Override
 	public StartStop getStartStopTarget() {
