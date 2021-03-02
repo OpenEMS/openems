@@ -61,8 +61,6 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(BackendApiImpl.class);
 
 	protected WebsocketClient websocket = null;
-	protected int noOfCycles = DEFAULT_NO_OF_CYCLES; // default, is going to be overwritten by config
-	protected boolean debug = false;
 
 	// Used for SubscribeSystemLogRequests
 	private boolean isSystemLogSubscribed = false;
@@ -85,8 +83,6 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.noOfCycles = config.noOfCycles();
-		this.debug = config.debug();
 
 		if (!this.isEnabled()) {
 			return;
