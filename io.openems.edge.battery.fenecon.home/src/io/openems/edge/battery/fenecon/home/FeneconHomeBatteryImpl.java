@@ -523,7 +523,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 
 	io.openems.edge.common.channel.ChannelId generateBcuChannel(int bcuNumber, String channelIdSuffix) {
 		io.openems.edge.common.channel.ChannelId channelId = new ChannelIdImpl(
-				"BCU_" + bcuNumber + "_" + channelIdSuffix, Doc.of(OpenemsType.BOOLEAN));
+				"TOWER_" + bcuNumber + "_" + channelIdSuffix, Doc.of(OpenemsType.BOOLEAN));
 		this.addChannel(channelId);
 		return channelId;
 	}
