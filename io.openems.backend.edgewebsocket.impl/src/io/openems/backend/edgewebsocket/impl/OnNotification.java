@@ -1,7 +1,5 @@
 package io.openems.backend.edgewebsocket.impl;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -11,11 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
-import io.openems.backend.metadata.api.Edge;
+import io.openems.backend.common.metadata.Edge;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -24,9 +20,6 @@ import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
-import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.EdgeConfig.Component.Channel;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
 

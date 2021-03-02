@@ -12,9 +12,11 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.request.AuthenticateWithPasswordRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
+import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
@@ -31,9 +33,16 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	public CompletableFuture<? extends JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
+
+		CompletableFuture<? extends JsonrpcResponseSuccess> result = null;
+		if (request.getMethod().equals(AuthenticateWithPasswordRequest.METHOD)) {
+			// trying to authenticate
+			return this.handleAuthenticateWithPasswordRequest(wsData, AuthenticateWithPasswordRequest.from(request));
+		}
+
+		// should be authenticated
 		BackendUser user = this.assertUser(wsData, request);
 
-		CompletableFuture<EdgeRpcResponse> result = null;
 		switch (request.getMethod()) {
 		case EdgeRpcRequest.METHOD:
 			result = this.handleEdgeRpcRequest(wsData, user, EdgeRpcRequest.from(request));
@@ -46,6 +55,28 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// forward to generic request handler
 		return this.parent.jsonRpcRequestHandler.handleRequest(this.parent.getName(), user, request);
+	}
+
+	/**
+	 * Handles an AuthenticateWithPasswordRequest.
+	 * 
+	 * @param wsData      the WebSocket attachment
+	 * @param backendUser the authenticated User
+	 * @param request     the AuthenticateWithUsernameAndPasswordRequest
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithPasswordRequest(WsData wsData,
+			AuthenticateWithPasswordRequest request) throws OpenemsNamedException {
+		BackendUser user;
+		if (request.getUsername().isPresent()) {
+			user = this.parent.metadata.authenticate(request.getUsername().get(), request.getPassword());
+		} else {
+			user = this.parent.metadata.authenticate(request.getPassword());
+		}
+		wsData.setUserId(user.getId());
+		return CompletableFuture.completedFuture(new AuthenticateWithPasswordResponse(request.getId(),
+				user.getSessionId(), user.getEdgeMetadatas(this.parent.metadata)));
 	}
 
 	/**

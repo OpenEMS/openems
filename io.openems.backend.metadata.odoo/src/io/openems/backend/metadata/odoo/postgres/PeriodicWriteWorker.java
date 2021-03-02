@@ -21,7 +21,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.MyEdge;
-import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeStatesSum;
 
 /**
  * This worker combines writes to lastMessage and lastUpdate fields, to avoid
@@ -34,7 +33,7 @@ public class PeriodicWriteWorker {
 	 */
 	private static final boolean DEBUG_MODE = true;
 
-	private static final int UPDATE_INTERVAL_IN_SECONDS = 60;
+	private static final int UPDATE_INTERVAL_IN_SECONDS = 120;
 
 	private final Logger log = LoggerFactory.getLogger(PeriodicWriteWorker.class);
 	private final PostgresHandler parent;
@@ -92,7 +91,6 @@ public class PeriodicWriteWorker {
 			this.writeLastUpdate(dataSource);
 			this.writeIsOnline(dataSource);
 			this.writeIsOffline(dataSource);
-			this.updateEdgeStatesSum(dataSource);
 
 		} catch (SQLException e) {
 			this.log.error("Unable to execute WriteWorker task: " + e.getMessage());
@@ -114,21 +112,6 @@ public class PeriodicWriteWorker {
 	public void triggerUpdateEdgeStatesSum(MyEdge edge) {
 		synchronized (this.updateEdgeStatesSum) {
 			this.updateEdgeStatesSum.add(edge.getOdooId());
-		}
-	}
-
-	private void updateEdgeStatesSum(HikariDataSource dataSource) throws SQLException {
-		Set<Integer> edgeIds;
-		synchronized (this.updateEdgeStatesSum) {
-			edgeIds = new HashSet<>(this.updateEdgeStatesSum);
-		}
-
-		try {
-			new UpdateEdgeStatesSum(edgeIds).execute(dataSource);
-		} catch (SQLException e) {
-			this.parent.logWarn(this.log,
-					"Unable to execute Task. " + this.task.getClass().getSimpleName() + ": " + e.getMessage());
-			e.printStackTrace();
 		}
 	}
 

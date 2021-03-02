@@ -17,11 +17,11 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.metadata.api.BackendUser;
-import io.openems.backend.metadata.api.Edge;
-import io.openems.backend.metadata.api.Edge.State;
-import io.openems.backend.metadata.api.Metadata;
+import io.openems.backend.common.metadata.AbstractMetadata;
+import io.openems.backend.common.metadata.BackendUser;
+import io.openems.backend.common.metadata.Edge;
+import io.openems.backend.common.metadata.Edge.State;
+import io.openems.backend.common.metadata.Metadata;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -109,12 +109,6 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 		edge.onSetConfig(config -> {
 			this.logInfo(this.log, "Edge [" + edgeId + "]. Update config: "
 					+ StringUtils.toShortString(EdgeConfigDiff.diff(config, edge.getConfig()).getAsHtml(), 100));
-		});
-		edge.onSetComponentState(activeStateChannels -> {
-			String states = Metadata.activeStateChannelsToString(activeStateChannels);
-			if (!states.isEmpty()) {
-				this.logInfo(this.log, "Edge [" + edgeId + "]. Set State: " + states);
-			}
 		});
 		this.edges.put(edgeId, edge);
 		return Optional.ofNullable(edgeId);

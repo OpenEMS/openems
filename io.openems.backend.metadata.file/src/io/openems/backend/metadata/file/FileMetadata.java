@@ -31,7 +31,6 @@ import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
