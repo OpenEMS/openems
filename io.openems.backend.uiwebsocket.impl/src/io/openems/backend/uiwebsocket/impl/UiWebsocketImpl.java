@@ -19,9 +19,9 @@ import org.slf4j.Logger;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
+import io.openems.backend.common.metadata.BackendUser;
+import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
-import io.openems.backend.metadata.api.BackendUser;
-import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.timedata.api.Timedata;
 import io.openems.backend.uiwebsocket.api.UiWebsocket;
 import io.openems.common.exceptions.OpenemsError;
@@ -32,7 +32,11 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.session.Role;
 
 @Designate(ocd = Config.class, factory = false)
-@Component(name = "Ui.Websocket", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
+@Component(//
+		name = "Ui.Websocket", //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		immediate = true //
+)
 public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements UiWebsocket {
 
 	// private final Logger log = LoggerFactory.getLogger(UiWebsocket.class);

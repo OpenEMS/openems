@@ -10,8 +10,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.metadata.api.Edge;
-import io.openems.backend.metadata.api.Edge.State;
+import io.openems.backend.common.metadata.Edge;
+import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.postgres.PgUtils;

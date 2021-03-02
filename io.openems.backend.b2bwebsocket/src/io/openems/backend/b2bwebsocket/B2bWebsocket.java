@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
-import io.openems.backend.metadata.api.Metadata;
+import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)

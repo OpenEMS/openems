@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -14,10 +13,10 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.metadata.api.BackendUser;
-import io.openems.backend.metadata.api.Edge;
-import io.openems.backend.metadata.api.Metadata;
+import io.openems.backend.common.metadata.AbstractMetadata;
+import io.openems.backend.common.metadata.BackendUser;
+import io.openems.backend.common.metadata.Edge;
+import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.metadata.odoo.odoo.OdooHandler;
 import io.openems.backend.metadata.odoo.odoo.jsonrpc.AuthenticateWithSessionIdResponse;
 import io.openems.backend.metadata.odoo.postgres.PostgresHandler;
@@ -26,16 +25,17 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 
 @Designate(ocd = Config.class, factory = false)
-@Component(name = "Metadata.Odoo", configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class MetadataOdoo extends AbstractOpenemsBackendComponent implements Metadata {
+@Component(//
+		name = "Metadata.Odoo", //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+public class MetadataOdoo extends AbstractMetadata implements Metadata {
 
 	private final Logger log = LoggerFactory.getLogger(MetadataOdoo.class);
 	private final EdgeCache edgeCache;
 
 	protected OdooHandler odooHandler = null;
 	protected PostgresHandler postgresHandler = null;
-
-	private final AtomicBoolean isInitialized = new AtomicBoolean(false);
 
 	/**
 	 * Maps User-ID to User.
@@ -59,7 +59,7 @@ public class MetadataOdoo extends AbstractOpenemsBackendComponent implements Met
 
 		this.odooHandler = new OdooHandler(this, config);
 		this.postgresHandler = new PostgresHandler(this, edgeCache, config, () -> {
-			this.isInitialized.set(true);
+			this.setInitialized();
 		});
 	}
 
@@ -69,11 +69,6 @@ public class MetadataOdoo extends AbstractOpenemsBackendComponent implements Met
 		if (this.postgresHandler != null) {
 			this.postgresHandler.deactivate();
 		}
-	}
-
-	@Override
-	public boolean isInitialized() {
-		return this.isInitialized.get();
 	}
 
 	@Override
@@ -146,5 +141,4 @@ public class MetadataOdoo extends AbstractOpenemsBackendComponent implements Met
 	public void logError(Logger log, String message) {
 		super.logError(log, message);
 	}
-
 }

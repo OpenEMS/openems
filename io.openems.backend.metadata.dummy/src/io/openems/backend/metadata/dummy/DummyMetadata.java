@@ -22,6 +22,7 @@ import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
@@ -30,12 +31,15 @@ import io.openems.common.types.EdgeConfigDiff;
 import io.openems.common.utils.StringUtils;
 
 @Designate(ocd = Config.class, factory = false)
-@Component(name = "Metadata.Dummy", configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
+@Component(//
+		name = "Metadata.Dummy", //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+public class DummyMetadata extends AbstractMetadata implements Metadata {
 
 	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
-	private final Logger log = LoggerFactory.getLogger(Dummy.class);
+	private final Logger log = LoggerFactory.getLogger(DummyMetadata.class);
 
 	private final AtomicInteger nextUserId = new AtomicInteger(-1);
 	private final AtomicInteger nextEdgeId = new AtomicInteger(-1);
@@ -43,8 +47,9 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 	private final Map<String, BackendUser> users = new HashMap<>();
 	private final Map<String, MyEdge> edges = new HashMap<>();
 
-	public Dummy() {
+	public DummyMetadata() {
 		super("Metadata.Dummy");
+		this.setInitialized();
 	}
 
 	@Activate
@@ -88,7 +93,7 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 			return Optional.ofNullable(edgeOpt.get().getId());
 		}
 		// not found. Is apikey a valid Edge-ID?
-		Optional<Integer> idOpt = Dummy.parseNumberFromName(apikey);
+		Optional<Integer> idOpt = DummyMetadata.parseNumberFromName(apikey);
 		int id;
 		String edgeId;
 		if (idOpt.isPresent()) {
@@ -99,7 +104,8 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 			id = this.nextEdgeId.incrementAndGet();
 			edgeId = "edge" + id;
 		}
-		MyEdge edge = new MyEdge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "", new EdgeConfig());
+		MyEdge edge = new MyEdge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "", Level.OK,
+				new EdgeConfig());
 		edge.onSetConfig(config -> {
 			this.logInfo(this.log, "Edge [" + edgeId + "]. Update config: "
 					+ StringUtils.toShortString(EdgeConfigDiff.diff(config, edge.getConfig()).getAsHtml(), 100));
@@ -142,10 +148,5 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 			/* ignore */
 		}
 		return Optional.empty();
-	}
-
-	@Override
-	public boolean isInitialized() {
-		return true;
 	}
 }

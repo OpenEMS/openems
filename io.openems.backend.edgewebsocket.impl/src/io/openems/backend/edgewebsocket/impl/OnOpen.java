@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.metadata.api.Edge;
+import io.openems.backend.common.metadata.Edge;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 

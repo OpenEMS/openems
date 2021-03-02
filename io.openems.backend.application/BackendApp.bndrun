@@ -45,7 +45,6 @@
 	io.openems.backend.core;version=snapshot,\
 	io.openems.backend.edgewebsocket.api;version=snapshot,\
 	io.openems.backend.edgewebsocket.impl;version=snapshot,\
-	io.openems.backend.metadata.api;version=snapshot,\
 	io.openems.backend.metadata.dummy;version=snapshot,\
 	io.openems.backend.metadata.file;version=snapshot,\
 	io.openems.backend.metadata.odoo;version=snapshot,\

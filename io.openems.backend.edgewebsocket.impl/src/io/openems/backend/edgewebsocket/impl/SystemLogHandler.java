@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import io.openems.backend.metadata.api.Edge;
+import io.openems.backend.common.metadata.Edge;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.DeprecatedJsonrpcNotification;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
