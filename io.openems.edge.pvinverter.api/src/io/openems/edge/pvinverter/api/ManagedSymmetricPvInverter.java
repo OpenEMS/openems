@@ -1,6 +1,7 @@
 package io.openems.edge.pvinverter.api;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
@@ -31,7 +32,8 @@ public interface ManagedSymmetricPvInverter extends SymmetricMeter, OpenemsCompo
 		 * </ul>
 		 */
 		MAX_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE)), //
+				.unit(Unit.VOLT_AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Read/Set Active Power Limit.
 		 * 
@@ -44,6 +46,7 @@ public interface ManagedSymmetricPvInverter extends SymmetricMeter, OpenemsCompo
 		ACTIVE_POWER_LIMIT(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_WRITE) //
+				.persistencePriority(PersistencePriority.MEDIUM) //
 				.onInit(channel -> { //
 					// on each Write to the channel -> set the value
 					((IntegerWriteChannel) channel).onSetNextWrite(value -> {

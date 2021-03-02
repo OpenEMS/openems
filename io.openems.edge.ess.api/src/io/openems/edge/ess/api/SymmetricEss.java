@@ -3,6 +3,7 @@ package io.openems.edge.ess.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -32,7 +33,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		SOC(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT)),
+				.unit(Unit.PERCENT) //
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Capacity.
 		 * 
@@ -45,7 +47,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * @since 2019.5.0
 		 */
 		CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Grid-Mode.
 		 * 
@@ -55,7 +58,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
 		 * </ul>
 		 */
-		GRID_MODE(Doc.of(GridMode.values())),
+		GRID_MODE(Doc.of(GridMode.values()) //
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Power.
 		 * 
@@ -68,6 +72,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 */
 		ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT) //
 		),
 		/**
@@ -82,6 +87,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 */
 		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT) //
 		),
 		/**
@@ -96,7 +102,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		MAX_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE)), //
+				.unit(Unit.VOLT_AMPERE) //
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Charge Energy.
 		 * 
@@ -107,7 +114,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Discharge Energy.
 		 * 
@@ -118,7 +126,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Min Cell Voltage.
 		 * 
@@ -133,7 +142,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 */
 		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT) //
-		),
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Max Cell Voltage.
 		 * 
@@ -148,7 +157,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 */
 		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT) //
-		),
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Min Cell Temperature.
 		 * 
@@ -163,7 +172,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 */
 		MIN_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEGREE_CELSIUS) //
-		),
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Max Cell Temperature.
 		 * 
@@ -178,7 +187,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 */
 		MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEGREE_CELSIUS) //
-		);
+				.persistencePriority(PersistencePriority.HIGH));
 
 		private final Doc doc;
 

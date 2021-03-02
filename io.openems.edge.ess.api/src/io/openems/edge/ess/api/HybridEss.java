@@ -2,6 +2,7 @@ package io.openems.edge.ess.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -34,6 +35,7 @@ public interface HybridEss extends SymmetricEss {
 		 */
 		DC_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT) //
 		),
 		/**
@@ -46,7 +48,8 @@ public interface HybridEss extends SymmetricEss {
 		 * </ul>
 		 */
 		DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * DC Discharge Energy.
 		 * 
@@ -57,7 +60,8 @@ public interface HybridEss extends SymmetricEss {
 		 * </ul>
 		 */
 		DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS)),;
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)); //
 
 		private final Doc doc;
 

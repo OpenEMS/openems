@@ -3,6 +3,7 @@ package io.openems.edge.common.channel;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.ChannelCategory;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
@@ -105,6 +106,17 @@ public interface Doc {
 	 * @return the unit
 	 */
 	public Unit getUnit();
+
+	/**
+	 * Gets the Persistence Priority. Defaults to VERY_LOW.
+	 * 
+	 * <p>
+	 * This parameter may be used by persistence services to decide, if the Channel
+	 * should be persisted to the hard disk.
+	 * 
+	 * @return the {@link PersistencePriority}
+	 */
+	public PersistencePriority getPersistencePriority();
 
 	/**
 	 * Sets the descriptive text. Defaults to an empty string.
