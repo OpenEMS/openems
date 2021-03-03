@@ -2,6 +2,8 @@ import { AdministrationComponent } from './evcs/modal/administration/administrat
 import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmetricpeakshaving.component';
 import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
 import { AutarchyComponent } from './autarchy/autarchy.component';
+import { LukasComponent } from './lukas/lukas.component';
+import { LukasModalComponent } from './lukas/modal/modal.component';
 import { AutarchyModalComponent } from './autarchy/modal/modal.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
@@ -24,6 +26,8 @@ import { FixActivePowerComponent } from './fixactivepower/fixactivepower.compone
 import { FixActivePowerModalComponent } from './fixactivepower/modal/modal.component';
 import { FixDigitalOutputComponent } from './fixdigitaloutput/fixdigitaloutput.component';
 import { FixDigitalOutputModalComponent } from './fixdigitaloutput/modal/modal.component';
+import { FlatWidgetLine } from './flat/flat-widget-line/flatwidget-line';
+import { FlatWidgetComponent } from './flat/flatwidget.component';
 import { GridComponent } from './grid/grid.component';
 import { GridModalComponent } from './grid/modal/modal.component';
 import { HeatingElementComponent } from './heatingelement/heatingelement.component';
@@ -60,6 +64,9 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     AdministrationComponent,
     AsymmetricPeakshavingModalComponent,
     AutarchyModalComponent,
+    LukasModalComponent,
+    FlatWidgetComponent,
+    FlatWidgetLine,
     ChpsocModalComponent,
     ConsumptionModalComponent,
     DelayedSellToGridModalComponent,
@@ -86,6 +93,10 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     AsymmetricPeakshavingModalComponent,
     AutarchyComponent,
     AutarchyModalComponent,
+    LukasComponent,
+    FlatWidgetComponent,
+    FlatWidgetLine,
+    LukasModalComponent,
     ChannelthresholdComponent,
     ChpSocComponent,
     ChpsocModalComponent,

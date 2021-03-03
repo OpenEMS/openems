@@ -1,0 +1,26 @@
+<ion-card *ngIf="edge" button routerLink="/device/{{edge.id}}/history/lukaschart">
+    <ion-item lines="full" color="dark">
+        <ion-avatar slot="start">
+            <img src="assets/img/autarchy.png">
+        </ion-avatar>
+        <ion-label translate>General.lukas</ion-label>
+    </ion-item>
+    <ion-card-content>
+        <table class="full_width">
+            <tr>
+                <td style="width:100%" *ngIf="lukasValue">
+                    <percentagebar [value]="lukasValue">
+                    </percentagebar>
+                </td>
+                <ng-template #noData>
+                    <td style="width:35%" class="align_right">
+                        Hier
+                    </td>
+                </ng-template>
+            </tr>
+        </table>
+
+
+
+    </ion-card-content>
+</ion-card>

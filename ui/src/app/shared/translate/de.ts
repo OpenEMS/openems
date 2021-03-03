@@ -1,5 +1,6 @@
 export const TRANSLATION = {
     General: {
+        lukas: 'Lukas',
         active: 'Aktiv',
         actualPower: 'E-Auto Beladung',
         apply: 'Übernehmen',
@@ -23,6 +24,7 @@ export const TRANSLATION = {
         digitalInputs: 'Digitaleingänge',
         directConsumption: 'Direktverbrauch',
         dischargePower: 'Entladung',
+        energy: 'State of Charge',
         fault: 'Fehler',
         grid: 'Netz',
         gridBuy: 'Netzbezug',
@@ -130,6 +132,7 @@ export const TRANSLATION = {
                 selfconsumptionInfo: 'Der Eigenverbrauch gibt an zu wie viel Prozent die aktuell erzeugte Leistung durch direkten Verbrauch und durch Speicherbeladung selbst genutzt wird.',
                 twoWayInfoGrid: 'Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug',
                 twoWayInfoStorage: 'Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung',
+                lukasInfo: 'Schon vor vielen hundert Jahren haben Menschen die Kraft des Windes genutzt. Sie bauten Windmühlen, die die Energie des Windes in eine Drehbewegung verwandelten. So konnten sie zum Beispiel Mühlräder antreiben, um Korn zu mahlen. Weil in den flachen, am Meer gelegenen Niederlanden viel Wind weht, wurden dort besonders viele Windmühlen errichtet: Einige von ihnen sind bis heute in Betrieb. Noch immer liefert uns Wind Energie, und zwar in Form von Strom. Die modernen Windräder funktionieren so ähnlich wie die alten Windmühlen: Auf einem schmalen Turm sitzen riesige Rotoren, die wie Propeller aussehen und vom Wind angetrieben werden. Die Drehung der Rotoren wird auf einen Generator übertragen, der die Energie wie ein Dynamo in elektrischen Strom verwandelt. Je stärker der Wind weht, desto mehr elektrischer Strom kann erzeugt werden.',
                 Channeltreshold: {
                     output: 'Ausgang'
                 },

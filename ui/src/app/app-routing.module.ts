@@ -31,6 +31,7 @@ import { SymmetricPeakshavingChartOverviewComponent } from './edge/history/peaks
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { TimeslotPeakshavingChartOverviewComponent } from './edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
+import { LukasChartOverviewComponent } from './edge/history/lukas/lukaschartoverview/lukaschartoverview.component';
 
 
 
@@ -58,6 +59,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/history/autarchychart', component: AutarchyChartOverviewComponent },
   { path: 'device/:edgeId/history/consumptionchart', component: ConsumptionChartOverviewComponent },
   { path: 'device/:edgeId/history/gridchart', component: GridChartOverviewComponent },
+  { path: 'device/:edgeId/history/lukaschart', component: LukasChartOverviewComponent },
   { path: 'device/:edgeId/history/productionchart', component: ProductionChartOverviewComponent },
   { path: 'device/:edgeId/history/selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
   { path: 'device/:edgeId/history/storagechart', component: StorageChartOverviewComponent },

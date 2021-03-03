@@ -372,7 +372,6 @@ export class Service implements ErrorHandler {
   }[] = [];
   private queryEnergyTimeout: any = null;
 
-
   /**
    * Start NGX-Spinner
    * 

@@ -22,6 +22,8 @@ export module DefaultTypes {
       totalPower: number,
       // autarchy in percent
       autarchy: number,
+      // lukas test variable
+      lukas: number;
       // self consumption in percent
       selfConsumption: number,
       // state 0: Ok, 1: Info, 2: Warning, 3: Fault

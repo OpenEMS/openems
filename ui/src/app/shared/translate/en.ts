@@ -1,5 +1,6 @@
 export const TRANSLATION = {
     General: {
+        lukas: 'NICHTLUKAS',
         active: 'Active',
         actualPower: 'e-car Charge power',
         apply: 'Apply',

@@ -1,6 +1,6 @@
 import { ActivatedRoute } from '@angular/router';
 import { Component } from '@angular/core';
-import { Edge, Service, Utils, Widgets, EdgeConfig } from '../../shared/shared';
+import { Edge, Service, Utils, Widgets, EdgeConfig, ChannelAddress } from '../../shared/shared';
 
 @Component({
   selector: 'live',
@@ -8,9 +8,20 @@ import { Edge, Service, Utils, Widgets, EdgeConfig } from '../../shared/shared';
 })
 export class LiveComponent {
 
+  items = ['item1', 'item2', 'item3', 'item4'];
+
+  addItem(newItem: string) {
+    this.items.push(newItem);
+  }
+
   public edge: Edge = null
   public config: EdgeConfig = null;
   public widgets: Widgets = null;
+  public currentitle = "Television";
+  public gridChannels: ChannelAddress[] = [
+    new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
+    new ChannelAddress('_sum', 'GridSellActiveEnergy'),
+  ]
 
   constructor(
     private route: ActivatedRoute,

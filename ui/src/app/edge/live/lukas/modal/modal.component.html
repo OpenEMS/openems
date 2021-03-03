@@ -1,0 +1,85 @@
+<!-- <ion-header>
+    <ion-toolbar class="ion-justify-content-center" color="primary">
+        <ion-title translate>General.lukas</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<!-- <ion-tabs>
+    <ion-tab tab="home">
+        <h1>Home Content</h1>
+    </ion-tab>
+    <ion-tab tab="settings">
+        <h1>Settings Content</h1>
+    </ion-tab>
+</ion-tabs> -->
+<!-- Info Text -->
+<!-- <ion-content>
+    <ion-grid class="ion-padding-top">
+        <ion-row class="ion-align-items-center ion-justify-content-center">
+            <ion-col size="2" class="ion-text-center">
+                <ion-icon class="ion-padding-right" color="primary" size="large" name="alert-outline"></ion-icon>
+            </ion-col>
+            <ion-col size="10">
+                <ion-note class="ion-text-center">
+                    <small translate>Edge.Index.Widgets.lukasInfo</small>
+                </ion-note>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>  -->
+<ion-app>
+    <ion-split-pane when="sm" content-id="main-content">
+        <ion-menu content-id="main-content">
+            <ion-header>
+                <ion-toolbar color="secondary">
+                    <ion-title>Menu</ion-title>
+                </ion-toolbar>
+            </ion-header>
+
+            <ion-content>
+                <ion-list>
+                    <ion-list-header>
+                        Navigate
+                    </ion-list-header>
+                    <ion-menu-toggle auto-hide="false">
+                        <ion-item button>
+                            <ion-icon slot="start" name='General'></ion-icon>
+                            <ion-label>
+                                General
+                            </ion-label>
+                        </ion-item>
+                        <ion-item button>
+                            <ion-icon slot="end" name='General'></ion-icon>
+                            <ion-label>
+                                Specific
+                            </ion-label>
+                        </ion-item>
+                    </ion-menu-toggle>
+                </ion-list>
+            </ion-content>
+        </ion-menu>
+
+        <div class="ion-page" id="main-content">
+            <ion-header>
+                <ion-toolbar>
+                    <ion-buttons slot="start">
+                        <ion-menu-toggle>
+                            <ion-button>
+                                <ion-icon slot="icon-only" name="menu"></ion-icon>
+                            </ion-button>
+                        </ion-menu-toggle>
+                    </ion-buttons>
+                    <ion-title>Some Information</ion-title>
+                </ion-toolbar>
+            </ion-header>
+            <ion-content class="ion-padding">
+                <h1>Here you can see my first tries with angular.js framework.</h1>
+            </ion-content>
+        </div>
+
+    </ion-split-pane>
+</ion-app>

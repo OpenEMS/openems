@@ -2,6 +2,7 @@
 <ion-content>
   <ion-grid *ngIf="isTimedataAvailable && widgets">
     <ion-row>
+
       <!-- Energymonitor Chart -->
       <ion-col size="12">
         <energy [period]="service.historyPeriod" [style.height]="energyChartHeight"></energy>
@@ -11,6 +12,7 @@
         <ion-col *ngSwitchCase="'Storage'" size="12" size-md="6" size-lg="4" size-xl="3">
           <storageWidget [period]="service.historyPeriod"></storageWidget>
         </ion-col>
+
         <ion-col *ngSwitchCase="'Production'" size="12" size-md="6" size-lg="4" size-xl="3">
           <productionWidget [period]="service.historyPeriod"></productionWidget>
         </ion-col>
@@ -26,11 +28,18 @@
         <ion-col *ngSwitchCase="'Autarchy'" size="12" size-md="6" size-lg="4" size-xl="3">
           <autarchyWidget [period]="service.historyPeriod"></autarchyWidget>
         </ion-col>
+        <ion-col *ngSwitchCase="'Lukas'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <lukasWidget [period]="service.historyPeriod"></lukasWidget>
+        </ion-col>
       </ng-container>
       <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.ChannelThreshold'">
           <channelthresholdWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
           </channelthresholdWidget>
+        </ion-col>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.lukas'">
+          <autarchyWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
+          </autarchyWidget>
         </ion-col>
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Io.FixDigitalOutput'">
           <fixDigitalOutputWidget [componentId]="widget.componentId" [period]="service.historyPeriod">

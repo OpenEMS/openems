@@ -4,6 +4,9 @@ import { AsymmetricPeakshavingWidgetComponent } from './peakshaving/asymmetric/w
 import { AutarchyChartComponent } from './autarchy/chart.component';
 import { AutarchyChartOverviewComponent } from './autarchy/autarchychartoverview/autarchychartoverview.component';
 import { AutarchyWidgetComponent } from './autarchy/widget.component';
+import { LukasChartComponent } from './lukas/chart.component';
+import { LukasChartOverviewComponent } from './lukas/lukaschartoverview/lukaschartoverview.component';
+import { LukasWidgetComponent } from './lukas/widget.component';
 import { ChannelthresholdChartOverviewComponent } from './channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { ChannelthresholdSingleChartComponent } from './channelthreshold/singlechart.component';
 import { ChannelthresholdTotalChartComponent } from './channelthreshold/totalchart.component';
@@ -80,6 +83,9 @@ import { TimeslotPeakshavingWidgetComponent } from './peakshaving/timeslot/widge
     AutarchyChartComponent,
     AutarchyChartOverviewComponent,
     AutarchyWidgetComponent,
+    LukasChartComponent,
+    LukasChartOverviewComponent,
+    LukasWidgetComponent,
     ChannelthresholdChartOverviewComponent,
     ChannelthresholdSingleChartComponent,
     ChannelthresholdTotalChartComponent,

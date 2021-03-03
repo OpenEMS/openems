@@ -13,15 +13,28 @@
       <ion-col size="12" size-md="8" size-lg="6" class="ion-no-padding">
         <ion-grid class="ion-no-padding">
           <ion-row>
+            <ion-col size="12" size-lg="6" class="ion-no-padding">
+              <flat-widget title="grid" icon="assets/img/grid.png">
+                <flat-widget-line channel="_sum/GridActivePower" title="gridBuyAdvanced"></flat-widget-line>
+                <flat-widget-line channel="_sum/GridActivePowerL3" title="gridSellAdvanced">
+                </flat-widget-line>
+              </flat-widget>
+            </ion-col>
+            <ion-col size=" 12" size-lg="6" class="ion-no-padding">
+              <lukas></lukas>
+            </ion-col>
             <!-- Regular Widgets -->
             <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
 
               <ion-col *ngSwitchCase="'Autarchy'" size="12" size-lg="6" class="ion-no-padding">
-                <autarchy></autarchy>
+                <flat-widget title="selfConsumption" icon="assets/img/selfconsumption.png"
+                  *ngIf="edge.currentData | async as currentData">
+                  <percentagebar [value]="currentData.summary.system.selfConsumption"></percentagebar>
+                </flat-widget>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Selfconsumption'" size="12" size-lg="6" class="ion-no-padding">
-                <selfconsumption></selfconsumption>
+
               </ion-col>
 
               <ion-col *ngSwitchCase="'Storage'" size="12" size-lg="6" class="ion-no-padding">
@@ -74,10 +87,10 @@
                 size="12" size-lg="6" class="ion-no-padding">
                 <channelthreshold [componentId]="widget.componentId"></channelthreshold>
               </ion-col>
-
               <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="12" size-lg="6" class="ion-no-padding">
                 <fixdigitaloutput [componentId]="widget.componentId"></fixdigitaloutput>
               </ion-col>
+
 
               <!-- Widgets that are likely to be configured seldomly -->
 
@@ -90,7 +103,7 @@
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Io.HeatPump.SgReady'" size="12" size-lg="6" class="ion-no-padding">
-                <heatpump [componentId]="widget.componentId"></heatpump>
+
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Symmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
