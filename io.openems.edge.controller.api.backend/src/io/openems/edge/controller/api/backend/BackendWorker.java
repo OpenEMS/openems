@@ -25,7 +25,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 class BackendWorker extends AbstractCycleWorker {
 
 	private static final int SEND_VALUES_OF_ALL_CHANNELS_AFTER_SECONDS = 300; /* 5 minutes */
-	private static final int MAX_CACHED_MESSAGES = 1000;
+	private static final int MAX_CACHED_MESSAGES = 100;
 
 	private final BackendApiImpl parent;
 

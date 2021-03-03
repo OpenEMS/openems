@@ -51,7 +51,6 @@ import io.openems.edge.timedata.api.Timedata;
 public class BackendApiImpl extends AbstractOpenemsComponent
 		implements BackendApi, Controller, OpenemsComponent, PaxAppender, EventHandler {
 
-	protected static final int DEFAULT_NO_OF_CYCLES = 10;
 	protected static final String COMPONENT_NAME = "Controller.Api.Backend";
 
 	protected final BackendWorker worker = new BackendWorker(this);
