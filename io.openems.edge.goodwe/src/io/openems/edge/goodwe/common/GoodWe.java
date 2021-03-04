@@ -440,7 +440,7 @@ public interface GoodWe extends OpenemsComponent {
 		BATT_CHARGE_CURR_MAX(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 		BATT_VOLT_UNDER_MIN(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+				.unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)), //
 		BATT_DISCHARGE_CURR_MAX(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 		BATT_SOC_UNDER_MIN(Doc.of(OpenemsType.INTEGER) //
@@ -664,17 +664,17 @@ public interface GoodWe extends OpenemsComponent {
 
 		// BMS for RS485
 		BMS_VERSION(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+				.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 		BATT_STRINGS_RS485(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+				.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 		WBMS_BAT_CHARGE_VMAX(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)), //
+				.unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)), //
 		WBMS_BAT_CHARGE_IMAX(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE)), //
+				.unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY)), //
 		WBMS_BAT_DISCHARGE_VMIN(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)), //
+				.unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)), //
 		WBMS_BAT_DISCHARGE_IMAX(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE)), //
+				.unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY)), //
 		WBMS_BAT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)), //
 		WBMS_BAT_CURRENT(Doc.of(OpenemsType.INTEGER) //

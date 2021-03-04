@@ -1,5 +1,6 @@
 package io.openems.edge.goodwe.batteryinverter;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -141,30 +142,38 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 */
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
 		// Battery String
-		try {
-			IntegerWriteChannel bmsBatteryString = this.channel(GoodWe.ChannelId.BATT_STRINGS);
-			if (bmsBatteryString.value().orElse(0).intValue() != this.batteryModuleNumber) {
-				bmsBatteryString.setNextWriteValue(this.batteryModuleNumber);
-			}
+		IntegerWriteChannel bmsBatteryString = this.channel(GoodWe.ChannelId.BATT_STRINGS);
+		if (!Objects.equals(bmsBatteryString.value().orElse(0), this.batteryModuleNumber)) {
+			bmsBatteryString.setNextWriteValue(this.batteryModuleNumber);
+		}
 
-			IntegerWriteChannel bmsLeadBatCapacity = this.channel(GoodWe.ChannelId.LEAD_BAT_CAPACITY);
-			if (bmsLeadBatCapacity.value().orElse(0).intValue() != this.leadBatteryCapacity) {
-				bmsLeadBatCapacity.setNextWriteValue(this.leadBatteryCapacity);
-			}
+		IntegerWriteChannel bmsLeadBatCapacity = this.channel(GoodWe.ChannelId.LEAD_BAT_CAPACITY);
+		if (!Objects.equals(bmsLeadBatCapacity.value().orElse(0), this.leadBatteryCapacity)) {
+			bmsLeadBatCapacity.setNextWriteValue(this.leadBatteryCapacity);
+		}
 
-			// Batt Soc
-			IntegerWriteChannel batSoc = this.channel(GoodWe.ChannelId.WBMS_BAT_SOC);
-			batSoc.setNextWriteValue(battery.getSoc().orElse(0).intValue());
+		IntegerWriteChannel bmsVoltUnderMin = this.channel(GoodWe.ChannelId.BATT_VOLT_UNDER_MIN);
+		if (!Objects.equals(bmsVoltUnderMin.value().get(), battery.getDischargeMinVoltage().get())) {
+			bmsVoltUnderMin.setNextWriteValueFromObject(battery.getDischargeMinVoltage());
+		}
 
-			// Batt Voltage
-			IntegerWriteChannel batVoltage = this.channel(GoodWe.ChannelId.WBMS_BAT_VOLTAGE);
-			batVoltage.setNextWriteValue(battery.getVoltage().orElse(180).intValue());
+		// Batt Soc
 
-			// Batt Current
-			IntegerWriteChannel batCurrent = this.channel(GoodWe.ChannelId.WBMS_BAT_CURRENT);
-			batCurrent.setNextWriteValue(battery.getCurrent().orElse(0).intValue());
-		} catch (NullPointerException e) {
-			this.logInfo(log, "Registers have not been read yet");
+		IntegerWriteChannel batSoc = this.channel(GoodWe.ChannelId.WBMS_BAT_SOC);
+		if (!Objects.equals(batSoc.value().get(), battery.getSoc().get())) {
+			batSoc.setNextWriteValueFromObject(battery.getSoc());
+		}
+
+		// Batt Voltage
+		IntegerWriteChannel batVoltage = this.channel(GoodWe.ChannelId.WBMS_BAT_VOLTAGE);
+		if (!Objects.equals(batVoltage.value().get(), battery.getVoltage().get())) {
+			batVoltage.setNextWriteValueFromObject(battery.getVoltage());
+		}
+
+		// Batt Current
+		IntegerWriteChannel batCurrent = this.channel(GoodWe.ChannelId.WBMS_BAT_CURRENT);
+		if (!Objects.equals(batCurrent.value().get(), battery.getCurrent().get())) {
+			batCurrent.setNextWriteValueFromObject(battery.getCurrent());
 		}
 	}
 
@@ -241,5 +250,4 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	public String debugLog() {
 		return this.applyPowerStateMachine.getCurrentState().asCamelCase();
 	}
-
 }

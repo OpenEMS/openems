@@ -105,9 +105,9 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 		this.getNumberOfTowers().thenAccept(numberOfTowers -> {
 			this.getNumberOfModulesPerTowers().thenAccept(numberOfModulesPerTower -> {
 				int chargeMaxVoltageValue = numberOfModulesPerTower * ModuleParameters.MODULE_MAX_VOLTAGE.getValue();
-				//Set Battery Charge Max Voltage
+				// Set Battery Charge Max Voltage
 				this._setChargeMaxVoltage(chargeMaxVoltageValue);
-				//Set Battery Discharge Min Voltage
+				// Set Battery Discharge Min Voltage
 				int minDischargeVoltageValue = numberOfModulesPerTower * ModuleParameters.MODULE_MIN_VOLTAGE.getValue();
 				this._setDischargeMinVoltage(minDischargeVoltageValue);
 				this.initializeTowerModulesChannels(numberOfTowers, numberOfModulesPerTower);
@@ -257,7 +257,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 						m(new UnsignedWordElement(507)) //
 								.m(FeneconHomeBattery.ChannelId.BATTERY_RACK_CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [mV]
-								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]
+								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_3) // [V]
 								.build(),
 						m(new UnsignedWordElement(508))//
 								.m(FeneconHomeBattery.ChannelId.BATTERY_RACK_SOC,
