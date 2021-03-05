@@ -18,6 +18,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
 import io.openems.backend.common.jsonrpc.request.GetEdgesChannelsValuesRequest;
 import io.openems.backend.common.jsonrpc.request.GetEdgesStatusRequest;
@@ -27,8 +28,7 @@ import io.openems.backend.common.jsonrpc.response.GetEdgesStatusResponse.EdgeInf
 import io.openems.backend.common.metadata.BackendUser;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
-import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
-import io.openems.backend.timedata.api.Timedata;
+import io.openems.backend.common.timedata.Timedata;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;

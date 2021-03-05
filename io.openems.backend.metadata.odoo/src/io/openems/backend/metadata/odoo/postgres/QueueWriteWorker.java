@@ -18,7 +18,6 @@ import io.openems.backend.metadata.odoo.postgres.task.InsertEdgeConfigUpdate;
 import io.openems.backend.metadata.odoo.postgres.task.InsertOrUpdateDeviceStates;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeConfig;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeProducttype;
-import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeVersion;
 
 /**
  * This worker writes all Statements in a queue.
@@ -114,8 +113,6 @@ public class QueueWriteWorker {
 			int countUpdateEdgeConfigDown = this.countUpdateEdgeConfigDown.get();
 			int countUpdateEdgeProducttypeUp = this.countUpdateEdgeProducttypeUp.get();
 			int countUpdateEdgeProducttypeDown = this.countUpdateEdgeProducttypeDown.get();
-			int countUpdateEdgeVersionUp = this.countUpdateEdgeVersionUp.get();
-			int countUpdateEdgeVersionDown = this.countUpdateEdgeVersionDown.get();
 
 			this.parent.logInfo(this.log, "QueueWriteWorker. " //
 					+ "Total tasks [" + totalTasks + "|" + completedTasks + "|" + (totalTasks - completedTasks) + "] " //
@@ -129,8 +126,6 @@ public class QueueWriteWorker {
 					+ (countUpdateEdgeConfigUp - countUpdateEdgeConfigDown) + "] " //
 					+ "UpdateEdgeProducttype [" + countUpdateEdgeProducttypeUp + "|" + countUpdateEdgeProducttypeDown
 					+ "|" + (countUpdateEdgeProducttypeUp - countUpdateEdgeProducttypeDown) + "] " //
-					+ "UpdateEdgeVersion [" + countUpdateEdgeVersionUp + "|" + countUpdateEdgeVersionDown + "|"
-					+ (countUpdateEdgeVersionUp - countUpdateEdgeVersionDown) + "] " //
 			);
 		}, 10, 10, TimeUnit.SECONDS);
 	}
@@ -143,8 +138,6 @@ public class QueueWriteWorker {
 	private final AtomicInteger countUpdateEdgeConfigDown = new AtomicInteger(0);
 	private final AtomicInteger countUpdateEdgeProducttypeUp = new AtomicInteger(0);
 	private final AtomicInteger countUpdateEdgeProducttypeDown = new AtomicInteger(0);
-	private final AtomicInteger countUpdateEdgeVersionUp = new AtomicInteger(0);
-	private final AtomicInteger countUpdateEdgeVersionDown = new AtomicInteger(0);
 
 	private void count(DatabaseTask task, boolean up) {
 		if (up) {
@@ -157,8 +150,6 @@ public class QueueWriteWorker {
 				counter = this.countUpdateEdgeConfigUp;
 			} else if (task instanceof UpdateEdgeProducttype) {
 				counter = this.countUpdateEdgeProducttypeUp;
-			} else if (task instanceof UpdateEdgeVersion) {
-				counter = this.countUpdateEdgeVersionUp;
 			} else {
 				System.out.println("Unknown Task " + task.getClass());
 				return;
@@ -174,8 +165,6 @@ public class QueueWriteWorker {
 				counter = this.countUpdateEdgeConfigDown;
 			} else if (task instanceof UpdateEdgeProducttype) {
 				counter = this.countUpdateEdgeProducttypeDown;
-			} else if (task instanceof UpdateEdgeVersion) {
-				counter = this.countUpdateEdgeVersionDown;
 			} else {
 				System.out.println("Unknown Task " + task.getClass());
 				return;

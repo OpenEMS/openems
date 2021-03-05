@@ -29,13 +29,13 @@
 	bnd.identity;id='io.openems.backend.b2bwebsocket',\
 	bnd.identity;id='io.openems.backend.common',\
 	bnd.identity;id='io.openems.backend.core',\
-	bnd.identity;id='io.openems.backend.edgewebsocket.impl',\
+	bnd.identity;id='io.openems.backend.edgewebsocket',\
 	bnd.identity;id='io.openems.backend.metadata.dummy',\
 	bnd.identity;id='io.openems.backend.metadata.file',\
 	bnd.identity;id='io.openems.backend.metadata.odoo',\
 	bnd.identity;id='io.openems.backend.timedata.dummy',\
 	bnd.identity;id='io.openems.backend.timedata.influx',\
-	bnd.identity;id='io.openems.backend.uiwebsocket.impl',\
+	bnd.identity;id='io.openems.backend.uiwebsocket',\
 
 -runbundles: \
 	Java-WebSocket;version='[1.5.1,1.5.2)',\
@@ -48,16 +48,13 @@
 	io.openems.backend.b2bwebsocket;version=snapshot,\
 	io.openems.backend.common;version=snapshot,\
 	io.openems.backend.core;version=snapshot,\
-	io.openems.backend.edgewebsocket.api;version=snapshot,\
-	io.openems.backend.edgewebsocket.impl;version=snapshot,\
+	io.openems.backend.edgewebsocket;version=snapshot,\
 	io.openems.backend.metadata.dummy;version=snapshot,\
 	io.openems.backend.metadata.file;version=snapshot,\
 	io.openems.backend.metadata.odoo;version=snapshot,\
-	io.openems.backend.timedata.api;version=snapshot,\
 	io.openems.backend.timedata.dummy;version=snapshot,\
 	io.openems.backend.timedata.influx;version=snapshot,\
-	io.openems.backend.uiwebsocket.api;version=snapshot,\
-	io.openems.backend.uiwebsocket.impl;version=snapshot,\
+	io.openems.backend.uiwebsocket;version=snapshot,\
 	io.openems.common;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\
