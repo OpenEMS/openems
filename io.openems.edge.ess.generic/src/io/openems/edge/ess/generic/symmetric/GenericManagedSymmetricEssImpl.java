@@ -17,11 +17,14 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.generic.common.AbstractGenericEssChannelManager;
 import io.openems.edge.ess.generic.common.AbstractGenericManagedEss;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
 import io.openems.edge.ess.power.api.Power;
@@ -36,14 +39,17 @@ import io.openems.edge.ess.power.api.Power;
 		} //
 )
 public class GenericManagedSymmetricEssImpl extends AbstractGenericManagedEss<Battery, ManagedSymmetricBatteryInverter>
-		implements GenericManagedEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler,
-		StartStoppable {
+		implements GenericManagedEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, StartStoppable,
+		ModbusSlave {
 
 	@Reference
 	private Power power;
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricBatteryInverter batteryInverter;
@@ -85,7 +91,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractGenericManagedEss<Ba
 	}
 
 	@Override
-	protected ChannelManager getChannelManager() {
+	protected AbstractGenericEssChannelManager<Battery, ManagedSymmetricBatteryInverter> getChannelManager() {
 		return this.channelManager;
 	}
 
@@ -97,6 +103,11 @@ public class GenericManagedSymmetricEssImpl extends AbstractGenericManagedEss<Ba
 	@Override
 	protected ManagedSymmetricBatteryInverter getBatteryInverter() {
 		return this.batteryInverter;
+	}
+
+	@Override
+	protected ComponentManager getComponentManager() {
+		return this.componentManager;
 	}
 
 }

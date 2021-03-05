@@ -11,14 +11,18 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.startstop.StartStoppable;
@@ -38,7 +42,7 @@ import io.openems.edge.ess.power.api.Relationship;
  */
 public abstract class AbstractGenericManagedEss<BATTERY extends Battery, BATTERY_INVERTER extends ManagedSymmetricBatteryInverter>
 		extends AbstractOpenemsComponent implements GenericManagedEss, ManagedSymmetricEss, SymmetricEss,
-		OpenemsComponent, EventHandler, StartStoppable {
+		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractGenericManagedEss.class);
 
@@ -51,6 +55,8 @@ public abstract class AbstractGenericManagedEss<BATTERY extends Battery, BATTERY
 	 * Helper wrapping class to handle everything related to Channels.
 	 */
 	protected abstract AbstractGenericEssChannelManager<BATTERY, BATTERY_INVERTER> getChannelManager();
+
+	protected abstract ComponentManager getComponentManager();
 
 	protected abstract BATTERY getBattery();
 
@@ -83,7 +89,7 @@ public abstract class AbstractGenericManagedEss<BATTERY extends Battery, BATTERY
 			return;
 		}
 
-		this.getChannelManager().activate(this.getBattery(), this.getBatteryInverter());
+		this.getChannelManager().activate(this.getComponentManager(), this.getBattery(), this.getBatteryInverter());
 	}
 
 	protected void deactivate() {
@@ -217,4 +223,12 @@ public abstract class AbstractGenericManagedEss<BATTERY extends Battery, BATTERY
 		return StartStop.UNDEFINED; // can never happen
 	}
 
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
+		);
+	}
 }

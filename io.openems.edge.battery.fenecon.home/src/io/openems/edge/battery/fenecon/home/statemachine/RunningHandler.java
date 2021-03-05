@@ -1,5 +1,6 @@
 package io.openems.edge.battery.fenecon.home.statemachine;
 
+import io.openems.edge.battery.fenecon.home.FeneconHomeBattery;
 import io.openems.edge.battery.fenecon.home.enums.BmsControl;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
@@ -9,17 +10,19 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		if (context.component.hasFaults()) {
+		FeneconHomeBattery battery = context.getParent();
+
+		if (battery.hasFaults()) {
 			return State.UNDEFINED;
 		}
 
-		if (context.component.getBmsControl() != BmsControl.SWITCHED_ON
-				&& context.component.getBmsControl() != BmsControl.IGNORED) {
+		if (battery.getBmsControl() != BmsControl.SWITCHED_ON
+				&& battery.getBmsControl() != BmsControl.IGNORED) {
 			return State.UNDEFINED;
 		}
 
 		// Mark as started
-		context.component._setStartStop(StartStop.START);
+		battery._setStartStop(StartStop.START);
 
 		return State.RUNNING;
 	}

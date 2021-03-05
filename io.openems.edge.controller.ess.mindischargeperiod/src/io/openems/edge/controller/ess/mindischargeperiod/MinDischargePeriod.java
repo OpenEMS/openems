@@ -106,7 +106,7 @@ public class MinDischargePeriod extends AbstractOpenemsComponent implements Cont
 		}
 
 		if (!this.stopwatch.isRunning()) {
-			int essActivePower = ess.getActivePower().orElse(0);
+			int essActivePower = ess.getActivePower().getOrError();
 			if (essActivePower >= this.config.activateDischargePower()) {
 				this.stopwatch.start();
 				this.logInfo(this.log,

@@ -17,8 +17,10 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -37,14 +39,18 @@ import io.openems.edge.ess.power.api.Power;
 		} //
 )
 public class GenericHybridManagedSymmetricEssImpl
-		extends AbstractGenericManagedEss<Battery, HybridManagedSymmetricBatteryInverter> implements HybridEss,
-		GenericManagedEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, StartStoppable {
+		extends AbstractGenericManagedEss<Battery, HybridManagedSymmetricBatteryInverter>
+		implements HybridEss, GenericManagedEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler,
+		StartStoppable, ModbusSlave {
 
 	@Reference
 	private Power power;
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private HybridManagedSymmetricBatteryInverter batteryInverter;
@@ -104,6 +110,11 @@ public class GenericHybridManagedSymmetricEssImpl
 	@Override
 	public Integer getSurplusPower() {
 		return this.batteryInverter.getSurplusPower();
+	}
+
+	@Override
+	protected ComponentManager getComponentManager() {
+		return this.componentManager;
 	}
 
 }

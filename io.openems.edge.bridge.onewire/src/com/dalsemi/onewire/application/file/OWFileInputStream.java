@@ -28,7 +28,6 @@
 
 package com.dalsemi.onewire.application.file;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -61,8 +60,6 @@ import com.dalsemi.onewire.container.OneWireContainer;
  * </ul>
  *
  * <H3>Usage</H3>
- * <DL>
- * <DD>
  * <H4>Example</H4> Read from a 1-Wire file on device 'owd':
  * 
  * <PRE>
@@ -116,9 +113,9 @@ public class OWFileInputStream extends InputStream {
 	 *
 	 * @param owd  OneWireContainer that this Filesystem resides on
 	 * @param name the system-dependent file name.
-	 * @exception FileNotFoundException if the file does not exist, is a directory
-	 *                                  rather than a regular file, or for some
-	 *                                  other reason cannot be opened for reading.
+	 * @exception OWFileNotFoundException if the file does not exist, is a directory
+	 *                                    rather than a regular file, or for some
+	 *                                    other reason cannot be opened for reading.
 	 */
 	public OWFileInputStream(OneWireContainer owd, String name) throws OWFileNotFoundException {
 		fd = new OWFileDescriptor(owd, name);
@@ -155,9 +152,9 @@ public class OWFileInputStream extends InputStream {
 	 *
 	 * @param owd  array of OneWireContainers that this Filesystem resides on
 	 * @param name the system-dependent file name.
-	 * @exception FileNotFoundException if the file does not exist, is a directory
-	 *                                  rather than a regular file, or for some
-	 *                                  other reason cannot be opened for reading.
+	 * @exception OWFileNotFoundException if the file does not exist, is a directory
+	 *                                    rather than a regular file, or for some
+	 *                                    other reason cannot be opened for reading.
 	 */
 	public OWFileInputStream(OneWireContainer[] owd, String name) throws OWFileNotFoundException {
 		fd = new OWFileDescriptor(owd, name);
@@ -190,9 +187,9 @@ public class OWFileInputStream extends InputStream {
 	 * <code>FileNotFoundException</code> is thrown.
 	 *
 	 * @param file the file to be opened for reading.
-	 * @exception FileNotFoundException if the file does not exist, is a directory
-	 *                                  rather than a regular file, or for some
-	 *                                  other reason cannot be opened for reading.
+	 * @exception OWFileNotFoundException if the file does not exist, is a directory
+	 *                                    rather than a regular file, or for some
+	 *                                    other reason cannot be opened for reading.
 	 * @see com.dalsemi.onewire.application.file.OWFile#getPath()
 	 */
 	public OWFileInputStream(OWFile file) throws OWFileNotFoundException {

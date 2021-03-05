@@ -57,7 +57,7 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 	/**
 	 * Create a complex monitor that does search branches
 	 *
-	 * @param the DSPortAdapter this monitor should search
+	 * @param adapter the DSPortAdapter this monitor should search
 	 */
 	public NetworkDeviceMonitor(DSPortAdapter adapter) {
 		setAdapter(adapter);
@@ -66,7 +66,7 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 	/**
 	 * Sets this monitor to search a new DSPortAdapter
 	 *
-	 * @param the DSPortAdapter this monitor should search
+	 * @param adapter the DSPortAdapter this monitor should search
 	 */
 	public void setAdapter(DSPortAdapter adapter) {
 		if (adapter == null)
@@ -100,8 +100,8 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 	 * Indicates whether or not branches are automatically traversed. If false, new
 	 * branches must be indicated using the "addBranch" method.
 	 *
-	 * @returns true if all branches are automatically traversed during a search
-	 *          operation.
+	 * @return true if all branches are automatically traversed during a search
+	 *         operation.
 	 */
 	public boolean getBranchAutoSearching() {
 		return this.branchAutoSearching;

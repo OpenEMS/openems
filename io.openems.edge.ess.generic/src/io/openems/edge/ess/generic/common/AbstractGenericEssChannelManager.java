@@ -1,14 +1,12 @@
 package io.openems.edge.ess.generic.common;
 
-import java.util.function.Consumer;
-
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.channel.AbstractChannelListenerManager;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.SymmetricEss;
 
@@ -17,13 +15,15 @@ import io.openems.edge.ess.api.SymmetricEss;
  * calculating the Ess-Channels based on the Channels of the Battery and
  * Battery-Inverter. Takes care of registering and unregistering listeners.
  */
-public abstract class AbstractGenericEssChannelManager<BATTERY extends Battery, BATTERY_INVERTER extends SymmetricBatteryInverter>
+public class AbstractGenericEssChannelManager<BATTERY extends Battery, BATTERY_INVERTER extends SymmetricBatteryInverter>
 		extends AbstractChannelListenerManager {
 
 	private final GenericManagedEss parent;
+	private final AllowedChargeDischargeHandler allowedChargeDischargeHandler;
 
 	public AbstractGenericEssChannelManager(GenericManagedEss parent) {
 		this.parent = parent;
+		this.allowedChargeDischargeHandler = new AllowedChargeDischargeHandler(parent);
 	}
 
 	/**
@@ -32,37 +32,19 @@ public abstract class AbstractGenericEssChannelManager<BATTERY extends Battery, 
 	 * @param battery         the {@link Battery}
 	 * @param batteryInverter the {@link ManagedSymmetricBatteryInverter}
 	 */
-	public void activate(BATTERY battery, BATTERY_INVERTER batteryInverter) {
+	public void activate(ClockProvider clockProvider, Battery battery,
+			ManagedSymmetricBatteryInverter batteryInverter) {
 		/*
 		 * Battery
 		 */
-		final Consumer<Value<Integer>> allowedChargeDischargeCallback = (value) -> {
-			// TODO: find proper efficiency factor to calculate AC Charge/Discharge limits
-			// from DC
-			final double efficiencyFactor = 0.95;
-
-			Value<Integer> chargeMaxCurrent = battery.getChargeMaxCurrentChannel().getNextValue();
-			Value<Integer> dischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue();
-			Value<Integer> voltage = battery.getVoltageChannel().getNextValue();
-
-			if (voltage.isDefined() && dischargeMaxCurrent.isDefined() && chargeMaxCurrent.isDefined()) {
-				// efficiency factor is not considered in chargeMaxCurrent (DC Power > AC Power)
-				this.parent._setAllowedChargePower(//
-						(int) (chargeMaxCurrent.get() * voltage.get() * -1));
-				this.parent._setAllowedDischargePower(//
-						(int) (dischargeMaxCurrent.get() * voltage.get() * efficiencyFactor));
-			} else {
-				this.parent._setAllowedChargePower(0);
-				this.parent._setAllowedDischargePower(0);
-			}
-		};
-
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
-				allowedChargeDischargeCallback);
+				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MAX_CURRENT,
-				allowedChargeDischargeCallback);
-		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_VOLTAGE, allowedChargeDischargeCallback);
-		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_CURRENT, allowedChargeDischargeCallback);
+				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
+		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_VOLTAGE,
+				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
+		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_CURRENT,
+				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
 		this.addCopyListener(battery, //
 				Battery.ChannelId.CAPACITY, //
 				SymmetricEss.ChannelId.CAPACITY);

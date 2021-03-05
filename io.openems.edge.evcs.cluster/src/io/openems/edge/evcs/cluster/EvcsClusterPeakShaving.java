@@ -105,7 +105,7 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 
 		this.config = config;
 
-		// update filter for 'evcss' component
+		// update filter for 'evcs' component
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs", config.evcs_ids())) {
 			return;
 		}

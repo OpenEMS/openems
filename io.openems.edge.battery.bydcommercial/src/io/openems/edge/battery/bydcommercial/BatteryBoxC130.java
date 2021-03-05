@@ -162,10 +162,6 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 				.unit(Unit.MILLIVOLT)), //
 		SYSTEM_INSULATION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOOHM)), //
-		SYSTEM_ACCEPT_MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
-		SYSTEM_ACCEPT_MAX_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
 		CLUSTER_1_BATTERY_000_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_BATTERY_001_VOLTAGE(Doc.of(OpenemsType.INTEGER) //

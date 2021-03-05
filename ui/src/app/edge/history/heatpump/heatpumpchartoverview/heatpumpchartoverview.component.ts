@@ -4,12 +4,12 @@ import { ModalController } from '@ionic/angular';
 import { Service, Edge, EdgeConfig } from '../../../../shared/shared';
 
 @Component({
-    selector: HeatPumptChartOverviewComponent.SELECTOR,
+    selector: HeatPumpChartOverviewComponent.SELECTOR,
     templateUrl: './heatpumpchartoverview.component.html'
 })
-export class HeatPumptChartOverviewComponent {
+export class HeatPumpChartOverviewComponent {
 
-    private static readonly SELECTOR = "heatpumpt-chart-overview";
+    private static readonly SELECTOR = "heatpump-chart-overview";
 
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;

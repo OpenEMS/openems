@@ -166,9 +166,7 @@ public class SAXParser implements org.xml.sax.Parser {
 	/**
 	 * Parse an XML document.
 	 *
-	 * @param source      Source of the document to parse.
-	 *
-	 * @param inputSource
+	 * @param inputSource Source of the document to parse.
 	 * @throws SAXException Any SAX exception, possibly wrapping another exception.
 	 * @throws IOException  If an I/O error occurred while reading the document.
 	 */

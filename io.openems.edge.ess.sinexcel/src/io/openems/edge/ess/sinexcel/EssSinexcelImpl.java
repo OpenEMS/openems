@@ -27,6 +27,7 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverterChain;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -79,8 +80,6 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 	protected int slowChargeVoltage = 4370; // for new batteries - 3940
 	protected int floatChargeVoltage = 4370; // for new batteries - 3940
 
-	private int a = 0;
-	private int counterOn = 0;
 	private int counterOff = 0;
 
 	// State-Machines
@@ -125,7 +124,7 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Battery", config.battery_id())) {
 			return;
 		}
-		this.channelHandler.activate(this.battery);
+		this.channelHandler.activate(this.componentManager, this.battery);
 
 		this.slowChargeVoltage = config.toppingCharge();
 		this.floatChargeVoltage = config.toppingCharge();
@@ -156,56 +155,55 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 //		this.numberOfSlaves = (int) bms.getComponentContext().getProperties().get("numberOfSlaves");
 //	}
 
+	private final static int MAX_CURRENT = 90; // [A]
+
 	/**
 	 * Sets the Battery Ranges. Executed on TOPIC_CYCLE_AFTER_PROCESS_IMAGE.
 	 * 
 	 * @throws OpenemsNamedException
 	 */
 	private void setBatteryRanges() throws OpenemsNamedException {
+		final int disMaxA;
+		final int chaMaxA;
+		final int disMinV;
+		final int chaMaxV;
+
+		// Evaluate input data
 		if (battery == null) {
-			return;
+			disMaxA = 0;
+			chaMaxA = 0;
+			disMinV = 0;
+			chaMaxV = 0;
+		} else {
+			disMaxA = battery.getDischargeMaxCurrent().orElse(0);
+			chaMaxA = battery.getChargeMaxCurrent().orElse(0);
+			disMinV = battery.getDischargeMinVoltage().orElse(0);
+			chaMaxV = battery.getChargeMaxVoltage().orElse(0);
 		}
 
-		int disMaxA = battery.getDischargeMaxCurrent().orElse(0);
-		int chaMaxA = battery.getChargeMaxCurrent().orElse(0);
-		int disMinV = battery.getDischargeMinVoltage().orElse(0);
-		int chaMaxV = battery.getChargeMaxVoltage().orElse(0);
-
-		// Sinexcel range for Max charge/discharge current is 0A to 90A,
-		if (chaMaxA > 90) {
-			{
-				IntegerWriteChannel setChaMaxA = this.channel(EssSinexcel.ChannelId.CHARGE_MAX_A);
-				setChaMaxA.setNextWriteValue(900);
-			}
-		} else {
-			{
-				IntegerWriteChannel setChaMaxA = this.channel(EssSinexcel.ChannelId.CHARGE_MAX_A);
-				setChaMaxA.setNextWriteValue(chaMaxA * 10);
-			}
-		}
-
-		if (disMaxA > 90) {
-			{
-				IntegerWriteChannel setDisMaxA = this.channel(EssSinexcel.ChannelId.DISCHARGE_MAX_A);
-				setDisMaxA.setNextWriteValue(900);
-			}
-		} else {
-			{
-				IntegerWriteChannel setDisMaxA = this.channel(EssSinexcel.ChannelId.DISCHARGE_MAX_A);
-				setDisMaxA.setNextWriteValue(disMaxA * 10);
-			}
+		// Set Inverter Registers
+		{
+			IntegerWriteChannel chargeMaxCurrentChannel = this.channel(EssSinexcel.ChannelId.CHARGE_MAX_A);
+			chargeMaxCurrentChannel.setNextWriteValue(//
+					/* enforce positive */ Math.max(0, //
+							/* apply max current */ Math.min(MAX_CURRENT, chaMaxA) //
+					) * 10);
 		}
 		{
-			IntegerWriteChannel setDisMinV = this.channel(EssSinexcel.ChannelId.DISCHARGE_MIN_V);
-			setDisMinV.setNextWriteValue(disMinV * 10);
+			IntegerWriteChannel dischargeMaxCurrentChannel = this.channel(EssSinexcel.ChannelId.DISCHARGE_MAX_A);
+			dischargeMaxCurrentChannel.setNextWriteValue(//
+					/* enforce positive */ Math.max(0, //
+							/* apply max current */ Math.min(MAX_CURRENT, disMaxA) //
+					) * 10);
 		}
 		{
-			IntegerWriteChannel setChaMaxV = this.channel(EssSinexcel.ChannelId.CHARGE_MAX_V);
-			setChaMaxV.setNextWriteValue(chaMaxV * 10);
+			IntegerWriteChannel dischargeMinVoltageChannel = this.channel(EssSinexcel.ChannelId.DISCHARGE_MIN_V);
+			dischargeMinVoltageChannel.setNextWriteValue(disMinV * 10);
 		}
-		final double EFFICIENCY_FACTOR = 0.9;
-		this._setAllowedChargePower((int) (chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR));
-		this._setAllowedDischargePower((int) (disMaxA * disMinV * EFFICIENCY_FACTOR));
+		{
+			IntegerWriteChannel chargeMaxVoltageChannel = this.channel(EssSinexcel.ChannelId.CHARGE_MAX_V);
+			chargeMaxVoltageChannel.setNextWriteValue(chaMaxV * 10);
+		}
 	}
 
 	/**
@@ -421,7 +419,8 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 
 				new FC3ReadRegistersTask(0x0248, Priority.HIGH, //
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(0x0248), //
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								new ElementToChannelConverterChain(
+										ElementToChannelConverter.SCALE_FACTOR_1, IGNORE_LESS_THAN_100)),
 						new DummyRegisterElement(0x0249),
 						m(EssSinexcel.ChannelId.FREQUENCY, new SignedWordElement(0x024A),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
@@ -590,27 +589,16 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 			IntegerWriteChannel setReactivePower = this.channel(EssSinexcel.ChannelId.SET_REACTIVE_POWER);
 			setReactivePower.setNextWriteValue(reactivePower / 100);
 
-			if (this.stateOnOff() == false) {
-				a = 1;
-			}
-
-			if (this.stateOnOff() == true) {
-				a = 0;
-			}
-
-			if (activePower == 0 && reactivePower == 0 && a == 0) {
+			boolean isOn = this.stateOnOff();
+			if (activePower == 0 && reactivePower == 0 && isOn) {
 				this.counterOff++;
 				if (this.counterOff == 48) {
 					this.inverterOff();
 					this.counterOff = 0;
 				}
 
-			} else if ((activePower != 0 || reactivePower != 0) && a == 1) {
-				this.counterOn++;
-				if (this.counterOn == 48) {
-					this.inverterOn();
-					this.counterOn = 0;
-				}
+			} else if ((activePower != 0 || reactivePower != 0) && !isOn) {
+				this.inverterOn();
 			}
 			break;
 
@@ -670,4 +658,24 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
+
+	/**
+	 * The Sinexcel Battery Inverter claims to outputting a little bit of power even
+	 * if it does not. This little filter ignores values for ActivePower less than
+	 * 100 (charge/discharge).
+	 */
+	private static final ElementToChannelConverter IGNORE_LESS_THAN_100 = new ElementToChannelConverter(//
+			obj -> {
+				if (obj == null) {
+					return null;
+				}
+				int value = (Short) obj;
+				if (Math.abs(value) < 100) {
+					return 0;
+				} else {
+					return value;
+				}
+			}, //
+			value -> value);
+
 }

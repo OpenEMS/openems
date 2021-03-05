@@ -1,5 +1,6 @@
 package io.openems.edge.battery.bydcommercial.statemachine;
 
+import io.openems.edge.battery.bydcommercial.BatteryBoxC130;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
@@ -7,8 +8,10 @@ import io.openems.edge.common.statemachine.StateHandler;
 public class StoppedHandler extends StateHandler<State, Context> {
 	@Override
 	public State runAndGetNextState(Context context) {
+		BatteryBoxC130 battery = context.getParent();
+
 		// Mark as stopped
-		context.component._setStartStop(StartStop.STOP);
+		battery._setStartStop(StartStop.STOP);
 
 		return State.STOPPED;
 	}

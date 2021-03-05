@@ -141,10 +141,9 @@ public abstract class AbstractDoc<T> implements Doc {
 	}
 
 	/**
-	 * Gets the callbacks for initialization of the actual Channel
+	 * Gets the callbacks for initialization of the actual Channel.
 	 * 
-	 * @param callback the method to call on initialization
-	 * @return myself
+	 * @return a list of callbacks
 	 */
 	protected List<Consumer<Channel<T>>> getOnInitCallbacks() {
 		return onInitCallback;

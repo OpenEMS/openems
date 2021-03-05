@@ -2,13 +2,16 @@ package io.openems.edge.ess.generic.common.statemachine;
 
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
+import io.openems.edge.ess.generic.common.GenericManagedEss;
 import io.openems.edge.ess.generic.common.statemachine.StateMachine.State;
 
 public class StoppedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		if (context.component.hasFaults()) {
+		GenericManagedEss ess = context.getParent();
+
+		if (ess.hasFaults()) {
 			return State.UNDEFINED;
 		}
 
@@ -21,7 +24,7 @@ public class StoppedHandler extends StateHandler<State, Context> {
 		}
 
 		// Mark as stopped
-		context.component._setStartStop(StartStop.STOP);
+		ess._setStartStop(StartStop.STOP);
 
 		return State.STOPPED;
 	}

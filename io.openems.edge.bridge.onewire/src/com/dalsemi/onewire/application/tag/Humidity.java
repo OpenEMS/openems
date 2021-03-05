@@ -59,9 +59,7 @@ public class Humidity extends TaggedDevice implements TaggedSensor {
 	/**
 	 * The readSensor method returns a relative humidity reading in %RH
 	 *
-	 * @param--none.
-	 *
-	 *               @return String humidity in %RH
+	 * @return String humidity in %RH
 	 */
 	public String readSensor() throws OneWireException {
 		HumidityContainer hc = (HumidityContainer) DeviceContainer;

@@ -119,6 +119,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
 		 * <li>Unit: A
+		 * <li>Usually positive, negative for force discharge mode
 		 * </ul>
 		 */
 		CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
@@ -143,6 +144,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
 		 * <li>Unit: A
+		 * <li>Usually positive, negative for force charge mode
 		 * </ul>
 		 */
 		DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
@@ -209,6 +211,12 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		}
 	}
 
+	/**
+	 * Gets the ModbusSlaveNatureTable.
+	 * 
+	 * @param accessMode the {@link AccessMode}
+	 * @return ModbusSlaveNatureTable
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(Battery.class, accessMode, 100) //
 				.channel(0, ChannelId.SOC, ModbusType.UINT16) //

@@ -19,6 +19,12 @@ import io.openems.edge.ess.generic.common.statemachine.StateMachine.State;
 public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, ModbusSlave {
 
 	/**
+	 * Efficiency factor to calculate AC Charge/Discharge limits from DC. Used at
+	 * {@link ChannelManager}.
+	 */
+	public static double EFFICIENCY_FACTOR = 0.95;
+
+	/**
 	 * Retry set-command after x Seconds, e.g. for starting battery or
 	 * battery-inverter.
 	 */

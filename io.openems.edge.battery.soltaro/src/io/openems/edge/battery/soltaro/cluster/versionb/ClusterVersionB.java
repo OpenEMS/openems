@@ -26,6 +26,8 @@ import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.protection.BatteryProtection;
+import io.openems.edge.battery.soltaro.BatteryProtectionDefinitionSoltaro;
 import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.ModuleParameters;
 import io.openems.edge.battery.soltaro.ResetState;
@@ -49,6 +51,7 @@ import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -62,13 +65,12 @@ import io.openems.edge.common.taskmanager.Priority;
 		name = "Bms.Soltaro.Cluster.VersionB", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
 public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		implements SoltaroCluster, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
-
-	public static final int DISCHARGE_MAX_A = 0; // default value 0 to avoid damages
-	public static final int CHARGE_MAX_A = 0; // default value 0 to avoid damages
 
 	private static final int ADDRESS_OFFSET_RACK_1 = 0x2000;
 	private static final int ADDRESS_OFFSET_RACK_2 = 0x3000;
@@ -84,6 +86,9 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	@Reference
+	protected ComponentManager componentManager;
 
 	// If an error has occurred, this indicates the time when next action could be
 	// done
@@ -101,6 +106,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 
 	private ResetState resetState = ResetState.NONE;
 	private boolean resetDone;
+	private BatteryProtection batteryProtection = null;
 
 	public ClusterVersionB() {
 		super(//
@@ -108,7 +114,8 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				SoltaroCluster.ChannelId.values(), //
-				ClusterVersionBChannelId.values() //
+				ClusterVersionBChannelId.values(), //
+				BatteryProtection.ChannelId.values() //
 		);
 	}
 
@@ -138,8 +145,11 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		this.modbusBridgeId = config.modbus_id();
 		this.batteryState = config.batteryState();
 
-		this._setChargeMaxCurrent(ClusterVersionB.CHARGE_MAX_A);
-		this._setDischargeMaxCurrent(ClusterVersionB.DISCHARGE_MAX_A);
+		// Initialize Battery-Protection
+		this.batteryProtection = BatteryProtection.create(this) //
+				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro(), this.componentManager) //
+				.build();
+
 		this._setChargeMaxVoltage(
 				this.config.numberOfSlaves() * ModuleParameters.MAX_VOLTAGE_MILLIVOLT.getValue() / 1000);
 		this._setDischargeMinVoltage(
@@ -155,6 +165,10 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
+
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.batteryProtection.apply();
+			break;
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.handleBatteryState();
@@ -367,6 +381,8 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 	 * Checks whether system has an undefined state, e.g. rack 1 & 2 are configured,
 	 * but only rack 1 is running. This state can only be reached at startup coming
 	 * from state undefined
+	 * 
+	 * @return boolean
 	 */
 	private boolean isSystemStatePending() {
 		boolean b = true;
@@ -380,16 +396,15 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		return b && !this.isSystemRunning() && !this.isSystemStopped();
 	}
 
-	 @Override
-		public String debugLog() {
-			return "SoC:" + this.getSoc() //
-					+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
-					+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent()
-					+ "|Running: " + this.isSystemRunning()
-					+ "|U: " + this.getVoltage()
-					+ "|I: " + this.getCurrent()
-					;
-		}
+	@Override
+	public String debugLog() {
+		return "SoC:" + this.getSoc() //
+				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
+				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
+				+ "|Running: " + this.isSystemRunning() //
+				+ "|U: " + this.getVoltage() //
+				+ "|I: " + this.getCurrent();
+	}
 
 	private void sleepSystem() {
 		// Write sleep and reset to all racks
@@ -454,14 +469,29 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	/**
+	 * Gets the ModbusBridgeId.
+	 * 
+	 * @return String
+	 */
 	public String getModbusBridgeId() {
 		return this.modbusBridgeId;
 	}
 
+	/**
+	 * Gets the StateMachineState.
+	 * 
+	 * @return State
+	 */
 	public State getStateMachineState() {
 		return this.state;
 	}
 
+	/**
+	 * Sets the StateMachineState.
+	 * 
+	 * @param state the {@link State}
+	 */
 	public void setStateMachineState(State state) {
 		this.state = state;
 		this.channel(ClusterVersionBChannelId.STATE_MACHINE).setNextValue(this.state);
@@ -570,9 +600,9 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(0x104A, Priority.HIGH, //
 						m(SoltaroCluster.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x104A)), //
 						new DummyRegisterElement(0x104B, 0x104D), //
-						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(0x104E),
+						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new UnsignedWordElement(0x104E),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new UnsignedWordElement(0x104F),
+						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new UnsignedWordElement(0x104F),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), //
 

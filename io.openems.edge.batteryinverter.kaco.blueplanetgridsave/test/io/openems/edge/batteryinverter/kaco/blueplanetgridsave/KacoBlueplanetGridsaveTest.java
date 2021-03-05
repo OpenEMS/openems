@@ -107,16 +107,14 @@ public class KacoBlueplanetGridsaveTest {
 				.next(new TestCase() //
 						.input(CURRENT_STATE, S64201CurrentState.STANDBY) //
 						.input(MAX_APPARENT_POWER, 50_000) //
-						.output(STATE_MACHINE, State.UNDEFINED) //
-						.output(WATCHDOG, 10 /* 10 x cycle-time */)) //
+						.output(STATE_MACHINE, State.UNDEFINED)) //
 				.next(new TestCase() //
 						.timeleap(clock, 4, ChronoUnit.SECONDS) //
-						.output(STATE_MACHINE, State.GO_RUNNING) //
-						.output(WATCHDOG, null /* waiting till next watchdog trigger */)) //
+						.output(STATE_MACHINE, State.GO_RUNNING)) //
 				.next(new TestCase() //
 						.timeleap(clock, 1, ChronoUnit.SECONDS) //
 						.input(CURRENT_STATE, S64201CurrentState.GRID_CONNECTED) //
-						.output(WATCHDOG, 10 /* triggered again after 5 seconds */)) //
+						.output(WATCHDOG, KacoBlueplanetGridsave.WATCHDOG_TIMEOUT_SECONDS)) //
 				.next(new TestCase() //
 						.output(STATE_MACHINE, State.RUNNING)) //
 		;
@@ -126,13 +124,13 @@ public class KacoBlueplanetGridsaveTest {
 	public void testWatchdog() throws Exception {
 		test //
 				.next(new TestCase() //
-						.output(WATCHDOG, 10 /* 10 x cycle-time */)) //
+						.output(WATCHDOG, KacoBlueplanetGridsave.WATCHDOG_TIMEOUT_SECONDS)) //
 				.next(new TestCase() //
-						.timeleap(clock, 4, ChronoUnit.SECONDS) //
+						.timeleap(clock, KacoBlueplanetGridsave.WATCHDOG_TRIGGER_SECONDS - 1, ChronoUnit.SECONDS) //
 						.output(WATCHDOG, null /* waiting till next watchdog trigger */)) //
 				.next(new TestCase() //
 						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.output(WATCHDOG, 10 /* triggered again after 5 seconds */)) //
+						.output(WATCHDOG, KacoBlueplanetGridsave.WATCHDOG_TIMEOUT_SECONDS)) //
 		;
 	}
 }

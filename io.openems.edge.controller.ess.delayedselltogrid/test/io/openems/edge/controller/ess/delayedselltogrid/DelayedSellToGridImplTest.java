@@ -8,6 +8,7 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
+import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.meter.test.DummySymmetricMeter;
 
 public class DelayedSellToGridImplTest {
@@ -15,9 +16,10 @@ public class DelayedSellToGridImplTest {
 	private static final String CTRL_ID = "ctrlDelayedSellToGrid0";
 	private static final String ESS_ID = "ess0";
 	private static final String METER_ID = "meter0";
-	private static final ChannelAddress ESS_ACTIVE_POWER = new ChannelAddress(ESS_ID, "SetActivePowerEquals");
+	private static final ChannelAddress ESS_ACTIVE_POWER = new ChannelAddress(ESS_ID, "ActivePower");
+	private static final ChannelAddress ESS_SET_ACTIVE_POWER_EQUALS = new ChannelAddress(ESS_ID,
+			"SetActivePowerEquals");
 	private static final ChannelAddress METER_ACTIVE_POWER = new ChannelAddress(METER_ID, "ActivePower");
-	private static final ChannelAddress STATE_MACHINE = new ChannelAddress(CTRL_ID, "StateMachine");
 
 	@Test
 	public void test() throws Exception {
@@ -25,83 +27,53 @@ public class DelayedSellToGridImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("meter", new DummySymmetricMeter(METER_ID)) //
-				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID, new DummyPower())) //
 				.activate(MyConfig.create()//
 						.setId(CTRL_ID)//
 						.setEssId(ESS_ID)//
 						.setMeterId(METER_ID)//
 						.setSellToGridPowerLimit(12_500_000)//
 						.setContinuousSellToGridPower(500_000).build())//
-				.next(new TestCase("1") //
-						.output(STATE_MACHINE, State.UNDER_CONTINUOUS_SELL_TO_GRID))//
-				.next(new TestCase("2")//
-						.input(METER_ACTIVE_POWER, -490_000))//
-				.next(new TestCase("3") //
-						.output(STATE_MACHINE, State.UNDER_CONTINUOUS_SELL_TO_GRID)//
-						.output(ESS_ACTIVE_POWER, 10_000))//
-				.next(new TestCase("4") //
-						.output(STATE_MACHINE, State.UNDER_CONTINUOUS_SELL_TO_GRID))//
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -14_000_000))//
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(METER_ACTIVE_POWER, 0) //
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, 500_000)) //
 				.next(new TestCase() //
-						.output(STATE_MACHINE, State.ABOVE_SELL_TO_GRID_LIMIT)//
-						.output(ESS_ACTIVE_POWER, -1_500_000)) //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(METER_ACTIVE_POWER, -30_000)//
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, 470_000)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -14_400_000)) //
+						.input(ESS_ACTIVE_POWER, 500_000) //
+						.input(METER_ACTIVE_POWER, -500_000)//
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, 500_000)) //
 				.next(new TestCase() //
-						.output(STATE_MACHINE, State.ABOVE_SELL_TO_GRID_LIMIT)//
-						.output(ESS_ACTIVE_POWER, -1_900_000)) //
+						.input(ESS_ACTIVE_POWER, 50_000) //
+						.input(METER_ACTIVE_POWER, -500_000)//
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, 50_000)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -10_000_000))//
+						.input(ESS_ACTIVE_POWER, -50_000) //
+						.input(METER_ACTIVE_POWER, -500_000)//
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, 0)) //
 				.next(new TestCase() //
-						.output(STATE_MACHINE, State.DO_NOTHING)//
-						.output(ESS_ACTIVE_POWER, 0)) //
+						.input(ESS_ACTIVE_POWER, 150_000) //
+						.input(METER_ACTIVE_POWER, -500_000)//
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, 150_000)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -12_500_001)) //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(METER_ACTIVE_POWER, -1_500_000)//
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, 0)) //
 				.next(new TestCase() //
-						.output(STATE_MACHINE, State.ABOVE_SELL_TO_GRID_LIMIT)//
-						.output(ESS_ACTIVE_POWER, -1)) //
+						.input(ESS_ACTIVE_POWER, -100_000) //
+						.input(METER_ACTIVE_POWER, -15_000_000)//
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, -2_600_000)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -10_500_000))//
+						.input(ESS_ACTIVE_POWER, -1_000_000) //
+						.input(METER_ACTIVE_POWER, -16_000_000)//
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, -4_500_000)) //
 				.next(new TestCase() //
-						.output(STATE_MACHINE, State.DO_NOTHING)//
-						.output(ESS_ACTIVE_POWER, 0)) //
-				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -6_000_000))//
-				.next(new TestCase() //
-						.output(STATE_MACHINE, State.DO_NOTHING)//
-						.output(ESS_ACTIVE_POWER, 0)) //
-				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -2_000_000))//
-				.next(new TestCase() //
-						.output(STATE_MACHINE, State.DO_NOTHING)//
-						.output(ESS_ACTIVE_POWER, 0)) //
-				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -499_999))//
-				.next(new TestCase() //
-						.output(STATE_MACHINE, State.UNDER_CONTINUOUS_SELL_TO_GRID)//
-						.output(ESS_ACTIVE_POWER, 1)) //
-				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -100_000))//
-				.next(new TestCase() //
-						.output(STATE_MACHINE, State.UNDER_CONTINUOUS_SELL_TO_GRID)//
-						.output(ESS_ACTIVE_POWER, 400_000)) //
-				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, 0))//
-				.next(new TestCase() //
-						.output(STATE_MACHINE, State.UNDER_CONTINUOUS_SELL_TO_GRID)//
-						.output(ESS_ACTIVE_POWER, 500_000)) //
-				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -490_000))//
-				.next(new TestCase() //
-						.output(STATE_MACHINE, State.UNDER_CONTINUOUS_SELL_TO_GRID)//
-						.output(ESS_ACTIVE_POWER, 10_000)) //
-				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -600_000))//
-				.next(new TestCase() //
-						.output(STATE_MACHINE, State.DO_NOTHING)//
-						.output(ESS_ACTIVE_POWER, 0)) //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(METER_ACTIVE_POWER, -16_000_000)//
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, -3_500_000)) //
 		;
 	}
-
 }
