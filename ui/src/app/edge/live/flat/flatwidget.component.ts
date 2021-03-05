@@ -10,22 +10,24 @@ import { ModalController } from '@ionic/angular';
 })
 export class FlatWidgetComponent {
 
-  @Output() newItemEvent = new EventEmitter<string>();
+  // @Output() newItemEvent = new EventEmitter<string>();
 
-  addNewItem(value: string) {
-    this.newItemEvent.emit(value);
-  }
+  // addNewItem(value: string) {
+  //   this.newItemEvent.emit(value);
+  // }
 
   @Input() public channels: [] = null;
-  @Input() public componentId: string;
+  // @Input() public componentId: string;
+  @Input() public essComponents: EdgeConfig.Component[] = null;
   @Input() public title: string;
   @Input() public icon: string;
   @Input() public color: string;
-  @Input() public firstparam: string;
-  @Input() public secondparam: string;
-  public channelAdresses = [];
+  @Input() public channelAdresses: ChannelAddress[] = [];
+  // @Input() public firstparam: string;
+  // @Input() public secondparam: string;
 
-  @Input() public howtochart: string;
+
+  // @Input() public howtochart: string;
   @Input() public ChannelAddress: string;
   @Input() public outputChannel: string = null;
 
@@ -42,10 +44,12 @@ export class FlatWidgetComponent {
   ) { }
 
   ngOnInit() {
+    console.log("SIND DIE ESS COMPS DDA?", this.essComponents)
     this.service.setCurrentComponent('', this.route).then(edge => {
-      this.edge = this.edge;
-      console.log("CHANNELS", this.channelAdresses)
-      edge.subscribeChannels(this.websocket, FlatWidgetComponent.SELECTOR, this.channelAdresses)
+      this.edge = edge;
+
+      edge.subscribeChannels(this.websocket, FlatWidgetComponent.SELECTOR, this.channelAdresses);
+      console.log("give me channeladresses", this.channelAdresses)
     })
   }
 

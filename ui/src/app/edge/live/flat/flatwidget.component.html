@@ -1,100 +1,23 @@
-<!-- <ion-card>
-    <ion-item lines="full">
-        <ion-label class="ion-padding">test</ion-label>
-    </ion-item>
-    <ion-card-content>
-        <table class="full_width">
-            <tr *ngFor="let cat of category">
-                <td style="width:65%">{{cat}}</td>
-            </tr>
-            <tr *ngIf="category != null">
-                <td style="width:65%">{{category[0]}}</td>
-            </tr>
-        </table>
-    </ion-card-content>
-</ion-card> -->
-
-
-<!-- Hier gehts
-<ng-container *ngIf="service.currentEdge | async as edge">
-    <ng-container *ngIf="edge.currentData | async as currentData">
-        <ion-card *ngIf="icon != null">
-            <ion-item color="light" lines="full">
-                <ion-avatar slot="start">
-                    <img src={{icon}}>
-                </ion-avatar>
-                <ion-label translate>General.{{title}}</ion-label>
-            </ion-item>
-            <ion-card-content *ngIf="currentData.summary.grid as sum">
-                <table class="full_width" *ngIf="howtochart == 'grid'">
-                    <tr class="underline" *ngIf="sum.gridMode == 2">
-                        <td colspan="4" translate>General.offGrid</td>
-                    </tr>
-                    <tr>
-                        <td style="width:65%" translate>General.{{firstparam}}</td>
-                        <td style="width:35%" class="align_right">
-                            {{ sum.buyActivePower | unitvalue:'kW' }}
-                        </td>
-                    </tr>
-                    <tr ng-bind-html="dataset">
-                        <td style="width:65%" translate>General.{{secondparam}}</td>
-                        <td style="width:35%" class="align_right">
-                            {{ sum.sellActivePower | unitvalue:'kW' }}
-                        </td>
-                    </tr>
-                </table>
-                <table class="full_width" *ngIf="howtochart == 'autarchy'">
-                    <tr>
-
-                    </tr>
-                </table>
-                <table class="full_width" *ngIf="howtochart == 'storage_system'">
-                    <tr>
-                        <td style="width:65%" translate>General.chargePower</td>
-                        <td style="width:35%" class="align_right">
-                            {{ currentData.summary.storage.effectiveChargePower | unitvalue:'kW' }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="width:65%" translate>General.dischargePower</td>
-                        <td style="width:35%" class="align_right">
-                            {{ currentData.summary.storage.effectiveDischargePower | unitvalue:'kW' }}
-                        </td>
-                    </tr>
-                </table>
-
-            </ion-card-content>
-        </ion-card>
+<ion-card *ngIf="edge">
+    <!-- <ng-container *ngIf="essComponents"> -->
+    <ng-container *ngIf="service.currentEdge | async as edge">
+        <ng-container *ngIf="edge.currentData | async as currentData">
+            <ng-container *ngIf="currentData.summary.storage as sum">
+                <ng-container>
+                    <ion-item color="light" lines="full">
+                        <ion-avatar slot="start" *ngIf="!icon.includes('<img')">
+                            <img [src]="icon">
+                        </ion-avatar>
+                        <ion-avatar slot="start" *ngIf="icon.includes('<img')" [innerHTML]="icon">
+                        </ion-avatar>
+                        <ion-label translate>{{title}}</ion-label>
+                    </ion-item>
+                    <ion-card-content [class.underline]="essComponents.length > 1">
+                        <ng-content></ng-content>
+                    </ion-card-content>
+                </ng-container>
+            </ng-container>
+        </ng-container>
     </ng-container>
-</ng-container> -->
-<ng-container *ngIf="service.currentEdge | async as edge">
-    <ng-container *ngIf="edge.currentData | async as currentData">
-        <ion-card>
-            <ion-item color="light" lines="full">
-                <ion-avatar slot="start" *ngIf="icon.includes('assets/img')">
-                    <img src={{icon}}>
-                </ion-avatar>
-                <!-- <ion-avatar slot="start" *ngIf="icon.includes('dynamic-storage') && currentData.summary.storage as sum">
-                    <img *ngIf="sum.soc < 20; else twoBars" src="assets/img/storage_20.png" />
-                    <ng-template #twoBars>
-                        <img *ngIf="sum.soc < 40; else threeBars" src="assets/img/storage_40.png" />
-                    </ng-template>
-                    <ng-template #threeBars>
-                        <img *ngIf="sum.soc < 60; else fourBars" src="assets/img/storage_60.png" />
-                    </ng-template>
-                    <ng-template #fourBars>
-                        <img *ngIf="sum.soc < 80; else fiveBars" src="assets/img/storage_80.png" />
-                    </ng-template>
-                    <ng-template #fiveBars><img src="assets/img/storage_100.png" /></ng-template>
-                </ion-avatar> -->
-                <ion-label translate>General.{{title}}</ion-label>
-            </ion-item>
-            <ion-card-content *ngIf="currentData.summary.grid as sum">
-
-                <ng-content>
-                </ng-content>
-
-            </ion-card-content>
-        </ion-card>
-    </ng-container>
-</ng-container>
+    <!-- </ng-container> -->
+</ion-card>

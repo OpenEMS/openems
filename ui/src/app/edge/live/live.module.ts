@@ -28,6 +28,8 @@ import { FixDigitalOutputComponent } from './fixdigitaloutput/fixdigitaloutput.c
 import { FixDigitalOutputModalComponent } from './fixdigitaloutput/modal/modal.component';
 import { FlatWidgetLine } from './flat/flat-widget-line/flatwidget-line';
 import { FlatWidgetComponent } from './flat/flatwidget.component';
+import { FlatWidgetHeader } from './flat/flat-widget-header/flatwidget-header';
+import { FlatWidgetPercentagebar } from './flat/flat-widget-percentagebar/flatwidget-percentagebar'
 import { GridComponent } from './grid/grid.component';
 import { GridModalComponent } from './grid/modal/modal.component';
 import { HeatingElementComponent } from './heatingelement/heatingelement.component';
@@ -67,6 +69,8 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     LukasModalComponent,
     FlatWidgetComponent,
     FlatWidgetLine,
+    FlatWidgetHeader,
+    FlatWidgetPercentagebar,
     ChpsocModalComponent,
     ConsumptionModalComponent,
     DelayedSellToGridModalComponent,
@@ -96,6 +100,8 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     LukasComponent,
     FlatWidgetComponent,
     FlatWidgetLine,
+    FlatWidgetHeader,
+    FlatWidgetPercentagebar,
     LukasModalComponent,
     ChannelthresholdComponent,
     ChpSocComponent,

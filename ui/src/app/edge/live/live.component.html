@@ -14,27 +14,22 @@
         <ion-grid class="ion-no-padding">
           <ion-row>
             <ion-col size="12" size-lg="6" class="ion-no-padding">
-              <flat-widget title="grid" icon="assets/img/grid.png">
-                <flat-widget-line channel="_sum/GridActivePower" title="gridBuyAdvanced"></flat-widget-line>
-                <flat-widget-line channel="_sum/GridActivePowerL3" title="gridSellAdvanced">
-                </flat-widget-line>
-              </flat-widget>
+              <lukas></lukas>
             </ion-col>
             <ion-col size=" 12" size-lg="6" class="ion-no-padding">
               <lukas></lukas>
             </ion-col>
             <!-- Regular Widgets -->
             <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
-
+              <!-- <ion-col *ngSwitchCase="'Storage'" size="12" size-lg="6" class="ion-no-padding">
+                <storage></storage>
+              </ion-col> -->
               <ion-col *ngSwitchCase="'Autarchy'" size="12" size-lg="6" class="ion-no-padding">
-                <flat-widget title="selfConsumption" icon="assets/img/selfconsumption.png"
-                  *ngIf="edge.currentData | async as currentData">
-                  <percentagebar [value]="currentData.summary.system.selfConsumption"></percentagebar>
-                </flat-widget>
+                <autarchy></autarchy>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Selfconsumption'" size="12" size-lg="6" class="ion-no-padding">
-
+                <selfconsumption></selfconsumption>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Storage'" size="12" size-lg="6" class="ion-no-padding">
@@ -42,7 +37,7 @@
               </ion-col>
 
               <ion-col *ngSwitchCase="'Grid'" size="12" size-lg="6" class="ion-no-padding">
-                <grid></grid>
+                <!-- <grid></grid> -->
               </ion-col>
 
               <ion-col *ngSwitchCase="'Production'" size="12" size-lg="6" class="ion-no-padding">
