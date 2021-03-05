@@ -1,11 +1,11 @@
-package io.openems.edge.battery.soltaro;
+package io.openems.edge.battery.bydcommercial;
 
 import io.openems.edge.battery.protection.BatteryProtectionDefinition;
 import io.openems.edge.battery.protection.force.ForceCharge;
 import io.openems.edge.battery.protection.force.ForceDischarge;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 
-public class BatteryProtectionDefinitionSoltaro implements BatteryProtectionDefinition {
+public class BatteryProtectionDefinitionBydC130 implements BatteryProtectionDefinition {
 
 	@Override
 	public int getInitialBmsMaxEverChargeCurrent() {

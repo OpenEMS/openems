@@ -33,6 +33,7 @@ import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.ApiWorker;
@@ -51,7 +52,6 @@ import io.openems.edge.timedata.api.Timedata;
 public class BackendApiImpl extends AbstractOpenemsComponent
 		implements BackendApi, Controller, OpenemsComponent, PaxAppender, EventHandler {
 
-	protected static final int DEFAULT_NO_OF_CYCLES = 10;
 	protected static final String COMPONENT_NAME = "Controller.Api.Backend";
 
 	protected final BackendWorker worker = new BackendWorker(this);
@@ -70,6 +70,9 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 	@Reference
 	protected ComponentManager componentManager;
+
+	@Reference
+	protected Cycle cycle;
 
 	public BackendApiImpl() {
 		super(//
@@ -115,9 +118,6 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		// Create Websocket instance
 		this.websocket = new WebsocketClient(this, COMPONENT_NAME + ":" + this.id(), uri, httpHeaders, proxy);
 		this.websocket.start();
-
-		// Activate worker
-		this.worker.activate(config.id());
 	}
 
 	@Deactivate
@@ -177,7 +177,7 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.worker.triggerNextRun();
+			this.worker.collectData();
 			break;
 
 		case EdgeEventConstants.TOPIC_CONFIG_UPDATE:

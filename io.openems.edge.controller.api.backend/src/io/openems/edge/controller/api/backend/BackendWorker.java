@@ -3,37 +3,38 @@ package io.openems.edge.controller.api.backend;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.EvictingQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.common.component.OpenemsComponent;
 
-class BackendWorker extends AbstractCycleWorker {
+public class BackendWorker {
 
 	private static final int SEND_VALUES_OF_ALL_CHANNELS_AFTER_SECONDS = 300; /* 5 minutes */
-	private static final int MAX_CACHED_MESSAGES = 1000;
 
+	private final Logger log = LoggerFactory.getLogger(BackendWorker.class);
 	private final BackendApiImpl parent;
+	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS,
+			new ArrayBlockingQueue<>(1), new ThreadPoolExecutor.DiscardOldestPolicy());
 
 	// Component-ID to Channel-ID to value
 	private ImmutableTable<String, String, JsonElement> lastValues = ImmutableTable.of();
-
-	// Unsent queue (FIFO)
-	private EvictingQueue<JsonrpcMessage> unsent = EvictingQueue.create(MAX_CACHED_MESSAGES);
 
 	private Instant lastSendValuesOfAllChannels = Instant.MIN;
 
@@ -41,27 +42,11 @@ class BackendWorker extends AbstractCycleWorker {
 		this.parent = parent;
 	}
 
-	@Override
-	public void activate(String name) {
-		super.activate(name);
-	}
-
-	@Override
-	public void deactivate() {
-		super.deactivate();
-	}
-
 	/**
-	 * Triggers sending all Channel values once. After executing once, this is reset
-	 * automatically to default 'send changed values only' mode.
+	 * Called synchronously on AFTER_PROCESS_IMAGE event. Collects all the data and
+	 * triggers asynchronous sending.
 	 */
-	public synchronized void sendValuesOfAllChannelsOnce() {
-		this.lastValues = ImmutableTable.of();
-		this.triggerNextRun();
-	}
-
-	@Override
-	protected synchronized void forever() {
+	public synchronized void collectData() {
 		Instant now = Instant.now(this.parent.componentManager.getClock());
 
 		// Send values of all Channels once in a while
@@ -78,14 +63,14 @@ class BackendWorker extends AbstractCycleWorker {
 		// Update the data from ChannelValues
 		final ImmutableTable<String, String, JsonElement> allValues = this.collectData(enabledComponents);
 
-		// Get timestamp and round to Cycle-Time
-		final int cycleTime = this.getCycleTime();
+		// Get timestamp and round to Global Cycle-Time
+		final int cycleTime = this.parent.cycle.getCycleTime();
 		final long timestamp = now.toEpochMilli() / cycleTime * cycleTime;
 
 		// Prepare message values
 		Map<ChannelAddress, JsonElement> sendValues = new HashMap<>();
 
-		// Send Changed values
+		// Collect Changed values
 		allValues.rowMap().entrySet().parallelStream() //
 				.forEach(row -> {
 					row.getValue().entrySet().parallelStream() //
@@ -114,36 +99,40 @@ class BackendWorker extends AbstractCycleWorker {
 		// Keep values for next run
 		this.lastValues = allValues;
 
-		/*
-		 * send, if list is not empty
-		 */
-		final boolean canSendFromCache;
+		// Nothing to send
 		if (sendValues.isEmpty()) {
-			canSendFromCache = true;
-
-		} else {
-			// create JSON-RPC notification
-			TimestampedDataNotification message = new TimestampedDataNotification();
-			message.add(timestamp, sendValues);
-
-			boolean wasSent = this.parent.websocket.sendMessage(message);
-			if (!wasSent) {
-				// cache data for later
-				this.unsent.add(message);
-			}
-
-			canSendFromCache = wasSent;
+			return;
 		}
 
-		// send from cache
-		if (canSendFromCache && !this.unsent.isEmpty()) {
-			for (Iterator<JsonrpcMessage> iterator = this.unsent.iterator(); iterator.hasNext();) {
-				JsonrpcMessage cached = iterator.next();
-				boolean cacheWasSent = this.parent.websocket.sendMessage(cached);
-				if (cacheWasSent) {
-					// sent successfully -> remove from cache & try next
-					iterator.remove();
+		// create JSON-RPC notification
+		TimestampedDataNotification message = new TimestampedDataNotification();
+		message.add(timestamp, sendValues);
+
+		// Add to Task Queue
+		this.executor.execute(new SendTask(this, message));
+	}
+
+	/**
+	 * Triggers sending all Channel values once. After executing once, this is reset
+	 * automatically to default 'send changed values only' mode.
+	 */
+	public synchronized void sendValuesOfAllChannelsOnce() {
+		this.lastValues = ImmutableTable.of();
+	}
+
+	public void deactivate() {
+		// Shutdown executor
+		if (this.executor != null) {
+			try {
+				this.executor.shutdown();
+				this.executor.awaitTermination(5, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				this.log.warn("tasks interrupted");
+			} finally {
+				if (!this.executor.isTerminated()) {
+					this.log.warn("cancel non-finished tasks");
 				}
+				this.executor.shutdownNow();
 			}
 		}
 	}
@@ -164,4 +153,25 @@ class BackendWorker extends AbstractCycleWorker {
 						c -> c.address().getChannelId(), c -> c.value().asJson()));
 	}
 
+	private static class SendTask implements Runnable {
+
+		private final BackendWorker parent;
+		private final TimestampedDataNotification message;
+
+		public SendTask(BackendWorker parent, TimestampedDataNotification message) {
+			this.parent = parent;
+			this.message = message;
+		}
+
+		@Override
+		public void run() {
+			// Try to send; drop message if not possible to send (i.e. task is not
+			// rescheduled)
+			boolean wasSent = this.parent.parent.websocket.sendMessage(this.message);
+
+			// Set the UNABLE_TO_SEND channel
+			this.parent.parent.getUnableToSendChannel().setNextValue(!wasSent);
+		}
+
+	};
 }

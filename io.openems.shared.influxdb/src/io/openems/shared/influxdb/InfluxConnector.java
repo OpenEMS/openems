@@ -48,6 +48,10 @@ public class InfluxConnector {
 	private static final int READ_TIMEOUT = 10; // [s]
 	private static final int WRITE_TIMEOUT = 10; // [s]
 
+	private static final int EXECUTOR_MIN_THREADS = 1;
+	private static final int EXECUTOR_MAX_THREADS = 50;
+	private static final int EXECUTOR_QUEUE_SIZE = 100;
+
 	private final Logger log = LoggerFactory.getLogger(InfluxConnector.class);
 
 	private final String ip;
@@ -58,8 +62,8 @@ public class InfluxConnector {
 	private final String retentionPolicy;
 	private final boolean isReadOnly;
 	private final BiConsumer<Iterable<Point>, Throwable> onWriteError;
-	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 50, 60L, TimeUnit.SECONDS,
-			new ArrayBlockingQueue<>(100), new ThreadPoolExecutor.DiscardPolicy());
+	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(EXECUTOR_MIN_THREADS, EXECUTOR_MAX_THREADS, 60L,
+			TimeUnit.SECONDS, new ArrayBlockingQueue<>(EXECUTOR_QUEUE_SIZE), new ThreadPoolExecutor.DiscardPolicy());
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	/**
@@ -88,11 +92,13 @@ public class InfluxConnector {
 		this.isReadOnly = isReadOnly;
 		this.onWriteError = onWriteError;
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-			this.log.info(String.format("[monitor] Pool: %d, Active: %d, Pending: %d, Completed: %d",
+			int queueSize = this.executor.getQueue().size();
+			this.log.info(String.format("[monitor] Pool: %d, Active: %d, Pending: %d, Completed: %d %s",
 					this.executor.getPoolSize(), //
 					this.executor.getActiveCount(), //
 					this.executor.getQueue().size(), //
-					this.executor.getCompletedTaskCount())); //
+					this.executor.getCompletedTaskCount(), //
+					(queueSize == EXECUTOR_QUEUE_SIZE) ? "!!!BACKPRESSURE!!!" : "")); //
 		}, 10, 10, TimeUnit.SECONDS);
 	}
 
