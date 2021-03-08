@@ -121,7 +121,6 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 		// Initialize reconnector
 		this.reconnectorWorker = new ClientReconnectorWorker(this);
-		this.reconnectorWorker.activate(this.getName());
 
 		if (proxy != null) {
 			this.ws.setProxy(proxy);
@@ -134,6 +133,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	public void start() {
 		this.log.info("Opening connection [" + this.getName() + "] to websocket server [" + this.serverUri + "]");
 		this.ws.connect();
+		this.reconnectorWorker.activate(this.getName());
 	}
 
 	/**
