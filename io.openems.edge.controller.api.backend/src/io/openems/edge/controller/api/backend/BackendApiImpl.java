@@ -54,13 +54,14 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 	protected static final String COMPONENT_NAME = "Controller.Api.Backend";
 
-	protected final BackendWorker worker = new BackendWorker(this);
+	protected final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
 
 	protected final ApiWorker apiWorker = new ApiWorker(this);
 
 	private final Logger log = LoggerFactory.getLogger(BackendApiImpl.class);
 
 	protected WebsocketClient websocket = null;
+	protected Config config;
 
 	// Used for SubscribeSystemLogRequests
 	private boolean isSystemLogSubscribed = false;
@@ -85,6 +86,7 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
+		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		if (!this.isEnabled()) {
@@ -123,7 +125,7 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		this.worker.deactivate();
+		this.sendChannelValuesWorker.deactivate();
 		if (this.websocket != null) {
 			this.websocket.stop();
 		}
@@ -177,10 +179,11 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.worker.collectData();
+			this.sendChannelValuesWorker.collectData();
 			break;
 
 		case EdgeEventConstants.TOPIC_CONFIG_UPDATE:
+			// Send new EdgeConfig
 			EdgeConfig config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
 			EdgeConfigNotification message = new EdgeConfigNotification(config);
 			WebsocketClient ws = this.websocket;
@@ -188,6 +191,14 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 				return;
 			}
 			ws.sendMessage(message);
+
+			// Trigger sending of all channel values, because a Component might have
+			// disappeared
+			this.sendChannelValuesWorker.sendValuesOfAllChannelsOnce();
 		}
+	}
+
+	public boolean isConnected() {
+		return this.websocket.isConnected();
 	}
 }
