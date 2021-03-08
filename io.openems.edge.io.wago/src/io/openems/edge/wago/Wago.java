@@ -161,6 +161,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 
 	private static Document downloadConfigXml(InetAddress ip, String filename, String username, String password)
 			throws ParserConfigurationException, SAXException, IOException {
+		//URL url = new URL(String.format("http://%s/etc/%s", "localhost:8083", filename));
 		URL url = new URL(String.format("http://%s/etc/%s", ip.getHostAddress(), filename));
 		String authStr = String.format("%s:%s", username, password);
 		byte[] bytesEncoded = Base64.getEncoder().encode(authStr.getBytes());
