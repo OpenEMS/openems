@@ -30,6 +30,10 @@ export class AsymmetricPeakshavingComponent {
         protected translate: TranslateService,
     ) { }
 
+    GImmeMostStresst(): string {
+        return 'schoko'
+    }
+
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;

@@ -1,23 +1,11 @@
-<!-- <flat-widget [icon]="'assets/img/grid.png'" title="General.grid">
-    <flat-widget-line *ngIf="essComponents.length >= 2" [title]="component.alias">
-    </flat-widget-line>
-    <percentagebar *ngIf="component[component.id + '/Soc'] != null && edge != null"
-                        [value]="currentData[component.id + '/Soc']"></percentagebar> 
-    <flat-widget-percentagebar [value]="channel"></flat-widget-percentagebar>
-    <flat-widget-line [channel]="component.id + '/ActivePower'" title="General.chargePower">
-    </flat-widget-line> 
-</flat-widget> -->
-
-<!-- class="underline" -->
-<flat-widget [essComponents]="essComponents" [channelAdresses]="channelAdresses" [icon]="storageItem"
+<flat-widget [components]="essComponents" [channelAdresses]="channelAdresses" [img]="storageItem"
     title="General.storageSystem">
     <ng-container *ngFor="let ess of essComponents">
-        <!-- <flat-widget-percentage [channel]="meter.id + '/ActivePower'"></flat-widget-line> -->
+
         <flat-widget-line [title]="ess.alias"></flat-widget-line>
+        <flat-widget-percentagebar [channels]="ess.id + '/Soc'"></flat-widget-percentagebar>
         <flat-widget-line title="General.chargePower" [channels]="ess.id + '/ActivePower'"></flat-widget-line>
         <flat-widget-line title="General.dischargePower" [channels]="ess.id + '/ActivePower'"></flat-widget-line>
-        <flat-widget-percentagebar [channels]="ess.id + '/Soc'"></flat-widget-percentagebar>
 
-        <!-- evtl als option für be und entladung options="{ filter: 'positive_only' }-->
     </ng-container>
 </flat-widget>

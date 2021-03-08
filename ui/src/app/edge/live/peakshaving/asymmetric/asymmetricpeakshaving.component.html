@@ -7,7 +7,8 @@
         <table class="full_width">
             <tr>
                 <td style="width: 65%" translate>
-                    Edge.Index.Widgets.Peakshaving.mostStressedPhase<span>&nbsp;{{ (mostStressedPhase | async)?.name }}</span>
+                    Edge.Index.Widgets.Peakshaving.mostStressedPhase<span>&nbsp;{{ (mostStressedPhase | async)?.name
+                        }}</span>
                 </td>
                 <td style="width: 35%" class="align_right">
                     {{ (mostStressedPhase | async)?.value | unitvalue:'kW' }}
@@ -18,7 +19,7 @@
                     Edge.Index.Widgets.Peakshaving.peakshavingPower
                 </td>
                 <td style="width:35%" class="align_right">
-                    {{ component.properties.peakShavingPower | unitvalue:'kW' }}
+                    {{ GImmeMostStresst() | unitvalue:'kW' }}
                 </td>
             </tr>
             <tr>

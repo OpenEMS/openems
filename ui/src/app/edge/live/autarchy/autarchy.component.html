@@ -1,4 +1,4 @@
-<ng-container *ngIf="service.currentEdge | async as edge">
+<!-- <ng-container *ngIf="service.currentEdge | async as edge">
     <ng-container *ngIf="edge.currentData | async as currentData">
         <ion-card button (click)="presentModal()">
             <flat-widget-header title="autarchy" icon="assets/img/autarchy.png"></flat-widget-header>
@@ -13,4 +13,8 @@
             </ion-card-content>
         </ion-card>
     </ng-container>
-</ng-container>
+</ng-container> -->
+
+<flat-widget [title]="'General.autarchy'" img="assets/img/autarchy.png" button (click)="presentModal()">
+    <flat-widget-percentagebar [channels]="'result.system.autarchy'"></flat-widget-percentagebar>
+</flat-widget>

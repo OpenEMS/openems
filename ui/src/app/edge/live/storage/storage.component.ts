@@ -3,6 +3,9 @@ import { ChannelAddress, Edge, Service, Websocket, EdgeConfig } from '../../../s
 import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { StorageModalComponent } from './modal/modal.component';
+import { CurrentData } from 'src/app/shared/edge/currentdata';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
     selector: 'storage',
@@ -12,13 +15,13 @@ export class StorageComponent {
 
     private static readonly SELECTOR = "storage";
 
-    public storageItem: string = '<img *ngIf="sum.soc < 20; else twoBars" src="assets/img/storage_20.png" /><ng-template #twoBars><img *ngIf="sum.soc < 40; else threeBars" src="assets/img/storage_40.png" /></ng-template><ng-template #threeBars><img *ngIf="sum.soc < 60; else fourBars" src="assets/img/storage_60.png" /></ng-template><ng-template #fourBars><img *ngIf="sum.soc < 80; else fiveBars" src="assets/img/storage_80.png" /></ng-template><ng-template #fiveBars><img src="assets/img/storage_100.png" /></ng-template>'
-
     public edge: Edge = null;
     public config: EdgeConfig = null;
     public essComponents: EdgeConfig.Component[] = null;
     public chargerComponents: EdgeConfig.Component[] = null;
     public channelAdresses: ChannelAddress[] = [];
+    public storageItem: string;
+    private stopOnDestroy: Subject<void> = new Subject<void>();
 
     constructor(
         public service: Service,
@@ -26,10 +29,24 @@ export class StorageComponent {
         private route: ActivatedRoute,
         public modalCtrl: ModalController,
     ) { }
-
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
+            let callFunction: any;
+            this.edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
+                let soc = currentData.channel['_sum' + '/EssSoc']
+                if (soc <= 20) {
+                    this.storageItem = '<img src="assets/img/storage_20.png"/>'
+                } else if (soc <= 40 && soc > 20) {
+                    this.storageItem = '<img src="assets/img/storage_40.png"/>'
+                } else if (soc <= 60 && soc > 40) {
+                    this.storageItem = '<img src="assets/img/storage_60.png"/>'
+                } else if (soc <= 80 && soc > 60) {
+                    this.storageItem = '<img src="assets/img/storage_80.png"/>'
+                } else if (soc <= 100 && soc > 80) {
+                    this.storageItem = '<img src="assets/img/storage_100.png"/>'
+                }
+            })
             this.service.getConfig().then(config => {
                 this.config = config;
 
@@ -55,7 +72,6 @@ export class StorageComponent {
                             new ChannelAddress(component.id, 'ActivePowerL2'),
                             new ChannelAddress(component.id, 'ActivePowerL3')
                         );
-                        console.log("Channels: ", this.channelAdresses)
                     }
                 }
                 this.channelAdresses.push(
@@ -67,12 +83,8 @@ export class StorageComponent {
                     new ChannelAddress('_sum', 'EssActivePowerL3'),
                     new ChannelAddress('_sum', 'EssCapacity'),
                 )
-                console.log("channels later: ", this.channelAdresses);
                 // this.edge.subscribeChannels(this.websocket, StorageComponent.SELECTOR, channelAdress);
-
-                console.log("Fucking channeladress", this.channelAdresses)
                 return this.channelAdresses;
-                console.log("Fucking edge: ", edge)
             })
         });
     }
@@ -81,6 +93,8 @@ export class StorageComponent {
         if (this.edge != null) {
             this.edge.unsubscribeChannels(this.websocket, StorageComponent.SELECTOR);
         }
+        this.stopOnDestroy.next();
+        this.stopOnDestroy.complete();
     }
 
     async presentModal() {
