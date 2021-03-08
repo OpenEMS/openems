@@ -125,7 +125,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 		if (this.pByUCharacteristics == null) {
 			power = null;
 		} else {
-			Float p = this.pByUCharacteristics.getValue(voltageRatio);
+			Double p = this.pByUCharacteristics.getValue(voltageRatio);
 			if (p == null) {
 				power = null;
 			} else {

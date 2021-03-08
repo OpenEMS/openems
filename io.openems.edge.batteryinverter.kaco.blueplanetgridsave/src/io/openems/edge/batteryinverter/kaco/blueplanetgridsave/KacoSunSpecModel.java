@@ -113,7 +113,7 @@ public enum KacoSunSpecModel implements SunSpecModel {
 				null, //
 				new OptionsEnum[0])), //
 		W_SET_PCT(new PointImpl(//
-				"S101_W_SET_PCT", //
+				"S64201_W_SET_PCT", //
 				"WSetPct", //
 				"Active power output setpoint (in percent of WMax)", //
 				"negative values mean charge", //
@@ -124,7 +124,7 @@ public enum KacoSunSpecModel implements SunSpecModel {
 				"W_SET_PCT_SF", //
 				new OptionsEnum[0])), //
 		VAR_SET_PCT(new PointImpl(//
-				"S101_VAR_SET_PCT", //
+				"S64201_VAR_SET_PCT", //
 				"VarSetPct", //
 				"Reactive power output setpoint (in percent of VAMax)", //
 				"negative values mean charge", //

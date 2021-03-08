@@ -110,7 +110,7 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 
 		// Call StateMachine events on transition
 		if (lastState != this.state) {
-			this.log.info("Changing StateMachine from [" + lastState + "] to [" + this.state + "]");
+			context.logInfo(this.log, "Changing StateMachine from [" + lastState + "] to [" + this.state + "]");
 
 			// On-Exit of the last State
 			try {

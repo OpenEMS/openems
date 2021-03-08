@@ -85,8 +85,6 @@ public class TAGParser {
 	 * Returns the vector of Branch TaggedDevice objects described in the TAG file.
 	 * The XML should already be parsed before calling this method.
 	 *
-	 * @param in The XML document to parse.
-	 *
 	 * @return Vector of Branch TaggedDevice objects.
 	 */
 	public Vector<TaggedDevice> getBranches() {
@@ -99,8 +97,6 @@ public class TAGParser {
 	/**
 	 * Returns the vector of OWPath objects discovered through parsing the XML file.
 	 * The XML file should already be parsed before calling this method.
-	 *
-	 * @param no parameters.
 	 *
 	 * @return Vector of OWPath objects.
 	 */

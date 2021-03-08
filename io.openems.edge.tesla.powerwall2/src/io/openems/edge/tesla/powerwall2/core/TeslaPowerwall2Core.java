@@ -15,12 +15,12 @@ public interface TeslaPowerwall2Core extends OpenemsComponent {
 
 	public Optional<TeslaPowerwall2Battery> getBattery();
 
-	public enum CoreChannelId implements io.openems.edge.common.channel.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT));
 
 		private final Doc doc;
 
-		private CoreChannelId(Doc doc) {
+		private ChannelId(Doc doc) {
 			this.doc = doc;
 		}
 
@@ -36,7 +36,7 @@ public interface TeslaPowerwall2Core extends OpenemsComponent {
 	 * @return the Channel
 	 */
 	public default StateChannel getSlaveCommunicationFailedChannel() {
-		return this.channel(CoreChannelId.SLAVE_COMMUNICATION_FAILED);
+		return this.channel(ChannelId.SLAVE_COMMUNICATION_FAILED);
 	}
 
 	/**

@@ -50,7 +50,7 @@ public class HardyBarthApi {
 			// Open http url connection
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
-			// Set general informations
+			// Set general information
 			con.setRequestProperty("Authorization", this.authorizationHeader);
 			con.setRequestMethod("GET");
 			con.setConnectTimeout(5000);
@@ -111,7 +111,7 @@ public class HardyBarthApi {
 			// Open http url connection
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-			// Set general informations
+			// Set general information
 			connection.setRequestProperty("Authorization", this.authorizationHeader);
 			connection.setRequestMethod("PUT");
 			connection.setDoOutput(true);

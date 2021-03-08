@@ -71,10 +71,8 @@ public class D2A extends TaggedDevice implements TaggedActuator {
 	/**
 	 * Set the selection of this actuator
 	 *
-	 * @param The selection string.
-	 *
+	 * @param selection The selection string.
 	 * @throws OneWireException
-	 *
 	 */
 	public void setSelection(String selection) throws OneWireException {
 		PotentiometerContainer pc = (PotentiometerContainer) getDeviceContainer();
@@ -109,10 +107,7 @@ public class D2A extends TaggedDevice implements TaggedActuator {
 	/**
 	 * Initializes the actuator
 	 * 
-	 * @param Init The initialization string.
-	 *
 	 * @throws OneWireException
-	 * 
 	 */
 	public void initActuator() throws OneWireException {
 		PotentiometerContainer pc = (PotentiometerContainer) getDeviceContainer();

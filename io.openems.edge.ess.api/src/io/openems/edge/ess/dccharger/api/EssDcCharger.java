@@ -2,6 +2,7 @@ package io.openems.edge.ess.dccharger.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.IntUtils;
@@ -28,7 +29,9 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * <li>Implementation Note: value is automatically derived from ACTUAL_POWER
 		 * </ul>
 		 */
-		MAX_ACTUAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		MAX_ACTUAL_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Actual Power
 		 * 
@@ -39,24 +42,28 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * <li>Range: positive
 		 * </ul>
 		 */
-		ACTUAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).onInit(channel -> {
-			channel.onSetNextValue(value -> {
-				/*
-				 * Fill Max Actual Power channel
-				 */
-				if (value.asOptional().isPresent()) {
-					int newValue = (int) (Integer) value.get();
-					Channel<Integer> maxActualPowerChannel = channel.getComponent().channel(ChannelId.MAX_ACTUAL_POWER);
-					int maxActualPower = maxActualPowerChannel.value().orElse(0);
-					int maxNextActualPower = maxActualPowerChannel.getNextValue().orElse(0);
-					if (newValue > Math.max(maxActualPower, maxNextActualPower)) {
-						// avoid getting called too often -> round to 100
-						newValue = IntUtils.roundToPrecision(newValue, Round.AWAY_FROM_ZERO, 100);
-						maxActualPowerChannel.setNextValue(newValue);
-					}
-				}
-			});
-		})),
+		ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.onInit(channel -> {
+					channel.onSetNextValue(value -> {
+						/*
+						 * Fill Max Actual Power channel
+						 */
+						if (value.asOptional().isPresent()) {
+							int newValue = (int) (Integer) value.get();
+							Channel<Integer> maxActualPowerChannel = channel.getComponent()
+									.channel(ChannelId.MAX_ACTUAL_POWER);
+							int maxActualPower = maxActualPowerChannel.value().orElse(0);
+							int maxNextActualPower = maxActualPowerChannel.getNextValue().orElse(0);
+							if (newValue > Math.max(maxActualPower, maxNextActualPower)) {
+								// avoid getting called too often -> round to 100
+								newValue = IntUtils.roundToPrecision(newValue, Round.AWAY_FROM_ZERO, 100);
+								maxActualPowerChannel.setNextValue(newValue);
+							}
+						}
+					});
+				})),
 		/**
 		 * Actual Energy
 		 * 
@@ -67,7 +74,8 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTUAL_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS));
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)); //
 
 		private final Doc doc;
 

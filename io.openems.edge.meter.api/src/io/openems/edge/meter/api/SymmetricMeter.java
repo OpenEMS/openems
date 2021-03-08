@@ -2,6 +2,7 @@ package io.openems.edge.meter.api;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.IntUtils;
@@ -41,7 +42,8 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * </ul>
 		 */
 		FREQUENCY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIHERTZ)), //
+				.unit(Unit.MILLIHERTZ) //
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Minimum Ever Active Power.
 		 * 
@@ -54,7 +56,8 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * </ul>
 		 */
 		MIN_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Maximum Ever Active Power.
 		 * 
@@ -67,7 +70,8 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * </ul>
 		 */
 		MAX_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Power.
 		 * 
@@ -82,6 +86,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 */
 		ACTIVE_POWER(new IntegerDoc() //
 				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(OpenemsConstants.POWER_DOC_TEXT) //
 				.onInit(channel -> {
 					channel.onSetNextValue(value -> {
@@ -115,6 +120,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 						}
 					});
 				})), //
+
 		/**
 		 * Reactive Power.
 		 * 
@@ -129,6 +135,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 */
 		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(OpenemsConstants.POWER_DOC_TEXT)), //
 		/**
 		 * Active Production Energy.
@@ -140,7 +147,8 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Consumption Energy.
 		 * 
@@ -151,7 +159,8 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Voltage.
 		 * 
@@ -162,7 +171,8 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * </ul>
 		 */
 		VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT)), //
+				.unit(Unit.MILLIVOLT) //
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Current.
 		 * 
@@ -173,7 +183,8 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * </ul>
 		 */
 		CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)); //
+				.unit(Unit.MILLIAMPERE) //
+				.persistencePriority(PersistencePriority.HIGH));
 
 		private final Doc doc;
 

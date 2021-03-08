@@ -27,6 +27,7 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.bydcommercial.statemachine.Context;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
+import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -37,6 +38,7 @@ import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -51,7 +53,8 @@ import io.openems.edge.common.taskmanager.Priority;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
 public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 		implements BatteryBoxC130, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
@@ -68,19 +71,24 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Reference
+	protected ComponentManager componentManager;
+
 	/**
 	 * Manages the {@link State}s of the StateMachine.
 	 */
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private Config config;
+	private BatteryProtection batteryProtection = null;
 
 	public BatteryBoxC130Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
-				BatteryBoxC130.ChannelId.values() //
+				BatteryBoxC130.ChannelId.values(), //
+				BatteryProtection.ChannelId.values() //
 		);
 	}
 
@@ -96,6 +104,11 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 				"Modbus", config.modbus_id())) {
 			return;
 		}
+
+		// Initialize Battery-Protection
+		this.batteryProtection = BatteryProtection.create(this) //
+				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionBydC130(), this.componentManager) //
+				.build();
 
 		int maxVoltage = this.config.numberOfSlaves() * MAX_ALLOWED_VOLTAGE_PER_MODULE;
 		_setChargeMaxVoltage(maxVoltage);
@@ -118,6 +131,10 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
+
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.batteryProtection.apply();
+			break;
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.handleStateMachine();
@@ -169,7 +186,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 								.m(BatteryBoxC130.ChannelId.CLUSTER_1_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_2) // [mV]
 								.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]
 								.build(), //
-						m(new UnsignedWordElement(0x2101)) //
+						m(new SignedWordElement(0x2101)) //
 								.m(BatteryBoxC130.ChannelId.CLUSTER_1_CURRENT, ElementToChannelConverter.SCALE_FACTOR_2) // [mA]
 								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [A]
 								.build(), //
@@ -191,14 +208,14 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 								.m(Battery.ChannelId.MIN_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.build(), //
 						m(BatteryBoxC130.ChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x2109)), //
-						m(new UnsignedWordElement(0x210A)) //
+						m(new SignedWordElement(0x210A)) //
 								.m(BatteryBoxC130.ChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE,
 										ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(Battery.ChannelId.MAX_CELL_TEMPERATURE,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build(), //
 						m(BatteryBoxC130.ChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x210B)), //
-						m(new UnsignedWordElement(0x210C)) //
+						m(new SignedWordElement(0x210C)) //
 								.m(BatteryBoxC130.ChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE,
 										ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(Battery.ChannelId.MIN_CELL_TEMPERATURE,
@@ -301,9 +318,9 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 
 				), //
 				new FC3ReadRegistersTask(0x216C, Priority.HIGH, //
-						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new SignedWordElement(0x216C), //
+						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new UnsignedWordElement(0x216C),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new SignedWordElement(0x216D), //
+						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new UnsignedWordElement(0x216D),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), //
 
@@ -665,7 +682,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 	/*
 	 * Handle incompatibility with old hardware protocol.
 	 * 
-	 * 'onRegister0x2100Update()' callback is called when register 0x2100 is read. 
+	 * 'onRegister0x2100Update()' callback is called when register 0x2100 is read.
 	 */
 
 	private boolean isModbusProtocolInitialized = false;
