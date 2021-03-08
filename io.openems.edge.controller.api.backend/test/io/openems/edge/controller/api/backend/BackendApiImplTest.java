@@ -4,8 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.net.Proxy.Type;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.function.BiConsumer;
 
 import org.java_websocket.WebSocket;
@@ -16,10 +18,12 @@ import com.google.gson.JsonObject;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.websocket.DummyWebsocketServer;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -31,8 +35,6 @@ import io.openems.edge.common.test.TimeLeapClock;
 public class BackendApiImplTest {
 
 	private static final String CTRL_ID = "ctrl0";
-	private static final ChannelAddress CTRL_UNABLE_TO_SEND = new ChannelAddress(CTRL_ID,
-			BackendApi.ChannelId.UNABLE_TO_SEND.id());
 
 	private static final String SUM_ID = OpenemsConstants.SUM_ID;
 	private static final ChannelAddress SUM_GRID_ACTIVE_POWER = new ChannelAddress(SUM_ID,
@@ -55,8 +57,12 @@ public class BackendApiImplTest {
 			this.callback = callback;
 		}
 
-		public void waitForCallback() throws InterruptedException {
+		public void waitForCallback(int timeout) throws InterruptedException, OpenemsException {
+			Instant start = Instant.now();
 			while (!this.wasCalled) {
+				if (Duration.between(start, Instant.now()).getSeconds() > timeout) {
+					throw new OpenemsException("Timeout [" + timeout + "s]");
+				}
 				Thread.sleep(100);
 			}
 		}
@@ -66,6 +72,7 @@ public class BackendApiImplTest {
 			if (notification.getMethod().equals(TimestampedDataNotification.METHOD)) {
 				for (String timestamp : notification.getParams().keySet()) {
 					JsonObject values = JsonUtils.getAsJsonObject(notification.getParams().get(timestamp));
+					System.out.println(values);
 					this.callback.accept(Long.valueOf(timestamp), values);
 					this.wasCalled = true;
 					return;
@@ -109,7 +116,7 @@ public class BackendApiImplTest {
 				assertTrue(values.size() > 50); // all values
 			});
 			test.next(new TestCase()); //
-			handler.waitForCallback();
+			handler.waitForCallback(5000);
 
 			// Only changed value
 			handler.onNotification((timestamp, values) -> {
@@ -120,28 +127,26 @@ public class BackendApiImplTest {
 			test.next(new TestCase() //
 					.input(SUM_GRID_ACTIVE_POWER, 1000) //
 			);
-			handler.waitForCallback();
+			handler.waitForCallback(5000);
 
-			// Disconnect
-			server.stop();
-
-			test.next(new TestCase() //
-					.input(SUM_GRID_ACTIVE_POWER, 1000) //
-					.input(SUM_PRODUCTION_ACTIVE_POWER, 200)); //
-//					.output(CTRL_UNABLE_TO_SEND, true));
-
-			Thread.sleep(100);
-
+			// Only changed value
 			handler.onNotification((timestamp, values) -> {
-				assertTrue(values.size() == 2); // exactly one value
-				assertEquals(Integer.valueOf(1000),
-						JsonUtils.getAsOptionalInt(values, SUM_GRID_ACTIVE_POWER.toString()).get());
-				assertEquals(Integer.valueOf(300),
+				assertTrue(values.size() == 1); // exactly one value
+				assertEquals(Integer.valueOf(2000),
 						JsonUtils.getAsOptionalInt(values, SUM_PRODUCTION_ACTIVE_POWER.toString()).get());
 			});
 			test.next(new TestCase() //
-					.input(SUM_PRODUCTION_ACTIVE_POWER, 300)); //
-			handler.waitForCallback();
+					.input(SUM_PRODUCTION_ACTIVE_POWER, 2000) //
+			);
+			handler.waitForCallback(5000);
+
+			// All values after 5 minutes
+			handler.onNotification((timestamp, values) -> {
+				assertTrue(values.size() > 50); // all values
+			});
+			test.next(new TestCase() //
+					.timeleap(clock, 6, ChronoUnit.MINUTES));
+			handler.waitForCallback(5000);
 		}
 	}
 

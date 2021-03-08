@@ -1,21 +1,22 @@
-package io.openems.edge.controller.api.backend;
+package io.openems.common.websocket;
 
 import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.NotImplementedException;
-import io.openems.common.websocket.AbstractWebsocketServer;
-import io.openems.common.websocket.OnClose;
-import io.openems.common.websocket.OnError;
-import io.openems.common.websocket.OnNotification;
-import io.openems.common.websocket.OnOpen;
-import io.openems.common.websocket.OnRequest;
-import io.openems.edge.common.component.OpenemsComponent;
 
-class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implements AutoCloseable {
+public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implements AutoCloseable {
 
-	protected static class Builder {
+	private static class DummyWsData extends WsData {
+
+		@Override
+		public String toString() {
+			return "DummyWsData[]";
+		}
+
+	}
+
+	public static class Builder {
 		private OnOpen onOpen = (ws, handshake) -> {
 		};
 		private OnRequest onRequest = (ws, request) -> {
@@ -77,11 +78,9 @@ class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implements Au
 		this.builder = builder;
 	}
 
-	private final Logger log = LoggerFactory.getLogger(DummyWebsocketServer.class);
-
 	@Override
 	protected WsData createWsData() {
-		return new WsData();
+		return new DummyWsData();
 	}
 
 	@Override
@@ -131,12 +130,12 @@ class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implements Au
 
 	@Override
 	protected void logInfo(Logger log, String message) {
-		OpenemsComponent.logInfo(null, this.log, message);
+		log.info(message);
 	}
 
 	@Override
 	protected void logWarn(Logger log, String message) {
-		OpenemsComponent.logWarn(null, this.log, message);
+		log.info(message);
 	}
 
 	/**
@@ -159,7 +158,6 @@ class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implements Au
 
 	@Override
 	public void close() throws Exception {
-		System.out.print("close");
 		this.stop();
 	}
 }

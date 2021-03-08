@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
 import com.google.gson.JsonElement;
@@ -57,7 +56,7 @@ public class SendChannelValuesWorker {
 	/**
 	 * Keeps the values of last successful send.
 	 */
-	private Table<String, String, JsonElement> lastSentValues = ImmutableTable.of();
+	private Table<String, String, JsonElement> lastAllValues = ImmutableTable.of();
 
 	protected SendChannelValuesWorker(BackendApiImpl parent) {
 		this.parent = parent;
@@ -141,20 +140,20 @@ public class SendChannelValuesWorker {
 		public void run() {
 			// Holds the data of the last successful send. If the table is empty, it is also
 			// used as a marker to send all data.
-			final Table<String, String, JsonElement> lastSentValues;
+			final Table<String, String, JsonElement> lastAllValues;
 
 			if (this.parent.sendValuesOfAllChannels.getAndSet(false)) {
 				// Send values of all Channels once in a while
-				lastSentValues = ImmutableTable.of();
+				lastAllValues = ImmutableTable.of();
 
 			} else if (Duration.between(this.parent.lastSendValuesOfAllChannels, this.timestamp)
 					.getSeconds() > SEND_VALUES_OF_ALL_CHANNELS_AFTER_SECONDS) {
 				// Send values of all Channels if explicitly asked for
-				lastSentValues = ImmutableTable.of();
+				lastAllValues = ImmutableTable.of();
 
 			} else {
 				// Actually use the kept 'lastSentValues'
-				lastSentValues = this.parent.lastSentValues;
+				lastAllValues = this.parent.lastAllValues;
 			}
 
 			// Round timestamp to Global Cycle-Time
@@ -162,16 +161,12 @@ public class SendChannelValuesWorker {
 			final long timestampMillis = this.timestamp.toEpochMilli() / cycleTime * cycleTime;
 
 			// Prepare message values
-			// -> Table is faster for searching differences to last-sent-values
-			Table<String, String, JsonElement> sendValuesTable = HashBasedTable.create();
-			// -> Map is used for TimestampedDataNotification
 			Map<ChannelAddress, JsonElement> sendValuesMap = new HashMap<>();
 
 			// Collect Changed values
 			for (Entry<String, Map<String, JsonElement>> row : allValues.rowMap().entrySet()) {
 				for (Entry<String, JsonElement> column : row.getValue().entrySet()) {
-					if (!Objects.equals(column.getValue(), lastSentValues.get(row.getKey(), column.getKey()))) {
-						sendValuesTable.put(row.getKey(), column.getKey(), column.getValue());
+					if (!Objects.equals(column.getValue(), lastAllValues.get(row.getKey(), column.getKey()))) {
 						sendValuesMap.put(new ChannelAddress(row.getKey(), column.getKey()), column.getValue());
 					}
 				}
@@ -195,8 +190,8 @@ public class SendChannelValuesWorker {
 
 			if (wasSent) {
 				// Successfully sent: update information for next runs
-				this.parent.lastSentValues = sendValuesTable;
-				if (lastSentValues.isEmpty()) {
+				this.parent.lastAllValues = allValues;
+				if (lastAllValues.isEmpty()) {
 					// 'lastSentValues' was empty, i.e. all values were sent
 					this.parent.lastSendValuesOfAllChannels = this.timestamp;
 				}
