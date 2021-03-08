@@ -133,6 +133,18 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends OpenemsComponent> List<T> getEnabledComponentsOfType(Class<T> clazz) {
+		List<T> result = new ArrayList<>();
+		for (OpenemsComponent component : this.enabledComponents) {
+			if (component.getClass().isInstance(clazz)) {
+				result.add((T) component);
+			}
+		}
+		return result;
+	}
+
+	@Override
 	public List<OpenemsComponent> getAllComponents() {
 		return Collections.unmodifiableList(this.allComponents);
 	}

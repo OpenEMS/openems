@@ -9,21 +9,22 @@ The Simulator-App is a very specific component that needs to be handled with car
 CAUTION: Be aware that the SimulatorApp Component takes control over the complete OpenEMS Edge Application, i.e. if you enable it, it is going to *delete all existing Component configurations*! 
 
 To run a simulation:
-- Run OpenEMS Edge using the EdgeApp.bndrun
-- Configure a read-write JSON/REST Api
-- Send a https://openems.github.io/openems.io/openems/latest/edge/controller.html#_endpoint_jsonrpc[JSON-RPC Request] like the following, providing full configurations for all required OpenEMS Edge Components
+
+. Run OpenEMS Edge using the EdgeApp.bndrun
+. Open up Apache Felix Web Console and
+
+.. activate a "Controller Api REST/JSON Read-Write"
+.. activate a "Simulator App"
+
+. Send a https://openems.github.io/openems.io/openems/latest/edge/controller.html#_endpoint_jsonrpc[JSON-RPC Request] like the following, providing full configurations for all required OpenEMS Edge Components
 
 [source,json]
 ----
 {
-   "jsonrpc":"2.0",
-   "id":"7132233f-1ca3-1eb3-8800-86d246d47c1d",
    "method":"componentJsonApi",
    "params":{
       "componentId":"_simulator",
       "payload":{
-         "jsonrpc":"2.0",
-         "id":"addccd39-1bac-89c2-91ac-13bf5b1e9743",
          "method":"executeSimulation",
          "params":{
             "components":[
@@ -54,7 +55,7 @@ To run a simulation:
                      },
                      {
                         "name":"alias",
-                        "value":"Verbrauch"
+                        "value":"Consumption"
                      },
                      {
                         "name":"datasource.id",
@@ -71,7 +72,7 @@ To run a simulation:
                      },
                      {
                         "name":"alias",
-                        "value":"Süddach"
+                        "value":"South Roof"
                      },
                      {
                         "name":"datasource.id",
