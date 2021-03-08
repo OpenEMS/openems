@@ -15,7 +15,7 @@ public class ErrorHandler extends StateHandler<State, Context> {
 
 	@Override
 	protected State runAndGetNextState(Context context) throws OpenemsNamedException {
-
+		context.getParent();
 		if (this.attemptCounter > 5) {
 			// switch off
 			context.component.inverterOff();

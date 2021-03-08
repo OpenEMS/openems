@@ -7,11 +7,13 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.ess.sinexcel.Config;
+import io.openems.edge.ess.sinexcel.EssSinexcel;
 import io.openems.edge.ess.sinexcel.EssSinexcelImpl;
 import io.openems.edge.ess.sinexcel.statemachine.StateMachine.State;
 
-public class Context {
+public class Context extends AbstractContext<EssSinexcel>{
 	protected final EssSinexcelImpl component;
 	protected final ComponentManager componentManager;
 	protected final Battery battery;
@@ -30,8 +32,8 @@ public class Context {
 	protected Optional<Boolean> gridDetector;
 	protected Optional<Boolean> grounding;
 
-	public Context(EssSinexcelImpl component, ComponentManager componentManager, Battery battery, Config config) {
-		super();
+	public Context(EssSinexcelImpl component,  ComponentManager componentManager, Battery battery, Config config) {
+		super(component);
 		this.component = component;
 		this.componentManager = componentManager;
 		this.battery = battery;

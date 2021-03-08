@@ -8,76 +8,6 @@ import io.openems.edge.common.statemachine.StateHandler;
 
 public class StateMachine extends AbstractStateMachine<StateMachine.State, Context> {
 
-	/**
-	 * The states which is used in the sinexcel switch from On-grid mode to off-grid
-	 * mode and vice-versa. This switching needs total to 8 states, because state
-	 * transition is decided with 3 digital inputs
-	 * 
-	 * <table border="1">
-	 * 
-	 * <tr>
-	 * <td>DI1</td>
-	 * <td>DI2</td>
-	 * <td>DI3</td>
-	 * <td>State</td>
-	 * </tr>
-	 * <tr>
-	 * <td>0</td>
-	 * <td>0</td>
-	 * <td>0</td>
-	 * <td>State</td>
-	 * </tr>
-	 * 
-	 * <tr>
-	 * <td>0</td>
-	 * <td>0</td>
-	 * <td>1</td>
-	 * <td>State</td>
-	 * </tr>
-	 * 
-	 * <tr>
-	 * <td>0</td>
-	 * <td>1</td>
-	 * <td>0</td>
-	 * <td>State</td>
-	 * </tr>
-	 * 
-	 * <tr>
-	 * <td>0</td>
-	 * <td>1</td>
-	 * <td>1</td>
-	 * <td>State</td>
-	 * </tr>
-	 * 
-	 * <tr>
-	 * <td>1</td>
-	 * <td>0</td>
-	 * <td>0</td>
-	 * <td>State</td>
-	 * </tr>
-	 * 
-	 * <tr>
-	 * <td>1</td>
-	 * <td>0</td>
-	 * <td>1</td>
-	 * <td>State</td>
-	 * </tr>
-	 * 
-	 * <tr>
-	 * <td>1</td>
-	 * <td>1</td>
-	 * <td>0</td>
-	 * <td>State</td>
-	 * </tr>
-	 * 
-	 * <tr>
-	 * <td>1</td>
-	 * <td>1</td>
-	 * <td>1</td>
-	 * <td>State</td>
-	 * </tr>
-	 * </table>
-	 */
 	public enum State implements io.openems.edge.common.statemachine.State<State>, OptionsEnum {
 
 		UNDEFINED(-1), //
@@ -148,4 +78,76 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		throw new IllegalArgumentException("Unknown State [" + state + "]");
 	}
 
+	
+
+	/**
+	 * The states which is used in the sinexcel switch from On-grid mode to off-grid
+	 * mode and vice-versa. This switching needs total to 8 states, because state
+	 * transition is decided with 3 digital inputs
+	 * 
+	 * <table border="1">
+	 * 
+	 * <tr>
+	 * <td>DI1</td>
+	 * <td>DI2</td>
+	 * <td>DI3</td>
+	 * <td>State</td>
+	 * </tr>
+	 * <tr>
+	 * <td>0</td>
+	 * <td>0</td>
+	 * <td>0</td>
+	 * <td>State</td>
+	 * </tr>
+	 * 
+	 * <tr>
+	 * <td>0</td>
+	 * <td>0</td>
+	 * <td>1</td>
+	 * <td>State</td>
+	 * </tr>
+	 * 
+	 * <tr>
+	 * <td>0</td>
+	 * <td>1</td>
+	 * <td>0</td>
+	 * <td>State</td>
+	 * </tr>
+	 * 
+	 * <tr>
+	 * <td>0</td>
+	 * <td>1</td>
+	 * <td>1</td>
+	 * <td>State</td>
+	 * </tr>
+	 * 
+	 * <tr>
+	 * <td>1</td>
+	 * <td>0</td>
+	 * <td>0</td>
+	 * <td>State</td>
+	 * </tr>
+	 * 
+	 * <tr>
+	 * <td>1</td>
+	 * <td>0</td>
+	 * <td>1</td>
+	 * <td>State</td>
+	 * </tr>
+	 * 
+	 * <tr>
+	 * <td>1</td>
+	 * <td>1</td>
+	 * <td>0</td>
+	 * <td>State</td>
+	 * </tr>
+	 * 
+	 * <tr>
+	 * <td>1</td>
+	 * <td>1</td>
+	 * <td>1</td>
+	 * <td>State</td>
+	 * </tr>
+	 * </table>
+	 */
 }

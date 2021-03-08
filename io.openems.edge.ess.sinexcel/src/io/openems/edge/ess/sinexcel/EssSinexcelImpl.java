@@ -42,8 +42,10 @@ import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -84,10 +86,6 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 
 	protected int slowChargeVoltage = 4370; // for new batteries - 3940
 	protected int floatChargeVoltage = 4370; // for new batteries - 3940
-
-	private int a = 0;
-	private int counterOn = 0;
-	private int counterOff = 0;
 
 	/**
 	 * Manages the {@link State}s of the StateMachine.
@@ -290,7 +288,7 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 			setDcRelay.setNextWriteValue(0);
 		}
 	}
-    
+
 	/**
 	 * set the module to on grid mode. Reading back value makes no sense
 	 * 
@@ -298,10 +296,11 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 	 */
 	public void setOngridCommand() throws OpenemsNamedException {
 		EnumWriteChannel setdataGridOffCmd = this.channel(EssSinexcel.ChannelId.ON_GRID_CMD);
-		//IntegerWriteChannel setdataGridOffCmd = this.channel(EssSinexcel.ChannelId.ON_GRID_CMD);
+		// IntegerWriteChannel setdataGridOffCmd =
+		// this.channel(EssSinexcel.ChannelId.ON_GRID_CMD);
 		setdataGridOffCmd.setNextWriteValue(FalseTrue.TRUE); // 1: true, other: illegal
 	}
-	
+
 	/**
 	 * set the module to off grid mode. Reading back value makes no sense
 	 * 
@@ -310,7 +309,13 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 	public void setOffgridCommand() throws OpenemsNamedException {
 		EnumWriteChannel setdataGridOffCmd = this.channel(EssSinexcel.ChannelId.OFF_GRID_CMD);
 		setdataGridOffCmd.setNextWriteValue(FalseTrue.TRUE); // 1: true, other: illegal
-	}	
+	}
+
+	public void setclearFailureCommand() throws OpenemsNamedException {
+		EnumWriteChannel setClearFailureCmd = this.channel(EssSinexcel.ChannelId.CLEAR_FAILURE_CMD);
+		setClearFailureCmd.setNextWriteValue(FalseTrue.TRUE); // 1: true, other: illegal
+	}
+	
 	
 	/**
 	 * At first the PCS needs a stop command, then is required to remove the AC
@@ -365,6 +370,13 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 		return curState;
 	}
 
+//  SF: was commented before
+//	public boolean stateOn() {
+//		StateChannel v = this.channel(EssSinexcel.ChannelId.Sinexcel_STATE_9);
+//		Optional<Boolean> stateOff = v.getNextValue().asOptional(); 
+//		return stateOff.isPresent() && stateOff.get();
+//	}
+
 	/**
 	 * Helper to set all the digital output based on the param
 	 * 
@@ -380,12 +392,12 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 		setOutput(this.componentManager.getChannel(ChannelAddress.fromString(this.config.digitalOutput2())), value);
 
 	}
-	
-	
-	public void handleWritingDigitalOutputForMain(boolean value) throws IllegalArgumentException, OpenemsNamedException {
+
+	public void handleWritingDigitalOutputForMain(boolean value)
+			throws IllegalArgumentException, OpenemsNamedException {
 		// TODO Auto-generated method stub
 		setOutput(this.componentManager.getChannel(ChannelAddress.fromString(this.config.digitalOutput1())), value);
-		
+
 	}
 
 	/**
@@ -419,34 +431,17 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 
 	}
 
-//	/**
-//	 * Is Grid Shutdown?.
-//	 * 
-//	 * @return true if grid is shut down
-//	 */
-//	public boolean faultIslanding() {
-//		StateChannel channel = this.channel(EssSinexcel.ChannelId.STATE_4);
-//		Optional<Boolean> islanding = channel.getNextValue().asOptional();
-//		return islanding.isPresent() && islanding.get();
-//	}
-//
-//	/**
-//	 * Is inverter state ON?.
-//	 * 
-//	 * @return true if inverter is in ON-State
-//	 */
-//	public boolean isStateOn() {
-//		StateChannel channel = this.channel(EssSinexcel.ChannelId.STATE_18);
-//		Optional<Boolean> stateOff = channel.getNextValue().asOptional();
-//		return stateOff.isPresent() && stateOff.get();
-//	}
+	/**
+	 * Setting the frequency in the off grid mode
+	 * 
+	 * @throws OpenemsNamedException
+	 */
+	public Value<Integer> getFrequency() throws OpenemsNamedException {
 
-	// SF: was commented before
-//	public boolean stateOn() {
-//		StateChannel v = this.channel(EssSinexcel.ChannelId.Sinexcel_STATE_9);
-//		Optional<Boolean> stateOff = v.getNextValue().asOptional(); 
-//		return stateOff.isPresent() && stateOff.get();
-//	}
+		IntegerReadChannel getFreq = this.channel(EssSinexcel.ChannelId.FREQUENCY);
+		return getFreq.getNextValue();
+
+	}
 
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
@@ -714,30 +709,15 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 			IntegerWriteChannel setReactivePower = this.channel(EssSinexcel.ChannelId.SET_REACTIVE_POWER);
 			setReactivePower.setNextWriteValue(reactivePower / 100);
 
-			if (this.stateOnOff() == false) {
-				a = 1;
-			}
+			this.inverterOn();
+			boolean isOn = this.stateOnOff();
 
-			if (this.stateOnOff() == true) {
-				a = 0;
-			}
-
-			if (activePower == 0 && reactivePower == 0 && a == 0) {
-				this.counterOff++;
-				if (this.counterOff == 48) {
-					this.inverterOff();
-					this.counterOff = 0;
-				}
-
-			} else if ((activePower != 0 || reactivePower != 0) && a == 1) {
-				this.counterOn++;
-				if (this.counterOn == 48) {
-					this.inverterOn();
-					this.counterOn = 0;
-				}
+			if (!isOn) {
+				this.inverterOn();
+			} else {
+				return;
 			}
 			break;
-
 		case OFF:
 			if (this.stateOnOff() == true) {
 				this.inverterOff();
@@ -747,6 +727,62 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 			break;
 		}
 	}
+
+//	@Override
+//	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
+//
+//			IntegerWriteChannel setActivePower = this.channel(EssSinexcel.ChannelId.SET_ACTIVE_POWER);
+//			setActivePower.setNextWriteValue(activePower / 100);
+//
+//			IntegerWriteChannel setReactivePower = this.channel(EssSinexcel.ChannelId.SET_REACTIVE_POWER);
+//			setReactivePower.setNextWriteValue(reactivePower / 100);
+//
+//
+//	}
+
+//	@Override
+//	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
+//		switch (this.inverterState) {
+//		case ON:
+//			IntegerWriteChannel setActivePower = this.channel(EssSinexcel.ChannelId.SET_ACTIVE_POWER);
+//			setActivePower.setNextWriteValue(activePower / 100);
+//
+//			IntegerWriteChannel setReactivePower = this.channel(EssSinexcel.ChannelId.SET_REACTIVE_POWER);
+//			setReactivePower.setNextWriteValue(reactivePower / 100);
+//
+//			if (this.stateOnOff() == false) {
+//				a = 1;
+//			}
+//
+//			if (this.stateOnOff() == true) {
+//				a = 0;
+//			}
+//
+//			if (activePower == 0 && reactivePower == 0 && a == 0) {
+//				this.counterOff++;
+//				if (this.counterOff == 48) {
+//					this.inverterOff();
+//					this.counterOff = 0;
+//				}
+//
+//			} else if ((activePower != 0 || reactivePower != 0) && a == 1) {
+//				this.counterOn++;
+//				if (this.counterOn == 48) {
+//					this.inverterOn();
+//					this.counterOn = 0;
+//				}
+//			}
+//			break;
+//
+//		case OFF:
+//			if (this.stateOnOff() == true) {
+//				this.inverterOff();
+//			} else {
+//				return;
+//			}
+//			break;
+//		}
+//	}
 
 	@Override
 	public void handleEvent(Event event) {
@@ -806,7 +842,5 @@ public class EssSinexcelImpl extends AbstractOpenemsModbusComponent
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
-
-
 
 }

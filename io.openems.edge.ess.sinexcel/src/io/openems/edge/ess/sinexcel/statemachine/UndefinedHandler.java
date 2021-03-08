@@ -28,7 +28,7 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 		
 		// This should never happen	
 		case START:			
-		case STOP:		
+		case STOP:	
 			break;
 		
 		}		

@@ -35,7 +35,7 @@ public class EssSinexcelImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("power", new DummyPower()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //.
 				.addReference("setBattery", new DummyBattery(BATTERY_ID)) //
 				.addComponent(new DummyInputOutput(IO_ID)) //
 				.activate(MyConfig.create() //
