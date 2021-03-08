@@ -33,8 +33,6 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		
-		//TODO For Nominal Voltage and adjust everywhere used
-		
 		/**
 		 * State of Charge.
 		 * 
@@ -95,8 +93,6 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		
-		
-		//TODO Change to [Ah] and adjust everywhere used and where it is consumed
 		CAPACITY(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE_HOURS)),
 
