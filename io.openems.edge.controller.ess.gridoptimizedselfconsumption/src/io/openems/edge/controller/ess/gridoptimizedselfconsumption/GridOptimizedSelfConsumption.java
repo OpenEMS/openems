@@ -12,11 +12,10 @@ public interface GridOptimizedSelfConsumption extends Controller, OpenemsCompone
 				.text("Current State of State-Machine")),
 		CHARGE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.text("Charge-Power limitation")),
-		TARGET_HOUR_ACTUAL(Doc.of(OpenemsType.INTEGER) //
-				.text("Actual Target hour calculated from prediction")),
-		TARGET_HOUR_ADJUSTED(Doc.of(OpenemsType.INTEGER) //
-				.text("Actual Target hour calculated from prediction"));
-
+		TARGET_MINUTE_ACTUAL(Doc.of(OpenemsType.INTEGER) //
+				.text("Actual target minute calculated from prediction without buffer hours")),
+		TARGET_MINUTE_ADJUSTED(Doc.of(OpenemsType.INTEGER) //
+				.text("Adjusted target minute calculated from prediction including the buffer hours"));
 		;
 
 		private final Doc doc;

@@ -2,6 +2,8 @@ package io.openems.edge.controller.ess.gridoptimizedselfconsumption;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -19,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -29,7 +33,6 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
-import io.openems.edge.predictor.api.oneday.Predictor24Hours;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -44,24 +47,15 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 
 	private Config config = null;
 
-	/**
-	 * The number of buffer hours to make sure the battery still charges full, even
-	 * on prediction errors.
-	 */
-	private int noOfBufferHours;
-
-	private boolean isTargetHourCalculated = false;
-	private Integer targetHour;
+	private Integer targetMinute;
 	private boolean debugMode;
-	private Integer[] hourlyProduction = new Integer[24];
-	private Integer[] hourlyConsumption = new Integer[24];
 
 	@Reference
 	protected PredictorManager predictorManager;
-	
+
 	@Reference
 	protected ComponentManager componentManager;
-	
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -83,6 +77,7 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
+		this.debugMode = config.debugMode();
 
 		// update filter for 'ess'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
@@ -95,6 +90,7 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -136,16 +132,13 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 			this.ess.setActivePowerLessOrEquals(essPowerLimit);
 		}
 
-//		getCalculatedPowerLimit();
-
-
+		getCalculatedPowerLimit();
 
 		if (this.ess instanceof HybridEss) {
 
 		}
 
 	}
-	
 
 	/**
 	 * Calculates the charging power limit for the current cycle.
@@ -154,117 +147,163 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 	 *         applied
 	 * @throws OpenemsNamedException on error
 	 */
-//	public Integer getCalculatedPowerLimit() throws OpenemsNamedException {
-//
-//		ZonedDateTime now = ZonedDateTime.now(this.componentManager.getClock()).withZoneSameInstant(ZoneOffset.UTC);
-//
-//		Integer calculatedPower = null;
-//		
-//		Prediction24Hours hourlyProduction = this.predictorManager.get24HoursPrediction(new ChannelAddress("_sum", "ProductionActivePower"));
-//		Prediction24Hours hourlyConsumption = this.predictorManager.get24HoursPrediction(new ChannelAddress("_sum", "ConsumptionActivePower"));
-//
-//		
-//		/*
-//		 * Calculate the target hour once at midnight.
-//		 * 
-//		 * Possible improvement: calculate the target hour more often, e.g. once every
-//		 * hour to incorporate more accurate prediction during the day.
-//		 * 
-//		 * TODO: make sure target hour is calculated immediately at start of OpenEMS and
-//		 * not only at next midnight.
-//		 */
-//		if (now.getHour() == 0 && !this.isTargetHourCalculated) {
-//			
-//			Integer[] hourlyProduction = productionHourlyPredictor.get24hPrediction().getValues();
-//			Integer[] hourlyConsumption = consumptionHourlyPredictor.get24hPrediction().getValues();
-//
-//// Start hour of the predicted values
-//			ZonedDateTime predictionStartHour = productionHourlyPredictor.get24hPrediction().getStart();
-//
-//// For Debug Purpose
-//			this.hourlyProduction = hourlyProduction;
-//			this.hourlyConsumption = hourlyConsumption;
-//
-//// calculating target hour
-//			this.targetHour = this.calculateTargetHour(hourlyProduction, hourlyConsumption, predictionStartHour);
-//
-//// for running once
-//			this.isTargetHourCalculated = true;
-//		}
-//
-//		if (now.getHour() == 1 && this.isTargetHourCalculated) {
-//			this.isTargetHourCalculated = false;
-//		}
-//
-////Displays the production values in log.
-//		if (this.debugMode) {
-//			for (int i = 0; i < 24; i++) {
-//				System.out.println("Production[" + i + "] " + " - " + this.hourlyProduction[i] + " this.Consumption["
-//						+ i + "] " + " - " + hourlyConsumption[i]);
-//			}
-//			this.debugMode = false;
-//		}
-//
-////target hour = null --> not enough production or Initial run(no values)
-//		if (this.targetHour == null) {
-//			this.setChannels(State.TARGET_HOUR_NOT_CALCULATED, 0);
-//			return null;
-//		}
-//
-////crossed target hour
-//		if (now.getHour() >= this.targetHour) {
-//
-//			this.setChannels(State.PASSED_TARGET_HOUR, 0);
-//			return null;
-//		}
-//
-////battery capacity in wh
-//		int capacity = ess.getCapacity().getOrError();
-//
-////Remaining capacity of the battery in Ws till target point.
-//		int remainingCapacity = capacity * (100 - ess.getSoc().getOrError()) * 36;
-//
-////No remaining capacity -> no restrictions
-//		if (remainingCapacity < 0) {
-//			this.setChannels(State.NO_REMAINING_CAPACITY, 0);
-//			return null;
-//		}
-//
-////remaining time in seconds till the target point.
-//		int remainingTime = calculateRemainingTime();
-//
-////calculate charge power limit
-//		calculatedPower = remainingCapacity / remainingTime;
-//
-////reduce limit to MaxApparentPower to avoid very high values in the last
-////seconds
-//		calculatedPower = Math.min(calculatedPower, ess.getMaxApparentPower().getOrError());
-//
-//		this.setChannels(State.ACTIVE_LIMIT, calculatedPower);
-//
-//		return calculatedPower;
-//	}
+	public Integer getCalculatedPowerLimit() throws OpenemsNamedException {
+
+		ZonedDateTime now = ZonedDateTime.now(this.componentManager.getClock()).withZoneSameInstant(ZoneOffset.UTC);
+
+		Integer calculatedPower = null;
+
+		// Predictions
+		Prediction24Hours hourlyPredictionProduction = this.predictorManager
+				.get24HoursPrediction(new ChannelAddress("_sum", "ProductionActivePower"));
+		Prediction24Hours hourlyPredictionConsumption = this.predictorManager
+				.get24HoursPrediction(new ChannelAddress("_sum", "ConsumptionActivePower"));
+		ZonedDateTime predictionStartQuarterHour = (roundZonedDateTimeDownTo15Minutes(now));
+
+		// Predictions as Integer array
+		Integer[] hourlyProduction = hourlyPredictionProduction.getValues();
+		Integer[] hourlyConsumption = hourlyPredictionConsumption.getValues();
+
+		/*
+		 * Calculate the target hour once at midnight.
+		 * 
+		 * Possible improvement: calculate the target hour more often, e.g. once every
+		 * hour to incorporate more accurate prediction during the day.
+		 * 
+		 * TODO: make sure target hour is calculated immediately at start of OpenEMS and
+		 * not only at next midnight.
+		 */
+		// if (now.getHour() == 0 && !this.isTargetHourCalculated) {
+
+		// Integer[] hourlyProduction =
+		// productionHourlyPredictor.get24hPrediction().getValues();
+		// Integer[] hourlyConsumption =
+		// consumptionHourlyPredictor.get24hPrediction().getValues();
+
+// calculating target hour
+		this.targetMinute = this.calculateTargetMinute(hourlyProduction, hourlyConsumption, predictionStartQuarterHour);
+
+// for running once
+		// this.isTargetHourCalculated = true;
+		// }
+
+		// if (now.getHour() == 1 && this.isTargetHourCalculated) {
+		// this.isTargetHourCalculated = false;
+		// }
+
+//Displays the production values in log.
+		if (this.debugMode) {
+			for (int i = 0; i < 24; i++) {
+				this.logDebug(log, "Production[" + i + "] " + " - " + hourlyProduction[i] + " this.Consumption[" + i
+						+ "] " + " - " + hourlyConsumption[i]);
+
+				this.debugMode = false;
+			}
+		}
+
+//target hour = null --> not enough production or Initial run(no values)
+		if (this.targetMinute == null) {
+			this.setChannels(State.TARGET_HOUR_NOT_CALCULATED, 0);
+			return null;
+		}
+
+//crossed target hour
+		if (now.get(ChronoField.MINUTE_OF_DAY) >= this.targetMinute) {
+
+			this.setChannels(State.PASSED_TARGET_HOUR, 0);
+			return null;
+		}
+
+//battery capacity in wh
+		int capacity = ess.getCapacity().getOrError();
+
+//Remaining capacity of the battery in Ws till target point.
+		int remainingCapacity = capacity * (100 - ess.getSoc().getOrError()) * 36;
+
+//No remaining capacity -> no restrictions
+		if (remainingCapacity < 0) {
+			this.setChannels(State.NO_REMAINING_CAPACITY, 0);
+			return null;
+		}
+
+//remaining time in seconds till the target point.
+		int remainingTime = calculateRemainingTime(now);
+
+//calculate charge power limit
+		calculatedPower = remainingCapacity / remainingTime;
+
+//reduce limit to MaxApparentPower to avoid very high values in the last
+//seconds
+		calculatedPower = Math.min(calculatedPower, ess.getMaxApparentPower().getOrError());
+
+		this.setChannels(State.ACTIVE_LIMIT, calculatedPower);
+
+		return calculatedPower;
+	}
 
 	/**
 	 * Calculates the number of seconds left to the target hour.
 	 * 
 	 * @return the remaining time
 	 */
-	private int calculateRemainingTime() {
-		int targetSecondOfDay = this.targetHour * 3600;
-		int remainingTime = targetSecondOfDay - this.currentSecondOfDay();
+	private int calculateRemainingTime(ZonedDateTime now) {
+		int targetSecondOfDay = this.targetMinute * 60;
+		int remainingTime = targetSecondOfDay - now.get(ChronoField.SECOND_OF_DAY);
 
 		return remainingTime;
 	}
 
 	/**
-	 * Gets the current second of the day.
+	 * Calculates the target minute from quarter-hourly production and consumption
+	 * predictions.
 	 * 
-	 * @return the current second of the day
+	 * @param hourlyProduction           the production prediction
+	 * @param hourlyConsumption          the consumption prediction
+	 * @param predictionStartQuarterHour the prediction start quarterHour
+	 * @return the target hour
 	 */
-	private int currentSecondOfDay() {
-		ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(ZoneOffset.UTC);
-		return now.getHour() * 3600 + now.getMinute() * 60 + now.getSecond();
+	private Integer calculateTargetMinute(Integer[] quaterHourlyProduction, Integer[] quaterHourlyConsumption,
+			ZonedDateTime predictionStartQuarterHour) {
+
+		// lastQuaterHour --> last hour when production was greater than consumption.
+		int lastQuaterHour = 0;
+		Integer targetMinuteActual = null;
+		Integer targetMinuteAdjusted = null;
+		int predictionStartQuarterHourIndex = predictionStartQuarterHour.get(ChronoField.MINUTE_OF_DAY) / 15;
+
+		// iterate predictions till midnight
+		for (int i = 0; i < (96 - predictionStartQuarterHourIndex); i++) {
+			// to avoid null and negative consumption values.
+			if ((quaterHourlyProduction[i] != null && quaterHourlyConsumption[i] != null
+					&& quaterHourlyConsumption[i] >= 0)) {
+
+				// Updating last quarter hour if production is higher than consumption plus
+				// power buffer
+				if (quaterHourlyProduction[i] > quaterHourlyConsumption[i] + this.config.powerBuffer()) {
+					lastQuaterHour = i;
+				}
+			}
+		}
+		if (lastQuaterHour > 0) {
+
+			// targetSecondActual = lastQuaterHour;
+			targetMinuteActual = predictionStartQuarterHour.plusMinutes(lastQuaterHour * 15)
+					.get(ChronoField.MINUTE_OF_DAY);
+
+			// target hour adjusted based on buffer hour.
+			targetMinuteAdjusted = targetMinuteActual - this.config.noOfBufferMinutes();
+		}
+
+		// setting the channel id values
+		IntegerReadChannel targetHourActualValue = this
+				.channel(GridOptimizedSelfConsumption.ChannelId.TARGET_MINUTE_ACTUAL);
+		targetHourActualValue.setNextValue(targetMinuteActual);
+
+		IntegerReadChannel targetHourAdjustedValue = this
+				.channel(GridOptimizedSelfConsumption.ChannelId.TARGET_MINUTE_ADJUSTED);
+		targetHourAdjustedValue.setNextValue(targetMinuteAdjusted);
+
+		return targetMinuteAdjusted;
 	}
 
 	/**
@@ -273,14 +312,23 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 	 * @param state the {@link State}
 	 * @param limit the ChargePowerLimit
 	 */
-//private void setChannels(State state, int limit) {
-//	EnumReadChannel stateMachineChannel = this.channel(AbstractPredictiveDelayCharge.ChannelId.STATE_MACHINE);
-//	stateMachineChannel.setNextValue(state);
-//
-//	IntegerReadChannel chargePowerLimitChannel = this
-//			.channel(AbstractPredictiveDelayCharge.ChannelId.CHARGE_POWER_LIMIT);
-//	chargePowerLimitChannel.setNextValue(limit);
-//}
+	private void setChannels(State state, int limit) {
+		EnumReadChannel stateMachineChannel = this.channel(GridOptimizedSelfConsumption.ChannelId.STATE_MACHINE);
+		stateMachineChannel.setNextValue(state);
 
+		IntegerReadChannel chargePowerLimitChannel = this
+				.channel(GridOptimizedSelfConsumption.ChannelId.CHARGE_POWER_LIMIT);
+		chargePowerLimitChannel.setNextValue(limit);
+	}
 
+	/**
+	 * Rounds a {@link ZonedDateTime} down to 15 minutes.
+	 * 
+	 * @param d the {@link ZonedDateTime}
+	 * @return the rounded result
+	 */
+	private static ZonedDateTime roundZonedDateTimeDownTo15Minutes(ZonedDateTime d) {
+		int minuteOfDay = d.get(ChronoField.MINUTE_OF_DAY);
+		return d.with(ChronoField.NANO_OF_DAY, 0).plus(minuteOfDay / 15 * 15, ChronoUnit.MINUTES);
+	}
 }

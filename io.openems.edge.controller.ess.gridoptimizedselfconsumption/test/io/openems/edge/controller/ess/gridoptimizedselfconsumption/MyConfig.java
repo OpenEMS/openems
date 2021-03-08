@@ -10,7 +10,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public String essId;
 		public String meterId;
 		public int maximumSellToGridPower;
-		
+		public int noOfBufferMinutes;
+		public int powerBuffer;
+
 		private Builder() {
 		}
 
@@ -18,7 +20,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.id = id;
 			return this;
 		}
-		
+
 		public Builder setEssId(String essId) {
 			this.essId = essId;
 			return this;
@@ -31,6 +33,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setMaximumSellToGridPower(int maximumSellToGridPower) {
 			this.maximumSellToGridPower = maximumSellToGridPower;
+			return this;
+		}
+
+		public Builder setNoOfBufferMinutes(int noOfBufferMinutes) {
+			this.noOfBufferMinutes = noOfBufferMinutes;
+			return this;
+		}
+
+		public Builder setPowerBuffer(int powerBuffer) {
+			this.powerBuffer = powerBuffer;
 			return this;
 		}
 
@@ -71,6 +83,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public int noOfBufferMinutes() {
+		return this.builder.noOfBufferMinutes;
+	}
+
+	@Override
 	public String ess_target() {
 		return "(&(enabled=true)(!(service.pid=ctrlGridOptimizedSelfConsumption0))(|(id=" + this.ess_id() + ")))";
 	}
@@ -78,5 +95,15 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String meter_target() {
 		return "(&(enabled=true)(!(service.pid=ctrlGridOptimizedSelfConsumption0))(|(id=" + this.meter_id() + ")))";
+	}
+
+	@Override
+	public boolean debugMode() {
+		return false;
+	}
+
+	@Override
+	public int powerBuffer() {
+		return this.builder.powerBuffer;
 	}
 }
