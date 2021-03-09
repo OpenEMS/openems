@@ -74,7 +74,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 	private final DummyWebsocketServer.Builder builder;
 
 	private DummyWebsocketServer(DummyWebsocketServer.Builder builder) {
-		super("DummyWebsocketServer", 0 /* auto-select port */);
+		super("DummyWebsocketServer", 0 /* auto-select port */, 1 /* pool size */, false);
 		this.builder = builder;
 	}
 

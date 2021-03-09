@@ -1,5 +1,6 @@
 package io.openems.common.jsonrpc.request;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import com.google.gson.JsonObject;
@@ -8,6 +9,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
 
 /**
  * Represents a JSON-RPC Request to authenticate with a Password.
@@ -20,6 +22,7 @@ import io.openems.common.utils.JsonUtils;
  *   "id": "UUID",
  *   "method": "authenticateWithPassword",
  *   "params": {
+ *     "username"?: string,
  *     "password": string
  *   }
  * }
@@ -31,23 +34,30 @@ public class AuthenticateWithPasswordRequest extends JsonrpcRequest {
 
 	public static AuthenticateWithPasswordRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
+		Optional<String> username = JsonUtils.getAsOptionalString(p, "username");
 		String password = JsonUtils.getAsString(p, "password");
-		return new AuthenticateWithPasswordRequest(r.getId(), password);
+		return new AuthenticateWithPasswordRequest(r.getId(), username, password);
 	}
 
 	public static AuthenticateWithPasswordRequest from(JsonObject j) throws OpenemsNamedException {
 		return from(GenericJsonrpcRequest.from(j));
 	}
 
+	private final Optional<String> username;
 	private final String password;
 
-	public AuthenticateWithPasswordRequest(UUID id, String password) {
+	public AuthenticateWithPasswordRequest(UUID id, Optional<String> username, String password) {
 		super(id, METHOD);
+		this.username = username;
 		this.password = password;
 	}
 
-	public AuthenticateWithPasswordRequest(String password) {
-		this(UUID.randomUUID(), password);
+	public AuthenticateWithPasswordRequest(Optional<String> username, String password) {
+		this(UUID.randomUUID(), username, password);
+	}
+
+	public Optional<String> getUsername() {
+		return username;
 	}
 
 	public String getPassword() {
@@ -56,8 +66,11 @@ public class AuthenticateWithPasswordRequest extends JsonrpcRequest {
 
 	@Override
 	public JsonObject getParams() {
-		return JsonUtils.buildJsonObject() //
-				.addProperty("password", this.password) //
-				.build();
+		JsonObjectBuilder result = JsonUtils.buildJsonObject() //
+				.addProperty("password", this.password); //
+		if (this.username.isPresent()) {
+			result.addProperty("username", this.username.get()); //
+		}
+		return result.build();
 	}
 }
