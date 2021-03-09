@@ -93,6 +93,7 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 					break; // stop forever loop
 				} catch (Exception e) {
 					this.logError(this.log, e.getMessage());
+					this._setCommunicationFailed(true);
 					e.printStackTrace();
 				}
 				try {
@@ -101,6 +102,7 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 					this.logError(this.log, e.getMessage());
 				}
 			}
+			this._setCommunicationFailed(false);
 		};
 		this.configFuture = configExecutor.schedule(initializeLibrary, 0, TimeUnit.SECONDS);
 	}
