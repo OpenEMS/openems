@@ -67,8 +67,12 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	private final ApplyPowerStateMachine applyPowerStateMachine = new ApplyPowerStateMachine(
 			ApplyPowerStateMachine.State.UNDEFINED);
 
-	private int batteryModuleNumber;
-	private int leadBatteryCapacity;
+	// For Fenecon Home Battery, Lead Battery Capacity has to be set as a battery
+	// parameter
+	private static final int LEAD_BATTERY_CAPACITY = 200;
+	// Fenecon Home Battery Static module min voltage, used to calculte battery
+	// module number per tower
+	private static final int MODULE_MIN_VOLTAGE = 42;
 
 	/**
 	 * Holds the latest known SoC. Updated in {@link #run(Battery, int, int)}.
@@ -86,8 +90,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				"Modbus", config.modbus_id())) {
 			return;
 		}
-		this.batteryModuleNumber = config.batteryString();
-		this.leadBatteryCapacity = config.leadBatteryCapacity();
 	}
 
 	@Deactivate
@@ -143,13 +145,14 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
 		// Battery String
 		IntegerWriteChannel bmsBatteryString = this.channel(GoodWe.ChannelId.BATT_STRINGS);
-		if (!Objects.equals(bmsBatteryString.value().orElse(0), this.batteryModuleNumber)) {
-			bmsBatteryString.setNextWriteValue(this.batteryModuleNumber);
+		if (!Objects.equals(bmsBatteryString.value().orElse(0),
+				(battery.getDischargeMinVoltage().orElse(0) / MODULE_MIN_VOLTAGE))) {
+			bmsBatteryString.setNextWriteValue(battery.getDischargeMinVoltage().orElse(0) / MODULE_MIN_VOLTAGE);
 		}
 
 		IntegerWriteChannel bmsLeadBatCapacity = this.channel(GoodWe.ChannelId.LEAD_BAT_CAPACITY);
-		if (!Objects.equals(bmsLeadBatCapacity.value().orElse(0), this.leadBatteryCapacity)) {
-			bmsLeadBatCapacity.setNextWriteValue(this.leadBatteryCapacity);
+		if (!Objects.equals(bmsLeadBatCapacity.value().orElse(0), LEAD_BATTERY_CAPACITY)) {
+			bmsLeadBatCapacity.setNextWriteValue(LEAD_BATTERY_CAPACITY);
 		}
 
 		IntegerWriteChannel bmsVoltUnderMin = this.channel(GoodWe.ChannelId.BATT_VOLT_UNDER_MIN);
