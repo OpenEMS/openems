@@ -27,7 +27,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 public class BackendWorker {
 
 	private static final int SEND_VALUES_OF_ALL_CHANNELS_AFTER_SECONDS = 300; /* 5 minutes */
-	private static final int MAX_CACHED_MESSAGES = 100;
 
 	private final Logger log = LoggerFactory.getLogger(BackendWorker.class);
 	private final BackendApiImpl parent;
