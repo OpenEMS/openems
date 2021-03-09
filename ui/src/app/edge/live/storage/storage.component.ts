@@ -15,6 +15,9 @@ export class StorageComponent {
 
     private static readonly SELECTOR = "storage";
 
+    // public storageItem: string;
+    // '<img *ngIf="CurrentData.summary.storage.soc < 20; else twoBars" src="assets/img/storage_20.png" /><ng-template #twoBars><img *ngIf="CurrentData.summary.storage.soc < 40; else threeBars" src="assets/img/storage_40.png" /></ng-template><ng-template #threeBars><img *ngIf="CurrentData.summary.storage.soc < 60; else fourBars" src="assets/img/storage_60.png" /></ng-template><ng-template #fourBars><img *ngIf="CurrentData.summary.storage.soc < 80; else fiveBars" src="assets/img/storage_80.png" /></ng-template><ng-template #fiveBars><img src="assets/img/storage_100.png" /></ng-template>'
+
     public edge: Edge = null;
     public config: EdgeConfig = null;
     public essComponents: EdgeConfig.Component[] = null;
@@ -29,6 +32,7 @@ export class StorageComponent {
         private route: ActivatedRoute,
         public modalCtrl: ModalController,
     ) { }
+
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
@@ -72,6 +76,7 @@ export class StorageComponent {
                             new ChannelAddress(component.id, 'ActivePowerL2'),
                             new ChannelAddress(component.id, 'ActivePowerL3')
                         );
+                        console.log("Channels: ", this.channelAdresses)
                     }
                 }
                 this.channelAdresses.push(
@@ -83,8 +88,9 @@ export class StorageComponent {
                     new ChannelAddress('_sum', 'EssActivePowerL3'),
                     new ChannelAddress('_sum', 'EssCapacity'),
                 )
-                // this.edge.subscribeChannels(this.websocket, StorageComponent.SELECTOR, channelAdress);
+                this.edge.subscribeChannels(this.websocket, StorageComponent.SELECTOR, this.channelAdresses);
                 return this.channelAdresses;
+
             })
         });
     }

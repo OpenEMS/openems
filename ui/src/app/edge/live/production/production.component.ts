@@ -16,6 +16,7 @@ export class ProductionComponent {
     public edge: Edge = null;
     public productionMeterComponents: EdgeConfig.Component[] = [];
     public chargerComponents: EdgeConfig.Component[] = [];
+    public channelAdresses: ChannelAddress[] = [];
 
     constructor(
         private route: ActivatedRoute,
@@ -29,20 +30,23 @@ export class ProductionComponent {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.config = config;
-                let channels = [];
+                this.channelAdresses = [];
                 this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").filter(component => component.isEnabled);
                 for (let component of this.chargerComponents) {
-                    channels.push(
+                    this.channelAdresses.push(
                         new ChannelAddress(component.id, 'ActualPower'),
                     )
                 }
                 this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.isEnabled && config.isProducer(component));
                 for (let component of this.productionMeterComponents) {
-                    channels.push(
+                    this.channelAdresses.push(
                         new ChannelAddress(component.id, 'ActivePower')
                     );
+                    console.log("Productionmetercomponents, component id: ", component.id);
+                    console.log("Productionmetercomponents, channel: ", this.channelAdresses);
+
                 }
-                channels.push(
+                this.channelAdresses.push(
                     new ChannelAddress('_sum', 'ProductionActivePower'),
                     new ChannelAddress('_sum', 'ProductionAcActivePower'),
                     // channels for modal component, subscribe here for better UX
@@ -50,7 +54,8 @@ export class ProductionComponent {
                     new ChannelAddress('_sum', 'ProductionAcActivePowerL2'),
                     new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
                 )
-                this.edge.subscribeChannels(this.websocket, ProductionComponent.SELECTOR, channels);
+                console.log("productioncomponents: -----------------", this.channelAdresses)
+                // this.edge.subscribeChannels(this.websocket, ProductionComponent.SELECTOR, this.channelAdresses);
             })
         })
     };
