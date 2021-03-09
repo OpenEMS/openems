@@ -3,6 +3,9 @@ package io.openems.edge.battery.fenecon.home;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
 
+/**
+ * This class used to create Cell Voltage and Temperature Dynamic Channels
+ */
 public class ChannelIdImpl implements ChannelId {
 	;
 

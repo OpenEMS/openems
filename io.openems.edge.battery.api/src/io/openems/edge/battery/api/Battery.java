@@ -92,9 +92,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		
 		CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE_HOURS)),
+				.unit(Unit.WATT_HOURS)),
 
 		/**
 		 * Maximal voltage for charging.
