@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CaseFormat;
 
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.OptionsEnum;
@@ -238,7 +239,8 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 						.get(io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel(channelName));
 				if (channel == null) {
 					// Channel does not already exist -> create new Channel
-					Doc doc = AbstractOpenemsComponent.getDocFromObject(value);
+					AbstractDoc<?> doc = AbstractOpenemsComponent.getDocFromObject(value);
+					doc.persistencePriority(PersistencePriority.MEDIUM);
 					io.openems.edge.common.channel.ChannelId channelId = new io.openems.edge.common.channel.ChannelId() {
 
 						@Override
