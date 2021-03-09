@@ -1,4 +1,4 @@
-package io.openems.edge.io.kmtronic;
+package io.openems.edge.io.kmtronic.four;
 
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
