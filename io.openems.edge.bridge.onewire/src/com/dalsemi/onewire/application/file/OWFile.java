@@ -377,7 +377,6 @@ public class OWFile {
 	 * abstract pathname and the child abstract pathname is resolved against the
 	 * parent.
 	 *
-	 * @param owd    OneWireContainer that this Filesystem resides on
 	 * @param parent The parent abstract pathname
 	 * @param child  The child pathname string
 	 * @throws NullPointerException If <code>child</code> is <code>null</code>
@@ -957,8 +956,7 @@ public class OWFile {
 	 *         value greater than zero if this abstract pathname is
 	 *         lexicographically greater than the argument
 	 *
-	 * @throws <code>ClassCastException</code> if the argument is not an abstract
-	 * pathname
+	 * @throws ClassCastException if the argument is not an abstract pathname
 	 *
 	 * @see java.lang.Comparable
 	 */
@@ -995,8 +993,8 @@ public class OWFile {
 	 * codes. On UNIX systems, the hash code of an abstract pathname is equal to the
 	 * exclusive <em>or</em> of its pathname string and the decimal value
 	 * <code>1234321</code>. On Win32 systems, the hash code is equal to the
-	 * exclusive <em>or</em> of its pathname string, converted to lower case, and the
-	 * decimal value <code>1234321</code>.
+	 * exclusive <em>or</em> of its pathname string, converted to lower case, and
+	 * the decimal value <code>1234321</code>.
 	 *
 	 * @return A hash code for this abstract pathname
 	 */

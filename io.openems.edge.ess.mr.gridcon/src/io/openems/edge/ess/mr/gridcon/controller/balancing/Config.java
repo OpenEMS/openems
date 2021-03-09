@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.ess.mr.gridcon.enums.BalancingMode;
 
 @ObjectClassDefinition(//
-		name = "Controller Set Balancing Mode", //
+		name = "MR Gridcon Controller Set Balancing Mode", //
 		description = "Sets the balancing mode for the gridcon.")
 @interface Config {
 
@@ -25,5 +25,5 @@ import io.openems.edge.ess.mr.gridcon.enums.BalancingMode;
 	@AttributeDefinition(name = "Balancing mode", description = "Balancing Mode for Gridon")
 	BalancingMode balancingMode() default BalancingMode.DISABLED;
 
-	String webconsole_configurationFactory_nameHint() default "Controller MR SetBalancingMode [{id}]";
+	String webconsole_configurationFactory_nameHint() default "MR Gridcon Controller Set Balancing Mode [{id}]";
 }

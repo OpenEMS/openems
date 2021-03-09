@@ -18,7 +18,11 @@ import io.openems.edge.ess.mr.gridcon.GridconPcs;
 import io.openems.edge.ess.mr.gridcon.enums.FundamentalFrequencyMode;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.MR.FundamentalFrequency", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Controller.MR.FundamentalFrequency", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class FundamentalFrequency extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	@Reference

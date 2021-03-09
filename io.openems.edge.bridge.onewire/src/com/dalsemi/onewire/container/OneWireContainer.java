@@ -130,7 +130,7 @@ public class OneWireContainer {
 	 * <li>1 (SPEED_FLEX)
 	 * <li>2 (SPEED_OVERDRIVE)
 	 * <li>3 (SPEED_HYPERDRIVE)
-	 * <li>>3 future speeds
+	 * <li>&gt;3 future speeds
 	 * </ul>
 	 *
 	 * @see DSPortAdapter#setSpeed
@@ -357,7 +357,7 @@ public class OneWireContainer {
 	 *                 overdrive
 	 *                 <li>3 (SPEED_HYPERDRIVE) set to normal communication speed to
 	 *                 hyperdrive
-	 *                 <li>>3 future speeds
+	 *                 <li>&gt;3 future speeds
 	 *                 </ul>
 	 *
 	 * @param fallBack boolean indicating it is OK to fall back to a slower speed if

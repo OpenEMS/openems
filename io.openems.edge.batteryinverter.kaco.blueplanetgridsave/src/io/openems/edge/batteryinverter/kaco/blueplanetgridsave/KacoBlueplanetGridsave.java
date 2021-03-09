@@ -22,11 +22,13 @@ public interface KacoBlueplanetGridsave
 		extends ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, StartStoppable {
 
 	/**
-	 * Sets the KACO watchdog to 10 cycles, i.e. if the Cycle-Time is 1 second (=
-	 * default), the watchdog gets set to 10 seconds. The watchdog gets triggered
-	 * after half of the time passed (i.e. every 5 seconds).
+	 * Sets the KACO watchdog timeout to 60 seconds.
 	 */
-	public static final int WATCHDOG_CYCLES = 10;
+	public static final int WATCHDOG_TIMEOUT_SECONDS = 60;
+	/**
+	 * The watchdog gets triggered every WATCHDOG_TRIGGER_CYCLES seconds. This must be less than WATCHDOG_TIMEOUT_SECONDS.
+	 */
+	public static final int WATCHDOG_TRIGGER_SECONDS = 10;
 
 	/**
 	 * Retry set-command after x Seconds, e.g. for starting battery or

@@ -45,8 +45,7 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * <H2>Features</H2>
  * <UL>
  * <LI>64 bit unique serial number
- * <LI>Operating temperature range from -40@htmlonly &#176C @endhtmlonly to
- * +85@htmlonly &#176C @endhtmlonly
+ * <LI>Operating temperature range from -40 to +85
  * </UL>
  *
  * <H2>Alternate Names</H2>

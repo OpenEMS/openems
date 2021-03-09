@@ -28,6 +28,7 @@ import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -40,10 +41,7 @@ import io.openems.edge.ess.generic.symmetric.statemachine.Context;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -62,6 +60,9 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricBatteryInverter batteryInverter;
@@ -108,7 +109,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 			return;
 		}
 
-		this.channelHandler.activate(this.battery, this.batteryInverter);
+		this.channelHandler.activate(this.componentManager, this.battery, this.batteryInverter);
 		this.config = config;
 	}
 
@@ -210,18 +211,11 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 			result.add(this.power.createSimpleConstraint(c.description, this, c.phase, c.pwr, c.relationship, c.value));
 		}
 
-		// If the GenericEss is not in State "STARTED" block ACTIVE and REACTIVE Power!
-		if (!this.isStarted()) {
-			result.add(this.createPowerConstraint("ActivePower Constraint ESS not Started", Phase.ALL, Pwr.ACTIVE,
-					Relationship.EQUALS, 0));
-			result.add(this.createPowerConstraint("ReactivePower Constraint ESS not Started", Phase.ALL, Pwr.REACTIVE,
-					Relationship.EQUALS, 0));
-		}
 		return result.toArray(new Constraint[result.size()]);
 	}
 
 	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
-	
+
 	@Override
 	public void setStartStop(StartStop value) {
 		if (this.startStopTarget.getAndSet(value) != value) {
@@ -257,5 +251,5 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
 		);
-	}	
+	}
 }

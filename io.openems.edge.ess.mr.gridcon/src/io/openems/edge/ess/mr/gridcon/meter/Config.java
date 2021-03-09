@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.meter.api.MeterType;
 
 @ObjectClassDefinition(//
-		name = "Meter Gridcon", //
+		name = "MR Gridcon Meter", //
 		description = "Implements a meter using the CCU values from gridcon")
 @interface Config {
 
@@ -25,5 +25,5 @@ import io.openems.edge.meter.api.MeterType;
 	@AttributeDefinition(name = "Gridcon-ID", description = "ID of the related gridcon component")
 	String gridcon_id() default "gridcon0";
 
-	String webconsole_configurationFactory_nameHint() default "Meter Gridcon [{id}]";
+	String webconsole_configurationFactory_nameHint() default "MR Gridcon Meter [{id}]";
 }

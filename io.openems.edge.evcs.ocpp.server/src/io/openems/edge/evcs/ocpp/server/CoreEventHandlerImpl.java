@@ -2,6 +2,7 @@ package io.openems.edge.evcs.ocpp.server;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,8 +58,8 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 		this.logDebug("Handle BootNotificationRequest: " + request);
 
-		BootNotificationConfirmation response = new BootNotificationConfirmation(ZonedDateTime.now(), 100,
-				RegistrationStatus.Accepted);
+		BootNotificationConfirmation response = new BootNotificationConfirmation(Instant.now().atZone(ZoneOffset.UTC),
+				100, RegistrationStatus.Accepted);
 		this.logDebug("Send BootNotificationConfirmation: " + response.toString());
 
 		return response;
@@ -88,7 +89,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	public HeartbeatConfirmation handleHeartbeatRequest(UUID sessionIndex, HeartbeatRequest request) {
 
 		this.logDebug("Handle HeartbeatRequest: " + request);
-		return new HeartbeatConfirmation(ZonedDateTime.now());
+		return new HeartbeatConfirmation(Instant.now().atZone(ZoneOffset.UTC));
 	}
 
 	@Override
@@ -119,8 +120,8 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 				if (val != null) {
 
 					/*
-					 * Value is formatted in RAW data (integer/decimal) or in SignedData (binary data
-					 * block, encoded as hex data)
+					 * Value is formatted in RAW data (integer/decimal) or in SignedData (binary
+					 * data block, encoded as hex data)
 					 */
 					ValueFormat format = value.getFormat();
 					if (format.equals(ValueFormat.SignedData)) {
@@ -212,7 +213,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 							if ((int) correctValue > 0) {
 								evcs._setStatus(Status.CHARGING);
 							}
-							
+
 							// Has to provide a not null energy value
 							Optional<Long> currEnergy = evcs.getActiveConsumptionEnergy().asOptional();
 							if (currEnergy.isPresent()) {
@@ -332,8 +333,8 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 		IdTagInfo idTagInfo = new IdTagInfo(AuthorizationStatus.Accepted);
 		idTagInfo.setParentIdTag(request.getIdTag());
-
-		StartTransactionConfirmation response = new StartTransactionConfirmation(idTagInfo, 1);
+		
+		StartTransactionConfirmation response = new StartTransactionConfirmation(idTagInfo, request.getConnectorId());
 		return response;
 	}
 
@@ -345,6 +346,14 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		IdTagInfo tag = new IdTagInfo(AuthorizationStatus.Accepted);
 		tag.setParentIdTag(request.getIdTag());
 		tag.validate();
+		AbstractOcppEvcsComponent evcs;
+		List<AbstractOcppEvcsComponent> evcss = this.getEvcssBySessionIndex(sessionIndex);
+		if (evcss.size() == 1) {
+			evcs = evcss.get(0);
+		} else {
+			evcs = this.getEvcsBySessionIndexAndConnector(sessionIndex, request.getTransactionId());
+		}
+		evcs._setStatus(Status.CHARGING_FINISHED);
 
 		StopTransactionConfirmation response = new StopTransactionConfirmation();
 		response.setIdTagInfo(tag);

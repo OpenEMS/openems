@@ -17,7 +17,11 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.MR.SetBalancing", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Controller.MR.SetBalancing", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class SetBalancing extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	@Reference

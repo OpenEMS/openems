@@ -7,6 +7,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
+import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.meter.test.DummySymmetricMeter;
 
 public class PeakshavingTest {
@@ -25,7 +26,7 @@ public class PeakshavingTest {
 	public void test() throws Exception {
 		new ControllerTest(new PeakShaving()) //
 				.addReference("componentManager", new DummyComponentManager()) //
-				.addComponent(new DummyManagedSymmetricEss(ESS_ID)) //
+				.addComponent(new DummyManagedSymmetricEss(ESS_ID, new DummyPower(0.3, 0.3, 0.1))) //
 				.addComponent(new DummySymmetricMeter(METER_ID)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //

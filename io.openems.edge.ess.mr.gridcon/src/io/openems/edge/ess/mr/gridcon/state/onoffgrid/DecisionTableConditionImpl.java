@@ -1,13 +1,11 @@
 package io.openems.edge.ess.mr.gridcon.state.onoffgrid;
 
-import java.util.Optional;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -102,13 +100,12 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 		try {
 			AbstractOpenemsModbusComponent meter = this.manager.getComponent(this.meterId);
 
-			BridgeModbus modbusBridge = meter.getModbus();
+			BridgeModbus modbusBridge = meter.getBridgeModbus();
 
-			StateChannel slaveCommunicationFailedChannel = modbusBridge.getSlaveCommunicationFailedChannel();
-			Optional<Boolean> communicationFailedOpt = slaveCommunicationFailedChannel.value().asOptional();
+			Value<Boolean> communicationFailedOpt = modbusBridge.getSlaveCommunicationFailed();
 			// If the channel value is present and it is set then the communication is
 			// broken
-			if (communicationFailedOpt.isPresent()) {
+			if (communicationFailedOpt.isDefined()) {
 				if (communicationFailedOpt.get()) {
 					return MeterCommunicationFailed.TRUE;
 				} else {

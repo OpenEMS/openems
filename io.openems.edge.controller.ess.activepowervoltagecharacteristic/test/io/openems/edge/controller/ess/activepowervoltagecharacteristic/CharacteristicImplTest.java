@@ -67,11 +67,11 @@ public class CharacteristicImplTest {
 						).build()) //
 				.next(new TestCase("First Input") //
 						.input(METER_VOLTAGE, 250_000) // [mV]
-						.output(ESS_ACTIVE_POWER, -2750)) //
+						.output(ESS_ACTIVE_POWER, -2749)) //
 				.next(new TestCase("Second Input, \"Power: -1500 \"") //
 						.timeleap(clock, 5, ChronoUnit.SECONDS) //
 						.input(METER_VOLTAGE, 248_000) // [mV]
-						.output(ESS_ACTIVE_POWER, -1500))//
+						.output(ESS_ACTIVE_POWER, -1499))//
 				.next(new TestCase() //
 						.input(METER_VOLTAGE, 240_200) // [mV]
 						.output(ESS_ACTIVE_POWER, null)) //
@@ -88,7 +88,7 @@ public class CharacteristicImplTest {
 				.next(new TestCase("Fourth Input, \"Power: 0 \"") //
 						.timeleap(clock, 5, ChronoUnit.SECONDS) //
 						.input(METER_VOLTAGE, 235_200) // [mV]
-						.output(ESS_ACTIVE_POWER, 1000)) //
+						.output(ESS_ACTIVE_POWER, 998)) //
 				.next(new TestCase() //
 						.timeleap(clock, 2, ChronoUnit.SECONDS) //
 						.input(METER_VOLTAGE, 235_600) // [mV]

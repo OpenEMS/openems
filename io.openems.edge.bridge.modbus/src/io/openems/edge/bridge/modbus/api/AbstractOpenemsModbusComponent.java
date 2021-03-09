@@ -1,7 +1,5 @@
 package io.openems.edge.bridge.modbus.api;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -115,7 +113,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		this.unitId = unitId;
 		BridgeModbus modbus = this.modbus.get();
 		if (this.isEnabled() && modbus != null) {
-			modbus.addProtocol(this.id(), this.getModbusProtocol(this.unitId));
+			modbus.addProtocol(this.id(), this.getModbusProtocol());
 		}
 		return false;
 	}
@@ -165,7 +163,24 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		return modbus.get();
 	}
 
-	private ModbusProtocol getModbusProtocol(int unitId) throws OpenemsException {
+	/**
+	 * Gets the Modbus-Bridge.
+	 * 
+	 * @return the {@link BridgeModbus} - either {@link BridgeModbusSerial} or
+	 *         {@link BridgeModbusTcp}
+	 */
+	public BridgeModbus getBridgeModbus() {
+		return modbus.get();
+	}
+
+	/**
+	 * Gets the {@link ModbusProtocol}. Creates it via
+	 * {@link #defineModbusProtocol()} if it does not yet exist.
+	 * 
+	 * @return the {@link ModbusProtocol}
+	 * @throws OpenemsException on error
+	 */
+	protected ModbusProtocol getModbusProtocol() throws OpenemsException {
 		ModbusProtocol protocol = this.protocol;
 		if (protocol != null) {
 			return protocol;
@@ -330,26 +345,4 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		DIRECT_1_TO_1, INVERT
 	}
 
-	/**
-	 * Converts upper/lower bytes to Short.
-	 * 
-	 * @param value      the int value
-	 * @param upperBytes 1 = upper two bytes, 0 = lower two bytes
-	 * @return the Short
-	 */
-	public static Short convert(int value, int upperBytes) {
-		ByteBuffer b = ByteBuffer.allocate(4);
-		b.order(ByteOrder.LITTLE_ENDIAN);
-		b.putInt(value);
-
-		byte byte0 = b.get(upperBytes * 2);
-		byte byte1 = b.get(upperBytes * 2 + 1);
-
-		ByteBuffer shortBuf = ByteBuffer.allocate(2);
-		shortBuf.order(ByteOrder.LITTLE_ENDIAN);
-		shortBuf.put(0, byte0);
-		shortBuf.put(1, byte1);
-
-		return shortBuf.getShort();
-	}
 }

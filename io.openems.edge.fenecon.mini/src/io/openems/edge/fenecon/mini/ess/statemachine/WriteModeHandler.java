@@ -3,6 +3,7 @@ package io.openems.edge.fenecon.mini.ess.statemachine;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.fenecon.mini.ess.DebugRunState;
+import io.openems.edge.fenecon.mini.ess.FeneconMiniEss;
 import io.openems.edge.fenecon.mini.ess.statemachine.StateMachine.State;
 
 public class WriteModeHandler extends StateHandler<State, Context> {
@@ -22,12 +23,14 @@ public class WriteModeHandler extends StateHandler<State, Context> {
 	 * @throws OpenemsNamedException on error
 	 */
 	private void applyPower(Context context) throws OpenemsNamedException {
+		FeneconMiniEss ess = context.getParent();
+
 		// Set correct Debug Run State
-		DebugRunState runState = context.component.getDebugRunState();
+		DebugRunState runState = ess.getDebugRunState();
 		if (context.setActivePower > 0 && runState != DebugRunState.DISCHARGE) {
-			context.component.setDebugRunState(DebugRunState.DISCHARGE);
+			ess.setDebugRunState(DebugRunState.DISCHARGE);
 		} else if (context.setActivePower < 0 && runState != DebugRunState.CHARGE) {
-			context.component.setDebugRunState(DebugRunState.CHARGE);
+			ess.setDebugRunState(DebugRunState.CHARGE);
 		}
 
 		// Adjust Active Power
@@ -37,19 +40,19 @@ public class WriteModeHandler extends StateHandler<State, Context> {
 
 		if (context.setActivePower >= 0) {
 			// Set Discharge & no Charge
-			if (context.component.getGridMaxChargeCurrent().orElse(-1) != 0) {
-				context.component.setGridMaxChargeCurrent(0);
+			if (ess.getGridMaxChargeCurrent().orElse(-1) != 0) {
+				ess.setGridMaxChargeCurrent(0);
 			}
-			if (context.component.getGridMaxDischargeCurrent().orElse(-1) != current) {
-				context.component.setGridMaxDischargeCurrent(current);
+			if (ess.getGridMaxDischargeCurrent().orElse(-1) != current) {
+				ess.setGridMaxDischargeCurrent(current);
 			}
 		} else {
 			// Set Charge & no Discharge
-			if (context.component.getGridMaxDischargeCurrent().orElse(-1) != 0) {
-				context.component.setGridMaxDischargeCurrent(0);
+			if (ess.getGridMaxDischargeCurrent().orElse(-1) != 0) {
+				ess.setGridMaxDischargeCurrent(0);
 			}
-			if (context.component.getGridMaxChargeCurrent().orElse(-1) != current) {
-				context.component.setGridMaxChargeCurrent(current);
+			if (ess.getGridMaxChargeCurrent().orElse(-1) != current) {
+				ess.setGridMaxChargeCurrent(current);
 			}
 		}
 	}

@@ -23,16 +23,17 @@ import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 	@AttributeDefinition(name = "Invertercount?", description = "number of inverters")
 	InverterCount inverterCount() default InverterCount.ONE;
 
-	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
+	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
+
 	String modbus_id() default "modbus0";
 
 	@AttributeDefinition(name = "Modbus-Unit-ID", description = "Unit ID of Modbus bridge.")
 	int unit_id() default 0;
 
-	@AttributeDefinition(name = "Efficieny Factor Discharge", description = "Allowed Power at inverter is decreased with this factor")
+	@AttributeDefinition(name = "Efficiency Factor Discharge", description = "Allowed Power at inverter is decreased with this factor")
 	double efficiencyLossDischargeFactor() default GridconPcsImpl.EFFICIENCY_LOSS_DISCHARGE_FACTOR;
 
-	@AttributeDefinition(name = "Efficieny Factor Charge", description = "Allowed Power at inverter is increased with this factor")
+	@AttributeDefinition(name = "Efficiency Factor Charge", description = "Allowed Power at inverter is increased with this factor")
 	double efficiencyLossChargeFactor() default GridconPcsImpl.EFFICIENCY_LOSS_CHARGE_FACTOR;
 
 	@AttributeDefinition(name = "Balancing Mode", description = "Balancing Mode")

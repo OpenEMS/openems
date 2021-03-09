@@ -6,6 +6,7 @@ import io.openems.edge.battery.soltaro.ModuleType;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class SingleRackVersionBImplTest {
@@ -17,6 +18,7 @@ public class SingleRackVersionBImplTest {
 	public void test() throws Exception {
 		new ComponentTest(new SingleRackVersionBImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
 						.setId(BATTERY_ID) //

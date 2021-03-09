@@ -8,6 +8,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
 import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
+import io.openems.edge.battery.soltaro.cluster.versionc.ClusterVersionC;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine.State;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.versionc.utils.Constants;
@@ -23,12 +24,14 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		this.lastAttempt = Instant.MIN;
 		this.attemptCounter = 0;
-		context.component._setMaxStartAttempts(false);
+		ClusterVersionC battery = context.getParent();
+		battery._setMaxStartAttempts(false);
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		PreChargeControl commonPreChargeControl = context.component.getCommonPreChargeControl()
+		ClusterVersionC battery = context.getParent();
+		PreChargeControl commonPreChargeControl = battery.getCommonPreChargeControl()
 				.orElse(PreChargeControl.UNDEFINED);
 		if (commonPreChargeControl == PreChargeControl.RUNNING) {
 			return State.RUNNING;
@@ -41,17 +44,17 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 
 			if (this.attemptCounter > Constants.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				context.component._setMaxStartAttempts(true);
+				battery._setMaxStartAttempts(true);
 				return State.UNDEFINED;
 
 			} else {
 				// Trying to switch on
-				context.component.setClusterStartStop(ClusterStartStop.START);
+				battery.setClusterStartStop(ClusterStartStop.START);
 
 				// Set the active racks as 'USED', set the others as 'UNUSED'
-				Set<Rack> activeRacks = context.component.getRacks();
+				Set<Rack> activeRacks = battery.getRacks();
 				for (Rack rack : Rack.values()) {
-					EnumWriteChannel rackUsageChannel = context.component.channel(rack.usageChannelId);
+					EnumWriteChannel rackUsageChannel = battery.channel(rack.usageChannelId);
 					if (activeRacks.contains(rack)) {
 						rackUsageChannel.setNextWriteValue(RackUsage.USED);
 					} else {

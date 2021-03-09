@@ -11,6 +11,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
+import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.evcs.api.Status;
@@ -82,13 +83,13 @@ public class EvcsControllerTest {
 		ENABLE_CHARGING = true;
 		CHARGE_MODE = ChargeMode.EXCESS_POWER;
 		PRIORITY = Priority.STORAGE;
-
-		new ControllerTest(new EvcsController()) //
+		final DummyHybridEss ess = new DummyHybridEss(ESS_ID);
+		final ControllerTest test = new ControllerTest(new EvcsController()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
-				.addReference("ess", ESS) //
+				.addReference("ess", ess) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
@@ -99,17 +100,18 @@ public class EvcsControllerTest {
 						.setPriority(PRIORITY) //
 						.setEssId(ESS_ID) //
 						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
-						.build()) //
-				.next(new TestCase() //
-						.input(sumEssActivePower, -5000) //
-						.input(evcs0IsClustered, false) //
-						.input(sumGridActivePower, -40000) //
-						.input(evcs0ChargePower, 5000) //
-						.input(essAllowedChargePower, 30000) //
-						.input(evcs0MaximumHardwarePower, 22080) //
-						.output(evcs0SetChargePowerLimit, 20000))
+						.build()); //
 
-		;
+		// Adjust maximum apparent power
+		ess.withMaxApparentPower(30000);
+		test.next(new TestCase() //
+				.input(sumEssActivePower, -5000) //
+				.input(evcs0IsClustered, false) //
+				.input(sumGridActivePower, -40000) //
+				.input(evcs0ChargePower, 5000) //
+				.input(essAllowedChargePower, 30000) //
+				.input(evcs0MaximumHardwarePower, 22080) //
+				.output(evcs0SetChargePowerLimit, 20000));
 	}
 
 	@Test
@@ -256,7 +258,7 @@ public class EvcsControllerTest {
 						.output(evcs0MaximumPower, null)) //
 		;
 	}
-	
+
 	@Test
 	public void clusterTestDisabledCharging() throws Exception {
 
