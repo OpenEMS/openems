@@ -13,13 +13,13 @@ import org.slf4j.LoggerFactory;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
+import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.postgres.PgUtils;
 import io.openems.backend.metadata.odoo.postgres.QueueWriteWorker;
 import io.openems.backend.metadata.odoo.postgres.task.InsertEdgeConfigUpdate;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeConfig;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeProducttype;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeStateActive;
-import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeVersion;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateSumState;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -217,12 +217,11 @@ public class EdgeCache {
 			this.parent.getPostgresHandler().getPeriodicWriteWorker().onLastUpdate(edge);
 		});
 		edge.onSetVersion(version -> {
-			// Set Version in Odoo/Postgres
+			// Set Version in Odoo
 			this.parent.logInfo(this.log, "Edge [" + edge.getId() + "]: Update OpenEMS Edge version to [" + version
 					+ "]. It was [" + edge.getVersion() + "]");
-
-			this.parent.getPostgresHandler().getQueueWriteWorker()
-					.addTask(new UpdateEdgeVersion(edge.getOdooId(), version));
+			this.parent.odooHandler.writeEdge(edge,
+					new FieldValue<String>(Field.EdgeDevice.OPENEMS_VERSION, version.toString()));
 		});
 		edge.onSetSumState(sumState -> {
 			// Set Sum-State in Odoo/Postgres

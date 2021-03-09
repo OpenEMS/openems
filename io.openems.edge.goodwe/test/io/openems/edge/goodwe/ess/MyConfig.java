@@ -2,7 +2,6 @@ package io.openems.edge.goodwe.ess;
 
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
-import io.openems.edge.goodwe.ess.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
