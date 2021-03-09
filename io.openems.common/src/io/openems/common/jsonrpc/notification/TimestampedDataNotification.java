@@ -21,7 +21,7 @@ import io.openems.common.utils.JsonUtils;
  *   "jsonrpc": "2.0",
  *   "method": "timestampedData",
  *   "params": {
- *     [timestamp: epoch in seconds]: {
+ *     [timestamp: epoch in milliseconds]: {
  *       [channelAddress]: String | Number
  *     }
  *   }
@@ -77,6 +77,6 @@ public class TimestampedDataNotification extends JsonrpcNotification {
 	}
 
 	public TreeBasedTable<Long, ChannelAddress, JsonElement> getData() {
-		return data;
+		return this.data;
 	}
 }

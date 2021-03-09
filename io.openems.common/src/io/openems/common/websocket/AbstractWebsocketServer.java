@@ -139,6 +139,15 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	}
 
 	/**
+	 * Gets the port number that this server listens on.
+	 * 
+	 * @return The port number.
+	 */
+	public int getPort() {
+		return this.ws.getPort();
+	}
+
+	/**
 	 * Starts the websocket server
 	 */
 	@Override

@@ -18,8 +18,8 @@ public interface Timedata extends CommonTimedataService {
 	 * Sends the data points to the Timedata service.
 	 * 
 	 * @param edgeId The unique Edge-ID
-	 * @param data   Table of timestamp (epoch in seconds), Channel-Address and the
-	 *               Channel value as JsonElement. Sorted by timestamp.
+	 * @param data   Table of timestamp (epoch in milliseconds), Channel-Address and
+	 *               the Channel value as JsonElement. Sorted by timestamp.
 	 * @throws OpenemsException
 	 */
 	public void write(String edgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException;
