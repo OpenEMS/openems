@@ -36,6 +36,7 @@ export class StorageComponent {
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
+            console.log("EDGE", edge)
             let callFunction: any;
             this.edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
                 let soc = currentData.channel['_sum' + '/EssSoc']
@@ -76,7 +77,6 @@ export class StorageComponent {
                             new ChannelAddress(component.id, 'ActivePowerL2'),
                             new ChannelAddress(component.id, 'ActivePowerL3')
                         );
-                        console.log("Channels: ", this.channelAdresses)
                     }
                 }
                 this.channelAdresses.push(

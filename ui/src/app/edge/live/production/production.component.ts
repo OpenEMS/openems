@@ -42,8 +42,6 @@ export class ProductionComponent {
                     this.channelAdresses.push(
                         new ChannelAddress(component.id, 'ActivePower')
                     );
-                    console.log("Productionmetercomponents, component id: ", component.id);
-                    console.log("Productionmetercomponents, channel: ", this.channelAdresses);
 
                 }
                 this.channelAdresses.push(
@@ -54,7 +52,6 @@ export class ProductionComponent {
                     new ChannelAddress('_sum', 'ProductionAcActivePowerL2'),
                     new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
                 )
-                console.log("productioncomponents: -----------------", this.channelAdresses)
                 // this.edge.subscribeChannels(this.websocket, ProductionComponent.SELECTOR, this.channelAdresses);
             })
         })

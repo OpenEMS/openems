@@ -16,11 +16,10 @@
 </ng-container> -->
 
 <!--,'_sum/Soc'-->
-<flat-widget [title]="'General.autarchy'" img="assets/img/autarchy.png" button (click)="presentModal()"
+<flat-widget [title]="'AUTARCHY GENERIC'" img="assets/img/autarchy.png" button (click)="presentModal()"
     [channelAdresses]="channelAddresses">
 
-    <flat-widget-percentagebar
-        [summaryChannel]="currentData.calculateAutarchy([currentData['_sum/GridActivePower']], [currentData['_sum/ConsumptionActivePower']])">
+    <flat-widget-percentagebar [value]="percentageValue">
     </flat-widget-percentagebar>
 
 </flat-widget>

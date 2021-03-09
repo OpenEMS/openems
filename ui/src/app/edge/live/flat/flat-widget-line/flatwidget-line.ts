@@ -67,14 +67,10 @@ export class FlatWidgetLine extends WidgetLine {
     }
     ngOnInit() {
         this.viewContainerRef.createEmbeddedView(this.content);
-        console.log(this.viewContainerRef);
-        console.log("service", this.service)
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
-            console.log("edge", this.edge);
 
         });
-        console.log(this.content);
 
         // this.edge.subscribeChannels(this.websocket, FlatWidgetLine.SELECTOR, channels);
     }

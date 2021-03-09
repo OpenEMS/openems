@@ -1,9 +1,15 @@
-<flat-widget [components]="essComponents" [channelAdresses]="channelAdresses" [img]="storageItem" button
-    (click)="presentModal()" title="General.storageSystem">
-    <ng-container *ngFor="let ess of essComponents">
-        <flat-widget-line [title]="ess.alias"></flat-widget-line>
-        <flat-widget-percentagebar [channels]="ess.id + '/Soc'"></flat-widget-percentagebar>
-        <flat-widget-line title="General.chargePower" [channels]="ess.id + '/ActivePower'"></flat-widget-line>
-        <flat-widget-line title="General.dischargePower" [channels]="ess.id + '/ActivePower'"></flat-widget-line>
+<ng-container *ngIf="edge">
+    <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
+        <flat-widget [components]="essComponents" [channelAdresses]="channelAdresses" [img]="storageItem" button
+            (click)="presentModal()" title="General.storageSystem">
+            <ng-container *ngFor="let component of essComponents">
+                <flat-widget-line [title]="component.alias"></flat-widget-line>
+                <flat-widget-percentagebar [value]="currentData[component.id + '/Soc']"></flat-widget-percentagebar>
+                <flat-widget-line title="General.chargePower" [channels]="component.id + '/ActivePower'">
+                </flat-widget-line>
+                <flat-widget-line title="General.dischargePower" [channels]="component.id + '/ActivePower'">
+                </flat-widget-line>
+            </ng-container>
+        </flat-widget>
     </ng-container>
-</flat-widget>
+</ng-container>

@@ -1,23 +1,15 @@
 <ion-card *ngIf="edge">
-    <ng-container>
-        <ng-container *ngIf="service.currentEdge | async as edge">
-            <ng-container *ngIf="edge.currentData | async as currentData">
-                <ng-container *ngIf="currentData.summary.storage as sum">
-                    <ng-container *ngIf="img">
-                        <ion-item color="light" lines="full">
-                            <ion-avatar slot="start" *ngIf="!img.includes('<img')">
-                                <img [src]="img">
-                            </ion-avatar>
-                            <ion-avatar slot="start" *ngIf="img.includes('<img')" [innerHTML]="img">
-                            </ion-avatar>
-                            <ion-label translate>{{title}}</ion-label>
-                        </ion-item>
-                        <ion-card-content>
-                            <ng-content></ng-content>
-                        </ion-card-content>
-                    </ng-container>
-                </ng-container>
-            </ng-container>
-        </ng-container>
+    <ng-container *ngIf="img">
+        <ion-item color="light" lines="full">
+            <ion-avatar slot="start" *ngIf="!img.includes('<img')">
+                <img [src]="img">
+            </ion-avatar>
+            <ion-avatar slot="start" *ngIf="img.includes('<img')" [innerHTML]="img">
+            </ion-avatar>
+            <ion-label>{{title}}</ion-label>
+        </ion-item>
+        <ion-card-content>
+            <ng-content></ng-content>
+        </ion-card-content>
     </ng-container>
 </ion-card>

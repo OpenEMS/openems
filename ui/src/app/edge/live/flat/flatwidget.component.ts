@@ -57,12 +57,9 @@ export class FlatWidgetComponent {
   ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
-      console.log("edge data -------------------", this.edge.currentData)
       this.onSuggest.emit([this.edge.currentData]);
       edge.subscribeChannels(this.websocket, FlatWidgetComponent.SELECTOR, this.channelAdresses);
       if (this.executeLogik != null) {
-        console.log(this.executeLogik);
-        console.log("test executeLogic")
       }
 
     })

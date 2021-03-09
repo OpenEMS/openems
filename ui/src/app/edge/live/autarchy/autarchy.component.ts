@@ -15,9 +15,8 @@ export class AutarchyComponent {
   private static readonly SELECTOR = "autarchy";
 
   private edge: Edge = null;
-  public autarchy: number | null;
+  public percentageValue: number | null = null;
   public currentData = CurrentData;
-  public sum: number = this.currentData.summary;
   public channelAddresses: ChannelAddress[] = [];
 
   constructor(
@@ -28,12 +27,14 @@ export class AutarchyComponent {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentComponent('', this.route);
-    console.log("??????????????????????????????????????????", this.currentData['_sum/GridActivePower']);
-    // this.channelAddresses
-    // this.edge.subscribeChannels(this.websocket, AutarchyComponent.SELECTOR, this.channelAddresses);
-
+    this.service.setCurrentComponent('', this.route).then(edge => {
+      this.edge = edge;
+      edge.currentData.subscribe(currentData => {
+        this.percentageValue = currentData.summary.system.autarchy
+      })
+    })
   }
+
 
   async presentModal() {
     const modal = await this.modalCtrl.create({

@@ -38,13 +38,10 @@ export class FlatWidgetHeader {
     }
     ngOnInit() {
         this.viewContainerRef.createEmbeddedView(this.header);
-        console.log("service", this.service)
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
-            console.log("edge", this.edge);
 
         });
-        console.log(this.header);
     }
 
 }
