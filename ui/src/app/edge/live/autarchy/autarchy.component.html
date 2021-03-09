@@ -15,14 +15,6 @@
     </ng-container>
 </ng-container> -->
 
-<!--,'_sum/Soc'-->
-<flat-widget [title]="'General.autarchy'" img="assets/img/autarchy.png" button (click)="presentModal()"
-    [channelAdresses]="channelAddresses">
-
-    <flat-widget-percentagebar
-        [summaryChannel]="currentData.calculateSelfConsumption(currentData['_sum/GridActivePower']*-1,currentData['_sum/ProductionActivePower'])">
-    </flat-widget-percentagebar>
-
+<flat-widget [title]="'General.autarchy'" img="assets/img/autarchy.png" button (click)="presentModal()">
+    <flat-widget-percentagebar [channels]="'result.system.autarchy'"></flat-widget-percentagebar>
 </flat-widget>
-<!-- (executeLogic)="insertSuggestion($event[0])" -->
-<!-- [summaryChannel]="currentData.calculateAutarchy([currentData['_sum/GridActivePower']], [currentData['_sum/ConsumptionActivePower']])"> -->
