@@ -108,15 +108,21 @@ public class SendChannelValuesWorker {
 	 * @return collected data
 	 */
 	private ImmutableTable<String, String, JsonElement> collectData(List<OpenemsComponent> enabledComponents) {
-		return enabledComponents.parallelStream() //
-				.flatMap(component -> component.channels().parallelStream()) //
-				.filter(channel -> // Ignore WRITE_ONLY Channels
-				channel.channelDoc().getAccessMode() != AccessMode.WRITE_ONLY //
-						// Ignore Low-Priority Channels
-						&& channel.channelDoc().getPersistencePriority()
-								.isAtLeast(this.parent.config.persistencePriority()))
-				.collect(ImmutableTable.toImmutableTable(c -> c.address().getComponentId(),
-						c -> c.address().getChannelId(), c -> c.value().asJson()));
+		try {
+			return enabledComponents.parallelStream() //
+					.flatMap(component -> component.channels().parallelStream()) //
+					.filter(channel -> // Ignore WRITE_ONLY Channels
+					channel.channelDoc().getAccessMode() != AccessMode.WRITE_ONLY //
+							// Ignore Low-Priority Channels
+							&& channel.channelDoc().getPersistencePriority()
+									.isAtLeast(this.parent.config.persistencePriority()))
+					.collect(ImmutableTable.toImmutableTable(c -> c.address().getComponentId(),
+							c -> c.address().getChannelId(), c -> c.value().asJson()));
+		} catch (Exception e) {
+			// ConcurrentModificationException can happen if Channels are dynamically added
+			// or removed
+			return ImmutableTable.of();
+		}
 	}
 
 	/*
