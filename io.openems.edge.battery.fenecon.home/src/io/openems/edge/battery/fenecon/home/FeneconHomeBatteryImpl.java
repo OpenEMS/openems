@@ -332,113 +332,118 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 				this.getModbusProtocol().addTasks(//
 						new FC3ReadRegistersTask(towerOffset + 2, Priority.LOW, //
 								m(new BitsWordElement(towerOffset + 2, this)//
-										.bit(0, generateTowerChannel(t, "STATUS_ALARM")) //
-										.bit(1, generateTowerChannel(t, "STATUS_WARNING")) //
-										.bit(2, generateTowerChannel(t, "STATUS_FAULT")) //
-										.bit(3, generateTowerChannel(t, "STATUS_PFET")) //
-										.bit(4, generateTowerChannel(t, "STATUS_CFET")) //
-										.bit(5, generateTowerChannel(t, "STATUS_DFET")) //
-										.bit(6, generateTowerChannel(t, "STATUS_BATTERY_IDLE")) //
-										.bit(7, generateTowerChannel(t, "STATUS_BATTERY_CHARGING")) //
-										.bit(8, generateTowerChannel(t, "STATUS_BATTERY_DISCHARGING"))//
+										.bit(0, this.generateTowerChannel(t, "STATUS_ALARM")) //
+										.bit(1, this.generateTowerChannel(t, "STATUS_WARNING")) //
+										.bit(2, this.generateTowerChannel(t, "STATUS_FAULT")) //
+										.bit(3, this.generateTowerChannel(t, "STATUS_PFET")) //
+										.bit(4, this.generateTowerChannel(t, "STATUS_CFET")) //
+										.bit(5, this.generateTowerChannel(t, "STATUS_DFET")) //
+										.bit(6, this.generateTowerChannel(t, "STATUS_BATTERY_IDLE")) //
+										.bit(7, this.generateTowerChannel(t, "STATUS_BATTERY_CHARGING")) //
+										.bit(8, this.generateTowerChannel(t, "STATUS_BATTERY_DISCHARGING"))//
 								), //
 								m(new BitsWordElement(towerOffset + 3, this)
-										.bit(0, generateTowerChannel(t, "PRE_ALARM_CELL_OVER_VOLTAGE")) //
-										.bit(1, generateTowerChannel(t, "PRE_ALARM_CELL_UNDER_VOLTAGE")) //
-										.bit(2, generateTowerChannel(t, "PRE_ALARM_OVER_CHARGING_CURRENT")) //
-										.bit(3, generateTowerChannel(t, "PRE_ALARM_OVER_DISCHARGING_CURRENT")) //
-										.bit(4, generateTowerChannel(t, "PRE_ALARM_OVER_TEMPERATURE")) //
-										.bit(5, generateTowerChannel(t, "PRE_ALARM_UNDER_TEMPERATURE")) //
-										.bit(6, generateTowerChannel(t, "PRE_ALARM_CELL_VOLTAGE_DIFFERENCE")) //
-										.bit(7, generateTowerChannel(t, "PRE_ALARM_BCU_TEMP_DIFFERENCE")) //
-										.bit(8, generateTowerChannel(t, "PRE_ALARM_UNDER_SOC")) //
-										.bit(9, generateTowerChannel(t, "PRE_ALARM_UNDER_SOH")) //
-										.bit(10, generateTowerChannel(t, "PRE_ALARM_OVER_CHARGING_POWER")) //
-										.bit(11, generateTowerChannel(t, "PRE_ALARM_OVER_DISCHARGING_POWER"))), //
+										.bit(0, this.generateTowerChannel(t, "PRE_ALARM_CELL_OVER_VOLTAGE")) //
+										.bit(1, this.generateTowerChannel(t, "PRE_ALARM_CELL_UNDER_VOLTAGE")) //
+										.bit(2, this.generateTowerChannel(t, "PRE_ALARM_OVER_CHARGING_CURRENT")) //
+										.bit(3, this.generateTowerChannel(t, "PRE_ALARM_OVER_DISCHARGING_CURRENT")) //
+										.bit(4, this.generateTowerChannel(t, "PRE_ALARM_OVER_TEMPERATURE")) //
+										.bit(5, this.generateTowerChannel(t, "PRE_ALARM_UNDER_TEMPERATURE")) //
+										.bit(6, this.generateTowerChannel(t, "PRE_ALARM_CELL_VOLTAGE_DIFFERENCE")) //
+										.bit(7, this.generateTowerChannel(t, "PRE_ALARM_BCU_TEMP_DIFFERENCE")) //
+										.bit(8, this.generateTowerChannel(t, "PRE_ALARM_UNDER_SOC")) //
+										.bit(9, this.generateTowerChannel(t, "PRE_ALARM_UNDER_SOH")) //
+										.bit(10, this.generateTowerChannel(t, "PRE_ALARM_OVER_CHARGING_POWER")) //
+										.bit(11, this.generateTowerChannel(t, "PRE_ALARM_OVER_DISCHARGING_POWER"))), //
 								m(new BitsWordElement(towerOffset + 4, this)
-										.bit(0, generateTowerChannel(t, "LEVEL_1_CELL_OVER_VOLTAGE")) //
-										.bit(1, generateTowerChannel(t, "LEVEL_1_CELL_UNDER_VOLTAGE")) //
-										.bit(2, generateTowerChannel(t, "LEVEL_1_OVER_CHARGING_CURRENT")) //
-										.bit(3, generateTowerChannel(t, "LEVEL_1_OVER_DISCHARGING_CURRENT")) //
-										.bit(4, generateTowerChannel(t, "LEVEL_1_OVER_TEMPERATURE")) //
-										.bit(5, generateTowerChannel(t, "LEVEL_1_UNDER_TEMPERATURE")) //
-										.bit(6, generateTowerChannel(t, "LEVEL_1_CELL_VOLTAGE_DIFFERENCE")) //
-										.bit(7, generateTowerChannel(t, "LEVEL_1_BCU_TEMP_DIFFERENCE")) //
-										.bit(8, generateTowerChannel(t, "LEVEL_1_UNDER_SOC")) //
-										.bit(9, generateTowerChannel(t, "LEVEL_1_UNDER_SOH")) //
-										.bit(10, generateTowerChannel(t, "LEVEL_1_OVER_CHARGING_POWER")) //
-										.bit(11, generateTowerChannel(t, "LEVEL_1_OVER_DISCHARGING_POWER"))),
+										.bit(0, this.generateTowerChannel(t, "LEVEL_1_CELL_OVER_VOLTAGE")) //
+										.bit(1, this.generateTowerChannel(t, "LEVEL_1_CELL_UNDER_VOLTAGE")) //
+										.bit(2, this.generateTowerChannel(t, "LEVEL_1_OVER_CHARGING_CURRENT")) //
+										.bit(3, this.generateTowerChannel(t, "LEVEL_1_OVER_DISCHARGING_CURRENT")) //
+										.bit(4, this.generateTowerChannel(t, "LEVEL_1_OVER_TEMPERATURE")) //
+										.bit(5, this.generateTowerChannel(t, "LEVEL_1_UNDER_TEMPERATURE")) //
+										.bit(6, this.generateTowerChannel(t, "LEVEL_1_CELL_VOLTAGE_DIFFERENCE")) //
+										.bit(7, this.generateTowerChannel(t, "LEVEL_1_BCU_TEMP_DIFFERENCE")) //
+										.bit(8, this.generateTowerChannel(t, "LEVEL_1_UNDER_SOC")) //
+										.bit(9, this.generateTowerChannel(t, "LEVEL_1_UNDER_SOH")) //
+										.bit(10, this.generateTowerChannel(t, "LEVEL_1_OVER_CHARGING_POWER")) //
+										.bit(11, this.generateTowerChannel(t, "LEVEL_1_OVER_DISCHARGING_POWER"))),
 								m(new BitsWordElement(towerOffset + 5, this)
-										.bit(0, generateTowerChannel(t, "LEVEL_2_CELL_OVER_VOLTAGE")) //
-										.bit(1, generateTowerChannel(t, "LEVEL_2_CELL_UNDER_VOLTAGE")) //
-										.bit(2, generateTowerChannel(t, "LEVEL_2_OVER_CHARGING_CURRENT")) //
-										.bit(3, generateTowerChannel(t, "LEVEL_2_OVER_DISCHARGING_CURRENT")) //
-										.bit(4, generateTowerChannel(t, "LEVEL_2_OVER_TEMPERATURE")) //
-										.bit(5, generateTowerChannel(t, "LEVEL_2_UNDER_TEMPERATURE")) //
-										.bit(6, generateTowerChannel(t, "LEVEL_2_CELL_VOLTAGE_DIFFERENCE")) //
-										.bit(7, generateTowerChannel(t, "LEVEL_2_BCU_TEMP_DIFFERENCE")) //
-										.bit(8, generateTowerChannel(t, "LEVEL_2_TEMPERATURE_DIFFERENCE")) //
-										.bit(9, generateTowerChannel(t, "LEVEL_2_INTERNAL_COMMUNICATION")) //
-										.bit(10, generateTowerChannel(t, "LEVEL_2_EXTERNAL_COMMUNICATION")) //
-										.bit(11, generateTowerChannel(t, "LEVEL_2_PRECHARGE_FAIL")) //
-										.bit(12, generateTowerChannel(t, "LEVEL_2_PARALLEL_FAIL")) //
-										.bit(13, generateTowerChannel(t, "LEVEL_2_SYSTEM_FAIL")) //
-										.bit(14, generateTowerChannel(t, "LEVEL_2_HARDWARE_FAIL"))), //
+										.bit(0, this.generateTowerChannel(t, "LEVEL_2_CELL_OVER_VOLTAGE")) //
+										.bit(1, this.generateTowerChannel(t, "LEVEL_2_CELL_UNDER_VOLTAGE")) //
+										.bit(2, this.generateTowerChannel(t, "LEVEL_2_OVER_CHARGING_CURRENT")) //
+										.bit(3, this.generateTowerChannel(t, "LEVEL_2_OVER_DISCHARGING_CURRENT")) //
+										.bit(4, this.generateTowerChannel(t, "LEVEL_2_OVER_TEMPERATURE")) //
+										.bit(5, this.generateTowerChannel(t, "LEVEL_2_UNDER_TEMPERATURE")) //
+										.bit(6, this.generateTowerChannel(t, "LEVEL_2_CELL_VOLTAGE_DIFFERENCE")) //
+										.bit(7, this.generateTowerChannel(t, "LEVEL_2_BCU_TEMP_DIFFERENCE")) //
+										.bit(8, this.generateTowerChannel(t, "LEVEL_2_TEMPERATURE_DIFFERENCE")) //
+										.bit(9, this.generateTowerChannel(t, "LEVEL_2_INTERNAL_COMMUNICATION")) //
+										.bit(10, this.generateTowerChannel(t, "LEVEL_2_EXTERNAL_COMMUNICATION")) //
+										.bit(11, this.generateTowerChannel(t, "LEVEL_2_PRECHARGE_FAIL")) //
+										.bit(12, this.generateTowerChannel(t, "LEVEL_2_PARALLEL_FAIL")) //
+										.bit(13, this.generateTowerChannel(t, "LEVEL_2_SYSTEM_FAIL")) //
+										.bit(14, this.generateTowerChannel(t, "LEVEL_2_HARDWARE_FAIL"))), //
 								m(new BitsWordElement(towerOffset + 6, this)
-										.bit(0, generateTowerChannel(t, "HW_AFE_COMMUNICAITON_FAULT")) //
-										.bit(1, generateTowerChannel(t, "HW_ACTOR_DRIVER_FAULT")) //
-										.bit(2, generateTowerChannel(t, "HW_EEPROM_COMMUNICATION_FAULT")) //
-										.bit(3, generateTowerChannel(t, "HW_VOLTAGE_DETECT_FAULT")) //
-										.bit(4, generateTowerChannel(t, "HW_TEMPERATURE_DETECT_FAULT")) //
-										.bit(5, generateTowerChannel(t, "HW_CURRENT_DETECT_FAULT")) //
-										.bit(6, generateTowerChannel(t, "HW_ACTOR_NOT_CLOSE")) //
-										.bit(7, generateTowerChannel(t, "HW_ACTOR_NOT_OPEN")) //
-										.bit(8, generateTowerChannel(t, "HW_FUSE_BROKEN"))), //
+										.bit(0, this.generateTowerChannel(t, "HW_AFE_COMMUNICAITON_FAULT")) //
+										.bit(1, this.generateTowerChannel(t, "HW_ACTOR_DRIVER_FAULT")) //
+										.bit(2, this.generateTowerChannel(t, "HW_EEPROM_COMMUNICATION_FAULT")) //
+										.bit(3, this.generateTowerChannel(t, "HW_VOLTAGE_DETECT_FAULT")) //
+										.bit(4, this.generateTowerChannel(t, "HW_TEMPERATURE_DETECT_FAULT")) //
+										.bit(5, this.generateTowerChannel(t, "HW_CURRENT_DETECT_FAULT")) //
+										.bit(6, this.generateTowerChannel(t, "HW_ACTOR_NOT_CLOSE")) //
+										.bit(7, this.generateTowerChannel(t, "HW_ACTOR_NOT_OPEN")) //
+										.bit(8, this.generateTowerChannel(t, "HW_FUSE_BROKEN"))), //
 								m(new BitsWordElement(towerOffset + 7, this)
-										.bit(0, generateTowerChannel(t, "SYSTEM_AFE_OVER_TEMPERATURE")) //
-										.bit(1, generateTowerChannel(t, "SYSTEM_AFE_UNDER_TEMPERATURE")) //
-										.bit(2, generateTowerChannel(t, "SYSTEM_AFE_OVER_VOLTAGE")) //
-										.bit(3, generateTowerChannel(t, "SYSTEM_AFE_UNDER_VOLTAGE")) //
-										.bit(4, generateTowerChannel(t, "SYSTEM_HIGH_TEMPERATURE_PERMANENT_FAILURE")) //
-										.bit(5, generateTowerChannel(t, "SYSTEM_LOW_TEMPERATURE_PERMANENT_FAILURE")) //
-										.bit(6, generateTowerChannel(t, "SYSTEM_HIGH_CELL_VOLTAGE_PERMANENT_FAILURE")) //
-										.bit(7, generateTowerChannel(t, "SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE")) //
-										.bit(8, generateTowerChannel(t, "SYSTEM_SHORT_CIRCUIT"))), //
-								m(generateTowerChannel(t, "_SOC"), new UnsignedWordElement(towerOffset + 8), // [%]
+										.bit(0, this.generateTowerChannel(t, "SYSTEM_AFE_OVER_TEMPERATURE")) //
+										.bit(1, this.generateTowerChannel(t, "SYSTEM_AFE_UNDER_TEMPERATURE")) //
+										.bit(2, this.generateTowerChannel(t, "SYSTEM_AFE_OVER_VOLTAGE")) //
+										.bit(3, this.generateTowerChannel(t, "SYSTEM_AFE_UNDER_VOLTAGE")) //
+										.bit(4, this.generateTowerChannel(t,
+												"SYSTEM_HIGH_TEMPERATURE_PERMANENT_FAILURE")) //
+										.bit(5, this.generateTowerChannel(t,
+												"SYSTEM_LOW_TEMPERATURE_PERMANENT_FAILURE")) //
+										.bit(6, this.generateTowerChannel(t,
+												"SYSTEM_HIGH_CELL_VOLTAGE_PERMANENT_FAILURE")) //
+										.bit(7, this.generateTowerChannel(t,
+												"SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE")) //
+										.bit(8, this.generateTowerChannel(t, "SYSTEM_SHORT_CIRCUIT"))), //
+								m(this.generateTowerChannel(t, "_SOC"), new UnsignedWordElement(towerOffset + 8), // [%]
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-								m(generateTowerChannel(t, "_SOH"), new UnsignedWordElement(towerOffset + 9), // [%]
+								m(this.generateTowerChannel(t, "_SOH"), new UnsignedWordElement(towerOffset + 9), // [%]
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-								m(generateTowerChannel(t, "_VOLTAGE"), new UnsignedWordElement(towerOffset + 10), // [V]
+								m(this.generateTowerChannel(t, "_VOLTAGE"), new UnsignedWordElement(towerOffset + 10), // [V]
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-								m(generateTowerChannel(t, "_CURRENT"), new UnsignedWordElement(towerOffset + 11), // [A]
+								m(this.generateTowerChannel(t, "_CURRENT"), new UnsignedWordElement(towerOffset + 11), // [A]
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-								m(generateTowerChannel(t, "_MIN_CELL_VOLTAGE"),
+								m(this.generateTowerChannel(t, "_MIN_CELL_VOLTAGE"),
 										new UnsignedWordElement(towerOffset + 12)), // [mV]
-								m(generateTowerChannel(t, "_MAX_CELL_VOLTAGE"),
+								m(this.generateTowerChannel(t, "_MAX_CELL_VOLTAGE"),
 										new UnsignedWordElement(towerOffset + 13)), // [mV]
-								m(generateTowerChannel(t, "_AVARAGE_CELL_VOLTAGE"),
+								m(this.generateTowerChannel(t, "_AVARAGE_CELL_VOLTAGE"),
 										new UnsignedWordElement(towerOffset + 14)), //
-								m(generateTowerChannel(t, "_MAX_CHARGE_CURRENT"),
+								m(this.generateTowerChannel(t, "_MAX_CHARGE_CURRENT"),
 										new UnsignedWordElement(towerOffset + 15)), //
-								m(generateTowerChannel(t, "_MIN_CHARGE_CURRENT"),
+								m(this.generateTowerChannel(t, "_MIN_CHARGE_CURRENT"),
 										new UnsignedWordElement(towerOffset + 16)), //
-								m(generateTowerChannel(t, "_BMS_SERIAL_NUMBER"),
+								m(this.generateTowerChannel(t, "_BMS_SERIAL_NUMBER"),
 										new UnsignedWordElement(towerOffset + 17)), //
-								m(generateTowerChannel(t, "_NO_OF_CYCLES"), new UnsignedWordElement(towerOffset + 18)), //
+								m(this.generateTowerChannel(t, "_NO_OF_CYCLES"),
+										new UnsignedWordElement(towerOffset + 18)), //
 								m(new UnsignedWordElement(towerOffset + 19)) //
-										.m(generateTowerChannel(t, "_DESIGN_CAPACITY"),
+										.m(this.generateTowerChannel(t, "_DESIGN_CAPACITY"),
 												ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [Wh]
 										.m(Battery.ChannelId.CAPACITY, ElementToChannelConverter.DIRECT_1_TO_1) //
 										.build(), //
-								m(generateTowerChannel(t, "_USABLE_CAPACITY"),
+								m(this.generateTowerChannel(t, "_USABLE_CAPACITY"),
 										new UnsignedWordElement(towerOffset + 20), //
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Wh]
-								m(generateTowerChannel(t, "_REMAINING_CAPACITY"),
+								m(this.generateTowerChannel(t, "_REMAINING_CAPACITY"),
 										new UnsignedWordElement(towerOffset + 21), //
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Wh]
-								m(generateTowerChannel(t, "_MAX_CELL_VOLTAGE_LIMIT"),
+								m(this.generateTowerChannel(t, "_MAX_CELL_VOLTAGE_LIMIT"),
 										new UnsignedWordElement(towerOffset + 22)), //
-								m(generateTowerChannel(t, "_MIN_CELL_VOLTAGE_LIMIT"),
+								m(this.generateTowerChannel(t, "_MIN_CELL_VOLTAGE_LIMIT"),
 										new UnsignedWordElement(towerOffset + 23))));
 
 				/*
@@ -477,7 +482,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 							ameTemp[j] = m(channelId, uwe);
 						}
 					}
-					this.getModbusProtocol().addTasks( //
+					this.getModbusProtocol().addTasks(//
 							new FC3ReadRegistersTask(
 									towerOffset + ADDRESS_OFFSET_FOR_CELL_VOLT_AND_TEMP * i + VOLTAGE_ADDRESS_OFFSET,
 									Priority.LOW, ameVolt), //
