@@ -56,13 +56,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int peakShavingPower() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int rechargePower() {
+	public int peakShavingReactivePower() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
