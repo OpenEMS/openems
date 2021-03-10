@@ -3,6 +3,7 @@ package io.openems.edge.battery.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -44,7 +45,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		SOC(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT)),
+				.unit(Unit.PERCENT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * State of Health.
@@ -57,7 +59,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		SOH(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT)),
+				.unit(Unit.PERCENT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Voltage of battery.
@@ -69,7 +72,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)),
+				.unit(Unit.VOLT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Current of battery.
@@ -81,7 +85,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Capacity of battery.
@@ -93,7 +98,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Maximal voltage for charging.
@@ -105,7 +111,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)),
+				.unit(Unit.VOLT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Maximum current for charging.
@@ -118,7 +125,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Minimal voltage for discharging.
@@ -130,7 +138,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)),
+				.unit(Unit.VOLT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Maximum current for discharging.
@@ -143,7 +152,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Minimal Cell Temperature.
@@ -155,7 +165,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		MIN_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS)),
+				.unit(Unit.DEGREE_CELSIUS) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Maximum Cell Temperature.
@@ -168,7 +179,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS)),
+				.unit(Unit.DEGREE_CELSIUS) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Minimal cell voltage.
@@ -192,7 +204,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT));
+				.unit(Unit.MILLIVOLT) //
+				.persistencePriority(PersistencePriority.HIGH));
 
 		private final Doc doc;
 

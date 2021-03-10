@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -15,6 +16,7 @@ public interface Scheduler extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CONTROLLER_IS_MISSING(Doc.of(Level.INFO) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("A configured Controller is missing"));
 
 		private final Doc doc;

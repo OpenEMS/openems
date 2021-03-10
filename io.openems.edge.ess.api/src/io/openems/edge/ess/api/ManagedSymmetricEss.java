@@ -4,6 +4,7 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -40,7 +41,8 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * </ul>
 		 */
 		ALLOWED_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Holds the currently maximum allowed discharge power. This value is commonly
 		 * defined by current battery limitations.
@@ -53,7 +55,8 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * </ul>
 		 */
 		ALLOWED_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Sets a fixed Active Power.
 		 * 
@@ -193,7 +196,8 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * </ul>
 		 */
 		DEBUG_SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Holds settings of Reactive Power for debugging.
 		 * 
@@ -207,7 +211,8 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * </ul>
 		 */
 		DEBUG_SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
+				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * StateChannel is set when calling applyPower() failed.
 		 * 
@@ -220,6 +225,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * </ul>
 		 */
 		APPLY_POWER_FAILED(Doc.of(Level.FAULT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Applying the Active/Reactive Power failed"));
 
 		private final Doc doc;

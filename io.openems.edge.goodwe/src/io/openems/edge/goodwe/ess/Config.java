@@ -7,7 +7,7 @@ import io.openems.edge.goodwe.GoodWeConstants;
 
 @ObjectClassDefinition(//
 		name = "GoodWe ESS", //
-		description = "The GoodWe Energy Storage System.")
+		description = "Implements the GoodWe ET Energy Storage System.")
 
 @interface Config {
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

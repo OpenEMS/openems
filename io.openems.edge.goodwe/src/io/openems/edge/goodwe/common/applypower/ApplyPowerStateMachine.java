@@ -100,13 +100,14 @@ public class ApplyPowerStateMachine extends AbstractStateMachine<ApplyPowerState
 	/**
 	 * Evaluates the State we are currently in.
 	 * 
-	 * @param readOnlyMode
-	 * @param pvProduction        pv production or null
-	 * @param soc
-	 * @param activePowerSetPoint
-	 * @return
+	 * @param goodweType          the {@link GoodweType}
+	 * @param readOnlyMode        the configured readOnlyMode
+	 * @param pvProduction        the current PV production
+	 * @param soc                 the state-of-charge of the battery
+	 * @param activePowerSetPoint the set-point for ActivePower
+	 * @return the appropriate {@link State}
 	 */
-	public static State evaluateState(GoodweType goodweType, boolean readOnlyMode, Integer pvProduction, int soc,
+	public static State evaluateState(GoodweType goodweType, boolean readOnlyMode, int pvProduction, int soc,
 			int activePowerSetPoint) {
 		if (readOnlyMode) {
 			// Read-Only-Mode: fall-back to internal self-consumption optimization
@@ -132,7 +133,7 @@ public class ApplyPowerStateMachine extends AbstractStateMachine<ApplyPowerState
 					// battery is full
 					if (activePowerSetPoint > 0) {
 						// Set-Point is positive -> take power either from pv or battery
-						if (pvProduction == null || activePowerSetPoint > pvProduction) {
+						if (activePowerSetPoint > pvProduction) {
 							return State.ET_FULL_POSITIVE_DISCHARGE;
 
 						} else {

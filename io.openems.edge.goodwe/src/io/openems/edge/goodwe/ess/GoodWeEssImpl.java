@@ -1,5 +1,7 @@
 package io.openems.edge.goodwe.ess;
 
+import java.util.Optional;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -101,10 +103,10 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		Integer pvProduction = this.calculatePvProduction();
+		int pvProduction = Optional.ofNullable(this.calculatePvProduction()).orElse(0);
 		int soc = this.getSoc().orElse(0);
 		ApplyPowerStateMachine.State state = ApplyPowerStateMachine.evaluateState(this.getGoodweType(),
-				config.readOnlyMode(), pvProduction, soc, activePower);
+				this.config.readOnlyMode(), pvProduction, soc, activePower);
 
 		// Store the current State
 		this.channel(GoodWe.ChannelId.APPLY_POWER_STATE_MACHINE).setNextValue(state);
@@ -121,7 +123,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 		EnumWriteChannel emsPowerModeChannel = this.channel(GoodWe.ChannelId.EMS_POWER_MODE);
 		emsPowerModeChannel.setNextWriteValue(context.getNextPowerMode());
-		
+
 	}
 
 	@Override

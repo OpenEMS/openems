@@ -27,7 +27,7 @@ public class GoodWeBatteryInverterImplTest {
 						.setId(CHARGER_ID) //
 						.setBatteryInverterId(BATTERY_INVERTER_ID) //
 						.setModbusId(MODBUS_ID) //
-						.setUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
+						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.build());
 
 		GoodWeBatteryInverterImpl ess = new GoodWeBatteryInverterImpl();

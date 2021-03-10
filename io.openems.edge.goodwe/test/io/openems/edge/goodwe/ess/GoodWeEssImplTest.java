@@ -39,7 +39,7 @@ public class GoodWeEssImplTest {
 						.setId(CHARGER_ID) //
 						.setBatteryInverterId(ESS_ID) //
 						.setModbusId(MODBUS_ID) //
-						.setUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
+						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.build());
 
 		GoodWeEssImpl ess = new GoodWeEssImpl();

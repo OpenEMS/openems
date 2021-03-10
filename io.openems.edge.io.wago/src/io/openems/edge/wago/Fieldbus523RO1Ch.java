@@ -1,6 +1,7 @@
 package io.openems.edge.wago;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.edge.bridge.modbus.api.element.DummyCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.common.channel.BooleanDoc;
@@ -24,6 +25,7 @@ public class Fieldbus523RO1Ch extends FieldbusModule {
 		{
 			OpenemsTypeDoc<Boolean> doc = new BooleanDoc() //
 					.accessMode(AccessMode.READ_WRITE);
+			doc.persistencePriority(PersistencePriority.MEDIUM);
 			FieldbusChannelId channelId = new FieldbusChannelId(id, doc);
 			channel1 = (BooleanWriteChannel) parent.addChannel(channelId);
 		}

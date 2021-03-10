@@ -46,6 +46,13 @@ import io.openems.edge.common.type.TypeUtils;
  * @param <T> the type of the Channel. One out of {@link OpenemsType}.
  */
 public interface Channel<T> {
+
+	/**
+	 * Holds the number of past values for this Channel that are kept in the
+	 * 'pastValues' variable.
+	 */
+	public static final int NO_OF_PAST_VALUES = 300;
+
 	/**
 	 * Gets the ChannelId of this Channel.
 	 * 

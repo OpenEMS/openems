@@ -424,11 +424,10 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent impl
 	 * @return production power
 	 */
 	protected final Integer calculatePvProduction() {
-		int productionPower = 0;
+		Integer productionPower = null;
 		for (AbstractGoodWeEtCharger charger : this.chargers) {
 			productionPower = TypeUtils.sum(productionPower, charger.getActualPower().get());
 		}
-
 		return productionPower;
 	}
 

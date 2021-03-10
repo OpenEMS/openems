@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.java_websocket.WebSocket;
 
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
-import io.openems.backend.metadata.api.BackendUser;
+import io.openems.backend.common.metadata.BackendUser;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;

@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -182,7 +183,8 @@ public interface OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// Running State of the component. Keep values in sync with 'Level' enum!
-		STATE(new StateCollectorChannelDoc());
+		STATE(new StateCollectorChannelDoc() //
+				.persistencePriority(PersistencePriority.VERY_HIGH));
 
 		private final Doc doc;
 

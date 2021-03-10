@@ -1,5 +1,6 @@
 package io.openems.edge.battery.protection;
 
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
@@ -39,7 +40,8 @@ public class BatteryProtection {
 		 * </ul>
 		 */
 		BP_CHARGE_BMS(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Discharge Current limit provided by the Battery/BMS.
 		 * 
@@ -50,7 +52,8 @@ public class BatteryProtection {
 		 * </ul>
 		 */
 		BP_DISCHARGE_BMS(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Charge Current limit derived from Min-Cell-Voltage.
 		 * 
@@ -61,7 +64,8 @@ public class BatteryProtection {
 		 * </ul>
 		 */
 		BP_CHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Discharge Current limit derived from Min-Cell-Voltage.
 		 * 
@@ -72,7 +76,8 @@ public class BatteryProtection {
 		 * </ul>
 		 */
 		BP_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Charge Current limit derived from Max-Cell-Voltage.
 		 * 
@@ -83,7 +88,8 @@ public class BatteryProtection {
 		 * </ul>
 		 */
 		BP_CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Discharge Current limit derived from Max-Cell-Voltage.
 		 * 
@@ -94,7 +100,8 @@ public class BatteryProtection {
 		 * </ul>
 		 */
 		BP_DISCHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Charge Current limit derived from Min-Cell-Temperature.
 		 * 
@@ -105,7 +112,8 @@ public class BatteryProtection {
 		 * </ul>
 		 */
 		BP_CHARGE_MIN_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Discharge Current limit derived from Min-Cell-Temperature.
 		 * 
@@ -116,7 +124,8 @@ public class BatteryProtection {
 		 * </ul>
 		 */
 		BP_DISCHARGE_MIN_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Charge Current limit derived from Max-Cell-Temperature.
 		 * 
@@ -127,7 +136,8 @@ public class BatteryProtection {
 		 * </ul>
 		 */
 		BP_CHARGE_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Discharge Current limit derived from Max-Cell-Temperature.
 		 * 
@@ -138,7 +148,8 @@ public class BatteryProtection {
 		 * </ul>
 		 */
 		BP_DISCHARGE_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Charge Max-Increase Current limit.
 		 * 
@@ -149,7 +160,8 @@ public class BatteryProtection {
 		 * </ul>
 		 */
 		BP_CHARGE_INCREASE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Discharge Max-Increase Current limit.
 		 * 
@@ -160,7 +172,8 @@ public class BatteryProtection {
 		 * </ul>
 		 */
 		BP_DISCHARGE_INCREASE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Force-Discharge State.
 		 * 
@@ -170,7 +183,8 @@ public class BatteryProtection {
 		 * <li>Unit: Ampere
 		 * </ul>
 		 */
-		BP_FORCE_DISCHARGE(Doc.of(AbstractForceChargeDischarge.State.values())), //
+		BP_FORCE_DISCHARGE(Doc.of(AbstractForceChargeDischarge.State.values()) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Force-Charge State.
 		 * 
@@ -180,7 +194,8 @@ public class BatteryProtection {
 		 * <li>Unit: Ampere
 		 * </ul>
 		 */
-		BP_FORCE_CHARGE(Doc.of(AbstractForceChargeDischarge.State.values())) //
+		BP_FORCE_CHARGE(Doc.of(AbstractForceChargeDischarge.State.values()) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
 		;
 
 		private final Doc doc;
