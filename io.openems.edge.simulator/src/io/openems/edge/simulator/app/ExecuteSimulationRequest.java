@@ -143,7 +143,7 @@ public class ExecuteSimulationRequest extends JsonrpcRequest {
 
 	public ExecuteSimulationRequest(UUID id, List<CreateComponentConfigRequest> components, Clock clock,
 			Map<String, Profile> profiles, List<ChannelAddress> collects) {
-		super(id, METHOD);
+		super(id, METHOD, JsonrpcRequest.NO_TIMEOUT);
 		this.components = components;
 		this.clock = clock;
 		this.profiles = profiles;

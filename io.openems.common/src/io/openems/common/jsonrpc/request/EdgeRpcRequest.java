@@ -44,7 +44,7 @@ public class EdgeRpcRequest extends JsonrpcRequest {
 	}
 
 	public EdgeRpcRequest(UUID id, String edgeId, JsonrpcRequest payload) {
-		super(id, METHOD);
+		super(id, METHOD, payload.getTimeout() /* inherit timeout from payload */);
 		this.edgeId = edgeId;
 		this.payload = payload;
 	}
