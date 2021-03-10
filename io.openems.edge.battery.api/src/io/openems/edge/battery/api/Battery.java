@@ -33,6 +33,7 @@ import io.openems.edge.common.startstop.StartStoppable;
 public interface Battery extends StartStoppable, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		
 		/**
 		 * State of Charge.
 		 * 
