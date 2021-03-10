@@ -69,9 +69,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	// For Fenecon Home Battery, Lead Battery Capacity has to be set as a battery
 	// parameter
+	// TODO get from Battery
 	private static final int LEAD_BATTERY_CAPACITY = 200;
-	// Fenecon Home Battery Static module min voltage, used to calculte battery
+	// Fenecon Home Battery Static module min voltage, used to calculate battery
 	// module number per tower
+	// TODO get from Battery
 	private static final int MODULE_MIN_VOLTAGE = 42;
 
 	/**

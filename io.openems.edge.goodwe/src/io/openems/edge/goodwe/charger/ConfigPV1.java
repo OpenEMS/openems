@@ -7,7 +7,7 @@ import io.openems.edge.goodwe.GoodWeConstants;
 
 @ObjectClassDefinition(//
 		name = "GoodWe Charger PV1", //
-		description = "Implements the Goodwe-ET Charger 1.")
+		description = "Implements the GoodWe-ET Charger 1.")
 
 @interface ConfigPV1 {
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

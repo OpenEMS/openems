@@ -265,34 +265,10 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Fault BCU 10 Position ")), //
 
-		BATTERY_RACK_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Battery Rack Voltage")), //
-		BATTERY_RACK_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Battery Rack Current")), //
-		BATTERY_RACK_SOC(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Battery Rack State Of Charge")), //
-		BATTERY_RACK_SOH(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.PERCENT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Battery Rack State Of Health")), //
-		CELL_VOLTAGE_MIN(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Min Cell Voltage of All Module")), //
 		ID_OF_CELL_VOLTAGE_MIN(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Id. (Min Cell Voltage)")), //
-		CELL_VOLTAGE_MAX(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Cell Voltage MAX")), //
 		ID_OF_CELL_VOLTAGE_MAX(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
@@ -311,14 +287,6 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 		ID_OF_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Id. (Max Temp)")), //
-		MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Battery Rack DC Charge Current Limit")), //
-		MAX_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Battery Rack DC Discharge Current Limit")),
 		MAX_DC_CHARGE_CURRENT_LIMIT_PER_BCU(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE) //
 				.accessMode(AccessMode.READ_ONLY) //
