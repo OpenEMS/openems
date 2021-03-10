@@ -89,7 +89,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent impl
 											break;
 										}
 									}
-									// Log on first occurance
+									// Log on first occurrence
 									if (result != this.getGoodweType()) {
 										switch (result) {
 										case GOODWE_10K_BT:
@@ -106,7 +106,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent impl
 									}
 									return result;
 								}, //
-									// channel -> element
+
+								// channel -> element
 								value -> value))),
 
 				new FC3ReadRegistersTask(35111, Priority.LOW, //

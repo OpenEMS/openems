@@ -29,6 +29,7 @@ public class AbstractGenericEssChannelManager<BATTERY extends Battery, BATTERY_I
 	/**
 	 * Called on Component activate().
 	 * 
+	 * @param clockProvider   the {@link ClockProvider}
 	 * @param battery         the {@link Battery}
 	 * @param batteryInverter the {@link ManagedSymmetricBatteryInverter}
 	 */

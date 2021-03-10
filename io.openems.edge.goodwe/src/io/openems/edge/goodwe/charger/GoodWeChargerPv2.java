@@ -60,7 +60,7 @@ public class GoodWeChargerPv2 extends AbstractGoodWeEtCharger
 		}
 
 		// update filter for 'Ess'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "essOrBatteryInverter",
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "essOrBatteryInverter",
 				config.essOrBatteryInverter_id())) {
 			return;
 		}

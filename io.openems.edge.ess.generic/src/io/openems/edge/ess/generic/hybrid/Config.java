@@ -8,7 +8,7 @@ import io.openems.edge.common.startstop.StartStopConfig;
 @ObjectClassDefinition(//
 		name = "ESS Hybrid Generic Managed Symmetric", //
 		description = "")
-public @interface Config {
+@interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ess0";

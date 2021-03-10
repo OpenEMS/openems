@@ -18,7 +18,7 @@ import io.openems.edge.ess.generic.symmetric.ChannelManager;
  */
 public class AllowedChargeDischargeHandler implements BiConsumer<ClockProvider, Battery> {
 
-	public final static float DISCHARGE_EFFICIENCY_FACTOR = 0.95F;
+	public static final float DISCHARGE_EFFICIENCY_FACTOR = 0.95F;
 
 	/**
 	 * Allow a maximum increase per second.
@@ -26,7 +26,7 @@ public class AllowedChargeDischargeHandler implements BiConsumer<ClockProvider, 
 	 * <p>
 	 * 5 % of possible allowed charge/discharge power
 	 */
-	public final static float MAX_INCREASE_PERCENTAGE = 0.05F;
+	public static final float MAX_INCREASE_PERCENTAGE = 0.05F;
 
 	private final ManagedSymmetricEss parent;
 
@@ -64,6 +64,7 @@ public class AllowedChargeDischargeHandler implements BiConsumer<ClockProvider, 
 	 * parameters. Result is stored in 'allowedChargePower' and
 	 * 'allowedDischargePower' variables - both as positive values!
 	 * 
+	 * @param clockProvider       the {@link ClockProvider}
 	 * @param isStarted           is the ESS started?
 	 * @param chargeMaxCurrent    the {@link Battery.ChannelId#CHARGE_MAX_CURRENT}
 	 * @param dischargeMaxCurrent the {@link Battery.ChannelId#DISHARGE_MAX_CURRENT}

@@ -53,6 +53,8 @@ public abstract class AbstractGenericManagedEss<BATTERY extends Battery, BATTERY
 
 	/**
 	 * Helper wrapping class to handle everything related to Channels.
+	 * 
+	 * @return the {@link AbstractGenericEssChannelManager}
 	 */
 	protected abstract AbstractGenericEssChannelManager<BATTERY, BATTERY_INVERTER> getChannelManager();
 
@@ -97,6 +99,7 @@ public abstract class AbstractGenericManagedEss<BATTERY extends Battery, BATTERY
 		super.deactivate();
 	}
 
+	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {
 			return;
@@ -225,7 +228,7 @@ public abstract class AbstractGenericManagedEss<BATTERY extends Battery, BATTERY
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
