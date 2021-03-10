@@ -234,34 +234,34 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.text("Warning BCU 10 Position ")), //
 
 		// Fault BCU Position
-		FAULT_POSITION_BCU_1(Doc.of(Level.FAULT) //
+		FAULT_POSITION_BCU_1(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Fault BCU 1 Position ")), //
-		FAULT_POSITION_BCU_2(Doc.of(Level.FAULT) //
+		FAULT_POSITION_BCU_2(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Fault BCU 2 Position ")), //
-		FAULT_POSITION_BCU_3(Doc.of(Level.FAULT) //
+		FAULT_POSITION_BCU_3(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Fault BCU 3 Position ")), //
-		FAULT_POSITION_BCU_4(Doc.of(Level.FAULT) //
+		FAULT_POSITION_BCU_4(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Fault BCU 4 Position ")), //
-		FAULT_POSITION_BCU_5(Doc.of(Level.FAULT) //
+		FAULT_POSITION_BCU_5(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Fault BCU 5 Position ")), //
-		FAULT_POSITION_BCU_6(Doc.of(Level.FAULT) //
+		FAULT_POSITION_BCU_6(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Fault BCU 6 Position ")), //
-		FAULT_POSITION_BCU_7(Doc.of(Level.FAULT) //
+		FAULT_POSITION_BCU_7(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Fault BCU 7 Position ")), //
-		FAULT_POSITION_BCU_8(Doc.of(Level.FAULT) //
+		FAULT_POSITION_BCU_8(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Fault BCU 8 Position ")), //
-		FAULT_POSITION_BCU_9(Doc.of(Level.FAULT) //
+		FAULT_POSITION_BCU_9(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Fault BCU 9 Position ")), //
-		FAULT_POSITION_BCU_10(Doc.of(Level.FAULT) //
+		FAULT_POSITION_BCU_10(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Fault BCU 10 Position ")), //
 
@@ -313,60 +313,60 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.text("Rack Lower Cell Voltage Border -> System will stop discharging if a cell reaches this voltage value")),
 
 		// Rack HW Fault Detail
-		RACK_HW_AFE_COMMUNICATION_FAULT(Doc.of(Level.FAULT) //
+		RACK_HW_AFE_COMMUNICATION_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack HW AFE Communication Fault")),
-		RACK_HW_ACTOR_DRIVER_FAULT(Doc.of(Level.FAULT) //
+		RACK_HW_ACTOR_DRIVER_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack HW Actor Driver Fault")),
-		RACK_HW_EEPROM_COMMUNICATION_FAULT(Doc.of(Level.FAULT) //
+		RACK_HW_EEPROM_COMMUNICATION_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack HW EEPROM Communication Fault")),
-		RACK_HW_VOLTAGE_DETECT_FAULT(Doc.of(Level.FAULT) //
+		RACK_HW_VOLTAGE_DETECT_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack HW Voltage Detect Voltage")),
-		RACK_HW_TEMPERATURE_DETECT_FAULT(Doc.of(Level.FAULT) //
+		RACK_HW_TEMPERATURE_DETECT_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack HW Temperature Detect Fault")),
-		RACK_HW_CURRENT_DETECT_FAULT(Doc.of(Level.FAULT) //
+		RACK_HW_CURRENT_DETECT_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack HW Current Detect Fault")),
-		RACK_HW_ACTOR_NOT_CLOSE(Doc.of(Level.FAULT) //
+		RACK_HW_ACTOR_NOT_CLOSE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack HW Actor Not Close")),
-		RACK_HW_ACTOR_NOT_OPEN(Doc.of(Level.FAULT) //
+		RACK_HW_ACTOR_NOT_OPEN(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack HW Actor Not Open")),
-		RACK_HW_FUSE_BROKEN(Doc.of(Level.FAULT) //
+		RACK_HW_FUSE_BROKEN(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack HW Fuse Broken")),
 
 		// Rack System Fault Detail
-		RACK_SYSTEM_AFE_OVER_TEMPERATURE(Doc.of(Level.FAULT) //
+		RACK_SYSTEM_AFE_OVER_TEMPERATURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack System AFE Over Temperature")),
-		RACK_SYSTEM_AFE_UNDER_TEMPERATURE(Doc.of(Level.FAULT) //
+		RACK_SYSTEM_AFE_UNDER_TEMPERATURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack System AFE Under Temperature")),
-		RACK_SYSTEM_AFE_OVER_VOLTAGE(Doc.of(Level.FAULT) //
+		RACK_SYSTEM_AFE_OVER_VOLTAGE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack System AFE Over Voltage")),
-		RACK_SYSTEM_AFE_UNDER_VOLTAGE(Doc.of(Level.FAULT) //
+		RACK_SYSTEM_AFE_UNDER_VOLTAGE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack System AFE Over Temperature")),
-		RACK_SYSTEM_HIGH_TEMPERATURE_PERMANENT_FAILURE(Doc.of(Level.FAULT) //
+		RACK_SYSTEM_HIGH_TEMPERATURE_PERMANENT_FAILURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack System High Temperature Permanent Failure")),
-		RACK_SYSTEM_LOW_TEMPERATURE_PERMANENT_FAILURE(Doc.of(Level.FAULT) //
+		RACK_SYSTEM_LOW_TEMPERATURE_PERMANENT_FAILURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack System  Low Temperature Permanent Failure")),
-		RACK_SYSTEM_HIGH_CELL_VOLTAGE_PERMANENT_FAILURE(Doc.of(Level.FAULT) //
+		RACK_SYSTEM_HIGH_CELL_VOLTAGE_PERMANENT_FAILURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack System  High Cell Voltage Permanent Failure")),
-		RACK_SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE(Doc.of(Level.FAULT) //
+		RACK_SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack System  Low Cell Voltage Permanent Failure")),
-		RACK_SYSTEM_SHORT_CIRCUIT(Doc.of(Level.FAULT) //
+		RACK_SYSTEM_SHORT_CIRCUIT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack System Low Cell Voltage Permanent Failure")),
 		UPPER_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
@@ -381,7 +381,7 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 		STATUS_WARNING(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Status WARNNG")),
-		STATUS_FAULT(Doc.of(Level.FAULT) //
+		STATUS_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Status BCU Status Fault")),
 		STATUS_PFET(Doc.of(Level.INFO) //
@@ -480,110 +480,110 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.text("BCU Warning Over Discharging Power")),
 
 		// Bcu Fault Flags
-		LEVEL_2_CELL_OVER_VOLTAGE(Doc.of(Level.FAULT) //
+		LEVEL_2_CELL_OVER_VOLTAGE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Fault Cell Over Voltage")),
-		LEVEL_2_CELL_UNDER_VOLTAGE(Doc.of(Level.FAULT) //
+		LEVEL_2_CELL_UNDER_VOLTAGE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Fault Cell Under Voltage")),
-		LEVEL_2_OVER_CHARGING_CURRENT(Doc.of(Level.FAULT) //
+		LEVEL_2_OVER_CHARGING_CURRENT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Fault Over Charging Current")),
-		LEVEL_2_OVER_DISCHARGING_CURRENT(Doc.of(Level.FAULT) //
+		LEVEL_2_OVER_DISCHARGING_CURRENT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Fault Over Discharging Current")),
-		LEVEL_2_OVER_TEMPERATURE(Doc.of(Level.FAULT) //
+		LEVEL_2_OVER_TEMPERATURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Fault Over Temperature")),
-		LEVEL_2_UNDER_TEMPERATURE(Doc.of(Level.FAULT) //
+		LEVEL_2_UNDER_TEMPERATURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Fault Under Temperature")),
-		LEVEL_2_CELL_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
+		LEVEL_2_CELL_VOLTAGE_DIFFERENCE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Fault Cell Voltage Difference")),
-		LEVEL_2_BCU_TEMP_DIFFERENCE(Doc.of(Level.FAULT) //
+		LEVEL_2_BCU_TEMP_DIFFERENCE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Fault BCU Temperature Difference")),
-		LEVEL_2_TEMPERATURE_DIFFERENCE(Doc.of(Level.FAULT) //
+		LEVEL_2_TEMPERATURE_DIFFERENCE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Fault BCU Temperature Difference")),
-		LEVEL_2_INTERNAL_COMMUNICATION(Doc.of(Level.FAULT) //
+		LEVEL_2_INTERNAL_COMMUNICATION(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Fault Internal Communication")),
-		LEVEL_2_EXTERNAL_COMMUNICATION(Doc.of(Level.FAULT) //
+		LEVEL_2_EXTERNAL_COMMUNICATION(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Fault External Communication")),
-		LEVEL_2_PRECHARGE_FAIL(Doc.of(Level.FAULT) //
+		LEVEL_2_PRECHARGE_FAIL(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Fault Pre-Charge Fail")),
-		LEVEL_2_PARALLEL_FAIL(Doc.of(Level.FAULT) //
+		LEVEL_2_PARALLEL_FAIL(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Fault Parallel Fail")),
-		LEVEL_2_SYSTEM_FAIL(Doc.of(Level.FAULT) //
+		LEVEL_2_SYSTEM_FAIL(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Fault System Fault")),
-		LEVEL_2_HARDWARE_FAIL(Doc.of(Level.FAULT) //
+		LEVEL_2_HARDWARE_FAIL(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Fault Hardware Fault")),
 
 		// Bcu HW Fault Detail
-		HW_AFE_COMMUNICAITON_FAULT(Doc.of(Level.FAULT) //
+		HW_AFE_COMMUNICAITON_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU HW AFE Communication Fault")),
-		HW_ACTOR_DRIVER_FAULT(Doc.of(Level.FAULT) //
+		HW_ACTOR_DRIVER_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU HW Actor Driver Fault")),
-		HW_EEPROM_COMMUNICATION_FAULT(Doc.of(Level.FAULT) //
+		HW_EEPROM_COMMUNICATION_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU HW EEPROM Communication Fault")),
-		HW_VOLTAGE_DETECT_FAULT(Doc.of(Level.FAULT) //
+		HW_VOLTAGE_DETECT_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU HW Voltage Detect Fault")),
-		HW_TEMPERATURE_DETECT_FAULT(Doc.of(Level.FAULT) //
+		HW_TEMPERATURE_DETECT_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU HW Temperaure Detect Fault")),
-		HW_CURRENT_DETECT_FAULT(Doc.of(Level.FAULT) //
+		HW_CURRENT_DETECT_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU HW Current Detect Fault")),
-		HW_ACTOR_NOT_CLOSE(Doc.of(Level.FAULT) //
+		HW_ACTOR_NOT_CLOSE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU HW Actor Not Close Fault")),
-		HW_ACTOR_NOT_OPEN(Doc.of(Level.FAULT) //
+		HW_ACTOR_NOT_OPEN(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU HW Actor Not Open")),
-		HW_FUSE_BROKEN(Doc.of(Level.FAULT) //
+		HW_FUSE_BROKEN(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU HW Fuse Broken Fault")),
 
 		// Bcu System Fault Detail
-		SYSTEM_AFE_OVER_TEMPERATURE(Doc.of(Level.FAULT) //
+		SYSTEM_AFE_OVER_TEMPERATURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY)//
 				.text("BCU System AFE Over Temperature Fault")),
-		SYSTEM_AFE_UNDER_TEMPERATURE(Doc.of(Level.FAULT) //
+		SYSTEM_AFE_UNDER_TEMPERATURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU System AFE Under Temperature Fault")),
-		SYSTEM_AFE_OVER_VOLTAGE(Doc.of(Level.FAULT) //
+		SYSTEM_AFE_OVER_VOLTAGE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU System AFE Over Voltage Fault")),
-		SYSTEM_AFE_UNDER_VOLTAGE(Doc.of(Level.FAULT) //
+		SYSTEM_AFE_UNDER_VOLTAGE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU System AFE Under Voltage Fault")),
-		SYSTEM_HIGH_TEMPERATURE_PERMANENT_FAILURE(Doc.of(Level.FAULT) //
+		SYSTEM_HIGH_TEMPERATURE_PERMANENT_FAILURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU System High Temperature Permanent Fault")),
-		SYSTEM_LOW_TEMPERATURE_PERMANENT_FAILURE(Doc.of(Level.FAULT) //
+		SYSTEM_LOW_TEMPERATURE_PERMANENT_FAILURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU System Low Temperature Permanent Fault")),
-		SYSTEM_HIGH_CELL_VOLTAGE_PERMANENT_FAILURE(Doc.of(Level.FAULT) //
+		SYSTEM_HIGH_CELL_VOLTAGE_PERMANENT_FAILURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU System High Cell Voltage Permanent Fault")),
-		SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE(Doc.of(Level.FAULT) //
+		SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU System Low Cell Voltage Permanent Fault")),
-		BCU_SYSTEM_LOW_CELL_VOLTAGE_FAILURE(Doc.of(Level.FAULT) //
+		BCU_SYSTEM_LOW_CELL_VOLTAGE_FAILURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU System Low Cell Voltage Permanent Fault")),
-		SYSTEM_SHORT_CIRCUIT(Doc.of(Level.FAULT) //
+		SYSTEM_SHORT_CIRCUIT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU System Short Circuit Fault")),
 
