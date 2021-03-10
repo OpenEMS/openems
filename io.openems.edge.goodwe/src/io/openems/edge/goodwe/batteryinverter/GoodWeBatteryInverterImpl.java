@@ -201,7 +201,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		this.lastSoc = battery.getSoc();
 
 		// Update ApplyPowerStateMachine
-		Integer pvProduction = this.calculatePvProduction();
+		int pvProduction = Optional.ofNullable(this.calculatePvProduction()).orElse(0);
 		int soc = battery.getSoc().orElse(0);
 		ApplyPowerStateMachine.State state = ApplyPowerStateMachine.evaluateState(this.getGoodweType(),
 				false /* read-only mode is never true */, pvProduction, soc, setActivePower);
