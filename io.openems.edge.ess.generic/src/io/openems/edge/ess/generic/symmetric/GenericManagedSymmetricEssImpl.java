@@ -55,7 +55,7 @@ import io.openems.edge.ess.power.api.Power;
 		} //
 )
 public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent implements GenericManagedSymmetricEss,
-		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, StartStoppable, ModbusSlave, ClockProvider {
+		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	@Reference
 	private Power power;
@@ -254,6 +254,8 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
+
+
 
 	@Override
 	public Clock getClock() {

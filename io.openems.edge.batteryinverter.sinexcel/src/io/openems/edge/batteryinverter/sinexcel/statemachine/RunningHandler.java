@@ -31,6 +31,8 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 		// Mark as started
 		inverter._setStartStop(StartStop.START);
+		
+		// Call the StateMachine here 
 
 		// Apply Active and Reactive Power Set-Points
 		this.applyPower(context);

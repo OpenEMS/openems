@@ -49,6 +49,7 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.ess.api.OffGridSwitch;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
@@ -65,7 +66,7 @@ import io.openems.edge.ess.power.api.Relationship;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 		}) //
 public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sinexcel, ManagedSymmetricBatteryInverter,
-		SymmetricBatteryInverter, OpenemsComponent, StartStoppable {
+		SymmetricBatteryInverter, OpenemsComponent, StartStoppable, OffGridSwitch {
 
 	private final Logger log = LoggerFactory.getLogger(SinexcelImpl.class);
 
@@ -76,6 +77,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 
 	protected int slowChargeVoltage = 4370; // for new batteries - 3940
 	protected int floatChargeVoltage = 4370; // for new batteries - 3940
+	protected boolean operatingMode = true;
 
 	/**
 	 * Manages the {@link State}s of the StateMachine.
@@ -116,6 +118,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 			return;
 		}
 		this.config = config;
+		this.operatingMode = config.operatingMode();
 		this.slowChargeVoltage = config.toppingCharge();
 		this.floatChargeVoltage = config.toppingCharge();
 	}
@@ -130,6 +133,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 		// Store the current State
 		this.channel(Sinexcel.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
 
+		
 		// Initialize 'Start-Stop' Channel
 		this._setStartStop(StartStop.UNDEFINED);
 
@@ -137,11 +141,15 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 		this.setBatteryLimits(battery);
 
 		// Prepare Context
-		Context context = new Context(this, this.config, setActivePower, setReactivePower);
+		Context context = new Context(this, this.componentManager ,  this.config, setActivePower, setReactivePower);
 
 		// Call the StateMachine
 		try {
 			this.stateMachine.run(context);
+			
+			if(!this.operatingMode) {
+				
+			}
 
 			this.channel(Sinexcel.ChannelId.RUN_FAILED).setNextValue(false);
 

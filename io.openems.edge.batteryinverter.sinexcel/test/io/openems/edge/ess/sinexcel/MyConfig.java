@@ -79,4 +79,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.toppingCharge;
 	}
 
+	@Override
+	public boolean operatingMode() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

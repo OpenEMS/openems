@@ -1,25 +1,33 @@
 package io.openems.edge.batteryinverter.sinexcel.statemachine;
+import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.ChannelAddress;
 import io.openems.edge.batteryinverter.sinexcel.Config;
 import io.openems.edge.batteryinverter.sinexcel.Sinexcel;
 import io.openems.edge.batteryinverter.sinexcel.enums.FalseTrue;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.statemachine.AbstractContext;
 
 public class Context extends AbstractContext<Sinexcel> {
 
+	protected final ComponentManager cm;
 	protected final Config config;
 	protected final int setActivePower;
 	protected final int setReactivePower;
 
-	public Context(Sinexcel parent, Config config, int setActivePower, int setReactivePower) {
+	public Context(Sinexcel parent, ComponentManager cm, Config config, int setActivePower, int setReactivePower) {
 		super(parent);
+		this.cm = cm;
 		this.config = config;
 		this.setActivePower = setActivePower;
 		this.setReactivePower = setReactivePower;
 	}
+	
+
 
 	/**
 	 * Starts the inverter.

@@ -17,6 +17,7 @@ import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.startstop.StartStop;
@@ -393,4 +394,6 @@ public interface Sinexcel extends ManagedSymmetricBatteryInverter, SymmetricBatt
 	public default Value<Boolean> getStateOn() {
 		return this.getStateOnChannel().value();
 	}
+
+
 }
