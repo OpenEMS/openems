@@ -19,6 +19,8 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonNull;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
@@ -194,6 +196,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 			AtomicBoolean configurationFailed) {
 		this.migrateConfigurationOnVersion_2020_11_5(existingConfigs, configurationFailed);
 		this.migrateConfigurationOnVersion_2020_23_4(existingConfigs, configurationFailed);
+		this.migrateConfigurationOnVersion_2021_4_14(existingConfigs, configurationFailed);
 	}
 
 	/**
@@ -365,6 +368,33 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 					new Property("ess.target", essTarget), //
 					new Property("modbus.id", modbusId), //
 					new Property("modbusUnitId", modbusUnitId) //
+			));
+		});
+	}
+
+	/**
+	 * Migrate to OpenEMS version 2021.4.14.
+	 */
+	private void migrateConfigurationOnVersion_2021_4_14(List<Config> existingConfigs,
+			AtomicBoolean configurationFailed) {
+		/*
+		 * Fix GoodWe configuration upgrade for Chargers
+		 */
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
+		("GoodWe.Charger-PV1".equals(c.factoryPid) || "GoodWe.Charger-PV2".equals(c.factoryPid)) //
+				&& DictionaryUtils.getAsOptionalString(c.properties, "essOrBatteryInverter.target").orElse("")
+						.isEmpty()) //
+		).forEach(c -> {
+			String servicePid = DictionaryUtils.getAsString(c.properties, "service.pid");
+			String essOrBatteryInverterId = DictionaryUtils.getAsString(c.properties, "ess.id");
+			String essOrBatteryInverterTarget = ConfigUtils.generateReferenceTargetFilter(servicePid,
+					essOrBatteryInverterId);
+
+			this.updateConfiguration(configurationFailed, c.componentId.get(), Arrays.asList(//
+					new Property("essOrBatteryInverter.id", essOrBatteryInverterId), //
+					new Property("essOrBatteryInverter.target", essOrBatteryInverterTarget), //
+					new Property("ess.id", JsonNull.INSTANCE), //
+					new Property("ess.target", JsonNull.INSTANCE) //
 			));
 		});
 	}
