@@ -2,6 +2,8 @@ package io.openems.common.websocket;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import org.java_websocket.WebSocket;
@@ -38,14 +40,22 @@ public class OnRequestHandler implements Runnable {
 			CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture = this.parent.getOnRequest().run(this.ws,
 					this.request);
 			// Get success response
-			response = responseFuture.get();
+			if (this.request.getTimeout() < 1) {
+				// ...without timeout
+				response = responseFuture.get();
+			} else {
+				// ...with timeout
+				response = responseFuture.get(this.request.getTimeout(), TimeUnit.SECONDS);
+			}
 		} catch (OpenemsNamedException e) {
 			// Get Named Exception error response
 			this.parent.logWarn(this.log, "JSON-RPC Error Response: " + e.getMessage());
 			response = new JsonrpcResponseError(request.getId(), e);
-		} catch (ExecutionException | InterruptedException e) {
+		} catch (ExecutionException | InterruptedException | TimeoutException e) {
 			// Get GENERIC error response
-			this.parent.logWarn(this.log, "JSON-RPC Error Response: " + e.getMessage());
+			this.parent.logWarn(this.log, "JSON-RPC Error Response. " + e.getClass().getSimpleName() + ". " //
+					+ "Request: " + this.request.toString() + ". " //
+					+ "Message: " + e.getMessage());
 			response = new JsonrpcResponseError(request.getId(), e.getMessage());
 		}
 
