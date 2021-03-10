@@ -3,6 +3,7 @@ package io.openems.edge.ess.generic.symmetric;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.edge.ess.generic.symmetric.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
