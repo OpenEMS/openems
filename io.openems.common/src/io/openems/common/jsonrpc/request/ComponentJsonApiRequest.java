@@ -1,7 +1,5 @@
 package io.openems.common.jsonrpc.request;
 
-import java.util.UUID;
-
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -10,7 +8,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
 
 /**
- * Wraps a JSON-RPC Request for an OpenEMS Component that implements JsonApi
+ * Wraps a JSON-RPC Request for an OpenEMS Component that implements JsonApi.
  * 
  * <pre>
  * {
@@ -26,24 +24,34 @@ import io.openems.common.utils.JsonUtils;
  */
 public class ComponentJsonApiRequest extends JsonrpcRequest {
 
+	public static final String METHOD = "componentJsonApi";
+
+	/**
+	 * Create {@link ComponentJsonApiRequest} from a template
+	 * {@link JsonrpcRequest}.
+	 * 
+	 * @param r the template {@link JsonrpcRequest}
+	 * @return the {@link ComponentJsonApiRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
 	public static ComponentJsonApiRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		String componentId = JsonUtils.getAsString(p, "componentId");
 		JsonrpcRequest payload = GenericJsonrpcRequest.fromIgnoreId(JsonUtils.getAsJsonObject(p, "payload"));
-		return new ComponentJsonApiRequest(r.getId(), componentId, payload);
+		return new ComponentJsonApiRequest(r, componentId, payload);
 	}
-
-	public final static String METHOD = "componentJsonApi";
 
 	private final String componentId;
 	private final JsonrpcRequest payload;
 
 	public ComponentJsonApiRequest(String componentId, JsonrpcRequest payload) {
-		this(UUID.randomUUID(), componentId, payload);
+		super(METHOD, payload.getTimeout() /* inherit timeout from payload */);
+		this.componentId = componentId;
+		this.payload = payload;
 	}
 
-	public ComponentJsonApiRequest(UUID id, String componentId, JsonrpcRequest payload) {
-		super(id, METHOD);
+	private ComponentJsonApiRequest(JsonrpcRequest request, String componentId, JsonrpcRequest payload) {
+		super(request, METHOD);
 		this.componentId = componentId;
 		this.payload = payload;
 	}
@@ -56,12 +64,22 @@ public class ComponentJsonApiRequest extends JsonrpcRequest {
 				.build();
 	}
 
+	/**
+	 * Gets the Component-ID.
+	 * 
+	 * @return Component-ID
+	 */
 	public String getComponentId() {
-		return componentId;
+		return this.componentId;
 	}
 
+	/**
+	 * Gets the Payload {@link JsonrpcRequest}.
+	 * 
+	 * @return Payload
+	 */
 	public JsonrpcRequest getPayload() {
-		return payload;
+		return this.payload;
 	}
 
 }
