@@ -5,17 +5,15 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.TreeSet;
-import java.util.UUID;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.DateUtils;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -44,18 +42,23 @@ import io.openems.common.utils.JsonUtils;
 
 public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 
-	public final static String METHOD = "queryHistoricTimeseriesEnergy";
+	public static final String METHOD = "queryHistoricTimeseriesEnergy";
 
-	private final static DateTimeFormatter FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
-
+	/**
+	 * Create {@link AuthenticateWithPasswordRequest} from a template
+	 * {@link JsonrpcRequest}.
+	 * 
+	 * @param r the template {@link JsonrpcRequest}
+	 * @return the {@link AuthenticateWithPasswordRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
 	public static QueryHistoricTimeseriesEnergyRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		int timezoneDiff = JsonUtils.getAsInt(p, "timezone");
 		ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
 		ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
 		ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
-		QueryHistoricTimeseriesEnergyRequest result = new QueryHistoricTimeseriesEnergyRequest(r.getId(), fromDate,
-				toDate);
+		QueryHistoricTimeseriesEnergyRequest result = new QueryHistoricTimeseriesEnergyRequest(r, fromDate, toDate);
 		JsonArray channels = JsonUtils.getAsJsonArray(p, "channels");
 		for (JsonElement channel : channels) {
 			ChannelAddress address = ChannelAddress.fromString(JsonUtils.getAsString(channel));
@@ -64,31 +67,31 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 		return result;
 	}
 
-	public static QueryHistoricTimeseriesEnergyRequest from(JsonObject j) throws OpenemsNamedException {
-		return from(GenericJsonrpcRequest.from(j));
-	}
+	private static final DateTimeFormatter FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
 	private final int timezoneDiff;
 	private final ZonedDateTime fromDate;
 	private final ZonedDateTime toDate;
 	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
 
-	public QueryHistoricTimeseriesEnergyRequest(UUID id, ZonedDateTime fromDate, ZonedDateTime toDate)
+	private QueryHistoricTimeseriesEnergyRequest(JsonrpcRequest request, ZonedDateTime fromDate, ZonedDateTime toDate)
 			throws OpenemsNamedException {
-		super(id, METHOD);
+		super(request, METHOD);
 
+		DateUtils.assertSameTimezone(fromDate, toDate);
 		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
-		if (timezoneDiff != ZoneOffset.from(toDate).getTotalSeconds()) {
-			throw new OpenemsException("FromDate and ToDate need to be in the same timezone!");
-		}
-
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 	}
 
 	public QueryHistoricTimeseriesEnergyRequest(ZonedDateTime fromDate, ZonedDateTime toDate)
 			throws OpenemsNamedException {
-		this(UUID.randomUUID(), fromDate, toDate);
+		super(METHOD);
+
+		DateUtils.assertSameTimezone(fromDate, toDate);
+		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
+		this.fromDate = fromDate;
+		this.toDate = toDate;
 	}
 
 	private void addChannel(ChannelAddress address) {
@@ -108,15 +111,31 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 				.build();
 	}
 
+	/**
+	 * Gets the From-Date.
+	 * 
+	 * @return From-Date
+	 */
 	public ZonedDateTime getFromDate() {
-		return fromDate;
+		return this.fromDate;
 	}
 
+	/**
+	 * Gets the To-Date.
+	 * 
+	 * @return To-Date
+	 */
 	public ZonedDateTime getToDate() {
-		return toDate;
+		return this.toDate;
 	}
 
+	/**
+	 * Gets the {@link ChannelAddress}es.
+	 * 
+	 * @return Set of {@link ChannelAddress}
+	 */
 	public TreeSet<ChannelAddress> getChannels() {
-		return channels;
+		return this.channels;
 	}
+
 }
