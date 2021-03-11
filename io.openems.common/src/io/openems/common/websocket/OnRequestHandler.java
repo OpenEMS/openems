@@ -40,12 +40,12 @@ public class OnRequestHandler implements Runnable {
 			CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture = this.parent.getOnRequest().run(this.ws,
 					this.request);
 			// Get success response
-			if (this.request.getTimeout() < 1) {
+			if (this.request.getTimeout().isPresent() && this.request.getTimeout().get() > 0) {
+				// ...with timeout
+				response = responseFuture.get(this.request.getTimeout().get(), TimeUnit.SECONDS);
+			} else {
 				// ...without timeout
 				response = responseFuture.get();
-			} else {
-				// ...with timeout
-				response = responseFuture.get(this.request.getTimeout(), TimeUnit.SECONDS);
 			}
 		} catch (OpenemsNamedException e) {
 			// Get Named Exception error response

@@ -3,7 +3,6 @@ package io.openems.edge.core.host.jsonrpc;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -52,18 +51,19 @@ public class SetNetworkConfigRequest extends JsonrpcRequest {
 		for (Entry<String, JsonElement> entry : jInterfaces.entrySet()) {
 			interfaces.add(NetworkInterface.from(entry.getKey(), JsonUtils.getAsJsonObject(entry.getValue())));
 		}
-		return new SetNetworkConfigRequest(r.getId(), interfaces);
+		return new SetNetworkConfigRequest(r, interfaces);
 	}
 
 	private final List<NetworkInterface<?>> networkInterfaces;
 
 	public SetNetworkConfigRequest(List<NetworkInterface<?>> interfaces) {
-		this(UUID.randomUUID(), interfaces);
+		super(METHOD);
+		this.networkInterfaces = interfaces;
 	}
 
-	public SetNetworkConfigRequest(UUID id, List<NetworkInterface<?>> networkInterfaces) {
-		super(id, METHOD);
-		this.networkInterfaces = networkInterfaces;
+	private SetNetworkConfigRequest(JsonrpcRequest request, List<NetworkInterface<?>> interfaces) {
+		super(request, METHOD);
+		this.networkInterfaces = interfaces;
 	}
 
 	@Override

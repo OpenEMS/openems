@@ -54,7 +54,17 @@ import io.openems.common.utils.JsonUtils;
  */
 public class ExecuteSimulationRequest extends JsonrpcRequest {
 
+	public static final String METHOD = "executeSimulation";
+
 	public static class Clock {
+
+		/**
+		 * Create {@link Clock} from {@link JsonObject}.
+		 * 
+		 * @param j the {@link JsonObject}
+		 * @return the {@link Clock}
+		 * @throws OpenemsNamedException on parse error
+		 */
 		public static Clock from(JsonObject j) throws OpenemsNamedException {
 			ZonedDateTime start = ZonedDateTime.parse(JsonUtils.getAsString(j, "start"));
 			ZonedDateTime end = ZonedDateTime.parse(JsonUtils.getAsString(j, "end"));
@@ -77,6 +87,14 @@ public class ExecuteSimulationRequest extends JsonrpcRequest {
 	}
 
 	public static class Profile {
+
+		/**
+		 * Create {@link Profile} from {@link JsonArray}.
+		 * 
+		 * @param j the {@link JsonArray}
+		 * @return the {@link Profile}
+		 * @throws OpenemsNamedException on parse error
+		 */
 		public static Profile from(JsonArray j) throws OpenemsNamedException {
 			final List<Integer> values = new ArrayList<>();
 			j.forEach(value -> {
@@ -95,10 +113,18 @@ public class ExecuteSimulationRequest extends JsonrpcRequest {
 			this.values = values;
 		}
 
+		/**
+		 * Gets the currently active value of the {@link Profile}.
+		 * 
+		 * @return the value
+		 */
 		public synchronized Integer getCurrentValue() {
 			return this.values.get(this.currentIndex);
 		}
 
+		/**
+		 * Selects the next active value in the {@link Profile}.
+		 */
 		public synchronized void selectNextValue() {
 			this.currentIndex += 1;
 			if (this.currentIndex > this.values.size() - 1) {
@@ -108,8 +134,14 @@ public class ExecuteSimulationRequest extends JsonrpcRequest {
 
 	}
 
-	public static final String METHOD = "executeSimulation";
-
+	/**
+	 * Create {@link ExecuteSimulationRequest} from a template
+	 * {@link JsonrpcRequest}.
+	 * 
+	 * @param r the template {@link JsonrpcRequest}
+	 * @return the {@link ExecuteSimulationRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
 	public static ExecuteSimulationRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		List<CreateComponentConfigRequest> components = new ArrayList<>();
@@ -128,7 +160,7 @@ public class ExecuteSimulationRequest extends JsonrpcRequest {
 		for (JsonElement jCollect : jCollects) {
 			collects.add(ChannelAddress.fromString(JsonUtils.getAsString(jCollect)));
 		}
-		return new ExecuteSimulationRequest(r.getId(), components, clock, profiles, collects);
+		return new ExecuteSimulationRequest(r, components, clock, profiles, collects);
 	}
 
 	public final List<CreateComponentConfigRequest> components;
@@ -138,12 +170,16 @@ public class ExecuteSimulationRequest extends JsonrpcRequest {
 
 	public ExecuteSimulationRequest(List<CreateComponentConfigRequest> components, Clock clock,
 			Map<String, Profile> profiles, List<ChannelAddress> collects) {
-		this(UUID.randomUUID(), components, clock, profiles, collects);
+		super(UUID.randomUUID(), METHOD, JsonrpcRequest.NO_TIMEOUT);
+		this.components = components;
+		this.clock = clock;
+		this.profiles = profiles;
+		this.collects = collects;
 	}
 
-	public ExecuteSimulationRequest(UUID id, List<CreateComponentConfigRequest> components, Clock clock,
+	public ExecuteSimulationRequest(JsonrpcRequest request, List<CreateComponentConfigRequest> components, Clock clock,
 			Map<String, Profile> profiles, List<ChannelAddress> collects) {
-		super(id, METHOD, JsonrpcRequest.NO_TIMEOUT);
+		super(request, METHOD);
 		this.components = components;
 		this.clock = clock;
 		this.profiles = profiles;
