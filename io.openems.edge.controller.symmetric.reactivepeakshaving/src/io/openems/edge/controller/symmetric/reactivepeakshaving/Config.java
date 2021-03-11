@@ -23,8 +23,14 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of the Grid-Meter.")
 	String meter_id();
 
-	@AttributeDefinition(name = "Peak-Shaving reactive power", description = "Reactive power (cap./ind.) above this value is considered a peak and shaved to this value.")
+	@AttributeDefinition(name = "Peak-Shaving reactive power [var]", min = "0", description = "Reactive power (cap./ind.) above this value is considered a peak and shaved to this value.")
 	int peakShavingReactivePower();
+	
+	@AttributeDefinition(name = "P (debugging)", description = "debugging")
+	float parP() default 0.3f;
+	
+	@AttributeDefinition(name = "I (debugging)", description = "debugging")
+	float parI() default 0.3f;
 	
 	String webconsole_configurationFactory_nameHint() default "Controller Reactive-Peak-Shaving Symmetric [{id}]";
 

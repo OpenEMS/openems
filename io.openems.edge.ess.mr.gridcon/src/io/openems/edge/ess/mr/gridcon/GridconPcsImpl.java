@@ -214,7 +214,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 		this.activePowerPreset = activePower;
 
 		float activePowerFactor = (-1) * activePower / maxApparentPower;
-		float reactivePowerFactor = (-1) * reactivePower / maxApparentPower;
+		float reactivePowerFactor = reactivePower / maxApparentPower;
 
 		this.commands.setParameterPref(activePowerFactor);
 		this.commands.setParameterQref(reactivePowerFactor);
@@ -1139,7 +1139,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public float getReactivePower() { // TODO check if this is correct
+	public float getReactivePower() {
 		FloatReadChannel c = this.channel(GridConChannelId.CCU_POWER_Q);
 		return c.getNextValue().orElse(0f) * this.getMaxApparentPower();
 	}
