@@ -109,4 +109,13 @@ public class MetaTasksManager<T extends ManagedTask> {
 		return result;
 	}
 
+	/**
+	 * Does this {@link TasksManager} have any Tasks?.
+	 * 
+	 * @return true if there are Tasks
+	 */
+	public boolean hasTasks() {
+		return !this.tasksManagers.isEmpty();
+	}
+
 }

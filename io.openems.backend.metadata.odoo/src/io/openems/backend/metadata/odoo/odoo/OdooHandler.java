@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.Field;
-import io.openems.backend.metadata.odoo.MetadataOdoo;
+import io.openems.backend.metadata.odoo.OdooMetadata;
 import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.odoo.OdooUtils.JsonrpcResponseSuccessAndHeaders;
 import io.openems.backend.metadata.odoo.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordRequest;
@@ -22,12 +22,12 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 
 public class OdooHandler {
 
-	protected final MetadataOdoo parent;
+	protected final OdooMetadata parent;
 
 	private final Logger log = LoggerFactory.getLogger(OdooHandler.class);
 	private final Credentials credentials;
 
-	public OdooHandler(MetadataOdoo parent, Config config) {
+	public OdooHandler(OdooMetadata parent, Config config) {
 		this.parent = parent;
 		this.credentials = Credentials.fromConfig(config);
 	}

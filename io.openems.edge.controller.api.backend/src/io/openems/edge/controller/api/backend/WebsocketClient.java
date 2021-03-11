@@ -74,4 +74,8 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	protected void logWarn(Logger log, String message) {
 		this.parent.logWarn(log, message);
 	}
+
+	public boolean isConnected() {
+		return this.ws.isOpen();
+	}
 }
