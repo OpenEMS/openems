@@ -48,8 +48,13 @@ public class GetFieldNamesResponse extends JsonrpcResponseSuccess {
 				.build();
 	}
 
+	/**
+	 * Gets the {@link Field}s
+	 * 
+	 * @return a set of Fields
+	 */
 	public Set<Field> getFields() {
-		return fields;
+		return this.fields;
 	}
 
 }

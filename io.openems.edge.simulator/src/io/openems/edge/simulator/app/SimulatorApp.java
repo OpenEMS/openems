@@ -293,8 +293,8 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	/**
 	 * Apply simulated Time-Leap per Cycle.
 	 * 
-	 * @param clock             the {@link TimeLeapClock}
-	 * @param currentSimulation the current {@link ExecuteSimulationRequest}
+	 * @param clock                    the {@link TimeLeapClock}
+	 * @param currentSimulationRequest the current {@link ExecuteSimulationRequest}
 	 */
 	private void applyTimeLeap(TimeLeapClock clock, ExecuteSimulationRequest currentSimulationRequest) {
 		if (currentSimulationRequest.clock.executeCycleTwice) {
@@ -322,6 +322,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	/**
 	 * Delete all non-required Components.
 	 * 
+	 * @param user the {@link User}
 	 * @throws OpenemsNamedException on error
 	 */
 	private void deleteAllConfigurations(User user) throws OpenemsNamedException {
@@ -352,8 +353,6 @@ public class SimulatorApp extends AbstractOpenemsComponent
 
 	/**
 	 * Stop the Simulation.
-	 * 
-	 * @param currentSimulation the current simulation
 	 */
 	private void stopSimulation() {
 		this.logInfo(this.log, "Stopping Simulation");
