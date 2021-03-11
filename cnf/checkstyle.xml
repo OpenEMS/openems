@@ -201,7 +201,7 @@
     </module>
     <module name="MissingJavadocMethod">
       <property name="allowedAnnotations" value="Before,Test,After,Override"/>
-      <property name="ignoreMethodNamesRegex" value="doc"/>
+      <property name="ignoreMethodNamesRegex" value="doc|set.+"/>
       <property name="tokens" value="METHOD_DEF,ANNOTATION_FIELD_DEF"/>
     </module>
   </module>
