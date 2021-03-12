@@ -63,6 +63,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	private static final int ADDRESS_OFFSET_FOR_CELL_VOLT_AND_TEMP = 100;
 	private static final int MODULE_MIN_VOLTAGE = 42; // [V]
 	private static final int MODULE_MAX_VOLTAGE = 49; // [V]
+	private static final int CAPACITY_PER_MODULE = 2200; // [Wh]
 
 	private final Logger log = LoggerFactory.getLogger(FeneconHomeBatteryImpl.class);
 
@@ -105,6 +106,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 				int minDischargeVoltageValue = numberOfModulesPerTower * MODULE_MIN_VOLTAGE;
 				this._setDischargeMinVoltage(minDischargeVoltageValue);
 				// Initialize available Tower- and Module-Channels dynamically.
+				this._setCapacity(numberOfTowers*numberOfModulesPerTower*CAPACITY_PER_MODULE);
 				this.initializeTowerModulesChannels(numberOfTowers, numberOfModulesPerTower);
 			});
 		});
@@ -401,15 +403,14 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 										new UnsignedWordElement(towerOffset + 18)), //
 								m(new UnsignedWordElement(towerOffset + 19)) //
 										.m(this.generateTowerChannel(t, "_DESIGN_CAPACITY"),
-												ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [Wh]
-										.m(Battery.ChannelId.CAPACITY, ElementToChannelConverter.DIRECT_1_TO_1) //
+												ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [Ah]
 										.build(), //
 								m(this.generateTowerChannel(t, "_USABLE_CAPACITY"),
 										new UnsignedWordElement(towerOffset + 20), //
-										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Wh]
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
 								m(this.generateTowerChannel(t, "_REMAINING_CAPACITY"),
 										new UnsignedWordElement(towerOffset + 21), //
-										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Wh]
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
 								m(this.generateTowerChannel(t, "_MAX_CELL_VOLTAGE_LIMIT"),
 										new UnsignedWordElement(towerOffset + 22)), //
 								m(this.generateTowerChannel(t, "_MIN_CELL_VOLTAGE_LIMIT"),
