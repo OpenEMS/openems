@@ -62,7 +62,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	private static final int SENSORS_PER_MODULE = 14;
 	private static final int ADDRESS_OFFSET_FOR_CELL_VOLT_AND_TEMP = 100;
 	private static final int MODULE_MIN_VOLTAGE = 42; // [V]
-	private static final int MODULE_MAX_VOLTAGE = 45;// [V]
+	private static final int MODULE_MAX_VOLTAGE = 49; // [V]
 
 	private final Logger log = LoggerFactory.getLogger(FeneconHomeBatteryImpl.class);
 
@@ -247,10 +247,10 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 						m(FeneconHomeBattery.ChannelId.ID_OF_CELL_VOLTAGE_MIN, new UnsignedWordElement(511)), //
 						m(Battery.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(512)), // [mV]
 						m(FeneconHomeBattery.ChannelId.ID_OF_CELL_VOLTAGE_MAX, new UnsignedWordElement(513)), //
-						m(FeneconHomeBattery.ChannelId.MIN_TEMPERATURE, new UnsignedWordElement(514),
+						m(Battery.ChannelId.MIN_CELL_TEMPERATURE, new UnsignedWordElement(514),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(FeneconHomeBattery.ChannelId.ID_OF_MIN_TEMPERATURE, new UnsignedWordElement(515)), //
-						m(FeneconHomeBattery.ChannelId.MAX_TEMPERATURE, new UnsignedWordElement(516),
+						m(Battery.ChannelId.MAX_CELL_TEMPERATURE, new UnsignedWordElement(516),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(FeneconHomeBattery.ChannelId.ID_OF_MAX_TEMPERATURE, new UnsignedWordElement(517)), //
 						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(518),
