@@ -1,5 +1,5 @@
-<flat-widget title="General.production" img="assets/img/production.png" [channelAdresses]="channelAdresses">
-
+<flat-widget selector="production" title="General.production" img="assets/img/production.png"
+    [channelAdresses]="channelAdresses">
     <ng-container *ngFor="let component of chargerComponents">
         <flat-widget-line [title]="component.alias" [channels]="component.id + '/ActualPower'"></flat-widget-line>
     </ng-container>

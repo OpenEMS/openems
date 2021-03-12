@@ -88,9 +88,6 @@ export class StorageComponent {
                     new ChannelAddress('_sum', 'EssActivePowerL3'),
                     new ChannelAddress('_sum', 'EssCapacity'),
                 )
-                this.edge.subscribeChannels(this.websocket, StorageComponent.SELECTOR, this.channelAdresses);
-                return this.channelAdresses;
-
             })
         });
     }

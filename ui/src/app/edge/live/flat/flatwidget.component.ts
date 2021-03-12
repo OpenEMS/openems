@@ -3,12 +3,13 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../s
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { ModalController } from '@ionic/angular';
+import { AbstractWidget } from '../abstractWIdget';
 
 @Component({
   selector: FlatWidgetComponent.SELECTOR,
   templateUrl: './flatwidget.component.html'
 })
-export class FlatWidgetComponent {
+export class FlatWidgetComponent extends AbstractWidget {
 
   // @Output() newItemEvent = new EventEmitter<string>();
 
@@ -25,15 +26,9 @@ export class FlatWidgetComponent {
   @Input() public color: string;
   @Input() public channelAdresses: ChannelAddress[] = [];
   @Input() public method: string;
-  @Input() public executeLogik: Function;
-  @Output() onSuggest: EventEmitter<any> = new EventEmitter();
-  suggestionWasClicked(): void {
-    this.onSuggest;
+  @Input() public selector: string;
 
-  }
-  public executeLogic() {
-    this.executeLogik;
-  }
+
   // getAutarchyut() public firstparam: string;
   // @Input() public secondparam: string;
 
@@ -49,24 +44,22 @@ export class FlatWidgetComponent {
 
   constructor(
     public service: Service,
-    private websocket: Websocket,
-    private route: ActivatedRoute,
+    websocket: Websocket,
+    route: ActivatedRoute,
     private modalController: ModalController
-  ) { }
+  ) {
+    super(service, websocket, route);
+
+  }
 
   ngOnInit() {
-    this.service.setCurrentComponent('', this.route).then(edge => {
-      this.edge = edge;
-      this.onSuggest.emit([this.edge.currentData]);
-      edge.subscribeChannels(this.websocket, FlatWidgetComponent.SELECTOR, this.channelAdresses);
-      if (this.executeLogik != null) {
-      }
+    console.log("ChannelAddresses: ", this.channelAdresses);
+    this.subscribeChannels(this.selector, this.channelAdresses);
 
-    })
   }
   ngOnDestroy() {
     if (this.edge != null) {
-      this.edge.unsubscribeChannels(this.websocket, FlatWidgetComponent.SELECTOR);
+      // this.edge.unsubscribeChannels(this.websocket, FlatWidgetComponent.SELECTOR);
     }
   }
 

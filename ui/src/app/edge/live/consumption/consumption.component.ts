@@ -52,7 +52,7 @@ export class ConsumptionComponent {
           )
         }
       })
-      this.edge.subscribeChannels(this.websocket, ConsumptionComponent.SELECTOR, channels);
+
     });
   }
 
