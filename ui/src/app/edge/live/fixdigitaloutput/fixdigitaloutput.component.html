@@ -19,7 +19,7 @@
     </ion-card-content>
   </ng-container>
 </ion-card> -->
-<ng-container *ngIf="edge &&component && outputChannel">
+<ng-container *ngIf="edge && component && outputChannel">
   <flat-widget (click)="presentModal()" [channelAdresses]="channelAddress" [title]="component.alias"
     selector="fixdigitaloutput" [icon]="{name: 'power-outline', color: 'primary', size: 'large'}">
     <flat-widget-line title="Aktueller Status" [title_value]="state"></flat-widget-line>

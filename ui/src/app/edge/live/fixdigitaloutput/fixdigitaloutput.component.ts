@@ -19,7 +19,7 @@ export class FixDigitalOutputComponent {
   public component: EdgeConfig.Component = null;
   public outputChannel: string;
   public state: string;
-  channelAddress: ChannelAddress[];
+  public channelAddress: ChannelAddress[] = [];
 
   constructor(
     private service: Service,
@@ -35,27 +35,16 @@ export class FixDigitalOutputComponent {
       this.service.getConfig().then(config => {
         this.component = config.components[this.componentId];
         this.outputChannel = this.component.properties['outputChannelAddress']
-        edge.subscribeChannels(this.websocket, FixDigitalOutputComponent.SELECTOR + this.componentId, [
-          ChannelAddress.fromString(this.outputChannel)
-        ]);
+        this.channelAddress.push(ChannelAddress.fromString(this.outputChannel));
         this.edge.currentData.subscribe(currentData => {
-          currentData['outputChannelAddress'];
-          let channel = currentData['outputChannelAddress'];
-
-          console.log("fixdigit")
+          let channel = currentData.channel[this.outputChannel];
           if (channel == null) {
-            this.state = '-----';
-            console.log("state. -")
+            this.state = '-';
           } else if (channel == 1) {
             this.state = 'on'
-            console.log("state. on")
           } else if (channel == 0) {
             this.state = 'off'
-            console.log("state. off")
           }
-          // edge.subscribeChannels(this.websocket, FixDigitalOutputComponent.SELECTOR + this.componentId, [
-          //   ChannelAddress.fromString(this.outputChannel)
-          // ]);
         });
       });
     });
