@@ -17,7 +17,7 @@ export class FixDigitalOutputComponent {
 
   public edge: Edge = null;
   public component: EdgeConfig.Component = null;
-  public outputChannel: string = null;
+  public outputChannel: string;
   public state: string;
   channelAddress: ChannelAddress[];
 
@@ -34,7 +34,10 @@ export class FixDigitalOutputComponent {
       this.edge = edge;
       this.service.getConfig().then(config => {
         this.component = config.components[this.componentId];
-        this.channelAddress.push(ChannelAddress.fromString(this.outputChannel = this.component.properties['outputChannelAddress']));
+        this.outputChannel = this.component.properties['outputChannelAddress']
+        edge.subscribeChannels(this.websocket, FixDigitalOutputComponent.SELECTOR + this.componentId, [
+          ChannelAddress.fromString(this.outputChannel)
+        ]);
         this.edge.currentData.subscribe(currentData => {
           currentData['outputChannelAddress'];
           let channel = currentData['outputChannelAddress'];

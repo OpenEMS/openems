@@ -41,7 +41,7 @@ export abstract class WidgetLine {
     </ng-template>
     <ng-template #empty>
 
-<td style="width:35%;" class="align_right">-</td>
+<td style="width:35%;" class="align_right">-test</td>
 
 
 </ng-template>
