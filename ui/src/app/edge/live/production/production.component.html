@@ -1,9 +1,11 @@
-<flat-widget selector="production" title="General.production" img="assets/img/production.png"
-    [channelAdresses]="channelAdresses">
-    <ng-container *ngFor="let component of chargerComponents">
-        <flat-widget-line [title]="component.alias" [channels]="component.id + '/ActualPower'"></flat-widget-line>
-    </ng-container>
-    <ng-container *ngFor="let component of productionMeterComponents">
-        <flat-widget-line [title]="component.alias" [channels]="component.id + '/ActivePower'"></flat-widget-line>
-    </ng-container>
-</flat-widget>
+<ng-container *ngIf="edge">
+    <flat-widget selector="production" title="production" title_type="translate" img="assets/img/production.png"
+        [channelAdresses]="channelAdresses">
+        <ng-container *ngFor="let component of productionMeterComponents">
+            <flat-widget-line [title]="component.alias" [channels]="component.id + '/ActivePower'"></flat-widget-line>
+        </ng-container>
+        <ng-container *ngFor="let component of chargerComponents">
+            <flat-widget-line [title]="component.alias" [channels]="component.id + '/ActualPower'"></flat-widget-line>
+        </ng-container>
+    </flat-widget>
+</ng-container>

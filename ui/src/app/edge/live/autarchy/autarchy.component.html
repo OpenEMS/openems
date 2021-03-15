@@ -1,26 +1,7 @@
-<!-- <ng-container *ngIf="service.currentEdge | async as edge">
-    <ng-container *ngIf="edge.currentData | async as currentData">
-        <ion-card button (click)="presentModal()">
-            <flat-widget-header title="autarchy" icon="assets/img/autarchy.png"></flat-widget-header>
-            <ion-card-content *ngIf="currentData.summary as sum">
-                <table class="full_width">
-                    <tr>
-                        <td style="width: 100%">
-                            <percentagebar [value]="sum.system.autarchy"></percentagebar>
-                        </td>
-                    </tr>
-                </table>
-            </ion-card-content>
-        </ion-card>
-    </ng-container>
-</ng-container> -->
-
-<!--,'_sum/Soc'-->
-<flat-widget selector="autarchy" [title]="'AUTARCHY GENERIC'" img="assets/img/autarchy.png" button
-    (click)="presentModal()" [channelAdresses]="channelAddresses">
-
-    <flat-widget-percentagebar [value]="percentageValue">
-    </flat-widget-percentagebar>
-
-</flat-widget>
-<!-- (executeLogic)="insertSuggestion($event[0])" -->
+<ng-container *ngIf="edge">
+    <flat-widget selector="autarchy" [title]="'AUTARCHY GENERIC'" img="assets/img/autarchy.png" button
+        (click)="presentModal()" [channelAdresses]="channelAdress">
+        <flat-widget-percentagebar [value]="percentageValue">
+        </flat-widget-percentagebar>
+    </flat-widget>
+</ng-container>

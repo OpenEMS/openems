@@ -12,22 +12,29 @@ export abstract class AbstractWidget {
     static SELECTOR: string = 'abstractWidget';
     public edge: Edge = null;
     public config: EdgeConfig = null;
+    public currentData = CurrentData;
+
     constructor(
         public service: Service,
         private websocket: Websocket,
         private route: ActivatedRoute,
     ) { }
-    public subscribeChannels(selector: string, channelAddress: ChannelAddress[]) {
+    public subscribeChannels(selector: string, channelAddress?: ChannelAddress[], calculatedAddress?: string) {
         this.service.getConfig().then(config => {
             this.config = config;
             this.service.setCurrentComponent('', this.route).then(edge => {
                 this.edge = edge;
-                console.log("abstractWidget gets here", channelAddress)
+                this.edge.currentData.subscribe(currentData => {
+                    currentData.summary.system.autarchy;
+                });
                 this.edge.subscribeChannels(this.websocket, selector, channelAddress);
-                console.log("AbstractWidget: ---------------", channelAddress)
+                console.log("AbstractWidget Channeladresses for " + selector + "-Widget: ", channelAddress);
+
             })
         });
+
     }
 }
+
 // this.service.setCurrentComponent('', this.route).then(edge => {
     // this.edge = edge;

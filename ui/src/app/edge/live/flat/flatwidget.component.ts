@@ -3,7 +3,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../s
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { ModalController } from '@ionic/angular';
-import { AbstractWidget } from '../abstractWIdget';
+import { AbstractWidget } from '../abstractWidget';
 
 @Component({
   selector: FlatWidgetComponent.SELECTOR,
@@ -23,10 +23,13 @@ export class FlatWidgetComponent extends AbstractWidget {
 
   @Input() public title: string;
   @Input() public img: string;
+  @Input() public icon: Icon = null;
   @Input() public color: string;
-  @Input() public channelAdresses: ChannelAddress[] = [];
+  @Input() public channelAdresses: ChannelAddress[];
   @Input() public method: string;
   @Input() public selector: string;
+  @Input() public title_type: string;
+  @Input() public calculatedAdress: string;
 
 
   // getAutarchyut() public firstparam: string;
@@ -53,16 +56,20 @@ export class FlatWidgetComponent extends AbstractWidget {
   }
 
   ngOnInit() {
-    console.log("ChannelAddresses: ", this.channelAdresses);
-    this.subscribeChannels(this.selector, this.channelAdresses);
-
+    this.edge = this.edge;
+    this.subscribeChannels(this.selector, this.channelAdresses, this.calculatedAdress);
   }
   ngOnDestroy() {
     if (this.edge != null) {
       // this.edge.unsubscribeChannels(this.websocket, FlatWidgetComponent.SELECTOR);
     }
   }
-
+}
+export type Icon = {
+  color: string;
+  size: string;
+  name: string;
+}
   // if (this.howtochart == 1) {
   //   console.log(this.category);
   //   this.someHTMLCode = '<percentagebar [value]="currentData.summary.system.totalPower"></percentagebar>'
@@ -97,6 +104,4 @@ export class FlatWidgetComponent extends AbstractWidget {
   //     });
   //     return await modal.present();
   //   }
-
-}
 // }

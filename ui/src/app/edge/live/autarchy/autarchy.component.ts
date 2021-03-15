@@ -14,10 +14,10 @@ export class AutarchyComponent {
 
   private static readonly SELECTOR = "autarchy";
 
-  private edge: Edge = null;
+  public edge: Edge = null;
   public percentageValue: number | null = null;
   public currentData = CurrentData;
-  public channelAddresses: ChannelAddress[] = [];
+  public channelAdress: ChannelAddress[];
 
   constructor(
     private route: ActivatedRoute,
@@ -29,10 +29,14 @@ export class AutarchyComponent {
   ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
-      edge.currentData.subscribe(currentData => {
-        this.percentageValue = currentData.summary.system.autarchy
-      })
+      this.edge.currentData.subscribe(currentData => {
+        this.percentageValue = currentData.summary.system.autarchy;
+      });
     })
+
+    // console.log("ChannelAddress in autarchy: ", this.channelAdress)
+    // this.percentageValue = this.currentData.summary.system.autarchy;
+
   }
 
 

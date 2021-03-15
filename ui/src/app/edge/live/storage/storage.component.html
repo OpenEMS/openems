@@ -1,13 +1,14 @@
 <ng-container *ngIf="edge">
     <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
         <flat-widget selector="storage" [components]="essComponents" [channelAdresses]="channelAdresses"
-            [img]="storageItem" button (click)="presentModal()" title="General.storageSystem">
+            [img]="storageItem" button (click)="presentModal()" title="storageSystem" title_type="translate">
             <ng-container *ngFor="let component of essComponents">
                 <flat-widget-line [title]="component.alias"></flat-widget-line>
                 <flat-widget-percentagebar [value]="currentData[component.id + '/Soc']"></flat-widget-percentagebar>
-                <flat-widget-line title="General.chargePower" [channels]="component.id + '/ActivePower'">
+                <flat-widget-line title="chargePower" title_type="translate" [channels]="component.id + '/ActivePower'">
                 </flat-widget-line>
-                <flat-widget-line title="General.dischargePower" [channels]="component.id + '/ActivePower'">
+                <flat-widget-line title="dischargePower" title_type="translate"
+                    [channels]="component.id + '/ActivePower'">
                 </flat-widget-line>
             </ng-container>
         </flat-widget>
