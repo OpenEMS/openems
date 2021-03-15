@@ -1,5 +1,6 @@
 package io.openems.edge.controller.dynamicbatterycontrol;
 
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -44,8 +47,11 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 
 	private Config config = null;
 
+	private final BciApi bciFromApi = new BciApi();
+	private final BciCsv bciFromCsv = new BciCsv();
+
 	private final Logger log = LoggerFactory.getLogger(DynamicBatteryControl.class);
-	private final Bci bci = new Bci();
+
 	private boolean isPredictionValuesTaken = false;
 	private boolean isAllowedToCalculateHours = false;
 	private ZonedDateTime proLessThanCon = null;
@@ -73,7 +79,10 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 	private ManagedSymmetricEss ess;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
+		REQUIRED_ENERGY(Doc.of(OpenemsType.INTEGER) //
+				.text("Required energy to cover from grid")),
+		NUMBER_OF_TARGET_HOURS(Doc.of(OpenemsType.INTEGER) //
+				.text("Number of target hours to consume from grid"));
 
 		private final Doc doc;
 
@@ -141,21 +150,22 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 			}
 
 			// calculates the boundary hours, within which the controller needs to work
+			// Boundary hours = Production < consumption, Consumption > production.
 			this.calculateBoundaryHours(productionValues, consumptionValues, startHour);
 
-			this.isAllowedToCalculateHours = true;
-			this.isPredictionValuesTaken = true;
-
+			this.isAllowedToCalculateHours = true; // used to schedule only once
+			this.isPredictionValuesTaken = true; // Used to take prediction values only once.
 		}
 
 		if (now.getHour() == 16 && this.isPredictionValuesTaken) {
 			this.isPredictionValuesTaken = false;
 		}
 
+		// Start scheduling exactly when Production is less than Consumption
 		if (this.proLessThanCon != null) {
-			if (ZonedDateTime.now().getHour() == this.proLessThanCon.getHour() && this.isAllowedToCalculateHours) { // ***
-				int nettCapacity = ess.getCapacity().getOrError();
+			if (ZonedDateTime.now().getHour() == this.proLessThanCon.getHour() && this.isAllowedToCalculateHours) { //
 
+				int nettCapacity = ess.getCapacity().getOrError();
 				int availableCapacity = (nettCapacity * ess.getSoc().getOrError()) / 100;
 
 				log.info("availableCapacity = " + availableCapacity);
@@ -175,33 +185,46 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 					return;
 				}
 
+				// Required Energy that needs to be taken from grid
+				// Required Energy = Total Consumption - Available Battery capacity
 				Integer requiredEnergy = this.calculateRequiredEnergy(availableCapacity, hourlyProduction,
 						hourlyConsumption);
+
+				IntegerReadChannel requiredEnergyChannel = this
+						.channel(DynamicBatteryControl.ChannelId.REQUIRED_ENERGY);
+				requiredEnergyChannel.setNextValue(requiredEnergy);
 
 				log.info("requiredEnergy: " + requiredEnergy);
 
 				if (requiredEnergy != null) {
 
-					TreeMap<ZonedDateTime, Float> bciList = this.bci.houlryPrices(config.url());
+					if (this.config.source().getValue() == 0) {
 
-					if (bciList != null) {
+						TreeMap<ZonedDateTime, Float> bciList = this.bciFromApi.houlryPrices(config.source().getName());
 
-						// Printing Bci List
-						for (Map.Entry<ZonedDateTime, Float> Entry : bciList.entrySet()) {
-							log.info("Time: " + Entry.getKey() + " bci: " + Entry.getValue());
+						if (bciList != null) {
+
+							// Printing Bci List
+							for (Map.Entry<ZonedDateTime, Float> Entry : bciList.entrySet()) {
+								log.info("Time: " + Entry.getKey() + " bci: " + Entry.getValue());
+							}
+
+							// list of hours, during which battery should be avoided.
+							this.calculateTargetHours(requiredEnergy, hourlyConsumption, bciList);
+
+							IntegerReadChannel noOfTargetHoursChannel = this
+									.channel(DynamicBatteryControl.ChannelId.NUMBER_OF_TARGET_HOURS);
+							noOfTargetHoursChannel.setNextValue(this.cheapHours.size());
+
+							// Print the Cheap Hours calculated.
+							this.cheapHours.forEach(value -> System.out.println(value));
+
 						}
-
-						// list of hours, during which battery should be avoided.
-						this.calculateTargetHours(requiredEnergy, hourlyConsumption, bciList);
-
-						// Print the Cheap Hours calculated.
-						this.cheapHours.forEach(value -> System.out.println(value));
-
+					} else {
+						TreeMap<LocalDate, Float> bciList = this.bciFromCsv.dailyPrices(config.source().getName());
 					}
 				}
-
 				this.isAllowedToCalculateHours = false;
-
 			}
 		}
 
@@ -215,7 +238,6 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 				}
 			}
 		}
-
 	}
 
 	private Integer calculateRequiredEnergy(int availableCapacity, TreeMap<ZonedDateTime, Integer> hourlyProduction,
@@ -283,6 +305,8 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 			Integer production = productionValues[i];
 			Integer consumption = consumptionValues[i];
 
+			// Detects the last time when the production is less than consumption and first
+			// time when the production is greater than consumption.
 			if (production != null && consumption != null) {
 				// last hour of the day when production was greater than consumption
 				if ((production > consumption) //
@@ -305,9 +329,10 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 			this.proLessThanCon = ZonedDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0)
 					.plusHours(config.maxEndHour());
 		}
+
 		if (this.proMoreThanCon == null) {
 			this.proMoreThanCon = ZonedDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0)
-					.plusHours(config.maxStratHour()).plusDays(1);
+					.plusHours(config.maxStartHour()).plusDays(1);
 		}
 
 		// Print the boundary Hours

@@ -1,4 +1,4 @@
--runfw: org.eclipse.osgi
+-runfw: org.eclipse.osgi;version='[3.15.300.v20200520-1959,3.15.300.v20200520-1959]'
 -runee: JavaSE-1.8
 -runprovidedcapabilities: ${native_capability}
 

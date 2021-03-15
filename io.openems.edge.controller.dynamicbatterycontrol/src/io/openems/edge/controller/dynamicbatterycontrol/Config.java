@@ -1,7 +1,6 @@
 package io.openems.edge.controller.dynamicbatterycontrol;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
-import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
@@ -23,12 +22,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Grid-Meter-Id", description = "ID of the Grid-Meter.")
 	String meter_id();
-
-	@AttributeDefinition(name = "url", description = "URL to connect API", type = AttributeType.STRING)
-	String url() default "https://portal.blogpv.net/api/bci/signal";
+	
+	@AttributeDefinition(name = "Source", description = "Url to the API or A CSV-Input containing an optional title line and a series of values.")
+	Source source();
 
 	@AttributeDefinition(name = "Start-Hour", description = "Fallback start hour if no pv.")
-	int maxStratHour() default 9;
+	int maxStartHour() default 9;
 
 	@AttributeDefinition(name = "End-Hour", description = "fallback end hour if no pv.")
 	int maxEndHour() default 17;

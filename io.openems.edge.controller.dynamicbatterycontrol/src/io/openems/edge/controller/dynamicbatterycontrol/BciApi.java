@@ -15,7 +15,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class Bci {
+public class BciApi {
 
 	private static ZonedDateTime timeStampLocalDateTime = null;
 	private TreeMap<ZonedDateTime, Float> bciList = new TreeMap<ZonedDateTime, Float>();
