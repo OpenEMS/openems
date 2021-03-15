@@ -55,20 +55,35 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return null;
 	}
 
-	@Override
 	public int peakShavingReactivePower() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
 	public float parP() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
 	public float parI() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int ReactivePowerLimit() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float pidP() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float pidI() {
 		// TODO Auto-generated method stub
 		return 0;
 	}

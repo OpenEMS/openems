@@ -24,13 +24,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String meter_id();
 
 	@AttributeDefinition(name = "Peak-Shaving reactive power [var]", min = "0", description = "Reactive power (cap./ind.) above this value is considered a peak and shaved to this value.")
-	int peakShavingReactivePower();
+	int ReactivePowerLimit();
 	
 	@AttributeDefinition(name = "P (debugging)", description = "debugging")
-	float parP() default 0.3f;
+	float pidP() default 0.3f;
 	
 	@AttributeDefinition(name = "I (debugging)", description = "debugging")
-	float parI() default 0.3f;
+	float pidI() default 0.3f;
 	
 	String webconsole_configurationFactory_nameHint() default "Controller Reactive-Peak-Shaving Symmetric [{id}]";
 
