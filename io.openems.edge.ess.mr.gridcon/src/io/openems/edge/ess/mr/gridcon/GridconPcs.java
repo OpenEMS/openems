@@ -16,7 +16,7 @@ public interface GridconPcs {
 	public static final int MAX_POWER_PER_INVERTER = 42_000;
 	public static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
 	public static final float Q_LIMIT = 1f;
-	public static final int POWER_PRECISION_WATT = 420; // Estimated value, 1% of max;
+	public static final int POWER_PRECISION_WATT = 1;//TODO reduced to "1" for testing purposes // Estimated value, 1% of max;
 	public static final float DEFAULT_GRID_FREQUENCY = 50;
 	public static final float DEFAULT_GRID_VOLTAGE = 230;
 
