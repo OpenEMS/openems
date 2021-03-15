@@ -3,6 +3,7 @@ package io.openems.edge.ess.mr.gridcon.state.onoffgrid;
 import java.time.LocalDateTime;
 import java.util.BitSet;
 
+import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
@@ -271,14 +272,18 @@ public abstract class BaseState implements StateObject {
 	}
 
 	protected void setStringWeighting() {
-		float activePower = this.getGridconPcs().getActivePower();
+		try {
+			float activePower = this.getGridconPcs().getActivePower();
+			Float[] weightings = WeightingHelper.getWeighting(activePower, this.getBattery1(), this.getBattery2(),
+					this.getBattery3());
+			
+			this.getGridconPcs().setWeightStringA(weightings[0]);
+			this.getGridconPcs().setWeightStringB(weightings[1]);
+			this.getGridconPcs().setWeightStringC(weightings[2]);
+		} catch (InvalidValueException e) {
+			System.out.println("Error while setting string weighting, nothing is done!");
+		}
 
-		Float[] weightings = WeightingHelper.getWeighting(activePower, this.getBattery1(), this.getBattery2(),
-				this.getBattery3());
-
-		this.getGridconPcs().setWeightStringA(weightings[0]);
-		this.getGridconPcs().setWeightStringB(weightings[1]);
-		this.getGridconPcs().setWeightStringC(weightings[2]);
 
 	}
 

@@ -1,5 +1,6 @@
 package io.openems.edge.ess.mr.gridcon;
 
+import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.ess.mr.gridcon.enums.BalancingMode;
 import io.openems.edge.ess.mr.gridcon.enums.FundamentalFrequencyMode;
@@ -43,9 +44,9 @@ public interface GridconPcs {
 
 	int getErrorCode();
 
-	float getActivePower();
+	float getActivePower() throws InvalidValueException;
 
-	float getReactivePower();
+	float getReactivePower() throws InvalidValueException;
 
 	float getDcLinkPositiveVoltage();
 

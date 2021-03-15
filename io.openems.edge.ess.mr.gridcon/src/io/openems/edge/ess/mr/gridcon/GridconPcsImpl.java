@@ -20,6 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
@@ -1139,9 +1140,9 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public float getReactivePower() {
+	public float getReactivePower() throws InvalidValueException {
 		FloatReadChannel c = this.channel(GridConChannelId.CCU_POWER_Q);
-		return c.getNextValue().orElse(0f) * this.getMaxApparentPower();
+		return c.getNextValue().getOrError() * this.getMaxApparentPower();
 	}
 
 	@Override

@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
@@ -125,8 +126,8 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.calculateActiveAndReactivePower();
-			this.calculateMaxApparentPower();
+				this.calculateActiveAndReactivePower();
+				this.calculateMaxApparentPower();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			try {
@@ -218,12 +219,21 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		_setMaxApparentPower(maxPower);
 	}
 
-	protected void calculateActiveAndReactivePower() {
-		float activePower = this.getGridconPcs().getActivePower();
-		_setActivePower((int) activePower);
+	protected void calculateActiveAndReactivePower()  {
+		float activePower;
+		try {
+			activePower = this.getGridconPcs().getActivePower();
+			_setActivePower((int) activePower);
+		} catch (InvalidValueException e) {
+			log.error(e.getMessage());
+		}
 
-		float reactivePower = this.getGridconPcs().getReactivePower();
-		_setReactivePower((int) reactivePower);
+		try {
+			float reactivePower = this.getGridconPcs().getReactivePower();
+			_setReactivePower((int) reactivePower);
+		} catch (InvalidValueException e) {
+			log.error(e.getMessage());
+		}
 	}
 
 	@Override
