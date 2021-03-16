@@ -1,9 +1,5 @@
 package io.openems.edge.controller.symmetric.reactivepeakshaving;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -19,7 +15,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.filter.PidFilter;
+import io.openems.edge.common.filter.PiFilter;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -35,7 +31,7 @@ import io.openems.common.types.OpenemsType;
 public class ReactivePeakShaving extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	public final static double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
-	private PidFilter pidFilter;
+	private PiFilter piFilter;
 
 	private final Logger log = LoggerFactory.getLogger(ReactivePeakShaving.class);
 
@@ -48,7 +44,7 @@ public class ReactivePeakShaving extends AbstractOpenemsComponent implements Con
 	private Config config;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		POWER_SET_POINT_ESS(Doc.of(OpenemsType.INTEGER));
+		REACTIVE_POWER_REFERENCE(Doc.of(OpenemsType.INTEGER));
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -73,43 +69,30 @@ public class ReactivePeakShaving extends AbstractOpenemsComponent implements Con
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		this.pidFilter = new PidFilter(this.config.pidP(), this.config.pidI(), 0);
-		this.pidFilter.setLimits(-20000, 20000);
-		
-		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(FILENAME, false));
-			writer.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.piFilter = new PiFilter(this.config.pidKp(), this.config.pidTi(), this.config.pidDeltaT());
+		this.piFilter.setLimits(-20000, 20000);
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 	}
-
-	String FILENAME = "/home/fems/values.csv";
 	
 	@Override
 	public void run() throws OpenemsNamedException {
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
-		/*
-		 * Check that we are On-Grid
-		 */
 		switch (ess.getGridMode()) {
 		case ON_GRID:
-			int powerSetPointEss = calcPowerSetPointEss(
+			int powerReference = calcPowerReference(
 					meter.getReactivePower().getOrError(),
 					ess.getReactivePower().getOrError(),
 					this.config.ReactivePowerLimit());
 			
-			ess.setReactivePowerEquals(powerSetPointEss);
-			this.channel(ChannelId.POWER_SET_POINT_ESS).setNextValue(powerSetPointEss);
-			
+			//TODO: PI-Controller should not be part of this controller
+			int powerSetPointEss = this.piFilter.applyPiFilter(meter.getReactivePower().getOrError(), powerReference);		
+			ess.setReactivePowerEquals(powerSetPointEss);			
 			break;
 		case UNDEFINED:
 			setSafeState(ess);
@@ -121,7 +104,7 @@ public class ReactivePeakShaving extends AbstractOpenemsComponent implements Con
 		}
 	}
 
-	private int calcPowerSetPointEss(int powerMeter, int powerEss, int powerLimit) {
+	private int calcPowerReference(int powerMeter, int powerEss, int powerLimit) {
 		int powerConsumer = powerMeter - powerEss;
 		int powerReference;
 		
@@ -132,24 +115,14 @@ public class ReactivePeakShaving extends AbstractOpenemsComponent implements Con
 		} else {
 			powerReference = powerConsumer;
 		}
-
-		int calculatedPowerSetPoint = this.pidFilter.applyPidFilter(powerMeter, powerReference);
 		
-		BufferedWriter writer;
-		try {
-			writer = new BufferedWriter(new FileWriter(FILENAME, true));
-			String toWrite = "" + powerMeter + ";" + powerEss + ";" + powerConsumer +  ";" + calculatedPowerSetPoint + "\n";
-			writer.write(toWrite);
-			writer.close();
-		} catch (IOException e) {
-			System.out.println("Error while writing file");
-		}
-		
-		return calculatedPowerSetPoint ;
+		this.channel(ChannelId.REACTIVE_POWER_REFERENCE).setNextValue(powerReference);
+		return powerReference;
 	}
 
 	private void setSafeState(ManagedSymmetricEss ess) throws OpenemsNamedException {
 		ess.setReactivePowerEquals(0);
+		this.channel(ChannelId.REACTIVE_POWER_REFERENCE).setNextValue(0);
 	}
 	
 }
