@@ -1,4 +1,4 @@
-<ion-card button (click)="presentModal()" *ngIf="component != null">
+<!-- <ion-card button (click)="presentModal()" *ngIf="component != null">
     <ion-item lines="full" color="light">
         <ion-icon slot="start" color="primary" name="swap-vertical-outline"></ion-icon>
         <ion-label>{{ component.alias }}</ion-label>
@@ -39,4 +39,11 @@
             </tr>
         </table>
     </ion-card-content>
-</ion-card>
+</ion-card> -->
+<ng-container *ngIf="component">
+    <flat-widget [icon]="{color: 'primary', name:'swap-vertical-outline'}" [title]="component.alias">
+        <flat-widget-line title="state" title_type="translate" [title_value]="state" title_value_type="translate">
+        </flat-widget-line>
+        <flat-widget-line [title]="chargeState" title_type="translate" [value]="chargeStateValue">
+        </flat-widget-line>
+    </flat-widget>
