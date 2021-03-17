@@ -30,7 +30,7 @@ import io.openems.common.types.OpenemsType;
 public class ReactivePeakShaving extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	public final static double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
-	private PidFilter pidFilter;
+	private PiController piController;
 
 	private final Logger log = LoggerFactory.getLogger(ReactivePeakShaving.class);
 
@@ -68,8 +68,8 @@ public class ReactivePeakShaving extends AbstractOpenemsComponent implements Con
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		this.pidFilter = new PidFilter(this.config.pidP(), this.config.pidI(), this.config.pidD());
-		this.pidFilter.setLimits(-20000, 20000);
+		this.piController = new PiController(this.config.pidKp(), this.config.pidTi(), this.config.enableIdelay());
+		this.piController.setLimits(-35000, 35000);
 	}
 
 	@Deactivate
@@ -87,11 +87,12 @@ public class ReactivePeakShaving extends AbstractOpenemsComponent implements Con
 			int powerReference = calcPowerReference(
 					meter.getReactivePower().getOrError(),
 					ess.getReactivePower().getOrError(),
-					this.config.ReactivePowerLimit());
+					this.config.ReactivePowerLimit());			
 			
 			//TODO: PI-Controller should not be part of this controller
-			int powerSetPointEss = this.pidFilter.applyPidFilter(meter.getReactivePower().getOrError(), powerReference);		
-			ess.setReactivePowerEquals(powerSetPointEss);			
+			int powerSetPointEss = this.piController.applyPiFilter(meter.getReactivePower().getOrError(), powerReference);		
+			ess.setReactivePowerEquals(powerSetPointEss);
+
 			break;
 		case UNDEFINED:
 			setSafeState(ess);

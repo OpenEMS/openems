@@ -6,43 +6,29 @@ package io.openems.edge.controller.symmetric.reactivepeakshaving;
  * @see <a href=
  *      "https://en.wikipedia.org/wiki/PID_controller">https://en.wikipedia.org/wiki/PID_controller</a>
  */
-public class PidFilter {
-
-	public static final double DEFAULT_P = 0.3;
-	public static final double DEFAULT_I = 0.3;
-	public static final double DEFAULT_D = 0.1;
+public class PiController {
 
 	public static final int ERROR_SUM_LIMIT_FACTOR = 10;
 
-	private final double p;
-	private final double i;
-	private final double d;
+	private final double kp;
+	private final double ti;
+	private final boolean enableIdelay;
 
-	private boolean firstRun = true;
-
-	private double lastInput = 0;
 	private double errorSum = 0;
 	private Integer lowLimit = null;
 	private Integer highLimit = null;
 
 	/**
-	 * Creates a PidFilter.
+	 * Creates a PiFilter.
 	 * 
-	 * @param p the proportional gain
-	 * @param i the integral gain
-	 * @param d the derivative gain
+	 * @param kp the proportional gain
+	 * @param ti the reset time (Nachstellzeit)
+	 * @param enableIdelay enables a delay of one cycle time @ integrator
 	 */
-	public PidFilter(double p, double i, double d) {
-		this.p = p;
-		this.i = i;
-		this.d = d;
-	}
-
-	/**
-	 * Creates a PidFilter using default values.
-	 */
-	public PidFilter() {
-		this(DEFAULT_P, DEFAULT_I, DEFAULT_D);
+	public PiController(double kp, double ti, boolean enableIdelay) {
+		this.kp = kp;
+		this.ti = ti;
+		this.enableIdelay = enableIdelay;
 	}
 
 	/**
@@ -61,46 +47,32 @@ public class PidFilter {
 	}
 
 	/**
-	 * Apply the PID filter using the current Channel value as input and the target
+	 * Apply the PI filter using the current Channel value as input and the target
 	 * value.
 	 * 
 	 * @param measuredOutput  the input value, e.g. the measured Channel value
 	 * @param reference the target value
 	 * @return the filtered set-point value
 	 */
-	public int applyPidFilter(int measuredOutput, int reference) {
+	public int applyPiFilter(int measuredOutput, int reference) {
 		// Pre-process the target value: apply output value limits
 		reference = this.applyLowHighLimits(reference);
 
 		// Calculate the error
-		int error = reference - measuredOutput;
-		
-		
-
-		// Calculate P
-		double outputP = this.p * error;
-
-		// Set last values on first run
-		if (this.firstRun) {
-			this.lastInput = measuredOutput;
-			this.firstRun = false;
-		}
+		int error = reference - measuredOutput;		
 
 		// Calculate I
-		double outputI = this.i * this.errorSum;
-
-		// Calculate D
-		double outputD = -this.d * (measuredOutput - this.lastInput);
-
-		// Store last input value
-		this.lastInput = measuredOutput;
+		if (this.enableIdelay == false) {
+			this.errorSum = this.applyErrorSumLimit(this.errorSum + error);
+		}
+		double i = 1 / this.ti * this.errorSum;
 
 		// Sum outputs
-		double output = outputP + outputI + outputD;
+		double output = this.kp * (error + i);
 		
-		// Sum up the error and limit Error-Sum to not grow too much. Otherwise the PID
-		// filter will stop reacting on changes properly.
-		this.errorSum = this.applyErrorSumLimit(this.errorSum + error);
+		if (this.enableIdelay == true) {
+			this.errorSum = this.applyErrorSumLimit(this.errorSum + error);
+		}
 
 		// Post-process the output value: convert to integer and apply value limits
 		return this.applyLowHighLimits(Math.round((float) output));
@@ -114,7 +86,6 @@ public class PidFilter {
 	 */
 	public void reset() {
 		this.errorSum = 0;
-		this.firstRun = true;
 	}
 
 	/**
