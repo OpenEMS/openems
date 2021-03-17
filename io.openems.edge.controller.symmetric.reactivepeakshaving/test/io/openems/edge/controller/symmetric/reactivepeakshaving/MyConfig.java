@@ -77,19 +77,19 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public float pidKp() {
+	public float pidP() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float pidTi() {
+	public float pidI() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public float pidDeltaT() {
+	public float pidD() {
 		// TODO Auto-generated method stub
 		return 0;
 	}

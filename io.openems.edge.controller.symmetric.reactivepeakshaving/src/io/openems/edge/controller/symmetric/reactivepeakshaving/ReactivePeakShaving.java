@@ -15,7 +15,6 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.filter.PiFilter;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -31,7 +30,7 @@ import io.openems.common.types.OpenemsType;
 public class ReactivePeakShaving extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	public final static double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
-	private PiFilter piFilter;
+	private PidFilter pidFilter;
 
 	private final Logger log = LoggerFactory.getLogger(ReactivePeakShaving.class);
 
@@ -69,8 +68,8 @@ public class ReactivePeakShaving extends AbstractOpenemsComponent implements Con
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		this.piFilter = new PiFilter(this.config.pidKp(), this.config.pidTi(), this.config.pidDeltaT());
-		this.piFilter.setLimits(-20000, 20000);
+		this.pidFilter = new PidFilter(this.config.pidP(), this.config.pidI(), this.config.pidD());
+		this.pidFilter.setLimits(-20000, 20000);
 	}
 
 	@Deactivate
@@ -91,7 +90,7 @@ public class ReactivePeakShaving extends AbstractOpenemsComponent implements Con
 					this.config.ReactivePowerLimit());
 			
 			//TODO: PI-Controller should not be part of this controller
-			int powerSetPointEss = this.piFilter.applyPiFilter(meter.getReactivePower().getOrError(), powerReference);		
+			int powerSetPointEss = this.pidFilter.applyPidFilter(meter.getReactivePower().getOrError(), powerReference);		
 			ess.setReactivePowerEquals(powerSetPointEss);			
 			break;
 		case UNDEFINED:
