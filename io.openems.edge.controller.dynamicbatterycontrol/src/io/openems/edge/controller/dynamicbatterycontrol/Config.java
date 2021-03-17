@@ -30,7 +30,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int maxStartHour() default 9;
 
 	@AttributeDefinition(name = "End-Hour", description = "fallback end hour if no pv.")
-	int maxEndHour() default 17;
+	int maxEndHour() default 11;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Dynamic Battery-Control [{id}]";
 

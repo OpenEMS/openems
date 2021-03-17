@@ -19,13 +19,14 @@ public class TestBciCsv {
 	public static void main(String[] args) {
 
 		System.out.println("Started");
-		List<BciListFromCsv> bcilistFromCsv = readListFromCsv("C:\\Users\\sagar.venu\\git\\DynamicBatteryControl\\io.openems.edge.controller.dynamicbatterycontrol\\test\\io\\openems\\edge\\controller\\dynamicbatterycontrol\\BciCsv.csv");
+		List<BciListFromCsv> bcilistFromCsv = readListFromCsv(
+				"C:\\Users\\sagar.venu\\git\\DynamicBatteryControl\\io.openems.edge.controller.dynamicbatterycontrol\\test\\io\\openems\\edge\\controller\\dynamicbatterycontrol\\BciCsv.csv");
 
 		System.out.println("Finished");
 		for (BciListFromCsv b : bcilistFromCsv) {
 
 //			this.bciList.put(b.getTimeStamp(), b.getDate());
-			System.out.println("b" + b.getBci() + "  " + b.getDate());
+			System.out.println("b " + b.getBci() + "  " + b.getDate());
 		}
 
 //		return this.bciList;
@@ -38,10 +39,11 @@ public class TestBciCsv {
 		System.out.println(pathToFile.toAbsolutePath());
 
 		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(pathToFile.toAbsolutePath().toString()), "utf-8"));
-			
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(new FileInputStream(pathToFile.toAbsolutePath().toString()), "utf-8"));
+
 			br.readLine();
-			
+
 			// read the first line from the text file
 			String line = null;
 
@@ -49,7 +51,7 @@ public class TestBciCsv {
 			while ((line = br.readLine()) != null) {
 
 				String[] attributes = line.split(",");
-				
+
 				BciListFromCsv bci = createBci(attributes);
 				bcilistFromCsv.add(bci);
 
@@ -66,9 +68,9 @@ public class TestBciCsv {
 	private static BciListFromCsv createBci(String[] metadata) {
 
 		long timeStamp = Long.parseLong(metadata[0].trim());
-		
+
 		LocalDate date = Instant.ofEpochMilli(timeStamp).atZone(ZoneId.systemDefault()).toLocalDate();
-		
+
 		float bci = Float.parseFloat(metadata[2]);
 
 		return new BciListFromCsv(date, bci);

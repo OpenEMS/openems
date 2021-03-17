@@ -2,6 +2,7 @@ package io.openems.edge.controller.dynamicbatterycontrol;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -11,8 +12,6 @@ public class Test {
 
 	private static TreeMap<ZonedDateTime, Integer> Consumption = new TreeMap<ZonedDateTime, Integer>();
 	private static TreeMap<ZonedDateTime, Integer> production = new TreeMap<ZonedDateTime, Integer>();
-	private static Integer[] productionValues = new Integer[24];
-	private static Integer[] consumptionValues = new Integer[24];
 	private static TreeMap<ZonedDateTime, Float> bci = new TreeMap<ZonedDateTime, Float>();
 	private static List<ZonedDateTime> cheapHours = new ArrayList<ZonedDateTime>();
 //	private static Integer remainingCapacity = 0;
@@ -31,7 +30,6 @@ public class Test {
 		ZonedDateTime now = ZonedDateTime.now().withMinute(0).withSecond(0).withNano(0);
 
 		// generating Dummy bci for 24 hours
-
 		bci.put(now, 30f);
 		bci.put(now.plusHours(1), 50f);
 		bci.put(now.plusHours(2), 50f);
@@ -39,45 +37,57 @@ public class Test {
 		bci.put(now.plusHours(4), 50f);
 		bci.put(now.plusHours(5), 50f);
 		bci.put(now.plusHours(6), 50f);
-		bci.put(now.plusHours(7), 30f);
-		bci.put(now.plusHours(8), 30f);
-		bci.put(now.plusHours(9), 30f);
-		bci.put(now.plusHours(10), 30f);
-		bci.put(now.plusHours(11), 30f);
-		bci.put(now.plusHours(12), 30f);
-		bci.put(now.plusHours(13), 30f);
-		bci.put(now.plusHours(14), 30f);
-		bci.put(now.plusHours(15), 30f);
-		bci.put(now.plusHours(16), 50f);
-		bci.put(now.plusHours(17), 50f);
-		bci.put(now.plusHours(18), 50f);
-		bci.put(now.plusHours(19), 70f);
-		bci.put(now.plusHours(20), 70f);
-		bci.put(now.plusHours(21), 70f);
+		bci.put(now.plusHours(7), 45f);
+		bci.put(now.plusHours(8), 47f);
+		bci.put(now.plusHours(9), 49f);
+		bci.put(now.plusHours(10), 52f);
+		bci.put(now.plusHours(11), 51f);
+		bci.put(now.plusHours(12), 50f);
+		bci.put(now.plusHours(13), 45f);
+		bci.put(now.plusHours(14), 44f);
+		bci.put(now.plusHours(15), 32f);
+		bci.put(now.plusHours(16), 43f);
+		bci.put(now.plusHours(17), 46f);
+		bci.put(now.plusHours(18), 47f);
+		bci.put(now.plusHours(19), 53f);
+		bci.put(now.plusHours(20), 61f);
+		bci.put(now.plusHours(21), 62f);
 		bci.put(now.plusHours(22), 70f);
 		bci.put(now.plusHours(23), 70f);
 
 		// generating Dummy Consumption for 24 hours
-		for (int i = 0; i < 24; i++) {
-			Consumption.put(now.plusHours(i), (200 + (100 * i)));
-			consumptionValues[i] = 200 + (100 * i);
-		}
+		Consumption.put(now.plusHours(0), 3000);
+		Consumption.put(now.plusHours(1), 2000);
+		Consumption.put(now.plusHours(2), 3000);
+		Consumption.put(now.plusHours(3), 2500);
+		Consumption.put(now.plusHours(4), 1600);
+		Consumption.put(now.plusHours(5), 1750);
+		Consumption.put(now.plusHours(6), 1890);
+		Consumption.put(now.plusHours(7), 2000);
+		Consumption.put(now.plusHours(8), 2200);
+		Consumption.put(now.plusHours(9), 2500);
+		Consumption.put(now.plusHours(10), 1900);
+		Consumption.put(now.plusHours(11), 3200);
+		Consumption.put(now.plusHours(12), 3500);
+		Consumption.put(now.plusHours(13), 3600);
+		Consumption.put(now.plusHours(14), 2700);
+		Consumption.put(now.plusHours(15), 2500);
+		Consumption.put(now.plusHours(16), 2700);
+		Consumption.put(now.plusHours(17), 2900);
+		Consumption.put(now.plusHours(18), 3000);
+		Consumption.put(now.plusHours(19), 3200);
+		Consumption.put(now.plusHours(20), 3300);
+		Consumption.put(now.plusHours(21), 3400);
+		Consumption.put(now.plusHours(22), 1800);
+		Consumption.put(now.plusHours(23), 1900);
 
 		// generating Dummy Production for 24 hours
 		for (int i = 0; i < 24; i++) {
 			if (now.plusHours(i).getHour() > 8 && now.plusHours(i).getHour() < 17) {
 				production.put(now.plusHours(i), (250 + (200 * i)));
-				productionValues[i] = 250 + (200 * i);
 			} else {
 				production.put(now.plusHours(i), 0);
-				productionValues[i] = 0;
 			}
-		}
-
-		// Print the Values
-		for (int i = 0; i < 24; i++) {
-			System.out.println("Production[" + i + "] " + " - " + productionValues[i] + " Consumption[" + i + "] "
-					+ " - " + consumptionValues[i]);
 		}
 
 		// printing Consumption
@@ -106,21 +116,45 @@ public class Test {
 		// Print the boundary Hours
 		System.out.println("ProLessThanCon: " + proLessThanCon + " ProMoreThanCon " + proMoreThanCon);
 
-		Integer availableCapacity = (100 / soc) * nettcapacity;
+		Integer availableCapacity = nettcapacity * soc / 100;
 
 		System.out.println("=========================================================================");
 
-		System.out.println("Available Capacity: " + availableCapacity);
+		System.out.println("Available Capacity in the Battery: " + availableCapacity);
 
 		System.out.println("=========================================================================");
 
 		Integer requiredEnergy = calculateRequiredEnergy(availableCapacity, production, Consumption);
 
-		System.out.println("Required Energy: " + requiredEnergy);
+		System.out.println("Required Energy to cover from Grid: " + requiredEnergy);
 
 		calculateCheapHours(requiredEnergy);
 		System.out.println("=========================================================================");
+
 		cheapHours.forEach(value -> System.out.println(value));
+
+		Collections.sort(cheapHours);
+
+		System.out.println("=========================================================================");
+
+		cheapHours.forEach(value -> System.out.println(value));
+
+		TreeMap<ZonedDateTime, Integer> batteryStateSchedule = withBatterySchedule(cheapHours, availableCapacity);
+
+		System.out.println("=========================================================================");
+
+		batteryStateSchedule.entrySet().forEach(a -> {
+			System.out.println("Key " + a.getKey() + " value: " + a.getValue());
+		});
+
+		TreeMap<ZonedDateTime, Integer> batteryStateWithoutSchedule = withoutBatterySchedule(availableCapacity);
+
+		System.out.println("=========================================================================");
+
+		batteryStateWithoutSchedule.entrySet().forEach(a -> {
+			System.out.println("Key " + a.getKey() + " value: " + a.getValue());
+		});
+
 	}
 
 	private static Integer calculateRequiredEnergy(int availableCapacity,
@@ -129,16 +163,14 @@ public class Test {
 		int consumptionTotal = 0;
 		int requiredEnergy = 0;
 
-		for (Entry<ZonedDateTime, Integer> entry : hourlyConsumption.entrySet()) {
-			if (entry.getKey().isAfter(proLessThanCon.minusHours(1))
-					&& entry.getKey().isBefore(proMoreThanCon.plusHours(1))) {
+		for (Entry<ZonedDateTime, Integer> entry : hourlyConsumption.subMap(proLessThanCon, proMoreThanCon)
+				.entrySet()) {
 
-				// TODO Confirm production is needed here?
-				consumptionTotal += entry.getValue() - hourlyProduction.get(entry.getKey());
-			}
+			// TODO Confirm production is needed here?
+			consumptionTotal += entry.getValue() - hourlyProduction.get(entry.getKey());
 		}
 
-		System.out.println("Total Capcaity: " + consumptionTotal);
+		System.out.println("Consumption for whole night: " + consumptionTotal);
 
 		// remaining amount of energy that should be covered from grid.
 		requiredEnergy = consumptionTotal - availableCapacity;
@@ -161,7 +193,7 @@ public class Test {
 		}
 
 		if (cheapTimeStamp != null) {
-			System.out.println("cheapTimeStamp:" + cheapTimeStamp);
+//			System.out.println("cheapTimeStamp:" + cheapTimeStamp);
 			cheapHours.add(cheapTimeStamp);
 		}
 		//
@@ -183,22 +215,23 @@ public class Test {
 	private static void calculateBoundaryHours(TreeMap<ZonedDateTime, Integer> hourlyProduction,
 			TreeMap<ZonedDateTime, Integer> hourlyConsumption, ZonedDateTime startHour) {
 
-		for (int i = 0; i < 24; i++) {
-			Integer production = productionValues[i];
-			Integer consumption = consumptionValues[i];
+		for (Map.Entry<ZonedDateTime, Integer> entry : hourlyConsumption.entrySet()) {
+
+			Integer consumption = entry.getValue();
+			Integer production = hourlyProduction.get(entry.getKey());
 
 			if (production != null && consumption != null) {
 				// last hour of the day when production was greater than consumption
 				if ((production > consumption) //
-						&& (startHour.plusHours(i).getDayOfYear() == ZonedDateTime.now().getDayOfYear())) {
-					proLessThanCon = startHour.plusHours(i);
+						&& (entry.getKey().getDayOfYear() == ZonedDateTime.now().getDayOfYear())) {
+					proLessThanCon = entry.getKey();
 				}
 
 				// First hour of the day when production was greater than consumption
 				if ((production > consumption) //
-						&& (startHour.plusHours(i).getDayOfYear() == ZonedDateTime.now().plusDays(1).getDayOfYear())
-						&& (proMoreThanCon == null)) {
-					proMoreThanCon = startHour.plusHours(i);
+						&& (entry.getKey().getDayOfYear() == ZonedDateTime.now().plusDays(1).getDayOfYear())
+						&& (proMoreThanCon == null) && (entry.getKey().getHour() <= maxMorningHour)) {
+					proMoreThanCon = entry.getKey();
 				}
 			}
 		}
@@ -213,6 +246,49 @@ public class Test {
 			proMoreThanCon = now.withHour(0).withMinute(0).withSecond(0).withNano(0).plusHours(maxMorningHour)
 					.plusDays(1);
 		}
+	}
+
+	private static TreeMap<ZonedDateTime, Integer> withBatterySchedule(List<ZonedDateTime> cheapHours,
+			Integer availableCapacity) {
+
+		TreeMap<ZonedDateTime, Integer> batteryState = new TreeMap<ZonedDateTime, Integer>();
+
+		batteryState.put(proLessThanCon.minusHours(1), availableCapacity);
+
+		for (Entry<ZonedDateTime, Integer> entry : Consumption.subMap(proLessThanCon, proMoreThanCon).entrySet()) {
+
+			if (!cheapHours.contains(entry.getKey())) {
+
+				availableCapacity -= Consumption.get(entry.getKey());
+			}
+
+			batteryState.put(entry.getKey(), availableCapacity);
+
+		}
+
+		return batteryState;
+
+	}
+
+	private static TreeMap<ZonedDateTime, Integer> withoutBatterySchedule(Integer availableCapacity) {
+
+		TreeMap<ZonedDateTime, Integer> batteryState = new TreeMap<ZonedDateTime, Integer>();
+
+		batteryState.put(proLessThanCon.minusHours(1), availableCapacity);
+
+		for (Entry<ZonedDateTime, Integer> entry : Consumption.subMap(proLessThanCon, proMoreThanCon).entrySet()) {
+
+			if (availableCapacity < 0) {
+				availableCapacity = 0;
+			}
+			availableCapacity -= Consumption.get(entry.getKey());
+
+			batteryState.put(entry.getKey(), availableCapacity);
+
+		}
+
+		return batteryState;
+
 	}
 
 }

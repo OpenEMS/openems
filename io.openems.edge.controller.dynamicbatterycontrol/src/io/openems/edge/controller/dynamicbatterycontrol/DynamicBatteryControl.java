@@ -127,7 +127,7 @@ public class DynamicBatteryControl extends AbstractOpenemsComponent implements C
 
 		// Every Day at 14:00 the BCI list is updated, SO we receive the predictions at
 		// 14:00 till next day 15:00.
-		if (now.getHour() == 15 && !this.isPredictionValuesTaken) {
+		if (now.getHour() == 11 && !this.isPredictionValuesTaken) {
 			Integer[] productionValues = productionHourlyPredictor.get24hPrediction().getValues();
 			Integer[] consumptionValues = consumptionHourlyPredictor.get24hPrediction().getValues();
 			ZonedDateTime startHour = productionHourlyPredictor.get24hPrediction().getStart();

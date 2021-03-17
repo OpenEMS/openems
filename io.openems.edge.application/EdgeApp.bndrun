@@ -1,11 +1,11 @@
--runfw: org.eclipse.osgi;version='[3.15.300.v20200520-1959,3.15.300.v20200520-1959]'
+-runfw: org.eclipse.osgi
 -runee: JavaSE-1.8
 -runprovidedcapabilities: ${native_capability}
 
 -resolve.effective: active
 
 -runproperties:\
-	org.osgi.service.http.port=8080,\
+	org.osgi.service.http.port=8081,\
 	felix.cm.dir=c:/openems/config,\
 	openems.data.dir=c:/openems/data,\
 	org.apache.felix.eventadmin.Timeout=0,\
