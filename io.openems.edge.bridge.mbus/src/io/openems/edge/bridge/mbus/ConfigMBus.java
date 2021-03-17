@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @ObjectClassDefinition(//
 		name = "Bridge M-Bus", //
 		description = "Provides a service for connecting to, reading and writing an M-Bus device.")
-@interface Config {
+@interface ConfigMBus {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "mbus0";
@@ -22,6 +22,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Baudrate", description = "Serial Device Speed")
 	int baudrate() default 2400;
+
+	@AttributeDefinition(name = "Debug mode", description = "Print additional info to the log.")
+	boolean debug() default false;
 
 	String webconsole_configurationFactory_nameHint() default "Bridge M-Bus [{id}]";
 }

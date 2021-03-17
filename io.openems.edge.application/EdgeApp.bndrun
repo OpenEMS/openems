@@ -126,6 +126,7 @@
 	bnd.identity;id='io.openems.edge.meter.socomec',\
 	bnd.identity;id='io.openems.edge.meter.sunspec',\
 	bnd.identity;id='io.openems.edge.meter.virtual',\
+	bnd.identity;id='io.openems.edge.meter.watermeter',\
 	bnd.identity;id='io.openems.edge.meter.weidmueller',\
 	bnd.identity;id='io.openems.edge.onewire.thermometer',\
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
@@ -258,6 +259,7 @@
 	io.openems.edge.meter.socomec;version=snapshot,\
 	io.openems.edge.meter.sunspec;version=snapshot,\
 	io.openems.edge.meter.virtual;version=snapshot,\
+	io.openems.edge.meter.watermeter;version=snapshot,\
 	io.openems.edge.meter.weidmueller;version=snapshot,\
 	io.openems.edge.onewire.thermometer;version=snapshot,\
 	io.openems.edge.predictor.api;version=snapshot,\
