@@ -15,6 +15,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -34,6 +35,9 @@ public class ReactivePeakShaving extends AbstractOpenemsComponent implements Con
 
 	private final Logger log = LoggerFactory.getLogger(ReactivePeakShaving.class);
 
+	@Reference
+	protected Cycle cycle;
+	
 	@Reference
 	protected ComponentManager componentManager;
 
@@ -68,8 +72,7 @@ public class ReactivePeakShaving extends AbstractOpenemsComponent implements Con
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		this.piController = new PiController(this.config.pidKp(), this.config.pidTi(), this.config.enableIdelay());
-		this.piController.setLimits(-35000, 35000);
+		this.piController = new PiController(this.config.pidKp(), this.config.pidTi_s(), this.config.enableIdelay());
 	}
 
 	@Deactivate
@@ -81,7 +84,7 @@ public class ReactivePeakShaving extends AbstractOpenemsComponent implements Con
 	public void run() throws OpenemsNamedException {
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
-
+		
 		switch (ess.getGridMode()) {
 		case ON_GRID:
 			int powerReference = calcPowerReference(
@@ -90,6 +93,14 @@ public class ReactivePeakShaving extends AbstractOpenemsComponent implements Con
 					this.config.ReactivePowerLimit());			
 			
 			//TODO: PI-Controller should not be part of this controller
+
+			// set limits of PI-Controller
+			int maxReactivePower = (int)((float)ess.getMaxApparentPower().getOrError() * this.config.pidMaxReactivePower_pct() * 0.01f);
+			this.piController.setLimits(-maxReactivePower, maxReactivePower);
+			// set cycle time
+			double cycleTime_s = this.cycle.getCycleTime() / 1000.0;
+			this.piController.setCycleTime_s(cycleTime_s);
+			
 			int powerSetPointEss = this.piController.applyPiFilter(meter.getReactivePower().getOrError(), powerReference);		
 			ess.setReactivePowerEquals(powerSetPointEss);
 
@@ -122,6 +133,7 @@ public class ReactivePeakShaving extends AbstractOpenemsComponent implements Con
 
 	private void setSafeState(ManagedSymmetricEss ess) throws OpenemsNamedException {
 		ess.setReactivePowerEquals(0);
+		this.piController.setLimits(0,0);
 		this.channel(ChannelId.REACTIVE_POWER_REFERENCE).setNextValue(0);
 	}
 	

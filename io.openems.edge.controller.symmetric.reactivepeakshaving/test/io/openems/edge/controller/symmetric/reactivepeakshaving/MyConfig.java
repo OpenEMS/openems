@@ -83,15 +83,21 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public float pidTi() {
+	public boolean enableIdelay() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public float pidTi_s() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public boolean enableIdelay() {
+	public float pidMaxReactivePower_pct() {
 		// TODO Auto-generated method stub
-		return false;
+		return 0;
 	}
 
 //	@Override

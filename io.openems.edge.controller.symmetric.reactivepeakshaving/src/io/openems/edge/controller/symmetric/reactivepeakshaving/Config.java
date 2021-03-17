@@ -30,10 +30,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	float pidKp() default 0.45f;
 	
 	@AttributeDefinition(name = "Ti [s] (reset time / Nachstellzeit)", description = "debugging")
-	float pidTi() default 2.2f;
+	float pidTi_s() default 2.2f;
 	
 	@AttributeDefinition(name = "enable I-Delay", description = "debugging")
 	boolean enableIdelay() default true;
+	
+	@AttributeDefinition(name = "max. Reactive-Power [%]", min = "0.0", max = "100.0", description = "max. Reactive-Power in percent of max. Apparent-Power")
+	float pidMaxReactivePower_pct() default 100.0f;
 	
 	String webconsole_configurationFactory_nameHint() default "Controller Reactive-Peak-Shaving Symmetric [{id}]";
 

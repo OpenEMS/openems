@@ -11,24 +11,29 @@ public class PiController {
 	public static final int ERROR_SUM_LIMIT_FACTOR = 10;
 
 	private final double kp;
-	private final double ti;
+	private final double ti_s;
 	private final boolean enableIdelay;
 
 	private double errorSum = 0;
 	private Integer lowLimit = null;
 	private Integer highLimit = null;
+	private double cycleTime_s = 0;
 
 	/**
 	 * Creates a PiFilter.
 	 * 
 	 * @param kp the proportional gain
-	 * @param ti the reset time (Nachstellzeit)
+	 * @param ti_s the reset time (Nachstellzeit) in seconds
 	 * @param enableIdelay enables a delay of one cycle time @ integrator
 	 */
-	public PiController(double kp, double ti, boolean enableIdelay) {
+	public PiController(double kp, double ti_s, boolean enableIdelay) {
 		this.kp = kp;
-		this.ti = ti;
+		this.ti_s = ti_s;
 		this.enableIdelay = enableIdelay;
+	}
+	
+	public void setCycleTime_s(double cycleTime_s) {
+		this.cycleTime_s = cycleTime_s;
 	}
 
 	/**
@@ -65,7 +70,7 @@ public class PiController {
 		if (this.enableIdelay == false) {
 			this.errorSum = this.applyErrorSumLimit(this.errorSum + error);
 		}
-		double i = 1 / this.ti * this.errorSum;
+		double i = this.cycleTime_s / this.ti_s * this.errorSum;
 
 		// Sum outputs
 		double output = this.kp * (error + i);
