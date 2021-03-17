@@ -1,11 +1,8 @@
 package io.openems.common.jsonrpc.request;
 
-import java.util.UUID;
-
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
 
@@ -32,35 +29,55 @@ public class SubscribeSystemLogRequest extends JsonrpcRequest {
 
 	public static final String METHOD = "subscribeSystemLog";
 
+	/**
+	 * Create {@link SubscribeSystemLogRequest} from a template
+	 * {@link JsonrpcRequest}.
+	 * 
+	 * @param r the template {@link JsonrpcRequest}
+	 * @return the {@link SubscribeSystemLogRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
 	public static SubscribeSystemLogRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		boolean subscribe = JsonUtils.getAsBoolean(p, "subscribe");
-		return new SubscribeSystemLogRequest(r.getId(), subscribe);
+		return new SubscribeSystemLogRequest(r, subscribe);
 	}
 
-	public static SubscribeSystemLogRequest from(JsonObject j) throws OpenemsNamedException {
-		return from(GenericJsonrpcRequest.from(j));
-	}
-
+	/**
+	 * Creates a JSON-RPC Request that subscribes the System-Log.
+	 * 
+	 * @return {@link SubscribeSystemLogRequest}
+	 */
 	public static SubscribeSystemLogRequest subscribe() {
 		return new SubscribeSystemLogRequest(true);
 	}
 
+	/**
+	 * Creates a JSON-RPC Request that unsubscribes the System-Log.
+	 * 
+	 * @return {@link SubscribeSystemLogRequest}
+	 */
 	public static SubscribeSystemLogRequest unsubscribe() {
 		return new SubscribeSystemLogRequest(false);
 	}
 
 	private final boolean subscribe;
 
-	private SubscribeSystemLogRequest(UUID id, boolean subscribe) {
-		super(id, METHOD);
+	private SubscribeSystemLogRequest(JsonrpcRequest request, boolean subscribe) {
+		super(request, METHOD);
 		this.subscribe = subscribe;
 	}
 
 	public SubscribeSystemLogRequest(boolean subscribe) {
-		this(UUID.randomUUID(), subscribe);
+		super(METHOD);
+		this.subscribe = subscribe;
 	}
 
+	/**
+	 * Whether to subscribe or unsubscribe.
+	 * 
+	 * @return true for subscribe, false for unsubscribe
+	 */
 	public boolean getSubscribe() {
 		return this.subscribe;
 	}

@@ -2,7 +2,6 @@ package io.openems.edge.core.predictormanager;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -31,6 +30,14 @@ public class Get24HoursPredictionRequest extends JsonrpcRequest {
 
 	public static final String METHOD = "get24HoursPrediction";
 
+	/**
+	 * Create {@link Get24HoursPredictionRequest} from a template
+	 * {@link JsonrpcRequest}.
+	 * 
+	 * @param r the template {@link JsonrpcRequest}
+	 * @return the {@link Get24HoursPredictionRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
 	public static Get24HoursPredictionRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		JsonArray cs = JsonUtils.getAsJsonArray(p, "channels");
@@ -38,17 +45,18 @@ public class Get24HoursPredictionRequest extends JsonrpcRequest {
 		for (JsonElement c : cs) {
 			channels.add(ChannelAddress.fromString(JsonUtils.getAsString(c)));
 		}
-		return new Get24HoursPredictionRequest(r.getId(), channels);
+		return new Get24HoursPredictionRequest(r, channels);
 	}
 
 	private final List<ChannelAddress> channels;
 
 	public Get24HoursPredictionRequest(List<ChannelAddress> channels) {
-		this(UUID.randomUUID(), channels);
+		super(METHOD);
+		this.channels = channels;
 	}
 
-	public Get24HoursPredictionRequest(UUID id, List<ChannelAddress> channels) {
-		super(id, METHOD);
+	private Get24HoursPredictionRequest(JsonrpcRequest request, List<ChannelAddress> channels) {
+		super(request, METHOD);
 		this.channels = channels;
 	}
 
@@ -63,6 +71,11 @@ public class Get24HoursPredictionRequest extends JsonrpcRequest {
 				.build();
 	}
 
+	/**
+	 * Gets the {@link ChannelAddress}es.
+	 * 
+	 * @return a list of {@link ChannelAddress}
+	 */
 	public List<ChannelAddress> getChannels() {
 		return this.channels;
 	}

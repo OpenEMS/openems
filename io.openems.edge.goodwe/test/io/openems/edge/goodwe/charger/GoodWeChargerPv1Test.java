@@ -19,7 +19,7 @@ public class GoodWeChargerPv1Test {
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
 						.setId(CHARGER_ID) //
-						.setEssId(ESS_ID) //
+						.setBatteryInverterId(ESS_ID) //
 						.setModbusId(MODBUS_ID) //
 						.build());
 	}

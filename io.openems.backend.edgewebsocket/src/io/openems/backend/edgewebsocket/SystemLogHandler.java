@@ -106,7 +106,7 @@ public class SystemLogHandler {
 		for (UUID token : tokens) {
 			try {
 				this.parent.uiWebsocket.send(token, new EdgeRpcNotification(edgeId, notification));
-			} catch (OpenemsNamedException e) {
+			} catch (OpenemsNamedException | NullPointerException e) {
 				this.log.warn("Unable to handle SystemLogNotification from [" + edgeId + "]: " + e.getMessage());
 				this.unsubscribe(edgeId, user, token);
 			}
