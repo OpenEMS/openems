@@ -26,7 +26,6 @@ import { FixDigitalOutputComponent } from './fixdigitaloutput/fixdigitaloutput.c
 import { FixDigitalOutputModalComponent } from './fixdigitaloutput/modal/modal.component';
 import { FlatWidgetLine } from './flat/flat-widget-line/flatwidget-line';
 import { FlatWidgetComponent } from './flat/flatwidget.component';
-import { FlatWidgetHeader } from './flat/flat-widget-header/flatwidget-header';
 import { FlatWidgetPercentagebar } from './flat/flat-widget-percentagebar/flatwidget-percentagebar'
 import { GridComponent } from './grid/grid.component';
 import { GridModalComponent } from './grid/modal/modal.component';
@@ -67,7 +66,6 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
 
     FlatWidgetComponent,
     FlatWidgetLine,
-    FlatWidgetHeader,
     FlatWidgetPercentagebar,
     ChpsocModalComponent,
     ConsumptionModalComponent,
@@ -97,7 +95,6 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     AutarchyModalComponent,
     FlatWidgetComponent,
     FlatWidgetLine,
-    FlatWidgetHeader,
     FlatWidgetPercentagebar,
     ChannelthresholdComponent,
     ChpSocComponent,
