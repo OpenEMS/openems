@@ -23,15 +23,21 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Grid-Meter-Id", description = "ID of the Grid-Meter.")
 	String meter_id() default "meter0";
 
+	@AttributeDefinition(name = "Is Sell-To-Grid-Limit enabled?", description = "Is the sell to grid limit logic enabled?.")
+	boolean sellToGridLimitEnabled() default true;
+	
 	@AttributeDefinition(name = "Maximum allowed Sell-To-Grid power", description = "The target limit for sell-to-grid power.")
-	int maximumSellToGridPower();
+	int maximumSellToGridPower() default 7000;
 
 	@AttributeDefinition(name = "Number of buffer minutes", description = "The number of buffer minutes to make sure the battery still "
 			+ "charges full, even on prediction errors.")
 	int noOfBufferMinutes() default 120;
 
-	@AttributeDefinition(name = "Power buffer", description = "A buffer in Watt, that is used in the calculation of predicting the latest point, when the production is higher then the consumption.")
-	int powerBuffer() default 100;
+	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
+	Mode mode() default Mode.AUTOMATIC;
+
+	@AttributeDefinition(name = "Target Time", description = "Charging to 100 % SoC is delayed till this hour of the day, e.g. 17 for 5 pm. Local timezone of this device is applied - likely UTC.")
+	String manual_targetTime() default "17:00";
 
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode (Displays the Predicted Values in the Log only once!)")
 	boolean debugMode() default false;

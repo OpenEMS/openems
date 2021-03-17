@@ -34,12 +34,9 @@ public class MyControllerTest {
 	private static final ChannelAddress ESS_CAPACITY = new ChannelAddress(ESS_ID, "Capacity");
 	private static final ChannelAddress ESS_SOC = new ChannelAddress(ESS_ID, "Soc");
 	private static final ChannelAddress ESS_MAX_APPARENT_POWER = new ChannelAddress(ESS_ID, "MaxApparentPower");
-//	private static final ChannelAddress ESS_SET_ACTIVE_POWER_EQUALS = new ChannelAddress(ESS_ID,
-//			"SetActivePowerEquals");
-//	private static final ChannelAddress ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS = new ChannelAddress(ESS_ID,
-//			"SetActivePowerLessOrEquals");
-//	private static final ChannelAddress ESS_SET_ACTIVE_POWER_GREATER_OR_EQUALS = new ChannelAddress(ESS_ID,
-//			"SetActivePowerGreaterOrEquals");
+	private static final ChannelAddress ESS_ACTIVE_POWER = new ChannelAddress(ESS_ID, "ActivePower");
+	private static final ChannelAddress ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS = new ChannelAddress(ESS_ID,
+			"SetActivePowerLessOrEquals");
 
 	// Meter channels
 	private static final ChannelAddress METER_ACTIVE_POWER = new ChannelAddress(METER_ID, "ActivePower");
@@ -47,6 +44,9 @@ public class MyControllerTest {
 	// Controller channels
 	private static final ChannelAddress TARGET_MINUTE_ACTUAL = new ChannelAddress(CTRL_ID, "TargetMinuteActual");
 	private static final ChannelAddress TARGET_MINUTE_ADJUSTED = new ChannelAddress(CTRL_ID, "TargetMinuteAdjusted");
+	private static final ChannelAddress DELAY_CHARGE_STATE = new ChannelAddress(CTRL_ID, "DelayChargeState");
+	private static final ChannelAddress SELL_TO_GRID_LIMIT_STATE = new ChannelAddress(CTRL_ID, "SellToGridLimitState");
+	private static final ChannelAddress CHARGE_POWER_LIMIT = new ChannelAddress(CTRL_ID, "ChargePowerLimit");
 
 	/*
 	 * Default Prediction values
@@ -106,7 +106,59 @@ public class MyControllerTest {
 	};
 
 	@Test
-	public void test() throws Exception {
+	public void automatic_default_predictions_at_midnight_test() throws Exception {
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+
+		// Predictions
+		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+
+		// Predictors
+		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				productionPrediction, "_sum/ProductionActivePower");
+		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				consumptionPrediction, "_sum/ConsumptionActivePower");
+
+		// PredictorManager
+		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+				consumptionPredictor);
+
+		System.out.println(Arrays.toString(predictorManager
+				.get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
+		System.out.println(Arrays.toString(predictorManager
+				.get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
+
+		new ControllerTest(new GridOptimizedSelfConsumptionImpl()) //
+				.addReference("predictorManager", predictorManager) //
+				.addReference("componentManager", cm) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", ESS) //
+				.addReference("meter", METER) //
+				.activate(MyConfig.create() //
+						.setEssId(ESS_ID) //
+						.setId(CTRL_ID) //
+						.setMaximumSellToGridPower(7_000) //
+						.setMeterId(METER_ID) //
+						.setNoOfBufferMinutes(120) //
+						.setMode(Mode.AUTOMATIC) //
+						.setSellToGridLimitEnabled(true) //
+						.setManual_targetTime("") //
+						.build()) //
+				.next(new TestCase() //
+						.input(METER_ACTIVE_POWER, 0) //
+						.input(ESS_CAPACITY, 10_000) //
+						.input(ESS_SOC, 20) //
+						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+						.output(TARGET_MINUTE_ACTUAL, /* QuarterHour */ 68 * 15) //
+						.output(TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
+						.output(CHARGE_POWER_LIMIT, 533));
+
+	}
+
+	@Test
+	public void automatic_default_predictions_at_midday_test() throws Exception {
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
@@ -141,7 +193,9 @@ public class MyControllerTest {
 						.setMaximumSellToGridPower(7_000) //
 						.setMeterId(METER_ID) //
 						.setNoOfBufferMinutes(120) //
-						.setPowerBuffer(0) //
+						.setMode(Mode.AUTOMATIC) //
+						.setSellToGridLimitEnabled(true) //
+						.setManual_targetTime("") //
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, 0) //
@@ -149,6 +203,262 @@ public class MyControllerTest {
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.output(TARGET_MINUTE_ACTUAL, /* QuarterHour */ 68 * 15) //
-						.output(TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120));
+						.output(TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
+						.output(CHARGE_POWER_LIMIT, 2666));
+	}
+
+	@Test
+	public void automatic_default_predictions_at_evening_test() throws Exception {
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T20:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+
+		// Predictions
+		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+
+		// Predictors
+		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				productionPrediction, "_sum/ProductionActivePower");
+		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				consumptionPrediction, "_sum/ConsumptionActivePower");
+
+		// PredictorManager
+		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+				consumptionPredictor);
+
+		System.out.println(Arrays.toString(predictorManager
+				.get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
+		System.out.println(Arrays.toString(predictorManager
+				.get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
+
+		new ControllerTest(new GridOptimizedSelfConsumptionImpl()) //
+				.addReference("predictorManager", predictorManager) //
+				.addReference("componentManager", cm) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", ESS) //
+				.addReference("meter", METER) //
+				.activate(MyConfig.create() //
+						.setEssId(ESS_ID) //
+						.setId(CTRL_ID) //
+						.setMaximumSellToGridPower(7_000) //
+						.setMeterId(METER_ID) //
+						.setNoOfBufferMinutes(120) //
+						.setMode(Mode.AUTOMATIC) //
+						.setSellToGridLimitEnabled(true) //
+						.setManual_targetTime("") //
+						.build()) //
+				.next(new TestCase() //
+						.input(METER_ACTIVE_POWER, 0) //
+						.input(ESS_CAPACITY, 10_000) //
+						.input(ESS_SOC, 20) //
+						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+						.input(TARGET_MINUTE_ACTUAL, /* QuarterHour */ 68 * 15) //
+						.input(TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
+						.output(TARGET_MINUTE_ACTUAL, /* QuarterHour */ 68 * 15) //
+						.output(TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.PASSED_TARGET_HOUR) //
+						.output(CHARGE_POWER_LIMIT, null));
+	}
+
+	@Test
+	public void automatic_no_predictions_test() throws Exception {
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+
+		// Predictions
+		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours();
+		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours();
+
+		// Predictors
+		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				productionPrediction, "_sum/ProductionActivePower");
+		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				consumptionPrediction, "_sum/ConsumptionActivePower");
+
+		// PredictorManager
+		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+				consumptionPredictor);
+
+		new ControllerTest(new GridOptimizedSelfConsumptionImpl()) //
+				.addReference("predictorManager", predictorManager) //
+				.addReference("componentManager", cm) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", ESS) //
+				.addReference("meter", METER) //
+				.activate(MyConfig.create() //
+						.setEssId(ESS_ID) //
+						.setId(CTRL_ID) //
+						.setMaximumSellToGridPower(7_000) //
+						.setMeterId(METER_ID) //
+						.setNoOfBufferMinutes(120) //
+						.setMode(Mode.AUTOMATIC) //
+						.setSellToGridLimitEnabled(true) //
+						.setManual_targetTime("") //
+						.build()) //
+				.next(new TestCase() //
+						.input(METER_ACTIVE_POWER, 0) //
+						.input(ESS_CAPACITY, 10_000) //
+						.input(ESS_SOC, 20) //
+						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.TARGET_HOUR_NOT_CALCULATED));
+	}
+
+	@Test
+	public void automatic_sell_to_grid_limit_test() throws Exception {
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+
+		// Predictors
+		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				new DummyPrediction48Hours(), "_sum/ProductionActivePower");
+		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				new DummyPrediction48Hours(), "_sum/ConsumptionActivePower");
+
+		// PredictorManager
+		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+				consumptionPredictor);
+
+		new ControllerTest(new GridOptimizedSelfConsumptionImpl()) //
+				.addReference("predictorManager", predictorManager) //
+				.addReference("componentManager", cm) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", ESS) //
+				.addReference("meter", METER) //
+				.activate(MyConfig.create() //
+						.setEssId(ESS_ID) //
+						.setId(CTRL_ID) //
+						.setMaximumSellToGridPower(5000) //
+						.setMeterId(METER_ID) //
+						.setNoOfBufferMinutes(120) //
+						.setMode(Mode.AUTOMATIC) //
+						.setMode(Mode.AUTOMATIC) //
+						.setSellToGridLimitEnabled(true) //
+						.setManual_targetTime("") //
+						.build()) //
+				.next(new TestCase() //
+						.input(METER_ACTIVE_POWER, -5500) //
+						.input(ESS_CAPACITY, 10_000) //
+						.input(ESS_SOC, 20) //
+						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.TARGET_HOUR_NOT_CALCULATED) //
+						.output(CHARGE_POWER_LIMIT, null) //
+						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -500) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
+				.next(new TestCase() //
+						.input(METER_ACTIVE_POWER, -6000) //
+						.input(ESS_ACTIVE_POWER, 3000) //
+						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, 2000) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
+				.next(new TestCase() //
+						.input(METER_ACTIVE_POWER, -5000) //
+						.input(ESS_ACTIVE_POWER, 3000) //
+						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, null)) //
+		;
+	}
+	
+	@Test
+	public void manual_midnight_test() throws Exception {
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+
+		// Predictions
+		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+
+		// Predictors
+		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				productionPrediction, "_sum/ProductionActivePower");
+		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				consumptionPrediction, "_sum/ConsumptionActivePower");
+
+		// PredictorManager
+		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+				consumptionPredictor);
+
+		System.out.println(Arrays.toString(predictorManager
+				.get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
+		System.out.println(Arrays.toString(predictorManager
+				.get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
+
+		new ControllerTest(new GridOptimizedSelfConsumptionImpl()) //
+				.addReference("predictorManager", predictorManager) //
+				.addReference("componentManager", cm) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", ESS) //
+				.addReference("meter", METER) //
+				.activate(MyConfig.create() //
+						.setEssId(ESS_ID) //
+						.setId(CTRL_ID) //
+						.setMaximumSellToGridPower(7_000) //
+						.setMeterId(METER_ID) //
+						.setNoOfBufferMinutes(120) //
+						.setMode(Mode.MANUAL) //
+						.setSellToGridLimitEnabled(true) //
+						.setManual_targetTime("17:00") //
+						.build()) //
+				.next(new TestCase() //
+						.input(METER_ACTIVE_POWER, 0) //
+						.input(ESS_CAPACITY, 10_000) //
+						.input(ESS_SOC, 20) //
+						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+						.output(TARGET_MINUTE_ACTUAL, /* QuarterHour */ 1020) //
+						.output(TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 1020) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
+						.output(CHARGE_POWER_LIMIT, 470));
+
+	}
+	
+	@Test
+	public void manual_midday_test() throws Exception {
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+
+		// Predictions
+		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+
+		// Predictors
+		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				productionPrediction, "_sum/ProductionActivePower");
+		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				consumptionPrediction, "_sum/ConsumptionActivePower");
+
+		// PredictorManager
+		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+				consumptionPredictor);
+
+		System.out.println(Arrays.toString(predictorManager
+				.get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
+		System.out.println(Arrays.toString(predictorManager
+				.get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
+
+		new ControllerTest(new GridOptimizedSelfConsumptionImpl()) //
+				.addReference("predictorManager", predictorManager) //
+				.addReference("componentManager", cm) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", ESS) //
+				.addReference("meter", METER) //
+				.activate(MyConfig.create() //
+						.setEssId(ESS_ID) //
+						.setId(CTRL_ID) //
+						.setMaximumSellToGridPower(7_000) //
+						.setMeterId(METER_ID) //
+						.setNoOfBufferMinutes(120) //
+						.setMode(Mode.MANUAL) //
+						.setSellToGridLimitEnabled(true) //
+						.setManual_targetTime("17:00") //
+						.build()) //
+				.next(new TestCase() //
+						.input(METER_ACTIVE_POWER, 0) //
+						.input(ESS_CAPACITY, 10_000) //
+						.input(ESS_SOC, 20) //
+						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+						.output(TARGET_MINUTE_ACTUAL, /* QuarterHour */ 1020) //
+						.output(TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 1020) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
+						.output(CHARGE_POWER_LIMIT, 1600));
+
 	}
 }

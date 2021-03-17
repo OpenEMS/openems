@@ -11,7 +11,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public String meterId;
 		public int maximumSellToGridPower;
 		public int noOfBufferMinutes;
-		public int powerBuffer;
+		public Mode mode;
+		public String manual_targetTime;
+		public boolean sellToGridLimitEnabled;
 
 		private Builder() {
 		}
@@ -41,8 +43,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setPowerBuffer(int powerBuffer) {
-			this.powerBuffer = powerBuffer;
+		public Builder setMode(Mode mode) {
+			this.mode = mode;
+			return this;
+		}
+
+		public Builder setManual_targetTime(String manual_targetTime) {
+			this.manual_targetTime = manual_targetTime;
+			return this;
+		}
+
+		public Builder setSellToGridLimitEnabled(boolean sellToGridLimitEnabled) {
+			this.sellToGridLimitEnabled = sellToGridLimitEnabled;
 			return this;
 		}
 
@@ -103,7 +115,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int powerBuffer() {
-		return this.builder.powerBuffer;
+	public Mode mode() {
+		return this.builder.mode;
+	}
+
+	@Override
+	public String manual_targetTime() {
+		return this.builder.manual_targetTime;
+	}
+
+	@Override
+	public boolean sellToGridLimitEnabled() {
+		return this.builder.sellToGridLimitEnabled;
 	}
 }

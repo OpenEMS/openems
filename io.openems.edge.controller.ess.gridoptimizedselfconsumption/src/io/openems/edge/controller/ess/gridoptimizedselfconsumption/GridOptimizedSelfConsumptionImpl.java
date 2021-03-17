@@ -1,9 +1,11 @@
 package io.openems.edge.controller.ess.gridoptimizedselfconsumption;
 
+import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -20,16 +22,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.common.channel.EnumReadChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
@@ -47,8 +52,13 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 
 	private Config config = null;
 
-	private Integer targetMinute;
+	// Buffer in watt, considered in the calculation of the target Minute.
+	private final static int DEFAULT_POWER_BUFFER = 100;
+
 	private boolean debugMode;
+
+	@Reference
+	protected Sum sum;
 
 	@Reference
 	protected PredictorManager predictorManager;
@@ -100,10 +110,6 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 	public void run() throws OpenemsNamedException {
 
 		/*
-		 * Set active power limits depending on the maximum sell to grid power
-		 */
-
-		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
 		GridMode gridMode = this.ess.getGridMode();
@@ -115,11 +121,42 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 		case UNDEFINED:
 			break;
 		case OFF_GRID:
+			this._setSellToGridLimitState(SellToGridLimitState.UNDEFINED);
+			this._setDelayChargeState(DelayChargeState.UNDEFINED);
 			return;
 		}
 
-		// Get the grid power and ess power
-		int gridPower = this.meter.getActivePower().getOrError(); /* current buy-from/sell-to grid */
+		/*
+		 * Run the logic of the different modes, depending on the configuration
+		 */
+		switch (this.config.mode()) {
+		case OFF:
+			return;
+		case AUTOMATIC:
+			applySellToGridLimit();
+			applyPredictiveDelayCharge();
+			break;
+		case MANUAL:
+			applySellToGridLimit();
+			applyManualDelayCharge();
+
+			break;
+		}
+	}
+
+	/**
+	 * Set active power limits depending on the maximum sell to grid power.
+	 * 
+	 * @throws OpenemsNamedException on error
+	 */
+	public void applySellToGridLimit() throws OpenemsNamedException {
+
+		if (!this.config.sellToGridLimitEnabled()) {
+			return;
+		}
+
+		// current buy-from/sell-to grid
+		int gridPower = this.meter.getActivePower().getOrError();
 
 		// Checking if the grid power is above the maximum feed-in
 		if (gridPower * -1 > this.config.maximumSellToGridPower()) {
@@ -130,28 +167,98 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 
 			// Apply limit
 			this.ess.setActivePowerLessOrEquals(essPowerLimit);
+			this._setSellToGridLimitState(SellToGridLimitState.ACTIVE_LIMIT);
+		} else {
+			this._setSellToGridLimitState(SellToGridLimitState.NO_LIMIT);
 		}
-
-		getCalculatedPowerLimit();
-
-		if (this.ess instanceof HybridEss) {
-
-		}
-
 	}
 
 	/**
-	 * Calculates the charging power limit for the current cycle.
+	 * Set active power limits depending on the prediction values.
 	 * 
-	 * @return the calculated charging power limit or null if no limit should be
-	 *         applied
+	 * <p>
+	 * Calculates the target minute, when the state of charge should reach 100
+	 * percent depending on the predicted production and consumption and limits the
+	 * charge value of the ESS, to get full at this calculated target minute
+	 * including a configured buffer.
+	 * 
 	 * @throws OpenemsNamedException on error
 	 */
-	public Integer getCalculatedPowerLimit() throws OpenemsNamedException {
+	private void applyPredictiveDelayCharge() throws OpenemsNamedException {
+
+		Integer targetMinute = getPredictedTargetMinute();
+		Integer calculatedPower = getCalculatedPowerLimit(targetMinute);
+		setCalculatedPowerLimit(calculatedPower);
+	}
+
+	/**
+	 * Set active power limits depending the configured target time.
+	 * 
+	 * <p>
+	 * Limits the charge value of the ESS, to get full at the given target minute.
+	 * 
+	 * @throws OpenemsNamedException on error
+	 */
+	private void applyManualDelayCharge() throws OpenemsNamedException {
+
+		LocalTime configureTargetTime = LocalTime.parse(this.config.manual_targetTime());
+		if (configureTargetTime == null) {
+			this._setDelayChargeState(DelayChargeState.UNDEFINED);
+			return;
+		}
+		System.out.println(configureTargetTime);
+		
+		int targetMinute = configureTargetTime.get(ChronoField.MINUTE_OF_DAY);
+		this._setTargetMinuteActual(targetMinute);
+		this._setTargetMinuteAdjusted(targetMinute);
+		
+		Integer calculatedPower = getCalculatedPowerLimit(targetMinute);
+		setCalculatedPowerLimit(calculatedPower);
+	}
+
+	/**
+	 * Sets the calculated power limit as constraint, depending on the ESS type.
+	 * 
+	 * @param calculatedPower maximum power that needs should be charged by the ESS
+	 * @throws OpenemsException on error
+	 */
+	private void setCalculatedPowerLimit(Integer calculatedPower) throws OpenemsException {
+
+		if (calculatedPower == null) {
+			return;
+		}
+
+		// Set the constraint depending on the ESS type
+		if (this.ess instanceof HybridEss) {
+
+			int productionPower = this.sum.getProductionDcActualPower().orElse(0);
+			calculatedPower = productionPower - calculatedPower;
+
+			// Avoiding buying power from grid to charge the battery.
+			if (calculatedPower > 0) {
+				ess.addPowerConstraintAndValidate("GridOptimizedSelfConsumption - DcPredictiveDelayCharge", Phase.ALL,
+						Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, calculatedPower);
+			}
+		} else {
+			ess.addPowerConstraintAndValidate("GridOptimizedSelfConsumption - AcPredictiveDelayCharge", Phase.ALL,
+					Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, (calculatedPower * -1));
+		}
+	}
+
+	/**
+	 * Gets the calculated target minute.
+	 * 
+	 * <p>
+	 * Calculates the target minute when there is no longer surplus power depending
+	 * on the predicted production and consumption.
+	 * 
+	 * @return predicted target minute (Minute of the day)
+	 */
+	public Integer getPredictedTargetMinute() {
 
 		ZonedDateTime now = ZonedDateTime.now(this.componentManager.getClock()).withZoneSameInstant(ZoneOffset.UTC);
 
-		Integer calculatedPower = null;
+		Integer targetMinute = null;
 
 		// Predictions
 		Prediction24Hours hourlyPredictionProduction = this.predictorManager
@@ -164,79 +271,70 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 		Integer[] hourlyProduction = hourlyPredictionProduction.getValues();
 		Integer[] hourlyConsumption = hourlyPredictionConsumption.getValues();
 
-		/*
-		 * Calculate the target hour once at midnight.
-		 * 
-		 * Possible improvement: calculate the target hour more often, e.g. once every
-		 * hour to incorporate more accurate prediction during the day.
-		 * 
-		 * TODO: make sure target hour is calculated immediately at start of OpenEMS and
-		 * not only at next midnight.
-		 */
-		// if (now.getHour() == 0 && !this.isTargetHourCalculated) {
-
-		// Integer[] hourlyProduction =
-		// productionHourlyPredictor.get24hPrediction().getValues();
-		// Integer[] hourlyConsumption =
-		// consumptionHourlyPredictor.get24hPrediction().getValues();
-
-// calculating target hour
-		this.targetMinute = this.calculateTargetMinute(hourlyProduction, hourlyConsumption, predictionStartQuarterHour);
-
-// for running once
-		// this.isTargetHourCalculated = true;
-		// }
-
-		// if (now.getHour() == 1 && this.isTargetHourCalculated) {
-		// this.isTargetHourCalculated = false;
-		// }
-
-//Displays the production values in log.
+		// Displays the production values once.
 		if (this.debugMode) {
-			for (int i = 0; i < 24; i++) {
-				this.logDebug(log, "Production[" + i + "] " + " - " + hourlyProduction[i] + " this.Consumption[" + i
-						+ "] " + " - " + hourlyConsumption[i]);
-
-				this.debugMode = false;
-			}
+			this.logDebug(this.log, "Production: " + Arrays.toString(hourlyProduction));
+			this.logDebug(this.log, "Consumption: " + Arrays.toString(hourlyConsumption));
+			this.debugMode = false;
 		}
 
-//target hour = null --> not enough production or Initial run(no values)
-		if (this.targetMinute == null) {
-			this.setChannels(State.TARGET_HOUR_NOT_CALCULATED, 0);
+		// Crossed target hour
+		if (now.get(ChronoField.MINUTE_OF_DAY) >= this.getTargetMinuteActual().orElse(1_440)) {
+
+			this.setDelayChargeStateAndLimit(DelayChargeState.PASSED_TARGET_HOUR, null);
 			return null;
 		}
 
-//crossed target hour
-		if (now.get(ChronoField.MINUTE_OF_DAY) >= this.targetMinute) {
+		// Calculating target minute
+		targetMinute = this.calculateTargetMinute(hourlyProduction, hourlyConsumption, predictionStartQuarterHour);
 
-			this.setChannels(State.PASSED_TARGET_HOUR, 0);
+		// target hour = null --> not enough production or Initial run(no values)
+		if (targetMinute == null) {
+			this.setDelayChargeStateAndLimit(DelayChargeState.TARGET_HOUR_NOT_CALCULATED, null);
 			return null;
 		}
 
-//battery capacity in wh
+		return targetMinute;
+	}
+
+	/**
+	 * Calculates the charging power limit for the current cycle.
+	 * 
+	 * @return the calculated charging power limit or null if no limit should be
+	 *         applied
+	 * @throws OpenemsNamedException on error
+	 */
+	public Integer getCalculatedPowerLimit(Integer targetMinute) throws OpenemsNamedException {
+
+		if (targetMinute == null) {
+			return null;
+		}
+
+		Integer calculatedPower = null;
+
+		// battery capacity in wh
 		int capacity = ess.getCapacity().getOrError();
 
-//Remaining capacity of the battery in Ws till target point.
+		// Remaining capacity of the battery in Ws till target point.
 		int remainingCapacity = capacity * (100 - ess.getSoc().getOrError()) * 36;
 
-//No remaining capacity -> no restrictions
+		// No remaining capacity -> no restrictions
 		if (remainingCapacity < 0) {
-			this.setChannels(State.NO_REMAINING_CAPACITY, 0);
+			this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_CAPACITY, null);
 			return null;
 		}
 
-//remaining time in seconds till the target point.
-		int remainingTime = calculateRemainingTime(now);
+		// remaining time in seconds till the target point.
+		int remainingTime = calculateRemainingTime(targetMinute);
 
-//calculate charge power limit
+		// calculate charge power limit
 		calculatedPower = remainingCapacity / remainingTime;
 
-//reduce limit to MaxApparentPower to avoid very high values in the last
-//seconds
+		// reduce limit to MaxApparentPower to avoid very high values in the last
+		// seconds
 		calculatedPower = Math.min(calculatedPower, ess.getMaxApparentPower().getOrError());
 
-		this.setChannels(State.ACTIVE_LIMIT, calculatedPower);
+		this.setDelayChargeStateAndLimit(DelayChargeState.ACTIVE_LIMIT, calculatedPower);
 
 		return calculatedPower;
 	}
@@ -246,8 +344,9 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 	 * 
 	 * @return the remaining time
 	 */
-	private int calculateRemainingTime(ZonedDateTime now) {
-		int targetSecondOfDay = this.targetMinute * 60;
+	private int calculateRemainingTime(int targetMinute) {
+		ZonedDateTime now = ZonedDateTime.now(this.componentManager.getClock()).withZoneSameInstant(ZoneOffset.UTC);
+		int targetSecondOfDay = targetMinute * 60;
 		int remainingTime = targetSecondOfDay - now.get(ChronoField.SECOND_OF_DAY);
 
 		return remainingTime;
@@ -266,7 +365,7 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 			ZonedDateTime predictionStartQuarterHour) {
 
 		// lastQuaterHour --> last hour when production was greater than consumption.
-		int lastQuaterHour = 0;
+		int lastQuaterHour = -1;
 		Integer targetMinuteActual = null;
 		Integer targetMinuteAdjusted = null;
 		int predictionStartQuarterHourIndex = predictionStartQuarterHour.get(ChronoField.MINUTE_OF_DAY) / 15;
@@ -279,12 +378,12 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 
 				// Updating last quarter hour if production is higher than consumption plus
 				// power buffer
-				if (quaterHourlyProduction[i] > quaterHourlyConsumption[i] + this.config.powerBuffer()) {
+				if (quaterHourlyProduction[i] > quaterHourlyConsumption[i] + DEFAULT_POWER_BUFFER) {
 					lastQuaterHour = i;
 				}
 			}
 		}
-		if (lastQuaterHour > 0) {
+		if (lastQuaterHour != -1) {
 
 			// targetSecondActual = lastQuaterHour;
 			targetMinuteActual = predictionStartQuarterHour.plusMinutes(lastQuaterHour * 15)
@@ -292,16 +391,13 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 
 			// target hour adjusted based on buffer hour.
 			targetMinuteAdjusted = targetMinuteActual - this.config.noOfBufferMinutes();
+		} else {
+			this.setDelayChargeStateAndLimit(DelayChargeState.TARGET_HOUR_NOT_CALCULATED, null);
 		}
 
 		// setting the channel id values
-		IntegerReadChannel targetHourActualValue = this
-				.channel(GridOptimizedSelfConsumption.ChannelId.TARGET_MINUTE_ACTUAL);
-		targetHourActualValue.setNextValue(targetMinuteActual);
-
-		IntegerReadChannel targetHourAdjustedValue = this
-				.channel(GridOptimizedSelfConsumption.ChannelId.TARGET_MINUTE_ADJUSTED);
-		targetHourAdjustedValue.setNextValue(targetMinuteAdjusted);
+		this._setTargetMinuteActual(targetMinuteActual);
+		this._setTargetMinuteAdjusted(targetMinuteAdjusted);
 
 		return targetMinuteAdjusted;
 	}
@@ -309,16 +405,12 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 	/**
 	 * Update the StateMachine and ChargePowerLimit channels.
 	 * 
-	 * @param state the {@link State}
+	 * @param state the {@link DelayChargeState}
 	 * @param limit the ChargePowerLimit
 	 */
-	private void setChannels(State state, int limit) {
-		EnumReadChannel stateMachineChannel = this.channel(GridOptimizedSelfConsumption.ChannelId.STATE_MACHINE);
-		stateMachineChannel.setNextValue(state);
-
-		IntegerReadChannel chargePowerLimitChannel = this
-				.channel(GridOptimizedSelfConsumption.ChannelId.CHARGE_POWER_LIMIT);
-		chargePowerLimitChannel.setNextValue(limit);
+	private void setDelayChargeStateAndLimit(DelayChargeState state, Integer limit) {
+		this._setDelayChargeState(state);
+		this._setChargePowerLimit(limit);
 	}
 
 	/**

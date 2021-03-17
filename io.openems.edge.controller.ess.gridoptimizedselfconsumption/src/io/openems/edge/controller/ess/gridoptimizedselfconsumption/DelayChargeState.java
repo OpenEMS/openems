@@ -2,17 +2,17 @@ package io.openems.edge.controller.ess.gridoptimizedselfconsumption;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum State implements OptionsEnum {
+public enum DelayChargeState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	ACTIVE_LIMIT(0, "Active Limit"), //
-	PASSED_TARGET_HOUR(1, "Passed target Hour"), //
+	ACTIVE_LIMIT(0, "Active limit"), //
+	PASSED_TARGET_HOUR(1, "Passed target hour"), //
 	NO_REMAINING_CAPACITY(2, "No remaining capacity"), //
-	TARGET_HOUR_NOT_CALCULATED(3, "target hour not calculated, initial run not done"); //
+	TARGET_HOUR_NOT_CALCULATED(3, "target hour not calculated"); //
 
 	private final int value;
 	private final String name;
 
-	private State(int value, String name) {
+	private DelayChargeState(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
