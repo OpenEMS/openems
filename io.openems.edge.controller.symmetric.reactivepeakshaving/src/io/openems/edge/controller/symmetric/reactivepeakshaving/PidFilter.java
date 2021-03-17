@@ -75,9 +75,7 @@ public class PidFilter {
 		// Calculate the error
 		int error = reference - measuredOutput;
 		
-		// Sum up the error and limit Error-Sum to not grow too much. Otherwise the PID
-		// filter will stop reacting on changes properly.
-		this.errorSum = this.applyErrorSumLimit(this.errorSum + error);
+		
 
 		// Calculate P
 		double outputP = this.p * error;
@@ -99,6 +97,10 @@ public class PidFilter {
 
 		// Sum outputs
 		double output = outputP + outputI + outputD;
+		
+		// Sum up the error and limit Error-Sum to not grow too much. Otherwise the PID
+		// filter will stop reacting on changes properly.
+		this.errorSum = this.applyErrorSumLimit(this.errorSum + error);
 
 		// Post-process the output value: convert to integer and apply value limits
 		return this.applyLowHighLimits(Math.round((float) output));
