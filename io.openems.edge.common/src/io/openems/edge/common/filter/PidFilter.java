@@ -76,9 +76,9 @@ public class PidFilter {
 		int error = target - input;
 
 		// We are already there
-//		if (error == 0) {
-//			return target;
-//		}
+		if (error == 0) {
+			return target;
+		}
 
 		// Calculate P
 		double outputP = this.p * error;
