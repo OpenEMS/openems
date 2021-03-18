@@ -23,20 +23,20 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of the Grid-Meter.")
 	String meter_id();
 
-	@AttributeDefinition(name = "Peak-Shaving reactive power [var]", min = "0", description = "Reactive power (cap./ind.) above this value is considered a peak and shaved to this value.")
+	@AttributeDefinition(name = "Reactive-Power-Limit [var]", min = "0", description = "Reactive power limit (cap./ind.) for peak shaving. Reactive power above this value is considered a peak and will shaved to this value.")
 	int ReactivePowerLimit();
 	
-	@AttributeDefinition(name = "Kp (gain)", description = "debugging")
-	float pidKp() default 0.45f;
+	@AttributeDefinition(name = "Kp (gain)", description = "PI-controller: gain")
+	float piKp() default 0.45f;
 	
-	@AttributeDefinition(name = "Ti [s] (reset time / Nachstellzeit)", description = "debugging")
-	float pidTi_s() default 2.2f;
+	@AttributeDefinition(name = "Ti [s] (reset time / Nachstellzeit)", description = "PI-controller: reset time")
+	float piTi_s() default 2.2f;
 	
-	@AttributeDefinition(name = "enable I-Delay", description = "debugging")
-	boolean enableIdelay() default true;
+	@AttributeDefinition(name = "enable I-Delay", description = "PI-controller: if this option is enabled, the integrator of the controller is delayed by one calculation cycle")
+	boolean piEnableIdelay() default true;
 	
-	@AttributeDefinition(name = "max. Reactive-Power [%]", min = "0.0", max = "100.0", description = "max. Reactive-Power in percent of max. Apparent-Power")
-	float pidMaxReactivePower_pct() default 100.0f;
+	@AttributeDefinition(name = "max. Reactive-Power [%]", min = "0.0", max = "100.0", description = "Maximum Reactive-Power in percent of maximum Apparent-Power")
+	float piMaxReactivePower_pct() default 100.0f;
 	
 	String webconsole_configurationFactory_nameHint() default "Controller Reactive-Peak-Shaving Symmetric [{id}]";
 

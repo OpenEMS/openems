@@ -72,7 +72,7 @@ public class ReactivePeakShaving extends AbstractOpenemsComponent implements Con
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		this.piController = new PiController(this.config.pidKp(), this.config.pidTi_s(), this.config.enableIdelay());
+		this.piController = new PiController(this.config.piKp(), this.config.piTi_s(), this.config.piEnableIdelay());
 	}
 
 	@Deactivate
@@ -95,7 +95,7 @@ public class ReactivePeakShaving extends AbstractOpenemsComponent implements Con
 			//TODO: PI-Controller should not be part of this controller
 
 			// set limits of PI-Controller
-			int maxReactivePower = (int)((float)ess.getMaxApparentPower().getOrError() * this.config.pidMaxReactivePower_pct() * 0.01f);
+			int maxReactivePower = (int)((float)ess.getMaxApparentPower().getOrError() * this.config.piMaxReactivePower_pct() * 0.01f);
 			this.piController.setLimits(-maxReactivePower, maxReactivePower);
 			// set cycle time
 			double cycleTime_s = this.cycle.getCycleTime() / 1000.0;
