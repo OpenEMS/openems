@@ -6,11 +6,11 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public interface ModbusTcpApi extends OpenemsComponent {
+public interface ModbusApi extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		UNABLE_TO_START(Doc.of(Level.FAULT) //
-				.text("Unable to start Modbus/TCP-Api Server"));
+				.text("Unable to start Modbus-Api Server"));
 
 		private final Doc doc;
 

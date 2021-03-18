@@ -1,9 +1,9 @@
-package io.openems.edge.controller.api.modbus.readonly;
+package io.openems.edge.controller.api.modbus.readonlySerial;
 
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public interface ModbusTcpApiReadOnly extends OpenemsComponent {
+public interface ModbusSerialApiReadOnly extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
