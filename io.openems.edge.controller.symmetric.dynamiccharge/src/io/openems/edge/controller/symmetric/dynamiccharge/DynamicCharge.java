@@ -29,8 +29,8 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.predictor.api.ConsumptionHourlyPredictor;
-import io.openems.edge.predictor.api.ProductionHourlyPredictor;
+import io.openems.edge.predictor.api.hourly.ConsumptionHourlyPredictor;
+import io.openems.edge.predictor.api.hourly.ProductionHourlyPredictor;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -41,10 +41,6 @@ import io.openems.edge.predictor.api.ProductionHourlyPredictor;
 public class DynamicCharge extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private Config config = null;
-	private static TreeMap<ZonedDateTime, Float> hourlyPrices = new TreeMap<>();
-	private static TreeMap<ZonedDateTime, Integer> chargeSchedule = new TreeMap<ZonedDateTime, Integer>();
-
-	private boolean isPredictionValuesTaken = false;
 
 	private final Logger log = LoggerFactory.getLogger(DynamicCharge.class);
 
@@ -65,11 +61,12 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 
 	private ZonedDateTime proLessThanCon = null;
 	private ZonedDateTime proMoreThanCon = null;
-	private static TreeMap<ZonedDateTime, Integer> hourlyConsumption = new TreeMap<ZonedDateTime, Integer>();
-	private static TreeMap<ZonedDateTime, Integer> hourlyProduction = new TreeMap<ZonedDateTime, Integer>();
+	private TreeMap<ZonedDateTime, Integer> hourlyConsumption = new TreeMap<>();
+	private TreeMap<ZonedDateTime, Integer> hourlyProduction = new TreeMap<>();
+	private TreeMap<ZonedDateTime, Float> hourlyPrices = new TreeMap<>();
+	private TreeMap<ZonedDateTime, Integer> chargeSchedule = new TreeMap<>();
+	private boolean isPredictionValuesTaken = false;
 	private boolean isAllowedToCalculateHours = false;
-	private static int nettCapacity;
-	private static int maxApparentPower;
 	private float currentMinPrice;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -115,7 +112,7 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 		// we receive the predictions at 14:00 till next day 13:00.
 		// isPredictionValuesTaken is there to make sure the control logic executes only
 		// once during the hour.
-		if (now.getHour() == 14 && !this.isPredictionValuesTaken) {
+		if (now.getHour() == 17 && !this.isPredictionValuesTaken) {
 			Integer[] productionValues = this.productionHourlyPredictor.get24hPrediction().getValues();
 			Integer[] consumptionValues = this.consumptionHourlyPredictor.get24hPrediction().getValues();
 			ZonedDateTime startHour = this.productionHourlyPredictor.get24hPrediction().getStart();
@@ -138,12 +135,12 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 				// production is less than the consumption.
 				// Structuring the data in TreeMap format for easy calculations later
 				if (consumptionValues[i] != null && productionValues[i] != null) {
-					hourlyProduction.put(startHour.plusHours(i), productionValues[i]);
-					hourlyConsumption.put(startHour.plusHours(i), consumptionValues[i]);
+					this.hourlyProduction.put(startHour.plusHours(i), productionValues[i]);
+					this.hourlyConsumption.put(startHour.plusHours(i), consumptionValues[i]);
 				}
 			}
 
-			if (hourlyProduction.isEmpty() || hourlyConsumption.isEmpty()) {
+			if (this.hourlyProduction.isEmpty() || this.hourlyConsumption.isEmpty()) {
 				return;
 			}
 
@@ -153,7 +150,7 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 		}
 
 		// Resetting the isPredictionValuesTaken to make it ready to execute next day.
-		if (now.getHour() == 15 && this.isPredictionValuesTaken) {
+		if (now.getHour() == 18 && this.isPredictionValuesTaken) {
 			this.isPredictionValuesTaken = false;
 		}
 
@@ -161,8 +158,8 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 		if (this.proLessThanCon != null) {
 			if (ZonedDateTime.now().getHour() == this.proLessThanCon.getHour() && this.isAllowedToCalculateHours) {
 
-				nettCapacity = ess.getCapacity().getOrError();
-				maxApparentPower = ess.getMaxApparentPower().getOrError();
+				int nettCapacity = ess.getCapacity().getOrError();
+				int maxApparentPower = ess.getMaxApparentPower().getOrError();
 				int availableCapacity = (nettCapacity * ess.getSoc().getOrError()) / 100;
 
 				log.info("availableCapacity = " + availableCapacity + " nett capacity " + nettCapacity
@@ -170,7 +167,7 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 
 				// Required Energy that needs to be taken from grid
 				// Required Energy = Total Consumption - Available Battery capacity
-				Integer totalConsumption = this.calculateTotalConsumption(proLessThanCon, proMoreThanCon);
+				Integer totalConsumption = this.calculateConsumptionBetweenHours(proLessThanCon, proMoreThanCon);
 
 				Integer remainingEnergy = totalConsumption - availableCapacity;
 
@@ -180,47 +177,57 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 
 					log.info("Collecting hourly Prices: ");
 
-					hourlyPrices = PriceApi.houlryPrices();
+					this.hourlyPrices = PriceApi.houlryPrices();
 
-					hourlyPrices.entrySet().forEach(p -> {
+					this.hourlyPrices.entrySet().forEach(p -> {
 						log.info("hour" + p.getKey() + " value: " + p.getValue());
 					});
 
 					log.info(" Getting schedule: ");
 
-					getChargeSchedule(this.proLessThanCon, this.proMoreThanCon.plusHours(1), totalConsumption,
+					this.getChargeSchedule(this.proLessThanCon, this.proMoreThanCon.plusHours(1), totalConsumption,
 							availableCapacity);
 				}
 			}
 			this.isAllowedToCalculateHours = false;
 		}
 
-		if (!chargeSchedule.isEmpty()) {
-			for (Entry<ZonedDateTime, Integer> entry : chargeSchedule.entrySet()) {
+		if (!this.chargeSchedule.isEmpty()) {
+			for (Entry<ZonedDateTime, Integer> entry : this.chargeSchedule.entrySet()) {
 				if (now.getHour() == entry.getKey().getHour()) {
 
 					int power = entry.getValue() * -1;
 
 					int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
 							power);
-					ess.addPowerConstraintAndValidate("SymmetricDynamicChargePower", Phase.ALL, Pwr.ACTIVE,
+					this.ess.addPowerConstraintAndValidate("SymmetricDynamicChargePower", Phase.ALL, Pwr.ACTIVE,
 							Relationship.EQUALS, calculatedPower);
 				}
 			}
 		}
 	}
 
+	/**
+	 * @param proLessThanCon
+	 * @param proMoreThanCon
+	 * @param totalConsumption
+	 * @param availableEnergy
+	 * @throws InvalidValueException
+	 */
 	private void getChargeSchedule(ZonedDateTime proLessThanCon, ZonedDateTime proMoreThanCon, Integer totalConsumption,
 			Integer availableEnergy) throws InvalidValueException {
 
 		// function to find the minimum priceHour
-		ZonedDateTime cheapestHour = cheapHour(proLessThanCon, proMoreThanCon);
+		ZonedDateTime cheapestHour = this.cheapHour(proLessThanCon, proMoreThanCon);
 
-		Integer demandTillCheapestHour = calculateDemandTillThishour(proLessThanCon, cheapestHour);
+		Integer predictedConumption = this.calculateConsumptionBetweenHours(proLessThanCon, cheapestHour);
 
 		Integer currentHourConsumption = hourlyConsumption.get(cheapestHour);
 
 		Integer remainingConsumption = 0;
+
+		int nettCapacity = ess.getCapacity().getOrError();
+		int maxApparentPower = ess.getMaxApparentPower().getOrError();
 
 		// Calculates the amount of energy that needs to be charged during the cheapest
 		// price hours.
@@ -228,13 +235,13 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 		if (totalConsumption > 0) {
 
 			// if the battery has sufficient energy!
-			if (availableEnergy >= demandTillCheapestHour) {
+			if (availableEnergy >= predictedConumption) {
 				totalConsumption -= availableEnergy;
-				adjustRemainigConsumption(cheapestHour, proMoreThanCon, totalConsumption, availableEnergy,
-						demandTillCheapestHour);
+				this.adjustRemainigConsumption(cheapestHour, proMoreThanCon, totalConsumption, availableEnergy,
+						nettCapacity, maxApparentPower);
 			} else {
 				// if the battery does not has sufficient energy!
-				Integer chargebleConsumption = totalConsumption - demandTillCheapestHour - currentHourConsumption;
+				Integer chargebleConsumption = totalConsumption - predictedConumption;
 
 				if (chargebleConsumption > 0) {
 					if (chargebleConsumption > maxApparentPower) {
@@ -243,25 +250,25 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 
 						// checking for next cheap hour if it is before or after the first cheapest
 						// hour.
-						
+
 						// From evening to the cheapest hour
-						cheapestHour = cheapHour(proLessThanCon, cheapestHour);
+						cheapestHour = this.cheapHour(proLessThanCon, lastCheapTimeStamp);
 						float firstMinPrice = currentMinPrice;
 
 						// From cheapest hour to the morning of the next day.
-						cheapestHour = cheapHour(lastCheapTimeStamp.plusHours(1), proMoreThanCon);
+						cheapestHour = this.cheapHour(lastCheapTimeStamp.plusHours(1), proMoreThanCon);
 
+						// next Cheap Hour is after the first one
 						if (currentMinPrice < firstMinPrice) {
 							remainingConsumption = chargebleConsumption - maxApparentPower;
-							adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1),
-									hourlyConsumption.lastKey().plusDays(1), remainingConsumption, maxApparentPower,
-									demandTillCheapestHour);
+							this.adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1), proMoreThanCon,
+									remainingConsumption, maxApparentPower, nettCapacity, maxApparentPower);
 						} else {
+							// next Cheap Hour is before the first one
 							if (chargebleConsumption > nettCapacity) {
 								remainingConsumption = chargebleConsumption - nettCapacity;
-								adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1),
-										hourlyConsumption.lastKey().plusDays(1), remainingConsumption, nettCapacity,
-										demandTillCheapestHour);
+								this.adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1), proMoreThanCon,
+										remainingConsumption, nettCapacity, nettCapacity, maxApparentPower);
 							}
 
 						}
@@ -275,37 +282,43 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 					remainingConsumption = 0;
 
 					// adding into charge Schedule
-					chargeSchedule.put(cheapestHour, chargebleConsumption);
-					getChargeSchedule(proLessThanCon, cheapestHour, totalConsumption, availableEnergy);
-
+					this.chargeSchedule.put(cheapestHour, chargebleConsumption);
 				} else {
 					totalConsumption -= currentHourConsumption;
-					getChargeSchedule(proLessThanCon, cheapestHour, totalConsumption, availableEnergy);
 				}
-
+				this.getChargeSchedule(proLessThanCon, cheapestHour, totalConsumption, availableEnergy);
 			}
 
 		}
 
 	}
 
-	private void adjustRemainigConsumption(ZonedDateTime cheapestHour, ZonedDateTime proMoreThanCon,
-			Integer remainingConsumption, Integer availableEnergy, Integer demandTillCheapestHour)
-			throws InvalidValueException {
+	/**
+	 * @param start
+	 * @param end
+	 * @param remainingConsumption
+	 * @param availableEnergy
+	 * @param nettCapacity
+	 * @param maxApparentPower
+	 * @throws InvalidValueException
+	 */
+	private void adjustRemainigConsumption(ZonedDateTime start, ZonedDateTime end, //
+			Integer remainingConsumption, Integer availableEnergy, int nettCapacity, //
+			int maxApparentPower) throws InvalidValueException {
 
-		if (!cheapestHour.isEqual(proMoreThanCon)) {
+		if (!start.isEqual(end)) {
 
 			if (remainingConsumption > 0) {
 
-				ZonedDateTime cheapTimeStamp = cheapHour(cheapestHour, proMoreThanCon);
+				ZonedDateTime cheapTimeStamp = cheapHour(start, end);
 				Integer currentHourConsumption = hourlyConsumption.get(cheapTimeStamp);
+				int predictedConsumption = this.calculateConsumptionBetweenHours(start, cheapTimeStamp);
 
-				if (demandTillCheapestHour > availableEnergy) {
-					demandTillCheapestHour -= availableEnergy;
+				if (predictedConsumption > availableEnergy) {
 					availableEnergy = 0;
 				} else {
-					availableEnergy -= demandTillCheapestHour;
-					demandTillCheapestHour = 0;
+					availableEnergy -= predictedConsumption;
+					predictedConsumption = 0;
 				}
 
 				Integer allowedConsumption = nettCapacity - availableEnergy;
@@ -314,7 +327,7 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 					if (allowedConsumption > maxApparentPower) {
 						allowedConsumption = maxApparentPower;
 					}
-					remainingConsumption = remainingConsumption - currentHourConsumption - demandTillCheapestHour;
+					remainingConsumption = remainingConsumption - currentHourConsumption - predictedConsumption;
 
 					if (remainingConsumption > 0) {
 						if (remainingConsumption > allowedConsumption) {
@@ -322,20 +335,20 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 							availableEnergy += allowedConsumption;
 
 							// adding into charge Schedule
-							chargeSchedule.put(cheapTimeStamp, allowedConsumption);
-							adjustRemainigConsumption(cheapTimeStamp.plusHours(1), proMoreThanCon, remainingConsumption,
-									availableEnergy, demandTillCheapestHour);
+							this.chargeSchedule.put(cheapTimeStamp, allowedConsumption);
+							this.adjustRemainigConsumption(cheapTimeStamp.plusHours(1), end, remainingConsumption,
+									availableEnergy, nettCapacity, maxApparentPower);
 						} else {
 							// adding into charge Schedule
-							chargeSchedule.put(cheapTimeStamp, remainingConsumption);
+							this.chargeSchedule.put(cheapTimeStamp, remainingConsumption);
 						}
 					}
 
 				} else {
 
 					availableEnergy -= currentHourConsumption;
-					adjustRemainigConsumption(cheapTimeStamp.plusHours(1), proMoreThanCon, remainingConsumption,
-							availableEnergy, demandTillCheapestHour);
+					this.adjustRemainigConsumption(cheapTimeStamp.plusHours(1), end, remainingConsumption,
+							availableEnergy, nettCapacity, maxApparentPower);
 				}
 
 			}
@@ -344,23 +357,33 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 
 	}
 
-	private static Integer calculateDemandTillThishour(ZonedDateTime proLessThanCon, ZonedDateTime cheapestHour) {
-		Integer demand = 0;
+	/**
+	 * calculates the total consumption between start(inclusive) and end (exclusive)
+	 * hours in parameters.
+	 * 
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	private Integer calculateConsumptionBetweenHours(ZonedDateTime start, ZonedDateTime end) {
+		Integer consumption = 0;
 
-		for (Entry<ZonedDateTime, Integer> entry : hourlyConsumption.entrySet()) {
-			if ((entry.getKey().isEqual(proLessThanCon) || entry.getKey().isAfter(proLessThanCon))
-					&& entry.getKey().isBefore(cheapestHour)) {
-				demand += entry.getValue();
-			}
+		for (Entry<ZonedDateTime, Integer> entry : hourlyConsumption.subMap(start, end).entrySet()) {
+			consumption += entry.getValue();
 		}
-		return demand;
+		return consumption;
 	}
 
-	private ZonedDateTime cheapHour(ZonedDateTime proLessThanCon, ZonedDateTime proMoreThanCon) {
+	/**
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	private ZonedDateTime cheapHour(ZonedDateTime start, ZonedDateTime end) {
 		float minPrice = Float.MAX_VALUE;
 		ZonedDateTime cheapTimeStamp = null;
 
-		for (Entry<ZonedDateTime, Float> entry : hourlyPrices.subMap(proLessThanCon, proMoreThanCon).entrySet()) {
+		for (Entry<ZonedDateTime, Float> entry : hourlyPrices.subMap(start, end).entrySet()) {
 			if (entry.getValue() < minPrice) {
 				cheapTimeStamp = entry.getKey();
 				minPrice = entry.getValue();
@@ -371,19 +394,13 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 		return cheapTimeStamp;
 	}
 
-	private Integer calculateTotalConsumption(ZonedDateTime proLessThanCon, ZonedDateTime proMoreThanCon) {
-		int consumptionTotal = 0;
-
-		if (hourlyConsumption.containsKey(proLessThanCon) && hourlyConsumption.containsKey(proMoreThanCon)) {
-			for (Entry<ZonedDateTime, Integer> entry : hourlyConsumption.subMap(proLessThanCon, proMoreThanCon)
-					.entrySet()) {
-				consumptionTotal += entry.getValue() - hourlyProduction.get(entry.getKey());
-			}
-		}
-		return consumptionTotal;
-	}
-
-	// list of hours, during which battery should be avoided.
+	/**
+	 * list of hours, during which battery should be avoided.
+	 * 
+	 * @param productionValues
+	 * @param consumptionValues
+	 * @param startHour
+	 */
 	private void calculateBoundaryHours(Integer[] productionValues, Integer[] consumptionValues,
 			ZonedDateTime startHour) {
 		for (int i = 0; i < 24; i++) {

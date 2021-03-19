@@ -21,7 +21,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Start-Hour", description = "Fallback start hour if no pv.")
-	int maxStartHour() default 7;
+	int maxStartHour() default 8;
 
 	@AttributeDefinition(name = "End-Hour", description = "fallback end hour if no pv.")
 	int maxEndHour() default 17;

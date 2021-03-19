@@ -14,6 +14,7 @@ import java.util.TreeMap;
 public class App {
 	private static TreeMap<ZonedDateTime, Float> hourlyPrices = new TreeMap<ZonedDateTime, Float>();
 	private static TreeMap<ZonedDateTime, Integer> hourlyConsumption = new TreeMap<ZonedDateTime, Integer>();
+	private static TreeMap<ZonedDateTime, Integer> batteryReference = new TreeMap<ZonedDateTime, Integer>();
 	public static TreeMap<ZonedDateTime, Integer> chargeSchedule = new TreeMap<ZonedDateTime, Integer>();
 	private static float minPrice;
 	private static ZonedDateTime cheapTimeStamp = null;
@@ -23,8 +24,7 @@ public class App {
 	private static ZonedDateTime endTime;
 	private static Integer chargebleConsumption;
 	private static Integer demandTillCheapestHour = 0;
-	private static Integer availableCapacity = 1350;
-	private static Integer nettCapacity = 12000;
+
 	private static Integer maxApparentPower = 9000;
 	private static Integer totalDemand;
 	private static Integer remainingConsumption;
@@ -32,7 +32,9 @@ public class App {
 	private static ZonedDateTime proLessThanCon = null;
 	private static ZonedDateTime proMoreThanCon = null;
 
-	private static long minEnergy = (15 * nettCapacity) / 100;
+	private static Integer nettCapacity = 12000;
+	private static Integer minEnergy = (15 * nettCapacity) / 100;
+	private static Integer availableCapacity = Math.max(0, 1350 - minEnergy);
 
 	public static void main(String[] args) throws InvalidValueException {
 
@@ -45,26 +47,50 @@ public class App {
 		proMoreThanCon = ZonedDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusHours(9)
 				.plusDays(1);
 
-		for (int i = 0; i < 16; i++) {
+		System.out.println("proLessThanCon: " + proLessThanCon + " proMoreThanCon: " + proMoreThanCon);
+
+		for (int i = 0; i < 24; i++) {
 			hourlyConsumption.put(now.plusHours(i), 2500);
 		}
-
-//		if (!hourlyConsumption.isEmpty()) {
-//			System.out.println(
-//					"first Key: " + hourlyConsumption.firstKey() + " last Key: " + hourlyConsumption.lastKey());
-//		}
 
 		for (Entry<ZonedDateTime, Integer> entry : hourlyConsumption.entrySet()) {
 			System.out.println("Time: " + entry.getKey() + " Consumption: " + entry.getValue());
 		}
 
-		totalDemand = calculateDemandTillThishour(proLessThanCon, proMoreThanCon)
-				+ hourlyConsumption.get(proMoreThanCon);
+		totalDemand = calculateDemandTillThishour(proLessThanCon, proMoreThanCon);
 
-		System.out.println(" [ " + nettCapacity + " ] " + " [ " + maxApparentPower + " ] " + " [ " + availableCapacity
-				+ " ] " + " [ " + totalDemand + " ] ");
+		nettCapacity -= minEnergy;
 
-		hourlyPrices = PriceApi.houlryPrices();
+		System.out.println(" nettCapacity [ " + nettCapacity + " ] " + " maxApparentPower [ " + maxApparentPower + " ] "
+				+ " availableCapacity [ " + availableCapacity + " ] " + " totalDemand [ " + totalDemand + " ] ");
+
+//		hourlyPrices = PriceApi.houlryPrices();
+//
+
+		hourlyPrices.put(now, 30f);
+		hourlyPrices.put(now.plusHours(1), 50f);
+		hourlyPrices.put(now.plusHours(2), 50f);
+		hourlyPrices.put(now.plusHours(3), 50f);
+		hourlyPrices.put(now.plusHours(4), 50f);
+		hourlyPrices.put(now.plusHours(5), 50f);
+		hourlyPrices.put(now.plusHours(6), 50f);
+		hourlyPrices.put(now.plusHours(7), 29.2f);
+		hourlyPrices.put(now.plusHours(8), 47f);
+		hourlyPrices.put(now.plusHours(9), 49f);
+		hourlyPrices.put(now.plusHours(10), 29f);
+		hourlyPrices.put(now.plusHours(11), 51f);
+		hourlyPrices.put(now.plusHours(12), 30f);
+		hourlyPrices.put(now.plusHours(13), 45f);
+		hourlyPrices.put(now.plusHours(14), 44f);
+		hourlyPrices.put(now.plusHours(15), 32f);
+		hourlyPrices.put(now.plusHours(16), 43f);
+		hourlyPrices.put(now.plusHours(17), 46f);
+		hourlyPrices.put(now.plusHours(18), 47f);
+		hourlyPrices.put(now.plusHours(19), 53f);
+		hourlyPrices.put(now.plusHours(20), 61f);
+		hourlyPrices.put(now.plusHours(21), 62f);
+		hourlyPrices.put(now.plusHours(22), 70f);
+		hourlyPrices.put(now.plusHours(23), 70f);
 
 		hourlyPrices.entrySet().forEach(p -> {
 			System.out.println(" " + p.getKey() + " " + p.getValue());
@@ -73,12 +99,16 @@ public class App {
 		System.out.println(" Getting schedule: ");
 		chargeSchedule.clear();
 
-		getChargeSchedule(proLessThanCon, proMoreThanCon.plusHours(1), totalDemand, availableCapacity);
+		for (int i = 0; i < 24; i++) {
+
+			batteryReference.put(now.plusHours(i), 2500);
+		}
+
+		getChargeSchedule(proLessThanCon, proMoreThanCon, totalDemand, availableCapacity);
 //
 		for (Entry<ZonedDateTime, Integer> entry : chargeSchedule.entrySet()) {
 			System.out.println("Time: " + entry.getKey() + " Consumption: " + entry.getValue());
 		}
-
 	}
 
 	private static void getChargeSchedule(ZonedDateTime proLessThanCon, ZonedDateTime proMoreThanCon,
@@ -92,19 +122,22 @@ public class App {
 
 		Integer remainingConsumption = 0;
 
+		System.out.println("cheapestHour " + cheapestHour + " demandTillCheapestHour: " + demandTillCheapestHour
+				+ " currentHourConsumption " + currentHourConsumption);
+
 		// Calculates the amount of energy that needs to be charged during the cheapest
 		// price hours.
-
 		if (totalConsumption > 0) {
 
 			// if the battery doesn't has sufficient energy!
 			if (availableEnergy >= demandTillCheapestHour) {
 				totalConsumption -= availableEnergy;
-				adjustRemainigConsumption(cheapestHour, proMoreThanCon, totalConsumption, availableEnergy,
-						demandTillCheapestHour);
+				adjustRemainigConsumption(cheapestHour, proMoreThanCon, totalConsumption, availableEnergy);
 			} else {
 
 				Integer chargebleConsumption = totalConsumption - demandTillCheapestHour - currentHourConsumption;
+
+				System.out.println("chargebleConsumption " + chargebleConsumption);
 
 				if (chargebleConsumption > 0) {
 					if (chargebleConsumption > maxApparentPower) {
@@ -113,24 +146,23 @@ public class App {
 
 						// checking for next cheap hour if it is before or after the first cheapest
 						// hour.
-						cheapestHour = cheapHour(proLessThanCon, cheapestHour);
+						cheapestHour = cheapHour(proLessThanCon, lastCheapTimeStamp);
 						float firstMinPrice = minPrice;
 
 						cheapestHour = cheapHour(lastCheapTimeStamp.plusHours(1), proMoreThanCon);
 
+						System.out.println("demandTillCheapestHour " + demandTillCheapestHour);
+
 						if (minPrice < firstMinPrice) {
 							remainingConsumption = chargebleConsumption - maxApparentPower;
-							adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1),
-									hourlyConsumption.lastKey().plusDays(1), remainingConsumption, maxApparentPower,
-									demandTillCheapestHour);
+							adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1), proMoreThanCon,
+									remainingConsumption, maxApparentPower);
 						} else {
 							if (chargebleConsumption > nettCapacity) {
 								remainingConsumption = chargebleConsumption - nettCapacity;
-								adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1),
-										hourlyConsumption.lastKey().plusDays(1), remainingConsumption, nettCapacity,
-										demandTillCheapestHour);
+								adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1), proMoreThanCon,
+										remainingConsumption, nettCapacity);
 							}
-
 						}
 
 						cheapestHour = lastCheapTimeStamp;
@@ -143,22 +175,16 @@ public class App {
 
 					// adding into charge Schedule
 					chargeSchedule.put(cheapestHour, chargebleConsumption);
-					getChargeSchedule(proLessThanCon, cheapestHour, totalConsumption, availableEnergy);
-
 				} else {
 					totalConsumption -= currentHourConsumption;
-					getChargeSchedule(proLessThanCon, cheapestHour, totalConsumption, availableEnergy);
 				}
-
+				getChargeSchedule(proLessThanCon, cheapestHour, totalConsumption, availableEnergy);
 			}
-
 		}
-
 	}
 
 	private static void adjustRemainigConsumption(ZonedDateTime cheapestHour, ZonedDateTime proMoreThanCon,
-			Integer remainingConsumption, Integer availableEnergy, Integer demandTillCheapestHour)
-			throws InvalidValueException {
+			Integer remainingConsumption, Integer availableEnergy) throws InvalidValueException {
 
 		if (!cheapestHour.isEqual(proMoreThanCon)) {
 
@@ -167,21 +193,29 @@ public class App {
 				ZonedDateTime cheapTimeStamp = cheapHour(cheapestHour, proMoreThanCon);
 				Integer currentHourConsumption = hourlyConsumption.get(cheapTimeStamp);
 
-				if (demandTillCheapestHour > availableEnergy) {
-					demandTillCheapestHour -= availableEnergy;
+				System.out.println("cheapTimeStamp: 2 ** " + cheapTimeStamp + " currentHourConsumption "
+						+ currentHourConsumption + " demandTillCheapestHour: " + demandTillCheapestHour);
+
+				int predictedDemand = calculateDemandTillThishour(cheapestHour, cheapTimeStamp);
+
+				if (predictedDemand > availableEnergy) {
+//					predictedDemand -= availableEnergy;
 					availableEnergy = 0;
 				} else {
-					availableEnergy -= demandTillCheapestHour;
-					demandTillCheapestHour = 0;
+					availableEnergy -= predictedDemand;
+					predictedDemand = 0;
 				}
 
 				Integer allowedConsumption = nettCapacity - availableEnergy;
+
+				System.out.println(" allowedConsumption:  " + allowedConsumption);
 
 				if (allowedConsumption > 0) {
 					if (allowedConsumption > maxApparentPower) {
 						allowedConsumption = maxApparentPower;
 					}
-					remainingConsumption = remainingConsumption - currentHourConsumption - demandTillCheapestHour;
+					remainingConsumption = remainingConsumption - currentHourConsumption - predictedDemand;
+					System.out.println(" remainingConsumption:  " + remainingConsumption);
 
 					if (remainingConsumption > 0) {
 						if (remainingConsumption > allowedConsumption) {
@@ -191,34 +225,26 @@ public class App {
 							// adding into charge Schedule
 							chargeSchedule.put(cheapTimeStamp, allowedConsumption);
 							adjustRemainigConsumption(cheapTimeStamp.plusHours(1), proMoreThanCon, remainingConsumption,
-									availableEnergy, demandTillCheapestHour);
+									availableEnergy);
 						} else {
 							// adding into charge Schedule
 							chargeSchedule.put(cheapTimeStamp, remainingConsumption);
 						}
 					}
-
 				} else {
-
 					availableEnergy -= currentHourConsumption;
 					adjustRemainigConsumption(cheapTimeStamp.plusHours(1), proMoreThanCon, remainingConsumption,
-							availableEnergy, demandTillCheapestHour);
+							availableEnergy);
 				}
-
 			}
-
 		}
-
 	}
 
 	private static Integer calculateDemandTillThishour(ZonedDateTime proLessThanCon, ZonedDateTime cheapestHour) {
 		Integer demand = 0;
 
-		for (Entry<ZonedDateTime, Integer> entry : hourlyConsumption.entrySet()) {
-			if ((entry.getKey().isEqual(proLessThanCon) || entry.getKey().isAfter(proLessThanCon))
-					&& entry.getKey().isBefore(cheapestHour)) {
-				demand += entry.getValue();
-			}
+		for (Entry<ZonedDateTime, Integer> entry : hourlyConsumption.subMap(proLessThanCon, cheapestHour).entrySet()) {
+			demand += entry.getValue();
 		}
 		return demand;
 	}
@@ -235,4 +261,17 @@ public class App {
 		}
 		return cheapTimeStamp;
 	}
+
+//	private void batteryReference(ZonedDateTime d, Integer capacity) {
+//
+//		Integer availableCapacity = capacity;
+//
+//		for (Entry<ZonedDateTime, Integer> entry : hourlyConsumption.subMap(d, proMoreThanCon).entrySet()) {
+//
+//			batteryReference.put(d, availableCapacity);
+//
+//			availableCapacity = Math.max(0, (availableCapacity - entry.getValue()));
+//		}
+//
+//	}
 }
