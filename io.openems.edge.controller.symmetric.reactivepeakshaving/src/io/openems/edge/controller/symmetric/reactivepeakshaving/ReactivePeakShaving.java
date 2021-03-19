@@ -1,5 +1,11 @@
 package io.openems.edge.controller.symmetric.reactivepeakshaving;
 
+/* TODO: Limits of PI-Controller
+ * Actual, there is a static limit which is calculated by the maximum apparent power of the inverter.
+ * This is a problem, if there is a lot of active power and the inverter prefer active power before
+ * reactive power. In case of sqrt(P²+Q²) > max. S, there will be a wind up effect at the PI-controller 
+ */
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
