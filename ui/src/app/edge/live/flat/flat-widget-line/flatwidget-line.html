@@ -1,0 +1,47 @@
+<ng-template #content>
+    <ng-container *ngIf="edge">
+        <table class="full_width" *ngIf="edge.currentData | async as currentData">
+            <tr content>
+
+                <!-- Title of Parameter on the left side -->
+                <td *ngIf="title && !title_type" style="width:65%">{{title}}</td>
+                <td *ngIf="title && title_type == 'translate'" style="width:65%" translate>General.{{title}}</td>
+                <td *ngIf="title && title_type == 'translateWithoutGeneral'" style="width:65%" translate>{{title}}</td>
+
+
+                <!-- Title Values of the Parameter on the right side -->
+                <td style="width:35%" class="align_right"
+                    *ngIf="currentData.channel != null &&title && channel  &&(edge.currentData | async) as currentData">
+                    <ng-container *ngIf="channel!= null">
+                        {{ currentData.channel[channel] | unitvalue:'kW'}}
+                    </ng-container>
+                </td>
+                <td style="width:35%" class="align_right" *ngIf="value != null &&title">
+                    {{ value | unitvalue:'kW'}}
+                </td>
+                <td style="width:35%" class="align_right" *ngIf="value != null && date &&currentData.channel &&title">
+                    {{ value | date: 'H:mm':'UTC'}}&nbsp;h
+                </td>
+                <td style="width:35%" class="align_right" *ngIf="title && !title_value_type && !value" translate>
+                    {{title_value}}
+                </td>
+                <td style="width:35%" class="align_right"
+                    *ngIf="!title &&!title_value_type && !value && !title_value_type" [innerHTML]="title_value">
+                </td>
+                <td style="width:35%" class="align_right" *ngIf="title_value_type && !value && title_value == '-'"
+                    [innerHTML]="title_value">
+                </td>
+                <td style="width:35%" class="align_right" *ngIf="title && title_value !='-' &&
+                    title_value_type=='translate'" translate>
+                    General.{{title_value}}
+                </td>
+            </tr>
+        </table>
+    </ng-container>
+</ng-template>
+<ng-template #empty>
+
+    <td style=" width:35%;" class="align_right">-</td>
+
+
+</ng-template>

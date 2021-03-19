@@ -19,20 +19,21 @@ export abstract class AbstractWidget {
         private websocket: Websocket,
         private route: ActivatedRoute,
     ) { }
-    public subscribeChannels(selector: string, channelAddress?: ChannelAddress[], calculatedAddress?: string) {
+    /** getting the parameter from flatwidget for Subscribing.
+     * 
+     * @param selector getting the selector of each Widget
+     * @param channelAddress getting the channels of each Widget
+    */
+    public subscribeOnChannels(selector: string, channelAddress: ChannelAddress[]) {
         this.service.getConfig().then(config => {
             this.config = config;
             this.service.setCurrentComponent('', this.route).then(edge => {
                 this.edge = edge;
-                this.edge.currentData.subscribe(currentData => {
-                    currentData.summary.system.autarchy;
-                });
+                /** subscribing on the passed selector and channelAddress */
                 this.edge.subscribeChannels(this.websocket, selector, channelAddress);
-                console.log("AbstractWidget Channeladresses for " + selector + "-Widget: ", channelAddress);
-
+                console.log("AbstractWidget: Channeladresses for " + selector + "-Widget: ", channelAddress);
             })
         });
-
     }
 }
 

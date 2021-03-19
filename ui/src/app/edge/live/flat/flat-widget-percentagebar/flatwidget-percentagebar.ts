@@ -8,6 +8,8 @@ import { Component, Input } from "@angular/core";
 
 
 export class FlatWidgetPercentagebar {
+
+    /** value is the channel the percentagebar is reffering to */
     @Input() value: number;
 
     constructor(
