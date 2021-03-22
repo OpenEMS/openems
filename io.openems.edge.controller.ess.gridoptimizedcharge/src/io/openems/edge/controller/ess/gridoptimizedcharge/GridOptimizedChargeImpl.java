@@ -1,4 +1,4 @@
-package io.openems.edge.controller.ess.gridoptimizedselfconsumption;
+package io.openems.edge.controller.ess.gridoptimizedcharge;
 
 import java.time.LocalTime;
 import java.time.ZoneOffset;
@@ -45,10 +45,10 @@ import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
-		implements GridOptimizedSelfConsumption, Controller, OpenemsComponent {
+public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
+		implements GridOptimizedCharge, Controller, OpenemsComponent {
 
-	private final Logger log = LoggerFactory.getLogger(GridOptimizedSelfConsumptionImpl.class);
+	private final Logger log = LoggerFactory.getLogger(GridOptimizedChargeImpl.class);
 
 	private Config config = null;
 
@@ -75,11 +75,11 @@ public class GridOptimizedSelfConsumptionImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private SymmetricMeter meter;
 
-	public GridOptimizedSelfConsumptionImpl() {
+	public GridOptimizedChargeImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
-				GridOptimizedSelfConsumption.ChannelId.values() //
+				GridOptimizedCharge.ChannelId.values() //
 		);
 	}
 

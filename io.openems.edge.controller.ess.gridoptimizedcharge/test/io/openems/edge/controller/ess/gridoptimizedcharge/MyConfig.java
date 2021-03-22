@@ -1,4 +1,4 @@
-package io.openems.edge.controller.ess.gridoptimizedselfconsumption;
+package io.openems.edge.controller.ess.gridoptimizedcharge;
 
 import io.openems.edge.common.test.AbstractComponentConfig;
 

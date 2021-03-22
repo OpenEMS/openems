@@ -1,4 +1,4 @@
-package io.openems.edge.controller.ess.gridoptimizedselfconsumption;
+package io.openems.edge.controller.ess.gridoptimizedcharge;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -8,7 +8,7 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 
-public interface GridOptimizedSelfConsumption extends Controller, OpenemsComponent {
+public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		DELAY_CHARGE_STATE(Doc.of(DelayChargeState.values()) //

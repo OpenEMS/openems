@@ -1,4 +1,4 @@
-package io.openems.edge.controller.ess.gridoptimizedselfconsumption;
+package io.openems.edge.controller.ess.gridoptimizedcharge;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -21,7 +21,7 @@ import io.openems.edge.predictor.api.test.DummyPredictorManager;
 public class MyControllerTest {
 
 	// Ids
-	private static final String CTRL_ID = "ctrlGridOptimizedSelfConsumption0";
+	private static final String CTRL_ID = "ctrlGridOptimizedCharge0";
 	private static final String PREDICTOR_ID = "predictor0";
 	private static final String ESS_ID = "ess0";
 	private static final String METER_ID = "meter0";
@@ -129,7 +129,7 @@ public class MyControllerTest {
 		System.out.println(Arrays.toString(predictorManager
 				.get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
 
-		new ControllerTest(new GridOptimizedSelfConsumptionImpl()) //
+		new ControllerTest(new GridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -181,7 +181,7 @@ public class MyControllerTest {
 		System.out.println(Arrays.toString(predictorManager
 				.get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
 
-		new ControllerTest(new GridOptimizedSelfConsumptionImpl()) //
+		new ControllerTest(new GridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -232,7 +232,7 @@ public class MyControllerTest {
 		System.out.println(Arrays.toString(predictorManager
 				.get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
 
-		new ControllerTest(new GridOptimizedSelfConsumptionImpl()) //
+		new ControllerTest(new GridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -280,7 +280,7 @@ public class MyControllerTest {
 		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedSelfConsumptionImpl()) //
+		new ControllerTest(new GridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -319,7 +319,7 @@ public class MyControllerTest {
 		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedSelfConsumptionImpl()) //
+		new ControllerTest(new GridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -382,7 +382,7 @@ public class MyControllerTest {
 		System.out.println(Arrays.toString(predictorManager
 				.get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
 
-		new ControllerTest(new GridOptimizedSelfConsumptionImpl()) //
+		new ControllerTest(new GridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -434,7 +434,7 @@ public class MyControllerTest {
 		System.out.println(Arrays.toString(predictorManager
 				.get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
 
-		new ControllerTest(new GridOptimizedSelfConsumptionImpl()) //
+		new ControllerTest(new GridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
