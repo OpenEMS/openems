@@ -1,7 +1,7 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import java.time.Instant;
 import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -41,7 +41,7 @@ import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.io.openems.edge.controller.ess.gridoptimizedselfconsumption", //
+		name = "Controller.Ess.GridOptimizedCharge", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -54,6 +54,13 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 	// Buffer in watt, considered in the calculation of the target Minute.
 	private final static int DEFAULT_POWER_BUFFER = 100;
+
+	// ZonedDateTime with the current time.
+	private ZonedDateTime now;
+
+	private Instant lastSellToGridLimitConstraint = Instant.MIN;
+
+	private final static int DEFAULT_SELL_TO_GRID_LIMIT_PAUSE = 10;
 
 	private boolean debugMode;
 
@@ -126,6 +133,9 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			return;
 		}
 
+		// Set the current time global, once a cycle
+		this.now = ZonedDateTime.now(this.componentManager.getClock());
+
 		/*
 		 * Run the logic of the different modes, depending on the configuration
 		 */
@@ -139,7 +149,6 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		case MANUAL:
 			applySellToGridLimit();
 			applyManualDelayCharge();
-
 			break;
 		}
 	}
@@ -151,7 +160,8 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	 */
 	public void applySellToGridLimit() throws OpenemsNamedException {
 
-		if (!this.config.sellToGridLimitEnabled()) {
+		if (!this.config.sellToGridLimitEnabled() || this.lastSellToGridLimitConstraint
+				.plusSeconds(DEFAULT_SELL_TO_GRID_LIMIT_PAUSE).isAfter(Instant.now(this.componentManager.getClock()))) {
 			return;
 		}
 
@@ -165,10 +175,17 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			int essPowerLimit = gridPower + this.ess.getActivePower().getOrError()
 					+ this.config.maximumSellToGridPower();
 
+			// adjust value so that it fits into Min/MaxActivePower
+			essPowerLimit = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
+					essPowerLimit);
+
 			// Apply limit
 			this.ess.setActivePowerLessOrEquals(essPowerLimit);
 			this._setSellToGridLimitState(SellToGridLimitState.ACTIVE_LIMIT);
+			this._setSellToGridLimitChargeLimit(essPowerLimit * -1);
+			this.lastSellToGridLimitConstraint = Instant.now(this.componentManager.getClock());
 		} else {
+			this._setSellToGridLimitChargeLimit(null);
 			this._setSellToGridLimitState(SellToGridLimitState.NO_LIMIT);
 		}
 	}
@@ -188,7 +205,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 		Integer targetMinute = getPredictedTargetMinute();
 		Integer calculatedPower = getCalculatedPowerLimit(targetMinute);
-		setCalculatedPowerLimit(calculatedPower);
+		this.setCalculatedPowerLimit(calculatedPower);
 	}
 
 	/**
@@ -202,18 +219,22 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	private void applyManualDelayCharge() throws OpenemsNamedException {
 
 		LocalTime configureTargetTime = LocalTime.parse(this.config.manual_targetTime());
+
 		if (configureTargetTime == null) {
 			this._setDelayChargeState(DelayChargeState.UNDEFINED);
 			return;
 		}
-		System.out.println(configureTargetTime);
-		
+
 		int targetMinute = configureTargetTime.get(ChronoField.MINUTE_OF_DAY);
 		this._setTargetMinuteActual(targetMinute);
 		this._setTargetMinuteAdjusted(targetMinute);
-		
+
+		if (this.passedTargetHour()) {
+			return;
+		}
+
 		Integer calculatedPower = getCalculatedPowerLimit(targetMinute);
-		setCalculatedPowerLimit(calculatedPower);
+		this.setCalculatedPowerLimit(calculatedPower);
 	}
 
 	/**
@@ -228,21 +249,33 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			return;
 		}
 
+		int currentLimit = calculatedPower;
+
 		// Set the constraint depending on the ESS type
 		if (this.ess instanceof HybridEss) {
 
 			int productionPower = this.sum.getProductionDcActualPower().orElse(0);
-			calculatedPower = productionPower - calculatedPower;
+			currentLimit = productionPower - calculatedPower;
 
 			// Avoiding buying power from grid to charge the battery.
-			if (calculatedPower > 0) {
-				ess.addPowerConstraintAndValidate("GridOptimizedSelfConsumption - DcPredictiveDelayCharge", Phase.ALL,
-						Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, calculatedPower);
+			if (currentLimit > 0) {
+				this.setActivePowerConstraint("GridOptimizedSelfConsumption - DcPredictiveDelayCharge", currentLimit);
 			}
 		} else {
-			ess.addPowerConstraintAndValidate("GridOptimizedSelfConsumption - AcPredictiveDelayCharge", Phase.ALL,
-					Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, (calculatedPower * -1));
+			this.setActivePowerConstraint("GridOptimizedSelfConsumption - AcPredictiveDelayCharge",
+					(currentLimit * -1));
 		}
+	}
+
+	private void setActivePowerConstraint(String description, int currentLimit) {
+		try {
+			ess.addPowerConstraintAndValidate(description, Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS,
+					currentLimit);
+		} catch (OpenemsException e) {
+			this.setDelayChargeStateAndLimit(DelayChargeState.NO_FEASABLE_SOLUTION, null);
+		}
+
+		this.setDelayChargeStateAndLimit(DelayChargeState.ACTIVE_LIMIT, (currentLimit * -1));
 	}
 
 	/**
@@ -256,8 +289,6 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	 */
 	public Integer getPredictedTargetMinute() {
 
-		ZonedDateTime now = ZonedDateTime.now(this.componentManager.getClock()).withZoneSameInstant(ZoneOffset.UTC);
-
 		Integer targetMinute = null;
 
 		// Predictions
@@ -265,7 +296,9 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 				.get24HoursPrediction(new ChannelAddress("_sum", "ProductionActivePower"));
 		Prediction24Hours hourlyPredictionConsumption = this.predictorManager
 				.get24HoursPrediction(new ChannelAddress("_sum", "ConsumptionActivePower"));
-		ZonedDateTime predictionStartQuarterHour = (roundZonedDateTimeDownTo15Minutes(now));
+
+		this.now = ZonedDateTime.now(this.componentManager.getClock());
+		ZonedDateTime predictionStartQuarterHour = (roundZonedDateTimeDownTo15Minutes(this.now));
 
 		// Predictions as Integer array
 		Integer[] hourlyProduction = hourlyPredictionProduction.getValues();
@@ -278,10 +311,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			this.debugMode = false;
 		}
 
-		// Crossed target hour
-		if (now.get(ChronoField.MINUTE_OF_DAY) >= this.getTargetMinuteActual().orElse(1_440)) {
-
-			this.setDelayChargeStateAndLimit(DelayChargeState.PASSED_TARGET_HOUR, null);
+		if (this.passedTargetHour()) {
 			return null;
 		}
 
@@ -295,6 +325,19 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		}
 
 		return targetMinute;
+	}
+
+	/**
+	 * Checks if we passed already the target minute.
+	 * 
+	 * @return true if it is later than the target minute.
+	 */
+	private boolean passedTargetHour() {
+		if (this.now.get(ChronoField.MINUTE_OF_DAY) >= this.getTargetMinuteAdjusted().orElse(1_440)) {
+			this.setDelayChargeStateAndLimit(DelayChargeState.PASSED_TARGET_HOUR, null);
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -334,8 +377,6 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		// seconds
 		calculatedPower = Math.min(calculatedPower, ess.getMaxApparentPower().getOrError());
 
-		this.setDelayChargeStateAndLimit(DelayChargeState.ACTIVE_LIMIT, calculatedPower);
-
 		return calculatedPower;
 	}
 
@@ -345,9 +386,8 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	 * @return the remaining time
 	 */
 	private int calculateRemainingTime(int targetMinute) {
-		ZonedDateTime now = ZonedDateTime.now(this.componentManager.getClock()).withZoneSameInstant(ZoneOffset.UTC);
 		int targetSecondOfDay = targetMinute * 60;
-		int remainingTime = targetSecondOfDay - now.get(ChronoField.SECOND_OF_DAY);
+		int remainingTime = targetSecondOfDay - this.now.get(ChronoField.SECOND_OF_DAY);
 
 		return remainingTime;
 	}
@@ -410,7 +450,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	 */
 	private void setDelayChargeStateAndLimit(DelayChargeState state, Integer limit) {
 		this._setDelayChargeState(state);
-		this._setChargePowerLimit(limit);
+		this._setDelayChargeLimit(limit);
 	}
 
 	/**

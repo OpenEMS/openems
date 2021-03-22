@@ -2,6 +2,7 @@ package io.openems.edge.controller.ess.gridoptimizedcharge;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -21,7 +22,7 @@ import io.openems.edge.predictor.api.test.DummyPredictorManager;
 public class MyControllerTest {
 
 	// Ids
-	private static final String CTRL_ID = "ctrlGridOptimizedCharge0";
+	private static final String CTRL_ID = "ctrlGridOptimizedSelfConsumption0";
 	private static final String PREDICTOR_ID = "predictor0";
 	private static final String ESS_ID = "ess0";
 	private static final String METER_ID = "meter0";
@@ -46,7 +47,10 @@ public class MyControllerTest {
 	private static final ChannelAddress TARGET_MINUTE_ADJUSTED = new ChannelAddress(CTRL_ID, "TargetMinuteAdjusted");
 	private static final ChannelAddress DELAY_CHARGE_STATE = new ChannelAddress(CTRL_ID, "DelayChargeState");
 	private static final ChannelAddress SELL_TO_GRID_LIMIT_STATE = new ChannelAddress(CTRL_ID, "SellToGridLimitState");
-	private static final ChannelAddress CHARGE_POWER_LIMIT = new ChannelAddress(CTRL_ID, "ChargePowerLimit");
+	private static final ChannelAddress DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT = new ChannelAddress(CTRL_ID,
+			"DelayChargeMaximumChargeLimit");
+	private static final ChannelAddress SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT = new ChannelAddress(CTRL_ID,
+			"SellToGridLimitMinimumChargeLimit");
 
 	/*
 	 * Default Prediction values
@@ -153,7 +157,8 @@ public class MyControllerTest {
 						.output(TARGET_MINUTE_ACTUAL, /* QuarterHour */ 68 * 15) //
 						.output(TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
-						.output(CHARGE_POWER_LIMIT, 533));
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null) //
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 533));
 
 	}
 
@@ -205,7 +210,8 @@ public class MyControllerTest {
 						.output(TARGET_MINUTE_ACTUAL, /* QuarterHour */ 68 * 15) //
 						.output(TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
-						.output(CHARGE_POWER_LIMIT, 2666));
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null) //
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2666));
 	}
 
 	@Test
@@ -258,7 +264,8 @@ public class MyControllerTest {
 						.output(TARGET_MINUTE_ACTUAL, /* QuarterHour */ 68 * 15) //
 						.output(TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.PASSED_TARGET_HOUR) //
-						.output(CHARGE_POWER_LIMIT, null));
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null) //
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, null));
 	}
 
 	@Test
@@ -301,6 +308,7 @@ public class MyControllerTest {
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.TARGET_HOUR_NOT_CALCULATED));
 	}
 
@@ -332,7 +340,6 @@ public class MyControllerTest {
 						.setMeterId(METER_ID) //
 						.setNoOfBufferMinutes(120) //
 						.setMode(Mode.AUTOMATIC) //
-						.setMode(Mode.AUTOMATIC) //
 						.setSellToGridLimitEnabled(true) //
 						.setManual_targetTime("") //
 						.build()) //
@@ -343,21 +350,33 @@ public class MyControllerTest {
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.input(ESS_ACTIVE_POWER, 0) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.TARGET_HOUR_NOT_CALCULATED) //
-						.output(CHARGE_POWER_LIMIT, null) //
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, null) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -500) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 500) //
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
 				.next(new TestCase() //
+						.timeleap(clock, 11, ChronoUnit.SECONDS)//
 						.input(METER_ACTIVE_POWER, -6000) //
 						.input(ESS_ACTIVE_POWER, 3000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, 2000) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, -2000) //
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
 				.next(new TestCase() //
+						.timeleap(clock, 5, ChronoUnit.SECONDS)//
+						.input(METER_ACTIVE_POWER, -6000) //
+						.input(ESS_ACTIVE_POWER, 3000) //
+						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, null) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, -2000) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
+				.next(new TestCase() //
+						.timeleap(clock, 15, ChronoUnit.SECONDS)//
 						.input(METER_ACTIVE_POWER, -5000) //
 						.input(ESS_ACTIVE_POWER, 3000) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, null)) //
 		;
 	}
-	
+
 	@Test
 	public void manual_midnight_test() throws Exception {
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
@@ -406,10 +425,11 @@ public class MyControllerTest {
 						.output(TARGET_MINUTE_ACTUAL, /* QuarterHour */ 1020) //
 						.output(TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 1020) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
-						.output(CHARGE_POWER_LIMIT, 470));
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null) //
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 470));
 
 	}
-	
+
 	@Test
 	public void manual_midday_test() throws Exception {
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
@@ -458,7 +478,8 @@ public class MyControllerTest {
 						.output(TARGET_MINUTE_ACTUAL, /* QuarterHour */ 1020) //
 						.output(TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 1020) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
-						.output(CHARGE_POWER_LIMIT, 1600));
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null) //
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 1600));
 
 	}
 }

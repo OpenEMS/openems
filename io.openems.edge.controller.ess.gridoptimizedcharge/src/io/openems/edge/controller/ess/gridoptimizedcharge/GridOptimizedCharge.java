@@ -1,5 +1,6 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -15,8 +16,12 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 				.text("Current state of the delayed charge function")),
 		SELL_TO_GRID_LIMIT_STATE(Doc.of(SellToGridLimitState.values()) //
 				.text("Current state of the sell to grid limit function")),
-		CHARGE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.text("Charge-Power limitation")),
+		DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.text("Delay-Charge power limitation")), //
+		SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.text("Sell to grid limit charge power limitation")),
 		TARGET_MINUTE_ACTUAL(Doc.of(OpenemsType.INTEGER) //
 				.text("Actual target minute calculated from prediction without buffer hours")),
 		TARGET_MINUTE_ADJUSTED(Doc.of(OpenemsType.INTEGER) //
@@ -94,41 +99,81 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#CHARGE_POWER_LIMIT}.
+	 * Gets the Channel for {@link ChannelId#DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT}.
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getChargePowerLimitChannel() {
-		return this.channel(ChannelId.CHARGE_POWER_LIMIT);
+	public default IntegerReadChannel getDelayChargeLimitChannel() {
+		return this.channel(ChannelId.DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT);
 	}
 
 	/**
-	 * Gets the Charge Power Limit in [W]. See {@link ChannelId#CHARGE_POWER_LIMIT}.
+	 * Gets the delay charge power limit in [W]. See
+	 * {@link ChannelId#DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getChargePowerLimit() {
-		return this.getChargePowerLimitChannel().value();
+	public default Value<Integer> getDelayChargeLimit() {
+		return this.getDelayChargeLimitChannel().value();
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#CHARGE_POWER_LIMIT} Channel.
+	 * {@link ChannelId#DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT} Channel.
 	 *
 	 * @param value the next value
 	 */
-	public default void _setChargePowerLimit(Integer value) {
-		this.getChargePowerLimitChannel().setNextValue(value);
+	public default void _setDelayChargeLimit(Integer value) {
+		this.getDelayChargeLimitChannel().setNextValue(value);
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#CHARGE_POWER_LIMIT} Channel.
+	 * {@link ChannelId#DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT} Channel.
 	 *
 	 * @param value the next value
 	 */
-	public default void _setChargePowerLimit(int value) {
-		this.getChargePowerLimitChannel().setNextValue(value);
+	public default void _setDelayChargeLimit(int value) {
+		this.getDelayChargeLimitChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getSellToGridLimitChargeLimitChannel() {
+		return this.channel(ChannelId.SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT);
+	}
+
+	/**
+	 * Gets the sell to grid limit charge power limit in [W]. See
+	 * {@link ChannelId#SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getSellToGridLimitChargeLimit() {
+		return this.getSellToGridLimitChargeLimitChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSellToGridLimitChargeLimit(Integer value) {
+		this.getSellToGridLimitChargeLimitChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSellToGridLimitChargeLimit(int value) {
+		this.getSellToGridLimitChargeLimitChannel().setNextValue(value);
 	}
 
 	/**
