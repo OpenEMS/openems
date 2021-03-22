@@ -2,8 +2,8 @@ package io.openems.backend.metadata.odoo.postgres;
 
 import java.sql.SQLException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,27 +18,25 @@ import io.openems.backend.metadata.odoo.postgres.task.InsertEdgeConfigUpdate;
 import io.openems.backend.metadata.odoo.postgres.task.InsertOrUpdateDeviceStates;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeConfig;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeProducttype;
-import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeVersion;
 
 /**
  * This worker writes all Statements in a queue.
  */
 public class QueueWriteWorker {
 
-	private static final int NUMBER_OF_THREADS = 5;
-
 	/**
 	 * DEBUG_MODE activates printing of reqular statistics about queued tasks.
 	 */
-	private static final boolean DEBUG_MODE = true;
+	private final static boolean DEBUG_MODE = false;
 
 	private final Logger log = LoggerFactory.getLogger(QueueWriteWorker.class);
 	private final PostgresHandler parent;
 	private final HikariDataSource dataSource;
 
-	// Executor for subscriptions task.
-	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(NUMBER_OF_THREADS, NUMBER_OF_THREADS, 0L,
-			TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+	// Executor for subscriptions task. Like a CachedThreadPool, but properly typed
+	// for DEBUG_MODE.
+	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+			new SynchronousQueue<Runnable>());
 
 	private final ScheduledExecutorService debugLogExecutor;
 
@@ -115,8 +113,6 @@ public class QueueWriteWorker {
 			int countUpdateEdgeConfigDown = this.countUpdateEdgeConfigDown.get();
 			int countUpdateEdgeProducttypeUp = this.countUpdateEdgeProducttypeUp.get();
 			int countUpdateEdgeProducttypeDown = this.countUpdateEdgeProducttypeDown.get();
-			int countUpdateEdgeVersionUp = this.countUpdateEdgeVersionUp.get();
-			int countUpdateEdgeVersionDown = this.countUpdateEdgeVersionDown.get();
 
 			this.parent.logInfo(this.log, "QueueWriteWorker. " //
 					+ "Total tasks [" + totalTasks + "|" + completedTasks + "|" + (totalTasks - completedTasks) + "] " //
@@ -130,8 +126,6 @@ public class QueueWriteWorker {
 					+ (countUpdateEdgeConfigUp - countUpdateEdgeConfigDown) + "] " //
 					+ "UpdateEdgeProducttype [" + countUpdateEdgeProducttypeUp + "|" + countUpdateEdgeProducttypeDown
 					+ "|" + (countUpdateEdgeProducttypeUp - countUpdateEdgeProducttypeDown) + "] " //
-					+ "UpdateEdgeVersion [" + countUpdateEdgeVersionUp + "|" + countUpdateEdgeVersionDown + "|"
-					+ (countUpdateEdgeVersionUp - countUpdateEdgeVersionDown) + "] " //
 			);
 		}, 10, 10, TimeUnit.SECONDS);
 	}
@@ -144,8 +138,6 @@ public class QueueWriteWorker {
 	private final AtomicInteger countUpdateEdgeConfigDown = new AtomicInteger(0);
 	private final AtomicInteger countUpdateEdgeProducttypeUp = new AtomicInteger(0);
 	private final AtomicInteger countUpdateEdgeProducttypeDown = new AtomicInteger(0);
-	private final AtomicInteger countUpdateEdgeVersionUp = new AtomicInteger(0);
-	private final AtomicInteger countUpdateEdgeVersionDown = new AtomicInteger(0);
 
 	private void count(DatabaseTask task, boolean up) {
 		if (up) {
@@ -158,8 +150,6 @@ public class QueueWriteWorker {
 				counter = this.countUpdateEdgeConfigUp;
 			} else if (task instanceof UpdateEdgeProducttype) {
 				counter = this.countUpdateEdgeProducttypeUp;
-			} else if (task instanceof UpdateEdgeVersion) {
-				counter = this.countUpdateEdgeVersionUp;
 			} else {
 				System.out.println("Unknown Task " + task.getClass());
 				return;
@@ -175,8 +165,6 @@ public class QueueWriteWorker {
 				counter = this.countUpdateEdgeConfigDown;
 			} else if (task instanceof UpdateEdgeProducttype) {
 				counter = this.countUpdateEdgeProducttypeDown;
-			} else if (task instanceof UpdateEdgeVersion) {
-				counter = this.countUpdateEdgeVersionDown;
 			} else {
 				System.out.println("Unknown Task " + task.getClass());
 				return;

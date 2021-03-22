@@ -55,17 +55,27 @@ public class FieldTypeConflictHandler {
 		switch (requiredType) {
 		case "string":
 			handler = (builder, jValue) -> {
-				builder.addField(field, this.getAsFieldTypeString(jValue));
+				String value = this.getAsFieldTypeString(jValue);
+				if (value != null) {
+					builder.addField(field, value);
+				}
 			};
 			break;
+
 		case "integer":
 			handler = (builder, jValue) -> {
 				try {
-					builder.addField(field, this.getAsFieldTypeNumber(jValue));
+					Number value = this.getAsFieldTypeNumber(jValue);
+					if (value != null) {
+						builder.addField(field, value);
+					}
 				} catch (NumberFormatException e1) {
 					try {
 						// Failed -> try conversion to float and then to int
-						builder.addField(field, Math.round(this.getAsFieldTypeFloat(jValue)));
+						Float value = this.getAsFieldTypeFloat(jValue);
+						if (value != null) {
+							builder.addField(field, Math.round(value));
+						}
 					} catch (NumberFormatException e2) {
 						this.parent.logWarn(this.log, "Unable to convert field [" + field + "] value [" + jValue
 								+ "] to integer: " + e2.getMessage());
@@ -73,13 +83,16 @@ public class FieldTypeConflictHandler {
 				}
 			};
 			break;
+
 		case "float":
 			handler = (builder, jValue) -> {
-				String value = jValue.toString().replace("\"", "");
 				try {
-					builder.addField(field, this.getAsFieldTypeFloat(jValue));
+					Float value = this.getAsFieldTypeFloat(jValue);
+					if (value != null) {
+						builder.addField(field, value);
+					}
 				} catch (NumberFormatException e1) {
-					this.parent.logInfo(this.log, "Unable to convert field [" + field + "] value [" + value
+					this.parent.logInfo(this.log, "Unable to convert field [" + field + "] value [" + jValue
 							+ "] to float: " + e1.getMessage());
 				}
 			};
@@ -101,9 +114,12 @@ public class FieldTypeConflictHandler {
 	 * Convert JsonElement to String
 	 * 
 	 * @param jValue the value
-	 * @return the value as String
+	 * @return the value as String; null if value represents null
 	 */
 	private String getAsFieldTypeString(JsonElement jValue) {
+		if (jValue.isJsonNull()) {
+			return null;
+		}
 		return jValue.toString().replace("\"", "");
 	}
 
@@ -111,11 +127,17 @@ public class FieldTypeConflictHandler {
 	 * Convert JsonElement to Number
 	 * 
 	 * @param jValue the value
-	 * @return the value as Number
+	 * @return the value as Number; null if value represents null
 	 * @throws NumberFormatException on error
 	 */
-	private long getAsFieldTypeNumber(JsonElement jValue) throws NumberFormatException {
+	private Number getAsFieldTypeNumber(JsonElement jValue) throws NumberFormatException {
+		if (jValue.isJsonNull()) {
+			return null;
+		}
 		String value = jValue.toString().replace("\"", "");
+		if (value.isEmpty()) {
+			return null;
+		}
 		try {
 			return Long.parseLong(value);
 		} catch (NumberFormatException e1) {
@@ -133,11 +155,17 @@ public class FieldTypeConflictHandler {
 	 * Convert JsonElement to Float
 	 * 
 	 * @param jValue the value
-	 * @return the value as Float
+	 * @return the value as Float; null if value represents null
 	 * @throws NumberFormatException on error
 	 */
-	private float getAsFieldTypeFloat(JsonElement jValue) throws NumberFormatException {
+	private Float getAsFieldTypeFloat(JsonElement jValue) throws NumberFormatException {
+		if (jValue.isJsonNull()) {
+			return null;
+		}
 		String value = jValue.toString().replace("\"", "");
+		if (value.isEmpty()) {
+			return null;
+		}
 		return Float.parseFloat(value);
 	}
 

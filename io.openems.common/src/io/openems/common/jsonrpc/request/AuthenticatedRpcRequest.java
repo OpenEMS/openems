@@ -1,7 +1,5 @@
 package io.openems.common.jsonrpc.request;
 
-import java.util.UUID;
-
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -31,34 +29,54 @@ import io.openems.common.utils.JsonUtils;
  */
 public class AuthenticatedRpcRequest extends JsonrpcRequest {
 
-	public final static String METHOD = "authenticatedRpc";
+	public static final String METHOD = "authenticatedRpc";
 
+	/**
+	 * Create {@link AuthenticatedRpcRequest} from a template
+	 * {@link JsonrpcRequest}.
+	 * 
+	 * @param r the template {@link JsonrpcRequest}
+	 * @return the {@link AuthenticatedRpcRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
 	public static AuthenticatedRpcRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		User user = User.from(JsonUtils.getAsJsonObject(p, "user"));
 		JsonrpcRequest payload = GenericJsonrpcRequest.from(JsonUtils.getAsJsonObject(p, "payload"));
-		return new AuthenticatedRpcRequest(r.getId(), user, payload);
+		return new AuthenticatedRpcRequest(r, user, payload);
 	}
 
 	private final User user;
 	private final JsonrpcRequest payload;
 
 	public AuthenticatedRpcRequest(User user, JsonrpcRequest payload) {
-		this(UUID.randomUUID(), user, payload);
-	}
-
-	public AuthenticatedRpcRequest(UUID id, User user, JsonrpcRequest payload) {
-		super(id, METHOD);
+		super(METHOD);
 		this.user = user;
 		this.payload = payload;
 	}
 
-	public User getUser() {
-		return user;
+	private AuthenticatedRpcRequest(JsonrpcRequest request, User user, JsonrpcRequest payload) {
+		super(request, METHOD);
+		this.user = user;
+		this.payload = payload;
 	}
 
+	/**
+	 * Gets the {@link User}.
+	 * 
+	 * @return User
+	 */
+	public User getUser() {
+		return this.user;
+	}
+
+	/**
+	 * Gets the Payload {@link JsonrpcRequest}.
+	 * 
+	 * @return Payload
+	 */
 	public JsonrpcRequest getPayload() {
-		return payload;
+		return this.payload;
 	}
 
 	@Override
