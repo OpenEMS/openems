@@ -3,12 +3,11 @@ package io.openems.edge.battery.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -34,6 +33,7 @@ import io.openems.edge.common.startstop.StartStoppable;
 public interface Battery extends StartStoppable, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		
 		/**
 		 * State of Charge.
 		 * 
@@ -45,7 +45,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		SOC(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT)),
+				.unit(Unit.PERCENT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * State of Health.
@@ -58,7 +59,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		SOH(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT)),
+				.unit(Unit.PERCENT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Voltage of battery.
@@ -70,7 +72,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)),
+				.unit(Unit.VOLT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Current of battery.
@@ -82,7 +85,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Capacity of battery.
@@ -94,7 +98,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Maximal voltage for charging.
@@ -106,7 +111,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)),
+				.unit(Unit.VOLT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Maximum current for charging.
@@ -119,7 +125,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Minimal voltage for discharging.
@@ -131,7 +138,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)),
+				.unit(Unit.VOLT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Maximum current for discharging.
@@ -144,7 +152,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)),
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Minimal Cell Temperature.
@@ -156,7 +165,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		MIN_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS)),
+				.unit(Unit.DEGREE_CELSIUS) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Maximum Cell Temperature.
@@ -169,7 +179,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS)),
+				.unit(Unit.DEGREE_CELSIUS) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Minimal cell voltage.
@@ -193,31 +204,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT)),
-
-		// TODO FORCE_CHARGE_ACTIVE and FORCE_DISCHARGE_ACTIVE channels are
-		// deprecated/obsolete by BatteryProtection channels
-		/**
-		 * Force charge active.
-		 * 
-		 * <ul>
-		 * <li>Interface: Battery
-		 * <li>Indicates that battery is in force charge mode
-		 * </ul>
-		 */
-		FORCE_CHARGE_ACTIVE(Doc.of(Level.INFO).text("Force charge mode is active")), //
-
-		/**
-		 * Force discharge active.
-		 * 
-		 * <ul>
-		 * <li>Interface: Battery
-		 * <li>Indicates that battery is in force discharge mode
-		 * </ul>
-		 */
-		FORCE_DISCHARGE_ACTIVE(Doc.of(Level.INFO).text("Force discharge mode is active")), //
-
-		;
+				.unit(Unit.MILLIVOLT) //
+				.persistencePriority(PersistencePriority.HIGH));
 
 		private final Doc doc;
 
@@ -744,81 +732,4 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	public default void _setMaxCellVoltage(int value) {
 		this.getMaxCellVoltageChannel().setNextValue(value);
 	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#FORCE_CHARGE_ACTIVE}.
-	 *
-	 * @return the Channel
-	 */
-	public default StateChannel getForceChargeActiveChannel() {
-		return this.channel(ChannelId.FORCE_CHARGE_ACTIVE);
-	}
-
-	/**
-	 * Gets the State. See {@link ChannelId#FORCE_CHARGE_ACTIVE}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Boolean> getForceChargeActive() {
-		return this.getForceChargeActiveChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#FORCE_CHARGE_ACTIVE} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setForceChargeActive(Boolean value) {
-		this.getForceChargeActiveChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#FORCE_CHARGE_ACTIVE} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setForceChargeActive(boolean value) {
-		this.getForceChargeActiveChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#FORCE_DISCHARGE_ACTIVE}.
-	 *
-	 * @return the Channel
-	 */
-	public default StateChannel getForceDischargeActiveChannel() {
-		return this.channel(ChannelId.FORCE_DISCHARGE_ACTIVE);
-	}
-
-	/**
-	 * Gets the State. See {@link ChannelId#FORCE_DISCHARGE_ACTIVE}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Boolean> getForceDischargeActive() {
-		return this.getForceDischargeActiveChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#FORCE_DISCHARGE_ACTIVE} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setForceDischargeActive(Boolean value) {
-		this.getForceDischargeActiveChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#FORCE_DISCHARGE_ACTIVE} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setForceDischargeActive(boolean value) {
-		this.getForceDischargeActiveChannel().setNextValue(value);
-	}
-
 }

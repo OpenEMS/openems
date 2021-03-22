@@ -408,6 +408,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           directConsumptionData = directConsumption.map(value => {
             if (value == null) {
               return null
+            } else if (value < 0) {
+              return 0
             } else {
               return value / 1000; // convert to kWh
             }
