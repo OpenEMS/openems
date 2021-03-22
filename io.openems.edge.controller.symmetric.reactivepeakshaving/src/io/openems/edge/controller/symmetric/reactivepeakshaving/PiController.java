@@ -22,8 +22,8 @@ public class PiController {
 	/**
 	 * Creates a PiFilter.
 	 * 
-	 * @param kp the proportional gain
-	 * @param ti_s the reset time (Nachstellzeit) in seconds
+	 * @param kp           the proportional gain
+	 * @param ti_s         the reset time (Nachstellzeit) in seconds
 	 * @param enableIdelay enables a delay of one cycle time @ integrator
 	 */
 	public PiController(double kp, double ti_s, boolean enableIdelay) {
@@ -31,7 +31,7 @@ public class PiController {
 		this.ti_s = ti_s;
 		this.enableIdelay = enableIdelay;
 	}
-	
+
 	public void setCycleTime_s(double cycleTime_s) {
 		this.cycleTime_s = cycleTime_s;
 	}
@@ -55,8 +55,8 @@ public class PiController {
 	 * Apply the PI filter using the current Channel value as input and the target
 	 * value.
 	 * 
-	 * @param measuredOutput  the input value, e.g. the measured Channel value
-	 * @param reference the target value
+	 * @param measuredOutput the input value, e.g. the measured Channel value
+	 * @param reference      the target value
 	 * @return the filtered set-point value
 	 */
 	public int applyPiFilter(int measuredOutput, int reference) {
@@ -64,18 +64,21 @@ public class PiController {
 		reference = this.applyLowHighLimits(reference);
 
 		// Calculate the error
-		int error = reference - measuredOutput;		
+		int error = reference - measuredOutput;
 
 		// Calculate I
-		if (this.enableIdelay == false) {
-			this.errorSum = this.applyErrorSumLimit(this.errorSum + error);
+		double i = 0.0;
+		if (this.ti_s != 0.0) {
+			if (this.enableIdelay == false) {
+				this.errorSum = this.applyErrorSumLimit(this.errorSum + error);
+			}
+			i = this.cycleTime_s / this.ti_s * this.errorSum;
 		}
-		double i = this.cycleTime_s / this.ti_s * this.errorSum;
-
+		
 		// Sum outputs
 		double output = this.kp * (error + i);
-		
-		if (this.enableIdelay == true) {
+
+		if ((this.enableIdelay == true) && (this.ti_s != 0.0)) {
 			this.errorSum = this.applyErrorSumLimit(this.errorSum + error);
 		}
 
