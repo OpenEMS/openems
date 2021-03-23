@@ -101,7 +101,7 @@ public class App {
 
 		for (int i = 0; i < 24; i++) {
 
-			batteryReference.put(now.plusHours(i), 2500);
+			batteryReference.put(now.plusHours(i), 4500);
 		}
 
 		getChargeSchedule(proLessThanCon, proMoreThanCon, totalDemand, availableCapacity);

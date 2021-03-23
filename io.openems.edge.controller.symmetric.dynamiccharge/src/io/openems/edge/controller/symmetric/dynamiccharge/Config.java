@@ -19,6 +19,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+	
+	@AttributeDefinition(name = "Predictions get-Hour", description = "Gets the predictions on this hour.")
+	int getPredictionsHour() default 15;
 
 	@AttributeDefinition(name = "Start-Hour", description = "Fallback start hour if no pv.")
 	int maxStartHour() default 8;

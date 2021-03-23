@@ -61,6 +61,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return 0;
 	}
 
+	@Override
+	public int getPredictionsHour() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 //	@Override
 //	public String setting0() {
 //		return this.builder.setting0;
