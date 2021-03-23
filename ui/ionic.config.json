@@ -1,7 +1,5 @@
 {
   "name": "openems-ui",
-  "integrations": {
-    "cordova": {}
-  },
+  "integrations": {},
   "type": "angular"
 }

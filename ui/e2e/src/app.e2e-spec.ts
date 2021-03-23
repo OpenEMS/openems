@@ -1,23 +1,14 @@
 import { AppPage } from './app.po';
-import { browser, logging } from 'protractor';
 
-describe('workspace-project App', () => {
+describe('new App', () => {
   let page: AppPage;
 
   beforeEach(() => {
     page = new AppPage();
   });
 
-  it('should display welcome message', () => {
+  it('should be blank', () => {
     page.navigateTo();
-    expect(page.getTitleText()).toEqual('Welcome to OpenEMS!');
-  });
-
-  afterEach(async () => {
-    // Assert that there are no errors emitted from the browser
-    const logs = await browser.manage().logs().get(logging.Type.BROWSER);
-    expect(logs).not.toContain(jasmine.objectContaining({
-      level: logging.Level.SEVERE,
-    }));
+    expect(page.getParagraphText()).toContain('Start with Ionic UI Components');
   });
 });
