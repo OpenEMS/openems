@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AboutComponent } from './about/about.component';
 import { AutarchyChartOverviewComponent } from './edge/history/autarchy/autarchychartoverview/autarchychartoverview.component';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
@@ -84,7 +84,9 @@ export const appRoutingProviders: any[] = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [
+    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })
+  ],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
