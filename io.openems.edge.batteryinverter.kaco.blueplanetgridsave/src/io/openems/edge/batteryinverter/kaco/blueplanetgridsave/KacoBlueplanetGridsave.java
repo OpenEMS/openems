@@ -7,7 +7,7 @@ import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201CurrentState;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201RequestedState;
-import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.State;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -21,7 +21,14 @@ import io.openems.edge.common.startstop.StartStoppable;
 public interface KacoBlueplanetGridsave
 		extends ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, StartStoppable {
 
-	public static final int WATCHDOG_CYCLES = 10;
+	/**
+	 * Sets the KACO watchdog timeout to 60 seconds.
+	 */
+	public static final int WATCHDOG_TIMEOUT_SECONDS = 60;
+	/**
+	 * The watchdog gets triggered every WATCHDOG_TRIGGER_CYCLES seconds. This must be less than WATCHDOG_TIMEOUT_SECONDS.
+	 */
+	public static final int WATCHDOG_TRIGGER_SECONDS = 10;
 
 	/**
 	 * Retry set-command after x Seconds, e.g. for starting battery or

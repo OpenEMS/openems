@@ -1,8 +1,8 @@
+import { ChartOptionsPopoverComponent } from './popover/popover.component';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
 import { Service } from '../shared';
-import { ChartOptionsPopoverComponent } from './popover/popover.component';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'chartOptions',

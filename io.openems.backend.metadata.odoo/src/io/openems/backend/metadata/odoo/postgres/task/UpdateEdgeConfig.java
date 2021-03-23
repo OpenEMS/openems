@@ -11,7 +11,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component.JsonFormat;
 import io.openems.common.utils.StringUtils;
 
-public class UpdateEdgeConfig implements DatabaseTask {
+public class UpdateEdgeConfig extends DatabaseTask {
 
 	private final int odooId;
 	private final String fullConfig;
@@ -25,7 +25,7 @@ public class UpdateEdgeConfig implements DatabaseTask {
 	}
 
 	@Override
-	public void execute(Connection connection) throws SQLException {
+	protected void _execute(Connection connection) throws SQLException {
 		PreparedStatement ps = this.psUpdateEdgeConfig(connection);
 		ps.setString(1, this.fullConfig);
 		ps.setString(2, this.componentsConfig);
@@ -35,7 +35,7 @@ public class UpdateEdgeConfig implements DatabaseTask {
 
 	/**
 	 * UPDATE {} SET openems_config = {}, openems_config_components = {} WHERE id =
-	 * {};
+	 * {};.
 	 * 
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
@@ -51,8 +51,8 @@ public class UpdateEdgeConfig implements DatabaseTask {
 
 	@Override
 	public String toString() {
-		return "UpdateEdgeConfig [odooId=" + odooId + ", componentsConfig="
-				+ StringUtils.toShortString(componentsConfig, 100) + "]";
+		return "UpdateEdgeConfig [odooId=" + this.odooId + ", componentsConfig="
+				+ StringUtils.toShortString(this.componentsConfig, 100) + "]";
 	}
 
 }

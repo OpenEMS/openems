@@ -1,8 +1,8 @@
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Data, TooltipItem } from '../shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
@@ -17,7 +17,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
     @Input() private period: DefaultTypes.HistoryPeriod;
     @Input() private showPhases: boolean;
 
-    // referene to the Utils method to access via html
+    // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
     ngOnChanges() {
@@ -34,9 +34,10 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
 
 
     ngOnInit() {
+        this.spinnerId = "consumption-total-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
         this.setLabel()
-        this.subscribeChartRefresh()
     }
 
     ngOnDestroy() {
@@ -44,6 +45,8 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
+        this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
@@ -61,13 +64,21 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
 
                     // gather EVCS consumption
                     let totalEvcsConsumption: number[] = [];
-                    config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion')).forEach(component => {
+                    config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption')).forEach(component => {
                         totalEvcsConsumption = result.data[component.id + '/ChargePower'].map((value, index) => {
                             return Utils.addSafely(totalEvcsConsumption[index], value / 1000)
                         });
                     })
 
-                    // gather other Consumption (Total - EVCS)
+                    // gather consumptionMetered cosumption
+                    let totalMeteredConsumption: number[] = [];
+                    config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED').forEach(component => {
+                        totalMeteredConsumption = result.data[component.id + '/ActivePower'].map((value, index) => {
+                            return Utils.addSafely(totalMeteredConsumption[index], value / 1000)
+                        })
+                    })
+
+                    // gather other Consumption (Total - EVCS - consumptionMetered)
                     let otherConsumption: number[] = [];
                     if (totalEvcsConsumption != []) {
                         otherConsumption = result.data['_sum/ConsumptionActivePower'].map((value, index) => {
@@ -76,11 +87,29 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                             }
                         })
                     }
+                    if (totalMeteredConsumption != []) {
+                        otherConsumption = result.data['_sum/ConsumptionActivePower'].map((value, index) => {
+                            if (value != null && totalMeteredConsumption[index] != null) {
+                                return Utils.subtractSafely(value / 1000, totalMeteredConsumption[index]);
+                            }
+                        })
+                    }
                     // convert datasets
                     let datasets = [];
 
+                    //RGB Colors for evcs'
+                    let evcsRedColor = 255;
+                    let evcsGreenColor = 255;
+                    let evcsBlueColor = 255;
+
+                    let evcsIndex = 0;
+
+                    //EVCS Component Array
+                    let regularEvcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' ||
+                        component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption'));
+
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
-                        channelAddresses.forEach(channelAddress => {
+                        channelAddresses.forEach((channelAddress, index) => {
                             let component = config.getComponent(channelAddress.componentId);
                             let data = result.data[channelAddress.toString()].map(value => {
                                 if (value == null) {
@@ -124,7 +153,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                     });
                                     this.colors.push(this.phase3Color);
                                 }
-                                if (config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion')).length > 1 && totalEvcsConsumption != []) {
+                                if (regularEvcsComponents.length > 1 && totalEvcsConsumption != []) {
                                     if (!this.translate.instant('Edge.Index.Widgets.EVCS.chargingStation') + ' (' + this.translate.instant('General.total') + ')' in datasets) {
                                         datasets.push({
                                             label: this.translate.instant('Edge.Index.Widgets.EVCS.chargingStation') + ' (' + this.translate.instant('General.total') + ')',
@@ -137,18 +166,32 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                         })
                                     }
                                     if (channelAddress.channelId == "ChargePower") {
+                                        if (evcsIndex == 0) {
+                                            evcsRedColor = 0;
+                                            evcsGreenColor = 153;
+                                            evcsBlueColor = 153;
+                                        } else if (evcsIndex == regularEvcsComponents.length - 1) {
+                                            evcsRedColor = 204;
+                                            evcsGreenColor = 0;
+                                            evcsBlueColor = 0;
+                                        } else {
+                                            evcsRedColor = (evcsIndex + 1) % 3 == 0 ? 255 : 204 / (evcsIndex + 1);
+                                            evcsGreenColor = 0;
+                                            evcsBlueColor = (evcsIndex + 1) % 3 == 0 ? 127 : 408 / (evcsIndex + 1);
+                                        }
+                                        evcsIndex += 1;
                                         datasets.push({
-                                            label: (component.id == component.alias ? component.id : component.alias),
+                                            label: component.alias,
                                             data: data,
                                             hidden: false
                                         });
                                         this.colors.push({
-                                            backgroundColor: 'rgba(128,128,128,0.05)',
-                                            borderColor: 'rgba(128,128,128,1)',
+                                            backgroundColor: 'rgba(' + evcsRedColor.toString() + ',' + evcsGreenColor.toString() + ',' + evcsBlueColor.toString() + ',0.05)',
+                                            borderColor: 'rgba(' + evcsRedColor.toString() + ',' + evcsGreenColor.toString() + ',' + evcsBlueColor.toString() + ',1)'
                                         })
                                     }
 
-                                } else if (config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion')).length == 1) {
+                                } else if (regularEvcsComponents.length == 1) {
                                     if (channelAddress.channelId == "ChargePower") {
                                         datasets.push({
                                             label: (component.id == component.alias ? component.id : component.alias),
@@ -161,7 +204,22 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                         })
                                     }
                                 }
-                                if (Utils.isLastElement(channelAddress, channelAddresses) && config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion')).length > 0) {
+
+                                if (totalMeteredConsumption != []) {
+                                    if (channelAddress.channelId == "ActivePower") {
+                                        datasets.push({
+                                            label: (component.id == component.alias ? component.id : component.alias),
+                                            data: data,
+                                            hidden: false
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: 'rgba(220,20,60,0.05)',
+                                            borderColor: 'rgba(220,20,60,1)'
+                                        })
+                                    }
+                                }
+
+                                if (Utils.isLastElement(channelAddress, channelAddresses) && config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption')).length > 0) {
                                     datasets.push({
                                         label: this.translate.instant('General.otherConsumption'),
                                         data: otherConsumption,
@@ -177,6 +235,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                     });
                     this.datasets = datasets;
                     this.loading = false;
+                    this.service.stopSpinner(this.spinnerId);
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
@@ -203,15 +262,18 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                 new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
                 new ChannelAddress('_sum', 'ConsumptionActivePowerL3'),
             ];
-            config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion')).forEach(component => {
+            config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption')).forEach(component => {
                 result.push(new ChannelAddress(component.id, 'ChargePower'));
             })
+            config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED').forEach(component => {
+                result.push(new ChannelAddress(component.id, 'ActivePower'))
+            });
             resolve(result);
         })
     }
 
     protected setLabel() {
-        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+        let options = this.createDefaultChartOptions();
         options.scales.yAxes[0].scaleLabel.labelString = "kW";
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;

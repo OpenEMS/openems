@@ -13,6 +13,12 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "allowedCommonJsDependencies": [
+              "ng2-cookies",
+              "util",
+              "chart.js",
+              "file-saver"
+            ],
             "aot": true,
             "outputPath": "www",
             "index": "src/index.html",
@@ -43,17 +49,18 @@
             ],
             "styles": [
               {
-                "input": "src/theme/variables.scss"
+                "input": "src/theme/variables.scss",
+                "inject": true
               },
               {
-                "input": "src/global.scss"
+                "input": "src/global.scss",
+                "inject": true
               },
               "src/styles.css"
             ],
             "scripts": [
               "node_modules/chart.js/dist/Chart.min.js"
-            ],
-            "es5BrowserSupport": true
+            ]
           },
           "configurations": {
             "backend": {
@@ -68,7 +75,6 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
@@ -133,7 +139,6 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
@@ -159,6 +164,14 @@
               ],
               "baseHref": "/",
               "outputPath": "target/edge"
+            },
+            "gitpod": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/gitpod.ts"
+                }
+              ]
             }
           }
         },
@@ -182,6 +195,9 @@
             },
             "edge": {
               "browserTarget": "app:build:edge"
+            },
+            "gitpod": {
+              "browserTarget": "app:build:gitpod"
             }
           }
         },

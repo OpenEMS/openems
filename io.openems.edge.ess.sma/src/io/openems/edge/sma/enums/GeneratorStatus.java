@@ -12,7 +12,7 @@ public enum GeneratorStatus implements OptionsEnum {
 	SYNCHRONIZE(1790, "Synchronize"), //
 	ACTIVATED(1791, "Activated"), //
 	RE_SYNCHRONIZE(1792, "Re-Synchronize"), //
-	GENERATOR_SEPERATION(1793, "Generator Seperation"), //
+	GENERATOR_SEPERATION(1793, "Generator Separation"), //
 	SHUTOFF_DELAY(1794, "Shut-Off Delay"), //
 	BLOCKED(1795, "Blocked"), //
 	BLOCKED_AFTER_ERROR(1796, "Blocked After Error"); //

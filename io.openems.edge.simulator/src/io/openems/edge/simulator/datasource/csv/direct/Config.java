@@ -23,7 +23,7 @@ import io.openems.edge.simulator.CsvFormat;
 	float factor() default 1;
 
 	@AttributeDefinition(name = "Time-Delta", description = "Time-Delta between two entries in the csv-file in seconds. "
-			+ "If set the output-value doesn't change, until the Time-Delta has passed in realtime.", required = false)
+			+ "If set the output-value doesn't change, until the Time-Delta has passed in realtime.")
 	int timeDelta() default -1;
 
 	@AttributeDefinition(name = "Source", description = "A CSV-Input containing an optional title line and a series of values.")

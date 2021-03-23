@@ -6,6 +6,8 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.common.channel.PersistencePriority;
+
 @ObjectClassDefinition(//
 		name = "Controller Api Backend", //
 		description = "This controller connects to OpenEMS Backend")
@@ -26,9 +28,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Uri", description = "The connection Uri to OpenEMS Backend.")
 	String uri() default "ws://localhost:8081";
 
-	@AttributeDefinition(name = "No. of Cycles", description = "How many Cycles till data is sent to OpenEMS Backend.")
-	int noOfCycles() default BackendApi.DEFAULT_NO_OF_CYCLES;
-
 	@AttributeDefinition(name = "Proxy Address", description = "The IP address or hostname of the proxy server.")
 	String proxyAddress() default "";
 
@@ -41,8 +40,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Api-Timeout", description = "Sets the timeout in seconds for updates on Channels set by this Api.")
 	int apiTimeout() default 60;
 
-	@AttributeDefinition(name = "Enable Debug mode")
-	boolean debug() default false;
+	@AttributeDefinition(name = "Persistence Priority", description = "Send only Channels with a Persistence Priority greater-or-equals this.")
+	PersistencePriority persistencePriority() default PersistencePriority.VERY_LOW;
+
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+	boolean debugMode() default false;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Api Backend [{id}]";
 }

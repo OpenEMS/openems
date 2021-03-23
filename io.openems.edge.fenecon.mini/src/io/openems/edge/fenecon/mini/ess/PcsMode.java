@@ -10,7 +10,9 @@ public enum PcsMode implements OptionsEnum {
 	ECO(3, "Eco"), //
 	DEBUG(4, "Debug"), //
 	SMOOTH_PV(5, "Smooth PV"), //
-	REMOTE(6, "Remote");
+	REMOTE(6, "Remote"), //
+	RIYUAN(7, "Riyuan"), //
+	TIMING(8, "Timing");
 
 	private final int value;
 	private final String name;

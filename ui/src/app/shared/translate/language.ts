@@ -5,6 +5,7 @@ import { TRANSLATION as DE } from './de';
 import { TRANSLATION as EN } from './en';
 import { TRANSLATION as ES } from './es';
 import { TRANSLATION as NL } from './nl';
+import { TRANSLATION as FR } from './fr';
 
 
 export enum LanguageTag {
@@ -12,7 +13,8 @@ export enum LanguageTag {
     DE = "German",
     CZ = "Czech",
     NL = "Dutch",
-    ES = "Spanish"
+    ES = "Spanish",
+    FR = "French"
 }
 
 export class Language implements TranslateLoader {
@@ -39,6 +41,8 @@ export class Language implements TranslateLoader {
                 return of(ES);
             case LanguageTag.EN:
                 return of(EN);
+            case LanguageTag.FR:
+                return of(FR);
         }
         return of(EN);
     }

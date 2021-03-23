@@ -1,7 +1,5 @@
 package io.openems.edge.ess.kaco.blueplanet.gridsave50;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -58,6 +56,9 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -66,14 +67,19 @@ import io.openems.edge.ess.power.api.Relationship;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		}) //
-// TODO: drop this Component in favour of KACO blueplanet Battery-Inverter implemention + Generic ESS.
+// TODO: drop this Component in favour of KACO blueplanet Battery-Inverter implementation + Generic ESS.
 public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
-		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(EssKacoBlueplanetGridsave50.class);
 
 	public static final int DEFAULT_UNIT_ID = 1;
 	protected static final int MAX_APPARENT_POWER = 52000;
+
+	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	private int watchdogInterval = 0;
 	private int maxApparentPower = 0;
@@ -92,7 +98,11 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
+
 	private Battery battery;
+	private Version version = Version.VERSION_5_34;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setBattery(Battery battery) {
@@ -115,9 +125,12 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
-				config.modbus_id()); //
+	void activate(ComponentContext context, Config config) throws OpenemsException {
+		this.version = config.sw_version();
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
+				config.modbus_id())) {
+			return;
+		}
 		// update filter for 'battery'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "battery", config.battery_id())) {
 			return;
@@ -215,7 +228,12 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		this.isActivePowerAllowed = false;
 
 		// do always
-		setBatteryRanges();
+		try {
+			this.setBatteryRanges();
+		} catch (OpenemsNamedException e) {
+			this.logError(this.log, "Unable to set battery ranges: " + e.getMessage());
+			e.printStackTrace();
+		}
 		setWatchdog();
 
 		EnumReadChannel currentStateChannel = this.channel(ChannelId.CURRENT_STATE);
@@ -274,55 +292,93 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		stopSystem();
 	}
 
-	private void setBatteryRanges() {
+	private float lastAllowedChargePower = 0;
+	private float lastAllowedDischargePower = 0;
+
+	private void setBatteryRanges() throws OpenemsNamedException {
+		final float efficiencyFactor = 0.95F;
+		final int disMaxA;
+		final int chaMaxA;
+		final int voltage;
+		final int soc;
+		final int soh;
+		final int temperature;
+		int disMinV;
+		int chaMaxV;
+
+		// Evaluate input data
 		if (battery == null) {
-			return;
+			disMaxA = 0;
+			chaMaxA = 0;
+			disMinV = 0;
+			chaMaxV = 0;
+			voltage = 0;
+			soc = 0;
+			soh = 0;
+			temperature = 0;
+		} else {
+			disMaxA = battery.getDischargeMaxCurrent().orElse(0);
+			chaMaxA = battery.getChargeMaxCurrent().orElse(0);
+			disMinV = battery.getDischargeMinVoltage().orElse(0);
+			chaMaxV = battery.getChargeMaxVoltage().orElse(0);
+			voltage = battery.getVoltage().orElse(0);
+			soc = battery.getSoc().orElse(0);
+			soh = battery.getSoh().orElse(0);
+			temperature = battery.getMaxCellTemperature().orElse(0);
 		}
 
-		// Read some Channels from Battery
-		int disMinV = battery.getDischargeMinVoltage().orElse(0);
-		int chaMaxV = battery.getChargeMaxVoltage().orElse(0);
-		int disMaxA = battery.getDischargeMaxCurrent().orElse(0);
-		int chaMaxA = battery.getChargeMaxCurrent().orElse(0);
-		int batSoC = battery.getSoc().orElse(0);
-		int batSoH = battery.getSoh().orElse(0);
-		int batTemp = battery.getMaxCellTemperature().orElse(0);
-
-		// Update Power Constraints
-		// TODO: The actual AC allowed charge and discharge should come from the KACO
-		// Blueplanet instead of calculating it from DC parameters.
-		final double EFFICIENCY_FACTOR = 0.9;
-
-		// FIXME
-		// allowedCharge += battery.getVoltage().value().orElse(0) *
-		// battery.getChargeMaxCurrent().value().orElse(0) * -1;
-		// allowedDischarge += battery.getVoltage().value().orElse(0) *
-		// battery.getDischargeMaxCurrent().value().orElse(0);
-
-		this._setAllowedChargePower((int) (chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR));
-		this._setAllowedDischargePower((int) (disMaxA * disMinV * EFFICIENCY_FACTOR));
-
-		if (disMinV == 0 || chaMaxV == 0) {
-			return; // according to setup manual 64202.DisMinV and 64202.ChaMaxV must not be zero
+		// According to setup manual 64202.DisMinV and 64202.ChaMaxV must not be zero
+		if (disMinV == 0) {
+			disMinV = 1;
+		}
+		if (chaMaxV == 0) {
+			chaMaxV = 1;
 		}
 
-		// Set Battery values to inverter
-		try {
-			this.getDischargeMinVoltageChannel().setNextWriteValue(disMinV);
-			this.getChargeMaxVoltageChannel().setNextWriteValue(chaMaxV);
-			this.getDischargeMaxAmpereChannel().setNextWriteValue(disMaxA);
-			this.getChargeMaxAmpereChannel().setNextWriteValue(chaMaxA);
-			this.getEnLimitChannel().setNextWriteValue(1);
+		// Set Inverter Registers
+		this.getChargeMaxAmpereChannel().setNextWriteValue(//
+				/* enforce positive */ Math.max(0, chaMaxA));
+		this.getDischargeMaxAmpereChannel().setNextWriteValue(//
+				/* enforce positive */ Math.max(0, disMaxA));
+		this.getDischargeMinVoltageChannel().setNextWriteValue(disMinV);
+		this.getChargeMaxVoltageChannel().setNextWriteValue(chaMaxV);
+		this.getEnLimitChannel().setNextWriteValue(1);
 
-			// battery stats to display on inverter
-			this.getBatterySocChannel().setNextWriteValue(batSoC);
-			this.getBatterySohChannel().setNextWriteValue(batSoH);
-			this.getBatteryTempChannel().setNextWriteValue(batTemp);
+		// Calculate AllowedCharge- and -DischargePower
+		float allowedChargePower;
+		float allowedDischargePower;
 
-			this._setCapacity(battery.getCapacity().get());
-		} catch (OpenemsNamedException e) {
-			log.error("Error during setBatteryRanges, " + e.getMessage());
+		// efficiency factor is not considered in chargeMaxCurrent (DC Power > AC Power)
+		allowedChargePower = chaMaxA * voltage * -1;
+		allowedDischargePower = disMaxA * voltage * efficiencyFactor;
+
+		// Allow max increase of 1 %
+		if (allowedDischargePower > lastAllowedDischargePower + allowedDischargePower * 0.01F) {
+			allowedDischargePower = lastAllowedDischargePower + allowedDischargePower * 0.01F;
 		}
+		this.lastAllowedDischargePower = allowedDischargePower;
+
+		if (allowedChargePower < lastAllowedChargePower + allowedChargePower * 0.01F) {
+			allowedChargePower = lastAllowedChargePower + allowedChargePower * 0.01F;
+		}
+		this.lastAllowedChargePower = allowedChargePower;
+
+		// Make sure solution is feasible
+		if (allowedChargePower > allowedDischargePower) { // Force Discharge
+			allowedDischargePower = allowedChargePower;
+		}
+		if (allowedDischargePower < allowedChargePower) { // Force Charge
+			allowedChargePower = allowedDischargePower;
+		}
+
+		this._setAllowedChargePower(Math.round(allowedChargePower));
+		this._setAllowedDischargePower(Math.round(allowedDischargePower));
+
+		// Further values
+		this.getBatterySocChannel().setNextWriteValue(soc);
+		this.getBatterySohChannel().setNextWriteValue(soh);
+		this.getBatteryTempChannel().setNextWriteValue(temperature);
+		this._setCapacity(battery.getCapacity().get());
 	}
 
 	public String debugLog() {
@@ -354,57 +410,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			calculateEnergy();
 			handleStateMachine();
+			this.calculateEnergy();
 			break;
 		}
-	}
-
-	// These variables are used to calculate the energy
-	LocalDateTime lastPowerValuesTimestamp = null;
-	double lastCurrentValue = 0;
-	double lastVoltageValue = 0;
-	double lastActivePowerValue = 0;
-	double accumulatedChargeEnergy = 0;
-	double accumulatedDischargeEnergy = 0;
-
-	/*
-	 * This calculates charge/discharge energy using voltage value given from the
-	 * connected battery and current value from the inverter
-	 */
-	private void calculateEnergy() {
-		if (this.lastPowerValuesTimestamp != null) {
-
-			long passedTimeInMilliSeconds = Duration.between(this.lastPowerValuesTimestamp, LocalDateTime.now())
-					.toMillis();
-			this.lastPowerValuesTimestamp = LocalDateTime.now();
-
-			double lastPowerValue = this.lastCurrentValue * this.lastVoltageValue;
-			double energy = lastPowerValue * (((double) passedTimeInMilliSeconds) / 1000.0) / 3600.0; // calculate
-																										// energy in
-																										// watt hours
-
-			if (this.lastActivePowerValue < 0) {
-				this.accumulatedChargeEnergy = this.accumulatedChargeEnergy + energy;
-				this._setActiveChargeEnergy((long) accumulatedChargeEnergy);
-			} else if (this.lastActivePowerValue > 0) {
-				this.accumulatedDischargeEnergy = this.accumulatedDischargeEnergy + energy;
-				this._setActiveDischargeEnergy((long) accumulatedDischargeEnergy);
-			}
-
-			log.debug("accumulated charge energy :" + accumulatedChargeEnergy);
-			log.debug("accumulated discharge energy :" + accumulatedDischargeEnergy);
-
-		} else {
-			this.lastPowerValuesTimestamp = LocalDateTime.now();
-		}
-
-		this.lastActivePowerValue = this.getActivePower().orElse(0);
-
-		IntegerReadChannel lastCurrentValueChannel = this.channel(ChannelId.DC_CURRENT);
-		this.lastCurrentValue = lastCurrentValueChannel.value().orElse(0) / 1000.0;
-
-		this.lastVoltageValue = this.battery.getVoltage().orElse(0);
 	}
 
 	private void startGridMode() {
@@ -609,22 +618,40 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		}
 	}
 
-//	private final static int SUNSPEC_1 = 40003 - 1; // According to setup process pdf currently not used...
-	private final static int SUNSPEC_103 = 40071 - 1;
-	private final static int SUNSPEC_121 = 40213 - 1;
-	private final static int SUNSPEC_64201 = 40823 - 1;
-	private final static int SUNSPEC_64202 = 40877 - 1;
-	private final static int SUNSPEC_64203 = 40893 - 1;
-	private final static int SUNSPEC_64302 = 40931 - 1;
-	/*
-	 * private final static int SUNSPEC_103 = 40071; // private final static int
-	 * SUNSPEC_121 = 40213; // private final static int SUNSPEC_64201 = 40823; //
-	 * private final static int SUNSPEC_64202 = 40877; // private final static int
-	 * SUNSPEC_64203 = 40893; // private final static int SUNSPEC_64302 = 40931; //
-	 */
+	static enum Version {
+		VERSION_5_34(40070, 40212, 40822, 40876, 40892, 40930), //
+		VERSION_5_56(40070, 40212, 40888, 40942, 40958, 40996);
+//		VERSION_5_56(40070, 40212, 41050, 41104, 41120, 41136);
+
+		private Version(int sunSpec_103, int sunSpec_121, int sunSpec_64201, int sunSpec_64202, int sunSpec_64203,
+				int sunSpec_64302) {
+			this.sunSpec_103 = sunSpec_103;
+			this.sunSpec_121 = sunSpec_121;
+			this.sunSpec_64201 = sunSpec_64201;
+			this.sunSpec_64202 = sunSpec_64202;
+			this.sunSpec_64203 = sunSpec_64203;
+			this.sunSpec_64302 = sunSpec_64302;
+		}
+
+		int sunSpec_103;
+		int sunSpec_121;
+		int sunSpec_64201;
+		int sunSpec_64202;
+		int sunSpec_64203;
+		int sunSpec_64302;
+
+	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+
+		int SUNSPEC_103 = version.sunSpec_103;
+		int SUNSPEC_121 = version.sunSpec_121;
+		int SUNSPEC_64201 = version.sunSpec_64201;
+		int SUNSPEC_64202 = version.sunSpec_64202;
+		int SUNSPEC_64203 = version.sunSpec_64203;
+		int SUNSPEC_64302 = version.sunSpec_64302;
+
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(SUNSPEC_103 + 24, Priority.LOW, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.AC_ENERGY,
@@ -654,7 +681,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 				new FC16WriteRegistersTask(SUNSPEC_64201 + 4,
 						m(EssKacoBlueplanetGridsave50.ChannelId.REQUESTED_STATE,
 								new UnsignedWordElement(SUNSPEC_64201 + 4))), //
-				new FC3ReadRegistersTask(SUNSPEC_64201 + 5, Priority.LOW, //
+				new FC3ReadRegistersTask(SUNSPEC_64201 + 5, Priority.HIGH, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.CURRENT_STATE,
 								new UnsignedWordElement(SUNSPEC_64201 + 5))), //
 				new FC16WriteRegistersTask(SUNSPEC_64201 + 8, //
@@ -743,4 +770,29 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	/**
+	 * Calculate the Energy values from ActivePower.
+	 */
+	private void calculateEnergy() {
+		// Calculate Energy
+		Integer activePower = this.getActivePower().get();
+		if (activePower == null) {
+			// Not available
+			this.calculateChargeEnergy.update(null);
+			this.calculateDischargeEnergy.update(null);
+		} else if (activePower > 0) {
+			// Buy-From-Grid
+			this.calculateChargeEnergy.update(0);
+			this.calculateDischargeEnergy.update(activePower);
+		} else {
+			// Sell-To-Grid
+			this.calculateChargeEnergy.update(activePower * -1);
+			this.calculateDischargeEnergy.update(0);
+		}
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
 }

@@ -1,8 +1,8 @@
 # Prepares a Release
 #
-# - Increases the minor version number
+# - Removes the SNAPSHOT tag from version
 #
-#   E.g. increases 2020.1.0-SNAPSHOT to 2020.2.0
+#   E.g. increases 2020.1.0-SNAPSHOT to 2020.1.0
 
 # Basic definitions
 release_date=$(date --iso-8601)

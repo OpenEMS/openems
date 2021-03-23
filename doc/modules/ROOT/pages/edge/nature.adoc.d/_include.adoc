@@ -1,6 +1,8 @@
 
 include::io.openems.edge.battery.api.adoc[leveloffset=+1]
 
+include::io.openems.edge.batteryinverter.api.adoc[leveloffset=+1]
+
 include::io.openems.edge.controller.api.adoc[leveloffset=+1]
 
 include::io.openems.edge.ess.api.adoc[leveloffset=+1]

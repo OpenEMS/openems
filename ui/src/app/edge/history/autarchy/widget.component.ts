@@ -1,11 +1,10 @@
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 import { ActivatedRoute } from '@angular/router';
-import { AutarchyModalComponent } from './modal/modal.component';
 import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ModalController } from '@ionic/angular';
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: AutarchyWidgetComponent.SELECTOR,
@@ -32,11 +31,10 @@ export class AutarchyWidgetComponent extends AbstractHistoryWidget implements On
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -49,6 +47,8 @@ export class AutarchyWidgetComponent extends AbstractHistoryWidget implements On
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
                     let result = response.result;
                     this.autarchyValue = CurrentData.calculateAutarchy(result.data['_sum/GridBuyActiveEnergy'] / 1000, result.data['_sum/ConsumptionActiveEnergy'] / 1000);
+                }).catch(() => {
+                    this.autarchyValue = null;
                 })
             });
         })
@@ -62,14 +62,6 @@ export class AutarchyWidgetComponent extends AbstractHistoryWidget implements On
             ];
             resolve(channels);
         });
-    }
-
-    async presentModal() {
-        const modal = await this.modalCtrl.create({
-            component: AutarchyModalComponent,
-            cssClass: 'wide-modal'
-        });
-        return await modal.present();
     }
 }
 

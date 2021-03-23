@@ -25,7 +25,7 @@ import io.openems.edge.meter.api.MeterType;
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.PRODUCTION;
 
-	@AttributeDefinition(name = "Mbus-ID", description = "ID of M-Bus brige.")
+	@AttributeDefinition(name = "Mbus-ID", description = "ID of M-Bus bridge.")
 	String mbus_id() default "mbus0";
 
 	String webconsole_configurationFactory_nameHint() default "Meter ABB B23 M-Bus [{id}]";

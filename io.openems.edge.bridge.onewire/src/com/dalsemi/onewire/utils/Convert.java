@@ -362,7 +362,7 @@ public class Convert {
 
 	/**
 	 * Converts a byte array into a hex-encoded String, using the provided
-	 * delimeter.
+	 * delimiter.
 	 *
 	 * @param data The byte[] to convert to a hex-encoded string
 	 * @return Hex-encoded String
@@ -373,7 +373,7 @@ public class Convert {
 
 	/**
 	 * Converts a byte array into a hex-encoded String, using the provided
-	 * delimeter.
+	 * delimiter.
 	 *
 	 * @param data   The byte[] to convert to a hex-encoded string
 	 * @param offset the offset to start converting bytes
@@ -386,28 +386,28 @@ public class Convert {
 
 	/**
 	 * Converts a byte array into a hex-encoded String, using the provided
-	 * delimeter.
+	 * delimiter.
 	 *
 	 * @param data      The byte[] to convert to a hex-encoded string
-	 * @param delimeter the delimeter to place between each byte of data
+	 * @param delimiter the delimiter to place between each byte of data
 	 * @return Hex-encoded String
 	 */
-	public static final String toHexString(byte[] data, String delimeter) {
-		return toHexString(data, 0, data.length, delimeter);
+	public static final String toHexString(byte[] data, String delimiter) {
+		return toHexString(data, 0, data.length, delimiter);
 	}
 
 	/**
 	 * Converts a byte array into a hex-encoded String, using the provided
-	 * delimeter.
+	 * delimiter.
 	 *
 	 * @param data      The byte[] to convert to a hex-encoded string
 	 * @param offset    the offset to start converting bytes
 	 * @param length    the number of bytes to convert
-	 * @param delimeter the delimeter to place between each byte of data
+	 * @param delimiter the delimiter to place between each byte of data
 	 * @return Hex-encoded String
 	 */
-	public static final String toHexString(byte[] data, int offset, int length, String delimeter) {
-		StringBuffer value = new StringBuffer(length * (2 + delimeter.length()));
+	public static final String toHexString(byte[] data, int offset, int length, String delimiter) {
+		StringBuffer value = new StringBuffer(length * (2 + delimiter.length()));
 		int max = length + offset;
 		int lastDelim = max - 1;
 		for (int i = offset; i < max; i++) {
@@ -415,7 +415,7 @@ public class Convert {
 			value.append(lookup_hex[(bits >> 4) & 0x0F]);
 			value.append(lookup_hex[bits & 0x0F]);
 			if (i < lastDelim)
-				value.append(delimeter);
+				value.append(delimiter);
 		}
 		return value.toString();
 	}
@@ -437,7 +437,7 @@ public class Convert {
 
 	/**
 	 * Converts a char array into a hex-encoded String, using the provided
-	 * delimeter.
+	 * delimiter.
 	 *
 	 * @param data The char[] to convert to a hex-encoded string
 	 * @return Hex-encoded String
@@ -448,7 +448,7 @@ public class Convert {
 
 	/**
 	 * Converts a byte array into a hex-encoded String, using the provided
-	 * delimeter.
+	 * delimiter.
 	 *
 	 * @param data   The char[] to convert to a hex-encoded string
 	 * @param offset the offset to start converting bytes
@@ -461,28 +461,28 @@ public class Convert {
 
 	/**
 	 * Converts a char array into a hex-encoded String, using the provided
-	 * delimeter.
+	 * delimiter.
 	 *
 	 * @param data      The char[] to convert to a hex-encoded string
-	 * @param delimeter the delimeter to place between each byte of data
+	 * @param delimiter the delimiter to place between each byte of data
 	 * @return Hex-encoded String
 	 */
-	public static final String toHexString(char[] data, String delimeter) {
-		return toHexString(data, 0, data.length, delimeter);
+	public static final String toHexString(char[] data, String delimiter) {
+		return toHexString(data, 0, data.length, delimiter);
 	}
 
 	/**
 	 * Converts a char array into a hex-encoded String, using the provided
-	 * delimeter.
+	 * delimiter.
 	 *
 	 * @param data      The char[] to convert to a hex-encoded string
 	 * @param offset    the offset to start converting bytes
 	 * @param length    the number of bytes to convert
-	 * @param delimeter the delimeter to place between each byte of data
+	 * @param delimiter the delimiter to place between each byte of data
 	 * @return Hex-encoded String
 	 */
-	public static final String toHexString(char[] data, int offset, int length, String delimeter) {
-		StringBuffer value = new StringBuffer(length * (2 + delimeter.length()));
+	public static final String toHexString(char[] data, int offset, int length, String delimiter) {
+		StringBuffer value = new StringBuffer(length * (2 + delimiter.length()));
 		int max = length + offset;
 		int lastDelim = max - 1;
 		for (int i = offset; i < max; i++) {
@@ -490,7 +490,7 @@ public class Convert {
 			value.append(lookup_hex[(bits >> 4) & 0x0F]);
 			value.append(lookup_hex[bits & 0x0F]);
 			if (i < lastDelim)
-				value.append(delimeter);
+				value.append(delimiter);
 		}
 		return value.toString();
 	}

@@ -1,8 +1,9 @@
-import { addDays, getDate, getMonth, getYear, subDays, startOfWeek, endOfWeek } from 'date-fns/esm';
+import { addDays, getDate, getMonth, getYear, startOfWeek, endOfWeek } from 'date-fns/esm';
 import { Component, Input } from '@angular/core';
 import { DefaultTypes } from '../../service/defaulttypes';
+import { Edge } from '../../edge/edge';
+import { endOfMonth, startOfMonth } from 'date-fns';
 import { IAngularMyDpOptions, IMyDate, IMyDateRangeModel, CalAnimation } from 'angular-mydatepicker';
-import { isFuture } from 'date-fns';
 import { PopoverController } from '@ionic/angular';
 import { Service } from '../../shared';
 import { TranslateService } from '@ngx-translate/core';
@@ -16,6 +17,7 @@ export class PickDatePopoverComponent {
 
 
     @Input() private setDateRange: (period: DefaultTypes.HistoryPeriod) => void;
+    @Input() public edge: Edge | null = null;
 
     private readonly TODAY = new Date();
     private readonly TOMORROW = addDays(new Date(), 1);
@@ -42,6 +44,7 @@ export class PickDatePopoverComponent {
         disableUntil: { day: 1, month: 1, year: 2013 }, // TODO start with date since the edge is available
         inline: true,
         selectorHeight: '225px',
+        selectorWidth: '251px',
         showWeekNumbers: true,
     };
 
@@ -76,6 +79,18 @@ export class PickDatePopoverComponent {
                 this.popoverCtrl.dismiss();
                 break;
             }
+            case 'month': {
+                this.setDateRange(new DefaultTypes.HistoryPeriod(startOfMonth(this.TODAY), endOfMonth(this.TODAY)));
+                this.service.periodString = period;
+                this.popoverCtrl.dismiss();
+                break;
+            }
+            // case 'year': {
+            //     this.setDateRange(new DefaultTypes.HistoryPeriod(startOfYear(this.TODAY), endOfYear(this.TODAY)));
+            //     this.service.periodString = period;
+            //     this.popoverCtrl.dismiss();
+            //     break;
+            // }
         }
     }
 

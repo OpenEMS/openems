@@ -2,6 +2,6 @@ package io.openems.shared.influxdb;
 
 public class InfluxConstants {
 
-	public final static String TAG = "edge";
+	public static final String TAG = "edge";
 
 }

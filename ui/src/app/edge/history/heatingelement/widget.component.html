@@ -1,4 +1,4 @@
-<ion-card button (click)="presentModal()" *ngIf="component">
+<ion-card button routerLink="/device/{{edge.id}}/history/{{componentId}}/heatingelementchart" *ngIf="component && edge">
   <ion-item lines="full" color="light">
     <ion-icon slot="start" color="danger" name="flame"></ion-icon>
     <ion-label>{{ component.alias }}</ion-label>

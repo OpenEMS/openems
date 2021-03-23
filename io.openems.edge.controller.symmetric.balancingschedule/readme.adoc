@@ -1,5 +1,52 @@
 = Symmetric Balancing Schedule
 
-Controls a symmetric energy storage system in self-consumption optimization mode. Allows the definition of a Schedule to set the target power on the grid meter. This Controller can be controlled using the OpenEMS Backend-to-Backend interface.
+Controls a symmetric energy storage system in balancing mode. The control algorithm charges or discharges the battery in order to reach a given power target set-point at the grid connection point. If the target set-point is defined as zero, the behaviour is like with self-consumption optimization.
+
+This controller allows two ways of controlling the power target set-point:
+
+== 1. Definition of a power target set-point Schedule
+
+The static configuration parameter "schedule" takes a Schedule of set-points as a Json-Array. An example schedule looks like this:
+
+[source,json]
+----
+[
+	{
+		"startTimestamp": 1577836800,
+		"duration": 900,
+		"activePowerSetPoint": 0
+	}, {
+		"startTimestamp": 1577837700,
+		"duration": 900,
+		"activePowerSetPoint": -2000
+	}
+]
+----
+
+This schedule will activate a power target set-point of zero starting at the epoch time 1577836800 (i.e. *seconds* since 1st January 2020 00:00:00 *in timezone UTC*), that lasts for 900 seconds (i.e. 15 minutes). 
+Afterwards - from 1577837700 - for another 900 seconds a  set-point of -2000 W (i.e. feeding 2000 W to the grid) is targeted. 
+After the second period passes, no more charging or discharging commands are set on the battery.
+
+The schedule configuration parameter may be updated 
+
+- via a browser using the OpenEMS user interface
+- using the https://openems.github.io/openems.io/openems/latest/backend/backend-to-backend.html#_setgridconnschedule[`SetGridConnSchedule` JSON-RPC Request via OpenEMS Backend]
+- using a direct https://github.com/OpenEMS/openems/blob/develop/io.openems.common/src/io/openems/common/jsonrpc/request/SetGridConnScheduleRequest.java[SetGridConnScheduleRequest] via https://openems.github.io/openems.io/openems/latest/component-communication/index.html#_communicate_with_a_specific_edge_component[JsonApi]
+- or using the https://github.com/OpenEMS/openems/blob/develop/ui/src/app/shared/jsonrpc/request/updateComponentConfigRequest.ts[`UpdateComponentConfigRequest` JSON-RPC Request]
+
+Be aware that an `UpdateComponentConfigRequest` will always result in a actual configuration file being updated by Apache Felix Configuration Admin, so this command should not be used too frequently, e.g. only once per day. The `SetGridConnScheduleRequest` variant runs only in memory and is not persisted. Downside is, that if OpenEMS Edge gets restarted, the schedule is lost.
+
+== 2. Immediate control of the power target set-point
+
+The power target set-point may also be controlled directly via the `GridActivePowerSetPoint` channel. E.g. if the controller component has the Id `ctrlBalancingSchedule0` one can use e.g. the https://openems.github.io/openems.io/openems/latest/edge/controller.html#_rest_api_controller[REST-Api Controller] and write
+
+[source,json]
+----
+{
+	"value": 5000
+}
+----
+
+to the channel `ctrlBalancingSchedule0/GridActivePowerSetPoint` (e.g. ` http://x:user@localhost:8084/rest/channel/ctrlBalancingSchedule0/GridActivePowerSetPoint`), to set a temporary power target set-point of 5000.
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.symmetric.balancingschedule[Source Code icon:github[]]

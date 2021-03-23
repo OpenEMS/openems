@@ -92,7 +92,7 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	/** DS18B20 reads data from scratchpad command */
 	public static final byte READ_SCRATCHPAD_COMMAND = (byte) 0xBE;
 
-	/** DS18B20 copys data from scratchpad to E-squared memory command */
+	/** DS18B20 copies data from scratchpad to E-squared memory command */
 	public static final byte COPY_SCRATCHPAD_COMMAND = (byte) 0x48;
 
 	/** DS18B20 converts temperature command */

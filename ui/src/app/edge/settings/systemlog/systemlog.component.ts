@@ -1,10 +1,10 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { parse } from 'date-fns';
+import { Service, Utils, Websocket } from '../../../shared/shared';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { Service, Utils, Websocket } from '../../../shared/shared';
-import { TranslateCompiler, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: SystemLogComponent.SELECTOR,

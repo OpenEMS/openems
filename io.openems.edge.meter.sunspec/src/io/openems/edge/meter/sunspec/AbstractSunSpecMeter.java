@@ -28,16 +28,19 @@ public abstract class AbstractSunSpecMeter extends AbstractOpenemsSunSpecCompone
 
 	public AbstractSunSpecMeter(Map<SunSpecModel, Priority> activeModels,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
-			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
 		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
 	/**
 	 * Make sure to call this method from the inheriting OSGi Component.
+	 * 
+	 * @throws OpenemsException on error
 	 */
 	@Override
 	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
-			ConfigurationAdmin cm, String modbusReference, String modbusId, int readFromCommonBlockNo) {
+			ConfigurationAdmin cm, String modbusReference, String modbusId, int readFromCommonBlockNo)
+			throws OpenemsException {
 		return super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId,
 				readFromCommonBlockNo);
 	}

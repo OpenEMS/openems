@@ -1,19 +1,23 @@
 package io.openems.edge.pvinverter.sunspec;
 
-import java.time.LocalDateTime;
-import java.util.Objects;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 
-import io.openems.common.exceptions.CheckedRunnable;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingRunnable;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S123_WMaxLim_Ena;
 import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.FloatReadChannel;
+import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
-public class SetPvLimitHandler implements CheckedRunnable {
+public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException> {
+
+	private final static float COMPARE_THRESHOLD = 0.0001F;
 
 	private final AbstractSunSpecPvInverter parent;
 
@@ -21,7 +25,7 @@ public class SetPvLimitHandler implements CheckedRunnable {
 		this.parent = parent;
 	}
 
-	private LocalDateTime lastWMaxLimPctTime = LocalDateTime.MIN;
+	private Instant lastWMaxLimPctTime = Instant.MIN;
 
 	@Override
 	public void run() throws OpenemsNamedException {
@@ -30,8 +34,8 @@ public class SetPvLimitHandler implements CheckedRunnable {
 				.channel(ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
 		Optional<Integer> activePowerLimitOpt = activePowerLimitChannel.getNextWriteValueAndReset();
 
-		IntegerWriteChannel wMaxLimPctChannel;
-		IntegerReadChannel wRtgChannel;
+		FloatWriteChannel wMaxLimPctChannel;
+		FloatReadChannel wRtgChannel;
 		EnumWriteChannel wMaxLimEnaChannel;
 
 		try {
@@ -55,6 +59,7 @@ public class SetPvLimitHandler implements CheckedRunnable {
 			}
 		}
 
+		float wMaxLimPct;
 		if (activePowerLimitOpt.isPresent()) {
 			/*
 			 * A ActivePowerLimit is set
@@ -62,54 +67,48 @@ public class SetPvLimitHandler implements CheckedRunnable {
 			int activePowerLimit = activePowerLimitOpt.get();
 
 			// calculate limitation in percent
-			int wRtg = wRtgChannel.value().getOrError();
-			Integer wMaxLimPct = (int) (activePowerLimit * 100 / (float) wRtg);
-
-			// Just to be sure: keep percentage in range [1, 100]. Do never set "0" as it
-			// causes some inverters to go to standby mode, which is
-			// generally not what we want.
-			if (wMaxLimPct > 100) {
-				wMaxLimPct = 100;
-			} else if (wMaxLimPct < 1) {
-				wMaxLimPct = 1;
-			}
-
-			// Get Power Limitation Timeout Channel
-			IntegerReadChannel wMaxLimPctRvrtTmsChannel = this.parent
-					.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_PCT_RVRT_TMS);
-			int wMaxLimPctRvrtTms = wMaxLimPctRvrtTmsChannel.value().orElse(0);
-
-			if (
-			// Value changed
-			!Objects.equals(wMaxLimPct, wMaxLimPctChannel.value().get()) //
-					// Value needs to be set again to avoid timeout
-					|| this.lastWMaxLimPctTime.isBefore(LocalDateTime.now().minusSeconds(wMaxLimPctRvrtTms / 2))) {
-
-				// Set Power Limitation
-				wMaxLimPctChannel.setNextWriteValue(wMaxLimPct);
-
-				// Apply Power Limitation Enabled
-				if (wMaxLimEnaChannel.value().asEnum() != S123_WMaxLim_Ena.ENABLED) {
-					wMaxLimEnaChannel.setNextWriteValue(S123_WMaxLim_Ena.ENABLED);
-				}
-
-				// Remember last Set-Time
-				this.lastWMaxLimPctTime = LocalDateTime.now();
-			}
+			float wRtg = wRtgChannel.value().getOrError();
+			wMaxLimPct = activePowerLimit * 100 / wRtg;
 
 		} else {
 			/*
-			 * No ActivePowerLimit is set
+			 * No ActivePowerLimit is set -> reset to 100 %
 			 */
-			// Reset Power Limitation to 100 %
-			if (wMaxLimPctChannel.value().orElse(0) != 100) {
-				wMaxLimPctChannel.setNextWriteValue(100);
-			}
+			wMaxLimPct = 100F;
+		}
+
+		// Just to be sure: keep percentage in range [1, 100]. Do never set "0" as it
+		// causes some inverters to go to standby mode, which is
+		// generally not what we want.
+		if (wMaxLimPct > 100F) {
+			wMaxLimPct = 100F;
+		} else if (wMaxLimPct < 1F) {
+			wMaxLimPct = 1F;
+		}
+
+		// Get Power Limitation Timeout Channel
+		IntegerReadChannel wMaxLimPctRvrtTmsChannel = this.parent
+				.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_PCT_RVRT_TMS);
+		int wMaxLimPctRvrtTms = wMaxLimPctRvrtTmsChannel.value().orElse(0);
+
+		if (
+		// Value is not available
+		!wMaxLimPctChannel.value().isDefined()
+				// Value changed
+				|| Math.abs(wMaxLimPct - wMaxLimPctChannel.value().get()) > COMPARE_THRESHOLD
+				// Value needs to be set again to avoid timeout
+				|| Duration.between(this.lastWMaxLimPctTime, Instant.now()).getSeconds() > wMaxLimPctRvrtTms / 2.) {
+
+			// Set Power Limitation
+			wMaxLimPctChannel.setNextWriteValue(wMaxLimPct);
 
 			// Apply Power Limitation Enabled
 			if (wMaxLimEnaChannel.value().asEnum() != S123_WMaxLim_Ena.ENABLED) {
 				wMaxLimEnaChannel.setNextWriteValue(S123_WMaxLim_Ena.ENABLED);
 			}
+
+			// Remember last Set-Time
+			this.lastWMaxLimPctTime = Instant.now();
 		}
 
 	}

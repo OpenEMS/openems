@@ -9,6 +9,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
@@ -33,12 +37,22 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
+import okhttp3.OkHttpClient;
 
 public class InfluxConnector {
 
-	public final static String MEASUREMENT = "data";
+	public static final String MEASUREMENT = "data";
 
-	private final static Logger log = LoggerFactory.getLogger(InfluxConnector.class);
+	private static final Logger LOG = LoggerFactory.getLogger(InfluxConnector.class);
+	private static final int CONNECT_TIMEOUT = 10; // [s]
+	private static final int READ_TIMEOUT = 10; // [s]
+	private static final int WRITE_TIMEOUT = 10; // [s]
+
+	private static final int EXECUTOR_MIN_THREADS = 1;
+	private static final int EXECUTOR_MAX_THREADS = 50;
+	private static final int EXECUTOR_QUEUE_SIZE = 100;
+
+	private final Logger log = LoggerFactory.getLogger(InfluxConnector.class);
 
 	private final String ip;
 	private final int port;
@@ -48,6 +62,9 @@ public class InfluxConnector {
 	private final String retentionPolicy;
 	private final boolean isReadOnly;
 	private final BiConsumer<Iterable<Point>, Throwable> onWriteError;
+	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(EXECUTOR_MIN_THREADS, EXECUTOR_MAX_THREADS, 60L,
+			TimeUnit.SECONDS, new ArrayBlockingQueue<>(EXECUTOR_QUEUE_SIZE), new ThreadPoolExecutor.DiscardPolicy());
+	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	/**
 	 * The Constructor.
@@ -61,7 +78,7 @@ public class InfluxConnector {
 	 * @param isReadOnly   If true, a 'Read-Only-Mode' is activated, where no data
 	 *                     is actually written to the database
 	 * @param onWriteError A callback for write-errors, i.e. '(failedPoints,
-	 *                     throwable) -> {}'
+	 *                     throwable) -&gt; {}'
 	 */
 	public InfluxConnector(String ip, int port, String username, String password, String database,
 			String retentionPolicy, boolean isReadOnly, BiConsumer<Iterable<Point>, Throwable> onWriteError) {
@@ -74,23 +91,36 @@ public class InfluxConnector {
 		this.retentionPolicy = retentionPolicy;
 		this.isReadOnly = isReadOnly;
 		this.onWriteError = onWriteError;
+		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
+			int queueSize = this.executor.getQueue().size();
+			this.log.info(String.format("[monitor] Pool: %d, Active: %d, Pending: %d, Completed: %d %s",
+					this.executor.getPoolSize(), //
+					this.executor.getActiveCount(), //
+					this.executor.getQueue().size(), //
+					this.executor.getCompletedTaskCount(), //
+					(queueSize == EXECUTOR_QUEUE_SIZE) ? "!!!BACKPRESSURE!!!" : "")); //
+		}, 10, 10, TimeUnit.SECONDS);
 	}
 
 	private InfluxDB _influxDB = null;
 
 	public String getDatabase() {
-		return database;
+		return this.database;
 	}
 
 	/**
-	 * Get InfluxDB Connection
+	 * Get InfluxDB Connection.
 	 * 
-	 * @return
+	 * @return the {@link InfluxDB} connection
 	 */
 	private InfluxDB getConnection() {
 		if (this._influxDB == null) {
+			OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient().newBuilder() //
+					.connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS) //
+					.readTimeout(READ_TIMEOUT, TimeUnit.SECONDS) //
+					.writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS);
 			InfluxDB influxDB = InfluxDBFactory.connect("http://" + this.ip + ":" + this.port, this.username,
-					this.password);
+					this.password, okHttpClientBuilder);
 			try {
 				influxDB.query(new Query("CREATE DATABASE " + this.database, ""));
 			} catch (InfluxDBException e) {
@@ -99,7 +129,11 @@ public class InfluxConnector {
 			influxDB.setDatabase(this.database);
 			influxDB.setRetentionPolicy(this.retentionPolicy);
 			influxDB.enableBatch(BatchOptions.DEFAULTS //
-					.jitterDuration(500) //
+					.precision(TimeUnit.MILLISECONDS) //
+					.flushDuration(1_000 /* milliseconds */) //
+					.jitterDuration(1_000 /* milliseconds */) //
+					.actions(1_000 /* entries */) //
+					.bufferLimit(1_000_000 /* entries */) //
 					.exceptionHandler(this.onWriteError));
 			this._influxDB = influxDB;
 		}
@@ -107,19 +141,71 @@ public class InfluxConnector {
 	}
 
 	public void deactivate() {
+		// Shutdown executor
+		if (this.executor != null) {
+			try {
+				this.executor.shutdown();
+				this.executor.awaitTermination(5, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				this.log.warn("tasks interrupted");
+			} finally {
+				if (!this.executor.isTerminated()) {
+					this.log.warn("cancel non-finished tasks");
+				}
+				this.executor.shutdownNow();
+			}
+		}
 		if (this._influxDB != null) {
 			this._influxDB.close();
 		}
 	}
 
+	private static class RandomLimit {
+		private static final double MAX_LIMIT = 0.95;
+		private static final double MIN_LIMIT = 0;
+		private static final double STEP = 0.01;
+
+		private double limit = 0;
+
+		protected synchronized void increase() {
+			this.limit += STEP;
+			if (this.limit > MAX_LIMIT) {
+				this.limit = MAX_LIMIT;
+			}
+		}
+
+		protected synchronized void decrease() {
+			this.limit -= STEP;
+			if (this.limit <= MIN_LIMIT) {
+				this.limit = MIN_LIMIT;
+			}
+		}
+
+		protected double getLimit() {
+			return this.limit;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%.3f", this.limit);
+		}
+	}
+
+	private final RandomLimit queryLimit = new RandomLimit();
+
 	/**
-	 * copied from backend.timedata.influx.provider
+	 * Copied from backend.timedata.influx.provider.
 	 * 
-	 * @param query
-	 * @return
-	 * @throws OpenemsException
+	 * @param query the Query
+	 * @return the {@link QueryResult}
+	 * @throws OpenemsException on error
 	 */
 	public QueryResult executeQuery(String query) throws OpenemsException {
+		if (Math.random() < this.queryLimit.getLimit()) {
+			throw new OpenemsException(
+					"InfluxDB read is temporarily blocked [" + this.queryLimit + "]. Query: " + query);
+		}
+
 		InfluxDB influxDB = this.getConnection();
 
 		// Parse result
@@ -127,11 +213,14 @@ public class InfluxConnector {
 		try {
 			queryResult = influxDB.query(new Query(query, this.database), TimeUnit.MILLISECONDS);
 		} catch (RuntimeException e) {
+			this.queryLimit.increase();
 			throw new OpenemsException("InfluxDB query runtime error. Query: " + query + ", Error: " + e.getMessage());
 		}
 		if (queryResult.hasError()) {
+			this.queryLimit.increase();
 			throw new OpenemsException("InfluxDB query error. Query: " + query + ", Error: " + queryResult.getError());
 		}
+		this.queryLimit.decrease();
 		return queryResult;
 	}
 
@@ -147,6 +236,11 @@ public class InfluxConnector {
 	 */
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(Optional<Integer> influxEdgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		if (Math.random() * 4 < this.queryLimit.getLimit()) {
+			throw new OpenemsException("InfluxDB read is temporarily blocked for Energy values [" + this.queryLimit
+					+ "]. Edge [" + influxEdgeId + "] FromDate [" + fromDate + "] ToDate [" + toDate + "]");
+		}
+
 		// handle empty call
 		if (channels.isEmpty()) {
 			return new TreeMap<ChannelAddress, JsonElement>();
@@ -168,11 +262,63 @@ public class InfluxConnector {
 		String query = b.toString();
 
 		// Execute query
-		QueryResult queryResult = executeQuery(query);
+		QueryResult queryResult = this.executeQuery(query);
 
 		// Prepare result
 		SortedMap<ChannelAddress, JsonElement> result = InfluxConnector.convertHistoricEnergyResult(query, queryResult,
 				fromDate.getZone());
+
+		return result;
+	}
+
+	/**
+	 * Queries historic energy per period.
+	 * 
+	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
+	 * @param fromDate     the From-Date
+	 * @param toDate       the To-Date
+	 * @param channels     the Channels to query
+	 * @param resolution   the resolution in seconds
+	 * @return the historic data as Map
+	 * @throws OpenemsException on error
+	 */
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(
+			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
+			int resolution) throws OpenemsNamedException {
+		if (Math.random() * 4 < this.queryLimit.getLimit()) {
+			throw new OpenemsException("InfluxDB read is temporarily blocked for Energy values [" + this.queryLimit
+					+ "]. Edge [" + influxEdgeId + "] FromDate [" + fromDate + "] ToDate [" + toDate + "]");
+		}
+
+		// handle empty call
+		if (channels.isEmpty()) {
+			return new TreeMap<>();
+		}
+
+		// Prepare query string
+		StringBuilder b = new StringBuilder("SELECT ");
+		b.append(InfluxConnector.toChannelAddressStringNonNegativeDifferenceLast(channels));
+		b.append(" FROM data WHERE ");
+		if (influxEdgeId.isPresent()) {
+			b.append(InfluxConstants.TAG + " = '" + influxEdgeId.get() + "' AND ");
+		}
+		b.append("time > ");
+		b.append(String.valueOf(fromDate.toEpochSecond()));
+		b.append("s");
+		b.append(" AND time < ");
+		b.append(String.valueOf(toDate.toEpochSecond()));
+		b.append("s");
+		b.append(" GROUP BY time(");
+		b.append(resolution);
+		b.append("s) fill(null)");
+		String query = b.toString();
+
+		// Execute query
+		QueryResult queryResult = this.executeQuery(query);
+
+		// Prepare result
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = InfluxConnector
+				.convertHistoricDataQueryResult(queryResult, fromDate.getZone());
 
 		return result;
 	}
@@ -185,7 +331,7 @@ public class InfluxConnector {
 	 * @param toDate       the To-Date
 	 * @param channels     the Channels to query
 	 * @param resolution   the resolution in seconds
-	 * @return
+	 * @return the historic data as Map
 	 * @throws OpenemsException on error
 	 */
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(
@@ -222,7 +368,7 @@ public class InfluxConnector {
 	 * Converts the QueryResult of a Historic-Data query to a properly typed Table.
 	 * 
 	 * @param queryResult the Query-Result
-	 * @return
+	 * @return the historic data as Map
 	 * @throws OpenemsException on error
 	 */
 	private static SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> convertHistoricDataQueryResult(
@@ -273,7 +419,7 @@ public class InfluxConnector {
 	 * Converts the QueryResult of a Historic-Energy query to a properly typed Map.
 	 * 
 	 * @param queryResult the Query-Result
-	 * @return
+	 * @return the historic energy as Map
 	 * @throws OpenemsException on error
 	 */
 	private static SortedMap<ChannelAddress, JsonElement> convertHistoricEnergyResult(String query,
@@ -305,7 +451,7 @@ public class InfluxConnector {
 								Number number = (Number) valueObj;
 								if (number.intValue() < 0) {
 									// do not consider negative values
-									log.warn("Got negative Energy value [" + number + "] for query: " + query);
+									LOG.warn("Got negative Energy value [" + number + "] for query: " + query);
 									value = JsonNull.INSTANCE;
 								} else {
 									value = new JsonPrimitive(number);
@@ -330,19 +476,13 @@ public class InfluxConnector {
 				}
 			}
 			if (areAllValuesNull) {
-				throw new OpenemsException("Energy values are not available");
+				throw new OpenemsException("Energy values are not available for query: " + query);
 			}
 		}
 
 		return map;
 	}
 
-	/**
-	 * 
-	 * @param channels
-	 * @return
-	 * @throws OpenemsException
-	 */
 	protected static String toChannelAddressStringData(Set<ChannelAddress> channels) throws OpenemsException {
 		ArrayList<String> channelAddresses = new ArrayList<>();
 		for (ChannelAddress channel : channels) {
@@ -354,8 +494,18 @@ public class InfluxConnector {
 	protected static String toChannelAddressStringEnergy(Set<ChannelAddress> channels) throws OpenemsException {
 		ArrayList<String> channelAddresses = new ArrayList<>();
 		for (ChannelAddress channel : channels) {
-			channelAddresses.add("last(\"" + channel.toString() + "\") - first(\"" + channel.toString() + "\") as \""
+			channelAddresses.add("LAST(\"" + channel.toString() + "\") - FIRST(\"" + channel.toString() + "\") AS \""
 					+ channel.toString() + "\"");
+		}
+		return String.join(", ", channelAddresses);
+	}
+
+	protected static String toChannelAddressStringNonNegativeDifferenceLast(Set<ChannelAddress> channels)
+			throws OpenemsException {
+		ArrayList<String> channelAddresses = new ArrayList<>();
+		for (ChannelAddress channel : channels) {
+			channelAddresses.add(
+					"NON_NEGATIVE_DIFFERENCE(LAST(\"" + channel.toString() + "\")) AS \"" + channel.toString() + "\"");
 		}
 		return String.join(", ", channelAddresses);
 	}
@@ -373,7 +523,9 @@ public class InfluxConnector {
 			return;
 		}
 		try {
-			this.getConnection().write(point);
+			this.executor.execute(() -> {
+				this.getConnection().write(point);
+			});
 		} catch (InfluxDBIOException e) {
 			throw new OpenemsException("Unable to write point: " + e.getMessage());
 		}

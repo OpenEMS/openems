@@ -1,7 +1,5 @@
 package io.openems.edge.controller.api.modbus.jsonrpc;
 
-import java.util.UUID;
-
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
@@ -24,11 +22,11 @@ public class GetModbusProtocolRequest extends JsonrpcRequest {
 	public static final String METHOD = "getModbusProtocol";
 
 	public GetModbusProtocolRequest() {
-		this(UUID.randomUUID());
+		super(METHOD);
 	}
 
-	public GetModbusProtocolRequest(UUID id) {
-		super(id, METHOD);
+	private GetModbusProtocolRequest(JsonrpcRequest request) {
+		super(request, METHOD);
 	}
 
 	@Override

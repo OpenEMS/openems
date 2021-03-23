@@ -1,12 +1,12 @@
-import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
+import { ActivatedRoute } from '@angular/router';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { formatNumber } from '@angular/common';
+import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'heatingelementChart',
@@ -31,9 +31,10 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   }
 
   ngOnInit() {
+    this.spinnerId = 'heatingelement-chart';
+    this.service.startSpinner(this.spinnerId);
     this.service.setCurrentComponent('', this.route);
     this.setLabel()
-    this.subscribeChartRefresh()
   }
 
   ngOnDestroy() {
@@ -41,6 +42,8 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   }
 
   protected updateChart() {
+    this.autoSubscribeChartRefresh();
+    this.service.startSpinner(this.spinnerId);
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -76,6 +79,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
         }
         this.datasets = datasets;
         this.loading = false;
+        this.service.stopSpinner(this.spinnerId);
       }).catch(reason => {
         console.error(reason); // TODO error message
         this.initializeChart();
@@ -97,7 +101,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   }
 
   protected setLabel() {
-    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    let options = this.createDefaultChartOptions();
     options.scales.yAxes[0].id = 'yAxis1'
     options.scales.yAxes[0].scaleLabel.labelString = 'Level';
     options.scales.yAxes[0].ticks.beginAtZero = true;

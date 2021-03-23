@@ -9,7 +9,7 @@ import { ModalController } from '@ionic/angular';
 export class ProductionModalComponent {
 
 
-    // referene to the Utils method to access via html
+    // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
     @Input() public edge: Edge;

@@ -267,7 +267,7 @@ public class OneWireAccessProvider {
 			System.err.println();
 		}
 
-		// try PDK adapater
+		// try PDK adapter
 		try {
 			adapter_class = Class.forName("com.dalsemi.onewire.adapter.PDKAdapterUSB");
 			adapter_instance = (DSPortAdapter) adapter_class.newInstance();
@@ -333,7 +333,7 @@ public class OneWireAccessProvider {
 	 *
 	 * @return <code>DSPortAdapter</code> if adapter present
 	 *
-	 * @throws OneWireIOException when communcation with the adapter fails
+	 * @throws OneWireIOException when communication with the adapter fails
 	 * @throws OneWireException   when the port or adapter not present
 	 */
 	public static DSPortAdapter getAdapter(String adapterName, String portName)
@@ -399,8 +399,8 @@ public class OneWireAccessProvider {
 	 * <ul>
 	 * <li>Use adapter/port in System.properties for onewire.adapter.default, and
 	 * onewire.port.default properties tags.</li>
-	 * <li>Use adapter/port from onewire.properties file in current directory or <
-	 * java.home >/lib/ (Desktop) or /etc/ (TINI)</li>
+	 * <li>Use adapter/port from onewire.properties file in current directory or
+	 * &lt; java.home &gt;/lib/ (Desktop) or /etc/ (TINI)</li>
 	 * <li>Use smart default
 	 * <ul>
 	 * <li>Desktop
@@ -414,7 +414,7 @@ public class OneWireAccessProvider {
 	 *
 	 * @return <code>DSPortAdapter</code> if default adapter present
 	 *
-	 * @throws OneWireIOException when communcation with the adapter fails
+	 * @throws OneWireIOException when communication with the adapter fails
 	 * @throws OneWireException   when the port or adapter not present
 	 */
 	public static DSPortAdapter getDefaultAdapter() throws OneWireIOException, OneWireException {
@@ -426,13 +426,13 @@ public class OneWireAccessProvider {
 	}
 
 	/**
-	 * Gets the specfied onewire property. Looks for the property in the following
+	 * Gets the specified onewire property. Looks for the property in the following
 	 * locations:
 	 * <p>
 	 * <ul>
 	 * <li>In System.properties
-	 * <li>In onewire.properties file in current directory or < java.home >/lib/
-	 * (Desktop) or /etc/ (TINI)
+	 * <li>In onewire.properties file in current directory or &lt; java.home
+	 * &gt;/lib/ (Desktop) or /etc/ (TINI)
 	 * <li>'smart' default if property is 'onewire.adapter.default' or
 	 * 'onewire.port.default'
 	 * </ul>

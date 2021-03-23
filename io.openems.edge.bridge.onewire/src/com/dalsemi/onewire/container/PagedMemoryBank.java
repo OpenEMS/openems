@@ -123,7 +123,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  *     // loop to read each page with CRC 
  *     for (int pg = 0; pg < pmb.getNumberPages(); pg++)
  *     {
- *        // use 'readContinue' arguement to only access device on first page
+ *        // use 'readContinue' argument to only access device on first page
  *        pmb.readPageCRC(pg, (pg == 0), read_buf, 0);
  *
  *        // do something with data in read_buf ... 
@@ -184,7 +184,7 @@ public interface PagedMemoryBank extends MemoryBank {
 	 * Gets Maximum data page length in bytes for a packet read or written in this
 	 * memory bank. See the {@link #readPagePacket(int,boolean,byte[],int)
 	 * readPagePacket} and {@link #writePagePacket(int,byte[],int,int)
-	 * writePagePacket} methods. This method is only usefull if this memory bank is
+	 * writePagePacket} methods. This method is only useful if this memory bank is
 	 * general purpose memory.
 	 *
 	 * @return max packet page length in bytes in this memory bank

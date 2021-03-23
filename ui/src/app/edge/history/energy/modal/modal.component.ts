@@ -1,11 +1,11 @@
 import { ActivatedRoute } from '@angular/router';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
-import { ChannelAddress, Service, Websocket } from '../../../../shared/shared';
 import { Component, OnInit } from '@angular/core';
 import { format, isSameDay, isSameMonth } from 'date-fns/esm';
 import { isSameYear } from 'date-fns';
 import { ModalController } from '@ionic/angular';
 import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
+import { Service, Websocket } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import * as FileSaver from 'file-saver';
 
@@ -37,29 +37,7 @@ export class EnergyModalComponent implements OnInit {
      */
     public exportToXlxs() {
         this.service.getCurrentEdge().then(edge => {
-            // TODO the order of these channels should be reflected in the excel file
-            let dataChannels = [
-                // Storage Soc
-                new ChannelAddress('_sum', 'EssActivePower'),
-                // Storage
-                new ChannelAddress('_sum', 'EssActivePower'),
-                // Grid
-                new ChannelAddress('_sum', 'GridActivePower'),
-                // Production
-                new ChannelAddress('_sum', 'ProductionActivePower'),
-                // Consumption
-                new ChannelAddress('_sum', 'ConsumptionActivePower')
-            ];
-            let energyChannels = [
-                // new ChannelAddress('_sum', 'EssSoc'),
-                // new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
-                // new ChannelAddress('_sum', 'GridSellActiveEnergy'),
-                // new ChannelAddress('_sum', 'ProductionActiveEnergy'),
-                // new ChannelAddress('_sum', 'ConsumptionActiveEnergy'),
-                // new ChannelAddress('_sum', 'EssActiveChargeEnergy'),
-                // new ChannelAddress('_sum', 'EssActiveDischargeEnergy')
-            ];
-            edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.from, this.service.historyPeriod.to, dataChannels, energyChannels)).then(response => {
+            edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.from, this.service.historyPeriod.to)).then(response => {
                 let r = response as Base64PayloadResponse;
                 var binary = atob(r.result.payload.replace(/\s/g, ''));
                 var len = binary.length;

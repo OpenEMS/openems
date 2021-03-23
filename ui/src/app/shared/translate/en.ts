@@ -11,6 +11,7 @@ export const TRANSLATION = {
         changeFailed: 'Change failed',
         chargeDischarge: 'Charge/Discharge power',
         chargePower: 'Charge power',
+        componentCount: 'Number of components',
         componentInactive: 'Component is not active!',
         connectionLost: 'Connection lost. Trying to reconnect.',
         consumption: 'Consumption',
@@ -18,6 +19,8 @@ export const TRANSLATION = {
         currentName: 'current name',
         currentValue: 'current value',
         dateFormat: 'yyyy-MM-dd', // e.g. German: dd.MM.yyyy (dd = Day, MM = Month, yyyy = Year)
+        digitalInputs: 'Digital Inputs',
+        directConsumption: 'Direct consumption',
         dischargePower: 'Discharge power',
         fault: 'Fault',
         grid: 'Grid',
@@ -29,6 +32,7 @@ export const TRANSLATION = {
         inactive: 'Inactive',
         info: 'Info',
         inputNotValid: 'Input not valid',
+        insufficientRights: 'Insufficient rights',
         live: 'Live',
         load: 'Load',
         manually: 'Manually',
@@ -85,19 +89,26 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'About OpenEMS UI',
-        edgeSettings: 'FEMS Settings',
+        edgeSettings: 'OpenEMS Edge Settings',
         generalSettings: 'General Settings',
         index: 'Index',
         logout: 'Sign Out',
         menu: 'Menu',
-        overview: 'FEMS Overview',
+        overview: 'OpenEMS Edge Overview',
     },
     Index: {
         allConnected: 'All connections established.',
+        connectionInProgress: 'Establishing connection...',
         connectionFailed: 'Connection to {{value}} failed.', // value = name of websocket
         connectionSuccessful: 'Successfully connected to {{value}}.', // value = name of websocket
         isOffline: 'OpenEMS is offline!',
         toEnergymonitor: 'To Energymonitor...',
+    },
+    Login: {
+        title: "Login",
+        preamble: "Please enter your password or submit the default value to login as a guest.",
+        passwordLabel: "Password",
+        passwordPlaceholder: "Password",
     },
     Edge: {
         Index: {
@@ -128,6 +139,7 @@ export const TRANSLATION = {
                     currentValue: 'Current value',
                     dependendOn: 'Dependend on',
                     minSwitchingTime: 'Minimum swichting time',
+                    moreThanMaxPower: 'Value must not be lower than the maximum power of the controlled device',
                     other: 'Other',
                     relationError: 'Threshold must be greater than the switched load power',
                     switchedLoadPower: 'Switched load power',
@@ -137,13 +149,24 @@ export const TRANSLATION = {
                     switchOnBelow: 'Switch on below',
                     threshold: 'Threshold',
                 },
+                DelayedSellToGrid: {
+                    sellToGridPowerLimit: 'Charge above',
+                    continuousSellToGridPower: 'Discharge below',
+                    relationError: 'Charge limit must be greater than the Discharge limit',
+                },
                 Peakshaving: {
                     asymmetricInfo: 'The entered performance values ​​refer to individual phases. It is adjusted to the most stressed phase.',
+                    endDate: 'End date',
+                    endTime: 'End time',
                     mostStressedPhase: 'Most stressed phase',
                     peakshaving: 'Peak-Shaving',
                     peakshavingPower: 'Discharge above',
+                    recharge: 'Recharge Power',
                     rechargePower: 'Charge below',
-                    relationError: 'Discharge limit must be greater than or equal to the load limit',
+                    relationError: 'Discharge limit must be greater than or equal to the charge limit',
+                    startDate: 'Start date',
+                    startTime: 'Start time',
+                    startTimeCharge: 'Charge Start time',
                 },
                 CHP: {
                     highThreshold: 'High Threshold',
@@ -185,7 +208,13 @@ export const TRANSLATION = {
                     status: 'Status',
                     totalCharge: 'Total charge',
                     totalChargingPower: 'Total charging power',
+                    unknown: 'Unknown',
                     unplugged: 'Unplugged',
+                    Administration: {
+                        carAdministration: 'Car administration',
+                        customCarInfo: 'If this is the case, your car can only be charged efficiently from a certain output. With this button, this is included in your configuration options as well as in the automatic charging calculations.',
+                        renaultZoe: 'Is a Renault Zoe mainly charged on this charging station?'
+                    },
                     NoConnection: {
                         description: 'No connection to the charging station.',
                         help1_1: 'The IP of the charging station appears when switching on again',
@@ -222,6 +251,22 @@ export const TRANSLATION = {
                     minimalEnergyAmount: 'Minimal charge amount',
                     minimumRunTime: 'Minimum runtime',
                     timeCountdown: 'time until start',
+                },
+                HeatPump: {
+                    aboveSoc: 'and above the state of charge of',
+                    belowSoc: 'and below state of charge of',
+                    gridBuy: 'From grid purchase of',
+                    gridSell: 'From excess feed-in of',
+                    lock: 'Lock',
+                    moreThanHpPower: 'The value must not be lower than the maximum output of the heat pump',
+                    normalOperation: 'Normal operation',
+                    normalOperationShort: 'Normal',
+                    relationError: 'Switch-on command excess value must be greater than switch-on recommended value',
+                    switchOnCom: 'Switch-on command',
+                    switchOnComShort: 'Command',
+                    switchOnRec: 'Switch-on recommendation',
+                    switchOnRecShort: 'Recommendation',
+                    undefined: 'Undefined',
                 }
             }
         },

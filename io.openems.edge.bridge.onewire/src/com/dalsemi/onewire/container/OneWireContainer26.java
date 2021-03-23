@@ -114,7 +114,7 @@ public class OneWireContainer26 extends OneWireContainer
 	/**
 	 * Flag to set/check the Current Accumulator bit with setFlag/getFlag. When this
 	 * bit is true, both the total discharging and charging current are integrated
-	 * into seperate registers and can be used for determining full/empty levels.
+	 * into separate registers and can be used for determining full/empty levels.
 	 * When this bit is zero the memory (page 7) can be used as user memory.
 	 */
 	public static final byte CA_FLAG = 0x02;
@@ -340,7 +340,7 @@ public class OneWireContainer26 extends OneWireContainer
 	public String getDescription() {
 		return "1-Wire device that integrates the total current charging or "
 				+ "discharging through a battery and stores it in a register. "
-				+ "It also returns the temperature (accurate to 2 degrees celcius),"
+				+ "It also returns the temperature (accurate to 2 degrees celsius),"
 				+ " as well as the instantaneous current and voltage and also "
 				+ "provides 40 bytes of EEPROM storage.";
 	}
@@ -450,7 +450,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @param page   the page number
 	 * @param source data to be written to page
-	 * @param offset offset with page to begin writting
+	 * @param offset offset with page to begin writing
 	 *
 	 * @throws OneWireIOException       Error reading data
 	 * @throws OneWireException         Could not find part
@@ -521,7 +521,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @param flagValue value to set flag to
 	 *
-	 * @throws OneWireIOException       Error writting data
+	 * @throws OneWireIOException       Error writing data
 	 * @throws OneWireException         Could not find part
 	 * @throws IllegalArgumentException Bad parameters passed
 	 */
@@ -794,7 +794,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @param state device state
 	 *
-	 * @return time in milliseconds that have occured since 1970
+	 * @return time in milliseconds that have occurred since 1970
 	 */
 	public long getDisconnectTime(byte[] state) {
 		return getTime(state, 16) * 1000;
@@ -806,7 +806,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @param state device state
 	 *
-	 * @return time in milliseconds that have occured since 1970
+	 * @return time in milliseconds that have occurred since 1970
 	 */
 	public long getEndOfChargeTime(byte[] state) {
 		return getTime(state, 20) * 1000;
@@ -1260,7 +1260,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @param state device's state
 	 *
-	 * @throws OneWireIOException Error writting data
+	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find part
 	 */
 	public void writeDevice(byte[] state) throws OneWireIOException, OneWireException {
@@ -1342,7 +1342,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @param state device state
 	 *
-	 * @throws OneWireIOException Error writting data
+	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find part
 	 */
 	public void doTemperatureConvert(byte[] state) throws OneWireIOException, OneWireException {
@@ -1443,7 +1443,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @param resolution temperature resolution in degrees C
 	 * @param state      device state
 	 *
-	 * @throws OneWireIOException Error writting data
+	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find part
 	 */
 	public void setTemperatureResolution(double resolution, byte[] state) throws OneWireException, OneWireIOException {
@@ -1493,7 +1493,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @param state device state
 	 *
-	 * @return time in milliseconds that have occured since 1970
+	 * @return time in milliseconds that have occurred since 1970
 	 */
 	public long getClock(byte[] state) {
 		return getTime(state, 8) * 1000;
@@ -1538,7 +1538,7 @@ public class OneWireContainer26 extends OneWireContainer
 	}
 
 	/**
-	 * This method checks if the device's oscilator is enabled. The clock will not
+	 * This method checks if the device's oscillator is enabled. The clock will not
 	 * increment if the clock is not enabled. This value is read from the provided
 	 * state data retrieved from the <CODE>readDevice()</CODE> method.
 	 *
@@ -1749,7 +1749,7 @@ public class OneWireContainer26 extends OneWireContainer
 			// read the sample voltage
 			vad = getADVoltage(CHANNEL_VAD, state);
 		} catch (OneWireException e) {
-			// know from this implementatin that this will never happen
+			// know from this implementation that this will never happen
 			return 0.0;
 		}
 

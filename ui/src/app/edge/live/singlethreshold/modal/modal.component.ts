@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { Service, Edge, EdgeConfig, ChannelAddress, Websocket } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
-import { Validators, FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
 
 type mode = 'ON' | 'AUTOMATIC' | 'OFF';
 type inputMode = 'SOC' | 'GRIDSELL' | 'GRIDBUY' | 'PRODUCTION' | 'OTHER'
@@ -45,7 +45,7 @@ export class SinglethresholdModalComponent {
       minimumSwitchingTime: new FormControl(this.component.properties.minimumSwitchingTime, Validators.compose([
         Validators.min(5),
         Validators.pattern('^[1-9][0-9]*$'),
-        Validators.required
+        Validators.required,
       ])),
       switchedLoadPower: new FormControl(this.component.properties.switchedLoadPower, Validators.compose([
         Validators.pattern('^(?:[1-9][0-9]*|0)$'),
@@ -66,7 +66,7 @@ export class SinglethresholdModalComponent {
     this.invert = this.formGroup.controls['invert'];
   }
 
-  getInputMode(): inputMode {
+  private getInputMode(): inputMode {
     if (this.component.properties.inputChannelAddress == '_sum/GridActivePower' && this.component.properties.threshold < 0) {
       return 'GRIDSELL';
     } else if (this.component.properties.inputChannelAddress == '_sum/GridActivePower' && this.component.properties.threshold > 0) {
@@ -80,7 +80,7 @@ export class SinglethresholdModalComponent {
     }
   }
 
-  updateInputMode(event: CustomEvent) {
+  public updateInputMode(event: CustomEvent) {
     let newThreshold: number = this.component.properties.threshold;
 
     switch (event.detail.value) {
@@ -125,7 +125,7 @@ export class SinglethresholdModalComponent {
     }
   }
 
-  updateMode(event: CustomEvent) {
+  public updateMode(event: CustomEvent) {
     let oldMode = this.component.properties.mode;
     let newMode: mode;
 
@@ -155,7 +155,7 @@ export class SinglethresholdModalComponent {
     }
   }
 
-  convertToChannelAddress(inputMode: inputMode) {
+  private convertToChannelAddress(inputMode: inputMode): String {
     switch (inputMode) {
       case 'SOC':
         return '_sum/EssSoc'
@@ -168,7 +168,7 @@ export class SinglethresholdModalComponent {
     }
   }
 
-  convertToInputMode(inputChannelAddress: string, threshold: number): inputMode {
+  private convertToInputMode(inputChannelAddress: string, threshold: number): inputMode {
     switch (inputChannelAddress) {
       case '_sum/EssSoc':
         return 'SOC'
@@ -183,56 +183,60 @@ export class SinglethresholdModalComponent {
     }
   }
 
-  applyChanges() {
-    if (this.minimumSwitchingTime.valid && this.threshold.valid && this.switchedLoadPower.valid) {
-      if (this.threshold.value > this.switchedLoadPower.value) {
-        let updateComponentArray = [];
-        Object.keys(this.formGroup.controls).forEach((element, index) => {
-          if (this.formGroup.controls[element].dirty) {
-            // catch inputMode and convert it to inputChannelAddress
-            if (Object.keys(this.formGroup.controls)[index] == 'inputMode') {
-              updateComponentArray.push({ name: 'inputChannelAddress', value: this.convertToChannelAddress(this.formGroup.controls[element].value) })
-            } else if (this.inputMode.value == 'GRIDSELL' && Object.keys(this.formGroup.controls)[index] == 'threshold') {
-              this.formGroup.controls[element].setValue(this.formGroup.controls[element].value * -1);
-              updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
-            } else {
-              updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+  public applyChanges(): void {
+    if (this.edge != null) {
+      if (this.edge.roleIsAtLeast('owner')) {
+        if (this.minimumSwitchingTime.valid && this.threshold.valid && this.switchedLoadPower.valid) {
+          if (this.threshold.value > this.switchedLoadPower.value) {
+            let updateComponentArray = [];
+            Object.keys(this.formGroup.controls).forEach((element, index) => {
+              if (this.formGroup.controls[element].dirty) {
+                // catch inputMode and convert it to inputChannelAddress
+                if (Object.keys(this.formGroup.controls)[index] == 'inputMode') {
+                  updateComponentArray.push({ name: 'inputChannelAddress', value: this.convertToChannelAddress(this.formGroup.controls[element].value) })
+                } else if (this.inputMode.value == 'GRIDSELL' && Object.keys(this.formGroup.controls)[index] == 'threshold') {
+                  this.formGroup.controls[element].setValue(this.formGroup.controls[element].value * -1);
+                  updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                } else {
+                  updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                }
+              }
+            });
+            this.loading = true;
+            this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
+              this.component.properties.minimumSwitchingTime = this.minimumSwitchingTime.value;
+              this.component.properties.threshold = this.inputMode.value == 'GRIDSELL' ? this.threshold.value * -1 : this.threshold.value;
+              this.component.properties.switchedLoadPower = this.switchedLoadPower.value;
+              this.component.properties.inputChannelAddress = this.convertToChannelAddress(this.inputMode.value) != this.component.properties.inputChannelAddress ? this.convertToChannelAddress(this.inputMode.value) : this.component.properties.inputChannelAddress;
+              this.component.properties.invert = this.invert.value;
+              this.loading = false;
+              this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+            }).catch(reason => {
+              this.loading = false;
+              this.minimumSwitchingTime.setValue(this.component.properties.minimumSwitchingTime);
+              this.threshold.setValue(this.component.properties.threshold);
+              this.switchedLoadPower.setValue(this.component.properties.switchedLoadPower);
+              this.inputMode.setValue(this.convertToInputMode(this.component.properties.inputChannelAddress, this.component.properties.threshold));
+              this.invert.setValue(this.component.properties.invert);
+              this.loading = false;
+              this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+              console.warn(reason);
+            });
+            if (this.inputMode.value == 'GRIDSELL') {
+              if (this.inputMode.dirty || this.threshold.dirty) {
+                this.threshold.setValue(this.threshold.value * -1);
+              }
             }
+            this.formGroup.markAsPristine()
+          } else {
+            this.service.toast(this.translate.instant('Edge.Index.Widgets.Singlethreshold.relationError'), 'danger');
           }
-        });
-        if (this.edge != null) {
-          this.loading = true;
-          this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
-            this.component.properties.minimumSwitchingTime = this.minimumSwitchingTime.value;
-            this.component.properties.threshold = this.inputMode.value == 'GRIDSELL' ? this.threshold.value * -1 : this.threshold.value;
-            this.component.properties.switchedLoadPower = this.switchedLoadPower.value;
-            this.component.properties.inputChannelAddress = this.convertToChannelAddress(this.inputMode.value) != this.component.properties.inputChannelAddress ? this.convertToChannelAddress(this.inputMode.value) : this.component.properties.inputChannelAddress;
-            this.component.properties.invert = this.invert.value;
-            this.loading = false;
-            this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-          }).catch(reason => {
-            this.loading = false;
-            this.minimumSwitchingTime.setValue(this.component.properties.minimumSwitchingTime);
-            this.threshold.setValue(this.component.properties.threshold);
-            this.switchedLoadPower.setValue(this.component.properties.switchedLoadPower);
-            this.inputMode.setValue(this.convertToInputMode(this.component.properties.inputChannelAddress, this.component.properties.treshold));
-            this.invert.setValue(this.component.properties.invert);
-            this.loading = false;
-            this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-            console.warn(reason);
-          });
+        } else {
+          this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
         }
-        if (this.inputMode.value == 'GRIDSELL') {
-          if (this.inputMode.dirty || this.threshold.dirty) {
-            this.threshold.setValue(this.threshold.value * -1);
-          }
-        }
-        this.formGroup.markAsPristine()
       } else {
-        this.service.toast(this.translate.instant('Edge.Index.Widgets.Singlethreshold.relationError'), 'danger');
+        this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
       }
-    } else {
-      this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
     }
   }
 }

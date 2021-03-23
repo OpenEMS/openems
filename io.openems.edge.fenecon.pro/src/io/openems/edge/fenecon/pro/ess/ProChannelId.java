@@ -537,7 +537,9 @@ public enum ProChannelId implements io.openems.edge.common.channel.ChannelId {
 	STATE_176(Doc.of(Level.INFO) //
 			.text("ExternalPVCurrentZeroDriftErrorL3")), //
 	STATE_177(Doc.of(Level.INFO) //
-			.text("ExternalGridCurrentZeroDriftErrorL3"));
+			.text("ExternalGridCurrentZeroDriftErrorL3")), //
+	LOCAL_MODE(Doc.of(Level.WARNING) //
+			.text("System is in Local-Mode, Remote-Mode is required!"));
 
 	private final Doc doc;
 

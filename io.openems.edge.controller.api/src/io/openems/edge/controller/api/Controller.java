@@ -4,6 +4,7 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
@@ -24,6 +25,7 @@ public interface Controller extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		RUN_FAILED(Doc.of(Level.FAULT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Running the Controller failed"));
 
 		private final Doc doc;

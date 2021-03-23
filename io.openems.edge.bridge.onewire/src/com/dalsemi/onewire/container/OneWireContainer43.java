@@ -77,7 +77,7 @@ public class OneWireContainer43 extends OneWireContainer {
 	private MemoryBankScratchEE sp;
 
 	/*
-	 * registery memory bank to control write-once (EPROM) mode
+	 * registry memory bank to control write-once (EPROM) mode
 	 */
 	private MemoryBankEEPROM register;
 
@@ -201,7 +201,7 @@ public class OneWireContainer43 extends OneWireContainer {
 	 * Retrieve the Maxim Integrated Products part number of the iButton as a
 	 * string. For example 'DS1992'.
 	 *
-	 * @return string represetation of the iButton name.
+	 * @return string representation of the iButton name.
 	 */
 	public String getName() {
 		return "DS28EC20";
@@ -221,7 +221,7 @@ public class OneWireContainer43 extends OneWireContainer {
 	/**
 	 * Retrieve a short description of the function of the iButton type.
 	 *
-	 * @return string represetation of the function description.
+	 * @return string representation of the function description.
 	 */
 	public String getDescription() {
 		return "20Kb 1-Wire EEPROM";
@@ -341,7 +341,7 @@ public class OneWireContainer43 extends OneWireContainer {
 	}
 
 	/**
-	 * Lock the specifed page in the current memory bank. Not supported by all
+	 * Lock the specified page in the current memory bank. Not supported by all
 	 * devices. See the method 'canLockPage()'.
 	 *
 	 * @param page number of page to lock

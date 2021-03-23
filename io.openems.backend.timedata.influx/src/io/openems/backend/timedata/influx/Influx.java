@@ -31,10 +31,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.metadata.api.Edge;
-import io.openems.backend.metadata.api.Metadata;
-import io.openems.backend.timedata.api.EdgeCache;
-import io.openems.backend.timedata.api.Timedata;
+import io.openems.backend.common.metadata.Edge;
+import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.timedata.EdgeCache;
+import io.openems.backend.common.timedata.Timedata;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
@@ -45,10 +45,12 @@ import io.openems.shared.influxdb.InfluxConnector;
 import io.openems.shared.influxdb.InfluxConstants;
 
 @Designate(ocd = Config.class, factory = false)
-@Component(name = "Timedata.InfluxDB", configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Timedata.InfluxDB", //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class Influx extends AbstractOpenemsBackendComponent implements Timedata {
 
-	private static final String TMP_MINI_MEASUREMENT = "minies";
 	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	private final Logger log = LoggerFactory.getLogger(Influx.class);
@@ -112,56 +114,12 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			this.edgeCacheMap.put(edgeId, edgeCache);
 		}
 
-		/*
-		 * Prepare data table. Takes entries starting with eldest timestamp (ascending
-		 * order)
-		 */
-		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : data.rowMap().entrySet()) {
-			Long timestamp = entry.getKey();
-
-			// Check if cache is valid (it is not elder than 5 minutes compared to this
-			// timestamp)
-			long cacheTimestamp = edgeCache.getTimestamp();
-			if (timestamp < cacheTimestamp) {
-				// incoming data is older than cache -> do not apply cache
-
-			} else {
-				// incoming data is more recent than cache
-				if (timestamp < cacheTimestamp + 5 * 60 * 1000) {
-					// cache is valid (not elder than 5 minutes)
-					for (Entry<ChannelAddress, JsonElement> cacheEntry : edgeCache.getChannelCacheEntries()
-							.entrySet()) {
-						ChannelAddress channel = cacheEntry.getKey();
-						// check if there is a current value for this timestamp + channel
-						JsonElement existingValue = data.get(timestamp, channel);
-						if (existingValue == null) {
-							// if not -> add cache data to write data
-							data.put(timestamp, channel, cacheEntry.getValue());
-						}
-					}
-				} else {
-					// cache is not anymore valid (elder than 5 minutes)
-					if (cacheTimestamp != 0L) {
-						this.logInfo(this.log, "Edge [" + edgeId + "]: invalidate cache for influxId [" + influxEdgeId
-								+ "]. This timestamp [" + timestamp + "]. Cache timestamp [" + cacheTimestamp + "]");
-					}
-					// clear cache
-					edgeCache.clear();
-				}
-
-				// update cache
-				edgeCache.setTimestamp(timestamp);
-				for (Entry<ChannelAddress, JsonElement> channelEntry : entry.getValue().entrySet()) {
-					edgeCache.putToChannelCache(channelEntry.getKey(), channelEntry.getValue());
-				}
-			}
-		}
+		// Complement incoming data with data from Cache, because only changed values
+		// are transmitted
+		edgeCache.complementDataFromCache(edgeId, data.rowMap());
 
 		// Write data to default location
 		this.writeData(influxEdgeId, data);
-
-		// Hook to continue writing data to old Mini monitoring
-		this.writeDataToOldMiniMonitoring(edgeId, influxEdgeId, data);
 	}
 
 	/**
@@ -232,6 +190,16 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels);
 	}
 
+	@Override
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			throws OpenemsNamedException {
+		// parse the numeric EdgeId
+		Optional<Integer> influxEdgeId = Optional.of(Influx.parseNumberFromName(edgeId));
+
+		return this.influxConnector.queryHistoricEnergyPerPeriod(influxEdgeId, fromDate, toDate, channels, resolution);
+	}
+
 	/**
 	 * Adds the value in the correct data format for InfluxDB.
 	 *
@@ -294,82 +262,6 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		// call special handler
 		handler.accept(builder, value);
 		return true;
-	}
-
-	/**
-	 * Writes data to old database for old Mini monitoring.
-	 * 
-	 * </p>
-	 * XXX remove after full migration
-	 *
-	 * @param edgeId   the Edge-ID
-	 * @param influxId the Influx-Edge-ID
-	 * @param data     the received data
-	 * @throws OpenemsException on error
-	 */
-	private void writeDataToOldMiniMonitoring(String edgeId, int influxId,
-			TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException {
-		Edge edge = this.metadata.getEdgeOrError(edgeId);
-		if (!edge.getProducttype().equals("MiniES 3-3")) {
-			return;
-		}
-
-		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : data.rowMap().entrySet()) {
-			Long timestamp = entry.getKey();
-			// this builds an InfluxDB record ("point") for a given timestamp
-			Point.Builder builder = Point //
-					.measurement(TMP_MINI_MEASUREMENT) //
-					.tag(InfluxConstants.TAG, String.valueOf(influxId)) //
-					.time(timestamp, TimeUnit.MILLISECONDS);
-
-			Map<String, Object> fields = new HashMap<>();
-
-			for (Entry<ChannelAddress, JsonElement> valueEntry : entry.getValue().entrySet()) {
-				String channel = valueEntry.getKey().toString();
-				JsonElement element = valueEntry.getValue();
-				if (!element.isJsonPrimitive()) {
-					continue;
-				}
-				JsonPrimitive jValue = element.getAsJsonPrimitive();
-				if (!jValue.isNumber()) {
-					continue;
-				}
-				long value = jValue.getAsNumber().longValue();
-
-				// convert channel ids to old identifiers
-				if (channel.equals("ess0/Soc")) {
-					fields.put("Stack_SOC", value);
-				} else if (channel.equals("meter0/ActivePower")) {
-					fields.put("PCS_Grid_Power_Total", value * -1);
-				} else if (channel.equals("meter1/ActivePower")) {
-					fields.put("PCS_PV_Power_Total", value);
-				} else if (channel.equals("meter2/ActivePower")) {
-					fields.put("PCS_Load_Power_Total", value);
-				}
-
-				// from here value needs to be divided by 10 for backwards compatibility
-				value = value / 10;
-				if (channel.equals("meter2/Energy")) {
-					fields.put("PCS_Summary_Consumption_Accumulative_cor", value);
-					fields.put("PCS_Summary_Consumption_Accumulative", value);
-				} else if (channel.equals("meter0/BuyFromGridEnergy")) {
-					fields.put("PCS_Summary_Grid_Buy_Accumulative_cor", value);
-					fields.put("PCS_Summary_Grid_Buy_Accumulative", value);
-				} else if (channel.equals("meter0/SellToGridEnergy")) {
-					fields.put("PCS_Summary_Grid_Sell_Accumulative_cor", value);
-					fields.put("PCS_Summary_Grid_Sell_Accumulative", value);
-				} else if (channel.equals("meter1/EnergyL1")) {
-					fields.put("PCS_Summary_PV_Accumulative_cor", value);
-					fields.put("PCS_Summary_PV_Accumulative", value);
-				}
-			}
-
-			if (fields.size() > 0) {
-				// write to DB
-				builder.fields(fields);
-				this.influxConnector.write(builder.build());
-			}
-		}
 	}
 
 	@Override

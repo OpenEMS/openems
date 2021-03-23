@@ -7,7 +7,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.value.Value;
@@ -30,6 +29,10 @@ public class TypeUtils {
 		// Extract OptionsEnum
 		if (value instanceof OptionsEnum) {
 			value = ((OptionsEnum) value).getValue();
+		}
+		// Extract Enum (lower priority than OptionsEnum)
+		if (value instanceof Enum<?>) {
+			value = ((Enum<?>) value).ordinal();
 		}
 		switch (type) {
 		case BOOLEAN:
@@ -372,9 +375,9 @@ public class TypeUtils {
 	 * Safely subtract Integers.
 	 * 
 	 * <ul>
-	 * <li>if minuend is null -> result is null
-	 * <li>if subtrahend is null -> result is minuend
-	 * <li>if both are null -> result is null
+	 * <li>if minuend is null -&gt; result is null
+	 * <li>if subtrahend is null -&gt; result is minuend
+	 * <li>if both are null -&gt; result is null
 	 * </ul>
 	 * 
 	 * @param minuend    the minuend of the subtraction
@@ -382,6 +385,29 @@ public class TypeUtils {
 	 * @return the result, possibly null
 	 */
 	public static Integer subtract(Integer minuend, Integer subtrahend) {
+		if (minuend == null) {
+			return null;
+		}
+		if (subtrahend == null) {
+			return minuend;
+		}
+		return minuend - subtrahend;
+	}
+
+	/**
+	 * Safely subtract Longs.
+	 * 
+	 * <ul>
+	 * <li>if minuend is null -&gt; result is null
+	 * <li>if subtrahend is null -&gt; result is minuend
+	 * <li>if both are null -&gt; result is null
+	 * </ul>
+	 * 
+	 * @param minuend    the minuend of the subtraction
+	 * @param subtrahend the subtrahend of the subtraction
+	 * @return the result, possibly null
+	 */
+	public static Long subtract(Long minuend, Long subtrahend) {
 		if (minuend == null) {
 			return null;
 		}
@@ -410,14 +436,32 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely multiply Doubles.
+	 * 
+	 * @param factors the factors of the multiplication
+	 * @return the result, possibly null if all factors are null
+	 */
+	public static Double multiply(Double... factors) {
+		Double result = null;
+		for (Double factor : factors) {
+			if (result == null) {
+				result = factor;
+			} else if (factor != null) {
+				result *= factor;
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Safely divides Integers.
 	 * 
 	 * <ul>
-	 * <li>if dividend is null -> result is null
+	 * <li>if dividend is null -&gt; result is null
 	 * </ul>
 	 * 
-	 * @param minuend    the dividend of the division
-	 * @param subtrahend the divisor of the division
+	 * @param dividend the dividend of the division
+	 * @param divisor  the divisor of the division
 	 * @return the result, possibly null
 	 */
 	public static Integer divide(Integer dividend, int divisor) {
@@ -431,11 +475,11 @@ public class TypeUtils {
 	 * Safely divides Longs.
 	 * 
 	 * <ul>
-	 * <li>if dividend is null -> result is null
+	 * <li>if dividend is null -&gt; result is null
 	 * </ul>
 	 * 
-	 * @param minuend    the dividend of the division
-	 * @param subtrahend the divisor of the division
+	 * @param dividend the dividend of the division
+	 * @param divisor  the divisor of the division
 	 * @return the result, possibly null
 	 */
 	public static Long divide(Long dividend, long divisor) {
@@ -465,6 +509,25 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely finds the min value of all values.
+	 * 
+	 * @return the min value; or null if all values are null
+	 */
+	public static Double min(Double... values) {
+		Double result = null;
+		for (Double value : values) {
+			if (value != null) {
+				if (result == null) {
+					result = value;
+				} else {
+					result = Math.min(result, value);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Safely finds the average value of all values.
 	 * 
 	 * @return the average value; or null if all values are null
@@ -485,6 +548,28 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely finds the average value of all values.
+	 * 
+	 * @return the average value; or Double.NaN if all values are invalid.
+	 */
+	public static double average(double... values) {
+		int count = 0;
+		double sum = 0.;
+		for (double value : values) {
+			if (Double.isNaN(value)) {
+				continue;
+			} else {
+				count++;
+				sum += value;
+			}
+		}
+		if (count == 0) {
+			return Double.NaN;
+		}
+		return sum / count;
+	}
+
+	/**
 	 * Safely finds the average value of all values and rounds the result to an
 	 * Integer using {@link Math#round(float)}.
 	 * 
@@ -500,15 +585,62 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely finds the min value of all values.
+	 * 
+	 * @return the min value; or null if all values are null
+	 */
+	public static Integer min(Integer... values) {
+		Integer result = null;
+		for (Integer value : values) {
+			if (result != null && value != null) {
+				result = Math.min(result, value);
+			} else if (value != null) {
+				result = value;
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Throws an descriptive exception if the object is null.
 	 * 
 	 * @param description text that is added to the exception
-	 * @param object      the object
-	 * @throws OpenemsException if object is null
+	 * @param objects     the objects
+	 * @throws IllegalArgumentException if any object is null
 	 */
-	public static void assertNull(String description, Object object) throws OpenemsException {
-		if (object == null) {
-			throw new OpenemsException(description + " value is null!");
+	public static void assertNull(String description, Object... objects) throws IllegalArgumentException {
+		for (Object object : objects) {
+			if (object == null) {
+				throw new IllegalArgumentException(description + ": value is null!");
+			}
+		}
+	}
+
+	/**
+	 * Safely convert from {@link Integer} to {@link Double}
+	 * 
+	 * @param value the Integer value, possibly null
+	 * @return the Double value, possibly null
+	 */
+	public static Double toDouble(Integer value) {
+		if (value == null) {
+			return (Double) null;
+		} else {
+			return Double.valueOf(value);
+		}
+	}
+
+	/**
+	 * Safely convert from {@link Float} to {@link Double}
+	 * 
+	 * @param value the Float value, possibly null
+	 * @return the Double value, possibly null
+	 */
+	public static Double toDouble(Float value) {
+		if (value == null) {
+			return (Double) null;
+		} else {
+			return Double.valueOf(value);
 		}
 	}
 

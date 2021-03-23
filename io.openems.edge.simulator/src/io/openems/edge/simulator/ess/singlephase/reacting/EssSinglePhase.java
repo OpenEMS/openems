@@ -1,8 +1,6 @@
 package io.openems.edge.simulator.ess.singlephase.reacting;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDateTime;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -18,8 +16,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -39,17 +35,20 @@ import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.EssSinglePhase.Reacting", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
 public class EssSinglePhase extends AbstractOpenemsComponent
 		implements ManagedSinglePhaseEss, SinglePhaseEss, ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss,
-		SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
-
-	private final Logger log = LoggerFactory.getLogger(EssSinglePhase.class);
+		SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	// Current state of charge.
 	private float soc = 0;
@@ -79,6 +78,14 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
+
+	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
@@ -124,15 +131,10 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
-			this.updateChannels();
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.calculateEnergy();
 			break;
 		}
-	}
-
-	private void updateChannels() {
-		// nothing to do
 	}
 
 	@Override
@@ -164,10 +166,10 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 		/*
 		 * Apply Active/Reactive power to simulated channels
 		 */
-		if (soc == 0 && activePower > 0) {
+		if (this.soc == 0 && activePower > 0) {
 			activePower = 0;
 		}
-		if (soc == 100 && activePower < 0) {
+		if (this.soc == 100 && activePower < 0) {
 			activePower = 0;
 		}
 		switch (this.getPhase()) {
@@ -182,10 +184,10 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 			break;
 		}
 
-		if (soc == 0 && reactivePower > 0) {
+		if (this.soc == 0 && reactivePower > 0) {
 			reactivePower = 0;
 		}
-		if (soc == 100 && reactivePower < 0) {
+		if (this.soc == 100 && reactivePower < 0) {
 			reactivePower = 0;
 		}
 		switch (this.getPhase()) {
@@ -237,47 +239,34 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 						.build());
 	}
 
-	// These variables are used to calculate the energy
-	LocalDateTime lastPowerValuesTimestamp = null;
-	double lastPowerValue = 0;
-	double accumulatedChargeEnergy = 0;
-	double accumulatedDischargeEnergy = 0;
-
-	private void calculateEnergy() {
-		if (this.lastPowerValuesTimestamp != null) {
-
-			long passedTimeInMilliSeconds = Duration.between(this.lastPowerValuesTimestamp, LocalDateTime.now())
-					.toMillis();
-			this.lastPowerValuesTimestamp = LocalDateTime.now();
-
-			this.logDebug(this.log, "time elpsed in ms: " + passedTimeInMilliSeconds);
-			this.logDebug(this.log, "last power value :" + this.lastPowerValue);
-			double energy = this.lastPowerValue * (passedTimeInMilliSeconds / 1000) / 3600;
-			// calculate energy in watt hours
-
-			log.debug("energy in wh: " + energy);
-
-			if (this.lastPowerValue < 0) {
-				this.accumulatedChargeEnergy = this.accumulatedChargeEnergy + energy;
-				this._setActiveChargeEnergy((long) accumulatedChargeEnergy);
-			} else if (this.lastPowerValue > 0) {
-				this.accumulatedDischargeEnergy = this.accumulatedDischargeEnergy + energy;
-				this._setActiveDischargeEnergy((long) accumulatedDischargeEnergy);
-			}
-
-			this.logDebug(this.log, "accumulated charge energy :" + accumulatedChargeEnergy);
-			this.logDebug(this.log, "accumulated discharge energy :" + accumulatedDischargeEnergy);
-
-		} else {
-			this.lastPowerValuesTimestamp = LocalDateTime.now();
-		}
-
-		this.lastPowerValue = this.getActivePower().orElse(0);
-	}
-
 	@Override
 	public SinglePhase getPhase() {
 		return this.phase;
 	}
 
+	/**
+	 * Calculate the Energy values from ActivePower.
+	 */
+	private void calculateEnergy() {
+		// Calculate Energy
+		Integer activePower = this.getActivePower().get();
+		if (activePower == null) {
+			// Not available
+			this.calculateChargeEnergy.update(null);
+			this.calculateDischargeEnergy.update(null);
+		} else if (activePower > 0) {
+			// Buy-From-Grid
+			this.calculateChargeEnergy.update(0);
+			this.calculateDischargeEnergy.update(activePower);
+		} else {
+			// Sell-To-Grid
+			this.calculateChargeEnergy.update(activePower * -1);
+			this.calculateDischargeEnergy.update(0);
+		}
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
 }

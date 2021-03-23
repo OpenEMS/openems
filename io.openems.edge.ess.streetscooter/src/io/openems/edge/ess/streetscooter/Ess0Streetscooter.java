@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -47,9 +48,11 @@ public class Ess0Streetscooter extends AbstractEssStreetscooter
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, Config0 config0) {
-		super.activate(context, config0.id(), config0.alias(), config0.enabled(), config0.readonly(), UNIT_ID, this.cm,
-				"Modbus", config0.modbus_id());
+	protected void activate(ComponentContext context, Config0 config0) throws OpenemsException {
+		if (super.activate(context, config0.id(), config0.alias(), config0.enabled(), config0.readonly(), UNIT_ID,
+				this.cm, "Modbus", config0.modbus_id())) {
+			return;
+		}
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -68,12 +71,12 @@ public class Ess0Streetscooter extends AbstractEssStreetscooter
 	}
 
 	@Override
-	protected int getAdressOffsetForBattery() {
+	protected int getAddressOffsetForBattery() {
 		return BATTERY_0_ADDRESS_OFFSET;
 	}
 
 	@Override
-	protected int getAdressOffsetForInverter() {
+	protected int getAddressOffsetForInverter() {
 		return INVERTER_0_ADDRESS_OFFSET;
 	}
 

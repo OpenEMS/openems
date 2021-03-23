@@ -163,7 +163,7 @@ class UAdapterState {
 
 	/**
 	 * This is the current state of the DS2480 adapter on program voltage
-	 * availablity. 'true' if available.
+	 * availability. 'true' if available.
 	 */
 	public boolean programVoltageAvailable;
 

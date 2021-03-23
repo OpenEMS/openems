@@ -1,5 +1,5 @@
-import { JsonrpcNotification } from "../base";
 import { Edges } from "../shared";
+import { JsonrpcNotification } from "../base";
 
 /**
  * Represents a JSON-RPC Notification for UI authentication with session_id.

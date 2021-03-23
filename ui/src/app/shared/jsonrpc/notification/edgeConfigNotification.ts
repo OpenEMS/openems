@@ -1,5 +1,5 @@
-import { JsonrpcNotification } from "../base";
 import { EdgeConfig } from '../../edge/edgeconfig';
+import { JsonrpcNotification } from "../base";
 
 /**
  * Represents a JSON-RPC Notification for new EdgeConfig.

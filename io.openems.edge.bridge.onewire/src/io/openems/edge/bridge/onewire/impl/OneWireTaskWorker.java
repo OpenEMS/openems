@@ -1,7 +1,6 @@
 package io.openems.edge.bridge.onewire.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -17,7 +16,7 @@ import io.openems.common.worker.AbstractImmediateWorker;
 public class OneWireTaskWorker extends AbstractImmediateWorker {
 
 	private final Logger log = LoggerFactory.getLogger(OneWireTaskWorker.class);
-	private final List<Consumer<DSPortAdapter>> tasks = new ArrayList<>();
+	private final CopyOnWriteArrayList<Consumer<DSPortAdapter>> tasks = new CopyOnWriteArrayList<>();
 	private final BridgeOnewireImpl parent;
 	private final String port;
 
@@ -39,10 +38,8 @@ public class OneWireTaskWorker extends AbstractImmediateWorker {
 			return;
 		}
 
-		synchronized (this.tasks) {
-			for (Consumer<DSPortAdapter> task : this.tasks) {
-				task.accept(adapter);
-			}
+		for (Consumer<DSPortAdapter> task : this.tasks) {
+			task.accept(adapter);
 		}
 	}
 
@@ -86,14 +83,10 @@ public class OneWireTaskWorker extends AbstractImmediateWorker {
 	}
 
 	public void addTask(Consumer<DSPortAdapter> task) {
-		synchronized (this.tasks) {
-			this.tasks.add(task);
-		}
+		this.tasks.add(task);
 	}
 
 	public void removeTask(Consumer<DSPortAdapter> task) {
-		synchronized (this.tasks) {
-			this.tasks.remove(task);
-		}
+		this.tasks.remove(task);
 	}
 }

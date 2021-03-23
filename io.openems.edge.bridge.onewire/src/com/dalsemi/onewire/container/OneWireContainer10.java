@@ -752,7 +752,7 @@ public class OneWireContainer10 extends OneWireContainer implements TemperatureC
 		else
 			throw new OneWireIOException("OneWireContainer10 - Device not found");
 
-		// Check data to ensure correctly recived.
+		// Check data to ensure correctly received.
 		buffer = new byte[8];
 
 		readScratch(buffer);

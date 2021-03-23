@@ -68,7 +68,7 @@ package com.dalsemi.onewire.container;
  *   ResponseAPDU rapdu = owc16.sendAPDU(capdu, runTime); </pre></code>
  * </OL>
  *
- * <H3>Additonal information</H3>
+ * <H3>Additional information</H3>
  * <DL>
  * <DD><A HREF="http://www.opencard.org"> http://www.opencard.org</A>
  * </DL>

@@ -1,9 +1,7 @@
 package io.openems.edge.battery.soltaro;
 
 /**
- * 
- * This type defines the module type
- *
+ * This type defines the module type.
  */
 public enum ModuleType {
 
@@ -16,6 +14,10 @@ public enum ModuleType {
 
 	private int capacity;
 
+	/**
+	 * Gets the capacity.
+	 * @return int
+	 */
 	public int getCapacity_Wh() {
 		return this.capacity;
 	}

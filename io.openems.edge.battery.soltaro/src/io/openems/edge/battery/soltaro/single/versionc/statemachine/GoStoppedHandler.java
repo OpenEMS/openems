@@ -4,7 +4,9 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.battery.soltaro.single.versionc.SingleRackVersionC;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
+import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.State;
 import io.openems.edge.battery.soltaro.versionc.utils.Constants;
 import io.openems.edge.common.statemachine.StateHandler;
 
@@ -21,7 +23,8 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		PreChargeControl preChargeControl = context.component.getPreChargeControl();
+		SingleRackVersionC battery = context.getParent();
+		PreChargeControl preChargeControl = battery.getPreChargeControl();
 
 		if (preChargeControl == PreChargeControl.SWITCH_OFF) {
 			return State.STOPPED;
@@ -34,12 +37,12 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 			if (this.attemptCounter > Constants.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				context.component._setMaxStopAttempts(true);
+				battery._setMaxStopAttempts(true);
 				return State.UNDEFINED;
 
 			} else {
 				// Trying to switch off
-				context.component.setPreChargeControl(PreChargeControl.SWITCH_OFF);
+				battery.setPreChargeControl(PreChargeControl.SWITCH_OFF);
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
 				return State.GO_STOPPED;

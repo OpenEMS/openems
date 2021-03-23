@@ -1,6 +1,5 @@
 package io.openems.edge.controller.timeslotpeakshaving;
 
-import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -19,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
@@ -43,7 +43,6 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	public static final String DATE_FORMAT = "dd.MM.yyyy";
 
 	private final Logger log = LoggerFactory.getLogger(TimeslotPeakshaving.class);
-	private final Clock clock;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -76,16 +75,11 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	public TimeslotPeakshaving() {
-		this(Clock.systemDefaultZone());
-	}
-
-	protected TimeslotPeakshaving(Clock clock) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.clock = clock;
 	}
 
 	@Activate
@@ -118,8 +112,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	/**
 	 * Applies the power on the Ess.
 	 * 
-	 * @param ess      {@link ManagedSymmetricEss} where the power needs to be set
-	 * @param pidOuput the power to be set on ess, or null to set no power
+	 * @param ess {@link ManagedSymmetricEss} where the power needs to be set
 	 * @throws OpenemsNamedException on error
 	 */
 	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
@@ -139,7 +132,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	private Integer getPower(ManagedSymmetricEss ess, SymmetricMeter meter)
 			throws OpenemsException, IllegalArgumentException {
 
-		LocalDateTime now = LocalDateTime.now(this.clock);
+		LocalDateTime now = LocalDateTime.now(this.componentManager.getClock());
 
 		boolean stateChanged;
 		Integer power = null;
@@ -216,8 +209,9 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * @param ess   the {@link ManagedSymmetricEss}
 	 * @param meter the {@link SymmetricMeter} of the grid
 	 * @return activepower to be set on the ess
+	 * @throws InvalidValueException on error
 	 */
-	private int calculatePeakShavePower(ManagedSymmetricEss ess, SymmetricMeter meter) {
+	private int calculatePeakShavePower(ManagedSymmetricEss ess, SymmetricMeter meter) throws InvalidValueException {
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
@@ -233,8 +227,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		}
 
 		// Calculate 'real' grid-power (without current ESS charge/discharge)
-		int gridPower = meter.getActivePower().orElse(0) /* current buy-from/sell-to grid */
-				+ ess.getActivePower().orElse(0) /* current charge/discharge Ess */;
+		int gridPower = meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
+				+ ess.getActivePower().getOrError() /* current charge/discharge Ess */;
 
 		int calculatedPower;
 		if (gridPower >= config.peakShavingPower()) {

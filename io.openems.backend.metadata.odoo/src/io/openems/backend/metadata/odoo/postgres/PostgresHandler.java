@@ -4,6 +4,8 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -16,10 +18,9 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.EdgeCache;
-import io.openems.backend.metadata.odoo.MetadataOdoo;
+import io.openems.backend.metadata.odoo.OdooMetadata;
 import io.openems.backend.metadata.odoo.MyEdge;
-import io.openems.backend.metadata.odoo.postgres.task.InsertOrUpdateDeviceState;
-import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeStatesSum;
+import io.openems.backend.metadata.odoo.postgres.task.InsertOrUpdateDeviceStates;
 import io.openems.common.channel.Level;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig.Component.Channel;
@@ -30,24 +31,24 @@ public class PostgresHandler {
 
 	protected final EdgeCache edgeCache;
 
-	private final MetadataOdoo parent;
+	private final OdooMetadata parent;
 	private final HikariDataSource dataSource;
 	private final InitializeEdgesWorker initializeEdgesWorker;
 	private final PeriodicWriteWorker periodicWriteWorker;
 	private final QueueWriteWorker queueWriteWorker;
 
-	public PostgresHandler(MetadataOdoo parent, EdgeCache edgeCache, Config config, Runnable onInitialized)
+	public PostgresHandler(OdooMetadata parent, EdgeCache edgeCache, Config config, Runnable onInitialized)
 			throws SQLException {
 		this.parent = parent;
 		this.edgeCache = edgeCache;
 		this.dataSource = this.getDataSource(config);
-		this.initializeEdgesWorker = new InitializeEdgesWorker(this, dataSource, () -> {
+		this.initializeEdgesWorker = new InitializeEdgesWorker(this, this.dataSource, () -> {
 			onInitialized.run();
 		});
 		this.initializeEdgesWorker.start();
-		this.periodicWriteWorker = new PeriodicWriteWorker(this, dataSource);
+		this.periodicWriteWorker = new PeriodicWriteWorker(this, this.dataSource);
 		this.periodicWriteWorker.start();
-		this.queueWriteWorker = new QueueWriteWorker(this, dataSource);
+		this.queueWriteWorker = new QueueWriteWorker(this, this.dataSource);
 		this.queueWriteWorker.start();
 	}
 
@@ -77,6 +78,7 @@ public class PostgresHandler {
 		/*
 		 * Update the EdgeDeviceState table
 		 */
+		List<InsertOrUpdateDeviceStates.DeviceState> deviceStates = new ArrayList<>();
 		for (Entry<ChannelAddress, Channel> entry : activeStateChannels.entrySet()) {
 			ChannelDetail detail = entry.getValue().getDetail();
 			if (!(detail instanceof ChannelDetailState)) {
@@ -91,15 +93,16 @@ public class PostgresHandler {
 			} else {
 				stateChannelName = channel.getId();
 			}
-			InsertOrUpdateDeviceState task = new InsertOrUpdateDeviceState(edge.getOdooId(), channelAddress, level,
-					stateChannelName, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
-
-			// Add this StateChannel to the write queue
-			this.queueWriteWorker.addTask(task);
+			deviceStates.add(new InsertOrUpdateDeviceStates.DeviceState(channelAddress, level, stateChannelName));
 		}
 
-		// Add "UpdateEdgeStates" task to write queue
-		this.queueWriteWorker.addTask(new UpdateEdgeStatesSum(edge.getOdooId()));
+		// Add this Task to the write queue
+		InsertOrUpdateDeviceStates task = new InsertOrUpdateDeviceStates(edge.getOdooId(),
+				Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)), deviceStates);
+		this.queueWriteWorker.addTask(task);
+
+		// Update Sum-State from time to time
+		this.periodicWriteWorker.triggerUpdateEdgeStatesSum(edge);
 	}
 
 	public PeriodicWriteWorker getPeriodicWriteWorker() {

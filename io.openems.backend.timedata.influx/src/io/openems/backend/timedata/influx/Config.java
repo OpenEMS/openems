@@ -11,7 +11,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Database", description = "The database name")
 	String database();
 
-	@AttributeDefinition(name = "URL", description = "The InfluxDB server URL")
+	@AttributeDefinition(name = "URL", description = "The InfluxDB server IP address")
 	String url();
 
 	@AttributeDefinition(name = "Port", description = "The InfluxDB server port")
@@ -25,7 +25,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Measurement", description = "The InfluxDB measurement")
 	String measurement() default "data";
-	
+
 	@AttributeDefinition(name = "Retention-Policy", description = "The InfluxDB retention policy")
 	String retentionPolicy() default "autogen";
 

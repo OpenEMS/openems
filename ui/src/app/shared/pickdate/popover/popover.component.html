@@ -11,6 +11,18 @@
             Edge.History.week
         </ion-label>
     </ion-item>
+    <ion-item *ngIf="service.isKwhAllowed(edge) == true" mode="md" [class.active]="service.periodString == 'month'"
+        (click)="setPeriod('month')" class="ion-text-center" lines="none" button>
+        <ion-label translate>
+            Edge.History.month
+        </ion-label>
+    </ion-item>
+    <!-- <ion-item mode="md" [class.active]="service.periodString == 'year'" (click)="setPeriod('year')"
+        class="ion-text-center" lines="none" button>
+        <ion-label translate>
+            Edge.History.year
+        </ion-label>
+    </ion-item> -->
     <ion-item mode="md" [class.active]="service.periodString == 'custom'" (click)="showCustomDate = !showCustomDate"
         class="ion-text-center" lines="none" button>
         <ion-label translate>

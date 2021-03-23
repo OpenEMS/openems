@@ -21,19 +21,21 @@ public interface CommonTimedataService {
 	 * Handles a QueryHistoricTimeseriesExportXlxsRequest request. Exports historic
 	 * data to an Excel file.
 	 * 
-	 * @param request the QueryHistoricTimeseriesExportXlxsRequest request
-	 * @return the QueryHistoricTimeseriesExportXlsxResponse on error
-	 * @throws OpenemsNamedException
+	 * @param request the {@link QueryHistoricTimeseriesExportXlxsRequest} request
+	 * @return the {@link QueryHistoricTimeseriesExportXlsxResponse}
+	 * @throws OpenemsNamedException on error
 	 */
 	public default QueryHistoricTimeseriesExportXlsxResponse handleQueryHistoricTimeseriesExportXlxsRequest(
 			String edgeId, QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> historicData = this.queryHistoricData(edgeId,
-				request.getFromDate(), request.getToDate(), request.getDataChannels(), 15 * 60 /* 15 Minutes */);
-		SortedMap<ChannelAddress, JsonElement> historicEnergy = this.queryHistoricEnergy(edgeId, request.getFromDate(),
-				request.getToDate(), request.getEnergyChannels());
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> powerData = this.queryHistoricData(edgeId,
+				request.getFromDate(), request.getToDate(), QueryHistoricTimeseriesExportXlsxResponse.POWER_CHANNELS,
+				15 * 60 /* 15 Minutes */);
+		SortedMap<ChannelAddress, JsonElement> energyData = this.queryHistoricEnergy(edgeId, request.getFromDate(),
+				request.getToDate(), QueryHistoricTimeseriesExportXlsxResponse.ENERGY_CHANNELS);
+
 		try {
-			return new QueryHistoricTimeseriesExportXlsxResponse(request.getId(), request.getFromDate(),
-					request.getToDate(), historicData, historicEnergy);
+			return new QueryHistoricTimeseriesExportXlsxResponse(request.getId(), edgeId, request.getFromDate(),
+					request.getToDate(), powerData, energyData);
 		} catch (IOException e) {
 			throw new OpenemsException("QueryHistoricTimeseriesExportXlxsRequest failed: " + e.getMessage());
 		}
@@ -118,4 +120,24 @@ public interface CommonTimedataService {
 
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException;
+
+	/**
+	 * Queries historic energy per period.
+	 * 
+	 * <p>
+	 * This is for use-cases where you want to get the energy for each period (with
+	 * length 'resolution') per Channel, e.g. to visualize energy in a histogram
+	 * chart. For each period the energy is calculated by subtracting first value of
+	 * the period from the last value of the period.
+	 * 
+	 * @param edgeId     the Edge-ID; or null query all
+	 * @param fromDate   the From-Date
+	 * @param toDate     the To-Date
+	 * @param channels   the Channels
+	 * @param resolution the Resolution in seconds
+	 */
+
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			throws OpenemsNamedException;
 }

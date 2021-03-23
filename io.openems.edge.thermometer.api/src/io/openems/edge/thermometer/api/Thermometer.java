@@ -47,7 +47,7 @@ public interface Thermometer extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Temparature in [deci degC]. See {@link ChannelId#TEMPERATURE}.
+	 * Gets the Temperature in [deci degC]. See {@link ChannelId#TEMPERATURE}.
 	 *
 	 * @return the Channel {@link Value}
 	 */

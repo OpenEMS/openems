@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.battery.soltaro.BatteryState;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "BMS Soltaro Single Rack Version A", //
 		description = "Implements the Soltaro battery rack system.")
 @interface Config {
@@ -19,7 +19,7 @@ import io.openems.edge.battery.soltaro.BatteryState;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
+	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
@@ -31,7 +31,7 @@ import io.openems.edge.battery.soltaro.BatteryState;
 	@AttributeDefinition(name = "Max Start Time", description = "Max Time in seconds allowed for starting the system")
 	int maxStartTime() default 30;
 	
-	@AttributeDefinition(name = "Pending Tolerance", description = "time in seconds, that is waited if system status cannot be determinated e.g. in case of reading errors")
+	@AttributeDefinition(name = "Pending Tolerance", description = "time in seconds, that is waited if system status cannot be determined e.g. in case of reading errors")
 	int pendingTolerance() default 15;
 	
 	@AttributeDefinition(name = "Max Start Attempts", description = "Sets the counter how many time the system should try to start")

@@ -183,7 +183,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		this.parent.sessionTokens.put(wsData.getSessionToken(), user);
 		// TODO unset on logout!
 		return CompletableFuture.completedFuture(new AuthenticateWithPasswordResponse(request.getId(),
-				wsData.getSessionToken(), Utils.getEdgeMetadata(user.getRole())));
+				wsData.getSessionToken().toString(), Utils.getEdgeMetadata(user.getRole())));
 	}
 
 	/**

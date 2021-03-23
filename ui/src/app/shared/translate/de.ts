@@ -11,6 +11,7 @@ export const TRANSLATION = {
         changeFailed: 'Änderung fehlgeschlagen',
         chargeDischarge: 'Be-/Entladung',
         chargePower: 'Beladung',
+        componentCount: 'Anzahl Komponenten',
         componentInactive: 'Komponente ist inaktiv!',
         connectionLost: 'Verbindung unterbrochen. Versuche die Verbindung wiederherzustellen.',
         consumption: 'Verbrauch',
@@ -19,6 +20,8 @@ export const TRANSLATION = {
         currentValue: 'Aktueller Wert',
         dateFormat: 'dd.MM.yyyy', // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
         dateFormatShort: 'dd.MM',
+        digitalInputs: 'Digitaleingänge',
+        directConsumption: 'Direktverbrauch',
         dischargePower: 'Entladung',
         fault: 'Fehler',
         grid: 'Netz',
@@ -30,6 +33,7 @@ export const TRANSLATION = {
         inactive: 'Inaktiv',
         info: 'Info',
         inputNotValid: 'Eingabe ungültig',
+        insufficientRights: 'Unzureichende Rechte',
         live: 'Live',
         load: 'Last',
         manually: 'Manuell',
@@ -86,19 +90,26 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'Über OpenEMS UI',
-        edgeSettings: 'FEMS Einstellungen',
+        edgeSettings: 'OpenEMS Edge Einstellungen',
         generalSettings: 'Allgemeine Einstellungen',
         index: 'Übersicht',
         logout: 'Abmelden',
         menu: 'Menü',
-        overview: 'FEMS Übersicht',
+        overview: 'OpenEMS Edge Übersicht',
     },
     Index: {
         allConnected: 'Alle Verbindungen hergestellt.',
+        connectionInProgress: 'Verbindung wird aufgebaut...',
         connectionFailed: 'Verbindung zu {{value}} getrennt.', // value = name of websocket
         connectionSuccessful: 'Verbindung zu {{value}} hergestellt.', // value = name of websocket
         isOffline: 'OpenEMS ist offline!',
         toEnergymonitor: 'Zum Energiemonitor...',
+    },
+    Login: {
+        title: "Login",
+        preamble: "Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",
+        passwordLabel: "Passwort",
+        passwordPlaceholder: "Passwort",
     },
     Edge: {
         Index: {
@@ -129,6 +140,7 @@ export const TRANSLATION = {
                     currentValue: 'Aktueller Wert',
                     dependendOn: 'Abhängig von',
                     minSwitchingTime: 'Mindestumschaltzeit',
+                    moreThanMaxPower: 'Wert darf nicht niedriger als Maximalleistung des angesteuerten Geräts sein',
                     other: 'Sonstige',
                     relationError: 'Schwellenwert muss größer als die geschaltete Last sein',
                     switchedLoadPower: 'Geschaltete Last',
@@ -138,13 +150,24 @@ export const TRANSLATION = {
                     switchOnBelow: 'Einschalten unter',
                     threshold: 'Schwellenwert',
                 },
+                DelayedSellToGrid: {
+                    sellToGridPowerLimit: 'Beladung über',
+                    continuousSellToGridPower: 'Entladung unter',
+                    relationError: 'Beladungsgrenze muss größer der Entladungsgrenze sein',
+                },
                 Peakshaving: {
                     asymmetricInfo: 'Eingetragene Leistungswerte beziehen sich auf einzelne Phasen. Es wird auf die jeweils am stärksten belastete Phase ausgeregelt.',
+                    endDate: 'End Datum',
+                    endTime: 'Endzeit',
                     mostStressedPhase: 'Meist belastete Phase',
                     peakshaving: 'Lastspitzenkappung',
                     peakshavingPower: 'Entladung über',
+                    recharge: 'Beladeleistung',
                     rechargePower: 'Beladung unter',
                     relationError: 'Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein',
+                    startDate: 'Start Datum',
+                    startTime: 'Startzeit',
+                    startTimeCharge: 'Start-Zeit Beladung',
                 },
                 CHP: {
                     highThreshold: 'Oberer Schwellenwert',
@@ -185,7 +208,13 @@ export const TRANSLATION = {
                     status: 'Status',
                     totalCharge: 'Gesamte Beladung',
                     totalChargingPower: 'Gesamte Lade-Leistung',
+                    unknown: 'Unbekannt',
                     unplugged: 'Ausgesteckt',
+                    Administration: {
+                        carAdministration: 'Autoverwaltung',
+                        customCarInfo: 'Sollte das der Fall sein, kann ihr Auto nur ab einer bestimmten Leistung effizient beladen werden. Durch diesen Button wird das in Ihre Konfigurationsmöglichkeiten- sowie die in die automatische Beladung einberechnet.',
+                        renaultZoe: 'Wird an dieser Ladesäule hauptsächlich ein Renault Zoe beladen?'
+                    },
                     NoConnection: {
                         description: 'Es konnte keine Verbindung zur Ladestation aufgebaut werden.',
                         help1_1: 'Die IP der Ladesäule erscheint beim erneuten einschalten',
@@ -222,6 +251,22 @@ export const TRANSLATION = {
                     priority: 'Priorität',
                     time: 'Zeit',
                     timeCountdown: 'Spätester Start',
+                },
+                HeatPump: {
+                    aboveSoc: 'und über Ladezustand von',
+                    belowSoc: 'und unter Ladezustand von',
+                    gridBuy: 'Ab Netzbezug von',
+                    gridSell: 'Ab Überschusseinspeisung von',
+                    lock: 'Sperre',
+                    moreThanMaxPower: 'Wert darf nicht niedriger als Maximalleistung der Wärmepumpe sein',
+                    normalOperation: 'Normalbetrieb',
+                    normalOperationShort: 'Normal',
+                    relationError: 'Einschaltbefehl Überschusswert muss größer als Einschaltempfehlungswert sein',
+                    switchOnCom: 'Einschaltbefehl',
+                    switchOnComShort: 'Befehl',
+                    switchOnRec: 'Einschaltempfehlung',
+                    switchOnRecShort: 'Empfehlung',
+                    undefined: 'Nicht definiert',
                 }
             }
         },
