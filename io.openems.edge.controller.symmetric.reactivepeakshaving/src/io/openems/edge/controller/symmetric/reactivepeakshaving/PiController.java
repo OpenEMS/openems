@@ -1,7 +1,7 @@
 package io.openems.edge.controller.symmetric.reactivepeakshaving;
 
 /**
- * A proportional-integral-derivative controller.
+ * A proportional-integral controller.
  * 
  * @see <a href=
  *      "https://en.wikipedia.org/wiki/PID_controller">https://en.wikipedia.org/wiki/PID_controller</a>
@@ -10,30 +10,30 @@ public class PiController {
 
 	public static final int ERROR_SUM_LIMIT_FACTOR = 10;
 
-	private final double kp;
-	private final double ti_s;
+	private final double proportionalGain;
+	private final double resetTimeInSeconds;
 	private final boolean enableIdelay;
 
 	private double errorSum = 0;
 	private Integer lowLimit = null;
 	private Integer highLimit = null;
-	private double cycleTime_s = 0;
+	private double cycleTimeInSeconds = 0;
 
 	/**
-	 * Creates a PiFilter.
+	 * Creates a PiController.
 	 * 
-	 * @param kp           the proportional gain
-	 * @param ti_s         the reset time (Nachstellzeit) in seconds
-	 * @param enableIdelay enables a delay of one cycle time @ integrator
+	 * @param proportionalGain		the proportional gain
+	 * @param resetTimeInSeconds	the reset time (Nachstellzeit) in seconds
+	 * @param enableIdelay 			enables a delay of one cycle time @ integrator
 	 */
-	public PiController(double kp, double ti_s, boolean enableIdelay) {
-		this.kp = kp;
-		this.ti_s = ti_s;
+	public PiController(double proportionalGain, double resetTimeInSeconds, boolean enableIdelay) {
+		this.proportionalGain = proportionalGain;
+		this.resetTimeInSeconds = resetTimeInSeconds;
 		this.enableIdelay = enableIdelay;
 	}
 
-	public void setCycleTime_s(double cycleTime_s) {
-		this.cycleTime_s = cycleTime_s;
+	public void setCycleTimeInSeconds(double cycleTimeSeconds) {
+		this.cycleTimeInSeconds = cycleTimeSeconds;
 	}
 
 	/**
@@ -68,17 +68,17 @@ public class PiController {
 
 		// Calculate I
 		double i = 0.0;
-		if (this.ti_s != 0.0) {
+		if (this.resetTimeInSeconds != 0.0) {
 			if (this.enableIdelay == false) {
 				this.errorSum = this.applyErrorSumLimit(this.errorSum + error);
 			}
-			i = this.cycleTime_s / this.ti_s * this.errorSum;
+			i = this.cycleTimeInSeconds / this.resetTimeInSeconds * this.errorSum;
 		}
 		
 		// Sum outputs
-		double output = this.kp * (error + i);
+		double output = this.proportionalGain * (error + i);
 
-		if ((this.enableIdelay == true) && (this.ti_s != 0.0)) {
+		if ((this.enableIdelay == true) && (this.resetTimeInSeconds != 0.0)) {
 			this.errorSum = this.applyErrorSumLimit(this.errorSum + error);
 		}
 
@@ -87,7 +87,7 @@ public class PiController {
 	}
 
 	/**
-	 * Reset the PID filter.
+	 * Reset the PI filter.
 	 * 
 	 * <p>
 	 * This method should be called when the filter was not used for a while.

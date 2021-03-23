@@ -36,7 +36,6 @@ import io.openems.common.types.OpenemsType;
 )
 public class ReactivePeakShaving extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	public final static double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
 	private PiController piController;
 
 	private final Logger log = LoggerFactory.getLogger(ReactivePeakShaving.class);
@@ -105,7 +104,7 @@ public class ReactivePeakShaving extends AbstractOpenemsComponent implements Con
 			this.piController.setLimits(-maxReactivePower, maxReactivePower);
 			// set cycle time
 			double cycleTime_s = this.cycle.getCycleTime() / 1000.0;
-			this.piController.setCycleTime_s(cycleTime_s);
+			this.piController.setCycleTimeInSeconds(cycleTime_s);
 			
 			int powerSetPointEss = this.piController.applyPiFilter(meter.getReactivePower().getOrError(), powerReference);		
 			ess.setReactivePowerEquals(powerSetPointEss);
