@@ -1,9 +1,8 @@
 package io.openems.common.jsonrpc.request;
 
-import java.util.UUID;
-
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
@@ -21,18 +20,21 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
  */
 public class GetEdgeConfigRequest extends JsonrpcRequest {
 
+	public static final String METHOD = "getEdgeConfig";
+
+	/**
+	 * Create {@link GetEdgeConfigRequest} from a template {@link JsonrpcRequest}.
+	 * 
+	 * @param r the template {@link JsonrpcRequest}
+	 * @return the {@link GetEdgeConfigRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
 	public static GetEdgeConfigRequest from(JsonrpcRequest r) throws OpenemsException {
-		return new GetEdgeConfigRequest(r.getId());
+		return new GetEdgeConfigRequest(r);
 	}
 
-	public final static String METHOD = "getEdgeConfig";
-
-	public GetEdgeConfigRequest() {
-		this(UUID.randomUUID());
-	}
-
-	public GetEdgeConfigRequest(UUID id) {
-		super(id, METHOD);
+	private GetEdgeConfigRequest(JsonrpcRequest request) {
+		super(request, METHOD);
 	}
 
 	@Override
