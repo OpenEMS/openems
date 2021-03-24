@@ -306,8 +306,8 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 		// Displays the production values once.
 		if (this.debugMode) {
-			this.logDebug(this.log, "Production: " + Arrays.toString(hourlyProduction));
-			this.logDebug(this.log, "Consumption: " + Arrays.toString(hourlyConsumption));
+			this.logInfo(this.log, "Production: " + Arrays.toString(hourlyProduction));
+			this.logInfo(this.log, "Consumption: " + Arrays.toString(hourlyConsumption));
 			this.debugMode = false;
 		}
 
