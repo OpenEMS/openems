@@ -13,7 +13,7 @@ export class SymmetricPeakshavingComponent {
 
     private static readonly SELECTOR = "symmetricpeakshaving";
 
-    @Input() private componentId: string;
+    @Input() public componentId: string;
 
     public edge: Edge = null;
 

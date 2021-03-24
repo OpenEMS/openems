@@ -14,9 +14,9 @@ import { TranslateService } from '@ngx-translate/core';
 export class StorageESSChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
-    @Input() private componentId: string;
-    @Input() private showPhases: boolean;
+    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input() public componentId: string;
+    @Input() public showPhases: boolean;
 
     moreThanOneProducer: boolean = null;
 

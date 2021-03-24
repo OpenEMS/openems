@@ -34,7 +34,7 @@
     "core-js": "^3.9.0",
     "d3": "5.15.0",
     "date-fns": "^2.17.0",
-    "file-saver": "^2.0.5",
+    "file-saver-es": "^2.0.5",
     "intl": "^1.2.5",
     "ng2-charts": "2.4.0",
     "ng2-cookies": "^1.0.12",

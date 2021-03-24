@@ -13,7 +13,7 @@ export class HeatPumpComponent {
 
   private static readonly SELECTOR = "heatpump";
 
-  @Input() private componentId: string;
+  @Input() public componentId: string;
 
   private edge: Edge = null;
   public component: EdgeConfig.Component = null;
