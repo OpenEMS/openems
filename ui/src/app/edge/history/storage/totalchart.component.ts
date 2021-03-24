@@ -12,8 +12,8 @@ import { TranslateService } from '@ngx-translate/core';
     templateUrl: '../abstracthistorychart.html'
 })
 export class StorageTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
-    @Input() private period: DefaultTypes.HistoryPeriod;
-    @Input() private showPhases: boolean;
+    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input() public showPhases: boolean;
 
     ngOnChanges() {
         this.updateChart();

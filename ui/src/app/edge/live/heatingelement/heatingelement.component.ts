@@ -15,7 +15,7 @@ export class HeatingElementComponent {
     private static readonly SELECTOR = "heatingelement";
 
 
-    @Input() private componentId: string;
+    @Input() public componentId: string;
 
     private edge: Edge = null;
     private stopOnDestroy: Subject<void> = new Subject<void>();

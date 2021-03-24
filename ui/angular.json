@@ -41,8 +41,15 @@
               "src/mstile-150x150.png",
               "src/safari-pinned-tab.svg"
             ],
-            "styles": ["src/theme/variables.scss", "src/global.scss"],
-            "scripts": []
+            "styles": [
+              "src/theme/variables.scss",
+              "src/global.scss"
+            ],
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "chart.js",
+              "ng2-cookies"
+            ]
           },
           "configurations": {
             "backend": {
@@ -227,7 +234,9 @@
               "tsconfig.spec.json",
               "e2e/tsconfig.json"
             ],
-            "exclude": ["**/node_modules/**"]
+            "exclude": [
+              "**/node_modules/**"
+            ]
           }
         },
         "e2e": {
