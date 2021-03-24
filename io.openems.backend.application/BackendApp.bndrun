@@ -40,7 +40,7 @@
 -runbundles: \
 	Java-WebSocket;version='[1.5.1,1.5.2)',\
 	com.google.gson;version='[2.8.5,2.8.6)',\
-	com.google.guava;version='[29.0.0,29.0.1)',\
+	com.google.guava;version='[28.2.0,28.2.1)',\
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
 	com.zaxxer.HikariCP;version='[4.0.2,4.0.3)',\
 	io.openems.backend.application;version=snapshot,\
