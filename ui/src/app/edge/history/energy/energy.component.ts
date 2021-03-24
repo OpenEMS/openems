@@ -47,7 +47,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
-  @Input() private period: DefaultTypes.HistoryPeriod;
+  @Input() public period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
     this.updateChart();

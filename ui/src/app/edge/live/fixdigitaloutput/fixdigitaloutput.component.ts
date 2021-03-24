@@ -12,7 +12,7 @@ export class FixDigitalOutputComponent {
 
   private static readonly SELECTOR = "fixdigitaloutput";
 
-  @Input() private componentId: string;
+  @Input() public componentId: string;
 
   public edge: Edge = null;
   public component: EdgeConfig.Component = null;
