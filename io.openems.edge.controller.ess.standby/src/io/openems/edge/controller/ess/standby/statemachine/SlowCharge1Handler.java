@@ -5,6 +5,7 @@ import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
+import io.openems.edge.controller.ess.standby.statemachine.StateMachine.State;
 
 public class SlowCharge1Handler extends StateHandler<State, Context> {
 

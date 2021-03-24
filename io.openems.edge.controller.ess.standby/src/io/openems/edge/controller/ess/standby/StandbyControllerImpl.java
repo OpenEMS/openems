@@ -17,12 +17,12 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.statemachine.StateMachine;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.standby.statemachine.Context;
-import io.openems.edge.controller.ess.standby.statemachine.State;
+import io.openems.edge.controller.ess.standby.statemachine.StateMachine;
+import io.openems.edge.controller.ess.standby.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
@@ -55,7 +55,7 @@ public class StandbyControllerImpl extends AbstractOpenemsComponent
 	/**
 	 * Manages the {@link State}s of the StateMachine.
 	 */
-	private final StateMachine<State, Context> stateMachine = new StateMachine<>(State.UNDEFINED);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private Config config;
 	private LocalDate configuredStartDate;

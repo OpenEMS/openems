@@ -4,13 +4,13 @@ import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 
+import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.standby.StandbyController;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
-public class Context {
+public class Context extends AbstractContext<StandbyController> {
 
-	protected final StandbyController component;
 	protected final ManagedSymmetricEss ess;
 	protected final Sum sum;
 	protected final LocalDate configuredStartDate;
@@ -22,9 +22,9 @@ public class Context {
 	 */
 	protected final Clock clock;
 
-	public Context(StandbyController component, ManagedSymmetricEss ess, Sum sum, LocalDate configuredStartDate,
+	public Context(StandbyController parent, ManagedSymmetricEss ess, Sum sum, LocalDate configuredStartDate,
 			LocalDate configuredEndDate, DayOfWeek configuredDayOfWeek, Clock clock) {
-		this.component = component;
+		super(parent);
 		this.ess = ess;
 		this.sum = sum;
 		this.configuredStartDate = configuredStartDate;

@@ -15,10 +15,9 @@ import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.TimeLeapClock;
-import io.openems.edge.controller.ess.standby.statemachine.State;
+import io.openems.edge.controller.ess.standby.statemachine.StateMachine.State;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.ess.test.DummyPower;
 
 public class StandbyControllerImplTest {
 
@@ -50,8 +49,7 @@ public class StandbyControllerImplTest {
 
 	private static ControllerTest tillDischarge() throws Exception {
 		// Initialize ESS
-		final DummyPower power = DummyPower.withDisabledPid();
-		final DummyManagedSymmetricEss ess = new DummyManagedSymmetricEss(ESS_ID, power) //
+		final DummyManagedSymmetricEss ess = new DummyManagedSymmetricEss(ESS_ID) //
 				.setGridMode(GridMode.ON_GRID) //
 				.setMaxApparentPower(MAX_APPARENT_POWER) //
 				.setSoc(70);

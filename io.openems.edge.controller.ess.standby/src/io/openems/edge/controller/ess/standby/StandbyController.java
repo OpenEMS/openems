@@ -2,7 +2,7 @@ package io.openems.edge.controller.ess.standby;
 
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.ess.standby.statemachine.State;
+import io.openems.edge.controller.ess.standby.statemachine.StateMachine.State;
 
 public interface StandbyController extends Controller {
 

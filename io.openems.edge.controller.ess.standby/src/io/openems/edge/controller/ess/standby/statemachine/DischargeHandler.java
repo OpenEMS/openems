@@ -7,6 +7,7 @@ import java.time.LocalTime;
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
+import io.openems.edge.controller.ess.standby.statemachine.StateMachine.State;
 
 public class DischargeHandler extends StateHandler<State, Context> {
 

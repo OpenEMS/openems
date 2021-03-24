@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.controller.ess.standby.Config;
+import io.openems.edge.controller.ess.standby.statemachine.StateMachine.State;
 
 public class UndefinedHandler extends StateHandler<State, Context> {
 
