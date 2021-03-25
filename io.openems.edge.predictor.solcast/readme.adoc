@@ -1,3 +1,5 @@
 = io.openems.edge.predictor.solcast
 
+Implements a Predictor with Provider Solcast
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.predictor.solcast[Source Code icon:github[]]
