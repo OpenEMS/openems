@@ -29,10 +29,10 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.protection.BatteryProtection;
-import io.openems.edge.battery.soltaro.BatteryProtectionDefinitionSoltaro;
 import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.ChargeIndication;
 import io.openems.edge.battery.soltaro.State;
+import io.openems.edge.battery.soltaro.shared.batteryprotection.BatteryProtectionDefinitionSoltaro3kWh;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -131,7 +131,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 		// Initialize Battery-Protection
 		this.batteryProtection = BatteryProtection.create(this) //
-				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro(), this.componentManager) //
+				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro3kWh(), this.componentManager) //
 				.build();
 
 		this._setCapacity(config.capacity() * 1000);

@@ -26,12 +26,12 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.protection.BatteryProtection;
-import io.openems.edge.battery.soltaro.BatteryProtectionDefinitionSoltaro;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.Context;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine.State;
+import io.openems.edge.battery.soltaro.shared.batteryprotection.BatteryProtectionDefinitionSoltaro3kWh;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.versionc.SoltaroBatteryVersionC;
 import io.openems.edge.battery.soltaro.versionc.utils.Constants;
@@ -135,7 +135,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 		// Initialize Battery-Protection
 		this.batteryProtection = BatteryProtection.create(this) //
-				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro(), this.componentManager) //
+				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro3kWh(), this.componentManager) //
 				.build();
 
 		// Calculate Capacity

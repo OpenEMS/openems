@@ -29,10 +29,11 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.protection.BatteryProtection;
-import io.openems.edge.battery.soltaro.BatteryProtectionDefinitionSoltaro;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.ModuleParameters;
 import io.openems.edge.battery.soltaro.ModuleType;
+import io.openems.edge.battery.soltaro.shared.batteryprotection.BatteryProtectionDefinitionSoltaro3kWh;
+import io.openems.edge.battery.soltaro.shared.batteryprotection.BatteryProtectionDefinitionSoltaro35kWh;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.Context;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.ControlAndLogic;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine;
@@ -135,7 +136,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		} else {
 			// Default
 			this.batteryProtection = BatteryProtection.create(this) //
-					.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro(), this.componentManager) //
+					.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro3kWh(), this.componentManager) //
 					.build();
 		}
 
