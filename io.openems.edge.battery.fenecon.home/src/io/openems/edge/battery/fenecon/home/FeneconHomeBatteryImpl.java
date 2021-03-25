@@ -106,7 +106,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 				int minDischargeVoltageValue = numberOfModulesPerTower * MODULE_MIN_VOLTAGE;
 				this._setDischargeMinVoltage(minDischargeVoltageValue);
 				// Initialize available Tower- and Module-Channels dynamically.
-				this._setCapacity(numberOfTowers*numberOfModulesPerTower*CAPACITY_PER_MODULE);
+				this._setCapacity(numberOfTowers * numberOfModulesPerTower * CAPACITY_PER_MODULE);
 				this.initializeTowerModulesChannels(numberOfTowers, numberOfModulesPerTower);
 			});
 		});

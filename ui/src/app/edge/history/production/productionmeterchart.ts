@@ -13,10 +13,10 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class ProductionMeterChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
-    @Input() private componentId: string;
-    @Input() private isOnlyChart: boolean;
-    @Input() private showPhases: boolean;
+    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input() public componentId: string;
+    @Input() public isOnlyChart: boolean;
+    @Input() public showPhases: boolean;
 
     ngOnChanges() {
         this.updateChart();
