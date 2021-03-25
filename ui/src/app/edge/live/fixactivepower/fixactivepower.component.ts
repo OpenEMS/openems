@@ -10,7 +10,7 @@ import { ModalController } from '@ionic/angular';
 })
 export class FixActivePowerComponent {
 
-  @Input() private componentId: string | null = null;
+  @Input() public componentId: string | null = null;
 
   private static readonly SELECTOR = "fixactivepower";
 
