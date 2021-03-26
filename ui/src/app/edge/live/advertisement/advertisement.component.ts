@@ -42,6 +42,7 @@ export class AdvertisementComponent {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
     })
+    console.log("advertWi", this.advertWidgets.names)
     // enables or disables nav buttons generally
     if (this.advertWidgets.names.length > 1) {
       this.enableBtn = true;
