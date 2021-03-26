@@ -1,7 +1,7 @@
 <ion-card>
     <ion-item lines="full" color="light" *ngIf="slides">
         <ion-avatar slot="start">
-            <ion-img src="assets/img/fems-app.png"></ion-img>
+            <img src="assets/img/fems-app.png">
         </ion-avatar>
         <ion-label>FEMS-App
         </ion-label>
@@ -20,6 +20,9 @@
             <ng-container *ngFor="let widget of advertWidgets.list" [ngSwitch]="widget.name">
                 <ion-slide *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'">
                     <evcsupgrade></evcsupgrade>
+                </ion-slide>
+                <ion-slide *ngSwitchCase="'Heimatstrom'">
+                    <homeelectric></homeelectric>
                 </ion-slide>
             </ng-container>
         </ion-slides>
