@@ -6,8 +6,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -17,20 +17,26 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.io.openems.edge.controller.ess.limitusablecapacity", //
+		name = "Controller.Ess.LimitUsableCapacity", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 		implements LimitUsableCapacityController, Controller, OpenemsComponent {
 
-	private final Logger log = LoggerFactory.getLogger(LimitUsableCapacityControllerImpl.class);
+	//private final Logger log = LoggerFactory.getLogger(LimitUsableCapacityControllerImpl.class);
 
 	@Reference
 	protected ComponentManager componentManager;
+
+	private int forceChargePower = 2000;
 
 	protected Config config;
 	private State state = State.UNDEFINED;
@@ -53,7 +59,6 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 			throw new OpenemsException("Stop Charge Soc " + config.stopDischargeSoc()
 					+ " should be greater than the force charge Soc " + config.forceChargeSoc());
 		}
-
 		// TODO add all the other combinations for error
 
 	}
@@ -62,7 +67,6 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 	public void run() throws OpenemsNamedException {
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 
-		
 		// Set to normal state and return if SoC is not available
 		Value<Integer> socOpt = ess.getSoc();
 		if (!socOpt.isDefined()) {
@@ -115,9 +119,13 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 				break;
 			case FORCE_CHARGE:
 				/*
-				 * Force chargin state
+				 * Force charging state
 				 */
 				allowedDischarge = (ess.getMaxApparentPower().getOrError() * 20) / 100;
+
+				// Forche charging the
+				ess.setActivePowerLessOrEquals(ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL,
+						Pwr.ACTIVE, forceChargePower * -1));
 
 				if (soc >= this.config.stopDischargeSoc()) {
 					stateChanged = this.changeState(State.STOP_DISCHARGE);
@@ -141,19 +149,24 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 		} while (stateChanged);
 
 		if (allowedCharge != null) {
-			ess._setAllowedChargePower(allowedCharge);
+			// Allowed Charge Power
+			Constraint AllowedChargeConstraint = ess.getPower().createSimpleConstraint(ess.id() + ": Allowed Charge", //
+					ess, Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, //
+					0);
+			ess.getPower().addConstraintAndValidate(AllowedChargeConstraint);
 		}
 		if (allowedDischarge != null) {
-			ess._setAllowedDischargePower(allowedDischarge);
+			// Allowed Discharge Power
+			Constraint AllowedDischargeConstraint = ess.getPower().createSimpleConstraint(
+					ess.id() + ": Allowed Discharge", //
+					ess, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, //
+					0);
+			ess.getPower().addConstraintAndValidate(AllowedDischargeConstraint);
 		}
 
 		this.channel(LimitUsableCapacityController.ChannelId.STATE_MACHINE).setNextValue(this.state);
 		this.channel(LimitUsableCapacityController.ChannelId.ALLOWED_CHARGE_POWER).setNextValue(allowedCharge);
 		this.channel(LimitUsableCapacityController.ChannelId.ALLOWED_DISCHARGE_POWER).setNextValue(allowedDischarge);
-		log.info("Currently in " + this.state + //
-				" and with Allowed charge power : " + allowedCharge + " W" + //
-				" and with Allowed discharge power : " + allowedDischarge + " W"); //
-
 	}
 
 	/**
