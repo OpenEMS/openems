@@ -69,7 +69,7 @@ export class AdvertWidgets {
                 list.push({ name: nature });
             }
         }
-
+        list.push({ name: 'Heimatstrom' });
         return new AdvertWidgets(list);
     }
 

@@ -460,7 +460,7 @@ export class Service implements ErrorHandler {
     if (advertWidgets.names.includes(edge.producttype) == true) {
       return true;
     }
-    if (widgets.names.includes('io.openems.edge.evcs.api.Evcs') == false) {
+    if (widgets.names.includes('io.openems.edge.evcs.api.Evcs') == false || advertWidgets.names.includes('Heimatstrom') == true) {
       return true;
     }
     return false;
