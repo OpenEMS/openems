@@ -122,6 +122,5 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		 * set result
 		 */
 		ess.setActivePowerEqualsWithPid(calculatedPower);
-		ess.setReactivePowerEquals(0);
 	}
 }
