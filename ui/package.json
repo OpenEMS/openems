@@ -46,7 +46,7 @@
     "zone.js": "~0.10.2"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~0.1102.4",
+    "@angular-devkit/build-angular": "^0.1102.5",
     "@angular/cli": "~11.2.4",
     "@angular/compiler": "~11.2.0",
     "@angular/compiler-cli": "~11.2.0",
@@ -67,7 +67,9 @@
     "protractor": "~7.0.0",
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
-    "typescript": "~4.0.2"
+    "typescript": "~4.0.2",
+    "webpack": "^4.46.0",
+    "webpack-dev-server": "^3.11.2"
   },
   "description": "FEMS"
 }
