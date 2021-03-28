@@ -1,3 +1,4 @@
 = io.openems.edge.heater.api
 
+A standardized api for all devices that generate heat.
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.heater.api[Source Code icon:github[]]
