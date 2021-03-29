@@ -1,15 +1,14 @@
 import { Component } from '@angular/core';
-import { Edge, EdgeConfig, Service, ChannelAddress, Websocket, Utils } from '../../../../shared/shared';
+import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { Subject, BehaviorSubject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { isUndefined } from 'util';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../../shared/shared';
 import { GetNetworkConfigRequest } from '../../network/getNetworkConfigRequest';
 import { GetNetworkConfigResponse } from '../../network/getNetworkConfigResponse';
 import { SetNetworkConfigRequest } from '../../network/setNetworkConfigRequest';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: HeatingpumpTcpInstallerComponent.SELECTOR,
@@ -412,10 +411,8 @@ export class HeatingpumpTcpInstallerComponent {
       let workState = 0;
       this.components.forEach(component => {
         let state = currentData.channel[component.id + '/State'];
-        if (!isUndefined(state)) {
-          if (state == 0) {
-            workState += 1;
-          }
+        if (state !== undefined && state == 0) {
+          workState += 1;
         }
       })
       if (workState == 4) {
