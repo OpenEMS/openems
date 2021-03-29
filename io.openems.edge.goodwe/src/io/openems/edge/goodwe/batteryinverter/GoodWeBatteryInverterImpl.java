@@ -175,7 +175,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Override
 	public Integer getSurplusPower() {
-		if (this.lastSoc.orElse(0) < 99) {
+		if (this.lastSoc == null || this.lastSoc.orElse(0) < 99) {
 			return null;
 		}
 		Integer productionPower = this.calculatePvProduction();
