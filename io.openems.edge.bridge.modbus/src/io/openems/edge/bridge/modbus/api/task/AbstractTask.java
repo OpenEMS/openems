@@ -8,13 +8,11 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 
 /**
  * An abstract Modbus 'AbstractTask' is holding references to one or more Modbus
- * {@link AbstractModbusElement} which have register addresses in the same
- * range.
+ * {@link ModbusElement} which have register addresses in the same range.
  */
 public abstract class AbstractTask implements Task {
 
@@ -29,29 +27,32 @@ public abstract class AbstractTask implements Task {
 	private boolean hasBeenExecutedSuccessfully = false;
 	private long lastExecuteDuration = DEFAULT_EXECUTION_DURATION; // initialize to some default
 
-	public AbstractTask(int startAddress, AbstractModbusElement<?>... elements) {
+	public AbstractTask(int startAddress, ModbusElement<?>... elements) {
 		this.startAddress = startAddress;
 		this.elements = elements;
-		for (AbstractModbusElement<?> element : elements) {
+		for (ModbusElement<?> element : elements) {
 			element.setModbusTask(this);
 		}
 		int length = 0;
-		for (AbstractModbusElement<?> element : elements) {
+		for (ModbusElement<?> element : elements) {
 			length += element.getLength();
 		}
 		this.length = length;
 	}
 
+	@Override
 	public ModbusElement<?>[] getElements() {
-		return elements;
+		return this.elements;
 	}
 
+	@Override
 	public int getLength() {
-		return length;
+		return this.length;
 	}
 
+	@Override
 	public int getStartAddress() {
-		return startAddress;
+		return this.startAddress;
 	}
 
 	public void setParent(AbstractOpenemsModbusComponent parent) {

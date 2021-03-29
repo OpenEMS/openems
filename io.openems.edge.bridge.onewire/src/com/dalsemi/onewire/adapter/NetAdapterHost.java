@@ -178,7 +178,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	 * @param adapter     DSPortAdapter that this NetAdapterHost will proxy commands
 	 *                    to.
 	 * @param multiThread if true, multiple TCP/IP connections are allowed to
-	 *                    interact simulataneously with this adapter.
+	 *                    interact simultaneously with this adapter.
 	 *
 	 * @throws IOException if a network error occurs or the listen socket cannot be
 	 *                     created on the specified port.
@@ -203,7 +203,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	 *                    to.
 	 * @param listenPort  the TCP/IP port to listen on for incoming connections
 	 * @param multiThread if true, multiple TCP/IP connections are allowed to
-	 *                    interact simulataneously with this adapter.
+	 *                    interact simultaneously with this adapter.
 	 *
 	 * @throws IOException if a network error occurs or the listen socket cannot be
 	 *                     created on the specified port.
@@ -269,7 +269,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	 *                    to.
 	 * @param serverSock  the ServerSocket for incoming connections
 	 * @param multiThread if true, multiple TCP/IP connections are allowed to
-	 *                    interact simulataneously with this adapter.
+	 *                    interact simultaneously with this adapter.
 	 *
 	 * @throws IOException if a network error occurs or the listen socket cannot be
 	 *                     created on the specified port.
@@ -588,7 +588,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 				adapterCanProgram(conn);
 				break;
 			default:
-				// System.out.println("Unkown command: " + cmd);
+				// System.out.println("Unknown command: " + cmd);
 				break;
 			}
 		} catch (OneWireException owe) {

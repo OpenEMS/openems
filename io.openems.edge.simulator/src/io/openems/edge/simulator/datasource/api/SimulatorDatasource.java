@@ -2,6 +2,7 @@ package io.openems.edge.simulator.datasource.api;
 
 import java.util.Set;
 
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 
 public interface SimulatorDatasource {
@@ -23,11 +24,11 @@ public interface SimulatorDatasource {
 	/**
 	 * Gets the value for the given key (channelId) in the given type.
 	 * 
-	 * @param <T>       the type
-	 * @param type      the expected type
-	 * @param channelId the Channel-Id
-	 * @return the value
+	 * @param <T>            the type
+	 * @param type           the expected type
+	 * @param channelAddress the Channel-Address
+	 * @return the value, possibly null
 	 */
-	<T> T getValue(OpenemsType type, String channelId);
+	<T> T getValue(OpenemsType type, ChannelAddress channelAddress);
 
 }

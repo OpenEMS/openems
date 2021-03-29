@@ -1,4 +1,4 @@
-<ion-card *ngIf="component" button (click)="presentModal()">
+<ion-card *ngIf="component" button routerLink="/device/{{edge.id}}/history/{{componentId}}/channelthresholdchart">
   <ion-item lines="full" color="light">
     <ion-icon slot="start" size="large" name="radio-button-on-outline" color="primary"></ion-icon>
     <ion-label>{{ component.alias }}</ion-label>

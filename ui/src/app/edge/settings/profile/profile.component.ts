@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { environment } from '../../../../environments';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { Component } from '@angular/core';
+import { environment } from '../../../../environments';
 import { ModbusApiUtil } from './modbusapi/modbusapi';
 import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
@@ -30,7 +30,7 @@ export class ProfileComponent {
     private translate: TranslateService,
   ) { }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.systemProfile'), this.route).then(edge => {
       this.edge = edge;
       this.service.getConfig().then(config => {

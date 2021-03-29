@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.types.OptionsEnum;
-import io.openems.common.exceptions.CheckedConsumer;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -92,12 +92,12 @@ public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<In
 	 * onSetNextWrite
 	 */
 	@Override
-	public List<CheckedConsumer<Integer>> getOnSetNextWrites() {
+	public List<ThrowingConsumer<Integer, OpenemsNamedException>> getOnSetNextWrites() {
 		return super.getOnSetNextWrites();
 	}
 
 	@Override
-	public void onSetNextWrite(CheckedConsumer<Integer> callback) {
+	public void onSetNextWrite(ThrowingConsumer<Integer, OpenemsNamedException> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
 

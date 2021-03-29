@@ -322,7 +322,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	private byte[] dataLog = null, temperatureLog = null;
 	/** Number of bytes used to store temperature values (0, 1, or 2) */
 	private int temperatureBytes = 0;
-	/** Number of bytes used to stroe data valuas (0, 1, or 2) */
+	/** Number of bytes used to store data valuas (0, 1, or 2) */
 	private int dataBytes = 0;
 	/** indicates whether or not the log has rolled over */
 	private boolean rolledOver = false;

@@ -5,12 +5,12 @@
     <ion-button *ngIf="translate" (click)="presentPopover($event)">
         {{service.historyPeriod.getText(translate)}}
     </ion-button>
-    <ng-container *ngIf="disableArrow == false">
+    <ng-container *ngIf="disableArrow === false">
         <ion-button (click)="goForward()">
             <ion-icon class="ion-padding-end" src="assets/img/arrow-forward.svg" slot="end"></ion-icon>
         </ion-button>
     </ng-container>
-    <ng-container *ngIf="disableArrow == true">
+    <ng-container *ngIf="disableArrow === true">
         <ion-button disabled (click)="goForward()">
             <ion-icon class="ion-padding-end" src="assets/img/arrow-forward-crossed.svg" slot="end"></ion-icon>
         </ion-button>

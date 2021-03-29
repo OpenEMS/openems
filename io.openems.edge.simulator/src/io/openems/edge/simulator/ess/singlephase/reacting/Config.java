@@ -26,7 +26,7 @@ import io.openems.edge.ess.api.SinglePhase;
 	@AttributeDefinition(name = "Datasource-ID", description = "ID of Simulator Datasource.")
 	String datasource_id() default "datasource0";
 
-	@AttributeDefinition(name = "Max Apparant Power [VA]")
+	@AttributeDefinition(name = "Max Apparent Power [VA]")
 	int maxApparentPower() default 10000;
 
 	@AttributeDefinition(name = "Capacity [Wh]")

@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -26,7 +27,7 @@ import io.openems.edge.ess.power.api.Power;
 public class Ess1Streetscooter extends AbstractEssStreetscooter
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, ModbusSlave {
 
-	private static final int ICU_1_SET_POWER_ADRESS = 4002;
+	private static final int ICU_1_SET_POWER_ADDRESS = 4002;
 	private static final int ICU_1_ENABLED_ADDRESS = 4001;
 
 	private static final int BATTERY_1_ADDRESS_OFFSET = 1000;
@@ -48,9 +49,11 @@ public class Ess1Streetscooter extends AbstractEssStreetscooter
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, Config1 config1) {
-		super.activate(context, config1.id(), config1.alias(), config1.enabled(), config1.readonly(), UNIT_ID, this.cm,
-				"Modbus", config1.modbus_id());
+	protected void activate(ComponentContext context, Config1 config1) throws OpenemsException {
+		if (super.activate(context, config1.id(), config1.alias(), config1.enabled(), config1.readonly(), UNIT_ID,
+				this.cm, "Modbus", config1.modbus_id())) {
+			return;
+		}
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -60,7 +63,7 @@ public class Ess1Streetscooter extends AbstractEssStreetscooter
 
 	@Override
 	protected int getIcuSetPowerAddress() {
-		return ICU_1_SET_POWER_ADRESS;
+		return ICU_1_SET_POWER_ADDRESS;
 	}
 
 	@Override
@@ -69,12 +72,12 @@ public class Ess1Streetscooter extends AbstractEssStreetscooter
 	}
 
 	@Override
-	protected int getAdressOffsetForBattery() {
+	protected int getAddressOffsetForBattery() {
 		return BATTERY_1_ADDRESS_OFFSET;
 	}
 
 	@Override
-	protected int getAdressOffsetForInverter() {
+	protected int getAddressOffsetForInverter() {
 		return INVERTER_1_ADDRESS_OFFSET;
 	}
 

@@ -38,7 +38,7 @@ package com.dalsemi.onewire;
 public class OneWireException extends Exception {
 
 	// --------
-	// -------- Contructor
+	// -------- Constructor
 	// --------
 
 	/**

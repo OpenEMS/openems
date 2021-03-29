@@ -7,7 +7,8 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.CheckedConsumer;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingConsumer;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class BooleanWriteChannel extends BooleanReadChannel implements WriteChannel<Boolean> {
@@ -29,7 +30,7 @@ public class BooleanWriteChannel extends BooleanReadChannel implements WriteChan
 						+ "] is not an BooleanWriteChannel! Unable to register \"onSetNextWrite\"-Listener!");
 				return;
 			}
-			
+
 			// on each setNextWrite to the channel -> store the value in the DEBUG-channel
 			((BooleanWriteChannel) channel).onSetNextWrite(value -> {
 				channel.getComponent().channel(this.targetChannelId).setNextValue(value);
@@ -65,12 +66,12 @@ public class BooleanWriteChannel extends BooleanReadChannel implements WriteChan
 	 * @return
 	 */
 	@Override
-	public List<CheckedConsumer<Boolean>> getOnSetNextWrites() {
+	public List<ThrowingConsumer<Boolean, OpenemsNamedException>> getOnSetNextWrites() {
 		return super.getOnSetNextWrites();
 	}
 
 	@Override
-	public void onSetNextWrite(CheckedConsumer<Boolean> callback) {
+	public void onSetNextWrite(ThrowingConsumer<Boolean, OpenemsNamedException> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
 

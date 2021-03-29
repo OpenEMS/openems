@@ -12,9 +12,9 @@ import io.openems.common.types.EdgeConfig;
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 	private final Logger log = LoggerFactory.getLogger(OnOpen.class);
-	private final BackendApi parent;
+	private final BackendApiImpl parent;
 
-	public OnOpen(BackendApi parent) {
+	public OnOpen(BackendApiImpl parent) {
 		this.parent = parent;
 	}
 
@@ -28,7 +28,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		this.parent.websocket.sendMessage(message);
 
 		// Send all Channel values
-		this.parent.worker.sendValuesOfAllChannelsOnce();
+		this.parent.sendChannelValuesWorker.sendValuesOfAllChannelsOnce();
 	}
 
 }

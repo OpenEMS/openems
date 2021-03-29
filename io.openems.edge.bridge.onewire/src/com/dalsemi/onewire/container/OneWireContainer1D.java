@@ -49,7 +49,7 @@ import com.dalsemi.onewire.utils.CRC16;
  * </P>
  *
  * <P>
- * Each counter is assosciated with a memory page. The counters for pages 12 and
+ * Each counter is associated with a memory page. The counters for pages 12 and
  * 13 are incremented with a write to the memory on that page. The counters for
  * pages 14 and 15 are externally triggered. See the method
  * {@link #readCounter(int) readCounter} to read a counter directly. Note that
@@ -69,8 +69,7 @@ import com.dalsemi.onewire.utils.CRC16;
  * debouncing compatible with reed and Wiegand switches
  * <LI>32 factory-preset tamper-detect bits to indicate physical intrusion
  * <LI>On-chip 16-bit CRC generator for safeguarding data transfers
- * <LI>Operating temperature range from -40@htmlonly &#176C @endhtmlonly to
- * +70@htmlonly &#176C @endhtmlonly
+ * <LI>Operating temperature range from -40 to +70
  * <LI>Over 10 years of data retention
  * </UL>
  * 

@@ -6,6 +6,7 @@ import java.time.Instant;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoBlueplanetGridsave;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201RequestedState;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class GoRunningHandler extends StateHandler<State, Context> {
@@ -17,17 +18,20 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		this.lastAttempt = Instant.MIN;
 		this.attemptCounter = 0;
-		context.component._setMaxStartAttempts(false);
+		KacoBlueplanetGridsave inverter = context.getParent();
+		inverter._setMaxStartAttempts(false);
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
+		KacoBlueplanetGridsave inverter = context.getParent();
+
 		// Has Faults -> abort
-		if (context.component.hasFaults()) {
+		if (inverter.hasFaults()) {
 			return State.UNDEFINED;
 		}
 
-		switch (context.component.getCurrentState()) {
+		switch (inverter.getCurrentState()) {
 		case GRID_CONNECTED:
 			// All Good
 
@@ -57,12 +61,12 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 
 			if (this.attemptCounter > KacoBlueplanetGridsave.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				context.component._setMaxStartAttempts(true);
+				inverter._setMaxStartAttempts(true);
 				return State.UNDEFINED;
 
 			} else {
 				// Trying to switch on
-				context.component.setRequestedState(S64201RequestedState.GRID_CONNECTED);
+				inverter.setRequestedState(S64201RequestedState.GRID_CONNECTED);
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
 				return State.GO_RUNNING;

@@ -13,14 +13,14 @@ public class OpenemsConstants {
 	 * 
 	 * This is usually the year of the release
 	 */
-	public final static short VERSION_MAJOR = 2020;
+	public final static short VERSION_MAJOR = 2021;
 
 	/**
 	 * The minor version of OpenEMS.
 	 * 
 	 * This is usually the number of the sprint within the year
 	 */
-	public final static short VERSION_MINOR = 17;
+	public final static short VERSION_MINOR = 7;
 
 	/**
 	 * The patch version of OpenEMS.
@@ -54,7 +54,7 @@ public class OpenemsConstants {
 	 * 
 	 * Note: this should be max. 32 ASCII characters long
 	 */
-	public final static String MANUFACTURER_MODEL = "";
+	public final static String MANUFACTURER_MODEL = "OpenEMS";
 
 	/**
 	 * The options of the device
@@ -89,6 +89,7 @@ public class OpenemsConstants {
 	 */
 	public final static String CYCLE_ID = "_cycle";
 	public final static String COMPONENT_MANAGER_ID = "_componentManager";
+	public final static String PREDICTOR_MANAGER_ID = "_predictorManager";
 	public final static String META_ID = "_meta";
 	public final static String SUM_ID = "_sum";
 	public final static String HOST_ID = "_host";

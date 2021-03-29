@@ -267,7 +267,7 @@ public class OneWireContainer29 extends OneWireContainer implements SwitchContai
 		// 00 - 4 channels
 		// 01 - 5 channels
 		// 10 - 8 channels
-		// 11 - 16 channes, which hasn't been implemented yet
+		// 11 - 16 channels, which hasn't been implemented yet
 		return 8;
 	}
 

@@ -24,6 +24,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Doc;
@@ -123,6 +124,13 @@ public class SimulatorTimedata extends AbstractOpenemsComponent implements Timed
 		}
 	}
 
+	@Override
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			throws OpenemsNamedException {
+		throw new NotImplementedException("QueryHistoryEnergyPerPeriod is not implemented for Simulator");
+	}
+
 	/**
 	 * Gets the value of the record for the given Channel-Address as Json.
 	 * 
@@ -144,7 +152,7 @@ public class SimulatorTimedata extends AbstractOpenemsComponent implements Timed
 	 * @return the absolute path
 	 */
 	private File getPath() {
-		return new File(System.getProperty("user.home"), config.filename());
+		return new File(System.getProperty("user.home"), this.config.filename());
 	}
 
 	@Override

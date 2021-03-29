@@ -10,9 +10,9 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
 public class OnNotification implements io.openems.common.websocket.OnNotification {
 
 	private final Logger log = LoggerFactory.getLogger(OnNotification.class);
-	private final BackendApi parent;
+	private final BackendApiImpl parent;
 
-	public OnNotification(BackendApi parent) {
+	public OnNotification(BackendApiImpl parent) {
 		this.parent = parent;
 	}
 

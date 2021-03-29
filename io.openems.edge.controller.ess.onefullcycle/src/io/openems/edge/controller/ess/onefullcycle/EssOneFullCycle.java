@@ -1,6 +1,5 @@
 package io.openems.edge.controller.ess.onefullcycle;
 
-import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAmount;
@@ -36,7 +35,6 @@ import io.openems.edge.ess.power.api.Pwr;
 public class EssOneFullCycle extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(EssOneFullCycle.class);
-	private final Clock clock;
 	private final TemporalAmount hysteresis = Duration.ofMinutes(30);
 
 	private State state = State.UNDEFINED;
@@ -78,17 +76,12 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 		}
 	}
 
-	public EssOneFullCycle(Clock clock) {
+	public EssOneFullCycle() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.clock = clock;
-	}
-
-	public EssOneFullCycle() {
-		this(Clock.systemDefaultZone());
 	}
 
 	@Activate
@@ -121,7 +114,7 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 		try {
 			this.initializeEnums(ess);
 		} catch (OpenemsException e) {
-			this.logError(this.log, "Unable to initalize Enums: " + e.getMessage());
+			this.logError(this.log, "Unable to initialize Enums: " + e.getMessage());
 			return;
 		}
 
@@ -248,9 +241,10 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 	 */
 	private boolean changeState(State nextState) {
 		if (this.state != nextState) {
-			if (this.lastStateChange.plus(this.hysteresis).isBefore(LocalDateTime.now(this.clock))) {
+			LocalDateTime now = LocalDateTime.now(this.componentManager.getClock());
+			if (this.lastStateChange.plus(this.hysteresis).isBefore(now)) {
 				this.state = nextState;
-				this.lastStateChange = LocalDateTime.now(this.clock);
+				this.lastStateChange = now;
 				this.channel(ChannelId.AWAITING_HYSTERESIS).setNextValue(false);
 				return true;
 			} else {

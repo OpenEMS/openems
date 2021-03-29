@@ -28,6 +28,10 @@ public enum ModuleParameters {
 	
 	private int value;
 
+	/**
+	 * gets the value.
+	 * @return int
+	 */
 	public int getValue() {
 		return this.value;
 	}

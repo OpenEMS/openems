@@ -13,7 +13,7 @@ export class SinglethresholdComponent {
 
   private static readonly SELECTOR = "singlethreshold";
 
-  @Input() private componentId: string;
+  @Input() public componentId: string;
 
   public edge: Edge = null;
   public config: EdgeConfig = null;

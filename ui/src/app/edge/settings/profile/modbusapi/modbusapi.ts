@@ -1,9 +1,8 @@
-import * as FileSaver from 'file-saver';
+import { saveAs } from 'file-saver-es';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
 import { Service } from 'src/app/shared/shared';
 import { GetModbusProtocolExportXlsxRequest } from './getModbusProtocolExportXlsxRequest';
-
 export class ModbusApiUtil {
 
     private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
@@ -29,11 +28,11 @@ export class ModbusApiUtil {
                 });
 
                 const fileName = "Modbus-TCP-" + edge.id;
-                FileSaver.saveAs(data, fileName + ModbusApiUtil.EXCEL_EXTENSION);
+                saveAs(data, fileName + ModbusApiUtil.EXCEL_EXTENSION);
 
             }).catch(reason => {
                 console.warn(reason);
             })
         })
     }
-} 
+}

@@ -1,7 +1,5 @@
 package io.openems.edge.controller.ess.predictivedelaycharge.dc;
 
-import java.time.Clock;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -20,8 +18,8 @@ import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.predictor.api.ConsumptionHourlyPredictor;
-import io.openems.edge.predictor.api.ProductionHourlyPredictor;
+import io.openems.edge.predictor.api.hourly.ConsumptionHourlyPredictor;
+import io.openems.edge.predictor.api.hourly.ProductionHourlyPredictor;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -46,17 +44,14 @@ public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge imple
 		super();
 	}
 
-	public DcPredictiveDelayCharge(Clock clock) {
-		super(clock);
-	}
-
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.meter_id(),
-				config.noOfBufferHours());
+				config.noOfBufferHours(), config.debugMode());
 		this.config = config;
 	}
 
+//
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -85,6 +80,11 @@ public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge imple
 						Relationship.GREATER_OR_EQUALS, calculatedPower);
 			}
 		}
+	}
+
+	@Override
+	protected ComponentManager getComponentManager() {
+		return this.componentManager;
 	}
 
 }

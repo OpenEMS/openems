@@ -1,8 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/shared';
+import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -87,6 +87,10 @@ export class ComponentInstallComponent implements OnInit {
     let properties: { name: string, value: any }[] = [];
     for (let controlKey in this.form.controls) {
       let control = this.form.controls[controlKey];
+      if (control.value === null) {
+        // ignore 'null' values
+        continue;
+      }
       let property_id = controlKey.replace('_', '.');
       properties.push({ name: property_id, value: control.value });
     }

@@ -144,7 +144,7 @@ public class JsonLogicController extends AbstractOpenemsComponent implements Con
 	}
 }
 
-// TODO: once gson version 2.8.6 or higher is compatible with OSGi on Java 8: use json-logic libary 
+// TODO: once gson version 2.8.6 or higher is compatible with OSGi on Java 8: use json-logic library 
 // from maven instead of local file. Json-logic library on maven requires Gson 2.8.6; but Gson 2.8.6
 // is not compatible with OSGi on Java 8 as it has the wrong manifest headers.
 // See -> https://github.com/google/gson/issues/1601

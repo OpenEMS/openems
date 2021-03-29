@@ -2,4 +2,14 @@
 
 Constantly shows the most important values of all Components on the console. This is often activated by default to be able to track the running system easily.
 
+The 'most important values' are predefined by the individual OpenEMS Components. The configuration allows to
+
+`additionalChannels`::
+	add additional Channels to the log
+
+`ignoreComponents`::
+	ignore the output of certain Components
+
+The priority of `additionalChannels` is higher than `ignoreComponents`, so an explicitly added Channel will be logged even if the Component has explicitly been ignored.
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.debug.log[Source Code icon:github[]]

@@ -1,9 +1,9 @@
 import { ActivatedRoute } from '@angular/router';
+import { CategorizedComponents, EdgeConfig } from '../../edge/edgeconfig';
 import { Component } from '@angular/core';
 import { Edge, Service, Websocket, ChannelAddress } from '../../../shared/shared';
-import { ModalController } from '@ionic/angular';
 import { environment } from 'src/environments';
-import { CategorizedComponents, EdgeConfig } from '../../edge/edgeconfig';
+import { ModalController } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 

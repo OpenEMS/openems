@@ -51,8 +51,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * <LI>64 bit (8 byte) password per memory block
  * <LI>64 bit (8 byte) identification per memory block
  * <LI>Data integrity assured with strict read/write protocols
- * <LI>Operating temperature range from -40@htmlonly &#176C @endhtmlonly to
- * +70@htmlonly &#176C @endhtmlonly
+ * <LI>Operating temperature range from -40 to +70
  * <LI>Over 10 years of data retention
  * </UL>
  *
@@ -529,7 +528,7 @@ public class OneWireContainer02 extends OneWireContainer {
 	 *
 	 * @param key    number indicating the key to be written: 0, 1, or 2
 	 * @param addr   address to start writing at ( 0x00 to 0x3F )
-	 * @param passwd passwird for the subkey
+	 * @param passwd password for the subkey
 	 * @param data   data to be written
 	 *
 	 *

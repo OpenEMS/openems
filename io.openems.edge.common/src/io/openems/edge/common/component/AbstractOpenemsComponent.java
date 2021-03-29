@@ -15,19 +15,22 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CaseFormat;
 
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.DoubleDoc;
+import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.FloatDoc;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.LongDoc;
 import io.openems.edge.common.channel.ShortDoc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StringDoc;
-import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
+import io.openems.edge.common.channel.internal.AbstractDoc;
 
 /**
  * This is the default implementation of the {@link OpenemsComponent} interface.
@@ -236,7 +239,8 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 						.get(io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel(channelName));
 				if (channel == null) {
 					// Channel does not already exist -> create new Channel
-					Doc doc = AbstractOpenemsComponent.getDocFromObject(value);
+					AbstractDoc<?> doc = AbstractOpenemsComponent.getDocFromObject(value);
+					doc.persistencePriority(PersistencePriority.MEDIUM);
 					io.openems.edge.common.channel.ChannelId channelId = new io.openems.edge.common.channel.ChannelId() {
 
 						@Override
@@ -369,6 +373,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		return this.alias;
 	}
 
+	@Deprecated()
 	@Override
 	public Channel<?> _channel(String channelName) {
 		Channel<?> channel = this.channels.get(channelName);
@@ -402,8 +407,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param message the message
 	 */
 	protected void logDebug(Logger log, String message) {
-		// TODO use log.debug(String, Object...) to improve speed
-		log.debug("[" + this.id() + "] " + message);
+		OpenemsComponent.logDebug(this, log, message);
 	}
 
 	/**
@@ -413,7 +417,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param message the message
 	 */
 	protected void logInfo(Logger log, String message) {
-		log.info("[" + this.id() + "] " + message);
+		OpenemsComponent.logInfo(this, log, message);
 	}
 
 	/**
@@ -423,7 +427,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param message the message
 	 */
 	protected void logWarn(Logger log, String message) {
-		log.warn("[" + this.id() + "] " + message);
+		OpenemsComponent.logWarn(this, log, message);
 	}
 
 	/**
@@ -433,18 +437,28 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param message the message
 	 */
 	protected void logError(Logger log, String message) {
-		log.error("[" + this.id() + "] " + message);
+		OpenemsComponent.logError(this, log, message);
 	}
 
 	/**
-	 * Gets an {@link OpenemsTypeDoc} from an Object.
+	 * Gets an {@link AbstractDoc} from an Object.
 	 * 
 	 * @param value the Object
-	 * @return the {@link OpenemsTypeDoc}
+	 * @return the {@link AbstractDoc}
 	 * @throws OpenemsException if the TypeDoc cannot be guessed from the Object.
 	 */
-	private static OpenemsTypeDoc<?> getDocFromObject(Object value) throws OpenemsException {
-		if (value instanceof Boolean) {
+	private static AbstractDoc<?> getDocFromObject(Object value) throws OpenemsException {
+		if (value instanceof Enum) {
+			Object[] enumValues = value.getClass().getEnumConstants();
+			OptionsEnum[] optionsEnums = new OptionsEnum[enumValues.length + 1];
+			final PropertyOptionsEnum undefined = new PropertyOptionsEnum(null, -1, "UNDEFINED");
+			undefined.setUndefined(undefined);
+			for (int i = 0; i < enumValues.length; i++) {
+				Enum<?> enumValue = ((Enum<?>) enumValues[i]);
+				optionsEnums[i] = new PropertyOptionsEnum(undefined, enumValue.ordinal(), enumValue.name());
+			}
+			return new EnumDoc(optionsEnums);
+		} else if (value instanceof Boolean) {
 			return new BooleanDoc();
 		} else if (value instanceof Float) {
 			return new FloatDoc();
@@ -463,5 +477,43 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		}
 		throw new OpenemsException(
 				"Unable to find OpenemsType for Class [" + value.getClass() + "] of Object [" + value + "]");
+	}
+
+	/**
+	 * Wraps a config property enum to an {@link OptionsEnum}. This way it can be
+	 * used for Property-Channels.
+	 */
+	private static class PropertyOptionsEnum implements OptionsEnum {
+
+		private final int value;
+		private final String name;
+
+		private PropertyOptionsEnum undefined;
+
+		protected PropertyOptionsEnum(PropertyOptionsEnum undefined, int value, String name) {
+			this.undefined = undefined;
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		protected void setUndefined(PropertyOptionsEnum undefined) {
+			this.undefined = undefined;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return this.undefined;
+		}
+
 	}
 }

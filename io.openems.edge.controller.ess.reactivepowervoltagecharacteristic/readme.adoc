@@ -1,0 +1,34 @@
+= Ess Reactive Power Voltage Characteristic
+
+* This controller sets reactive power of an energy storage system in order to keep the grid voltage within an acceptable range.
+
+* The reactive power set-point depends on the ratio of the grid voltage divided by the configured `nominalVoltage` parameter.
+
+* The reactive power set-point is defined as percent of the maximum apparent power of the inverter.
+
+* The reactive power per voltage ratio is defined by a poly-line graph in the `lineConfig` parameter. It takes a Json-Array of the following form:
+
+----
+[
+   {
+      "voltageRatio":0.9,
+      "percent":60
+   },
+   {
+      "voltageRatio":0.93,
+      "percent":0
+   },
+   {
+      "voltageRatio":1.07
+      "percent":0
+   },
+   {
+      "voltageRatio":1.1,
+      "percent":-60
+   }
+]
+----
+
+  * `waitForHysteresis` parameter: reactive power set-point is not updated more often than the hysteresis time in seconds. Default value is 20 seconds. The purpose of this parameter is to avoid oscillation in grid voltage via frequently setting power.
+
+https://github.com/OpenEMS/openems/tree/feature/develop/io.openems.edge.controller.ess.reactivepowervoltagecharacteristic[Source Code icon:github[]]

@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { CategorizedFactories } from 'src/app/shared/edge/edgeconfig';
+import { Component, OnInit } from '@angular/core';
 import { Service, Utils, EdgeConfig } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
-import { CategorizedFactories } from 'src/app/shared/edge/edgeconfig';
 
 interface MyCategorizedFactories extends CategorizedFactories {
   isClicked?: boolean,

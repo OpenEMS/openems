@@ -27,8 +27,8 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 
 public class JsonUtils {
 
@@ -112,6 +112,61 @@ public class JsonUtils {
 			return Integer.parseInt(string);
 		}
 		throw OpenemsError.JSON_NO_INTEGER_MEMBER.exception(memberName, jPrimitive.toString().replaceAll("%", "%%"));
+	}
+
+	public static double getAsDouble(JsonElement jElement) throws OpenemsNamedException {
+		JsonPrimitive jPrimitive = getAsPrimitive(jElement);
+		if (jPrimitive.isNumber()) {
+			return jPrimitive.getAsDouble();
+		} else if (jPrimitive.isString()) {
+			String string = jPrimitive.getAsString();
+			return Double.parseDouble(string);
+		}
+		throw OpenemsError.JSON_NO_INTEGER.exception(jPrimitive.toString().replaceAll("%", "%%"));
+	}
+
+	public static double getAsDouble(JsonElement jElement, String memberName) throws OpenemsNamedException {
+		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
+		if (jPrimitive.isNumber()) {
+			return jPrimitive.getAsDouble();
+		} else if (jPrimitive.isString()) {
+			String string = jPrimitive.getAsString();
+			return Double.parseDouble(string);
+		}
+		throw OpenemsError.JSON_NO_INTEGER_MEMBER.exception(memberName, jPrimitive.toString().replaceAll("%", "%%"));
+	}
+	
+	public static double getAsShort(JsonElement jElement) throws OpenemsNamedException {
+		JsonPrimitive jPrimitive = getAsPrimitive(jElement);
+		if (jPrimitive.isNumber()) {
+			return jPrimitive.getAsShort();
+		} else if (jPrimitive.isString()) {
+			String string = jPrimitive.getAsString();
+			return Short.parseShort(string);
+		}
+		throw OpenemsError.JSON_NO_INTEGER.exception(jPrimitive.toString().replaceAll("%", "%%"));
+	}
+
+	public static double getAsShort(JsonElement jElement, String memberName) throws OpenemsNamedException {
+		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
+		if (jPrimitive.isNumber()) {
+			return jPrimitive.getAsShort();
+		} else if (jPrimitive.isString()) {
+			String string = jPrimitive.getAsString();
+			return Short.parseShort(string);
+		}
+		throw OpenemsError.JSON_NO_INTEGER_MEMBER.exception(memberName, jPrimitive.toString().replaceAll("%", "%%"));
+	}
+	
+	public static float getAsFloat(JsonElement jElement) throws OpenemsNamedException {
+		JsonPrimitive jPrimitive = getAsPrimitive(jElement);
+		if (jPrimitive.isNumber()) {
+			return jPrimitive.getAsFloat();
+		} else if (jPrimitive.isString()) {
+			String string = jPrimitive.getAsString();
+			return Float.parseFloat(string);
+		}
+		throw OpenemsError.JSON_NO_FLOAT.exception(jPrimitive.toString().replaceAll("%", "%%"));
 	}
 
 	public static float getAsFloat(JsonElement jElement, String memberName) throws OpenemsNamedException {
@@ -460,7 +515,6 @@ public class JsonUtils {
 		}
 	}
 
-	@Deprecated
 	public static Object getAsType(Class<?> type, JsonElement j) throws NotImplementedException {
 		try {
 			if (Integer.class.isAssignableFrom(type)) {
@@ -715,6 +769,11 @@ public class JsonUtils {
 			return this;
 		}
 
+		public JsonObjectBuilder addProperty(String property, double value) {
+			j.addProperty(property, value);
+			return this;
+		}
+
 		public JsonObjectBuilder addPropertyIfNotNull(String property, String value) {
 			if (value != null) {
 				j.addProperty(property, value);
@@ -737,6 +796,13 @@ public class JsonUtils {
 		}
 
 		public JsonObjectBuilder addPropertyIfNotNull(String property, Boolean value) {
+			if (value != null) {
+				j.addProperty(property, value);
+			}
+			return this;
+		}
+
+		public JsonObjectBuilder addPropertyIfNotNull(String property, Double value) {
 			if (value != null) {
 				j.addProperty(property, value);
 			}

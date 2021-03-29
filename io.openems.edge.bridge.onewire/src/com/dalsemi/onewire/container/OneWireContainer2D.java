@@ -45,7 +45,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * <LI>1024 bits of 5V EEPROM memory partitioned into four pages of 256 bits
  * <LI>unique, fatory-lasered and tested 64-bit registration number (8-bit
  * family code + 48-bit serial number + 8-bit CRC tester) assures absolute
- * traceablity because no two parts are alike.
+ * traceability because no two parts are alike.
  * <LI>Built-in multidrop controller ensures compatibility with other 1-Wire net
  * products.
  * <LI>Reduces control, address, data and power to a single data pin.
@@ -73,7 +73,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  */
 public class OneWireContainer2D extends OneWireContainer {
 	/*
-	 * registery memory bank to control write-once (EPROM) mode
+	 * registry memory bank to control write-once (EPROM) mode
 	 */
 	private MemoryBankEEPROM register;
 
@@ -197,7 +197,7 @@ public class OneWireContainer2D extends OneWireContainer {
 	 * Retrieve the Maxim Integrated Products part number of the iButton as a
 	 * string. For example 'DS1992'.
 	 *
-	 * @return string represetation of the iButton name.
+	 * @return string representation of the iButton name.
 	 */
 	public String getName() {
 		return "DS1972";
@@ -217,7 +217,7 @@ public class OneWireContainer2D extends OneWireContainer {
 	/**
 	 * Retrieve a short description of the function of the iButton type.
 	 *
-	 * @return string represetation of the function description.
+	 * @return string representation of the function description.
 	 */
 	public String getDescription() {
 		return "1K-Bit protected 1-Wire EEPROM.";
@@ -317,7 +317,7 @@ public class OneWireContainer2D extends OneWireContainer {
 	}
 
 	/**
-	 * Lock the specifed page in the current memory bank. Not supported by all
+	 * Lock the specified page in the current memory bank. Not supported by all
 	 * devices. See the method 'canLockPage()'.
 	 *
 	 * @param page number of page to lock

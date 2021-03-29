@@ -25,7 +25,7 @@ export class EnergymonitorComponent {
         // Ess
         new ChannelAddress('_sum', 'EssSoc'), new ChannelAddress('_sum', 'EssActivePower'), new ChannelAddress('_sum', 'EssMaxApparentPower'),
         // Grid
-        new ChannelAddress('_sum', 'GridActivePower'), new ChannelAddress('_sum', 'GridMinActivePower'), new ChannelAddress('_sum', 'GridMaxActivePower'),
+        new ChannelAddress('_sum', 'GridActivePower'), new ChannelAddress('_sum', 'GridMinActivePower'), new ChannelAddress('_sum', 'GridMaxActivePower'), new ChannelAddress('_sum', 'GridMode'),
         // Production
         new ChannelAddress('_sum', 'ProductionActivePower'), new ChannelAddress('_sum', 'ProductionDcActualPower'), new ChannelAddress('_sum', 'ProductionAcActivePower'), new ChannelAddress('_sum', 'ProductionMaxActivePower'),
         // Consumption
@@ -39,5 +39,4 @@ export class EnergymonitorComponent {
       this.edge.unsubscribeChannels(this.websocket, EnergymonitorComponent.SELECTOR);
     }
   }
-
 }

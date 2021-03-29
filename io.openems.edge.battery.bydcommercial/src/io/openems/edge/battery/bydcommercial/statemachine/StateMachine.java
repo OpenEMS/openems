@@ -1,89 +1,70 @@
 package io.openems.edge.battery.bydcommercial.statemachine;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.openems.common.types.OptionsEnum;
+import io.openems.edge.common.statemachine.AbstractStateMachine;
+import io.openems.edge.common.statemachine.StateHandler;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.bydcommercial.BatteryBoxC130;
-import io.openems.edge.battery.bydcommercial.Config;
+public class StateMachine extends AbstractStateMachine<StateMachine.State, Context> {
 
-/**
- * Manages the States of the StateMachine.
- */
-// TODO convert to abstract, reusable class
-public class StateMachine {
+	public enum State implements io.openems.edge.common.statemachine.State<State>, OptionsEnum {
+		UNDEFINED(-1), //
 
-	public static class Context {
-		protected final BatteryBoxC130 component;
-		protected final Config config;
+		GO_RUNNING(10), //
+		RUNNING(11), //
 
-		public Context(BatteryBoxC130 component, Config config) {
-			super();
-			this.component = component;
-			this.config = config;
+		GO_STOPPED(20), //
+		STOPPED(21), //
+
+		ERROR(30), //
+		;
+
+		private final int value;
+
+		private State(int value) {
+			this.value = value;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name();
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+
+		@Override
+		public State[] getStates() {
+			return State.values();
 		}
 	}
 
-	private final Logger log = LoggerFactory.getLogger(StateMachine.class);
-
-	private State state = State.UNDEFINED;
-
-	/**
-	 * Gets the currently activate {@link State}.
-	 * 
-	 * @return the State
-	 */
-	public State getCurrentState() {
-		return this.state;
+	public StateMachine(State initialState) {
+		super(initialState);
 	}
 
-	/**
-	 * Execute the StateMachine.
-	 * 
-	 * @throws OpenemsNamedException on error
-	 */
-	public void run(Context context) throws OpenemsNamedException {
-		// Keep last State
-		State lastState = this.state;
-
-		OpenemsNamedException exception = null;
-
-		// Call the State Handler and receive next State.
-		try {
-			this.state = this.state.getNextState(context);
-		} catch (OpenemsNamedException e) {
-			exception = e;
+	@Override
+	public StateHandler<State, Context> getStateHandler(State state) {
+		switch (state) {
+		case UNDEFINED:
+			return new UndefinedHandler();
+		case GO_RUNNING:
+			return new GoRunningHandler();
+		case RUNNING:
+			return new RunningHandler();
+		case GO_STOPPED:
+			return new GoStoppedHandler();
+		case STOPPED:
+			return new StoppedHandler();
+		case ERROR:
+			return new ErrorHandler();
 		}
-
-		// Call StateMachine events on transition
-		if (lastState != this.state) {
-			this.log.info("Changing StateMachine from [" + lastState + "] to [" + this.state + "]");
-
-			// On-Exit of the last State
-			try {
-				lastState.onExit(context);
-			} catch (OpenemsNamedException e) {
-				if (exception != null) {
-					e.addSuppressed(exception);
-				}
-				exception = e;
-			}
-
-			// On-Entry of next State
-			try {
-				this.state.onEntry(context);
-			} catch (OpenemsNamedException e) {
-				if (exception != null) {
-					e.addSuppressed(exception);
-				}
-				exception = e;
-			}
-		}
-
-		// Handle Exception
-		if (exception != null) {
-			throw exception;
-		}
+		throw new IllegalArgumentException("Unknown State [" + state + "]");
 	}
-
 }

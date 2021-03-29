@@ -10,7 +10,7 @@ public class DataContainer {
 
 	private HashMap<String, Integer> keys = new HashMap<>();
 	private List<Float[]> records = new ArrayList<>();
-	private int currentIndex = 0;
+	private int currentIndex = -1;
 
 	/**
 	 * Gets the available keys.
@@ -18,7 +18,7 @@ public class DataContainer {
 	 * @return the Channel-Id
 	 */
 	public Set<String> getKeys() {
-		return keys.keySet();
+		return this.keys.keySet();
 	}
 
 	/**
@@ -47,7 +47,10 @@ public class DataContainer {
 	 * @return the current record
 	 */
 	public Float[] getCurrentRecord() {
-		return this.records.get(currentIndex);
+		if (this.currentIndex == -1) {
+			this.currentIndex = 0;
+		}
+		return this.records.get(this.currentIndex);
 	}
 
 	/**
@@ -91,6 +94,6 @@ public class DataContainer {
 	 * Rewinds the data to start again at the first record.
 	 */
 	public void rewind() {
-		this.currentIndex = 0;
+		this.currentIndex = -1;
 	}
 }

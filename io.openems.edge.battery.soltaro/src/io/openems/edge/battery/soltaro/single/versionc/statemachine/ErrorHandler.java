@@ -4,7 +4,9 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.battery.soltaro.single.versionc.SingleRackVersionC;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
+import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class ErrorHandler extends StateHandler<State, Context> {
@@ -60,19 +62,19 @@ public class ErrorHandler extends StateHandler<State, Context> {
 		this.entryAt = Instant.now();
 
 		// Try to stop system
-		context.component.setPreChargeControl(PreChargeControl.SWITCH_OFF);
+		SingleRackVersionC battery = context.getParent();
+		battery.setPreChargeControl(PreChargeControl.SWITCH_OFF);
 	}
 
 	@Override
 	protected void onExit(Context context) throws OpenemsNamedException {
-		context.component._setMaxStartAttempts(false);
-		context.component._setMaxStopAttempts(false);
+		SingleRackVersionC battery = context.getParent();
+		battery._setMaxStartAttempts(false);
+		battery._setMaxStopAttempts(false);
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		System.out.println("Stuck in ERROR_HANDLING: " + context.component.getStateChannel().listStates());
-
 		if (Duration.between(this.entryAt, Instant.now()).getSeconds() > 120) {
 			// Try again
 			return State.UNDEFINED;

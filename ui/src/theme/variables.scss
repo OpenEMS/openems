@@ -13,7 +13,7 @@
     justify-content: center;
   }
 
-  // CSS class is here because ion-label is inside ion-item tag, CSS within ion-item doesnt work with global.scss
+  // CSS class is here because ion-label is inside ion-item tag, CSS within ion-item doesn't work with global.scss
   // this class is used to get the same style like in a html table
   ion-label.regularFont {
     font-family: Roboto, Helvetica Neue, sans-serif;
@@ -24,6 +24,11 @@
   ion-select {
     font-family: Roboto, Helvetica Neue, sans-serif;
     font-size: 14px;
+  }
+
+  .alert-wrapper {
+    max-width: 100%;
+    width: 100%;
   }
 
   ion-input.regularFont {

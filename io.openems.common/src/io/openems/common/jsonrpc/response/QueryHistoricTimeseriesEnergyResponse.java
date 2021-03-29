@@ -28,14 +28,6 @@ import io.openems.common.types.ChannelAddress;
 
 public class QueryHistoricTimeseriesEnergyResponse extends JsonrpcResponseSuccess {
 
-	public static class EdgeInfo {
-		protected final boolean online;
-
-		public EdgeInfo(boolean online) {
-			this.online = online;
-		}
-	}
-
 	private final Map<ChannelAddress, JsonElement> data;
 
 	public QueryHistoricTimeseriesEnergyResponse(Map<ChannelAddress, JsonElement> data) {

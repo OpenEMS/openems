@@ -96,7 +96,7 @@ public class OWPath {
 	// --------
 
 	/**
-	 * Create a new 1-Wire path with no elemements. Elements can be added by using
+	 * Create a new 1-Wire path with no elements. Elements can be added by using
 	 * <CODE> copy </CODE> and/or <CODE> add </CODE>.
 	 *
 	 * @param adapter where the path is based

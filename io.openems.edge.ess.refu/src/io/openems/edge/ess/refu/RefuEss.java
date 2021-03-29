@@ -125,9 +125,11 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
-				config.modbus_id());
+	void activate(ComponentContext context, Config config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+				config.modbus_id())) {
+			return;
+		}
 	}
 
 	@Deactivate
@@ -136,7 +138,7 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(0x100, Priority.HIGH, //
 						m(RefuEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(0x100)), //

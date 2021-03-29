@@ -1,9 +1,9 @@
+import { AdministrationComponent } from './administration/administration.component';
 import { Component, OnInit, Input } from '@angular/core';
 import { EvcsPopoverComponent } from './popover/popover.page';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Websocket, Service, EdgeConfig, Edge } from 'src/app/shared/shared';
-import { AdministrationComponent } from './administration/administration.component';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER' | 'OFF';
 type Priority = 'CAR' | 'STORAGE';
@@ -21,6 +21,7 @@ export class EvcsModalComponent implements OnInit {
 
   //chargeMode value to determine third state 'Off' (OFF State is not available in EDGE)
   public chargeMode: ChargeMode = null;
+  private oldNumberOfPhases: number = null;
 
   constructor(
     protected service: Service,
@@ -40,6 +41,7 @@ export class EvcsModalComponent implements OnInit {
         this.chargeMode = 'OFF';
       }
     }
+    this.oldNumberOfPhases = this.getNumberOfPhasesOrThree();
   }
 
   /**
@@ -69,7 +71,6 @@ export class EvcsModalComponent implements OnInit {
     switch (chargeState) {
       case ChargeState.STARTING:
         return this.translate.instant('Edge.Index.Widgets.EVCS.starting');
-      case ChargeState.UNDEFINED:
       case ChargeState.ERROR:
         return this.translate.instant('Edge.Index.Widgets.EVCS.error');
       case ChargeState.READY_FOR_CHARGING:
@@ -78,6 +79,8 @@ export class EvcsModalComponent implements OnInit {
         return this.translate.instant('Edge.Index.Widgets.EVCS.notReadyForCharging');
       case ChargeState.AUTHORIZATION_REJECTED:
         return this.translate.instant('Edge.Index.Widgets.EVCS.notCharging');
+      case ChargeState.UNDEFINED:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.unknown');
       case ChargeState.CHARGING:
         return this.translate.instant('Edge.Index.Widgets.EVCS.charging');
       case ChargeState.ENERGY_LIMIT_REACHED:
@@ -171,8 +174,14 @@ export class EvcsModalComponent implements OnInit {
    * @param event
    */
   updateForceMinPower(event: CustomEvent, currentController: EdgeConfig.Component, numberOfPhases: number) {
+    if (numberOfPhases != this.oldNumberOfPhases) {
+      this.oldNumberOfPhases = numberOfPhases;
+      return;
+    }
+
     let oldMinChargePower = currentController.properties.forceChargeMinPower;
     let newMinChargePower = event.detail.value;
+
     newMinChargePower /= numberOfPhases;
 
     if (this.edge != null) {
@@ -214,7 +223,7 @@ export class EvcsModalComponent implements OnInit {
   }
 
   /**
-  * uptdate the state of the toggle whitch renders the minimum charge power
+  * update the state of the toggle which renders the minimum charge power
   * 
   * @param event 
   */
@@ -268,7 +277,7 @@ export class EvcsModalComponent implements OnInit {
   }
 
   /**
-   * uptdate the state of the toggle whitch renders the minimum charge power
+   * update the state of the toggle which renders the minimum charge power
    * 
    * @param event 
    * @param phases 
@@ -286,8 +295,8 @@ export class EvcsModalComponent implements OnInit {
         currentController.properties['defaultChargeMinPower'] = newMinChargePower;
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
         currentController.properties['defaultChargeMinPower'] = oldMinChargePower;
+        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
       });
     }
@@ -409,4 +418,3 @@ enum ChargePlug {
   PLUGGED_ON_EVCS_AND_ON_EV = 5,            //Plugged on EVCS and on EV
   PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7  //Plugged on EVCS and on EV and locked
 }
-

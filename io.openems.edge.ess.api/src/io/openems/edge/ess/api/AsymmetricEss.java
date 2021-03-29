@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -30,6 +31,7 @@ public interface AsymmetricEss extends SymmetricEss {
 		 */
 		ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT) //
 		),
 		/**
@@ -44,6 +46,7 @@ public interface AsymmetricEss extends SymmetricEss {
 		 */
 		ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT) //
 		),
 		/**
@@ -58,6 +61,7 @@ public interface AsymmetricEss extends SymmetricEss {
 		 */
 		ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT) //
 		),
 		/**
@@ -72,6 +76,7 @@ public interface AsymmetricEss extends SymmetricEss {
 		 */
 		REACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT) //
 		),
 		/**
@@ -86,6 +91,7 @@ public interface AsymmetricEss extends SymmetricEss {
 		 */
 		REACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT) //
 		),
 		/**
@@ -100,6 +106,7 @@ public interface AsymmetricEss extends SymmetricEss {
 		 */
 		REACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT) //
 		);
 
@@ -151,7 +158,7 @@ public interface AsymmetricEss extends SymmetricEss {
 	public default void _setActivePowerL1(Integer value) {
 		this.getActivePowerL1Channel().setNextValue(value);
 	}
-	
+
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER_L1}
 	 * Channel.
@@ -190,7 +197,7 @@ public interface AsymmetricEss extends SymmetricEss {
 	public default void _setActivePowerL2(Integer value) {
 		this.getActivePowerL2Channel().setNextValue(value);
 	}
-	
+
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER_L2}
 	 * Channel.
@@ -229,7 +236,7 @@ public interface AsymmetricEss extends SymmetricEss {
 	public default void _setActivePowerL3(Integer value) {
 		this.getActivePowerL3Channel().setNextValue(value);
 	}
-	
+
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER_L3}
 	 * Channel.
@@ -268,7 +275,7 @@ public interface AsymmetricEss extends SymmetricEss {
 	public default void _setReactivePowerL1(Integer value) {
 		this.getReactivePowerL1Channel().setNextValue(value);
 	}
-	
+
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER_L1}
 	 * Channel.
@@ -307,7 +314,7 @@ public interface AsymmetricEss extends SymmetricEss {
 	public default void _setReactivePowerL2(Integer value) {
 		this.getReactivePowerL2Channel().setNextValue(value);
 	}
-	
+
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER_L2}
 	 * Channel.
@@ -346,7 +353,7 @@ public interface AsymmetricEss extends SymmetricEss {
 	public default void _setReactivePowerL3(Integer value) {
 		this.getReactivePowerL3Channel().setNextValue(value);
 	}
-	
+
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER_L3}
 	 * Channel.
