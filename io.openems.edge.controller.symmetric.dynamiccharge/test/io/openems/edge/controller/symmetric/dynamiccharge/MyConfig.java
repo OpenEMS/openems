@@ -7,7 +7,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-//		private String setting0;
+		private String essId;
+		private int getPredictionsHour;
+		private int maxStartHour;
+		private int maxEndHour;
+		private String priceConfig;
 
 		private Builder() {
 		}
@@ -17,10 +21,30 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-//		public Builder setSetting0(String setting0) {
-//			this.setting0 = setting0;
-//			return this;
-//		}
+		public Builder setEssId(String essId) {
+			this.essId = essId;
+			return this;
+		}
+
+		public Builder setGetPredictionsHour(int getPredictionsHour) {
+			this.getPredictionsHour = getPredictionsHour;
+			return this;
+		}
+
+		public Builder setMaxStartHour(int maxStartHour) {
+			this.maxStartHour = maxStartHour;
+			return this;
+		}
+
+		public Builder setMaxEndHour(int maxEndHour) {
+			this.maxEndHour = maxEndHour;
+			return this;
+		}
+
+		public Builder setpriceConfig(String priceConfig) {
+			this.priceConfig = priceConfig;
+			return this;
+		}
 
 		public MyConfig build() {
 			return new MyConfig(this);
@@ -45,31 +69,28 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String ess_id() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.builder.essId;
 	}
 
 	@Override
 	public int maxStartHour() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.builder.maxStartHour;
 	}
 
 	@Override
 	public int maxEndHour() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.builder.maxEndHour;
 	}
 
 	@Override
 	public int getPredictionsHour() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.builder.getPredictionsHour;
 	}
 
-//	@Override
-//	public String setting0() {
-//		return this.builder.setting0;
-//	}
+	@Override
+	public String priceConfig() {
+		// TODO Auto-generated method stub
+		return this.builder.priceConfig;
+	}
 
 }
