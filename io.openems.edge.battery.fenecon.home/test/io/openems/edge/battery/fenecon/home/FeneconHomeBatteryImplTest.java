@@ -5,6 +5,7 @@ import org.junit.Test;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class FeneconHomeBatteryImplTest {
@@ -16,6 +17,7 @@ public class FeneconHomeBatteryImplTest {
 	public void test() throws Exception {
 		new ComponentTest(new FeneconHomeBatteryImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
 						.setId(BATTERY_ID) //
