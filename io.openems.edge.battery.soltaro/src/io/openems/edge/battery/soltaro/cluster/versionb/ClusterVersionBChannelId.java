@@ -4,7 +4,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.battery.soltaro.State;
+import io.openems.edge.battery.soltaro.common.enums.State;
 import io.openems.edge.common.channel.Doc;
 
 public enum ClusterVersionBChannelId implements io.openems.edge.common.channel.ChannelId {

@@ -1,4 +1,4 @@
-package io.openems.edge.battery.soltaro.shared.batteryprotection;
+package io.openems.edge.battery.soltaro.common.batteryprotection;
 
 import io.openems.edge.common.linecharacteristic.PolyLine;
 

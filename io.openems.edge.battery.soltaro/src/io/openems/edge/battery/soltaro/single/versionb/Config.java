@@ -3,7 +3,7 @@ package io.openems.edge.battery.soltaro.single.versionb;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.battery.soltaro.ModuleType;
+import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 import io.openems.edge.common.startstop.StartStopConfig;
 
 @ObjectClassDefinition(//

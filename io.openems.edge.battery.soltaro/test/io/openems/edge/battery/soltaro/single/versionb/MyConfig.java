@@ -1,7 +1,7 @@
 package io.openems.edge.battery.soltaro.single.versionb;
 
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.battery.soltaro.ModuleType;
+import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentConfig;
 

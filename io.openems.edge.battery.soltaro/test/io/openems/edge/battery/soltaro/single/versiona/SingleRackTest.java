@@ -2,7 +2,7 @@ package io.openems.edge.battery.soltaro.single.versiona;
 
 import org.junit.Test;
 
-import io.openems.edge.battery.soltaro.BatteryState;
+import io.openems.edge.battery.soltaro.common.enums.BatteryState;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;

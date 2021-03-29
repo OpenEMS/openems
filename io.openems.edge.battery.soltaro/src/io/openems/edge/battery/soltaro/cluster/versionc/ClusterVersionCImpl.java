@@ -31,7 +31,7 @@ import io.openems.edge.battery.soltaro.cluster.enums.Rack;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.Context;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine.State;
-import io.openems.edge.battery.soltaro.shared.batteryprotection.BatteryProtectionDefinitionSoltaro3kWh;
+import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3kWh;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.versionc.SoltaroBatteryVersionC;
 import io.openems.edge.battery.soltaro.versionc.utils.Constants;
