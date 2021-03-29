@@ -50,7 +50,7 @@ public class Prediction24Hours {
 	 * 
 	 * @param values the 96 prediction values
 	 */
-	public Prediction24Hours(Integer[] values) {
+	public Prediction24Hours(Integer... values) {
 		super();
 		for (int i = 0; i < NUMBER_OF_VALUES && i < values.length; i++) {
 			this.values[i] = values[i];
