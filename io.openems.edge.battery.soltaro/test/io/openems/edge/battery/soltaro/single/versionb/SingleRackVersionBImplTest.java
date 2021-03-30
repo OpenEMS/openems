@@ -31,7 +31,6 @@ public class SingleRackVersionBImplTest {
 						.setStartUnsuccessfulDelay(0) //
 						.setMinimalCellVoltage(0) //
 						.setStartStop(StartStopConfig.AUTO) //
-						.setNumberOfSlaves(0) //
 						.setModuleType(ModuleType.MODULE_3_5_KWH) //
 						.setWatchdog(0) //
 						.setSoCLowAlarm(0) //

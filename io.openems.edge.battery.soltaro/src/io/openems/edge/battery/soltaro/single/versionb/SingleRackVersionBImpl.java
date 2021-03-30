@@ -1,9 +1,7 @@
 package io.openems.edge.battery.soltaro.single.versionb;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -27,11 +25,11 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.battery.soltaro.BatteryProtectionDefinitionSoltaro;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
-import io.openems.edge.battery.soltaro.ModuleParameters;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.Context;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.ControlAndLogic;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine;
@@ -40,6 +38,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -49,9 +48,7 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.IntegerDoc;
-import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -73,10 +70,6 @@ import io.openems.edge.common.taskmanager.Priority;
 public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		implements Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable, SingleRackVersionB {
 
-	private static final String KEY_TEMPERATURE = "_TEMPERATURE";
-	private static final String KEY_VOLTAGE = "_VOLTAGE";
-	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
-
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -93,8 +86,8 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 	private final Logger log = LoggerFactory.getLogger(SingleRackVersionBImpl.class);
 
 	private Config config;
-	private Map<String, Channel<?>> channelMap;
 	private BatteryProtection batteryProtection = null;
+	private Optional<Integer> numberOfModules = Optional.empty();
 
 	public SingleRackVersionBImpl() {
 		super(//
@@ -114,11 +107,6 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	protected void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
-
-		// adds dynamically created channels and save them into a map to access them
-		// when modbus tasks are created
-		this.channelMap = this.createDynamicChannels();
-
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -130,7 +118,12 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 
 		ControlAndLogic.setWatchdog(this, config.watchdog());
 		ControlAndLogic.setSoCLowAlarm(this, config.SoCLowAlarm());
-		ControlAndLogic.setCapacity(this, config);
+
+		this.getNumberOfModules().thenAccept(numberOfModules -> {
+			this.numberOfModules = Optional.of(numberOfModules);
+			this.calculateCapacity(numberOfModules);
+			this.createDynamicChannels(numberOfModules);
+		});
 	}
 
 	private void handleStateMachine() {
@@ -141,7 +134,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		Context context = new Context(this, this.config);
+		Context context = new Context(this, this.config, this.numberOfModules);
 
 		// Call the StateMachine
 		try {
@@ -157,10 +150,6 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 
 	@Deactivate
 	protected void deactivate() {
-		// Remove dynamically created channels when component is deactivated
-		for (Channel<?> c : this.channelMap.values()) {
-			this.removeChannel(c);
-		}
 		super.deactivate();
 	}
 
@@ -227,43 +216,6 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 				+ "|State:" + this.stateMachine.getCurrentState().asCamelCase();
 	}
 
-	/*
-	 * creates a map containing channels for voltage and temperature depending on
-	 * the number of modules
-	 */
-	private Map<String, Channel<?>> createDynamicChannels() {
-		Map<String, Channel<?>> map = new HashMap<>();
-
-		int voltSensors = ModuleParameters.VOLTAGE_SENSORS_PER_MODULE.getValue();
-		for (int i = 0; i < this.config.numberOfSlaves(); i++) {
-			for (int j = i * voltSensors; j < (i + 1) * voltSensors; j++) {
-				String key = this.getSingleCellPrefix(j) + KEY_VOLTAGE;
-				IntegerDoc doc = new IntegerDoc();
-				io.openems.edge.common.channel.ChannelId channelId = new ChannelIdImpl(key, doc.unit(Unit.MILLIVOLT));
-				IntegerReadChannel integerReadChannel = (IntegerReadChannel) this.addChannel(channelId);
-				map.put(key, integerReadChannel);
-			}
-		}
-
-		int tempSensors = ModuleParameters.TEMPERATURE_SENSORS_PER_MODULE.getValue();
-		for (int i = 0; i < this.config.numberOfSlaves(); i++) {
-			for (int j = i * tempSensors; j < (i + 1) * tempSensors; j++) {
-				String key = this.getSingleCellPrefix(j) + KEY_TEMPERATURE;
-
-				IntegerDoc doc = new IntegerDoc();
-				io.openems.edge.common.channel.ChannelId channelId = new ChannelIdImpl(key,
-						doc.unit(Unit.DEZIDEGREE_CELSIUS));
-				IntegerReadChannel integerReadChannel = (IntegerReadChannel) this.addChannel(channelId);
-				map.put(key, integerReadChannel);
-			}
-		}
-		return map;
-	}
-
-	private String getSingleCellPrefix(int num) {
-		return "CLUSTER_1_BATTERY_" + String.format(NUMBER_FORMAT, num);
-	}
-
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 
@@ -292,10 +244,6 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.WORK_PARAMETER_NUMBER_OF_MODULES,
 								new UnsignedWordElement(0x20C1)) //
 				), //
-				new FC3ReadRegistersTask(0x20C1, Priority.LOW, //
-						m(SingleRackVersionB.ChannelId.WORK_PARAMETER_NUMBER_OF_MODULES,
-								new UnsignedWordElement(0x20C1)) //
-				),
 
 				// Paramaeters for configuring
 				new FC6WriteRegisterTask(0x2014,
@@ -924,41 +872,91 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 
 			protocol.addTask(readStopParameters);
 			protocol.addTask(readWarnParameters);
-
-			// Add tasks for cell voltages and temperatures according to the number of
-			// slaves, one task per module is created
-			// Cell voltages
-			int offset = ModuleParameters.ADDRESS_OFFSET.getValue();
-			int voltOffset = ModuleParameters.VOLTAGE_ADDRESS_OFFSET.getValue();
-			int voltSensors = ModuleParameters.VOLTAGE_SENSORS_PER_MODULE.getValue();
-			for (int i = 0; i < this.config.numberOfSlaves(); i++) {
-				Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
-				for (int j = i * voltSensors; j < (i + 1) * voltSensors; j++) {
-					String key = this.getSingleCellPrefix(j) + KEY_VOLTAGE;
-					UnsignedWordElement wordElement = new UnsignedWordElement(offset + voltOffset + j);
-					AbstractModbusElement<?> modbusElement = m(this.channelMap.get(key).channelId(), wordElement);
-					elements.add(modbusElement);
-				}
-				protocol.addTask(new FC3ReadRegistersTask(offset + voltOffset + i * voltSensors, Priority.LOW,
-						elements.toArray(new AbstractModbusElement<?>[0])));
-			}
-
-			// Cell temperatures
-			int tempOffset = ModuleParameters.TEMPERATURE_ADDRESS_OFFSET.getValue();
-			int tempSensors = ModuleParameters.TEMPERATURE_SENSORS_PER_MODULE.getValue();
-			for (int i = 0; i < this.config.numberOfSlaves(); i++) {
-				Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
-				for (int j = i * tempSensors; j < (i + 1) * tempSensors; j++) {
-					String key = this.getSingleCellPrefix(j) + KEY_TEMPERATURE;
-					SignedWordElement wordElement = new SignedWordElement(offset + tempOffset + j);
-					AbstractModbusElement<?> modbusElement = m(this.channelMap.get(key).channelId(), wordElement);
-					elements.add(modbusElement);
-				}
-				protocol.addTask(new FC3ReadRegistersTask(offset + tempOffset + i * tempSensors, Priority.LOW,
-						elements.toArray(new AbstractModbusElement<?>[0])));
-			}
 		}
 
 		return protocol;
+	}
+
+	/**
+	 * Gets the Number of Modules.
+	 * 
+	 * @return the Number of Modules as a {@link CompletableFuture}.
+	 * @throws OpenemsException on error
+	 */
+	private CompletableFuture<Integer> getNumberOfModules() {
+		final CompletableFuture<Integer> result = new CompletableFuture<Integer>();
+		try {
+			ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(0x20C1), true)
+					.thenAccept(numberOfModules -> {
+						if (numberOfModules == null) {
+							return;
+						}
+						result.complete(numberOfModules);
+					});
+		} catch (OpenemsException e) {
+			result.completeExceptionally(e);
+		}
+		return result;
+	}
+
+	/**
+	 * Calculates the Capacity as Capacity per module multiplied with number of
+	 * modules and sets the CAPACITY channel.
+	 * 
+	 * @param numberOfModules the number of battery modules
+	 */
+	private void calculateCapacity(Integer numberOfModules) {
+		int capacity = numberOfModules * config.moduleType().getCapacity_Wh();
+		this._setCapacity(capacity);
+	}
+
+	private final static int ADDRESS_OFFSET = 0x2000;
+	public final static int VOLTAGE_ADDRESS_OFFSET = ADDRESS_OFFSET + 0x800;
+	public final static int TEMPERATURE_ADDRESS_OFFSET = ADDRESS_OFFSET + 0xC00;
+	public final static int SENSORS_PER_MODULE = 12;
+
+	/*
+	 * Dynamically generate Channels and Modbus mappings for Cell-Temperatures and
+	 * for Cell-Voltages. Channel-IDs are like "CLUSTER_1_BATTERY_001_VOLTAGE".
+	 * 
+	 * @param numberOfModules the number of battery modules
+	 */
+	private void createDynamicChannels(int numberOfModules) {
+		try {
+			for (int i = 0; i < numberOfModules; i++) {
+				AbstractModbusElement<?>[] ameVolt = new AbstractModbusElement<?>[SENSORS_PER_MODULE];
+				AbstractModbusElement<?>[] ameTemp = new AbstractModbusElement<?>[SENSORS_PER_MODULE];
+				for (int j = 0; j < SENSORS_PER_MODULE; j++) {
+					int sensor = i * SENSORS_PER_MODULE + j;
+					{
+						// Create Voltage Channel
+						ChannelIdImpl channelId = new ChannelIdImpl(
+								"CLUSTER_1_BATTERY_" + String.format("%03d", sensor) + "_VOLTAGE",
+								Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIVOLT));
+						this.addChannel(channelId);
+						// Create Modbus-Mapping for Voltages
+						UnsignedWordElement uwe = new UnsignedWordElement(VOLTAGE_ADDRESS_OFFSET + sensor);
+						ameVolt[j] = m(channelId, uwe);
+					}
+					{
+						// Create Temperature Channel
+						ChannelIdImpl channelId = new ChannelIdImpl(
+								"CLUSTER_1_BATTERY_" + String.format("%03d", sensor) + "_TEMPERATURE",
+								Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS));
+						this.addChannel(channelId);
+						// Create Modbus-Mapping for Temperatures
+						UnsignedWordElement uwe = new UnsignedWordElement(TEMPERATURE_ADDRESS_OFFSET + sensor);
+						ameTemp[j] = m(channelId, uwe);
+					}
+				}
+				this.getModbusProtocol().addTasks(//
+						new FC3ReadRegistersTask(VOLTAGE_ADDRESS_OFFSET + i * SENSORS_PER_MODULE, Priority.LOW,
+								ameVolt), //
+						new FC3ReadRegistersTask(TEMPERATURE_ADDRESS_OFFSET + i * SENSORS_PER_MODULE, Priority.LOW,
+								ameTemp));
+			}
+		} catch (OpenemsException e) {
+			e.printStackTrace();
+		}
 	}
 }
