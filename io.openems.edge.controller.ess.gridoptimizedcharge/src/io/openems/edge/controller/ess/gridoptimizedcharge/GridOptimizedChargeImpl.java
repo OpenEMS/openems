@@ -414,6 +414,12 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		// remaining time in seconds till the target point.
 		int remainingTime = calculateRemainingTime(targetMinute);
 
+		// No remaining time -> no restrictions
+		if (remainingTime < 0) {
+			this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
+			return null;
+		}
+
 		// calculate charge power limit
 		calculatedPower = remainingCapacity / remainingTime;
 
