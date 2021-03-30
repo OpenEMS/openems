@@ -58,7 +58,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 	// ZonedDateTime with the current time.
 	private ZonedDateTime now;
-	
+
 	private boolean initialPrediction = true;
 
 	private Integer lastSellToGridLimit = null;
@@ -300,8 +300,13 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 				this.setActivePowerConstraint("GridOptimizedSelfConsumption - DcPredictiveDelayCharge", currentLimit);
 			}
 		} else {
-			this.setActivePowerConstraint("GridOptimizedSelfConsumption - AcPredictiveDelayCharge",
-					(currentLimit * -1));
+			// Never force discharge
+			if (currentLimit > 0) {
+				return;
+			} else {
+				this.setActivePowerConstraint("GridOptimizedSelfConsumption - AcPredictiveDelayCharge",
+						(currentLimit * -1));
+			}
 		}
 	}
 
@@ -322,6 +327,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			this.setDelayChargeStateAndLimit(DelayChargeState.NO_FEASABLE_SOLUTION, null);
 		}
 
+		// TODO make sure setDelayChargeStateAndLimit is called in any case!
 		this.setDelayChargeStateAndLimit(DelayChargeState.ACTIVE_LIMIT, (currentLimit * -1));
 	}
 
