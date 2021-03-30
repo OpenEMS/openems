@@ -3,21 +3,51 @@ package io.openems.edge.evcs.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.DoubleReadChannel;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.filter.RampFilter;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 
 @ProviderType
 public interface ManagedEvcs extends Evcs {
 
+	public EvcsPower getEvcsPower();
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+
+		/**
+		 * Gets the smallest power steps that can be set (given in W).
+		 * 
+		 * <p>
+		 * Example:
+		 * <ul>
+		 * <li>KEBA-series allows setting of milli Ampere. It should return 0.23 W
+		 * (0.001A * 230V).
+		 * <li>Hardy Barth allows setting in Ampere. It should return 230 W (1A * 230V).
+		 * </ul>
+		 * 
+		 * <p>
+		 * <ul>
+		 * <li>Interface: ManagedEvcs
+		 * <li>Writable
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */
+		POWER_PRECISION(Doc.of(OpenemsType.DOUBLE) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Sets the charge power limit of the EVCS in [W].
@@ -33,7 +63,7 @@ public interface ManagedEvcs extends Evcs {
 		 * </ul>
 		 * 
 		 * <p>
-		 * Function
+		 * Function:
 		 * <ul>
 		 * <li>Write Value should be sent to the EVCS and cleared afterwards
 		 * <li>Read value should contain the currently valid loading target that was
@@ -49,7 +79,40 @@ public interface ManagedEvcs extends Evcs {
 		 */
 		SET_CHARGE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE)),
+				.accessMode(AccessMode.READ_WRITE) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+
+		/**
+		 * Applies the configured filter in {@link EvcsPowerComponent} and sets a the
+		 * charge power limit.
+		 * 
+		 * <ul>
+		 * <li>Interface: ManagedEvcs
+		 * <li>Writable
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */
+		SET_CHARGE_POWER_LIMIT_WITH_FILTER(new IntegerDoc() //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_WRITE).onInit(channel -> {
+					((IntegerWriteChannel) channel).onSetNextWrite(value -> {
+
+						if (value != null) {
+							ManagedEvcs evcs = (ManagedEvcs) channel.getComponent();
+
+							RampFilter rampFilter = evcs.getEvcsPower().getRampFilter();
+
+							rampFilter.setLimits(evcs.getMinimumHardwarePower().orElse(0),
+									evcs.getMaximumHardwarePower().orElse(value));
+
+							int currentPower = evcs.getChargePower().orElse(0);
+							int pidOutput = rampFilter.applyRampFilter(currentPower, value);
+
+							evcs.setChargePowerLimit(pidOutput);
+						}
+					});
+				})), //
 
 		/**
 		 * Is true if the EVCS is in a EVCS-Cluster.
@@ -61,7 +124,8 @@ public interface ManagedEvcs extends Evcs {
 		 * </ul>
 		 */
 		IS_CLUSTERED(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_ONLY)), //
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Sets a Text that is shown on the display of the EVCS.
@@ -121,6 +185,45 @@ public interface ManagedEvcs extends Evcs {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#POWER_PRECISION}.
+	 *
+	 * @return the Channel
+	 */
+	public default DoubleReadChannel getPowerPrecisionChannel() {
+		return this.channel(ChannelId.POWER_PRECISION);
+	}
+
+	/**
+	 * Gets the power precision value of the EVCS in [W]. See
+	 * {@link ChannelId#POWER_PRECISION}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Double> getPowerPrecision() {
+		return this.getPowerPrecisionChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#POWER_PRECISION}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setPowerPrecision(Double value) {
+		this.getPowerPrecisionChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#POWER_PRECISION}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setPowerPrecision(double value) {
+		this.getPowerPrecisionChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#SET_CHARGE_POWER_LIMIT}.
 	 *
 	 * @return the Channel
@@ -168,6 +271,56 @@ public interface ManagedEvcs extends Evcs {
 	 */
 	public default void setChargePowerLimit(Integer value) throws OpenemsNamedException {
 		this.getSetChargePowerLimitChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_FILTER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetChargePowerLimitWithFilterChannel() {
+		return this.channel(ChannelId.SET_CHARGE_POWER_LIMIT_WITH_FILTER);
+	}
+
+	/**
+	 * Gets the set charge power limit of the EVCS in [W] with applied filter. See
+	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_FILTER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getSetChargePowerLimitWithFilter() {
+		return this.getSetChargePowerLimitWithFilterChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_FILTER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSetChargePowerLimitWithFilter(Integer value) {
+		this.getSetChargePowerLimitWithFilterChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_FILTER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSetChargePowerLimitWithFilter(int value) {
+		this.getSetChargePowerLimitWithFilterChannel().setNextValue(value);
+	}
+
+	/**
+	 * Sets the charge power limit of the EVCS in [W] with applied filter. See
+	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_FILTER}.
+	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setChargePowerLimitWithFilter(Integer value) throws OpenemsNamedException {
+		this.getSetChargePowerLimitWithFilterChannel().setNextWriteValue(value);
 	}
 
 	/**

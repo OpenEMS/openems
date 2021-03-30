@@ -2,7 +2,7 @@ package io.openems.backend.common.jsonrpc;
 
 import java.util.concurrent.CompletableFuture;
 
-import io.openems.backend.metadata.api.BackendUser;
+import io.openems.backend.common.metadata.BackendUser;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;

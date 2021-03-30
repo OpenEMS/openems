@@ -5,6 +5,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -56,6 +57,30 @@ public abstract class AbstractDoc<T> implements Doc {
 	@Override
 	public AccessMode getAccessMode() {
 		return this.accessMode;
+	}
+
+	/**
+	 * PersistencePriority for this Channel.
+	 */
+	private PersistencePriority persistencePriority = PersistencePriority.VERY_LOW;
+
+	/**
+	 * Sets the Persistence Priority. Defaults to VERY_LOW.
+	 * 
+	 * <p>
+	 * This parameter may be used by persistence services to decide, if the Channel
+	 * should be persisted to the hard disk.
+	 * 
+	 * @param persistencePriority the {@link PersistencePriority}
+	 */
+	public AbstractDoc<T> persistencePriority(PersistencePriority persistencePriority) {
+		this.persistencePriority = persistencePriority;
+		return this.self();
+	}
+
+	@Override
+	public PersistencePriority getPersistencePriority() {
+		return this.persistencePriority;
 	}
 
 	/*
@@ -141,10 +166,9 @@ public abstract class AbstractDoc<T> implements Doc {
 	}
 
 	/**
-	 * Gets the callbacks for initialization of the actual Channel
+	 * Gets the callbacks for initialization of the actual Channel.
 	 * 
-	 * @param callback the method to call on initialization
-	 * @return myself
+	 * @return a list of callbacks
 	 */
 	protected List<Consumer<Channel<T>>> getOnInitCallbacks() {
 		return onInitCallback;

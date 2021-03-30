@@ -64,8 +64,8 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		this.powerHandler = new PowerHandler(this);
 	}
 
-	protected void activate(ComponentContext context, String id, String alias, boolean enabled, boolean readonly,
-			int unitId, ConfigurationAdmin cm, String modbusReference, String modbusId) {
+	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, boolean readonly,
+			int unitId, ConfigurationAdmin cm, String modbusReference, String modbusId) throws OpenemsException {
 		this.readonly = readonly;
 
 		if (readonly) {
@@ -73,7 +73,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 			this._setMaxApparentPower(0);
 		}
 
-		super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId);
+		return super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId);
 	}
 
 	@Override
@@ -97,9 +97,9 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
-		int batteryInfoStartAddress = BATTERY_INFO_START_ADDRESS + getAdressOffsetForBattery();
-		int inverterInfoStartAddress = INVERTER_INFO_START_ADDRESS + getAdressOffsetForInverter();
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+		int batteryInfoStartAddress = BATTERY_INFO_START_ADDRESS + getAddressOffsetForBattery();
+		int inverterInfoStartAddress = INVERTER_INFO_START_ADDRESS + getAddressOffsetForInverter();
 
 		return new ModbusProtocol(this, //
 				new FC1ReadCoilsTask(getIcuRunAddress(), Priority.HIGH,
@@ -213,9 +213,9 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 						m(StrtsctrChannelId.BATTERY_OVERLOAD, new CoilElement(getBatteryOverloadAddress()))));
 	}
 
-	protected abstract int getAdressOffsetForBattery();
+	protected abstract int getAddressOffsetForBattery();
 
-	protected abstract int getAdressOffsetForInverter();
+	protected abstract int getAddressOffsetForInverter();
 
 	protected int getIcuRunAddress() {
 		return ICU_RUN_ADDRESS;

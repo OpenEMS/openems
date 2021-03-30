@@ -1,6 +1,8 @@
 package io.openems.edge.simulator.ess.symmetric.reacting;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -21,6 +23,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -68,6 +71,9 @@ public class EssSymmetric extends AbstractOpenemsComponent
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	@Reference
+	protected ComponentManager componentManager;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -120,8 +126,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc().asString() //
-				+ "|L:" + this.getActivePower().asString() //
-				+ "|" + this.getGridModeChannel().value().asOptionString();
+				+ "|L:" + this.getActivePower().asString();
 	}
 
 	@Override
@@ -129,23 +134,33 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		return this.power;
 	}
 
+	private Instant lastTimestamp = null;
+
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
 		/*
 		 * calculate State of charge
 		 */
-		// TODO timedelta
-		float watthours = (float) activePower * 1 / 3600;
-		// float watthours = (float) activePower * this.datasource.getTimeDelta() /
-		// 3600;
-		float socChange = watthours / this.config.capacity();
-		this.soc -= socChange;
-		if (this.soc > 100) {
-			this.soc = 100;
-		} else if (this.soc < 0) {
-			this.soc = 0;
+		Instant now = Instant.now(this.componentManager.getClock());
+		if (this.lastTimestamp != null) {
+			// calculate duration since last value
+			long duration /* [msec] */ = Duration.between(this.lastTimestamp, now).toMillis();
+
+			// calculate energy since last run in [Wh]
+			float energy /* [Wh] */ = this.getActivePower().orElse(0) /* [W] */ * duration /* [msec] */
+					/ 1000 /* [sec] */ / 60 /* [m] */ / 60 /* [h] */;
+
+			this.soc -= (energy / this.config.capacity()) * 100;
+			if (this.soc > 100) {
+				this.soc = 100;
+			} else if (this.soc < 0) {
+				this.soc = 0;
+			}
+
+			this._setSoc(Math.round(this.soc));
 		}
-		this._setSoc(Math.round(this.soc));
+		this.lastTimestamp = now;
+
 		/*
 		 * Apply Active/Reactive power to simulated channels
 		 */

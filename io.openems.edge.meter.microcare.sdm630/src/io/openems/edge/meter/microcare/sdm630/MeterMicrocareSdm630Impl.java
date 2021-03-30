@@ -14,6 +14,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -57,10 +58,12 @@ public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
 	}
 
 	@Deactivate
@@ -74,7 +77,7 @@ public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		final int offset = 30001;
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(30001 - offset, Priority.HIGH,

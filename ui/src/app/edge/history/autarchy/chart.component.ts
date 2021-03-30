@@ -1,9 +1,9 @@
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
+import { ChannelAddress, Service } from '../../../shared/shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
+import { Data, TooltipItem } from './../shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
@@ -14,14 +14,14 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class AutarchyChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
+    @Input() public period: DefaultTypes.HistoryPeriod;
 
     ngOnChanges() {
         this.updateChart();
     };
 
     constructor(
-        protected service: Service,
+        public service: Service,
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
@@ -30,8 +30,9 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
 
 
     ngOnInit() {
+        this.spinnerId = "autarchy-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh()
     }
 
     ngOnDestroy() {
@@ -39,7 +40,10 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
+        this.service.startSpinner(this.spinnerId);
         this.loading = true;
+        this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             let result = response.result;
             // convert labels
@@ -106,7 +110,7 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
             })
             this.datasets = datasets;
             this.loading = false;
-
+            this.service.stopSpinner(this.spinnerId);
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();
@@ -125,7 +129,7 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
     }
 
     protected setLabel() {
-        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+        let options = this.createDefaultChartOptions();
         options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;

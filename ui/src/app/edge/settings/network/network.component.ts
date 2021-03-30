@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
+import { Component } from '@angular/core';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Edge, Service, Websocket } from '../../../shared/shared';
+import { FormGroup } from '@angular/forms';
+import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { GetNetworkConfigRequest } from './getNetworkConfigRequest';
 import { GetNetworkConfigResponse } from './getNetworkConfigResponse';
 import { NetworkInterface } from './shared';

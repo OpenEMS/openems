@@ -30,9 +30,9 @@ import io.openems.edge.common.jsonapi.JsonApi;
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	private final Logger log = LoggerFactory.getLogger(OnRequest.class);
-	private final BackendApi parent;
+	private final BackendApiImpl parent;
 
-	public OnRequest(BackendApi parent) {
+	public OnRequest(BackendApiImpl parent) {
 		this.parent = parent;
 	}
 
@@ -53,7 +53,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles a AuthenticatedRpcRequest.
 	 *
-	 * @param getEdgeConfigRequest the AuthenticatedRpcRequest
+	 * @param authenticatedRpcRequest the AuthenticatedRpcRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
@@ -204,6 +204,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles a ComponentJsonApiRequest.
 	 * 
+	 * @param user    the {@link User}
 	 * @param request the ComponentJsonApiRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
@@ -251,6 +252,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles a SubscribeSystemLogRequest.
 	 *
+	 * @param user    the {@link User}
 	 * @param request the SubscribeSystemLogRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error

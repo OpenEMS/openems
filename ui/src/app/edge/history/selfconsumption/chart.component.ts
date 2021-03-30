@@ -1,9 +1,9 @@
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
+import { Data, TooltipItem } from './../shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
@@ -14,7 +14,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class SelfconsumptionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
+    @Input() public period: DefaultTypes.HistoryPeriod;
 
     ngOnChanges() {
         this.updateChart();
@@ -30,8 +30,9 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
 
 
     ngOnInit() {
+        this.spinnerId = "selfconsumption-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh()
     }
 
     ngOnDestroy() {
@@ -39,7 +40,10 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
+        this.service.startSpinner(this.spinnerId);
         this.loading = true;
+        this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             let result = response.result;
             // convert labels
@@ -116,7 +120,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
                 if (value == null) {
                     return null
                 } else {
-                    return CurrentData.calculateSelfConsumption(sellToGridData[index], value, dischargeData[index]);
+                    return CurrentData.calculateSelfConsumption(sellToGridData[index], value);
                 }
             })
 
@@ -129,10 +133,9 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
                 backgroundColor: 'rgba(253,197,7,0.05)',
                 borderColor: 'rgba(253,197,7,1)'
             })
-
+            this.service.stopSpinner(this.spinnerId);
             this.datasets = datasets;
             this.loading = false;
-
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();
@@ -153,7 +156,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
     }
 
     protected setLabel() {
-        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+        let options = this.createDefaultChartOptions();
         options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;

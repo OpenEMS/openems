@@ -20,12 +20,14 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.Unit;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
@@ -127,24 +129,28 @@ public class GridMeter extends AbstractOpenemsComponent
 		/*
 		 * get and store Simulated Active Power
 		 */
-		int simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER, "ActivePower");
+		Integer simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER,
+				new ChannelAddress(this.id(), "ActivePower"));
 		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
 
 		/*
 		 * Calculate Active Power
 		 */
-		int activePower = simulatedActivePower;
-		for (ManagedSymmetricEss ess : this.symmetricEsss) {
-			Value<Integer> essPowerOpt = ess.getActivePower();
-			if (essPowerOpt.isDefined()) {
-				activePower -= essPowerOpt.get();
+		Integer activePower = simulatedActivePower;
+		if (activePower != null) {
+			for (ManagedSymmetricEss ess : this.symmetricEsss) {
+				Value<Integer> essPowerOpt = ess.getActivePower();
+				if (essPowerOpt.isDefined()) {
+					activePower -= essPowerOpt.get();
+				}
 			}
 		}
 
-		this._setActivePower(activePower);
-		this._setActivePowerL1(activePower / 3);
-		this._setActivePowerL2(activePower / 3);
-		this._setActivePowerL3(activePower / 3);
+		this._setActivePower(simulatedActivePower);
+		Integer simulatedActivePowerByThree = TypeUtils.divide(simulatedActivePower, 3);
+		this._setActivePowerL1(simulatedActivePowerByThree);
+		this._setActivePowerL2(simulatedActivePowerByThree);
+		this._setActivePowerL3(simulatedActivePowerByThree);
 	}
 
 	@Override

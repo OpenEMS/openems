@@ -43,8 +43,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * <UL>
  * <LI>Open drain PIO pin controlled through 1-Wire communication
  * <LI>Logic level sensing of the PIO pin can be sensed
- * <LI>Operating temperature range from -40@htmlonly &#176C @endhtmlonly to
- * +85@htmlonly &#176C @endhtmlonly
+ * <LI>Operating temperature range from -40 to +85
  * <li>One channel with level sensing abilities
  * <li>Does not support activity sensing or 'Smart On' capabilities
  * </UL>
@@ -64,36 +63,35 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * level of the PIO pin, then in the loop it toggles the latch state.
  * </p>
  *
- * <code><pre>
- *      // "ID" is a byte array of size 8 with an address of a part we
- *      // have already found with family code 05 hex
- *      // "access" is a DSPortAdapter
+ * <pre>
+ * // "ID" is a byte array of size 8 with an address of a part we
+ * // have already found with family code 05 hex
+ * // "access" is a DSPortAdapter
  *
- *      int i=0;
- *      OneWireContainer05 ds2405 = (OneWireContainer05) access.getDeviceContainer(ID);
- *      ds2405.setupContainer(access,ID);
+ * int i = 0;
+ * OneWireContainer05 ds2405 = (OneWireContainer05) access.getDeviceContainer(ID);
+ * ds2405.setupContainer(access, ID);
  *
- *      byte[] state = ds2405.readDevice();
+ * byte[] state = ds2405.readDevice();
  *
- *      // I know that the 2405 only has one channel (one switch)
- *      // and it doesn't support 'Smart On'
+ * // I know that the 2405 only has one channel (one switch)
+ * // and it doesn't support 'Smart On'
  *
- *      boolean latch_state = ds2405.getLatchState(0,state);
- *      System.out.println("Current state of switch: "+latch_state);
- *      System.out.println("Current output level:    "+ds2405.getLevel(0,state));
- *      while (++i &lt; 100)
- *      {
- *          System.out.println("Toggling switch");
- *          ds2405.setLatchState(0,!latch_state,false,state);
- *          ds2405.writeDevice(state);
- *          state = ds2405.readDevice();
- *          latch_state = ds2405.getLatchState(0,state);
- *          System.out.println("Current state of switch: "+latch_state);
- *          System.out.println("Current output level:    "+ds2405.getLevel(0,state));
- *          Thread.sleep(500);
- *      }
+ * boolean latch_state = ds2405.getLatchState(0, state);
+ * System.out.println("Current state of switch: " + latch_state);
+ * System.out.println("Current output level:    " + ds2405.getLevel(0, state));
+ * while (++i &lt; 100) {
+ * 	System.out.println("Toggling switch");
+ * 	ds2405.setLatchState(0, !latch_state, false, state);
+ * 	ds2405.writeDevice(state);
+ * 	state = ds2405.readDevice();
+ * 	latch_state = ds2405.getLatchState(0, state);
+ * 	System.out.println("Current state of switch: " + latch_state);
+ * 	System.out.println("Current output level:    " + ds2405.getLevel(0, state));
+ * 	Thread.sleep(500);
+ * }
  *
- * </pre></code>
+ * </pre>
  *
  * <p>
  * Also see the usage example in the

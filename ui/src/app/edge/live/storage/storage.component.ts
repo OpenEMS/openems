@@ -27,43 +27,45 @@ export class StorageComponent {
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
-        });
-        this.service.getConfig().then(config => {
-            this.config = config;
-            let channels = [];
-            this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").filter(component => component.isEnabled);
-            for (let component of this.chargerComponents) {
-                channels.push(
-                    new ChannelAddress(component.id, 'ActualPower'),
-                )
-            }
-            this.essComponents = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && component.isEnabled);
-            for (let component of this.essComponents) {
-                let factoryID = component.factoryId;
-                let factory = config.factories[factoryID];
-                channels.push(
-                    new ChannelAddress(component.id, 'Soc'),
-                    new ChannelAddress(component.id, 'ActivePower'),
-                    new ChannelAddress(component.id, 'Capacity'),
-                );
-                if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
+            this.service.getConfig().then(config => {
+                this.config = config;
+                let channels = [];
+                this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").filter(component => component.isEnabled);
+                for (let component of this.chargerComponents) {
                     channels.push(
-                        new ChannelAddress(component.id, 'ActivePowerL1'),
-                        new ChannelAddress(component.id, 'ActivePowerL2'),
-                        new ChannelAddress(component.id, 'ActivePowerL3')
-                    );
+                        new ChannelAddress(component.id, 'ActualPower'),
+                    )
                 }
-            }
-            channels.push(
-                new ChannelAddress('_sum', 'EssSoc'),
-                new ChannelAddress('_sum', 'EssActivePower'),
-                new ChannelAddress('_sum', 'EssActivePowerL1'),
-                new ChannelAddress('_sum', 'EssActivePowerL2'),
-                new ChannelAddress('_sum', 'EssActivePowerL3'),
-                new ChannelAddress('_sum', 'EssCapacity'),
-            )
-            this.edge.subscribeChannels(this.websocket, StorageComponent.SELECTOR, channels);
-        })
+                this.essComponents = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && component.isEnabled);
+                for (let component of this.essComponents) {
+                    let factoryID = component.factoryId;
+                    let factory = config.factories[factoryID];
+                    channels.push(
+                        new ChannelAddress(component.id, 'Soc'),
+                        new ChannelAddress(component.id, 'ActivePower'),
+                        new ChannelAddress(component.id, 'Capacity'),
+                    );
+                    if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
+                        // channels for modal component, subscribe here for better UX
+                        channels.push(
+                            new ChannelAddress(component.id, 'ActivePowerL1'),
+                            new ChannelAddress(component.id, 'ActivePowerL2'),
+                            new ChannelAddress(component.id, 'ActivePowerL3')
+                        );
+                    }
+                }
+                channels.push(
+                    new ChannelAddress('_sum', 'EssSoc'),
+                    new ChannelAddress('_sum', 'EssActivePower'),
+                    // channels for modal component, subscribe here for better UX
+                    new ChannelAddress('_sum', 'EssActivePowerL1'),
+                    new ChannelAddress('_sum', 'EssActivePowerL2'),
+                    new ChannelAddress('_sum', 'EssActivePowerL3'),
+                    new ChannelAddress('_sum', 'EssCapacity'),
+                )
+                this.edge.subscribeChannels(this.websocket, StorageComponent.SELECTOR, channels);
+            })
+        });
     }
 
     ngOnDestroy() {

@@ -1,6 +1,6 @@
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
-import { Component, Input, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { HeatingElementModalComponent } from './modal/modal.component';
 import { ModalController } from '@ionic/angular';
 import { Subject, BehaviorSubject } from 'rxjs';
@@ -15,7 +15,7 @@ export class HeatingElementComponent {
     private static readonly SELECTOR = "heatingelement";
 
 
-    @Input() private componentId: string;
+    @Input() public componentId: string;
 
     private edge: Edge = null;
     private stopOnDestroy: Subject<void> = new Subject<void>();

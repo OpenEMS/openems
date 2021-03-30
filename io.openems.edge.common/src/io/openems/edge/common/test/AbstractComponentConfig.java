@@ -86,6 +86,9 @@ public class AbstractComponentConfig {
 
 			String key = method.getName().replace("_", ".");
 			Object value = method.invoke(this);
+			if (value == null) {
+				throw new IllegalArgumentException("Configuration for [" + key + "] is null");
+			}
 			result.put(key, value);
 		}
 		return result;

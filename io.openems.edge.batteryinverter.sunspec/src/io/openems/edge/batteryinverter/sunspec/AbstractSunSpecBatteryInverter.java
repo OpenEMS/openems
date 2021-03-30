@@ -8,6 +8,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent;
@@ -22,16 +23,19 @@ public abstract class AbstractSunSpecBatteryInverter extends AbstractOpenemsSunS
 
 	public AbstractSunSpecBatteryInverter(Map<SunSpecModel, Priority> activeModels,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
-			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
 		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
 	/**
 	 * Make sure to call this method from the inheriting OSGi Component.
+	 * 
+	 * @throws OpenemsException on error
 	 */
 	@Override
 	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
-			ConfigurationAdmin cm, String modbusReference, String modbusId, int readFromCommonBlockNo) {
+			ConfigurationAdmin cm, String modbusReference, String modbusId, int readFromCommonBlockNo)
+			throws OpenemsException {
 		return super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId,
 				readFromCommonBlockNo);
 	}

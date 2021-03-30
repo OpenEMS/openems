@@ -1,8 +1,8 @@
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Data, TooltipItem } from '../shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
@@ -13,8 +13,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class StorageSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
-    @Input() private showPhases: boolean;
+    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input() public showPhases: boolean;
 
     ngOnChanges() {
         this.updateChart();
@@ -30,8 +30,9 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
 
 
     ngOnInit() {
+        this.spinnerId = "storage-single-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh();
     }
 
     ngOnDestroy() {
@@ -39,12 +40,14 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
+        this.service.startSpinner(this.spinnerId);
+        this.colors = [];
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
                     let result = response.result;
-                    this.colors = [];
                     // convert labels
                     let labels: Date[] = [];
                     for (let timestamp of result.timestamps) {
@@ -157,6 +160,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                     });
                     this.datasets = datasets;
                     this.loading = false;
+                    this.service.stopSpinner(this.spinnerId);
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
@@ -189,7 +193,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
 
     protected setLabel() {
         let translate = this.translate; // enables access to TranslateService
-        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+        let options = this.createDefaultChartOptions();
         options.scales.yAxes[0].scaleLabel.labelString = "kW";
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;

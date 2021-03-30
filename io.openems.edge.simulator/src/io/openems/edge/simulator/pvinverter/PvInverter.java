@@ -18,6 +18,7 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.Unit;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
@@ -118,12 +119,13 @@ public class PvInverter extends AbstractOpenemsComponent
 		/*
 		 * get and store Simulated Active Power
 		 */
-		int simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER, "ActivePower");
+		Integer simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER,
+				new ChannelAddress(this.id(), "ActivePower"));
 		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
 
 		// Apply Active Power Limit
 		Value<Integer> activePowerLimitOpt = this.getActivePowerLimit();
-		if (activePowerLimitOpt.isDefined()) {
+		if (simulatedActivePower != null && activePowerLimitOpt.isDefined()) {
 			int activePowerLimit = activePowerLimitOpt.get();
 			simulatedActivePower = Math.min(simulatedActivePower, activePowerLimit);
 		}

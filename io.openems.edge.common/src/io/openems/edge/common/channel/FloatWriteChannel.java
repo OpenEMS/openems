@@ -7,7 +7,8 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.CheckedConsumer;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingConsumer;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class FloatWriteChannel extends FloatReadChannel implements WriteChannel<Float> {
@@ -63,12 +64,12 @@ public class FloatWriteChannel extends FloatReadChannel implements WriteChannel<
 	 * onSetNextWrite
 	 */
 	@Override
-	public List<CheckedConsumer<Float>> getOnSetNextWrites() {
+	public List<ThrowingConsumer<Float, OpenemsNamedException>> getOnSetNextWrites() {
 		return super.getOnSetNextWrites();
 	}
 
 	@Override
-	public void onSetNextWrite(CheckedConsumer<Float> callback) {
+	public void onSetNextWrite(ThrowingConsumer<Float, OpenemsNamedException> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
 

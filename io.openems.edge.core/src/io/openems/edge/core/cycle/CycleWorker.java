@@ -1,12 +1,13 @@
 package io.openems.edge.core.cycle;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Stopwatch;
 
 import info.faljse.SDNotify.SDNotify;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -21,8 +22,6 @@ public class CycleWorker extends AbstractWorker {
 	private final Logger log = LoggerFactory.getLogger(CycleWorker.class);
 	private final CycleImpl parent;
 
-	private Instant startTime = null;
-
 	public CycleWorker(CycleImpl parent) {
 		this.parent = parent;
 	}
@@ -34,6 +33,9 @@ public class CycleWorker extends AbstractWorker {
 
 	@Override
 	protected void forever() {
+		// Prepare Cycle-Time measurement
+		Stopwatch stopwatch = Stopwatch.createStarted();
+
 		// Kick Operating System Watchdog
 		String socketName = System.getenv().get("NOTIFY_SOCKET");
 		if (socketName != null && socketName.length() != 0) {
@@ -92,50 +94,53 @@ public class CycleWorker extends AbstractWorker {
 				this.parent.logWarn(this.log, "There are no Schedulers configured!");
 			} else {
 				for (Scheduler scheduler : this.parent.schedulers) {
-					boolean schedulerHasError = false;
+					boolean schedulerControllerIsMissing = false;
 
-					try {
-						for (Controller controller : scheduler.getControllers()) {
-							if (!controller.isEnabled()) {
-								hasDisabledController = true;
-								continue;
-							}
+					for (String controllerId : scheduler.getControllers()) {
+						Controller controller;
+						try {
+							controller = this.parent.componentManager.getPossiblyDisabledComponent(controllerId);
 
-							try {
-								// Execute Controller logic
-								controller.run();
-
-								// announce running was ok
-								controller._setRunFailed(false);
-
-							} catch (OpenemsNamedException e) {
-								this.parent.logWarn(this.log,
-										"Error in Controller [" + controller.id() + "]: " + e.getMessage());
-
-								// announce running failed
-								controller._setRunFailed(true);
-
-							} catch (Exception e) {
-								this.parent.logWarn(this.log, "Error in Controller [" + controller.id() + "]. "
-										+ e.getClass().getSimpleName() + ": " + e.getMessage());
-								if (e instanceof ClassCastException || e instanceof NullPointerException
-										|| e instanceof IllegalArgumentException) {
-									e.printStackTrace();
-								}
-								// announce running failed
-								controller._setRunFailed(true);
-							}
+						} catch (OpenemsNamedException e) {
+							this.parent.logWarn(this.log, "Scheduler [" + scheduler.id() + "]: Controller ["
+									+ controllerId + "] is missing. " + e.getMessage());
+							schedulerControllerIsMissing = true;
+							continue;
 						}
 
-						// announce running was ok or not ok.
-						scheduler._setRunFailed(schedulerHasError);
+						if (!controller.isEnabled()) {
+							hasDisabledController = true;
+							continue;
+						}
 
-					} catch (Exception e) {
-						this.parent.logWarn(this.log, "Error in Scheduler [" + scheduler.id() + "]: " + e.getMessage());
+						try {
+							// Execute Controller logic
+							controller.run();
 
-						// announce running failed
-						scheduler._setRunFailed(true);
+							// announce running was ok
+							controller._setRunFailed(false);
+
+						} catch (OpenemsNamedException e) {
+							this.parent.logWarn(this.log,
+									"Error in Controller [" + controller.id() + "]: " + e.getMessage());
+
+							// announce running failed
+							controller._setRunFailed(true);
+
+						} catch (Exception e) {
+							this.parent.logWarn(this.log, "Error in Controller [" + controller.id() + "]. "
+									+ e.getClass().getSimpleName() + ": " + e.getMessage());
+							if (e instanceof ClassCastException || e instanceof NullPointerException
+									|| e instanceof IllegalArgumentException) {
+								e.printStackTrace();
+							}
+							// announce running failed
+							controller._setRunFailed(true);
+						}
 					}
+
+					// announce Scheduler Controller is missing
+					scheduler._setControllerIsMissing(schedulerControllerIsMissing);
 				}
 			}
 
@@ -171,12 +176,8 @@ public class CycleWorker extends AbstractWorker {
 			}
 		}
 
-		// Measure actual cycle time
-		Instant now = Instant.now();
-		if (this.startTime != null) {
-			this.parent._setMeasuredCycleTime(Duration.between(this.startTime, now).toMillis());
-		}
-		this.startTime = now;
+		// Measure actual Cycle-Time
+		this.parent._setMeasuredCycleTime(stopwatch.elapsed(TimeUnit.MILLISECONDS));
 	}
 
 }

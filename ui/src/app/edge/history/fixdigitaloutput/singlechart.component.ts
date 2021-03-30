@@ -1,8 +1,8 @@
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Data, TooltipItem } from '../shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
@@ -14,7 +14,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-  @Input() private period: DefaultTypes.HistoryPeriod;
+  @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public componentId: string;
 
   ngOnChanges() {
@@ -30,8 +30,9 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
   }
 
   ngOnInit() {
+    this.spinnerId = 'fixdigitaloutput-single-chart';
+    this.service.startSpinner(this.spinnerId);
     this.service.setCurrentComponent('', this.route);
-    this.subscribeChartRefresh()
   }
 
   ngOnDestroy() {
@@ -39,6 +40,8 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
   }
 
   protected updateChart() {
+    this.autoSubscribeChartRefresh();
+    this.service.startSpinner(this.spinnerId);
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -72,6 +75,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
       }
       this.datasets = datasets;
       this.loading = false;
+      this.service.stopSpinner(this.spinnerId);
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();
@@ -88,7 +92,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
   }
 
   protected setLabel() {
-    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    let options = this.createDefaultChartOptions();
     options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;

@@ -45,7 +45,7 @@
 			<!-- Used by org.influxdb: influxdb-java -->
 			<groupId>com.squareup.moshi</groupId>
 			<artifactId>moshi</artifactId>
-			<version>1.9.3</version>
+			<version>1.11.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by org.influxdb: influxdb-java -->
@@ -81,7 +81,7 @@
 			<!-- HikariCP A solid, high-performance, JDBC connection pool at last. -->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>3.4.5</version>
+			<version>4.0.2</version>
 		</dependency>
 		<!-- commons -->
 		<dependency>
@@ -106,7 +106,7 @@
 			<!-- Used by SDNotify -->
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.6.0</version>
+			<version>5.7.0</version>
 		</dependency>
 		<!-- org -->
 		<dependency>
@@ -119,12 +119,14 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/configadmin/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.configadmin</artifactId>
-			<version>1.9.18</version>
+			<version>1.9.20</version>
 		</dependency>
 		<dependency>
+			<!-- Apache Felix EventAdmin -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/eventadmin/impl/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.eventadmin</artifactId>
-			<version>1.5.0</version>
+			<version>1.6.2</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Inventory -->
@@ -138,12 +140,14 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty</artifactId>
-			<version>4.0.20</version>
+			<version>4.1.4</version>
 		</dependency>
 		<dependency>
+			<!-- Apache Felix Metatype Service -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/metatype/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.metatype</artifactId>
-			<version>1.2.2</version>
+			<version>1.2.4</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Service Component Runtime (SCR) -->
@@ -157,7 +161,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>4.5.4</version>
+			<version>4.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
@@ -177,36 +181,36 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.10.16</version>
+			<version>0.12.7</version>
 		</dependency>
 		<dependency>
 			<!-- Used by Controller.Api.OpcUa -->
 			<groupId>org.eclipse.milo</groupId>
 			<artifactId>sdk-core</artifactId>
-			<version>0.4.2</version>
+			<version>0.6.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by Controller.Api.OpcUa -->
 			<groupId>org.eclipse.milo</groupId>
 			<artifactId>sdk-server</artifactId>
-			<version>0.4.2</version>
+			<version>0.6.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by Controller.Api.OpcUa -->
 			<groupId>org.eclipse.milo</groupId>
 			<artifactId>stack-core</artifactId>
-			<version>0.4.2</version>
+			<version>0.6.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by Controller.Api.OpcUa -->
 			<groupId>org.eclipse.milo</groupId>
 			<artifactId>stack-server</artifactId>
-			<version>0.4.2</version>
+			<version>0.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.osgi</artifactId>
-			<version>3.15.300</version>
+			<version>3.16.100</version>
 		</dependency>
 		<dependency>
 			<groupId>org.influxdb</groupId>
@@ -221,7 +225,7 @@
 		<dependency>
 			<groupId>org.msgpack</groupId>
 			<artifactId>msgpack-core</artifactId>
-			<version>0.8.20</version>
+			<version>0.8.22</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openmuc</groupId>
@@ -231,12 +235,12 @@
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>2.0.4</version>
+			<version>2.0.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-log4j1</artifactId>
-			<version>2.0.4</version>
+			<version>2.0.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -257,13 +261,13 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.2.15</version>
+			<version>42.2.19</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.edge.timedata.rrd4j -->
 			<groupId>org.rrd4j</groupId>
 			<artifactId>rrd4j</artifactId>
-			<version>3.7</version>
+			<version>3.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

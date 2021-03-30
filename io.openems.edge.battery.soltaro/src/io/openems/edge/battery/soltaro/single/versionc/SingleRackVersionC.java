@@ -6,10 +6,10 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.SoltaroBattery;
+import io.openems.edge.battery.soltaro.ChargeIndication;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.enums.EmsBaudrate;
-import io.openems.edge.battery.soltaro.single.versionb.Enums.AutoSetFunction;
+import io.openems.edge.battery.soltaro.single.versionc.enums.AutoSetFunction;
 import io.openems.edge.battery.soltaro.single.versionc.enums.ClusterRunState;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.single.versionc.enums.Sleep;
@@ -22,7 +22,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
-public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComponent, StartStoppable {
+public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStoppable {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#PRE_CHARGE_CONTROL}.
@@ -459,6 +459,7 @@ public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComp
 				.unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_CURRENT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIAMPERE)), // FS
+		CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
 		CLUSTER_1_SOH(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT)), //
 		CLUSTER_1_MAX_CELL_VOLTAGE_ID(Doc.of(OpenemsType.INTEGER) //
@@ -487,10 +488,6 @@ public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComp
 				.unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_SYSTEM_INSULATION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOOHM)), //
-		SYSTEM_MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)),
-		SYSTEM_MAX_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)),
 		POSITIVE_INSULATION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOOHM)),
 		NEGATIVE_INSULATION(Doc.of(OpenemsType.INTEGER) //

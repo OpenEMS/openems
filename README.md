@@ -1,4 +1,7 @@
-[![Build Status](https://www.travis-ci.com/OpenEMS/openems.svg?branch=develop)](https://www.travis-ci.com/OpenEMS/openems)
+[![Build Status](https://github.com/OpenEMS/openems/actions/workflows/build.yml/badge.svg)](https://github.com/OpenEMS/openems/actions/workflows/build.yml)
+[![Gitpod live-demo](https://img.shields.io/badge/Gitpod-live--demo-blue?logo=gitpod)](https://gitpod.io/#https://github.com/OpenEMS/openems/tree/master)
+[![Cite via Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.4440884.svg)](https://doi.org/10.5281/zenodo.4440883)
+
 <h1 align="center">
   <img src="./doc/modules/ROOT/assets/images/OpenEMS-Logo.png" alt="the Feneco - OpenEMS Logo" width="200"></a>
   <br/>Open Source Energy Management System
@@ -44,6 +47,11 @@ OpenEMS is generally used in combination with external hardware and software com
 (the exception is a simulated development environment - see [Getting Started](https://openems.github.io/openems.io/openems/latest/gettingstarted.html)). As a brief overview, this is how OpenEMS is used in production setups:
 ![alt text](./doc/modules/ROOT/assets/images/system-architecture.png "OpenEMS System Architecture")
 
+## Getting Started
+
+* Open up a [Live-Demo on Gitpod](https://gitpod.io/#https://github.com/OpenEMS/openems)
+* Follow the [Getting Started](https://openems.github.io/openems.io/openems/latest/gettingstarted.html) guide to setup OpenEMS on your own computer
+
 ## Documentation
 
 * [Latest version of documentation](https://openems.github.io/openems.io/openems/latest/introduction.html)
@@ -51,13 +59,19 @@ OpenEMS is generally used in combination with external hardware and software com
 
 ## Open Source philosophy
 
-The OpenEMS project ist driven by the [OpenEMS Association e.V.](https://openems.io/association), a network of users, vendors and scientific institutions from all kinds of areas like hardware manufacturers, software companies, grid operators and more. They share the common target of developing a free and open-source platform for energy management, that supports the 100 % energy transition.
+The OpenEMS project is driven by the [OpenEMS Association e.V.](https://openems.io/association), a network of users, vendors and scientific institutions from all kinds of areas like hardware manufacturers, software companies, grid operators and more. They share the common target of developing a free and open-source platform for energy management, that supports the 100 % energy transition.
 
 We are inviting third parties to use OpenEMS for their own projects and are glad to support them with their first steps. In any case if you are interested in OpenEMS we would be glad to hear from you in the [OpenEMS Community forum](https://community.openems.io).
 
 OpenEMS development was started by [FENECON GmbH](https://www.fenecon.de), a German company specialized in manufacturing and project development of energy storage systems. It is the software stack behind [FEMS - FENECON Energy Management System](https://fenecon.de/page/fems) and widely used in private, commercial and industrial applications.
 
 OpenEMS is funded by several federal and EU funding projects. If you are a developer and you would like to get hired by one of the partner companies or universities for working on OpenEMS, please send your motivation letter to info@openems.io.
+
+## Scientific Research
+
+If you use OpenEMS in your scientific research, please use our Zenodo Digital Object Identifier (DOI) as reference:
+
+[![Cite via Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.4440884.svg)](https://doi.org/10.5281/zenodo.4440883)
 
 ## License
 

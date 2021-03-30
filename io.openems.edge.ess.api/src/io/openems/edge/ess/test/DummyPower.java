@@ -1,5 +1,6 @@
 package io.openems.edge.ess.test;
 
+import io.openems.edge.common.filter.DisabledPidFilter;
 import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Coefficient;
@@ -16,17 +17,41 @@ public class DummyPower implements Power {
 
 	private int maxApparentPower;
 
-	public DummyPower(int maxApparentPower) {
-		this(maxApparentPower, PidFilter.DEFAULT_P, PidFilter.DEFAULT_I, PidFilter.DEFAULT_D);
+	/**
+	 * Creates a {@link DummyPower} with unlimited MaxApparentPower and disabled PID
+	 * filter.
+	 */
+	public DummyPower() {
+		this(Integer.MAX_VALUE, new DisabledPidFilter());
 	}
 
+	/**
+	 * Creates a {@link DummyPower} with given MaxApparentPower and disabled PID
+	 * filter.
+	 */
+	public DummyPower(int maxApparentPower) {
+		this(Integer.MAX_VALUE, new DisabledPidFilter());
+	}
+
+	public DummyPower(int maxApparentPower, PidFilter pidFilter) {
+		this.maxApparentPower = maxApparentPower;
+		this.pidFilter = pidFilter;
+	}
+
+	/**
+	 * Creates a {@link DummyPower} with unlimited MaxApparentPower and PID filter
+	 * with the given parameters.
+	 */
 	public DummyPower(double p, double i, double d) {
 		this(Integer.MAX_VALUE, p, i, d);
 	}
 
+	/**
+	 * Creates a {@link DummyPower} with given MaxApparentPower and PID filter with
+	 * the given parameters.
+	 */
 	public DummyPower(int maxApparentPower, double p, double i, double d) {
-		this.maxApparentPower = maxApparentPower;
-		this.pidFilter = new PidFilter(p, i, d);
+		this(maxApparentPower, new PidFilter(p, i, d));
 	}
 
 	@Override

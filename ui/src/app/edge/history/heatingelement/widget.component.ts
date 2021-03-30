@@ -1,11 +1,9 @@
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { HeatingelementModalComponent } from './modal/modal.component';
-import { ModalController } from '@ionic/angular';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: HeatingelementWidgetComponent.SELECTOR,
@@ -14,7 +12,7 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 export class HeatingelementWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() private componentId: string;
+    @Input() public componentId: string;
 
     private static readonly SELECTOR = "heatingelementWidget";
 
@@ -27,7 +25,6 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
     public edge: Edge = null;
 
     constructor(
-        public modalCtrl: ModalController,
         public service: Service,
         private route: ActivatedRoute,
     ) {
@@ -41,7 +38,6 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
                 this.component = config.getComponent(this.componentId);
             });
         });
-        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
@@ -112,16 +108,5 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
             ];
             resolve(channeladdresses);
         });
-    }
-
-    async presentModal() {
-        const modal = await this.modalCtrl.create({
-            component: HeatingelementModalComponent,
-            cssClass: 'wide-modal',
-            componentProps: {
-                component: this.component,
-            }
-        });
-        return await modal.present();
     }
 }

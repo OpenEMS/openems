@@ -57,7 +57,7 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 	/**
 	 * Create a complex monitor that does search branches
 	 *
-	 * @param the DSPortAdapter this monitor should search
+	 * @param adapter the DSPortAdapter this monitor should search
 	 */
 	public NetworkDeviceMonitor(DSPortAdapter adapter) {
 		setAdapter(adapter);
@@ -66,7 +66,7 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 	/**
 	 * Sets this monitor to search a new DSPortAdapter
 	 *
-	 * @param the DSPortAdapter this monitor should search
+	 * @param adapter the DSPortAdapter this monitor should search
 	 */
 	public void setAdapter(DSPortAdapter adapter) {
 		if (adapter == null)
@@ -100,8 +100,8 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 	 * Indicates whether or not branches are automatically traversed. If false, new
 	 * branches must be indicated using the "addBranch" method.
 	 *
-	 * @returns true if all branches are automatically traversed during a search
-	 *          operation.
+	 * @return true if all branches are automatically traversed during a search
+	 *         operation.
 	 */
 	public boolean getBranchAutoSearching() {
 		return this.branchAutoSearching;
@@ -157,7 +157,7 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 	public void search(Vector<Long> arrivals, Vector<Long> departures) throws OneWireException, OneWireIOException {
 		synchronized (sync_flag) {
 			try {
-				// aquire the adapter
+				// acquire the adapter
 				adapter.beginExclusive(true);
 
 				// setup the search
@@ -196,7 +196,7 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 					while (search_result) {
 						// get the 1-Wire address
 						Long longAddress = new Long(adapter.getAddressAsLong());
-						// check if the device allready exists in our hashtable
+						// check if the device already exists in our hashtable
 						if (!deviceAddressHash.containsKey(longAddress)) {
 							OneWireContainer owc = getDeviceContainer(adapter, longAddress);
 							// check to see if it's a switch and if we are supposed

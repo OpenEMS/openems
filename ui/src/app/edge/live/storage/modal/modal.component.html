@@ -8,8 +8,8 @@
         </ion-buttons>
     </ion-toolbar>
 </ion-header>
-<ion-content>
 
+<ion-content>
     <!-- one ESS Component -->
     <ng-container *ngIf="essComponents != null && essComponents.length == 1 && edge.currentData | async as currentData">
         <ng-container *ngFor="let component of essComponents">

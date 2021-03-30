@@ -1,7 +1,5 @@
 package io.openems.edge.bridge.modbus.api;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -103,9 +101,10 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 *                        'config.modbus_id()'
 	 * @return true if the target filter was updated. You may use it to abort the
 	 *         activate() method.
+	 * @throws OpenemsException on error
 	 */
 	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
-			ConfigurationAdmin cm, String modbusReference, String modbusId) {
+			ConfigurationAdmin cm, String modbusReference, String modbusId) throws OpenemsException {
 		super.activate(context, id, alias, enabled);
 		// update filter for 'Modbus'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Modbus", modbusId)) {
@@ -114,7 +113,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		this.unitId = unitId;
 		BridgeModbus modbus = this.modbus.get();
 		if (this.isEnabled() && modbus != null) {
-			modbus.addProtocol(this.id(), this.getModbusProtocol(this.unitId));
+			modbus.addProtocol(this.id(), this.getModbusProtocol());
 		}
 		return false;
 	}
@@ -160,7 +159,24 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		}
 	}
 
-	private ModbusProtocol getModbusProtocol(int unitId) {
+	/**
+	 * Gets the Modbus-Bridge.
+	 * 
+	 * @return the {@link BridgeModbus} - either {@link BridgeModbusSerial} or
+	 *         {@link BridgeModbusTcp}
+	 */
+	public BridgeModbus getBridgeModbus() {
+		return modbus.get();
+	}
+
+	/**
+	 * Gets the {@link ModbusProtocol}. Creates it via
+	 * {@link #defineModbusProtocol()} if it does not yet exist.
+	 * 
+	 * @return the {@link ModbusProtocol}
+	 * @throws OpenemsException on error
+	 */
+	protected ModbusProtocol getModbusProtocol() throws OpenemsException {
 		ModbusProtocol protocol = this.protocol;
 		if (protocol != null) {
 			return protocol;
@@ -173,36 +189,37 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * Defines the Modbus protocol.
 	 * 
 	 * @return the ModbusProtocol
+	 * @throws OpenemsException on error
 	 */
-	protected abstract ModbusProtocol defineModbusProtocol();
+	protected abstract ModbusProtocol defineModbusProtocol() throws OpenemsException;
 
 	/**
 	 * Maps an Element to one or more ModbusChannels using converters, that convert
 	 * the value forward and backwards.
 	 */
-	public class ChannelMapper {
+	public class ChannelMapper<T extends AbstractModbusElement<?>> {
 
-		private final AbstractModbusElement<?> element;
+		private final T element;
 		private Map<Channel<?>, ElementToChannelConverter> channelMaps = new HashMap<>();
 
-		public ChannelMapper(AbstractModbusElement<?> element) {
+		public ChannelMapper(T element) {
 			this.element = element;
 		}
 
-		public ChannelMapper m(io.openems.edge.common.channel.ChannelId channelId,
+		public ChannelMapper<T> m(io.openems.edge.common.channel.ChannelId channelId,
 				ElementToChannelConverter converter) {
 			Channel<?> channel = channel(channelId);
 			this.channelMaps.put(channel, converter);
 			return this;
 		}
 
-		public ChannelMapper m(io.openems.edge.common.channel.ChannelId channelId,
+		public ChannelMapper<T> m(io.openems.edge.common.channel.ChannelId channelId,
 				Function<Object, Object> elementToChannel, Function<Object, Object> channelToElement) {
 			ElementToChannelConverter converter = new ElementToChannelConverter(elementToChannel, channelToElement);
 			return this.m(channelId, converter);
 		}
 
-		public AbstractModbusElement<?> build() {
+		public T build() {
 			/*
 			 * Forward Element Read-Value to Channel
 			 */
@@ -276,8 +293,8 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param element the ModbusElement
 	 * @return a {@link ChannelMapper}
 	 */
-	protected final ChannelMapper m(AbstractModbusElement<?> element) {
-		return new ChannelMapper(element);
+	protected final <T extends AbstractModbusElement<?>> ChannelMapper<T> m(T element) {
+		return new ChannelMapper<T>(element);
 	}
 
 	/**
@@ -297,9 +314,9 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param element   the ModbusElement
 	 * @return the element parameter
 	 */
-	protected final AbstractModbusElement<?> m(io.openems.edge.common.channel.ChannelId channelId,
-			AbstractModbusElement<?> element) {
-		return new ChannelMapper(element) //
+	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
+			T element) {
+		return new ChannelMapper<T>(element) //
 				.m(channelId, ElementToChannelConverter.DIRECT_1_TO_1) //
 				.build();
 	}
@@ -313,9 +330,9 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param converter the ElementToChannelConverter
 	 * @return the element parameter
 	 */
-	protected final AbstractModbusElement<?> m(io.openems.edge.common.channel.ChannelId channelId,
-			AbstractModbusElement<?> element, ElementToChannelConverter converter) {
-		return new ChannelMapper(element) //
+	protected final <T extends AbstractModbusElement<?>> AbstractModbusElement<?> m(
+			io.openems.edge.common.channel.ChannelId channelId, T element, ElementToChannelConverter converter) {
+		return new ChannelMapper<T>(element) //
 				.m(channelId, converter) //
 				.build();
 	}
@@ -324,26 +341,4 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		DIRECT_1_TO_1, INVERT
 	}
 
-	/**
-	 * Converts upper/lower bytes to Short.
-	 * 
-	 * @param value      the int value
-	 * @param upperBytes 1 = upper two bytes, 0 = lower two bytes
-	 * @return the Short
-	 */
-	public static Short convert(int value, int upperBytes) {
-		ByteBuffer b = ByteBuffer.allocate(4);
-		b.order(ByteOrder.LITTLE_ENDIAN);
-		b.putInt(value);
-
-		byte byte0 = b.get(upperBytes * 2);
-		byte byte1 = b.get(upperBytes * 2 + 1);
-
-		ByteBuffer shortBuf = ByteBuffer.allocate(2);
-		shortBuf.order(ByteOrder.LITTLE_ENDIAN);
-		shortBuf.put(0, byte0);
-		shortBuf.put(1, byte1);
-
-		return shortBuf.getShort();
-	}
 }

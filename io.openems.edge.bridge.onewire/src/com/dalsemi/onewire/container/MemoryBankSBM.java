@@ -70,7 +70,7 @@ class MemoryBankSBM implements MemoryBank {
 
 	/**
 	 * Starting physical address in memory bank. Needed for different types of
-	 * memory in the same logical memory bank. This can be used to seperate them
+	 * memory in the same logical memory bank. This can be used to separate them
 	 * into two virtual memory banks. Example: DS2406 status page has mixed EPROM
 	 * and Volatile RAM.
 	 */
@@ -298,12 +298,12 @@ class MemoryBankSBM implements MemoryBank {
 	 * readPageCRC(). readPageCRC() however is not supported on all memory types,
 	 * see 'hasPageAutoCRC()'. If neither is an option then this method could be
 	 * called more then once to at least verify that the same thing is read
-	 * consistantly.
+	 * consistently.
 	 *
 	 * @param startAddr    starting physical address
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new read()
-	 *                     continious where the last one led off and it is inside a
+	 *                     continuous where the last one led off and it is inside a
 	 *                     'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to place read data into
 	 * @param offset       offset into readBuf to place data
@@ -482,9 +482,9 @@ class MemoryBankSBM implements MemoryBank {
 	 *
 	 * @param page   the page number
 	 * @param source data to be written to page
-	 * @param offset offset with page to begin writting
+	 * @param offset offset with page to begin writing
 	 *
-	 * @returns 'true' if the write was successfull
+	 * @returns 'true' if the write was successful
 	 *
 	 * @throws OneWireIOException       Error reading data
 	 * @throws OneWireException         Could not find part
@@ -562,7 +562,7 @@ class MemoryBankSBM implements MemoryBank {
 				// attempt to set the correct speed and verify device present
 				ib.doSpeed();
 
-				// no execptions so clear flag
+				// no exceptions so clear flag
 				doSetSpeed = false;
 			}
 		}

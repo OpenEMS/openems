@@ -180,8 +180,7 @@ public class HeatingElementTest {
 						.output(IO_OUTPUT3, false) //
 						.output(CTRL_PHASE1TIME, 30 * 60) //
 						.output(CTRL_PHASE2TIME, 30 * 60) //
-						.output(CTRL_PHASE3TIME, 0)) //
-				.run();
+						.output(CTRL_PHASE3TIME, 0)); //
 	}
 
 }

@@ -23,13 +23,14 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Designate(ocd = ConfigSelfConsumption.class, factory = true)
 @Component(//
-		name = "Evcs.Cluster.SelfConsumtion", //
+		name = "Evcs.Cluster.SelfConsumption", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
@@ -37,7 +38,7 @@ import org.slf4j.LoggerFactory;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 		})
-public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements OpenemsComponent, Evcs {
+public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements OpenemsComponent, Evcs, EventHandler  {
 
 	private final Logger log = LoggerFactory.getLogger(EvcsClusterSelfConsumption.class);
 
@@ -57,7 +58,8 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	public EvcsClusterSelfConsumption() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				Evcs.ChannelId.values());
+				Evcs.ChannelId.values(), //
+				AbstractEvcsCluster.ChannelId.values());
 	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)

@@ -7,7 +7,8 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.CheckedConsumer;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingConsumer;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class LongWriteChannel extends LongReadChannel implements WriteChannel<Long> {
@@ -29,7 +30,7 @@ public class LongWriteChannel extends LongReadChannel implements WriteChannel<Lo
 						+ "] is not an LongWriteChannel! Unable to register \"onSetNextWrite\"-Listener!");
 				return;
 			}
-			
+
 			// on each setNextWrite to the channel -> store the value in the DEBUG-channel
 			((LongWriteChannel) channel).onSetNextWrite(value -> {
 				channel.getComponent().channel(this.targetChannelId).setNextValue(value);
@@ -63,12 +64,12 @@ public class LongWriteChannel extends LongReadChannel implements WriteChannel<Lo
 	 * onSetNextWrite
 	 */
 	@Override
-	public List<CheckedConsumer<Long>> getOnSetNextWrites() {
+	public List<ThrowingConsumer<Long, OpenemsNamedException>> getOnSetNextWrites() {
 		return super.getOnSetNextWrites();
 	}
 
 	@Override
-	public void onSetNextWrite(CheckedConsumer<Long> callback) {
+	public void onSetNextWrite(ThrowingConsumer<Long, OpenemsNamedException> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
 

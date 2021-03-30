@@ -1,25 +1,27 @@
-<ion-searchbar (ionChange)="updateFilter($event.detail.value)"></ion-searchbar>
-
-<ion-list>
-  <ng-container *ngFor="let entry of list">
-    <ion-item-group>
-      <ion-item style="cursor: pointer" (click)="entry.isClicked = !entry.isClicked" lines="inset"
-        *ngIf="entry.filteredFactories.length>= 1">
-        <ion-icon name="{{entry.category.icon}}"></ion-icon>
-        <ion-label class="ion-padding-start">
-          {{ entry.category.title }}
-        </ion-label>
-      </ion-item>
-    </ion-item-group>
-    <ng-container *ngIf="(entry.isClicked || showAllFactories)">
-      <ion-item lines="none" *ngFor="let item of entry.filteredFactories" [routerLink]=[item.id]>
-        <ion-label style="cursor: pointer" class="ion-text-wrap">
-          <ion-text color="primary">
-            <h3>{{ item.name }}</h3>
-          </ion-text>
-          <small>{{ item.description }}</small>
-        </ion-label>
-      </ion-item>
+<header></header>
+<ion-content>
+  <ion-searchbar (ionChange)="updateFilter($event.detail.value)"></ion-searchbar>
+  <ion-list>
+    <ng-container *ngFor="let entry of list">
+      <ion-item-group>
+        <ion-item style="cursor: pointer" (click)="entry.isClicked = !entry.isClicked" lines="inset"
+          *ngIf="entry.filteredFactories.length>= 1">
+          <ion-icon name="{{entry.category.icon}}"></ion-icon>
+          <ion-label class="ion-padding-start">
+            {{ entry.category.title }}
+          </ion-label>
+        </ion-item>
+      </ion-item-group>
+      <ng-container *ngIf="(entry.isClicked || showAllFactories)">
+        <ion-item lines="none" *ngFor="let item of entry.filteredFactories" [routerLink]=[item.id]>
+          <ion-label style="cursor: pointer" class="ion-text-wrap">
+            <ion-text color="primary">
+              <h3>{{ item.name }}</h3>
+            </ion-text>
+            <small>{{ item.description }}</small>
+          </ion-label>
+        </ion-item>
+      </ng-container>
     </ng-container>
-  </ng-container>
-</ion-list>
+  </ion-list>
+</ion-content>

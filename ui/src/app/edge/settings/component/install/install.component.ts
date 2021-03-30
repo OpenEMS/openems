@@ -1,8 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/shared';
+import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({

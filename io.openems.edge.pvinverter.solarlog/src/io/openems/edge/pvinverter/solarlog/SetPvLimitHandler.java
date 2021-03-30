@@ -7,23 +7,23 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.CheckedRunnable;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingRunnable;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.pvinverter.solarlog.SolarLog.ChannelId;
 
-public class SetPvLimitHandler implements CheckedRunnable {
+public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException> {
 
 	private final Logger log = LoggerFactory.getLogger(SetPvLimitHandler.class);
-	private final SolarLog parent;
+	private final SolarLogImpl parent;
 	private final ManagedSymmetricPvInverter.ChannelId channelId;
 
 	private Integer lastPLimitPerc = null;
 	private LocalDateTime lastPLimitPercTime = LocalDateTime.MIN;
 
-	public SetPvLimitHandler(SolarLog parent, ManagedSymmetricPvInverter.ChannelId activePowerLimit) {
+	public SetPvLimitHandler(SolarLogImpl parent, ManagedSymmetricPvInverter.ChannelId activePowerLimit) {
 		this.parent = parent;
 		this.channelId = activePowerLimit;
 	}

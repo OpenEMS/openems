@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
 		name = "EVCS OCPP Ies KeyWatt", //
-		description = "Implements an OCPP capable Ies KeyWatt electric vehicle charging station whithout the smart charging function.")
+		description = "Implements an OCPP capable Ies KeyWatt electric vehicle charging station without the smart charging function.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -18,7 +18,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "OCPP chargepoint identifier", description = "The OCPP identifier of the charging station.", required = true)
-	String ocpp_id() default "";
+	String ocpp_id() default "IES1";
 
 	@AttributeDefinition(name = "OCPP connector identifier", description = "The connector id of the chargepoint (e.g. if there are two connectors, then the evcs has two id's 1 and 2).", required = true)
 	int connectorId() default 1;

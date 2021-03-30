@@ -8,9 +8,12 @@ import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
+import org.slf4j.Logger;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
+import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
@@ -122,7 +125,7 @@ public interface OpenemsComponent {
 	 * @param channelName the Channel-ID as a string
 	 * @return the Channel or null
 	 */
-	@Deprecated
+	@Deprecated()
 	public Channel<?> _channel(String channelName);
 
 	/**
@@ -138,8 +141,13 @@ public interface OpenemsComponent {
 		Channel<?> channel = this._channel(channelName);
 		// check for null
 		if (channel == null) {
-			throw new IllegalArgumentException(
-					"Channel [" + channelName + "] is not defined for ID [" + this.id() + "].");
+			if (this.id() == null) {
+				throw new IllegalArgumentException("Channel [" + channelName + "] is not defined for implementation ["
+						+ this.getClass().getCanonicalName() + "].");
+			} else {
+				throw new IllegalArgumentException("Channel [" + channelName + "] is not defined for ID [" + this.id()
+						+ "]. Implementation [" + this.getClass().getCanonicalName() + "]");
+			}
 		}
 		// check correct type
 		T typedChannel;
@@ -175,7 +183,8 @@ public interface OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// Running State of the component. Keep values in sync with 'Level' enum!
-		STATE(new StateCollectorChannelDoc());
+		STATE(new StateCollectorChannelDoc() //
+				.persistencePriority(PersistencePriority.VERY_HIGH));
 
 		private final Doc doc;
 
@@ -189,6 +198,13 @@ public interface OpenemsComponent {
 		}
 	}
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a modbus table for the Channels
+	 * of this Component.
+	 * 
+	 * @param accessMode the {@link AccessMode} of the Controller
+	 * @return a {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(OpenemsComponent.class, accessMode, 80) //
 				.channel(0, ChannelId.STATE, ModbusType.UINT16) //
@@ -201,7 +217,15 @@ public interface OpenemsComponent {
 	 * @return the StateCollectorChannel
 	 */
 	public default StateCollectorChannel getStateChannel() {
-		return this._getChannelAs(ChannelId.STATE, StateCollectorChannel.class);
+		try {
+			return this._getChannelAs(ChannelId.STATE, StateCollectorChannel.class);
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException(//
+					"Class [" + this.getClass().getCanonicalName() + "] does not have a Channel 'State'. " //
+							+ "\nMake sure to pass the 'OpenemsComponent.ChannelId.values()' as first parameter " //
+							+ "in the AbstractOpenemsComponent constructor.",
+					e);
+		}
 	}
 
 	/**
@@ -213,15 +237,16 @@ public interface OpenemsComponent {
 		return this.getStateChannel().value().asEnum();
 	}
 
-	@SuppressWarnings("unchecked")
 	/**
 	 * Gets the Channel as the given Type.
 	 * 
+	 * @param <T>       the expected Channel type
 	 * @param channelId the Channel-ID
 	 * @param type      the expected Type
 	 * @return the Channel
 	 */
-	default <T extends Channel<?>> T _getChannelAs(ChannelId channelId, Class<T> type) {
+	@SuppressWarnings("unchecked")
+	public default <T extends Channel<?>> T _getChannelAs(ChannelId channelId, Class<T> type) {
 		Channel<?> channel = this.channel(channelId);
 		if (channel == null) {
 			throw new IllegalArgumentException("Channel [" + channelId + "] is not defined.");
@@ -268,8 +293,14 @@ public interface OpenemsComponent {
 	 * </pre>
 	 * 
 	 * <p>
-	 * Generates a 'target' filter on the 'Controllers' member so, that the target
-	 * component 'id' is in 'controllerIds'.
+	 * Generates a 'target' filter on the 'Controllers' member so, that the the
+	 * expected service to be injected needs to fulfill:
+	 * <ul>
+	 * <li>the service must be enabled
+	 * <li>the service must not have the same PID as the calling component
+	 * <li>the service "id" must be one of the provided "controllersIds"
+	 * </ul>
+	 * 
 	 * 
 	 * @param cm     a ConfigurationAdmin instance. Get one using
 	 * 
@@ -279,32 +310,19 @@ public interface OpenemsComponent {
 	 *               </pre>
 	 * 
 	 * @param pid    PID of the calling component (use 'config.service_pid()' or
-	 *               '(String)prop.get(Constants.SERVICE_PID)'
+	 *               '(String)prop.get(Constants.SERVICE_PID)'; if null, PID filter
+	 *               is not added to the resulting target filter
 	 * @param member Name of the Method or Field with the Reference annotation, e.g.
-	 *               'Controllers' for 'addControllers()' method
-	 * @param ids    Component IDs to be filtered for
+	 * 
+	 * @param ids    Component IDs to be filtered for; for empty list, no ids are
+	 *               added to the target filter
 	 * 
 	 * @return true if the filter was updated. You may use it to abort the
 	 *         activate() method.
 	 */
 	public static boolean updateReferenceFilter(ConfigurationAdmin cm, String pid, String member, String... ids) {
 		final String targetProperty = member + ".target";
-		/*
-		 * generate required target filter
-		 */
-		// target component must be enabled
-		StringBuilder targetBuilder = new StringBuilder("(&(enabled=true)");
-		if (pid != null && !pid.isEmpty()) {
-			// target component must not be the same as the calling component
-			targetBuilder.append("(!(service.pid=" + pid + "))");
-		}
-		// add filter for given Component-IDs
-		targetBuilder.append("(|");
-		for (String id : ids) {
-			targetBuilder.append("(id=" + id + ")");
-		}
-		targetBuilder.append("))");
-		String requiredTarget = targetBuilder.toString();
+		final String requiredTarget = ConfigUtils.generateReferenceTargetFilter(pid, ids);
 		/*
 		 * read existing target filter
 		 */
@@ -362,4 +380,66 @@ public interface OpenemsComponent {
 			System.out.println("ERROR: " + e.getMessage());
 		}
 	}
+
+	/**
+	 * Log a debug message including the Component ID.
+	 * 
+	 * @param component the {@link OpenemsComponent}
+	 * @param log       the {@link Logger} instance
+	 * @param message   the message
+	 */
+	public static void logDebug(OpenemsComponent component, Logger log, String message) {
+		// TODO use log.debug(String, Object...) to improve speed
+		if (component != null) {
+			log.debug("[" + component.id() + "] " + message);
+		} else {
+			log.debug(message);
+		}
+	}
+
+	/**
+	 * Log a info message including the Component ID.
+	 * 
+	 * @param component the {@link OpenemsComponent}
+	 * @param log       the {@link Logger} instance
+	 * @param message   the message
+	 */
+	public static void logInfo(OpenemsComponent component, Logger log, String message) {
+		if (component != null) {
+			log.info("[" + component.id() + "] " + message);
+		} else {
+			log.info(message);
+		}
+	}
+
+	/**
+	 * Log a warn message including the Component ID.
+	 * 
+	 * @param component the {@link OpenemsComponent}
+	 * @param log       the {@link Logger} instance
+	 * @param message   the message
+	 */
+	public static void logWarn(OpenemsComponent component, Logger log, String message) {
+		if (component != null) {
+			log.warn("[" + component.id() + "] " + message);
+		} else {
+			log.warn(message);
+		}
+	}
+
+	/**
+	 * Log a error message including the Component ID.
+	 * 
+	 * @param component the {@link OpenemsComponent}
+	 * @param log       the {@link Logger} instance
+	 * @param message   the message
+	 */
+	public static void logError(OpenemsComponent component, Logger log, String message) {
+		if (component != null) {
+			log.error("[" + component.id() + "] " + message);
+		} else {
+			log.error(message);
+		}
+	}
+
 }

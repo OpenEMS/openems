@@ -5,9 +5,9 @@ import io.openems.edge.common.channel.EnumReadChannel;
 
 public class StateMachine {
 
-	protected final EssSinexcel parent;
+	protected final EssSinexcelImpl parent;
 
-	public StateMachine(EssSinexcel parent) throws OpenemsNamedException {
+	public StateMachine(EssSinexcelImpl parent) throws OpenemsNamedException {
 		this.parent = parent;
 
 	}
@@ -36,7 +36,7 @@ public class StateMachine {
 	}
 
 	private CurrentState getSinexcelState() {
-		EnumReadChannel currentState = this.parent.channel(SinexcelChannelId.SINEXCEL_STATE);
+		EnumReadChannel currentState = this.parent.channel(EssSinexcel.ChannelId.SINEXCEL_STATE);
 		CurrentState curState = currentState.value().asEnum();
 		return curState;
 	}

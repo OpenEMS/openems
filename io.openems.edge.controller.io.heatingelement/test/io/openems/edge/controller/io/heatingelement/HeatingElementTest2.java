@@ -65,7 +65,6 @@ public class HeatingElementTest2 {
 						.input(SUM_GRID_ACTIVE_POWER, 0) //
 						.output(IO_OUTPUT1, true) //
 						.output(CTRL_TOTAL_PHASE_TIME, 360 /* 6 minutes, one phase */) //
-						.output(CTRL_FORCE_START_AT_SECONDS_OF_DAY, 53_220 /* 14:47 - two minutes later */)) //
-				.run();
+						.output(CTRL_FORCE_START_AT_SECONDS_OF_DAY, 53_220 /* 14:47 - two minutes later */)); //
 	}
 }

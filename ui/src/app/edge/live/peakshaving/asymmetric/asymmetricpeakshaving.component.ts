@@ -15,7 +15,7 @@ export class AsymmetricPeakshavingComponent {
 
     private static readonly SELECTOR = "asymmetricpeakshaving";
 
-    @Input() private componentId: string;
+    @Input() public componentId: string;
 
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;

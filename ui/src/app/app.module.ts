@@ -8,6 +8,7 @@ import { ChartOptionsPopoverComponent } from './shared/chartoptions/popover/popo
 import { EdgeModule } from './edge/edge.module';
 import { environment as env } from '../environments/environment';
 import { FormlyModule } from '@ngx-formly/core';
+import { FormlyWrapperFormField } from './edge/settings/component/shared/form-field.wrapper';
 import { IndexModule } from './index/index.module';
 import { InputTypeComponent } from './edge/settings/component/shared/input';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
@@ -21,13 +22,10 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { SettingsModule } from './settings/settings.module';
 import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.module';
 import { SharedModule } from './shared/shared.module';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { StatusSingleComponent } from './shared/status/single/status.component';
 import { SystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import localDE from '@angular/common/locales/de';
-import { FormlyWrapperFormField } from './edge/settings/component/shared/form-field.wrapper';
 
 @NgModule({
   declarations: [
@@ -71,13 +69,11 @@ import { FormlyWrapperFormField } from './edge/settings/component/shared/form-fi
     }),
   ],
   providers: [
-    SplashScreen,
-    StatusBar,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     // { provide: ErrorHandler, useExisting: Service },
     { provide: LOCALE_ID, useValue: 'de' }
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {
   constructor() {

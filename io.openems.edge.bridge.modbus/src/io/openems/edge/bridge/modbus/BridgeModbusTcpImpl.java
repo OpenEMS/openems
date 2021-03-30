@@ -20,7 +20,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
@@ -45,25 +44,11 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	private InetAddress ipAddress = null;
 	private int port;
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
-
 	public BridgeModbusTcpImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				BridgeModbus.ChannelId.values(), //
-				ChannelId.values() //
+				BridgeModbusTcp.ChannelId.values() //
 		);
 	}
 
