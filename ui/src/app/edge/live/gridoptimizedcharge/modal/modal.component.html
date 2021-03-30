@@ -98,6 +98,16 @@
                                 </td>
                             </ng-container>
                         </tr>
+
+                        <!-- Capacity (visible for admin only)-->
+                        <tr *ngIf="channelCapacity">
+                            <td style="width: 65%" translate>
+                                Speicher-Kapazität (nur sichtbar für admin)
+                            </td>
+                            <td style="width:35%" class="align_right">
+                                {{ currentData[channelCapacity] }}&nbsp;Wh
+                            </td>
+                        </tr>
                     </table>
                 </ion-card-content>
                 <ion-card-content class="underline">

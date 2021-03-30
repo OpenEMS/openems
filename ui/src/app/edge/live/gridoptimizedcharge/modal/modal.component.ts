@@ -1,8 +1,9 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { Component, Input, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { Websocket, Service, EdgeConfig, Edge } from 'src/app/shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
+import { Role } from 'src/app/shared/type/role';
 
 type Mode = 'MANUAL' | 'OFF' | 'AUTOMATIC';
 
@@ -21,6 +22,7 @@ export class GridOptimizedChargeModalComponent implements OnInit {
     public formGroup: FormGroup;
     public loading: boolean = false;
     public pickerOptions: any;
+    public channelCapacity: string = null
 
     constructor(
         public formBuilder: FormBuilder,
@@ -31,6 +33,14 @@ export class GridOptimizedChargeModalComponent implements OnInit {
     ) { }
 
     ngOnInit() {
+        if (this.edge.roleIsAtLeast(Role.ADMIN) && 'ess.id' in this.component.properties) {
+            let channelCapacity = new ChannelAddress(this.component.properties['ess.id'], "Capacity")
+            this.channelCapacity = channelCapacity.toString();
+            this.edge.subscribeChannels(this.websocket,
+                GridOptimizedChargeModalComponent.SELECTOR + this.component.id,
+                [channelCapacity]);
+        }
+
         this.formGroup = this.formBuilder.group({
             sellToGridLimitEnabled: new FormControl(this.component.properties.sellToGridLimitEnabled),
             sellToGridPowerLimit: new FormControl(this.component.properties.sellToGridPowerLimit, Validators.compose([
