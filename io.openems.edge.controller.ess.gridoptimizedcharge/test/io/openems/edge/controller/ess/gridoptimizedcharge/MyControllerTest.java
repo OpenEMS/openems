@@ -2,7 +2,6 @@ package io.openems.edge.controller.ess.gridoptimizedcharge;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 import org.junit.Test;
