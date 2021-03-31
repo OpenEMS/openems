@@ -10,6 +10,6 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
 	io.openems.edge.timedata.api,\
-
+	io.openems.shared.mssql
 -testpath: \
 	${testpath}
