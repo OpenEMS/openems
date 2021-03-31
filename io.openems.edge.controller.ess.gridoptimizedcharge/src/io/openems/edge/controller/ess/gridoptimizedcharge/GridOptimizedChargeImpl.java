@@ -301,7 +301,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			}
 		} else {
 			// Never force discharge
-			if (currentLimit > 0) {
+			if (currentLimit < 0) {
 				return;
 			} else {
 				this.setActivePowerConstraint("GridOptimizedSelfConsumption - AcPredictiveDelayCharge",
