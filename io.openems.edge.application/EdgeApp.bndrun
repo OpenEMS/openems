@@ -13,7 +13,8 @@
 
 -runsystempackages:\
 	sun.misc,\
-	com.sun.net.httpserver
+	com.sun.net.httpserver,\
+	com.sun.management,\
 
 -runbundles+: \
 	org.apache.felix.scr;startlevel=10,\
