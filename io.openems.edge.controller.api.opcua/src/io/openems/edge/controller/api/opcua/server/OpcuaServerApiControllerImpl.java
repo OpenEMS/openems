@@ -38,7 +38,7 @@ public class OpcuaServerApiControllerImpl extends AbstractOpenemsComponent imple
 	private final Logger log = LoggerFactory.getLogger(OpcuaServerApiControllerImpl.class);
 
 	private OpcUaServer server = null;
-//	private ExampleNamespace namespace = null;
+	private MyNamespace namespace = null;
 
 	public OpcuaServerApiControllerImpl() {
 		super(//
@@ -75,11 +75,12 @@ public class OpcuaServerApiControllerImpl extends AbstractOpenemsComponent imple
 				.setProductUri("urn:eclipse:milo:example-server") //
 				.build());
 
+		this.namespace = new MyNamespace(this.server);
+		this.namespace.startup();
+
 		this.server.startup().thenAccept((s) -> {
-			System.out.println("Started");
+			this.logInfo(this.log, "Successfully started OPC UA Server");
 		});
-		// this.namespace = new ExampleNamespace(server);
-		// this.namespace.startup();
 	}
 
 	@Deactivate
@@ -91,10 +92,10 @@ public class OpcuaServerApiControllerImpl extends AbstractOpenemsComponent imple
 				this.logWarn(this.log, "Unable to stop OPC-UA Server: " + e.getMessage());
 				e.printStackTrace();
 			}
+			if (this.namespace != null) {
+				this.namespace.shutdown();
+			}
 		}
-//		if (this.namespace != null) {
-//			this.namespace.shutdown();
-//		}
 		super.deactivate();
 	}
 
