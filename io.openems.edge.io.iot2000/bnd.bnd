@@ -1,0 +1,17 @@
+Bundle-Name: OpenEMS Edge IO IOT2000
+Bundle-Vendor: KACO new energy GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.io.api
+
+-testpath: \
+	${testpath}
+Bundle-Description: Implementation of the Siemens IOT2000 IO Extension Module + User LED
+Export-Package: \
+	io.openems.edge.io.iot2000.api,\
+	io.openems.edge.io.iot2000
