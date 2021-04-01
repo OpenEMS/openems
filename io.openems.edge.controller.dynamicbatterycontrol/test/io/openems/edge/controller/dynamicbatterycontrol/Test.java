@@ -22,8 +22,8 @@ public class Test {
 	private static ZonedDateTime proMoreThanCon = null;
 	private static int maxMorningHour = 8;
 	private static int maxEveningHour = 17;
-	private static int nettcapacity = 15000;
-	private static int soc = 80;
+	private static int nettcapacity = 12000;
+	private static int soc = 100;
 
 	public static void main(String[] args) {
 
@@ -106,7 +106,7 @@ public class Test {
 
 		// Printing Bci List
 		for (Map.Entry<ZonedDateTime, Float> Entry : bci.entrySet()) {
-			System.out.println("Time: " + Entry.getKey() + " bci: " + Entry.getValue());
+			System.out.println("Time: " + Entry.getKey() + " bci: " + (100 - Entry.getValue()));
 		}
 
 		System.out.println("=========================================================================");
@@ -229,8 +229,9 @@ public class Test {
 
 				// First hour of the day when production was greater than consumption
 				if ((production > consumption) //
-						&& (entry.getKey().getDayOfYear() == ZonedDateTime.now().plusDays(1).getDayOfYear())
-						&& (proMoreThanCon == null) && (entry.getKey().getHour() <= maxMorningHour)) {
+						&& (entry.getKey().getDayOfYear() == ZonedDateTime.now().plusDays(1).getDayOfYear()) //
+						&& (proMoreThanCon == null) //
+						&& (entry.getKey().getHour() <= maxMorningHour)) {
 					proMoreThanCon = entry.getKey();
 				}
 			}
@@ -252,22 +253,15 @@ public class Test {
 			Integer availableCapacity) {
 
 		TreeMap<ZonedDateTime, Integer> batteryState = new TreeMap<ZonedDateTime, Integer>();
-
 		batteryState.put(proLessThanCon.minusHours(1), availableCapacity);
 
 		for (Entry<ZonedDateTime, Integer> entry : Consumption.subMap(proLessThanCon, proMoreThanCon).entrySet()) {
-
 			if (!cheapHours.contains(entry.getKey())) {
-
 				availableCapacity -= Consumption.get(entry.getKey());
 			}
-
 			batteryState.put(entry.getKey(), availableCapacity);
-
 		}
-
 		return batteryState;
-
 	}
 
 	private static TreeMap<ZonedDateTime, Integer> withoutBatterySchedule(Integer availableCapacity) {
@@ -277,18 +271,12 @@ public class Test {
 		batteryState.put(proLessThanCon.minusHours(1), availableCapacity);
 
 		for (Entry<ZonedDateTime, Integer> entry : Consumption.subMap(proLessThanCon, proMoreThanCon).entrySet()) {
-
 			if (availableCapacity < 0) {
 				availableCapacity = 0;
 			}
 			availableCapacity -= Consumption.get(entry.getKey());
-
 			batteryState.put(entry.getKey(), availableCapacity);
-
 		}
-
 		return batteryState;
-
 	}
-
 }
