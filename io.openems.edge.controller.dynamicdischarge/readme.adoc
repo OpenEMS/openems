@@ -1,8 +1,4 @@
-# io.openems.edge.controller.dynamicdischarge Provider
+= ESS Dynamic Discharge
 
-${Bundle-Description}
-
-## Example
-
-## References
+Schedules the discharging of the AC or DC storage system in the night based on Hourly-Prices, predicted production and consumption.
 

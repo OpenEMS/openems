@@ -8,5 +8,6 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/io.openems.edge.controller.dynamicdischarge"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
