@@ -184,6 +184,30 @@
 			<version>0.12.7</version>
 		</dependency>
 		<dependency>
+			<!-- Used by Controller.Api.OpcUa -->
+			<groupId>org.eclipse.milo</groupId>
+			<artifactId>sdk-core</artifactId>
+			<version>0.6.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by Controller.Api.OpcUa -->
+			<groupId>org.eclipse.milo</groupId>
+			<artifactId>sdk-server</artifactId>
+			<version>0.6.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by Controller.Api.OpcUa -->
+			<groupId>org.eclipse.milo</groupId>
+			<artifactId>stack-core</artifactId>
+			<version>0.6.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by Controller.Api.OpcUa -->
+			<groupId>org.eclipse.milo</groupId>
+			<artifactId>stack-server</artifactId>
+			<version>0.6.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.osgi</artifactId>
 			<version>3.16.100</version>
