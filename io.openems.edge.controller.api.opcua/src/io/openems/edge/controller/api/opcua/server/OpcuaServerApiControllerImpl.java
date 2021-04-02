@@ -17,6 +17,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 
@@ -39,6 +41,9 @@ public class OpcuaServerApiControllerImpl extends AbstractOpenemsComponent imple
 
 	private OpcUaServer server = null;
 	private MyNamespace namespace = null;
+
+	@Reference
+	protected ComponentManager componentManager;
 
 	public OpcuaServerApiControllerImpl() {
 		super(//
@@ -75,7 +80,7 @@ public class OpcuaServerApiControllerImpl extends AbstractOpenemsComponent imple
 				.setProductUri("urn:eclipse:milo:example-server") //
 				.build());
 
-		this.namespace = new MyNamespace(this.server);
+		this.namespace = new MyNamespace(this, this.server);
 		this.namespace.startup();
 
 		this.server.startup().thenAccept((s) -> {
