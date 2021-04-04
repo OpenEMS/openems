@@ -20,9 +20,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Read-Only mode", description = "In Read-Only mode no set-power-commands are sent to the inverter")
 	boolean readOnly() default true;
 
-	@AttributeDefinition(name = "deactivate self regulation", description = "If disabled and Inverter is Connected to Vectis, external regulation might not work properly.")
-	boolean selfRegulationDeactivated() default false;
-
 	@AttributeDefinition(name = "Core-ID", description = "ID of Core component")
 	String core_id() default "kacoCore0";
 

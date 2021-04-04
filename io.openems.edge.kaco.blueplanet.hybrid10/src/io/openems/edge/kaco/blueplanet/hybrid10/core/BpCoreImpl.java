@@ -20,7 +20,9 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,7 @@ import com.ed.data.EnergyMeter;
 import com.ed.data.InverterData;
 import com.ed.data.Settings;
 import com.ed.data.Status;
+import com.ed.data.SystemInfo;
 import com.ed.data.VectisData;
 import com.ed.edcom.Client;
 import com.ed.edcom.Discovery;
@@ -43,9 +46,11 @@ import io.openems.edge.common.event.EdgeEventConstants;
 @Component( //
 		name = "Kaco.BlueplanetHybrid10.Core", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC + "="
-				+ EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE)
-public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, OpenemsComponent {
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		})
+public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(BpCoreImpl.class);
 	private final ScheduledExecutorService configExecutor = Executors.newSingleThreadScheduledExecutor();
@@ -58,6 +63,7 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 	private Settings settings = null;
 	private VectisData vectis = null;
 	private EnergyMeter energy = null;
+	private SystemInfo systemInfo = null;
 	private InetAddress inverterAddress;
 	private String userkey;
 	private String serialNumber;
@@ -260,6 +266,14 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 		return this.energy;
 	}
 
+	@Override
+	public SystemInfo getSystemInfo() {
+		if (this.systemInfo != null && this.systemInfo.dataReady()) {
+			this.systemInfo.refresh();
+		}
+		return this.systemInfo;
+	}
+
 	/**
 	 * Gets a local IP address which is able to access the given remote IP.
 	 * 
@@ -310,6 +324,8 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 		this.energy.registerData(client);
 		this.vectis = new VectisData();
 		this.vectis.registerData(client);
+		this.systemInfo = new SystemInfo();
+		this.systemInfo.registerData(client);
 
 		this.client.start();
 
@@ -318,8 +334,12 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 		do {
 			userStatus = this.client.getUserStatus();
 
-			switch (this.client.getUserStatus()) {
+			// Set USER_ACCESS_DENIED Fault-Channel
+			this._setUserAccessDenied(userStatus == 0);
+
+			switch (userStatus) {
 			case -1: // not read
+				Thread.sleep(1000); // try again after 1 second
 				break;
 			case 0: // access denied
 				this.logWarn(this.log, "User Status: Access denied");
@@ -334,10 +354,33 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 				this.logInfo(this.log, "User Status: EnergyDepot");
 				break;
 			}
-			if (userStatus == -1 /* not read */) {
-				Thread.sleep(1000); // try again after 1 second
-			}
+
 		} while (userStatus == -1 /* not read */);
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.updateChannels();
+			break;
+		}
+	}
+
+	private void updateChannels() {
+		Long serialNumber = null;
+		Float versionCom = null;
+
+		if (this.isConnected()) {
+			SystemInfo systemInfo = this.getSystemInfo();
+			if (systemInfo != null) {
+				serialNumber = Long.parseLong(systemInfo.getSerialNumber());
+				versionCom = Float.parseFloat(systemInfo.getComVersion());
+			}
+		}
+
+		this._setSerialNumber(serialNumber);
+		this._setVersionCom(versionCom);
 	}
 
 }

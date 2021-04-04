@@ -13,7 +13,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingRunnable;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.kaco.blueplanet.hybrid10.BpConstants;
 
 public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException> {
 
@@ -38,7 +37,7 @@ public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException
 		int power;
 		if (powerOpt.isPresent()) {
 			power = powerOpt.get();
-			ePLimit = (int) ((double) power / BpConstants.MAX_APPARENT_POWER * 100.0);
+			ePLimit = (int) ((double) power / BpPvInverter.MAX_APPARENT_POWER * 100.0);
 
 			// keep percentage in range [0, 100]
 			if (ePLimit > 100) {
@@ -49,7 +48,7 @@ public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException
 			}
 		} else {
 			// Reset limit
-			power = BpConstants.MAX_APPARENT_POWER;
+			power = BpPvInverter.MAX_APPARENT_POWER;
 			ePLimit = 100;
 		}
 
