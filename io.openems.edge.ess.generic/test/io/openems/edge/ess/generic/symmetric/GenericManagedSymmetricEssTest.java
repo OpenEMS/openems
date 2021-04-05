@@ -15,7 +15,8 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.TimeLeapClock;
-import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
+import io.openems.edge.ess.generic.common.GenericManagedEss;
+import io.openems.edge.ess.generic.common.statemachine.StateMachine.State;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 
@@ -97,8 +98,7 @@ public class GenericManagedSymmetricEssTest {
 				.next(new TestCase() //
 						.input(BATTERY_CHARGE_MAX_CURRENT, 50) //
 						.input(BATTERY_DISCHARGE_MAX_CURRENT, -5) //
-						.output(ESS_ALLOWED_DISCHARGE_POWER,
-								(int) (-2500 * GenericManagedSymmetricEss.EFFICIENCY_FACTOR))) //
+						.output(ESS_ALLOWED_DISCHARGE_POWER, (int) (-2500 * GenericManagedEss.EFFICIENCY_FACTOR))) //
 		;
 	}
 

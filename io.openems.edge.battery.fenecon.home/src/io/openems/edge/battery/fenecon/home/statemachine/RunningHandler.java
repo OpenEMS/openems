@@ -16,7 +16,8 @@ public class RunningHandler extends StateHandler<State, Context> {
 			return State.UNDEFINED;
 		}
 
-		if (battery.getBmsControl() != BmsControl.SWITCHED_ON) {
+		if (battery.getBmsControl() != BmsControl.SWITCHED_ON
+				&& battery.getBmsControl() != BmsControl.IGNORED) {
 			return State.UNDEFINED;
 		}
 

@@ -50,8 +50,13 @@ public class Get24HoursPredictionResponse extends JsonrpcResponseSuccess {
 		return j;
 	}
 
+	/**
+	 * Gets the {@link Prediction24Hours}s per {@link ChannelAddress}.
+	 * 
+	 * @return a map of Predictions
+	 */
 	public Map<ChannelAddress, Prediction24Hours> getPredictions() {
-		return predictions;
+		return this.predictions;
 	}
 
 }

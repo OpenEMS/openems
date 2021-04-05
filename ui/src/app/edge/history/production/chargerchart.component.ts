@@ -13,9 +13,9 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class ProductionChargerChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
-    @Input() private componentId: string;
-    @Input() private isOnlyChart: boolean;
+    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input() public componentId: string;
+    @Input() public isOnlyChart: boolean;
 
     ngOnChanges() {
         this.updateChart();

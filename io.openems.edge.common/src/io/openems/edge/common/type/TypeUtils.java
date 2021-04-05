@@ -585,7 +585,24 @@ public class TypeUtils {
 	}
 
 	/**
-	 * Throws a descriptive exception if any of the objects is null.
+	 * Safely finds the min value of all values.
+	 * 
+	 * @return the min value; or null if all values are null
+	 */
+	public static Integer min(Integer... values) {
+		Integer result = null;
+		for (Integer value : values) {
+			if (result != null && value != null) {
+				result = Math.min(result, value);
+			} else if (value != null) {
+				result = value;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Throws an descriptive exception if the object is null.
 	 * 
 	 * @param description text that is added to the exception
 	 * @param objects     the objects

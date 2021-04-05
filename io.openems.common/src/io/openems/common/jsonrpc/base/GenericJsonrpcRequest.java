@@ -1,5 +1,6 @@
 package io.openems.common.jsonrpc.base;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import com.google.gson.JsonObject;
@@ -15,7 +16,8 @@ import io.openems.common.utils.JsonUtils;
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "method": string,
- *   "params": {}
+ *   "params": {},
+ *   "timeout"?: number, defaults to 60 seconds; negative or zero to disable timeout
  * }
  * </pre>
  * 
@@ -27,24 +29,12 @@ public class GenericJsonrpcRequest extends JsonrpcRequest {
 	/**
 	 * Parses the String to a {@link GenericJsonrpcRequest}.
 	 * 
-	 * @param j the String
+	 * @param json the String
 	 * @return the {@link GenericJsonrpcRequest}
 	 * @throws OpenemsNamedException on error
 	 */
 	public static GenericJsonrpcRequest from(String json) throws OpenemsNamedException {
 		return from(JsonUtils.parseToJsonObject(json));
-	}
-
-	/**
-	 * Parses the String to a {@link GenericJsonrpcRequest}. If the request UUID is
-	 * missing, it is replaced by a random UUID.
-	 * 
-	 * @param j the String
-	 * @return the {@link GenericJsonrpcRequest}
-	 * @throws OpenemsNamedException on error
-	 */
-	public static GenericJsonrpcRequest fromIgnoreId(String json) throws OpenemsNamedException {
-		return fromIgnoreId(JsonUtils.parseToJsonObject(json));
 	}
 
 	/**
@@ -58,7 +48,20 @@ public class GenericJsonrpcRequest extends JsonrpcRequest {
 		UUID id = JsonUtils.getAsUUID(j, "id");
 		String method = JsonUtils.getAsString(j, "method");
 		JsonObject params = JsonUtils.getAsJsonObject(j, "params");
-		return new GenericJsonrpcRequest(id, method, params);
+		Optional<Integer> timeout = JsonUtils.getAsOptionalInt(j, "timeout");
+		return new GenericJsonrpcRequest(id, method, params, timeout);
+	}
+
+	/**
+	 * Parses the String to a {@link GenericJsonrpcRequest}. If the request UUID is
+	 * missing, it is replaced by a random UUID.
+	 * 
+	 * @param json the String
+	 * @return the {@link GenericJsonrpcRequest}
+	 * @throws OpenemsNamedException on error
+	 */
+	public static GenericJsonrpcRequest fromIgnoreId(String json) throws OpenemsNamedException {
+		return fromIgnoreId(JsonUtils.parseToJsonObject(json));
 	}
 
 	/**
@@ -73,13 +76,19 @@ public class GenericJsonrpcRequest extends JsonrpcRequest {
 		UUID id = JsonUtils.getAsOptionalUUID(j, "id").orElse(new UUID(0L, 0L) /* dummy UUID */);
 		String method = JsonUtils.getAsString(j, "method");
 		JsonObject params = JsonUtils.getAsJsonObject(j, "params");
-		return new GenericJsonrpcRequest(id, method, params);
+		Optional<Integer> timeout = JsonUtils.getAsOptionalInt(j, "timeout");
+		return new GenericJsonrpcRequest(id, method, params, timeout);
 	}
 
 	private final JsonObject params;
 
-	public GenericJsonrpcRequest(UUID id, String method, JsonObject params) {
-		super(id, method);
+	public GenericJsonrpcRequest(UUID id, String method, JsonObject params, int timeout) {
+		super(id, method, timeout);
+		this.params = params;
+	}
+
+	public GenericJsonrpcRequest(UUID id, String method, JsonObject params, Optional<Integer> timeout) {
+		super(id, method, timeout);
 		this.params = params;
 	}
 

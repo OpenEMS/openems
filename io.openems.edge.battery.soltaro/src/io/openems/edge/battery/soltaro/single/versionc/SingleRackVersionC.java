@@ -488,10 +488,6 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStop
 				.unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_SYSTEM_INSULATION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOOHM)), //
-		SYSTEM_MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)),
-		SYSTEM_MAX_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)),
 		POSITIVE_INSULATION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOOHM)),
 		NEGATIVE_INSULATION(Doc.of(OpenemsType.INTEGER) //
