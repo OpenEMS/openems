@@ -14,14 +14,14 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class AutarchyChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
+    @Input() public period: DefaultTypes.HistoryPeriod;
 
     ngOnChanges() {
         this.updateChart();
     };
 
     constructor(
-        protected service: Service,
+        public service: Service,
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
