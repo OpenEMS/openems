@@ -1,7 +1,6 @@
 package io.openems.backend.b2bwebsocket.jsonrpc.request;
 
 import java.util.TreeSet;
-import java.util.UUID;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -36,7 +35,7 @@ public class SubscribeEdgesChannelsRequest extends JsonrpcRequest {
 	public static SubscribeEdgesChannelsRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		int count = JsonUtils.getAsInt(p, "count");
-		SubscribeEdgesChannelsRequest result = new SubscribeEdgesChannelsRequest(r.getId(), count);
+		SubscribeEdgesChannelsRequest result = new SubscribeEdgesChannelsRequest(r, count);
 		JsonArray edgeIds = JsonUtils.getAsJsonArray(p, "ids");
 		for (JsonElement edgeId : edgeIds) {
 			result.addEdgeId(JsonUtils.getAsString(edgeId));
@@ -57,13 +56,14 @@ public class SubscribeEdgesChannelsRequest extends JsonrpcRequest {
 	private final TreeSet<String> edgeIds = new TreeSet<>();
 	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
 
-	public SubscribeEdgesChannelsRequest(UUID id, int count) {
-		super(id, METHOD);
+	private SubscribeEdgesChannelsRequest(JsonrpcRequest request, int count) {
+		super(request, METHOD);
 		this.count = count;
 	}
 
 	public SubscribeEdgesChannelsRequest(int count) {
-		this(UUID.randomUUID(), count);
+		super(METHOD);
+		this.count = count;
 	}
 
 	public void addEdgeId(String edgeId) {

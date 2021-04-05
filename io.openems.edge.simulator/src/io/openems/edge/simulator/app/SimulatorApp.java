@@ -12,6 +12,7 @@ import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
@@ -292,8 +293,8 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	/**
 	 * Apply simulated Time-Leap per Cycle.
 	 * 
-	 * @param clock             the {@link TimeLeapClock}
-	 * @param currentSimulation the current {@link ExecuteSimulationRequest}
+	 * @param clock                    the {@link TimeLeapClock}
+	 * @param currentSimulationRequest the current {@link ExecuteSimulationRequest}
 	 */
 	private void applyTimeLeap(TimeLeapClock clock, ExecuteSimulationRequest currentSimulationRequest) {
 		if (currentSimulationRequest.clock.executeCycleTwice) {
@@ -321,6 +322,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	/**
 	 * Delete all non-required Components.
 	 * 
+	 * @param user the {@link User}
 	 * @throws OpenemsNamedException on error
 	 */
 	private void deleteAllConfigurations(User user) throws OpenemsNamedException {
@@ -331,7 +333,9 @@ public class SimulatorApp extends AbstractOpenemsComponent
 			if (factoryPid == null || factoryPid.trim().isEmpty()) {
 				continue;
 			}
-			if (factoryPid.startsWith("Core.") || factoryPid.startsWith("Controller.Api.")) {
+			if (factoryPid.startsWith("Core.") //
+					|| factoryPid.startsWith("Controller.Api.") //
+					|| factoryPid.startsWith("Predictor.")) {
 				continue;
 			}
 			switch (factoryPid) {
@@ -349,8 +353,6 @@ public class SimulatorApp extends AbstractOpenemsComponent
 
 	/**
 	 * Stop the Simulation.
-	 * 
-	 * @param currentSimulation the current simulation
 	 */
 	private void stopSimulation() {
 		this.logInfo(this.log, "Stopping Simulation");
@@ -482,10 +484,31 @@ public class SimulatorApp extends AbstractOpenemsComponent
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException {
 		if (this.lastSimulation == null || this.lastSimulation.collectedData.isEmpty()) {
+			// return empty result
 			return new TreeMap<>();
 		}
+
 		Period fakePeriod = this.convertToSimulatedFromToDates(fromDate, toDate);
-		return this.lastSimulation.collectedData.subMap(fakePeriod.fromDate, fakePeriod.toDate);
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data = this.lastSimulation.collectedData
+				.subMap(fakePeriod.fromDate, fakePeriod.toDate);
+
+		if (channels.isEmpty()) {
+			// No Channels given -> return all data
+			return data;
+		}
+
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = new TreeMap<>();
+		for (Entry<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> entry : this.lastSimulation.collectedData
+				.subMap(fakePeriod.fromDate, fakePeriod.toDate).entrySet()) {
+			SortedMap<ChannelAddress, JsonElement> values = entry.getValue();
+			TreeMap<ChannelAddress, JsonElement> resultPerTimestamp = new TreeMap<>();
+			for (ChannelAddress channel : channels) {
+				JsonElement value = values.get(channel);
+				resultPerTimestamp.put(channel, value == null ? JsonNull.INSTANCE : value);
+			}
+			result.put(entry.getKey(), resultPerTimestamp);
+		}
+		return result;
 	}
 
 	@Override

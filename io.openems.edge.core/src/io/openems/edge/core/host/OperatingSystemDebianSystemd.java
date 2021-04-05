@@ -169,7 +169,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				interfaces.put(name.get(), new NetworkInterface<File>(name.get(), //
 						dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), file));
 
-			} catch (IOException e) {
+			} catch (IllegalArgumentException | IOException e) {
 				throw new OpenemsException("Unable to read file [" + file + "]: " + e.getMessage());
 			}
 		}

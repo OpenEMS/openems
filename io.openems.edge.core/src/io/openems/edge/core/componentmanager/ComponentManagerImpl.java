@@ -31,6 +31,9 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.metatype.MetaTypeService;
 import org.slf4j.Logger;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -130,6 +133,18 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	@Override
 	public List<OpenemsComponent> getEnabledComponents() {
 		return Collections.unmodifiableList(this.enabledComponents);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends OpenemsComponent> List<T> getEnabledComponentsOfType(Class<T> clazz) {
+		List<T> result = new ArrayList<>();
+		for (OpenemsComponent component : this.enabledComponents) {
+			if (component.getClass().isInstance(clazz)) {
+				result.add((T) component);
+			}
+		}
+		return result;
 	}
 
 	@Override
@@ -300,11 +315,18 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		for (Property property : request.getProperties()) {
 			// do not allow certain properties to be updated, like pid and service.pid
 			if (!EdgeConfig.ignorePropertyKey(property.getName())) {
-				Object value = JsonUtils.getAsBestType(property.getValue());
-				if (value instanceof Object[] && ((Object[]) value).length == 0) {
-					value = new String[0];
+				JsonElement jValue = property.getValue();
+				if (jValue == null || jValue == JsonNull.INSTANCE) {
+					// Remove NULL property
+					properties.remove(property.getName());
+				} else {
+					// Add updated Property
+					Object value = JsonUtils.getAsBestType(property.getValue());
+					if (value instanceof Object[] && ((Object[]) value).length == 0) {
+						value = new String[0];
+					}
+					properties.put(property.getName(), value);
 				}
-				properties.put(property.getName(), value);
 			}
 		}
 

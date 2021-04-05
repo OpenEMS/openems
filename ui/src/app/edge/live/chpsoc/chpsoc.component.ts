@@ -12,7 +12,7 @@ export class ChpSocComponent {
 
     private static readonly SELECTOR = "chpsoc";
 
-    @Input() private componentId: string;
+    @Input() public componentId: string;
 
     private edge: Edge = null;
 
