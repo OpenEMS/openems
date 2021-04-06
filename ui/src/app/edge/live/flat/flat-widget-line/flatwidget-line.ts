@@ -72,22 +72,7 @@ export class FlatWidgetLine extends AbstractWidgetLineComponent implements OnDes
         this.unsubscribe(this.randomSelector);
     }
 
-    /** Calls method of parentClass AbstractWidgetLine for Unsubscribing for channels. */
 
-    ionViewDidLeave() {
-        console.log("ionViewDidLeave flat");
-        /** Calls method of parentClass AbstractWidgetLine for Unsubscribing for channels. */
-        //this.unsubscribe(this.randomSelector);
-    }
-    ionViewWillLeave() {
-        console.log("ionViewWillLeave flat")
-    }
-    ionViewDidEnter() {
-        console.log("ionViewDidEnter flat")
-    }
-    ionViewWillEnter() {
-        console.log("ionViewWillEnter flat")
-    }
 
     /** method for subscribing, but not through the input-channels out of HTML, but through the associated Typescript-file.
      * Getting the channels, which are not called in the HTML, but are needed.
