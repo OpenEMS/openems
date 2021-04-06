@@ -23,12 +23,15 @@ import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.GoodWe;
@@ -63,6 +66,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDcChargeEnergy = new CalculateEnergyFromPower(this,
+			HybridEss.ChannelId.DC_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
+			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
 
 	private final ApplyPowerStateMachine applyPowerStateMachine = new ApplyPowerStateMachine(
 			ApplyPowerStateMachine.State.UNDEFINED);
@@ -114,27 +121,50 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	}
 
 	private void updatechannels() {
+		Integer productionPower = this.calculatePvProduction();
+		final Channel<Integer> pBattery1Channel = this.channel(GoodWe.ChannelId.P_BATTERY1);
+		Integer dcDischargePower = pBattery1Channel.value().get();
+		Integer acActivePower = TypeUtils.sum(productionPower, dcDischargePower);
+
 		/*
-		 * Update ActivePower from P_BATTERY1 and chargers ACTUAL_POWER
+		 * Update ActivePower
 		 */
-		Integer activePower = this.calculateActivePower();
-		this._setActivePower(activePower);
+		this._setActivePower(acActivePower);
 
 		/*
 		 * Calculate AC Energy
 		 */
-		if (activePower == null) {
+		if (acActivePower == null) {
 			// Not available
 			this.calculateAcChargeEnergy.update(null);
 			this.calculateAcDischargeEnergy.update(null);
-		} else if (activePower > 0) {
+		} else if (acActivePower > 0) {
 			// Discharge
 			this.calculateAcChargeEnergy.update(0);
-			this.calculateAcDischargeEnergy.update(activePower);
+			this.calculateAcDischargeEnergy.update(acActivePower);
 		} else {
 			// Charge
-			this.calculateAcChargeEnergy.update(activePower * -1);
+			this.calculateAcChargeEnergy.update(acActivePower * -1);
 			this.calculateAcDischargeEnergy.update(0);
+		}
+		/*
+		 * Calculate DC Power and Energy
+		 */
+		this._setDcDischargePower(dcDischargePower);
+		if (dcDischargePower == null) {
+			// Not available
+			this.calculateDcChargeEnergy.update(null);
+			this.calculateDcDischargeEnergy.update(null);
+		} else {
+			if (dcDischargePower > 0) {
+				// Discharge
+				this.calculateDcChargeEnergy.update(0);
+				this.calculateDcDischargeEnergy.update(dcDischargePower);
+			} else {
+				// Charge
+				this.calculateDcChargeEnergy.update(dcDischargePower * -1);
+				this.calculateDcDischargeEnergy.update(0);
+			}
 		}
 	}
 
@@ -175,7 +205,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Override
 	public Integer getSurplusPower() {
-		if (this.lastSoc.orElse(0) < 99) {
+		if (this.lastSoc == null || this.lastSoc.orElse(0) < 99) {
 			return null;
 		}
 		Integer productionPower = this.calculatePvProduction();
@@ -192,6 +222,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Override
 	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
+		// Store the current State
+		this.channel(GoodWe.ChannelId.APPLY_POWER_STATE_MACHINE)
+				.setNextValue(this.applyPowerStateMachine.getCurrentState());
 
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
@@ -200,32 +233,23 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		this.updatechannels();
 		this.lastSoc = battery.getSoc();
 
-		// Update ApplyPowerStateMachine
+		// Prepare Context
 		int pvProduction = Optional.ofNullable(this.calculatePvProduction()).orElse(0);
 		int soc = battery.getSoc().orElse(0);
-		ApplyPowerStateMachine.State state = ApplyPowerStateMachine.evaluateState(this.getGoodweType(),
-				false /* read-only mode is never true */, pvProduction, soc, setActivePower);
-
-		// Store the current State
-		this.channel(GoodWe.ChannelId.APPLY_POWER_STATE_MACHINE).setNextValue(state);
-
-		// Prepare Context
-		Context context = new Context(this, Optional.ofNullable(pvProduction).orElse(0), setActivePower);
+		Context context = new Context(this, this.getGoodweType(), false /* read-only mode is never true */,
+				pvProduction, soc, setActivePower);
 
 		// Call the StateMachine
 		try {
+			this.applyPowerStateMachine.run(context);
 
-			this.applyPowerStateMachine.forceNextState(state);
-			this.applyPowerStateMachine.run(context); // apply the force next state
-			this.applyPowerStateMachine.run(context); // execute correct handler
+			// Apply results
 			IntegerWriteChannel emsPowerSetChannel = this.channel(GoodWe.ChannelId.EMS_POWER_SET);
 			emsPowerSetChannel.setNextWriteValue(context.getEssPowerSet());
-
 			EnumWriteChannel emsPowerModeChannel = this.channel(GoodWe.ChannelId.EMS_POWER_MODE);
 			emsPowerModeChannel.setNextWriteValue(context.getNextPowerMode());
 
 			this.channel(GoodWeBatteryInverter.ChannelId.RUN_FAILED).setNextValue(false);
-
 		} catch (OpenemsNamedException e) {
 			this.channel(GoodWeBatteryInverter.ChannelId.RUN_FAILED).setNextValue(true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
