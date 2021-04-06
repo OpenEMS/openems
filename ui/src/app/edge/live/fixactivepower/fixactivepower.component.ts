@@ -13,7 +13,7 @@ import { Subject } from 'rxjs';
 })
 export class FixActivePowerComponent {
 
-  @Input() private componentId: string | null = null;
+  @Input() public componentId: string | null = null;
 
 
   private static readonly SELECTOR = "fixactivepower";
