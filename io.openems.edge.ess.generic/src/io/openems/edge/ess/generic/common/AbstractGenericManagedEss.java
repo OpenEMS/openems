@@ -26,6 +26,8 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.statemachine.Context;
@@ -139,12 +141,22 @@ public abstract class AbstractGenericManagedEss<BATTERY extends Battery, BATTERY
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().asString() //
-				+ "|L:" + this.getActivePower().asString() //
-				+ "|Allowed:" //
-				+ this.getAllowedChargePower().asStringWithoutUnit() + ";" //
-				+ this.getAllowedDischargePower().asString() //
-				+ "|" + this.channel(GenericManagedEss.ChannelId.STATE_MACHINE).value().asOptionString();
+		StringBuilder result = new StringBuilder() //
+				.append("SoC:").append(this.getSoc().asString()) //
+				.append("|L:").append(this.getActivePower().asString());
+		if (this instanceof HybridEss) {
+			HybridEss me = (HybridEss) this;
+			result //
+					.append("|Battery:").append(me.getDcDischargePower().asString()) //
+					.append("|PV:")
+					.append(TypeUtils.subtract(this.getActivePower().get(), me.getDcDischargePower().get()));
+		}
+		return result //
+				.append("|Allowed:") //
+				.append(this.getAllowedChargePower().asStringWithoutUnit()).append(";") //
+				.append(this.getAllowedDischargePower().asString()) //
+				.append("|").append(this.channel(GenericManagedEss.ChannelId.STATE_MACHINE).value().asOptionString()) //
+				.toString();
 	}
 
 	/**

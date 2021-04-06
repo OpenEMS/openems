@@ -10,6 +10,21 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 	public State runAndGetNextState(Context context) {
 		context.setMode(PowerModeEms.AUTO, 0);
 
+		switch (context.goodweType) {
+		case GOODWE_5K_BT:
+		case GOODWE_8K_BT:
+		case GOODWE_10K_BT:
+			return State.BT;
+
+		case GOODWE_5K_ET:
+		case GOODWE_8K_ET:
+		case GOODWE_10K_ET:
+			return State.ET_DEFAULT;
+
+		case UNDEFINED:
+			return State.UNDEFINED;
+		}
+		// will never reach here
 		return State.UNDEFINED;
 	}
 

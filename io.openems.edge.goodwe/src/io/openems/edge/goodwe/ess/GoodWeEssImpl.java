@@ -103,27 +103,27 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		int pvProduction = Optional.ofNullable(this.calculatePvProduction()).orElse(0);
-		int soc = this.getSoc().orElse(0);
-		ApplyPowerStateMachine.State state = ApplyPowerStateMachine.evaluateState(this.getGoodweType(),
-				this.config.readOnlyMode(), pvProduction, soc, activePower);
-
 		// Store the current State
-		this.channel(GoodWe.ChannelId.APPLY_POWER_STATE_MACHINE).setNextValue(state);
+		this.channel(GoodWe.ChannelId.APPLY_POWER_STATE_MACHINE)
+				.setNextValue(this.applyPowerStateMachine.getCurrentState());
+
+		// Calculate ActivePower and Energy values.
+		this.updatechannels();
 
 		// Prepare Context
-		Context context = new Context(this, pvProduction, activePower);
+		int pvProduction = Optional.ofNullable(this.calculatePvProduction()).orElse(0);
+		int soc = this.getSoc().orElse(0);
+		Context context = new Context(this, this.getGoodweType(), false /* read-only mode is never true */,
+				pvProduction, soc, activePower);
 
-		this.applyPowerStateMachine.forceNextState(state);
-		this.applyPowerStateMachine.run(context); // apply the force next state
-		this.applyPowerStateMachine.run(context); // execute correct handler
+		// Call the StateMachine
+		this.applyPowerStateMachine.run(context);
 
+		// Apply results
 		IntegerWriteChannel emsPowerSetChannel = this.channel(GoodWe.ChannelId.EMS_POWER_SET);
 		emsPowerSetChannel.setNextWriteValue(context.getEssPowerSet());
-
 		EnumWriteChannel emsPowerModeChannel = this.channel(GoodWe.ChannelId.EMS_POWER_MODE);
 		emsPowerModeChannel.setNextWriteValue(context.getNextPowerMode());
-
 	}
 
 	@Override

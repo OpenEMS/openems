@@ -85,7 +85,7 @@ public class AbstractGenericEssChannelManager<BATTERY extends Battery, BATTERY_I
 	 * @param sourceChannelId the source ChannelId
 	 * @param targetChannelId the target ChannelId
 	 */
-	private <T> void addCopyListener(OpenemsComponent sourceComponent, ChannelId sourceChannelId,
+	protected <T> void addCopyListener(OpenemsComponent sourceComponent, ChannelId sourceChannelId,
 			ChannelId targetChannelId) {
 		this.<T>addOnSetNextValueListener(sourceComponent, sourceChannelId, (value) -> {
 			Channel<T> targetChannel = this.parent.channel(targetChannelId);
