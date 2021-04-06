@@ -22,7 +22,9 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.startstop.StartStoppable;
@@ -231,7 +233,11 @@ public abstract class AbstractGenericManagedEss<BATTERY extends Battery, BATTERY
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
-		);
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				StartStoppable.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(GenericManagedEss.class, accessMode, 100) //
+						.channel(0, GenericManagedEss.ChannelId.STATE_MACHINE, ModbusType.UINT16) //
+						.build());
+
 	}
 }

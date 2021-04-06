@@ -1,3 +1,5 @@
-= io.openems.edge.controller.ess.limitusablecapacity
+= Ess Limit Total Usable Capacity
+
+This controller would limits the capacity of the Ess from over charge or discharge according to its State-of-Charge. Typically for deep discharge or over charging.
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.limitusablecapacity[Source Code icon:github[]]

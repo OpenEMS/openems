@@ -31,11 +31,13 @@ import io.openems.edge.ess.power.api.Relationship;
 public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 		implements LimitUsableCapacityController, Controller, OpenemsComponent {
 
-	//private final Logger log = LoggerFactory.getLogger(LimitUsableCapacityControllerImpl.class);
+	// private final Logger log =
+	// LoggerFactory.getLogger(LimitUsableCapacityControllerImpl.class);
 
 	@Reference
 	protected ComponentManager componentManager;
-
+	
+	// Force charge power
 	private int forceChargePower = 2000;
 
 	protected Config config;
@@ -55,12 +57,15 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 
 		this.config = config;
 
-		if (this.config.stopDischargeSoc() < this.config.forceChargeSoc()) {
-			throw new OpenemsException("Stop Charge Soc " + config.stopDischargeSoc()
-					+ " should be greater than the force charge Soc " + config.forceChargeSoc());
+		// Checking the Soc values in the configuration
+		// forceChargeSoc < stopDischargeSoc < allowDischargeSoc < allowChargeSoc 
+		// < stopChargeSoc
+		if (this.config.forceChargeSoc() > this.config.stopDischargeSoc()
+				&& this.config.stopDischargeSoc() > this.config.allowDischargeSoc()
+				&& this.config.allowDischargeSoc() > this.config.allowChargeSoc()
+				&& this.config.allowChargeSoc() > this.config.stopChargeSoc()) {
+			throw new OpenemsException("Please re-check the configuration, invalid values present in the Soc values");
 		}
-		// TODO add all the other combinations for error
-
 	}
 
 	@Override
@@ -123,7 +128,7 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 				 */
 				allowedDischarge = (ess.getMaxApparentPower().getOrError() * 20) / 100;
 
-				// Forche charging the
+				// Force charging 
 				ess.setActivePowerLessOrEquals(ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL,
 						Pwr.ACTIVE, forceChargePower * -1));
 
@@ -148,19 +153,21 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 
 		} while (stateChanged);
 
+		// Allowed Charge Power
 		if (allowedCharge != null) {
-			// Allowed Charge Power
-			Constraint AllowedChargeConstraint = ess.getPower().createSimpleConstraint(ess.id() + ": Allowed Charge", //
+			Constraint AllowedChargeConstraint = ess.getPower().createSimpleConstraint( //
+					ess.id() + ": Allowed Charge", //
 					ess, Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, //
-					0);
+					0); //
 			ess.getPower().addConstraintAndValidate(AllowedChargeConstraint);
 		}
+		
+		// Allowed Discharge Power
 		if (allowedDischarge != null) {
-			// Allowed Discharge Power
-			Constraint AllowedDischargeConstraint = ess.getPower().createSimpleConstraint(
+			Constraint AllowedDischargeConstraint = ess.getPower().createSimpleConstraint( //
 					ess.id() + ": Allowed Discharge", //
 					ess, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, //
-					0);
+					0); //
 			ess.getPower().addConstraintAndValidate(AllowedDischargeConstraint);
 		}
 

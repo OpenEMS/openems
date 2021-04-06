@@ -4,15 +4,11 @@ import io.openems.common.types.OptionsEnum;
 
 public enum State implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	//
 	NO_LIMIT(0, "No limit"), //
-	//
 	STOP_DISCHARGE(1, "Stopping Discharge"), //
-	//
 	FORCE_CHARGE(2, "Force-Charge"), //
-	//
-	STOP_CHARGE(3, "Stopping Charge");
-	//
+	STOP_CHARGE(3, "Stopping Charge"); //
+
 	private final int value;
 	private final String name;
 

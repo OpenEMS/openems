@@ -4,8 +4,8 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Controller io.openems.edge.controller.ess.limitusablecapacity", //
-		description = "")
+		name = "Controller Ess Limit Total Usable capacity", //
+		description = "Limits the usable capacity for an ess")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
