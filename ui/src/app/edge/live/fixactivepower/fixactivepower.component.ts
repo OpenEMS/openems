@@ -6,6 +6,8 @@ import { ModalController } from '@ionic/angular';
 import { compileComponentFromMetadata } from '@angular/compiler';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+
 
 @Component({
   selector: FixActivePowerComponent.SELECTOR,
@@ -13,7 +15,7 @@ import { Subject } from 'rxjs';
 })
 export class FixActivePowerComponent {
 
-  @Input() public componentId: string | null = null;
+  @Input() private componentId: string | null = null;
 
 
   private static readonly SELECTOR = "fixactivepower";
@@ -23,9 +25,10 @@ export class FixActivePowerComponent {
   public component: EdgeConfig.Component | null = null;
   public chargeState: string;
   public chargeStateValue: number | string;
-  state: any;
+  public state: string;
 
   constructor(
+    public translate: TranslateService,
     private route: ActivatedRoute,
     public modalCtrl: ModalController,
     public service: Service,
@@ -38,17 +41,17 @@ export class FixActivePowerComponent {
         edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
           this.component = config.getComponent(this.componentId);
           if (this.component.properties.power >= 0) {
-            this.chargeState = 'General.dischargePower';
+            this.chargeState = this.translate.instant('General.dischargePower');
             this.chargeStateValue = this.component.properties.power
           } else if (this.component.properties.power < 0) {
-            this.chargeState = 'General.chargePower';
+            this.chargeState = this.translate.instant('General.chargePower');
             this.chargeStateValue = this.component.properties.power * -1;
           }
 
           if (this.component.properties.mode == 'MANUAL_ON') {
-            this.state = 'General.on'
+            this.state = this.translate.instant('General.on');
           } else if (this.component.properties.mode == 'MANUAL_OFF') {
-            this.state = 'General.off'
+            this.state = this.translate.instant('General.off');
           } else {
             this.state = '-'
           }

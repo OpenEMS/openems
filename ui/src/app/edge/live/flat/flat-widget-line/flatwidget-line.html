@@ -46,8 +46,7 @@
                     *ngIf="title || title_translate  && title_value_translate && !value" translate>
                     {{title_value_translate}}
                 </td>
-                <td style="width:35%" class="align_right" *ngIf="title || title_translate  && title_value && !value"
-                    translate>
+                <td style="width:35%" class="align_right" *ngIf="title || title_translate  && title_value && !value">
                     {{title_value}}
                 </td>
                 <td style="width:35%" class="align_right"
@@ -57,9 +56,6 @@
                 <td style="width:35%" class="align_right" *ngIf="title_value_translate && !value && title_value == '-'"
                     [innerHTML]="title_value_translate">
                 </td>
-                <!-- <td style="width:35%" class="align_right" *ngIf="title && title_value_translate !='-'" translate>
-                    General.{{title_value}}
-                </td> -->
             </tr>
         </table>
     </ng-container>
@@ -70,4 +66,3 @@
 
 
 </ng-template>
-<!-- style="width:{{ratioWidth}}%" -->

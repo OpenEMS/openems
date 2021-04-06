@@ -11,7 +11,7 @@ import { FlatWidgetPercentagebar } from "./flat/flat-widget-percentagebar/flatwi
     templateUrl: './abstractWidgetLine.component.html'
 })
 
-export class AbstractWidgetLineComponent implements OnInit {
+export class AbstractWidgetLineComponent {
 
     public edge: Edge = null;
     public config: EdgeConfig = null;
@@ -22,11 +22,6 @@ export class AbstractWidgetLineComponent implements OnInit {
         public websocket: Websocket
     ) { }
 
-    ngOnInit() {
-    }
-    ionViewDidLeave() {
-        console.log("didleave line")
-    }
     public subscribeOnChannels(selector: string, channelAddress: ChannelAddress[]) {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.service.getConfig().then(config => {

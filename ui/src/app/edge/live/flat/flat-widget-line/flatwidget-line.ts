@@ -51,7 +51,6 @@ export class FlatWidgetLine extends AbstractWidgetLineComponent implements OnDes
 
 
     ngOnInit() {
-        console.log("ngOnInit subscribe", this.channel)
         this.viewContainerRef.createEmbeddedView(this.content);
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
@@ -68,7 +67,6 @@ export class FlatWidgetLine extends AbstractWidgetLineComponent implements OnDes
     }
 
     ngOnDestroy() {
-        console.log("ngOnDestroy unsubscribe");
         this.unsubscribe(this.randomSelector);
     }
 
@@ -88,8 +86,6 @@ export class FlatWidgetLine extends AbstractWidgetLineComponent implements OnDes
     /** Method for unsubscribing */
     public unsubcribing(selector: string) {
         this.unsubscribe(selector);
-    }
-    ngAfterViewInit() {
     }
 }
 

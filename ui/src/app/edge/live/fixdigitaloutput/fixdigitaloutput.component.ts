@@ -5,6 +5,10 @@ import { FixDigitalOutputModalComponent } from './modal/modal.component';
 import { ModalController } from '@ionic/angular';
 import { FlatWidgetLine } from '../flat/flat-widget-line/flatwidget-line';
 import { UUID } from 'angular2-uuid';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+
 
 @Component({
   selector: 'fixdigitaloutput',
@@ -25,8 +29,11 @@ export class FixDigitalOutputComponent extends FlatWidgetLine {
   public state: string;
   public channelAddress: ChannelAddress[] | null = null;
   public randomselector: string = UUID.UUID().toString();
+  private stopOnDestroy: Subject<void> = new Subject<void>();
+
 
   constructor(
+    public translate: TranslateService,
     public service: Service,
     public websocket: Websocket,
     public route: ActivatedRoute,
@@ -49,16 +56,18 @@ export class FixDigitalOutputComponent extends FlatWidgetLine {
 
 
         /** Subscribe on CurrentData to get the channel */
-        this.edge.currentData.subscribe(currentData => {
+        this.edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
 
           /** Prooving state variable with following content setting */
           let channel = currentData.channel[this.outputChannel];
-          if (channel == null) {
-            this.state = '-';
-          } else if (channel == 1) {
-            this.state = 'General.on'
-          } else if (channel == 0) {
-            this.state = 'General.off'
+          if (channel != null) {
+            if (channel == 1) {
+              this.state = this.translate.instant('General.on');
+            } else if (channel == 0) {
+              this.state = this.translate.instant('General.off');
+            } else {
+              this.state = '-';
+            }
           }
         });
       });
@@ -66,6 +75,8 @@ export class FixDigitalOutputComponent extends FlatWidgetLine {
   }
 
   ngOnDestroy() {
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
     this.unsubcribing(this.randomselector);
   }
 

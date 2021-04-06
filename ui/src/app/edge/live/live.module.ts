@@ -3,6 +3,7 @@ import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmet
 import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
 import { AutarchyComponent } from './autarchy/autarchy.component';
 import { AutarchyModalComponent } from './autarchy/modal/modal.component';
+import { AbstractWidgetLineComponent } from './abstractWidgetLine.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.component';
@@ -60,10 +61,10 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     SharedModule,
   ],
   entryComponents: [
+    AbstractWidgetLineComponent,
     AdministrationComponent,
     AsymmetricPeakshavingModalComponent,
     AutarchyModalComponent,
-
     FlatWidgetComponent,
     FlatWidgetLine,
     FlatWidgetPercentagebar,
@@ -88,6 +89,7 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     TimeslotPeakshavingModalComponent,
   ],
   declarations: [
+    AbstractWidgetLineComponent,
     AdministrationComponent,
     AsymmetricPeakshavingComponent,
     AsymmetricPeakshavingModalComponent,

@@ -4,7 +4,7 @@ import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { isSameYear } from 'date-fns';
 import { format, isSameDay, isSameMonth } from 'date-fns/esm';
-import { saveAs } from 'file-saver-es';
+import { saveAs } from 'node_modules/file-saver-es';
 import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
 import { Service, Websocket } from '../../../../shared/shared';
