@@ -1,6 +1,5 @@
 package io.openems.common.websocket;
 
-import java.io.IOException;
 import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
@@ -167,7 +166,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 			try {
 				this.ws.stop();
 				return;
-			} catch (NullPointerException | InterruptedException | IOException e) {
+			} catch (NullPointerException | InterruptedException e) {
 				this.log.warn("Unable to stop websocket server [" + this.getName() + "]. "
 						+ e.getClass().getSimpleName() + ": " + e.getMessage());
 				try {
