@@ -10,7 +10,7 @@ export class ChannelthresholdComponent {
 
   private static readonly SELECTOR = "channelthreshold";
 
-  @Input() private componentId: string;
+  @Input() public componentId: string;
 
   public edge: Edge = null;
   public outputChannel: ChannelAddress = null;

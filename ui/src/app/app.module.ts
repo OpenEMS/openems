@@ -22,8 +22,6 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { SettingsModule } from './settings/settings.module';
 import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.module';
 import { SharedModule } from './shared/shared.module';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { StatusSingleComponent } from './shared/status/single/status.component';
 import { SystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -71,13 +69,11 @@ import localDE from '@angular/common/locales/de';
     }),
   ],
   providers: [
-    SplashScreen,
-    StatusBar,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     // { provide: ErrorHandler, useExisting: Service },
     { provide: LOCALE_ID, useValue: 'de' }
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {
   constructor() {
