@@ -1,9 +1,9 @@
 <ng-container *ngIf="component">
     <flat-widget (click)="presentModal()" [icon]="{color: 'primary', name:'swap-vertical-outline'}"
         [title]="component.alias">
-        <flat-widget-line title="state" title_type="translate" [title_value]="state" title_value_type="translate">
+        <flat-widget-line title_translate="General.state" [title_value]="state" title_value_type="translate">
         </flat-widget-line>
-        <flat-widget-line [title]="chargeState" title_type="translate" [value]="chargeStateValue">
+        <flat-widget-line [title_translate]="chargeState" [value]="chargeStateValue">
         </flat-widget-line>
     </flat-widget>
 </ng-container>

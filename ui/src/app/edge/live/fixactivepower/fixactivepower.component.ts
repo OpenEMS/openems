@@ -38,17 +38,17 @@ export class FixActivePowerComponent {
         edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
           this.component = config.getComponent(this.componentId);
           if (this.component.properties.power >= 0) {
-            this.chargeState = 'dischargePower';
+            this.chargeState = 'General.dischargePower';
             this.chargeStateValue = this.component.properties.power
           } else if (this.component.properties.power < 0) {
-            this.chargeState = 'chargePower';
+            this.chargeState = 'General.chargePower';
             this.chargeStateValue = this.component.properties.power * -1;
           }
 
           if (this.component.properties.mode == 'MANUAL_ON') {
-            this.state = 'on'
+            this.state = 'General.on'
           } else if (this.component.properties.mode == 'MANUAL_OFF') {
-            this.state = 'off'
+            this.state = 'General.off'
           } else {
             this.state = '-'
           }

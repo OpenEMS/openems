@@ -1,6 +1,9 @@
-<ion-card *ngIf="edge">
+<ion-card *ngIf="edge" style="cursor: pointer;">
     <ng-container>
         <ion-item color="light" lines="full">
+
+            <!-- Proving if img or icon is handed over. -->
+
             <ng-container *ngIf="img">
                 <ion-avatar slot="start" *ngIf="!img.includes('<img')">
                     <img [src]="img">
@@ -8,11 +11,21 @@
                 <ion-avatar slot="start" *ngIf="img.includes('<img')" [innerHTML]="img">
                 </ion-avatar>
             </ng-container>
+
+
             <ng-container *ngIf="icon">
                 <ion-icon slot="start" [size]="icon.size" [color]="icon.color" [name]="icon.name"></ion-icon>
             </ng-container>
-            <ion-label *ngIf="!title_type">{{title}}</ion-label>
-            <ion-label *ngIf="title_type == 'translate'" translate>General.{{title}}</ion-label>
+
+
+            <!-- Proving which title type is handed over. -->
+
+            <ng-container *ngIf="!title_translate && title != ''">
+                <ion-label>{{title}}</ion-label>
+            </ng-container>
+            <ng-container *ngIf="!title && title_translate != ''">
+                <ion-label translate>{{title_translate}}</ion-label>
+            </ng-container>
         </ion-item>
         <ion-card-content>
             <ng-content></ng-content>

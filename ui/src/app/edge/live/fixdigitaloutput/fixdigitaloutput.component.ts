@@ -1,17 +1,19 @@
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewContainerRef } from '@angular/core';
 import { FixDigitalOutputModalComponent } from './modal/modal.component';
 import { ModalController } from '@ionic/angular';
-import { CurrentData } from 'src/app/shared/edge/currentdata';
+import { FlatWidgetLine } from '../flat/flat-widget-line/flatwidget-line';
+import { UUID } from 'angular2-uuid';
 
 @Component({
   selector: 'fixdigitaloutput',
   templateUrl: './fixdigitaloutput.component.html'
 })
-export class FixDigitalOutputComponent {
+export class FixDigitalOutputComponent extends FlatWidgetLine {
 
-  private static readonly SELECTOR = "fixdigitaloutput";
+
+
 
   public selector = 'fixdigitaloutput';
   /** componentId needs to be set to get the components */
@@ -21,14 +23,19 @@ export class FixDigitalOutputComponent {
   public component: EdgeConfig.Component = null;
   public outputChannel: string;
   public state: string;
-  public channelAddress: ChannelAddress[] = [];
+  public channelAddress: ChannelAddress[] | null = null;
+  public randomselector: string = UUID.UUID().toString();
 
   constructor(
-    private service: Service,
-    private websocket: Websocket,
-    private route: ActivatedRoute,
-    private modalController: ModalController
-  ) { }
+    public service: Service,
+    public websocket: Websocket,
+    public route: ActivatedRoute,
+    private modalController: ModalController,
+    public viewContainerRef: ViewContainerRef,
+
+  ) {
+    super(route, service, viewContainerRef, websocket)
+  }
 
   ngOnInit() {
     // Subscribe to CurrentData
@@ -37,34 +44,29 @@ export class FixDigitalOutputComponent {
       this.service.getConfig().then(config => {
         this.component = config.components[this.componentId];
         this.outputChannel = this.component.properties['outputChannelAddress']
-        this.service.getConfig().then(config => {
-          this.component = config.components[this.componentId];
-          this.outputChannel = this.component.properties['outputChannelAddress'];
-          /** Subscribe on CurrentData to get the channel */
-          this.edge.currentData.subscribe(currentData => {
-            /** Prooving state variable with following content setting */
-            let channel
-            channel = currentData.channel[this.outputChannel];
-            if (channel == null) {
-              this.state = '-----';
-            } else if (channel == 1) {
-              this.state = 'on'
-            } else if (channel == 0) {
-              this.state = 'off'
-            }
-          });
-          /** pushing the ChannelAddress for the OutputChannel in channelAddresses[]
-        *  in order to send it later to FlatWidget */
-          this.channelAddress.push(ChannelAddress.fromString(this.outputChannel));
+
+        this.subscribing(this.outputChannel, this.randomselector);
+
+
+        /** Subscribe on CurrentData to get the channel */
+        this.edge.currentData.subscribe(currentData => {
+
+          /** Prooving state variable with following content setting */
+          let channel = currentData.channel[this.outputChannel];
+          if (channel == null) {
+            this.state = '-';
+          } else if (channel == 1) {
+            this.state = 'General.on'
+          } else if (channel == 0) {
+            this.state = 'General.off'
+          }
         });
       });
     });
   }
 
   ngOnDestroy() {
-    if (this.edge != null) {
-      this.edge.unsubscribeChannels(this.websocket, FixDigitalOutputComponent.SELECTOR + this.componentId);
-    }
+    this.unsubcribing(this.randomselector);
   }
 
   async presentModal() {

@@ -1,0 +1,44 @@
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { CurrentData } from "src/app/shared/edge/currentdata";
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { StorageComponent } from "../history/storage/widget.component";
+import { FlatWidgetLine } from "./flat/flat-widget-line/flatwidget-line";
+import { FlatWidgetPercentagebar } from "./flat/flat-widget-percentagebar/flatwidget-percentagebar";
+
+@Component({
+    selector: 'abstractWidgetLine',
+    templateUrl: './abstractWidgetLine.component.html'
+})
+
+export class AbstractWidgetLineComponent implements OnInit {
+
+    public edge: Edge = null;
+    public config: EdgeConfig = null;
+    public currentData = CurrentData;
+    public service: Service;
+    public route: ActivatedRoute;
+    constructor(
+        public websocket: Websocket
+    ) { }
+
+    ngOnInit() {
+    }
+    ionViewDidLeave() {
+        console.log("didleave line")
+    }
+    public subscribeOnChannels(selector: string, channelAddress: ChannelAddress[]) {
+        this.service.setCurrentComponent('', this.route).then(edge => {
+            this.service.getConfig().then(config => {
+                this.config = config;
+                this.edge = edge;
+
+                /** subscribing on the passed selector and channelAddress */
+                this.edge.subscribeChannels(this.websocket, selector, channelAddress);
+            })
+        });
+    }
+    public unsubscribe(selector: string) {
+        this.edge.unsubscribeChannels(this.websocket, selector);
+    }
+}
