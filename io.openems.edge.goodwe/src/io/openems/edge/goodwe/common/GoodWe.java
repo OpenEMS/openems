@@ -698,10 +698,13 @@ public interface GoodWe extends OpenemsComponent {
 		WBMS_BAT_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEGREE_CELSIUS).accessMode(AccessMode.READ_WRITE)), //
 
-		// BMS_STATUS(), //
-		STATE_79(Doc.of(Level.INFO).text("force to charge")), //
-		STATE_80(Doc.of(Level.INFO).text("Stop charging")), // TODO can be removed?
-		STATE_81(Doc.of(Level.INFO).text("Stop discharging"));
+		// BMS_STATUS()
+		STATE_79(Doc.of(Level.INFO) //
+				.text("force to charge")), //
+		STATE_80(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Stop charging")), //
+		STATE_81(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Stop discharging"));
 
 		private final Doc doc;
 
