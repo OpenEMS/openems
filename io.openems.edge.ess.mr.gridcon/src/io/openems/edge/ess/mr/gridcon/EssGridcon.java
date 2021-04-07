@@ -278,16 +278,22 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		for (Battery battery : this.getBatteries()) {
 			Integer maxChargeCurrent = Math.min(MAX_CURRENT_PER_STRING, battery.getChargeMaxCurrent().get());
 			maxChargeCurrent = maxChargeCurrent - offset; // Reduce the max power by the value for the offset current
-			maxChargeCurrent = Math.max(maxChargeCurrent, 0);
-			allowedCharge += battery.getVoltage().get() * maxChargeCurrent * -1;
+//			maxChargeCurrent = Math.max(maxChargeCurrent, 0); // Removed because of force discharge
+			allowedCharge = allowedCharge + battery.getVoltage().get() * maxChargeCurrent * -1;
 
 			Integer maxDischargeCurrent = Math.min(MAX_CURRENT_PER_STRING, battery.getDischargeMaxCurrent().get());
 			maxDischargeCurrent = maxDischargeCurrent - offset;
 			// Reduce the max power by the value for the offset current
-			maxDischargeCurrent = Math.max(maxDischargeCurrent, 0);
-			allowedDischarge += battery.getVoltage().get() * maxDischargeCurrent;
+//			maxDischargeCurrent = Math.max(maxDischargeCurrent, 0); // Removed because of force charge
+			allowedDischarge = allowedDischarge + battery.getVoltage().get() * maxDischargeCurrent;
 		}
 
+		//TODO necessary for environment?!
+//		if (!this.getGridconPcs().isRunning()) {
+//			allowedCharge = 0;
+//			allowedDischarge = 0;
+//		}
+		
 		allowedCharge = (allowedCharge * (1 + this.getGridconPcs().getEfficiencyLossChargeFactor()));
 		allowedDischarge = (allowedDischarge * (1 - this.getGridconPcs().getEfficiencyLossDischargeFactor()));
 
