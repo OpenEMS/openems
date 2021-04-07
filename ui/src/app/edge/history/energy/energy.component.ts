@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ChartData, ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
 import { differenceInDays, format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
 import { addDays } from 'date-fns/esm';
-import { saveAs } from 'node_modules/file-saver-es';
+import { saveAs } from 'file-saver-es';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';

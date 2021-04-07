@@ -1,4 +1,4 @@
-import { saveAs } from 'node_modules/file-saver-es';
+import { saveAs } from 'file-saver-es';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
 import { Service } from 'src/app/shared/shared';
