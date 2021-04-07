@@ -44,12 +44,9 @@ export class FlatWidgetLine extends AbstractWidgetLineComponent implements OnDes
         public service: Service,
         public viewContainerRef: ViewContainerRef,
         websocket: Websocket,
-
     ) {
         super(websocket)
     }
-
-
     ngOnInit() {
         this.viewContainerRef.createEmbeddedView(this.content);
         this.service.setCurrentComponent('', this.route).then(edge => {
@@ -65,13 +62,9 @@ export class FlatWidgetLine extends AbstractWidgetLineComponent implements OnDes
             }
         }
     }
-
     ngOnDestroy() {
         this.unsubscribe(this.randomSelector);
     }
-
-
-
     /** method for subscribing, but not through the input-channels out of HTML, but through the associated Typescript-file.
      * Getting the channels, which are not called in the HTML, but are needed.
      * @param channelAddress the channel of the childClass which is not handed over through html
