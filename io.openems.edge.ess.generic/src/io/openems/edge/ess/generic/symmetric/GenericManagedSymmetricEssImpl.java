@@ -24,7 +24,6 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.generic.common.AbstractGenericEssChannelManager;
 import io.openems.edge.ess.generic.common.AbstractGenericManagedEss;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
 import io.openems.edge.ess.power.api.Power;
@@ -38,9 +37,10 @@ import io.openems.edge.ess.power.api.Power;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		} //
 )
-public class GenericManagedSymmetricEssImpl extends AbstractGenericManagedEss<Battery, ManagedSymmetricBatteryInverter>
-		implements GenericManagedEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, StartStoppable,
-		ModbusSlave {
+public class GenericManagedSymmetricEssImpl
+		extends AbstractGenericManagedEss<GenericManagedSymmetricEss, Battery, ManagedSymmetricBatteryInverter>
+		implements GenericManagedSymmetricEss, GenericManagedEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent,
+		EventHandler, StartStoppable, ModbusSlave {
 
 	@Reference
 	private Power power;
@@ -91,7 +91,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractGenericManagedEss<Ba
 	}
 
 	@Override
-	protected AbstractGenericEssChannelManager<Battery, ManagedSymmetricBatteryInverter> getChannelManager() {
+	protected ChannelManager getChannelManager() {
 		return this.channelManager;
 	}
 

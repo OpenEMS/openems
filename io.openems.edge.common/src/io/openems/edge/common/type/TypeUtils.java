@@ -651,7 +651,7 @@ public class TypeUtils {
 	 * @param alternativeValue the alternative value
 	 * @return either the value (not null), alternatively the 'orElse' value
 	 */
-	public static Number orElse(Number nullableValue, Number alternativeValue) {
+	public static <T> T orElse(T nullableValue, T alternativeValue) {
 		if (nullableValue != null) {
 			return nullableValue;
 		} else {
