@@ -83,6 +83,7 @@ public interface ChpBasic extends OpenemsComponent {
          */
 
         READY(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY));
+    	
         private final Doc doc;
 
 
@@ -128,7 +129,7 @@ public interface ChpBasic extends OpenemsComponent {
 	/**
 	 * Turn the CHP on (true) or off (false). See {@link ChannelId#ENABLE_SIGNAL}.
 	 * 
-	 * @return the Channel
+	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void setEnableSignal(Boolean value) throws OpenemsNamedException {

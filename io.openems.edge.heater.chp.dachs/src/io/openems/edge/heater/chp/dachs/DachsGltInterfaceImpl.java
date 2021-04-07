@@ -27,17 +27,17 @@ import java.util.Base64;
 
 /**
  * Chp Dachs GLT interface.
- * This controller communicates with a Senertec Dachs Chp via the GLT web interface and maps the return message to OpenEMS channels.
- * Read and write is supported.
+ * This controller communicates with a Senertec Dachs Chp via the GLT web interface and maps the return message to 
+ * OpenEMS channels. Read and write is supported.
  * Not all GLT commands have been coded in yet, only those for basic CHP operation.
  *
  */
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "DachsGltInterfaceImpl",
+@Component(name = "Chp.Dachs.GLT-Interface",
 		configurationPolicy = ConfigurationPolicy.REQUIRE,
 		immediate = true)
-// This module needs to implement Controller instead of EventHandler because "HttpURLConnection" does not work in "handleEvent()".
+// This module uses Controller instead of EventHandler because "HttpURLConnection" does not work in "handleEvent()".
 public class DachsGltInterfaceImpl extends AbstractOpenemsComponent implements OpenemsComponent, ChpBasic, DachsGltInterfaceChannel, Controller {
 
 	private final Logger log = LoggerFactory.getLogger(DachsGltInterfaceImpl.class);
