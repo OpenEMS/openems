@@ -1,10 +1,7 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { CurrentData } from "src/app/shared/edge/currentdata";
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
-import { StorageComponent } from "../history/storage/widget.component";
-import { FlatWidgetLine } from "./flat/flat-widget-line/flatwidget-line";
-import { FlatWidgetPercentagebar } from "./flat/flat-widget-percentagebar/flatwidget-percentagebar";
 
 @Component({
     selector: 'abstractWidgetLine',

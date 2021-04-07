@@ -1,9 +1,7 @@
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { Component, Input, OnInit } from '@angular/core';
 
-import { ModalController } from '@ionic/angular';
-import { FixDigitalOutputModalComponent } from '../fixdigitaloutput/modal/modal.component';
 
 @Component({
   selector: FlatWidgetComponent.SELECTOR,
@@ -42,7 +40,6 @@ export class FlatWidgetComponent implements OnInit {
   constructor(
     public service: Service,
     public route: ActivatedRoute,
-    private modalController: ModalController
   ) {
 
   }
@@ -51,20 +48,6 @@ export class FlatWidgetComponent implements OnInit {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
     });
-  }
-  ngOnDestroy() {
-    if (this.edge != null) {
-    }
-  }
-  async presentModal() {
-    const modal = await this.modalController.create({
-      component: FixDigitalOutputModalComponent,
-      componentProps: {
-        component: this.component,
-        edge: this.edge
-      }
-    });
-    return await modal.present();
   }
 }
 
