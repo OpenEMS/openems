@@ -1,14 +1,6 @@
 <ng-container *ngIf="edge && component && outputChannel">
-
-  <!-- channelAdresses is taking the collected channels of the corresponding .ts and sending it to FlatWidget  -->
-  <!-- title is taking the component.alias as a header title -->
-  <!-- selector will be sent to FlatWidget -->
-  <!-- icon you give him an ionic icon -->
-  <!-- selector and channelAddresses are needed for later-subscribing in abstractWidget -->
   <flat-widget (click)="presentModal()" [title]="component.alias"
     [icon]="{name: 'power-outline', color: 'primary', size: 'large'}">
-    <!-- title is Title  of Header -->
-    <!-- title_value give him directly string or variable. Here it is variable state -->
     <flat-widget-line title="Aktueller Status" [title_value]="state"></flat-widget-line>
   </flat-widget>
 </ng-container>

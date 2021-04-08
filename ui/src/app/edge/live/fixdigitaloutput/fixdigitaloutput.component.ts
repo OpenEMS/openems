@@ -52,13 +52,13 @@ export class FixDigitalOutputComponent extends FlatWidgetLine {
         this.component = config.components[this.componentId];
         this.outputChannel = this.component.properties['outputChannelAddress']
 
-        this.subscribing(this.outputChannel, this.randomselector);
+        this.subscribing(this.randomselector, this.outputChannel);
 
 
         /** Subscribe on CurrentData to get the channel */
         this.edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
 
-          /** Prooving state variable with following content setting */
+          /** Proving state variable with following content setting */
           let channel = currentData.channel[this.outputChannel];
           if (channel != null) {
             if (channel == 1) {

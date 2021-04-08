@@ -70,9 +70,15 @@ export class FlatWidgetLine extends AbstractWidgetLineComponent implements OnDes
      * @param channelAddress the channel of the childClass which is not handed over through html
     */
 
-    public subscribing(channelAddress: string, selector: string) {
+    public subscribing(selector: string, channelAddress: string | string[]): void {
         let channels: ChannelAddress[] = [];
-        channels.push(ChannelAddress.fromString(channelAddress));
+        if (typeof channelAddress === 'string') {
+            channels.push(ChannelAddress.fromString(channelAddress));
+        } else if (channelAddress.length > 1) {
+            channelAddress.forEach(element => {
+                channels.push(ChannelAddress.fromString(element));
+            })
+        }
         this.subscribeOnChannels(selector, channels);
     }
 

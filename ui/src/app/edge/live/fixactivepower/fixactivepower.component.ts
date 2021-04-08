@@ -1,64 +1,76 @@
 import { ActivatedRoute } from '@angular/router';
 import { FixActivePowerModalComponent } from './modal/modal.component';
-import { Component, Input } from '@angular/core';
-import { Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { Component, Input, ViewContainerRef } from '@angular/core';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 import { ModalController } from '@ionic/angular';
-import { compileComponentFromMetadata } from '@angular/compiler';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
+import { UUID } from 'angular2-uuid';
+import { FlatWidgetLine } from '../flat/flat-widget-line/flatwidget-line';
+
 
 @Component({
-  selector: FixActivePowerComponent.SELECTOR,
+  selector: 'fixactivepower',
   templateUrl: './fixactivepower.component.html'
 })
-export class FixActivePowerComponent {
+export class FixActivePowerComponent extends FlatWidgetLine {
 
   @Input() private componentId: string | null = null;
 
-
-  private static readonly SELECTOR = "fixactivepower";
   private stopOnDestroy: Subject<void> = new Subject<void>();
-
-  private edge: Edge = null;
+  public edge: Edge = null;
   public component: EdgeConfig.Component | null = null;
   public chargeState: string;
   public chargeStateValue: number | string;
   public state: string;
+  public channels: string[] = [];
+  public randomselector: string = UUID.UUID().toString();
 
   constructor(
     public translate: TranslateService,
-    private route: ActivatedRoute,
+    public route: ActivatedRoute,
     public modalCtrl: ModalController,
     public service: Service,
-  ) { }
+    public viewContainerRef: ViewContainerRef,
+    public websocket: Websocket
+
+  ) {
+    super(route, service, viewContainerRef, websocket)
+  }
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
       this.service.getConfig().then(config => {
-        edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-          this.component = config.getComponent(this.componentId);
-          if (this.component.properties.power >= 0) {
+        this.component = config.components[this.componentId];
+        let power = this.componentId + '/_PropertyPower';
+        let mode = this.componentId + '/_PropertyMode';
+        this.channels.push(power, mode);
+        this.subscribing(this.randomselector, this.channels);
+
+        this.edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
+          let channelPower = currentData.channel[power];
+          let channelMode = currentData.channel[mode]
+
+          if (channelPower >= 0) {
             this.chargeState = this.translate.instant('General.dischargePower');
             this.chargeStateValue = this.component.properties.power
-          } else if (this.component.properties.power < 0) {
+          } else if (channelPower < 0) {
             this.chargeState = this.translate.instant('General.chargePower');
             this.chargeStateValue = this.component.properties.power * -1;
           }
-
-          if (this.component.properties.mode == 'MANUAL_ON') {
+          if (channelMode == 'MANUAL_ON') {
             this.state = this.translate.instant('General.on');
-          } else if (this.component.properties.mode == 'MANUAL_OFF') {
+          } else if (channelMode == 'MANUAL_OFF') {
             this.state = this.translate.instant('General.off');
           } else {
             this.state = '-'
           }
-        })
+        });
       })
-    }
-    )
+    })
   }
   ngOnDestroy() {
     this.stopOnDestroy.next();
