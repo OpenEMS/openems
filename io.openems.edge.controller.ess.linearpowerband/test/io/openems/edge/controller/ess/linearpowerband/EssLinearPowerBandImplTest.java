@@ -28,6 +28,7 @@ public class EssLinearPowerBandImplTest {
 						.setMinPower(-1000) //
 						.setMaxPower(1000) //
 						.setAdjustPower(300) //
+						.setStartDirection(StartDirection.CHARGE) //
 						.build()) //
 				.next(new TestCase() //
 						.output(STATE_MACHINE, State.DOWNWARDS) //
