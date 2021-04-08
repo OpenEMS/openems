@@ -1,7 +1,6 @@
 package io.openems.edge.goodwe.batteryinverter;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -14,11 +13,10 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
@@ -32,7 +30,10 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.HybridEss;
+import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
@@ -50,7 +51,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		implements GoodWeBatteryInverter, GoodWe, HybridManagedSymmetricBatteryInverter,
 		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, TimedataProvider {
 
-	private final Logger log = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
+	private static final int MAX_DC_CURRENT = 25; // [A]
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -225,23 +226,39 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		this.updatechannels();
 		this.lastSoc = battery.getSoc();
 
-		// Prepare Context
-		int pvProduction = Optional.ofNullable(this.calculatePvProduction()).orElse(0);
-		int chargeMaxCurrent = battery.getChargeMaxCurrent().orElse(0);
-		int dischargeMaxCurrent = battery.getDischargeMaxCurrent().orElse(0);
-		int voltage = battery.getVoltage().orElse(0);
-		int batteryMaxChargePower = chargeMaxCurrent * voltage;
-		int batteryMaxDischargePower = dischargeMaxCurrent * voltage;
-		ApplyPowerHandler.Result applyPower = ApplyPowerHandler.calculate(false /* read-only mode is never true */,
-				pvProduction, batteryMaxChargePower, batteryMaxDischargePower, setReactivePower);
+		// Calculate and store Max-AC-Export and -Import for use in
+		// getStaticConstraints()
+		int pvProduction = TypeUtils.max(0, this.calculatePvProduction());
+		this._setMaxAcImport(TypeUtils.min(/* maximum 0 */ 0, TypeUtils.multiply(/* negate */ -1, //
+				TypeUtils.subtract(//
+						/* Max DC-Charge-Power */ TypeUtils.multiply(//
+								/* Charge-Max-Current; max 25 A */ TypeUtils.min(battery.getChargeMaxCurrent().get(),
+										MAX_DC_CURRENT), //
+								/* Battery Voltage */ battery.getVoltage().get()),
+						/* PV Production */ pvProduction))));
+		this._setMaxAcExport(TypeUtils.max(/* minimum 0 */ 0, TypeUtils.sum(//
+				/* Max DC-Discharge-Power */ TypeUtils.multiply(//
+						/* Charge-Max-Current; max 25 A */ TypeUtils.min(battery.getDischargeMaxCurrent().get(),
+								MAX_DC_CURRENT), //
+						/* Battery Voltage */ battery.getVoltage().get()),
+				/* PV Production */ pvProduction)));
 
-		this.logInfo(this.log, "ApplyPower: " + applyPower.emsPowerMode + "; " + applyPower.emsPowerSet);
-		if (applyPower.emsPowerMode != null) {
-			// Apply results
-			IntegerWriteChannel emsPowerSetChannel = this.channel(GoodWe.ChannelId.EMS_POWER_SET);
-			emsPowerSetChannel.setNextWriteValue(applyPower.emsPowerSet);
-			EnumWriteChannel emsPowerModeChannel = this.channel(GoodWe.ChannelId.EMS_POWER_MODE);
-			emsPowerModeChannel.setNextWriteValue(applyPower.emsPowerMode);
-		}
+		// Apply Power Set-Point
+		ApplyPowerHandler.Result applyPower = ApplyPowerHandler.calculate(false /* read-only mode is never true */,
+				setActivePower);
+		IntegerWriteChannel emsPowerSetChannel = this.channel(GoodWe.ChannelId.EMS_POWER_SET);
+		emsPowerSetChannel.setNextWriteValue(applyPower.emsPowerSet);
+		EnumWriteChannel emsPowerModeChannel = this.channel(GoodWe.ChannelId.EMS_POWER_MODE);
+		emsPowerModeChannel.setNextWriteValue(applyPower.emsPowerMode);
+	}
+
+	@Override
+	public BatteryInverterConstraint[] getStaticConstraints() throws OpenemsNamedException {
+		return new BatteryInverterConstraint[] { //
+				new BatteryInverterConstraint("Max AC Import", Phase.ALL, Pwr.ACTIVE, //
+						Relationship.GREATER_OR_EQUALS, this.getMaxAcImport().orElse(0)), //
+				new BatteryInverterConstraint("Max AC Export", Phase.ALL, Pwr.ACTIVE, //
+						Relationship.LESS_OR_EQUALS, this.getMaxAcExport().orElse(0)) //
+		};
 	}
 }

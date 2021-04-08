@@ -103,6 +103,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 		int pvProduction = Optional.ofNullable(this.calculatePvProduction()).orElse(0);
 		int batteryMaxChargePower = this.getAllowedChargePower().orElse(0);
 		int batteryMaxDischargePower = this.getAllowedDischargePower().orElse(0);
+		System.out.println("TODO!!!!");
 		// TODO
 //		Context context = new Context(this, this.getGoodweType(), false /* read-only mode is never true */,
 //				pvProduction, batteryMaxChargePower, batteryMaxDischargePower, activePower);

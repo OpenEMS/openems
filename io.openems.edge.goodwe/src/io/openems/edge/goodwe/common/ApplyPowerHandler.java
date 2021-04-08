@@ -15,14 +15,19 @@ public class ApplyPowerHandler {
 		}
 	}
 
-	public static ApplyPowerHandler.Result calculate(boolean readOnlyMode, int pvProduction, int batteryMaxChargePower,
-			int batteryMaxDischargePower, int activePowerSetPoint) {
+	public static ApplyPowerHandler.Result calculate(boolean readOnlyMode, int activePowerSetPoint) {
 		if (readOnlyMode) {
 			// Read-Only
 			return new Result(EmsPowerMode.AUTO, 0);
-		}
 
-		return new Result(null, 0);
+		} else if (activePowerSetPoint > 0) {
+			// Export to AC
+			return new Result(EmsPowerMode.EXPORT_AC, activePowerSetPoint);
+
+		} else {
+			// Import from AC
+			return new Result(EmsPowerMode.IMPORT_AC, activePowerSetPoint * -1);
+		}
 
 //		if (activePowerSetPoint > 0) {
 //			// Set-Point is positive
