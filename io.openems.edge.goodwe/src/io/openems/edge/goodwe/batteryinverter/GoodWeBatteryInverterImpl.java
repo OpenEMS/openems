@@ -229,19 +229,19 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		// Calculate and store Max-AC-Export and -Import for use in
 		// getStaticConstraints()
 		int pvProduction = TypeUtils.max(0, this.calculatePvProduction());
-		this._setMaxAcImport(TypeUtils.min(/* maximum 0 */ 0, TypeUtils.multiply(/* negate */ -1, //
+		this._setMaxAcImport(TypeUtils.multiply(/* negate */ -1, //
 				TypeUtils.subtract(//
 						/* Max DC-Charge-Power */ TypeUtils.multiply(//
 								/* Charge-Max-Current; max 25 A */ TypeUtils.min(battery.getChargeMaxCurrent().get(),
 										MAX_DC_CURRENT), //
 								/* Battery Voltage */ battery.getVoltage().get()),
-						/* PV Production */ pvProduction))));
-		this._setMaxAcExport(TypeUtils.max(/* minimum 0 */ 0, TypeUtils.sum(//
+						/* PV Production */ pvProduction)));
+		this._setMaxAcExport(TypeUtils.sum(//
 				/* Max DC-Discharge-Power */ TypeUtils.multiply(//
 						/* Charge-Max-Current; max 25 A */ TypeUtils.min(battery.getDischargeMaxCurrent().get(),
 								MAX_DC_CURRENT), //
 						/* Battery Voltage */ battery.getVoltage().get()),
-				/* PV Production */ pvProduction)));
+				/* PV Production */ pvProduction));
 
 		// Apply Power Set-Point
 		ApplyPowerHandler.Result applyPower = ApplyPowerHandler.calculate(false /* read-only mode is never true */,
