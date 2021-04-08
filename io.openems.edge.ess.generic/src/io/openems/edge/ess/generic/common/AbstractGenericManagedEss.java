@@ -144,6 +144,8 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 		StringBuilder result = new StringBuilder() //
 				.append("SoC:").append(this.getSoc().asString()) //
 				.append("|L:").append(this.getActivePower().asString());
+
+		// For HybridEss show actual Battery charge power and PV production power
 		if (this instanceof HybridEss) {
 			HybridEss me = (HybridEss) this;
 			result //
@@ -151,10 +153,18 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 					.append("|PV:")
 					.append(TypeUtils.subtract(this.getActivePower().get(), me.getDcDischargePower().get()));
 		}
-		return result //
+
+		// Show max AC export/import active power:
+		// minimum of MaxAllowedCharge/DischargePower and MaxApparentPower
+		result //
 				.append("|Allowed:") //
-				.append(this.getAllowedChargePower().asStringWithoutUnit()).append(";") //
-				.append(this.getAllowedDischargePower().asString()) //
+				.append(TypeUtils.min(//
+						this.getAllowedChargePower().get(), TypeUtils.multiply(this.getMaxApparentPower().get(), -1)))
+				.append(";") //
+				.append(TypeUtils.min(//
+						this.getAllowedDischargePower().get(), this.getMaxApparentPower().get()));
+
+		return result //
 				.append("|").append(this.channel(GenericManagedEss.ChannelId.STATE_MACHINE).value().asOptionString()) //
 				.toString();
 	}
