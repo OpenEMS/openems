@@ -12,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public int minPower;
 		public int maxPower;
 		public int adjustPower;
+		public StartDirection startDirection;
 
 		private Builder() {
 		}
@@ -20,7 +21,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.id = id;
 			return this;
 		}
-		
+
 		public Builder setEssId(String essId) {
 			this.essId = essId;
 			return this;
@@ -38,6 +39,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setAdjustPower(int adjustPower) {
 			this.adjustPower = adjustPower;
+			return this;
+		}
+
+		public Builder setStartDirection(StartDirection startDirection) {
+			this.startDirection = startDirection;
 			return this;
 		}
 
@@ -80,6 +86,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int adjustPower() {
 		return this.builder.adjustPower;
+	}
+
+	@Override
+	public StartDirection startDirection() {
+		return this.builder.startDirection;
 	}
 
 	@Override
