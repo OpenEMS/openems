@@ -3,16 +3,17 @@
         <table class="full_width" *ngIf="edge.currentData | async as currentData">
             <tr content>
 
-                <!-- Title of Parameter on the left side -->
-                <td *ngIf="title && !title_addition && !title_translate" style="width:65%">{{title}}</td>
-                <td *ngIf="title_translate && !title" style="width:65%" translate>
-                    {{title_translate}}</td>
-                <td *ngIf="title && title_addition" style="width:65%">
-                    {{title}}<span>&nbsp;{{title_addition}}</span></td>
-                <td *ngIf="title_translate && title_addition" style="width:65%" translate>
-                    {{title_translate}}<span>&nbsp;{{title_addition}} 123</span></td>
+                <!-- Name of Parameter on the left side -->
+                <td *ngIf="parameter_name && !title_addition && !parameter_name_translate" style="width:65%">
+                    {{parameter_name}}</td>
+                <td *ngIf="parameter_name_translate && !parameter_name " style="width:65%" translate>
+                    {{parameter_name_translate}}</td>
+                <td *ngIf="parameter_name  && title_addition" style="width:65%">
+                    {{parameter_name }}<span>&nbsp;{{title_addition}}</span></td>
+                <td *ngIf="parameter_name_translate && title_addition" style="width:65%" translate>
+                    {{parameter_name_translate}}<span>&nbsp;{{title_addition}} 123</span></td>
 
-                <!-- Title Values of the Parameter on the right side -->
+                <!-- Values of the Parameter on the right side -->
                 <td style="width:35%" class="align_right"
                     *ngIf="channel && !unit &&(edge.currentData | async) as currentData">
                     <ng-container *ngIf="channel != null && channel != undefined">
@@ -27,7 +28,7 @@
                         </ng-container>
                     </td>
                     <td style="width:35%" class="align_right"
-                        *ngIf="unit.otherUnit && !unit.value && !unit.format&& value != null &&title || title_translate">
+                        *ngIf="unit.otherUnit && !unit.value && !unit.format&& value != null &&parameter_name  || parameter_name_translate">
                         {{ value | unitvalue:unit.otherUnit }}
                     </td>
                     <td style="width:35%" class="align_right"
@@ -43,18 +44,21 @@
                     {{ value | unitvalue:'kW'}}
                 </td>
                 <td style="width:35%" class="align_right"
-                    *ngIf="title || title_translate  && title_value_translate && !value" translate>
-                    {{title_value_translate}}
-                </td>
-                <td style="width:35%" class="align_right" *ngIf="title || title_translate  && title_value && !value">
-                    {{title_value}}
+                    *ngIf="parameter_name  || parameter_name_translate  && parameter_value_translate && !value"
+                    translate>
+                    {{parameter_value_translate}}
                 </td>
                 <td style="width:35%" class="align_right"
-                    *ngIf="title_value &&!title && !title_translate&& !value && !title_value_translate"
-                    [innerHTML]="title_value">{{title_value}}
+                    *ngIf="parameter_name  || parameter_name_translate  && parameter_value && !value">
+                    {{parameter_value}}
                 </td>
-                <td style="width:35%" class="align_right" *ngIf="title_value_translate && !value && title_value == '-'"
-                    [innerHTML]="title_value_translate">
+                <td style="width:35%" class="align_right"
+                    *ngIf="parameter_value &&!parameter_name  && !parameter_name_translate&& !value && !parameter_value_translate"
+                    [innerHTML]="parameter_value">{{parameter_value}}
+                </td>
+                <td style="width:35%" class="align_right"
+                    *ngIf="parameter_value_translate && !value && parameter_value == '-'"
+                    [innerHTML]="parameter_value_translate">
                 </td>
             </tr>
         </table>

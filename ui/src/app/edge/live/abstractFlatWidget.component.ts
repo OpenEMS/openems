@@ -3,16 +3,16 @@ import { ActivatedRoute } from "@angular/router";
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
 @Component({
-    selector: 'abstractWidgetLine',
-    templateUrl: './abstractWidgetLine.component.html'
+    selector: 'abstractFlatWidget',
+    templateUrl: './abstractFlatWidget.component.html'
 })
 
-export class AbstractWidgetLineComponent {
+export class AbstractFlatWidgetComponent {
 
     public edge: Edge = null;
     public config: EdgeConfig = null;
-    public service: Service;
-    public route: ActivatedRoute;
+    public service: Service = null;
+    public route: ActivatedRoute = null;
     constructor(
         public websocket: Websocket
     ) { }

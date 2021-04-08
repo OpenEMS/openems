@@ -1,21 +1,21 @@
 import { ActivatedRoute } from '@angular/router';
 import { FixActivePowerModalComponent } from './modal/modal.component';
 import { Component, Input, ViewContainerRef } from '@angular/core';
-import { Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
 import { UUID } from 'angular2-uuid';
-import { FlatWidgetLine } from '../flat/flat-widget-line/flatwidget-line';
+import { AbstractFlatWidgetComponent } from '../abstractFlatWidget.component';
 
 
 @Component({
   selector: 'fixactivepower',
   templateUrl: './fixactivepower.component.html'
 })
-export class FixActivePowerComponent extends FlatWidgetLine {
+export class FixActivePowerComponent extends AbstractFlatWidgetComponent {
 
   @Input() private componentId: string | null = null;
 
@@ -25,7 +25,7 @@ export class FixActivePowerComponent extends FlatWidgetLine {
   public chargeState: string;
   public chargeStateValue: number | string;
   public state: string;
-  public channels: string[] = [];
+  public channels: ChannelAddress[] = []
   public randomselector: string = UUID.UUID().toString();
 
   constructor(
@@ -37,7 +37,7 @@ export class FixActivePowerComponent extends FlatWidgetLine {
     public websocket: Websocket
 
   ) {
-    super(route, service, viewContainerRef, websocket)
+    super(websocket)
   }
 
   ngOnInit() {
@@ -47,8 +47,8 @@ export class FixActivePowerComponent extends FlatWidgetLine {
         this.component = config.components[this.componentId];
         let power = this.componentId + '/_PropertyPower';
         let mode = this.componentId + '/_PropertyMode';
-        this.channels.push(power, mode);
-        this.subscribing(this.randomselector, this.channels);
+        this.channels.push(ChannelAddress.fromString(power), ChannelAddress.fromString(mode));
+        this.subscribeOnChannels(this.randomselector, this.channels);
 
         this.edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
           let channelPower = currentData.channel[power];

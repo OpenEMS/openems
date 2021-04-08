@@ -1,6 +1,7 @@
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { Component, Input, OnInit } from '@angular/core';
+import { Icon } from 'src/app/shared/type/widget';
 
 
 @Component({
@@ -24,25 +25,19 @@ export class FlatWidgetComponent implements OnInit {
   /** BackgroundColor of the Header (light or dark) */
   @Input() public color: string;
 
-  /** ChannelAdresses sends all the channels from one specific Widget to FlatWidget */
-  @Input() public channelAdresses: ChannelAddress[];
-
   /** Selector sends the Widget's selector to FlatWidget */
   @Input() public selector: string;
 
   /** Title_translate specifies if there is a title to translate */
-  @Input() public title_translate: string;
+  @Input() public parameter_name_translate: string;
 
 
   public edge: Edge = null;
-  public component: EdgeConfig.Component = null;
 
   constructor(
     public service: Service,
     public route: ActivatedRoute,
-  ) {
-
-  }
+  ) { }
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
@@ -51,8 +46,3 @@ export class FlatWidgetComponent implements OnInit {
   }
 }
 
-export type Icon = {
-  color: string;
-  size: string;
-  name: string;
-}

@@ -3,7 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { UUID } from "angular2-uuid";
 import { Service, Websocket } from "src/app/shared/shared";
 import { ChannelAddress } from "src/app/shared/type/channeladdress";
-import { AbstractWidgetLineComponent } from "../../abstractWidgetLine.component";
+import { AbstractFlatWidgetComponent } from "../../abstractFlatWidget.component";
 
 
 @Component({
@@ -12,12 +12,12 @@ import { AbstractWidgetLineComponent } from "../../abstractWidgetLine.component"
 })
 
 
-export class FlatWidgetPercentagebar extends AbstractWidgetLineComponent {
+export class FlatWidgetPercentagebar extends AbstractFlatWidgetComponent {
 
 
-    /** value is the channel the percentagebar is reffering to */
-    @Input() value: string;
-    public typecheck: boolean;
+    /** value is the channel the percentagebar is refering to */
+    @Input() value: string = null;
+    public isChannelValue: boolean = false;
     constructor(
         public route: ActivatedRoute,
         public service: Service,
@@ -30,14 +30,9 @@ export class FlatWidgetPercentagebar extends AbstractWidgetLineComponent {
             this.edge = edge;
         });
         if (typeof (this.value) === 'string') {
-            this.typecheck = true;
-        } else if (typeof (this.value) === 'number') {
-            this.typecheck = false;
-        }
-    }
-    ngAfterViewInit() {
-        if (typeof (this.value) === 'string') {
+            this.isChannelValue = true;
             this.subscribeOnChannels(UUID.UUID().toString(), [ChannelAddress.fromString(this.value)]);
         }
+
     }
 }

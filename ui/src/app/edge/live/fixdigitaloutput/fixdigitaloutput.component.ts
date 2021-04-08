@@ -3,22 +3,18 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../s
 import { Component, Input, ViewContainerRef } from '@angular/core';
 import { FixDigitalOutputModalComponent } from './modal/modal.component';
 import { ModalController } from '@ionic/angular';
-import { FlatWidgetLine } from '../flat/flat-widget-line/flatwidget-line';
 import { UUID } from 'angular2-uuid';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
+import { AbstractFlatWidgetComponent } from '../abstractFlatWidget.component';
 
 
 @Component({
   selector: 'fixdigitaloutput',
   templateUrl: './fixdigitaloutput.component.html'
 })
-export class FixDigitalOutputComponent extends FlatWidgetLine {
-
-
-
-
+export class FixDigitalOutputComponent extends AbstractFlatWidgetComponent {
   public selector = 'fixdigitaloutput';
   /** componentId needs to be set to get the components */
   @Input() private componentId: string;
@@ -41,7 +37,7 @@ export class FixDigitalOutputComponent extends FlatWidgetLine {
     public viewContainerRef: ViewContainerRef,
 
   ) {
-    super(route, service, viewContainerRef, websocket)
+    super(websocket)
   }
 
   ngOnInit() {
@@ -51,10 +47,7 @@ export class FixDigitalOutputComponent extends FlatWidgetLine {
       this.service.getConfig().then(config => {
         this.component = config.components[this.componentId];
         this.outputChannel = this.component.properties['outputChannelAddress']
-
-        this.subscribing(this.randomselector, this.outputChannel);
-
-
+        this.subscribeOnChannels(this.randomselector, [ChannelAddress.fromString(this.outputChannel)]);
         /** Subscribe on CurrentData to get the channel */
         this.edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
 
@@ -77,7 +70,7 @@ export class FixDigitalOutputComponent extends FlatWidgetLine {
   ngOnDestroy() {
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
-    this.unsubcribing(this.randomselector);
+    this.unsubscribe(this.randomselector)
   }
 
   async presentModal() {
