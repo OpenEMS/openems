@@ -1,3 +1,0 @@
-= io.openems.shared.mssql
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.shared.mssql[Source Code icon:github[]]
