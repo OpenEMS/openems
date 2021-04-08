@@ -101,6 +101,9 @@ public class EssLinearPowerBandImpl extends AbstractOpenemsComponent
 			break;
 		}
 
+		// Keep target power for debugging
+		this._setTargetPower(this.currentPower);
+
 		// Apply Power Set-Point
 		this.ess.setActivePowerEquals(this.currentPower);
 	}
