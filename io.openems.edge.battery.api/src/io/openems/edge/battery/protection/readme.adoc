@@ -21,7 +21,7 @@ WARNING: Be sure to not directly map the BMS registers to these Channels if you 
 
 == Parameters
 
-The easiest way to provide all required parameters is via a class that implements the `BatteryProtectionDefintion` interface. See that interface for details on the parameters.
+The easiest way to provide all required parameters is via a class that implements the `BatteryProtectionDefinition` interface. See that interface for details on the parameters.
 
 == Debugging
 
@@ -61,7 +61,7 @@ this.batteryProtection = BatteryProtection.create(this) //
 		.build();
 ----
 +
-The easiest way is via a class that implements the `BatteryProtectionDefintion` interface. This will guide you through all the required battery protection parameters. Alternatively there is also an initialization that follows the Builder pattern. See the JUnit tests for examples.
+The easiest way is via a class that implements the `BatteryProtectionDefinition` interface. This will guide you through all the required battery protection parameters. Alternatively there is also an initialization that follows the Builder pattern. See the JUnit tests for examples.
 
 . Call the logic
 +

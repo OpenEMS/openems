@@ -638,11 +638,11 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 		USEABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE_HOURS) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Useable Cpacity Of The Module")),
+				.text("Useable Capacity Of The Module")),
 		REMAINING_CAPACITY(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE_HOURS) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Remaning Cpacity Of The Module")),
+				.text("Remaining Capacity Of The Module")),
 		MAX_CELL_VOLTAGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT) //
 				.accessMode(AccessMode.READ_ONLY) //
