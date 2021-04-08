@@ -34,9 +34,8 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
+import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
-import io.openems.edge.goodwe.common.applypower.ApplyPowerStateMachine;
-import io.openems.edge.goodwe.common.applypower.Context;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -70,9 +69,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			HybridEss.ChannelId.DC_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
 			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
-
-	private final ApplyPowerStateMachine applyPowerStateMachine = new ApplyPowerStateMachine(
-			ApplyPowerStateMachine.State.UNDEFINED);
 
 	// For Fenecon Home Battery, Lead Battery Capacity has to be set as a battery
 	// parameter
@@ -222,10 +218,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Override
 	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
-		// Store the current State
-		this.channel(GoodWe.ChannelId.APPLY_POWER_STATE_MACHINE)
-				.setNextValue(this.applyPowerStateMachine.getCurrentState());
-
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
 
@@ -235,29 +227,21 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 		// Prepare Context
 		int pvProduction = Optional.ofNullable(this.calculatePvProduction()).orElse(0);
-		int soc = battery.getSoc().orElse(0);
-		Context context = new Context(this, this.getGoodweType(), false /* read-only mode is never true */,
-				pvProduction, soc, setActivePower);
+		int chargeMaxCurrent = battery.getChargeMaxCurrent().orElse(0);
+		int dischargeMaxCurrent = battery.getDischargeMaxCurrent().orElse(0);
+		int voltage = battery.getVoltage().orElse(0);
+		int batteryMaxChargePower = chargeMaxCurrent * voltage;
+		int batteryMaxDischargePower = dischargeMaxCurrent * voltage;
+		ApplyPowerHandler.Result applyPower = ApplyPowerHandler.calculate(false /* read-only mode is never true */,
+				pvProduction, batteryMaxChargePower, batteryMaxDischargePower, setReactivePower);
 
-		// Call the StateMachine
-		try {
-			this.applyPowerStateMachine.run(context);
-
+		this.logInfo(this.log, "ApplyPower: " + applyPower.emsPowerMode + "; " + applyPower.emsPowerSet);
+		if (applyPower.emsPowerMode != null) {
 			// Apply results
 			IntegerWriteChannel emsPowerSetChannel = this.channel(GoodWe.ChannelId.EMS_POWER_SET);
-			emsPowerSetChannel.setNextWriteValue(context.getEssPowerSet());
+			emsPowerSetChannel.setNextWriteValue(applyPower.emsPowerSet);
 			EnumWriteChannel emsPowerModeChannel = this.channel(GoodWe.ChannelId.EMS_POWER_MODE);
-			emsPowerModeChannel.setNextWriteValue(context.getNextPowerMode());
-
-			this.channel(GoodWeBatteryInverter.ChannelId.RUN_FAILED).setNextValue(false);
-		} catch (OpenemsNamedException e) {
-			this.channel(GoodWeBatteryInverter.ChannelId.RUN_FAILED).setNextValue(true);
-			this.logError(this.log, "StateMachine failed: " + e.getMessage());
+			emsPowerModeChannel.setNextWriteValue(applyPower.emsPowerMode);
 		}
-	}
-
-	@Override
-	public String debugLog() {
-		return this.applyPowerStateMachine.getCurrentState().asCamelCase();
 	}
 }

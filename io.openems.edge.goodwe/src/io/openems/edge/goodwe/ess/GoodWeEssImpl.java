@@ -20,8 +20,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
@@ -35,8 +33,6 @@ import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.GoodWe;
-import io.openems.edge.goodwe.common.applypower.ApplyPowerStateMachine;
-import io.openems.edge.goodwe.common.applypower.Context;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -66,9 +62,6 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
-
-	private final ApplyPowerStateMachine applyPowerStateMachine = new ApplyPowerStateMachine(
-			ApplyPowerStateMachine.State.UNDEFINED);
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -103,27 +96,25 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		// Store the current State
-		this.channel(GoodWe.ChannelId.APPLY_POWER_STATE_MACHINE)
-				.setNextValue(this.applyPowerStateMachine.getCurrentState());
-
 		// Calculate ActivePower and Energy values.
 		this.updatechannels();
 
 		// Prepare Context
 		int pvProduction = Optional.ofNullable(this.calculatePvProduction()).orElse(0);
-		int soc = this.getSoc().orElse(0);
-		Context context = new Context(this, this.getGoodweType(), false /* read-only mode is never true */,
-				pvProduction, soc, activePower);
-
-		// Call the StateMachine
-		this.applyPowerStateMachine.run(context);
-
-		// Apply results
-		IntegerWriteChannel emsPowerSetChannel = this.channel(GoodWe.ChannelId.EMS_POWER_SET);
-		emsPowerSetChannel.setNextWriteValue(context.getEssPowerSet());
-		EnumWriteChannel emsPowerModeChannel = this.channel(GoodWe.ChannelId.EMS_POWER_MODE);
-		emsPowerModeChannel.setNextWriteValue(context.getNextPowerMode());
+		int batteryMaxChargePower = this.getAllowedChargePower().orElse(0);
+		int batteryMaxDischargePower = this.getAllowedDischargePower().orElse(0);
+		// TODO
+//		Context context = new Context(this, this.getGoodweType(), false /* read-only mode is never true */,
+//				pvProduction, batteryMaxChargePower, batteryMaxDischargePower, activePower);
+//
+//		// Call the StateMachine
+//		this.applyPowerStateMachine.run(context);
+//
+//		// Apply results
+//		IntegerWriteChannel emsPowerSetChannel = this.channel(GoodWe.ChannelId.EMS_POWER_SET);
+//		emsPowerSetChannel.setNextWriteValue(context.getEssPowerSet());
+//		EnumWriteChannel emsPowerModeChannel = this.channel(GoodWe.ChannelId.EMS_POWER_MODE);
+//		emsPowerModeChannel.setNextWriteValue(context.getNextPowerMode());
 	}
 
 	@Override
