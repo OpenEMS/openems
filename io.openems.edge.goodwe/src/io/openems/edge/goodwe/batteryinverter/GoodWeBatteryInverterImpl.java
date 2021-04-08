@@ -22,7 +22,6 @@ import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -244,12 +243,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				/* PV Production */ pvProduction));
 
 		// Apply Power Set-Point
-		ApplyPowerHandler.Result applyPower = ApplyPowerHandler.calculate(false /* read-only mode is never true */,
-				setActivePower);
-		IntegerWriteChannel emsPowerSetChannel = this.channel(GoodWe.ChannelId.EMS_POWER_SET);
-		emsPowerSetChannel.setNextWriteValue(applyPower.emsPowerSet);
-		EnumWriteChannel emsPowerModeChannel = this.channel(GoodWe.ChannelId.EMS_POWER_MODE);
-		emsPowerModeChannel.setNextWriteValue(applyPower.emsPowerMode);
+		ApplyPowerHandler.apply(this, false /* read-only mode is never true */, setActivePower);
 	}
 
 	@Override

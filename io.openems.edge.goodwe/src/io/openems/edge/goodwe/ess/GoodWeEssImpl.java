@@ -1,7 +1,5 @@
 package io.openems.edge.goodwe.ess;
 
-import java.util.Optional;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -32,6 +30,7 @@ import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
+import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -99,23 +98,8 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 		// Calculate ActivePower and Energy values.
 		this.updatechannels();
 
-		// Prepare Context
-		int pvProduction = Optional.ofNullable(this.calculatePvProduction()).orElse(0);
-		int batteryMaxChargePower = this.getAllowedChargePower().orElse(0);
-		int batteryMaxDischargePower = this.getAllowedDischargePower().orElse(0);
-		System.out.println("TODO!!!!");
-		// TODO
-//		Context context = new Context(this, this.getGoodweType(), false /* read-only mode is never true */,
-//				pvProduction, batteryMaxChargePower, batteryMaxDischargePower, activePower);
-//
-//		// Call the StateMachine
-//		this.applyPowerStateMachine.run(context);
-//
-//		// Apply results
-//		IntegerWriteChannel emsPowerSetChannel = this.channel(GoodWe.ChannelId.EMS_POWER_SET);
-//		emsPowerSetChannel.setNextWriteValue(context.getEssPowerSet());
-//		EnumWriteChannel emsPowerModeChannel = this.channel(GoodWe.ChannelId.EMS_POWER_MODE);
-//		emsPowerModeChannel.setNextWriteValue(context.getNextPowerMode());
+		// Apply Power Set-Point
+		ApplyPowerHandler.apply(this, false /* read-only mode is never true */, activePower);
 	}
 
 	@Override
