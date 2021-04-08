@@ -60,6 +60,7 @@
 	bnd.identity;id='io.openems.edge.controller.ess.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.ess.hybrid.surplusfeedtogrid',\
 	bnd.identity;id='io.openems.edge.controller.ess.limittotaldischarge',\
+	bnd.identity;id='io.openems.edge.controller.ess.linearpowerband',\
 	bnd.identity;id='io.openems.edge.controller.ess.mindischargeperiod',\
 	bnd.identity;id='io.openems.edge.controller.ess.onefullcycle',\
 	bnd.identity;id='io.openems.edge.controller.ess.predictivedelaycharge',\
@@ -80,7 +81,6 @@
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancingschedule',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.fixreactivepower',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.limitactivepower',\
-	bnd.identity;id='io.openems.edge.controller.symmetric.linearpowerband',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.randompower',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.timeslotpeakshaving',\
@@ -188,6 +188,7 @@
 	io.openems.edge.controller.ess.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.ess.hybrid.surplusfeedtogrid;version=snapshot,\
 	io.openems.edge.controller.ess.limittotaldischarge;version=snapshot,\
+	io.openems.edge.controller.ess.linearpowerband;version=snapshot,\
 	io.openems.edge.controller.ess.mindischargeperiod;version=snapshot,\
 	io.openems.edge.controller.ess.onefullcycle;version=snapshot,\
 	io.openems.edge.controller.ess.predictivedelaycharge;version=snapshot,\
@@ -208,7 +209,6 @@
 	io.openems.edge.controller.symmetric.balancingschedule;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixreactivepower;version=snapshot,\
 	io.openems.edge.controller.symmetric.limitactivepower;version=snapshot,\
-	io.openems.edge.controller.symmetric.linearpowerband;version=snapshot,\
 	io.openems.edge.controller.symmetric.peakshaving;version=snapshot,\
 	io.openems.edge.controller.symmetric.randompower;version=snapshot,\
 	io.openems.edge.controller.symmetric.timeslotpeakshaving;version=snapshot,\
