@@ -34,33 +34,20 @@ export class FlatWidgetLine extends AbstractFlatWidgetComponent implements OnDes
     public edge: Edge = null;
     public essComponents: EdgeConfig.Component[] = null;
     public channelAddresses: ChannelAddress[] = null;
-    public randomSelector: string = null;
 
     constructor(
         public route: ActivatedRoute,
         public service: Service,
         public viewContainerRef: ViewContainerRef,
-        websocket: Websocket,
     ) {
-        super(websocket)
+        super()
     }
-    ngOnInit() {
-        this.viewContainerRef.createEmbeddedView(this.content);
-        this.service.setCurrentComponent('', this.route).then(edge => {
-            this.edge = edge;
-        });
+    protected getChannelAddressess() {
+    }
+    /** RandomSelector has a random sequence of characters */
 
-        /** RandomSelector has a random sequence of characters */
-        this.randomSelector = UUID.UUID().toString();
-        if (this.channel !== undefined && this.channel != null) {
-            if (this.channel.includes('/')) {
-                /** Calls method of parentClass AbstractWidgetLine for Subscribing on channels*/
-                this.subscribeOnChannels(this.randomSelector, [ChannelAddress.fromString(this.channel)]);
-            }
-        }
-    }
-    ngOnDestroy() {
-        this.unsubscribe(this.randomSelector);
-    }
+    //     ngOnDestroy() {
+    //         this.unsubscribe(this.randomSelector);
+    //     }
 }
 

@@ -12,7 +12,7 @@ import { FixActivePowerModalComponent } from './modal/modal.component';
   selector: 'fixactivepower',
   templateUrl: './fixactivepower.component.html'
 })
-export class FixActivePowerComponent extends AbstractFlatWidgetComponent {
+export class FixActivePowerComponent {
 
   private powerChannel: ChannelAddress;
   private modeChannel: ChannelAddress;
@@ -39,7 +39,7 @@ export class FixActivePowerComponent extends AbstractFlatWidgetComponent {
     public service: Service,
     public viewContainerRef: ViewContainerRef,
   ) {
-    super();
+    // super();
   }
 
   protected getChannelAddressess(edge: Edge, config: EdgeConfig) {

@@ -12,7 +12,7 @@ import { AbstractFlatWidgetComponent } from "../../abstractFlatWidget.component"
 })
 
 
-export class FlatWidgetPercentagebar extends AbstractFlatWidgetComponent {
+export class FlatWidgetPercentagebar {
 
 
     /** value is the channel the percentagebar is refering to */
@@ -23,16 +23,16 @@ export class FlatWidgetPercentagebar extends AbstractFlatWidgetComponent {
         public service: Service,
         public websocket: Websocket,
     ) {
-        super(websocket);
+        // super();
     }
-    ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
-            this.edge = edge;
-        });
-        if (typeof (this.value) === 'string') {
-            this.isChannelValue = true;
-            this.subscribeOnChannels(UUID.UUID().toString(), [ChannelAddress.fromString(this.value)]);
-        }
+    // ngOnInit() {
+    //     this.service.setCurrentComponent('', this.route).then(edge => {
+    //         this.edge = edge;
+    //     });
+    //     if (typeof (this.value) === 'string') {
+    //         this.isChannelValue = true;
+    //         this.subscribeOnChannels(UUID.UUID().toString(), [ChannelAddress.fromString(this.value)]);
+    //     }
 
-    }
+    // }
 }
