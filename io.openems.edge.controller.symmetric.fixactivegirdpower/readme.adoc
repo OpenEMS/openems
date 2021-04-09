@@ -1,0 +1,3 @@
+= io.openems.edge.controller.symmetric.fixactivegirdpower
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.symmetric.fixactivegirdpower[Source Code icon:github[]]
