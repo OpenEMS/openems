@@ -3,7 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { Service, Websocket } from "src/app/shared/shared";
 
 @Component({
-    selector: 'flat-widget-percentagebar',
+    selector: 'oe-flat-widget-percentagebar',
     templateUrl: './flat-widget-percentagebar.html'
 })
 

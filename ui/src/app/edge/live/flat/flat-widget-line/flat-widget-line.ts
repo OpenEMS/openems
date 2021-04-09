@@ -4,7 +4,7 @@ import { Unit } from "src/app/shared/type/widget";
 import { AbstractFlatWidgetLine } from "./abstract-flat-widget-line";
 
 @Component({
-    selector: 'flat-widget-line',
+    selector: 'oe-flat-widget-line',
     templateUrl: './flat-widget-line.html'
 })
 /** FlatWidgetLine is one line in FlatWidget. you can give him a , a title_type, parameter_value, title_value_type, a channel and a value. */

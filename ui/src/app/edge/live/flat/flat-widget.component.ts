@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { Icon } from 'src/app/shared/type/widget';
 
 @Component({
-  selector: 'flat-widget',
+  selector: 'oe-flat-widget',
   templateUrl: './flat-widget.component.html'
 })
 export class FlatWidgetComponent {
@@ -23,4 +23,3 @@ export class FlatWidgetComponent {
   @Input() public title_translate: string;
 
 }
-
