@@ -1,6 +1,7 @@
 import { Directive, Inject, Input, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
 import { UUID } from "angular2-uuid";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
@@ -31,7 +32,8 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
         @Inject(Websocket) protected websocket: Websocket,
         @Inject(ActivatedRoute) protected route: ActivatedRoute,
         @Inject(Service) protected service: Service,
-        @Inject(ModalController) protected modalCtrl: ModalController
+        @Inject(ModalController) protected modalCtrl: ModalController,
+        @Inject(TranslateService) protected translate: TranslateService
     ) {
     }
 

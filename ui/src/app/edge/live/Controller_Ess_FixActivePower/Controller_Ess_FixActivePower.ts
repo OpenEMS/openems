@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from '../abstract-flat-widget';
+import { AbstractFlatWidget } from '../flat/abstract-flat-widget';
 import { FixActivePowerModalComponent } from './modal/modal.component';
 
 @Component({
@@ -9,7 +9,6 @@ import { FixActivePowerModalComponent } from './modal/modal.component';
 export class Controller_Ess_FixActivePower extends AbstractFlatWidget {
 
   private static PROPERTY_POWER: string = "_PropertyPower";
-  private static PROPERTY_MODE: string = "_PropertyMode";
 
   public chargeState: string;
   public chargeStateValue: number;
@@ -18,31 +17,27 @@ export class Controller_Ess_FixActivePower extends AbstractFlatWidget {
   protected getChannelIds(): string[] {
     return [
       Controller_Ess_FixActivePower.PROPERTY_POWER,
-      Controller_Ess_FixActivePower.PROPERTY_MODE
     ];
+  }
+
+  public stateConverter = (value: any): string => {
+    if (value === 'MANUAL_ON') {
+      return this.translate.instant('General.on');
+    } else if (value === 'MANUAL_OFF') {
+      return this.translate.instant('General.off');
+    } else {
+      return '-';
+    }
   }
 
   protected onCurrentData(data: { [channelId: string]: any }, allComponents: { [channelAddress: string]: any }) {
     let channelPower = data[Controller_Ess_FixActivePower.PROPERTY_POWER];
-    let channelMode = data[Controller_Ess_FixActivePower.PROPERTY_MODE];
-
     if (channelPower >= 0) {
-      // this.chargeState = this.translate.instant('General.dischargePower');
       this.chargeState = 'General.dischargePower';
-      this.chargeStateValue = this.component.properties.power
+      this.chargeStateValue = channelPower
     } else {
       this.chargeState = 'General.chargePower';
-      this.chargeStateValue = this.component.properties.power * -1;
-    }
-
-    if (channelMode == 'MANUAL_ON') {
-      // this.state = this.translate.instant('General.on');
-      this.state = 'General.on';
-    } else if (channelMode == 'MANUAL_OFF') {
-      // this.state = this.translate.instant('General.off');
-      this.state = 'General.off';
-    } else {
-      this.state = '-'
+      this.chargeStateValue = channelPower * -1;
     }
   }
 

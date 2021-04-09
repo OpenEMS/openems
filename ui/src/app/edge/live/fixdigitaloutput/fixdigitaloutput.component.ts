@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
-import { AbstractFlatWidget } from '../abstract-flat-widget';
+import { AbstractFlatWidget } from '../flat/abstract-flat-widget';
 
 
 @Component({
@@ -8,10 +8,6 @@ import { AbstractFlatWidget } from '../abstract-flat-widget';
   templateUrl: './fixdigitaloutput.component.html'
 })
 export class FixDigitalOutputComponent extends AbstractFlatWidget {
-
-  protected getComponentId(componentId: string) {
-    return this.componentId = componentId
-  }
 
   protected onCurrentData(currentData: CurrentData) {
   }

@@ -4,7 +4,7 @@ import { Service, Websocket } from "src/app/shared/shared";
 
 @Component({
     selector: 'flat-widget-percentagebar',
-    templateUrl: './flatwidget-percentagebar.html'
+    templateUrl: './flat-widget-percentagebar.html'
 })
 
 
