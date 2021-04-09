@@ -9,6 +9,8 @@ import { ChpSocComponent } from './chpsoc/chpsoc.component';
 import { ChpsocModalComponent } from './chpsoc/modal/modal.component';
 import { ConsumptionComponent } from './consumption/consumption.component';
 import { ConsumptionModalComponent } from './consumption/modal/modal.component';
+import { Controller_Ess_FixActivePower } from './Controller_Ess_FixActivePower/Controller_Ess_FixActivePower';
+import { FixActivePowerModalComponent } from './Controller_Ess_FixActivePower/modal/modal.component';
 import { DelayedSellToGridComponent } from './delayedselltogrid/delayedselltogrid.component';
 import { DelayedSellToGridModalComponent } from './delayedselltogrid/modal/modal.component';
 import { DigitalInputComponent } from './digitalinput/digitalinput.component';
@@ -21,8 +23,6 @@ import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
 import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
 import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
-import { FixActivePowerComponent } from './fixactivepower/fixactivepower.component';
-import { FixActivePowerModalComponent } from './fixactivepower/modal/modal.component';
 import { FixDigitalOutputComponent } from './fixdigitaloutput/fixdigitaloutput.component';
 import { FixDigitalOutputModalComponent } from './fixdigitaloutput/modal/modal.component';
 import { FlatWidgetLine } from './flat/flat-widget-line/flatwidget-line';
@@ -109,7 +109,7 @@ import { StorageComponent } from './storage/storage.component';
     EvcsComponent,
     EvcsModalComponent,
     EvcsPopoverComponent,
-    FixActivePowerComponent,
+    Controller_Ess_FixActivePower,
     FixActivePowerModalComponent,
     FixDigitalOutputComponent,
     FixDigitalOutputModalComponent,

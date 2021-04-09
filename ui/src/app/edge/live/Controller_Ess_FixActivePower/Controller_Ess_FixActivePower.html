@@ -1,0 +1,13 @@
+<ng-container *ngIf="isInitialized">
+    <!-- <flat-widget (click)="presentModal()" [icon]="{color: 'primary', name:'swap-vertical-outline'}"
+        [title]="component.alias"> -->
+    <flat-widget (click)="presentModal()" [icon]="{color: 'primary', name:'swap-vertical-outline'}"
+        title="component.alias">
+        {{ chargeState }}
+        {{ chargeStateValue }}
+        <!-- <flat-widget-line parameter_name_translate="General.state" [parameter_value]="state">
+        </flat-widget-line>
+        <flat-widget-line [parameter_name]="chargeState" [value]="chargeStateValue">
+        </flat-widget-line> -->
+    </flat-widget>
+</ng-container>

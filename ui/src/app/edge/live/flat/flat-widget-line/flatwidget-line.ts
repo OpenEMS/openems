@@ -1,16 +1,14 @@
-import { Component, Input, OnDestroy, ViewChild, ViewContainerRef } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { UUID } from "angular2-uuid";
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { Component, Input, ViewChild } from "@angular/core";
+import { ChannelAddress, Edge, EdgeConfig } from "src/app/shared/shared";
 import { Unit } from "src/app/shared/type/widget";
-import { AbstractFlatWidgetComponent } from "../../abstractFlatWidget.component";
 
 @Component({
     selector: 'flat-widget-line',
     templateUrl: './flatwidget-line.html'
 })
 /** FlatWidgetLine is one line in FlatWidget. you can give him a , a title_type, parameter_value, title_value_type, a channel and a value. */
-export class FlatWidgetLine extends AbstractFlatWidgetComponent implements OnDestroy {
+// export class FlatWidgetLine extends AbstractFlatWidgetComponent implements OnDestroy {
+export class FlatWidgetLine {
 
     /** ViewChild selects the ng-teplate with certain ID */
     @ViewChild('content', { static: true }) content;
@@ -35,13 +33,13 @@ export class FlatWidgetLine extends AbstractFlatWidgetComponent implements OnDes
     public essComponents: EdgeConfig.Component[] = null;
     public channelAddresses: ChannelAddress[] = null;
 
-    constructor(
-        public route: ActivatedRoute,
-        public service: Service,
-        public viewContainerRef: ViewContainerRef,
-    ) {
-        super()
-    }
+    // constructor(
+    //     public route: ActivatedRoute,
+    //     public service: Service,
+    //     public viewContainerRef: ViewContainerRef,
+    // ) {
+    //     super()
+    // }
     protected getChannelAddressess() {
     }
     /** RandomSelector has a random sequence of characters */
