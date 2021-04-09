@@ -19,7 +19,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public int startUnsuccessfulDelay;
 		public int minimalCellVoltage;
 		public StartStopConfig startStop;
-		public int numberOfSlaves;
 		public ModuleType moduleType;
 		public int watchdog;
 		public int soCLowAlarm;
@@ -78,11 +77,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setNumberOfSlaves(int numberOfSlaves) {
-			this.numberOfSlaves = numberOfSlaves;
-			return this;
-		}
-
 		public Builder setModuleType(ModuleType moduleType) {
 			this.moduleType = moduleType;
 			return this;
@@ -97,12 +91,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.reduceTasks = reduceTasks;
 			return this;
 		}
-		
+
 		public Builder setSoCLowAlarm(int soCLowAlarm) {
 			this.soCLowAlarm = soCLowAlarm;
 			return this;
 		}
-		
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -172,11 +166,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public StartStopConfig startStop() {
 		return this.builder.startStop;
-	}
-
-	@Override
-	public int numberOfSlaves() {
-		return this.builder.numberOfSlaves;
 	}
 
 	@Override
