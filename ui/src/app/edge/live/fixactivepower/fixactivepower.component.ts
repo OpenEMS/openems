@@ -1,15 +1,13 @@
-import { ActivatedRoute } from '@angular/router';
-import { FixActivePowerModalComponent } from './modal/modal.component';
 import { Component, Input, ViewContainerRef } from '@angular/core';
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
+import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-
 import { UUID } from 'angular2-uuid';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 import { AbstractFlatWidgetComponent } from '../abstractFlatWidget.component';
-
+import { FixActivePowerModalComponent } from './modal/modal.component';
 
 @Component({
   selector: 'fixactivepower',
