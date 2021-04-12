@@ -33,7 +33,11 @@ import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
 import io.openems.common.session.User;
 
 @Designate(ocd = Config.class, factory = false)
-@Component(name = "Edge.Websocket", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
+@Component(//
+		name = "Edge.Websocket", //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		immediate = true //
+)
 public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implements EdgeWebsocket {
 
 	private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);

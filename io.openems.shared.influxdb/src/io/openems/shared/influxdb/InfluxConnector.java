@@ -29,6 +29,7 @@ import org.influxdb.dto.QueryResult.Series;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
@@ -63,7 +64,10 @@ public class InfluxConnector {
 	private final boolean isReadOnly;
 	private final BiConsumer<Iterable<Point>, Throwable> onWriteError;
 	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(EXECUTOR_MIN_THREADS, EXECUTOR_MAX_THREADS, 60L,
-			TimeUnit.SECONDS, new ArrayBlockingQueue<>(EXECUTOR_QUEUE_SIZE), new ThreadPoolExecutor.DiscardPolicy());
+			TimeUnit.SECONDS, //
+			new ArrayBlockingQueue<>(EXECUTOR_QUEUE_SIZE), //
+			new ThreadFactoryBuilder().setNameFormat("InfluxConnector-%d").build(), //
+			new ThreadPoolExecutor.DiscardPolicy());
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	/**

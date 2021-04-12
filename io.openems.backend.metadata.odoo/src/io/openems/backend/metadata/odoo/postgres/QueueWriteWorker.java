@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.metadata.odoo.postgres.task.DatabaseTask;
@@ -36,7 +37,7 @@ public class QueueWriteWorker {
 	// Executor for subscriptions task. Like a CachedThreadPool, but properly typed
 	// for DEBUG_MODE.
 	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
-			new SynchronousQueue<Runnable>());
+			new SynchronousQueue<Runnable>(), new ThreadFactoryBuilder().setNameFormat("Metadata.Odoo.PGQueue-%d").build());
 
 	private final ScheduledExecutorService debugLogExecutor;
 
