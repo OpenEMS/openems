@@ -14,7 +14,7 @@ public class BatteryProtectionDefinitionSoltaro3500Wh extends AbstractBatteryPro
 				.addPoint(Math.nextUp(3000), 1) //
 				.addPoint(3350, 1) //
 				.addPoint(3450, 0.9999) //
-				.addPoint(3550, 0.01) //
+				.addPoint(3600, 0.01) //
 				.addPoint(Math.nextDown(3650), 0.01) //
 				.addPoint(3650, 0) //
 				.build();
