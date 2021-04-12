@@ -36,6 +36,7 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
+import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
@@ -255,7 +256,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(506, Priority.HIGH, //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(506),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [V]
-						m(Battery.ChannelId.CURRENT, new UnsignedWordElement(507),
+						m(Battery.ChannelId.CURRENT, new SignedWordElement(507),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [A]
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(508),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [%]
@@ -265,10 +266,10 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 						m(FeneconHomeBattery.ChannelId.ID_OF_CELL_VOLTAGE_MIN, new UnsignedWordElement(511)), //
 						m(Battery.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(512)), // [mV]
 						m(FeneconHomeBattery.ChannelId.ID_OF_CELL_VOLTAGE_MAX, new UnsignedWordElement(513)), //
-						m(Battery.ChannelId.MIN_CELL_TEMPERATURE, new UnsignedWordElement(514),
+						m(Battery.ChannelId.MIN_CELL_TEMPERATURE, new SignedWordElement(514),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(FeneconHomeBattery.ChannelId.ID_OF_MIN_TEMPERATURE, new UnsignedWordElement(515)), //
-						m(Battery.ChannelId.MAX_CELL_TEMPERATURE, new UnsignedWordElement(516),
+						m(Battery.ChannelId.MAX_CELL_TEMPERATURE, new SignedWordElement(516),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(FeneconHomeBattery.ChannelId.ID_OF_MAX_TEMPERATURE, new UnsignedWordElement(517)), //
 						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new UnsignedWordElement(518),
@@ -401,7 +402,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 								m(this.generateTowerChannel(t, "_VOLTAGE"), new UnsignedWordElement(towerOffset + 10), // [V]
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-								m(this.generateTowerChannel(t, "_CURRENT"), new UnsignedWordElement(towerOffset + 11), // [A]
+								m(this.generateTowerChannel(t, "_CURRENT"), new SignedWordElement(towerOffset + 11), // [A]
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 								m(this.generateTowerChannel(t, "_MIN_CELL_VOLTAGE"),
 										new UnsignedWordElement(towerOffset + 12)), // [mV]
@@ -462,7 +463,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 							// Cell Temperatures Read Registers for Tower_1 starts from 10000, for Tower_2
 							// 12000, for Tower_3 14000
 							// (t-1)*2000+10000) calculates Tower Offset value
-							UnsignedWordElement uwe = new UnsignedWordElement(towerOffset
+							SignedWordElement uwe = new SignedWordElement(towerOffset
 									+ i * ADDRESS_OFFSET_FOR_CELL_VOLT_AND_TEMP + TEMPERATURE_ADDRESS_OFFSET + j);
 							ameTemp[j] = m(channelId, uwe);
 						}
