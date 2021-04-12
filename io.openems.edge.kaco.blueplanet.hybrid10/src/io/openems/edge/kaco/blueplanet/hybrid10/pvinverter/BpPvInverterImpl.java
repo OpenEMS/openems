@@ -29,7 +29,6 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.kaco.blueplanet.hybrid10.BpConstants;
 import io.openems.edge.kaco.blueplanet.hybrid10.ErrorChannelId;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -77,7 +76,7 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvIn
 				ErrorChannelId.values(), //
 				BpPvInverter.ChannelId.values() //
 		);
-		this._setMaxApparentPower(BpConstants.MAX_APPARENT_POWER);
+		this._setMaxApparentPower(BpPvInverter.MAX_APPARENT_POWER);
 	}
 
 	@Activate
@@ -132,7 +131,7 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvIn
 			Settings settings = this.core.getSettings();
 			if (settings != null) {
 				float eplimitPerc = settings.getEPLimit() / 100;
-				activePowerLimit = (int) (BpConstants.MAX_APPARENT_POWER * eplimitPerc);
+				activePowerLimit = (int) (BpPvInverter.MAX_APPARENT_POWER * eplimitPerc);
 			}
 
 			Status status = this.core.getStatusData();

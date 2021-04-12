@@ -6,6 +6,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
@@ -25,10 +27,13 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -75,6 +80,8 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 	@Reference
 	protected Cycle cycle;
 
+	protected ScheduledExecutorService executor;
+
 	public BackendApiImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -92,6 +99,11 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		if (!this.isEnabled()) {
 			return;
 		}
+
+		// initialize Executor
+		String name = COMPONENT_NAME + ":" + this.id();
+		this.executor = Executors.newScheduledThreadPool(1,
+				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
 
 		// initialize ApiWorker
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
@@ -118,7 +130,7 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		httpHeaders.put("apikey", config.apikey());
 
 		// Create Websocket instance
-		this.websocket = new WebsocketClient(this, COMPONENT_NAME + ":" + this.id(), uri, httpHeaders, proxy);
+		this.websocket = new WebsocketClient(this, name, uri, httpHeaders, proxy);
 		this.websocket.start();
 	}
 
@@ -129,6 +141,7 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		if (this.websocket != null) {
 			this.websocket.stop();
 		}
+		ThreadPoolUtils.shutdownAndAwaitTermination(executor, 5);
 	}
 
 	@Override

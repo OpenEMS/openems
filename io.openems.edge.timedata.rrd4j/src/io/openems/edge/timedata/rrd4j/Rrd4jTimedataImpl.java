@@ -378,7 +378,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		if (rrdDb != null) {
 			// Database exists
 
-			// Update database defintion if required
+			// Update database definition if required
 			rrdDb = this.updateRrdDbToLatestDefinition(rrdDb, channelAddress, channelUnit);
 
 			return rrdDb;

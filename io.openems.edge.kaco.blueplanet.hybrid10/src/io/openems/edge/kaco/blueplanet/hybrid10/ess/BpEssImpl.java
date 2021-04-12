@@ -28,10 +28,14 @@ import com.ed.data.Settings;
 import com.ed.data.Status;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -40,7 +44,6 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.kaco.blueplanet.hybrid10.BpConstants;
 import io.openems.edge.kaco.blueplanet.hybrid10.ErrorChannelId;
 import io.openems.edge.kaco.blueplanet.hybrid10.GlobalUtils;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
@@ -53,11 +56,13 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		name = "Kaco.BlueplanetHybrid10.Ess", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+)
 public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, HybridEss, ManagedSymmetricEss, SymmetricEss,
 		OpenemsComponent, TimedataProvider, EventHandler {
 
 	private static final int WATCHDOG_SECONDS = 8;
+	private static final int MAX_POWER_RAMP = 500; // [W/sec]
 
 	private final Logger log = LoggerFactory.getLogger(BpEssImpl.class);
 
@@ -65,10 +70,13 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 	protected BpCore core;
 
 	@Reference
+	protected Cycle cycle;
+
+	@Reference
 	protected ConfigurationAdmin cm;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
+	@Reference
+	private Timedata timedata;
 
 	@Reference
 	private Power power;
@@ -93,7 +101,6 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 				ErrorChannelId.values(), //
 				BpEss.ChannelId.values() //
 		);
-		this._setMaxApparentPower(BpConstants.MAX_APPARENT_POWER);
 	}
 
 	@Activate
@@ -106,6 +113,18 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 
 		this.config = config;
 		this._setCapacity(config.capacity());
+
+		// Set Max-Apparent-Power
+		timedata.getLatestValue(new ChannelAddress(config.id(), SymmetricEss.ChannelId.MAX_APPARENT_POWER.id()))
+				.thenAccept(latestValue -> {
+					Integer lastMaxApparentPower = TypeUtils.getAsType(OpenemsType.INTEGER, latestValue.get());
+					if (lastMaxApparentPower != null
+							&& lastMaxApparentPower != 10_000 /* throw away value that was previously fixed */ ) {
+						this._setMaxApparentPower(lastMaxApparentPower);
+					} else {
+						this._setMaxApparentPower(MAX_POWER_RAMP); // start low
+					}
+				});
 	}
 
 	@Deactivate
@@ -148,6 +167,11 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 				activePower = GlobalUtils.roundToPowerPrecision(batteryPower - inverter.getPvPower()) * -1; // invert
 				dcDischargePower = GlobalUtils.roundToPowerPrecision(batteryPower) * -1; // invert
 				bmsVoltage = battery.getBmsVoltage();
+
+				// Handle MaxApparentPower
+				if (Math.abs(activePower) + MAX_POWER_RAMP > this.getMaxApparentPower().orElse(Integer.MAX_VALUE)) {
+					this._setMaxApparentPower(Math.abs(activePower) + MAX_POWER_RAMP);
+				}
 			}
 
 			if (status != null) {
@@ -197,12 +221,12 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 		if (soc == null || soc >= 99) {
 			this._setAllowedChargePower(0);
 		} else {
-			this._setAllowedChargePower(BpConstants.MAX_APPARENT_POWER * -1);
+			this._setAllowedChargePower(this.config.capacity() * -1);
 		}
 		if (soc == null || soc <= 0) {
 			this._setAllowedDischargePower(0);
 		} else {
-			this._setAllowedDischargePower(BpConstants.MAX_APPARENT_POWER);
+			this._setAllowedDischargePower(this.config.capacity());
 		}
 
 		this.channel(BpEss.ChannelId.BMS_VOLTAGE).setNextValue(bmsVoltage);
@@ -295,7 +319,7 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 			return;
 		}
 
-		if (activePower == 0 && this.config.selfRegulationDeactivated()) {
+		if (activePower == 0) {
 			// avoid setting active power to zero, because this activates 'compensator
 			// normal operation'
 			settings.setPacSetPoint(0.0001f);
@@ -322,6 +346,16 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 			return new Constraint[] {
 					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
 					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
+		}
+		// Apply Power-Ramp for version > 5
+		if (this.core.getVersionCom().orElse(0F) > 5F) {
+			float maxDelta = MAX_POWER_RAMP * this.cycle.getCycleTime() / 1000;
+			int activePower = this.getActivePower().orElse(0);
+			return new Constraint[] {
+					this.createPowerConstraint(MAX_POWER_RAMP + "W/sec Ramp", Phase.ALL, Pwr.ACTIVE,
+							Relationship.LESS_OR_EQUALS, activePower + maxDelta),
+					this.createPowerConstraint(MAX_POWER_RAMP + "W/sec Ramp", Phase.ALL, Pwr.ACTIVE,
+							Relationship.GREATER_OR_EQUALS, activePower - maxDelta) };
 		}
 		return Power.NO_CONSTRAINTS;
 	}
