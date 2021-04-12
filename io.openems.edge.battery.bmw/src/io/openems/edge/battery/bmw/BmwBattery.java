@@ -295,6 +295,14 @@ public interface BmwBattery extends OpenemsComponent, EventHandler {
 
 		STATE_MACHINE(Doc.of(State.values()) //
 				.accessMode(AccessMode.READ_ONLY)), //
+		
+		CHARGE_MAX_CURRENT_BCS(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.unit(Unit.AMPERE)), //
+		
+		CHARGE_MAX_CURRENT_VOLT_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.unit(Unit.AMPERE)), //
 		;
 
 		private final Doc doc;
