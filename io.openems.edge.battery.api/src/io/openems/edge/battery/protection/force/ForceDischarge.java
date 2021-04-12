@@ -80,7 +80,9 @@ public class ForceDischarge extends AbstractForceChargeDischarge {
 
 	@Override
 	protected State handleBlockModeState(int minCellVoltage, int maxCellVoltage) {
-		if (maxCellVoltage >= this.params.blockChargeAboveCellVoltage) {
+		if (maxCellVoltage >= this.params.startDischargeAboveCellVoltage) {
+			return State.FORCE_MODE;
+		} else if (maxCellVoltage >= this.params.blockChargeAboveCellVoltage) {
 			return State.BLOCK_MODE;
 		} else {
 			return State.UNDEFINED;

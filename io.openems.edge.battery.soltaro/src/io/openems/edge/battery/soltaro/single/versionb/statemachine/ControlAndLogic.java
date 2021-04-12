@@ -3,7 +3,6 @@ package io.openems.edge.battery.soltaro.single.versionb.statemachine;
 import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.soltaro.single.versionb.Config;
 import io.openems.edge.battery.soltaro.single.versionb.SingleRackVersionB;
 import io.openems.edge.battery.soltaro.single.versionb.enums.ContactorControl;
 import io.openems.edge.common.channel.StateChannel;
@@ -49,8 +48,8 @@ public class ControlAndLogic {
 		return singleRackVersionB.getContactorControl() == ContactorControl.CUT_OFF;
 	}
 
-	protected static boolean hasError(SingleRackVersionB singleRackVersionB, int numberOfSlaves) {
-		return isAlarmLevel2Error(singleRackVersionB) || isSlaveCommunicationError(singleRackVersionB, numberOfSlaves);
+	protected static boolean hasError(SingleRackVersionB singleRackVersionB, Optional<Integer> numberOfModules) {
+		return isAlarmLevel2Error(singleRackVersionB) || isSlaveCommunicationError(singleRackVersionB, numberOfModules);
 	}
 
 	private static boolean isAlarmLevel2Error(SingleRackVersionB singleRackVersionB) {
@@ -87,9 +86,10 @@ public class ControlAndLogic {
 						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW));
 	}
 
-	private static boolean isSlaveCommunicationError(SingleRackVersionB singleRackVersionB, int numberOfSlaves) {
+	private static boolean isSlaveCommunicationError(SingleRackVersionB singleRackVersionB,
+			Optional<Integer> numberOfModules) {
 		boolean b = false;
-		switch (numberOfSlaves) {
+		switch (numberOfModules.orElse(0)) {
 		case 20:
 			b = b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_20_COMMUNICATION_ERROR);
@@ -163,19 +163,10 @@ public class ControlAndLogic {
 	}
 
 	/**
-	 * Sets the capacity.
-	 * @param singleRackVersionB the battery
-	 * @param config the config
-	 */
-	public static void setCapacity(SingleRackVersionB singleRackVersionB, Config config) {
-		int capacity = config.numberOfSlaves() * config.moduleType().getCapacity_Wh();
-		singleRackVersionB._setCapacity(capacity);
-	}
-
-	/**
 	 * Sets the watchdog.
+	 * 
 	 * @param singleRackVersionB the battery
-	 * @param timeSeconds the time in seconds
+	 * @param timeSeconds        the time in seconds
 	 */
 	public static void setWatchdog(SingleRackVersionB singleRackVersionB, int timeSeconds) {
 		try {
@@ -187,8 +178,9 @@ public class ControlAndLogic {
 
 	/**
 	 * Sets the soc low alarm.
+	 * 
 	 * @param singleRackVersionB the battery
-	 * @param soCLowAlarm the value to set
+	 * @param soCLowAlarm        the value to set
 	 */
 	public static void setSoCLowAlarm(SingleRackVersionB singleRackVersionB, int soCLowAlarm) {
 		try {
