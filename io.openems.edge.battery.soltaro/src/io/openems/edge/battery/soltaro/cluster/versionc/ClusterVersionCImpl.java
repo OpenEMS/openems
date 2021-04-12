@@ -252,8 +252,8 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 				 */
 				new FC3ReadRegistersTask(0x1044, Priority.HIGH, //
 						m(SoltaroCluster.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
-						m(SoltaroCluster.ChannelId.SYSTEM_CURRENT, new UnsignedWordElement(0x1045), //
-								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(Battery.ChannelId.CURRENT, new UnsignedWordElement(0x1045), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(0x1046), //
 						m(ClusterVersionC.ChannelId.ORIGINAL_SOC, new UnsignedWordElement(0x1047)), //
 						m(SoltaroCluster.ChannelId.SYSTEM_RUNNING_STATE, new UnsignedWordElement(0x1048)), //

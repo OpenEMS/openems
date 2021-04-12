@@ -85,8 +85,6 @@ public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler,
 		 * IntegerReadChannels
 		 */
 		CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
-		SYSTEM_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
 		SYSTEM_INSULATION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.OHM)), //
 

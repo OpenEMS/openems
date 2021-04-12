@@ -586,8 +586,8 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 				// -------- state registers of master --------------------------------------
 				new FC3ReadRegistersTask(0x1044, Priority.LOW, //
 						m(SoltaroCluster.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
-						m(SoltaroCluster.ChannelId.SYSTEM_CURRENT, new UnsignedWordElement(0x1045), //
-								ElementToChannelConverter.SCALE_FACTOR_2), // TODO Check if scale factor is correct
+						m(Battery.ChannelId.CURRENT, new UnsignedWordElement(0x1045), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(0x1046), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1047)) //
 								.onUpdateCallback(val -> {
