@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 
 import io.openems.common.channel.AccessMode;
@@ -41,7 +42,9 @@ public class SendChannelValuesWorker {
 
 	private final BackendApiImpl parent;
 	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS,
-			new ArrayBlockingQueue<>(1), new ThreadPoolExecutor.DiscardOldestPolicy());
+			new ArrayBlockingQueue<>(1), //
+			new ThreadFactoryBuilder().setNameFormat(BackendApiImpl.COMPONENT_NAME + ":SendWorker-%d").build(), //
+			new ThreadPoolExecutor.DiscardOldestPolicy());
 
 	/**
 	 * If true: next 'send' sends all channel values.

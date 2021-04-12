@@ -3,8 +3,6 @@ package io.openems.common.websocket;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -28,11 +26,6 @@ public abstract class SubscribedChannelsWorker {
 	private final Logger log = LoggerFactory.getLogger(SubscribedChannelsWorker.class);
 
 	/**
-	 * Executor for subscriptions task
-	 */
-	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-
-	/**
 	 * Holds subscribed channels
 	 */
 	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
@@ -42,12 +35,12 @@ public abstract class SubscribedChannelsWorker {
 	 */
 	private Optional<ScheduledFuture<?>> futureOpt = Optional.empty();
 
-	protected final WsData wsData;
+	protected final WsData parent;
 
 	private int lastRequestCount = Integer.MIN_VALUE;
 
 	public SubscribedChannelsWorker(WsData wsData) {
-		this.wsData = wsData;
+		this.parent = wsData;
 	}
 
 	/**
@@ -83,11 +76,11 @@ public abstract class SubscribedChannelsWorker {
 
 		if (!channels.isEmpty()) {
 			// registered channels -> create new thread
-			this.futureOpt = Optional.of(this.executor.scheduleWithFixedDelay(() -> {
+			this.futureOpt = Optional.of(this.parent.scheduleWithFixedDelay(() -> {
 				/*
 				 * This task is executed regularly. Sends data to Websocket.
 				 */
-				WebSocket ws = this.wsData.getWebsocket();
+				WebSocket ws = this.parent.getWebsocket();
 				if (ws == null || !ws.isOpen()) {
 					// disconnected; stop worker
 					this.dispose();
@@ -95,7 +88,7 @@ public abstract class SubscribedChannelsWorker {
 				}
 
 				try {
-					this.wsData.send(this.getJsonRpcNotification(this.getCurrentData()));
+					this.parent.send(this.getJsonRpcNotification(this.getCurrentData()));
 				} catch (OpenemsException e) {
 					this.log.warn("Unable to send SubscribedChannels: " + e.getMessage());
 				}
