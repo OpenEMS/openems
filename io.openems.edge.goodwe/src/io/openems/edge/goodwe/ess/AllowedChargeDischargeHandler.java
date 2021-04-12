@@ -38,9 +38,6 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 						0),
 				0);
 
-		System.out.println("Set AllowedCharge/Discharge " + (batteryAllowedChargePower * -1) + " | "
-				+ (batteryAllowedDischargePower + pvProduction));
-
 		// Apply AllowedChargePower and AllowedDischargePower
 		this.parent._setAllowedChargePower(batteryAllowedChargePower * -1 /* invert charge power */);
 		this.parent._setAllowedDischargePower(batteryAllowedDischargePower + pvProduction);

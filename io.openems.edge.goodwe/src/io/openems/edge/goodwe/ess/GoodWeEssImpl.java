@@ -159,50 +159,6 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 			this.calculateAcChargeEnergy.update(activePower * -1);
 			this.calculateAcDischargeEnergy.update(0);
 		}
-
-		/*
-		 * Update Allowed charge and Allowed discharge
-		 */
-
-		Integer soc = this.getSoc().get();
-		Integer maxBatteryPower = this.config.maxBatteryPower();
-
-		Integer allowedCharge = null;
-		Integer allowedDischarge = null;
-
-		if (productionPower == null) {
-			productionPower = 0;
-		}
-
-		if (soc == null) {
-
-			allowedCharge = 0;
-			allowedDischarge = 0;
-
-		} else if (soc == 100) {
-
-			allowedDischarge = maxBatteryPower + productionPower;
-			allowedCharge = 0;
-
-		} else if (soc > 0) {
-
-			allowedDischarge = maxBatteryPower + productionPower;
-			allowedCharge = maxBatteryPower;
-
-		} else if (soc == 0) {
-
-			allowedDischarge = productionPower;
-			allowedCharge = maxBatteryPower;
-
-		}
-
-		// to avoid charging when production is greater than maximum battery power.
-		if (allowedCharge < 0) {
-			allowedCharge = 0;
-		}
-
-		this._setAllowedChargePower(TypeUtils.multiply(allowedCharge * -1));
-		this._setAllowedDischargePower(allowedDischarge);
 	}
 
 	@Override

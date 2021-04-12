@@ -27,10 +27,6 @@ public class AllowedChargeDischargeHandler
 						0),
 				0);
 
-		System.out.println(
-				"Allowed Power - Charge [" + batteryAllowedChargePower + "] Discharge [" + batteryAllowedDischargePower
-						+ " + " + pvProduction + " = " + (batteryAllowedDischargePower + pvProduction) + "]");
-
 		// Apply AllowedChargePower and AllowedDischargePower
 		this.parent._setAllowedChargePower(batteryAllowedChargePower * -1 /* invert charge power */);
 		this.parent._setAllowedDischargePower(batteryAllowedDischargePower + pvProduction);
