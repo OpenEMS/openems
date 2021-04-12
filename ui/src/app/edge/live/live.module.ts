@@ -23,10 +23,9 @@ import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
 import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
 import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
-import { FixDigitalOutputComponent } from './fixdigitaloutput/fixdigitaloutput.component';
-import { FixDigitalOutputModalComponent } from './fixdigitaloutput/modal/modal.component';
+import { FixDigitalOutputComponent } from './Controller_IO_FixDigitalOutput/Controller_IO_FixDigitalOutput';
+import { FixDigitalOutputModalComponent } from './Controller_IO_FixDigitalOutput/modal/modal.component';
 import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
-import { FlatWidgetPercentagebar } from './flat/flat-widget-percentagebar/flat-widget-percentagebar';
 import { FlatWidgetComponent } from './flat/flat-widget.component';
 import { GridComponent } from './grid/grid.component';
 import { GridModalComponent } from './grid/modal/modal.component';
@@ -65,7 +64,6 @@ import { StorageComponent } from './storage/storage.component';
     AutarchyModalComponent,
     FlatWidgetComponent,
     FlatWidgetLine,
-    FlatWidgetPercentagebar,
     ChpsocModalComponent,
     ConsumptionModalComponent,
     DelayedSellToGridModalComponent,
@@ -94,7 +92,6 @@ import { StorageComponent } from './storage/storage.component';
     AutarchyModalComponent,
     FlatWidgetComponent,
     FlatWidgetLine,
-    FlatWidgetPercentagebar,
     ChannelthresholdComponent,
     ChpSocComponent,
     ChpsocModalComponent,

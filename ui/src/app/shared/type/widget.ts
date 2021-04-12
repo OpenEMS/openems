@@ -32,14 +32,7 @@ export enum WidgetFactory {
     'Evcs.Cluster.PeakShaving',
     'Evcs.Cluster.SelfConsumption',
 }
-export type Unit = {
-    /** unit is set, when an other unit as 'kW' is needed.*/
-    otherUnit: string;
-    /** unit_value is set, when unitvalue has to be replaced */
-    value: string;
-    /** unit_format is needed, if your unit_value is changed from default and you have to give him a certain format */
-    format: string;
-}
+
 export type Icon = {
     color: string;
     size: string;

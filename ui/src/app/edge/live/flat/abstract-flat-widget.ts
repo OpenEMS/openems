@@ -26,13 +26,11 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
 
-    public outputChannel: string;
-
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
         @Inject(ActivatedRoute) protected route: ActivatedRoute,
         @Inject(Service) protected service: Service,
-        @Inject(ModalController) protected modalCtrl: ModalController,
+        @Inject(ModalController) protected modalController: ModalController,
         @Inject(TranslateService) protected translate: TranslateService
     ) {
     }
@@ -49,7 +47,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                 this.isInitialized = true;
 
                 // get the channel addresses that should be subscribed
-                let channelAddresses: ChannelAddress[] = this.getChannelAddressess();
+                let channelAddresses: ChannelAddress[] = this.getChannelAddresses();
                 let channelIds = this.getChannelIds();
                 for (let channelId of channelIds) {
                     channelAddresses.push(new ChannelAddress(this.componentId, channelId));
@@ -89,15 +87,16 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
      * Called on every new data.
      * 
      * @param data new data for the subscribed Channel-Addresses
+     * @param allComponents whole channelAddress
      */
-    protected onCurrentData(thisComponent: { [channelId: string]: any }, allComponents: { [channelAddress: string]: any }) {
+    protected onCurrentData(data: { [channelId: string]: any }, allComponents: { [channelAddress: string]: any }) {
 
     }
 
     /**
      * Gets the ChannelAddresses that should be subscribed.
      */
-    protected getChannelAddressess(): ChannelAddress[] {
+    protected getChannelAddresses(): ChannelAddress[] {
         return [];
     }
 

@@ -41,7 +41,6 @@ export abstract class AbstractFlatWidgetLine implements OnInit, OnDestroy {
     }
 
     protected subscribe(channelAddress: ChannelAddress) {
-        console.log(channelAddress);
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
 
@@ -53,7 +52,6 @@ export abstract class AbstractFlatWidgetLine implements OnInit, OnDestroy {
                     this.setValue(currentData.channel[channelAddress.toString()]);
                 });
             });
-
         });
     }
 

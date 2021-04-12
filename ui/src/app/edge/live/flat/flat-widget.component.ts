@@ -18,8 +18,4 @@ export class FlatWidgetComponent {
 
   /** Title in Header */
   @Input() public title: string;
-
-  /** Title_translate specifies if there is a title to translate */
-  @Input() public title_translate: string;
-
 }
