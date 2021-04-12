@@ -30,7 +30,7 @@ import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
 import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
 import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
-import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3kWh;
+import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3000Wh;
 import io.openems.edge.battery.soltaro.common.enums.BatteryState;
 import io.openems.edge.battery.soltaro.common.enums.ResetState;
 import io.openems.edge.battery.soltaro.common.enums.State;
@@ -148,7 +148,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 
 		// Initialize Battery-Protection
 		this.batteryProtection = BatteryProtection.create(this) //
-				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro3kWh(), this.componentManager) //
+				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro3000Wh(), this.componentManager) //
 				.build();
 
 		this._setChargeMaxVoltage(this.config.numberOfSlaves() * MAX_VOLTAGE_MILLIVOLT / 1000);

@@ -2,7 +2,10 @@ package io.openems.edge.battery.soltaro.common.batteryprotection;
 
 import io.openems.edge.common.linecharacteristic.PolyLine;
 
-public class BatteryProtectionDefinitionSoltaro35kWh extends BatteryProtectionDefinitionSoltaro3kWh {
+/**
+ * Soltaro Battery-Protection for modules with 3.5 kWh.
+ */
+public class BatteryProtectionDefinitionSoltaro3500Wh extends AbstractBatteryProtectionDefinitionSoltaro {
 
 	@Override
 	public PolyLine getChargeVoltageToPercent() {
