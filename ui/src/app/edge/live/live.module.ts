@@ -48,6 +48,8 @@ import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetric
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
 import { TimeslotPeakshavingComponent } from './peakshaving/timeslot/timeslotpeakshaving.component';
 import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/modal.component';
+import { GridOptimizedChargeComponent } from './gridoptimizedcharge/gridoptimizedcharge.component';
+import { GridOptimizedChargeModalComponent } from './gridoptimizedcharge/modal/modal.component';
 
 @NgModule({
   imports: [
@@ -70,6 +72,7 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     FixActivePowerModalComponent,
     FixDigitalOutputModalComponent,
     GridModalComponent,
+    GridOptimizedChargeModalComponent,
     HeatingElementModalComponent,
     HeatPumpModalComponent,
     ModalComponentEvcsCluster,
@@ -107,6 +110,8 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     FixDigitalOutputModalComponent,
     GridComponent,
     GridModalComponent,
+    GridOptimizedChargeComponent,
+    GridOptimizedChargeModalComponent,
     HeatingElementComponent,
     HeatingElementModalComponent,
     HeatPumpComponent,

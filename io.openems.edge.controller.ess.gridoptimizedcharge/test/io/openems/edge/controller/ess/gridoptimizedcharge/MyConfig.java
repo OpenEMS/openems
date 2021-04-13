@@ -14,6 +14,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public Mode mode;
 		public String manual_targetTime;
 		public boolean sellToGridLimitEnabled;
+		public int sellToGridLimitRampPercentage;
 
 		private Builder() {
 		}
@@ -45,6 +46,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setMode(Mode mode) {
 			this.mode = mode;
+			return this;
+		}
+
+		public Builder setSellToGridLimitRampPercentage(int sellToGridLimitRampPercentage) {
+			this.sellToGridLimitRampPercentage = sellToGridLimitRampPercentage;
 			return this;
 		}
 
@@ -127,5 +133,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean sellToGridLimitEnabled() {
 		return this.builder.sellToGridLimitEnabled;
+	}
+
+	@Override
+	public int sellToGridLimitRampPercentage() {
+		return this.builder.sellToGridLimitRampPercentage;
 	}
 }

@@ -62,7 +62,8 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	private static final int SENSORS_PER_MODULE = 14;
 	private static final int ADDRESS_OFFSET_FOR_CELL_VOLT_AND_TEMP = 100;
 	private static final int MODULE_MIN_VOLTAGE = 42; // [V]
-	private static final int MODULE_MAX_VOLTAGE = 45;// [V]
+	private static final int MODULE_MAX_VOLTAGE = 49; // [V]
+	private static final int CAPACITY_PER_MODULE = 2200; // [Wh]
 
 	private final Logger log = LoggerFactory.getLogger(FeneconHomeBatteryImpl.class);
 
@@ -105,6 +106,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 				int minDischargeVoltageValue = numberOfModulesPerTower * MODULE_MIN_VOLTAGE;
 				this._setDischargeMinVoltage(minDischargeVoltageValue);
 				// Initialize available Tower- and Module-Channels dynamically.
+				this._setCapacity(numberOfTowers * numberOfModulesPerTower * CAPACITY_PER_MODULE);
 				this.initializeTowerModulesChannels(numberOfTowers, numberOfModulesPerTower);
 			});
 		});
@@ -247,10 +249,10 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 						m(FeneconHomeBattery.ChannelId.ID_OF_CELL_VOLTAGE_MIN, new UnsignedWordElement(511)), //
 						m(Battery.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(512)), // [mV]
 						m(FeneconHomeBattery.ChannelId.ID_OF_CELL_VOLTAGE_MAX, new UnsignedWordElement(513)), //
-						m(FeneconHomeBattery.ChannelId.MIN_TEMPERATURE, new UnsignedWordElement(514),
+						m(Battery.ChannelId.MIN_CELL_TEMPERATURE, new UnsignedWordElement(514),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(FeneconHomeBattery.ChannelId.ID_OF_MIN_TEMPERATURE, new UnsignedWordElement(515)), //
-						m(FeneconHomeBattery.ChannelId.MAX_TEMPERATURE, new UnsignedWordElement(516),
+						m(Battery.ChannelId.MAX_CELL_TEMPERATURE, new UnsignedWordElement(516),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(FeneconHomeBattery.ChannelId.ID_OF_MAX_TEMPERATURE, new UnsignedWordElement(517)), //
 						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(518),
@@ -399,17 +401,15 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 										new UnsignedWordElement(towerOffset + 17)), //
 								m(this.generateTowerChannel(t, "_NO_OF_CYCLES"),
 										new UnsignedWordElement(towerOffset + 18)), //
-								m(new UnsignedWordElement(towerOffset + 19)) //
-										.m(this.generateTowerChannel(t, "_DESIGN_CAPACITY"),
-												ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [Wh]
-										.m(Battery.ChannelId.CAPACITY, ElementToChannelConverter.DIRECT_1_TO_1) //
-										.build(), //
+								m(this.generateTowerChannel(t, "_DESIGN_CAPACITY"),
+										new UnsignedWordElement(towerOffset + 19),
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
 								m(this.generateTowerChannel(t, "_USABLE_CAPACITY"),
 										new UnsignedWordElement(towerOffset + 20), //
-										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Wh]
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
 								m(this.generateTowerChannel(t, "_REMAINING_CAPACITY"),
 										new UnsignedWordElement(towerOffset + 21), //
-										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Wh]
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
 								m(this.generateTowerChannel(t, "_MAX_CELL_VOLTAGE_LIMIT"),
 										new UnsignedWordElement(towerOffset + 22)), //
 								m(this.generateTowerChannel(t, "_MIN_CELL_VOLTAGE_LIMIT"),

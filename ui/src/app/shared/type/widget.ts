@@ -29,6 +29,7 @@ export enum WidgetFactory {
     'Controller.Symmetric.PeakShaving',
     'Controller.TimeslotPeakshaving',
     'Controller.Ess.DelayedSellToGrid',
+    'Controller.Ess.GridOptimizedCharge',
     'Evcs.Cluster.PeakShaving',
     'Evcs.Cluster.SelfConsumption',
 }

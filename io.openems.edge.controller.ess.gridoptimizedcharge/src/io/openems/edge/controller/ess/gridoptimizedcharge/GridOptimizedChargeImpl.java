@@ -1,6 +1,5 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
-import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
@@ -13,6 +12,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -21,6 +21,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
@@ -58,9 +59,9 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	// ZonedDateTime with the current time.
 	private ZonedDateTime now;
 
-	private Instant lastSellToGridLimitConstraint = Instant.MIN;
+	private boolean initialPrediction = true;
 
-	private final static int DEFAULT_SELL_TO_GRID_LIMIT_PAUSE = 10;
+	private Integer lastSellToGridLimit = null;
 
 	private boolean debugMode;
 
@@ -93,6 +94,16 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.updateConfig(config);
+	}
+
+	@Modified
+	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		super.modified(context, config.id(), config.alias(), config.enabled());
+		this.updateConfig(config);
+	}
+
+	private void updateConfig(Config config) {
 		this.config = config;
 		this.debugMode = config.debugMode();
 
@@ -160,34 +171,61 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	 */
 	public void applySellToGridLimit() throws OpenemsNamedException {
 
-		if (!this.config.sellToGridLimitEnabled() || this.lastSellToGridLimitConstraint
-				.plusSeconds(DEFAULT_SELL_TO_GRID_LIMIT_PAUSE).isAfter(Instant.now(this.componentManager.getClock()))) {
-			return;
-		}
-
 		// current buy-from/sell-to grid
 		int gridPower = this.meter.getActivePower().getOrError();
 
-		// Checking if the grid power is above the maximum feed-in
-		if (gridPower * -1 > this.config.maximumSellToGridPower()) {
+		// Checking if the grid power is above the maximum feed into grid limit
+		if ((gridPower * -1) > this.config.maximumSellToGridPower()) {
 
 			// Calculate actual limit for Ess
 			int essPowerLimit = gridPower + this.ess.getActivePower().getOrError()
 					+ this.config.maximumSellToGridPower();
 
-			// adjust value so that it fits into Min/MaxActivePower
+			// Adjust value so that it fits into Min/MaxActivePower
 			essPowerLimit = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
 					essPowerLimit);
+
+			// Adjust ramp
+			essPowerLimit = applyPowerRamp(essPowerLimit);
 
 			// Apply limit
 			this.ess.setActivePowerLessOrEquals(essPowerLimit);
 			this._setSellToGridLimitState(SellToGridLimitState.ACTIVE_LIMIT);
 			this._setSellToGridLimitChargeLimit(essPowerLimit * -1);
-			this.lastSellToGridLimitConstraint = Instant.now(this.componentManager.getClock());
+			this.lastSellToGridLimit = essPowerLimit;
 		} else {
 			this._setSellToGridLimitChargeLimit(null);
 			this._setSellToGridLimitState(SellToGridLimitState.NO_LIMIT);
+			this.lastSellToGridLimit = null;
 		}
+	}
+
+	/**
+	 * Apply power ramp, to react in a smooth way.
+	 * 
+	 * <p>
+	 * Calculates a limit depending on the given power limit and the last power
+	 * limit. Stronger limits are taken directly, while the last limit will only be
+	 * reduced if the new limit is lower.
+	 * 
+	 * @param essPowerLimit essPowerLimit
+	 * @return adjusted ess power limit
+	 * @throws InvalidValueException on error
+	 */
+	private int applyPowerRamp(int essPowerLimit) throws InvalidValueException {
+
+		// Stronger Limit will be taken
+		if (this.lastSellToGridLimit == null || essPowerLimit <= this.lastSellToGridLimit) {
+			this.lastSellToGridLimit = essPowerLimit;
+			return essPowerLimit;
+		}
+
+		int maxEssPower = this.ess.getMaxApparentPower().getOrError();
+
+		double percentage = (this.config.sellToGridLimitRampPercentage() / 100.0);
+		int rampValue = (int) (maxEssPower * percentage);
+		essPowerLimit = lastSellToGridLimit + rampValue;
+		return essPowerLimit;
 	}
 
 	/**
@@ -229,7 +267,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		this._setTargetMinuteActual(targetMinute);
 		this._setTargetMinuteAdjusted(targetMinute);
 
-		if (this.passedTargetHour()) {
+		if (this.passedTargetMinute(targetMinute)) {
 			return;
 		}
 
@@ -262,11 +300,25 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 				this.setActivePowerConstraint("GridOptimizedSelfConsumption - DcPredictiveDelayCharge", currentLimit);
 			}
 		} else {
-			this.setActivePowerConstraint("GridOptimizedSelfConsumption - AcPredictiveDelayCharge",
-					(currentLimit * -1));
+			// Never force discharge
+			if (currentLimit < 0) {
+				return;
+			} else {
+				this.setActivePowerConstraint("GridOptimizedSelfConsumption - AcPredictiveDelayCharge",
+						(currentLimit * -1));
+			}
 		}
 	}
 
+	/**
+	 * Set active power constraint.
+	 * 
+	 * <p>
+	 * Sets an active power constraint depending on the given power limit.
+	 * 
+	 * @param description  description for the constraint
+	 * @param currentLimit limit that needs to be set
+	 */
 	private void setActivePowerConstraint(String description, int currentLimit) {
 		try {
 			ess.addPowerConstraintAndValidate(description, Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS,
@@ -275,6 +327,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			this.setDelayChargeStateAndLimit(DelayChargeState.NO_FEASABLE_SOLUTION, null);
 		}
 
+		// TODO make sure setDelayChargeStateAndLimit is called in any case!
 		this.setDelayChargeStateAndLimit(DelayChargeState.ACTIVE_LIMIT, (currentLimit * -1));
 	}
 
@@ -311,16 +364,12 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			this.debugMode = false;
 		}
 
-		if (this.passedTargetHour()) {
-			return null;
-		}
-
 		// Calculating target minute
 		targetMinute = this.calculateTargetMinute(hourlyProduction, hourlyConsumption, predictionStartQuarterHour);
 
 		// target hour = null --> not enough production or Initial run(no values)
 		if (targetMinute == null) {
-			this.setDelayChargeStateAndLimit(DelayChargeState.TARGET_HOUR_NOT_CALCULATED, null);
+			this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
 			return null;
 		}
 
@@ -332,9 +381,10 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	 * 
 	 * @return true if it is later than the target minute.
 	 */
-	private boolean passedTargetHour() {
-		if (this.now.get(ChronoField.MINUTE_OF_DAY) >= this.getTargetMinuteAdjusted().orElse(1_440)) {
-			this.setDelayChargeStateAndLimit(DelayChargeState.PASSED_TARGET_HOUR, null);
+	private boolean passedTargetMinute(int targetMinute) {
+
+		if (this.now.get(ChronoField.MINUTE_OF_DAY) >= targetMinute) {
+			this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
 			return true;
 		}
 		return false;
@@ -369,6 +419,12 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 		// remaining time in seconds till the target point.
 		int remainingTime = calculateRemainingTime(targetMinute);
+
+		// No remaining time -> no restrictions
+		if (remainingTime < 0) {
+			this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
+			return null;
+		}
 
 		// calculate charge power limit
 		calculatedPower = remainingCapacity / remainingTime;
@@ -431,14 +487,14 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 			// target hour adjusted based on buffer hour.
 			targetMinuteAdjusted = targetMinuteActual - this.config.noOfBufferMinutes();
-		} else {
-			this.setDelayChargeStateAndLimit(DelayChargeState.TARGET_HOUR_NOT_CALCULATED, null);
+		}
+		if (predictionStartQuarterHourIndex == 0 || this.initialPrediction) {
+			// setting the channel id values
+			this._setTargetMinuteActual(targetMinuteActual);
+			this._setTargetMinuteAdjusted(targetMinuteAdjusted);
 		}
 
-		// setting the channel id values
-		this._setTargetMinuteActual(targetMinuteActual);
-		this._setTargetMinuteAdjusted(targetMinuteAdjusted);
-
+		this.initialPrediction = false;
 		return targetMinuteAdjusted;
 	}
 
