@@ -5,10 +5,9 @@ import java.time.Instant;
 import java.util.function.BiConsumer;
 
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.symmetric.ChannelManager;
 
 /**
@@ -16,7 +15,8 @@ import io.openems.edge.ess.generic.symmetric.ChannelManager;
  * Allowed-Discharge-Power. This class is used by {@link ChannelManager} as a
  * callback to updates of Battery Channels.
  */
-public class AllowedChargeDischargeHandler implements BiConsumer<ClockProvider, Battery> {
+public abstract class AbstractAllowedChargeDischargeHandler<ESS extends SymmetricEss>
+		implements BiConsumer<ClockProvider, Battery> {
 
 	public static final float DISCHARGE_EFFICIENCY_FACTOR = 0.95F;
 
@@ -28,22 +28,33 @@ public class AllowedChargeDischargeHandler implements BiConsumer<ClockProvider, 
 	 */
 	public static final float MAX_INCREASE_PERCENTAGE = 0.05F;
 
-	private final ManagedSymmetricEss parent;
+	protected final ESS parent;
 
-	public AllowedChargeDischargeHandler(ManagedSymmetricEss parent) {
+	public AbstractAllowedChargeDischargeHandler(ESS parent) {
 		this.parent = parent;
 	}
 
-	protected float lastAllowedChargePower;
-	protected float lastAllowedDischargePower;
+	protected float lastBatteryAllowedChargePower;
+	protected float lastBatteryAllowedDischargePower;
 	private Instant lastCalculate = null;
 
 	@Override
-	public void accept(ClockProvider clockProvider, Battery battery) {
-		Value<Integer> chargeMaxCurrent = battery.getChargeMaxCurrentChannel().getNextValue();
-		Value<Integer> dischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue();
-		Value<Integer> voltage = battery.getVoltageChannel().getNextValue();
+	public abstract void accept(ClockProvider clockProvider, Battery battery);
 
+	/**
+	 * Calculates Allowed-Charge-Power and Allowed-Discharge Power from the given
+	 * parameters. Result is stored in 'lastBatteryAllowedChargePower' and
+	 * 'lastBatteryAllowedDischargePower' variables - both as positive values!
+	 * 
+	 * @param clockProvider the {@link ClockProvider}
+	 * @param battery       the {@link Battery}
+	 */
+	protected void calculateAllowedChargeDischargePower(ClockProvider clockProvider, Battery battery) {
+		Integer chargeMaxCurrent = battery.getChargeMaxCurrentChannel().getNextValue().get();
+		Integer dischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue().get();
+		Integer voltage = battery.getVoltageChannel().getNextValue().get();
+
+		// Is the ESS started?
 		final boolean isStarted;
 		if (this.parent instanceof StartStoppable) {
 			isStarted = ((StartStoppable) this.parent).isStarted();
@@ -51,12 +62,8 @@ public class AllowedChargeDischargeHandler implements BiConsumer<ClockProvider, 
 			isStarted = true;
 		}
 
-		this.calculateAllowedChargeDischargePower(clockProvider, isStarted, //
-				chargeMaxCurrent.get(), dischargeMaxCurrent.get(), voltage.get());
-
-		// Apply AllowedChargePower and AllowedDischargePower
-		this.parent._setAllowedChargePower(Math.round(this.lastAllowedChargePower * -1 /* invert charge power */));
-		this.parent._setAllowedDischargePower(Math.round(this.lastAllowedDischargePower));
+		this.calculateAllowedChargeDischargePower(clockProvider, isStarted, chargeMaxCurrent, dischargeMaxCurrent,
+				voltage);
 	}
 
 	/**
@@ -119,18 +126,18 @@ public class AllowedChargeDischargeHandler implements BiConsumer<ClockProvider, 
 		 * In Non-Force Mode: apply the max increase ramp.
 		 */
 		if (charge > 0) {
-			charge = applyMaxIncrease(this.lastAllowedChargePower, charge, this.lastCalculate, now);
+			charge = applyMaxIncrease(this.lastBatteryAllowedChargePower, charge, this.lastCalculate, now);
 		}
 		if (discharge > 0) {
-			discharge = applyMaxIncrease(this.lastAllowedDischargePower, discharge, this.lastCalculate, now);
+			discharge = applyMaxIncrease(this.lastBatteryAllowedDischargePower, discharge, this.lastCalculate, now);
 		}
 
 		/*
 		 * Apply result
 		 */
 		this.lastCalculate = now;
-		this.lastAllowedChargePower = charge;
-		this.lastAllowedDischargePower = discharge;
+		this.lastBatteryAllowedChargePower = charge;
+		this.lastBatteryAllowedDischargePower = discharge;
 	}
 
 	/**

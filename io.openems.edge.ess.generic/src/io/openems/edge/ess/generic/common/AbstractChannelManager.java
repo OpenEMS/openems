@@ -15,15 +15,16 @@ import io.openems.edge.ess.api.SymmetricEss;
  * calculating the Ess-Channels based on the Channels of the Battery and
  * Battery-Inverter. Takes care of registering and unregistering listeners.
  */
-public class AbstractGenericEssChannelManager<BATTERY extends Battery, BATTERY_INVERTER extends SymmetricBatteryInverter>
+public class AbstractChannelManager<ESS extends SymmetricEss, BATTERY extends Battery, BATTERY_INVERTER extends SymmetricBatteryInverter>
 		extends AbstractChannelListenerManager {
 
-	private final GenericManagedEss parent;
-	private final AllowedChargeDischargeHandler allowedChargeDischargeHandler;
+	private final ESS parent;
+	private final AbstractAllowedChargeDischargeHandler<ESS> allowedChargeDischargeHandler;
 
-	public AbstractGenericEssChannelManager(GenericManagedEss parent) {
+	public AbstractChannelManager(ESS parent,
+			AbstractAllowedChargeDischargeHandler<ESS> allowedChargeDischargeHandler) {
 		this.parent = parent;
-		this.allowedChargeDischargeHandler = new AllowedChargeDischargeHandler(parent);
+		this.allowedChargeDischargeHandler = allowedChargeDischargeHandler;
 	}
 
 	/**
@@ -85,7 +86,7 @@ public class AbstractGenericEssChannelManager<BATTERY extends Battery, BATTERY_I
 	 * @param sourceChannelId the source ChannelId
 	 * @param targetChannelId the target ChannelId
 	 */
-	private <T> void addCopyListener(OpenemsComponent sourceComponent, ChannelId sourceChannelId,
+	protected <T> void addCopyListener(OpenemsComponent sourceComponent, ChannelId sourceChannelId,
 			ChannelId targetChannelId) {
 		this.<T>addOnSetNextValueListener(sourceComponent, sourceChannelId, (value) -> {
 			Channel<T> targetChannel = this.parent.channel(targetChannelId);
