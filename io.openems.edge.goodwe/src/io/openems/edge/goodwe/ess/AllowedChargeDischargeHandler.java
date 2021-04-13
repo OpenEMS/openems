@@ -18,6 +18,12 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		this.accept(clockProvider);
 	}
 
+	/**
+	 * Calculates AllowedChargePower and AllowedDischargePower and sets the
+	 * Channels.
+	 * 
+	 * @param clockProvider a {@link ClockProvider}
+	 */
 	public void accept(ClockProvider clockProvider) {
 		IntegerReadChannel bmsChargeImaxChannel = parent.channel(GoodWe.ChannelId.BMS_CHARGE_IMAX);
 		Integer bmsChargeImax = bmsChargeImaxChannel.value().get();

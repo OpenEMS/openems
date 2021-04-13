@@ -129,7 +129,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 			this.updatechannels();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.allowedChargeDischargeHandler.accept(componentManager);
+			this.allowedChargeDischargeHandler.accept(this.componentManager);
 			break;
 		}
 	}
