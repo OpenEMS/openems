@@ -105,6 +105,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 	private void updateConfig(Config config) {
 		this.config = config;
+		this.initialPrediction = true;
 		this.debugMode = config.debugMode();
 
 		// update filter for 'ess'
@@ -367,7 +368,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		// Calculating target minute
 		targetMinute = this.calculateTargetMinute(hourlyProduction, hourlyConsumption, predictionStartQuarterHour);
 
-		// target hour = null --> not enough production or Initial run(no values)
+		// target hour = null --> not enough production
 		if (targetMinute == null) {
 			this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
 			return null;
@@ -488,6 +489,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			// target hour adjusted based on buffer hour.
 			targetMinuteAdjusted = targetMinuteActual - this.config.noOfBufferMinutes();
 		}
+		
 		if (predictionStartQuarterHourIndex == 0 || this.initialPrediction) {
 			// setting the channel id values
 			this._setTargetMinuteActual(targetMinuteActual);
