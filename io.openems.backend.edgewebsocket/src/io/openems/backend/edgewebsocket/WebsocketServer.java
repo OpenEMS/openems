@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +51,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	@Override
 	protected WsData createWsData() {
-		WsData wsData = new WsData();
+		WsData wsData = new WsData(this);
 		return wsData;
 	}
 
@@ -135,5 +137,11 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	@Override
 	protected void logWarn(Logger log, String message) {
 		this.parent.logWarn(log, message);
+	}
+
+	@Override
+	protected ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
+			TimeUnit unit) {
+		return super.scheduleWithFixedDelay(command, initialDelay, delay, unit);
 	}
 }

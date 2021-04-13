@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.java_websocket.WebSocket;
 import org.ops4j.pax.logging.spi.PaxAppender;
@@ -24,6 +26,8 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -31,6 +35,7 @@ import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -82,6 +87,8 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
+	protected ScheduledExecutorService executor;
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
 		private final Doc doc;
@@ -112,6 +119,12 @@ public class WebsocketApi extends AbstractOpenemsComponent
 			// abort if disabled
 			return;
 		}
+
+		// initialize Executor
+		String name = "Controller.Api.Websocket" + ":" + this.id();
+		this.executor = Executors.newScheduledThreadPool(1,
+				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
+
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
 		this.startServer(config.port(), POOL_SIZE, false);
 	}
@@ -120,6 +133,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	protected void deactivate() {
 		super.deactivate();
 		this.stopServer();
+		ThreadPoolUtils.shutdownAndAwaitTermination(executor, 5);
 	}
 
 	/**
