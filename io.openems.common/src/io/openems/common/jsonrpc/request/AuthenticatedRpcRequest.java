@@ -82,7 +82,7 @@ public class AuthenticatedRpcRequest extends JsonrpcRequest {
 	@Override
 	public JsonObject getParams() {
 		return JsonUtils.buildJsonObject() //
-				.add("user", this.user.toJson()) //
+				.add("user", this.user.toJsonObject()) //
 				.add("payload", this.payload.toJsonObject()) //
 				.build();
 	}

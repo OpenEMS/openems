@@ -51,11 +51,10 @@ public class EdgeRpcRequestHandler {
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	protected CompletableFuture<EdgeRpcResponse> handleRequest(BackendUser backendUser, UUID messageId,
-			EdgeRpcRequest edgeRpcRequest) throws OpenemsNamedException {
+	protected CompletableFuture<EdgeRpcResponse> handleRequest(User user, UUID messageId, EdgeRpcRequest edgeRpcRequest)
+			throws OpenemsNamedException {
 		String edgeId = edgeRpcRequest.getEdgeId();
 		JsonrpcRequest request = edgeRpcRequest.getPayload();
-		User user = backendUser.getAsCommonUser(edgeId);
 		user.assertRoleIsAtLeast(EdgeRpcRequest.METHOD, Role.GUEST);
 
 		CompletableFuture<JsonrpcResponseSuccess> resultFuture;

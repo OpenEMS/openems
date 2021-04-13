@@ -178,7 +178,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 				Optional<BackendUser> userOpt = this.metadata.getUser(userId);
 				if (userOpt.isPresent()) {
 					BackendUser user = userOpt.get();
-					Optional<Role> edgeRoleOpt = user.getEdgeRole(edgeId);
+					Optional<Role> edgeRoleOpt = user.getRole(edgeId);
 					if (edgeRoleOpt.isPresent()) {
 						// User has access to this Edge-ID
 						result.add(wsData);

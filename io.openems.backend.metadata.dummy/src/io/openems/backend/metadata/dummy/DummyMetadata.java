@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,10 +67,11 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 	public BackendUser authenticate() throws OpenemsException {
 		int id = this.nextUserId.incrementAndGet();
 		String userId = "user" + id;
-		BackendUser user = new BackendUser(userId, "User #" + id);
+		TreeMap<String, Role> roles = new TreeMap<>();
 		for (String edgeId : this.edges.keySet()) {
-			user.addEdgeRole(edgeId, Role.ADMIN);
+			roles.put(edgeId, Role.ADMIN);
 		}
+		BackendUser user = new BackendUser(userId, "User #" + id, Role.ADMIN, roles);
 		this.users.put(userId, user);
 		return user;
 	}

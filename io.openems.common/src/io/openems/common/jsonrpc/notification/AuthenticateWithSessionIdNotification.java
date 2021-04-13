@@ -1,23 +1,27 @@
 package io.openems.common.jsonrpc.notification;
 
-import java.util.List;
-
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
-import io.openems.common.jsonrpc.shared.EdgeMetadata;
+import io.openems.common.session.User;
 import io.openems.common.utils.JsonUtils;
 
 /**
- * Represents a JSON-RPC Notification for UI authentication with session_id.
+ * Represents a JSON-RPC Notification for UI authentication with a `session_id`
+ * or `token`.
+ * 
+ * <p>
+ * 
+ * See {@link User#toJsonObject()} for details.
  * 
  * <pre>
  * {
  *   "jsonrpc": "2.0",
- *   "method": "authenticatedWithSessionId",
+ *   "method": "authenticatedWithToken",
  *   "params": {
  *     "token": String,
- *     "edges": {@link EdgeMetadata#toJson(java.util.Collection)}
+ *     "user": {}
+ *     "edges": {}
  *   }
  * }
  * </pre>
@@ -27,28 +31,19 @@ public class AuthenticateWithSessionIdNotification extends JsonrpcNotification {
 	public final static String METHOD = "authenticatedWithSessionId";
 
 	private final String token;
-	private final List<EdgeMetadata> metadatas;
+	private final User user;
 
-	public AuthenticateWithSessionIdNotification(String token, List<EdgeMetadata> metadatas) {
+	public AuthenticateWithSessionIdNotification(String token, User user) {
 		super(METHOD);
 		this.token = token;
-		this.metadatas = metadatas;
+		this.user = user;
 	}
 
 	@Override
 	public JsonObject getParams() {
-		return JsonUtils.buildJsonObject() //
+		return JsonUtils.buildJsonObject(this.user.toJsonObject()) //
 				.addProperty("token", this.token) //
-				.add("edges", EdgeMetadata.toJson(this.metadatas)) //
 				.build();
-	}
-
-	public String getToken() {
-		return this.token;
-	}
-
-	public List<EdgeMetadata> getMetadatas() {
-		return this.metadatas;
 	}
 
 }

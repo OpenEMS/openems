@@ -114,7 +114,7 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 			String edgeId = entry.getKey();
 
 			// assure read permissions of this User for this Edge.
-			if (!user.edgeRoleIsAtLeast(edgeId, Role.GUEST)) {
+			if (!user.roleIsAtLeast(edgeId, Role.GUEST)) {
 				continue;
 			}
 
@@ -142,7 +142,7 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 		GetEdgesChannelsValuesResponse response = new GetEdgesChannelsValuesResponse(messageId);
 		for (String edgeId : request.getEdgeIds()) {
 			// assure read permissions of this User for this Edge.
-			if (!user.edgeRoleIsAtLeast(edgeId, Role.GUEST)) {
+			if (!user.roleIsAtLeast(edgeId, Role.GUEST)) {
 				continue;
 			}
 

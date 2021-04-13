@@ -1,81 +1,38 @@
 package io.openems.edge.common.user;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
-import java.util.Base64;
+import com.google.common.collect.ImmutableSortedMap;
 
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
 
-public class EdgeUser extends User {
+/**
+ * A {@link User} used by OpenEMS Edge.
+ */
+public abstract class EdgeUser extends User {
 
-	private final byte[] password;
-	private final byte[] salt;
-
-	public EdgeUser(String id, String name, Role role, String passwordAsBase64, String saltAsBase64) {
-		this(id, name, role, Base64.getDecoder().decode(passwordAsBase64), Base64.getDecoder().decode(saltAsBase64));
-	}
-
-	public EdgeUser(String id, String name, Role role, final byte[] password, final byte[] salt) {
-		super(id, name, role);
-		this.password = password;
-		this.salt = salt;
-	}
-
-	public boolean validatePassword(String password) {
-		if (this.password == null || this.salt == null) {
-			// no password existing -> allow access
-			return true;
-		}
-		byte[] hashedPassword = EdgeUser.hashPassword(password, this.salt);
-		return Arrays.equals(hashedPassword, this.password);
-	}
-
-	public byte[] getPassword() {
-		return password;
-	}
-
-	public byte[] getSalt() {
-		return salt;
-	}
-
-	/*
-	 * statics
+	/**
+	 * Constructs an {@link EdgeUser}.
+	 * 
+	 * @param id   the User-ID
+	 * @param name the name
+	 * @param role the {@link Role}; used as global Role and assigned to
+	 *             {@link User#DEFAULT_EDGE_ID}.
 	 */
-	private final static int KEY_LENGTH = 256;
-	// private final static int SALT_LENGTH = 32;
-	private final static int ITERATIONS = 10;
-
-	private static byte[] hashPassword(final String password, final byte[] salt) {
-		return hashPassword(password.toCharArray(), salt, ITERATIONS, KEY_LENGTH);
+	protected EdgeUser(String id, String name, Role role) {
+		super(id, name, role, ImmutableSortedMap.<String, Role>naturalOrder().put(User.DEFAULT_EDGE_ID, role).build());
 	}
 
 	/**
-	 * Source: https://www.owasp.org/index.php/Hashing_Java
-	 *
-	 * @param password
-	 * @param salt
-	 * @param iterations
-	 * @param keyLength
-	 * @return
+	 * Throws an exception if the Role (Global and Per-Edge-Role are the same for
+	 * {@link EdgeUser}) is equal or more privileged than the given Role.
+	 * 
+	 * @param resource a resource identifier; used for the exception
+	 * @param role     the compared {@link Role}
+	 * @throws OpenemsNamedException if the global Role privileges are less
 	 */
-	private static byte[] hashPassword(final char[] password, final byte[] salt, final int iterations,
-			final int keyLength) {
-		try {
-			SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
-			PBEKeySpec spec = new PBEKeySpec(password, salt, iterations, keyLength);
-			SecretKey key = skf.generateSecret(spec);
-			byte[] res = key.getEncoded();
-			return res;
-
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			throw new RuntimeException(e);
-		}
+	public void assertRoleIsAtLeast(String resource, Role role) throws OpenemsNamedException {
+		this.getGlobalRole().assertIsAtLeast(resource, role);
 	}
 
 }

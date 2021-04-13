@@ -170,7 +170,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles a DeleteComponentConfigRequest.
 	 * 
-	 * @param user                         the User
+	 * @param user                         the {@link User}
 	 * @param deleteComponentConfigRequest the DeleteComponentConfigRequest
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error

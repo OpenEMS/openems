@@ -5,7 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.session.User;
+import io.openems.edge.common.user.EdgeUser;
 
 /**
  * Declares a class as being able to handle JSON-RPC Requests.
@@ -21,7 +21,7 @@ public interface JsonApi {
 	 *         OpenemsError.JSONRPC_UNHANDLED_METHOD
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
-			throws OpenemsNamedException;
+	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(EdgeUser user,
+			JsonrpcRequest request) throws OpenemsNamedException;
 
 }

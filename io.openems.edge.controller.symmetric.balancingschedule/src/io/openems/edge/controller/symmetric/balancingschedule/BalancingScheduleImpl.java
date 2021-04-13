@@ -40,6 +40,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.sum.GridMode;
+import io.openems.edge.common.user.EdgeUser;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -162,7 +163,7 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
+	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(EdgeUser user, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.OWNER);
 

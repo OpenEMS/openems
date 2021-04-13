@@ -66,6 +66,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.common.user.EdgeUser;
 import io.openems.edge.simulator.app.ExecuteSimulationRequest.Profile;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 import io.openems.edge.timedata.api.Timedata;
@@ -94,13 +95,13 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	private ComponentManager componentManager;
 
 	private static class CurrentSimulation {
-		private final User user;
+		private final EdgeUser user;
 		private final ExecuteSimulationRequest request;
 		private final TimeLeapClock clock;
 		private final CompletableFuture<ExecuteSimulationResponse> response;
 		private final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> collectedData = new TreeMap<>();
 
-		public CurrentSimulation(User user, ExecuteSimulationRequest request, TimeLeapClock clock,
+		public CurrentSimulation(EdgeUser user, ExecuteSimulationRequest request, TimeLeapClock clock,
 				CompletableFuture<ExecuteSimulationResponse> response) {
 			super();
 			this.user = user;
@@ -156,8 +157,8 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
-			throws OpenemsNamedException {
+	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(EdgeUser user,
+			JsonrpcRequest request) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.ADMIN);
 
 		switch (request.getMethod()) {
@@ -178,7 +179,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private synchronized CompletableFuture<ExecuteSimulationResponse> handleExecuteSimulationRequest(User user,
+	private synchronized CompletableFuture<ExecuteSimulationResponse> handleExecuteSimulationRequest(EdgeUser user,
 			ExecuteSimulationRequest request) throws OpenemsNamedException {
 		this.logInfo(this.log, "Starting Simulation");
 
@@ -325,7 +326,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	 * @param user the {@link User}
 	 * @throws OpenemsNamedException on error
 	 */
-	private void deleteAllConfigurations(User user) throws OpenemsNamedException {
+	private void deleteAllConfigurations(EdgeUser user) throws OpenemsNamedException {
 		Set<String> deletedComponents = new HashSet<>();
 		for (OpenemsComponent component : this.componentManager.getAllComponents()) {
 			deletedComponents.add(component.id());
@@ -358,7 +359,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		this.logInfo(this.log, "Stopping Simulation");
 
 		CurrentSimulation currentSimulation = this.currentSimulation;
-		User user;
+		EdgeUser user;
 		if (currentSimulation != null) {
 			user = currentSimulation.user;
 			currentSimulation.response.complete(
@@ -386,7 +387,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	 * @param componentId the Component-ID
 	 * @throws OpenemsNamedException on error
 	 */
-	private void deleteComponent(User user, String componentId) throws OpenemsNamedException {
+	private void deleteComponent(EdgeUser user, String componentId) throws OpenemsNamedException {
 		this.logInfo(this.log, "Delete Component [" + componentId + "]");
 		DeleteComponentConfigRequest deleteComponentConfigRequest = new DeleteComponentConfigRequest(componentId);
 		this.componentManager.handleJsonrpcRequest(user, deleteComponentConfigRequest);
