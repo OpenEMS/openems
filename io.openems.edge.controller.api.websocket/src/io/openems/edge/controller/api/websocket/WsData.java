@@ -2,6 +2,8 @@ package io.openems.edge.controller.api.websocket;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -9,6 +11,7 @@ import io.openems.edge.common.user.EdgeUser;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
+	private final WebsocketApi parent;
 	private final SubscribedChannelsWorker subscribedChannelsWorker;
 
 	/**
@@ -20,6 +23,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	private Optional<EdgeUser> user = Optional.empty();
 
 	public WsData(WebsocketApi parent) {
+		this.parent = parent;
 		this.subscribedChannelsWorker = new SubscribedChannelsWorker(parent, this);
 	}
 
@@ -77,6 +81,12 @@ public class WsData extends io.openems.common.websocket.WsData {
 			tokenString = "UNKNOWN";
 		}
 		return "WebsocketApi.WsData [sessionToken=" + tokenString + ", user=" + user + "]";
+	}
+
+	@Override
+	protected ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
+			TimeUnit unit) {
+		return this.parent.executor.scheduleWithFixedDelay(command, initialDelay, delay, unit);
 	}
 
 }

@@ -7,15 +7,6 @@ import io.openems.common.exceptions.NotImplementedException;
 
 public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implements AutoCloseable {
 
-	private static class DummyWsData extends WsData {
-
-		@Override
-		public String toString() {
-			return "DummyWsData[]";
-		}
-
-	}
-
 	public static class Builder {
 		private OnOpen onOpen = (ws, handshake) -> {
 		};
