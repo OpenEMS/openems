@@ -5,7 +5,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { UUID } from "angular2-uuid";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
 @Directive()
 export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
@@ -66,7 +66,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                             thisComponent[channelAddress.channelId] = currentData.channel[ca];
                         }
                     }
-                    this.onCurrentData(thisComponent, allComponents);
+                    this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
                 });
             });
 
@@ -88,7 +88,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
      * @param thisComponent new data for the subscribed Channel-Addresses through passed channelId
      * @param allComponents new data for the subscribed Channel-Addresses through passed channelAddress
      */
-    protected onCurrentData(thisComponent: { [channelId: string]: any }, allComponents: { [channelAddress: string]: any },) {
+    protected onCurrentData(currentData: CurrentData) {
     }
 
     /**

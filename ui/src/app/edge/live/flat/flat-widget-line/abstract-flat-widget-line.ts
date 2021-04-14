@@ -1,4 +1,4 @@
-import { Directive, Inject, Input, OnDestroy, OnInit } from "@angular/core";
+import { Directive, Inject, Input, OnDestroy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { UUID } from "angular2-uuid";
@@ -14,19 +14,26 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
      */
     public isInitialized: boolean = false;
 
+    /**
+     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
+     * 
+     * @param value the value from CurrentData
+     * @returns converter function
+     */
     @Input()
     protected converter = (value: any): string => { return value }
+
     /**
      * selector used for subscribe
      */
     private selector: string = UUID.UUID().toString();
+
     /** 
      * displayValue is the displayed @Input value in html
      */
     public displayValue: string;
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private edge: Edge = null;
-
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -35,12 +42,14 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
         @Inject(ModalController) protected modalCtrl: ModalController
     ) {
     }
+
     protected setValue(value: any) {
         this.displayValue = this.converter(value);
 
         // announce initialized
         this.isInitialized = true;
     }
+
     protected subscribe(channelAddress?: ChannelAddress) {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
@@ -53,7 +62,6 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
             });
         });
     }
-
 
     public ngOnDestroy() {
         // Unsubscribe from OpenEMS

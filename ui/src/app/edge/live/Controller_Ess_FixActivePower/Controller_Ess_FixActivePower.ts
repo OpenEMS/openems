@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ChannelAddress } from 'src/app/shared/shared';
+import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
 import { AbstractFlatWidget } from '../flat/abstract-flat-widget';
 import { Controller_Ess_FixActivePowerModalComponent } from './modal/modal.component';
 
@@ -29,8 +29,8 @@ export class Controller_Ess_FixActivePower extends AbstractFlatWidget {
     return channelAddresses;
   }
 
-  protected onCurrentData(thisComponent: { [channelId: string]: any }) {
-    let channelPower = thisComponent['_PropertyPower'];
+  protected onCurrentData(currentData: CurrentData) {
+    let channelPower = currentData.thisComponent['_PropertyPower'];
     if (channelPower >= 0) {
       this.chargeState = 'General.dischargePower';
       this.chargeStateValue = channelPower

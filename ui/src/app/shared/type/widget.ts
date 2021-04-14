@@ -38,6 +38,7 @@ export type Icon = {
     size: string;
     name: string;
 }
+
 export class Widget {
     name: WidgetNature | WidgetFactory | String;
     componentId: string
