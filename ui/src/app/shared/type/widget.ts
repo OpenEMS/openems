@@ -34,6 +34,12 @@ export enum WidgetFactory {
     'Evcs.Cluster.SelfConsumption',
 }
 
+export type Icon = {
+    color: string;
+    size: string;
+    name: string;
+}
+
 export class Widget {
     name: WidgetNature | WidgetFactory | String;
     componentId: string

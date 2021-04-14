@@ -77,6 +77,9 @@ public class Utils {
 		JsonObject j = new JsonObject();
 		for (Configuration config : configs) {
 			Dictionary<String, Object> properties = config.getProperties();
+			if (properties == null) {
+				continue;
+			}
 			String id = (String) properties.get("id");
 			if (id == null) {
 				continue;
