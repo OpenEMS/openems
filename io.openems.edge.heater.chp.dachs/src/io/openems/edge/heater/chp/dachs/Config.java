@@ -32,7 +32,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     @AttributeDefinition(name = "Debug", description = "Write debug messages to log.")
     boolean debug() default false;
 
-    boolean enabled() default true;
+    @AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
+	boolean enabled() default true;
 
     String webconsole_configurationFactory_nameHint() default "Chp Dachs GLT-Interface [{id}]";
 }

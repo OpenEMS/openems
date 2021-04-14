@@ -12,6 +12,13 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
+/**
+ * A generalized interface for a combined heat and power generator (chp).
+ * Contains the most important functions that should be available on all chp, allowing a vendor agnostic 
+ * implementation. Vendor specific interfaces should extend this interface.
+ *
+ */
+
 public interface ChpBasic extends OpenemsComponent {
 
 

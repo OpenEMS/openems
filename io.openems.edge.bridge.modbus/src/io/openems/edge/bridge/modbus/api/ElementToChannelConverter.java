@@ -203,6 +203,12 @@ public class ElementToChannelConverter {
 		return new ElementToChannelConverterChain(SCALE_FACTOR_MINUS_1, INVERT_IF_TRUE(invert));
 	}
 
+	/**
+	 * If the value of the element is 0X8000H, writes null in the channel.
+	 */
+	public static final ElementToChannelConverter REPLACE_WITH_NULL_IF_0X8000H = new ElementToChannelValueReplacer(-32768);
+	
+	
 	private final Function<Object, Object> elementToChannel;
 	private final Function<Object, Object> channelToElement;
 

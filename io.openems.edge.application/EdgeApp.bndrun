@@ -111,6 +111,7 @@
 	bnd.identity;id='io.openems.edge.heater.api',\
 	bnd.identity;id='io.openems.edge.heater.chp.dachs',\
 	bnd.identity;id='io.openems.edge.heater.chp.wolf',\
+	bnd.identity;id='io.openems.edge.heater.heatpump.tecalor',\
 	bnd.identity;id='io.openems.edge.io.kmtronic',\
 	bnd.identity;id='io.openems.edge.io.revpi',\
 	bnd.identity;id='io.openems.edge.io.shelly',\
@@ -244,6 +245,7 @@
 	io.openems.edge.heater.api;version=snapshot,\
 	io.openems.edge.heater.chp.dachs;version=snapshot,\
 	io.openems.edge.heater.chp.wolf;version=snapshot,\
+	io.openems.edge.heater.heatpump.tecalor;version=snapshot,\
 	io.openems.edge.io.api;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
 	io.openems.edge.io.revpi;version=snapshot,\
