@@ -1,4 +1,4 @@
-package io.openems.edge.battery.soltaro;
+package io.openems.edge.battery.soltaro.common.enums;
 
 /**
  * This type defines the module type.
