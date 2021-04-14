@@ -2,8 +2,10 @@ package io.openems.edge.bridge.mbus;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import io.openems.edge.bridge.mbus.api.ChannelRecord;
 import org.openmuc.jmbus.DecodingException;
 import org.openmuc.jmbus.MBusConnection;
 import org.openmuc.jmbus.MBusConnection.MBusSerialBuilder;
@@ -28,7 +30,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
-@Designate(ocd = Config.class, factory = true)
+@Designate(ocd = ConfigMBus.class, factory = true)
 @Component(name = "Bridge.Mbus", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
@@ -39,8 +41,7 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 
 	public BridgeMbusImpl() {
 		super(//
-				OpenemsComponent.ChannelId.values(), //
-				BridgeMbus.ChannelId.values() //
+				OpenemsComponent.ChannelId.values() //
 		);
 	}
 
@@ -50,15 +51,15 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 	private MBusConnection mBusConnection;
 	private MBusSerialBuilder builder;
 	private String portName;
+	private boolean debug;
 
 	@Activate
-	protected void activate(ComponentContext context, Config config) {
+	protected void activate(ComponentContext context, ConfigMBus config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.portName = config.portName();
-
 		this.worker.activate(config.id());
-
 		this.builder = MBusConnection.newSerialBuilder(this.portName).setBaudrate(config.baudrate());
+		this.debug = config.debug();
 	}
 
 	@Deactivate
@@ -74,9 +75,9 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			this.worker.triggerNextRun();
-			break;
+			case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+				this.worker.triggerNextRun();
+				break;
 		}
 	}
 
@@ -88,19 +89,43 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 
 		@Override
 		protected void forever() throws OpenemsException, DecodingException {
-			// Check if time passed by, if not, do nothing
 			try {
 				BridgeMbusImpl.this.mBusConnection = BridgeMbusImpl.this.builder.build();
 
 				for (MbusTask task : BridgeMbusImpl.this.tasks.values()) {
-					try {
-						VariableDataStructure data = task.getRequest();
-						data.decode();
-						// "Before accessing elements of a variable data structure it has to be decoded
-						// using the decode method." ??
-						task.setResponse(data);
-					} catch (IOException e) {
-						e.printStackTrace();
+
+					// MBus devices have an optional polling interval. If enabled, the device is not polled every cycle
+					// but only once every polling interval. This is used to to conserve the energy of battery powered
+					// meters.
+					// permissionToPoll() will always return true if no polling interval has been set.
+					if (task.permissionToPoll()) {
+						try {
+							VariableDataStructure data = task.getRequest();
+							// From jmbus library:
+							// "Before accessing elements of a variable data structure it has to be decoded using the
+							// decode method."
+							// This decode() here is probably redundant, but it also doesn't hurt. MBus messages are
+							// usually not encrypted. There is also currently no code to allow a decryption key to be
+							// set for MBus devices.
+							data.decode();
+							task.processData(data);
+							if (debug) {
+								BridgeMbusImpl.this.logInfo(BridgeMbusImpl.this.log,
+										"Polling M-Bus device [" + task.getMeterId() + "]:");
+								BridgeMbusImpl.this.logInfo(BridgeMbusImpl.this.log, data.toString());
+								BridgeMbusImpl.this.logInfo(BridgeMbusImpl.this.log, "Channels updated:");
+								List<ChannelRecord> channelDataRecordsList = task.getOpenemsMbusComponent().getChannelDataRecordsList();
+								for (ChannelRecord record : channelDataRecordsList) {
+									BridgeMbusImpl.this.logInfo(BridgeMbusImpl.this.log,
+											record.getChannel().channelId() + " - " + record.getChannel().getNextValue().get());
+								}
+								BridgeMbusImpl.this.logInfo(BridgeMbusImpl.this.log, "");
+							}
+						} catch (IOException e) {
+							BridgeMbusImpl.this.logError(BridgeMbusImpl.this.log,
+									"Connection to M-Bus device [" + task.getMeterId() + "] failed. "
+											+ "Check the cable and/or the M-Bus PrimaryAddress of the device.");
+						}
 					}
 				}
 
