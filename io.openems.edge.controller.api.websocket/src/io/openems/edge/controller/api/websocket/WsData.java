@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.user.EdgeUser;
+import io.openems.edge.common.user.User;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
@@ -20,7 +20,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	private UUID sessionToken = null;
 
-	private Optional<EdgeUser> user = Optional.empty();
+	private Optional<User> user = Optional.empty();
 
 	public WsData(WebsocketApi parent) {
 		this.parent = parent;
@@ -35,7 +35,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return sessionToken;
 	}
 
-	public void setUser(EdgeUser user) {
+	public void setUser(User user) {
 		this.user = Optional.ofNullable(user);
 	}
 
@@ -43,7 +43,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 		this.user = Optional.empty();
 	}
 
-	public Optional<EdgeUser> getUser() {
+	public Optional<User> getUser() {
 		return user;
 	}
 
@@ -51,10 +51,10 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * Throws an exception if the User is not authenticated.
 	 * 
 	 * @param resource a resource identifier; used for the exception
-	 * @return the current Role
+	 * @return the current {@link User}
 	 * @throws OpenemsNamedException if the current Role privileges are less
 	 */
-	public EdgeUser assertUserIsAuthenticated(String resource) throws OpenemsNamedException {
+	public User assertUserIsAuthenticated(String resource) throws OpenemsNamedException {
 		if (this.getUser().isPresent()) {
 			return this.getUser().get();
 		} else {

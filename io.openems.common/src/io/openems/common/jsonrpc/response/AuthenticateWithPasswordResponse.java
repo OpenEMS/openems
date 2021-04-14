@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.shared.EdgeMetadata;
-import io.openems.common.session.User;
+import io.openems.common.session.AbstractUser;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -27,9 +27,9 @@ import io.openems.common.utils.JsonUtils;
 public class AuthenticateWithPasswordResponse extends JsonrpcResponseSuccess {
 
 	private final String token;
-	private final User user;
+	private final AbstractUser user;
 
-	public AuthenticateWithPasswordResponse(UUID id, String token, User user) {
+	public AuthenticateWithPasswordResponse(UUID id, String token, AbstractUser user) {
 		super(id);
 		this.token = token;
 		this.user = user;

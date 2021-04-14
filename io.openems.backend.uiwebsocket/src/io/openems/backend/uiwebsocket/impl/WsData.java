@@ -7,8 +7,8 @@ import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import io.openems.backend.common.metadata.BackendUser;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
@@ -50,10 +50,10 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * @return the User or Optional.Empty if the User was not authenticated or it is
 	 *         not available from Metadata service
 	 */
-	public synchronized Optional<BackendUser> getUser(Metadata metadata) {
+	public synchronized Optional<User> getUser(Metadata metadata) {
 		Optional<String> userId = this.getUserId();
 		if (userId.isPresent()) {
-			Optional<BackendUser> user = metadata.getUser(userId.get());
+			Optional<User> user = metadata.getUser(userId.get());
 			return user;
 		}
 		return Optional.empty();

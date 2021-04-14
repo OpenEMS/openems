@@ -50,7 +50,7 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.session.Role;
-import io.openems.common.session.User;
+import io.openems.common.session.AbstractUser;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
@@ -323,7 +323,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	/**
 	 * Delete all non-required Components.
 	 * 
-	 * @param user the {@link User}
+	 * @param user the {@link AbstractUser}
 	 * @throws OpenemsNamedException on error
 	 */
 	private void deleteAllConfigurations(EdgeUser user) throws OpenemsNamedException {

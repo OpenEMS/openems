@@ -19,10 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.metadata.AbstractMetadata;
-import io.openems.backend.common.metadata.BackendUser;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -45,7 +45,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 	private final AtomicInteger nextUserId = new AtomicInteger(-1);
 	private final AtomicInteger nextEdgeId = new AtomicInteger(-1);
 
-	private final Map<String, BackendUser> users = new HashMap<>();
+	private final Map<String, User> users = new HashMap<>();
 	private final Map<String, MyEdge> edges = new HashMap<>();
 
 	public DummyMetadata() {
@@ -64,25 +64,25 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
-	public BackendUser authenticate() throws OpenemsException {
+	public User authenticate() throws OpenemsException {
 		int id = this.nextUserId.incrementAndGet();
 		String userId = "user" + id;
 		TreeMap<String, Role> roles = new TreeMap<>();
 		for (String edgeId : this.edges.keySet()) {
 			roles.put(edgeId, Role.ADMIN);
 		}
-		BackendUser user = new BackendUser(userId, "User #" + id, Role.ADMIN, roles);
+		User user = new User(userId, "User #" + id, Role.ADMIN, roles);
 		this.users.put(userId, user);
 		return user;
 	}
 
 	@Override
-	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
+	public User authenticate(String username, String password) throws OpenemsNamedException {
 		return this.authenticate();
 	}
 
 	@Override
-	public BackendUser authenticate(String sessionId) throws OpenemsException {
+	public User authenticate(String sessionId) throws OpenemsException {
 		return this.authenticate();
 	}
 
@@ -124,7 +124,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
-	public Optional<BackendUser> getUser(String userId) {
+	public Optional<User> getUser(String userId) {
 		return Optional.ofNullable(this.users.get(userId));
 	}
 

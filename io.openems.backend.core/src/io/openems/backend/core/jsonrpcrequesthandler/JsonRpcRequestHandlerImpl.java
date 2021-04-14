@@ -25,9 +25,9 @@ import io.openems.backend.common.jsonrpc.request.GetEdgesStatusRequest;
 import io.openems.backend.common.jsonrpc.response.GetEdgesChannelsValuesResponse;
 import io.openems.backend.common.jsonrpc.response.GetEdgesStatusResponse;
 import io.openems.backend.common.jsonrpc.response.GetEdgesStatusResponse.EdgeInfo;
-import io.openems.backend.common.metadata.BackendUser;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.metadata.User;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -38,7 +38,6 @@ import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
 import io.openems.common.session.Role;
-import io.openems.common.session.User;
 import io.openems.common.types.ChannelAddress;
 
 @Component(//
@@ -69,12 +68,12 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 	 * Handles a JSON-RPC Request.
 	 * 
 	 * @param context the Logger context, i.e. the name of the parent source
-	 * @param user    the User
+	 * @param user    the {@link User}
 	 * @param request the JsonrpcRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleRequest(String context, BackendUser user,
+	public CompletableFuture<? extends JsonrpcResponseSuccess> handleRequest(String context, User user,
 			JsonrpcRequest request) throws OpenemsNamedException {
 		switch (request.getMethod()) {
 
@@ -99,15 +98,15 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 	}
 
 	/**
-	 * Handles a GetStatusOfEdgesRequest.
+	 * Handles a {@link GetEdgesStatusRequest}.
 	 * 
-	 * @param user      the User
+	 * @param user      the {@link User}
 	 * @param messageId the JSON-RPC Message-ID
-	 * @param request   the GetStatusOfEdgesRequest
+	 * @param request   the {@link GetEdgesStatusRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<GetEdgesStatusResponse> handleGetStatusOfEdgesRequest(BackendUser user, UUID messageId,
+	private CompletableFuture<GetEdgesStatusResponse> handleGetStatusOfEdgesRequest(User user, UUID messageId,
 			GetEdgesStatusRequest request) throws OpenemsNamedException {
 		Map<String, EdgeInfo> result = new HashMap<>();
 		for (Entry<String, Role> entry : user.getEdgeRoles().entrySet()) {
@@ -129,16 +128,16 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 	}
 
 	/**
-	 * Handles a GetChannelsValuesRequest.
+	 * Handles a {@link GetEdgesChannelsValuesRequest}.
 	 * 
-	 * @param user      the User
+	 * @param user      the {@link User}
 	 * @param messageId the JSON-RPC Message-ID
 	 * @param request   the GetChannelsValuesRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<GetEdgesChannelsValuesResponse> handleGetChannelsValuesRequest(BackendUser user,
-			UUID messageId, GetEdgesChannelsValuesRequest request) throws OpenemsNamedException {
+	private CompletableFuture<GetEdgesChannelsValuesResponse> handleGetChannelsValuesRequest(User user, UUID messageId,
+			GetEdgesChannelsValuesRequest request) throws OpenemsNamedException {
 		GetEdgesChannelsValuesResponse response = new GetEdgesChannelsValuesResponse(messageId);
 		for (String edgeId : request.getEdgeIds()) {
 			// assure read permissions of this User for this Edge.
@@ -155,19 +154,18 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 	}
 
 	/**
-	 * Handles a SetGridConnScheduleRequest.
+	 * Handles a {@link SetGridConnScheduleRequest}.
 	 * 
-	 * @param backendUser                the User
+	 * @param backendUser                the {@link User}
 	 * @param messageId                  the JSON-RPC Message-ID
-	 * @param setGridConnScheduleRequest the SetGridConnScheduleRequest
+	 * @param setGridConnScheduleRequest the {@link SetGridConnScheduleRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSetGridConnScheduleRequest(BackendUser backendUser,
-			UUID messageId, SetGridConnScheduleRequest setGridConnScheduleRequest) throws OpenemsNamedException {
+	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSetGridConnScheduleRequest(User user, UUID messageId,
+			SetGridConnScheduleRequest setGridConnScheduleRequest) throws OpenemsNamedException {
 		String edgeId = setGridConnScheduleRequest.getEdgeId();
-		User user = backendUser.getAsCommonUser(edgeId);
-		user.assertRoleIsAtLeast(SetGridConnScheduleRequest.METHOD, Role.ADMIN);
+		user.assertEdgeRoleIsAtLeast(SetGridConnScheduleRequest.METHOD, edgeId, Role.ADMIN);
 
 		// wrap original request inside ComponentJsonApiRequest
 		String componentId = "ctrlBalancingSchedule0"; // TODO find dynamic Component-ID of BalancingScheduleController

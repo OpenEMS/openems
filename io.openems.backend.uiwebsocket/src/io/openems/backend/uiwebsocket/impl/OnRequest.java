@@ -6,7 +6,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
 
-import io.openems.backend.common.metadata.BackendUser;
+import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
@@ -19,7 +19,6 @@ import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.session.Role;
-import io.openems.common.session.User;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
@@ -41,7 +40,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		}
 
 		// should be authenticated
-		BackendUser user = this.assertUser(wsData, request);
+		User user = this.assertUser(wsData, request);
 
 		switch (request.getMethod()) {
 		case EdgeRpcRequest.METHOD:
@@ -58,17 +57,16 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles an AuthenticateWithPasswordRequest.
+	 * Handles an {@link AuthenticateWithPasswordRequest}.
 	 * 
-	 * @param wsData      the WebSocket attachment
-	 * @param backendUser the authenticated User
-	 * @param request     the AuthenticateWithUsernameAndPasswordRequest
+	 * @param wsData  the WebSocket attachment
+	 * @param request the {@link AuthenticateWithPasswordRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithPasswordRequest(WsData wsData,
 			AuthenticateWithPasswordRequest request) throws OpenemsNamedException {
-		BackendUser user;
+		final User user;
 		if (request.getUsername().isPresent()) {
 			user = this.parent.metadata.authenticate(request.getUsername().get(), request.getPassword());
 		} else {
@@ -85,16 +83,16 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * 
 	 * @param wsData  the WebSocket attachment
 	 * @param request the JsonrpcRequest
-	 * @return the User
+	 * @return the {@link User}
 	 * @throws OpenemsNamedException if User is not authenticated
 	 */
-	private BackendUser assertUser(WsData wsData, JsonrpcRequest request) throws OpenemsNamedException {
+	private User assertUser(WsData wsData, JsonrpcRequest request) throws OpenemsNamedException {
 		Optional<String> userIdOpt = wsData.getUserId();
 		if (!userIdOpt.isPresent()) {
 			throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED
 					.exception("User-ID is empty. Ignoring request [" + request.getMethod() + "]");
 		}
-		Optional<BackendUser> userOpt = this.parent.metadata.getUser(userIdOpt.get());
+		Optional<User> userOpt = this.parent.metadata.getUser(userIdOpt.get());
 		if (!userOpt.isPresent()) {
 			throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED.exception("User with ID [" + userIdOpt.get()
 					+ "] is unknown. Ignoring request [" + request.getMethod() + "]");
@@ -106,17 +104,16 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * Handles an EdgeRpcRequest.
 	 * 
 	 * @param wsData         the WebSocket attachment
-	 * @param backendUser    the authenticated User
-	 * @param edgeRpcRequest the EdgeRpcRequest
+	 * @param user           the authenticated {@link User}
+	 * @param edgeRpcRequest the {@link EdgeRpcRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<EdgeRpcResponse> handleEdgeRpcRequest(WsData wsData, BackendUser backendUser,
+	private CompletableFuture<EdgeRpcResponse> handleEdgeRpcRequest(WsData wsData, User user,
 			EdgeRpcRequest edgeRpcRequest) throws OpenemsNamedException {
 		String edgeId = edgeRpcRequest.getEdgeId();
 		JsonrpcRequest request = edgeRpcRequest.getPayload();
-		User user = backendUser.getAsCommonUser(edgeId);
-		user.assertRoleIsAtLeast(EdgeRpcRequest.METHOD, Role.GUEST);
+		user.assertEdgeRoleIsAtLeast(EdgeRpcRequest.METHOD, edgeId, Role.GUEST);
 
 		CompletableFuture<JsonrpcResponseSuccess> resultFuture;
 		switch (request.getMethod()) {
@@ -156,7 +153,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * 
 	 * @param wsData  the WebSocket attachment
 	 * @param edgeId  the Edge-ID
-	 * @param user    the User - no specific level required
+	 * @param user    the {@link User} - no specific level required
 	 * @param request the SubscribeChannelsRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
@@ -165,25 +162,25 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			User user, SubscribeChannelsRequest request) throws OpenemsNamedException {
 		// activate SubscribedChannelsWorker
 		SubscribedChannelsWorker worker = wsData.getSubscribedChannelsWorker(edgeId);
-		worker.handleSubscribeChannelsRequest(user.getRole(), request);
+		worker.handleSubscribeChannelsRequest(user.getRole(edgeId).orElse(Role.GUEST), request);
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
 	/**
-	 * Handles a SubscribeSystemLogRequest.
+	 * Handles a {@link SubscribeSystemLogRequest}.
 	 * 
 	 * @param wsData  the WebSocket attachment
 	 * @param edgeId  the Edge-ID
-	 * @param user    the User
-	 * @param request the SubscribeSystemLogRequest
+	 * @param user    the {@link User}
+	 * @param request the {@link SubscribeSystemLogRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(WsData wsData, String edgeId,
 			User user, SubscribeSystemLogRequest request) throws OpenemsNamedException {
-		user.assertRoleIsAtLeast(SubscribeSystemLogRequest.METHOD, Role.OWNER);
+		user.assertEdgeRoleIsAtLeast(SubscribeSystemLogRequest.METHOD, edgeId, Role.OWNER);
 		UUID token = wsData.assertToken();
 
 		// Forward to Edge

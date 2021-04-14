@@ -14,9 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.metadata.AbstractMetadata;
-import io.openems.backend.common.metadata.BackendUser;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.metadata.User;
 import io.openems.backend.metadata.odoo.odoo.OdooHandler;
 import io.openems.backend.metadata.odoo.odoo.jsonrpc.AuthenticateWithSessionIdResponse;
 import io.openems.backend.metadata.odoo.postgres.PostgresHandler;
@@ -38,9 +38,9 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	protected PostgresHandler postgresHandler = null;
 
 	/**
-	 * Maps User-ID to User.
+	 * Maps User-ID to {@link User}.
 	 */
-	private ConcurrentHashMap<String, BackendUser> users = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
 
 	public OdooMetadata() {
 		super("Metadata.Odoo");
@@ -72,7 +72,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
-	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
+	public User authenticate(String username, String password) throws OpenemsNamedException {
 		String sessionId = this.odooHandler.authenticate(username, password);
 		return this.authenticate(sessionId);
 	}
@@ -85,7 +85,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	 * @throws OpenemsException on error
 	 */
 	@Override
-	public BackendUser authenticate(String sessionId) throws OpenemsNamedException {
+	public User authenticate(String sessionId) throws OpenemsNamedException {
 		JsonrpcResponseSuccess origResponse = this.odooHandler.authenticateSession(sessionId);
 		AuthenticateWithSessionIdResponse response = AuthenticateWithSessionIdResponse.from(origResponse, sessionId,
 				this.edgeCache, this.isInitialized());
@@ -110,7 +110,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
-	public Optional<BackendUser> getUser(String userId) {
+	public Optional<User> getUser(String userId) {
 		return Optional.ofNullable(this.users.get(userId));
 	}
 

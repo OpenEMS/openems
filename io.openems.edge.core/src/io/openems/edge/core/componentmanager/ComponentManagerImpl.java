@@ -48,7 +48,7 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.session.Role;
-import io.openems.common.session.User;
+import io.openems.common.session.AbstractUser;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -184,7 +184,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
+	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(AbstractUser user, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.GUEST);
 
@@ -215,7 +215,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(AbstractUser user,
 			GetEdgeConfigRequest request) throws OpenemsNamedException {
 		EdgeConfig config = this.getEdgeConfig();
 		GetEdgeConfigResponse response = new GetEdgeConfigResponse(request.getId(), config);
@@ -230,7 +230,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	protected CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
+	protected CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(AbstractUser user,
 			CreateComponentConfigRequest request) throws OpenemsNamedException {
 		// Get Component-ID from Request
 		String componentId = null;
@@ -306,7 +306,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	protected CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
+	protected CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(AbstractUser user,
 			UpdateComponentConfigRequest request) throws OpenemsNamedException {
 		Configuration config = this.getExistingConfigForId(request.getComponentId());
 
@@ -349,7 +349,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	protected CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(User user,
+	protected CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(AbstractUser user,
 			DeleteComponentConfigRequest request) throws OpenemsNamedException {
 		Configuration config = this.getExistingConfigForId(request.getComponentId());
 
@@ -372,7 +372,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @param properties the properties
 	 * @throws IOException on error
 	 */
-	private void applyConfiguration(User user, Configuration config, Dictionary<String, Object> properties)
+	private void applyConfiguration(AbstractUser user, Configuration config, Dictionary<String, Object> properties)
 			throws IOException {
 		String lastChangeBy;
 		if (user != null) {

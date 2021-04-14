@@ -5,16 +5,32 @@ import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.session.AbstractUser;
 import io.openems.common.session.Role;
-import io.openems.common.session.User;
 
 /**
- * Represents a Backend-User within Metadata Service.
+ * A {@link User} used by OpenEMS Backend.
  */
-public class BackendUser extends User {
+public class User extends AbstractUser {
 
-	public BackendUser(String id, String name, Role role, NavigableMap<String, Role> roles) {
-		super(id, name, role, roles);
+	public User(String id, String name, Role globalRole, NavigableMap<String, Role> roles) {
+		super(id, name, globalRole, roles);
+	}
+
+	/**
+	 * Gets the information whether the Users Role for the given Edge is equal or
+	 * more privileged than the given Role.
+	 * 
+	 * @param edgeId the Edge-Id
+	 * @param role   the compared Role
+	 * @return true if the Users Role privileges are equal or higher
+	 */
+	public boolean roleIsAtLeast(String edgeId, Role role) {
+		Optional<Role> thisRoleOpt = this.getRole(edgeId);
+		if (!thisRoleOpt.isPresent()) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -24,7 +40,7 @@ public class BackendUser extends User {
 	 * @param resource a resource identifier; used for the exception
 	 * @param edgeId   the Edge-ID
 	 * @param role     the compared Role
-	 * @return the current Role
+	 * @return the current {@link Role}
 	 * @throws OpenemsNamedException if the current Role privileges are less
 	 */
 	public Role assertEdgeRoleIsAtLeast(String resource, String edgeId, Role role) throws OpenemsNamedException {

@@ -30,7 +30,7 @@ import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
-import io.openems.common.session.User;
+import io.openems.common.session.AbstractUser;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -110,13 +110,13 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, User user, JsonrpcRequest request)
+	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, AbstractUser user, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		WebSocket ws = this.getWebSocketForEdgeId(edgeId);
 		if (ws != null) {
 			WsData wsData = ws.getAttachment();
 			// Wrap Request in AuthenticatedRpc
-			AuthenticatedRpcRequest authenticatedRpc = new AuthenticatedRpcRequest(user, request);
+			AuthenticatedRpcRequest<AbstractUser> authenticatedRpc = new AuthenticatedRpcRequest<AbstractUser>(user, request);
 			CompletableFuture<JsonrpcResponseSuccess> responseFuture = wsData.send(authenticatedRpc);
 
 			// Unwrap Response
@@ -181,7 +181,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
+	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, AbstractUser user,
 			UUID token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, user, token, request);
 	}

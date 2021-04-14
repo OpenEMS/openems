@@ -1,15 +1,21 @@
 package io.openems.edge.common.user;
 
 import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.Maps;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.session.AbstractUser;
 import io.openems.common.session.Role;
-import io.openems.common.session.User;
 
 /**
  * A {@link User} used by OpenEMS Edge.
  */
-public abstract class EdgeUser extends User {
+public class User extends AbstractUser {
+
+	/**
+	 * Default-Edge-ID for EdgeUser.
+	 */
+	public final static String DEFAULT_EDGE_ID = "DEFAULT_EDGE_ID";
 
 	/**
 	 * Constructs an {@link EdgeUser}.
@@ -19,8 +25,8 @@ public abstract class EdgeUser extends User {
 	 * @param role the {@link Role}; used as global Role and assigned to
 	 *             {@link User#DEFAULT_EDGE_ID}.
 	 */
-	protected EdgeUser(String id, String name, Role role) {
-		super(id, name, role, ImmutableSortedMap.<String, Role>naturalOrder().put(User.DEFAULT_EDGE_ID, role).build());
+	protected User(String id, String name, Role role) {
+		super(id, name, role, Maps.newTreeMap(ImmutableSortedMap.of(DEFAULT_EDGE_ID, role)));
 	}
 
 	/**

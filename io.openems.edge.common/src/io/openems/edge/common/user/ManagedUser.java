@@ -12,10 +12,10 @@ import javax.crypto.spec.PBEKeySpec;
 import io.openems.common.session.Role;
 
 /**
- * A {@link EdgeUser} that can be used for Logging in. Managed by the
+ * A {@link User} that can be used for Logging in. Managed by the
  * {@link UserService}.
  */
-public class LoginEdgeUser extends EdgeUser {
+public class ManagedUser extends User {
 
 	private final static int KEY_LENGTH = 256;
 	private final static int ITERATIONS = 10;
@@ -23,11 +23,11 @@ public class LoginEdgeUser extends EdgeUser {
 	private final byte[] password;
 	private final byte[] salt;
 
-	public LoginEdgeUser(String id, String name, Role role, String passwordAsBase64, String saltAsBase64) {
+	public ManagedUser(String id, String name, Role role, String passwordAsBase64, String saltAsBase64) {
 		this(id, name, role, Base64.getDecoder().decode(passwordAsBase64), Base64.getDecoder().decode(saltAsBase64));
 	}
 
-	public LoginEdgeUser(String id, String name, Role role, final byte[] password, final byte[] salt) {
+	public ManagedUser(String id, String name, Role role, final byte[] password, final byte[] salt) {
 		super(id, name, role);
 		this.password = password;
 		this.salt = salt;
@@ -38,7 +38,7 @@ public class LoginEdgeUser extends EdgeUser {
 			// no password existing -> allow access
 			return true;
 		}
-		byte[] hashedPassword = LoginEdgeUser.hashPassword(password, this.salt);
+		byte[] hashedPassword = ManagedUser.hashPassword(password, this.salt);
 		return Arrays.equals(hashedPassword, this.password);
 	}
 

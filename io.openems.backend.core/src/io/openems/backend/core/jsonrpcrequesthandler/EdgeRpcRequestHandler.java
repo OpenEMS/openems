@@ -30,7 +30,7 @@ import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyPerPeriodResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
 import io.openems.common.session.Role;
-import io.openems.common.session.User;
+import io.openems.common.session.AbstractUser;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 
@@ -51,7 +51,7 @@ public class EdgeRpcRequestHandler {
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	protected CompletableFuture<EdgeRpcResponse> handleRequest(User user, UUID messageId, EdgeRpcRequest edgeRpcRequest)
+	protected CompletableFuture<EdgeRpcResponse> handleRequest(AbstractUser user, UUID messageId, EdgeRpcRequest edgeRpcRequest)
 			throws OpenemsNamedException {
 		String edgeId = edgeRpcRequest.getEdgeId();
 		JsonrpcRequest request = edgeRpcRequest.getPayload();
@@ -135,7 +135,7 @@ public class EdgeRpcRequestHandler {
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(String edgeId, User user,
+	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(String edgeId, AbstractUser user,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> historicData = this.parent.timeData
 				.queryHistoricData(edgeId, request);
@@ -154,7 +154,7 @@ public class EdgeRpcRequestHandler {
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyRequest(String edgeId, User user,
+	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyRequest(String edgeId, AbstractUser user,
 			QueryHistoricTimeseriesEnergyRequest request) throws OpenemsNamedException {
 		Map<ChannelAddress, JsonElement> data = this.parent.timeData.queryHistoricEnergy(//
 				edgeId, request.getFromDate(), request.getToDate(), request.getChannels());
@@ -173,7 +173,7 @@ public class EdgeRpcRequestHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyPerPeriodRequest(String edgeId,
-			User user, QueryHistoricTimeseriesEnergyPerPeriodRequest request) throws OpenemsNamedException {
+			AbstractUser user, QueryHistoricTimeseriesEnergyPerPeriodRequest request) throws OpenemsNamedException {
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data = this.parent.timeData
 				.queryHistoricEnergyPerPeriod(//
 						edgeId, request.getFromDate(), request.getToDate(), request.getChannels(),
@@ -194,7 +194,7 @@ public class EdgeRpcRequestHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricTimeseriesExportXlxsRequest(String edgeId,
-			User user, QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {
+			AbstractUser user, QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {
 		return CompletableFuture
 				.completedFuture(this.parent.timeData.handleQueryHistoricTimeseriesExportXlxsRequest(edgeId, request));
 	}
@@ -208,7 +208,7 @@ public class EdgeRpcRequestHandler {
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(String edgeId, User user,
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(String edgeId, AbstractUser user,
 			GetEdgeConfigRequest request) throws OpenemsNamedException {
 		EdgeConfig config = this.parent.metadata.getEdgeOrError(edgeId).getConfig();
 
@@ -225,7 +225,7 @@ public class EdgeRpcRequestHandler {
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(String edgeId, User user,
+	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(String edgeId, AbstractUser user,
 			CreateComponentConfigRequest request) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast(CreateComponentConfigRequest.METHOD, Role.INSTALLER);
 
@@ -241,7 +241,7 @@ public class EdgeRpcRequestHandler {
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(String edgeId, User user,
+	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(String edgeId, AbstractUser user,
 			UpdateComponentConfigRequest request) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast(UpdateComponentConfigRequest.METHOD, Role.OWNER);
 
@@ -257,7 +257,7 @@ public class EdgeRpcRequestHandler {
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(String edgeId, User user,
+	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(String edgeId, AbstractUser user,
 			DeleteComponentConfigRequest request) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast(DeleteComponentConfigRequest.METHOD, Role.INSTALLER);
 
@@ -273,7 +273,7 @@ public class EdgeRpcRequestHandler {
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleSetChannelValueRequest(String edgeId, User user,
+	private CompletableFuture<JsonrpcResponseSuccess> handleSetChannelValueRequest(String edgeId, AbstractUser user,
 			SetChannelValueRequest request) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast(SetChannelValueRequest.METHOD, Role.ADMIN);
 
@@ -289,7 +289,7 @@ public class EdgeRpcRequestHandler {
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleComponentJsonApiRequest(String edgeId, User user,
+	private CompletableFuture<JsonrpcResponseSuccess> handleComponentJsonApiRequest(String edgeId, AbstractUser user,
 			ComponentJsonApiRequest componentJsonApiRequest) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast(ComponentJsonApiRequest.METHOD, Role.GUEST);
 

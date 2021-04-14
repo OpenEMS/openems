@@ -20,8 +20,8 @@ import org.slf4j.Logger;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
-import io.openems.backend.common.metadata.BackendUser;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.metadata.User;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.backend.common.uiwebsocket.UiWebsocket;
 import io.openems.common.exceptions.OpenemsError;
@@ -175,9 +175,9 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 			if (userIdOpt.isPresent()) {
 				String userId = userIdOpt.get();
 				// get BackendUser for User-ID
-				Optional<BackendUser> userOpt = this.metadata.getUser(userId);
+				Optional<User> userOpt = this.metadata.getUser(userId);
 				if (userOpt.isPresent()) {
-					BackendUser user = userOpt.get();
+					User user = userOpt.get();
 					Optional<Role> edgeRoleOpt = user.getRole(edgeId);
 					if (edgeRoleOpt.isPresent()) {
 						// User has access to this Edge-ID
