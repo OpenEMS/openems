@@ -263,7 +263,10 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 		if (configs != null) {
 			for (Configuration config : configs) {
 				Dictionary<String, Object> properties = config.getProperties();
-
+				if (properties == null) {
+					this.log.warn(config.getPid() + ": Properties is 'null'");
+					continue;
+				}
 				// Read Component-ID
 				String componentId = null;
 				Object componentIdObj = properties.get("id");
