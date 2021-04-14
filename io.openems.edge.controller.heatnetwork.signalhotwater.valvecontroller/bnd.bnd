@@ -6,12 +6,6 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
     Control module to manage different controllers manipulating the same valve and pump.o.openems.edge.controller.heatnetwork.signalhotwater.valvecontroller/api.bnd}
 
-Export-Package:  \
-	io.openems.edge.controller.heatnetwork.signalhotwater.valvecontroller.api,\
-
-Private-Package:  \
-	io.openems.edge.controller.heatnetwork.signalhotwater.valvecontroller,\
-
 -includeresource: {readme.md}
 
 -buildpath:  \
@@ -22,9 +16,9 @@ Private-Package:  \
 	io.openems.edge.thermometer.api;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
 	io.openems.edge.controller.heatnetwork.valvepumpcontrol;version=latest,\
+	io.openems.edge.controller.heatnetwork.signalhotwater;version=latest,\
 
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+	${testpath}
 

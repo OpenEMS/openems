@@ -162,9 +162,9 @@ public class SignalHotWaterValveControllerImpl extends AbstractOpenemsComponent 
             updateConfig();
         }
         // Sensor checks and error handling.
-        if (waermetauscherVorlauf.getTemperature().value().isDefined()) {
+        if (waermetauscherVorlauf.getTemperatureChannel().value().isDefined()) {
             if (signalHotWater.waterTankTemp().value().isDefined()) {
-                heatNetworkTemp = waermetauscherVorlauf.getTemperature().value().get();
+                heatNetworkTemp = waermetauscherVorlauf.getTemperatureChannel().value().get();
                 waterTankTemperature = signalHotWater.waterTankTemp().value().get();
                 if (temperatureSensorSendsData == false) {
                     this.logDebug(this.log, "Temperature sensors are fine now!");
@@ -304,7 +304,7 @@ public class SignalHotWaterValveControllerImpl extends AbstractOpenemsComponent 
             this.noError().setNextValue(false);
             valveError = true;
             this.logError(this.log, "Error: Valve or heat source malfunction! Getting only "
-                    + (waermetauscherVorlauf.getTemperature().value().get() / 10) + "°C from the heat source. Valve should "
+                    + (waermetauscherVorlauf.getTemperatureChannel().value().get() / 10) + "°C from the heat source. Valve should "
                     + "be open and temperature should rise, but not detecting the expected increase in temperature.");
         } else {
             // Temperature has increased a bit, but not enough
@@ -322,7 +322,7 @@ public class SignalHotWaterValveControllerImpl extends AbstractOpenemsComponent 
                 valvePumpControlChannel.setValveOverrideOpenClose().setNextWriteValue(false);
 
                 stepcounter = 2;
-                this.logWarn(this.log, "Warning: Temperature is only at " + (waermetauscherVorlauf.getTemperature().value().get() / 10)
+                this.logWarn(this.log, "Warning: Temperature is only at " + (waermetauscherVorlauf.getTemperatureChannel().value().get() / 10)
                         + "°C, but should be at least at " + (minTempVorlauf / 10) + "°C by now. Check heat source for possible errors." +
                         " Trying to heat the water tank anyway.");
 

@@ -5,17 +5,10 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
 	This Controller regulates an hydraulic heating line
 
-Export-Package: \
-    io.openems.edge.controller.heatnetwork.hydraulic.lineheater.api,\
-
-Private-Package:  \
-	io.openems.edge.controller.heatnetwork.hydraulic.lineheater,\
-	io.openems.edge.controller.heatnetwork.hydraulic.lineheater.helperclass,\
-
 -includeresource: {readme.md}
 
 -buildpath:  \
-	osgi.enroute.base.api;version=2.1,\
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
@@ -28,6 +21,5 @@ Private-Package:  \
 
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+	${testpath},\
 

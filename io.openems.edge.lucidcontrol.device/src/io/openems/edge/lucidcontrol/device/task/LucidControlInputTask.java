@@ -1,7 +1,7 @@
 package io.openems.edge.lucidcontrol.device.task;
 
-import io.openems.edge.bridge.lucidcontrol.task.AbstractLucidControlBridgeTask;
-import io.openems.edge.bridge.lucidcontrol.task.LucidControlBridgeTask;
+import io.openems.edge.bridge.lucidcontrol.api.AbstractLucidControlBridgeTask;
+import io.openems.edge.bridge.lucidcontrol.api.LucidControlBridgeTask;
 import io.openems.edge.common.channel.Channel;
 
 public class LucidControlInputTask extends AbstractLucidControlBridgeTask implements LucidControlBridgeTask {

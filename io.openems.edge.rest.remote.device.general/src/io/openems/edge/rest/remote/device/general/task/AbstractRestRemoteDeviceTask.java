@@ -1,10 +1,7 @@
 package io.openems.edge.rest.remote.device.general.task;
 
-import io.openems.edge.bridge.rest.communcation.task.RestRequest;
+import io.openems.edge.bridge.rest.communcation.api.RestRequest;
 import io.openems.edge.common.channel.Channel;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public abstract class AbstractRestRemoteDeviceTask implements RestRequest {
 

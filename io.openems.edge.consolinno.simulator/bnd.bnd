@@ -6,26 +6,10 @@ Bundle-Description: \
     This Bundle provides a lot of simulators for complex heatsystems.\
     Containing: Thermometer, DecentralHeater, RelaysHeater, CommunicationMaster etc etc.
 
-
-Private-Package: \
-    io.openems.edge.consolinno.simulator.heater.onerelay,\
-    io.openems.edge.consolinno.simulator.heater.decentral,\
-    io.openems.edge.consolinno.simulator.communicationmaster,\
-    io.openems.edge.consolinno.simulator.thermometer,\
-
-
-Export-Package:  \
-	io.openems.edge.consolinno.simulator.api,\
-	io.openems.edge.consolinno.simulator.communicationmaster.api,\
-	io.openems.edge.consolinno.simulator.heater.api,\
-	io.openems.edge.consolinno.simulator.thermometer.api,\
-
-
-
 -includeresource: {readme.md}
 
 -buildpath:  \
-	osgi.enroute.base.api;version=2.1,\
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.thermometer.api;version=latest,\
@@ -35,10 +19,9 @@ Export-Package:  \
 	io.openems.edge.controller.heatnetwork.master;version=latest,\
 	io.openems.edge.rest.remote.device.general.api;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
-	joda-time,\
 	io.openems.edge.controller.hydraulic.lineheater;version=latest,\
+	joda-time,\
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+	${testpath}
 

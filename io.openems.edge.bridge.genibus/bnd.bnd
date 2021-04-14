@@ -5,16 +5,6 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
 	This Bundle Provides all protocols and api classes, needed to communicate via genibus.
 
-
-Export-Package:  \
-	io.openems.edge.bridge.genibus.api,\
-	io.openems.edge.bridge.genibus.api.task,\
-	io.openems.edge.bridge.genibus.protocol,\
-
-
-Private-Package:  \
-	io.openems.edge.bridge.genibus
-
 -includeresource: {readme.md},\
 	@crc-1.0.2.jar,\
 	@jrxtx-1.0.1.jar,\
@@ -25,7 +15,7 @@ Import-Package: \
 	!org.openmuc.jrxtx.*,\
     *
 -buildpath:  \
-	osgi.enroute.base.api;version=2.1,\
+	${buildpath},\
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
 	com.github.snksoft:crc;version=1.0.2,\
@@ -37,10 +27,9 @@ Import-Package: \
     com.google.gson,\
     com.google.guava,\
 
-
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+	${testpath}
+
 -runrequires: \
 	bnd.identity;version='2.5.3';id='com.fazecast.jSerialComm',\
 	bnd.identity;version='1.0.1';id='org.openmuc.jrxtx'

@@ -172,9 +172,9 @@ public class HeatingCurveRegulatorImpl extends AbstractOpenemsComponent implemen
             updateConfig();
         }
         // Transfer channel data to local variables for better readability of logic code.
-        tempSensorSendsData = outsideTempSensor.getTemperature().value().isDefined();
+        tempSensorSendsData = outsideTempSensor.getTemperatureChannel().value().isDefined();
         if (tempSensorSendsData) {
-            outsideTemperature = outsideTempSensor.getTemperature().value().get();
+            outsideTemperature = outsideTempSensor.getTemperatureChannel().value().get();
 
             // Error handling.
             if (this.noError().value().get() == false) {

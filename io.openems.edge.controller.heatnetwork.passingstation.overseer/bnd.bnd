@@ -6,16 +6,10 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
     This Controller oversees a certain temperature and de/activates the passingController if the temp. is (not) reached.
 
-
-Export-Package:  \
-
-Private-Package:  \
-	io.openems.edge.controller.temperature.overseer,\
-
 -includeresource: {readme.md}
 
 -buildpath:  \
-	osgi.enroute.base.api;version=2.1,\
+	${buildpath},\
 	io.openems.edge.controller.api;version=latest,\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
@@ -26,6 +20,5 @@ Private-Package:  \
 	io.openems.edge.controller.temperature.passing;version=latest,\
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+	${testpath}
 

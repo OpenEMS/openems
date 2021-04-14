@@ -7,20 +7,14 @@ Bundle-Description: \
     2 Openems Edges can communicate via Rest. One as "Master" one as "Slave" \
     The Slave needs to active the Rest controller.
 
-Export-Package:  \
-	io.openems.edge.bridge.rest.communcation,\
-	io.openems.edge.bridge.rest.communcation.api,\
-	io.openems.edge.bridge.rest.communcation.task,\
-
 -includeresource: {readme.md}
 
 -buildpath:  \
-	osgi.enroute.base.api;version=2.1,\
+	${buildpath},\
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
 	joda-time;version=2.8.10,\
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+	${testpath}
 

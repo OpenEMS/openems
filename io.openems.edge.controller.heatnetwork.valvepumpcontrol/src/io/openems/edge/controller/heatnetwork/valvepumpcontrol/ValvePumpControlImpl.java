@@ -155,7 +155,7 @@ public class ValvePumpControlImpl extends AbstractOpenemsComponent implements Op
 
     private void checkRestart() {
         if (thermometerFlow != null && thermometerReturn != null) {
-            if (20 > thermometerFlow.getTemperature().value().get() - thermometerReturn.getTemperature().value().get()) {
+            if (20 > thermometerFlow.getTemperatureChannel().value().get() - thermometerReturn.getTemperatureChannel().value().get()) {
                 if (nochangeTime == 0) {
                     nochangeTime = System.currentTimeMillis();
                 } else {

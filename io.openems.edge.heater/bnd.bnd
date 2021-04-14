@@ -5,23 +5,10 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
     This Bundle provides the Api and Classes for Heater. Containing different Manufactureres and Types of Heater.
 
-Export-Package:  \
-	io.openems.edge.heater.api,\
-
-Private-Package:  \
-	io.openems.edge.heater,\
-	io.openems.edge.heater.biomassheater.gilles,\
-	io.openems.edge.heater.chp.kwenergy.smartblock,\
-	io.openems.edge.heater.chp.viessmann,\
-	io.openems.edge.heater.chp.viessmann.task,\
-	io.openems.edge.heater.chp.wolf,\
-	io.openems.edge.heater.decentral,\
-	io.openems.edge.heater.gasboiler.buderus,\
-
 -includeresource: {readme.md}
 
 -buildpath:  \
-	osgi.enroute.base.api;version=2.1,\
+	${buildpath},\
     io.openems.common;version=latest,\
     io.openems.edge.bridge.modbus;version=latest,\
     io.openems.edge.common;version=latest,\
@@ -34,6 +21,5 @@ Private-Package:  \
 
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+	${testpath}
 

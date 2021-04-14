@@ -19,7 +19,7 @@ Private-Package:  \
 -includeresource: {readme.md}
 
 -buildpath:  \
-	osgi.enroute.base.api;version=2.1,\
+	${buildpath},\
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
     org.eclipse.paho.client.mqttv3;version=1.2.4,\

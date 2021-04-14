@@ -1,13 +1,11 @@
 package io.openems.edge.controller.heatnetwork.master;
 
-import static org.junit.Assert.assertNotNull;
-
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.rest.remote.device.general.api.RestRemoteChannel;
 import org.junit.Test;
 
-import java.lang.annotation.Annotation;
+import static org.junit.Assert.assertNotNull;
 
 /*
  * Example JUNit test case

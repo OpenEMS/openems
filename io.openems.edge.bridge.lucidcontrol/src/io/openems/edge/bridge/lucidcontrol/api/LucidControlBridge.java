@@ -1,7 +1,5 @@
 package io.openems.edge.bridge.lucidcontrol.api;
 
-import io.openems.edge.bridge.lucidcontrol.task.LucidControlBridgeTask;
-
 public interface LucidControlBridge {
     /**
      * Adds the Path of the LucidControl Module.

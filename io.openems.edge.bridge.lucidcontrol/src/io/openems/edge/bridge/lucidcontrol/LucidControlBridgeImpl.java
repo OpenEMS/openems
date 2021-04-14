@@ -2,7 +2,7 @@ package io.openems.edge.bridge.lucidcontrol;
 
 import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.bridge.lucidcontrol.api.LucidControlBridge;
-import io.openems.edge.bridge.lucidcontrol.task.LucidControlBridgeTask;
+import io.openems.edge.bridge.lucidcontrol.api.LucidControlBridgeTask;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;

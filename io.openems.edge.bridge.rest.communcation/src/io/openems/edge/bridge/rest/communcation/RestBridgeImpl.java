@@ -1,9 +1,9 @@
 package io.openems.edge.bridge.rest.communcation;
 
 import io.openems.edge.bridge.rest.communcation.api.RestBridge;
-import io.openems.edge.bridge.rest.communcation.task.RestReadRequest;
-import io.openems.edge.bridge.rest.communcation.task.RestRequest;
-import io.openems.edge.bridge.rest.communcation.task.RestWriteRequest;
+import io.openems.edge.bridge.rest.communcation.api.RestReadRequest;
+import io.openems.edge.bridge.rest.communcation.api.RestRequest;
+import io.openems.edge.bridge.rest.communcation.api.RestWriteRequest;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;

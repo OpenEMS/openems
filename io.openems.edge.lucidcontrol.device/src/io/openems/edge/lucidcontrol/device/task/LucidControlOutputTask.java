@@ -1,10 +1,9 @@
 package io.openems.edge.lucidcontrol.device.task;
 
-import io.openems.edge.bridge.lucidcontrol.task.AbstractLucidControlBridgeTask;
-import io.openems.edge.bridge.lucidcontrol.task.LucidControlBridgeTask;
+import io.openems.edge.bridge.lucidcontrol.api.AbstractLucidControlBridgeTask;
+import io.openems.edge.bridge.lucidcontrol.api.LucidControlBridgeTask;
 import io.openems.edge.common.channel.Channel;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;

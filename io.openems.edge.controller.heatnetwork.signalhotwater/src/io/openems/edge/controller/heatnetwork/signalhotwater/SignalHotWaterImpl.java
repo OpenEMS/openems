@@ -163,11 +163,11 @@ public class SignalHotWaterImpl extends AbstractOpenemsComponent implements Open
             updateConfig();
         }
         // Sensor checks and error handling.
-        if (watertankTempSensorUpperChannel.getTemperature().value().isDefined()) {
-            if (watertankTempSensorLowerChannel.getTemperature().value().isDefined()) {
+        if (watertankTempSensorUpperChannel.getTemperatureChannel().value().isDefined()) {
+            if (watertankTempSensorLowerChannel.getTemperatureChannel().value().isDefined()) {
                 tempSensorsSendData = true;
-                watertankTempLowerSensor = watertankTempSensorLowerChannel.getTemperature().value().get();
-                watertankTempUpperSensor = watertankTempSensorUpperChannel.getTemperature().value().get();
+                watertankTempLowerSensor = watertankTempSensorLowerChannel.getTemperatureChannel().value().get();
+                watertankTempUpperSensor = watertankTempSensorUpperChannel.getTemperatureChannel().value().get();
                 if (this.noError().value().get() == false) {
                     this.noError().setNextValue(true);
                     this.logInfo(this.log, "Temperature sensors are fine now!");

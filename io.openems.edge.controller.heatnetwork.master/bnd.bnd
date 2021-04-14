@@ -5,24 +5,18 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
     Provbides a Controller to listen to Remote devices if they got a Request and set a response if Network is ready.
 
-Export-Package:  \
-    io.openems.edge.controller.heatnetwork.master.api,\
-
-Private-Package: \
-    io.openems.edge.controller.heatnetwork.master,\
 
 -includeresource: {readme.md}
 
 -buildpath:  \
-	osgi.enroute.base.api;version=2.1,\
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
-	io.openems.edge.rest.remote.device.general.api;version=latest,\
+	io.openems.edge.rest.remote.device.general;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
     io.openems.edge.controller.passing.controlcenter.api;version=latest,\
-    io.openems.edge.relays.device.api;version=latest,\
+    io.openems.edge.relay.api;version=latest,\
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+	${testpath}
 
