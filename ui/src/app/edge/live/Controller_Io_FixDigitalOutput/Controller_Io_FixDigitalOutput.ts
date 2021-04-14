@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 import { ChannelAddress } from 'src/app/shared/shared';
 import { AbstractFlatWidget } from '../flat/abstract-flat-widget';
-import { FixDigitalOutputModalComponent } from './modal/modal.component';
+import { Controller_Io_FixDigitalOutputModalComponent } from './modal/modal.component';
 
 
 @Component({
   selector: 'Controller_Io_FixDigitalOutput',
   templateUrl: './Controller_Io_FixDigitalOutput.html'
 })
-export class FixDigitalOutputComponent extends AbstractFlatWidget {
+export class Controller_Io_FixDigitalOutput extends AbstractFlatWidget {
 
   public state: string;
   public outputChannel: string;
@@ -19,7 +19,7 @@ export class FixDigitalOutputComponent extends AbstractFlatWidget {
     return channelAddresses
   }
 
-  protected onCurrentData(data: { [channelId: string]: any }, allComponents: { [channelAddress: string]: any }) {
+  protected onCurrentData(thisComponent: { [channelId: string]: any }, allComponents: { [channelAddress: string]: any }) {
     let channel = allComponents[this.outputChannel];
     if (channel != null) {
       if (channel == 1) {
@@ -37,7 +37,7 @@ export class FixDigitalOutputComponent extends AbstractFlatWidget {
       return;
     }
     const modal = await this.modalController.create({
-      component: FixDigitalOutputModalComponent,
+      component: Controller_Io_FixDigitalOutputModalComponent,
       componentProps: {
         component: this.component,
         edge: this.edge

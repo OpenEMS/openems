@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
   selector: 'fixdigitaloutput-modal',
   templateUrl: './modal.component.html'
 })
-export class FixDigitalOutputModalComponent {
+export class Controller_Io_FixDigitalOutputModalComponent {
 
   @Input() public edge: Edge;
   @Input() public component: EdgeConfig.Component;

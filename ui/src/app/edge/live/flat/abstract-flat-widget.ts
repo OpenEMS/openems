@@ -1,4 +1,4 @@
-import { Directive, Inject, Input, OnDestroy, OnInit } from "@angular/core";
+import { Inject, Input, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -7,7 +7,6 @@ import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
-@Directive()
 export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
 
     /**
@@ -23,8 +22,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     public edge: Edge = null;
     public config: EdgeConfig = null;
     public component: EdgeConfig.Component = null;
-
-    private stopOnDestroy: Subject<void> = new Subject<void>();
+    public stopOnDestroy: Subject<void> = new Subject<void>();
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -86,11 +84,10 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     /**
      * Called on every new data.
      * 
-     * @param data new data for the subscribed Channel-Addresses
-     * @param allComponents whole channelAddress
+     * @param thisComponent new data for the subscribed Channel-Addresses through passed channelId
+     * @param allComponents new data for the subscribed Channel-Addresses through passed channelAddress
      */
-    protected onCurrentData(data: { [channelId: string]: any }, allComponents: { [channelAddress: string]: any }) {
-
+    protected onCurrentData(thisComponent: { [channelId: string]: any }, allComponents: { [channelAddress: string]: any },) {
     }
 
     /**

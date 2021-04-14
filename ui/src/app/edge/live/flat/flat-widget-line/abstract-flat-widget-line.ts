@@ -1,4 +1,4 @@
-import { Directive, Inject, Input, OnDestroy, OnInit } from "@angular/core";
+import { Inject, Input, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { UUID } from "angular2-uuid";
@@ -6,21 +6,26 @@ import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 
-@Directive()
-export abstract class AbstractFlatWidgetLine implements OnInit, OnDestroy {
+export abstract class AbstractFlatWidgetLine implements OnDestroy {
 
     /**
      * True after this.edge, this.config and this.component are set.
      */
-    @Input()
-    protected converter = (value: any): string => { return value }
-
     public isInitialized: boolean = false;
 
+    @Input()
+    protected converter = (value: any): string => { return value }
+    /**
+     * selector used for subscribe
+     */
     private selector: string = UUID.UUID().toString();
+    /** 
+     * displayValue is the displayed @Input value in html
+     */
     public displayValue: string;
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private edge: Edge = null;
+
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -29,31 +34,25 @@ export abstract class AbstractFlatWidgetLine implements OnInit, OnDestroy {
         @Inject(ModalController) protected modalCtrl: ModalController
     ) {
     }
-
-    public ngOnInit() {
-    };
-
     protected setValue(value: any) {
         this.displayValue = this.converter(value);
 
         // announce initialized
         this.isInitialized = true;
     }
-
-    protected subscribe(channelAddress: ChannelAddress) {
+    protected subscribe(channelAddress?: ChannelAddress) {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
 
-            this.service.getConfig().then(config => {
-                edge.subscribeChannels(this.websocket, this.selector, [channelAddress]);
+            edge.subscribeChannels(this.websocket, this.selector, [channelAddress]);
 
-                // call onCurrentData() with latest data
-                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                    this.setValue(currentData.channel[channelAddress.toString()]);
-                });
+            // call onCurrentData() with latest data
+            edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
+                this.setValue(currentData.channel[channelAddress.toString()]);
             });
         });
     }
+
 
     public ngOnDestroy() {
         // Unsubscribe from OpenEMS
