@@ -160,6 +160,14 @@ public interface EssSinexcel extends SymmetricEss, ManagedSymmetricEss, EventHan
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.text("new battery limits are activated when EnLimit is 1") //
 				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(EssSinexcel.ChannelId.DEBUG_EN_LIMIT))), //
+		
+		BMS_TIMEOUT_SETTING(Doc.of(OpenemsType.INTEGER)
+				.accessMode(AccessMode.READ_WRITE)
+				.unit(Unit.NONE)),
+		
+		EMS_TIMEOUT_SETTING(Doc.of(OpenemsType.INTEGER)
+				.accessMode(AccessMode.READ_WRITE)
+				.unit(Unit.NONE)),
 
 		SINEXCEL_STATE_1(Doc.of(Level.INFO) //
 				.text("OFF")), //

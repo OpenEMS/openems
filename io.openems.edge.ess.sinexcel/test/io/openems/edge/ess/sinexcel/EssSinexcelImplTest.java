@@ -29,6 +29,8 @@ public class EssSinexcelImplTest {
 						.setBatteryId(BATTERY_ID) //
 						.setInverterState(InverterState.ON) //
 						.setToppingCharge(0) //
+						.setBmsTimeout(0) //
+						.setEmsTimeout(60) //
 						.build()) //
 		;
 	}
