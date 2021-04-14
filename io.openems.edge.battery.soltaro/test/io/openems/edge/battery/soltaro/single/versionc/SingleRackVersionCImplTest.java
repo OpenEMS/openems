@@ -2,7 +2,7 @@ package io.openems.edge.battery.soltaro.single.versionc;
 
 import org.junit.Test;
 
-import io.openems.edge.battery.soltaro.ModuleType;
+import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.ComponentTest;

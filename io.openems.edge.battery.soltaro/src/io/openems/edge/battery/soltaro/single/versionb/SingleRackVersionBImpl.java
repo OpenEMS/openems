@@ -28,8 +28,10 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.protection.BatteryProtection;
-import io.openems.edge.battery.soltaro.BatteryProtectionDefinitionSoltaro;
-import io.openems.edge.battery.soltaro.ChannelIdImpl;
+import io.openems.edge.battery.soltaro.common.ChannelIdImpl;
+import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3000Wh;
+import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3500Wh;
+import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.Context;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.ControlAndLogic;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine;
@@ -112,9 +114,20 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		this.batteryProtection = BatteryProtection.create(this) //
-				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro(), this.componentManager) //
-				.build();
+		// Initialize Battery-Protection
+		if (config.moduleType() == ModuleType.MODULE_3_5_KWH) {
+			// Special settings for 3.5 kWh module
+			this.batteryProtection = BatteryProtection.create(this) //
+					.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro3500Wh(),
+							this.componentManager) //
+					.build();
+		} else {
+			// Default
+			this.batteryProtection = BatteryProtection.create(this) //
+					.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro3000Wh(),
+							this.componentManager) //
+					.build();
+		}
 
 		ControlAndLogic.setWatchdog(this, config.watchdog());
 		ControlAndLogic.setSoCLowAlarm(this, config.SoCLowAlarm());
@@ -906,14 +919,14 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 	 * @param numberOfModules the number of battery modules
 	 */
 	private void calculateCapacity(Integer numberOfModules) {
-		int capacity = numberOfModules * config.moduleType().getCapacity_Wh();
+		int capacity = numberOfModules * this.config.moduleType().getCapacity_Wh();
 		this._setCapacity(capacity);
 	}
 
-	private final static int ADDRESS_OFFSET = 0x2000;
-	public final static int VOLTAGE_ADDRESS_OFFSET = ADDRESS_OFFSET + 0x800;
-	public final static int TEMPERATURE_ADDRESS_OFFSET = ADDRESS_OFFSET + 0xC00;
-	public final static int SENSORS_PER_MODULE = 12;
+	private static final int ADDRESS_OFFSET = 0x2000;
+	public static final int VOLTAGE_ADDRESS_OFFSET = ADDRESS_OFFSET + 0x800;
+	public static final int TEMPERATURE_ADDRESS_OFFSET = ADDRESS_OFFSET + 0xC00;
+	public static final int SENSORS_PER_MODULE = 12;
 
 	/*
 	 * Dynamically generate Channels and Modbus mappings for Cell-Temperatures and
