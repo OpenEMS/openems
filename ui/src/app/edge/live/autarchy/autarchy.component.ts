@@ -17,8 +17,7 @@ export class AutarchyComponent extends AbstractFlatWidget {
   protected getChannelAddresses(): ChannelAddress[] {
     this.gridActivePowerChannel = new ChannelAddress('_sum', 'GridActivePower');
     this.consumptionActivePowerChannel = new ChannelAddress('_sum', 'ConsumptionActivePower')
-    let channelAddresses: ChannelAddress[] = [this.gridActivePowerChannel, this.consumptionActivePowerChannel]
-    return channelAddresses;
+    return [this.gridActivePowerChannel, this.consumptionActivePowerChannel]
   }
 
   protected onCurrentData(currentData: CurrentData) {
