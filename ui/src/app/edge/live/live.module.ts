@@ -26,6 +26,7 @@ import { EvcsModalComponent } from './evcs/modal/modal.page';
 import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
 import { FlatWidgetComponent } from './flat/flat-widget.component';
 import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
+import { FlatWidgetPercentagebar } from './flat/flat-widget-percentagebar/flatwidget-percentagebar';
 import { GridComponent } from './grid/grid.component';
 import { GridModalComponent } from './grid/modal/modal.component';
 import { HeatingElementComponent } from './heatingelement/heatingelement.component';
@@ -75,6 +76,7 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     EvcsPopoverComponent,
     FlatWidgetComponent,
     FlatWidgetLine,
+    FlatWidgetPercentagebar,
     GridModalComponent,
     HeatingElementModalComponent,
     HeatPumpModalComponent,
@@ -112,6 +114,7 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     EvcsPopoverComponent,
     FlatWidgetComponent,
     FlatWidgetLine,
+    FlatWidgetPercentagebar,
     GridComponent,
     GridModalComponent,
     HeatingElementComponent,

@@ -1,33 +1,58 @@
-import { ActivatedRoute } from '@angular/router';
 import { AutarchyModalComponent } from './modal/modal.component';
 import { Component } from '@angular/core';
-import { Edge, Service } from '../../../shared/shared';
-import { ModalController } from '@ionic/angular';
+import { ChannelAddress, CurrentData, Edge, Utils } from '../../../shared/shared';
+import { AbstractFlatWidget } from '../flat/abstract-flat-widget';
 
 @Component({
-  selector: AutarchyComponent.SELECTOR,
+  selector: 'autarchy',
   templateUrl: './autarchy.component.html'
 })
-export class AutarchyComponent {
+export class AutarchyComponent extends AbstractFlatWidget {
 
-  private static readonly SELECTOR = "autarchy";
+  public edge: Edge = null;
+  public percentageValue: number;
+  private gridActivePowerChannel: ChannelAddress;
+  private consumptionActivePowerChannel: ChannelAddress;
 
-  private edge: Edge = null;
+  protected getChannelAddresses(): ChannelAddress[] {
+    this.gridActivePowerChannel = new ChannelAddress('_sum', 'GridActivePower');
+    this.consumptionActivePowerChannel = new ChannelAddress('_sum', 'ConsumptionActivePower')
+    let channelAddresses: ChannelAddress[] = [this.gridActivePowerChannel, this.consumptionActivePowerChannel]
+    return channelAddresses;
+  }
 
-  constructor(
-    private route: ActivatedRoute,
-    public modalCtrl: ModalController,
-    public service: Service,
-  ) { }
+  protected onCurrentData(currentData: CurrentData) {
+    this.percentageValue = this.calculateAutarchy(currentData.allComponents[this.gridActivePowerChannel.toString()], currentData.allComponents[this.consumptionActivePowerChannel.toString()]);
+  }
 
-  ngOnInit() {
-    this.service.setCurrentComponent('', this.route)
+  private calculateAutarchy(buyFromGrid: number, consumptionActivePower: number): number | null {
+    if (buyFromGrid != null && consumptionActivePower != null) {
+      let result = Math.max(
+        Utils.orElse(
+          (
+            1 - (
+              Utils.divideSafely(
+                Utils.orElse(buyFromGrid, 0),
+                Math.max(Utils.orElse(consumptionActivePower, 0), 0)
+              )
+            )
+          ) * 100, 0
+        ), 0)
+      if (result > 100) {
+        return 100;
+      }
+      return result;
+    } else {
+      return null
+    }
+
   }
 
   async presentModal() {
-    const modal = await this.modalCtrl.create({
+    const modal = await this.modalController.create({
       component: AutarchyModalComponent,
     });
     return await modal.present();
   }
+
 }
