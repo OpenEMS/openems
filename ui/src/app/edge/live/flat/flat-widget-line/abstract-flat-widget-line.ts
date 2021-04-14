@@ -1,4 +1,4 @@
-import { Inject, Input, OnDestroy, OnInit } from "@angular/core";
+import { Directive, Inject, Input, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { UUID } from "angular2-uuid";
@@ -6,6 +6,7 @@ import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 
+@Directive()
 export abstract class AbstractFlatWidgetLine implements OnDestroy {
 
     /**
