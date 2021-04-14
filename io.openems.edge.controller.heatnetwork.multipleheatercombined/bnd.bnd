@@ -1,0 +1,33 @@
+Bundle-Name: Multiple Heater Combined
+Bundle-Vendor: Consolinno Energy GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: \
+	This Controller allows to control a Chp, Woodchip Heater and a Gasboiler. Using their API. \
+	CHP Communicates with the chp module, woodchip and Gas via Modbus.
+
+
+Export-Package:  \
+    io.openems.edge.controller.heatnetwork.multipleheatercombined.api,\
+
+Private-Package:  \
+	io.openems.edge.controller.heatnetwork.multipleheatercombined,\
+
+-includeresource: {readme.md}
+
+-buildpath:  \
+	${buildpath},\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.controller.api;version=latest,\
+	io.openems.edge.controller.debug.log;version=latest,\
+	io.openems.edge.heater.api;version=latest,\
+	io.openems.edge.meter.heatmeter.api;version=latest,\
+	io.openems.edge.thermometer.api;version=latest,\
+	joda-time,\
+
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+

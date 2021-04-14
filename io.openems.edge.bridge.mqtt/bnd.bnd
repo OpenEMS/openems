@@ -1,0 +1,33 @@
+Bundle-Name: OpenEMS Edge Mqtt
+Bundle-Vendor: Consolinno Energy GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: \
+    This Bundle provides the basis for the communication via mqtt.
+
+
+Export-Package:  \
+	io.openems.edge.bridge.mqtt.api,\
+	io.openems.edge.bridge.mqtt.component,\
+
+Private-Package:  \
+	io.openems.edge.bridge.mqtt,\
+	io.openems.edge.bridge.mqtt.connection,\
+	io.openems.edge.bridge.mqtt.manager,\
+	io.openems.edge.bridge.mqtt.handler,\
+
+-includeresource: {readme.md}
+
+-buildpath:  \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.edge.common;version=latest,\
+	io.openems.common;version=latest,\
+    org.eclipse.paho.client.mqttv3;version=1.2.4,\
+	com.google.guava,\
+	com.google.gson,\
+	joda-time,\
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+

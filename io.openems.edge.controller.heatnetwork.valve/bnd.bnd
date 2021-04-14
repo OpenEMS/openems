@@ -1,0 +1,30 @@
+Bundle-Name: Valve Controller
+Bundle-Vendor: Consolinno Energy GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: \
+	This Bundle contains Controller for Concrete ValveControlling. E.G. Static Valve Control
+
+Export-Package:  \
+	io.openems.edge.controller.heatnetwork.valve.api;
+
+Private-Package:  \
+	io.openems.edge.controller.heatnetwork.valve.staticvalve,\
+
+-includeresource: {readme.md}
+
+-buildpath:  \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.edge.common;version=latest,\
+	io.openems.common;version=latest,\
+	io.openems.edge.controller.api;version=latest,\
+	io.openems.edge.heatsystem.components;version=latest,\
+	io.openems.edge.thermometer.api;version=latest,\
+	io.openems.edge.heater.api;version=latest,\
+	joda-time;version=2.8.10,\
+
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+

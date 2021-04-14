@@ -1,0 +1,21 @@
+Bundle-Name: OpenEMS Edge Apartment HuF
+Bundle-Vendor: Consolinno Energy GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: \
+            A module to map Modbus calls to OpenEMS channels for a Consolinno Apartment HuF.
+
+Private-Package:  \
+	io.openems.edge.apartmenthuf
+
+Export-Package: \
+    io.openems.edge.apartmenthuf.api,\
+
+-includeresource: {readme.md}
+
+-buildpath:  \
+	${buildpath},\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+    io.openems.edge.bridge.modbus;version=latest,\
+

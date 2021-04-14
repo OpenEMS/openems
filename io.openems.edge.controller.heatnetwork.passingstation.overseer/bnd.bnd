@@ -1,0 +1,31 @@
+Bundle-Name: OpenEMS Edge Controller Temperature Overseer
+Bundle-Vendor: Consolinno Energy GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+Bundle-Description: \
+    This Controller oversees a certain temperature and de/activates the passingController if the temp. is (not) reached.
+
+
+Export-Package:  \
+
+Private-Package:  \
+	io.openems.edge.controller.temperature.overseer,\
+
+-includeresource: {readme.md}
+
+-buildpath:  \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.edge.controller.api;version=latest,\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.relays.device.api;version=latest,\
+	io.openems.edge.thermometer.api;version=latest,\
+	io.openems.edge.heatsystem.components;version=latest,\
+	io.openems.edge.controller.api.core;version=latest,\
+	io.openems.edge.controller.temperature.passing;version=latest,\
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+

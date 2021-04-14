@@ -1,0 +1,44 @@
+Bundle-Name: OpenEMS Edge Simulator
+Bundle-Vendor: Consolinno Energy GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: \
+    This Bundle provides a lot of simulators for complex heatsystems.\
+    Containing: Thermometer, DecentralHeater, RelaysHeater, CommunicationMaster etc etc.
+
+
+Private-Package: \
+    io.openems.edge.consolinno.simulator.heater.onerelay,\
+    io.openems.edge.consolinno.simulator.heater.decentral,\
+    io.openems.edge.consolinno.simulator.communicationmaster,\
+    io.openems.edge.consolinno.simulator.thermometer,\
+
+
+Export-Package:  \
+	io.openems.edge.consolinno.simulator.api,\
+	io.openems.edge.consolinno.simulator.communicationmaster.api,\
+	io.openems.edge.consolinno.simulator.heater.api,\
+	io.openems.edge.consolinno.simulator.thermometer.api,\
+
+
+
+-includeresource: {readme.md}
+
+-buildpath:  \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.thermometer.api;version=latest,\
+	io.openems.edge.heater.api;version=latest,\
+	io.openems.edge.heater.decentral;version=latest,\
+	io.openems.edge.controller.multipleheatercombined;version=latest,\
+	io.openems.edge.controller.heatnetwork.master;version=latest,\
+	io.openems.edge.rest.remote.device.general.api;version=latest,\
+	io.openems.edge.controller.api;version=latest,\
+	joda-time,\
+	io.openems.edge.controller.hydraulic.lineheater;version=latest,\
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+

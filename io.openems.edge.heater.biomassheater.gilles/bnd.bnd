@@ -1,0 +1,26 @@
+Bundle-Name: OpenEMS Edge Heater Biomassheater Gilles
+Bundle-Vendor: Consolinno Energy GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: \
+    This Bundle provides the Api and Classes for Gilles Biomassheater (Woodchips).
+
+Export-Package:  \
+	io.openems.edge.heater.biomassheater.gilles.api
+
+Private-Package:  \
+	io.openems.edge.heater.biomassheater.gilles
+
+-includeresource: {readme.md}
+
+-buildpath:  \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.common;version=latest,\
+	io.openems.edge.bridge.modbus;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.heater;version=latest,\
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+

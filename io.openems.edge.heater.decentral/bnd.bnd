@@ -1,0 +1,30 @@
+Bundle-Name: OpenEMS Edge Heater Chp KwEnergy
+Bundle-Vendor: Consolinno Energy GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: \
+    This Bundle provides the Api and Classes for a Decentral heater. It does not heatup itself with a heater but with a \
+    Central Heating Unit. Asking for Heat and await the response of Central Heating Unit to open a Valve.
+
+Export-Package:  \
+	io.openems.edge.heater.decentral.api;
+
+Private-Package:  \
+	io.openems.edge.heater.decentral
+
+-includeresource: {readme.md}
+
+-buildpath:  \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.heater;version=latest,\
+	io.openems.edge.heatsystem.components;version=latest,\
+	io.openems.edge.controller.valve;version=latest,\
+	io.openems.edge.thermometer.api;version=latest,\
+
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+

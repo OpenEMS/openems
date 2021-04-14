@@ -1,0 +1,26 @@
+Bundle-Name: OpenEMS Edge LucidControl Bridge
+Bundle-Vendor: Consolinno Energy GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: \
+	This provides the basic communication and exec of LucidControl Devices at certain Channels.
+
+Export-Package:  \
+	io.openems.edge.bridge.lucidcontrol.api,\
+	io.openems.edge.bridge.lucidcontrol.task,\
+
+Private-Package:  \
+	io.openems.edge.bridge.lucidcontrol
+
+-includeresource: {readme.md}
+
+-buildpath:  \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+
