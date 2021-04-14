@@ -26,7 +26,7 @@ import { EvcsModalComponent } from './evcs/modal/modal.page';
 import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
 import { FlatWidgetComponent } from './flat/flat-widget.component';
 import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
-import { FlatWidgetPercentagebar } from './flat/flat-widget-percentagebar/flatwidget-percentagebar';
+import { FlatWidgetPercentagebar } from './flat/flat-widget-percentagebar/flat-widget-percentagebar';
 import { GridComponent } from './grid/grid.component';
 import { GridModalComponent } from './grid/modal/modal.component';
 import { HeatingElementComponent } from './heatingelement/heatingelement.component';
