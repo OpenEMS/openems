@@ -3,8 +3,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SharedModule } from './../../shared/shared.module';
 import { AdvertisementModule } from './advertisement/advertisement.module';
-import { AutarchyComponent } from './autarchy/autarchy.component';
-import { AutarchyModalComponent } from './autarchy/modal/modal.component';
 import { AwattarComponent } from './awattar/awattar.component';
 import { AwattarAdvertComponent } from './awattar_advert/awattar.component';
 import { AwattarAdvertChartComponent } from './awattar_advert/modal/chart.component';
@@ -14,6 +12,8 @@ import { BydModalComponent } from './byd/modal/modal.component';
 import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.component';
 import { ChpSocComponent } from './chpsoc/chpsoc.component';
 import { ChpsocModalComponent } from './chpsoc/modal/modal.component';
+import { AutarchyComponent } from './common/autarchy/autarchy.component';
+import { AutarchyModalComponent } from './common/autarchy/modal/modal.component';
 import { ConsumptionComponent } from './consumption/consumption.component';
 import { ConsumptionModalComponent } from './consumption/modal/modal.component';
 import { Controller_Ess_FixActivePower } from './Controller_Ess_FixActivePower/Controller_Ess_FixActivePower';
@@ -33,6 +33,7 @@ import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
 import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
 import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
+import { FlatWidgetPercentagebar } from './flat/flat-widget-line/flat-widget-percentagebar';
 import { FlatWidgetComponent } from './flat/flat-widget.component';
 import { GridComponent } from './grid/grid.component';
 import { GridModalComponent } from './grid/modal/modal.component';
@@ -86,6 +87,7 @@ import { StorageComponent } from './storage/storage.component';
     EvcsPopoverComponent,
     FlatWidgetComponent,
     FlatWidgetLine,
+    FlatWidgetPercentagebar,
     GridModalComponent,
     HeatingElementModalComponent,
     HeatPumpModalComponent,
@@ -129,6 +131,7 @@ import { StorageComponent } from './storage/storage.component';
     EvcsPopoverComponent,
     FlatWidgetComponent,
     FlatWidgetLine,
+    FlatWidgetPercentagebar,
     GridComponent,
     GridModalComponent,
     HeatingElementComponent,
