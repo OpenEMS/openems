@@ -1,4 +1,4 @@
-import { ChannelAddress, Edge, EdgeConfig } from '../../../shared/shared';
+import { ChannelAddress, EdgeConfig } from '../../../shared/shared';
 import { Component } from '@angular/core';
 import { StorageModalComponent } from './modal/modal.component';
 import { AbstractFlatWidget } from '../flat/abstract-flat-widget';

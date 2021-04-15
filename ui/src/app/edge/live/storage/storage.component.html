@@ -1,7 +1,7 @@
 <ng-container *ngIf="isInitialized">
     <oe-flat-widget [img]="storageItem" [title]="'General.storageSystem'| translate">
-        <ng-container *ngFor="let component of essComponents">
-            <ng-container *ngIf="essComponents.length > 1">
+        <ng-container *ngFor="let component of essComponents, , let i = index">
+            <ng-container *ngIf="essComponents.toString().length > 1">
                 <oe-flat-widget-line [name]="component.alias">
                 </oe-flat-widget-line>
             </ng-container>
@@ -13,7 +13,12 @@
             <oe-flat-widget-line [name]="'General.dischargePower' | translate"
                 [channelAddress]="component.id + '/ActivePower'" [converter]="changeWattInKiloWatt">
             </oe-flat-widget-line>
-            <hr *ngIf="essComponents.length > 1" style="border-color: black; border-radius: 10px;" />
+            <!-- 
+                Likely to be changed. This is a way to solve the problem with the ng-for-loop and class="underline"
+             -->
+            <div *ngIf="essComponents.length > 1 && i != (essComponents.length -1)"
+                style="border-bottom: 1px solid lightgray; width: 110%; padding-top: 2%; margin-bottom: 2%; margin-left: -5%;">
+            </div>
         </ng-container>
     </oe-flat-widget>
 </ng-container>
