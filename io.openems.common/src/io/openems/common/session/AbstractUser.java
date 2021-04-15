@@ -99,9 +99,8 @@ public abstract class AbstractUser {
 	 *  "user": {
 	 *    "id": string,
 	 *    "name": string,
-	 *    "role": Role
-	 *   },
-	 *   "edges": []
+	 *    "globalRole": {@link Role}
+	 *   }
 	 * }
 	 * </pre>
 	 * 

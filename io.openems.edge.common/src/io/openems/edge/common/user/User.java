@@ -17,7 +17,7 @@ public class User extends AbstractUser {
 	/**
 	 * Default-Edge-ID for User.
 	 */
-	public final static String DEFAULT_EDGE_ID = "DEFAULT_EDGE_ID";
+	public final static String DEFAULT_EDGE_ID = "0";
 
 	/**
 	 * Constructs an {@link User}.

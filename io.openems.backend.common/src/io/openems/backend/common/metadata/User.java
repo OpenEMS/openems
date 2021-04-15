@@ -1,10 +1,14 @@
 package io.openems.backend.common.metadata;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse.EdgeMetadata;
 import io.openems.common.session.AbstractUser;
 import io.openems.common.session.Role;
 
@@ -53,5 +57,32 @@ public class User extends AbstractUser {
 			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, role.toString());
 		}
 		return thisRole;
+	}
+
+	/**
+	 * Gets the Metadata information of the accessible Edges.
+	 * 
+	 * @param metadataService a {@link Metadata} provider
+	 * @return a list of {@link EdgeMetadata}
+	 */
+	public static List<EdgeMetadata> generateEdgeMetadatas(User user, Metadata metadataService) {
+		List<EdgeMetadata> metadatas = new ArrayList<>();
+		for (Entry<String, Role> edgeRole : user.getEdgeRoles().entrySet()) {
+			String edgeId = edgeRole.getKey();
+			Role role = edgeRole.getValue();
+			Optional<Edge> edgeOpt = metadataService.getEdge(edgeId);
+			if (edgeOpt.isPresent()) {
+				Edge e = edgeOpt.get();
+				metadatas.add(new EdgeMetadata(//
+						e.getId(), // Edge-ID
+						e.getComment(), // Comment
+						e.getProducttype(), // Product-Type
+						e.getVersion(), // Version
+						role, // Role
+						e.isOnline() // Online-State
+				));
+			}
+		}
+		return metadatas;
 	}
 }
