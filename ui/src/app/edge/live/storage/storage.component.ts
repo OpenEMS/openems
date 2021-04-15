@@ -1,81 +1,64 @@
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, Service, Websocket, EdgeConfig } from '../../../shared/shared';
+import { ChannelAddress, Edge, EdgeConfig } from '../../../shared/shared';
 import { Component } from '@angular/core';
-import { ModalController } from '@ionic/angular';
 import { StorageModalComponent } from './modal/modal.component';
+import { AbstractFlatWidget } from '../flat/abstract-flat-widget';
+import { CurrentData } from "src/app/shared/shared";
 
 @Component({
     selector: 'storage',
     templateUrl: './storage.component.html'
 })
-export class StorageComponent {
+export class StorageComponent extends AbstractFlatWidget {
 
-    private static readonly SELECTOR = "storage";
+    public essComponents: EdgeConfig.Component[] = [];
+    public chargerComponents: EdgeConfig.Component[] = [];
+    public channelAddresses: ChannelAddress[] = [];
+    public storageItem: string = null;
 
-    public edge: Edge = null;
-    public config: EdgeConfig = null;
-    public essComponents: EdgeConfig.Component[] = null;
-    public chargerComponents: EdgeConfig.Component[] = null;
-
-    constructor(
-        public service: Service,
-        private websocket: Websocket,
-        private route: ActivatedRoute,
-        public modalCtrl: ModalController,
-    ) { }
-
-    ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
-            this.edge = edge;
-            this.service.getConfig().then(config => {
-                this.config = config;
-                let channels = [];
-                this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").filter(component => component.isEnabled);
-                for (let component of this.chargerComponents) {
-                    channels.push(
-                        new ChannelAddress(component.id, 'ActualPower'),
-                    )
-                }
-                this.essComponents = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && component.isEnabled);
-                for (let component of this.essComponents) {
-                    let factoryID = component.factoryId;
-                    let factory = config.factories[factoryID];
-                    channels.push(
-                        new ChannelAddress(component.id, 'Soc'),
-                        new ChannelAddress(component.id, 'ActivePower'),
-                        new ChannelAddress(component.id, 'Capacity'),
-                    );
-                    if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
-                        // channels for modal component, subscribe here for better UX
-                        channels.push(
-                            new ChannelAddress(component.id, 'ActivePowerL1'),
-                            new ChannelAddress(component.id, 'ActivePowerL2'),
-                            new ChannelAddress(component.id, 'ActivePowerL3')
-                        );
-                    }
-                }
-                channels.push(
-                    new ChannelAddress('_sum', 'EssSoc'),
-                    new ChannelAddress('_sum', 'EssActivePower'),
-                    // channels for modal component, subscribe here for better UX
-                    new ChannelAddress('_sum', 'EssActivePowerL1'),
-                    new ChannelAddress('_sum', 'EssActivePowerL2'),
-                    new ChannelAddress('_sum', 'EssActivePowerL3'),
-                    new ChannelAddress('_sum', 'EssCapacity'),
-                )
-                this.edge.subscribeChannels(this.websocket, StorageComponent.SELECTOR, channels);
-            })
-        });
+    protected getChannelAddresses() {
+        for (let component of this.essComponents) {
+            this.channelAddresses = [new ChannelAddress(component.id, 'Soc'),
+            new ChannelAddress(component.id, 'ActivePower'),
+            new ChannelAddress(component.id, 'Capacity')];
+        }
+        this.channelAddresses.push(new ChannelAddress('_sum', 'EssSoc'));
+        return this.channelAddresses
+    }
+    /**
+     * 
+     * @param value the value from passed value in html
+     * @returns converted value
+     */
+    public changeWattInKiloWatt = (value: any): string => {
+        let thisValue = (value / 1000);
+        if (thisValue.toString().endsWith('0')) {
+            return thisValue.toString() + ' kW'
+        } else {
+            return thisValue.toFixed(1).replace('.', ',') + ' kW'
+        }
     }
 
-    ngOnDestroy() {
-        if (this.edge != null) {
-            this.edge.unsubscribeChannels(this.websocket, StorageComponent.SELECTOR);
+    protected onCurrentData(currentData: CurrentData) {
+        this.essComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && component.isEnabled);
+        console.log("essComponentrs", this.essComponents)
+        let soc = currentData.allComponents['_sum' + '/EssSoc'];
+        if (soc < 20) {
+            this.storageItem = 'assets/img/storage_20.png'
+        } else if (soc < 40 || soc == 20) {
+            this.storageItem = 'assets/img/storage_40.png'
+        } else if (soc < 60 || soc == 40) {
+            this.storageItem = 'assets/img/storage_60.png'
+        } else if (soc < 80 || soc == 60) {
+            this.storageItem = 'assets/img/storage_80.png'
+        } else if (soc < 100 || soc == 80) {
+            this.storageItem = 'assets/img/storage_100.png'
+        } else {
+            this.storageItem = 'assets/img/storage_100.png'
         }
     }
 
     async presentModal() {
-        const modal = await this.modalCtrl.create({
+        const modal = await this.modalController.create({
             component: StorageModalComponent,
             componentProps: {
                 edge: this.edge,
