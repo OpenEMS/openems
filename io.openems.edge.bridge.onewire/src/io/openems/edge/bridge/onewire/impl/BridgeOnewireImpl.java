@@ -17,13 +17,13 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.session.User;
 import io.openems.edge.bridge.onewire.BridgeOnewire;
 import io.openems.edge.bridge.onewire.jsonrpc.GetDevicesRequest;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.jsonapi.JsonApi;
+import io.openems.edge.common.user.User;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Bridge.Onewire", //

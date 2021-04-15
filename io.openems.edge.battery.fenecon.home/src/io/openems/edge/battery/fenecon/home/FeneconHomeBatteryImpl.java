@@ -418,10 +418,9 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 										new UnsignedWordElement(towerOffset + 17)), //
 								m(this.generateTowerChannel(t, "_NO_OF_CYCLES"),
 										new UnsignedWordElement(towerOffset + 18)), //
-								m(new UnsignedWordElement(towerOffset + 19)) //
-										.m(this.generateTowerChannel(t, "_DESIGN_CAPACITY"),
-												ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [Ah]
-										.build(), //
+								m(this.generateTowerChannel(t, "_DESIGN_CAPACITY"),
+										new UnsignedWordElement(towerOffset + 19),
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
 								m(this.generateTowerChannel(t, "_USABLE_CAPACITY"),
 										new UnsignedWordElement(towerOffset + 20), //
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
