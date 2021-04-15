@@ -5,8 +5,14 @@ Bundle-License: https://opensource.org/licenses/MIT
 Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
-	Java-WebSocket
-	
+	Java-WebSocket,\
+	lib/common-0.5-SNAPSHOT.jar;version=file,\
+	lib/OCPP-J-0.5-SNAPSHOT.jar;version=file,\
+	lib/v1_6-0.5-SNAPSHOT.jar;version=file,\
+
+Export-Package:  \
+    eu.chargetime.ocpp.*
+
 -includeresource.ocpp: \
 	@lib/common-0.5-SNAPSHOT.jar; lib:=true,\
 	@lib/v1_6-0.5-SNAPSHOT.jar; lib:=true,\
