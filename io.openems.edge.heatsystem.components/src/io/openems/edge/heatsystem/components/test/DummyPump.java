@@ -4,19 +4,19 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.heatsystem.components.Pump;
 import io.openems.edge.heatsystem.components.PassingChannel;
-import io.openems.edge.pwm.device.api.PwmPowerLevelChannel;
-import io.openems.edge.relays.device.api.ActuatorRelaysChannel;
+import io.openems.edge.pwm.api.Pwm;
+import io.openems.edge.relay.api.Relay;
 
 
 public class DummyPump extends AbstractOpenemsComponent implements OpenemsComponent, Pump {
 
-    private ActuatorRelaysChannel relays;
+    private Relay relays;
     //private PwmPowerLevelChannel pwm;
     private boolean isRelays = false;
     private boolean isPwm = false;
-    private PwmPowerLevelChannel pwm;
+    private Pwm pwm;
 
-    public DummyPump(String id, ActuatorRelaysChannel relays, PwmPowerLevelChannel pwm, String type) {
+    public DummyPump(String id, Relay relays, Pwm pwm, String type) {
         super(OpenemsComponent.ChannelId.values(), PassingChannel.ChannelId.values());
 
         super.activate(null, id, "", true);

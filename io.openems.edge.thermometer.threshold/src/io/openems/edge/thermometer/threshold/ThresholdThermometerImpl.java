@@ -61,7 +61,7 @@ public class ThresholdThermometerImpl extends AbstractOpenemsComponent implement
             int referenceTemperature = referenceThermometer.getTemperatureValue();
             int threshold = config.thresholdTemperature();
             int fictionalTemperature = (referenceTemperature / threshold) * threshold;
-            this.getTemperature().setNextValue(fictionalTemperature);
+            this.getTemperatureChannel().setNextValue(fictionalTemperature);
             //set config values
             this.setThresholdInDecidegree(config.thresholdTemperature());
             this.setThermometerState(ThermometerState.RISING);
@@ -98,7 +98,7 @@ public class ThresholdThermometerImpl extends AbstractOpenemsComponent implement
                         e.printStackTrace();
                     }
                 }
-                if (this.referenceThermometer.getTemperature().value().isDefined() && this.referenceThermometer.getTemperatureValue() != Integer.MIN_VALUE) {
+                if (this.referenceThermometer.getTemperatureChannel().value().isDefined() && this.referenceThermometer.getTemperatureValue() != Integer.MIN_VALUE) {
                     calculateFictionalTemperatureValue();
                 }
             }
@@ -149,7 +149,7 @@ public class ThresholdThermometerImpl extends AbstractOpenemsComponent implement
                 if (falling) {
                     newThermometerState = ThermometerState.FALLING;
                 }
-                this.getTemperature().setNextValue(incomingTemperature);
+                this.getTemperatureChannel().setNextValue(incomingTemperature);
                 this.setThermometerState(newThermometerState);
                 this.intervalToWaitCounter.getAndSet(0);
             }

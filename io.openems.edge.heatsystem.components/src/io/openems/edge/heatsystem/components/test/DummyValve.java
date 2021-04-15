@@ -4,7 +4,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.heatsystem.components.PassingChannel;
 import io.openems.edge.heatsystem.components.Valve;
-import io.openems.edge.relays.device.api.ActuatorRelaysChannel;
+import io.openems.edge.relay.api.Relay;
 
 
 public class DummyValve extends AbstractOpenemsComponent implements Valve, OpenemsComponent {
@@ -14,14 +14,14 @@ public class DummyValve extends AbstractOpenemsComponent implements Valve, Opene
      * + the DummyPump.
      * */
 
-    private ActuatorRelaysChannel opens;
-    private ActuatorRelaysChannel closing;
+    private Relay opens;
+    private Relay closing;
     private double secondsPerPercentage;
     private boolean percentageWasSet = false;
     private long timeStampValve;
 
 
-    public DummyValve(ActuatorRelaysChannel valveOpen, ActuatorRelaysChannel valveClose, String id, double valveTimeInSeconds) {
+    public DummyValve(Relay valveOpen, Relay valveClose, String id, double valveTimeInSeconds) {
         super(OpenemsComponent.ChannelId.values(), PassingChannel.ChannelId.values());
         super.activate(null, id, "", true);
         this.opens = valveOpen;

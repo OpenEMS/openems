@@ -36,7 +36,7 @@ public class ThermometerVirtualImpl extends AbstractOpenemsComponent implements 
     @Activate
     public void activate(ComponentContext context, Config config) {
         super.activate(context, config.id(), config.alias(), config.enabled());
-        this.getTemperature().setNextValue(Integer.MIN_VALUE);
+        this.getTemperatureChannel().setNextValue(Integer.MIN_VALUE);
     }
 
     @Deactivate
@@ -49,13 +49,13 @@ public class ThermometerVirtualImpl extends AbstractOpenemsComponent implements 
         if (event.getTopic().equals(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)) {
             //TODO WORK WITH CYCLES
             Optional<Integer> currentTemp = this.getVirtualTemperature();
-            currentTemp.ifPresent(integer -> this.getTemperature().setNextValue(integer));
+            currentTemp.ifPresent(integer -> this.getTemperatureChannel().setNextValue(integer));
         }
     }
 
     @Override
     public String debugLog() {
-        Optional<Integer> currentTemp = Optional.ofNullable(this.getTemperature().value().isDefined() ? this.getTemperature().value().get() : null);
+        Optional<Integer> currentTemp = Optional.ofNullable(this.getTemperatureChannel().value().isDefined() ? this.getTemperatureChannel().value().get() : null);
         AtomicReference<String> returnString = new AtomicReference<>("NotDefined");
         currentTemp.ifPresent(integer -> {
             if (integer != Integer.MIN_VALUE) {
