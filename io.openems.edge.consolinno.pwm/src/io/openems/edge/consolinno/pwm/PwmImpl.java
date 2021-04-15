@@ -1,11 +1,13 @@
 package io.openems.edge.consolinno.pwm;
 
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -34,6 +36,7 @@ import org.slf4j.LoggerFactory;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "io.openems.edge.consolinno.pwm", immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE)
+
 public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, Pwm {
     @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
     LeafletConfigurator lc;
@@ -58,7 +61,7 @@ public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
 
 
     @Activate
-    void activate(ComponentContext context, Config config) throws ConfigurationException {
+    void activate(ComponentContext context, Config config) throws ConfigurationException, OpenemsException {
         this.pwmModule = config.module();
         this.position = config.position();
         //Check if the Module is physically present, else throws ConfigurationException.
@@ -75,7 +78,7 @@ public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
             throw new ConfigurationException("Pwm not configured properly. Please check the Config", "This Device doesn't Exist");
         }
         try {
-            getWritePwmPowerLevelChannel().setNextWriteValue((float) config.percent());
+            getWritePwmPowerLevelChannel().setNextWriteValue((float)config.percent());
         } catch (OpenemsError.OpenemsNamedException ignored) {
             this.log.error("Error in getWritePwmPowerChannel.setNextWriteValue");
         }
@@ -89,7 +92,7 @@ public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
     @Deactivate
     public void deactivate() {
         try {
-            getWritePwmPowerLevelChannel().setNextWriteValue((float) 0);
+            getWritePwmPowerLevelChannel().setNextWriteValue(0.f);
         } catch (OpenemsError.OpenemsNamedException ignored) {
             this.log.error("Error in getWritePwmPowerChannel.setNextWriteValue");
         }
@@ -98,7 +101,7 @@ public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
     }
 
     @Override
-    protected ModbusProtocol defineModbusProtocol() {
+    protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
         return new ModbusProtocol(this,
                 new FC3ReadRegistersTask(this.pwmAnalogOutput, Priority.HIGH,
                         m(Pwm.ChannelId.READ_POWER_LEVEL, new UnsignedWordElement(this.pwmAnalogOutput),
@@ -108,13 +111,13 @@ public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
                                 new SignedWordElement(this.pwmAnalogOutput),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
                 new FC5WriteCoilTask(this.pwmDiscreteOutput,
-                        m(Pwm.ChannelId.INVERTED,
+                        (ModbusCoilElement) m(Pwm.ChannelId.INVERTED,
                                 new CoilElement(this.pwmDiscreteOutput),
                                 ElementToChannelConverter.DIRECT_1_TO_1)));
     }
 
     @Override
     public String debugLog() {
-        return "Power Level: " + getPowerLevelValue();
+        return "Power Level: " + getPowerLevelValue() + "%";
     }
 }

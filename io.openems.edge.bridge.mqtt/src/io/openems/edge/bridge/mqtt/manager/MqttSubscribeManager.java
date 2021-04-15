@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class MqttSubscribeManager extends AbstractMqttManager {
 
-    private Map<MqttType, MqttConnectionSubscribeImpl> connections = new HashMap<>();
+    private final Map<MqttType, MqttConnectionSubscribeImpl> connections = new HashMap<>();
 
 
     public MqttSubscribeManager(Map<String, List<MqttTask>> subscribeTasks, String mqttBroker,
@@ -35,21 +35,19 @@ public class MqttSubscribeManager extends AbstractMqttManager {
     }
 
     @Override
-    public void forever() throws MqttException {
+    public void forever() {
         super.calculateCurrentTime();
         //Get all tasks and update them.
-        super.allTasks.forEach((key, value) -> {
-            value.forEach(task -> {
-                if (task instanceof MqttSubscribeTask) {
-                    //Time can be set in each config.
-                    if (task.isReady(super.getCurrentTime())) {
-                        //Response to new message.
-                        ((MqttSubscribeTask) task).response(this.connections.get(task.getMqttType()).getPayload(task.getTopic()));
-                        ((MqttSubscribeTask) task).convertTime(super.timeZone);
-                    }
+        super.allTasks.forEach((key, value) -> value.forEach(task -> {
+            if (task instanceof MqttSubscribeTask) {
+                //Time can be set in each config.
+                if (task.isReady(super.getCurrentTime())) {
+                    //Response to new message.
+                    ((MqttSubscribeTask) task).response(this.connections.get(task.getMqttType()).getPayload(task.getTopic()));
+                    ((MqttSubscribeTask) task).convertTime(super.timeZone);
                 }
-            });
-        });
+            }
+        }));
     }
 
 
@@ -90,5 +88,18 @@ public class MqttSubscribeManager extends AbstractMqttManager {
 
     public void unsubscribeFromTopic(MqttTask task) throws MqttException {
         this.connections.get(task.getMqttType()).unsubscribeFromTopic(task.getTopic());
+    }
+
+
+    /**
+     * Checks if a connection to the Mqtt Server is present.
+     *
+     * @return true if the connection is established
+     */
+    public boolean isConnected() {
+        if (this.connections.values().stream().findFirst().isPresent()) {
+            return this.connections.values().stream().findFirst().get().isConnected();
+        }
+        return false;
     }
 }

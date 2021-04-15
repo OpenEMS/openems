@@ -5,6 +5,12 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
 	This Bundle manages valves.
 
+Export-Package:  \
+    io.openems.edge.manager.valve.api,\
+
+Private-Package:  \
+	io.openems.edge.manager.valve,\
+
 -includeresource: {readme.md}
 
 -buildpath:  \
@@ -13,8 +19,6 @@ Bundle-Description: \
 	io.openems.common;version=latest,\
 	io.openems.edge.heatsystem.components;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.bridge.i2c;version=latest,\
-	io.openems.edge.i2c.mcp.api;version=latest,\
 
 
 -testpath: \

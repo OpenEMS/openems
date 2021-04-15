@@ -44,8 +44,7 @@ public class MqttSubscribeTaskImpl extends AbstractMqttTask implements MqttSubsc
             for (int x = 0; x < tokens.length; x += 2) {
                 this.nameIdAndChannelIdMap.put(tokens[x], tokens[x + 1]);
             }
-        }
-        else if(type.equals(MqttType.COMMAND)) {
+        } else if (type.equals(MqttType.COMMAND)) {
             commandValueMap = new HashMap<>();
             Arrays.stream(MqttCommandType.values()).forEach(consumer -> this.commandValueMap.put(consumer, new CommandWrapper("NOTDEFINED", "NOTDEFINED")));
         }
@@ -163,19 +162,38 @@ public class MqttSubscribeTaskImpl extends AbstractMqttTask implements MqttSubsc
         }
         tokens.keySet().stream().filter(entry -> !entry.toUpperCase().equals("METRICS") && !entry.toUpperCase().contains("TIME") && !entry.toUpperCase().equals("ID"))
                 .collect(Collectors.toList()).forEach(key -> {
-            String value = tokens.get(key).getAsString();
-            //Check own ChannelId Map if key is in Map and Value
-            if (this.nameIdAndChannelIdMap.containsKey(key)) {
-                if (!value.equals("Not Defined Yet")) {
-                    String channelId = this.nameIdAndChannelIdMap.get(key);
-                    Channel<?> channel = super.channels.get(channelId);
-                    channel.setNextValue(value);
-                    System.out.println("Update Channel: " + channelId + " with Value: " + value);
+            try {
+                String value = tokens.get(key).getAsString();
+
+                //Check own ChannelId Map if key is in Map and Value
+                if (this.nameIdAndChannelIdMap.containsKey(key)) {
+                    if (!value.equals("Not Defined Yet")) {
+                        String channelId = this.nameIdAndChannelIdMap.get(key);
+                        Channel<?> channel = super.channels.get(channelId);
+                        channel.setNextValue(value);
+                        System.out.println("Update Channel: " + channelId + " with Value: " + value);
+                    } else {
+                        System.out.println("Value not defined yet for: " + this.nameIdAndChannelIdMap.get(key));
+                    }
                 } else {
-                    System.out.println("Value not defined yet for: " + this.nameIdAndChannelIdMap.get(key));
+                    System.out.println("Key: " + key + " was not configured!");
                 }
-            } else {
-                System.out.println("Key: " + key + " was not configured!");
+            } catch (java.lang.UnsupportedOperationException ignored) {
+                String value = tokens.get(key).toString();
+
+                //Check own ChannelId Map if key is in Map and Value
+                if (this.nameIdAndChannelIdMap.containsKey(key)) {
+                    if (!value.equals("Not Defined Yet")) {
+                        String channelId = this.nameIdAndChannelIdMap.get(key);
+                        Channel<?> channel = super.channels.get(channelId);
+                        channel.setNextValue(value);
+                        System.out.println("Update Channel: " + channelId + " with Value: " + value);
+                    } else {
+                        System.out.println("Value not defined yet for: " + this.nameIdAndChannelIdMap.get(key));
+                    }
+                } else {
+                    System.out.println("Key: " + key + " was not configured!");
+                }
             }
         });
     }

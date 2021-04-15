@@ -1,11 +1,13 @@
 package io.openems.edge.consolinno.relay;
 
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -53,7 +55,7 @@ public class RelayImpl extends AbstractOpenemsModbusComponent implements Openems
     }
 
     @Activate
-    void activate(ComponentContext context, Config config) throws ConfigurationException {
+    void activate(ComponentContext context, Config config) throws ConfigurationException, OpenemsException {
         this.relayModule = config.module();
         this.position = config.position();
          this.inverted = config.isInverse();
@@ -89,11 +91,11 @@ public class RelayImpl extends AbstractOpenemsModbusComponent implements Openems
     }
 
     @Override
-    protected ModbusProtocol defineModbusProtocol() {
+    protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 
         return new ModbusProtocol(this,
                 new FC5WriteCoilTask(this.relayDiscreteOutput,
-                        m(Relay.ChannelId.WRITE_ON_OFF, new CoilElement(this.relayDiscreteOutput),
+                        (ModbusCoilElement) m(Relay.ChannelId.WRITE_ON_OFF, new CoilElement(this.relayDiscreteOutput),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
                 new FC1ReadCoilsTask(this.relayDiscreteOutput, Priority.HIGH,
                         m(Relay.ChannelId.READ_ON_OFF, new CoilElement(this.relayDiscreteOutput),

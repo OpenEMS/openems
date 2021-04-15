@@ -5,12 +5,6 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
     This Bundle provides an Relay that is communicating over Modbus.
 
-Export-Package:  \
-	io.openems.edge.consolinno.relay.api;
-
-Private-Package:  \
-	io.openems.edge.consolinno.relay
-
 -includeresource: {readme.md}
 
 -buildpath:  \

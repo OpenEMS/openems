@@ -173,9 +173,11 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
     private void createMqttSession(Config config) throws MqttException {
         //Create Broker URL/IP etc
         //TCP SSL OR WSS
+        //The Bridge won't work if a basepath is set @Felix you may want to take a look at that
         if (config.brokerUrl().equals("")) {
             String basepath = config.basepath();
-            if (basepath.equals("") || basepath.startsWith("/") == false) {
+            // if (basepath.equals("") || basepath.startsWith("/") == false) {
+            if ((basepath.equals("") || basepath.startsWith("/")) == false) {
                 basepath = "/" + basepath;
             }
             String broker = config.connection().toLowerCase();
@@ -314,6 +316,10 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
             this.components.remove(id);
             this.removeMqttTasks(id);
         }
+    }
+
+    public boolean isConnected() {
+        return this.subscribeManager.isConnected() || this.publishManager.isConnected();
     }
 
     @Override

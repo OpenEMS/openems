@@ -79,6 +79,13 @@ public interface MqttBridge extends OpenemsComponent {
      */
     void removeMqttComponent(String id);
 
+    /**
+     * Checks if one of the Managers is connected to the Mqtt Server.
+     *
+     * @return true if the connection is established
+     */
+    boolean isConnected();
+
     //NOT IN USE RN BUT ARE HERE FOR FUTURE IMPLEMENTATION
     List<MqttTask> getPublishTasks(String id);
 

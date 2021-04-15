@@ -261,7 +261,7 @@
 			<artifactId>joda-time</artifactId>
 			<version>2.10.8</version>
 		</dependency>
-		<!-- MQTT -->
+		<!-- https://mvnrepository.com/artifact/org.eclipse.paho/org.eclipse.paho.client.mqttv3 -->
 		<dependency>
 			<groupId>org.eclipse.paho</groupId>
 			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>

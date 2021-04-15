@@ -1,6 +1,6 @@
 package io.openems.edge.manager.valve.api;
 
-import io.openems.edge.heatsystem.components.api.Valve;
+import io.openems.edge.heatsystem.components.Valve;
 
 public interface ManagerValve {
 

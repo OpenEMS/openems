@@ -11,7 +11,7 @@ import io.openems.edge.controller.heatnetwork.hydraulic.lineheater.api.Hydraulic
 import io.openems.edge.controller.heatnetwork.hydraulic.lineheater.helperclass.ChannelLineHeater;
 import io.openems.edge.controller.heatnetwork.hydraulic.lineheater.helperclass.ValveLineHeater;
 import io.openems.edge.heater.decentral.api.DecentralHeater;
-import io.openems.edge.heatsystem.components.api.Valve;
+import io.openems.edge.heatsystem.components.Valve;
 import io.openems.edge.thermometer.api.Thermometer;
 import org.joda.time.DateTime;
 import org.osgi.service.cm.ConfigurationException;

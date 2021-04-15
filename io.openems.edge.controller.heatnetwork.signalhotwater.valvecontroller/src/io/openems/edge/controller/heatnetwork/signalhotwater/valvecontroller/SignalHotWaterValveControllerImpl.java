@@ -8,7 +8,7 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.heatnetwork.signalhotwater.api.SignalHotWater;
 import io.openems.edge.controller.heatnetwork.signalhotwater.valvecontroller.api.SignalHotWaterValvecontroller;
 import io.openems.edge.controller.heatnetwork.valvepumpcontrol.api.ValvePumpControl;
-import io.openems.edge.heatsystem.components.api.Valve;
+import io.openems.edge.heatsystem.components.Valve;
 import io.openems.edge.thermometer.api.Thermometer;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;

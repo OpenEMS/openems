@@ -1,6 +1,6 @@
 package io.openems.edge.controller.heatnetwork.hydraulic.lineheater.helperclass;
 
-import io.openems.edge.heatsystem.components.api.Valve;
+import io.openems.edge.heatsystem.components.Valve;
 import org.joda.time.DateTime;
 
 public class ValveLineHeater extends AbstractLineHeater {

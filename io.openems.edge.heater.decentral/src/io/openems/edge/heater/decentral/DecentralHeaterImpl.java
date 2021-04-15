@@ -10,7 +10,7 @@ import io.openems.edge.controller.valve.api.ValveController;
 import io.openems.edge.heater.decentral.api.DecentralHeater;
 import io.openems.edge.heater.api.Heater;
 import io.openems.edge.heater.api.HeaterState;
-import io.openems.edge.heatsystem.components.api.Valve;
+import io.openems.edge.heatsystem.components.Valve;
 import io.openems.edge.thermometer.api.ThresholdThermometer;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;

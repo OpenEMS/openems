@@ -17,7 +17,7 @@ import io.openems.edge.controller.heatnetwork.communication.api.RequestType;
 import io.openems.edge.controller.heatnetwork.communication.request.rest.RestRequestImpl;
 import io.openems.edge.controller.heatnetwork.communication.api.Request;
 import io.openems.edge.controller.hydraulic.lineheater.api.HydraulicLineHeaterApi;
-import io.openems.edge.heatsystem.components.api.Pump;
+import io.openems.edge.heatsystem.components.Pump;
 import io.openems.edge.rest.remote.device.general.api.RestRemoteDevice;
 import io.openems.edge.thermometer.api.ThresholdThermometer;
 import org.joda.time.DateTime;

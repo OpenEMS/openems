@@ -16,5 +16,5 @@ Bundle-Description: \
     io.openems.edge.pwm.api;version=latest,\
 
 -testpath: \
-	${testpath},\
+	${testpath}
 

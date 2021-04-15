@@ -138,7 +138,7 @@ public abstract class AbstractMqttConnection implements MqttConnection {
     public void disconnect() throws MqttException {
 
         this.mqttClient.disconnect();
-
+        this.disconnected = true;
     }
 
     @Override
@@ -159,5 +159,19 @@ public abstract class AbstractMqttConnection implements MqttConnection {
 
     public MqttConnectOptions getMqttConnectOptions() {
         return mqttConnectOptions;
+    }
+
+    public void reconnect() {
+        if (this.mqttClient.isConnected() == false) {
+            try {
+                this.mqttClient.reconnect();
+            } catch (MqttException e) {
+                e.getMessage();
+            }
+        }
+    }
+
+    public boolean isConnected() {
+       return this.mqttClient.isConnected();
     }
 }

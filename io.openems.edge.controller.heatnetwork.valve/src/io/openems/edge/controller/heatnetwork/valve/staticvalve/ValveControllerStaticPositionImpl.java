@@ -9,7 +9,7 @@ import io.openems.edge.controller.heatnetwork.valve.api.ControlType;
 import io.openems.edge.controller.heatnetwork.valve.api.ValveController;
 import io.openems.edge.controller.heatnetwork.valve.api.ValveControllerStaticPosition;
 import io.openems.edge.controller.heatnetwork.valve.api.ValvePosition;
-import io.openems.edge.heatsystem.components.api.Valve;
+import io.openems.edge.heatsystem.components.Valve;
 import io.openems.edge.thermometer.api.Thermometer;
 import org.joda.time.DateTime;
 import org.osgi.service.cm.ConfigurationException;

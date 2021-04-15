@@ -55,6 +55,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     private final Map<String, PinOwner> ownerMap = new HashMap<>();
     private final Map<ModuleType, PositionMap> positionMap = new HashMap<>();
     private final int[] relayInverseRegisters = new int[4];
+    private static final int HEADER_INFORMATION_OFFSET = 1;
     private static final int GROUP_SIZE = 3;
     private static final ModuleRegister LEAFLET_AIO_CONNECTION_STATUS = new ModuleRegister(ModuleType.LEAFLET, 0, 11);
     private static final ModuleRegister LEAFLET_TMP_CONNECTION_STATUS = new ModuleRegister(ModuleType.LEAFLET, 0, 10);
@@ -145,7 +146,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
         AtomicInteger currentGroup = new AtomicInteger(0);
         for (int group = 0; group <= 4; group++) {
             source.forEach(row -> {
-                if (!(row.get(0).equals("") || row.get(0).equals("Modbus Offset"))) {
+                if (!(row.get(0).equals("") || row.get(0).equals("Modbus Offset") || row.toString().contains("Register"))) {
                     if (currentGroup.get() < 4 && !checkForLastGroupMember(row, currentGroup.get())) {
                         switch (currentGroup.get()) {
                             case (0): {
@@ -191,9 +192,18 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      * Searches through the Big Source file and writes in the appropriate variable which column contains the types.
      */
     private void getSourceHeaderOrder() {
-        moduleNumberOffset = source.get(1).indexOf(MODULE_NR);
-        moduleTypeOffset = source.get(1).indexOf(MODULE_TYPE);
-        mRegOffset = source.get(1).indexOf(M_REG);
+        for (int n = 0; n < 2; n++) {
+            for (int i = HEADER_INFORMATION_OFFSET; i <= GROUP_SIZE; i++) {
+                String current = (source.get(n).get(i));
+                if (moduleNumberOffset == 0 && current.contains(MODULE_NR)) {
+                    moduleNumberOffset = i;
+                } else if (moduleTypeOffset == 0 && current.contains(MODULE_TYPE)) {
+                    moduleTypeOffset = i;
+                } else if (mRegOffset == 0 && current.contains(M_REG)) {
+                    mRegOffset = i;
+                }
+            }
+        }
     }
 
     /**
@@ -373,9 +383,9 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
 
     @Override
     public String debugLog() {
-        return "LeafletConfigurator: Found Temp: " + this.getTemperatureModules()
-                + " Found Relay: " + this.getRelayModules() + " Found PWM: " + this.getPwmModules()
-                + " PWM Frequency : " + this.getReadPwmFrequency() + " Found AIO: " + this.getAioModules();
+        return "LeafletConfigurator: Found Temp: " + Integer.toBinaryString(this.getTemperatureModules())
+                + " Found Relay: " + Integer.toBinaryString(this.getRelayModules()) + " Found PWM: " + Integer.toBinaryString(this.getPwmModules())
+                + " PWM Frequency : " + this.getReadPwmFrequency() + " Found AIO: " + Integer.toBinaryString(this.getAioModules());
     }
 
     /**

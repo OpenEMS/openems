@@ -18,7 +18,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     @AttributeDefinition(name = "Position", description = "Pinposition of this Pwm.")
     int position();
 
-    @AttributeDefinition(name = "Duty Cycle", description = "Pwm Output in Percent.")
+    @AttributeDefinition(name = "Duty Cycle", description = "Pwm Output in  Percent (100=10.0%).")
     int percent() default 0;
 
     @AttributeDefinition(name = "Inverted", description = "Tick if Pwm is supposed to be inverted.")

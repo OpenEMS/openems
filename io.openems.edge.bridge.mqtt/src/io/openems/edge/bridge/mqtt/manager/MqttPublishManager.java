@@ -82,4 +82,18 @@ public class MqttPublishManager extends AbstractMqttManager {
             }
         });
     }
+
+
+
+    /**
+     * Checks if a connection to the Mqtt Server is present.
+     *
+     * @return true if the connection is established
+     */
+    public boolean isConnected() {
+        if (this.connections.values().stream().findFirst().isPresent()) {
+            return this.connections.values().stream().findFirst().get().isConnected();
+        }
+        return false;
+    }
 }

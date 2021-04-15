@@ -12,7 +12,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.heatnetwork.apartmentmodule.api.ControllerHeatingApartmentModule;
 import io.openems.edge.controller.heatnetwork.apartmentmodule.api.State;
-import io.openems.edge.heatsystem.components.api.Pump;
+import io.openems.edge.heatsystem.components.Pump;
 import io.openems.edge.thermometer.api.ThresholdThermometer;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
