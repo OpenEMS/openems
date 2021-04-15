@@ -15,7 +15,7 @@ export class Controller_Io_FixDigitalOutput extends AbstractFlatWidget {
 
   protected getChannelAddresses(): ChannelAddress[] {
     this.outputChannel = this.component.properties['outputChannelAddress'];
-    return [ChannelAddress.fromString(this.component.properties['outputChannelAddress'])];
+    return [ChannelAddress.fromString(this.outputChannel)];
   }
 
   protected onCurrentData(currentData: CurrentData) {
