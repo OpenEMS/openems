@@ -50,7 +50,6 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.session.Role;
-import io.openems.common.session.User;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
@@ -66,6 +65,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.common.user.User;
 import io.openems.edge.simulator.app.ExecuteSimulationRequest.Profile;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 import io.openems.edge.timedata.api.Timedata;
@@ -171,10 +171,10 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Handles a ExecuteSimulationRequest.
+	 * Handles a {@link ExecuteSimulationRequest}.
 	 * 
-	 * @param user    the User
-	 * @param request the ExecuteSimulationRequest
+	 * @param user    the {@link User}
+	 * @param request the {@link ExecuteSimulationRequest}
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
@@ -358,7 +358,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		this.logInfo(this.log, "Stopping Simulation");
 
 		CurrentSimulation currentSimulation = this.currentSimulation;
-		User user;
+		final User user;
 		if (currentSimulation != null) {
 			user = currentSimulation.user;
 			currentSimulation.response.complete(
@@ -382,7 +382,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	/**
 	 * Deletes a Component configuration.
 	 * 
-	 * @param user        the User
+	 * @param user        the {@link User}
 	 * @param componentId the Component-ID
 	 * @throws OpenemsNamedException on error
 	 */

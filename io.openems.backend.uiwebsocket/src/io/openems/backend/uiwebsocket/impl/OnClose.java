@@ -6,7 +6,7 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.common.metadata.BackendUser;
+import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsException;
 
 public class OnClose implements io.openems.common.websocket.OnClose {
@@ -22,9 +22,9 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 	public void run(WebSocket ws, int code, String reason, boolean remote) throws OpenemsException {
 		// get current User
 		WsData wsData = ws.getAttachment();
-		Optional<BackendUser> userOpt = wsData.getUser(this.parent.metadata);
+		Optional<User> userOpt = wsData.getUser(this.parent.metadata);
 		if (userOpt.isPresent()) {
-			BackendUser user = userOpt.get();
+			User user = userOpt.get();
 			this.parent.logInfo(this.log, "User [" + user.getId() + ":" + user.getName() + "] disconnected.");
 		} else {
 			this.parent.logInfo(this.log, "User [" + wsData.getUserId().orElse("UNKNOWN") + "] disconnected.");

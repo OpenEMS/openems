@@ -28,18 +28,19 @@ public class UserServiceImpl implements UserService {
 	/**
 	 * All configured users. Ordered as they are added.
 	 */
-	private final List<EdgeUser> users = new ArrayList<>();
+	private final List<ManagedUser> users = new ArrayList<>();
 
 	@Activate
 	void activate(Config config) {
 		this.users.add(//
-				new EdgeUser("admin", "Admin", Role.ADMIN, config.adminPassword(), config.adminSalt()));
+				new ManagedUser("admin", "Admin", Role.ADMIN, config.adminPassword(), config.adminSalt()));
 		this.users.add(//
-				new EdgeUser("installer", "Installer", Role.INSTALLER, config.installerPassword(), config.installerSalt()));
+				new ManagedUser("installer", "Installer", Role.INSTALLER, config.installerPassword(),
+						config.installerSalt()));
 		this.users.add(//
-				new EdgeUser("owner", "Owner", Role.OWNER, config.ownerPassword(), config.ownerSalt()));
+				new ManagedUser("owner", "Owner", Role.OWNER, config.ownerPassword(), config.ownerSalt()));
 		this.users.add(//
-				new EdgeUser("guest", "Guest", Role.GUEST, config.guestPassword(), config.guestSalt()));
+				new ManagedUser("guest", "Guest", Role.GUEST, config.guestPassword(), config.guestSalt()));
 	}
 
 	@Deactivate
@@ -47,15 +48,15 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public final Optional<EdgeUser> authenticate(String username, String password) {
+	public final Optional<User> authenticate(String username, String password) {
 		// Search for user with given username
-		for (EdgeUser user : this.users) {
+		for (ManagedUser user : this.users) {
 			if (username.equals(user.getName())) {
 				if (user.validatePassword(password)) {
-					log.info("Authentication successful for user[" + username + "].");
+					this.log.info("Authentication successful for user[" + username + "].");
 					return Optional.of(user);
 				} else {
-					log.info("Authentication failed for user[" + username + "]: wrong password");
+					this.log.info("Authentication failed for user[" + username + "]: wrong password");
 					return Optional.empty();
 				}
 			}
@@ -65,15 +66,15 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public final Optional<EdgeUser> authenticate(String password) {
+	public final Optional<User> authenticate(String password) {
 		// Search for any user with the given password
-		for (EdgeUser user : this.users) {
+		for (ManagedUser user : this.users) {
 			if (user.validatePassword(password)) {
-				log.info("Authentication successful with password only for user [" + user.getName() + "].");
+				this.log.info("Authentication successful with password only for user [" + user.getName() + "].");
 				return Optional.ofNullable(user);
 			}
 		}
-		log.info("Authentication failed with password only.");
+		this.log.info("Authentication failed with password only.");
 		return Optional.empty();
 	}
 

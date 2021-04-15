@@ -19,7 +19,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
-import io.openems.common.session.User;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
@@ -27,6 +26,7 @@ import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.user.User;
 
 /**
  * Takes care of continuously writing channels till a timeout. This class is
@@ -98,10 +98,10 @@ public class ApiWorker {
 	}
 
 	/**
-	 * Adds a value via JSON-RPC SetChannelValueRequest.
+	 * Adds a value via JSON-RPC {@link SetChannelValueRequest}.
 	 * 
 	 * @param componentManager the {@link ComponentManager}
-	 * @param user             the authenticated User
+	 * @param user             the authenticated {@link User}
 	 * @param request          the Request
 	 * @return success
 	 * @throws OpenemsNamedException    on error
