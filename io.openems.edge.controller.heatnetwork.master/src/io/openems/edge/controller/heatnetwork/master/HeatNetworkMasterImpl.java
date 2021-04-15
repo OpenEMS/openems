@@ -6,7 +6,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.heatnetwork.master.api.HeatNetworkMaster;
-import io.openems.edge.controller.heatnetwork.controlcenter.api.PassingControlCenterChannel;
+import io.openems.edge.controller.heatnetwork.controlcenter.api.ControlCenter;
 import io.openems.edge.rest.remote.device.general.api.RestRemoteDevice;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -35,7 +35,7 @@ public class HeatNetworkMasterImpl extends AbstractOpenemsComponent implements O
 
     private List<RestRemoteDevice> heatTankRequests = new ArrayList<>();
     private List<RestRemoteDevice> heatNetworkReady = new ArrayList<>();
-    private PassingControlCenterChannel allocatedController;
+    private ControlCenter allocatedController;
     private int lastTemperature;
 
 
@@ -93,7 +93,7 @@ public class HeatNetworkMasterImpl extends AbstractOpenemsComponent implements O
             throw exC[0];
         }
         //Main Heat Control-Center reacting to this Controller
-        if (cpm.getComponent(config.allocatedController()) instanceof PassingControlCenterChannel) {
+        if (cpm.getComponent(config.allocatedController()) instanceof ControlCenter) {
             this.allocatedController = cpm.getComponent(config.allocatedController());
         }
         this.temperatureSetPointChannel().setNextValue(config.temperatureSetPoint());

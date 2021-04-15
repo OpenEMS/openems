@@ -5,7 +5,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.hydraulic.lineheater.api.HydraulicLineHeaterApi;
+import io.openems.edge.controller.heatnetwork.hydraulic.lineheater.api.HydraulicLineHeater;
 import io.openems.edge.heater.decentral.api.DecentralHeater;
 import org.joda.time.DateTime;
 import org.osgi.service.cm.ConfigurationException;
@@ -47,7 +47,7 @@ public class SimulationCommunicationMasterImpl extends AbstractOpenemsComponent 
     private boolean useHeater;
     private boolean useHydraulicLineHeater;
     private final List<DecentralHeater> decentralHeaterList = new ArrayList<>();
-    private HydraulicLineHeaterApi hydraulicLineHeater;
+    private HydraulicLineHeater hydraulicLineHeater;
 
     public SimulationCommunicationMasterImpl() {
         super(OpenemsComponent.ChannelId.values(),
@@ -80,8 +80,8 @@ public class SimulationCommunicationMasterImpl extends AbstractOpenemsComponent 
         }
         if (config.useHydraulicLineHeater()) {
             OpenemsComponent lineHeater = cpm.getComponent(config.hydraulicLineHeaterId());
-            if (lineHeater instanceof HydraulicLineHeaterApi) {
-                this.hydraulicLineHeater = (HydraulicLineHeaterApi) lineHeater;
+            if (lineHeater instanceof HydraulicLineHeater) {
+                this.hydraulicLineHeater = (HydraulicLineHeater) lineHeater;
             } else {
                 throw new ConfigurationException("ActivateMethod SimulationCommunicationMaster", "HydraulicLineHeaterId not correct" + lineHeater.id());
             }

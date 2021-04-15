@@ -2,6 +2,8 @@ package io.openems.edge.heater.chp.viessmann;
 
 
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.aio.api.AioChannel;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -16,14 +18,13 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.consolinno.aio.api.AioChannel;
-import io.openems.edge.consolinno.relay.api.Relay;
-import io.openems.edge.heater.api.ChpBasic;
-import io.openems.edge.heater.api.ChpPower;
-import io.openems.edge.heater.api.Heater;
-import io.openems.edge.heater.api.HeaterState;
+import io.openems.edge.heater.ChpBasic;
+import io.openems.edge.heater.ChpPower;
+import io.openems.edge.heater.Heater;
+import io.openems.edge.heater.HeaterState;
 import io.openems.edge.heater.chp.viessmann.api.ViessmannInformation;
 import io.openems.edge.heater.chp.viessmann.api.ViessmannPowerPercentage;
+import io.openems.edge.relay.api.Relay;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -225,7 +226,7 @@ public class ChpImplViessmann extends AbstractOpenemsModbusComponent implements 
 
 
     @Override
-    protected ModbusProtocol defineModbusProtocol() {
+    protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
         return new ModbusProtocol(this,
                 new FC3ReadRegistersTask(0x4000, Priority.LOW,
                         new DummyRegisterElement(0x4000, 0x4000),

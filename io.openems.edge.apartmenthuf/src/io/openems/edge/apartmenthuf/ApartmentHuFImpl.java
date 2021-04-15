@@ -1,6 +1,7 @@
 package io.openems.edge.apartmenthuf;
 
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -57,7 +58,7 @@ public class ApartmentHuFImpl extends AbstractOpenemsModbusComponent implements 
 
 
     @Activate
-    public void activate(ComponentContext context, Config config) {
+    public void activate(ComponentContext context, Config config) throws OpenemsException {
         super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
                 "Modbus", config.modbusBridgeId());
         debugOn = config.debug();
@@ -72,7 +73,7 @@ public class ApartmentHuFImpl extends AbstractOpenemsModbusComponent implements 
     }
 
     @Override
-    protected ModbusProtocol defineModbusProtocol() {
+    protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 
         return new ModbusProtocol(this,
                 new FC4ReadInputRegistersTask(0, Priority.HIGH,

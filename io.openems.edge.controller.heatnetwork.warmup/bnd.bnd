@@ -12,7 +12,6 @@ Bundle-Description: \
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.controller.warmup.passing.api;version=latest,\
 	com.google.gson,\
 
 -testpath: \

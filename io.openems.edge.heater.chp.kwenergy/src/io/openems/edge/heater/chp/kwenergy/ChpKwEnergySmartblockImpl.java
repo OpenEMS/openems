@@ -1,6 +1,7 @@
 package io.openems.edge.heater.chp.kwenergy;
 
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -12,8 +13,8 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.heater.api.Heater;
-import io.openems.edge.heater.api.HeaterState;
+import io.openems.edge.heater.Heater;
+import io.openems.edge.heater.HeaterState;
 import io.openems.edge.heater.chp.kwenergy.api.ChpKwEnergySmartblock;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -79,7 +80,7 @@ public class ChpKwEnergySmartblockImpl extends AbstractOpenemsModbusComponent im
 	}
 
 	@Activate
-	public void activate(ComponentContext context, Config config)  {
+	public void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbusBridgeId());
 		debug = config.debug();
@@ -95,7 +96,7 @@ public class ChpKwEnergySmartblockImpl extends AbstractOpenemsModbusComponent im
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 
 		return new ModbusProtocol(this,
 

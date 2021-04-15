@@ -8,7 +8,7 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.heatnetwork.controlcenter.api.ControlCenter;
 import io.openems.edge.controller.heatnetwork.heatingcurveregulator.api.HeatingCurveRegulatorChannel;
 import io.openems.edge.controller.heatnetwork.pid.heatsystem.api.PidHeatsystemController;
-import io.openems.edge.controller.heatnetwork.warmup.api.ControllerWarmupChannel;
+import io.openems.edge.controller.heatnetwork.warmup.api.ControllerWarmup;
 import io.openems.edge.relay.api.Relay;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
@@ -40,7 +40,7 @@ public class ControlCenterImpl extends AbstractOpenemsComponent implements Opene
     protected ComponentManager cpm;
 
     private PidHeatsystemController pidControllerChannel;
-    private ControllerWarmupChannel warmupControllerChannel;
+    private ControllerWarmup warmupControllerChannel;
     private HeatingCurveRegulatorChannel heatingCurveRegulatorChannel;
     private Relay pump;
 
@@ -194,7 +194,7 @@ public class ControlCenterImpl extends AbstractOpenemsComponent implements Opene
             throw new ConfigurationException(config.allocated_Pid_Controller(),
                     "Allocated Passing Controller not a Pid for Passing Controller; Check if Name is correct and try again.");
         }
-        if (cpm.getComponent(config.allocated_Warmup_Controller()) instanceof ControllerWarmupChannel) {
+        if (cpm.getComponent(config.allocated_Warmup_Controller()) instanceof ControllerWarmup) {
             this.warmupControllerChannel = cpm.getComponent(config.allocated_Warmup_Controller());
         } else {
             throw new ConfigurationException(config.allocated_Warmup_Controller(),

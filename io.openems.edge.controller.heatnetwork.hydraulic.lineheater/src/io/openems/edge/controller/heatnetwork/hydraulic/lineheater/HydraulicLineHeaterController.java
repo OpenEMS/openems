@@ -7,7 +7,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.heatnetwork.hydraulic.lineheater.helperclass.LineHeater;
-import io.openems.edge.controller.heatnetwork.hydraulic.lineheater.api.HydraulicLineHeaterApi;
+import io.openems.edge.controller.heatnetwork.hydraulic.lineheater.api.HydraulicLineHeater;
 import io.openems.edge.controller.heatnetwork.hydraulic.lineheater.helperclass.ChannelLineHeater;
 import io.openems.edge.controller.heatnetwork.hydraulic.lineheater.helperclass.ValveLineHeater;
 import io.openems.edge.heater.decentral.api.DecentralHeater;
@@ -32,7 +32,7 @@ import java.util.Optional;
 @Component(name = "HydraulicLineHeaterController",
         configurationPolicy = ConfigurationPolicy.REQUIRE,
         immediate = true)
-public class HydraulicLineHeaterController extends AbstractOpenemsComponent implements OpenemsComponent, Controller, HydraulicLineHeaterApi {
+public class HydraulicLineHeaterController extends AbstractOpenemsComponent implements OpenemsComponent, Controller, HydraulicLineHeater {
 
     private final Logger log = LoggerFactory.getLogger(HydraulicLineHeaterController.class);
 
@@ -66,7 +66,7 @@ public class HydraulicLineHeaterController extends AbstractOpenemsComponent impl
     public HydraulicLineHeaterController() {
 
         super(OpenemsComponent.ChannelId.values(),
-                HydraulicLineHeaterApi.ChannelId.values(),
+                HydraulicLineHeater.ChannelId.values(),
                 Controller.ChannelId.values());
 
     }
@@ -206,7 +206,7 @@ public class HydraulicLineHeaterController extends AbstractOpenemsComponent impl
 
     @Override
     public void run() throws OpenemsError.OpenemsNamedException {
-        int tempReference = this.tempSensorReference.getTemperature().value().isDefined() ? this.tempSensorReference.getTemperature().value().get() : DEFAULT_TEMPERATURE;
+        int tempReference = this.tempSensorReference.getTemperatureChannel().value().isDefined() ? this.tempSensorReference.getTemperatureChannel().value().get() : DEFAULT_TEMPERATURE;
         DateTime now = new DateTime();
         boolean decentralHeatRequest = this.getHeatRequestHeater();
         Optional<Boolean> signal = this.enableSignal().getNextWriteValueAndReset();

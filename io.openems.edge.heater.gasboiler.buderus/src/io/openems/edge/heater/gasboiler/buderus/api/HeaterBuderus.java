@@ -11,7 +11,7 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.heater.api.Heater;
+import io.openems.edge.heater.Heater;
 
 public interface HeaterBuderus extends Heater {
 
@@ -116,7 +116,8 @@ public interface HeaterBuderus extends Heater {
          *      <li> Unit: Dezi Kelvin / min
          * </ul>
          */
-        IR8002_FLOW_TEMP_AENDERUNGSGESCHWINDIGKEIT_KESSEL1(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZI_KELVIN_PER_MINUTE).accessMode(AccessMode.READ_ONLY)),
+        //TODO
+        //IR8002_FLOW_TEMP_AENDERUNGSGESCHWINDIGKEIT_KESSEL1(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZI_KELVIN_PER_MINUTE).accessMode(AccessMode.READ_ONLY)),
 
         //IR8003_RETURN_TEMP_KESSEL1 -> Heater, RETURN_TEMPERATURE. d°C, signed.
 
@@ -348,7 +349,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getIR386StatusStrategie() { return this.getIR386StatusStrategieChannel().value(); }
+    public default Value<Integer> getIR386StatusStrategie() {
+        return this.getIR386StatusStrategieChannel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR390_RUNREQUEST_INITIATOR}.
@@ -370,7 +373,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getIR390RunrequestInitiator() { return this.getIR390RunrequestInitiatorChannel().value(); }
+    public default Value<Integer> getIR390RunrequestInitiator() {
+        return this.getIR390RunrequestInitiatorChannel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR394_STRATEGIE_BITBLOCK}.
@@ -386,7 +391,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getIR394StrategieBitblock() { return this.getIR394StrategieBitblockChannel().value(); }
+    public default Value<Integer> getIR394StrategieBitblock() {
+        return this.getIR394StrategieBitblockChannel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR395_MAX_FLOW_TEMP_ANGEFORDERT}.
@@ -403,7 +410,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getIR395MaxFlowTempAngefordert() { return this.getIR395MaxFlowTempAngefordertChannel().value(); }
+    public default Value<Integer> getIR395MaxFlowTempAngefordert() {
+        return this.getIR395MaxFlowTempAngefordertChannel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR476_FEHLERREGISTER1}.
@@ -419,7 +428,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getIR476Fehlerregister1() { return this.getIR476Fehlerregister1Channel().value(); }
+    public default Value<Integer> getIR476Fehlerregister1() {
+        return this.getIR476Fehlerregister1Channel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR478_FEHLERREGISTER2}.
@@ -435,7 +446,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getIR478Fehlerregister2() { return this.getIR478Fehlerregister2Channel().value(); }
+    public default Value<Integer> getIR478Fehlerregister2() {
+        return this.getIR478Fehlerregister2Channel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR480_FEHLERREGISTER3}.
@@ -451,7 +464,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getIR480Fehlerregister3() { return this.getIR480Fehlerregister3Channel().value(); }
+    public default Value<Integer> getIR480Fehlerregister3() {
+        return this.getIR480Fehlerregister3Channel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR482_FEHLERREGISTER4}.
@@ -467,23 +482,29 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getIR482Fehlerregister4() { return this.getIR482Fehlerregister4Channel().value(); }
+    public default Value<Integer> getIR482Fehlerregister4() {
+        return this.getIR482Fehlerregister4Channel().value();
+    }
+
+    // TODO
 
     /**
      * Gets the Channel for {@link ChannelId#IR8002_FLOW_TEMP_AENDERUNGSGESCHWINDIGKEIT_KESSEL1}.
      *
      * @return the Channel
      */
-    public default IntegerReadChannel getIR8002FlowTempChangeSpeedChannel() {
+ /*   public default IntegerReadChannel getIR8002FlowTempChangeSpeedChannel() {
         return this.channel(ChannelId.IR8002_FLOW_TEMP_AENDERUNGSGESCHWINDIGKEIT_KESSEL1);
-    }
+    }*/
 
     /**
      * Flow temperature change speed, unit is deci Kelvin / min.
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getIR8002FlowTempChangeSpeed() { return this.getIR8002FlowTempChangeSpeedChannel().value(); }
+  /*  public default Value<Integer> getIR8002FlowTempChangeSpeed() {
+        return this.getIR8002FlowTempChangeSpeedChannel().value();
+    }*/
 
     /**
      * Gets the Channel for {@link ChannelId#IR8005_WAERMEERZEUGER_IN_LASTBEGRENZUNG_KESSEL1}.
@@ -499,7 +520,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getIR8005WaermeerzeugerInLastbegrenzung() { return this.getIR8005WaermeerzeugerInLastbegrenzungChannel().value(); }
+    public default Value<Integer> getIR8005WaermeerzeugerInLastbegrenzung() {
+        return this.getIR8005WaermeerzeugerInLastbegrenzungChannel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR8007_MAXIMUM_POWER_KESSEL1}.
@@ -515,7 +538,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getMaximumPowerKessel1() { return this.getMaximumPowerKessel1Channel().value(); }
+    public default Value<Integer> getMaximumPowerKessel1() {
+        return this.getMaximumPowerKessel1Channel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR8008_MINIMUM_POWER_PERCENT_KESSEL1}.
@@ -531,7 +556,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getMinimumPowerPercentKessel1() { return this.getMinimumPowerPercentKessel1Channel().value(); }
+    public default Value<Integer> getMinimumPowerPercentKessel1() {
+        return this.getMinimumPowerPercentKessel1Channel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR8011_MAXIMALE_VORLAUFTEMP_KESSEL1}.
@@ -547,7 +574,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getMaximumFlowTempKessel1() { return this.getMaximumFlowTempKessel1Channel().value(); }
+    public default Value<Integer> getMaximumFlowTempKessel1() {
+        return this.getMaximumFlowTempKessel1Channel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR8012_STATUS_KESSEL1}.
@@ -570,7 +599,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getStatusKessel1() { return this.getStatusKessel1Channel().value(); }
+    public default Value<Integer> getStatusKessel1() {
+        return this.getStatusKessel1Channel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR8013_BITBLOCK_KESSEL1}.
@@ -586,7 +617,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getBitblockKessel1() { return this.getBitblockKessel1Channel().value(); }
+    public default Value<Integer> getBitblockKessel1() {
+        return this.getBitblockKessel1Channel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR8015_ANGEFORDERTE_SOLLWERTTEMP_KESSEL1}.
@@ -602,7 +635,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getRequestedTemperatureSetPointKessel1() { return this.getRequestedTemperatureSetPointKessel1Channel().value(); }
+    public default Value<Integer> getRequestedTemperatureSetPointKessel1() {
+        return this.getRequestedTemperatureSetPointKessel1Channel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR8016_SOLLWERT_LEISTUNG_KESSEL1}.
@@ -618,7 +653,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getRequestedPowerPercentSetPointKessel1() { return this.getRequestedPowerPercentSetPointKessel1Channel().value(); }
+    public default Value<Integer> getRequestedPowerPercentSetPointKessel1() {
+        return this.getRequestedPowerPercentSetPointKessel1Channel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR8017_DRUCK_KESSEL1}.
@@ -634,7 +671,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getPressureKessel1() { return this.getPressureKessel1Channel().value(); }
+    public default Value<Integer> getPressureKessel1() {
+        return this.getPressureKessel1Channel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR8018_FEHLERCODE_KESSEL1}.
@@ -650,7 +689,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getErrorCodeKessel1() { return this.getErrorCodeKessel1Channel().value(); }
+    public default Value<Integer> getErrorCodeKessel1() {
+        return this.getErrorCodeKessel1Channel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR8019_FEHLERCODE_DISPLAY_KESSEL1}.
@@ -666,7 +707,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getErrorCodeDisplayKessel1() { return this.getErrorCodeDisplayKessel1Channel().value(); }
+    public default Value<Integer> getErrorCodeDisplayKessel1() {
+        return this.getErrorCodeDisplayKessel1Channel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR8021_ANZAHL_STARTS_KESSEL1}.
@@ -682,7 +725,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getNumberOfStartsKessel1() { return this.getNumberOfStartsKessel1Channel().value(); }
+    public default Value<Integer> getNumberOfStartsKessel1() {
+        return this.getNumberOfStartsKessel1Channel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#IR8023_BETRIEBSZEIT_KESSEL1}.
@@ -698,7 +743,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getRunningTimeKessel1() { return this.getRunningTimeKessel1Channel().value(); }
+    public default Value<Integer> getRunningTimeKessel1() {
+        return this.getRunningTimeKessel1Channel().value();
+    }
 
     // Holding Registers. Read/write.
 
@@ -754,7 +801,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getHeartBeatOut() { return this.getHeartBeatOutChannel().value(); }
+    public default Value<Integer> getHeartBeatOut() {
+        return this.getHeartBeatOutChannel().value();
+    }
 
     /**
      * Gets the Channel for {@link ChannelId#HR402_RUN_PERMISSION}.
@@ -809,7 +858,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<Integer> getOperatingMode() { return this.getOperatingModeChannel().value(); }
+    public default Value<Integer> getOperatingMode() {
+        return this.getOperatingModeChannel().value();
+    }
 
     /**
      * Operating mode, set point temperature (0) or set point power percent (1). Default is set point power percent.
@@ -839,7 +890,9 @@ public interface HeaterBuderus extends Heater {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<String> getStatusMessage() { return this.getStatusMessageChannel().value(); }
+    public default Value<String> getStatusMessage() {
+        return this.getStatusMessageChannel().value();
+    }
 
     /**
      * Internal method.

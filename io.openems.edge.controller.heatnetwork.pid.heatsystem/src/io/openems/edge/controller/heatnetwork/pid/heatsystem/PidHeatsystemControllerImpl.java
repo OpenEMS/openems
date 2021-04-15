@@ -151,9 +151,9 @@ public class PidHeatsystemControllerImpl extends AbstractOpenemsComponent implem
 
         if (ownActivation) {
             if (activeDependency) {
-                if (this.thermometer.getTemperature().getNextValue().isDefined()) {
+                if (this.thermometer.getTemperatureChannel().getNextValue().isDefined()) {
                     this.timestamp = System.currentTimeMillis();
-                    double output = pidFilter.applyPidFilter(this.thermometer.getTemperature().getNextValue().get(), this.setMinTemperature().value().get());
+                    double output = pidFilter.applyPidFilter(this.thermometer.getTemperatureChannel().getNextValue().get(), this.setMinTemperature().value().get());
                     // is percentage value fix if so substract from current powerlevel?
                     output -= this.passingForPid.getPowerLevel().getNextValue().get();
 

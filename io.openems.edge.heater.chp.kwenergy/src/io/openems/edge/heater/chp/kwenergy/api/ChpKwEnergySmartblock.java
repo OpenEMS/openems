@@ -10,7 +10,7 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.heater.api.Heater;
+import io.openems.edge.heater.Heater;
 
 
 public interface ChpKwEnergySmartblock extends Heater {

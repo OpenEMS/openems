@@ -11,10 +11,10 @@ Bundle-Description: \
 	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.bridge.modbus;version=latest,\
-	io.openems.edge.common;version=latest
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.relay.api;version=latest,\
+	io.openems.edge.aio.api;version=latest,\
 	io.openems.edge.heater;version=latest,\
-	io.openems.edge.consolinno.aio;version=latest,\
-	io.openems.edge.consolinno.relay;version=lates,\
 
 
 -testpath: \

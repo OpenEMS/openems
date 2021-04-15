@@ -1,6 +1,7 @@
 package io.openems.edge.consolinno.modbus.configurator;
 
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -116,7 +117,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     protected SourceReader sourceReader = new SourceReader();
 
     @Activate
-    public void activate(ComponentContext context, Config config) {
+    public void activate(ComponentContext context, Config config) throws OpenemsException {
         //Reads Source file CSV with the Register information
         source = sourceReader.readCsv(config.source());
         //Splits the big CSV Output into the different Modbus Types(OutputCoil,...)
@@ -244,7 +245,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      */
 
     @Override
-    protected ModbusProtocol defineModbusProtocol() {
+    protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
         return new ModbusProtocol(this,
                 //Read Module Connection Status
                 new FC4ReadInputRegistersTask(analogInputRegisters.get(LEAFLET_TMP_CONNECTION_STATUS), Priority.HIGH,
@@ -969,10 +970,6 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      */
     @Override
     public void handleEvent(Event event) {
-        //BridgeModbus.ChannelId.SLAVE_COMMUNICATION_FAILED;
-        if (this.modbus != null) {
-            this.getErrorChannel().setNextValue(this.modbus.get().channel(BridgeModbus.ChannelId.SLAVE_COMMUNICATION_FAILED).value());
-        }
         if (configFlag && (getReadAioConfig() == (aioConfigOne | aioConfigTwo | aioConfigThree | aioConfigFour | aioConfigFive | aioConfigSix | aioConfigSeven))) {
             exitConfigMode();
         }

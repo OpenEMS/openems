@@ -10,13 +10,13 @@ import io.openems.edge.controller.heatnetwork.communication.api.CommunicationCon
 import io.openems.edge.controller.heatnetwork.communication.api.CommunicationMasterController;
 import io.openems.edge.controller.heatnetwork.communication.api.ConnectionType;
 import io.openems.edge.controller.heatnetwork.communication.api.FallbackHandling;
-import io.openems.edge.controller.heatnetwork.communication.api.RestLeafletCommunicationController;
 import io.openems.edge.controller.heatnetwork.communication.api.ManageType;
-import io.openems.edge.controller.heatnetwork.communication.api.RestRequest;
-import io.openems.edge.controller.heatnetwork.communication.api.RequestType;
-import io.openems.edge.controller.heatnetwork.communication.request.rest.RestRequestImpl;
 import io.openems.edge.controller.heatnetwork.communication.api.Request;
-import io.openems.edge.controller.hydraulic.lineheater.api.HydraulicLineHeaterApi;
+import io.openems.edge.controller.heatnetwork.communication.api.RequestType;
+import io.openems.edge.controller.heatnetwork.communication.api.RestLeafletCommunicationController;
+import io.openems.edge.controller.heatnetwork.communication.api.RestRequest;
+import io.openems.edge.controller.heatnetwork.communication.request.rest.RestRequestImpl;
+import io.openems.edge.controller.heatnetwork.hydraulic.lineheater.api.HydraulicLineHeater;
 import io.openems.edge.heatsystem.components.Pump;
 import io.openems.edge.rest.remote.device.general.api.RestRemoteDevice;
 import io.openems.edge.thermometer.api.ThresholdThermometer;
@@ -53,7 +53,7 @@ public class CommunicationMasterControllerImpl extends AbstractOpenemsComponent 
     //ThresholdTemperature to Write into so another Component can react in response correctly
     private ThresholdThermometer thresholdTemperature;
     //The Optional HydraulicLineHeater
-    private HydraulicLineHeaterApi hydraulicLineHeater;
+    private HydraulicLineHeater hydraulicLineHeater;
     //The Optional HeatPump
     private Pump heatPump;
     //Will be Set if Connection not ok
@@ -106,8 +106,8 @@ public class CommunicationMasterControllerImpl extends AbstractOpenemsComponent 
         }
         if (config.useHydraulicLineHeater()) {
             optionalComponent = cpm.getComponent(config.hydraulicLineHeaterId());
-            if (optionalComponent instanceof HydraulicLineHeaterApi) {
-                this.hydraulicLineHeater = (HydraulicLineHeaterApi) optionalComponent;
+            if (optionalComponent instanceof HydraulicLineHeater) {
+                this.hydraulicLineHeater = (HydraulicLineHeater) optionalComponent;
             } else {
                 throw new ConfigurationException("CommunicationMaster - Activate - HydraulicLineHeater",
                         "HydraulicLineHeaterId Component - Not an Instance of HydraulicLineHeater : " + config.hydraulicLineHeaterId());
@@ -300,7 +300,7 @@ public class CommunicationMasterControllerImpl extends AbstractOpenemsComponent 
         //Check if Components are still enabled
         try {
             if (this.hydraulicLineHeater != null && this.hydraulicLineHeater.isEnabled() == false) {
-                if (this.cpm.getComponent(this.hydraulicLineHeater.id()) instanceof HydraulicLineHeaterApi) {
+                if (this.cpm.getComponent(this.hydraulicLineHeater.id()) instanceof HydraulicLineHeater) {
                     this.hydraulicLineHeater = cpm.getComponent(this.hydraulicLineHeater.id());
                 }
             }

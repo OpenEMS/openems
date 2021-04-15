@@ -15,10 +15,11 @@ Bundle-Description: \
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
 	io.openems.edge.controller.debug.log;version=latest,\
+	io.openems.edge.heater;version=latest,\
 	io.openems.edge.heater.api;version=latest,\
-	io.openems.edge.meter.heatmeter.api;version=latest,\
+	io.openems.edge.meter.heatmeter;version=latest,\
 	io.openems.edge.thermometer.api;version=latest,\
-	joda-time,\
+	joda-time;version=2.8.10,\
 
 
 -testpath: \

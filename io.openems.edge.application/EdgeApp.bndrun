@@ -13,7 +13,14 @@
 
 -runsystempackages:\
 	sun.misc,\
-	com.sun.net.httpserver
+	com.sun.net.httpserver,\
+	javax.crypto,\
+	javax.crypto.spec,\
+	javax.net.ssl,\
+	javax.security, \
+	javax.net.ssl.keyStore,\
+	javax.net.ssl.keyStorePassword
+
 
 -runbundles+: \
 	org.apache.felix.scr;startlevel=10,\

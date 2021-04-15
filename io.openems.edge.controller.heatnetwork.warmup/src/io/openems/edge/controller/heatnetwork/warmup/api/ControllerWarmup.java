@@ -6,7 +6,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.*;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public interface ControllerWarmupChannel extends OpenemsComponent {
+public interface ControllerWarmup extends OpenemsComponent {
 
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 

@@ -1,6 +1,6 @@
 package io.openems.edge.controller.heatnetwork.passingstation;
 
-import io.openems.common.exceptions.HeatToLowException;
+import io.openems.common.exceptions.HeatTooLowException;
 import io.openems.common.exceptions.NoHeatNeededException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.ValveDefectException;
@@ -8,7 +8,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.heatnetwork.passingstation.api.ControllerPassingChannel;
+import io.openems.edge.controller.heatnetwork.passingstation.api.ControllerPassing;
 import io.openems.edge.heatsystem.components.PassingActivateNature;
 import io.openems.edge.heatsystem.components.PassingChannel;
 import io.openems.edge.heatsystem.components.Pump;
@@ -25,7 +25,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Passing.Main")
-public class ControllerPassingImpl extends AbstractOpenemsComponent implements OpenemsComponent, ControllerPassingChannel, PassingActivateNature, Controller {
+public class ControllerPassingImpl extends AbstractOpenemsComponent implements OpenemsComponent, ControllerPassing, PassingActivateNature, Controller {
 
     @Reference
     protected ComponentManager cpm;
@@ -64,7 +64,7 @@ public class ControllerPassingImpl extends AbstractOpenemsComponent implements O
     public ControllerPassingImpl() {
 
         super(OpenemsComponent.ChannelId.values(),
-                ControllerPassingChannel.ChannelId.values(),
+                ControllerPassing.ChannelId.values(),
                 PassingActivateNature.ChannelId.values(),
                 Controller.ChannelId.values());
     }
@@ -93,8 +93,8 @@ public class ControllerPassingImpl extends AbstractOpenemsComponent implements O
     }
 
     private void defaultOptions() {
-        if (this.primaryRewind.getTemperature().getNextValue().isDefined()) {
-            this.startingTemperature = this.primaryRewind.getTemperature().getNextValue().get();
+        if (this.primaryRewind.getTemperatureChannel().getNextValue().isDefined()) {
+            this.startingTemperature = this.primaryRewind.getTemperatureChannel().getNextValue().get();
         } else {
             this.startingTemperature = 0;
         }
@@ -168,14 +168,14 @@ public class ControllerPassingImpl extends AbstractOpenemsComponent implements O
 
                                 this.noError().setNextValue(false);
 
-                                if (Math.abs(primaryRewind.getTemperature().getNextValue().get()
+                                if (Math.abs(primaryRewind.getTemperatureChannel().getNextValue().get()
                                         - startingTemperature) <= ROUND_ABOUT_TEMP) {
                                     getErrorCode().setNextValue(0);
                                     throw new ValveDefectException("Temperature barely Changed --> Valve Defect!");
 
                                 } else {
                                     getErrorCode().setNextValue(1);
-                                    throw new HeatToLowException("Heat is too low; Min Temperature will not be reached; "
+                                    throw new HeatTooLowException("Heat is too low; Min Temperature will not be reached; "
                                             + "Closing Valve");
 
                                 }
@@ -183,7 +183,7 @@ public class ControllerPassingImpl extends AbstractOpenemsComponent implements O
                         }
                     }
 
-                } catch (ValveDefectException | NoHeatNeededException | HeatToLowException e) {
+                } catch (ValveDefectException | NoHeatNeededException | HeatTooLowException e) {
                     this.noError().setNextValue(false);
                     valve.forceClose();
                     //valve.controlRelays(false, "Open");
@@ -223,7 +223,7 @@ public class ControllerPassingImpl extends AbstractOpenemsComponent implements O
      * @return the temperature is reached or not.
      */
     private boolean primaryForwardReadyToHeat() {
-        return primaryForward.getTemperature().getNextValue().get()
+        return primaryForward.getTemperatureChannel().getNextValue().get()
                 >= this.getMinTemperature().getNextValue().get() + TOLERANCE_TEMPERATURE;
     }
 
@@ -287,9 +287,9 @@ public class ControllerPassingImpl extends AbstractOpenemsComponent implements O
      */
     private boolean tooHot() {
         if (System.currentTimeMillis() - this.timeStampWarmthPump > WAITING_FOR_TOO_HOT) {
-            if (this.secondaryForward.getTemperature().value().get() >= this.getMinTemperature().value().get()) {
-                return this.secondaryRewind.getTemperature().value().get() + TOLERANCE_TEMPERATURE
-                        > this.secondaryForward.getTemperature().value().get();
+            if (this.secondaryForward.getTemperatureChannel().value().get() >= this.getMinTemperature().value().get()) {
+                return this.secondaryRewind.getTemperatureChannel().value().get() + TOLERANCE_TEMPERATURE
+                        > this.secondaryForward.getTemperatureChannel().value().get();
             }
             return false;
         }

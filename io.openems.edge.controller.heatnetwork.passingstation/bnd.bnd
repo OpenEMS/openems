@@ -14,9 +14,6 @@ Bundle-Description: \
 	io.openems.edge.controller.api;version=latest,\
 	io.openems.edge.thermometer.api;version=latest,\
     io.openems.edge.heatsystem.components;version=latest,\
-    io.openems.edge.temperature.passing.valve;version=latest,\
-    io.openems.edge.temperature.passing.pump;version=latest,\
-    io.openems.edge.heatsystem.components;version=latest,\
     io.openems.edge.pwm.api;version=latest,\
     io.openems.edge.relay.api;version=latest,\
 

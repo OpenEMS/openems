@@ -5,12 +5,6 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
     Provides the Controller to regulate heating based on a heating curve and the external temperature.
 
-Export-Package:  \
-    io.openems.edge.controller.heatnetwork.heatingcurveregulator.api,\
-
-Private-Package:  \
-	io.openems.edge.controller.heatnetwork.heatingcurveregulator,\
-
 -includeresource: {readme.md}
 
 -buildpath:  \

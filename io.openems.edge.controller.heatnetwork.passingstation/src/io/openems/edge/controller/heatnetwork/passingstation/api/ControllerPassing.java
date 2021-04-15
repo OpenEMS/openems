@@ -9,7 +9,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.heatsystem.components.PassingActivateNature;
 
-public interface ControllerPassingChannel extends PassingActivateNature {
+public interface ControllerPassing extends PassingActivateNature {
 
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 

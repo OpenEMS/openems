@@ -6,12 +6,6 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
     Control module to manage different controllers manipulating the same valve and pump.
 
-Export-Package: \
-    io.openems.edge.controller.heatnetwork.valvepumpcontrol.api,\
-
-Private-Package: \
-    io.openems.edge.controller.heatnetwork.valvepumpcontrol,\
-
 -includeresource: {readme.md}
 
 -buildpath:  \
@@ -19,7 +13,6 @@ Private-Package: \
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
     io.openems.edge.controller.api;version=latest,\
-    io.openems.edge.controller.passing.controlcenter.api;version=latest,\
     io.openems.edge.heatsystem.components;version=latest,\
     io.openems.edge.controller.heatnetwork.controlcenter;version=latest,\
     io.openems.edge.thermometer.api;version=latest,\

@@ -8,7 +8,6 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.heatnetwork.warmup.api.ControllerWarmupChannel;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -49,10 +48,10 @@ import java.time.temporal.ChronoUnit;
  */
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Warmup.Passing", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class WarmupPassingImpl extends AbstractOpenemsComponent implements OpenemsComponent, ControllerWarmupChannel, Controller {
+@Component(name = "Controller.Warmup", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+public class ControllerWarmup extends AbstractOpenemsComponent implements OpenemsComponent, io.openems.edge.controller.heatnetwork.warmup.api.ControllerWarmup, Controller {
 
-	private final Logger log = LoggerFactory.getLogger(WarmupPassingImpl.class);
+	private final Logger log = LoggerFactory.getLogger(ControllerWarmup.class);
 
 	@Reference
 	protected ComponentManager cpm;
@@ -75,9 +74,9 @@ public class WarmupPassingImpl extends AbstractOpenemsComponent implements Opene
     private String loadProgramChannel;
 
 
-    public WarmupPassingImpl() {
+    public ControllerWarmup() {
 		super(OpenemsComponent.ChannelId.values(),
-				ControllerWarmupChannel.ChannelId.values(),
+				io.openems.edge.controller.heatnetwork.warmup.api.ControllerWarmup.ChannelId.values(),
 				Controller.ChannelId.values());
 	}
 

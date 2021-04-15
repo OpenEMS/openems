@@ -6,8 +6,8 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.heatnetwork.pump.grundfos.api.ControlModeSetting;
-import io.openems.edge.controller.heatnetwork.pump.grundfos.api.PumpGrundfosControllerChannels;
-import io.openems.edge.pump.grundfos.api.PumpGrundfosChannels;
+import io.openems.edge.controller.heatnetwork.pump.grundfos.api.PumpGrundfosController;
+import io.openems.edge.pump.grundfos.api.PumpGrundfos;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
@@ -33,7 +33,7 @@ import java.util.Optional;
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.PumpGrundfos", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class PumpGrundfosControllerImpl extends AbstractOpenemsComponent implements Controller, OpenemsComponent, PumpGrundfosControllerChannels {
+public class PumpGrundfosControllerImpl extends AbstractOpenemsComponent implements Controller, OpenemsComponent, PumpGrundfosController {
 
 
     /*
@@ -42,7 +42,7 @@ public class PumpGrundfosControllerImpl extends AbstractOpenemsComponent impleme
     PumpGrundfosChannels pumpChannels;
     */
 
-    private PumpGrundfosChannels pumpChannels;
+    private PumpGrundfos pumpChannels;
     private Config config;
 
     @Reference
@@ -64,7 +64,7 @@ public class PumpGrundfosControllerImpl extends AbstractOpenemsComponent impleme
     public PumpGrundfosControllerImpl() {
         super(OpenemsComponent.ChannelId.values(),
                 Controller.ChannelId.values(),
-                PumpGrundfosControllerChannels.ChannelId.values());
+                PumpGrundfosController.ChannelId.values());
     }
 
     @Activate
@@ -74,7 +74,7 @@ public class PumpGrundfosControllerImpl extends AbstractOpenemsComponent impleme
         this.config = config;
 
         // Allocate components.
-        if (cpm.getComponent(config.pumpId()) instanceof PumpGrundfosChannels) {
+        if (cpm.getComponent(config.pumpId()) instanceof PumpGrundfos) {
             this.pumpChannels = cpm.getComponent(config.pumpId());
         } else {
             throw new ConfigurationException("Pump not correct instance, check Id!", "Incorrect Id in Config");

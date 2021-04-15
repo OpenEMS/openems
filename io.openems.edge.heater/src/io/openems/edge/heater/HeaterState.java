@@ -1,4 +1,4 @@
-package io.openems.edge.heater.api;
+package io.openems.edge.heater;
 
 public enum HeaterState {
     OFFLINE, AWAIT, PREHEAT, RUNNING, ERROR, WARNING, UNDEFINED;

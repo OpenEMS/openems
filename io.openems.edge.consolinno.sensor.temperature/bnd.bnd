@@ -5,12 +5,6 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
     This Bundle provides an Temperaturesensor that is communicating over Modbus.
 
-Export-Package:  \
-	io.openems.edge.consolinno.temperature.sensor.api;
-
-Private-Package:  \
-	io.openems.edge.consolinno.temperature.sensor
-
 -includeresource: {readme.md}
 
 -buildpath:  \

@@ -4,15 +4,15 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.consolinno.sensor.signal.api.SignalSensor;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.heatnetwork.controlcenter.api.ControlCenter;
 import io.openems.edge.controller.heatnetwork.performancebooster.api.HeatnetworkPerformanceBooster;
-import io.openems.edge.controller.heatnetwork.controlcenter.api.PassingControlCenterChannel;
-import io.openems.edge.heater.api.Buffer;
+import io.openems.edge.heater.Storage;
 import io.openems.edge.heatsystem.components.PassingActivateNature;
 import io.openems.edge.heatsystem.components.Valve;
 import io.openems.edge.lucidcontrol.device.api.LucidControlDeviceOutput;
-import io.openems.edge.relays.device.api.ActuatorRelaysChannel;
-import io.openems.edge.temperature.module.signalsensor.api.SignalSensorSpi;
+import io.openems.edge.relay.api.Relay;
 import io.openems.edge.thermometer.api.Thermometer;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Heatnetwork.Performancebooster")
-public class HeatnetworkPerformanceBoosterImpl extends AbstractOpenemsComponent implements OpenemsComponent, HeatnetworkPerformanceBooster, Controller, PassingActivateNature, Buffer {
+public class HeatnetworkPerformanceBoosterImpl extends AbstractOpenemsComponent implements OpenemsComponent, HeatnetworkPerformanceBooster, Controller, PassingActivateNature, Storage {
 
     private final Logger log = LoggerFactory.getLogger(HeatnetworkPerformanceBoosterImpl.class);
 
@@ -46,12 +46,12 @@ public class HeatnetworkPerformanceBoosterImpl extends AbstractOpenemsComponent 
     ComponentManager cpm;
 
     private List<Thermometer> thermometerList = new ArrayList<>();
-    private List<SignalSensorSpi> heaterFallbackSignalSensors = new ArrayList<>();
-    private List<SignalSensorSpi> heaterPrimarySignalSensors = new ArrayList<>();
+    private List<SignalSensor> heaterFallbackSignalSensors = new ArrayList<>();
+    private List<SignalSensor> heaterPrimarySignalSensors = new ArrayList<>();
     private List<LucidControlDeviceOutput> heaterControl = new ArrayList<>();
-    private List<ActuatorRelaysChannel> heaterControlRelay = new ArrayList<>();
+    private List<Relay> heaterControlRelay = new ArrayList<>();
     private Valve heatMixer;
-    private PassingControlCenterChannel controlCenter;
+    private ControlCenter controlCenter;
     private int waitExternalSeconds = 0;
     private Thermometer referenceThermometer;
     private Thermometer primaryForward;
@@ -76,7 +76,7 @@ public class HeatnetworkPerformanceBoosterImpl extends AbstractOpenemsComponent 
                 Controller.ChannelId.values(),
                 HeatnetworkPerformanceBooster.ChannelId.values(),
                 PassingActivateNature.ChannelId.values(),
-                Buffer.ChannelId.values());
+                Storage.ChannelId.values());
 
     }
 
@@ -182,14 +182,14 @@ public class HeatnetworkPerformanceBoosterImpl extends AbstractOpenemsComponent 
                                 }
                                 break;
                             case "Heater1":
-                                if (cpm.getComponent(comp) instanceof SignalSensorSpi) {
+                                if (cpm.getComponent(comp) instanceof SignalSensor) {
                                     heaterPrimarySignalSensors.add(cpm.getComponent(comp));
                                 } else {
                                     ex[0] = new ConfigurationException(comp, "Not A SignalSensor");
                                 }
                                 break;
                             case "Heater2":
-                                if (cpm.getComponent(comp) instanceof SignalSensorSpi) {
+                                if (cpm.getComponent(comp) instanceof SignalSensor) {
                                     this.heaterFallbackSignalSensors.add(cpm.getComponent(comp));
                                 } else {
                                     ex[0] = new ConfigurationException(comp, "Not A SignalSensor");
@@ -198,7 +198,7 @@ public class HeatnetworkPerformanceBoosterImpl extends AbstractOpenemsComponent 
                             case "LucidOrRelay":
                                 if (cpm.getComponent(comp) instanceof LucidControlDeviceOutput) {
                                     this.heaterControl.add(cpm.getComponent(comp));
-                                } else if (cpm.getComponent(comp) instanceof ActuatorRelaysChannel) {
+                                } else if (cpm.getComponent(comp) instanceof Relay) {
                                     this.heaterControlRelay.add(cpm.getComponent(comp));
                                 } else {
                                     ex[0] = new ConfigurationException(comp, "Not A LucidControlDevice");
@@ -251,7 +251,7 @@ public class HeatnetworkPerformanceBoosterImpl extends AbstractOpenemsComponent 
             }
         } else if (cpm.getComponent(component) instanceof Valve) {
             this.heatMixer = cpm.getComponent(component);
-        } else if (cpm.getComponent(component) instanceof PassingControlCenterChannel) {
+        } else if (cpm.getComponent(component) instanceof ControlCenter) {
             this.controlCenter = cpm.getComponent(component);
         } else {
             throw new ConfigurationException(component, "Not a correct Component");
@@ -338,14 +338,14 @@ public class HeatnetworkPerformanceBoosterImpl extends AbstractOpenemsComponent 
         }
         this.getWaitTillStart().setNextValue(0);
         //Reference < SetPoint Temperature
-        boolean shouldActivate = this.referenceThermometer.getTemperature().value().get() < this.controlCenter.temperatureHeating().value().get() + this.temperatureSetPointOffset().value().get();
+        boolean shouldActivate = this.referenceThermometer.getTemperatureChannel().value().get() < this.controlCenter.temperatureHeating().value().get() + this.temperatureSetPointOffset().value().get();
         boolean timeIsOver = false;
         if (this.sleepTime > 0) {
             timeIsOver = this.sleepTime < (this.activationTime - System.currentTimeMillis());
         }
         //next Value bc of averageTemperatureCalculation
         boolean shouldDeactivate = (this.storagePercent().getNextValue().get() >= this.bufferSetPointMaxPercent().value().get())
-                && (this.referenceThermometer.getTemperature().value().get() > this.temperatureSetPointOffset().value().get() + this.controlCenter.temperatureHeating().value().get());
+                && (this.referenceThermometer.getTemperatureChannel().value().get() > this.temperatureSetPointOffset().value().get() + this.controlCenter.temperatureHeating().value().get());
         this.getOnOff().setNextValue(shouldActivate);
 
         //Reference < SetPoint
@@ -517,16 +517,16 @@ public class HeatnetworkPerformanceBoosterImpl extends AbstractOpenemsComponent 
 
     private void assignCurrentTemperature() {
         if (primaryForwardDefined) {
-            this.getPrimaryForward().setNextValue(this.primaryForward.getTemperature().value().get());
+            this.getPrimaryForward().setNextValue(this.primaryForward.getTemperatureChannel().value().get());
         }
         if (primaryRewindDefined) {
-            this.getPrimaryRewind().setNextValue(this.primaryRewind.getTemperature().value().get());
+            this.getPrimaryRewind().setNextValue(this.primaryRewind.getTemperatureChannel().value().get());
         }
         if (secondaryForwardDefined) {
-            this.getSecondaryForward().setNextValue(this.secondaryForward.getTemperature().value().get());
+            this.getSecondaryForward().setNextValue(this.secondaryForward.getTemperatureChannel().value().get());
         }
         if (secondaryRewindDefined) {
-            this.getSecondaryRewind().setNextValue(this.secondaryRewind.getTemperature().value().get());
+            this.getSecondaryRewind().setNextValue(this.secondaryRewind.getTemperatureChannel().value().get());
         }
     }
 
@@ -542,8 +542,8 @@ public class HeatnetworkPerformanceBoosterImpl extends AbstractOpenemsComponent 
         //Get Temperature of All Thermometer and Add to tempAverage; Also Check for Min and Max Temp
         if (this.thermometerList.size() > 0) {
             this.thermometerList.forEach(thermometer -> {
-                if (thermometer.getTemperature().value().isDefined()) {
-                    int temperature = thermometer.getTemperature().value().get();
+                if (thermometer.getTemperatureChannel().value().isDefined()) {
+                    int temperature = thermometer.getTemperatureChannel().value().get();
                     tempAverage.getAndAdd(temperature);
                     if (temperature > maxTemp.get()) {
                         maxTemp.set(temperature);

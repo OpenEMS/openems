@@ -15,7 +15,7 @@ Bundle-Description: \
 	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.bridge.modbus;version=latest,\
-	io.openems.edge.common;version=latest
+	io.openems.edge.common;version=latest,\
 	io.openems.edge.heater;version=latest,\
 
 -testpath: \

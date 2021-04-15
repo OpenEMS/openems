@@ -1,4 +1,4 @@
-package io.openems.edge.heater.api;
+package io.openems.edge.heater;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
@@ -170,12 +170,12 @@ public interface Heater extends OpenemsComponent {
     //-------------------   STATE    --------------------- //
 
     //ToDO: OpenEMS hat auch einen State Channel. Evtl. Getter + Setter in getHeaterState/setHeaterState umbenennen.
-    default Channel<String> getStateChannel() {
+    default Channel<String> getHeaterStateChannel() {
         return this.channel(ChannelId.HEATER_STATE);
     }
 
     default String getCurrentState() {
-        Channel<String> selectedChannel = getStateChannel();
+        Channel<String> selectedChannel = getHeaterStateChannel();
         if (selectedChannel.value().isDefined()) {
             return selectedChannel.value().get();
         } else if (selectedChannel.getNextValue().isDefined()) {

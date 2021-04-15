@@ -12,9 +12,8 @@ Bundle-Description: \
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
 	io.openems.edge.bridge.genibus;version=latest,\
-	io.openems.edge.pump.grundfos.api;version=latest,\
+	io.openems.edge.pump.grundfos;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
-    io.openems.edge.controller.pump.grundfos.api;version=latest,\
 
 -testpath: \
 	${testpath}

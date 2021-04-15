@@ -14,8 +14,8 @@ Bundle-Description: \
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.heater;version=latest,\
 	io.openems.edge.heatsystem.components;version=latest,\
-	io.openems.edge.controller.valve;version=latest,\
 	io.openems.edge.thermometer.api;version=latest,\
+	io.openems.edge.controller.heatnetwork.valve;version=latest,\
 
 
 -testpath: \

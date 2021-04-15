@@ -1,0 +1,21 @@
+#
+# io.openems.edge.relay PROVIDER BUNDLE
+#
+
+Bundle-Version:					1.0.0.${tstamp}
+Bundle-Description: \
+	The provider bundle for io.openems.edge.relay. \
+	\
+	${warning;Please update this Bundle-Description in io.openems.edge.relay/api.bnd}
+
+-includeresource: {readme.md}
+
+-buildpath:  \
+	${buildpath},\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.consolinno.modbus.configurator;version=latest,\
+
+-testpath: \
+	${testpath}
+

@@ -5,7 +5,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.relays.device.api.ActuatorRelaysChannel;
+import io.openems.edge.relay.api.Relay;
 import io.openems.edge.thermometer.api.Thermometer;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
@@ -33,7 +33,7 @@ public class ControllerFallbackactivateImpl extends AbstractOpenemsComponent imp
     protected ComponentManager cpm;
 
     private Thermometer tempSensor;
-    private ActuatorRelaysChannel relay;
+    private Relay relay;
     private int minTemp;
     private boolean displayOnce;
     private boolean error;
@@ -67,7 +67,7 @@ public class ControllerFallbackactivateImpl extends AbstractOpenemsComponent imp
                 throw new ConfigurationException(config.temp_Sensor(), "The temperature-sensor " + config.temp_Sensor()
                         + " is not a (configured) temperature sensor.");
             }
-            if (cpm.getComponent(config.relay_id()) instanceof ActuatorRelaysChannel) {
+            if (cpm.getComponent(config.relay_id()) instanceof Relay) {
                 relay = cpm.getComponent(config.relay_id());
                 // Set relay to "off" state upon initialization.
                 controlRelay(false);
@@ -91,9 +91,9 @@ public class ControllerFallbackactivateImpl extends AbstractOpenemsComponent imp
     public void run() throws OpenemsError.OpenemsNamedException {
 
         // Transfer channel data to local variables for better readability of logic code.
-        tempSensorSendsData = tempSensor.getTemperature().value().isDefined();
+        tempSensorSendsData = tempSensor.getTemperatureChannel().value().isDefined();
         if (tempSensorSendsData) {
-            temperature = tempSensor.getTemperature().value().get();
+            temperature = tempSensor.getTemperatureChannel().value().get();
 
             // Error handling
             if (error) {

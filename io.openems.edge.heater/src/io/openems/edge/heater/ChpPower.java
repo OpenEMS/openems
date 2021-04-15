@@ -1,4 +1,4 @@
-package io.openems.edge.heater.api;
+package io.openems.edge.heater;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;

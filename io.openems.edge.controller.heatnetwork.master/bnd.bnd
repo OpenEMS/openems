@@ -14,7 +14,7 @@ Bundle-Description: \
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.rest.remote.device.general;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
-    io.openems.edge.controller.passing.controlcenter.api;version=latest,\
+    io.openems.edge.controller.heatnetwork.controlcenter;version=latest,\
     io.openems.edge.relay.api;version=latest,\
 
 -testpath: \

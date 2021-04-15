@@ -5,20 +5,12 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
 	This bundle maps GENIbus calls to OpenEMS channels for a Grundfos pump.
 
-
-Export-Package: \
-    io.openems.edge.pump.grundfos.api,\
-
-Private-Package:  \
-	io.openems.edge.pump.grundfos,\
-
 -includeresource: {readme.md}
 
 -buildpath:  \
 	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
-	io.openems.edge.pump.grundfos.api;version=latest,\
     io.openems.edge.bridge.genibus;version=latest,\
 
 -testpath: \

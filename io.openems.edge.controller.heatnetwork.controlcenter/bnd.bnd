@@ -12,13 +12,11 @@ Bundle-Description: \
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
     io.openems.edge.controller.api;version=latest,\
-    io.openems.edge.controller.pid.passing.api;version=latest,\
     io.openems.edge.controller.heatnetwork.heatingcurveregulator;version=latest,\
     io.openems.edge.heatsystem.components;version=latest,\
-    io.openems.edge.controller.warmup.passing.api;version=latest,\
 	io.openems.edge.relay.api;version=latest,\
 	io.openems.edge.controller.heatnetwork.pid.heatsystem;version=latest,\
-	io.openems.edge.controller.heatnetwork.warmpump;version=latest,\
+	io.openems.edge.controller.heatnetwork.warmup;version=latest,\
 
 -testpath: \
 	${testpath},\

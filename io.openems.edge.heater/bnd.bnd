@@ -12,11 +12,7 @@ Bundle-Description: \
     io.openems.common;version=latest,\
     io.openems.edge.bridge.modbus;version=latest,\
     io.openems.edge.common;version=latest,\
-    io.openems.edge.consolinno.aio;version=latest,\
-    io.openems.edge.consolinno.relay;version=latest,\
     io.openems.edge.heatsystem.components;version=latest,\
-    io.openems.edge.controller.valve;version=latest,\
-    io.openems.edge.request;version=latest,\
     io.openems.edge.thermometer.api;version=latest,\
 
 

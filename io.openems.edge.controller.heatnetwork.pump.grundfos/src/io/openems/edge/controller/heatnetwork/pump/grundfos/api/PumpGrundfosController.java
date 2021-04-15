@@ -8,7 +8,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public interface PumpGrundfosControllerChannels extends OpenemsComponent {
+public interface PumpGrundfosController extends OpenemsComponent {
     enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
         CONTROL_MODE(Doc.of(ControlModeSetting.values()).accessMode(AccessMode.READ_WRITE)),

@@ -1,6 +1,7 @@
 package io.openems.edge.apartmentmodule;
 
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.apartmentmodule.api.ApartmentModule;
 import io.openems.edge.apartmentmodule.api.CommunicationCheck;
 import io.openems.edge.apartmentmodule.api.OnOff;
@@ -90,7 +91,7 @@ public class ApartmentModuleImpl extends AbstractOpenemsModbusComponent implemen
 
 
     @Activate
-    public void activate(ComponentContext context, Config config) throws ConfigurationException {
+    public void activate(ComponentContext context, Config config) throws ConfigurationException, OpenemsException {
         switch (config.modbusUnitId()) {
             case ID_1:
             case ID_4:
@@ -126,7 +127,7 @@ public class ApartmentModuleImpl extends AbstractOpenemsModbusComponent implemen
 
 
     @Override
-    protected ModbusProtocol defineModbusProtocol() {
+    protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 
         // Select Modbus mapping based on Apartment Module configuration.
         if (topAM) {

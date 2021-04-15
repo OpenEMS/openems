@@ -7,7 +7,7 @@ import io.openems.edge.common.channel.*;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.bridge.genibus.api.PumpDevice;
 
-public interface PumpGrundfosChannels extends OpenemsComponent {
+public interface PumpGrundfos extends OpenemsComponent {
 
     enum ChannelId implements io.openems.edge.common.channel.ChannelId {
         /*

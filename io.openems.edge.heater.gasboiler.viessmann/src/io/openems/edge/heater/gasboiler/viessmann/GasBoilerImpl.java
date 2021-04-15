@@ -1,6 +1,7 @@
 package io.openems.edge.heater.gasboiler.viessmann;
 
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -15,10 +16,10 @@ import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.gasboiler.device.api.GasBoiler;
-import io.openems.edge.gasboiler.device.api.GasBoilerData;
-import io.openems.edge.heater.api.Heater;
-import io.openems.edge.heater.api.HeaterState;
+import io.openems.edge.heater.Heater;
+import io.openems.edge.heater.HeaterState;
+import io.openems.edge.heater.gasboiler.viessmann.api.GasBoiler;
+import io.openems.edge.heater.gasboiler.viessmann.api.GasBoilerData;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -103,7 +104,7 @@ public class GasBoilerImpl extends AbstractOpenemsModbusComponent implements Ope
     }
 
     @Override
-    protected ModbusProtocol defineModbusProtocol() {
+    protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
         return new ModbusProtocol(this,
                 new FC2ReadInputsTask(200, Priority.HIGH,
                         m(GasBoilerData.ChannelId.DISTURBANCE, new CoilElement(200)),

@@ -12,13 +12,13 @@ Bundle-Description: \
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.temperature.module.signalsensor.api;version=latest,\
 	io.openems.edge.thermometer.api;version=latest,\
-	io.openems.edge.heater.api;version=latest,\
+	io.openems.edge.heater;version=latest,\
 	io.openems.edge.heatsystem.components;version=latest,\
-	io.openems.edge.controller.passing.controlcenter.api;version=latest,\
-	io.openems.edge.lucidcontrol.device.api;version=latest,\
-	io.openems.edge.relays.device.api;version=latest,\
+	io.openems.edge.controller.heatnetwork.controlcenter;version=latest,\
+	io.openems.edge.lucidcontrol.device;version=latest,\
+	io.openems.edge.relay.api;version=latest,\
+	io.openems.edge.consolinno.sensor.signal;version=latest,\
 
 
 -testpath: \

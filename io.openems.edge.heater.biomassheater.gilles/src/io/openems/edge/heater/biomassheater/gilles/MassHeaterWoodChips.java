@@ -1,6 +1,7 @@
 package io.openems.edge.heater.biomassheater.gilles;
 
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -13,8 +14,8 @@ import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.heater.api.Heater;
-import io.openems.edge.heater.api.HeaterState;
+import io.openems.edge.heater.Heater;
+import io.openems.edge.heater.HeaterState;
 import io.openems.edge.heater.biomassheater.gilles.api.BioMassHeater;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
@@ -60,7 +61,7 @@ public class MassHeaterWoodChips extends AbstractOpenemsModbusComponent implemen
     }
 
     @Activate
-    public void activate(ComponentContext context, Config config) throws ConfigurationException {
+    public void activate(ComponentContext context, Config config) throws ConfigurationException, OpenemsException {
         this.config = config;
         super.activate(context, config.id(), config.alias(), config.enabled(), config.modBusUnitId(), this.cm, "Modbus", config.modBusBridgeId());
 
@@ -75,7 +76,7 @@ public class MassHeaterWoodChips extends AbstractOpenemsModbusComponent implemen
     }
 
     @Override
-    protected ModbusProtocol defineModbusProtocol() {
+    protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 
         return new ModbusProtocol(this,
 

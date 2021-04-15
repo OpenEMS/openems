@@ -13,7 +13,6 @@ Bundle-Description: \
 	${buildpath},\
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
-	io.openems.edge.rest.remote.device.general.api;version=latest,\
 	io.openems.edge.bridge.rest.communcation;version=latest,\
 
 -testpath: \

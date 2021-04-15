@@ -7,7 +7,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public interface HydraulicLineHeaterApi extends OpenemsComponent {
+public interface HydraulicLineHeater extends OpenemsComponent {
 
     enum ChannelId implements io.openems.edge.common.channel.ChannelId {
         /**

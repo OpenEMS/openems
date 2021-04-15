@@ -6,7 +6,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.heater.api.Heater;
+import io.openems.edge.heater.Heater;
 
 public interface BioMassHeater extends Heater {
 

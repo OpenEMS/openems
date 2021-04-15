@@ -13,11 +13,10 @@ Bundle-Description: \
 	io.openems.edge.controller.api;version=latest,\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
-	io.openems.edge.relays.device.api;version=latest,\
+	io.openems.edge.relay.api;version=latest,\
 	io.openems.edge.thermometer.api;version=latest,\
 	io.openems.edge.heatsystem.components;version=latest,\
-	io.openems.edge.controller.api.core;version=latest,\
-	io.openems.edge.controller.temperature.passing;version=latest,\
+	io.openems.edge.controller.heatnetwork.passingstation;version=latest,\
 
 -testpath: \
 	${testpath}

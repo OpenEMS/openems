@@ -1,6 +1,7 @@
 package io.openems.edge.heater.gasboiler.buderus;
 
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -15,8 +16,8 @@ import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.heater.api.Heater;
-import io.openems.edge.heater.api.HeaterState;
+import io.openems.edge.heater.Heater;
+import io.openems.edge.heater.HeaterState;
 import io.openems.edge.heater.gasboiler.buderus.api.OperatingMode;
 import io.openems.edge.heater.gasboiler.buderus.api.HeaterBuderus;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -85,7 +86,7 @@ public class HeaterBuderusImpl extends AbstractOpenemsModbusComponent implements
 	}
 
 	@Activate
-	public void activate(ComponentContext context, Config config)  {
+	public void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbusBridgeId());
 		debug = config.debug();
@@ -103,7 +104,7 @@ public class HeaterBuderusImpl extends AbstractOpenemsModbusComponent implements
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 
 		if (readOnly == false) {
 			return new ModbusProtocol(this,
@@ -138,8 +139,9 @@ public class HeaterBuderusImpl extends AbstractOpenemsModbusComponent implements
 					new FC4ReadInputRegistersTask(8001, Priority.HIGH,
 							m(Heater.ChannelId.FLOW_TEMPERATURE, new SignedWordElement(8001),
 									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(HeaterBuderus.ChannelId.IR8002_FLOW_TEMP_AENDERUNGSGESCHWINDIGKEIT_KESSEL1, new SignedWordElement(8002),
-									ElementToChannelConverter.DIRECT_1_TO_1),
+							//TODO
+							//m(HeaterBuderus.ChannelId.IR8002_FLOW_TEMP_AENDERUNGSGESCHWINDIGKEIT_KESSEL1, new SignedWordElement(8002),
+							//		ElementToChannelConverter.DIRECT_1_TO_1),
 							m(Heater.ChannelId.RETURN_TEMPERATURE, new SignedWordElement(8003),
 									ElementToChannelConverter.DIRECT_1_TO_1),
 							m(Heater.ChannelId.READ_EFFECTIVE_POWER_PERCENT, new UnsignedWordElement(8004),
@@ -256,8 +258,9 @@ public class HeaterBuderusImpl extends AbstractOpenemsModbusComponent implements
 					new FC4ReadInputRegistersTask(8001, Priority.HIGH,
 							m(Heater.ChannelId.FLOW_TEMPERATURE, new SignedWordElement(8001),
 									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(HeaterBuderus.ChannelId.IR8002_FLOW_TEMP_AENDERUNGSGESCHWINDIGKEIT_KESSEL1, new SignedWordElement(8002),
-									ElementToChannelConverter.DIRECT_1_TO_1),
+							//TODO
+							//m(HeaterBuderus.ChannelId.IR8002_FLOW_TEMP_AENDERUNGSGESCHWINDIGKEIT_KESSEL1, new SignedWordElement(8002),
+							//		ElementToChannelConverter.DIRECT_1_TO_1),
 							m(Heater.ChannelId.RETURN_TEMPERATURE, new SignedWordElement(8003),
 									ElementToChannelConverter.DIRECT_1_TO_1),
 							m(Heater.ChannelId.READ_EFFECTIVE_POWER_PERCENT, new UnsignedWordElement(8004),
@@ -631,7 +634,8 @@ public class HeaterBuderusImpl extends AbstractOpenemsModbusComponent implements
 			this.logInfo(this.log, "Heater STATE channel: " + getCurrentState());
 			this.logInfo(this.log, "Heater flow temperature: " + getFlowTemperature() + " d°C");
 			this.logInfo(this.log, "Heater maximum flow temperature: " + getMaximumFlowTempKessel1().get() + " d°C");
-			this.logInfo(this.log, "Heater flow temperature change speed: " + getIR8002FlowTempChangeSpeed().get() + " dK/min");
+			//TODO
+			//this.logInfo(this.log, "Heater flow temperature change speed: " + getIR8002FlowTempChangeSpeed().get() + " dK/min");
 			this.logInfo(this.log, "Heater return temperature: " + getReturnTemperature() + " d°C");
 			this.logInfo(this.log, "Heater effective power percent: " + getEffectivePowerPercent() + " %");
 			this.logInfo(this.log, "Heater minimum power percent: " + getMinimumPowerPercentKessel1().get() + " %");

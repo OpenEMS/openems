@@ -1,5 +1,6 @@
 package io.openems.edge.consolinno.sensor.signal;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -59,7 +60,7 @@ public class SignalSensorImpl extends AbstractOpenemsModbusComponent implements 
 
 
     @Activate
-    void activate(ComponentContext context, Config config) throws ConfigurationException {
+    void activate(ComponentContext context, Config config) throws ConfigurationException, OpenemsException {
         this.signalModule = config.module();
         this.position = config.position();
         this.isInverted = config.inverted();
@@ -85,7 +86,7 @@ public class SignalSensorImpl extends AbstractOpenemsModbusComponent implements 
     }
 
     @Override
-    protected ModbusProtocol defineModbusProtocol() {
+    protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
         return new ModbusProtocol(this,
                 new FC4ReadInputRegistersTask(this.temperatureAnalogInput, Priority.HIGH,
                         m(Thermometer.ChannelId.TEMPERATURE, new UnsignedWordElement(this.temperatureAnalogInput),

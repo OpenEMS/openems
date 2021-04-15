@@ -9,7 +9,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.pump.grundfos.api.PumpGrundfosChannels;
+import io.openems.edge.pump.grundfos.api.PumpGrundfos;
 import io.openems.edge.pump.grundfos.api.PumpType;
 import io.openems.edge.pump.grundfos.api.WarnBits;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
         property = { //
                 EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
         })
-public class PumpGrundfosImpl extends AbstractOpenemsComponent implements OpenemsComponent, PumpGrundfosChannels, EventHandler {
+public class PumpGrundfosImpl extends AbstractOpenemsComponent implements OpenemsComponent, PumpGrundfos, EventHandler {
 
 
 
@@ -72,7 +72,7 @@ public class PumpGrundfosImpl extends AbstractOpenemsComponent implements Openem
     private final Logger log = LoggerFactory.getLogger(PumpGrundfosImpl.class);
 
     public PumpGrundfosImpl() {
-        super(OpenemsComponent.ChannelId.values(), PumpGrundfosChannels.ChannelId.values());
+        super(OpenemsComponent.ChannelId.values(), PumpGrundfos.ChannelId.values());
     }
 
 

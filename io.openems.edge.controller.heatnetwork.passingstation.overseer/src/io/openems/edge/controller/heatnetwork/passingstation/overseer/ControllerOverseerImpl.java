@@ -6,7 +6,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.heatnetwork.passingstation.api.ControllerPassingChannel;
+import io.openems.edge.controller.heatnetwork.passingstation.api.ControllerPassing;
 import io.openems.edge.thermometer.api.Thermometer;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
@@ -25,7 +25,7 @@ import java.util.List;
 @Component(name = "Controller.Passing.Overseer")
 public class ControllerOverseerImpl extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-    protected ControllerPassingChannel passing;
+    protected ControllerPassing passing;
     protected List<Thermometer> temperatureSensor = new ArrayList<>();
     private int tolerance;
     private long coolDownTime;
@@ -60,7 +60,7 @@ public class ControllerOverseerImpl extends AbstractOpenemsComponent implements 
     }
 
     private void allocateComponents(String controller, String[] temperatureSensor) throws OpenemsError.OpenemsNamedException, ConfigurationException {
-        if (cpm.getComponent(controller) instanceof ControllerPassingChannel) {
+        if (cpm.getComponent(controller) instanceof ControllerPassing) {
             passing = cpm.getComponent(controller);
 
         } else {
@@ -141,7 +141,7 @@ public class ControllerOverseerImpl extends AbstractOpenemsComponent implements 
     private boolean heatingReached() {
         if (passing.getMinTemperature().value().isDefined()) {
             return this.temperatureSensor.stream().noneMatch(
-                    thermometer -> thermometer.getTemperature().getNextValue().get() <= passing.getMinTemperature().value().get());
+                    thermometer -> thermometer.getTemperatureChannel().getNextValue().get() <= passing.getMinTemperature().value().get());
 
         }
         return true;

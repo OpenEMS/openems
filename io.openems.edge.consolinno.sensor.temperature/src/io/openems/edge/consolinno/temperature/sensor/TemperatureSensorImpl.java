@@ -1,5 +1,6 @@
 package io.openems.edge.consolinno.temperature.sensor;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -49,7 +50,7 @@ public class TemperatureSensorImpl extends AbstractOpenemsModbusComponent implem
 
 
     @Activate
-    void activate(ComponentContext context, Config config) throws ConfigurationException {
+    void activate(ComponentContext context, Config config) throws ConfigurationException, OpenemsException {
         this.temperatureModule = config.module();
         this.position = config.position();
         //Check if the Module is physically present, else throws ConfigurationException.
@@ -73,7 +74,7 @@ public class TemperatureSensorImpl extends AbstractOpenemsModbusComponent implem
     }
 
     @Override
-    protected ModbusProtocol defineModbusProtocol() {
+    protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
         return new ModbusProtocol(this,
                 new FC4ReadInputRegistersTask(this.temperatureAnalogInput, Priority.HIGH,
                         m(Thermometer.ChannelId.TEMPERATURE, new UnsignedWordElement(this.temperatureAnalogInput),
