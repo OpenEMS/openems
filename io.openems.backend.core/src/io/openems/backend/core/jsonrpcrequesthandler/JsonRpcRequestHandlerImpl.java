@@ -156,7 +156,7 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 	/**
 	 * Handles a {@link SetGridConnScheduleRequest}.
 	 * 
-	 * @param backendUser                the {@link User}
+	 * @param user                       the {@link User}
 	 * @param messageId                  the JSON-RPC Message-ID
 	 * @param setGridConnScheduleRequest the {@link SetGridConnScheduleRequest}
 	 * @return the JSON-RPC Success Response Future

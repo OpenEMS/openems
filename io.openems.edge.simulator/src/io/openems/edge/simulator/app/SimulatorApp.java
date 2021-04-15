@@ -50,7 +50,6 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.session.Role;
-import io.openems.common.session.AbstractUser;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
@@ -66,7 +65,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.common.user.EdgeUser;
+import io.openems.edge.common.user.User;
 import io.openems.edge.simulator.app.ExecuteSimulationRequest.Profile;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 import io.openems.edge.timedata.api.Timedata;
@@ -95,13 +94,13 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	private ComponentManager componentManager;
 
 	private static class CurrentSimulation {
-		private final EdgeUser user;
+		private final User user;
 		private final ExecuteSimulationRequest request;
 		private final TimeLeapClock clock;
 		private final CompletableFuture<ExecuteSimulationResponse> response;
 		private final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> collectedData = new TreeMap<>();
 
-		public CurrentSimulation(EdgeUser user, ExecuteSimulationRequest request, TimeLeapClock clock,
+		public CurrentSimulation(User user, ExecuteSimulationRequest request, TimeLeapClock clock,
 				CompletableFuture<ExecuteSimulationResponse> response) {
 			super();
 			this.user = user;
@@ -157,8 +156,8 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(EdgeUser user,
-			JsonrpcRequest request) throws OpenemsNamedException {
+	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
+			throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.ADMIN);
 
 		switch (request.getMethod()) {
@@ -172,14 +171,14 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Handles a ExecuteSimulationRequest.
+	 * Handles a {@link ExecuteSimulationRequest}.
 	 * 
-	 * @param user    the User
-	 * @param request the ExecuteSimulationRequest
+	 * @param user    the {@link User}
+	 * @param request the {@link ExecuteSimulationRequest}
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private synchronized CompletableFuture<ExecuteSimulationResponse> handleExecuteSimulationRequest(EdgeUser user,
+	private synchronized CompletableFuture<ExecuteSimulationResponse> handleExecuteSimulationRequest(User user,
 			ExecuteSimulationRequest request) throws OpenemsNamedException {
 		this.logInfo(this.log, "Starting Simulation");
 
@@ -323,10 +322,10 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	/**
 	 * Delete all non-required Components.
 	 * 
-	 * @param user the {@link AbstractUser}
+	 * @param user the {@link User}
 	 * @throws OpenemsNamedException on error
 	 */
-	private void deleteAllConfigurations(EdgeUser user) throws OpenemsNamedException {
+	private void deleteAllConfigurations(User user) throws OpenemsNamedException {
 		Set<String> deletedComponents = new HashSet<>();
 		for (OpenemsComponent component : this.componentManager.getAllComponents()) {
 			deletedComponents.add(component.id());
@@ -359,7 +358,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		this.logInfo(this.log, "Stopping Simulation");
 
 		CurrentSimulation currentSimulation = this.currentSimulation;
-		EdgeUser user;
+		final User user;
 		if (currentSimulation != null) {
 			user = currentSimulation.user;
 			currentSimulation.response.complete(
@@ -383,11 +382,11 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	/**
 	 * Deletes a Component configuration.
 	 * 
-	 * @param user        the User
+	 * @param user        the {@link User}
 	 * @param componentId the Component-ID
 	 * @throws OpenemsNamedException on error
 	 */
-	private void deleteComponent(EdgeUser user, String componentId) throws OpenemsNamedException {
+	private void deleteComponent(User user, String componentId) throws OpenemsNamedException {
 		this.logInfo(this.log, "Delete Component [" + componentId + "]");
 		DeleteComponentConfigRequest deleteComponentConfigRequest = new DeleteComponentConfigRequest(componentId);
 		this.componentManager.handleJsonrpcRequest(user, deleteComponentConfigRequest);

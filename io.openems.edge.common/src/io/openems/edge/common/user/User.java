@@ -13,12 +13,12 @@ import io.openems.common.session.Role;
 public class User extends AbstractUser {
 
 	/**
-	 * Default-Edge-ID for EdgeUser.
+	 * Default-Edge-ID for User.
 	 */
 	public final static String DEFAULT_EDGE_ID = "DEFAULT_EDGE_ID";
 
 	/**
-	 * Constructs an {@link EdgeUser}.
+	 * Constructs an {@link User}.
 	 * 
 	 * @param id   the User-ID
 	 * @param name the name
@@ -30,8 +30,19 @@ public class User extends AbstractUser {
 	}
 
 	/**
+	 * Gets the Role (Global and Per-Edge-Role are the same for OpenEMS Edge
+	 * {@link User}).
+	 * 
+	 * @param edgeId the Edge-ID
+	 * @return the {@link Role}
+	 */
+	public Role getRole() {
+		return super.getGlobalRole();
+	}
+
+	/**
 	 * Throws an exception if the Role (Global and Per-Edge-Role are the same for
-	 * {@link EdgeUser}) is equal or more privileged than the given Role.
+	 * OpenEMS Edge {@link User}) is equal or more privileged than the given Role.
 	 * 
 	 * @param resource a resource identifier; used for the exception
 	 * @param role     the compared {@link Role}

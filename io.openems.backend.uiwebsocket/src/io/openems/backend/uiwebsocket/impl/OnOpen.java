@@ -68,8 +68,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		wsData.setToken(token);
 
 		// send connection successful reply
-		AuthenticateWithSessionIdNotification notification = new AuthenticateWithSessionIdNotification(
-				user.getSessionId(), user);
+		AuthenticateWithSessionIdNotification notification = new AuthenticateWithSessionIdNotification(token, user);
 		this.parent.server.sendMessage(ws, notification);
 
 		this.parent.logInfo(this.log, "User [" + user.getId() + ":" + user.getName() + "] connected.");

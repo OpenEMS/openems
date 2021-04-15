@@ -1,5 +1,7 @@
 package io.openems.common.jsonrpc.notification;
 
+import java.util.UUID;
+
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
@@ -30,10 +32,10 @@ public class AuthenticateWithSessionIdNotification extends JsonrpcNotification {
 
 	public final static String METHOD = "authenticatedWithSessionId";
 
-	private final String token;
+	private final UUID token;
 	private final AbstractUser user;
 
-	public AuthenticateWithSessionIdNotification(String token, AbstractUser user) {
+	public AuthenticateWithSessionIdNotification(UUID token, AbstractUser user) {
 		super(METHOD);
 		this.token = token;
 		this.user = user;
@@ -42,7 +44,7 @@ public class AuthenticateWithSessionIdNotification extends JsonrpcNotification {
 	@Override
 	public JsonObject getParams() {
 		return JsonUtils.buildJsonObject(this.user.toJsonObject()) //
-				.addProperty("token", this.token) //
+				.addProperty("token", this.token.toString()) //
 				.build();
 	}
 

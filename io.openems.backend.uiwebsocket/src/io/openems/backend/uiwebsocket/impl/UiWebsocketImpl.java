@@ -174,7 +174,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 			Optional<String> userIdOpt = wsData.getUserId();
 			if (userIdOpt.isPresent()) {
 				String userId = userIdOpt.get();
-				// get BackendUser for User-ID
+				// get User for User-ID
 				Optional<User> userOpt = this.metadata.getUser(userId);
 				if (userOpt.isPresent()) {
 					User user = userOpt.get();

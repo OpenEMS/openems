@@ -11,7 +11,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdFailedNotification;
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdNotification;
-import io.openems.edge.common.user.EdgeUser;
+import io.openems.edge.common.user.User;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
@@ -37,7 +37,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 				token = UUID.fromString(cookieToken.get());
 
 				// login using token from the cookie
-				EdgeUser user = this.parent.sessionTokens.get(token);
+				User user = this.parent.sessionTokens.get(token);
 				if (user != null) {
 					/*
 					 * token from cookie is valid -> authentication successful
@@ -47,7 +47,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 					// send authentication notification
 					AuthenticateWithSessionIdNotification notification = new AuthenticateWithSessionIdNotification(
-							token.toString(), user);
+							token, user);
 					this.parent.server.sendMessage(ws, notification);
 
 					// log

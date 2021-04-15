@@ -12,6 +12,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import io.openems.backend.common.metadata.Edge;
+import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.DeprecatedJsonrpcNotification;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
@@ -19,7 +20,6 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
-import io.openems.common.session.AbstractUser;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
 
@@ -37,12 +37,13 @@ public class SystemLogHandler {
 	 * Handles a {@link SubscribeSystemLogRequest}.
 	 * 
 	 * @param edgeId  the Edge-ID
+	 * @param user    the {@link User}
 	 * @param token   the UI session token
 	 * @param request the {@link SubscribeSystemLogRequest}
 	 * @return a reply
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, AbstractUser user,
+	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
 			UUID token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		if (request.getSubscribe()) {
 			/*
@@ -94,10 +95,10 @@ public class SystemLogHandler {
 	 * {@link SubscribeSystemLogRequest}.
 	 * 
 	 * @param edgeId       the Edge-ID
-	 * @param user         the User
-	 * @param notification the SystemLogNotification
+	 * @param user         the {@link User}
+	 * @param notification the {@link SystemLogNotification}
 	 */
-	public void handleSystemLogNotification(String edgeId, AbstractUser user, SystemLogNotification notification) {
+	public void handleSystemLogNotification(String edgeId, User user, SystemLogNotification notification) {
 		Collection<UUID> tokens;
 		synchronized (this.subscriptions) {
 			tokens = this.subscriptions.get(edgeId);
@@ -117,10 +118,10 @@ public class SystemLogHandler {
 	 * Unsubscribe from System-Log.
 	 * 
 	 * @param edgeId the Edge-ID#
-	 * @param user   the User; possibly null
+	 * @param user   the {@link User}; possibly null
 	 * @param token  the UI token
 	 */
-	private void unsubscribe(String edgeId, AbstractUser user, UUID token) {
+	private void unsubscribe(String edgeId, User user, UUID token) {
 		boolean isAnySubscriptionForThisEdgeLeft;
 		synchronized (this.subscriptions) {
 			this.subscriptions.remove(edgeId, token);
@@ -143,7 +144,7 @@ public class SystemLogHandler {
 	}
 
 	@Deprecated
-	private CompletableFuture<JsonrpcResponseSuccess> sendSubscribe(String edgeId, AbstractUser user,
+	private CompletableFuture<JsonrpcResponseSuccess> sendSubscribe(String edgeId, User user,
 			SubscribeSystemLogRequest request, boolean subscribe) throws OpenemsNamedException {
 		// handling deprecated: remove after full migration
 		Optional<Edge> edge = this.parent.metadata.getEdge(edgeId);

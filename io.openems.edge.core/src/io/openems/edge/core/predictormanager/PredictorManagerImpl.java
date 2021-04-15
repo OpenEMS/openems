@@ -20,13 +20,13 @@ import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.session.AbstractUser;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.sum.Sum;
+import io.openems.edge.common.user.User;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.predictor.api.manager.PredictorManager;
@@ -70,7 +70,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(AbstractUser user, JsonrpcRequest request)
+	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		switch (request.getMethod()) {
 		case Get24HoursPredictionRequest.METHOD:
@@ -79,7 +79,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 		return null;
 	}
 
-	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGet24HoursPredictionRequest(AbstractUser user,
+	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGet24HoursPredictionRequest(User user,
 			Get24HoursPredictionRequest request) throws OpenemsNamedException {
 		final Map<ChannelAddress, Prediction24Hours> predictions = new HashMap<>();
 		for (ChannelAddress channel : request.getChannels()) {

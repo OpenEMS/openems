@@ -81,7 +81,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	 * Tries to authenticate at the Odoo server using a sessionId from a cookie.
 	 *
 	 * @param sessionId the Session-ID
-	 * @return the BackendUser
+	 * @return the {@link User}
 	 * @throws OpenemsException on error
 	 */
 	@Override

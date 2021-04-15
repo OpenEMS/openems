@@ -26,10 +26,10 @@ import io.openems.common.utils.JsonUtils;
  */
 public class AuthenticateWithPasswordResponse extends JsonrpcResponseSuccess {
 
-	private final String token;
+	private final UUID token;
 	private final AbstractUser user;
 
-	public AuthenticateWithPasswordResponse(UUID id, String token, AbstractUser user) {
+	public AuthenticateWithPasswordResponse(UUID id, UUID token, AbstractUser user) {
 		super(id);
 		this.token = token;
 		this.user = user;
@@ -38,7 +38,7 @@ public class AuthenticateWithPasswordResponse extends JsonrpcResponseSuccess {
 	@Override
 	public JsonObject getResult() {
 		return JsonUtils.buildJsonObject(this.user.toJsonObject()) //
-				.addProperty("token", this.token) //
+				.addProperty("token", this.token.toString()) //
 				.build();
 	}
 
