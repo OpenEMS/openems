@@ -19,7 +19,6 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
 
     @Input()
     protected componentId: string;
-
     public edge: Edge = null;
     public config: EdgeConfig = null;
     public component: EdgeConfig.Component = null;
@@ -33,7 +32,6 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
         @Inject(TranslateService) protected translate: TranslateService
     ) {
     }
-
     public ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.service.getConfig().then(config => {

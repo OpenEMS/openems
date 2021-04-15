@@ -1,6 +1,6 @@
 import { AutarchyModalComponent } from './modal/modal.component';
 import { Component } from '@angular/core';
-import { ChannelAddress, CurrentData, Edge, Utils } from '../../../shared/shared';
+import { ChannelAddress, CurrentData, Utils } from '../../../shared/shared';
 import { AbstractFlatWidget } from '../flat/abstract-flat-widget';
 
 @Component({
@@ -8,12 +8,9 @@ import { AbstractFlatWidget } from '../flat/abstract-flat-widget';
   templateUrl: './autarchy.component.html'
 })
 export class AutarchyComponent extends AbstractFlatWidget {
-
-  public edge: Edge = null;
   public percentageValue: number;
   private gridActivePowerChannel: ChannelAddress;
   private consumptionActivePowerChannel: ChannelAddress;
-
   protected getChannelAddresses(): ChannelAddress[] {
     this.gridActivePowerChannel = new ChannelAddress('_sum', 'GridActivePower');
     this.consumptionActivePowerChannel = new ChannelAddress('_sum', 'ConsumptionActivePower')
