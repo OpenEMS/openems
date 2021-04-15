@@ -1,6 +1,5 @@
 package io.openems.backend.common.edgewebsocket;
 
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -48,6 +47,6 @@ public interface EdgeWebsocket {
 	 * @throws OpenemsNamedException on error
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			UUID token, SubscribeSystemLogRequest request) throws OpenemsNamedException;
+			String token, SubscribeSystemLogRequest request) throws OpenemsNamedException;
 
 }

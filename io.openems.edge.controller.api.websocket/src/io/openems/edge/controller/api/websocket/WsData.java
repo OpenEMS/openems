@@ -1,7 +1,6 @@
 package io.openems.edge.controller.api.websocket;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -18,7 +17,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * The token that is stored in the Browser Cookie. Be aware that this can be
 	 * 'null' for a short period of time on open of the websocket.
 	 */
-	private UUID sessionToken = null;
+	private String sessionToken = null;
 
 	private Optional<User> user = Optional.empty();
 
@@ -27,11 +26,11 @@ public class WsData extends io.openems.common.websocket.WsData {
 		this.subscribedChannelsWorker = new SubscribedChannelsWorker(parent, this);
 	}
 
-	public void setSessionToken(UUID sessionToken) {
+	public void setSessionToken(String sessionToken) {
 		this.sessionToken = sessionToken;
 	}
 
-	public UUID getSessionToken() {
+	public String getSessionToken() {
 		return sessionToken;
 	}
 

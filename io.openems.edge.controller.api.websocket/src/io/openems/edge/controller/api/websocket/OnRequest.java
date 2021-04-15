@@ -4,7 +4,6 @@ import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.SortedMap;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
@@ -397,7 +396,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(WsData wsData, User user,
 			SubscribeSystemLogRequest request) throws OpenemsNamedException {
-		UUID token = wsData.getSessionToken();
+		String token = wsData.getSessionToken();
 		if (token == null) {
 			throw OpenemsError.BACKEND_UI_TOKEN_MISSING.exception();
 		}

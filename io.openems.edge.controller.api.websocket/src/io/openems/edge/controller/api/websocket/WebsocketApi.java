@@ -3,7 +3,6 @@ package io.openems.edge.controller.api.websocket;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -76,7 +75,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	/**
 	 * Stores valid session tokens for authentication via Cookie.
 	 */
-	protected final Map<UUID, User> sessionTokens = new ConcurrentHashMap<>();
+	protected final Map<String, User> sessionTokens = new ConcurrentHashMap<>();
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -184,12 +183,12 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	 * @return the WsData
 	 * @throws OpenemsNamedException if there is no connection with this token
 	 */
-	protected WsData getWsDataForTokenOrError(UUID token) throws OpenemsNamedException {
+	protected WsData getWsDataForTokenOrError(String token) throws OpenemsNamedException {
 		Collection<WebSocket> connections = this.server.getConnections();
 		for (Iterator<WebSocket> iter = connections.iterator(); iter.hasNext();) {
 			WebSocket websocket = iter.next();
 			WsData wsData = websocket.getAttachment();
-			UUID thisToken = wsData.getSessionToken();
+			String thisToken = wsData.getSessionToken();
 			if (thisToken != null && thisToken.equals(token)) {
 				return wsData;
 			}
@@ -205,7 +204,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	 * @param request the SubscribeSystemLogRequest
 	 * @throws OpenemsNamedException on error
 	 */
-	protected void handleSubscribeSystemLogRequest(UUID token, SubscribeSystemLogRequest request)
+	protected void handleSubscribeSystemLogRequest(String token, SubscribeSystemLogRequest request)
 			throws OpenemsNamedException {
 		this.systemLogHandler.handleSubscribeSystemLogRequest(token, request);
 	}

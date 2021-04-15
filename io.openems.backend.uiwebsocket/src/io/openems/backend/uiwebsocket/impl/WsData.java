@@ -3,7 +3,6 @@ package io.openems.backend.uiwebsocket.impl;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -17,7 +16,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	private final WebsocketServer parent;
 	private final Map<String, SubscribedChannelsWorker> subscribedChannelsWorkers = new HashMap<>();
 	private Optional<String> userId = Optional.empty();
-	private Optional<UUID> token = Optional.empty();
+	private Optional<String> token = Optional.empty();
 
 	public WsData(WebsocketServer parent) {
 		this.parent = parent;
@@ -59,11 +58,16 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return Optional.empty();
 	}
 
-	public void setToken(UUID token) {
+	public void setToken(String token) {
 		this.token = Optional.ofNullable(token);
 	}
 
-	public Optional<UUID> getToken() {
+	/**
+	 * Gets the Login-Token.
+	 * 
+	 * @return the Login-Token
+	 */
+	public Optional<String> getToken() {
 		return this.token;
 	}
 
@@ -73,8 +77,8 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * @return the token
 	 * @throws OpenemsNamedException if no token has been set
 	 */
-	public UUID assertToken() throws OpenemsNamedException {
-		Optional<UUID> token = this.token;
+	public String assertToken() throws OpenemsNamedException {
+		Optional<String> token = this.token;
 		if (token.isPresent()) {
 			return token.get();
 		}

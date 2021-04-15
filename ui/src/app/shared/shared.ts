@@ -1,4 +1,5 @@
 export { ChannelAddress } from "./type/channeladdress";
+export { CurrentData } from "./type/currentdata";
 export { Edge } from "./edge/edge";
 export { EdgeConfig } from "./edge/edgeconfig";
 export { Service } from "./service/service";

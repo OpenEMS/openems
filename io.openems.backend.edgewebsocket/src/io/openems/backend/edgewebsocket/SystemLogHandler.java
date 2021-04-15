@@ -2,7 +2,6 @@ package io.openems.backend.edgewebsocket;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -27,7 +26,11 @@ public class SystemLogHandler {
 
 	private final Logger log = LoggerFactory.getLogger(SystemLogHandler.class);
 	private final EdgeWebsocketImpl parent;
-	private final Multimap<String, UUID> subscriptions = HashMultimap.create();
+
+	/**
+	 * Edge-ID to Session-Token.
+	 */
+	private final Multimap<String, String> subscriptions = HashMultimap.create();
 
 	public SystemLogHandler(EdgeWebsocketImpl parent) {
 		this.parent = parent;
@@ -44,7 +47,7 @@ public class SystemLogHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			UUID token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
+			String token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		if (request.getSubscribe()) {
 			/*
 			 * Start subscription
@@ -99,12 +102,12 @@ public class SystemLogHandler {
 	 * @param notification the {@link SystemLogNotification}
 	 */
 	public void handleSystemLogNotification(String edgeId, User user, SystemLogNotification notification) {
-		Collection<UUID> tokens;
+		Collection<String> tokens;
 		synchronized (this.subscriptions) {
 			tokens = this.subscriptions.get(edgeId);
 		}
 
-		for (UUID token : tokens) {
+		for (String token : tokens) {
 			try {
 				this.parent.uiWebsocket.send(token, new EdgeRpcNotification(edgeId, notification));
 			} catch (OpenemsNamedException | NullPointerException e) {
@@ -121,7 +124,7 @@ public class SystemLogHandler {
 	 * @param user   the {@link User}; possibly null
 	 * @param token  the UI token
 	 */
-	private void unsubscribe(String edgeId, User user, UUID token) {
+	private void unsubscribe(String edgeId, User user, String token) {
 		boolean isAnySubscriptionForThisEdgeLeft;
 		synchronized (this.subscriptions) {
 			this.subscriptions.remove(edgeId, token);

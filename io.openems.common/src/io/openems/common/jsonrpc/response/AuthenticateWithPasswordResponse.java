@@ -86,11 +86,11 @@ public class AuthenticateWithPasswordResponse extends JsonrpcResponseSuccess {
 		}
 	}
 
-	private final UUID token;
+	private final String token;
 	private final AbstractUser user;
 	private final List<EdgeMetadata> edges;
 
-	public AuthenticateWithPasswordResponse(UUID id, UUID token, AbstractUser user, List<EdgeMetadata> edges) {
+	public AuthenticateWithPasswordResponse(UUID id, String token, AbstractUser user, List<EdgeMetadata> edges) {
 		super(id);
 		this.token = token;
 		this.user = user;
@@ -100,7 +100,7 @@ public class AuthenticateWithPasswordResponse extends JsonrpcResponseSuccess {
 	@Override
 	public JsonObject getResult() {
 		return JsonUtils.buildJsonObject() //
-				.addProperty("token", this.token.toString()) //
+				.addProperty("token", this.token) //
 				.add("user", this.user.toJsonObject()) //
 				.add("edges", EdgeMetadata.toJson(this.edges)) //
 				.build();

@@ -1,7 +1,6 @@
 package io.openems.backend.uiwebsocket.impl;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
@@ -73,7 +72,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			user = this.parent.metadata.authenticate(request.getPassword());
 		}
 		wsData.setUserId(user.getId());
-		UUID token = wsData.assertToken();
+		String token = wsData.assertToken();
 		return CompletableFuture.completedFuture(new AuthenticateWithPasswordResponse(request.getId(), token, user,
 				User.generateEdgeMetadatas(user, this.parent.metadata)));
 	}
@@ -182,7 +181,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(WsData wsData, String edgeId,
 			User user, SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		user.assertEdgeRoleIsAtLeast(SubscribeSystemLogRequest.METHOD, edgeId, Role.OWNER);
-		UUID token = wsData.assertToken();
+		String token = wsData.assertToken();
 
 		// Forward to Edge
 		return this.parent.edgeWebsocket.handleSubscribeSystemLogRequest(edgeId, user, token, request);

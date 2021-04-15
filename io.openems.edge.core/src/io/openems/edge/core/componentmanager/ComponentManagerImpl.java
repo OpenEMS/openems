@@ -312,6 +312,10 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		// Create map with changed configuration attributes
 		Dictionary<String, Object> properties = config.getProperties();
+		if (properties == null) {
+			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.getComponentId(),
+					config.getPid() + ": Properties is 'null'");
+		}
 		for (Property property : request.getProperties()) {
 			// do not allow certain properties to be updated, like pid and service.pid
 			if (!EdgeConfig.ignorePropertyKey(property.getName())) {

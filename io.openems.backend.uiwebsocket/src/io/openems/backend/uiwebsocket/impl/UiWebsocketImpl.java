@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
@@ -109,20 +108,20 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	}
 
 	@Override
-	public void send(UUID token, JsonrpcNotification notification) throws OpenemsNamedException {
+	public void send(String token, JsonrpcNotification notification) throws OpenemsNamedException {
 		WsData wsData = this.getWsDataForTokenOrError(token);
 		wsData.send(notification);
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> send(UUID token, JsonrpcRequest request)
+	public CompletableFuture<JsonrpcResponseSuccess> send(String token, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		WsData wsData = this.getWsDataForTokenOrError(token);
 		return wsData.send(request);
 	}
 
 	@Override
-	public void send(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException {
+	public void sendBroadcast(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException {
 		List<WsData> wsDatas = this.getWsDatasForEdgeId(edgeId);
 		OpenemsNamedException exception = null;
 		for (WsData wsData : wsDatas) {
@@ -144,12 +143,12 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	 * @return the WsData
 	 * @throws OpenemsNamedException if there is no connection with this token
 	 */
-	private WsData getWsDataForTokenOrError(UUID token) throws OpenemsNamedException {
+	private WsData getWsDataForTokenOrError(String token) throws OpenemsNamedException {
 		Collection<WebSocket> connections = this.server.getConnections();
 		for (Iterator<WebSocket> iter = connections.iterator(); iter.hasNext();) {
 			WebSocket websocket = iter.next();
 			WsData wsData = websocket.getAttachment();
-			Optional<UUID> thisToken = wsData.getToken();
+			Optional<String> thisToken = wsData.getToken();
 			if (thisToken.isPresent() && thisToken.get().equals(token)) {
 				return wsData;
 			}
