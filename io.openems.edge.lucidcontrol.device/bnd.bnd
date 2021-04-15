@@ -4,12 +4,6 @@ Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
 	This bundle Provides the Device connected to a LucidControlModule
-Private-Package:  \
-	io.openems.edge.lucidcontrol.device,\
-	io.openems.edge.lucidcontrol.device.task,\
-
-Export-Package: \
-    io.openems.edge.lucidcontrol.device.api,\
 
 -includeresource: {readme.md}
 

@@ -8,16 +8,11 @@ Bundle-Description: \
 	\
 	${warning;Please update this Bundle-Description in io.openems.edge.heater.gasboiler.viessmann/api.bnd}
 
-Export-Package:  \
-	io.openems.edge.heater.gasboiler.viessmann.api;-provide=true
-
-Private-Package:  \
-	io.openems.edge.heater.gasboiler.viessmann
 
 -includeresource: {readme.md}
 
 -buildpath:  \
-	osgi.enroute.base.api;version=2.1,\
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.heater;version=latest,\
 	io.openems.edge.bridge.modbus;version=latest,\
@@ -25,6 +20,5 @@ Private-Package:  \
 	io.openems.edge.consolinno.relay;version=latest,\
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+	${testpath}
 

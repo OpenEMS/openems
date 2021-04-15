@@ -8,11 +8,6 @@ Bundle-Description: \
 	\
 	${warning;Please update this Bundle-Description in io.openems.edge.heater.gasboiler.buderus/api.bnd}
 
-Export-Package:  \
-	io.openems.edge.heater.gasboiler.buderus.api;-provide=true
-
-Private-Package:  \
-	io.openems.edge.heater.gasboiler.buderus
 
 -includeresource: {readme.md}
 

@@ -5,22 +5,15 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
     This Bundle provides all Interfaces and Components for a Basic Heatsystem
 
-Export-Package:  \
-	io.openems.edge.heatsystem.components.api,\
-	io.openems.edge.heatsystem.components.api.test,\
-
-
-
 -includeresource: {readme.md}
 
 -buildpath:  \
-	osgi.enroute.base.api;version=2.1,\
+	${buildpath},\
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
 	io.openems.edge.relay.api;version=latest,\
 	io.openems.edge.pwm.api;version=latest,\
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+	${testpath}
 

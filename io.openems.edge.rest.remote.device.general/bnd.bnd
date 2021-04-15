@@ -7,23 +7,15 @@ Bundle-Description: \
     you just need to know the Channel Id and Device Id and configure
 
 
-Export-Package: \
-    io.openems.edge.rest.remote.device.general.api,\
-
-Private-Package:  \
-	io.openems.edge.rest.remote.device.general,\
-	io.openems.edge.rest.remote.device.general.task,\
-
 -includeresource: {readme.md}
 
 -buildpath:  \
-	osgi.enroute.base.api;version=2.1,\
+	${buildpath},\
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
 	io.openems.edge.rest.remote.device.general.api;version=latest,\
 	io.openems.edge.bridge.rest.communcation;version=latest,\
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+	${testpath}
 

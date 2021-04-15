@@ -5,12 +5,6 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
     This Bundle provides the Api and Classes for Gilles Biomassheater (Woodchips).
 
-Export-Package:  \
-	io.openems.edge.heater.biomassheater.gilles.api
-
-Private-Package:  \
-	io.openems.edge.heater.biomassheater.gilles
-
 -includeresource: {readme.md}
 
 -buildpath:  \
