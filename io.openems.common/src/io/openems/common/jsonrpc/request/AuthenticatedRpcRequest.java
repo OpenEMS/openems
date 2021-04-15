@@ -1,10 +1,9 @@
 package io.openems.common.jsonrpc.request;
 
-import java.util.function.Function;
-
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingFunction;
 import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.session.AbstractUser;
@@ -36,13 +35,13 @@ public class AuthenticatedRpcRequest<USER extends AbstractUser> extends JsonrpcR
 	 * {@link JsonrpcRequest}.
 	 * 
 	 * @param r           the template {@link JsonrpcRequest}
-	 * @param userFactory a {@link Function} that parses a {@link JsonObject} to a
-	 *                    {@link AbstractUser}
+	 * @param userFactory a {@link ThrowingFunction} that parses a
+	 *                    {@link JsonObject} to a {@link AbstractUser}
 	 * @return the {@link AuthenticatedRpcRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static <USER extends AbstractUser> AuthenticatedRpcRequest<USER> from(JsonrpcRequest r,
-			Function<JsonObject, USER> userFactory) throws OpenemsNamedException {
+			ThrowingFunction<JsonObject, USER, OpenemsNamedException> userFactory) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		USER user = userFactory.apply(JsonUtils.getAsJsonObject(p, "user"));
 		JsonrpcRequest payload = GenericJsonrpcRequest.from(JsonUtils.getAsJsonObject(p, "payload"));

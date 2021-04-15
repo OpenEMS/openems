@@ -2,10 +2,12 @@ package io.openems.edge.common.user;
 
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.AbstractUser;
 import io.openems.common.session.Role;
+import io.openems.common.utils.JsonUtils;
 
 /**
  * A {@link User} used by OpenEMS Edge.
@@ -52,4 +54,25 @@ public class User extends AbstractUser {
 		this.getGlobalRole().assertIsAtLeast(resource, role);
 	}
 
+	/**
+	 * Parses a {@link JsonObject} to a User.
+	 * 
+	 * <pre>
+	 * {
+	 *   "id": string,
+	 *   "name: string,
+	 *   "role": string
+	 * }
+	 * </pre>
+	 * 
+	 * @param j the {@link JsonObject}
+	 * @return a {@link User}
+	 * @throws OpenemsNamedException on error
+	 */
+	public static User from(JsonObject j) throws OpenemsNamedException {
+		String id = JsonUtils.getAsString(j, "id");
+		String name = JsonUtils.getAsString(j, "name");
+		Role role = Role.getRole(JsonUtils.getAsString(j, "role"));
+		return new User(id, name, role);
+	}
 }

@@ -42,7 +42,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		switch (request.getMethod()) {
 
 		case AuthenticatedRpcRequest.METHOD:
-			return this.handleAuthenticatedRpcRequest(AuthenticatedRpcRequest.from(request));
+			return this.handleAuthenticatedRpcRequest(AuthenticatedRpcRequest.<User>from(request, User::from));
 
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
@@ -51,9 +51,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a AuthenticatedRpcRequest.
+	 * Handles a {@link AuthenticatedRpcRequest}.
 	 *
-	 * @param authenticatedRpcRequest the AuthenticatedRpcRequest
+	 * @param authenticatedRpcRequest the {@link AuthenticatedRpcRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
@@ -113,7 +113,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a GetEdgeConfigRequest.
+	 * Handles a {@link GetEdgeConfigRequest}.
 	 *
 	 * @param user                 the {@link User}
 	 * @param getEdgeConfigRequest the {@link GetEdgeConfigRequest}
@@ -130,7 +130,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a CreateComponentConfigRequest.
+	 * Handles a {@link CreateComponentConfigRequest}.
 	 * 
 	 * @param user                         the {@link User}
 	 * @param createComponentConfigRequest the {@link CreateComponentConfigRequest}
@@ -149,7 +149,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a UpdateComponentConfigRequest.
+	 * Handles a {@link UpdateComponentConfigRequest}.
 	 * 
 	 * @param user                         the {@link User}
 	 * @param updateComponentConfigRequest the {@link UpdateComponentConfigRequest}
@@ -168,7 +168,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a DeleteComponentConfigRequest.
+	 * Handles a {@link DeleteComponentConfigRequest}.
 	 * 
 	 * @param user                         the {@link User}
 	 * @param deleteComponentConfigRequest the {@link DeleteComponentConfigRequest}
@@ -187,7 +187,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a SetChannelValueRequest.
+	 * Handles a {@link SetChannelValueRequest}.
 	 * 
 	 * @param user    the {@link User}
 	 * @param request the {@link SetChannelValueRequest}
@@ -202,10 +202,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a ComponentJsonApiRequest.
+	 * Handles a {@link ComponentJsonApiRequest}.
 	 * 
 	 * @param user    the {@link User}
-	 * @param request the ComponentJsonApiRequest
+	 * @param request the {@link ComponentJsonApiRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
@@ -250,10 +250,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a SubscribeSystemLogRequest.
+	 * Handles a {@link SubscribeSystemLogRequest}.
 	 *
 	 * @param user    the {@link User}
-	 * @param request the SubscribeSystemLogRequest
+	 * @param request the {@link SubscribeSystemLogRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
