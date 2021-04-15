@@ -10,19 +10,19 @@ import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } fro
 @Directive()
 export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
 
+    @Input()
+    protected componentId: string;
+
     /**
      * True after this.edge, this.config and this.component are set.
      */
     public isInitialized: boolean = false;
-
-    private selector: string = UUID.UUID().toString();
-
-    @Input()
-    protected componentId: string;
     public edge: Edge = null;
     public config: EdgeConfig = null;
     public component: EdgeConfig.Component = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
+
+    private selector: string = UUID.UUID().toString();
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -32,6 +32,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
         @Inject(TranslateService) protected translate: TranslateService
     ) {
     }
+
     public ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.service.getConfig().then(config => {
@@ -67,7 +68,6 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                     this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
                 });
             });
-
         });
     };
 
@@ -83,8 +83,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     /**
      * Called on every new data.
      * 
-     * @param thisComponent new data for the subscribed Channel-Addresses through passed channelId
-     * @param allComponents new data for the subscribed Channel-Addresses through passed channelAddress
+     * @param currentData new data for the subscribed Channel-Addresses
      */
     protected onCurrentData(currentData: CurrentData) {
     }

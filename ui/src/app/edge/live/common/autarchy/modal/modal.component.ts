@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { Service } from '../../../../shared/shared';
+import { Service } from '../../../../../shared/shared';
 
 @Component({
   selector: AutarchyModalComponent.SELECTOR,
@@ -14,4 +14,5 @@ export class AutarchyModalComponent {
     public modalCtrl: ModalController,
     public service: Service,
   ) { }
+
 }
