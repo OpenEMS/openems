@@ -25,26 +25,9 @@ export class AutarchyComponent extends AbstractFlatWidget {
   }
 
   private calculateAutarchy(buyFromGrid: number, consumptionActivePower: number): number | null {
-    if (buyFromGrid != null && consumptionActivePower != null) {
-      let result = Math.max(
-        Utils.orElse(
-          (
-            1 - (
-              Utils.divideSafely(
-                Utils.orElse(buyFromGrid, 0),
-                Math.max(Utils.orElse(consumptionActivePower, 0), 0)
-              )
-            )
-          ) * 100, 0
-        ), 0)
-      if (result > 100) {
-        return 100;
-      }
-      return result;
-    } else {
-      return null
-    }
-
+    let result = Math.min(
+      (1 - (Utils.divideSafely(Utils.orElse(buyFromGrid, 0), Math.max(consumptionActivePower, 0)))) * 100, 100)
+    return result;
   }
 
   async presentModal() {
