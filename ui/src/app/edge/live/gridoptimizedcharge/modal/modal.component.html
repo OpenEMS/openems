@@ -258,6 +258,33 @@
                                         </ion-label>
                                     </tr>
                                 </table>
+                                <table class="full_width">
+                                    <tr
+                                        *ngIf="component.properties['sellToGridLimitEnabled'] != null as sellToGridLimit">
+                                        <td style=" width: 65%; vertical-align: middle;" translate>
+                                            Maximale Netzeinspeisung berücksichtigen
+                                        </td>
+                                        <td style="width: 35%" class="align_right">
+                                            <ion-toggle
+                                                (ionChange)="updateToggleProperty('sellToGridLimitEnabled', formGroup.controls['sellToGridLimitEnabled'].value)"
+                                                [checked]="formGroup.controls['sellToGridLimitEnabled'].value">
+                                            </ion-toggle>
+                                        </td>
+                                    </tr>
+                                    <tr *ngIf="formGroup.controls['sellToGridLimitEnabled'].value">
+                                        <td style="width:65%" translate>
+                                            Maximale Netzeinspeisung (70% Abregelung)
+                                        </td>
+                                        <td style="width: 35%" class="align_right">
+                                            <ion-item lines="inset" class="noPadding">
+                                                <ion-input class="regularFont" type="number"
+                                                    formControlName="sellToGridPowerLimit" style="text-align: end;">
+                                                </ion-input>
+                                                <ion-label class="regularFont">&nbsp;W</ion-label>
+                                            </ion-item>
+                                        </td>
+                                    </tr>
+                                </table>
                             </ion-card-content>
                         </ng-container>
                     </ng-container>
