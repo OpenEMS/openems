@@ -23,6 +23,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/io.openems.edge.meter.api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/io.openems.edge.timedata.api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/io.openems.wrapper.eu.chargetime.ocpp"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ocpp"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.USER_LIBRARY/ocpp"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

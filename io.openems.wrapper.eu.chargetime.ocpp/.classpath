@@ -8,5 +8,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:Java-WebSocket:1.5.1"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ocpp"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
