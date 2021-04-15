@@ -26,7 +26,7 @@ import io.openems.common.channel.PersistencePriority;
 	String apikey();
 
 	@AttributeDefinition(name = "Uri", description = "The connection Uri to OpenEMS Backend.")
-	String uri() default "wss://www1.fenecon.de:443/openems-backend2";
+	String uri() default "ws://localhost:8081";
 
 	@AttributeDefinition(name = "Proxy Address", description = "The IP address or hostname of the proxy server.")
 	String proxyAddress() default "";
