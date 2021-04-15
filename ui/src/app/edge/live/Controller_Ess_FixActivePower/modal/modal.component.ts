@@ -5,15 +5,13 @@ import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
 
 @Component({
-  selector: FixActivePowerModalComponent.SELECTOR,
+  selector: 'fixactivepower-modal',
   templateUrl: './modal.component.html'
 })
-export class FixActivePowerModalComponent {
+export class Controller_Ess_FixActivePowerModalComponent {
 
   @Input() public edge: Edge | null = null;
   @Input() public component: EdgeConfig.Component | null = null;
-
-  private static readonly SELECTOR = "fixactivepower-modal";
 
   public formGroup: FormGroup;
   public loading: boolean = false;

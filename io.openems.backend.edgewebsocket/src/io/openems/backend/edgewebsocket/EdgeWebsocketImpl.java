@@ -1,7 +1,6 @@
 package io.openems.backend.edgewebsocket;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
@@ -182,7 +181,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			UUID token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
+			String token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, user, token, request);
 	}
 
