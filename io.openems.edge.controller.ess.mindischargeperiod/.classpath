@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="con" path="aQute.bnd.classpath.container"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="src" output="bin" path="src"/>
 	<classpathentry kind="src" output="bin_test" path="test">
@@ -7,19 +8,5 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:slf4j.simple:1.7.30"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:org.apache.servicemix.bundles.junit:4.12.0.1"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:osgi.annotation:7.0.0.201802012106"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:osgi.core:7.0.0.201802012106"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:osgi.cmpn:7.0.0.201802012110"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:slf4j.api:1.7.30"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:com.google.guava:29.0.0.jre"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:com.google.gson:2.8.5"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:com.google.gson:2.7.0"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:com.google.guava:20.0.0"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/io.openems.common"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/io.openems.edge.common"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/io.openems.edge.controller.api"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/io.openems.edge.ess.api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
