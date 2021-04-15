@@ -11,7 +11,7 @@ import { EdgeConfig } from '../edge/edgeconfig';
 import { JsonrpcResponseError } from '../jsonrpc/base';
 import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { Edges } from '../jsonrpc/shared';
+import { Edges, User } from '../jsonrpc/shared';
 import { ChannelAddress } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
@@ -257,7 +257,7 @@ export class Service implements ErrorHandler {
   /**
    * Handles being authenticated. Updates the list of Edges.
    */
-  public handleAuthentication(token: string, edges: Edges) {
+  public handleAuthentication(token: string, user: User, edges: Edges) {
     this.websocket.status = 'online';
 
     // received login token -> save in cookie

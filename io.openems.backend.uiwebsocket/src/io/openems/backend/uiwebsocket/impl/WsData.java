@@ -3,12 +3,11 @@ package io.openems.backend.uiwebsocket.impl;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import io.openems.backend.common.metadata.BackendUser;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
@@ -17,7 +16,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	private final WebsocketServer parent;
 	private final Map<String, SubscribedChannelsWorker> subscribedChannelsWorkers = new HashMap<>();
 	private Optional<String> userId = Optional.empty();
-	private Optional<UUID> token = Optional.empty();
+	private Optional<String> token = Optional.empty();
 
 	public WsData(WebsocketServer parent) {
 		this.parent = parent;
@@ -50,20 +49,25 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * @return the User or Optional.Empty if the User was not authenticated or it is
 	 *         not available from Metadata service
 	 */
-	public synchronized Optional<BackendUser> getUser(Metadata metadata) {
+	public synchronized Optional<User> getUser(Metadata metadata) {
 		Optional<String> userId = this.getUserId();
 		if (userId.isPresent()) {
-			Optional<BackendUser> user = metadata.getUser(userId.get());
+			Optional<User> user = metadata.getUser(userId.get());
 			return user;
 		}
 		return Optional.empty();
 	}
 
-	public void setToken(UUID token) {
+	public void setToken(String token) {
 		this.token = Optional.ofNullable(token);
 	}
 
-	public Optional<UUID> getToken() {
+	/**
+	 * Gets the Login-Token.
+	 * 
+	 * @return the Login-Token
+	 */
+	public Optional<String> getToken() {
 		return this.token;
 	}
 
@@ -73,8 +77,8 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * @return the token
 	 * @throws OpenemsNamedException if no token has been set
 	 */
-	public UUID assertToken() throws OpenemsNamedException {
-		Optional<UUID> token = this.token;
+	public String assertToken() throws OpenemsNamedException {
+		Optional<String> token = this.token;
 		if (token.isPresent()) {
 			return token.get();
 		}
