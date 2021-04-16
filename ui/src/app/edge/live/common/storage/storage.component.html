@@ -1,7 +1,7 @@
 <ng-container *ngIf="isInitialized">
     <oe-flat-widget [img]="storageItem" [title]="'General.storageSystem'| translate">
         <ng-container *ngFor="let component of essComponents, , let i = index">
-            <ng-container *ngIf="essComponents.toString().length > 1">
+            <ng-container *ngIf="essComponents.length > 1">
                 <oe-flat-widget-line [name]="component.alias">
                 </oe-flat-widget-line>
             </ng-container>

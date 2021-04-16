@@ -1,7 +1,7 @@
-import { ChannelAddress, EdgeConfig } from '../../../shared/shared';
+import { ChannelAddress, EdgeConfig } from '../../../../shared/shared';
 import { Component } from '@angular/core';
 import { StorageModalComponent } from './modal/modal.component';
-import { AbstractFlatWidget } from '../flat/abstract-flat-widget';
+import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
 import { CurrentData } from "src/app/shared/shared";
 
 @Component({
@@ -24,23 +24,9 @@ export class StorageComponent extends AbstractFlatWidget {
         this.channelAddresses.push(new ChannelAddress('_sum', 'EssSoc'));
         return this.channelAddresses
     }
-    /**
-     * 
-     * @param value the value from passed value in html
-     * @returns converted value
-     */
-    public changeWattInKiloWatt = (value: any): string => {
-        let thisValue = (value / 1000);
-        if (thisValue.toString().endsWith('0')) {
-            return thisValue.toString() + ' kW'
-        } else {
-            return thisValue.toFixed(1).replace('.', ',') + ' kW'
-        }
-    }
 
     protected onCurrentData(currentData: CurrentData) {
         this.essComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && component.isEnabled);
-        console.log("essComponentrs", this.essComponents)
         let soc = currentData.allComponents['_sum' + '/EssSoc'];
         if (soc < 20) {
             this.storageItem = 'assets/img/storage_20.png'

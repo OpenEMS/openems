@@ -21,6 +21,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     public config: EdgeConfig = null;
     public component: EdgeConfig.Component = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
+    public changeWattInKiloWatt: any = this.service.changeWattInKiloWatt;
 
     private selector: string = UUID.UUID().toString();
 
@@ -32,8 +33,8 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
         @Inject(TranslateService) protected translate: TranslateService
     ) {
     }
-
     public ngOnInit() {
+        // this.convert = this.changeWattInKiloWatt;
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.service.getConfig().then(config => {
                 // store important variables publically

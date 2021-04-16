@@ -103,7 +103,23 @@ export class Service implements ErrorHandler {
       default: return LanguageTag.DE;
     }
   }
-
+  /**
+        * 
+        * @param value the value from passed value in html
+        * @returns converted value
+        */
+  public changeWattInKiloWatt = (value: any): string => {
+    if (value >= 0) {
+      let thisValue = (value / 1000);
+      if (thisValue.toString().endsWith('0')) {
+        return thisValue.toString() + ' kW'
+      } else {
+        return thisValue.toFixed(1).replace('.', ',') + ' kW'
+      }
+    } else {
+      return 0 + ' kW'
+    }
+  }
   /**
    * Gets the token from the cookie
    */
@@ -131,7 +147,6 @@ export class Service implements ErrorHandler {
   public notify(notification: DefaultTypes.Notification) {
     this.notificationEvent.next(notification);
   }
-
   /**
    * Handles an application error
    */
