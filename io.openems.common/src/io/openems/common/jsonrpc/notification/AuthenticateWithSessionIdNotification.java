@@ -40,11 +40,19 @@ public class AuthenticateWithSessionIdNotification extends JsonrpcNotification {
 		this.edges = edges;
 	}
 
+	/**
+	 * This method formats the {@link AuthenticateWithSessionIdNotification} so that
+	 * it contains the required information for OpenEMS UI.
+	 */
 	@Override
 	public JsonObject getParams() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("token", this.token) //
-				.add("user", this.user.toJsonObject()) //
+				.add("user", JsonUtils.buildJsonObject() //
+						.addProperty("id", this.user.getId()) //
+						.addProperty("name", this.user.getName()) //
+						.add("globalRole", this.user.getGlobalRole().asJson()) //
+						.build()) //
 				.add("edges", EdgeMetadata.toJson(this.edges)) //
 				.build();
 	}
