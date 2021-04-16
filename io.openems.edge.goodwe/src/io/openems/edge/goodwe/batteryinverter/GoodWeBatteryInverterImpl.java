@@ -187,6 +187,21 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		if (!Objects.equals(bmsVoltUnderMin.value().get(), battery.getDischargeMinVoltage().get())) {
 			bmsVoltUnderMin.setNextWriteValueFromObject(battery.getDischargeMinVoltage());
 		}
+		
+		IntegerWriteChannel bmsDischargeCurrentMax = this.channel(GoodWe.ChannelId.BATT_DISCHARGE_CURR_MAX);
+		if (!Objects.equals(bmsDischargeCurrentMax.value().get(), battery.getDischargeMaxCurrent().get())) {
+			bmsDischargeCurrentMax.setNextWriteValueFromObject(battery.getDischargeMaxCurrent());
+		}
+		
+		IntegerWriteChannel bmsChargeVoltMax = this.channel(GoodWe.ChannelId.BATT_CHARGE_VOLT_MAX);
+		if (!Objects.equals(bmsChargeVoltMax.value().get(), battery.getChargeMaxVoltage().get())) {
+			bmsChargeVoltMax.setNextWriteValueFromObject(battery.getChargeMaxVoltage());
+		}
+		
+		IntegerWriteChannel bmsChargeMaxCurrent = this.channel(GoodWe.ChannelId.BATT_CHARGE_CURR_MAX);
+		if (!Objects.equals(bmsChargeMaxCurrent.value().get(), battery.getChargeMaxCurrent().get())) {
+			bmsChargeMaxCurrent.setNextWriteValueFromObject(battery.getChargeMaxCurrent());
+		}
 	}
 
 	@Override
