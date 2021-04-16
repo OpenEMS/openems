@@ -1,7 +1,7 @@
 package io.openems.edge.rest.remote.device.general.task;
 
 import io.openems.common.exceptions.OpenemsError;
-import io.openems.edge.bridge.rest.communcation.api.RestWriteRequest;
+import io.openems.edge.bridge.communication.remote.rest.api.RestWriteRequest;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 

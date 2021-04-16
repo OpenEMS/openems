@@ -5,8 +5,8 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath:  \
 	${buildpath},\
-	io.openems.edge.common;version=latest,\
-	io.openems.common;version=latest,\
+	io.openems.edge.common,\
+	io.openems.common,\
 	joda-time;version=2.8.10,\
 
 -testpath: \

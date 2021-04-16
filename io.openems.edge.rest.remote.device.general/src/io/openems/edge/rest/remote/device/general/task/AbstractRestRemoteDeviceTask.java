@@ -1,6 +1,6 @@
 package io.openems.edge.rest.remote.device.general.task;
 
-import io.openems.edge.bridge.rest.communcation.api.RestRequest;
+import io.openems.edge.bridge.communication.remote.rest.api.RestRequest;
 import io.openems.edge.common.channel.Channel;
 
 public abstract class AbstractRestRemoteDeviceTask implements RestRequest {

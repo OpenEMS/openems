@@ -1,0 +1,13 @@
+= Rest Remote Communication
+
+    This Bundle ist thre Backbone for Communicating with Remote Components/Channels of another OpenEMS via REST.
+    You can read from Channels and react to them as well as write into those Channels.
+    You need to activate this Bridge with Configurations and then activate a Component from.
+    Atm it only provides
+    io.openems.edge.rest.remote.device.general;
+
+
+== Example
+
+
+

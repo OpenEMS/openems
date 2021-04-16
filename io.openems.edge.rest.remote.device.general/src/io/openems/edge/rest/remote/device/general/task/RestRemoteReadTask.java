@@ -1,6 +1,6 @@
 package io.openems.edge.rest.remote.device.general.task;
 
-import io.openems.edge.bridge.rest.communcation.api.RestReadRequest;
+import io.openems.edge.bridge.communication.remote.rest.api.RestReadRequest;
 import io.openems.edge.common.channel.Channel;
 
 import java.util.regex.Matcher;

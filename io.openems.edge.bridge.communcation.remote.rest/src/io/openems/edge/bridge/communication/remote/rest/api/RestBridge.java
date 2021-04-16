@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.rest.communcation.api;
+package io.openems.edge.bridge.communication.remote.rest.api;
 
 import org.osgi.service.cm.ConfigurationException;
 

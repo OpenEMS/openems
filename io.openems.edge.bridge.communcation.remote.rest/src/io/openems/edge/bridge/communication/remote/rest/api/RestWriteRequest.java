@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.rest.communcation.api;
+package io.openems.edge.bridge.communication.remote.rest.api;
 
 public interface RestWriteRequest extends RestRequest {
     /**

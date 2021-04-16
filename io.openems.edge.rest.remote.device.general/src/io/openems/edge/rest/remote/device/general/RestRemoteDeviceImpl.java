@@ -1,8 +1,8 @@
 package io.openems.edge.rest.remote.device.general;
 
 import io.openems.common.exceptions.OpenemsError;
-import io.openems.edge.bridge.rest.communcation.api.RestBridge;
-import io.openems.edge.bridge.rest.communcation.api.RestRequest;
+import io.openems.edge.bridge.communication.remote.rest.api.RestBridge;
+import io.openems.edge.bridge.communication.remote.rest.api.RestRequest;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
