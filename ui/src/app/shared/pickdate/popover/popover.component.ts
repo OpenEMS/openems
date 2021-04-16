@@ -16,7 +16,7 @@ import { TranslateService } from '@ngx-translate/core';
 export class PickDatePopoverComponent {
 
 
-    @Input() private setDateRange: (period: DefaultTypes.HistoryPeriod) => void;
+    @Input() public setDateRange: (period: DefaultTypes.HistoryPeriod) => void;
     @Input() public edge: Edge | null = null;
 
     private readonly TODAY = new Date();

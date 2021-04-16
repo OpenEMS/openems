@@ -148,11 +148,11 @@ export class HeaderComponent {
 
     public segmentChanged(event) {
         if (event.detail.value == "IndexLive") {
-            this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/live");
+            this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/live", { replaceUrl: true });
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
-            this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/history");
+            this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/history", { replaceUrl: true });
             this.cdRef.detectChanges();
         }
     }

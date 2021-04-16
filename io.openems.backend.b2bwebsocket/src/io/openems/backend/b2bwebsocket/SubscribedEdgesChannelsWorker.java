@@ -3,8 +3,6 @@ package io.openems.backend.b2bwebsocket;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -17,7 +15,7 @@ import com.google.gson.JsonNull;
 
 import io.openems.backend.b2bwebsocket.jsonrpc.notification.EdgesCurrentDataNotification;
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
-import io.openems.backend.common.metadata.BackendUser;
+import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
@@ -27,11 +25,6 @@ public class SubscribedEdgesChannelsWorker {
 	protected static final int UPDATE_INTERVAL_IN_SECONDS = 2;
 
 	private final Logger log = LoggerFactory.getLogger(SubscribedEdgesChannelsWorker.class);
-
-	/**
-	 * Executor for subscriptions task.
-	 */
-	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
 	/**
 	 * Holds subscribed edges.
@@ -94,7 +87,7 @@ public class SubscribedEdgesChannelsWorker {
 
 		if (!channels.isEmpty() && !edgeIds.isEmpty()) {
 			// registered channels -> create new thread
-			this.futureOpt = Optional.of(this.executor.scheduleWithFixedDelay(() -> {
+			this.futureOpt = Optional.of(this.parent.executor.scheduleWithFixedDelay(() -> {
 				/*
 				 * This task is executed regularly. Sends data to Websocket.
 				 */
@@ -130,7 +123,7 @@ public class SubscribedEdgesChannelsWorker {
 	 */
 	private EdgesCurrentDataNotification getCurrentDataNotification() throws OpenemsNamedException {
 		EdgesCurrentDataNotification result = new EdgesCurrentDataNotification();
-		BackendUser user = this.wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
+		User user = this.wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
 
 		for (String edgeId : this.edgeIds) {
 			// assure read permissions of this User for this Edge.

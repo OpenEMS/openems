@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.metadata.odoo.Field;
@@ -47,7 +48,8 @@ public class PeriodicWriteWorker {
 	/**
 	 * Executor for subscriptions task.
 	 */
-	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1,
+			new ThreadFactoryBuilder().setNameFormat("Metadata.Odoo.PGPeriodic-%d").build());
 
 	public PeriodicWriteWorker(PostgresHandler parent, HikariDataSource dataSource) {
 		this.parent = parent;

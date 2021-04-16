@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.component.annotations.Activate;
@@ -25,10 +26,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.AbstractMetadata;
-import io.openems.backend.common.metadata.BackendUser;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -64,7 +65,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 
 	private final Logger log = LoggerFactory.getLogger(FileMetadata.class);
 
-	private final BackendUser user = new BackendUser("admin", "Administrator");
+	private final User user = new User("admin", "Administrator", Role.ADMIN, new TreeMap<>());
 	private final Map<String, MyEdge> edges = new HashMap<>();
 
 	private String path = "";
@@ -75,7 +76,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 
 	@Activate
 	void activate(Config config) {
-		log.info("Activate [path=" + config.path() + "]");
+		this.log.info("Activate [path=" + config.path() + "]");
 		this.path = config.path();
 
 		// Read the data async
@@ -90,17 +91,17 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
-	public BackendUser authenticate() throws OpenemsException {
+	public User authenticate() throws OpenemsException {
 		return this.user;
 	}
 
 	@Override
-	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
+	public User authenticate(String username, String password) throws OpenemsNamedException {
 		return this.authenticate();
 	}
 
 	@Override
-	public BackendUser authenticate(String sessionId) throws OpenemsException {
+	public User authenticate(String sessionId) throws OpenemsException {
 		return this.authenticate();
 	}
 
@@ -124,7 +125,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
-	public Optional<BackendUser> getUser(String userId) {
+	public Optional<User> getUser(String userId) {
 		return Optional.of(this.user);
 	}
 
@@ -177,7 +178,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 			// Add Edges and configure User permissions
 			for (MyEdge edge : edges) {
 				this.edges.put(edge.getId(), edge);
-				this.user.addEdgeRole(edge.getId(), Role.ADMIN);
+				this.user.setRole(edge.getId(), Role.ADMIN);
 			}
 		}
 		this.setInitialized();

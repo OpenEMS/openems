@@ -76,7 +76,7 @@ Identified by a unique method name with specific params. Does not expect a Respo
 
 The information on this page is useful to understand the internal communication structure and can help if your plan is to replace one component by a custom implementation, e.g. implementing your own frontend application, or if you plan to extend the provided feature-set.
 
-== Subscribe Channels
+=== Subscribe Channels
 
 Real-time channel data may change at a high rate. Instead of requiring the consumer to constantly pull the data, the OpenEMS API provides a publish-subscribe schema that notifies the consumer about updated values. It is initiated via a JSON-RPC request:
 
@@ -112,8 +112,7 @@ From then on, the API constantly keeps sending `currentData` JSON-RPC notificati
 
 To unsubscribe from channels, a new `subscribeChannels` request has to be sent with an empty list of channels.
 
-
-== Edge-RPC
+=== Edge-RPC
 
 When using the API via OpenEMS Backend, it is possible to transparently target a specific OpenEMS Edge, that is connected to the Backend by wrapping the JSON-RPC request into an `Edge-RPC` request:
 
@@ -148,7 +147,7 @@ The JSON-RPC response then also wraps the original result as a payload:
 }
 ----
 
-==	JsonApi Component
+===	JsonApi Component
 
 To directly send a JSON-RPC request to one specific OpenEMS Component, that component has to implement the `JsonApi` interface.
 Then the `componentJsonApi` request can be used to wrap a JSON-RPC request as payload:
@@ -166,43 +165,41 @@ Then the `componentJsonApi` request can be used to wrap a JSON-RPC request as pa
 }
 ----
 
-== Authenticate UI to Edge/Backend using token
+===	Edge-Config
+
+The EdgeConfig may be retrieved using the following JSON-RPC method:
+
+[source,json]
+----
+{
+  "jsonrpc": "2.0",
+  "id": "UUID",
+  "method": "getEdgeConfig",
+  "params": {}
+}
+----
+
+See xref:edge/configuration.adoc[Edge -> Configuration]
+
+== Communication schema
+
+=== Authenticate UI to Edge/Backend using token
 
 NOTE: On opening of the websocket connection to Edge/Backend, the UI is authenticated using an existing token.
 
 image::authenticateWithSessionId.png[authenticateWithSessionId]
 
-== Authenticate UI to Edge using password
+=== Authenticate UI to Edge using password
 
 image::authenticateWithPassword.png[authenticateWithPassword]
-== Subscribe to Channels
+=== Subscribe to Channels
 
 NOTE: Allows a Component to subscribe on certain Channel values. The latest Channel values are then periodically sent.
 
 image:subscribeChannels+currentData.png[subscribeChannels+currentData]
 
-== Subscribe to System-Log
+=== Subscribe to System-Log
 
 NOTE: Sends the log output of Edge to UI via Backend.
 
 image:subscribeSystemLog.png[subscribeSystemLog]
-
-
-== Store channel data in Time-Series database
-
-NOTE: Edge Backend Api-Controller periodically sends data of Channels to Backend, where it is stored in a Time-Series database (like InfluxDB) via a Timedata service.
-
-// mermaid:timestampedData.mmd[]
-
-
-// mermaid:edgeConfiguration[]
-
-// mermaid:authenticate[]
-
-// mermaid:getStatusOfEdges[]
-
-== Communicate with a specific Edge Component
-
-NOTE: This provides a way to send a JSON-RPC Request directly to a specific Edge Component identified by its Component-ID - e.g. to a specific Controller. To enable this, the Edge Component needs to implement the 'JsonApi' interface.
-
-// mermaid:componentJsonApi[]
