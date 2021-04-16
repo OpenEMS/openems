@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ChartData, ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
 import { differenceInDays, format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
 import { addDays } from 'date-fns/esm';
-import * as FileSaver from 'file-saver';
+import { saveAs } from 'file-saver-es';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
@@ -47,7 +47,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
-  @Input() private period: DefaultTypes.HistoryPeriod;
+  @Input() public period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
     this.updateChart();
@@ -98,7 +98,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           fileName += format(dateFrom, "dd.MM.yyyy") + "-" + format(dateTo, "dd.MM.yyyy");
         }
         fileName += EnergyComponent.EXCEL_EXTENSION;
-        FileSaver.saveAs(data, fileName);
+        saveAs(data, fileName);
 
       }).catch(reason => {
         console.warn(reason);

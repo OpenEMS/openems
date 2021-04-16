@@ -2,17 +2,12 @@ Bundle-Name: OpenEMS Edge Virtual Thermometer
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Bundle-Description: \
-    This Bundles provides a Threshold temperature. That means, it has a Thermometer and a Setpoint as well as a default value.
-
-
--includeresource: {readme.md}
 
 -buildpath:  \
 	${buildpath},\
-	io.openems.edge.thermometer.api;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.common;version=latest,\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.thermometer.api,\
 
 -testpath: \
 	${testpath}

@@ -3,20 +3,15 @@ Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
-Bundle-Description: \
-    Control module to manage different controllers manipulating the same valve and pump.o.openems.edge.controller.heatnetwork.signalhotwater.valvecontroller/api.bnd}
-
--includeresource: {readme.md}
-
 -buildpath:  \
 	${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.heatsystem.components;version=latest,\
-	io.openems.edge.thermometer.api;version=latest,\
-	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.controller.heatnetwork.valvepumpcontrol;version=latest,\
-	io.openems.edge.controller.heatnetwork.signalhotwater;version=latest,\
+	io.openems.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.controller.heatnetwork.signalhotwater,\
+	io.openems.edge.controller.heatnetwork.valvepumpcontrol,\
+	io.openems.edge.common,\
+	io.openems.edge.heatsystem.components,\
+	io.openems.edge.thermometer.api,\
 
 
 -testpath: \

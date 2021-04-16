@@ -26,6 +26,8 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.statemachine.Context;
@@ -40,7 +42,7 @@ import io.openems.edge.ess.power.api.Relationship;
  * Parent class for different implementations of Managed Energy Storage Systems,
  * consisting of a Battery-Inverter component and a Battery component.
  */
-public abstract class AbstractGenericManagedEss<BATTERY extends Battery, BATTERY_INVERTER extends ManagedSymmetricBatteryInverter>
+public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTERY extends Battery, BATTERY_INVERTER extends ManagedSymmetricBatteryInverter>
 		extends AbstractOpenemsComponent implements GenericManagedEss, ManagedSymmetricEss, SymmetricEss,
 		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
@@ -54,9 +56,9 @@ public abstract class AbstractGenericManagedEss<BATTERY extends Battery, BATTERY
 	/**
 	 * Helper wrapping class to handle everything related to Channels.
 	 * 
-	 * @return the {@link AbstractGenericEssChannelManager}
+	 * @return the {@link AbstractChannelManager}
 	 */
-	protected abstract AbstractGenericEssChannelManager<BATTERY, BATTERY_INVERTER> getChannelManager();
+	protected abstract AbstractChannelManager<ESS, BATTERY, BATTERY_INVERTER> getChannelManager();
 
 	protected abstract ComponentManager getComponentManager();
 
@@ -139,12 +141,32 @@ public abstract class AbstractGenericManagedEss<BATTERY extends Battery, BATTERY
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().asString() //
-				+ "|L:" + this.getActivePower().asString() //
-				+ "|Allowed:" //
-				+ this.getAllowedChargePower().asStringWithoutUnit() + ";" //
-				+ this.getAllowedDischargePower().asString() //
-				+ "|" + this.channel(GenericManagedEss.ChannelId.STATE_MACHINE).value().asOptionString();
+		StringBuilder result = new StringBuilder() //
+				.append("SoC:").append(this.getSoc().asString()) //
+				.append("|L:").append(this.getActivePower().asString());
+
+		// For HybridEss show actual Battery charge power and PV production power
+		if (this instanceof HybridEss) {
+			HybridEss me = (HybridEss) this;
+			result //
+					.append("|Battery:").append(me.getDcDischargePower().asString()) //
+					.append("|PV:")
+					.append(TypeUtils.subtract(this.getActivePower().get(), me.getDcDischargePower().get()));
+		}
+
+		// Show max AC export/import active power:
+		// minimum of MaxAllowedCharge/DischargePower and MaxApparentPower
+		result //
+				.append("|Allowed:") //
+				.append(TypeUtils.min(//
+						this.getAllowedChargePower().get(), TypeUtils.multiply(this.getMaxApparentPower().get(), -1)))
+				.append(";") //
+				.append(TypeUtils.min(//
+						this.getAllowedDischargePower().get(), this.getMaxApparentPower().get()));
+
+		return result //
+				.append("|").append(this.channel(GenericManagedEss.ChannelId.STATE_MACHINE).value().asOptionString()) //
+				.toString();
 	}
 
 	/**

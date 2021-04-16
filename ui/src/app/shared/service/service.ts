@@ -1,21 +1,21 @@
+import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Subject, Subscription } from 'rxjs';
-import { ChannelAddress } from '../shared';
+import { ModalController, ToastController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { Cookie } from 'ng2-cookies';
-import { DefaultTypes } from './defaulttypes';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
+import { filter, first, map } from 'rxjs/operators';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
-import { Edges } from '../jsonrpc/shared';
-import { ErrorHandler, Injectable } from '@angular/core';
-import { filter, first, map } from 'rxjs/operators';
 import { JsonrpcResponseError } from '../jsonrpc/base';
-import { Language, LanguageTag } from '../translate/language';
-import { ModalController, ToastController } from '@ionic/angular';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { Edges, User } from '../jsonrpc/shared';
+import { ChannelAddress } from '../shared';
+import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
-import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from './defaulttypes';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -245,7 +245,7 @@ export class Service implements ErrorHandler {
   /**
    * Handles being authenticated. Updates the list of Edges.
    */
-  public handleAuthentication(token: string, edges: Edges) {
+  public handleAuthentication(token: string, user: User, edges: Edges) {
     this.websocket.status = 'online';
 
     // received login token -> save in cookie

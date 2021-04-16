@@ -1,0 +1,2 @@
+= Api for Analogue Input Output
+(Currently Used for e.g. Consolinno Leaflet AIO Module)

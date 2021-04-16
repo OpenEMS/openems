@@ -1,22 +1,15 @@
-#
-# io.openems.edge.heater.gasboiler.buderus PROVIDER BUNDLE
-#
+Bundle-Name: OpenEMS Edge Heater Gasboiler Buderus
+Bundle-Vendor: Consolinno Energy GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
 
-Bundle-Version:					1.0.0.${tstamp}
-Bundle-Description: \
-	The provider bundle for io.openems.edge.heater.gasboiler.buderus. \
-	\
-	${warning;Please update this Bundle-Description in io.openems.edge.heater.gasboiler.buderus/api.bnd}
-
-
--includeresource: {readme.md}
 
 -buildpath:  \
 	${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.bridge.modbus;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.heater;version=latest,\
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+	io.openems.edge.heater,\
 
 -testpath: \
 	${testpath}

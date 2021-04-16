@@ -3,6 +3,7 @@ package io.openems.backend.edgewebsocket;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -14,11 +15,13 @@ import io.openems.common.utils.StringUtils;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
+	private final WebsocketServer parent;
 	private CompletableFuture<Boolean> isAuthenticated = new CompletableFuture<Boolean>();
 	private Optional<String> apikey = Optional.empty();
 	private Optional<String> edgeId = Optional.empty();
 
-	public WsData() {
+	public WsData(WebsocketServer parent) {
+		this.parent = parent;
 	}
 
 	public void setAuthenticated(boolean isAuthenticated) {
@@ -99,5 +102,11 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	private String getId() {
 		return this.edgeId.orElse(this.apikey.orElse("UNKNOWN"));
+	}
+
+	@Override
+	protected ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
+			TimeUnit unit) {
+		return this.parent.scheduleWithFixedDelay(command, initialDelay, delay, unit);
 	}
 }

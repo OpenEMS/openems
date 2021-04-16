@@ -2,18 +2,14 @@ Bundle-Name: OpenEMS Edge Rest Device General
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Bundle-Description: \
-    This Bundle is a remote Device communicating via REST, doesn't matter what type the real device is\
-    you just need to know the Channel Id and Device Id and configure
-
 
 -includeresource: {readme.md}
 
 -buildpath:  \
 	${buildpath},\
-	io.openems.edge.common;version=latest,\
-	io.openems.common;version=latest,\
-	io.openems.edge.bridge.rest.communcation;version=latest,\
+	io.openems.edge.common,\
+	io.openems.common,\
+	io.openems.edge.bridge.rest.communcation,\
 
 -testpath: \
 	${testpath}

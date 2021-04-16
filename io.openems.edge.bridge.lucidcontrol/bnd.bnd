@@ -2,15 +2,11 @@ Bundle-Name: OpenEMS Edge LucidControl Bridge
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Bundle-Description: \
-	This provides the basic communication and exec of LucidControl Devices at certain Channels.
-
--includeresource: {readme.md}
 
 -buildpath:  \
 	${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
+	io.openems.common,\
+	io.openems.edge.common,\
 
 
 -testpath: \

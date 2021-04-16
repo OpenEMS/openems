@@ -6,7 +6,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.ChargeIndication;
+import io.openems.edge.battery.soltaro.common.enums.ChargeIndication;
 import io.openems.edge.battery.soltaro.single.versionb.enums.AutoSetFunction;
 import io.openems.edge.battery.soltaro.single.versionb.enums.ClusterRunState;
 import io.openems.edge.battery.soltaro.single.versionb.enums.ContactExport;
@@ -328,7 +328,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 				.accessMode(AccessMode.READ_WRITE)), //
 		WORK_PARAMETER_NUMBER_OF_MODULES(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
-				.accessMode(AccessMode.READ_WRITE)), //
+				.accessMode(AccessMode.WRITE_ONLY)), //
 		AUTO_SET_SLAVES_ID(Doc.of(AutoSetFunction.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		AUTO_SET_SLAVES_TEMPERATURE_ID(Doc.of(AutoSetFunction.values()) //
