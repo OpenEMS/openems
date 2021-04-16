@@ -9,7 +9,7 @@ import { Edges, User } from "../shared";
  *   "jsonrpc": "2.0",
  *   "id": UUID,
  *   "result": {
- *     "token": UUID,
+ *     "token": string,
  *     "edges": shared.Edges
  *   }
  * }
