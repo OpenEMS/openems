@@ -10,6 +10,7 @@ import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.consolinno.modbus.configurator.Error;
 import io.openems.edge.consolinno.modbus.configurator.api.LeafletConfigurator;
 import io.openems.edge.consolinno.sensor.signal.api.SignalSensor;
 import io.openems.edge.thermometer.api.Thermometer;
@@ -29,9 +30,12 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
-
+/**
+ * Provides a Consolinno Signal sensor. When the Sensor detects a Temperature above 100°C it will output "Error".
+ * Can be inverted to below 100°C.
+ */
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "io.openems.edge.consolinno.signal.sensor", immediate = true,
+@Component(name = "Consolinno.Sensor.Signal", immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 
 public class SignalSensorImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, Thermometer, SignalSensor, EventHandler {
@@ -67,7 +71,7 @@ public class SignalSensorImpl extends AbstractOpenemsModbusComponent implements 
         this.getSignalType().setNextValue(config.signalType());
         //Check if the Module is physically present, else throws ConfigurationException.
         if (this.lc.modbusModuleCheckout(LeafletConfigurator.ModuleType.TMP, config.module(), config.position(), config.id())
-                && (this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.TMP, this.signalModule, this.position) != 65535)) {
+                && (this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.TMP, this.signalModule, this.position) != Error.ERROR.getValue())) {
             this.temperatureAnalogInput = this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.TMP, this.signalModule, this.position);
 
             super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,

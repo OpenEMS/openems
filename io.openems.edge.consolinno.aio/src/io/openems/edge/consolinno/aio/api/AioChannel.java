@@ -1,64 +1,17 @@
-package io.openems.edge.aio.api;
+package io.openems.edge.consolinno.aio.api;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
-
-/**
- * Represents a Aio (Analog-Input-Output) Module.
- *
- * <p>
- * The Content of the Channels is dependent on the Configuration
- * <ul>
- * <li>AIO_READ contains the Digital Output
- * <li>AIO_PERCENT contains the Percent Value of the Configured Value
- * <li>AIO_CHECK_WRITE contains the Value that is written as a debug read
- * </ul>
- */
+import io.openems.edge.consolinno.modbus.configurator.api.LeafletConfigurator;
 
 public interface AioChannel extends OpenemsComponent {
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-
-        /**
-         * Status of Aio, depends on Configuration.
-         *
-         * <ul>
-         * <li>Interface: AioChannel
-         * <li>Type: Integer
-         * </ul>
-         */
         AIO_READ(Doc.of(OpenemsType.INTEGER)),
-        /**
-         * Status of Aio in percent.
-         *
-         * <ul>
-         * <li>Interface: AioChannel
-         * <li>Type: Integer
-         * <li>Unit: %
-         * <li>Range: 0..100
-         * </ul>
-         */
         AIO_PERCENT(Doc.of(OpenemsType.INTEGER)),
-        /**
-         * Value that is being written to Aio.
-         *
-         * <ul>
-         * <li>Interface: AioChannel
-         * <li>Type: Integer
-         * </ul>
-         */
         AIO_WRITE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)),
-        /**
-         * Value that is being written to Aio as debug read.
-         *
-         * <ul>
-         * <li>Interface: AioChannel
-         * <li>Type: Integer
-         * </ul>
-         */
         AIO_CHECK_WRITE(Doc.of(OpenemsType.INTEGER));
         private final Doc doc;
 
@@ -97,7 +50,7 @@ public interface AioChannel extends OpenemsComponent {
         }
         return -1;
     }
-    default WriteChannel<Integer> getWriteChannel() {
+    default Channel<Integer> getWriteChannel() {
         return this.channel(ChannelId.AIO_WRITE);
     }
 

@@ -12,6 +12,7 @@ import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.consolinno.modbus.configurator.Error;
 import io.openems.edge.consolinno.modbus.configurator.api.LeafletConfigurator;
 import io.openems.edge.relay.api.Relay;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -28,9 +29,11 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * Provides a Relay from the Consolinno Relay Module.
+ */
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "io.openems.edge.consolinno.relay")
+@Component(name = "Consolinno.Relay")
 public class RelayImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, Relay {
 
     @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -51,6 +54,7 @@ public class RelayImpl extends AbstractOpenemsModbusComponent implements Openems
     private boolean inverted;
     //Relay 5 to 8 are able to be set as inverse. But internally they need the MReg Number 1 to 4 so they need to be shifted by 4.
     private static final int RELAY_INVERSION_OFFSET = 4;
+    private static final int FIRST_INVERTIBLE_RELAY = 5;
 
     public RelayImpl() {
         super(OpenemsComponent.ChannelId.values(),
@@ -65,17 +69,17 @@ public class RelayImpl extends AbstractOpenemsModbusComponent implements Openems
         //Check if the Module is physically present, else throws ConfigurationException.
         if (this.lc.modbusModuleCheckout(LeafletConfigurator.ModuleType.REL, config.module(), config.position(), config.id())
                 //Position is not the Correct Mreg Number, because Output coils start at 0 and not 1 like Analog Input
-                && (this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.REL, this.relayModule, (this.position - 1)) != 65535)) {
+                && (this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.REL, this.relayModule, (this.position - 1)) != Error.ERROR.getValue())) {
             /* Inverts Relay, if it is Configured and able to do so. */
             this.relayDiscreteOutput = this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.REL, this.relayModule, (this.position - 1));
-            if (this.position >= 5 && this.inverted) {
-                this.lc.invertRelay(this.relayModule, (this.position - 4));
+            if (this.position >= FIRST_INVERTIBLE_RELAY && this.inverted) {
+                this.lc.invertRelay(this.relayModule, (this.position - RELAY_INVERSION_OFFSET));
             }
             super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
                     "Modbus", config.modbusBridgeId());
         } else {
             throw new ConfigurationException("Relay Module not configured properly. Please check the Config",
-                    "This Relay doesn't Exist");
+                    "This Relay doesn't exist");
         }
     }
 

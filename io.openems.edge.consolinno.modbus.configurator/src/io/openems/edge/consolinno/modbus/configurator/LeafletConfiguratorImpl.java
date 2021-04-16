@@ -40,7 +40,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Configurator for Modbus Modules.
+ * Configurator for Consolinno Modbus modules. Reads the CSV Register source file, sets the general Modbus Protocol and configures
+ * module specific values (e.g Relay inversion status).
  */
 
 @Designate(ocd = Config.class, factory = true)
@@ -56,9 +57,11 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     private final Map<ModuleRegister, Integer> analogOutputHoldingRegisters = new HashMap<>();
     private final Map<String, PinOwner> ownerMap = new HashMap<>();
     private final Map<ModuleType, PositionMap> positionMap = new HashMap<>();
-    private final int[] relayInverseRegisters = new int[4];
+    private static final int INVERSION_CAPABLE_RELAY_COUNT = 4;
+    private final int[] relayInverseRegisters = new int[INVERSION_CAPABLE_RELAY_COUNT];
     private static final int HEADER_INFORMATION_OFFSET = 1;
     private static final int GROUP_SIZE = 3;
+    private static final int REGISTER_TYPE_COUNT = 4;
     private static final ModuleRegister LEAFLET_AIO_CONNECTION_STATUS = new ModuleRegister(ModuleType.LEAFLET, 0, 11);
     private static final ModuleRegister LEAFLET_TMP_CONNECTION_STATUS = new ModuleRegister(ModuleType.LEAFLET, 0, 10);
     private static final ModuleRegister LEAFLET_REL_CONNECTION_STATUS = new ModuleRegister(ModuleType.LEAFLET, 0, 9);
@@ -81,6 +84,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     private int pwmConfigRegisterSix;
     private int pwmConfigRegisterSeven;
     private int pwmConfigRegisterEight;
+    // AIO is still in development and doesn't exists for now
     private int aioConfigOne = 0;
     private int aioConfigTwo = 0;
     private int aioConfigThree = 0;
@@ -114,7 +118,6 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     @Reference
     protected ConfigurationAdmin cm;
 
-
     protected SourceReader sourceReader = new SourceReader();
 
     @Activate
@@ -122,10 +125,10 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
         //Reads Source file CSV with the Register information
         this.source = this.sourceReader.readCsv(config.source());
         //Splits the big CSV Output into the different Modbus Types(OutputCoil,...)
-        splitArrayIntoType();
+        this.splitArrayIntoType();
         //Sets the Register variables for the Configuration
-        createRelayInverseRegisterArray();
-        setPwmConfigurationAddresses();
+        this.createRelayInverseRegisterArray();
+        this.setPwmConfigurationAddresses();
         super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
                 "Modbus", config.modbusBridgeId());
     }
@@ -134,7 +137,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      * Creates an Array with all of the Configuration Registers for inverting Relays.
      */
     private void createRelayInverseRegisterArray() {
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < INVERSION_CAPABLE_RELAY_COUNT; i++) {
             this.relayInverseRegisters[i] = this.analogOutputHoldingRegisters.get(new ModuleRegister(ModuleType.REL, i + 1, 0));
         }
     }
@@ -144,27 +147,28 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      * Analog Input Register , Analog Output Holding Register).
      */
     private void splitArrayIntoType() {
-        getSourceHeaderOrder();
+        this.getSourceHeaderOrder();
         AtomicInteger currentGroup = new AtomicInteger(0);
-        for (int group = 0; group <= 4; group++) {
+        //Modbus can address 4 different types of Registers. So the for loop sorts the values into those 4.
+        for (int group = 0; group <= REGISTER_TYPE_COUNT; group++) {
             this.source.forEach(row -> {
                 if (!(row.get(0).equals("") || row.get(0).equals("Modbus Offset") || row.toString().contains("Register"))) {
-                    if (currentGroup.get() < 4 && !checkForLastGroupMember(row, currentGroup.get())) {
+                    if (currentGroup.get() < REGISTER_TYPE_COUNT && !this.checkForLastGroupMember(row, currentGroup.get())) {
                         switch (currentGroup.get()) {
                             case (0): {
-                                putElementInCorrectMap(this.discreteOutputCoils, currentGroup.get(), row);
+                                this.putElementInCorrectMap(this.discreteOutputCoils, currentGroup.get(), row);
                             }
                             break;
                             case (1): {
-                                putElementInCorrectMap(this.discreteInputContacts, currentGroup.get(), row);
+                                this.putElementInCorrectMap(this.discreteInputContacts, currentGroup.get(), row);
                             }
                             break;
                             case (2): {
-                                putElementInCorrectMap(this.analogInputRegisters, currentGroup.get(), row);
+                                this.putElementInCorrectMap(this.analogInputRegisters, currentGroup.get(), row);
                             }
                             break;
                             case (3): {
-                                putElementInCorrectMap(this.analogOutputHoldingRegisters, currentGroup.get(), row);
+                                this.putElementInCorrectMap(this.analogOutputHoldingRegisters, currentGroup.get(), row);
                             }
                             break;
                         }
@@ -183,7 +187,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      * @param row   The current Row of the Big Output list
      */
     private void putElementInCorrectMap(Map<ModuleRegister, Integer> map, int group, List<String> row) {
-        map.put(new ModuleRegister(stringToType(
+        map.put(new ModuleRegister(this.stringToType(
                 row.get(this.moduleTypeOffset + (group * GROUP_SIZE))),
                         Integer.parseInt(row.get(this.moduleNumberOffset + (group * GROUP_SIZE))),
                         Integer.parseInt(row.get(this.mRegOffset + (group * GROUP_SIZE)))),
@@ -194,6 +198,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      * Searches through the Big Source file and writes in the appropriate variable which column contains the types.
      */
     private void getSourceHeaderOrder() {
+        //The Csv source file will hold the header either in line 1 or 2
         for (int n = 0; n < 2; n++) {
             for (int i = HEADER_INFORMATION_OFFSET; i <= GROUP_SIZE; i++) {
                 String current = (this.source.get(n).get(i));
@@ -216,6 +221,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      * @return true if this is part of the Header
      */
     private boolean checkForLastGroupMember(List<String> row, int group) {
+        //Checks with +1 if the next member exists
         return (row.get(group * GROUP_SIZE + 1).equals("") || row.get(group * GROUP_SIZE + 1).equals("0"));
     }
 
@@ -408,7 +414,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 1:
                         //0b001
                         if (((getTemperatureModules() & LEAFLET_MODULE_ONE) == LEAFLET_MODULE_ONE)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -416,7 +422,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 2:
                         //0b010
                         if (((getTemperatureModules() & LEAFLET_MODULE_TWO) == LEAFLET_MODULE_TWO)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -424,7 +430,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 3:
                         //0b100
                         if (((getTemperatureModules() & LEAFLET_MODULE_THREE) == LEAFLET_MODULE_THREE)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -436,7 +442,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 1:
                         //0b0001
                         if (((getRelayModules() & LEAFLET_MODULE_ONE) == LEAFLET_MODULE_ONE)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -445,7 +451,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 2:
                         //0b0010
                         if (((getRelayModules() & LEAFLET_MODULE_TWO) == LEAFLET_MODULE_TWO)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -454,7 +460,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 3:
                         //0b0100
                         if (((getRelayModules() & LEAFLET_MODULE_THREE) == LEAFLET_MODULE_THREE)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -462,7 +468,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 4:
                         //0b1000
                         if (((getRelayModules() & LEAFLET_MODULE_FOUR) == LEAFLET_MODULE_FOUR)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -475,7 +481,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 1:
                         //0b00000001
                         if (((getPwmModules() & LEAFLET_MODULE_ONE) == LEAFLET_MODULE_ONE)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -484,7 +490,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 2:
                         //0b00000010
                         if (((getPwmModules() & LEAFLET_MODULE_TWO) == LEAFLET_MODULE_TWO)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -493,7 +499,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 3:
                         //0b00000100
                         if (((getPwmModules() & LEAFLET_MODULE_THREE) == LEAFLET_MODULE_THREE)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -501,7 +507,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 4:
                         //0b00001000
                         if (((getPwmModules() & LEAFLET_MODULE_FOUR) == LEAFLET_MODULE_FOUR)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -509,7 +515,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 5:
                         //0b00010000
                         if (((getPwmModules() & LEAFLET_MODULE_FIVE) == LEAFLET_MODULE_FIVE)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -518,7 +524,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 6:
                         //0b00100000
                         if (((getPwmModules() & LEAFLET_MODULE_SIX) == LEAFLET_MODULE_SIX)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -527,7 +533,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 7:
                         //0b01000000
                         if (((getPwmModules() & LEAFLET_MODULE_SEVEN) == LEAFLET_MODULE_SEVEN)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -535,7 +541,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 8:
                         //0b10000000
                         if (((getPwmModules() & LEAFLET_MODULE_EIGHT) == LEAFLET_MODULE_EIGHT)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -549,7 +555,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 1:
                         //0b00000001
                         if (((getAioModules() & LEAFLET_MODULE_ONE) == LEAFLET_MODULE_ONE)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -558,7 +564,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 2:
                         //0b00000010
                         if (((getAioModules() & LEAFLET_MODULE_TWO) == LEAFLET_MODULE_TWO)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -567,7 +573,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 3:
                         //0b00000100
                         if (((getAioModules() & LEAFLET_MODULE_THREE) == LEAFLET_MODULE_THREE)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -575,7 +581,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 4:
                         //0b00001000
                         if (((getAioModules() & LEAFLET_MODULE_FOUR) == LEAFLET_MODULE_FOUR)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -583,7 +589,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 5:
                         //0b00010000
                         if (((getAioModules() & LEAFLET_MODULE_FIVE) == LEAFLET_MODULE_FIVE)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -592,7 +598,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 6:
                         //0b00100000
                         if (((getAioModules() & LEAFLET_MODULE_SIX) == LEAFLET_MODULE_SIX)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -601,7 +607,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     case 7:
                         //0b01000000
                         if (((getAioModules() & LEAFLET_MODULE_SEVEN) == LEAFLET_MODULE_SEVEN)
-                                && checkPin(moduleType, moduleNumber, position, id)) {
+                                && this.checkPin(moduleType, moduleNumber, position, id)) {
                             this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
@@ -662,7 +668,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                 return this.analogOutputHoldingRegisters.get(new ModuleRegister(moduleType, moduleNumber, mReg));
             //Error state (0xFFFF) should never happen.
             default:
-                return 65535;
+                return Error.ERROR.getValue();
         }
     }
 
@@ -679,7 +685,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     @Override
     public int getFunctionAddress(ModuleType moduleType, int moduleNumber, int position, boolean input) {
         if (moduleType != ModuleType.AIO) {
-            return getFunctionAddress(moduleType, moduleNumber, position);
+            return this.getFunctionAddress(moduleType, moduleNumber, position);
         } else {
             if (input) {
                 return this.analogInputRegisters.get(new ModuleRegister(moduleType, moduleNumber, position));
@@ -813,8 +819,8 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      */
     @Override
     public void setAioConfig(int moduleNumber, int position, String config) {
-        int configInt = convertAioConfigToInt(config);
-        enterConfigMode();
+        int configInt = this.convertAioConfigToInt(config);
+        this.enterConfigMode();
         try {
             switch (moduleNumber) {
                 case 1:
@@ -866,7 +872,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     @Override
     public int getAioPercentAddress(ModuleType moduleType, int moduleNumber, int mReg, boolean input) {
         if (moduleType != ModuleType.AIO) {
-            return 65535;
+            return Error.ERROR.getValue();
         } else {
             if (input) {
                 return this.analogInputRegisters.get(new ModuleRegister(moduleType, moduleNumber, mReg));
@@ -953,14 +959,14 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      * Stores the pwmConfig Register in a local variable.
      */
     private void setPwmConfigurationAddresses() {
-        this.pwmConfigRegisterOne = getConfigurationAddress(ModuleType.PWM, 1);
-        this.pwmConfigRegisterTwo = getConfigurationAddress(ModuleType.PWM, 2);
-        this.pwmConfigRegisterThree = getConfigurationAddress(ModuleType.PWM, 3);
-        this.pwmConfigRegisterFour = getConfigurationAddress(ModuleType.PWM, 4);
-        this.pwmConfigRegisterFive = getConfigurationAddress(ModuleType.PWM, 5);
-        this.pwmConfigRegisterSix = getConfigurationAddress(ModuleType.PWM, 6);
-        this.pwmConfigRegisterSeven = getConfigurationAddress(ModuleType.PWM, 7);
-        this.pwmConfigRegisterEight = getConfigurationAddress(ModuleType.PWM, 8);
+        this.pwmConfigRegisterOne = this.getConfigurationAddress(ModuleType.PWM, 1);
+        this.pwmConfigRegisterTwo = this.getConfigurationAddress(ModuleType.PWM, 2);
+        this.pwmConfigRegisterThree = this.getConfigurationAddress(ModuleType.PWM, 3);
+        this.pwmConfigRegisterFour = this.getConfigurationAddress(ModuleType.PWM, 4);
+        this.pwmConfigRegisterFive = this.getConfigurationAddress(ModuleType.PWM, 5);
+        this.pwmConfigRegisterSix = this.getConfigurationAddress(ModuleType.PWM, 6);
+        this.pwmConfigRegisterSeven = this.getConfigurationAddress(ModuleType.PWM, 7);
+        this.pwmConfigRegisterEight = this.getConfigurationAddress(ModuleType.PWM, 8);
     }
 
     /**
@@ -973,7 +979,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     public void handleEvent(Event event) {
         if (this.configFlag && (getReadAioConfig() == (this.aioConfigOne | this.aioConfigTwo | this.aioConfigThree
                 | this.aioConfigFour | this.aioConfigFive | this.aioConfigSix | this.aioConfigSeven))) {
-            exitConfigMode();
+            this.exitConfigMode();
         }
 
     }
