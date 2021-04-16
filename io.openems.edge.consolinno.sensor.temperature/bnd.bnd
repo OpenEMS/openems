@@ -5,7 +5,7 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
     This Bundle provides an Temperaturesensor that is communicating over Modbus.
 
--includeresource: {readme.md}
+-Include-Resource: {readme.md}\
 
 -buildpath:  \
 	${buildpath},\

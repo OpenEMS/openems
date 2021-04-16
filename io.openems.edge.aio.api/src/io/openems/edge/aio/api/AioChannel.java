@@ -4,10 +4,38 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+
+/**
+ * Represents a Aio (Analog-Input-Output) Module.
+ *
+ * <p>
+ *
+ *
+ *
+ * <ul>
+ * <li>
+ * <li>
+ *
+ * <li>
+ *
+ * </ul>
+ */
 
 public interface AioChannel extends OpenemsComponent {
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+
+        /**
+         * Status of Aio, depends on Configuration.
+         *
+         * <ul>
+         * <li>Interface: AioChannel
+         * <li>Type: Integer
+         * <li>Unit: %
+         * <li>Range: 0..100
+         * </ul>
+         */
         AIO_READ(Doc.of(OpenemsType.INTEGER)),
         AIO_PERCENT(Doc.of(OpenemsType.INTEGER)),
         AIO_WRITE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)),
@@ -49,7 +77,7 @@ public interface AioChannel extends OpenemsComponent {
         }
         return -1;
     }
-    default Channel<Integer> getWriteChannel() {
+    default WriteChannel<Integer> getWriteChannel() {
         return this.channel(ChannelId.AIO_WRITE);
     }
 

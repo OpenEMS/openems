@@ -5,13 +5,13 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
     This Bundle provides an Module Configurator using Modbus.
 
--includeresource: {readme.md}
+-Include-Resource: {readme.md}\
 
 -buildpath:  \
 	${buildpath},\
-	io.openems.edge.common;version=latest,\
-	io.openems.common;version=latest,\
-	io.openems.edge.bridge.modbus;version=latest,\
+	io.openems.edge.common,\
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
 
 
 -testpath: \

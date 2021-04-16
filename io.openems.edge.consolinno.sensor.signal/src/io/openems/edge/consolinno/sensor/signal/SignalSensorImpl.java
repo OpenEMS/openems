@@ -32,7 +32,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "io.openems.edge.consolinno.signal.sensor", immediate = true,
-        configurationPolicy = ConfigurationPolicy.REQUIRE,property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
+        configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 
 public class SignalSensorImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, Thermometer, SignalSensor, EventHandler {
     @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -66,9 +66,9 @@ public class SignalSensorImpl extends AbstractOpenemsModbusComponent implements 
         this.isInverted = config.inverted();
         this.getSignalType().setNextValue(config.signalType());
         //Check if the Module is physically present, else throws ConfigurationException.
-        if (lc.modbusModuleCheckout(LeafletConfigurator.ModuleType.TMP, config.module(), config.position(), config.id())
-                && (lc.getFunctionAddress(LeafletConfigurator.ModuleType.TMP, this.signalModule, this.position) != 65535)) {
-            this.temperatureAnalogInput = lc.getFunctionAddress(LeafletConfigurator.ModuleType.TMP, this.signalModule, this.position);
+        if (this.lc.modbusModuleCheckout(LeafletConfigurator.ModuleType.TMP, config.module(), config.position(), config.id())
+                && (this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.TMP, this.signalModule, this.position) != 65535)) {
+            this.temperatureAnalogInput = this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.TMP, this.signalModule, this.position);
 
             super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
                     "Modbus", config.modbusBridgeId());
@@ -80,7 +80,7 @@ public class SignalSensorImpl extends AbstractOpenemsModbusComponent implements 
 
     @Deactivate
     public void deactivate() {
-        lc.removeModule(LeafletConfigurator.ModuleType.TMP, this.signalModule, this.position);
+        this.lc.removeModule(LeafletConfigurator.ModuleType.TMP, this.signalModule, this.position);
         super.deactivate();
 
     }
@@ -102,16 +102,19 @@ public class SignalSensorImpl extends AbstractOpenemsModbusComponent implements 
     @Override
     public void handleEvent(Event event) {
         if (getSignalType().value().isDefined()) {
-            if (isInverted) {
+            if (this.isInverted) {
                 if (getTemperatureValue() < maxTemperature) {
                     getSignalType().setNextValue("Error");
+                    return;
                 }
-            } else if (!isInverted) {
+            } else {
                 if (getTemperatureValue() > maxTemperature) {
                     getSignalType().setNextValue("Error");
-                } else if (!getSignalType().value().get().equals("Status")) {
-                    getSignalType().setNextValue("Status");
+                    return;
                 }
+            }
+            if (!getSignalType().value().get().equals("Status")) {
+                getSignalType().setNextValue("Status");
             }
         }
     }

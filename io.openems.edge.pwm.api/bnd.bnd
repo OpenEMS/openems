@@ -8,7 +8,7 @@ Bundle-Description: \
 	\
 	${warning;Please update this Bundle-Description in io.openems.edge.pwm/api.bnd}
 
--includeresource: {readme.md}
+-Include-Resource: {readme.md}\
 
 -buildpath:  \
 	${buildpath},\

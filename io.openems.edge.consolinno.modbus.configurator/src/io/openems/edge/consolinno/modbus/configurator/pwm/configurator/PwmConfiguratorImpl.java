@@ -8,6 +8,8 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -28,17 +30,41 @@ public class PwmConfiguratorImpl extends AbstractOpenemsComponent implements Ope
         super(OpenemsComponent.ChannelId.values());
     }
 
+    private int moduleNumber;
+    private static final int DEFAULT_PWM_FREQUENCY = 200;
 
     @Activate
     public void activate(ComponentContext context, Config config) throws ConfigurationException {
         int frequency = config.frequency();
-        int moduleNumber = config.moduleNumber();
-        if (moduleNumber > 0 && moduleNumber < 9) {
-            lc.setPwmConfiguration(moduleNumber, frequency);
+        this.moduleNumber = config.moduleNumber();
+        if (this.moduleNumber > 0 && this.moduleNumber < 9) {
+            this.lc.setPwmConfiguration(this.moduleNumber, frequency);
         } else {
             throw new ConfigurationException("ModuleNumber out of Bounds. Please check the Config",
                     "The ModuleNumber must be between 1 and 8");
         }
         super.activate(context, config.id(), config.alias(), config.enabled());
     }
+
+    @Modified
+    public void modified(ComponentContext context, Config config) throws ConfigurationException {
+        this.lc.setPwmConfiguration(this.moduleNumber, DEFAULT_PWM_FREQUENCY);
+        int frequency = config.frequency();
+        this.moduleNumber = config.moduleNumber();
+        if (this.moduleNumber > 0 && this.moduleNumber < 9) {
+            this.lc.setPwmConfiguration(this.moduleNumber, frequency);
+        } else {
+            throw new ConfigurationException("ModuleNumber out of Bounds. Please check the Config",
+                    "The ModuleNumber must be between 1 and 8");
+        }
+        super.modified(context, config.id(), config.alias(), config.enabled());
+
+    }
+
+    @Deactivate
+    public void deactivate() {
+        this.lc.setPwmConfiguration(this.moduleNumber, DEFAULT_PWM_FREQUENCY);
+        super.deactivate();
+    }
+
 }

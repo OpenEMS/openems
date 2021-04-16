@@ -65,11 +65,11 @@ public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
         this.pwmModule = config.module();
         this.position = config.position();
         //Check if the Module is physically present, else throws ConfigurationException.
-        if (lc.modbusModuleCheckout(LeafletConfigurator.ModuleType.PWM, config.module(), config.position(), config.id())
-                && (lc.getFunctionAddress(LeafletConfigurator.ModuleType.PWM, this.pwmModule, this.position) != 65535)) {
-            this.pwmAnalogOutput = lc.getFunctionAddress(LeafletConfigurator.ModuleType.PWM, this.pwmModule, this.position);
+        if (this.lc.modbusModuleCheckout(LeafletConfigurator.ModuleType.PWM, config.module(), config.position(), config.id())
+                && (this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.PWM, this.pwmModule, this.position) != 65535)) {
+            this.pwmAnalogOutput = this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.PWM, this.pwmModule, this.position);
             //The mReg number for the DiscreteOutput is not the Position but one less.
-            this.pwmDiscreteOutput = lc.getPwmDiscreteOutputAddress(this.pwmModule, (this.position - 1));
+            this.pwmDiscreteOutput = this.lc.getPwmDiscreteOutputAddress(this.pwmModule, (this.position - 1));
 
             super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
                     "Modbus", config.modbusBridgeId());
@@ -96,7 +96,7 @@ public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
         } catch (OpenemsError.OpenemsNamedException ignored) {
             this.log.error("Error in getWritePwmPowerChannel.setNextWriteValue");
         }
-        lc.removeModule(LeafletConfigurator.ModuleType.PWM, this.pwmModule, this.position);
+        this.lc.removeModule(LeafletConfigurator.ModuleType.PWM, this.pwmModule, this.position);
         super.deactivate();
     }
 

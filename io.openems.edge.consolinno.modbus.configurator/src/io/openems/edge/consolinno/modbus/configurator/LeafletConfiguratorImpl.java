@@ -21,6 +21,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -119,7 +120,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     @Activate
     public void activate(ComponentContext context, Config config) throws OpenemsException {
         //Reads Source file CSV with the Register information
-        source = sourceReader.readCsv(config.source());
+        this.source = this.sourceReader.readCsv(config.source());
         //Splits the big CSV Output into the different Modbus Types(OutputCoil,...)
         splitArrayIntoType();
         //Sets the Register variables for the Configuration
@@ -134,7 +135,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      */
     private void createRelayInverseRegisterArray() {
         for (int i = 0; i < 4; i++) {
-            relayInverseRegisters[i] = analogOutputHoldingRegisters.get(new ModuleRegister(ModuleType.REL, i + 1, 0));
+            this.relayInverseRegisters[i] = this.analogOutputHoldingRegisters.get(new ModuleRegister(ModuleType.REL, i + 1, 0));
         }
     }
 
@@ -146,24 +147,24 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
         getSourceHeaderOrder();
         AtomicInteger currentGroup = new AtomicInteger(0);
         for (int group = 0; group <= 4; group++) {
-            source.forEach(row -> {
+            this.source.forEach(row -> {
                 if (!(row.get(0).equals("") || row.get(0).equals("Modbus Offset") || row.toString().contains("Register"))) {
                     if (currentGroup.get() < 4 && !checkForLastGroupMember(row, currentGroup.get())) {
                         switch (currentGroup.get()) {
                             case (0): {
-                                putElementInCorrectMap(discreteOutputCoils, currentGroup.get(), row);
+                                putElementInCorrectMap(this.discreteOutputCoils, currentGroup.get(), row);
                             }
                             break;
                             case (1): {
-                                putElementInCorrectMap(discreteInputContacts, currentGroup.get(), row);
+                                putElementInCorrectMap(this.discreteInputContacts, currentGroup.get(), row);
                             }
                             break;
                             case (2): {
-                                putElementInCorrectMap(analogInputRegisters, currentGroup.get(), row);
+                                putElementInCorrectMap(this.analogInputRegisters, currentGroup.get(), row);
                             }
                             break;
                             case (3): {
-                                putElementInCorrectMap(analogOutputHoldingRegisters, currentGroup.get(), row);
+                                putElementInCorrectMap(this.analogOutputHoldingRegisters, currentGroup.get(), row);
                             }
                             break;
                         }
@@ -183,9 +184,9 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      */
     private void putElementInCorrectMap(Map<ModuleRegister, Integer> map, int group, List<String> row) {
         map.put(new ModuleRegister(stringToType(
-                row.get(moduleTypeOffset + (group * GROUP_SIZE))),
-                        Integer.parseInt(row.get(moduleNumberOffset + (group * GROUP_SIZE))),
-                        Integer.parseInt(row.get(mRegOffset + (group * GROUP_SIZE)))),
+                row.get(this.moduleTypeOffset + (group * GROUP_SIZE))),
+                        Integer.parseInt(row.get(this.moduleNumberOffset + (group * GROUP_SIZE))),
+                        Integer.parseInt(row.get(this.mRegOffset + (group * GROUP_SIZE)))),
                 Integer.parseInt(row.get(0)));
     }
 
@@ -195,13 +196,13 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     private void getSourceHeaderOrder() {
         for (int n = 0; n < 2; n++) {
             for (int i = HEADER_INFORMATION_OFFSET; i <= GROUP_SIZE; i++) {
-                String current = (source.get(n).get(i));
-                if (moduleNumberOffset == 0 && current.contains(MODULE_NR)) {
-                    moduleNumberOffset = i;
-                } else if (moduleTypeOffset == 0 && current.contains(MODULE_TYPE)) {
-                    moduleTypeOffset = i;
-                } else if (mRegOffset == 0 && current.contains(M_REG)) {
-                    mRegOffset = i;
+                String current = (this.source.get(n).get(i));
+                if (this.moduleNumberOffset == 0 && current.contains(MODULE_NR)) {
+                    this.moduleNumberOffset = i;
+                } else if (this.moduleTypeOffset == 0 && current.contains(MODULE_TYPE)) {
+                    this.moduleTypeOffset = i;
+                } else if (this.mRegOffset == 0 && current.contains(M_REG)) {
+                    this.mRegOffset = i;
                 }
             }
         }
@@ -248,132 +249,132 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
         return new ModbusProtocol(this,
                 //Read Module Connection Status
-                new FC4ReadInputRegistersTask(analogInputRegisters.get(LEAFLET_TMP_CONNECTION_STATUS), Priority.HIGH,
+                new FC4ReadInputRegistersTask(this.analogInputRegisters.get(LEAFLET_TMP_CONNECTION_STATUS), Priority.HIGH,
                         m(LeafletConfigurator.ChannelId.TEMPERATURE_MODULES, new UnsignedWordElement(
-                                        analogInputRegisters.get(LEAFLET_TMP_CONNECTION_STATUS)),
+                                        this.analogInputRegisters.get(LEAFLET_TMP_CONNECTION_STATUS)),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC4ReadInputRegistersTask(analogInputRegisters.get(LEAFLET_REL_CONNECTION_STATUS), Priority.HIGH,
+                new FC4ReadInputRegistersTask(this.analogInputRegisters.get(LEAFLET_REL_CONNECTION_STATUS), Priority.HIGH,
                         m(LeafletConfigurator.ChannelId.RELAY_MODULES, new UnsignedWordElement(
-                                        analogInputRegisters.get(LEAFLET_REL_CONNECTION_STATUS)),
+                                        this.analogInputRegisters.get(LEAFLET_REL_CONNECTION_STATUS)),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC4ReadInputRegistersTask(analogInputRegisters.get(LEAFLET_PWM_CONNECTION_STATUS), Priority.HIGH,
+                new FC4ReadInputRegistersTask(this.analogInputRegisters.get(LEAFLET_PWM_CONNECTION_STATUS), Priority.HIGH,
                         m(LeafletConfigurator.ChannelId.PWM_MODULES, new UnsignedWordElement(
-                                        analogInputRegisters.get(LEAFLET_PWM_CONNECTION_STATUS)),
+                                        this.analogInputRegisters.get(LEAFLET_PWM_CONNECTION_STATUS)),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC4ReadInputRegistersTask(analogInputRegisters.get(LEAFLET_AIO_CONNECTION_STATUS), Priority.HIGH,
+                new FC4ReadInputRegistersTask(this.analogInputRegisters.get(LEAFLET_AIO_CONNECTION_STATUS), Priority.HIGH,
                         m(LeafletConfigurator.ChannelId.AIO_MODULES, new UnsignedWordElement(
-                                        analogInputRegisters.get(LEAFLET_AIO_CONNECTION_STATUS)),
+                                        this.analogInputRegisters.get(LEAFLET_AIO_CONNECTION_STATUS)),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
 
-                new FC4ReadInputRegistersTask(analogOutputHoldingRegisters.get(LEAFLET_CONFIG_REGISTER), Priority.HIGH,
+                new FC4ReadInputRegistersTask(this.analogOutputHoldingRegisters.get(LEAFLET_CONFIG_REGISTER), Priority.HIGH,
                         m(LeafletConfigurator.ChannelId.READ_LEAFLET_CONFIG, new UnsignedWordElement(
-                                        analogOutputHoldingRegisters.get(LEAFLET_CONFIG_REGISTER)),
+                                        this.analogOutputHoldingRegisters.get(LEAFLET_CONFIG_REGISTER)),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(analogOutputHoldingRegisters.get(LEAFLET_CONFIG_REGISTER),
+                new FC6WriteRegisterTask(this.analogOutputHoldingRegisters.get(LEAFLET_CONFIG_REGISTER),
                         m(LeafletConfigurator.ChannelId.WRITE_LEAFLET_CONFIG,
-                                new UnsignedWordElement(analogOutputHoldingRegisters.get(LEAFLET_CONFIG_REGISTER)),
+                                new UnsignedWordElement(this.analogOutputHoldingRegisters.get(LEAFLET_CONFIG_REGISTER)),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
 
                 //Relay invert Configuration
-                new FC6WriteRegisterTask(relayInverseRegisters[0],
+                new FC6WriteRegisterTask(this.relayInverseRegisters[0],
                         m(LeafletConfigurator.ChannelId.WRITE_RELAY_ONE_INVERT_STATUS,
-                                new SignedWordElement(relayInverseRegisters[0]),
+                                new SignedWordElement(this.relayInverseRegisters[0]),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(relayInverseRegisters[1],
+                new FC6WriteRegisterTask(this.relayInverseRegisters[1],
                         m(LeafletConfigurator.ChannelId.WRITE_RELAY_TWO_INVERT_STATUS,
-                                new UnsignedWordElement(relayInverseRegisters[1]),
+                                new UnsignedWordElement(this.relayInverseRegisters[1]),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(relayInverseRegisters[2],
+                new FC6WriteRegisterTask(this.relayInverseRegisters[2],
                         m(LeafletConfigurator.ChannelId.WRITE_RELAY_THREE_INVERT_STATUS,
-                                new UnsignedWordElement(relayInverseRegisters[2]),
+                                new UnsignedWordElement(this.relayInverseRegisters[2]),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(relayInverseRegisters[3],
+                new FC6WriteRegisterTask(this.relayInverseRegisters[3],
                         m(LeafletConfigurator.ChannelId.WRITE_RELAY_FOUR_INVERT_STATUS,
-                                new UnsignedWordElement(relayInverseRegisters[3]),
+                                new UnsignedWordElement(this.relayInverseRegisters[3]),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
                 //PWM Frequency Configuration
-                new FC6WriteRegisterTask(pwmConfigRegisterOne,
+                new FC6WriteRegisterTask(this.pwmConfigRegisterOne,
                         m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_ONE,
-                                new SignedWordElement(pwmConfigRegisterOne),
+                                new SignedWordElement(this.pwmConfigRegisterOne),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(pwmConfigRegisterTwo,
+                new FC6WriteRegisterTask(this.pwmConfigRegisterTwo,
                         m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_TWO,
-                                new UnsignedWordElement(pwmConfigRegisterTwo),
+                                new UnsignedWordElement(this.pwmConfigRegisterTwo),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(pwmConfigRegisterThree,
+                new FC6WriteRegisterTask(this.pwmConfigRegisterThree,
                         m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_THREE,
-                                new UnsignedWordElement(pwmConfigRegisterThree),
+                                new UnsignedWordElement(this.pwmConfigRegisterThree),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(pwmConfigRegisterFour,
+                new FC6WriteRegisterTask(this.pwmConfigRegisterFour,
                         m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_FOUR,
-                                new UnsignedWordElement(pwmConfigRegisterFour),
+                                new UnsignedWordElement(this.pwmConfigRegisterFour),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(pwmConfigRegisterFive,
+                new FC6WriteRegisterTask(this.pwmConfigRegisterFive,
                         m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_FIVE,
-                                new SignedWordElement(pwmConfigRegisterFive),
+                                new SignedWordElement(this.pwmConfigRegisterFive),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(pwmConfigRegisterSix,
+                new FC6WriteRegisterTask(this.pwmConfigRegisterSix,
                         m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_SIX,
-                                new UnsignedWordElement(pwmConfigRegisterSix),
+                                new UnsignedWordElement(this.pwmConfigRegisterSix),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(pwmConfigRegisterSeven,
+                new FC6WriteRegisterTask(this.pwmConfigRegisterSeven,
                         m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_SEVEN,
-                                new UnsignedWordElement(pwmConfigRegisterSeven),
+                                new UnsignedWordElement(this.pwmConfigRegisterSeven),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(pwmConfigRegisterEight,
+                new FC6WriteRegisterTask(this.pwmConfigRegisterEight,
                         m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_EIGHT,
-                                new UnsignedWordElement(pwmConfigRegisterEight),
+                                new UnsignedWordElement(this.pwmConfigRegisterEight),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
 
-                new FC3ReadRegistersTask(pwmConfigRegisterOne, Priority.LOW,
+                new FC3ReadRegistersTask(this.pwmConfigRegisterOne, Priority.LOW,
                         m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_ONE,
-                                new SignedWordElement(pwmConfigRegisterOne),
+                                new SignedWordElement(this.pwmConfigRegisterOne),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(pwmConfigRegisterTwo, Priority.LOW,
+                new FC3ReadRegistersTask(this.pwmConfigRegisterTwo, Priority.LOW,
                         m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_TWO,
-                                new UnsignedWordElement(pwmConfigRegisterTwo),
+                                new UnsignedWordElement(this.pwmConfigRegisterTwo),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(pwmConfigRegisterThree, Priority.LOW,
+                new FC3ReadRegistersTask(this.pwmConfigRegisterThree, Priority.LOW,
                         m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_THREE,
-                                new UnsignedWordElement(pwmConfigRegisterThree),
+                                new UnsignedWordElement(this.pwmConfigRegisterThree),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(pwmConfigRegisterFour, Priority.LOW,
+                new FC3ReadRegistersTask(this.pwmConfigRegisterFour, Priority.LOW,
                         m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_FOUR,
-                                new UnsignedWordElement(pwmConfigRegisterFour),
+                                new UnsignedWordElement(this.pwmConfigRegisterFour),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(pwmConfigRegisterFive, Priority.LOW,
+                new FC3ReadRegistersTask(this.pwmConfigRegisterFive, Priority.LOW,
                         m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_FIVE,
-                                new SignedWordElement(pwmConfigRegisterFive),
+                                new SignedWordElement(this.pwmConfigRegisterFive),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(pwmConfigRegisterSix, Priority.LOW,
+                new FC3ReadRegistersTask(this.pwmConfigRegisterSix, Priority.LOW,
                         m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_SIX,
-                                new UnsignedWordElement(pwmConfigRegisterSix),
+                                new UnsignedWordElement(this.pwmConfigRegisterSix),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(pwmConfigRegisterSeven, Priority.LOW,
+                new FC3ReadRegistersTask(this.pwmConfigRegisterSeven, Priority.LOW,
                         m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_SEVEN,
-                                new UnsignedWordElement(pwmConfigRegisterSeven),
+                                new UnsignedWordElement(this.pwmConfigRegisterSeven),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(pwmConfigRegisterEight, Priority.LOW,
+                new FC3ReadRegistersTask(this.pwmConfigRegisterEight, Priority.LOW,
                         m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_EIGHT,
-                                new UnsignedWordElement(pwmConfigRegisterEight),
+                                new UnsignedWordElement(this.pwmConfigRegisterEight),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
 
 
-                new FC3ReadRegistersTask(relayInverseRegisters[0], Priority.LOW,
+                new FC3ReadRegistersTask(this.relayInverseRegisters[0], Priority.LOW,
                         m(LeafletConfigurator.ChannelId.READ_RELAY_ONE_INVERT_STATUS,
-                                new UnsignedWordElement(relayInverseRegisters[0]),
+                                new UnsignedWordElement(this.relayInverseRegisters[0]),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(relayInverseRegisters[1], Priority.LOW,
+                new FC3ReadRegistersTask(this.relayInverseRegisters[1], Priority.LOW,
                         m(LeafletConfigurator.ChannelId.READ_RELAY_TWO_INVERT_STATUS,
-                                new UnsignedWordElement(relayInverseRegisters[1]),
+                                new UnsignedWordElement(this.relayInverseRegisters[1]),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(relayInverseRegisters[2], Priority.LOW,
+                new FC3ReadRegistersTask(this.relayInverseRegisters[2], Priority.LOW,
                         m(LeafletConfigurator.ChannelId.READ_RELAY_THREE_INVERT_STATUS,
-                                new UnsignedWordElement(relayInverseRegisters[2]),
+                                new UnsignedWordElement(this.relayInverseRegisters[2]),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(relayInverseRegisters[3], Priority.LOW,
+                new FC3ReadRegistersTask(this.relayInverseRegisters[3], Priority.LOW,
                         m(LeafletConfigurator.ChannelId.READ_RELAY_FOUR_INVERT_STATUS,
-                                new UnsignedWordElement(relayInverseRegisters[3]),
+                                new UnsignedWordElement(this.relayInverseRegisters[3]),
                                 ElementToChannelConverter.DIRECT_1_TO_1))
 
         );
@@ -408,7 +409,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b001
                         if (((getTemperatureModules() & LEAFLET_MODULE_ONE) == LEAFLET_MODULE_ONE)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -416,7 +417,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b010
                         if (((getTemperatureModules() & LEAFLET_MODULE_TWO) == LEAFLET_MODULE_TWO)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -424,7 +425,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b100
                         if (((getTemperatureModules() & LEAFLET_MODULE_THREE) == LEAFLET_MODULE_THREE)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -436,7 +437,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b0001
                         if (((getRelayModules() & LEAFLET_MODULE_ONE) == LEAFLET_MODULE_ONE)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -445,7 +446,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b0010
                         if (((getRelayModules() & LEAFLET_MODULE_TWO) == LEAFLET_MODULE_TWO)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -454,7 +455,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b0100
                         if (((getRelayModules() & LEAFLET_MODULE_THREE) == LEAFLET_MODULE_THREE)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -462,7 +463,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b1000
                         if (((getRelayModules() & LEAFLET_MODULE_FOUR) == LEAFLET_MODULE_FOUR)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -475,7 +476,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b00000001
                         if (((getPwmModules() & LEAFLET_MODULE_ONE) == LEAFLET_MODULE_ONE)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -484,7 +485,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b00000010
                         if (((getPwmModules() & LEAFLET_MODULE_TWO) == LEAFLET_MODULE_TWO)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -493,7 +494,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b00000100
                         if (((getPwmModules() & LEAFLET_MODULE_THREE) == LEAFLET_MODULE_THREE)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -501,7 +502,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b00001000
                         if (((getPwmModules() & LEAFLET_MODULE_FOUR) == LEAFLET_MODULE_FOUR)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -509,7 +510,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b00010000
                         if (((getPwmModules() & LEAFLET_MODULE_FIVE) == LEAFLET_MODULE_FIVE)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -518,7 +519,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b00100000
                         if (((getPwmModules() & LEAFLET_MODULE_SIX) == LEAFLET_MODULE_SIX)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -527,7 +528,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b01000000
                         if (((getPwmModules() & LEAFLET_MODULE_SEVEN) == LEAFLET_MODULE_SEVEN)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -535,7 +536,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b10000000
                         if (((getPwmModules() & LEAFLET_MODULE_EIGHT) == LEAFLET_MODULE_EIGHT)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -549,7 +550,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b00000001
                         if (((getAioModules() & LEAFLET_MODULE_ONE) == LEAFLET_MODULE_ONE)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -558,7 +559,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b00000010
                         if (((getAioModules() & LEAFLET_MODULE_TWO) == LEAFLET_MODULE_TWO)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -567,7 +568,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b00000100
                         if (((getAioModules() & LEAFLET_MODULE_THREE) == LEAFLET_MODULE_THREE)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -575,7 +576,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b00001000
                         if (((getAioModules() & LEAFLET_MODULE_FOUR) == LEAFLET_MODULE_FOUR)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -583,7 +584,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b00010000
                         if (((getAioModules() & LEAFLET_MODULE_FIVE) == LEAFLET_MODULE_FIVE)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -592,7 +593,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b00100000
                         if (((getAioModules() & LEAFLET_MODULE_SIX) == LEAFLET_MODULE_SIX)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -601,7 +602,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                         //0b01000000
                         if (((getAioModules() & LEAFLET_MODULE_SEVEN) == LEAFLET_MODULE_SEVEN)
                                 && checkPin(moduleType, moduleNumber, position, id)) {
-                            positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
+                            this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).add(position);
                             return true;
                         }
                         break;
@@ -621,24 +622,24 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      * @return boolean
      */
     private boolean checkPin(ModuleType type, int moduleNumber, int position, String id) {
-        if (!positionMap.containsKey(type)) {
-            positionMap.put(type, new PositionMap(moduleNumber, position));
+        if (!this.positionMap.containsKey(type)) {
+            this.positionMap.put(type, new PositionMap(moduleNumber, position));
             PinOwner firstRun = new PinOwner(type, moduleNumber, position);
-            ownerMap.put(id, firstRun);
+            this.ownerMap.put(id, firstRun);
             return true;
-        } else if (!positionMap.get(type).getPositionMap().containsKey(moduleNumber)) {
+        } else if (!this.positionMap.get(type).getPositionMap().containsKey(moduleNumber)) {
             List<Integer> initList = new ArrayList<>(position);
-            positionMap.get(type).getPositionMap().put(moduleNumber, initList);
+            this.positionMap.get(type).getPositionMap().put(moduleNumber, initList);
             PinOwner firstRun = new PinOwner(type, moduleNumber, position);
-            ownerMap.put(id, firstRun);
+            this.ownerMap.put(id, firstRun);
             return true;
-        } else if (!positionMap.get(type).getPositionMap().get(moduleNumber).contains(position)) {
-            positionMap.get(type).getPositionMap().get(moduleNumber).add(position);
+        } else if (!this.positionMap.get(type).getPositionMap().get(moduleNumber).contains(position)) {
+            this.positionMap.get(type).getPositionMap().get(moduleNumber).add(position);
             PinOwner firstRun = new PinOwner(type, moduleNumber, position);
-            ownerMap.put(id, firstRun);
+            this.ownerMap.put(id, firstRun);
             return true;
         } else {
-            return ownerMap.get(id).equals(new PinOwner(type, moduleNumber, position));
+            return this.ownerMap.get(id).equals(new PinOwner(type, moduleNumber, position));
         }
     }
 
@@ -654,11 +655,11 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     public int getFunctionAddress(ModuleType moduleType, int moduleNumber, int mReg) {
         switch (moduleType) {
             case TMP:
-                return analogInputRegisters.get(new ModuleRegister(moduleType, moduleNumber, mReg));
+                return this.analogInputRegisters.get(new ModuleRegister(moduleType, moduleNumber, mReg));
             case REL:
-                return discreteOutputCoils.get(new ModuleRegister(moduleType, moduleNumber, mReg));
+                return this.discreteOutputCoils.get(new ModuleRegister(moduleType, moduleNumber, mReg));
             case PWM:
-                return analogOutputHoldingRegisters.get(new ModuleRegister(moduleType, moduleNumber, mReg));
+                return this.analogOutputHoldingRegisters.get(new ModuleRegister(moduleType, moduleNumber, mReg));
             //Error state (0xFFFF) should never happen.
             default:
                 return 65535;
@@ -681,9 +682,9 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
             return getFunctionAddress(moduleType, moduleNumber, position);
         } else {
             if (input) {
-                return analogInputRegisters.get(new ModuleRegister(moduleType, moduleNumber, position));
+                return this.analogInputRegisters.get(new ModuleRegister(moduleType, moduleNumber, position));
             } else {
-                return analogOutputHoldingRegisters.get(new ModuleRegister(moduleType, moduleNumber, position));
+                return this.analogOutputHoldingRegisters.get(new ModuleRegister(moduleType, moduleNumber, position));
             }
         }
 
@@ -698,7 +699,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      */
     @Override
     public int getConfigurationAddress(ModuleType moduleType, int moduleNumber) {
-        return analogOutputHoldingRegisters.get(new ModuleRegister(moduleType, moduleNumber, 0));
+        return this.analogOutputHoldingRegisters.get(new ModuleRegister(moduleType, moduleNumber, 0));
     }
 
     /**
@@ -710,7 +711,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      */
     @Override
     public void removeModule(ModuleType moduleType, int moduleNumber, int position) {
-        positionMap.get(moduleType).getPositionMap().get(moduleNumber).remove((Integer) position);
+        this.positionMap.get(moduleType).getPositionMap().get(moduleNumber).remove((Integer) position);
     }
 
     /**
@@ -724,20 +725,20 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
         try {
             switch (moduleNumber) {
                 case 1:
-                    relayOneInvertStatus = relayOneInvertStatus | position;
-                    getWriteInvertRelayOneStatus().setNextWriteValue(relayOneInvertStatus);
+                    this.relayOneInvertStatus = this.relayOneInvertStatus | position;
+                    getWriteInvertRelayOneStatus().setNextWriteValue(this.relayOneInvertStatus);
                     break;
                 case 2:
-                    relayTwoInvertStatus = relayTwoInvertStatus | position;
-                    getWriteInvertRelayTwoStatus().setNextWriteValue(relayTwoInvertStatus);
+                    this.relayTwoInvertStatus = this.relayTwoInvertStatus | position;
+                    getWriteInvertRelayTwoStatus().setNextWriteValue(this.relayTwoInvertStatus);
                     break;
                 case 3:
-                    relayThreeInvertStatus = relayThreeInvertStatus | position;
-                    getWriteInvertRelayThreeStatus().setNextWriteValue(relayThreeInvertStatus);
+                    this.relayThreeInvertStatus = this.relayThreeInvertStatus | position;
+                    getWriteInvertRelayThreeStatus().setNextWriteValue(this.relayThreeInvertStatus);
                     break;
                 case 4:
-                    relayFourInvertStatus = relayFourInvertStatus | position;
-                    getWriteInvertRelayFourStatus().setNextWriteValue(relayFourInvertStatus);
+                    this.relayFourInvertStatus = this.relayFourInvertStatus | position;
+                    getWriteInvertRelayFourStatus().setNextWriteValue(this.relayFourInvertStatus);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + moduleNumber);
@@ -800,7 +801,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      */
     @Override
     public int getPwmDiscreteOutputAddress(int pwmModule, int mReg) {
-        return discreteOutputCoils.get(new ModuleRegister(ModuleType.PWM, pwmModule, mReg));
+        return this.discreteOutputCoils.get(new ModuleRegister(ModuleType.PWM, pwmModule, mReg));
     }
 
     /**
@@ -817,32 +818,32 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
         try {
             switch (moduleNumber) {
                 case 1:
-                    aioConfigOne = aioConfigOne | (position + configInt);
-                    getAioConfigOne().setNextWriteValue(aioConfigOne);
+                    this.aioConfigOne = this.aioConfigOne | (position + configInt);
+                    getAioConfigOne().setNextWriteValue(this.aioConfigOne);
                     break;
                 case 2:
-                    aioConfigTwo = aioConfigTwo | (position + configInt);
-                    getAioConfigTwo().setNextWriteValue(aioConfigTwo);
+                    this.aioConfigTwo = this.aioConfigTwo | (position + configInt);
+                    getAioConfigTwo().setNextWriteValue(this.aioConfigTwo);
                     break;
                 case 3:
-                    aioConfigThree = aioConfigThree | (position + configInt);
-                    getAioConfigThree().setNextWriteValue(aioConfigThree);
+                    this.aioConfigThree = this.aioConfigThree | (position + configInt);
+                    getAioConfigThree().setNextWriteValue(this.aioConfigThree);
                     break;
                 case 4:
-                    aioConfigFour = aioConfigFour | (position + configInt);
-                    getAioConfigFour().setNextWriteValue(aioConfigFour);
+                    this.aioConfigFour = this.aioConfigFour | (position + configInt);
+                    getAioConfigFour().setNextWriteValue(this.aioConfigFour);
                     break;
                 case 5:
-                    aioConfigFive = aioConfigFive | (position + configInt);
-                    getAioConfigFive().setNextWriteValue(aioConfigFive);
+                    this.aioConfigFive = this.aioConfigFive | (position + configInt);
+                    getAioConfigFive().setNextWriteValue(this.aioConfigFive);
                     break;
                 case 6:
-                    aioConfigSix = aioConfigSix | (position + configInt);
-                    getAioConfigSix().setNextWriteValue(aioConfigSix);
+                    this.aioConfigSix = this.aioConfigSix | (position + configInt);
+                    getAioConfigSix().setNextWriteValue(this.aioConfigSix);
                     break;
                 case 7:
-                    aioConfigSeven = aioConfigSeven | (position + configInt);
-                    getAioConfigSeven().setNextWriteValue(aioConfigSeven);
+                    this.aioConfigSeven = this.aioConfigSeven | (position + configInt);
+                    getAioConfigSeven().setNextWriteValue(this.aioConfigSeven);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + moduleNumber);
@@ -868,9 +869,9 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
             return 65535;
         } else {
             if (input) {
-                return analogInputRegisters.get(new ModuleRegister(moduleType, moduleNumber, mReg));
+                return this.analogInputRegisters.get(new ModuleRegister(moduleType, moduleNumber, mReg));
             } else {
-                return analogOutputHoldingRegisters.get(new ModuleRegister(moduleType, moduleNumber, mReg));
+                return this.analogOutputHoldingRegisters.get(new ModuleRegister(moduleType, moduleNumber, mReg));
             }
         }
 
@@ -881,20 +882,20 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
         try {
             switch (moduleNumber) {
                 case 1:
-                    relayOneInvertStatus = relayOneInvertStatus ^ position;
-                    getWriteInvertRelayOneStatus().setNextWriteValue(relayOneInvertStatus);
+                    this.relayOneInvertStatus = this.relayOneInvertStatus ^ position;
+                    getWriteInvertRelayOneStatus().setNextWriteValue(this.relayOneInvertStatus);
                     break;
                 case 2:
-                    relayTwoInvertStatus = relayTwoInvertStatus ^ position;
-                    getWriteInvertRelayTwoStatus().setNextWriteValue(relayTwoInvertStatus);
+                    this.relayTwoInvertStatus = this.relayTwoInvertStatus ^ position;
+                    getWriteInvertRelayTwoStatus().setNextWriteValue(this.relayTwoInvertStatus);
                     break;
                 case 3:
-                    relayThreeInvertStatus = relayThreeInvertStatus ^ position;
-                    getWriteInvertRelayThreeStatus().setNextWriteValue(relayThreeInvertStatus);
+                    this.relayThreeInvertStatus = this.relayThreeInvertStatus ^ position;
+                    getWriteInvertRelayThreeStatus().setNextWriteValue(this.relayThreeInvertStatus);
                     break;
                 case 4:
-                    relayFourInvertStatus = relayFourInvertStatus ^ position;
-                    getWriteInvertRelayFourStatus().setNextWriteValue(relayFourInvertStatus);
+                    this.relayFourInvertStatus = this.relayFourInvertStatus ^ position;
+                    getWriteInvertRelayFourStatus().setNextWriteValue(this.relayFourInvertStatus);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + moduleNumber);
@@ -941,7 +942,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     private void enterConfigMode() {
         try {
             getWriteLeafletConfigChannel().setNextWriteValue(7331);
-            configFlag = true;
+            this.configFlag = true;
         } catch (OpenemsError.OpenemsNamedException ignored) {
             this.log.error("Error in enterConfigMode");
         }
@@ -952,14 +953,14 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      * Stores the pwmConfig Register in a local variable.
      */
     private void setPwmConfigurationAddresses() {
-        pwmConfigRegisterOne = getConfigurationAddress(ModuleType.PWM, 1);
-        pwmConfigRegisterTwo = getConfigurationAddress(ModuleType.PWM, 2);
-        pwmConfigRegisterThree = getConfigurationAddress(ModuleType.PWM, 3);
-        pwmConfigRegisterFour = getConfigurationAddress(ModuleType.PWM, 4);
-        pwmConfigRegisterFive = getConfigurationAddress(ModuleType.PWM, 5);
-        pwmConfigRegisterSix = getConfigurationAddress(ModuleType.PWM, 6);
-        pwmConfigRegisterSeven = getConfigurationAddress(ModuleType.PWM, 7);
-        pwmConfigRegisterEight = getConfigurationAddress(ModuleType.PWM, 8);
+        this.pwmConfigRegisterOne = getConfigurationAddress(ModuleType.PWM, 1);
+        this.pwmConfigRegisterTwo = getConfigurationAddress(ModuleType.PWM, 2);
+        this.pwmConfigRegisterThree = getConfigurationAddress(ModuleType.PWM, 3);
+        this.pwmConfigRegisterFour = getConfigurationAddress(ModuleType.PWM, 4);
+        this.pwmConfigRegisterFive = getConfigurationAddress(ModuleType.PWM, 5);
+        this.pwmConfigRegisterSix = getConfigurationAddress(ModuleType.PWM, 6);
+        this.pwmConfigRegisterSeven = getConfigurationAddress(ModuleType.PWM, 7);
+        this.pwmConfigRegisterEight = getConfigurationAddress(ModuleType.PWM, 8);
     }
 
     /**
@@ -970,7 +971,8 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
      */
     @Override
     public void handleEvent(Event event) {
-        if (configFlag && (getReadAioConfig() == (aioConfigOne | aioConfigTwo | aioConfigThree | aioConfigFour | aioConfigFive | aioConfigSix | aioConfigSeven))) {
+        if (this.configFlag && (getReadAioConfig() == (this.aioConfigOne | this.aioConfigTwo | this.aioConfigThree
+                | this.aioConfigFour | this.aioConfigFive | this.aioConfigSix | this.aioConfigSeven))) {
             exitConfigMode();
         }
 
@@ -982,7 +984,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     private void exitConfigMode() {
         try {
             getWriteLeafletConfigChannel().setNextWriteValue(1337);
-            configFlag = false;
+            this.configFlag = false;
         } catch (OpenemsError.OpenemsNamedException ignored) {
             this.log.error("Error in exitConfigMode");
         }
