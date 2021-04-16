@@ -115,7 +115,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		if (ws != null) {
 			WsData wsData = ws.getAttachment();
 			// Wrap Request in AuthenticatedRpc
-			AuthenticatedRpcRequest<User> authenticatedRpc = new AuthenticatedRpcRequest<User>(user, request);
+			AuthenticatedRpcRequest<User> authenticatedRpc = new AuthenticatedRpcRequest<User>(edgeId, user, request);
 			CompletableFuture<JsonrpcResponseSuccess> responseFuture = wsData.send(authenticatedRpc);
 
 			// Unwrap Response

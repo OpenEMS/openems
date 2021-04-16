@@ -1,13 +1,8 @@
 package io.openems.common.session;
 
 import java.util.Collections;
-import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Optional;
-
-import com.google.gson.JsonObject;
-
-import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a User; shared by OpenEMS Backend
@@ -87,36 +82,6 @@ public abstract class AbstractUser {
 	 */
 	public void setRole(String edgeId, Role role) {
 		this.roles.put(edgeId, role);
-	}
-
-	/**
-	 * Returns the User as a {@link JsonObject}.
-	 * 
-	 * <p>
-	 * 
-	 * <pre>
-	 * {
-	 *  "user": {
-	 *    "id": string,
-	 *    "name": string,
-	 *    "globalRole": {@link Role}
-	 *   }
-	 * }
-	 * </pre>
-	 * 
-	 * @return the {@link JsonObject}
-	 */
-	public JsonObject toJsonObject() {
-		JsonObject roles = new JsonObject();
-		for (Entry<String, Role> entry : this.roles.entrySet()) {
-			roles.add(entry.getKey(), entry.getValue().asJson());
-		}
-		return JsonUtils.buildJsonObject() //
-				.addProperty("id", this.id) //
-				.addProperty("name", this.name) //
-				.add("globalRole", this.globalRole.asJson()) //
-				.add("roles", roles) //
-				.build();
 	}
 
 }
