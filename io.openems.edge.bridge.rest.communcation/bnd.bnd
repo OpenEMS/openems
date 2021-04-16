@@ -2,12 +2,6 @@ Bundle-Name: OpenEMS Edge RestCommunication Bridge
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Bundle-Description: \
-    This Bundle provides the basis for the communication with other Devices using REST. \
-    2 Openems Edges can communicate via Rest. One as "Master" one as "Slave" \
-    The Slave needs to active the Rest controller.
-
--includeresource: {readme.md}
 
 -buildpath:  \
 	${buildpath},\

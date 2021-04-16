@@ -9,9 +9,9 @@ Bundle-Description: \
 
 -buildpath:  \
 	${buildpath},\
-	io.openems.edge.common;version=latest,\
-	io.openems.common;version=latest,\
-	io.openems.edge.bridge.lucidcontrol;version=latest
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.bridge.lucidcontrol
 
 -testpath: \
 	${testpath}

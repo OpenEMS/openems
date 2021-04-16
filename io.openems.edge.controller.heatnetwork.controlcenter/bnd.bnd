@@ -2,22 +2,18 @@ Bundle-Name: OpenEMS Edge Controller Heatnetwork ControlCenter
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Bundle-Description: \
-    Provides the Control Center module for the passing station. (Heatingcurve etc)
-
--includeresource: {readme.md}
 
 -buildpath:  \
 	${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
-    io.openems.edge.controller.api;version=latest,\
-    io.openems.edge.controller.heatnetwork.heatingcurveregulator;version=latest,\
-    io.openems.edge.heatsystem.components;version=latest,\
-	io.openems.edge.relay.api;version=latest,\
-	io.openems.edge.controller.heatnetwork.pid.heatsystem;version=latest,\
-	io.openems.edge.controller.heatnetwork.warmup;version=latest,\
+	io.openems.common,\
+	io.openems.edge.common,\
+    io.openems.edge.controller.api,\
+    io.openems.edge.controller.heatnetwork.heatingcurveregulator,\
+	io.openems.edge.controller.heatnetwork.pid.heatsystem,\
+	io.openems.edge.controller.heatnetwork.warmup,\
+    io.openems.edge.heatsystem.components,\
+	io.openems.edge.relay.api,\
 
 -testpath: \
-	${testpath},\
+	${testpath}
 

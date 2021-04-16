@@ -26,9 +26,9 @@ public class MyProcessImage implements ProcessImage {
 
 	private final Logger log = LoggerFactory.getLogger(MyProcessImage.class);
 
-	protected final AbstractModbusApi parent;
+	protected final AbstractModbusTcpApi parent;
 
-	protected MyProcessImage(AbstractModbusApi parent) {
+	protected MyProcessImage(AbstractModbusTcpApi parent) {
 		this.parent = parent;
 	}
 

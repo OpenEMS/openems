@@ -1,0 +1,10 @@
+# io.openems.edge.thermometer.virtual Provider
+
+This is a virtual Thermometer.
+You can set "Virtual" Thermometer Values in here and other components will see it as a normal Thermometer.
+
+This Bundles provides a Threshold temperature. That means, it has a Thermometer and a Setpoint as well as a default value.
+## Example
+
+## References
+

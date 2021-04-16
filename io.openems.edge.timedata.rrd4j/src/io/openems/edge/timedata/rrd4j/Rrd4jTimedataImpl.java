@@ -65,7 +65,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		implements Rrd4jTimedata, Timedata, OpenemsComponent, EventHandler {
 
 	protected static final String DEFAULT_DATASOURCE_NAME = "value";
-	protected static final int DEFAULT_STEP_SECONDS = 60;
+	protected static final int DEFAULT_STEP_SECONDS = 300;
 	protected static final int DEFAULT_HEARTBEAT_SECONDS = DEFAULT_STEP_SECONDS;
 
 	private static final String RRD4J_PATH = "rrd4j";
@@ -221,22 +221,16 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 
 		} else if (step > resolution) {
 			// Split each entry to multiple values
-			if (step % resolution != 0) {
-				throw new IllegalArgumentException(
-						"RRD4j Step [" + step + "] is not dividable by requested resolution [" + resolution + "]");
-			}
-			int split = (int) (step / resolution);
-			for (int i = 1; i < input.length; i++) {
-				for (int j = 0; j < split; j++) {
-					if ((i - 1) * split + j < result.length) {
-						result[(i - 1) * split + j] = input[i];
-					}
-				}
+			long resultTimestamp = 0;
+			for (int i = 0, inputIndex = 0; i < result.length; i++) {
+				inputIndex = Math.min(input.length - 1, (int) (resultTimestamp / step));
+				resultTimestamp += resolution;
+				result[i] = input[inputIndex];
 			}
 
 		} else {
 			// Data already matches resolution
-			for (int i = 1; i < input.length; i++) {
+			for (int i = 1; i < result.length + 1 && i < input.length; i++) {
 				result[i - 1] = input[i];
 			}
 		}
@@ -384,7 +378,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		if (rrdDb != null) {
 			// Database exists
 
-			// Update database defintion if required
+			// Update database definition if required
 			rrdDb = this.updateRrdDbToLatestDefinition(rrdDb, channelAddress, channelUnit);
 
 			return rrdDb;
@@ -409,7 +403,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		RrdDef rrdDef = new RrdDef(//
 				this.getDbFile(channelAddress).toURI(), //
 				startTime, // Start-Time
-				DEFAULT_STEP_SECONDS // Step in [s], default: 60 = 1 minute
+				DEFAULT_STEP_SECONDS // Step in [s], default: 300 = 5 minutes
 		);
 		rrdDef.addDatasource(//
 				new DsDef(DEFAULT_DATASOURCE_NAME, //
@@ -569,9 +563,9 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	 */
 	private RrdDb updateRrdDbToLatestDefinition(RrdDb oldDb, ChannelAddress channelAddress, Unit channelUnit)
 			throws IOException {
-		if (oldDb.getArcCount() > 2) {
+		if (oldDb.getArcCount() > 2 || oldDb.getRrdDef().getStep() == 60) {
 			/*
-			 * This is OpenEMS-RRD4j Definition v1; migrate to v2
+			 * This is an old OpenEMS-RRD4j Definition -> migrate to latest version
 			 */
 			// Read data of last month
 			long lastTimestamp = oldDb.getLastUpdateTime();
@@ -600,7 +594,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 			}
 
 			this.logInfo(this.log,
-					"Migrate RRD4j Database [" + channelAddress.toString() + "] to OpenEMS Definition v2");
+					"Migrate RRD4j Database [" + channelAddress.toString() + "] to latest OpenEMS Definition");
 			return newDb;
 
 		} else {

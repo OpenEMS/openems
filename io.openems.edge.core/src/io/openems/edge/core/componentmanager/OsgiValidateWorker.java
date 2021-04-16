@@ -264,6 +264,10 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 		Set<String> componentIds = new HashSet<>();
 		for (Configuration config : configs) {
 			Dictionary<String, Object> properties = config.getProperties();
+			if (properties == null) {
+				System.err.println(config.getPid() + ": Properties is 'null'");
+				continue;
+			}
 			String componentId = (String) properties.get("id");
 			if (componentId != null) {
 				if (componentIds.contains(componentId)) {

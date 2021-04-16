@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.user.EdgeUser;
+import io.openems.edge.common.user.User;
 
 public class OnClose implements io.openems.common.websocket.OnClose {
 
@@ -22,7 +22,7 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 	public void run(WebSocket ws, int code, String reason, boolean remote) throws OpenemsException {
 		// get websocket attachment
 		WsData wsData = ws.getAttachment();
-		Optional<EdgeUser> user = wsData.getUser();
+		Optional<User> user = wsData.getUser();
 
 		// print log message
 		String logMessage;

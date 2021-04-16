@@ -3,29 +3,6 @@
 The OpenEMS Edge Modbus-Slave-API is provided by the "Modbus-API Controller".
 As the Modbus protocol is widely used in industrial monitoring and automation, this allows for easy access to OpenEMS channels from external systems.
 
-There are six components in this package: "Controller Api Modbus/TCP Read-Write", "Controller Api Modbus/TCP Read-Only",
-"Controller Api Modbus/TCP Custom", "Controller Api Modbus/Serial Read-Write", "Controller Api Modbus/Serial Read-Only"
-and "Controller Api Modbus/Serial Custom".
-
-The "TCP" variants are for Modbus over TCP, the "Serial" variants are for Modbus over serial (RTU).
-The difference of the non-custom and the custom variants are as follows:
-
-Non-custom Modbus variants:
-- To make a component's data available using Modbus, you only need to enter the component-ID in the Modbus UI.
-- The component needs to implement the ModbusSlave interface for this to work. If a component does not implement that,
-  you can't use it with Modbus non-custom.
-- Fixed mapping of channels. What channels are made available and at which register address is not an UI option.
-- Access mode can be selected, but applies to all channels.
-
-Modbus Custom variants:
-- Works with any channel of any component. No code required in the component you want to connect to Modbus.
-- The UI lets you choose which channels to make available. Allows custom configurations with the same code base.
-- For each channel, you can individually set register address, access mode and data format.
-- You need to know the name of the channel you want to connect to Modbus. This information is not available in the UI.
-- Because of UI limitations, the configuration needs to be entered as a string. This is prone to errors.
-
-
-=== Non-custom Modbus variants:
 The configuration of the Modbus-API controller defines which OpenEMS Components should be exported and made available via the API.
 It then generates a dynamic Modbus protocol that is structured in address blocks that map to OpenEMS Components and Modbus register addresses that map to OpenEMS channels.
 
@@ -44,71 +21,9 @@ The following example describes a Controller that is configured to export the Su
 . Register `220` identifies the first sub-block as Nature `OpenemsComponent`. The length of the sub-block follows in Register `221` and gives the starting address of the next sub-block (`300`) and so on.
 
 Instead of parsing the Modbus protocol, it is also possible to download the EMS specific Excel file via OpenEMS UI "System Profile" menu. An example export is available in the 'doc' folder of this bundle.
-The Modbus protocol is also written to the log when the Modbus-API Controller activates.
 
 To communicate with specific channels, it is then sufficient to read or write to the matching registers, e.g.
 - Read register `302 _sum/EssSoc` to get the total average state of charge of the ESS.
 - Write to register `806 ess0/SetActivePowerEquals` to trigger charging or discharging of the ESS with ID `ess0`.
-
-
-=== Modbus Custom:
--- How to correctly enter the channel configuration in the UI --
-
-This is about the field "Channels" in the UI. In this field you enter the channel you want to connect to Modbus, what
-Modbus address you want to map it to, the data format and the access mode. This is entered into the field in the
-following format:
-
-                            RegisterAddress/ModbusType/Component-ID/Channel-ID/AccessMode
-
-That is five parameters, separated by four "/". The "AccessMode" parameter is optional and can be omitted.
-Using the "Simulator GridMeter Acting" module from the "OpenEMS - getting startet" example
-(https://openems.github.io/openems.io/openems/latest/gettingstarted.html), a valid input would be:
-
-                            0/UINT16/meter0/SIMULATED_ACTIVE_POWER/read_only
-
-If the entry is not in the required format, it will be discarded. The code has error correction, so there is some
-leeway regarding format errors. Three "/" are needed (AccessMode is optional). Less will result in a discard of the
-entry, more will not. Anything entered after a fifth "/" will simply be ignored.
-
-Detailed description of the parameters:
-
-*RegisterAddress* is the Modbus holding register you want to map the channel to. This needs to be an integer between 0 and 9998 (inclusive). If this parameter is not within bounds, not a number, left blank or already in use, the code will automatically assign the lowest possible free register address. The assigned address is announced in the log. The log will also display a summary of assigned addresses. +
-A channel is always mapped to both input and holding registers, no matter if the channel is a read or write channel.
-
-
-*ModbusType* is how to convert the channel. Available options: UINT16, FLOAT32, FLOAT64 and STRING16. Lower case input is ok too. +
-IMPORTANT: When reading a multiple register type, you need to read all the registers in one call. Reading a single register or the wrong range will result in an "Illegal Data Address exception response". This applies to the non-custom Modbus variants as well. +
-Example - STRING16 mapped to address 0. If you read registers 0 to 15, you get data. If you read register 0 alone, you get an error.
-
-- UINT16: An integer with 16 bit (=short), mapped to one register.
-- FLOAT32: A 32 bit float, mapped to two 16 bit registers in big endian format.
-           Example - mapping an integer channel that contains 4 to address 0 with FLOAT32.
-           Output is then 0x4080 on address 0 and 0x0000 on address 1.
-- FLOAT64: A 64 bit float, mapped to four 16 bit registers in big endian format.
-- STRING16: A string coded in ASCII mapped to 16 16 bit registers in big endian format. This allows a string of 32
-            characters length to be transmitted. +
-            Example - STRING16 mapped to register 0, transmitting "OpenEMS Association e.V." (without the quotation marks).
-            Output is then (from register 0 to 15): 0x4F70, 0x656E, 0x454D, 0x5320, 0x4173, 0x736F, 0x6369, 0x6174, 0x696F,
-            0x6E20, 0x652E, 0x562E, 0x0000, 0x0000, 0x0000, 0x0000.
-
-Note that the "ModbusType" parameter affects the register mapping, as types that use multiple registers block registers following the address assigned to them. +
-Data conversion: standard OpenEMS channel data conversion is active. That means a boolean channel mapped to UINT16 will output 0 for false and 1 for true. +
-Format Error: If the "ModbusType" parameter is not valid or left blank, the error handling code will automatically assign a type based on the channel data type. +
-boolean or short -> UINT16. +
-integer or float -> FLOAT32 +
-long or double -> FLOAT64 +
-string -> STRING16 +
-
-*Component-ID* is the Id of the module that contains the channel. The module must be enabled.
-
-*Channel-ID* is the Id of the channel, entered as UPPER_UNDERSCORE or UpperCamel. So SIMULATED_ACTIVE_POWER can also be written SimulatedActivePower.
-
-*AccessMode* defines the privilege of the Modbus connection. Available options: READ_ONLY, READ_WRITE and WRITE_ONLY. +
-Can be entered in upper or lower case. Optional parameter. If left blank (or misspelled), READ_WRITE is used.
-A mismatch with the channel access mode (like Modbus WRITE_ONLY for a READ_ONLY channel) will default back to the
-channel access mode.
-
-Summary of error handling: +
-The input "//meter0/SIMULATED_ACTIVE_POWER" would still work. The error handling code will fill in the blanks with address 0, Modbus type FLOAT32 and AccessMode READ_WRITE.
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api.modbus[Source Code icon:github[]]

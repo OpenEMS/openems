@@ -27,14 +27,13 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.protection.BatteryProtection;
-import io.openems.edge.battery.soltaro.BatteryProtectionDefinitionSoltaro;
-import io.openems.edge.battery.soltaro.BatteryState;
-import io.openems.edge.battery.soltaro.ModuleParameters;
-import io.openems.edge.battery.soltaro.ResetState;
-import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
 import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
 import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
+import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3000Wh;
+import io.openems.edge.battery.soltaro.common.enums.BatteryState;
+import io.openems.edge.battery.soltaro.common.enums.ResetState;
+import io.openems.edge.battery.soltaro.common.enums.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -78,6 +77,8 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 	private static final int ADDRESS_OFFSET_RACK_4 = 0x5000;
 	private static final int ADDRESS_OFFSET_RACK_5 = 0x6000;
 	private static final int OFFSET_CONTACTOR_CONTROL = 0x10;
+	private static final int MIN_VOLTAGE_MILLIVOLT = 34_800;
+	private static final int MAX_VOLTAGE_MILLIVOLT = 42_700;
 
 	// Helper that holds general information about single racks, independent if they
 	// are used or not
@@ -147,13 +148,11 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 
 		// Initialize Battery-Protection
 		this.batteryProtection = BatteryProtection.create(this) //
-				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro(), this.componentManager) //
+				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro3000Wh(), this.componentManager) //
 				.build();
 
-		this._setChargeMaxVoltage(
-				this.config.numberOfSlaves() * ModuleParameters.MAX_VOLTAGE_MILLIVOLT.getValue() / 1000);
-		this._setDischargeMinVoltage(
-				this.config.numberOfSlaves() * ModuleParameters.MIN_VOLTAGE_MILLIVOLT.getValue() / 1000);
+		this._setChargeMaxVoltage(this.config.numberOfSlaves() * MAX_VOLTAGE_MILLIVOLT / 1000);
+		this._setDischargeMinVoltage(this.config.numberOfSlaves() * MIN_VOLTAGE_MILLIVOLT / 1000);
 		this._setCapacity(
 				this.config.racks().length * this.config.numberOfSlaves() * this.config.moduleType().getCapacity_Wh());
 	}
@@ -586,8 +585,8 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 				// -------- state registers of master --------------------------------------
 				new FC3ReadRegistersTask(0x1044, Priority.LOW, //
 						m(SoltaroCluster.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
-						m(SoltaroCluster.ChannelId.SYSTEM_CURRENT, new UnsignedWordElement(0x1045), //
-								ElementToChannelConverter.SCALE_FACTOR_2), // TODO Check if scale factor is correct
+						m(Battery.ChannelId.CURRENT, new UnsignedWordElement(0x1045), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(0x1046), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1047)) //
 								.onUpdateCallback(val -> {

@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
@@ -20,8 +19,8 @@ import org.slf4j.Logger;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
-import io.openems.backend.common.metadata.BackendUser;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.metadata.User;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.backend.common.uiwebsocket.UiWebsocket;
 import io.openems.common.exceptions.OpenemsError;
@@ -109,20 +108,20 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	}
 
 	@Override
-	public void send(UUID token, JsonrpcNotification notification) throws OpenemsNamedException {
+	public void send(String token, JsonrpcNotification notification) throws OpenemsNamedException {
 		WsData wsData = this.getWsDataForTokenOrError(token);
 		wsData.send(notification);
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> send(UUID token, JsonrpcRequest request)
+	public CompletableFuture<JsonrpcResponseSuccess> send(String token, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		WsData wsData = this.getWsDataForTokenOrError(token);
 		return wsData.send(request);
 	}
 
 	@Override
-	public void send(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException {
+	public void sendBroadcast(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException {
 		List<WsData> wsDatas = this.getWsDatasForEdgeId(edgeId);
 		OpenemsNamedException exception = null;
 		for (WsData wsData : wsDatas) {
@@ -144,12 +143,12 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	 * @return the WsData
 	 * @throws OpenemsNamedException if there is no connection with this token
 	 */
-	private WsData getWsDataForTokenOrError(UUID token) throws OpenemsNamedException {
+	private WsData getWsDataForTokenOrError(String token) throws OpenemsNamedException {
 		Collection<WebSocket> connections = this.server.getConnections();
 		for (Iterator<WebSocket> iter = connections.iterator(); iter.hasNext();) {
 			WebSocket websocket = iter.next();
 			WsData wsData = websocket.getAttachment();
-			Optional<UUID> thisToken = wsData.getToken();
+			Optional<String> thisToken = wsData.getToken();
 			if (thisToken.isPresent() && thisToken.get().equals(token)) {
 				return wsData;
 			}
@@ -174,11 +173,11 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 			Optional<String> userIdOpt = wsData.getUserId();
 			if (userIdOpt.isPresent()) {
 				String userId = userIdOpt.get();
-				// get BackendUser for User-ID
-				Optional<BackendUser> userOpt = this.metadata.getUser(userId);
+				// get User for User-ID
+				Optional<User> userOpt = this.metadata.getUser(userId);
 				if (userOpt.isPresent()) {
-					BackendUser user = userOpt.get();
-					Optional<Role> edgeRoleOpt = user.getEdgeRole(edgeId);
+					User user = userOpt.get();
+					Optional<Role> edgeRoleOpt = user.getRole(edgeId);
 					if (edgeRoleOpt.isPresent()) {
 						// User has access to this Edge-ID
 						result.add(wsData);

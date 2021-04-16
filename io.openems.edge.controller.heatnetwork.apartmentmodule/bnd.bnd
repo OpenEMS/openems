@@ -2,19 +2,15 @@ Bundle-Name: OpenEMS Edge Controller Heating Apartmentmodule
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Bundle-Description: \
-           A Package to control certain Apartmentmodule groups and react to them in response.
-
--includeresource: {readme.md}
 
 -buildpath:  \
 	${buildpath},\
-	io.openems.edge.common;version=latest,\
-	io.openems.common;version=latest,\
-	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.apartmentmodule;version=latest,\
-	io.openems.edge.thermometer.api;version=latest,\
-	io.openems.edge.heatsystem.components;version=latest,\
+	io.openems.edge.common,\
+	io.openems.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.apartmentmodule,\
+	io.openems.edge.thermometer.api,\
+	io.openems.edge.heatsystem.components,\
 
 -testpath: \
 	${testpath}

@@ -14,9 +14,9 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class ConsumptionSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
-    @Input() private showPhases: boolean;
-    @Input() private isOnlyChart: boolean;
+    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input() public showPhases: boolean;
+    @Input() public isOnlyChart: boolean;
 
     ngOnChanges() {
         this.updateChart();

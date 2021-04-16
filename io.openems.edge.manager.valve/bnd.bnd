@@ -2,23 +2,13 @@ Bundle-Name: OpenEMS Edge Manager Valve
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Bundle-Description: \
-	This Bundle manages valves.
-
-Export-Package:  \
-    io.openems.edge.manager.valve.api,\
-
-Private-Package:  \
-	io.openems.edge.manager.valve,\
-
--includeresource: {readme.md}
 
 -buildpath:  \
 	${buildpath},\
-	io.openems.edge.common;version=latest,\
-	io.openems.common;version=latest,\
-	io.openems.edge.heatsystem.components;version=latest,\
-	io.openems.edge.controller.api;version=latest,\
+	io.openems.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.common,\
+	io.openems.edge.heatsystem.components,\
 
 
 -testpath: \
