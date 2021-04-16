@@ -1,19 +1,12 @@
-#
-# io.openems.edge.relay PROVIDER BUNDLE
-#
-
-Bundle-Version:					1.0.0.${tstamp}
-Bundle-Description: \
-	The provider bundle for io.openems.edge.relay. \
-	\
-	${warning;Please update this Bundle-Description in io.openems.edge.relay/api.bnd}
-
--includeresource: {readme.md}
+Bundle-Name: OpenEMS Edge Heat Meter
+Bundle-Vendor: Consolinno Energy GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath:  \
 	${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
+	io.openems.common,\
+	io.openems.edge.common,\
 
 -testpath: \
 	${testpath}

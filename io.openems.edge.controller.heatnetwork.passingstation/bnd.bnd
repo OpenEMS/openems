@@ -1,21 +1,17 @@
-Bundle-Name: OpenEMS Edge Controller Temperature Passing
+Bundle-Name: OpenEMS Edge Controller Heatnetwork Passingstation
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Bundle-Description: \
-    Provides the Passing Controller for heatcontrol. Using 4 TemperatureSensors, valve and a pump as well
-
--includeresource: {readme.md}
 
 -buildpath:  \
 	${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.thermometer.api;version=latest,\
-    io.openems.edge.heatsystem.components;version=latest,\
-    io.openems.edge.pwm.api;version=latest,\
-    io.openems.edge.relay.api;version=latest,\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.thermometer.api,\
+    io.openems.edge.heatsystem.components,\
+    io.openems.edge.pwm.api,\
+    io.openems.edge.relay.api,\
 
 
 

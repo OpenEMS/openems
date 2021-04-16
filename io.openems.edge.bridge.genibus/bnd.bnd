@@ -2,10 +2,8 @@ Bundle-Name: OpenEMS Edge Bridge Genibus
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Bundle-Description: \
-	This Bundle Provides all protocols and api classes, needed to communicate via genibus.
 
--includeresource: {readme.md},\
+Include-Resource: \
 	@crc-1.0.2.jar,\
 	@jrxtx-1.0.1.jar,\
 
@@ -16,8 +14,8 @@ Import-Package: \
     *
 -buildpath:  \
 	${buildpath},\
-	io.openems.edge.common;version=latest,\
-	io.openems.common;version=latest,\
+	io.openems.edge.common,\
+	io.openems.common,\
 	com.github.snksoft:crc;version=1.0.2,\
     org.apache.felix.scr,\
     org.osgi.compendium,\
