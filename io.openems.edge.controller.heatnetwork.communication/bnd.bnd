@@ -11,7 +11,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.controller.heatnetwork.hydraulic.lineheater,\
 	io.openems.edge.controller.heatnetwork.pid.heatsystem,\
 	io.openems.edge.heatsystem.components,\
-	io.openems.edge.rest.remote.device.general,\
+	io.openems.edge.remote.rest.device,\
 	io.openems.edge.thermometer.api,\
 	joda-time;version=2.8.10,\
 

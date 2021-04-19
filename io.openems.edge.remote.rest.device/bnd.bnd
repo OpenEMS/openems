@@ -1,15 +1,13 @@
-Bundle-Name: OpenEMS Edge Rest Device General
+Bundle-Name: OpenEMS Edge Remote Rest Device
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
--includeresource: {readme.md}
-
 -buildpath:  \
 	${buildpath},\
-	io.openems.edge.common,\
 	io.openems.common,\
-	io.openems.edge.bridge.rest.communcation,\
+	io.openems.edge.bridge.communcation.remote.rest,\
+	io.openems.edge.common,\
 
 -testpath: \
 	${testpath}

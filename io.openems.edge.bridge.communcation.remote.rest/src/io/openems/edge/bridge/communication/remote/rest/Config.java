@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.communication.remote.rest;
 
+import org.osgi.service.component.annotations.ComponentPropertyType;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 

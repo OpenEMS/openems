@@ -10,7 +10,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.controller.api,\
     io.openems.edge.controller.heatnetwork.controlcenter,\
     io.openems.edge.relay.api,\
-	io.openems.edge.rest.remote.device.general,\
+	io.openems.edge.remote.rest.device,\
 
 -testpath: \
 	${testpath}

@@ -15,11 +15,19 @@ public interface RestBridge {
 
     void addRestRequest(String id, RestRequest request) throws ConfigurationException;
 
+    /**
+     * removes a Remote device from the Bridge.
+     * Usually called by RestRemote Component on deactivation or when the Bridge itself deactivates.
+     *
+     * @param deviceId the deviceId to Remove.
+     */
     void removeRestRemoteDevice(String deviceId);
 
-    RestRequest getRemoteRequest(String id);
-
-    Map<String, RestRequest> getAllRequests();
+    /**
+     * Is the Connection OK (Test Get request) Not ideal but it works.
+     *
+     * @return a boolean if connection is Ok.
+     */
 
     boolean connectionOk();
 }

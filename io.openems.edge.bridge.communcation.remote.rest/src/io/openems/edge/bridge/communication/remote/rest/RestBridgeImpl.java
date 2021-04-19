@@ -14,6 +14,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -30,6 +31,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * The RestBridge. This Bridge Communicates with another OpenEMS / it's components via the Rest Protocol.
+ * Bc it is made to communicate with another OpenEMS the Authentication Method is 'Basic'.
+ * Rest Remote Devices need to be configured and mapped to the remote OpenEMS.
+ */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Bridge.Rest",
         immediate = true,
@@ -52,8 +58,14 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
         super(OpenemsComponent.ChannelId.values());
     }
 
+    /**
+     * Activates the Component.
+     *
+     * @param context the Component context.
+     * @param config  the Config.
+     */
     @Activate
-    public void activate(ComponentContext context, Config config) {
+    void activate(ComponentContext context, Config config) {
         super.activate(context, config.id(), config.alias(), config.enabled());
         if (config.enabled()) {
             this.loginData = "Basic " + Base64.getEncoder().encodeToString((config.username() + ":" + config.password()).getBytes());
@@ -62,59 +74,91 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
         }
     }
 
-
-    @Deactivate
-    public void deactivate() {
-        super.deactivate();
+    @Modified
+    void modified(ComponentContext context, Config config) {
+        super.modified(context, config.id(), config.alias(), config.enabled());
+        this.loginData = "Basic " + Base64.getEncoder().encodeToString((config.username() + ":" + config.password()).getBytes());
+        this.ipAddressAndPort = config.ipAddress() + ":" + config.port();
+        this.keepAlive = config.keepAlive();
     }
-
 
     /**
-     * Adds the RestRequest to the tasks map.
-     *
-     * @param id      identifier == remote device Id usually from Remote Device config
-     * @param request the RestRequest created by the Remote Device.
-     * @throws ConfigurationException if the id is already in the Map.
+     * Check the Connection. If it's ok, read / get Data in Before Process Image,
+     * otherwise write into Channel in Execute Write.
+     * @param event the Event, either BeforeProcessImage or Execute Write
      */
     @Override
-    public void addRestRequest(String id, RestRequest request) throws ConfigurationException {
+    public void handleEvent(Event event) {
+        switch (event.getTopic()) {
+            case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+                if (this.initialDateTimeSet == false) {
+                    this.initialDateTime = new DateTime();
+                    this.initialDateTimeSet = true;
+                } else {
+                    DateTime now = new DateTime();
+                    if (now.isAfter(this.initialDateTime.plusSeconds(this.keepAlive))) {
+                        //only one connection read is necessary bc it was previously checked before.
+                        //so check if connection ok
+                        this.readTasks.keySet().stream().findAny().ifPresent(key -> this.connectionOk.set(this.checkConnection(this.readTasks.get(key))));
+                    }
+                }
+                if (this.connectionOk.get()) {
+                    this.taskRoutine(RestRoutineType.READ);
+                }
+                break;
 
-        if (this.tasks.containsKey(id)) {
-            throw new ConfigurationException(id, "Already in RemoteTasks Check your UniqueId please.");
+            case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+                if (this.connectionOk.get()) {
+                    this.taskRoutine(RestRoutineType.WRITE);
+                }
+                break;
+
         }
-        if (request instanceof RestWriteRequest) {
-            this.writeTasks.put(id, request);
-        } else if (request instanceof RestReadRequest) {
-            this.readTasks.put(id, request);
+    }
+
+    private boolean checkConnection(RestRequest value) {
+        try {
+            URL url = new URL("http://" + this.ipAddressAndPort + "/rest/channel/" + value.getRequest());
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("Authorization", this.loginData);
+
+            connection.setRequestMethod("GET");
+            int responseCode = connection.getResponseCode();
+            return responseCode == HttpURLConnection.HTTP_OK;
+        } catch (IOException e) {
+            return false;
         }
-        this.tasks.put(id, request);
+    }
 
-        boolean connectOk = this.checkConnection(request);
-        if (connectOk == false) {
-            throw new ConfigurationException("Internet Or Path Wrong for RemoteDevice", id);
+    /**
+     * This method reads/writes from the RestRequests depending on the Event.
+     * @param readOrWrite RestRoutineType, usually defined by RestBridge and the handleEvent.
+     */
+    private void taskRoutine(RestRoutineType readOrWrite) {
+
+        switch (readOrWrite) {
+            case READ:
+                this.readTasks.forEach((key, entry) -> {
+                    try {
+                        this.handleReadRequest((RestReadRequest) entry);
+                    } catch (IOException e) {
+                        this.connectionOk.set(false);
+                    }
+                });
+                break;
+            case WRITE:
+                this.writeTasks.forEach((key, entry) -> {
+                    try {
+                        this.handlePostRequest((RestWriteRequest) entry);
+                    } catch (IOException e) {
+                        this.connectionOk.set(false);
+                    }
+                    ((RestWriteRequest) entry).nextValueSet();
+                });
+                break;
         }
-    }
 
-    @Override
-    public void removeRestRemoteDevice(String deviceId) {
-        this.tasks.remove(deviceId);
-        this.writeTasks.remove(deviceId);
-        this.readTasks.remove(deviceId);
-    }
-
-    @Override
-    public RestRequest getRemoteRequest(String id) {
-        return this.tasks.get(id);
-    }
-
-    @Override
-    public Map<String, RestRequest> getAllRequests() {
-        return this.tasks;
-    }
-
-    @Override
-    public boolean connectionOk() {
-        return this.connectionOk.get();
     }
 
     /**
@@ -137,9 +181,6 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
         connection.setRequestProperty("Authorization", this.loginData);
 
         if (entry.readyToWrite()) {
-            if (!entry.unitWasSet()) {
-                handleUnitGet(entry, connection);
-            }
             String msg = entry.getPostMessage();
             if (msg.equals("NoValueDefined") || msg.equals("NotReadyToWrite")) {
                 return;
@@ -159,39 +200,6 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
             } else {
                 entry.wasSuccess(false, "POST NOT WORKED");
             }
-        }
-    }
-
-    /**
-     * Handles UnitGet for entry.
-     *
-     * @param entry      the RestRequest from tasks. Usually called within forever Method --> handlePostRequest.
-     * @param connection the Connection usually parsed by the handlePostRequest.
-     * @throws IOException due to URL and response etc.
-     *                     <p>
-     *                     This gets the Unit for a POST Request by Setting Request to GET and split the answer to UNIT --> Auto unit setting.
-     *                     </p>
-     */
-
-    private void handleUnitGet(RestWriteRequest entry, HttpURLConnection connection) throws IOException {
-        connection.setRequestMethod("GET");
-        int responseCode = connection.getResponseCode();
-
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            String readLine;
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream()));
-
-            StringBuilder response = new StringBuilder();
-            while ((readLine = in.readLine()) != null) {
-                response.append(readLine);
-            }
-            in.close();
-            //---------------------//
-            entry.setUnit(true, response.toString());
-            //---------------------//
-        } else {
-            entry.setUnit(false, "ERROR WITH CONNECTION");
         }
     }
 
@@ -231,85 +239,64 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
         }
     }
 
-    private void checkConnections() {
-        AtomicBoolean connectionOkThisRun = new AtomicBoolean(true);
-        this.tasks.forEach((key, value) -> {
-            if (connectionOkThisRun.get()) {
-                connectionOkThisRun.set(this.checkConnection(value));
-            }
-        });
-        this.connectionOk.set(connectionOkThisRun.get());
-    }
-
-    private boolean checkConnection(RestRequest value) {
-        try {
-            URL url = new URL("http://" + this.ipAddressAndPort + "/rest/channel/" + value.getRequest());
-
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestProperty("Authorization", this.loginData);
-
-            connection.setRequestMethod("GET");
-            int responseCode = connection.getResponseCode();
-            return responseCode == HttpURLConnection.HTTP_OK;
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
+    /**
+     * Is the Connection OK (Test Get request) Not ideal but it works.
+     *
+     * @return a boolean if connection is Ok.
+     */
 
     @Override
-    public void handleEvent(Event event) {
-        switch (event.getTopic()) {
-            case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-                if (this.initialDateTimeSet == false) {
-                    this.initialDateTime = new DateTime();
-                    this.initialDateTimeSet = true;
-                } else {
-                    DateTime now = new DateTime();
-                    if (now.isAfter(initialDateTime.plusSeconds(this.keepAlive))) {
-                        //only one connection read is necessary bc it was previously checked before.
-                        //so check if connection ok
-                        this.readTasks.keySet().stream().findAny().ifPresent(key -> this.connectionOk.set(this.checkConnection(this.readTasks.get(key))));
-                    }
-                }
-                if (connectionOk.get()) {
-                    taskRoutine(RestRoutineType.READ);
-                }
-                break;
+    public boolean connectionOk() {
+        return this.connectionOk.get();
+    }
 
-            case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-                if (this.connectionOk.get()) {
-                    taskRoutine(RestRoutineType.WRITE);
-                }
-                break;
+    /**
+     * Adds the RestRequest to the tasks map.
+     *
+     * @param id      identifier == remote device Id usually from Remote Device config
+     * @param request the RestRequest created by the Remote Device.
+     * @throws ConfigurationException if the id is already in the Map.
+     */
+    @Override
+    public void addRestRequest(String id, RestRequest request) throws ConfigurationException {
 
+        if (this.tasks.containsKey(id)) {
+            throw new ConfigurationException(id, "Already in RemoteTasks Check your UniqueId please.");
+        }
+        if (request instanceof RestWriteRequest) {
+            this.writeTasks.put(id, request);
+        } else if (request instanceof RestReadRequest) {
+            this.readTasks.put(id, request);
+        }
+        this.tasks.put(id, request);
+
+        boolean connectOk = this.checkConnection(request);
+        if (connectOk == false) {
+            throw new ConfigurationException("Internet Or Path Wrong for RemoteDevice", id);
         }
     }
 
-    private void taskRoutine(RestRoutineType readOrWrite) {
+    /**
+     * removes a Remote device from the Bridge.
+     * Usually called by RestRemote Component on deactivation or when the Bridge itself deactivates.
+     *
+     * @param deviceId the deviceId to Remove.
+     */
+    @Override
+    public void removeRestRemoteDevice(String deviceId) {
+        this.tasks.remove(deviceId);
+        this.writeTasks.remove(deviceId);
+        this.readTasks.remove(deviceId);
+    }
 
-        switch (readOrWrite) {
-            case READ:
-                this.readTasks.forEach((key, entry) -> {
-                    try {
-                        handleReadRequest((RestReadRequest) entry);
-                    } catch (IOException e) {
-                        this.connectionOk.set(false);
-                    }
-                });
-                break;
-            case WRITE:
-                this.writeTasks.forEach((key, entry) -> {
-                    try {
-                        handlePostRequest((RestWriteRequest) entry);
-                    } catch (IOException e) {
-                        this.connectionOk.set(false);
-                    }
-                    ((RestWriteRequest) entry).nextValueSet();
-                });
-                break;
-        }
 
+
+    /**
+     * Deactivates the Component.
+     */
+    @Deactivate
+    public void deactivate() {
+        super.deactivate();
     }
 
 }

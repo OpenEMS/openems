@@ -1,7 +1,8 @@
-package io.openems.edge.rest.remote.device.general.task;
+package io.openems.edge.remote.rest.device.task;
 
 import io.openems.edge.bridge.communication.remote.rest.api.RestReadRequest;
 import io.openems.edge.common.channel.Channel;
+import org.slf4j.Logger;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,12 +10,12 @@ import java.util.regex.Pattern;
 public class RestRemoteReadTask extends AbstractRestRemoteDeviceTask implements RestReadRequest {
 
 
-    private Channel<String> value;
+    private final Channel<String> value;
 
     public RestRemoteReadTask(String remoteDeviceId, String realDeviceId, String deviceChannel,
-                               Channel<String> value, String deviceType, Channel<String> unit) {
+                              Channel<String> value, Logger log) {
 
-        super(remoteDeviceId, realDeviceId, deviceChannel, deviceType, unit);
+        super(remoteDeviceId, realDeviceId, deviceChannel, log);
         this.value = value;
     }
 
@@ -28,10 +29,7 @@ public class RestRemoteReadTask extends AbstractRestRemoteDeviceTask implements 
     public void setResponse(boolean succ, String answer) {
 
         if (succ) {
-            setResponseValue(answer);
-            if (!super.unitWasSet()) {
-                super.setUnit(true, answer);
-            }
+            this.setResponseValue(answer);
         }
     }
 

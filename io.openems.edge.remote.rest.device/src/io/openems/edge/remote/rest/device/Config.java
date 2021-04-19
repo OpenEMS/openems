@@ -1,4 +1,4 @@
-package io.openems.edge.rest.remote.device.general;
+package io.openems.edge.remote.rest.device;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -22,12 +22,8 @@ import org.osgi.service.metatype.annotations.Option;
     @AttributeDefinition(name = "RestBridge Id", description = "Id of the Rest Bridge you want to communicate with.")
     String restBridgeId() default "RestBridge0";
 
-    @AttributeDefinition(name = "Real Device Id", description = "Id of the device on Master/Slave you want to communicate with.")
+    @AttributeDefinition(name = "Real Device Id", description = "Id of the remote device you want to communicate with.")
     String realDeviceId() default "TemperatureSensor0";
-
-    @AttributeDefinition(name = "Type Selection", description = "What Device Type do you want to Read/Write to"
-            + "e.g. TemperatureSensor, Relays etc")
-    String deviceType() default "TemperatureSensor";
 
     @AttributeDefinition(name = "Channel", description = "Channel of the Device you want to read; Remember Only"
             + "Uppercase is: First Letter and the one after a _ e.g. Channel ON_OFF will be OnOff")
