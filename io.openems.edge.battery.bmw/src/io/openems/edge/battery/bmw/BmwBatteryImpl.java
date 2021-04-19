@@ -20,11 +20,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.bmw.enums.BmsState;
 import io.openems.edge.battery.bmw.enums.State;
+import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -52,8 +53,10 @@ import io.openems.edge.common.taskmanager.Priority;
 		name = "Bmw.Battery", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
 public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		implements BmwBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
@@ -76,6 +79,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	private State state = State.UNDEFINED;
 
 	private Config config;
+	private BatteryProtection batteryProtection = null;
 
 	private LocalDateTime errorDelayIsOver = null;
 	private int unsuccessfulStarts = 0;
@@ -87,6 +91,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
+				BatteryProtection.ChannelId.values(), //
 				BMWChannelId.values() //
 		);
 	}
@@ -94,6 +99,9 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
+		this.batteryProtection = BatteryProtection.create(this) //
+				.applyBatteryProtectionDefinition(new BmwBatteryProtectionDefinition(), this.manager) //
+				.build();
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -230,6 +238,9 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.batteryProtection.apply();
+			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.handleBatteryState();
 			break;
@@ -377,8 +388,8 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(1009),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new SignedWordElement(1010)), //
-						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new SignedWordElement(1011),
+						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new SignedWordElement(1010)), //
+						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new SignedWordElement(1011),
 								ElementToChannelConverter.INVERT), //
 						m(BMWChannelId.MAXIMUM_LIMIT_DYNAMIC_VOLTAGE, new UnsignedWordElement(1012),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
