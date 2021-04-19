@@ -1,6 +1,7 @@
 import { DefaultTypes } from "../service/defaulttypes";
 import { Utils } from "../service/utils";
 
+// TODO this class will eventually be dropped, when abstract-widgets are finished and used everywhere.
 export class CurrentData {
 
   public readonly summary: DefaultTypes.Summary;

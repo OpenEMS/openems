@@ -5,11 +5,13 @@ import java.util.List;
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
-import io.openems.common.jsonrpc.shared.EdgeMetadata;
+import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse.EdgeMetadata;
+import io.openems.common.session.AbstractUser;
 import io.openems.common.utils.JsonUtils;
 
 /**
- * Represents a JSON-RPC Notification for UI authentication with session_id.
+ * Represents a JSON-RPC Notification for UI authentication with a `session_id`
+ * or `token`.
  * 
  * <pre>
  * {
@@ -17,6 +19,7 @@ import io.openems.common.utils.JsonUtils;
  *   "method": "authenticatedWithSessionId",
  *   "params": {
  *     "token": String,
+ *     "user": {@link AbstractUser#toJsonObject()}
  *     "edges": {@link EdgeMetadata#toJson(java.util.Collection)}
  *   }
  * }
@@ -27,28 +30,31 @@ public class AuthenticateWithSessionIdNotification extends JsonrpcNotification {
 	public final static String METHOD = "authenticatedWithSessionId";
 
 	private final String token;
-	private final List<EdgeMetadata> metadatas;
+	private final AbstractUser user;
+	private final List<EdgeMetadata> edges;
 
-	public AuthenticateWithSessionIdNotification(String token, List<EdgeMetadata> metadatas) {
+	public AuthenticateWithSessionIdNotification(String token, AbstractUser user, List<EdgeMetadata> edges) {
 		super(METHOD);
 		this.token = token;
-		this.metadatas = metadatas;
+		this.user = user;
+		this.edges = edges;
 	}
 
+	/**
+	 * This method formats the {@link AuthenticateWithSessionIdNotification} so that
+	 * it contains the required information for OpenEMS UI.
+	 */
 	@Override
 	public JsonObject getParams() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("token", this.token) //
-				.add("edges", EdgeMetadata.toJson(this.metadatas)) //
+				.add("user", JsonUtils.buildJsonObject() //
+						.addProperty("id", this.user.getId()) //
+						.addProperty("name", this.user.getName()) //
+						.add("globalRole", this.user.getGlobalRole().asJson()) //
+						.build()) //
+				.add("edges", EdgeMetadata.toJson(this.edges)) //
 				.build();
-	}
-
-	public String getToken() {
-		return this.token;
-	}
-
-	public List<EdgeMetadata> getMetadatas() {
-		return this.metadatas;
 	}
 
 }
