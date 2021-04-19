@@ -1,5 +1,6 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
@@ -59,7 +60,8 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	// ZonedDateTime with the current time.
 	private ZonedDateTime now;
 
-	private boolean initialPrediction = true;
+	// Keeps the current day to detect changes in day.
+	private LocalDate currentDay = LocalDate.MIN;
 
 	private Integer lastSellToGridLimit = null;
 
@@ -105,7 +107,6 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 	private void updateConfig(Config config) {
 		this.config = config;
-		this.initialPrediction = true;
 		this.debugMode = config.debugMode();
 
 		// update filter for 'ess'
@@ -242,9 +243,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	 */
 	private void applyPredictiveDelayCharge() throws OpenemsNamedException {
 
-		Integer targetMinute = getPredictedTargetMinute();
-		Integer calculatedPower = getCalculatedPowerLimit(targetMinute);
-		this.setCalculatedPowerLimit(calculatedPower);
+		this.applyDelayCharge(this.getCalculatedTargetMinute());
 	}
 
 	/**
@@ -256,39 +255,59 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException on error
 	 */
 	private void applyManualDelayCharge() throws OpenemsNamedException {
-
 		LocalTime configureTargetTime = LocalTime.parse(this.config.manual_targetTime());
-
-		if (configureTargetTime == null) {
-			this._setDelayChargeState(DelayChargeState.UNDEFINED);
-			return;
-		}
-
 		int targetMinute = configureTargetTime.get(ChronoField.MINUTE_OF_DAY);
-		this._setTargetMinuteActual(targetMinute);
-		this._setTargetMinuteAdjusted(targetMinute);
-
-		if (this.passedTargetMinute(targetMinute)) {
-			return;
-		}
-
-		Integer calculatedPower = getCalculatedPowerLimit(targetMinute);
-		this.setCalculatedPowerLimit(calculatedPower);
+		this.applyDelayCharge(targetMinute);
 	}
 
 	/**
-	 * Sets the calculated power limit as constraint, depending on the ESS type.
+	 * /** Set active power limits depending on the given target minute.
 	 * 
-	 * @param calculatedPower maximum power that needs should be charged by the ESS
-	 * @throws OpenemsException on error
+	 * <p>
+	 * Limits the charge value of the ESS, to reach 100 percent at this calculated target
+	 * minute.
+	 * 
+	 * @param targetMinute Minute when the production get's lower than the
+	 *                     consumption
+	 * @throws OpenemsNamedException on error
 	 */
-	private void setCalculatedPowerLimit(Integer calculatedPower) throws OpenemsException {
+	private void applyDelayCharge(Integer targetMinute) throws OpenemsNamedException {
 
+		// Set target minute independent of the current mode
+		this._setTargetMinute(targetMinute);
+
+		// Return if there is no target minute
+		if (targetMinute == null) {
+			this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
+			return;
+		}
+
+		// Return if we passed the target minute
+		if (this.passedTargetMinute(targetMinute)) {
+			this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_TIME, null);
+			return;
+		}
+
+		// Calculate the power limit depending on the remaining time and capacity
+		Integer calculatedPower = getCalculatedPowerLimit(targetMinute);
 		if (calculatedPower == null) {
 			return;
 		}
 
-		int currentLimit = calculatedPower;
+		// Apply the power limit
+		this.applyCalculatedPowerLimit(calculatedPower);
+	}
+
+	/**
+	 * Apply the calculated power limit as constraint, depending on the ESS type.
+	 * 
+	 * @param calculatedPower maximum power that needs should be charged by the ESS
+	 * @throws OpenemsException on error
+	 */
+	private void applyCalculatedPowerLimit(int calculatedPower) throws OpenemsException {
+
+		Integer currentLimit = calculatedPower;
+		DelayChargeState state = DelayChargeState.NO_CHARGE_LIMIT;
 
 		// Set the constraint depending on the ESS type
 		if (this.ess instanceof HybridEss) {
@@ -297,18 +316,25 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			currentLimit = productionPower - calculatedPower;
 
 			// Avoiding buying power from grid to charge the battery.
-			if (currentLimit > 0) {
-				this.setActivePowerConstraint("GridOptimizedSelfConsumption - DcPredictiveDelayCharge", currentLimit);
+			if (currentLimit <= 0) {
+				this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
+				return;
 			}
+			state = this.setActivePowerConstraint("GridOptimizedSelfConsumption - DcPredictiveDelayCharge",
+					currentLimit);
+
 		} else {
 			// Never force discharge
 			if (currentLimit < 0) {
+				this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
 				return;
-			} else {
-				this.setActivePowerConstraint("GridOptimizedSelfConsumption - AcPredictiveDelayCharge",
-						(currentLimit * -1));
 			}
+			state = this.setActivePowerConstraint("GridOptimizedSelfConsumption - AcPredictiveDelayCharge",
+					(currentLimit * -1));
 		}
+
+		// TODO make sure setDelayChargeStateAndLimit is called in any case!
+		this.setDelayChargeStateAndLimit(state, calculatedPower);
 	}
 
 	/**
@@ -319,17 +345,21 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	 * 
 	 * @param description  description for the constraint
 	 * @param currentLimit limit that needs to be set
+	 * @return is the constraint successfully set
 	 */
-	private void setActivePowerConstraint(String description, int currentLimit) {
+	/**
+	 * 
+	 * @param description
+	 * @param currentLimit
+	 */
+	private DelayChargeState setActivePowerConstraint(String description, int currentLimit) {
 		try {
 			ess.addPowerConstraintAndValidate(description, Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS,
 					currentLimit);
+			return DelayChargeState.ACTIVE_LIMIT;
 		} catch (OpenemsException e) {
-			this.setDelayChargeStateAndLimit(DelayChargeState.NO_FEASABLE_SOLUTION, null);
+			return DelayChargeState.NO_FEASABLE_SOLUTION;
 		}
-
-		// TODO make sure setDelayChargeStateAndLimit is called in any case!
-		this.setDelayChargeStateAndLimit(DelayChargeState.ACTIVE_LIMIT, (currentLimit * -1));
 	}
 
 	/**
@@ -341,7 +371,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	 * 
 	 * @return predicted target minute (Minute of the day)
 	 */
-	public Integer getPredictedTargetMinute() {
+	public Integer getCalculatedTargetMinute() {
 
 		Integer targetMinute = null;
 
@@ -354,6 +384,8 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		this.now = ZonedDateTime.now(this.componentManager.getClock());
 		ZonedDateTime predictionStartQuarterHour = (roundZonedDateTimeDownTo15Minutes(this.now));
 
+		this.resetTargetMinutesAtMidnight();
+
 		// Predictions as Integer array
 		Integer[] hourlyProduction = hourlyPredictionProduction.getValues();
 		Integer[] hourlyConsumption = hourlyPredictionConsumption.getValues();
@@ -365,10 +397,10 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			this.debugMode = false;
 		}
 
-		// Calculating target minute
+		// Calculate target minute
 		targetMinute = this.calculateTargetMinute(hourlyProduction, hourlyConsumption, predictionStartQuarterHour);
 
-		// target hour = null --> not enough production
+		// Production was never higher than consumption
 		if (targetMinute == null) {
 			this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
 			return null;
@@ -385,7 +417,6 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	private boolean passedTargetMinute(int targetMinute) {
 
 		if (this.now.get(ChronoField.MINUTE_OF_DAY) >= targetMinute) {
-			this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
 			return true;
 		}
 		return false;
@@ -418,19 +449,19 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			return null;
 		}
 
-		// remaining time in seconds till the target point.
+		// Remaining time in seconds till the target point.
 		int remainingTime = calculateRemainingTime(targetMinute);
 
 		// No remaining time -> no restrictions
 		if (remainingTime < 0) {
-			this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
+			this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_TIME, null);
 			return null;
 		}
 
-		// calculate charge power limit
+		// Calculate charge power limit
 		calculatedPower = remainingCapacity / remainingTime;
 
-		// reduce limit to MaxApparentPower to avoid very high values in the last
+		// Reduce limit to MaxApparentPower to avoid very high values in the last
 		// seconds
 		calculatedPower = Math.min(calculatedPower, ess.getMaxApparentPower().getOrError());
 
@@ -453,6 +484,10 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	 * Calculates the target minute from quarter-hourly production and consumption
 	 * predictions.
 	 * 
+	 * <p>
+	 * Returning the last valid target minute if it is present and the new
+	 * calculated target minute would be null.
+	 * 
 	 * @param hourlyProduction           the production prediction
 	 * @param hourlyConsumption          the consumption prediction
 	 * @param predictionStartQuarterHour the prediction start quarterHour
@@ -461,13 +496,14 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	private Integer calculateTargetMinute(Integer[] quaterHourlyProduction, Integer[] quaterHourlyConsumption,
 			ZonedDateTime predictionStartQuarterHour) {
 
-		// lastQuaterHour --> last hour when production was greater than consumption.
+		int predictionStartQuarterHourIndex = predictionStartQuarterHour.get(ChronoField.MINUTE_OF_DAY) / 15;
+
+		// Last hour when production was greater than consumption.
 		int lastQuaterHour = -1;
 		Integer targetMinuteActual = null;
 		Integer targetMinuteAdjusted = null;
-		int predictionStartQuarterHourIndex = predictionStartQuarterHour.get(ChronoField.MINUTE_OF_DAY) / 15;
 
-		// iterate predictions till midnight
+		// Iterate predictions till midnight
 		for (int i = 0; i < (96 - predictionStartQuarterHourIndex); i++) {
 			// to avoid null and negative consumption values.
 			if ((quaterHourlyProduction[i] != null && quaterHourlyConsumption[i] != null
@@ -480,23 +516,37 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 				}
 			}
 		}
+
+		// Production was never higher than consumption
 		if (lastQuaterHour != -1) {
 
-			// targetSecondActual = lastQuaterHour;
 			targetMinuteActual = predictionStartQuarterHour.plusMinutes(lastQuaterHour * 15)
 					.get(ChronoField.MINUTE_OF_DAY);
 
 			// target hour adjusted based on buffer hour.
 			targetMinuteAdjusted = targetMinuteActual - this.config.noOfBufferMinutes();
 		}
-		
-		if (predictionStartQuarterHourIndex == 0 || this.initialPrediction) {
-			// setting the channel id values
-			this._setTargetMinuteActual(targetMinuteActual);
-			this._setTargetMinuteAdjusted(targetMinuteAdjusted);
+
+		/*
+		 * Initial target minute already passed or there's no higher production than
+		 * consumption in this prediction
+		 */
+		if (targetMinuteAdjusted == null) {
+			// TODO: Specify if the initial target minute already passed or no higher
+			// production during the day and set a more expressive Channel/State
+			// e.g. if(predictionStartQuarterHourIndex == 0 || this.initialPrediction)
+
+			// Return the initial or last defined predicted target minute
+			if (this.getPredictedTargetMinuteAdjusted().isDefined()) {
+				return this.getPredictedTargetMinuteAdjusted().get();
+			}
+			return null;
 		}
 
-		this.initialPrediction = false;
+		// Set the predicted target minutes
+		this._setPredictedTargetMinute(targetMinuteActual);
+		this._setPredictedTargetMinuteAdjusted(targetMinuteAdjusted);
+
 		return targetMinuteAdjusted;
 	}
 
@@ -509,6 +559,18 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	private void setDelayChargeStateAndLimit(DelayChargeState state, Integer limit) {
 		this._setDelayChargeState(state);
 		this._setDelayChargeLimit(limit);
+	}
+
+	/**
+	 * Resets the predicted target minutes at midnight.
+	 */
+	private void resetTargetMinutesAtMidnight() {
+		LocalDate today = LocalDate.now(this.componentManager.getClock());
+		if (!this.currentDay.equals(today)) {
+			this._setPredictedTargetMinute(null);
+			this._setPredictedTargetMinuteAdjusted(null);
+			this.currentDay = today;
+		}
 	}
 
 	/**

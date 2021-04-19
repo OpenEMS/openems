@@ -22,10 +22,12 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 		SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text("Sell to grid limit charge power limitation")),
-		TARGET_MINUTE_ACTUAL(Doc.of(OpenemsType.INTEGER) //
+		PREDICTED_TARGET_MINUTE(Doc.of(OpenemsType.INTEGER) //
 				.text("Actual target minute calculated from prediction without buffer hours")),
-		TARGET_MINUTE_ADJUSTED(Doc.of(OpenemsType.INTEGER) //
-				.text("Adjusted target minute calculated from prediction including the buffer hours"));
+		PREDICTED_TARGET_MINUTE_ADJUSTED(Doc.of(OpenemsType.INTEGER) //
+				.text("Adjusted target minute calculated from prediction including the buffer hours (for automatic mode)")),
+		TARGET_MINUTE(Doc.of(OpenemsType.INTEGER) //
+				.text("Target minute independent of the current mode Manual and Automatic"));
 		;
 
 		private final Doc doc;
@@ -138,7 +140,8 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT}.
+	 * Gets the Channel for
+	 * {@link ChannelId#SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT}.
 	 *
 	 * @return the Channel
 	 */
@@ -177,81 +180,119 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#TARGET_MINUTE_ACTUAL}.
+	 * Gets the Channel for {@link ChannelId#PREDICTED_TARGET_MINUTE}.
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getTargetMinuteActualChannel() {
-		return this.channel(ChannelId.TARGET_MINUTE_ACTUAL);
+	public default IntegerReadChannel getPredictedTargetMinuteChannel() {
+		return this.channel(ChannelId.PREDICTED_TARGET_MINUTE);
+	}
+
+	/**
+	 * Gets the predicted target minute of the Day. See
+	 * {@link ChannelId#PREDICTED_TARGET_MINUTE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getPredictedTargetMinute() {
+		return this.getPredictedTargetMinuteChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PREDICTED_TARGET_MINUTE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setPredictedTargetMinute(Integer value) {
+		this.getPredictedTargetMinuteChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PREDICTED_TARGET_MINUTE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setPredictedTargetMinute(int value) {
+		this.getPredictedTargetMinuteChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PREDICTED_TARGET_MINUTE_ADJUSTED}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getPredictedTargetMinuteAdjustedChannel() {
+		return this.channel(ChannelId.PREDICTED_TARGET_MINUTE_ADJUSTED);
+	}
+
+	/**
+	 * Gets the adjusted predicted target minute of the Day. See
+	 * {@link ChannelId#PREDICTED_TARGET_MINUTE_ADJUSTED}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getPredictedTargetMinuteAdjusted() {
+		return this.getPredictedTargetMinuteAdjustedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PREDICTED_TARGET_MINUTE_ADJUSTED} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setPredictedTargetMinuteAdjusted(Integer value) {
+		this.getPredictedTargetMinuteAdjustedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PREDICTED_TARGET_MINUTE_ADJUSTED} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setPredictedTargetMinuteAdjusted(int value) {
+		this.getPredictedTargetMinuteAdjustedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#TARGET_MINUTE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getTargetMinuteChannel() {
+		return this.channel(ChannelId.TARGET_MINUTE);
 	}
 
 	/**
 	 * Gets the actual target minute of the Day. See
-	 * {@link ChannelId#TARGET_MINUTE_ACTUAL}.
+	 * {@link ChannelId#TARGET_MINUTE}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getTargetMinuteActual() {
-		return this.getTargetMinuteActualChannel().value();
+	public default Value<Integer> getTargetMinute() {
+		return this.getTargetMinuteChannel().value();
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#TARGET_MINUTE_ACTUAL} Channel.
+	 * Internal method to set the 'nextValue' on {@link ChannelId#TARGET_MINUTE}
+	 * Channel.
 	 *
 	 * @param value the next value
 	 */
-	public default void _setTargetMinuteActual(Integer value) {
-		this.getTargetMinuteActualChannel().setNextValue(value);
+	public default void _setTargetMinute(Integer value) {
+		this.getTargetMinuteChannel().setNextValue(value);
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#TARGET_MINUTE_ACTUAL} Channel.
+	 * Internal method to set the 'nextValue' on {@link ChannelId#TARGET_MINUTE}
+	 * Channel.
 	 *
 	 * @param value the next value
 	 */
-	public default void _setTargetMinuteActual(int value) {
-		this.getTargetMinuteActualChannel().setNextValue(value);
+	public default void _setTargetMinute(int value) {
+		this.getTargetMinuteChannel().setNextValue(value);
 	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#TARGET_MINUTE_ADJUSTED}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getTargetMinuteAdjustedChannel() {
-		return this.channel(ChannelId.TARGET_MINUTE_ADJUSTED);
-	}
-
-	/**
-	 * Gets the adjusted target minute of the Day. See
-	 * {@link ChannelId#TARGET_MINUTE_ADJUSTED}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getTargetMinuteAdjusted() {
-		return this.getTargetMinuteAdjustedChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#TARGET_MINUTE_ADJUSTED} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setTargetMinuteAdjusted(Integer value) {
-		this.getTargetMinuteAdjustedChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#TARGET_MINUTE_ADJUSTED} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setTargetMinuteAdjusted(int value) {
-		this.getTargetMinuteAdjustedChannel().setNextValue(value);
-	}
-
 }
