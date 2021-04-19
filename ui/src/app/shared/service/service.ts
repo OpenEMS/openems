@@ -5,7 +5,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { DefaultTypes } from './defaulttypes';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
-import { Edges, User } from '../jsonrpc/shared';
+import { Edges } from '../jsonrpc/shared';
 import { ErrorHandler, Injectable } from '@angular/core';
 import { filter, first, map } from 'rxjs/operators';
 import { JsonrpcResponseError } from '../jsonrpc/base';
@@ -260,7 +260,7 @@ export class Service implements ErrorHandler {
   /**
    * Handles being authenticated. Updates the list of Edges.
    */
-  public handleAuthentication(token: string, user: User, edges: Edges) {
+  public handleAuthentication(token: string, edges: Edges) {
     this.websocket.status = 'online';
 
     // received login token -> save in cookie
