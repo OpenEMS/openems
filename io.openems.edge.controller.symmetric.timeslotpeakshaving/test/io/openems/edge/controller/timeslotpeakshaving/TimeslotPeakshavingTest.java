@@ -1,11 +1,16 @@
 package io.openems.edge.controller.timeslotpeakshaving;
 
+import static org.junit.Assert.assertEquals;
+
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -88,5 +93,22 @@ public class TimeslotPeakshavingTest {
 						.timeleap(clock, 75, ChronoUnit.MINUTES)/* current time is 12:02 run in normal state */
 						.input(ESS_ACTIVE_POWER, 5000) //
 						.input(METER_ACTIVE_POWER, 120000)); // nothing set on, Ess's setActivePower
+	}
+
+	@Test
+	public void testConvertTime() throws OpenemsException {
+		assertEquals(LocalTime.of(0, 0), TimeslotPeakshaving.convertTime("0:0"));
+		assertEquals(LocalTime.of(10, 0), TimeslotPeakshaving.convertTime("10:0"));
+		assertEquals(LocalTime.of(0, 10), TimeslotPeakshaving.convertTime("0:10"));
+		assertEquals(LocalTime.of(0, 10), TimeslotPeakshaving.convertTime("00:10"));
+		assertEquals(LocalTime.of(10, 10), TimeslotPeakshaving.convertTime("10:10"));
+		assertEquals(LocalTime.of(0, 0), TimeslotPeakshaving.convertTime("24:0"));
+	}
+
+	@Test
+	public void testConvertDate() throws OpenemsException {
+		assertEquals(LocalDate.of(2020, 2, 1), TimeslotPeakshaving.convertDate("01.02.2020"));
+		assertEquals(LocalDate.of(2020, 2, 1), TimeslotPeakshaving.convertDate("1.02.2020"));
+		assertEquals(LocalDate.of(2020, 2, 1), TimeslotPeakshaving.convertDate("1.2.2020"));
 	}
 }

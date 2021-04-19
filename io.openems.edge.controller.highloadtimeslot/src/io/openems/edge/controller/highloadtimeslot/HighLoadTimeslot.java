@@ -32,8 +32,8 @@ import io.openems.edge.ess.power.api.Relationship;
 @Component(name = "Controller.HighLoadTimeslot", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class HighLoadTimeslot extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	public static final String TIME_FORMAT = "HH:mm";
-	public static final String DATE_FORMAT = "dd.MM.yyyy";
+	public static final String TIME_FORMAT = "H:m";
+	public static final String DATE_FORMAT = "d.M.y";
 
 	/**
 	 * This many minutes before the high-load timeslot force charging is activated.

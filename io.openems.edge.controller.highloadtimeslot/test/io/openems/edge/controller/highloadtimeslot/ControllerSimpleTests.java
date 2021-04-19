@@ -1,6 +1,9 @@
 package io.openems.edge.controller.highloadtimeslot;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,6 +11,8 @@ import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 
 import org.junit.Test;
+
+import io.openems.common.exceptions.OpenemsException;
 
 public class ControllerSimpleTests {
 
@@ -95,14 +100,6 @@ public class ControllerSimpleTests {
 			assertTrue(e instanceof DateTimeParseException);
 		}
 
-		dateString = "1.1.2018";
-		try {
-			HighLoadTimeslot.convertDate(dateString);
-			fail();
-		} catch (DateTimeParseException e) {
-			assertTrue(e instanceof DateTimeParseException);
-		}
-
 		dateString = "31.02.2018";
 		expectedDate = LocalDate.of(2018, 2, 28);
 		assertEquals(expectedDate, HighLoadTimeslot.convertDate(dateString));
@@ -154,16 +151,25 @@ public class ControllerSimpleTests {
 		expectedTime = LocalTime.of(23, 13);
 		assertEquals(expectedTime, HighLoadTimeslot.convertTime(timeString));
 
-		timeString = "0:13";
-		try {
-			HighLoadTimeslot.convertTime(timeString);
-			fail();
-		} catch (DateTimeParseException e) {
-			assertTrue(e instanceof DateTimeParseException);
-		}
-
 		timeString = "00:13";
 		expectedTime = LocalTime.of(0, 13);
 		assertEquals(expectedTime, HighLoadTimeslot.convertTime(timeString));
+	}
+
+	@Test
+	public void testConvertTime() throws OpenemsException {
+		assertEquals(LocalTime.of(0, 0), HighLoadTimeslot.convertTime("0:0"));
+		assertEquals(LocalTime.of(10, 0), HighLoadTimeslot.convertTime("10:0"));
+		assertEquals(LocalTime.of(0, 10), HighLoadTimeslot.convertTime("0:10"));
+		assertEquals(LocalTime.of(0, 10), HighLoadTimeslot.convertTime("00:10"));
+		assertEquals(LocalTime.of(10, 10), HighLoadTimeslot.convertTime("10:10"));
+		assertEquals(LocalTime.of(0, 0), HighLoadTimeslot.convertTime("24:0"));
+	}
+
+	@Test
+	public void testConvertDate() throws OpenemsException {
+		assertEquals(LocalDate.of(2020, 2, 1), HighLoadTimeslot.convertDate("01.02.2020"));
+		assertEquals(LocalDate.of(2020, 2, 1), HighLoadTimeslot.convertDate("1.02.2020"));
+		assertEquals(LocalDate.of(2020, 2, 1), HighLoadTimeslot.convertDate("1.2.2020"));
 	}
 }

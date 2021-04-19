@@ -39,8 +39,8 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Component(name = "Controller.TimeslotPeakshaving", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	public static final String TIME_FORMAT = "HH:mm";
-	public static final String DATE_FORMAT = "dd.MM.yyyy";
+	public static final String TIME_FORMAT = "H:m";
+	public static final String DATE_FORMAT = "d.M.y";
 
 	private final Logger log = LoggerFactory.getLogger(TimeslotPeakshaving.class);
 
