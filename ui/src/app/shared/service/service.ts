@@ -1,11 +1,11 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { ChannelAddress } from '../shared';
-import { Cookie } from 'ng2-cookies';
+import { CookieService } from 'ngx-cookie-service';
 import { DefaultTypes } from './defaulttypes';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
-import { Edges } from '../jsonrpc/shared';
+import { Edges, User } from '../jsonrpc/shared';
 import { ErrorHandler, Injectable } from '@angular/core';
 import { filter, first, map } from 'rxjs/operators';
 import { JsonrpcResponseError } from '../jsonrpc/base';
@@ -16,7 +16,6 @@ import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHi
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { Role } from '../type/role';
 import { TranslateService } from '@ngx-translate/core';
-
 @Injectable()
 export class Service implements ErrorHandler {
 
@@ -64,6 +63,7 @@ export class Service implements ErrorHandler {
     private toaster: ToastController,
     public modalCtrl: ModalController,
     public translate: TranslateService,
+    private cookieService: CookieService,
   ) {
     // add language
     translate.addLangs(Language.getLanguages());
@@ -111,8 +111,8 @@ export class Service implements ErrorHandler {
   public changeWattInKiloWatt = (value: any): string => {
     if (value >= 0) {
       let thisValue = (value / 1000);
-      if (thisValue.toString().endsWith('0')) {
-        return thisValue.toString() + ' kW'
+      if (thisValue.toFixed(1).endsWith('0')) {
+        return Math.round(thisValue).toString() + ' kW';
       } else {
         return thisValue.toFixed(1).replace('.', ',') + ' kW'
       }
@@ -124,21 +124,21 @@ export class Service implements ErrorHandler {
    * Gets the token from the cookie
    */
   public getToken(): string {
-    return Cookie.get("token");
+    return this.cookieService.get('token');
   }
 
   /**
    * Sets the token in the cookie
    */
   public setToken(token: string) {
-    Cookie.set("token", token);
+    this.cookieService.set('token', token, { sameSite: 'Strict' });
   }
 
   /**
    * Removes the token from the cookie
    */
   public removeToken() {
-    Cookie.delete("token");
+    return this.cookieService.delete('token');
   }
 
   /**
@@ -260,7 +260,7 @@ export class Service implements ErrorHandler {
   /**
    * Handles being authenticated. Updates the list of Edges.
    */
-  public handleAuthentication(token: string, edges: Edges) {
+  public handleAuthentication(token: string, user: User, edges: Edges) {
     this.websocket.status = 'online';
 
     // received login token -> save in cookie
