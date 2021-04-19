@@ -3,7 +3,6 @@ package io.openems.edge.controller.api.websocket;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
@@ -21,7 +20,7 @@ public class SystemLogHandler {
 
 	private final Logger log = LoggerFactory.getLogger(SystemLogHandler.class);
 	private final WebsocketApi parent;
-	private final Set<UUID> subscriptions = new HashSet<>();
+	private final Set<String> subscriptions = new HashSet<>();
 
 	public SystemLogHandler(WebsocketApi parent) {
 		this.parent = parent;
@@ -35,7 +34,7 @@ public class SystemLogHandler {
 	 * @return a reply
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(UUID token,
+	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String token,
 			SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		if (request.getSubscribe()) {
 			/*
@@ -66,8 +65,8 @@ public class SystemLogHandler {
 			}
 			EdgeRpcNotification notification = new EdgeRpcNotification(WebsocketApi.EDGE_ID,
 					SystemLogNotification.fromPaxLoggingEvent(event));
-			for (Iterator<UUID> iter = this.subscriptions.iterator(); iter.hasNext();) {
-				UUID token = iter.next();
+			for (Iterator<String> iter = this.subscriptions.iterator(); iter.hasNext();) {
+				String token = iter.next();
 				try {
 					this.parent.getWsDataForTokenOrError(token).send(notification);
 				} catch (OpenemsNamedException e) {

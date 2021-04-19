@@ -1,5 +1,5 @@
-import { Edges } from "../shared";
 import { JsonrpcNotification } from "../base";
+import { Edges, User } from "../shared";
 
 /**
  * Represents a JSON-RPC Notification for UI authentication with session_id.
@@ -9,7 +9,8 @@ import { JsonrpcNotification } from "../base";
  *   "jsonrpc": "2.0",
  *   "method": "authenticatedWithSessionId",
  *   "params": {
- *     "token": UUID,
+ *     "token": string,
+ *     "user": shared.User
  *     "edges": shared.Edges
  *   }
  * }
@@ -22,6 +23,7 @@ export class AuthenticateWithSessionIdNotification extends JsonrpcNotification {
     public constructor(
         public readonly params: {
             token: string,
+            user: User,
             edges: Edges
         }
     ) {
