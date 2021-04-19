@@ -88,7 +88,7 @@
                             </ng-container>
                         </ng-template>
                         <tr
-                            *ngIf="component.properties.mode != 'OFF' && currentData[component.id + '/TargetMinuteAdjusted'] as targetMinute">
+                            *ngIf="component.properties.mode != 'OFF' && currentData[component.id + '/TargetMinute'] as targetMinute">
                             <ng-container>
                                 <td style="width: 65%" translate>
                                     Endzeitpunkt der beschränkten Beladung
@@ -223,7 +223,7 @@
                                     <tr>
                                         <td style="width:65%" translate>Errechneter Endzeitpunkt</td>
                                         <td style="width:35%" class="align_right"
-                                            *ngIf="currentData[component.id + '/TargetMinuteActual'] as targetMinute">
+                                            *ngIf="currentData[component.id + '/PredictedTargetMinute'] as targetMinute">
                                             {{ targetMinute * 60 * 1000 | date:'H:mm':'UTC' }}&nbsp;h
                                         </td>
                                     </tr>

@@ -36,8 +36,9 @@ export class GridOptimizedChargeComponent {
                     new ChannelAddress(this.componentId, "SellToGridLimitState"),
                     new ChannelAddress(this.componentId, "DelayChargeMaximumChargeLimit"),
                     new ChannelAddress(this.componentId, "SellToGridLimitMinimumChargeLimit"),
-                    new ChannelAddress(this.componentId, "TargetMinuteActual"),
-                    new ChannelAddress(this.componentId, "TargetMinuteAdjusted"),
+                    new ChannelAddress(this.componentId, "PredictedTargetMinute"),
+                    new ChannelAddress(this.componentId, "PredictedTargetMinuteAdjusted"),
+                    new ChannelAddress(this.componentId, "TargetMinute"),
                 ]);
             });
         });
