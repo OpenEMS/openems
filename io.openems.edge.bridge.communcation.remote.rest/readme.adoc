@@ -4,8 +4,9 @@
     You can read from Channels and react to them as well as write into those Channels.
     You need to activate this Bridge with Configurations and then activate a Component as a Rest Remote device read/write.
     Atm it only provides the ability to read and write to ONE Channel per configured rest remote device.
-    io.openems.edge.rest.remote.device.general;
+    Additionally you can only use Base Authentication.
 
+    io.openems.edge.remote.rest.device;
 
 link:https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.communication.remote.rest[Source Code icon:github[]]
 

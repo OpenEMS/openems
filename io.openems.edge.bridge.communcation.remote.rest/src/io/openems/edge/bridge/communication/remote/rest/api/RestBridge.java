@@ -4,6 +4,9 @@ import org.osgi.service.cm.ConfigurationException;
 
 import java.util.Map;
 
+/**
+ * This interface allows Remote Rest Device to add and Remove their tasks, for remote communication with other OpenEMS (Channels).
+ */
 public interface RestBridge {
     /**
      * Adds the RestRequest to the tasks map.

@@ -1,5 +1,8 @@
 package io.openems.edge.bridge.communication.remote.rest.api;
 
+/**
+ * The Interface for the ReadTasks. It allows to setResponses e.g. set the Response of the GET value.
+ */
 public interface RestReadRequest extends RestRequest {
 
     /**

@@ -1,6 +1,9 @@
 package io.openems.edge.bridge.communication.remote.rest.api;
 
-import io.openems.common.exceptions.OpenemsError;
+/**
+ * The Interface of the Write Tasks. It allows the Bridge to get the PostMessage and check if the task is allowed to do
+ * it's task (write it's value to remote device).
+ */
 
 public interface RestWriteRequest extends RestRequest {
     /**

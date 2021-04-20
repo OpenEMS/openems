@@ -16,6 +16,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
@@ -57,16 +58,26 @@ public class RestRemoteDeviceImpl extends AbstractOpenemsComponent implements Op
     public void activate(ComponentContext context, Config config) throws ConfigurationException, OpenemsError.OpenemsNamedException {
         super.activate(context, config.id(), config.alias(), config.enabled());
         if (config.enabled()) {
+            this.activationOrModifiedRoutine(config);
+        }
+        this.getAllowRequestChannel().setNextValue(true);
+    }
 
-            if (this.cpm.getComponent(config.restBridgeId()) instanceof RestBridge) {
-                this.restBridge = this.cpm.getComponent(config.restBridgeId());
+    /**
+     * This method will be called on activation or modified. This will configure the RestBridge and creates the Tasks for the RestBridge.
+     *
+     * @param config the config of this class
+     * @throws OpenemsError.OpenemsNamedException will be thrown when de RestBridge couldn't be found.
+     * @throws ConfigurationException             will be thrown if the configured BridgeId is not a RestBridge.
+     */
+    private void activationOrModifiedRoutine(Config config) throws OpenemsError.OpenemsNamedException, ConfigurationException {
+        if (this.cpm.getComponent(config.restBridgeId()) instanceof RestBridge) {
+            this.restBridge = this.cpm.getComponent(config.restBridgeId());
 
-                this.restBridge.addRestRequest(super.id(), this.createNewTask(config.deviceChannel(),
-                        config.id(), config.realDeviceId(), config.deviceMode()));
-            } else {
-                throw new ConfigurationException(config.restBridgeId(), "Master Slave Id Incorrect or not configured yet!");
-            }
-            this.getAllowRequestChannel().setNextValue(true);
+            this.restBridge.addRestRequest(super.id(), this.createNewTask(config.deviceChannel(),
+                    config.id(), config.realDeviceId(), config.deviceMode()));
+        } else {
+            throw new ConfigurationException(config.restBridgeId(), "Bridge Id Incorrect for : " + super.id() + "!");
         }
     }
 
@@ -104,6 +115,16 @@ public class RestRemoteDeviceImpl extends AbstractOpenemsComponent implements Op
         }
 
         throw new ConfigurationException("Impossible Error", "Error shouldn't Occur because of Fix options");
+    }
+
+    @Modified
+    void modified(ComponentContext context, Config config) throws OpenemsError.OpenemsNamedException, ConfigurationException {
+        this.restBridge.removeRestRemoteDevice(super.id());
+        super.modified(context, config.id(), config.alias(), config.enabled());
+        if (config.enabled()) {
+            this.activationOrModifiedRoutine(config);
+        }
+
     }
 
 
