@@ -34,6 +34,7 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
     public displayName: string = null;
     public displayValue: string = null;
     private stopOnDestroy: Subject<void> = new Subject<void>();
+    public convertWattToKiloWatt: any = this.service.convertWattToKiloWatt;
     private edge: Edge = null;
 
     constructor(
