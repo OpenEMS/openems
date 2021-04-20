@@ -28,8 +28,8 @@ import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal
 import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
 import { FlatWidgetPercentagebar } from './flat/flat-widget-line/flat-widget-percentagebar';
 import { FlatWidgetComponent } from './flat/flat-widget.component';
-import { GridComponent } from './common/grid/grid.component';
-import { GridModalComponent } from './common/grid/modal/modal.component';
+import { GridComponent } from './grid/grid.component';
+import { GridModalComponent } from './grid/modal/modal.component';
 import { HeatingElementComponent } from './heatingelement/heatingelement.component';
 import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
 import { HeatPumpComponent } from './heatpump/heatpump.component';
