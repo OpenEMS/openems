@@ -21,7 +21,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     public config: EdgeConfig = null;
     public component: EdgeConfig.Component = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
-    public changeWattInKiloWatt: any = this.service.changeWattInKiloWatt;
+    public convertWattToKiloWatt: any = this.service.convertWattToKiloWatt;
 
     private selector: string = UUID.UUID().toString();
 

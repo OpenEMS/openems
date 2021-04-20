@@ -8,10 +8,10 @@
             <oe-flat-widget-percentagebar [channelAddress]="component.id + '/Soc'">
             </oe-flat-widget-percentagebar>
             <oe-flat-widget-line [name]="'General.chargePower' | translate"
-                [channelAddress]="component.id + '/ActivePower'" [converter]="changeWattInKiloWatt">
+                [channelAddress]="component.id + '/ActivePower'" [converter]="convertWattToKiloWatt">
             </oe-flat-widget-line>
             <oe-flat-widget-line [name]="'General.dischargePower' | translate"
-                [channelAddress]="component.id + '/ActivePower'" [converter]="changeWattInKiloWatt">
+                [channelAddress]="component.id + '/ActivePower'" [converter]="convertWattToKiloWatt">
             </oe-flat-widget-line>
             <!-- 
                 Likely to be changed. This is a way to solve the problem with the ng-for-loop and class="underline"

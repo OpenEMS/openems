@@ -104,11 +104,11 @@ export class Service implements ErrorHandler {
     }
   }
   /**
-       * 
-       * @param value the value from passed value in html
-       * @returns converted value
-       */
-  public changeWattInKiloWatt = (value: any): string => {
+      * 
+      * @param value the value from passed value in html
+      * @returns converted value
+      */
+  public convertWattToKiloWatt = (value: any): string => {
     if (value >= 0) {
       let thisValue = (value / 1000);
       if (thisValue.toFixed(1).endsWith('0')) {
