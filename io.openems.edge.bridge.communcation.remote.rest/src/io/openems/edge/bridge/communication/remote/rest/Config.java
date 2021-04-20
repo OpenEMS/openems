@@ -2,6 +2,7 @@ package io.openems.edge.bridge.communication.remote.rest;
 
 import org.osgi.service.component.annotations.ComponentPropertyType;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(
@@ -26,7 +27,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     @AttributeDefinition(name = "AuthorisationHeader - User", description = "UserName to access Device")
     String username() default "Admin";
 
-    @AttributeDefinition(name = "Password", description = "Password for authorization")
+    @AttributeDefinition(name = "Password", description = "Password for authorization", type = AttributeType.PASSWORD)
     String password() default "";
 
     @AttributeDefinition(name = "Keep Alive", description = "Time Interval to Check for active Connection: Time in Seconds")
