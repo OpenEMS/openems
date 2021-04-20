@@ -23,7 +23,7 @@ public interface RestWriteRequest extends RestRequest {
     void wasSuccess(boolean succ, String response);
 
     /**
-     * Checks if the Component is Ready To Write/ Allowed to Write (Write false in Channel ALLOW_REQUEST).
+     * Checks if the Component is Ready To Write/Allowed to Write (Write false in Channel ALLOW_REQUEST).
      *
      * @return a boolean.
      */
