@@ -1,12 +1,12 @@
 <ng-container *ngIf="isInitialized">
     <oe-flat-widget img="assets/img/grid.png" [title]="'General.grid' | translate" (click)="presentModal()">
-        <oe-flat-widget-line [name]="'General.gridBuyAdvanced'| translate"
-            [value]="gridBuyAdvancedChannel | unitvalue: 'kW'">
+        <oe-flat-widget-line [name]="'General.gridBuyAdvanced'| translate" [value]="gridBuyAdvancedChannel"
+            [converter]="changeWattInKiloWatt">
         </oe-flat-widget-line>
-        <oe-flat-widget-line [name]="'General.gridSellAdvanced' | translate"
-            [value]="gridSellAdvancedChannel | unitvalue: 'kW'">
+        <oe-flat-widget-line [name]="'General.gridSellAdvanced' | translate" [value]="gridSellAdvancedChannel"
+            [converter]="changeWattInKiloWatt">
         </oe-flat-widget-line>
-        <!-- <flat-widget-line *ngIf="sum.grid.gridMode == 2" title_translate="offGrid">
-    </flat-widget-line> -->
+        <oe-flat-widget-line *ngIf="gridMode == 2" [name]="'General.offGrid' | translate">
+        </oe-flat-widget-line>
     </oe-flat-widget>
 </ng-container>

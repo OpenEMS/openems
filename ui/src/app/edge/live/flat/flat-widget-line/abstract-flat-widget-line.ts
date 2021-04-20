@@ -21,7 +21,7 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
      * @returns converter function
      */
     @Input()
-    protected converter = (value: any): string => { return value }
+    public converter = (value: any): string => { return value }
 
     /**
      * selector used for subscribe
@@ -31,7 +31,8 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
     /** 
      * displayValue is the displayed @Input value in html
      */
-    public displayValue: string;
+    public displayName: string = null;
+    public displayValue: string = null;
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private edge: Edge = null;
 
@@ -42,15 +43,21 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
         @Inject(ModalController) protected modalCtrl: ModalController
     ) {
     }
-
+    protected setName(value: any) {
+        this.displayName = value;
+        this.isInitialized = true;
+    }
     protected setValue(value: any) {
-        this.displayValue = this.converter(value);
-
+        if (this.converter != null) {
+            this.displayValue = this.converter(value);
+        } else {
+            this.displayValue = value;
+        }
         // announce initialized
         this.isInitialized = true;
     }
 
-    protected subscribe(channelAddress?: ChannelAddress) {
+    protected subscribe(channelAddress: ChannelAddress) {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
 
