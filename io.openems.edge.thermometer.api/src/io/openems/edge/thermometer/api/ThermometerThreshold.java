@@ -3,15 +3,30 @@ package io.openems.edge.thermometer.api;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.*;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StringWriteChannel;
+import io.openems.edge.common.channel.WriteChannel;
 
-public interface ThresholdThermometer extends Thermometer {
+
+/**
+ * The Nature of the ThermometerThreshold, an expansion of the Thermometer, helps other controller and Heatsystem-Components
+ * to decide what to do on changing temperatures, preventing fluctuations.
+ * The Threshold can be overwritten.
+ * The ThermometerState represents rising or falling in temperature.
+ * The TemperatureSetpoint can be set by a component and deposit it's id. The temperature will be locked.
+ * However it is possible to overwrite the Temperature with any device, if the requested Temperature is above the current SetPoint.
+ * If you need to implement a cooling system where a lower Temperature should always be accepted, you need to implement that yourself.
+ * The Temperature is stored in SetPointTemperature.
+ */
+public interface ThermometerThreshold extends Thermometer {
     enum ChannelId implements io.openems.edge.common.channel.ChannelId {
         /**
-         * Threshold Temperature.
-         * Set The Temperature you want to reach
+         * Threshold.
+         * Set the threshold for TemperatureSettings.
          * <ul>
-         * <li>Interface: Thermometer
+         * <li>Interface: ThermometerThreshold
          * <li>Type: Integer
          * <li>Unit: Dezidegree celsius
          * </ul>
@@ -22,10 +37,19 @@ public interface ThresholdThermometer extends Thermometer {
                 )),
         /**
          * State of the Thermometer -> rise or fall; depending on regression values --> Threshold.
+         * <ul>
+         *     <li>Interface ThermometerThreshold
+         *     <li>Type: String
+         * </ul>
          */
-        THERMOMETER_STATE(Doc.of(OpenemsType.STRING)),
+        THERMOMETER_STATE(Doc.of(ThermometerState.values())),
         /**
-         * Enabled BY --> For Components to Unset Threshold to check if they were the last Component to set the Threshold.
+         * Check which component sets the most recent setPoint Temperature. Only Higher SetPointTemperatures will be accepted.
+         * The Component with the latest setPoint set can only reset the setPoint.
+         * <ul>
+         * * <li>Interface: ThermometerThreshold
+         * * <li>Type: String
+         * * </ul>
          */
         SET_POINT_TEMPERATURE_SET_BY_ID(Doc.of(OpenemsType.STRING).accessMode(AccessMode.READ_WRITE).onInit(
                 channel -> ((StringWriteChannel) channel).onSetNextWrite(channel::setNextValue)
@@ -34,17 +58,21 @@ public interface ThresholdThermometer extends Thermometer {
          * This is the Temperature you want to compare to the Current Threshold etc. e.g.
          * * Is my Temperature (600dC) beneath or above my thermometer to react correctly
          * TemperatureFluctuations will be calculated via threshold etc.
-         * in german: "Richtwert"
+         * Alternatively you can use thermometerAboveGivenTemperature/thermometerBelowGivenTemperature to check
+         * if the Temperature is beneath/above your temperature you want to compare it to.
+         * <ul>
+         *          <li>Interface: ThermometerThreshold
+         *          <li>Type: Integer
+         *          <li> Unit: Dezidegree_Celsius
+         *          </ul>
          */
         SET_POINT_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).accessMode(AccessMode.READ_WRITE).onInit(
                 channel -> ((IntegerWriteChannel) channel).onSetNextWrite(channel::setNextValue)
-        )),
-        SET_POINT_TEMPERATURE_ACTIVE(Doc.of(OpenemsType.BOOLEAN));
-
+        ));
 
         private final Doc doc;
 
-        private ChannelId(Doc doc) {
+        ChannelId(Doc doc) {
             this.doc = doc;
         }
 
@@ -67,6 +95,11 @@ public interface ThresholdThermometer extends Thermometer {
         return this.channel(ChannelId.THRESHOLD);
     }
 
+    /**
+     * Get The Thresholdvalue of the Channel or 1 on null.
+     *
+     * @return the Threshold.
+     */
     default int getThreshold() {
         Integer thresholdValue = (Integer) this.getValueOfChannel(this.getThresholdChannel());
         if (thresholdValue == null) {
@@ -91,22 +124,39 @@ public interface ThresholdThermometer extends Thermometer {
 
     //-----------------ThermometerState---------------------//
 
-    default Channel<String> getThermometerStateChannel() {
+    /**
+     * Get the ThermometerState Channel.
+     *
+     * @return the channel.
+     */
+
+    default Channel<ThermometerState> getThermometerStateChannel() {
         return this.channel(ChannelId.THERMOMETER_STATE);
     }
 
+    /**
+     * get the ThermometerState or undefined on null.
+     *
+     * @return the ThermometerState.
+     */
+
     default ThermometerState getThermometerState() {
-        String thermometerState = (String) this.getValueOfChannel(this.getThermometerStateChannel());
+        ThermometerState thermometerState = (ThermometerState) this.getValueOfChannel(this.getThermometerStateChannel());
         if (thermometerState == null) {
-            thermometerState = (String) this.getNextValueOfChannel(this.getThermometerStateChannel());
+            thermometerState = (ThermometerState) this.getNextValueOfChannel(this.getThermometerStateChannel());
         }
         if (thermometerState != null) {
-            return ThermometerState.valueOf(thermometerState);
+            return thermometerState;
         } else {
-            return null;
+            return ThermometerState.UNDEFINED;
         }
     }
 
+    /**
+     * Set the Thermometerstate, depending on Falling or Rising Temperatures. will be decided by the ThresholdThermometer.
+     *
+     * @param state the ThermometerState.
+     */
     default void setThermometerState(ThermometerState state) {
         this.getThermometerStateChannel().setNextValue(state);
     }
@@ -115,21 +165,28 @@ public interface ThresholdThermometer extends Thermometer {
 
     //-----------------Set Point Temperature-------------//
 
-    //GUIDE VALUE --> E.G. "hey watch this temperature: 500dc
-    //are you higher or lower than this ?
-    //I will react depending on outcome
+    /**
+     * get the SetPoint Temperature Channel.
+     *
+     * @return the Channel.
+     */
 
     default WriteChannel<Integer> getSetPointTemperatureChannel() {
         return this.channel(ChannelId.SET_POINT_TEMPERATURE);
     }
 
+    /**
+     * Returns the setPoint Temperature or MinValue on Null.
+     *
+     * @return the SetPointTemperature.
+     */
     default int getSetPointTemperature() {
         Integer setPointTemperature = (Integer) this.getValueOfChannel(this.getSetPointTemperatureChannel());
         if (setPointTemperature == null) {
             setPointTemperature = (Integer) this.getNextValueOfChannel(this.getSetPointTemperatureChannel());
         }
         if (setPointTemperature == null) {
-            setPointTemperature = 0;
+            setPointTemperature = Integer.MIN_VALUE;
         }
         return setPointTemperature;
     }
@@ -138,38 +195,22 @@ public interface ThresholdThermometer extends Thermometer {
     //----------------------------------------------------//
 
 
-    //----------Set Point Temperature Active--------- //
-    default Channel<Boolean> getSetPointTemperatureActiveChannel() {
-        return this.channel(ChannelId.SET_POINT_TEMPERATURE_ACTIVE);
-    }
-
-    default boolean isSetPointTemperatureActive() {
-        Boolean isActive;
-        isActive = (Boolean) this.getValueOfChannel(getSetPointTemperatureActiveChannel());
-        if (isActive == null) {
-            isActive = (Boolean) this.getNextValueOfChannel(getSetPointTemperatureActiveChannel());
-        }
-        if (isActive == null) {
-            return false;
-        }
-        return isActive;
-    }
-
-    default void setSetPointTemperatureActiveState(boolean active, String id) {
-        if (this.getSetPointTemperatureSetById() == null || this.getSetPointTemperatureSetById().equals(id)) {
-            this.getSetPointTemperatureSetByIdChannel().setNextValue(id);
-            this.getSetPointTemperatureActiveChannel().setNextValue(active);
-        }
-    }
-
-
     //--------------------Set Point Temperature Id ------------ //
 
+    /**
+     * Get the Channel to get the ID who set the TemperatureSetPoint.
+     *
+     * @return the Channel.
+     */
     default WriteChannel<String> getSetPointTemperatureSetByIdChannel() {
         return this.channel(ChannelId.SET_POINT_TEMPERATURE_SET_BY_ID);
     }
 
-
+    /**
+     * Get the Id who set the TemperatureSetPoint.
+     *
+     * @return the Id.
+     */
     default String getSetPointTemperatureSetById() {
         String id = (String) this.getValueOfChannel(this.getSetPointTemperatureSetByIdChannel());
         if (id != null) {
@@ -217,7 +258,6 @@ public interface ThresholdThermometer extends Thermometer {
         if (this.getSetPointTemperatureSetById() == null || this.getSetPointTemperatureSetById().equals(id) || temperature > this.getSetPointTemperature()) {
             this.getSetPointTemperatureChannel().setNextValue(temperature);
             this.getSetPointTemperatureSetByIdChannel().setNextValue(id);
-            this.getSetPointTemperatureActiveChannel().setNextValue(true);
         }
     }
 
@@ -230,20 +270,7 @@ public interface ThresholdThermometer extends Thermometer {
         String setPointTemperatureSetById = this.getSetPointTemperatureSetById();
         if (setPointTemperatureSetById == null || setPointTemperatureSetById.equals(id)) {
             this.getSetPointTemperatureSetByIdChannel().setNextValue(null);
-            this.getSetPointTemperatureActiveChannel().setNextValue(false);
         }
-    }
-
-    /**
-     * Forces the new Temperature Value, and replace the current Id.
-     *
-     * @param temperature the new SetPointTemperature
-     * @param id          the ID of the calling component
-     */
-    default void forceSetPointTemperatureAndSetActive(int temperature, String id) {
-        this.getSetPointTemperatureChannel().setNextValue(temperature);
-        this.getSetPointTemperatureSetByIdChannel().setNextValue(id);
-        this.getSetPointTemperatureActiveChannel().setNextValue(true);
     }
 
     /**
@@ -264,7 +291,7 @@ public interface ThresholdThermometer extends Thermometer {
      */
 
     default boolean setPointTemperatureAboveThermometer() {
-        return thermometerAboveGivenTemperature(this.getSetPointTemperature());
+        return this.thermometerAboveGivenTemperature(this.getSetPointTemperature());
     }
 
     /**
@@ -284,7 +311,7 @@ public interface ThresholdThermometer extends Thermometer {
      * @return a boolean: result -> lessOrEquals than setpoint /less than setpoint
      */
     default boolean setPointTemperatureBelowThermometer() {
-        return thermometerBelowGivenTemperature(this.getSetPointTemperature());
+        return this.thermometerBelowGivenTemperature(this.getSetPointTemperature());
     }
 
     /**
@@ -341,17 +368,30 @@ public interface ThresholdThermometer extends Thermometer {
         return result;
     }
 
-    default Object getValueOfChannel(Channel<?> requestedValue) {
-        if (requestedValue.value().isDefined()) {
-            return requestedValue.value().get();
+    /**
+     * Returns the current value of a Channel.
+     *
+     * @param requestedChannel the Channel, usually from this nature.
+     * @return the Value or null if not defined.
+     */
+    default Object getValueOfChannel(Channel<?> requestedChannel) {
+        if (requestedChannel.value().isDefined()) {
+            return requestedChannel.value().get();
         } else {
             return null;
         }
     }
 
-    default Object getNextValueOfChannel(Channel<?> requestedValue) {
-        if (requestedValue.getNextValue().isDefined()) {
-            return requestedValue.getNextValue().get();
+    /**
+     * get the next value of a Channel. Happens if current value is not defined.
+     *
+     * @param requestedChannel the Channel, usually from this nature.
+     * @return the Value or null if not defined.
+     */
+
+    default Object getNextValueOfChannel(Channel<?> requestedChannel) {
+        if (requestedChannel.getNextValue().isDefined()) {
+            return requestedChannel.getNextValue().get();
         }
         return null;
     }

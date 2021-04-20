@@ -10,6 +10,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -18,7 +19,10 @@ import org.osgi.service.metatype.annotations.Designate;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
-
+/**
+ * This Virtual Thermometer represents a Thermometer and the temperature can be manipulated by other classes/Components.
+ * If a WriteValue is defined, it will be set in the TemperatureChannel.
+ */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Device.Thermometer.Virtual",
         immediate = true,
@@ -34,20 +38,24 @@ public class ThermometerVirtualImpl extends AbstractOpenemsComponent implements 
 
 
     @Activate
-    public void activate(ComponentContext context, Config config) {
+    void activate(ComponentContext context, Config config) {
         super.activate(context, config.id(), config.alias(), config.enabled());
         this.getTemperatureChannel().setNextValue(Integer.MIN_VALUE);
     }
 
     @Deactivate
-    public void deactivate() {
+    protected void deactivate() {
         super.deactivate();
+    }
+
+    @Modified
+    void modified(ComponentContext context, Config config) {
+        super.modified(context, config.id(), config.alias(), config.enabled());
     }
 
     @Override
     public void handleEvent(Event event) {
         if (event.getTopic().equals(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)) {
-            //TODO WORK WITH CYCLES
             Optional<Integer> currentTemp = this.getVirtualTemperature();
             currentTemp.ifPresent(integer -> this.getTemperatureChannel().setNextValue(integer));
         }
@@ -56,12 +64,12 @@ public class ThermometerVirtualImpl extends AbstractOpenemsComponent implements 
     @Override
     public String debugLog() {
         Optional<Integer> currentTemp = Optional.ofNullable(this.getTemperatureChannel().value().isDefined() ? this.getTemperatureChannel().value().get() : null);
-        AtomicReference<String> returnString = new AtomicReference<>("NotDefined");
+        AtomicReference<String> returnString = new AtomicReference<>("Temperature not Defined for: " + super.id());
         currentTemp.ifPresent(integer -> {
             if (integer != Integer.MIN_VALUE) {
-                returnString.set(integer.toString());
+                returnString.set(integer.toString() + this.getTemperatureChannel().channelDoc().getUnit().getSymbol());
             }
         });
-        return returnString.get() + " dC" + "\n";
+        return returnString.get() + "\n";
     }
 }

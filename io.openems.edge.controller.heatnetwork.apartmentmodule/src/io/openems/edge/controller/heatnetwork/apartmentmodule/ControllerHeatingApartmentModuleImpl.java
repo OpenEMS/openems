@@ -13,7 +13,7 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.heatnetwork.apartmentmodule.api.ControllerHeatingApartmentModule;
 import io.openems.edge.controller.heatnetwork.apartmentmodule.api.State;
 import io.openems.edge.heatsystem.components.Pump;
-import io.openems.edge.thermometer.api.ThresholdThermometer;
+import io.openems.edge.thermometer.api.ThermometerThreshold;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -53,7 +53,7 @@ public class ControllerHeatingApartmentModuleImpl extends AbstractOpenemsCompone
     //Behind each integer is a ApartmentCord --> One has to be a ApartmentModule with a Relay.
     private final Map<Integer, List<ApartmentModule>> apartmentCords = new HashMap<>();
     private final Map<Integer, List<ChannelAddress>> responseToCords = new HashMap<>();
-    private Map<Integer, ThresholdThermometer> thresholdThermometerMap = new HashMap<>();
+    private Map<Integer, ThermometerThreshold> thresholdThermometerMap = new HashMap<>();
     private final List<Integer> cordsToHeatUp = new ArrayList<>();
     private Pump heatResponsePump;
 
@@ -124,8 +124,8 @@ public class ControllerHeatingApartmentModuleImpl extends AbstractOpenemsCompone
             if (exConf[0] == null && exNamed[0] == null) {
                 try {
                     OpenemsComponent component = this.cpm.getComponent(threshold);
-                    if (component instanceof ThresholdThermometer) {
-                        this.thresholdThermometerMap.put(thresholdIds.indexOf(threshold), (ThresholdThermometer) component);
+                    if (component instanceof ThermometerThreshold) {
+                        this.thresholdThermometerMap.put(thresholdIds.indexOf(threshold), (ThermometerThreshold) component);
                     } else {
                         exConf[0] = new ConfigurationException("allocateAllThreshold",
                                 "Component not an instance of ThresholdThermometer: " + component.id());
@@ -371,7 +371,7 @@ public class ControllerHeatingApartmentModuleImpl extends AbstractOpenemsCompone
         OpenemsComponent component;
         String id = null;
         AtomicBoolean componentNotFound = new AtomicBoolean(false);
-        Map<Integer, ThresholdThermometer> copiedMap = new HashMap<>();
+        Map<Integer, ThermometerThreshold> copiedMap = new HashMap<>();
         try {
             this.thresholdThermometerMap.forEach((key, thresholdThermometer) -> {
                 if (thresholdThermometer.isEnabled() == false) {
@@ -380,8 +380,8 @@ public class ControllerHeatingApartmentModuleImpl extends AbstractOpenemsCompone
                     idThreshold = thresholdThermometer.id();
                     try {
                         componentOfThermometer = this.cpm.getComponent(idThreshold);
-                        if (componentOfThermometer.isEnabled() && componentOfThermometer instanceof ThresholdThermometer) {
-                            copiedMap.put(key, (ThresholdThermometer) componentOfThermometer);
+                        if (componentOfThermometer.isEnabled() && componentOfThermometer instanceof ThermometerThreshold) {
+                            copiedMap.put(key, (ThermometerThreshold) componentOfThermometer);
                         } else {
                             componentNotFound.set(true);
                             copiedMap.put(key, thresholdThermometer);
