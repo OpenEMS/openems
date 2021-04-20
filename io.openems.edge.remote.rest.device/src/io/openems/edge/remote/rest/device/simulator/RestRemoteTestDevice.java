@@ -4,6 +4,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -28,7 +29,9 @@ public interface RestRemoteTestDevice extends OpenemsComponent {
          * <li>Will be Set if the RestRemoteDevice is set to Write
          * </ul>
          */
-        VALUE_WRITE(Doc.of(OpenemsType.STRING).accessMode(AccessMode.READ_WRITE));
+        VALUE_WRITE(Doc.of(OpenemsType.STRING).accessMode(AccessMode.READ_WRITE).onInit(channel ->
+                ((StringWriteChannel) channel).onSetNextWrite(channel::setNextValue)
+        ));
         private final Doc doc;
 
         ChannelId(Doc doc) {

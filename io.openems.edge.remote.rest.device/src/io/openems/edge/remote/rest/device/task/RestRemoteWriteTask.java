@@ -1,22 +1,29 @@
 package io.openems.edge.remote.rest.device.task;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.communication.remote.rest.api.RestWriteRequest;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.component.ComponentManager;
 import org.slf4j.Logger;
 
+/**
+ * This Task collects the value one wants to write into a remote device. The value will be processed by the RestBridge.
+ */
 public class RestRemoteWriteTask extends AbstractRestRemoteDeviceTask implements RestWriteRequest {
 
-    private final WriteChannel<String> value;
-    private final WriteChannel<Boolean> allowRequest;
+    private final ChannelAddress valueAddress;
+    private final ChannelAddress allowRequestAddress;
 
 
     public RestRemoteWriteTask(String remoteDeviceId, String realDeviceId,
-                               String deviceChannel, WriteChannel<String> value,
-                               WriteChannel<Boolean> allowRequest, Logger log) {
-        super(remoteDeviceId, realDeviceId, deviceChannel, log);
+                               String deviceChannel, ChannelAddress value,
+                               ChannelAddress allowRequest, Logger log, ComponentManager cpm) {
+        super(remoteDeviceId, realDeviceId, deviceChannel, log, cpm);
 
-        this.value = value;
-        this.allowRequest = allowRequest;
+        this.valueAddress = value;
+        this.allowRequestAddress = allowRequest;
     }
 
     /**
@@ -28,17 +35,19 @@ public class RestRemoteWriteTask extends AbstractRestRemoteDeviceTask implements
      */
     @Override
     public String getPostMessage() {
-        if (this.readyToWrite()) {
-
-            if (this.value.getNextValue().isDefined()) {
+        if (this.allowedToWrite()) {
+            Channel<String> valueChannel;
+            try {
+                valueChannel = this.getCpm().getChannel(this.valueAddress);
+            } catch (OpenemsError.OpenemsNamedException e) {
+                return "ChannelNotAvailable";
+            }
+            if (valueChannel.value().isDefined()) {
                 String msg = "{\"value\":";
-                msg += this.value.getNextValue().get() + "}";
+                msg += valueChannel.value().get() + "}";
                 return msg;
-
             }
             return "NoValueDefined";
-
-
         }
         return "NotReadyToWrite";
     }
@@ -65,22 +74,17 @@ public class RestRemoteWriteTask extends AbstractRestRemoteDeviceTask implements
      * @return a boolean.
      */
     @Override
-    public boolean readyToWrite() {
-        return this.allowRequest.value().get();
-    }
-
-    /**
-     * Updates the Channel.
-     */
-    @Override
-    public void nextValueSet() {
-
-        if (this.allowRequest.getNextWriteValue().isPresent()) {
-            this.allowRequest.setNextValue(this.allowRequest.getNextWriteValueAndReset());
+    public boolean allowedToWrite() {
+        Channel<Boolean> allowedRequest;
+        try {
+            allowedRequest = this.getCpm().getChannel(this.allowRequestAddress);
+        } catch (OpenemsError.OpenemsNamedException e) {
+            return false;
         }
-        if (this.value.getNextWriteValue().isPresent()) {
-            this.value.setNextValue(this.value.getNextWriteValueAndReset());
+        if (allowedRequest.value().isDefined()) {
+            return allowedRequest.value().get();
+        } else {
+            return false;
         }
-
     }
 }

@@ -1,21 +1,29 @@
 package io.openems.edge.remote.rest.device.task;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.communication.remote.rest.api.RestReadRequest;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.component.ComponentManager;
 import org.slf4j.Logger;
 
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * This Task gets the value of a remote Channel and sets the value into the ValueReadChannel of the RestRemoteDevice.
+ * The GetRequest will be handled by the RestBridge.
+ */
 public class RestRemoteReadTask extends AbstractRestRemoteDeviceTask implements RestReadRequest {
 
 
-    private final Channel<String> value;
+    private final ChannelAddress value;
 
     public RestRemoteReadTask(String remoteDeviceId, String realDeviceId, String deviceChannel,
-                              Channel<String> value, Logger log) {
+                              ChannelAddress value, Logger log, ComponentManager cpm) {
 
-        super(remoteDeviceId, realDeviceId, deviceChannel, log);
+        super(remoteDeviceId, realDeviceId, deviceChannel, log, cpm);
         this.value = value;
     }
 
@@ -51,7 +59,14 @@ public class RestRemoteReadTask extends AbstractRestRemoteDeviceTask implements 
      */
     private void setResponseValue(String answer) {
         String[] parts = answer.split("\"value\"");
-        String newParts = parts[1].substring(0, parts[1].indexOf("\""));
+        if (parts.length <= 1) {
+            return;
+        }
+        boolean nullValue = Arrays.asList(parts).get(1).contains("null");
+        if (nullValue) {
+            return;
+        }
+        String newParts = parts[1];
         Pattern p = Pattern.compile("[-+]?([0-9]*[.][0-9]+|[0-9]+)");
         Matcher m = p.matcher(newParts);
         StringBuilder answerNumeric = new StringBuilder();
@@ -59,7 +74,11 @@ public class RestRemoteReadTask extends AbstractRestRemoteDeviceTask implements 
             answerNumeric.append(m.group());
         }
         if (!answerNumeric.toString().equals("")) {
-            this.value.setNextValue(answerNumeric);
+            try {
+                this.getCpm().getChannel(this.value).setNextValue(answerNumeric);
+            } catch (OpenemsError.OpenemsNamedException e) {
+                this.getLogger().warn("This error shouldn't occur, this is it's own Channel: " + this.getDeviceId());
+            }
         }
     }
 

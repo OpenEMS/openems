@@ -19,6 +19,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -43,6 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         property = {EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE,
                 EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE})
 public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBridge, OpenemsComponent, EventHandler {
+    private final Logger log = LoggerFactory.getLogger(RestBridgeImpl.class);
 
     private final Map<String, RestRequest> tasks = new ConcurrentHashMap<>();
     private final Map<String, RestRequest> readTasks = new ConcurrentHashMap<>();
@@ -85,6 +88,7 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
     /**
      * Check the Connection. If it's ok, read / get Data in Before Process Image,
      * otherwise write into Channel in Execute Write.
+     *
      * @param event the Event, either BeforeProcessImage or Execute Write
      */
     @Override
@@ -133,6 +137,7 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
 
     /**
      * This method reads/writes from the RestRequests depending on the Event.
+     *
      * @param readOrWrite RestRoutineType, usually defined by RestBridge and the handleEvent.
      */
     private void taskRoutine(RestRoutineType readOrWrite) {
@@ -154,7 +159,6 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
                     } catch (IOException e) {
                         this.connectionOk.set(false);
                     }
-                    ((RestWriteRequest) entry).nextValueSet();
                 });
                 break;
         }
@@ -180,10 +184,13 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestProperty("Authorization", this.loginData);
 
-        if (entry.readyToWrite()) {
+        if (entry.allowedToWrite()) {
             String msg = entry.getPostMessage();
             if (msg.equals("NoValueDefined") || msg.equals("NotReadyToWrite")) {
                 return;
+            }
+            if (msg.equals("ChannelNotAvailable")) {
+                this.log.warn("Channel for: " + entry.getDeviceId() + " is not available");
             }
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
@@ -288,7 +295,6 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
         this.writeTasks.remove(deviceId);
         this.readTasks.remove(deviceId);
     }
-
 
 
     /**

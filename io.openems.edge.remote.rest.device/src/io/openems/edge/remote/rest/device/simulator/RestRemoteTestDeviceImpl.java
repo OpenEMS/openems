@@ -33,6 +33,9 @@ public class RestRemoteTestDeviceImpl extends AbstractOpenemsComponent implement
         super.activate(context, config.id(), config.alias(), config.enabled());
     }
 
+    /**
+     * Deactivates the Component.
+     */
     @Deactivate
     public void deactivate() {
         super.deactivate();

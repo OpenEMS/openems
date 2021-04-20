@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.communication.remote.rest.api;
 
+import io.openems.common.exceptions.OpenemsError;
+
 public interface RestWriteRequest extends RestRequest {
     /**
      * Creates the msg String for the REST POST Method.
@@ -22,10 +24,6 @@ public interface RestWriteRequest extends RestRequest {
      *
      * @return a boolean.
      */
-    boolean readyToWrite();
 
-    /**
-     * Updates the Channel.
-     */
-    void nextValueSet();
+    boolean allowedToWrite();
 }

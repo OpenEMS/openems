@@ -1,6 +1,7 @@
 package io.openems.edge.remote.rest.device;
 
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.communication.remote.rest.api.RestBridge;
 import io.openems.edge.bridge.communication.remote.rest.api.RestRequest;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A Remote Device Communicating via REST.
  * One can configure a Channel to get Information from / write into.
+ * Note: ATM Only Numeric Values are possible to read from!
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Rest.Remote.Device", immediate = true,
@@ -79,15 +81,17 @@ public class RestRemoteDeviceImpl extends AbstractOpenemsComponent implements Op
      * @throws ConfigurationException if TemperatureSensor is set to Write; or if an impossible Case occurs (deviceMode neither Read/Write)
      */
     private RestRequest createNewTask(String deviceChannel, String remoteDeviceId,
-                                      String realDeviceId, String deviceMode) throws ConfigurationException {
+                                      String realDeviceId, String deviceMode) throws ConfigurationException, OpenemsError.OpenemsNamedException {
 
         RestRequest task;
         if (deviceMode.equals("Write")) {
 
             this.getTypeSetChannel().setNextValue("Write");
             this.isRead = false;
-            task = new RestRemoteWriteTask(remoteDeviceId, realDeviceId, deviceChannel, getWriteValueChannel(),
-                    this.getAllowRequestChannel(), this.log);
+            task = new RestRemoteWriteTask(remoteDeviceId, realDeviceId, deviceChannel,
+                    ChannelAddress.fromString(super.id() + "/" + this.getWriteValueChannel().channelId().id()),
+                    ChannelAddress.fromString(super.id() + "/" + this.getAllowRequestChannel().channelId().id()),
+                    this.log, this.cpm);
             return task;
 
         } else if (deviceMode.equals("Read")) {
@@ -95,7 +99,7 @@ public class RestRemoteDeviceImpl extends AbstractOpenemsComponent implements Op
             this.isRead = true;
             //String deviceId, String masterSlaveId, boolean master, String realTemperatureSensor, Channel<Integer> temperature
             task = new RestRemoteReadTask(remoteDeviceId, realDeviceId, deviceChannel,
-                    getReadValueChannel(), this.log);
+                    ChannelAddress.fromString(super.id() + "/" + this.getReadValueChannel().channelId().id()), this.log, this.cpm);
             return task;
         }
 
@@ -107,13 +111,12 @@ public class RestRemoteDeviceImpl extends AbstractOpenemsComponent implements Op
      * SetsValue of Remote Device, if Remote Device TypeSet is set to "Write".
      *
      * @param value Value which will be Written to Device configured by the Remote Device.
-     * @return boolean depending if setNextWriteValue was successful or not (and depending if TypeSet is Read or Write).
      */
     @Override
-    public boolean setValue(String value) {
+    public void setValue(String value) {
         if (this.getTypeSetChannel().getNextValue().isDefined() == false) {
             this.log.warn("The Type of the Remote Device: " + super.id() + " is not available yet");
-            return false;
+            return;
         }
         if (this.getTypeSetChannel().getNextValue().get().equals("Read")) {
             this.log.warn("Can't write into ReadTasks: " + super.id());
@@ -123,9 +126,7 @@ public class RestRemoteDeviceImpl extends AbstractOpenemsComponent implements Op
             this.getWriteValueChannel().setNextWriteValue(value);
         } catch (OpenemsError.OpenemsNamedException e) {
             this.log.warn("Couldn't write the Value for : " + super.id());
-            return false;
         }
-        return true;
 
     }
 
@@ -148,20 +149,44 @@ public class RestRemoteDeviceImpl extends AbstractOpenemsComponent implements Op
         return "Read Value not available yet";
     }
 
+    /**
+     * Get the Unique Id.
+     *
+     * @return the Id.
+     */
+
     @Override
     public String getId() {
         return this.id();
     }
+
+    /**
+     * Check if this Device is a Write Remote Device.
+     *
+     * @return a boolean.
+     */
 
     @Override
     public boolean isWrite() {
         return this.isRead == false;
     }
 
+    /**
+     * Checks if this Device is a Read Remote Device.
+     *
+     * @return a boolean.
+     */
+
     @Override
     public boolean isRead() {
         return this.isRead;
     }
+
+    /**
+     * Checks/Asks if the Connection via Rest is ok.
+     *
+     * @return a boolean.
+     */
 
     @Override
     public boolean connectionOk() {
@@ -185,7 +210,7 @@ public class RestRemoteDeviceImpl extends AbstractOpenemsComponent implements Op
      */
     @Deactivate
     public void deactivate() {
-        super.deactivate();
         this.restBridge.removeRestRemoteDevice(super.id());
+        super.deactivate();
     }
 }

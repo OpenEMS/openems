@@ -5,9 +5,17 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
+/**
+ * This Nature allows RestRemoteDevice to Work.
+ * The ValueRead channel is for Read Remote Devices. If you work with Remote OpenEMS applications and you need a Channel.
+ * Configure the Channel in Config and read the Value from ValueRead.
+ * Same goes for WriteChannel. If you want to Write remotely to one Channel. Use the WriteChannel to write your values into this one.+
+ * If you want  to interrupt the WriteChannel. Just write false into allow Request.
+ */
 public interface RestRemoteDevice extends OpenemsComponent {
 
     enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -30,7 +38,8 @@ public interface RestRemoteDevice extends OpenemsComponent {
          * <li>Will be Set if the RestRemoteDevice is set to Write
          * </ul>
          */
-        VALUE_WRITE(Doc.of(OpenemsType.STRING).accessMode(AccessMode.READ_WRITE)),
+        VALUE_WRITE(Doc.of(OpenemsType.STRING).accessMode(AccessMode.READ_WRITE).onInit(channel ->
+                ((StringWriteChannel) channel).onSetNextWrite(channel::setNextValue))),
         /**
          * WhatTypeSet: Is the Device a Read or Write / Get and Post request.
          *
@@ -50,9 +59,9 @@ public interface RestRemoteDevice extends OpenemsComponent {
          *
          * </ul>
          */
-        ALLOW_REQUEST(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_WRITE).onInit(channel -> {
-            ((BooleanWriteChannel) channel).onSetNextWrite(channel::setNextValue);
-        }));
+        ALLOW_REQUEST(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_WRITE).onInit(channel ->
+                ((BooleanWriteChannel) channel).onSetNextWrite(channel::setNextValue)
+        ));
 
 
         private final Doc doc;
@@ -108,9 +117,8 @@ public interface RestRemoteDevice extends OpenemsComponent {
      * Sets the Value of the Device if it's type is Write /allows to write.
      *
      * @param value the Value that the Remote Device will be set to and therefore the Remote Device too.
-     * @return success.
      */
-    boolean setValue(String value);
+    void setValue(String value);
 
     /**
      * Returns the Value as a String. Depending on the Write/Read Type.

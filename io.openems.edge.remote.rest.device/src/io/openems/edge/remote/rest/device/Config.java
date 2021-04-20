@@ -6,8 +6,7 @@ import org.osgi.service.metatype.annotations.Option;
 
 @ObjectClassDefinition(
         name = "Rest Remote Device ",
-        description = " The Devices you wish to Communicate with. As a Master --> register your Slaves. If Slaves want "
-                + "to Communicate with Master tick boolean --> isMaster")
+        description = "The Devices you wish to Communicate with.")
 @interface Config {
 
 
@@ -19,10 +18,10 @@ import org.osgi.service.metatype.annotations.Option;
     @AttributeDefinition(name = "Alias", description = "Human readable name for this Component.")
     String alias() default "";
 
-    @AttributeDefinition(name = "RestBridge Id", description = "Id of the Rest Bridge you want to communicate with.")
+    @AttributeDefinition(name = "RestBridge Id", description = "The Corresponding RestBridge.")
     String restBridgeId() default "RestBridge0";
 
-    @AttributeDefinition(name = "Real Device Id", description = "Id of the remote device you want to communicate with.")
+    @AttributeDefinition(name = "Real Device Id", description = "Id of the (remote) device you want to communicate with.")
     String realDeviceId() default "TemperatureSensor0";
 
     @AttributeDefinition(name = "Channel", description = "Channel of the Device you want to read; Remember Only"
@@ -35,13 +34,9 @@ import org.osgi.service.metatype.annotations.Option;
                     @Option(label = "Write", value = "Write")
             }
     )
-            String deviceMode() default "Read";
-
-    @AttributeDefinition(name = "Unit", description = "The Unit of the Device")
-            String deviceUnit() default "dC";
+    String deviceMode() default "Read";
 
     boolean enabled() default true;
-
 
     String webconsole_configurationFactory_nameHint() default "Rest Device [{id}]";
 
