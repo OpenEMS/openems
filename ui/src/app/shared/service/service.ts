@@ -109,11 +109,15 @@ export class Service implements ErrorHandler {
        * @returns converted value
        */
   public changeWattInKiloWatt = (value: any): string => {
-    let thisValue = (value / 1000);
-    if (thisValue.toString().endsWith('0')) {
-      return thisValue.toString() + ' kW'
+    if (value >= 0) {
+      let thisValue = (value / 1000);
+      if (thisValue.toFixed(1).endsWith('0')) {
+        return Math.round(thisValue).toString() + ' kW';
+      } else {
+        return thisValue.toFixed(1).replace('.', ',') + ' kW'
+      }
     } else {
-      return thisValue.toFixed(1).replace('.', ',') + ' kW'
+      return 0 + ' kW'
     }
   }
   /**
