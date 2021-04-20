@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * If a WriteValue is defined, it will be set in the TemperatureChannel.
  */
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Device.Thermometer.Virtual",
+@Component(name = "Thermometer.Virtual",
         immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE,
         property = {EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE})
