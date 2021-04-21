@@ -25,7 +25,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is Sell-To-Grid-Limit enabled?", description = "Is the sell to grid limit logic enabled?.")
 	boolean sellToGridLimitEnabled() default true;
-	
+
 	@AttributeDefinition(name = "Maximum allowed Sell-To-Grid power", description = "The target limit for sell-to-grid power.")
 	int maximumSellToGridPower() default 7000;
 
@@ -35,13 +35,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
 	Mode mode() default Mode.AUTOMATIC;
-	
+
 	@AttributeDefinition(name = "Target Time", description = "Charging to 100 % SoC is delayed till this hour of the day, e.g. 17 for 5 pm. Local timezone of this device is applied.")
 	String manual_targetTime() default "17:00";
 
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode (Displays the Predicted Values in the Log only once!)")
 	boolean debugMode() default false;
-	
+
 	@AttributeDefinition(name = "Ramp percentage in the sell to grid limit logic", description = "Percentage that is applied on the sellToGridLimit power limit, if it's not a more strict value.")
 	int sellToGridLimitRampPercentage() default 5;
 

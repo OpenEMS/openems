@@ -46,7 +46,8 @@ public class MyControllerTest {
 
 	// Controller channels
 	private static final ChannelAddress PREDICTED_TARGET_MINUTE = new ChannelAddress(CTRL_ID, "PredictedTargetMinute");
-	private static final ChannelAddress PREDICTED_TARGET_MINUTE_ADJUSTED = new ChannelAddress(CTRL_ID, "PredictedTargetMinuteAdjusted");
+	private static final ChannelAddress PREDICTED_TARGET_MINUTE_ADJUSTED = new ChannelAddress(CTRL_ID,
+			"PredictedTargetMinuteAdjusted");
 	private static final ChannelAddress TARGET_MINUTE = new ChannelAddress(CTRL_ID, "TargetMinute");
 	private static final ChannelAddress DELAY_CHARGE_STATE = new ChannelAddress(CTRL_ID, "DelayChargeState");
 	private static final ChannelAddress SELL_TO_GRID_LIMIT_STATE = new ChannelAddress(CTRL_ID, "SellToGridLimitState");
@@ -54,10 +55,9 @@ public class MyControllerTest {
 			"DelayChargeMaximumChargeLimit");
 	private static final ChannelAddress SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT = new ChannelAddress(CTRL_ID,
 			"SellToGridLimitMinimumChargeLimit");
-	
+
 	private static final ChannelAddress SUM_PRODUCTION_DC_ACTUAL_POWER = new ChannelAddress("_sum",
 			"ProductionDcActualPower");
-	
 
 	/*
 	 * Default Prediction values
@@ -146,6 +146,7 @@ public class MyControllerTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
+				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setEssId(ESS_ID) //
 						.setId(CTRL_ID) //
@@ -200,6 +201,7 @@ public class MyControllerTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
+				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setEssId(ESS_ID) //
 						.setId(CTRL_ID) //
@@ -253,6 +255,7 @@ public class MyControllerTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
+				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setEssId(ESS_ID) //
 						.setId(CTRL_ID) //
@@ -304,6 +307,7 @@ public class MyControllerTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
+				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setEssId(ESS_ID) //
 						.setId(CTRL_ID) //
@@ -321,7 +325,7 @@ public class MyControllerTest {
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null) //
-						.output(DELAY_CHARGE_STATE, DelayChargeState.NO_CHARGE_LIMIT));
+						.output(DELAY_CHARGE_STATE, DelayChargeState.TARGET_MINUTE_NOT_CALCULATED));
 	}
 
 	@Test
@@ -345,6 +349,7 @@ public class MyControllerTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
+				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setEssId(ESS_ID) //
 						.setId(CTRL_ID) //
@@ -362,7 +367,7 @@ public class MyControllerTest {
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.input(ESS_ACTIVE_POWER, 0) //
-						.output(DELAY_CHARGE_STATE, DelayChargeState.NO_CHARGE_LIMIT) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.TARGET_MINUTE_NOT_CALCULATED) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, null) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -500) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 500) //
@@ -409,7 +414,7 @@ public class MyControllerTest {
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.input(ESS_ACTIVE_POWER, 0) //
-						.output(DELAY_CHARGE_STATE, DelayChargeState.NO_CHARGE_LIMIT) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.TARGET_MINUTE_NOT_CALCULATED) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, null) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -500) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 500) //
@@ -447,6 +452,7 @@ public class MyControllerTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
+				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setEssId(ESS_ID) //
 						.setId(CTRL_ID) //
@@ -500,6 +506,7 @@ public class MyControllerTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
+				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setEssId(ESS_ID) //
 						.setId(CTRL_ID) //
@@ -522,7 +529,7 @@ public class MyControllerTest {
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 1600));
 
 	}
-	
+
 	@Test
 	public void hybridEss_manual_midday_test() throws Exception {
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
@@ -570,12 +577,11 @@ public class MyControllerTest {
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
-						.input(SUM_PRODUCTION_DC_ACTUAL_POWER, 10_000)
-						.output(TARGET_MINUTE, /* QuarterHour */ 1020) //
+						.input(SUM_PRODUCTION_DC_ACTUAL_POWER, 10_000).output(TARGET_MINUTE, /* QuarterHour */ 1020) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 1600));
 
 	}
-	
+
 }

@@ -1,5 +1,6 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -13,21 +14,23 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		DELAY_CHARGE_STATE(Doc.of(DelayChargeState.values()) //
-				.text("Current state of the delayed charge function")),
+				.text("Current state of the delayed charge function.")),
 		SELL_TO_GRID_LIMIT_STATE(Doc.of(SellToGridLimitState.values()) //
-				.text("Current state of the sell to grid limit function")),
+				.text("Current state of the sell to grid limit function.")),
 		DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.text("Delay-Charge power limitation")), //
+				.text("Delay-Charge power limitation.")), //
 		SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.text("Sell to grid limit charge power limitation")),
+				.text("Sell to grid limit charge power limitation.")),
 		PREDICTED_TARGET_MINUTE(Doc.of(OpenemsType.INTEGER) //
-				.text("Actual target minute calculated from prediction without buffer hours")),
+				.text("Actual target minute calculated from prediction without buffer hours.")),
 		PREDICTED_TARGET_MINUTE_ADJUSTED(Doc.of(OpenemsType.INTEGER) //
-				.text("Adjusted target minute calculated from prediction including the buffer hours (for automatic mode)")),
+				.text("Adjusted target minute calculated from prediction including the buffer hours (for automatic mode).")),
 		TARGET_MINUTE(Doc.of(OpenemsType.INTEGER) //
-				.text("Target minute independent of the current mode Manual and Automatic"));
+				.text("Target minute independent of the current mode Manual and Automatic.")),
+		DELAY_CHARGE_NEGATIVE_LIMIT(Doc.of(Level.INFO) //
+				.text("System would be charged from the grid under these constraints.")), //
 		;
 
 		private final Doc doc;

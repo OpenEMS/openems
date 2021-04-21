@@ -18,7 +18,7 @@
     <ng-container *ngIf="!loading">
         <ng-container *ngIf="component && service.currentEdge | async as edge">
             <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
-                <ion-card-content class="underline">
+                <ion-card-content class="underline" *ngIf="component.properties.mode != 'OFF'">
                     <!--TODO: Translate-->
                     <table class="full_width" [ngSwitch]="currentData[component.id + '/SellToGridLimitState']">
                         <ng-container *ngSwitchCase="0">
@@ -51,6 +51,9 @@
                                     <ng-container *ngSwitchCase="4">
                                         Keine Begrenzung Möglich(Eingeschränkt durch Controller mit höherer Priorität)
                                     </ng-container>
+                                    <ng-container *ngSwitchCase="5">
+                                        Keine Beladelimit aktiv
+                                    </ng-container>
                                 </td>
                             </tr>
                         </ng-container>
@@ -59,14 +62,12 @@
 
                         <!--SellToGridLimit-->
                         <ng-container
-                            *ngIf="currentData[component.id + '/SellToGridLimitChargeLimit'] != null as limit; else sellToGridLimitNotActive">
+                            *ngIf="currentData[component.id + '/SellToGridLimitChargeLimit'] != null; else sellToGridLimitNotActive">
                             <tr>
-                                <td style="width:100%" translate>Maximales Einspeiselimit erreicht</td>
-
                                 <td style="width:65%" translate>Minimale Beladung</td>
                                 <td style="width:35%" class="align_right" translate>
                                     <ng-container>
-                                        {{limit}}
+                                        {{currentData[component.id + '/SellToGridLimitChargeLimit'] | unitvalue: 'W'}}
                                     </ng-container>
                                 </td>
                             </tr>
@@ -81,14 +82,13 @@
                                     <td style="width:35%" class="align_right" translate>
                                         <ng-container>
                                             {{ currentData[component.id + '/DelayChargeMaximumChargeLimit'] |
-                                            unitvalue:'kW' }}
+                                            unitvalue:'W' }}
                                         </ng-container>
                                     </td>
                                 </tr>
                             </ng-container>
                         </ng-template>
-                        <tr
-                            *ngIf="component.properties.mode != 'OFF' && currentData[component.id + '/TargetMinute'] as targetMinute">
+                        <tr *ngIf="currentData[component.id + '/TargetMinute'] as targetMinute">
                             <ng-container>
                                 <td style="width: 65%" translate>
                                     Endzeitpunkt der beschränkten Beladung
@@ -142,6 +142,7 @@
                     </ion-segment>
                 </ion-card-content>
                 <form [formGroup]="formGroup">
+
                     <!--Manual Mode-->
                     <ng-container *ngIf="component.properties['mode'] == 'MANUAL'">
                         <ion-card-content>
@@ -201,7 +202,6 @@
                             </table>
                         </ion-card-content>
                     </ng-container>
-
 
                     <!--Automatic Mode-->
                     <ng-container *ngIf="component.properties['mode'] == 'AUTOMATIC'">
@@ -282,6 +282,23 @@
                                                 </ion-input>
                                                 <ion-label class="regularFont">&nbsp;W</ion-label>
                                             </ion-item>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </ion-card-content>
+                        </ng-container>
+                    </ng-container>
+
+                    <!--OFF Mode-->
+                    <ng-container *ngIf="component.properties['mode'] == 'OFF'">
+                        <ng-container>
+                            <ion-card-content>
+                                <table class="full_width">
+                                    <tr>
+                                        <td style="width:100%">
+                                            <ion-label class="ion-text-wrap">
+                                                Netzdienliche Beladung deaktiviert.
+                                            </ion-label>
                                         </td>
                                     </tr>
                                 </table>

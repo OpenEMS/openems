@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -32,7 +33,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
@@ -264,8 +264,8 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	 * /** Set active power limits depending on the given target minute.
 	 * 
 	 * <p>
-	 * Limits the charge value of the ESS, to reach 100 percent at this calculated target
-	 * minute.
+	 * Limits the charge value of the ESS, to reach 100 percent at this calculated
+	 * target minute.
 	 * 
 	 * @param targetMinute Minute when the production get's lower than the
 	 *                     consumption
@@ -278,7 +278,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 		// Return if there is no target minute
 		if (targetMinute == null) {
-			this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
+			this.setDelayChargeStateAndLimit(DelayChargeState.TARGET_MINUTE_NOT_CALCULATED, null);
 			return;
 		}
 
@@ -308,33 +308,60 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 		Integer currentLimit = calculatedPower;
 		DelayChargeState state = DelayChargeState.NO_CHARGE_LIMIT;
+		String constraintMessage = "";
+		boolean dcDelayCharge = false;
 
-		// Set the constraint depending on the ESS type
-		if (this.ess instanceof HybridEss) {
+		// DC System
+		if (this.sum.getProductionDcActualPower().isDefined()) {
+			dcDelayCharge = true;
+		}
 
-			int productionPower = this.sum.getProductionDcActualPower().orElse(0);
-			currentLimit = productionPower - calculatedPower;
+		// Set the constraint depending on AC and DC Systems
+		if (dcDelayCharge) {
+			constraintMessage = "GridOptimizedSelfConsumption - DcPredictiveDelayCharge";
+
+			// Calculate discharge power to reduce the charge to the calculated power
+			Optional<Integer> productionDcPower = this.sum.getProductionDcActualPower().asOptional();
+			currentLimit = productionDcPower.get() - calculatedPower;
 
 			// Avoiding buying power from grid to charge the battery.
 			if (currentLimit <= 0) {
 				this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
+				this.logDebug("Hybrid system would charge from the grid under these constraints");
+				this.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_NEGATIVE_LIMIT).setNextValue(true);
 				return;
 			}
-			state = this.setActivePowerConstraint("GridOptimizedSelfConsumption - DcPredictiveDelayCharge",
-					currentLimit);
+
+			// Avoid discharging more than the sellToGridPowerLimit allows
+			if (currentLimit > this.config.maximumSellToGridPower()) {
+				currentLimit = this.config.maximumSellToGridPower() - DEFAULT_POWER_BUFFER;
+			}
+
+			this.logDebug("Set Constraint to Hybrid  system would charge from the grid under these constraints");
+
+			// Set the power limitation constraint
+			state = this.setActivePowerConstraint(constraintMessage, currentLimit);
 
 		} else {
+			constraintMessage = "GridOptimizedSelfConsumption - AcPredictiveDelayCharge";
+
 			// Never force discharge
 			if (currentLimit < 0) {
+
 				this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
+				this.logDebug("System would charge from the grid under these constraints");
+				this.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_NEGATIVE_LIMIT).setNextValue(true);
 				return;
 			}
-			state = this.setActivePowerConstraint("GridOptimizedSelfConsumption - AcPredictiveDelayCharge",
-					(currentLimit * -1));
+
+			currentLimit = currentLimit * -1;
 		}
 
-		// TODO make sure setDelayChargeStateAndLimit is called in any case!
+		// Set the power limitation constraint
+		state = this.setActivePowerConstraint(constraintMessage, currentLimit);
+
 		this.setDelayChargeStateAndLimit(state, calculatedPower);
+		this.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_NEGATIVE_LIMIT).setNextValue(false);
 	}
 
 	/**
@@ -402,7 +429,9 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 		// Production was never higher than consumption
 		if (targetMinute == null) {
-			this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
+			this.setDelayChargeStateAndLimit(DelayChargeState.TARGET_MINUTE_NOT_CALCULATED, null);
+
+			this.logDebug("No target minute calculated - Production may never be higher than consumption");
 			return null;
 		}
 
@@ -444,7 +473,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		int remainingCapacity = capacity * (100 - ess.getSoc().getOrError()) * 36;
 
 		// No remaining capacity -> no restrictions
-		if (remainingCapacity < 0) {
+		if (remainingCapacity <= 0) {
 			this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_CAPACITY, null);
 			return null;
 		}
@@ -582,5 +611,11 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	private static ZonedDateTime roundZonedDateTimeDownTo15Minutes(ZonedDateTime d) {
 		int minuteOfDay = d.get(ChronoField.MINUTE_OF_DAY);
 		return d.with(ChronoField.NANO_OF_DAY, 0).plus(minuteOfDay / 15 * 15, ChronoUnit.MINUTES);
+	}
+
+	private void logDebug(String message) {
+		if (this.config.debugMode()) {
+			this.logDebug(this.log, message);
+		}
 	}
 }

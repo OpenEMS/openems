@@ -107,12 +107,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String ess_target() {
-		return "(&(enabled=true)(!(service.pid="+this.builder.id+"))(|(id=" + this.ess_id() + ")))";
+		return "(&(enabled=true)(!(service.pid=" + this.builder.id + "))(|(id=" + this.ess_id() + ")))";
 	}
 
 	@Override
 	public String meter_target() {
-		return "(&(enabled=true)(!(service.pid="+this.builder.id+"))(|(id=" + this.meter_id() + ")))";
+		return "(&(enabled=true)(!(service.pid=" + this.builder.id + "))(|(id=" + this.meter_id() + ")))";
 	}
 
 	@Override
