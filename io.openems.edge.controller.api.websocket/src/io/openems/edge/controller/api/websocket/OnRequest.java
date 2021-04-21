@@ -93,7 +93,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<JsonrpcResponseSuccess> handleLogoutRequest(WsData wsData, User user,
 			LogoutRequest request) throws OpenemsNamedException {
 		this.parent.sessionTokens.remove(wsData.getSessionToken(), user);
-		wsData.unsetUser();
+		wsData.logout();
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
@@ -199,7 +199,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		User user = userOpt.get();
 		wsData.setUser(user);
 		this.parent.sessionTokens.put(wsData.getSessionToken(), user);
-		// TODO unset on logout!
 		return CompletableFuture.completedFuture(new AuthenticateWithPasswordResponse(request.getId(),
 				wsData.getSessionToken(), user, Utils.getEdgeMetadata(user.getRole())));
 	}

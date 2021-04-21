@@ -94,8 +94,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleLogoutRequest(WsData wsData, User user,
 			LogoutRequest request) throws OpenemsNamedException {
-		wsData.unsetToken();
-		wsData.unsetUserId();
+		wsData.logout();
 		this.parent.metadata.logout(user);
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}

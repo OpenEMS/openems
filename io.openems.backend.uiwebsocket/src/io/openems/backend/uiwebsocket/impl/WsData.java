@@ -29,6 +29,15 @@ public class WsData extends io.openems.common.websocket.WsData {
 		}
 	}
 
+	/**
+	 * Logout and invalidate Session.
+	 */
+	public void logout() {
+		this.unsetToken();
+		this.unsetUserId();
+		this.dispose();
+	}
+
 	public synchronized void setUserId(String userId) {
 		this.userId = Optional.ofNullable(userId);
 	}
@@ -130,4 +139,5 @@ public class WsData extends io.openems.common.websocket.WsData {
 			TimeUnit unit) {
 		return this.parent.scheduleWithFixedDelay(command, initialDelay, delay, unit);
 	}
+
 }
