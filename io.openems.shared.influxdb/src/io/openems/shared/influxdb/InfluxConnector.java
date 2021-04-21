@@ -38,6 +38,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
+import io.openems.common.utils.ThreadPoolUtils;
 import okhttp3.OkHttpClient;
 
 public class InfluxConnector {
@@ -146,19 +147,7 @@ public class InfluxConnector {
 
 	public void deactivate() {
 		// Shutdown executor
-		if (this.executor != null) {
-			try {
-				this.executor.shutdown();
-				this.executor.awaitTermination(5, TimeUnit.SECONDS);
-			} catch (InterruptedException e) {
-				this.log.warn("tasks interrupted");
-			} finally {
-				if (!this.executor.isTerminated()) {
-					this.log.warn("cancel non-finished tasks");
-				}
-				this.executor.shutdownNow();
-			}
-		}
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 		if (this._influxDB != null) {
 			this._influxDB.close();
 		}
