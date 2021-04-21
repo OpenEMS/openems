@@ -100,7 +100,7 @@ public class FixActiveGridPower extends AbstractOpenemsComponent implements Cont
 			double cycleTime_s = this.cycle.getCycleTime() / 1000.0;
 			this.piController.setCycleTimeInSeconds(cycleTime_s);
 			
-			int powerSetPointEss = this.piController.applyPiFilter(meter.getActivePower().getOrError(), this.config.setPointActivePower());		
+			int powerSetPointEss = -this.piController.applyPiFilter(meter.getActivePower().getOrError(), this.config.setPointActivePower());		
 			ess.setActivePowerEquals(powerSetPointEss);
 
 			break;

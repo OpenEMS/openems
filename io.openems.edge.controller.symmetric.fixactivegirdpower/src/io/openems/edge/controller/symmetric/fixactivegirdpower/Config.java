@@ -29,7 +29,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Kp (gain)", description = "PI-controller: gain")
 	float piKp() default 0.45f;
 	
-	@AttributeDefinition(name = "Ti [s] (reset time / Nachstellzeit)", description = "PI-controller: reset time")
+	@AttributeDefinition(name = "Ti [s] (reset time / Nachstellzeit)", description = "PI-controller: reset time (0 = disable")
 	float piTi_s() default 2.2f;
 	
 	@AttributeDefinition(name = "enable I-Delay", description = "PI-controller: if this option is enabled, the integrator of the controller is delayed by one calculation cycle")
