@@ -2,7 +2,7 @@ package io.openems.edge.controller.heatnetwork.master;
 
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.rest.remote.device.general.api.RestRemoteChannel;
+import io.openems.edge.remote.rest.device.api.RestRemoteDevice;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -63,8 +63,8 @@ public class HeatNetworkMasterImplTest {
 
 	private static HeatNetworkMasterImpl master;
 	private static DummyComponentManager cpm;
-	private RestRemoteChannel allocatedRead;
-	private RestRemoteChannel allocatedWrite;
+	private RestRemoteDevice allocatedRead;
+	private RestRemoteDevice allocatedWrite;
 
 
 

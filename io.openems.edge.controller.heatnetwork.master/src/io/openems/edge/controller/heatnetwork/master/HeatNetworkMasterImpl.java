@@ -7,7 +7,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.heatnetwork.master.api.HeatNetworkMaster;
 import io.openems.edge.controller.heatnetwork.controlcenter.api.ControlCenter;
-import io.openems.edge.rest.remote.device.general.api.RestRemoteDevice;
+import io.openems.edge.remote.rest.device.api.RestRemoteDevice;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;

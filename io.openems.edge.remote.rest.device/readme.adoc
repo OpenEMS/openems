@@ -1,0 +1,12 @@
+= Rest Remote Device
+
+This Bundle provides the Rest Remote Device to Read/Write from Remote OpenEMS and check Information/Write into one Channel.
+Needs a configured RestBridge.
+One Device can handle One Channel at a time.
+The only Channel who are supported, are the ones with a numeric Value. Therefore, String-channel supported.
+
+Implemented Natures::
+- RestRemoteDevice
+
+
+
