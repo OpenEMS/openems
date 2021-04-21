@@ -51,7 +51,7 @@ public class RestApiReadWriteImpl extends AbstractRestApi
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.debugMode(), config.apiTimeout(),
-				config.port());
+				config.port(), config.connectionlimit());
 	}
 
 	@Deactivate

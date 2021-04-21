@@ -79,13 +79,13 @@ testpath: \
 	Edge_Controller_Api;member=${filter;${p};io\.openems\.edge\.controller\.api\..*},\
 	Edge_Controller_Debug;member=${filter;${p};io\.openems\.edge\.controller\.debug\..*},\
 	Edge_Controller_Ess;member=${filter;${p};io\.openems\.edge\.controller\.asymmetric\..*|io\.openems\.edge\.controller\.symmetric\..*|io\.openems\.edge\.controller\.ess\..*},\
-	Edge_Controller_Evcs;member=${filter;${p};io\.openems\.edge\.controller\.evcs\..*},\
+	Edge_Controller_Evcs;member=${filter;${p};io\.openems\.edge\.controller\.evcs.*},\
 	Edge_Controller_Generic;member=${filter;${p};io\.openems\.edge\.controller\.generic\..*},\
 	Edge_Controller_IO;member=${filter;${p};io\.openems\.edge\.controller\.io\..*},\
 	Edge_Controller_PVinverter;member=${filter;${p};io\.openems\.edge\.controller\.pvinverter\..*},\
 	Edge_Ess;member=${filter;${p};io\.openems\.edge\.ess\..*},\
 	Edge_Evcs;member=${filter;${p};io\.openems\.edge\.evcs\..*|io\.openems\.wrapper\.eu\.chargetime\.ocpp},\
-	Edge_Multiple;member=${filter;${p};io\.openems\.edge\.fenecon\..*|io\.openems\.edge\.goodwe\..et|io\.openems\.edge\.kostal\.piko|io\.openems\.edge\.tesla\.*|io\.openems\.edge\.solaredge},\
+	Edge_Multiple;member=${filter;${p};io\.openems\.edge\.fenecon\..*|io\.openems\.edge\.goodwe|io\.openems\.edge\.kostal\.piko|io\.openems\.edge\.tesla\.*|io\.openems\.edge\.solaredge},\
 	Edge_IO;member=${filter;${p};io\.openems\.edge\.io\..*|io\.openems\.edge\.controller\.channelthreshold|io\.openems\.edge\.controller\.chp\..*|io\.openems\.edge\.controller\.highloadtimeslot},\
 	Edge_Meter;member=${filter;${p};io\.openems\.edge\.meter\..*},\
 	Edge_Predictor;member=${filter;${p};io\.openems\.edge\.predictor\..*},\

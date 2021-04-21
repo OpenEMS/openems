@@ -249,7 +249,7 @@ export class Websocket {
    * @param message 
    */
   private handleAuthenticateWithSessionId(message: AuthenticateWithSessionIdNotification): void {
-    this.service.handleAuthentication(message.params.token, message.params.edges);
+    this.service.handleAuthentication(message.params.token, message.params.user, message.params.edges);
   }
 
   /**

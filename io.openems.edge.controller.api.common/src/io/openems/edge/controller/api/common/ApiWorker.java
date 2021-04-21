@@ -19,13 +19,14 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
-import io.openems.common.session.User;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.user.User;
 
 /**
  * Takes care of continuously writing channels till a timeout. This class is
@@ -37,7 +38,9 @@ public class ApiWorker {
 
 	public static final int DEFAULT_TIMEOUT_SECONDS = 10;
 
-	private static final Logger log = LoggerFactory.getLogger(ApiWorker.class);
+	private final Logger log = LoggerFactory.getLogger(ApiWorker.class);
+
+	private final OpenemsComponent parent;
 
 	/**
 	 * Debug information about writes to channels is sent to this channel.
@@ -55,7 +58,8 @@ public class ApiWorker {
 
 	private int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS;
 
-	public ApiWorker() {
+	public ApiWorker(OpenemsComponent parent) {
+		this.parent = parent;
 		this.executor = Executors.newSingleThreadScheduledExecutor();
 	}
 
@@ -81,22 +85,23 @@ public class ApiWorker {
 		synchronized (this.values) {
 			if (writeObject.isNull()) {
 				// set null -> remove write-value
-				log.info("Unset [" + channel.address() + "] via API.");
+				OpenemsComponent.logInfo(this.parent, this.log,
+						"Set [" + channel.address() + "] to [" + writeObject.valueToString() + "] via API");
 				this.values.remove(channel);
 			} else {
 				// set write-value
-				log.info("Set [" + channel.address() + "] to [" + writeObject.valueToString()
-						+ "] via API. Timeout is [" + this.timeoutSeconds + "s]");
+				OpenemsComponent.logInfo(this.parent, this.log, "Set [" + channel.address() + "] to ["
+						+ writeObject.valueToString() + "] via API. Timeout is [" + this.timeoutSeconds + "s]");
 				this.values.put(channel, writeObject);
 			}
 		}
 	}
 
 	/**
-	 * Adds a value via JSON-RPC SetChannelValueRequest.
+	 * Adds a value via JSON-RPC {@link SetChannelValueRequest}.
 	 * 
 	 * @param componentManager the {@link ComponentManager}
-	 * @param user             the authenticated User
+	 * @param user             the authenticated {@link User}
 	 * @param request          the Request
 	 * @return success
 	 * @throws OpenemsNamedException    on error
@@ -141,8 +146,8 @@ public class ApiWorker {
 				 */
 				synchronized (this.values) {
 					for (Entry<WriteChannel<?>, WriteObject> entry : this.values.entrySet()) {
-						log.info("API timeout for channel [" + entry.getKey().address() + "] after ["
-								+ this.timeoutSeconds + "s]");
+						OpenemsComponent.logInfo(this.parent, this.log, "API timeout for channel ["
+								+ entry.getKey().address() + "] after [" + this.timeoutSeconds + "s]");
 						entry.getValue().notifyTimeout();
 					}
 					this.values.clear();
@@ -177,13 +182,14 @@ public class ApiWorker {
 				WriteChannel<?> channel = entry.getKey();
 				WriteObject writeObject = entry.getValue();
 				try {
-					log.info("Set Channel [" + channel.address() + "] to Value [" + writeObject.valueToString() + "]");
+					OpenemsComponent.logInfo(this.parent, this.log,
+							"Set Channel [" + channel.address() + "] to Value [" + writeObject.valueToString() + "]");
 					writeObject.setNextWriteValue(channel);
 					writeObject.notifySuccess();
 					logs.add(channel.address() + ":" + writeObject.valueToString());
 				} catch (OpenemsException e) {
-					log.error("Unable to set Channel [" + channel.address() + "] to Value ["
-							+ writeObject.valueToString() + "]: " + e.getMessage());
+					OpenemsComponent.logError(this.parent, this.log, "Unable to set Channel [" + channel.address()
+							+ "] to Value [" + writeObject.valueToString() + "]: " + e.getMessage());
 					logs.add(channel.address() + ":" + writeObject.valueToString() + "-ERROR:" + e.getMessage());
 					writeObject.notifyError(e);
 					anExceptionHappened = e;

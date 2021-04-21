@@ -6,7 +6,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.ChargeIndication;
+import io.openems.edge.battery.soltaro.common.enums.ChargeIndication;
 import io.openems.edge.battery.soltaro.single.versionb.enums.AutoSetFunction;
 import io.openems.edge.battery.soltaro.single.versionb.enums.ClusterRunState;
 import io.openems.edge.battery.soltaro.single.versionb.enums.ContactExport;
@@ -27,103 +27,229 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
 public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStoppable {
-	
+
+	/**
+	 * Gets the ContactorControlChannel.
+	 * 
+	 * @return WriteChannel
+	 */
 	public default WriteChannel<ContactorControl> getContactorControlChannel() {
 		return this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
 	}
-	
+
+	/**
+	 * Gets the ContactorControl.
+	 * 
+	 * @return ContactorControl
+	 */
 	public default ContactorControl getContactorControl() {
 		return this.getContactorControlChannel().value().asEnum();
 	}
-	
+
+	/**
+	 * Sets the ContactorControl.
+	 * 
+	 * @param value the value
+	 */
 	public default void _setContactorControl(ContactorControl value) {
 		this.getContactorControlChannel().setNextValue(value);
 	}
-	
+
+	/**
+	 * Sets the ContactorControl.
+	 * 
+	 * @param value the value
+	 * @throws OpenemsNamedException the Exception
+	 */
 	public default void setContactorControl(ContactorControl value) throws OpenemsNamedException {
 		this.getContactorControlChannel().setNextWriteValue(value);
 	}
-	
+
+	/**
+	 * Gets the SystemResetChannel.
+	 * 
+	 * @return IntegerWriteChannel
+	 */
 	public default IntegerWriteChannel getSystemResetChannel() {
 		return this.channel(ChannelId.SYSTEM_RESET);
 	}
-	
+
+	/**
+	 * Gets the SystemReset.
+	 * 
+	 * @return Value
+	 */
 	public default Value<Integer> getSystemReset() {
 		return this.getSystemResetChannel().value();
 	}
-	
+
+	/**
+	 * Sets the SystemReset.
+	 * 
+	 * @param value the value
+	 */
 	public default void _setSystemReset(Integer value) {
 		this.getSystemResetChannel().setNextValue(value);
 	}
-	
+
+	/**
+	 * Sets the SystemReset.
+	 * 
+	 * @param value the value
+	 * @throws OpenemsNamedException the exception
+	 */
 	public default void setSystemReset(Integer value) throws OpenemsNamedException {
 		this.getSystemResetChannel().setNextWriteValue(value);
 	}
-	
+
+	/**
+	 * Gets the SleepChannel.
+	 * 
+	 * @return IntegerWriteChannel
+	 */
 	public default IntegerWriteChannel getSleepChannel() {
 		return this.channel(ChannelId.SLEEP);
 	}
-	
+
+	/**
+	 * Gets the Sleep.
+	 * 
+	 * @return Value
+	 */
 	public default Value<Integer> getSleep() {
 		return this.getSleepChannel().value();
 	}
-	
+
+	/**
+	 * Sets the Sleep.
+	 * 
+	 * @param value Integer
+	 */
 	public default void _setSleep(Integer value) {
 		this.getSleepChannel().setNextValue(value);
 	}
-	
+
+	/**
+	 * Sets the Sleep.
+	 * 
+	 * @param value Integer
+	 * @throws OpenemsNamedException the exception
+	 */
 	public default void setSleep(Integer value) throws OpenemsNamedException {
 		this.getSleepChannel().setNextWriteValue(value);
 	}
-	
+
+	/**
+	 * Gets the SocLowProtectionChannel.
+	 * 
+	 * @return IntegerWriteChannel
+	 */
 	public default IntegerWriteChannel getSocLowProtectionChannel() {
 		return this.channel(ChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION);
 	}
-	
+
+	/**
+	 * Gets the SocLowProtection.
+	 * 
+	 * @return Value
+	 */
 	public default Value<Integer> getSocLowProtection() {
 		return this.getSocLowProtectionChannel().value();
 	}
-	
+
+	/**
+	 * Sets SocLowProtection.
+	 * 
+	 * @param value Integer
+	 */
 	public default void _setSocLowProtection(Integer value) {
 		this.getSocLowProtectionChannel().setNextValue(value);
 	}
-	
+
+	/**
+	 * Sets SocLowProtection.
+	 * 
+	 * @param value Integer
+	 * @throws OpenemsNamedException the exception
+	 */
 	public default void setSocLowProtection(Integer value) throws OpenemsNamedException {
 		this.getSocLowProtectionChannel().setNextWriteValue(value);
 	}
-	
+
+	/**
+	 * Gets the SocLowProtectionRecoverChannel.
+	 * 
+	 * @return IntegerWriteChannel
+	 */
 	public default IntegerWriteChannel getSocLowProtectionRecoverChannel() {
 		return this.channel(ChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION_RECOVER);
 	}
-	
+
+	/**
+	 * Gets the SocLowProtectionRecover.
+	 * 
+	 * @return Value
+	 */
 	public default Value<Integer> getSocLowProtectionRecover() {
 		return this.getSocLowProtectionRecoverChannel().value();
 	}
-	
+
+	/**
+	 * Sets the SocLowProtectionRecover.
+	 * 
+	 * @param value Integer
+	 */
 	public default void _setSocLowProtectionRecover(Integer value) {
 		this.getSocLowProtectionRecoverChannel().setNextValue(value);
 	}
-	
+
+	/**
+	 * Sets the SocLowProtectionRecover.
+	 * 
+	 * @param value Integer
+	 * @throws OpenemsNamedException OpenemsNamedException
+	 */
 	public default void setSocLowProtectionRecover(Integer value) throws OpenemsNamedException {
 		this.getSocLowProtectionRecoverChannel().setNextWriteValue(value);
 	}
-	
+
+	/**
+	 * Gets the WatchdogChannel.
+	 * 
+	 * @return IntegerWriteChannel
+	 */
 	public default IntegerWriteChannel getWatchdogChannel() {
 		return this.channel(ChannelId.EMS_COMMUNICATION_TIMEOUT);
 	}
-	
+
+	/**
+	 * Gets the Watchdog.
+	 * 
+	 * @return Value
+	 */
 	public default Value<Integer> getWatchdog() {
 		return this.getWatchdogChannel().value();
 	}
-	
+
+	/**
+	 * Sets the Watchdog.
+	 * 
+	 * @param value Integer
+	 */
 	public default void _setWatchdog(Integer value) {
 		this.getWatchdogChannel().setNextValue(value);
 	}
-	
+
+	/**
+	 * sets the watchdog.
+	 * 
+	 * @param value the value
+	 * @throws OpenemsNamedException the exception
+	 */
 	public default void setWatchdog(Integer value) throws OpenemsNamedException {
 		this.getWatchdogChannel().setNextWriteValue(value);
 	}
-	
+
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
 	 * 
@@ -200,9 +326,9 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 		EMS_COMMUNICATION_TIMEOUT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.SECONDS) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_PARAMETER_PCS_COMMUNICATION_RATE(Doc.of(OpenemsType.INTEGER) //
+		WORK_PARAMETER_NUMBER_OF_MODULES(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
-				.accessMode(AccessMode.READ_WRITE)), //
+				.accessMode(AccessMode.WRITE_ONLY)), //
 		AUTO_SET_SLAVES_ID(Doc.of(AutoSetFunction.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		AUTO_SET_SLAVES_TEMPERATURE_ID(Doc.of(AutoSetFunction.values()) //
@@ -415,6 +541,9 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 		WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM_RECOVER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEZIDEGREE_CELSIUS) //
 				.accessMode(AccessMode.READ_WRITE)), //
+		SET_SOC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT) //
+				.accessMode(AccessMode.WRITE_ONLY)), //
 
 		// EnumReadChannels
 		STATE_MACHINE(Doc.of(State.values()) //
@@ -463,10 +592,6 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 				.unit(Unit.MILLIAMPERE)), //
 		NUMBER_OF_TEMPERATURE_WHEN_ALARM(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE)), //
-		SYSTEM_MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
-		SYSTEM_MAX_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
 		CYCLE_TIME(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE)), //
 		TOTAL_CAPACITY_HIGH_BITS(Doc.of(OpenemsType.INTEGER) //
@@ -474,7 +599,8 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 		TOTAL_CAPACITY_LOW_BITS(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE)), //
 		ALARM_FLAG_REGISTER_1(Doc.of(OpenemsType.INTEGER)), //
-		ALARM_FLAG_REGISTER_2(Doc.of(OpenemsType.INTEGER)), PROTECT_FLAG_REGISTER_1(Doc.of(OpenemsType.INTEGER)),
+		ALARM_FLAG_REGISTER_2(Doc.of(OpenemsType.INTEGER)), //
+		PROTECT_FLAG_REGISTER_1(Doc.of(OpenemsType.INTEGER)), //
 		TESTING_IO(Doc.of(OpenemsType.INTEGER)), //
 		SOFT_SHUTDOWN(Doc.of(OpenemsType.INTEGER)), //
 		CURRENT_BOX_SELF_CALIBRATION(Doc.of(OpenemsType.INTEGER)), //
@@ -482,7 +608,8 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 		INSULATION_SENSOR_FUNCTION(Doc.of(OpenemsType.INTEGER)), //
 		TRANSPARENT_MASTER(Doc.of(OpenemsType.INTEGER)), //
 		SET_EMS_ADDRESS(Doc.of(OpenemsType.INTEGER)), //
-		SLEEP(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)), //), //
+		SLEEP(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //
 		VOLTAGE_LOW_PROTECTION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
 		WORK_PARAMETER_CURRENT_FIX_COEFFICIENT(Doc.of(OpenemsType.INTEGER)), //
@@ -731,39 +858,39 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 				.text("Enable/Disable protect soc high")), //
 		PROTECT_FLAG_REGISTER_2_SOC_LOW(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Enable/Disable protect soc low")), //
-		
-		//Faults and warnings
-		ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW(Doc.of(Level.FAULT) //
+
+		// Faults and warnings
+		ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cell Discharge Temperature Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("Cell Discharge Temperature High Alarm Level 2")), //
-		ALARM_LEVEL_2_TOTAL_VOLTAGE_DIFFERENCE_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_TOTAL_VOLTAGE_DIFFERENCE_HIGH(Doc.of(Level.WARNING) //
 				.text("Total voltage difference too high Alarm Level 2")), //
-		ALARM_LEVEL_2_INSULATION_LOW(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_INSULATION_LOW(Doc.of(Level.WARNING) //
 				.text("Insulation Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_VOLTAGE_DIFFERENCE_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_CELL_VOLTAGE_DIFFERENCE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cell voltage difference is too high Alarm Level 2")), //
-		ALARM_LEVEL_2_POLES_TEMPERATURE_DIFFERENCE_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_POLES_TEMPERATURE_DIFFERENCE_HIGH(Doc.of(Level.WARNING) //
 				.text("Poles temperature difference is too high Alarm Level 2")), //
-		ALARM_LEVEL_2_TEMPERATURE_DIFFERENCE_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_TEMPERATURE_DIFFERENCE_HIGH(Doc.of(Level.WARNING) //
 				.text("Temperature difference is too high Alarm Level 2")), //
-		ALARM_LEVEL_2_SOC_LOW(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_SOC_LOW(Doc.of(Level.WARNING) //
 				.text("SoC Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_CHA_TEMP_LOW(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_CELL_CHA_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cell Charge Temperature Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("Cell Charge Temperature High Alarm Level 2")), //
-		ALARM_LEVEL_2_DISCHA_CURRENT_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_DISCHA_CURRENT_HIGH(Doc.of(Level.WARNING) //
 				.text("Discharge Current High Alarm Level 2")), //
-		ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 				.text("Total Voltage Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_VOLTAGE_LOW(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 				.text("Cell Voltage Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CHA_CURRENT_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_CHA_CURRENT_HIGH(Doc.of(Level.WARNING) //
 				.text("Charge Current High Alarm Level 2")), //
-		ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("Total Voltage High Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_VOLTAGE_HIGH(Doc.of(Level.FAULT) //
+		ALARM_LEVEL_2_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cell Voltage High Alarm Level 2")), //
 		ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cell Discharge Temperature Low Alarm Level 1")), //
@@ -779,7 +906,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 				.text("Pole temperature too high Alarm Level 1")), //
 		ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH(Doc.of(Level.WARNING) //
 				.text("Cell temperature Diff High Alarm Level 1")), //
-		ALARM_LEVEL_1_SOC_LOW(Doc.of(Level.WARNING) //
+		ALARM_LEVEL_1_SOC_LOW(Doc.of(OpenemsType.BOOLEAN) //
 				.text("SOC Low Alarm Level 1")), //
 		ALARM_LEVEL_1_CELL_CHA_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cell Charge Temperature Low Alarm Level 1")), //
@@ -838,35 +965,35 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 				.text("Slave 19 communication error")), //
 		SLAVE_20_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Slave 20 communication error")), //
-		FAILURE_INITIALIZATION(Doc.of(Level.FAULT) //
+		FAILURE_INITIALIZATION(Doc.of(Level.WARNING) //
 				.text("Initialization failure")), //
-		FAILURE_EEPROM(Doc.of(Level.FAULT) //
+		FAILURE_EEPROM(Doc.of(Level.WARNING) //
 				.text("EEPROM fault")), //
-		FAILURE_INTRANET_COMMUNICATION(Doc.of(Level.FAULT) //
+		FAILURE_INTRANET_COMMUNICATION(Doc.of(Level.WARNING) //
 				.text("Intranet communication fault")), //
-		FAILURE_TEMP_SAMPLING_LINE(Doc.of(Level.FAULT) //
+		FAILURE_TEMP_SAMPLING_LINE(Doc.of(Level.WARNING) //
 				.text("Temperature sampling line fault")), //
 		FAILURE_BALANCING_MODULE(Doc.of(Level.OK) //
 				.text("Balancing module fault")), //
-		FAILURE_PCB(Doc.of(Level.FAULT) //
+		FAILURE_PCB(Doc.of(Level.WARNING) //
 				.text("PCB error")), //
-		FAILURE_GR_T(Doc.of(Level.FAULT) //
+		FAILURE_GR_T(Doc.of(Level.WARNING) //
 				.text("GR T error")), //
-		FAILURE_TEMP_SENSOR(Doc.of(Level.FAULT) //
+		FAILURE_TEMP_SENSOR(Doc.of(Level.WARNING) //
 				.text("Temperature sensor fault")), //
-		FAILURE_TEMP_SAMPLING(Doc.of(Level.FAULT) //
+		FAILURE_TEMP_SAMPLING(Doc.of(Level.WARNING) //
 				.text("Temperature sampling fault")), //
-		FAILURE_VOLTAGE_SAMPLING(Doc.of(Level.FAULT) //
+		FAILURE_VOLTAGE_SAMPLING(Doc.of(Level.WARNING) //
 				.text("Voltage sampling fault")), //
-		FAILURE_LTC6803(Doc.of(Level.FAULT) //
+		FAILURE_LTC6803(Doc.of(Level.WARNING) //
 				.text("LTC6803 fault")), //
-		FAILURE_CONNECTOR_WIRE(Doc.of(Level.FAULT) //
+		FAILURE_CONNECTOR_WIRE(Doc.of(Level.WARNING) //
 				.text("connector wire fault")), //
-		FAILURE_SAMPLING_WIRE(Doc.of(Level.FAULT) //
+		FAILURE_SAMPLING_WIRE(Doc.of(Level.WARNING) //
 				.text("sampling wire fault")), //
-		PRECHARGE_TAKING_TOO_LONG(Doc.of(Level.FAULT) //
+		PRECHARGE_TAKING_TOO_LONG(Doc.of(Level.WARNING) //
 				.text("precharge time was too long")),
-		
+
 		// OpenEMS Faults
 		RUN_FAILED(Doc.of(Level.FAULT) //
 				.text("Running the Logic failed")), //
@@ -874,7 +1001,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 				.text("The maximum number of start attempts failed")), //
 		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
 				.text("The maximum number of stop attempts failed")), //
-		
+
 		;
 
 		private final Doc doc;

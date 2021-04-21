@@ -37,7 +37,7 @@ public class BackendApp {
 		try {
 			config = cm.getConfiguration("org.ops4j.pax.logging", null);
 			Dictionary<String, Object> properties = config.getProperties();
-			if (properties.isEmpty()) {
+			if (properties != null && properties.isEmpty()) {
 				Hashtable<String, Object> log4j = new Hashtable<>();
 				log4j.put("log4j.rootLogger", "INFO, CONSOLE, osgi:*");
 				log4j.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");

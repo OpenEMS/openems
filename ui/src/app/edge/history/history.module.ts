@@ -7,7 +7,7 @@ import { AutarchyWidgetComponent } from './autarchy/widget.component';
 import { ChannelthresholdChartOverviewComponent } from './channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { ChannelthresholdSingleChartComponent } from './channelthreshold/singlechart.component';
 import { ChannelthresholdTotalChartComponent } from './channelthreshold/totalchart.component';
-import { ChanneltresholdWidgetComponent } from './channelthreshold/widget.component';
+import { ChannelthresholdWidgetComponent } from './channelthreshold/widget.component';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
 import { ConsumptionChartOverviewComponent } from './consumption/consumptionchartoverview/consumptionchartoverview.component';
@@ -17,6 +17,9 @@ import { ConsumptionMeterChartComponent } from './consumption/meterchart.compone
 import { ConsumptionOtherChartComponent } from './consumption/otherchart.component';
 import { ConsumptionSingleChartComponent } from './consumption/singlechart.component';
 import { ConsumptionTotalChartComponent } from './consumption/totalchart.component';
+import { DelayedSellToGridChartComponent } from './delayedselltogrid/chart.component';
+import { DelayedSellToGridChartOverviewComponent } from './delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
+import { DelayedSellToGridWidgetComponent } from './delayedselltogrid/widget.component';
 import { EnergyComponent } from './energy/energy.component';
 import { EnergyModalComponent } from './energy/modal/modal.component';
 import { FixDigitalOutputChartOverviewComponent } from './fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
@@ -29,6 +32,9 @@ import { GridComponent } from './grid/widget.component';
 import { HeatingelementChartComponent } from './heatingelement/chart.component';
 import { HeatingelementChartOverviewComponent } from './heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
 import { HeatingelementWidgetComponent } from './heatingelement/widget.component';
+import { HeatPumpChartComponent } from './heatpump/chart.component';
+import { HeatPumpChartOverviewComponent } from './heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
+import { HeatpumpWidgetComponent } from './heatpump/widget.component';
 import { HistoryComponent } from './history.component';
 import { NgModule } from '@angular/core';
 import { ProductionChargerChartComponent } from './production/chargerchart.component';
@@ -56,6 +62,9 @@ import { StorageTotalChartComponent } from './storage/totalchart.component';
 import { SymmetricPeakshavingChartComponent } from './peakshaving/symmetric/chart.component';
 import { SymmetricPeakshavingChartOverviewComponent } from './peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component';
 import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/widget.component';
+import { TimeslotPeakshavingChartComponent } from './peakshaving/timeslot/chart.component';
+import { TimeslotPeakshavingChartOverviewComponent } from './peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
+import { TimeslotPeakshavingWidgetComponent } from './peakshaving/timeslot/widget.component';
 
 @NgModule({
   imports: [
@@ -74,7 +83,7 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     ChannelthresholdChartOverviewComponent,
     ChannelthresholdSingleChartComponent,
     ChannelthresholdTotalChartComponent,
-    ChanneltresholdWidgetComponent,
+    ChannelthresholdWidgetComponent,
     ChpSocChartComponent,
     ChpSocWidgetComponent,
     ConsumptionChartOverviewComponent,
@@ -84,6 +93,9 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     ConsumptionOtherChartComponent,
     ConsumptionSingleChartComponent,
     ConsumptionTotalChartComponent,
+    DelayedSellToGridChartComponent,
+    DelayedSellToGridChartOverviewComponent,
+    DelayedSellToGridWidgetComponent,
     EnergyComponent,
     EnergyModalComponent,
     FixDigitalOutputChartOverviewComponent,
@@ -96,6 +108,9 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     HeatingelementChartComponent,
     HeatingelementChartOverviewComponent,
     HeatingelementWidgetComponent,
+    HeatPumpChartComponent,
+    HeatPumpChartOverviewComponent,
+    HeatpumpWidgetComponent,
     HistoryComponent,
     ProductionChargerChartComponent,
     ProductionChartOverviewComponent,
@@ -121,6 +136,9 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     SymmetricPeakshavingChartComponent,
     SymmetricPeakshavingChartOverviewComponent,
     SymmetricPeakshavingWidgetComponent,
+    TimeslotPeakshavingChartComponent,
+    TimeslotPeakshavingChartOverviewComponent,
+    TimeslotPeakshavingWidgetComponent,
   ]
 })
 export class HistoryModule { }

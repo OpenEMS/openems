@@ -1,3 +1,5 @@
+#!/bin/bash -e
+#
 # Prepares a Commit
 #
 # - Adds .gitignore file to empty test directories.
@@ -14,6 +16,8 @@
 #   When Eclipse 'Build All' is called, all .classpath files are touched and
 #   unnecessarily marked as changed. Using this script those files are reset
 #   to origin.
+#
+# - Resolves EdgeApp and BackendApp bndrun files
 #
 
 # Check bundles
@@ -102,6 +106,9 @@ EOT
 	fi
 done
 
+# Build
+./gradlew build
+
 # Update EdgeApp.bndrun
 bndrun='io.openems.edge.application/EdgeApp.bndrun'
 head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bndrun" > "$bndrun.new"
@@ -119,12 +126,9 @@ for D in io.openems.edge.*; do
 done
 runbundles=$(grep -n '\-runbundles:' $bndrun | grep -Eo '^[^:]+' | head -n1)
 tail -n +$(expr $runbundles - 1) "$bndrun" >> "$bndrun.new"
-diff "$bndrun" "$bndrun.new"
-if [ $? -ne 0 ]; then
-	echo "EdgeApp.bndrun changed! Run ./gradlew resolve.EdgeApp"
-	head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
-fi
+head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
 rm "$bndrun.new"
+./gradlew resolve.EdgeApp
 
 # Update BackendApp.bndrun
 bndrun='io.openems.backend.application/BackendApp.bndrun'
@@ -144,10 +148,7 @@ for D in io.openems.backend.*; do
 done
 runbundles=$(grep -n '\-runbundles:' $bndrun | grep -Eo '^[^:]+' | head -n1)
 tail -n +$(expr $runbundles - 1) "$bndrun" >> "$bndrun.new"
-diff "$bndrun" "$bndrun.new"
-if [ $? -ne 0 ]; then
-	echo "BackendApp.bndrun changed! Run ./gradlew resolve.BackendApp"
-	head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
-fi
+head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
 rm "$bndrun.new"
+./gradlew resolve.BackendApp
 

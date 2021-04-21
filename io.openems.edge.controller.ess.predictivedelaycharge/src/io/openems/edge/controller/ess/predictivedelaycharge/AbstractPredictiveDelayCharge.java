@@ -15,8 +15,8 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.predictor.api.ConsumptionHourlyPredictor;
-import io.openems.edge.predictor.api.ProductionHourlyPredictor;
+import io.openems.edge.predictor.api.hourly.ConsumptionHourlyPredictor;
+import io.openems.edge.predictor.api.hourly.ProductionHourlyPredictor;
 
 public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsComponent implements OpenemsComponent {
 
@@ -123,8 +123,8 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 			ZonedDateTime predictionStartHour = productionHourlyPredictor.get24hPrediction().getStart();
 
 			// For Debug Purpose
-			hourlyProduction = this.hourlyProduction;
-			hourlyConsumption = this.hourlyConsumption;
+			this.hourlyProduction = hourlyProduction;
+			this.hourlyConsumption = hourlyConsumption;
 
 			// calculating target hour
 			this.targetHour = this.calculateTargetHour(hourlyProduction, hourlyConsumption, predictionStartHour);
@@ -179,7 +179,7 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 
 		// reduce limit to MaxApparentPower to avoid very high values in the last
 		// seconds
-		calculatedPower = Math.min(calculatedPower, ess.getMaxApparentPower().orElse(0));
+		calculatedPower = Math.min(calculatedPower, ess.getMaxApparentPower().getOrError());
 
 		this.setChannels(State.ACTIVE_LIMIT, calculatedPower);
 

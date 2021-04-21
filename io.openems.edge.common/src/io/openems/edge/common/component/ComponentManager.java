@@ -25,7 +25,7 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 				.text("A configured OpenEMS Component was not activated")), //
 		DUPLICATED_COMPONENT_ID(Doc.of(Level.FAULT) //
 				.text("Configuration has duplicated Component-IDs")), //
-		WAS_OUT_OF_MEMORY(Doc.of(Level.FAULT) //
+		WAS_OUT_OF_MEMORY(Doc.of(Level.INFO) //
 				.text("OutOfMemory had happened. Found heap dump files.")),
 		DEFAULT_CONFIGURATION_FAILED(Doc.of(Level.FAULT) //
 				.text("Applying the default configuration failed.")),;
@@ -172,6 +172,15 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 	 * @throws IllegalArgumentException if the Component was not found
 	 */
 	public List<OpenemsComponent> getEnabledComponents();
+
+	/**
+	 * Gets all enabled OpenEMS-Components of the given Type.
+	 * 
+	 * @param <T>   the given Type, subclass of {@link OpenemsComponent}
+	 * @param clazz the given Type, subclass of {@link OpenemsComponent}
+	 * @return a List of OpenEMS-Components
+	 */
+	public <T extends OpenemsComponent> List<T> getEnabledComponentsOfType(Class<T> clazz);
 
 	/**
 	 * Gets all OpenEMS-Components.

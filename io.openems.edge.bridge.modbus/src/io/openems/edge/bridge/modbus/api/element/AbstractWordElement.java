@@ -74,6 +74,6 @@ public abstract class AbstractWordElement<E, T> extends AbstractModbusRegisterEl
 	 * @param value the value
 	 * @return the ByteBuffer
 	 */
-	protected abstract ByteBuffer toByteBuffer(ByteBuffer buff, T value);
+	protected abstract ByteBuffer toByteBuffer(ByteBuffer buff, Object value);
 
 }

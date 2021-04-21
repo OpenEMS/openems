@@ -16,12 +16,13 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.MyEdge;
-import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeStatesSum;
+import io.openems.common.utils.ThreadPoolUtils;
 
 /**
  * This worker combines writes to lastMessage and lastUpdate fields, to avoid
@@ -34,7 +35,7 @@ public class PeriodicWriteWorker {
 	 */
 	private static final boolean DEBUG_MODE = true;
 
-	private static final int UPDATE_INTERVAL_IN_SECONDS = 60;
+	private static final int UPDATE_INTERVAL_IN_SECONDS = 120;
 
 	private final Logger log = LoggerFactory.getLogger(PeriodicWriteWorker.class);
 	private final PostgresHandler parent;
@@ -48,38 +49,33 @@ public class PeriodicWriteWorker {
 	/**
 	 * Executor for subscriptions task.
 	 */
-	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1,
+			new ThreadFactoryBuilder().setNameFormat("Metadata.Odoo.PGPeriodic-%d").build());
 
 	public PeriodicWriteWorker(PostgresHandler parent, HikariDataSource dataSource) {
 		this.parent = parent;
 		this.dataSource = dataSource;
 	}
 
+	/**
+	 * Starts the {@link PeriodicWriteWorker}.
+	 */
 	public synchronized void start() {
 		this.future = this.executor.scheduleWithFixedDelay(//
 				() -> this.task.accept(this.dataSource), //
 				UPDATE_INTERVAL_IN_SECONDS, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
 	}
 
+	/**
+	 * Stops the {@link PeriodicWriteWorker}.
+	 */
 	public synchronized void stop() {
 		// unsubscribe regular task
 		if (this.future != null) {
 			this.future.cancel(true);
 		}
 		// Shutdown executor
-		if (this.executor != null) {
-			try {
-				this.executor.shutdown();
-				this.executor.awaitTermination(5, TimeUnit.SECONDS);
-			} catch (InterruptedException e) {
-				this.parent.logWarn(this.log, "tasks interrupted");
-			} finally {
-				if (!this.executor.isTerminated()) {
-					this.parent.logWarn(this.log, "cancel non-finished tasks");
-				}
-				this.executor.shutdownNow();
-			}
-		}
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 	}
 
 	private Consumer<HikariDataSource> task = (dataSource) -> {
@@ -92,7 +88,6 @@ public class PeriodicWriteWorker {
 			this.writeLastUpdate(dataSource);
 			this.writeIsOnline(dataSource);
 			this.writeIsOffline(dataSource);
-			this.updateEdgeStatesSum(dataSource);
 
 		} catch (SQLException e) {
 			this.log.error("Unable to execute WriteWorker task: " + e.getMessage());
@@ -103,32 +98,56 @@ public class PeriodicWriteWorker {
 	private final Set<Integer> lastUpdateOdooIds = new HashSet<>();
 	private final Set<Integer> isOnlineOdooIds = new HashSet<>();
 	private final Set<Integer> isOfflineOdooIds = new HashSet<>();
-	private final Set<Integer> updateEdgeStatesSum = new HashSet<>();
 
+	/**
+	 * Called on Edge onSetLastMessage event.
+	 * 
+	 * @param edge the {@link MyEdge}.
+	 */
 	public void onLastMessage(MyEdge edge) {
 		synchronized (this.lastMessageOdooIds) {
 			this.lastMessageOdooIds.add(edge.getOdooId());
 		}
 	}
 
-	public void triggerUpdateEdgeStatesSum(MyEdge edge) {
-		synchronized (this.updateEdgeStatesSum) {
-			this.updateEdgeStatesSum.add(edge.getOdooId());
+	/**
+	 * Called on Edge onSetLastUpdate event.
+	 * 
+	 * @param edge the {@link MyEdge}.
+	 */
+	public void onLastUpdate(MyEdge edge) {
+		synchronized (this.lastUpdateOdooIds) {
+			this.lastUpdateOdooIds.add(edge.getOdooId());
 		}
 	}
 
-	private void updateEdgeStatesSum(HikariDataSource dataSource) throws SQLException {
-		Set<Integer> edgeIds;
-		synchronized (this.updateEdgeStatesSum) {
-			edgeIds = new HashSet<>(this.updateEdgeStatesSum);
+	/**
+	 * Called on Edge isOnline event.
+	 * 
+	 * @param edge the {@link MyEdge}.
+	 */
+	public void isOnline(MyEdge edge) {
+		synchronized (this.isOnlineOdooIds) {
+			synchronized (this.isOfflineOdooIds) {
+				int odooId = edge.getOdooId();
+				this.isOfflineOdooIds.remove(odooId);
+				this.isOnlineOdooIds.add(edge.getOdooId());
+			}
 		}
+	}
 
-		try {
-			new UpdateEdgeStatesSum(edgeIds).execute(dataSource);
-		} catch (SQLException e) {
-			this.parent.logWarn(this.log,
-					"Unable to execute Task. " + this.task.getClass().getSimpleName() + ": " + e.getMessage());
-			e.printStackTrace();
+	/**
+	 * Called on Edge isOffline event.
+	 * 
+	 * @param edge the {@link MyEdge}.
+	 */
+	public void isOffline(MyEdge edge) {
+		synchronized (this.isOnlineOdooIds) {
+			synchronized (this.isOfflineOdooIds) {
+				int odooId = edge.getOdooId();
+				this.isOnlineOdooIds.remove(odooId);
+				this.isOfflineOdooIds.add(edge.getOdooId());
+			}
 		}
 	}
 
@@ -208,32 +227,6 @@ public class PeriodicWriteWorker {
 		try (Connection con = dataSource.getConnection(); //
 		) {
 			con.createStatement().executeUpdate(sql);
-		}
-	}
-
-	public void onLastUpdate(MyEdge edge) {
-		synchronized (this.lastUpdateOdooIds) {
-			this.lastUpdateOdooIds.add(edge.getOdooId());
-		}
-	}
-
-	public void isOnline(MyEdge edge) {
-		synchronized (this.isOnlineOdooIds) {
-			synchronized (this.isOfflineOdooIds) {
-				int odooId = edge.getOdooId();
-				this.isOfflineOdooIds.remove(odooId);
-				this.isOnlineOdooIds.add(edge.getOdooId());
-			}
-		}
-	}
-
-	public void isOffline(MyEdge edge) {
-		synchronized (this.isOnlineOdooIds) {
-			synchronized (this.isOfflineOdooIds) {
-				int odooId = edge.getOdooId();
-				this.isOnlineOdooIds.remove(odooId);
-				this.isOfflineOdooIds.add(edge.getOdooId());
-			}
 		}
 	}
 

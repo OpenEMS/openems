@@ -1,6 +1,7 @@
 import { DefaultTypes } from "../service/defaulttypes";
 import { Utils } from "../service/utils";
 
+// TODO this class will eventually be dropped, when abstract-widgets are finished and used everywhere.
 export class CurrentData {
 
   public readonly summary: DefaultTypes.Summary;
@@ -234,7 +235,7 @@ export class CurrentData {
     return result;
   }
   public static calculateAutarchy(buyFromGrid: number, consumptionActivePower: number): number | null {
-    if (buyFromGrid && consumptionActivePower) {
+    if (buyFromGrid != null && consumptionActivePower != null) {
       return Math.max(
         Utils.orElse(
           (
@@ -252,7 +253,7 @@ export class CurrentData {
   }
 
   public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number): number | null {
-    if (sellToGrid && productionActivePower) {
+    if (sellToGrid != null && productionActivePower != null) {
       if (productionActivePower == 0) {
         return null;
       }

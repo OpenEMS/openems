@@ -481,7 +481,7 @@ public class SHAiButtonCopr {
 		} catch (IOException ioe) {
 			if (DEBUG)
 				ioe.printStackTrace();
-			throw new OneWireException("Bad Data in Coproccessor Service File: " + ioe);
+			throw new OneWireException("Bad Data in Coprocessor Service File: " + ioe);
 		} finally {
 			try {
 				fis.close();

@@ -28,9 +28,11 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.BatteryState;
-import io.openems.edge.battery.soltaro.ChargeIndication;
-import io.openems.edge.battery.soltaro.State;
+import io.openems.edge.battery.protection.BatteryProtection;
+import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3000Wh;
+import io.openems.edge.battery.soltaro.common.enums.BatteryState;
+import io.openems.edge.battery.soltaro.common.enums.ChargeIndication;
+import io.openems.edge.battery.soltaro.common.enums.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -45,6 +47,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -58,17 +61,16 @@ import io.openems.edge.common.taskmanager.Priority;
 		name = "Bms.Soltaro.SingleRack.VersionA", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
 public class SingleRack extends AbstractOpenemsModbusComponent
 		implements Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	// Default values for the battery ranges
 	public static final int DISCHARGE_MIN_V = 696;
 	public static final int CHARGE_MAX_V = 854;
-	public static final int DISCHARGE_MAX_A = 0;
-	public static final int CHARGE_MAX_A = 0;
-
 	protected static final int SYSTEM_ON = 1;
 	protected static final int SYSTEM_OFF = 0;
 
@@ -83,6 +85,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Reference
+	protected ComponentManager componentManager;
+
 	// If an error has occurred, this indicates the time when next action could be
 	// done
 	private LocalDateTime errorDelayIsOver = null;
@@ -95,16 +100,17 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	private LocalDateTime pendingTimestamp;
 
+	private BatteryProtection batteryProtection = null;
+
 	public SingleRack() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				Battery.ChannelId.values(), //
-				SingleRack.ChannelId.values() //
+				SingleRack.ChannelId.values(), //
+				BatteryProtection.ChannelId.values() //
 		);
-		this._setChargeMaxCurrent(SingleRack.CHARGE_MAX_A);
 		this._setChargeMaxVoltage(SingleRack.CHARGE_MAX_V);
-		this._setDischargeMaxCurrent(SingleRack.DISCHARGE_MAX_A);
 		this._setDischargeMinVoltage(SingleRack.DISCHARGE_MIN_V);
 	}
 
@@ -122,6 +128,12 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		}
 		this.modbusBridgeId = config.modbus_id();
 		this.batteryState = config.batteryState();
+
+		// Initialize Battery-Protection
+		this.batteryProtection = BatteryProtection.create(this) //
+				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro3000Wh(), this.componentManager) //
+				.build();
+
 		this._setCapacity(config.capacity() * 1000);
 		this.initializeCallbacks();
 	}
@@ -142,7 +154,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				break;
 			case CUT_OFF:
 				// TODO start stop is not implemented;
-				this._setStartStop(StartStop.UNDEFINED);
+				this._setStartStop(StartStop.STOP);
 				this.isStopping = false;
 				break;
 			case ON_GRID:
@@ -161,6 +173,10 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
+
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.batteryProtection.apply();
+			break;
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.handleBatteryState();
@@ -321,6 +337,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Checks whether system has an undefined state.
+	 * 
+	 * @return true when the system is pending
 	 */
 	private boolean isSystemStatePending() {
 		return !this.isSystemRunning() && !this.isSystemStopped();
@@ -332,15 +350,30 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		return bOpt.isPresent() && bOpt.get();
 	}
 
+	/**
+	 * Returns the statemachine state.
+	 * 
+	 * @return the statemachine state
+	 */
 	public State getStateMachineState() {
 		return this.state;
 	}
 
+	/**
+	 * Sets the state.
+	 * 
+	 * @param state the State
+	 */
 	public void setStateMachineState(State state) {
 		this.state = state;
 		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
 	}
 
+	/**
+	 * Returns the modbus bridge id.
+	 * 
+	 * @return the modbus bridge id
+	 */
 	public String getModbusBridgeId() {
 		return this.modbusBridgeId;
 	}
@@ -349,7 +382,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return "SoC:" + this.getSoc() //
 				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
-				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent();
+				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() + "|Running: "
+				+ this.isSystemRunning() + "|U: " + this.getVoltage() + "|I: " + this.getCurrent();
 	}
 
 	private void startSystem() {
@@ -423,10 +457,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				.unit(Unit.NONE)), //
 		SYSTEM_INSULATION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOOHM)), //
-		SYSTEM_ACCEPT_MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
-		SYSTEM_ACCEPT_MAX_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
 		CLUSTER_1_BATTERY_000_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_BATTERY_001_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
@@ -1123,7 +1153,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				new FC6WriteRegisterTask(0x2047, //
 						m(SingleRack.ChannelId.CELL_VOLTAGE_RECOVER, new UnsignedWordElement(0x2047)) //
 				), //
-				new FC3ReadRegistersTask(0x2100, Priority.LOW, //
+				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x2100), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.CURRENT, new SignedWordElement(0x2101), //
@@ -1136,18 +1166,18 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 						m(SingleRack.ChannelId.CLUSTER_1_MIN_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2107)), //
 						m(Battery.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(0x2108)), //
 						m(SingleRack.ChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x2109)), //
-						m(Battery.ChannelId.MAX_CELL_TEMPERATURE, new UnsignedWordElement(0x210A),
+						m(Battery.ChannelId.MAX_CELL_TEMPERATURE, new SignedWordElement(0x210A),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(SingleRack.ChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x210B)), //
-						m(Battery.ChannelId.MIN_CELL_TEMPERATURE, new UnsignedWordElement(0x210C),
+						m(Battery.ChannelId.MIN_CELL_TEMPERATURE, new SignedWordElement(0x210C),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(0x210D, 0x2115), //
 						m(SingleRack.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x2116)) //
 				), //
 				new FC3ReadRegistersTask(0x2160, Priority.HIGH, //
-						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(0x2160), //
+						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new UnsignedWordElement(0x2160),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new UnsignedWordElement(0x2161), //
+						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new UnsignedWordElement(0x2161),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), //
 				new FC3ReadRegistersTask(0x2140, Priority.LOW, //
@@ -1445,54 +1475,54 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 				), //
 				new FC3ReadRegistersTask(0x2C00, Priority.LOW, //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_00_TEMPERATURE, new UnsignedWordElement(0x2C00)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_01_TEMPERATURE, new UnsignedWordElement(0x2C01)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_02_TEMPERATURE, new UnsignedWordElement(0x2C02)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_03_TEMPERATURE, new UnsignedWordElement(0x2C03)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_04_TEMPERATURE, new UnsignedWordElement(0x2C04)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_05_TEMPERATURE, new UnsignedWordElement(0x2C05)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_06_TEMPERATURE, new UnsignedWordElement(0x2C06)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_07_TEMPERATURE, new UnsignedWordElement(0x2C07)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_08_TEMPERATURE, new UnsignedWordElement(0x2C08)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_09_TEMPERATURE, new UnsignedWordElement(0x2C09)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_10_TEMPERATURE, new UnsignedWordElement(0x2C0A)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_11_TEMPERATURE, new UnsignedWordElement(0x2C0B)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_12_TEMPERATURE, new UnsignedWordElement(0x2C0C)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_13_TEMPERATURE, new UnsignedWordElement(0x2C0D)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_14_TEMPERATURE, new UnsignedWordElement(0x2C0E)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_15_TEMPERATURE, new UnsignedWordElement(0x2C0F)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_16_TEMPERATURE, new UnsignedWordElement(0x2C10)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_17_TEMPERATURE, new UnsignedWordElement(0x2C11)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_18_TEMPERATURE, new UnsignedWordElement(0x2C12)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_19_TEMPERATURE, new UnsignedWordElement(0x2C13)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_20_TEMPERATURE, new UnsignedWordElement(0x2C14)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_21_TEMPERATURE, new UnsignedWordElement(0x2C15)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_22_TEMPERATURE, new UnsignedWordElement(0x2C16)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_23_TEMPERATURE, new UnsignedWordElement(0x2C17)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_24_TEMPERATURE, new UnsignedWordElement(0x2C18)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_25_TEMPERATURE, new UnsignedWordElement(0x2C19)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_26_TEMPERATURE, new UnsignedWordElement(0x2C1A)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_27_TEMPERATURE, new UnsignedWordElement(0x2C1B)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_28_TEMPERATURE, new UnsignedWordElement(0x2C1C)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_29_TEMPERATURE, new UnsignedWordElement(0x2C1D)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_30_TEMPERATURE, new UnsignedWordElement(0x2C1E)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_31_TEMPERATURE, new UnsignedWordElement(0x2C1F)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_32_TEMPERATURE, new UnsignedWordElement(0x2C20)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_33_TEMPERATURE, new UnsignedWordElement(0x2C21)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_34_TEMPERATURE, new UnsignedWordElement(0x2C22)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_35_TEMPERATURE, new UnsignedWordElement(0x2C23)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_36_TEMPERATURE, new UnsignedWordElement(0x2C24)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_37_TEMPERATURE, new UnsignedWordElement(0x2C25)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_38_TEMPERATURE, new UnsignedWordElement(0x2C26)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_39_TEMPERATURE, new UnsignedWordElement(0x2C27)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_40_TEMPERATURE, new UnsignedWordElement(0x2C28)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_41_TEMPERATURE, new UnsignedWordElement(0x2C29)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_42_TEMPERATURE, new UnsignedWordElement(0x2C2A)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_43_TEMPERATURE, new UnsignedWordElement(0x2C2B)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_44_TEMPERATURE, new UnsignedWordElement(0x2C2C)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_45_TEMPERATURE, new UnsignedWordElement(0x2C2D)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_46_TEMPERATURE, new UnsignedWordElement(0x2C2E)), //
-						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_47_TEMPERATURE, new UnsignedWordElement(0x2C2F)) //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_00_TEMPERATURE, new SignedWordElement(0x2C00)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_01_TEMPERATURE, new SignedWordElement(0x2C01)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_02_TEMPERATURE, new SignedWordElement(0x2C02)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_03_TEMPERATURE, new SignedWordElement(0x2C03)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_04_TEMPERATURE, new SignedWordElement(0x2C04)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_05_TEMPERATURE, new SignedWordElement(0x2C05)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_06_TEMPERATURE, new SignedWordElement(0x2C06)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_07_TEMPERATURE, new SignedWordElement(0x2C07)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_08_TEMPERATURE, new SignedWordElement(0x2C08)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_09_TEMPERATURE, new SignedWordElement(0x2C09)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_10_TEMPERATURE, new SignedWordElement(0x2C0A)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_11_TEMPERATURE, new SignedWordElement(0x2C0B)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_12_TEMPERATURE, new SignedWordElement(0x2C0C)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_13_TEMPERATURE, new SignedWordElement(0x2C0D)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_14_TEMPERATURE, new SignedWordElement(0x2C0E)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_15_TEMPERATURE, new SignedWordElement(0x2C0F)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_16_TEMPERATURE, new SignedWordElement(0x2C10)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_17_TEMPERATURE, new SignedWordElement(0x2C11)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_18_TEMPERATURE, new SignedWordElement(0x2C12)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_19_TEMPERATURE, new SignedWordElement(0x2C13)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_20_TEMPERATURE, new SignedWordElement(0x2C14)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_21_TEMPERATURE, new SignedWordElement(0x2C15)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_22_TEMPERATURE, new SignedWordElement(0x2C16)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_23_TEMPERATURE, new SignedWordElement(0x2C17)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_24_TEMPERATURE, new SignedWordElement(0x2C18)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_25_TEMPERATURE, new SignedWordElement(0x2C19)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_26_TEMPERATURE, new SignedWordElement(0x2C1A)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_27_TEMPERATURE, new SignedWordElement(0x2C1B)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_28_TEMPERATURE, new SignedWordElement(0x2C1C)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_29_TEMPERATURE, new SignedWordElement(0x2C1D)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_30_TEMPERATURE, new SignedWordElement(0x2C1E)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_31_TEMPERATURE, new SignedWordElement(0x2C1F)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_32_TEMPERATURE, new SignedWordElement(0x2C20)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_33_TEMPERATURE, new SignedWordElement(0x2C21)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_34_TEMPERATURE, new SignedWordElement(0x2C22)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_35_TEMPERATURE, new SignedWordElement(0x2C23)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_36_TEMPERATURE, new SignedWordElement(0x2C24)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_37_TEMPERATURE, new SignedWordElement(0x2C25)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_38_TEMPERATURE, new SignedWordElement(0x2C26)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_39_TEMPERATURE, new SignedWordElement(0x2C27)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_40_TEMPERATURE, new SignedWordElement(0x2C28)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_41_TEMPERATURE, new SignedWordElement(0x2C29)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_42_TEMPERATURE, new SignedWordElement(0x2C2A)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_43_TEMPERATURE, new SignedWordElement(0x2C2B)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_44_TEMPERATURE, new SignedWordElement(0x2C2C)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_45_TEMPERATURE, new SignedWordElement(0x2C2D)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_46_TEMPERATURE, new SignedWordElement(0x2C2E)), //
+						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_47_TEMPERATURE, new SignedWordElement(0x2C2F)) //
 				)//
 		); //
 	}
@@ -1507,6 +1537,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
 		// TODO start stop is not implemented
-		throw new NotImplementedException("Start Stop is not implemented for Soltaro SingleRackVersionBImpl Version B");
+		throw new NotImplementedException("Start Stop is not implemented for Soltaro Version A");
 	}
 }

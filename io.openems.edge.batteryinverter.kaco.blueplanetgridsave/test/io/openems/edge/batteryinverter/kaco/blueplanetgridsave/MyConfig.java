@@ -11,6 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id = null;
 		private StartStopConfig startStopConfig = null;
 		private String modbusId = null;
+		private boolean activateWatchdog;
 
 		private Builder() {
 		}
@@ -30,6 +31,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setActivateWatchdog(boolean activateWatchdog) {
+			this.activateWatchdog = activateWatchdog;
+			return this;
+		}
+		
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -66,4 +72,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
 
+	@Override
+	public boolean activateWatchdog() {
+		return this.builder.activateWatchdog;
+	}
 }

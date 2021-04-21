@@ -20,7 +20,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
-import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -48,8 +47,6 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 
 	private final Logger log = LoggerFactory.getLogger(SocomecMeterThreephaseImpl.class);
 
-	private final ModbusProtocol modbusProtocol;
-
 	private Config config;
 
 	@Reference
@@ -63,7 +60,6 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 				SocomecMeter.ChannelId.values(), //
 				SocomecMeterThreephase.ChannelId.values() //
 		);
-		this.modbusProtocol = new ModbusProtocol(this);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -91,14 +87,8 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 		return this.config.type();
 	}
 
-	/**
-	 * Applies the modbus protocol for Socomec Countis E23 and E24. Both are
-	 * identical.
-	 * 
-	 * @throws OpenemsException on error
-	 */
 	@Override
-	protected void identifiedCountisE23_E24() throws OpenemsException {
+	protected void identifiedCountisE23_E24_E27_E28() throws OpenemsException {
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0xc558),
@@ -156,11 +146,65 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 		}
 	}
 
-	/**
-	 * Applies the modbus protocol for Socomec Diris A14.
-	 * 
-	 * @throws OpenemsException on error
-	 */
+	@Override
+	protected void identifiedCountisE44() throws OpenemsException {
+		this.modbusProtocol.addTask(//
+				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0xc558),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(0xc55A),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0xc55C),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0xc560), //
+								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0xc562), //
+								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0xc564), //
+								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
+						new DummyRegisterElement(0xc566, 0xc567), //
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0xc568),
+								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), //
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(0xc56A),
+								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), //
+						new DummyRegisterElement(0xc56C, 0xc56F), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(0xc570),
+								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(0xc572),
+								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(0xc574),
+								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(0xc576),
+								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(0xc578),
+								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(0xc57A),
+								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()))));
+
+		this.calculateSumCurrent();
+		this.calculateAverageVoltage();
+
+		if (this.config.invert()) {
+			this.modbusProtocol.addTask(new FC3ReadRegistersTask(0xC702, Priority.LOW, //
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC702),
+							ElementToChannelConverter.SCALE_FACTOR_1), //
+					new DummyRegisterElement(0xC704, 0xC707), //
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0xC708),
+							ElementToChannelConverter.SCALE_FACTOR_1) //
+			));
+		} else {
+			this.modbusProtocol.addTask(new FC3ReadRegistersTask(0xC702, Priority.LOW, //
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0xC702),
+							ElementToChannelConverter.SCALE_FACTOR_1), //
+					new DummyRegisterElement(0xC704, 0xC707), //
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC708),
+							ElementToChannelConverter.SCALE_FACTOR_1) //
+			));
+		}
+	}
+
 	@Override
 	protected void identifiedDirisA14() throws OpenemsException {
 		this.modbusProtocol.addTask(//
@@ -220,11 +264,6 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 		}
 	}
 
-	/**
-	 * Applies the modbus protocol for Socomec Diris A10.
-	 * 
-	 * @throws OpenemsException on error
-	 */
 	@Override
 	protected void identifiedDirisA10() throws OpenemsException {
 		this.modbusProtocol.addTask(//
@@ -284,11 +323,6 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 		}
 	}
 
-	/**
-	 * Applies the modbus protocol for Socomec Diris B30.
-	 * 
-	 * @throws OpenemsException on error
-	 */
 	@Override
 	protected void identifiedDirisB30() throws OpenemsException {
 		this.modbusProtocol.addTask(//

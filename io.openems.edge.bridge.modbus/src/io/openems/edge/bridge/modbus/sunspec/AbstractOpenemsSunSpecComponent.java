@@ -19,6 +19,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ElementToChannelScaleFactorConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -114,13 +115,14 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 */
 	private CompletableFuture<Boolean> isSunSpec() throws OpenemsException {
 		final CompletableFuture<Boolean> result = new CompletableFuture<Boolean>();
-		this.readELementOnce(new UnsignedDoublewordElement(40_000)).thenAccept(value -> {
-			if (value == 0x53756e53) {
-				result.complete(true);
-			} else {
-				result.complete(false);
-			}
-		});
+		ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedDoublewordElement(40_000), true)
+				.thenAccept(value -> {
+					if (value == 0x53756e53) {
+						result.complete(true);
+					} else {
+						result.complete(false);
+					}
+				});
 		return result;
 	}
 
@@ -251,7 +253,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @return future that gets completed when the Block elements are read
 	 * @throws OpenemsException on error
 	 */
-	private void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
+	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
 		this.logInfo(this.log, "Adding SunSpec-Model [" + model.getBlockId() + ":" + model.label() + "] starting at ["
 				+ startAddress + "]");
 		AbstractModbusElement<?>[] elements = new AbstractModbusElement[model.points().length];
@@ -321,36 +323,6 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 		final Task readTask = new FC3ReadRegistersTask(elements[0].getStartAddress(), priority, elements);
 		this.modbusProtocol.addTask(readTask);
-	}
-
-	/**
-	 * Reads given Element once from Modbus.
-	 * 
-	 * @param <T>     the Type of the element
-	 * @param element the element
-	 * @return a future value, e.g. a integer
-	 * @throws OpenemsException on error
-	 */
-	private <T> CompletableFuture<T> readELementOnce(AbstractModbusElement<T> element) throws OpenemsException {
-		// Prepare result
-		final CompletableFuture<T> result = new CompletableFuture<T>();
-
-		// Activate task
-		final Task task = new FC3ReadRegistersTask(element.getStartAddress(), Priority.HIGH, element);
-		this.modbusProtocol.addTask(task);
-
-		// Register listener for element
-		element.onUpdateCallback(value -> {
-			if (value == null) {
-				// try again
-				return;
-			}
-			// do not try again
-			this.modbusProtocol.removeTask(task);
-			result.complete(value);
-		});
-
-		return result;
 	}
 
 	/**

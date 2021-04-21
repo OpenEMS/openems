@@ -2,10 +2,11 @@ package io.openems.edge.battery.soltaro.single.versionb;
 
 import org.junit.Test;
 
-import io.openems.edge.battery.soltaro.ModuleType;
+import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class SingleRackVersionBImplTest {
@@ -17,6 +18,7 @@ public class SingleRackVersionBImplTest {
 	public void test() throws Exception {
 		new ComponentTest(new SingleRackVersionBImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
 						.setId(BATTERY_ID) //
@@ -29,7 +31,6 @@ public class SingleRackVersionBImplTest {
 						.setStartUnsuccessfulDelay(0) //
 						.setMinimalCellVoltage(0) //
 						.setStartStop(StartStopConfig.AUTO) //
-						.setNumberOfSlaves(0) //
 						.setModuleType(ModuleType.MODULE_3_5_KWH) //
 						.setWatchdog(0) //
 						.setSoCLowAlarm(0) //

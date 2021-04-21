@@ -6,9 +6,9 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.ChargeIndication;
-import io.openems.edge.battery.soltaro.State;
-import io.openems.edge.battery.soltaro.enums.EmsBaudrate;
+import io.openems.edge.battery.soltaro.common.enums.ChargeIndication;
+import io.openems.edge.battery.soltaro.common.enums.EmsBaudrate;
+import io.openems.edge.battery.soltaro.common.enums.State;
 import io.openems.edge.battery.soltaro.single.versionc.enums.AutoSetFunction;
 import io.openems.edge.battery.soltaro.single.versionc.enums.ClusterRunState;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
@@ -488,10 +488,6 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStop
 				.unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_SYSTEM_INSULATION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOOHM)), //
-		SYSTEM_MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)),
-		SYSTEM_MAX_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)),
 		POSITIVE_INSULATION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOOHM)),
 		NEGATIVE_INSULATION(Doc.of(OpenemsType.INTEGER) //

@@ -13,10 +13,10 @@ public class FeneconDessEssTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new FeneconDessEss()) //
+		new ComponentTest(new FeneconDessEssImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
-				.activate(MyConfig.create() //
+				.activate(MyEssConfig.create() //
 						.setId(ESS_ID) //
 						.setModbusId(MODBUS_ID) //
 						.build()) //

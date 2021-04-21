@@ -40,7 +40,7 @@ public class TeslaPowerwall2CoreImpl extends AbstractOpenemsComponent
 	public TeslaPowerwall2CoreImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				CoreChannelId.values() //
+				TeslaPowerwall2Core.ChannelId.values() //
 		);
 	}
 

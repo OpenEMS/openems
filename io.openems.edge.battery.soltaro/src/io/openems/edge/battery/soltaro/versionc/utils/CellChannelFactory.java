@@ -1,8 +1,8 @@
 package io.openems.edge.battery.soltaro.versionc.utils;
 
 import io.openems.common.channel.Unit;
-import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
+import io.openems.edge.battery.soltaro.common.ChannelIdImpl;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.IntegerDoc;
 
@@ -37,10 +37,18 @@ public class CellChannelFactory {
 			this.sensorsPerModule = sensorsPerModule;
 		}
 
+		/**
+		 * Gets the Offset.
+		 * @return int
+		 */
 		public int getOffset() {
 			return this.offset;
 		}
 
+		/**
+		 * Gets the SensorsPerModule.
+		 * @return int
+		 */
 		public int getSensorsPerModule() {
 			return this.sensorsPerModule;
 		}

@@ -1,25 +1,25 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { addDays } from 'date-fns/esm';
-import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
-import { ChartData, ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
-import { Component, Input, OnChanges } from '@angular/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { differenceInDays, format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
-import { EnergyModalComponent } from './modal/modal.component';
 import { formatNumber } from '@angular/common';
+import { Component, Input, OnChanges } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ModalController, Platform } from '@ionic/angular';
-import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
+import { TranslateService } from '@ngx-translate/core';
+import { ChartData, ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
+import { differenceInDays, format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
+import { addDays } from 'date-fns/esm';
+import { saveAs } from 'file-saver-es';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { TranslateService } from '@ngx-translate/core';
+import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
+import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
+import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
+import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
-import * as FileSaver from 'file-saver';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
+import { EnergyModalComponent } from './modal/modal.component';
 
 type EnergyChartLabels = {
   production: string,
@@ -47,7 +47,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
-  @Input() private period: DefaultTypes.HistoryPeriod;
+  @Input() public period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
     this.updateChart();
@@ -98,7 +98,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           fileName += format(dateFrom, "dd.MM.yyyy") + "-" + format(dateTo, "dd.MM.yyyy");
         }
         fileName += EnergyComponent.EXCEL_EXTENSION;
-        FileSaver.saveAs(data, fileName);
+        saveAs(data, fileName);
 
       }).catch(reason => {
         console.warn(reason);
@@ -408,6 +408,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           directConsumptionData = directConsumption.map(value => {
             if (value == null) {
               return null
+            } else if (value < 0) {
+              return 0
             } else {
               return value / 1000; // convert to kWh
             }

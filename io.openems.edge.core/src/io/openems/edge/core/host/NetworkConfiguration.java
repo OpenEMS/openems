@@ -48,6 +48,11 @@ public class NetworkConfiguration {
 				.build();
 	}
 
+	/**
+	 * Gets the network interfaces configuration.
+	 * 
+	 * @return a map of network interfaces per name
+	 */
 	public TreeMap<String, NetworkInterface<?>> getInterfaces() {
 		return this.interfaces;
 	}

@@ -1,7 +1,7 @@
 package io.openems.edge.battery.soltaro.single.versionb;
 
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.battery.soltaro.ModuleType;
+import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
@@ -19,11 +19,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public int startUnsuccessfulDelay;
 		public int minimalCellVoltage;
 		public StartStopConfig startStop;
-		public int numberOfSlaves;
 		public ModuleType moduleType;
 		public int watchdog;
-		public int SoCLowAlarm;
-		public boolean ReduceTasks;
+		public int soCLowAlarm;
+		public boolean reduceTasks;
 
 		private Builder() {
 		}
@@ -78,11 +77,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setNumberOfSlaves(int numberOfSlaves) {
-			this.numberOfSlaves = numberOfSlaves;
-			return this;
-		}
-
 		public Builder setModuleType(ModuleType moduleType) {
 			this.moduleType = moduleType;
 			return this;
@@ -94,15 +88,15 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		}
 
 		public Builder setReduceTasks(boolean reduceTasks) {
-			this.ReduceTasks = reduceTasks;
+			this.reduceTasks = reduceTasks;
 			return this;
 		}
-		
+
 		public Builder setSoCLowAlarm(int soCLowAlarm) {
-			this.SoCLowAlarm = soCLowAlarm;
+			this.soCLowAlarm = soCLowAlarm;
 			return this;
 		}
-		
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -175,11 +169,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int numberOfSlaves() {
-		return this.builder.numberOfSlaves;
-	}
-
-	@Override
 	public ModuleType moduleType() {
 		return this.builder.moduleType;
 	}
@@ -191,12 +180,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public int SoCLowAlarm() {
-		return this.builder.SoCLowAlarm;
+		return this.builder.soCLowAlarm;
 	}
 
 	@Override
 	public boolean ReduceTasks() {
-		return this.builder.ReduceTasks;
+		return this.builder.reduceTasks;
 	}
 
 }

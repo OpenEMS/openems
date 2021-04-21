@@ -53,7 +53,7 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                         otherEnergy += this.data[component.id + '/EnergyTotal'];
                     })
                     this.consumptionMeterComponents.forEach(component => {
-                        otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'];
+                        otherEnergy += this.data[component.id + '/ActiveProductionEnergy'];
                     })
                     this.totalOtherEnergy = response.result.data["_sum/ConsumptionActiveEnergy"] - otherEnergy;
                 }).catch(() => {
@@ -80,10 +80,9 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
             this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED');
             for (let component of this.consumptionMeterComponents) {
                 channels.push(
-                    new ChannelAddress(component.id, 'ActiveConsumptionEnergy'),
+                    new ChannelAddress(component.id, 'ActiveProductionEnergy'),
                 )
             }
-
             resolve(channels);
         });
     }
@@ -97,14 +96,6 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
             otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'];
         })
         return this.data["_sum/ConsumptionActiveEnergy"] - otherEnergy;
-    }
-
-    public hasOtherPowerOnly(): boolean {
-        if (this.data["_sum/ConsumptionActiveEnergy"] == this.totalOtherEnergy) {
-            return true;
-        } else {
-            return false;
-        }
     }
 }
 

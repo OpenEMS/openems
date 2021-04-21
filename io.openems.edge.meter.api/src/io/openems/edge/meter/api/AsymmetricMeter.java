@@ -3,6 +3,7 @@ package io.openems.edge.meter.api;
 import java.util.function.Consumer;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -41,6 +42,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 */
 		ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Active Power L2
@@ -56,6 +58,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 */
 		ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Active Power L3
@@ -71,6 +74,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 */
 		ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Reactive Power L1
@@ -86,6 +90,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 */
 		REACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Reactive Power L2
@@ -101,6 +106,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 */
 		REACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Reactive Power L3
@@ -116,6 +122,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 */
 		REACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Voltage L1
@@ -127,7 +134,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 * </ul>
 		 */
 		VOLTAGE_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT)), //
+				.unit(Unit.MILLIVOLT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Voltage L2
 		 * 
@@ -138,7 +146,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 * </ul>
 		 */
 		VOLTAGE_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT)), //
+				.unit(Unit.MILLIVOLT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Voltage L3
 		 * 
@@ -149,7 +158,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 * </ul>
 		 */
 		VOLTAGE_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT)), //
+				.unit(Unit.MILLIVOLT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Current L1
 		 * 
@@ -160,7 +170,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 * </ul>
 		 */
 		CURRENT_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
+				.unit(Unit.MILLIAMPERE) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Current L2
 		 * 
@@ -171,7 +182,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 * </ul>
 		 */
 		CURRENT_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
+				.unit(Unit.MILLIAMPERE) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Current L3
 		 * 
@@ -182,7 +194,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 * </ul>
 		 */
 		CURRENT_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)); //
+				.unit(Unit.MILLIAMPERE) //
+				.persistencePriority(PersistencePriority.HIGH)); //
 
 		private final Doc doc;
 

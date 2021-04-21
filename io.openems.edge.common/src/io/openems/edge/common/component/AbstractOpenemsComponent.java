@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CaseFormat;
 
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.OptionsEnum;
@@ -238,7 +239,8 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 						.get(io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel(channelName));
 				if (channel == null) {
 					// Channel does not already exist -> create new Channel
-					Doc doc = AbstractOpenemsComponent.getDocFromObject(value);
+					AbstractDoc<?> doc = AbstractOpenemsComponent.getDocFromObject(value);
+					doc.persistencePriority(PersistencePriority.MEDIUM);
 					io.openems.edge.common.channel.ChannelId channelId = new io.openems.edge.common.channel.ChannelId() {
 
 						@Override
@@ -405,8 +407,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param message the message
 	 */
 	protected void logDebug(Logger log, String message) {
-		// TODO use log.debug(String, Object...) to improve speed
-		log.debug("[" + this.id() + "] " + message);
+		OpenemsComponent.logDebug(this, log, message);
 	}
 
 	/**
@@ -416,7 +417,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param message the message
 	 */
 	protected void logInfo(Logger log, String message) {
-		log.info("[" + this.id() + "] " + message);
+		OpenemsComponent.logInfo(this, log, message);
 	}
 
 	/**
@@ -426,7 +427,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param message the message
 	 */
 	protected void logWarn(Logger log, String message) {
-		log.warn("[" + this.id() + "] " + message);
+		OpenemsComponent.logWarn(this, log, message);
 	}
 
 	/**
@@ -436,7 +437,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param message the message
 	 */
 	protected void logError(Logger log, String message) {
-		log.error("[" + this.id() + "] " + message);
+		OpenemsComponent.logError(this, log, message);
 	}
 
 	/**
