@@ -299,7 +299,7 @@ export class Websocket {
    * @param message 
    */
   private handleEdgeConfigNotification(edgeId: string, message: EdgeConfigNotification): void {
-    let edges = this.service.edges.getValue();
+    let edges = this.service.metadata.value?.edges ?? {};
 
     if (edgeId in edges) {
       let edge = edges[edgeId];
@@ -313,7 +313,7 @@ export class Websocket {
    * @param message 
    */
   private handleCurrentDataNotification(edgeId: string, message: CurrentDataNotification): void {
-    let edges = this.service.edges.getValue();
+    let edges = this.service.metadata.value?.edges ?? {};
 
     if (edgeId in edges) {
       let edge = edges[edgeId];
@@ -327,7 +327,7 @@ export class Websocket {
    * @param message 
    */
   private handleSystemLogNotification(edgeId: string, message: SystemLogNotification): void {
-    let edges = this.service.edges.getValue();
+    let edges = this.service.metadata.value?.edges ?? {};
 
     if (edgeId in edges) {
       let edge = edges[edgeId];

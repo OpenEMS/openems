@@ -51,7 +51,9 @@ export class Service implements ErrorHandler {
   /**
    * Holds references of Edge-IDs (=key) to Edge objects (=value)
    */
-  public readonly edges: BehaviorSubject<{ [edgeId: string]: Edge }> = new BehaviorSubject({});
+  public readonly metadata: BehaviorSubject<{
+    user: User, edges: { [edgeId: string]: Edge }
+  }> = new BehaviorSubject(null);
 
   /**
    * Holds reference to Websocket. This is set by Websocket in constructor.
@@ -193,11 +195,11 @@ export class Service implements ErrorHandler {
         resolve(edge);
       }
 
-      subscription = this.edges
+      subscription = this.metadata
         .pipe(
-          filter(edges => edgeId in edges),
+          filter(metadata => metadata != null && edgeId in metadata.edges),
           first(),
-          map(edges => edges[edgeId])
+          map(metadata => metadata.edges[edgeId])
         )
         .subscribe(edge => {
           setCurrentEdge(edge);
@@ -245,19 +247,20 @@ export class Service implements ErrorHandler {
     this.setToken(token);
 
     // Metadata
-    let newEdges = {};
-    for (let edge of edges) {
-      let newEdge = new Edge(
-        edge.id,
-        edge.comment,
-        edge.producttype,
-        ("version" in edge) ? edge["version"] : "0.0.0",
-        Role.getRole(edge.role),
-        edge.isOnline
-      );
-      newEdges[newEdge.id] = newEdge;
-    }
-    this.edges.next(newEdges);
+    this.metadata.next({
+      user: user,
+      edges: edges.reduce((map, edge) => {
+        map[edge.id] = new Edge(
+          edge.id,
+          edge.comment,
+          edge.producttype,
+          ("version" in edge) ? edge["version"] : "0.0.0",
+          Role.getRole(edge.role),
+          edge.isOnline
+        );
+        return map;
+      }, {})
+    });
   }
 
   /**
@@ -266,7 +269,7 @@ export class Service implements ErrorHandler {
   public handleLogout() {
     this.websocket.status = 'waiting for authentication';
     this.currentEdge.next(null);
-    this.edges.next({});
+    this.metadata.next(null);
     this.removeToken();
     this.router.navigate(['/index']);
     this.websocket
