@@ -10,14 +10,15 @@ import java.util.concurrent.CompletableFuture;
 import org.osgi.service.component.ComponentContext;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.session.User;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.user.User;
 
 /**
  * Simulates a ComponentManager for the OpenEMS Component test framework.
@@ -108,7 +109,7 @@ public class DummyComponentManager implements ComponentManager {
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
 			throws OpenemsNamedException {
-		return null;
+		throw new NotImplementedException("handleJsonrpcRequest is not implemented for DummyComponentManager");
 	}
 
 	@Override

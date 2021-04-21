@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.java_websocket.WebSocket;
 
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
-import io.openems.backend.common.metadata.BackendUser;
+import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
@@ -27,7 +27,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	public CompletableFuture<? extends JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsException, OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
-		BackendUser user = wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
+		User user = wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
 
 		switch (request.getMethod()) {
 
@@ -41,17 +41,17 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a SubscribeEdgesChannelsRequest.
+	 * Handles a {@link SubscribeEdgesChannelsRequest}.
 	 * 
 	 * @param wsData    the WebSocket attachment
-	 * @param user      the User
+	 * @param user      the {@link User}
 	 * @param messageId the JSON-RPC Message-ID
-	 * @param request   the SubscribeEdgesChannelsRequest
+	 * @param request   the {@link SubscribeEdgesChannelsRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSubscribeEdgesChannelsRequest(WsData wsData,
-			BackendUser user, UUID messageId, SubscribeEdgesChannelsRequest request) throws OpenemsNamedException {
+			User user, UUID messageId, SubscribeEdgesChannelsRequest request) throws OpenemsNamedException {
 		for (String edgeId : request.getEdgeIds()) {
 			// assure read permissions of this User for this Edge.
 			user.assertEdgeRoleIsAtLeast(SubscribeEdgesChannelsRequest.METHOD, edgeId, Role.GUEST);

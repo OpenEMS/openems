@@ -1,12 +1,16 @@
 package io.openems.common.jsonrpc.response;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.shared.EdgeMetadata;
+import io.openems.common.session.AbstractUser;
+import io.openems.common.session.Role;
+import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -18,6 +22,7 @@ import io.openems.common.utils.JsonUtils;
  *   "id": "UUID",
  *   "result": {
  *     "token": String,
+ *     "user": {@link AbstractUser#toJsonObject()}
  *     "edges": {@link EdgeMetadata#toJson(java.util.Collection)}
  *   }
  * }
@@ -25,28 +30,87 @@ import io.openems.common.utils.JsonUtils;
  */
 public class AuthenticateWithPasswordResponse extends JsonrpcResponseSuccess {
 
-	private final String token;
-	private final List<EdgeMetadata> metadatas;
+	public static class EdgeMetadata {
 
-	public AuthenticateWithPasswordResponse(UUID id, String token, List<EdgeMetadata> metadatas) {
+		/**
+		 * Converts a collection of EdgeMetadatas to a JsonArray.
+		 * 
+		 * <pre>
+		 * [{
+		 *   "id": String,
+		 *   "comment": String,
+		 *   "producttype: String,
+		 *   "version: String,
+		 *   "role: "admin" | "installer" | "owner" | "guest",
+		 *   "isOnline: boolean
+		 * }]
+		 * </pre>
+		 * 
+		 * @param metadatas the EdgeMetadatas
+		 * @return a JsonArray
+		 */
+		public static JsonArray toJson(Collection<EdgeMetadata> metadatas) {
+			JsonArray result = new JsonArray();
+			for (EdgeMetadata metadata : metadatas) {
+				result.add(metadata.toJsonObject());
+			}
+			return result;
+		}
+
+		private final String id;
+		private final String comment;
+		private final String producttype;
+		private final SemanticVersion version;
+		private final Role role;
+		private final boolean isOnline;
+
+		public EdgeMetadata(String id, String comment, String producttype, SemanticVersion version, Role role,
+				boolean isOnline) {
+			this.id = id;
+			this.comment = comment;
+			this.producttype = producttype;
+			this.version = version;
+			this.role = role;
+			this.isOnline = isOnline;
+		}
+
+		public JsonObject toJsonObject() {
+			return JsonUtils.buildJsonObject() //
+					.addProperty("id", this.id) //
+					.addProperty("comment", this.comment) //
+					.addProperty("producttype", this.producttype) //
+					.addProperty("version", this.version.toString()) //
+					.add("role", this.role.asJson()) //
+					.addProperty("isOnline", this.isOnline) //
+					.build();
+		}
+	}
+
+	private final String token;
+	private final AbstractUser user;
+	private final List<EdgeMetadata> edges;
+
+	public AuthenticateWithPasswordResponse(UUID id, String token, AbstractUser user, List<EdgeMetadata> edges) {
 		super(id);
 		this.token = token;
-		this.metadatas = metadatas;
+		this.user = user;
+		this.edges = edges;
 	}
 
-	public String getToken() {
-		return this.token;
-	}
-
-	public List<EdgeMetadata> getMetadatas() {
-		return this.metadatas;
-	}
-
+	/**
+	 * This method formats the {@link AuthenticateWithPasswordResponse} so that it
+	 * contains the required information for OpenEMS UI.
+	 */
 	@Override
 	public JsonObject getResult() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("token", this.token) //
-				.add("edges", EdgeMetadata.toJson(this.metadatas)) //
+				.add("user", JsonUtils.buildJsonObject() //
+						.addProperty("id", this.user.getId()) //
+						.addProperty("name", this.user.getName()) //
+						.add("globalRole", this.user.getGlobalRole().asJson()) //
+						.build()) //
+				.add("edges", EdgeMetadata.toJson(this.edges)) //
 				.build();
 	}
 
