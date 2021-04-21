@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ToastController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { environment } from '../../environments';
@@ -35,7 +37,9 @@ export class IndexComponent {
     public utils: Utils,
     private router: Router,
     private service: Service,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toastController: ToastController,
+    private translate: TranslateService,
   ) {
 
     //Forwarding to device index if there is only 1 edge
@@ -88,12 +92,20 @@ export class IndexComponent {
       .map(edgeId => allEdges[edgeId]);
   }
 
-  doLogin(param: { username?: string, password: string }) {
+  /**
+   * Login to OpenEMS Edge or Backend.
+   * 
+   * @param param data provided in login form
+   */
+  public doLogin(param: { username?: string, password: string }) {
     let request = new AuthenticateWithPasswordRequest(param);
     this.websocket.sendRequest(request).then(response => {
       this.handleAuthenticateWithPasswordResponse(response as AuthenticateWithPasswordResponse);
     }).catch(reason => {
-      console.error("Error on Login", reason);
+      this.toastController.create({
+        message: this.translate.instant('Login.authenticationFailed'),
+        color: "danger",
+      }).then(toastData => toastData.present());
     })
   }
 

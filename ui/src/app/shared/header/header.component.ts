@@ -1,12 +1,12 @@
-import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { environment } from 'src/environments';
-import { MenuController, ModalController, ToastController } from '@ionic/angular';
-import { PickDateComponent } from '../pickdate/pickdate.component';
-import { Router, NavigationEnd } from '@angular/router';
-import { Service, Websocket, ChannelAddress, Edge } from '../shared';
-import { StatusSingleComponent } from '../status/single/status.component';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { MenuController, ModalController } from '@ionic/angular';
 import { Subject } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
+import { environment } from 'src/environments';
+import { PickDateComponent } from '../pickdate/pickdate.component';
+import { ChannelAddress, Edge, Service, Websocket } from '../shared';
+import { StatusSingleComponent } from '../status/single/status.component';
 
 
 @Component({
@@ -30,7 +30,6 @@ export class HeaderComponent {
         public modalCtrl: ModalController,
         public router: Router,
         public service: Service,
-        public toastController: ToastController,
         public websocket: Websocket,
     ) { }
 

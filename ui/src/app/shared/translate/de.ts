@@ -112,6 +112,7 @@ export const TRANSLATION = {
         preamble: "Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",
         passwordLabel: "Passwort",
         passwordPlaceholder: "Passwort",
+        authenticationFailed: "Authentifizierung fehlgeschlagen",
     },
     Edge: {
         Index: {
