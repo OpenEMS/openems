@@ -14,6 +14,7 @@ export class StorageComponent extends AbstractFlatWidget {
     public chargerComponents: EdgeConfig.Component[] = [];
     public channelAddresses: ChannelAddress[] = [];
     public storageItem: string = null;
+    public activePower: ChannelAddress[] = [];
 
     protected getChannelAddresses() {
         for (let component of this.essComponents) {
@@ -24,9 +25,33 @@ export class StorageComponent extends AbstractFlatWidget {
         this.channelAddresses.push(new ChannelAddress('_sum', 'EssSoc'));
         return this.channelAddresses
     }
-
+    public convertCharge = (value: any): string => {
+        let thisValue = ((value / 1000) * -1).toFixed(1);
+        if (value <= 0) {
+            if (thisValue.endsWith('0')) {
+                return (Math.round(parseFloat(thisValue))).toString() + ' kW';
+            } else {
+                return ((value / 1000) * -1).toFixed(1) + ' kW';
+            }
+        } else {
+            return '-'
+        }
+    }
+    public convertDischarge = (value: any): string => {
+        let thisValue = (value / 1000).toFixed(1);
+        if (value > 0) {
+            if (thisValue.endsWith('0')) {
+                return (Math.round(parseFloat(thisValue))).toString() + ' kW';
+            } else {
+                return (value / 1000).toFixed(1) + ' kW';
+            }
+        } else {
+            return '-'
+        }
+    }
     protected onCurrentData(currentData: CurrentData) {
         this.essComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && component.isEnabled);
+        // Check total State_of_Charge for dynamical icon in widget-header
         let soc = currentData.allComponents['_sum' + '/EssSoc'];
         if (soc < 20) {
             this.storageItem = 'assets/img/storage_20.png'

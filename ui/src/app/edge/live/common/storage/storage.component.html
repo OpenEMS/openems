@@ -1,6 +1,6 @@
 <ng-container *ngIf="isInitialized">
     <oe-flat-widget [img]="storageItem" [title]="'General.storageSystem'| translate">
-        <ng-container *ngFor="let component of essComponents, , let i = index">
+        <ng-container *ngFor="let component of essComponents, let i = index">
             <ng-container *ngIf="essComponents.length > 1">
                 <oe-flat-widget-line [name]="component.alias">
                 </oe-flat-widget-line>
@@ -8,16 +8,16 @@
             <oe-flat-widget-percentagebar [channelAddress]="component.id + '/Soc'">
             </oe-flat-widget-percentagebar>
             <oe-flat-widget-line [name]="'General.chargePower' | translate"
-                [channelAddress]="component.id + '/ActivePower'" [converter]="convertWattToKiloWatt">
+                [channelAddress]="component.id + '/ActivePower'" [converter]="convertCharge">
             </oe-flat-widget-line>
             <oe-flat-widget-line [name]="'General.dischargePower' | translate"
-                [channelAddress]="component.id + '/ActivePower'" [converter]="convertWattToKiloWatt">
+                [channelAddress]="component.id + '/ActivePower'" [converter]="convertDischarge">
             </oe-flat-widget-line>
             <!-- 
                 Likely to be changed. This is a way to solve the problem with the ng-for-loop and class="underline"
              -->
             <div *ngIf="essComponents.length > 1 && i != (essComponents.length -1)"
-                style="border-bottom: 1px solid lightgray; width: 110%; padding-top: 2%; margin-bottom: 2%; margin-left: -5%;">
+                style="border-bottom: 1px solid lightgray; width: 110%; margin-top: 2%; margin-bottom: 2%; margin-left: -5%;">
             </div>
         </ng-container>
     </oe-flat-widget>
