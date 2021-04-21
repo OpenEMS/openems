@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -16,7 +15,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
-import io.openems.backend.metadata.odoo.MyEdge;
+import io.openems.common.utils.ThreadPoolUtils;
 
 public class InitializeEdgesWorker {
 
@@ -36,25 +35,19 @@ public class InitializeEdgesWorker {
 		this.onFinished = onFinished;
 	}
 
+	/**
+	 * Starts the {@link InitializeEdgesWorker}.
+	 */
 	public synchronized void start() {
 		this.executor.execute(() -> this.task.accept(this));
 	}
 
+	/**
+	 * Stops the {@link InitializeEdgesWorker}.
+	 */
 	public synchronized void stop() {
 		// Shutdown executor
-		if (this.executor != null) {
-			try {
-				this.executor.shutdown();
-				this.executor.awaitTermination(5, TimeUnit.SECONDS);
-			} catch (InterruptedException e) {
-				this.parent.logWarn(this.log, "tasks interrupted");
-			} finally {
-				if (!this.executor.isTerminated()) {
-					this.parent.logWarn(this.log, "cancel non-finished tasks");
-				}
-				this.executor.shutdownNow();
-			}
-		}
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 	}
 
 	private Consumer<InitializeEdgesWorker> task = (self) -> {
@@ -84,10 +77,8 @@ public class InitializeEdgesWorker {
 					self.parent.logInfo(this.log, "Caching Edges from Postgres. Finished [" + i + "]");
 				}
 				try {
-					MyEdge edge = self.parent.edgeCache.addOrUpate(rs);
+					self.parent.edgeCache.addOrUpate(rs);
 
-					// Trigger update to Edge States Sum
-					self.parent.getPeriodicWriteWorker().triggerUpdateEdgeStatesSum(edge);
 				} catch (Exception e) {
 					self.parent.logError(this.log,
 							"Unable to read Edge: " + e.getClass().getSimpleName() + ". " + e.getMessage());
@@ -105,9 +96,10 @@ public class InitializeEdgesWorker {
 	};
 
 	/**
-	 * SELECT {} FROM {edge.device};
+	 * SELECT {} FROM {edge.device};.
 	 * 
-	 * @return the PreparedStatement
+	 * @param connection the {@link Connection}
+	 * @return the {@link PreparedStatement}
 	 * @throws SQLException on error
 	 */
 	private PreparedStatement psQueryAllEdges(Connection connection) throws SQLException {
@@ -120,7 +112,8 @@ public class InitializeEdgesWorker {
 	/**
 	 * UPDATE {} SET openems_is_connected = FALSE;.
 	 * 
-	 * @return the PreparedStatement
+	 * @param connection the {@link Connection}
+	 * @return the {@link PreparedStatement}
 	 * @throws SQLException on error
 	 */
 	private PreparedStatement psUpdateAllEdgesOffline(Connection connection) throws SQLException {
