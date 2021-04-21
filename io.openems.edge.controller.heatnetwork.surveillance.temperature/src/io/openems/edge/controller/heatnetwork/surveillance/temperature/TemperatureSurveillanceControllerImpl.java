@@ -10,7 +10,7 @@ import io.openems.edge.controller.heatnetwork.valve.api.ControlType;
 import io.openems.edge.controller.heatnetwork.valve.api.ValveController;
 import io.openems.edge.heater.Heater;
 import io.openems.edge.thermometer.api.Thermometer;
-import io.openems.edge.thermometer.api.ThresholdThermometer;
+import io.openems.edge.thermometer.api.ThermometerThreshold;
 import org.joda.time.DateTime;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
@@ -188,14 +188,14 @@ public class TemperatureSurveillanceControllerImpl extends AbstractOpenemsCompon
         OpenemsComponent allocatedOpenemsComponent;
         if (this.activationThermometer.isEnabled() == false) {
             allocatedOpenemsComponent = cpm.getComponent(this.activationThermometer.id());
-            if (allocatedOpenemsComponent instanceof ThresholdThermometer) {
-                this.activationThermometer = (ThresholdThermometer) allocatedOpenemsComponent;
+            if (allocatedOpenemsComponent instanceof ThermometerThreshold) {
+                this.activationThermometer = (ThermometerThreshold) allocatedOpenemsComponent;
             }
         }
         if (this.deactivationThermometer.isEnabled() == false) {
             allocatedOpenemsComponent = cpm.getComponent(this.deactivationThermometer.id());
-            if (allocatedOpenemsComponent instanceof ThresholdThermometer) {
-                this.deactivationThermometer = (ThresholdThermometer) allocatedOpenemsComponent;
+            if (allocatedOpenemsComponent instanceof ThermometerThreshold) {
+                this.deactivationThermometer = (ThermometerThreshold) allocatedOpenemsComponent;
             }
         }
         if (this.surveillanceType.equals(TemperatureSurveillanceType.NOTHING)) {
