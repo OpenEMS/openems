@@ -15,18 +15,19 @@ export class GridComponent extends AbstractFlatWidget {
   public gridMode: number;
 
   protected getChannelAddresses(): ChannelAddress[] {
-    return [GridComponent.GRID_ACTIVE_POWER, GridComponent.GRID_MODE]
+    let channelAddresses: ChannelAddress[] = [
+      GridComponent.GRID_ACTIVE_POWER, GridComponent.GRID_MODE, new ChannelAddress('_sum', 'GridActivePowerL1'),
+      new ChannelAddress('_sum', 'GridActivePowerL2'),
+      new ChannelAddress('_sum', 'GridActivePowerL3')
+    ]
+    return channelAddresses;
   }
   protected onCurrentData(currentData: CurrentData) {
-    let gridActivePower = currentData.allComponents[GridComponent.GRID_ACTIVE_POWER.toString()];
     this.gridMode = currentData.allComponents[GridComponent.GRID_MODE.toString()];
-    if (gridActivePower >= 0) {
-      this.gridBuyAdvancedChannel = gridActivePower;
-      this.gridSellAdvancedChannel = 0;
-    } else {
-      this.gridSellAdvancedChannel = gridActivePower * -1;
-      this.gridBuyAdvancedChannel = 0;
-    }
+    let gridActivePower = currentData.allComponents[GridComponent.GRID_ACTIVE_POWER.toString()];
+    this.gridBuyAdvancedChannel = gridActivePower;
+    this.gridSellAdvancedChannel = gridActivePower * -1;
+    console.log(this.gridBuyAdvancedChannel)
   }
 
   async presentModal() {
