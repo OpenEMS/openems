@@ -72,9 +72,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			user = this.parent.metadata.authenticate(request.getPassword());
 		}
 		wsData.setUserId(user.getId());
-		String token = wsData.assertToken();
-		return CompletableFuture.completedFuture(new AuthenticateWithPasswordResponse(request.getId(), token, user,
-				User.generateEdgeMetadatas(user, this.parent.metadata)));
+		wsData.setToken(user.getToken());
+		return CompletableFuture.completedFuture(new AuthenticateWithPasswordResponse(request.getId(), user.getToken(),
+				user, User.generateEdgeMetadatas(user, this.parent.metadata)));
 	}
 
 	/**

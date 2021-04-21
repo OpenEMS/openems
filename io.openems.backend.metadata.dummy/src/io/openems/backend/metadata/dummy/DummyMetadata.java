@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,8 +25,8 @@ import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfigDiff;
@@ -64,26 +65,26 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
-	public User authenticate() throws OpenemsException {
-		int id = this.nextUserId.incrementAndGet();
-		String userId = "user" + id;
+	public User authenticate(String username, String password) throws OpenemsNamedException {
+		String userId = "user" + this.nextUserId.incrementAndGet();
+		String token = UUID.randomUUID().toString();
 		TreeMap<String, Role> roles = new TreeMap<>();
 		for (String edgeId : this.edges.keySet()) {
 			roles.put(edgeId, Role.ADMIN);
 		}
-		User user = new User(userId, "User #" + id, Role.ADMIN, roles);
+		User user = new User(userId, username, token, Role.ADMIN, roles);
 		this.users.put(userId, user);
 		return user;
 	}
 
 	@Override
-	public User authenticate(String username, String password) throws OpenemsNamedException {
-		return this.authenticate();
-	}
-
-	@Override
-	public User authenticate(String sessionId) throws OpenemsException {
-		return this.authenticate();
+	public User authenticate(String token) throws OpenemsNamedException {
+		for (User user : this.users.values()) {
+			if (user.getToken().equals(token)) {
+				return user;
+			}
+		}
+		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 	}
 
 	@Override

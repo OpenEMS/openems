@@ -12,7 +12,6 @@ import org.osgi.annotation.versioning.ProviderType;
 import com.google.common.collect.HashMultimap;
 
 import io.openems.common.channel.Level;
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
@@ -43,20 +42,6 @@ public interface Metadata {
 	 * See {@link #isInitialized()}.
 	 */
 	public void removeOnIsInitializedListener(Runnable callback);
-
-	/**
-	 * Authenticates a User without any information.
-	 * 
-	 * <p>
-	 * This is only useful for Dummy-Implementations. By default authentication is
-	 * denied in this case.
-	 * 
-	 * @return the User
-	 * @throws OpenemsNamedException on error
-	 */
-	public default User authenticate() throws OpenemsNamedException {
-		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-	}
 
 	/**
 	 * Authenticates the User by username and password.
