@@ -19,8 +19,8 @@ export class UserComponent {
 
   constructor(
     public translate: TranslateService,
+    public service: Service,
     private route: ActivatedRoute,
-    private service: Service,
     private websocket: Websocket,
   ) {
     this.languages = Language.getLanguageTags();

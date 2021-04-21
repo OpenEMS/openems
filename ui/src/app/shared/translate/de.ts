@@ -381,5 +381,11 @@ export const TRANSLATION = {
         failed: 'Verbindungsaufbau fehlgeschlagen.',
         loggedIn: 'Angemeldet.',
         loggedInAs: 'Angemeldet als Benutzer \'{{value}}\'.', // value = username
+    },
+    Role: {
+        guest: 'Gast',
+        owner: 'Eigentümer',
+        installer: 'Installateur',
+        admin: 'Administrator',
     }
 }

@@ -16,6 +16,7 @@ import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotifica
 import { TranslateService } from '@ngx-translate/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { WsData } from './wsdata';
+import { EdgeRpcRequest } from '../jsonrpc/request/edgeRpcRequest';
 
 @Injectable()
 export class Websocket {
@@ -133,9 +134,9 @@ export class Websocket {
           if (env.debugMode) {
             if (message.method == EdgeRpcNotification.METHOD && 'payload' in message.params) {
               const payload = message.params['payload'];
-              console.info("Notification [" + payload["method"] + "]", payload);
+              console.info("Notification [" + payload["method"] + "]", payload['params']);
             } else {
-              console.info("Notification [" + message.method + "]", message);
+              console.info("Notification [" + message.method + "]", message.params);
             }
           }
           this.onNotification(message);
@@ -160,7 +161,23 @@ export class Websocket {
     if (!this.isWebsocketConnected.value) {
       return Promise.reject("Websocket is not connected! Unable to send Request: " + JSON.stringify(request));
     }
-    return this.wsdata.sendRequest(this.socket, request);
+    return new Promise((resolve, reject) => {
+      this.wsdata.sendRequest(this.socket, request).then(response => {
+        if (request instanceof EdgeRpcRequest) {
+          console.info("Response     [" + request.params.payload.method + ":" + request.params.edgeId + "]", response.result['payload']['result']);
+        } else {
+          console.info("Response     [" + request.method + "]", response.result);
+        }
+        resolve(response);
+
+      }).catch(reason => {
+        if (env.debugMode) {
+          console.warn("Request fail [" + request.method + "]", reason);
+        }
+        reject(reason);
+
+      });
+    });
   }
 
   /**

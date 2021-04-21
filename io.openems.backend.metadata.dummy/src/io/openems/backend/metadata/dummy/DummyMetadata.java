@@ -66,14 +66,14 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 
 	@Override
 	public User authenticate(String username, String password) throws OpenemsNamedException {
-		String userId = "user" + this.nextUserId.incrementAndGet();
+		String name = "User #" + this.nextUserId.incrementAndGet();
 		String token = UUID.randomUUID().toString();
 		TreeMap<String, Role> roles = new TreeMap<>();
 		for (String edgeId : this.edges.keySet()) {
 			roles.put(edgeId, Role.ADMIN);
 		}
-		User user = new User(userId, username, token, Role.ADMIN, roles);
-		this.users.put(userId, user);
+		User user = new User(username, name, token, Role.ADMIN, roles);
+		this.users.put(user.getId(), user);
 		return user;
 	}
 

@@ -381,5 +381,11 @@ export const TRANSLATION = {
         failed: 'Connection failed.',
         loggedIn: 'Logged in.',
         loggedInAs: 'Logged in as \'{{value}}\'.', // value = username
+    },
+    Role: {
+        guest: 'Guest',
+        owner: 'Owner',
+        installer: 'Installer',
+        admin: 'Administrator',
     }
 }

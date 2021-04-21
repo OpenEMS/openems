@@ -3,7 +3,7 @@
   <ion-grid>
     <ion-row class="ion-justify-content-center">
       <ion-col size="12" size-md="8" size-xl="4">
-        <ion-card>
+        <ion-card *ngIf="(service.metadata | async)?.user as user">
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
             <ion-label class="ion-text-wrap" translate>
@@ -14,38 +14,32 @@
           <ion-card-content class="ion-text-wrap">
             <ion-item lines="inset">
               <ion-label>
-                Name:
+                Name
+              </ion-label>
+              <ion-label>
+                {{ user.name }}
                 <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
                 </ion-icon> -->
-                <ion-text color="dark">
-                  <h5>
-                    Fabian Schwarzbeck
-                  </h5>
-                </ion-text>
               </ion-label>
             </ion-item>
             <ion-item lines="inset">
               <ion-label>
-                Login:
+                Login
+              </ion-label>
+              <ion-label>
+                {{ user.id }}
                 <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
                 </ion-icon> -->
-                <ion-text color="dark">
-                  <h5>
-                    fabian.schwarzbeck@fenecon.de
-                  </h5>
-                </ion-text>
               </ion-label>
             </ion-item>
             <ion-item lines="inset">
               <ion-label>
-                Zugriffslevel:
+                Zugriffslevel
+              </ion-label>
+              <ion-label>
+                {{ 'Role.' + user.globalRole | translate }}
                 <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
                 </ion-icon> -->
-                <ion-text color="dark">
-                  <h5>
-                    Installateur
-                  </h5>
-                </ion-text>
               </ion-label>
             </ion-item>
             <!-- <ion-item lines="inset">

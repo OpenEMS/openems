@@ -229,14 +229,8 @@ export class Edge {
     let wrap = new EdgeRpcRequest({ edgeId: this.id, payload: request });
     return new Promise((resolve, reject) => {
       ws.sendRequest(wrap).then(response => {
-        if (env.debugMode) {
-          console.info("Response     [" + request.method + "]", response);
-        }
         resolve(response['result']['payload']);
       }).catch(reason => {
-        if (env.debugMode) {
-          console.warn("Request fail [" + request.method + "]", reason);
-        }
         reject(reason);
       });
     });
