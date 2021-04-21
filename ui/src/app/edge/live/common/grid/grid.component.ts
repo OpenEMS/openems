@@ -8,8 +8,6 @@ import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
   templateUrl: './grid.component.html'
 })
 export class GridComponent extends AbstractFlatWidget {
-
-
   private static readonly GRID_ACTIVE_POWER: ChannelAddress = new ChannelAddress('_sum', 'GridActivePower');
   private static readonly GRID_MODE: ChannelAddress = new ChannelAddress('_sum', 'GridMode')
   public gridBuyAdvancedChannel: number;
