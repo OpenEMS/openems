@@ -19,7 +19,7 @@ import io.openems.edge.controller.heatnetwork.communication.request.rest.RestReq
 import io.openems.edge.controller.heatnetwork.hydraulic.lineheater.api.HydraulicLineHeater;
 import io.openems.edge.heatsystem.components.Pump;
 import io.openems.edge.rest.remote.device.general.api.RestRemoteDevice;
-import io.openems.edge.thermometer.api.ThresholdThermometer;
+import io.openems.edge.thermometer.api.ThermometerThreshold;
 import org.joda.time.DateTime;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
@@ -51,7 +51,7 @@ public class CommunicationMasterControllerImpl extends AbstractOpenemsComponent 
     //Configured communicationController handling one remoteCommunication
     CommunicationController communicationController;
     //ThresholdTemperature to Write into so another Component can react in response correctly
-    private ThresholdThermometer thresholdTemperature;
+    private ThermometerThreshold thresholdTemperature;
     //The Optional HydraulicLineHeater
     private HydraulicLineHeater hydraulicLineHeater;
     //The Optional HeatPump
@@ -115,8 +115,8 @@ public class CommunicationMasterControllerImpl extends AbstractOpenemsComponent 
         }
 
         OpenemsComponent threshold = cpm.getComponent(config.thresholdId());
-        if (threshold instanceof ThresholdThermometer) {
-            this.thresholdTemperature = (ThresholdThermometer) threshold;
+        if (threshold instanceof ThermometerThreshold) {
+            this.thresholdTemperature = (ThermometerThreshold) threshold;
         } else {
             throw new ConfigurationException("CommunicationMaster - Activate - ThresholdThermometer",
                     "Given ID Not an instance of ThresholdThermometer: " + config.thresholdId());
@@ -311,7 +311,7 @@ public class CommunicationMasterControllerImpl extends AbstractOpenemsComponent 
             }
 
             if (this.thresholdTemperature == null || this.thresholdTemperature.isEnabled() == false) {
-                if (this.cpm.getComponent(this.config.thresholdId()) instanceof ThresholdThermometer) {
+                if (this.cpm.getComponent(this.config.thresholdId()) instanceof ThermometerThreshold) {
                     this.thresholdTemperature = this.cpm.getComponent(config.thresholdId());
                 }
             }
