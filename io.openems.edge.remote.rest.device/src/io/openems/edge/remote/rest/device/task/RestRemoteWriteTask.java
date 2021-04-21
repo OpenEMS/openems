@@ -63,7 +63,7 @@ public class RestRemoteWriteTask extends AbstractRestRemoteDeviceTask implements
         if (succ) {
             super.getLogger().info("The Device corresponding to this device: " + super.getDeviceId() + "Was successfully set " + response);
         } else {
-            super.getLogger().warn("Error while Posting Value, please try again! " + super.getDeviceId());
+            super.getLogger().warn("Error while Posting Value, please try again! " + response);
         }
 
     }

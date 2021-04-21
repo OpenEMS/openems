@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Provides a RestBridge. This Bridge Communicates with another System running a different OpenEMS Edge / it's components via the Rest Protocol.
- * Bc it is made to communicate with another OpenEMS the Authentication Method is 'Basic'.
+ * The reason why it has only the 'Basic' Authentication method, is bc it was designed to communicate only with different OpenEMS Edges.
  * Rest Remote Devices need to be configured and mapped to the remote OpenEMS.
  */
 @Designate(ocd = Config.class, factory = true)
@@ -61,12 +61,6 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
         super(OpenemsComponent.ChannelId.values());
     }
 
-    /**
-     * Activates the Component.
-     *
-     * @param context the Component context.
-     * @param config  the Config.
-     */
     @Activate
     void activate(ComponentContext context, Config config) {
         super.activate(context, config.id(), config.alias(), config.enabled());
@@ -166,14 +160,14 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
     }
 
     /**
-     * handles PostRequests called by the CycleWorker.
+     * Handles PostRequests called by the CycleWorker.
      *
      * @param entry the RestWriteRequest given by the CycleWorker. from this.tasks
      *              <p>
      *              Creates URL and if ReadyToWrite (can be changed via Interface) && isAudoadapt --> AutoAdaptRequest.
      *              AutoAdaptRequests is only necessary if Device is a Relays. --> IsCloser will be asked.
      *              Bc Opener and Closer have Inverse Logic. A Closer is Normally Open and an Opener is NormallyClosed,
-     *              Therefor Changes in Relays needs to be Adapted. "ON" means true with closer but false with opener and
+     *              Therefore Changes in Relays needs to be Adapted. "ON" means true with closer but false with opener and
      *              vice versa.
      *              </p>
      * @throws IOException Bc of URL and connection.
@@ -205,7 +199,7 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 entry.wasSuccess(true, entry.getDeviceId() + entry.getPostMessage());
             } else {
-                entry.wasSuccess(false, "POST NOT WORKED");
+                entry.wasSuccess(false, "REST POST DID NOT WORK FOR ENTRY: " + entry.getDeviceId());
             }
         }
     }
@@ -284,7 +278,7 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
     }
 
     /**
-     * removes a Remote device from the Bridge.
+     * Removes a Remote device from the Bridge.
      * Usually called by RestRemote Component on deactivation or when the Bridge itself deactivates.
      *
      * @param deviceId the deviceId to Remove.
