@@ -10,7 +10,9 @@ export class FlatWidgetLine extends AbstractFlatWidgetLine {
 
     /** Name for parameter, displayed on the left side*/
     @Input()
-    name: string;
+    set name(value: any) {
+        this.setName(value);
+    }
 
     /** value defines value of the parameter, displayed on the right */
     @Input()
