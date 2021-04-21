@@ -64,17 +64,21 @@ import io.openems.common.utils.JsonUtils;
 )
 public class FileMetadata extends AbstractMetadata implements Metadata {
 
+	private static final String USER_ID = "admin";
+	private static final String USER_NAME = "Administrator";
+	private static final Role USER_GLOBAL_ROLE = Role.ADMIN;
+
 	private final Logger log = LoggerFactory.getLogger(FileMetadata.class);
 
-	private final User user = new User("admin", "Administrator", UUID.randomUUID().toString(), Role.ADMIN,
-			new TreeMap<>());
-
 	private final Map<String, MyEdge> edges = new HashMap<>();
+
+	private User user;
 
 	private String path = "";
 
 	public FileMetadata() {
 		super("Metadata.File");
+		this.user = FileMetadata.generateUser();
 	}
 
 	@Activate
@@ -104,6 +108,11 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 			return this.user;
 		}
 		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+	}
+
+	@Override
+	public void logout(User user) {
+		this.user = FileMetadata.generateUser();
 	}
 
 	@Override
@@ -183,6 +192,11 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 			}
 		}
 		this.setInitialized();
+	}
+
+	private static User generateUser() {
+		return new User(FileMetadata.USER_ID, FileMetadata.USER_NAME, UUID.randomUUID().toString(),
+				FileMetadata.USER_GLOBAL_ROLE, new TreeMap<>());
 	}
 
 }

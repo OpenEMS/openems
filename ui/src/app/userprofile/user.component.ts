@@ -1,9 +1,10 @@
-import { ActivatedRoute } from '@angular/router';
 import { Component } from '@angular/core';
-import { environment } from '../../environments';
-import { Language, LanguageTag } from '../shared/translate/language';
-import { Service } from '../shared/shared';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { environment } from '../../environments';
+import { LogoutRequest } from '../shared/jsonrpc/request/logoutRequest';
+import { Service, Websocket } from '../shared/shared';
+import { Language, LanguageTag } from '../shared/translate/language';
 
 @Component({
   selector: 'user',
@@ -20,6 +21,7 @@ export class UserComponent {
     public translate: TranslateService,
     private route: ActivatedRoute,
     private service: Service,
+    private websocket: Websocket,
   ) {
     this.languages = Language.getLanguageTags();
   }
@@ -27,6 +29,17 @@ export class UserComponent {
   ngOnInit() {
     this.currentLanguage = this.translate.currentLang as LanguageTag;
     this.service.setCurrentComponent(this.translate.instant('Menu.user'), this.route);
+  }
+
+  /**
+   * Logout from OpenEMS Edge or Backend.
+   */
+  public doLogout() {
+    this.websocket.sendRequest(new LogoutRequest()).then(response => {
+      this.service.handleLogout();
+    }).catch(reason => {
+      console.error(reason)
+    })
   }
 
   public toggleDebugMode(event: CustomEvent) {

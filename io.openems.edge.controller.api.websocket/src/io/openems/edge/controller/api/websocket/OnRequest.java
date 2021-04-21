@@ -25,6 +25,7 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
+import io.openems.common.jsonrpc.request.LogoutRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesExportXlxsRequest;
@@ -68,6 +69,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		user.assertRoleIsAtLeast(request.getMethod(), Role.GUEST);
 
 		switch (request.getMethod()) {
+		case LogoutRequest.METHOD:
+			return this.handleLogoutRequest(wsData, user, LogoutRequest.from(request));
 
 		case EdgeRpcRequest.METHOD:
 			return this.handleEdgeRpcRequest(wsData, user, EdgeRpcRequest.from(request));
@@ -79,7 +82,23 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles an EdgeRpcRequest.
+	 * Handles a {@link LogoutRequest}.
+	 * 
+	 * @param wsData  the WebSocket attachment
+	 * @param user    the authenticated {@link User}
+	 * @param request the {@link LogoutRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleLogoutRequest(WsData wsData, User user,
+			LogoutRequest request) throws OpenemsNamedException {
+		this.parent.sessionTokens.remove(wsData.getSessionToken(), user);
+		wsData.unsetUser();
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	/**
+	 * Handles a {@link EdgeRpcRequest}.
 	 * 
 	 * @param wsData         the WebSocket attachment
 	 * @param edgeRpcRequest the EdgeRpcRequest

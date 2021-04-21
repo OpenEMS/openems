@@ -88,6 +88,11 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
+	public void logout(User user) {
+		this.users.remove(user.getId(), user);
+	}
+
+	@Override
 	public Optional<String> getEdgeIdForApikey(String apikey) {
 		Optional<MyEdge> edgeOpt = this.edges.values().stream() //
 				.filter(edge -> apikey.equals(edge.getApikey())) //

@@ -34,6 +34,13 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	/**
+	 * Unsets the User-Token.
+	 */
+	public synchronized void unsetUserId() {
+		this.userId = Optional.empty();
+	}
+
+	/**
 	 * Gets the authenticated User-ID.
 	 * 
 	 * @return the User-ID or Optional.Empty if the User was not authenticated.
@@ -58,7 +65,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return Optional.empty();
 	}
 
-	public void setToken(String token) {
+	public synchronized void setToken(String token) {
 		this.token = Optional.ofNullable(token);
 	}
 
@@ -69,6 +76,13 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	public Optional<String> getToken() {
 		return this.token;
+	}
+
+	/**
+	 * Unsets the Login-Token.
+	 */
+	public void unsetToken() {
+		this.token = Optional.empty();
 	}
 
 	/**

@@ -95,6 +95,11 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
+	public void logout(User user) {
+		this.odooHandler.logout(user.getToken());
+	}
+
+	@Override
 	public Optional<String> getEdgeIdForApikey(String apikey) {
 		Optional<MyEdge> edge = this.postgresHandler.getEdgeForApikey(apikey);
 		if (edge.isPresent()) {

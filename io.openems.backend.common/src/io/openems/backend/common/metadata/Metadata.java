@@ -54,13 +54,20 @@ public interface Metadata {
 	public User authenticate(String username, String password) throws OpenemsNamedException;
 
 	/**
-	 * Authenticates the User by a Session-ID.
+	 * Authenticates the User by a Token.
 	 * 
-	 * @param sessionId the Session-ID
+	 * @param token the Token
 	 * @return the {@link User}
 	 * @throws OpenemsNamedException on error
 	 */
-	public User authenticate(String sessionId) throws OpenemsNamedException;
+	public User authenticate(String token) throws OpenemsNamedException;
+
+	/**
+	 * Closes a session for a User.
+	 * 
+	 * @param user the {@link User}
+	 */
+	public void logout(User user);
 
 	/**
 	 * Gets the Edge-ID for an API-Key, i.e. authenticates the API-Key.
@@ -165,4 +172,5 @@ public interface Metadata {
 		}
 		return result.toString();
 	}
+
 }

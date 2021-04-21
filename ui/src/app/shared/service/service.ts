@@ -16,6 +16,7 @@ import { ChannelAddress } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
+import { Websocket } from './websocket';
 @Injectable()
 export class Service implements ErrorHandler {
 
@@ -55,7 +56,7 @@ export class Service implements ErrorHandler {
   /**
    * Holds reference to Websocket. This is set by Websocket in constructor.
    */
-  public websocket = null;
+  public websocket: Websocket = null;
 
   constructor(
     private router: Router,
@@ -71,14 +72,6 @@ export class Service implements ErrorHandler {
     translate.setDefaultLang(LanguageTag.DE);
     // initialize history period
     this.historyPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
-  }
-
-  /**
-   * Reset everything to default
-   */
-  public initialize() {
-    console.log("initialize")
-    this.edges.next({});
   }
 
   /**
@@ -265,6 +258,18 @@ export class Service implements ErrorHandler {
       newEdges[newEdge.id] = newEdge;
     }
     this.edges.next(newEdges);
+  }
+
+  /**
+   * Handles being logged out.
+   */
+  public handleLogout() {
+    this.websocket.status = 'waiting for authentication';
+    this.currentEdge.next(null);
+    this.edges.next({});
+    this.removeToken();
+    this.router.navigate(['/index']);
+    this.websocket
   }
 
   /**

@@ -15,8 +15,8 @@
             <ion-item lines="inset">
               <ion-label>
                 Name:
-                <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
-                </ion-icon>
+                <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
+                </ion-icon> -->
                 <ion-text color="dark">
                   <h5>
                     Fabian Schwarzbeck
@@ -27,8 +27,8 @@
             <ion-item lines="inset">
               <ion-label>
                 Login:
-                <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
-                </ion-icon>
+                <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
+                </ion-icon> -->
                 <ion-text color="dark">
                   <h5>
                     fabian.schwarzbeck@fenecon.de
@@ -37,13 +37,25 @@
               </ion-label>
             </ion-item>
             <ion-item lines="inset">
+              <ion-label>
+                Zugriffslevel:
+                <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
+                </ion-icon> -->
+                <ion-text color="dark">
+                  <h5>
+                    Installateur
+                  </h5>
+                </ion-text>
+              </ion-label>
+            </ion-item>
+            <!-- <ion-item lines="inset">
               <ion-button slot="end" class="ion-no-padding" size="default" fill="clear">
                 <ion-icon name="refresh-outline"></ion-icon>
                 <ion-label>Passwort ändern</ion-label>
               </ion-button>
-            </ion-item>
+            </ion-item> -->
             <ion-item lines="inset">
-              <ion-button slot="end" class="ion-no-padding" size="default" fill="clear">
+              <ion-button (click)="doLogout()" slot="end" class="ion-no-padding" size="default" fill="clear">
                 <ion-icon name="log-out-outline"></ion-icon>
                 <ion-label>Logout</ion-label>
               </ion-button>

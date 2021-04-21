@@ -13,6 +13,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.AuthenticateWithPasswordRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
+import io.openems.common.jsonrpc.request.LogoutRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse;
@@ -42,8 +43,13 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		User user = this.assertUser(wsData, request);
 
 		switch (request.getMethod()) {
+		case LogoutRequest.METHOD:
+			result = this.handleLogoutRequest(wsData, user, LogoutRequest.from(request));
+			break;
+
 		case EdgeRpcRequest.METHOD:
 			result = this.handleEdgeRpcRequest(wsData, user, EdgeRpcRequest.from(request));
+			break;
 		}
 
 		if (result != null) {
@@ -56,7 +62,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles an {@link AuthenticateWithPasswordRequest}.
+	 * Handles a {@link AuthenticateWithPasswordRequest}.
 	 * 
 	 * @param wsData  the WebSocket attachment
 	 * @param request the {@link AuthenticateWithPasswordRequest}
@@ -75,6 +81,23 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		wsData.setToken(user.getToken());
 		return CompletableFuture.completedFuture(new AuthenticateWithPasswordResponse(request.getId(), user.getToken(),
 				user, User.generateEdgeMetadatas(user, this.parent.metadata)));
+	}
+
+	/**
+	 * Handles a {@link LogoutRequest}.
+	 * 
+	 * @param wsData  the WebSocket attachment
+	 * @param user    the authenticated {@link User}
+	 * @param request the {@link LogoutRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleLogoutRequest(WsData wsData, User user,
+			LogoutRequest request) throws OpenemsNamedException {
+		wsData.unsetToken();
+		wsData.unsetUserId();
+		this.parent.metadata.logout(user);
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
 	/**
