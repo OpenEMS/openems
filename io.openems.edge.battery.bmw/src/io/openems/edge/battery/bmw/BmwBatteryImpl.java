@@ -65,9 +65,11 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 
 	private final double FILTER_TIME_CONSTANT_BATTERY_VOLTAGE_s = 0.0;	// Unit: seconds | chosse zero for disabling the PT1-filter
 	private final double FILTER_TIME_CONSTANT_BATTERY_CURRENT_s = 0.0;	// Unit: seconds | choose zero for disabling the PT1-filter
+	private final double FILTER_TIME_CONSTANT_MAX_CURRENT_s     = 10.0;	// Unit: seconds | choose zero for disabling the PT1-filter
 	
 	private Pt1filter pt1FilterBatteryVoltage;
 	private Pt1filter pt1FilterBatteryCurrent;
+	private Pt1filter pt1FilterMaxCurrent;
 	
 	private final Logger log = LoggerFactory.getLogger(BmwBatteryImpl.class);
 
@@ -111,6 +113,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		this.config = config;
 		this.pt1FilterBatteryVoltage = new Pt1filter(FILTER_TIME_CONSTANT_BATTERY_VOLTAGE_s, 1.0);
 		this.pt1FilterBatteryCurrent = new Pt1filter(FILTER_TIME_CONSTANT_BATTERY_CURRENT_s, 1.0);
+		this.pt1FilterMaxCurrent = new Pt1filter(FILTER_TIME_CONSTANT_MAX_CURRENT_s, 1.0);
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -258,7 +261,8 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void setChargeMaxCurrent() {
-		final double innerResistance_Ohm = 0.4;
+		final double innerResistance_Ohm = 0.2;
+		final int maxVoltageOffset_V = -2;
 		
 		int chargeMaxCurrentBcs_A = 0;
 		int batteryCurrent_A = 0;
@@ -295,16 +299,22 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		double cycleTime_s = this.cycle.getCycleTime() / 1000.0;
 		this.pt1FilterBatteryVoltage.setCycleTime_s(cycleTime_s);
 		this.pt1FilterBatteryCurrent.setCycleTime_s(cycleTime_s);
+		this.pt1FilterMaxCurrent.setCycleTime_s(cycleTime_s);
 		batteryVoltage_V = pt1FilterBatteryVoltage.applyPt1Filter(batteryVoltage_V);
 		batteryCurrent_A = pt1FilterBatteryCurrent.applyPt1Filter(batteryCurrent_A);		
 		
 		//--- calculate charge max. current by voltage limit ---
-		double deltaCurrent_A = (double)(batteryMaxVoltage_V - batteryVoltage_V) / innerResistance_Ohm;
-		int chargeMaxCurrentVoltLimit_A = batteryCurrent_A - (int)deltaCurrent_A;
+		double deltaCurrent_A = (double)(batteryMaxVoltage_V - batteryVoltage_V + maxVoltageOffset_V) / innerResistance_Ohm;
+		int chargeMaxCurrentVoltLimit_A = -(batteryCurrent_A - (int)deltaCurrent_A);
+		chargeMaxCurrentVoltLimit_A = pt1FilterMaxCurrent.applyPt1Filter(chargeMaxCurrentVoltLimit_A);
+		// Limit min. Value to zero (no force charge)
+		if (chargeMaxCurrentVoltLimit_A < 0) {
+			chargeMaxCurrentVoltLimit_A = 0;
+		}
+		this.channel(BMWChannelId.CHARGE_MAX_CURRENT_VOLT_LIMIT).setNextValue(chargeMaxCurrentVoltLimit_A);	
 		
 		//--- set "minimum" chargeMaxCurrent ---
-		// because a charge current is negative, the minimum of the absolute value, is the maximum of the value
-		int minimumChargeMaxCurrent_A = Math.max(chargeMaxCurrentVoltLimit_A, chargeMaxCurrentBcs_A);
+		int minimumChargeMaxCurrent_A = Math.min(chargeMaxCurrentVoltLimit_A, chargeMaxCurrentBcs_A);
 		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(minimumChargeMaxCurrent_A);		
 	}
 
