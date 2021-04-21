@@ -26,10 +26,10 @@ export class StorageComponent extends AbstractFlatWidget {
         return this.channelAddresses
     }
     public convertCharge = (value: any): string => {
-        let thisValue = Math.round((value / 1000) * -1) / 10;
+        let thisValue = (value / 1000 * -1).toFixed(1);
         if (value <= 0) {
-            if (thisValue.toString().endsWith('0')) {
-                return (Math.round(thisValue)).toString() + ' kW';
+            if (thisValue.endsWith('0')) {
+                return (parseInt(thisValue)).toString() + ' kW';
             } else {
                 return ((value / 1000) * -1).toFixed(1) + ' kW';
             }
@@ -38,10 +38,10 @@ export class StorageComponent extends AbstractFlatWidget {
         }
     }
     public convertDischarge = (value: any): string => {
-        let thisValue = Math.round(value / 1000);
+        let thisValue = (value / 1000).toFixed(1);
         if (value > 0) {
-            if (thisValue.toString().endsWith('0')) {
-                return (Math.round(thisValue)).toString() + ' kW';
+            if (thisValue.endsWith('0')) {
+                return (parseInt(thisValue)).toString() + ' kW';
             } else {
                 return (value / 1000).toFixed(1) + ' kW';
             }
