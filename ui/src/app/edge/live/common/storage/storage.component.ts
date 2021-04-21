@@ -12,26 +12,25 @@ export class StorageComponent extends AbstractFlatWidget {
 
     public essComponents: EdgeConfig.Component[] = [];
     public chargerComponents: EdgeConfig.Component[] = [];
-    public channelAddresses: ChannelAddress[] = [];
     public storageItem: string = null;
-    public activePower: ChannelAddress[] = [];
 
     protected getChannelAddresses() {
+        let channelAddresses: ChannelAddress[] = [];
         for (let component of this.essComponents) {
-            this.channelAddresses = [new ChannelAddress(component.id, 'Soc'),
+            channelAddresses = [new ChannelAddress(component.id, 'Soc'),
             new ChannelAddress(component.id, 'ActivePower'),
             new ChannelAddress(component.id, 'Capacity')];
         }
-        this.channelAddresses.push(new ChannelAddress('_sum', 'EssSoc'));
-        return this.channelAddresses
+        channelAddresses.push(new ChannelAddress('_sum', 'EssSoc'));
+        return channelAddresses
     }
     public convertCharge = (value: any): string => {
         let thisValue = (value / 1000 * -1).toFixed(1);
         if (value <= 0) {
             if (thisValue.endsWith('0')) {
-                return (parseInt(thisValue)).toString() + ' kW';
+                return parseInt(thisValue).toString() + ' kW';
             } else {
-                return ((value / 1000) * -1).toFixed(1) + ' kW';
+                return thisValue + ' kW';
             }
         } else {
             return '-'
@@ -41,9 +40,9 @@ export class StorageComponent extends AbstractFlatWidget {
         let thisValue = (value / 1000).toFixed(1);
         if (value > 0) {
             if (thisValue.endsWith('0')) {
-                return (parseInt(thisValue)).toString() + ' kW';
+                return parseInt(thisValue).toString() + ' kW';
             } else {
-                return (value / 1000).toFixed(1) + ' kW';
+                return thisValue + ' kW';
             }
         } else {
             return '-'
