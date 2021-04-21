@@ -21,7 +21,7 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
      * @returns converter function
      */
     @Input()
-    protected converter = (value: any): string => { return value }
+    protected converter = (value: any | any[]): string => { return value }
 
     /**
      * selector used for subscribe
@@ -29,9 +29,12 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
     private selector: string = UUID.UUID().toString();
 
     /** 
-     * displayValue is the displayed @Input value in html
+     * displayName is the displayed @Input value in html
      */
     public displayName: string = null;
+    /** 
+     * displayValue is the displayed @Input value in html
+     */
     public displayValue: string = null;
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private edge: Edge = null;
@@ -56,7 +59,6 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
         // announce initialized
         this.isInitialized = true;
     }
-
     protected subscribe(channelAddress: ChannelAddress) {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
@@ -69,7 +71,6 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
             });
         });
     }
-
     public ngOnDestroy() {
         // Unsubscribe from OpenEMS
         if (this.edge != null) {
