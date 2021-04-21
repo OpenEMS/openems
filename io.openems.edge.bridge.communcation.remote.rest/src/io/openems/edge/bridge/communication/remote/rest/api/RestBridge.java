@@ -2,8 +2,6 @@ package io.openems.edge.bridge.communication.remote.rest.api;
 
 import org.osgi.service.cm.ConfigurationException;
 
-import java.util.Map;
-
 /**
  * This interface allows Devices to add and Remove their RestRequests. This enables the remote communication with a
  * different Openems via REST. One Request handles one Channel. Either read a ChannelValue or write into a Channel.
@@ -20,7 +18,7 @@ public interface RestBridge {
     void addRestRequest(String id, RestRequest request) throws ConfigurationException;
 
     /**
-     * removes a Remote device from the Bridge.
+     * Removes a Remote device from the Bridge.
      * Usually called by RestRemote Component on deactivation or when the Bridge itself deactivates.
      *
      * @param deviceId the deviceId to Remove.

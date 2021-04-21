@@ -1,13 +1,12 @@
 package io.openems.edge.bridge.communication.remote.rest;
 
-import org.osgi.service.component.annotations.ComponentPropertyType;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(
         name = "Bridge Rest",
-        description = " Rest Bridge, needed for the communication with Master/Slave Devices e.g. Different Openems.")
+        description = " Rest Bridge, needed for the communication with remote OpenEMS Components (different OpenEMS and it's devices).")
 
 @interface Config {
     String service_pid();

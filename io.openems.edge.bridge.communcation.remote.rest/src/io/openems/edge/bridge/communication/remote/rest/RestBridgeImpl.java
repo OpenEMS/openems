@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * The RestBridge. This Bridge Communicates with another OpenEMS / it's components via the Rest Protocol.
+ * Provides a RestBridge. This Bridge Communicates with another System running a different OpenEMS Edge / it's components via the Rest Protocol.
  * Bc it is made to communicate with another OpenEMS the Authentication Method is 'Basic'.
  * Rest Remote Devices need to be configured and mapped to the remote OpenEMS.
  */
