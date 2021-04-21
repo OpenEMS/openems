@@ -8,10 +8,10 @@
             <oe-flat-widget-percentagebar [channelAddress]="component.id + '/Soc'">
             </oe-flat-widget-percentagebar>
             <oe-flat-widget-line [name]="'General.chargePower' | translate"
-                [channelAddress]="component.id + '/ActivePower'" [converter]="convertChargeToOnlyPositive">
+                [channelAddress]="component.id + '/ActivePower'" [converter]="convertChargePower">
             </oe-flat-widget-line>
             <oe-flat-widget-line [name]="'General.dischargePower' | translate"
-                [channelAddress]="component.id + '/ActivePower'" [converter]="convertDischargeToOnlyPositive">
+                [channelAddress]="component.id + '/ActivePower'" [converter]="convertDischargePower">
             </oe-flat-widget-line>
             <div *ngIf="essComponents.length > 1 && i != (essComponents.length -1)"
                 style="border-bottom: 1px solid lightgray; width: 110%; margin-top: 2%; margin-bottom: 2%; margin-left: -5%;">

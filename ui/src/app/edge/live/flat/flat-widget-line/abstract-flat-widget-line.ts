@@ -21,7 +21,7 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
      * @returns converter function
      */
     @Input()
-    protected converter = (value: any | any[]): string => { return value }
+    protected converter = (value: any): string => { return value }
 
     /**
      * selector used for subscribe
@@ -31,11 +31,11 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
     /** 
      * displayName is the displayed @Input value in html
      */
-    public displayName: string = null;
+    public displayName: string;
     /** 
      * displayValue is the displayed @Input value in html
      */
-    public displayValue: string = null;
+    public displayValue: string;
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private edge: Edge = null;
 
