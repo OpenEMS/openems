@@ -11,9 +11,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.goodwe.charger.AbstractGoodWeEtCharger;
 import io.openems.edge.goodwe.charger.GoodWeChargerPv1;
 import io.openems.edge.goodwe.charger.GoodWeChargerPv2;
-import io.openems.edge.goodwe.common.applypower.ApplyPowerStateMachine;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
 import io.openems.edge.goodwe.common.enums.BatteryMode;
+import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.GoodweType;
 import io.openems.edge.goodwe.common.enums.LoadMode;
 import io.openems.edge.goodwe.common.enums.MeterCommunicateStatus;
@@ -21,7 +21,6 @@ import io.openems.edge.goodwe.common.enums.MeterConnectCheckFlag;
 import io.openems.edge.goodwe.common.enums.MeterConnectStatus;
 import io.openems.edge.goodwe.common.enums.OperationMode;
 import io.openems.edge.goodwe.common.enums.OutputTypeAC;
-import io.openems.edge.goodwe.common.enums.PowerModeEms;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
 import io.openems.edge.goodwe.common.enums.WorkMode;
 
@@ -42,8 +41,6 @@ public interface GoodWe extends OpenemsComponent {
 	public void removeCharger(AbstractGoodWeEtCharger charger);
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		APPLY_POWER_STATE_MACHINE(Doc.of(ApplyPowerStateMachine.State.values())),
-
 		MODBUS_PROTOCOL_VERSION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
 		RATED_POWER(Doc.of(OpenemsType.INTEGER) //
@@ -626,7 +623,7 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 		FEED_POWER_PARA(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT).accessMode(AccessMode.READ_WRITE)), //
-		EMS_POWER_MODE(Doc.of(PowerModeEms.values()) //
+		EMS_POWER_MODE(Doc.of(EmsPowerMode.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		EMS_POWER_SET(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
@@ -698,10 +695,13 @@ public interface GoodWe extends OpenemsComponent {
 		WBMS_BAT_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEGREE_CELSIUS).accessMode(AccessMode.READ_WRITE)), //
 
-		// BMS_STATUS(), //
-		STATE_79(Doc.of(Level.INFO).text("force to charge")), //
-		STATE_80(Doc.of(Level.INFO).text("Stop charging")), // TODO can be removed?
-		STATE_81(Doc.of(Level.INFO).text("Stop discharging"));
+		// BMS_STATUS()
+		STATE_79(Doc.of(Level.INFO) //
+				.text("force to charge")), //
+		STATE_80(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Stop charging")), //
+		STATE_81(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Stop discharging"));
 
 		private final Doc doc;
 

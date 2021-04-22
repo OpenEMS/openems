@@ -24,7 +24,6 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
@@ -430,17 +429,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent impl
 			productionPower = TypeUtils.sum(productionPower, charger.getActualPower().get());
 		}
 		return productionPower;
-	}
-
-	/**
-	 * Calculates the ActivePower from P_BATTERY1 and chargers ACTUAL_POWER.
-	 * 
-	 * @return active power
-	 */
-	protected final Integer calculateActivePower() {
-		Integer productionPower = this.calculatePvProduction();
-		final Channel<Integer> batteryPower = this.channel(GoodWe.ChannelId.P_BATTERY1);
-		return TypeUtils.sum(productionPower, batteryPower.value().get());
 	}
 
 }

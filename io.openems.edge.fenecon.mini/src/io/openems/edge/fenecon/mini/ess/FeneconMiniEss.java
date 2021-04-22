@@ -24,6 +24,8 @@ import io.openems.edge.fenecon.mini.ess.statemachine.StateMachine.State;
 public interface FeneconMiniEss extends ManagedSinglePhaseEss, ManagedAsymmetricEss, ManagedSymmetricEss,
 		SinglePhaseEss, AsymmetricEss, SymmetricEss, OpenemsComponent, ModbusSlave {
 
+	public static final int MAX_APPARENT_POWER = 3000;
+
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //

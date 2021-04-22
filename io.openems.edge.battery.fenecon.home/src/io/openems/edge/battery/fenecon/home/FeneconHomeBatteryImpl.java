@@ -28,6 +28,7 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.home.statemachine.Context;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
+import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -35,9 +36,11 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
+import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -52,6 +55,7 @@ import io.openems.edge.common.taskmanager.Priority;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		})
 public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
@@ -70,6 +74,9 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Reference
+	protected ComponentManager componentManager;
+
 	/**
 	 * Manages the {@link State}s of the StateMachine.
 	 */
@@ -78,12 +85,14 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
 
 	private Config config;
+	private BatteryProtection batteryProtection = null;
 
 	public FeneconHomeBatteryImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
+				BatteryProtection.ChannelId.values(), //
 				FeneconHomeBattery.ChannelId.values() //
 		);
 	}
@@ -110,8 +119,14 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 				this.initializeTowerModulesChannels(numberOfTowers, numberOfModulesPerTower);
 			});
 		});
+
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
+
+		// Initialize Battery-Protection
+		this.batteryProtection = BatteryProtection.create(this) //
+				.applyBatteryProtectionDefinition(new FeneconHomeBatteryProtection(), this.componentManager) //
+				.build();
 	}
 
 	@Override
@@ -121,7 +136,9 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
-
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.batteryProtection.apply();
+			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.handleStateMachine();
 			break;
@@ -239,7 +256,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(506, Priority.HIGH, //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(506),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [V]
-						m(Battery.ChannelId.CURRENT, new UnsignedWordElement(507),
+						m(Battery.ChannelId.CURRENT, new SignedWordElement(507),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [A]
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(508),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [%]
@@ -249,15 +266,15 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 						m(FeneconHomeBattery.ChannelId.ID_OF_CELL_VOLTAGE_MIN, new UnsignedWordElement(511)), //
 						m(Battery.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(512)), // [mV]
 						m(FeneconHomeBattery.ChannelId.ID_OF_CELL_VOLTAGE_MAX, new UnsignedWordElement(513)), //
-						m(Battery.ChannelId.MIN_CELL_TEMPERATURE, new UnsignedWordElement(514),
+						m(Battery.ChannelId.MIN_CELL_TEMPERATURE, new SignedWordElement(514),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(FeneconHomeBattery.ChannelId.ID_OF_MIN_TEMPERATURE, new UnsignedWordElement(515)), //
-						m(Battery.ChannelId.MAX_CELL_TEMPERATURE, new UnsignedWordElement(516),
+						m(Battery.ChannelId.MAX_CELL_TEMPERATURE, new SignedWordElement(516),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(FeneconHomeBattery.ChannelId.ID_OF_MAX_TEMPERATURE, new UnsignedWordElement(517)), //
-						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(518),
+						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new UnsignedWordElement(518),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [A]
-						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new UnsignedWordElement(519), //
+						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new UnsignedWordElement(519), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [A]
 						m(FeneconHomeBattery.ChannelId.MAX_DC_CHARGE_CURRENT_LIMIT_PER_BCU,
 								new UnsignedWordElement(520), //
@@ -385,7 +402,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 								m(this.generateTowerChannel(t, "_VOLTAGE"), new UnsignedWordElement(towerOffset + 10), // [V]
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-								m(this.generateTowerChannel(t, "_CURRENT"), new UnsignedWordElement(towerOffset + 11), // [A]
+								m(this.generateTowerChannel(t, "_CURRENT"), new SignedWordElement(towerOffset + 11), // [A]
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 								m(this.generateTowerChannel(t, "_MIN_CELL_VOLTAGE"),
 										new UnsignedWordElement(towerOffset + 12)), // [mV]
@@ -446,7 +463,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 							// Cell Temperatures Read Registers for Tower_1 starts from 10000, for Tower_2
 							// 12000, for Tower_3 14000
 							// (t-1)*2000+10000) calculates Tower Offset value
-							UnsignedWordElement uwe = new UnsignedWordElement(towerOffset
+							SignedWordElement uwe = new SignedWordElement(towerOffset
 									+ i * ADDRESS_OFFSET_FOR_CELL_VOLT_AND_TEMP + TEMPERATURE_ADDRESS_OFFSET + j);
 							ameTemp[j] = m(channelId, uwe);
 						}

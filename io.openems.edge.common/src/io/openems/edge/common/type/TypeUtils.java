@@ -644,4 +644,19 @@ public class TypeUtils {
 		}
 	}
 
+	/**
+	 * Returns the 'alternativeValue' if the 'nullableValue' is null.
+	 * 
+	 * @param nullableValue    the value, can be null
+	 * @param alternativeValue the alternative value
+	 * @return either the value (not null), alternatively the 'orElse' value
+	 */
+	public static <T> T orElse(T nullableValue, T alternativeValue) {
+		if (nullableValue != null) {
+			return nullableValue;
+		} else {
+			return alternativeValue;
+		}
+	}
+
 }

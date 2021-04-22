@@ -3,7 +3,7 @@ package io.openems.edge.battery.soltaro.single.versiona;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.battery.soltaro.BatteryState;
+import io.openems.edge.battery.soltaro.common.enums.BatteryState;
 
 @ObjectClassDefinition(//
 		name = "BMS Soltaro Single Rack Version A", //
