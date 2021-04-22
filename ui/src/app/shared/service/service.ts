@@ -261,6 +261,13 @@ export class Service implements ErrorHandler {
         return map;
       }, {})
     });
+
+    // Resubscribe Channels
+    this.getCurrentEdge().then(edge => {
+      if (edge != null) {
+        edge.subscribeChannelsOnReconnect(this.websocket);
+      }
+    });
   }
 
   /**

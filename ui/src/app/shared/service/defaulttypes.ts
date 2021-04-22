@@ -5,7 +5,7 @@ export module DefaultTypes {
 
   export type Backend = "OpenEMS Backend" | "OpenEMS Edge";
 
-  export type ConnectionStatus = "online" | "connecting" | "waiting for authentication" | "failed";
+  export type ConnectionStatus = 'initial' | 'online' | 'connecting' | 'waiting for authentication' | 'failed';
 
   export interface ChannelAddresses {
     [componentId: string]: string[];
