@@ -13,6 +13,8 @@ export class StorageComponent extends AbstractFlatWidget {
     public essComponents: EdgeConfig.Component[] = [];
     public chargerComponents: EdgeConfig.Component[] = [];
     public storageItem: string = null;
+    public stateOfCharge: any[] = [];
+    public component_Id: string[] = [];
 
     protected getChannelAddresses() {
         let channelAddresses: ChannelAddress[] = [];
@@ -34,6 +36,7 @@ export class StorageComponent extends AbstractFlatWidget {
         this.essComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && component.isEnabled);
         for (let component of this.essComponents) {
             channelAddresses.push(
+                new ChannelAddress(component.id, 'Soc'),
                 new ChannelAddress(component.id, 'Capacity'),
             );
             if (this.config.factories[component.factoryId].natureIds.includes("io.openems.edge.ess.api.AsymmetricEss")) {
@@ -46,9 +49,15 @@ export class StorageComponent extends AbstractFlatWidget {
         }
         return channelAddresses
     }
-
+    public checkStateOfCharge(componentID: string): boolean {
+        if (this.stateOfCharge[componentID] != null) {
+            return true;
+        }
+    }
     protected onCurrentData(currentData: CurrentData) {
-
+        for (let component of this.essComponents) {
+            this.stateOfCharge[component.id] = currentData.allComponents[component.id + '/Soc'];
+        }
         // Check total State_of_Charge for dynamical icon in widget-header
         let soc = currentData.allComponents['_sum' + '/EssSoc'];
         if (soc < 20) {
