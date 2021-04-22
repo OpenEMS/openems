@@ -11,7 +11,7 @@ import io.openems.edge.heater.Heater;
 import io.openems.edge.heater.HeaterState;
 import io.openems.edge.heater.decentral.api.DecentralHeater;
 import io.openems.edge.heatsystem.components.Valve;
-import io.openems.edge.thermometer.api.ThresholdThermometer;
+import io.openems.edge.thermometer.api.ThermometerThreshold;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -42,7 +42,7 @@ public class DecentralHeaterImpl extends AbstractOpenemsComponent implements Ope
     private Valve configuredValve;
     private ValveController configuredValveController;
     private boolean isValve;
-    private ThresholdThermometer thresholdThermometer;
+    private ThermometerThreshold thermometerThreshold;
     private final AtomicInteger currentWaitCycleNeedHeatEnable = new AtomicInteger(0);
     private int maxWaitCyclesNeedHeatEnable;
     private boolean wasNeedHeatEnableLastCycle;
@@ -77,9 +77,9 @@ public class DecentralHeaterImpl extends AbstractOpenemsComponent implements Ope
         }
 
         componentFetchedByComponentManager = cpm.getComponent(config.thresholdThermometerId());
-        if (componentFetchedByComponentManager instanceof ThresholdThermometer) {
-            this.thresholdThermometer = (ThresholdThermometer) componentFetchedByComponentManager;
-            this.thresholdThermometer.setSetPointTemperature(config.setPointTemperature(), super.id());
+        if (componentFetchedByComponentManager instanceof ThermometerThreshold) {
+            this.thermometerThreshold = (ThermometerThreshold) componentFetchedByComponentManager;
+            this.thermometerThreshold.setSetPointTemperature(config.setPointTemperature(), super.id());
         } else {
             throw new ConfigurationException("activate",
                     "Component with ID: " + config.thresholdThermometerId() + " not an instance of Threshold");
@@ -151,14 +151,14 @@ public class DecentralHeaterImpl extends AbstractOpenemsComponent implements Ope
      * Check if ThresholdThermometer is ok --> if yes activate Valve/ValveController --> Else Close Valve and say "I need more Heat".
      */
     private void setThresholdAndControlValve() {
-        this.thresholdThermometer.setSetPointTemperatureAndActivate(this.getSetPointTemperature(), super.id());
+        this.thermometerThreshold.setSetPointTemperatureAndActivate(this.getSetPointTemperature(), super.id());
         //Static Valve Controller Works on it's own with given Temperature
         if (this.isValve == false) {
             this.configuredValveController.setEnableSignal(true);
             this.configuredValveController.setControlType(ControlType.TEMPERATURE);
         }
         // Check if SetPointTemperature above Thermometer --> Either
-        if (this.thresholdThermometer.thermometerAboveGivenTemperature(this.getSetPointTemperature())) {
+        if (this.thermometerThreshold.thermometerAboveGivenTemperature(this.getSetPointTemperature())) {
             this.setState(HeaterState.RUNNING.name());
             this.getNeedMoreHeatChannel().setNextValue(false);
             if (this.isValve) {
@@ -224,10 +224,10 @@ public class DecentralHeaterImpl extends AbstractOpenemsComponent implements Ope
                     }
                 }
             }
-            if (this.thresholdThermometer.isEnabled() == false) {
-                componentFetchedByCpm = cpm.getComponent(this.thresholdThermometer.id());
-                if (componentFetchedByCpm instanceof ThresholdThermometer) {
-                    this.thresholdThermometer = (ThresholdThermometer) componentFetchedByCpm;
+            if (this.thermometerThreshold.isEnabled() == false) {
+                componentFetchedByCpm = cpm.getComponent(this.thermometerThreshold.id());
+                if (componentFetchedByCpm instanceof ThermometerThreshold) {
+                    this.thermometerThreshold = (ThermometerThreshold) componentFetchedByCpm;
                 }
             }
         } catch (OpenemsError.OpenemsNamedException ignored) {
@@ -246,7 +246,7 @@ public class DecentralHeaterImpl extends AbstractOpenemsComponent implements Ope
     void deactivateControlledComponents() {
         this.getNeedHeatChannel().setNextValue(false);
         this.getNeedMoreHeatChannel().setNextValue(false);
-        this.thresholdThermometer.releaseSetPointTemperatureId(super.id());
+        this.thermometerThreshold.releaseSetPointTemperatureId(super.id());
         this.closeValveOrDisableValveController();
         this.setState(HeaterState.OFFLINE.name());
     }

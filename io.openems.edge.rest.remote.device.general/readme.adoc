@@ -1,9 +1,0 @@
-# io.openems.edge.rest.remote.device.general Provider
-
-This Bundle is a remote Device communicating via REST, doesn't matter what type the real device is\
-you just need to know the Channel Id and Device Id and configure
-
-## Example
-
-## References
-

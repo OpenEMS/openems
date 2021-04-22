@@ -3,7 +3,7 @@ package io.openems.edge.controller.heatnetwork.communication.request.rest;
 
 import io.openems.edge.controller.heatnetwork.communication.api.RestRequest;
 import io.openems.edge.controller.heatnetwork.communication.api.RequestType;
-import io.openems.edge.rest.remote.device.general.api.RestRemoteDevice;
+import io.openems.edge.remote.rest.device.api.RestRemoteDevice;
 import org.osgi.service.cm.ConfigurationException;
 
 /**
