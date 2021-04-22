@@ -4,6 +4,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -11,6 +12,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 
+@Designate(ocd = Config.class, factory = false)
 @Component(//
 		name = "Core.Meta", //
 		immediate = true, //
