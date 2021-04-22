@@ -15,6 +15,7 @@ import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.consolinno.modbus.configurator.Error;
 import io.openems.edge.consolinno.modbus.configurator.api.LeafletConfigurator;
 import io.openems.edge.pwm.api.Pwm;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -32,9 +33,11 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * Provides a Consolinno Pwm Output.
+ */
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "io.openems.edge.consolinno.pwm", immediate = true,
+@Component(name = "Consolinno.Pwm", immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE)
 
 public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, Pwm {
@@ -65,11 +68,11 @@ public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
         this.pwmModule = config.module();
         this.position = config.position();
         //Check if the Module is physically present, else throws ConfigurationException.
-        if (lc.modbusModuleCheckout(LeafletConfigurator.ModuleType.PWM, config.module(), config.position(), config.id())
-                && (lc.getFunctionAddress(LeafletConfigurator.ModuleType.PWM, this.pwmModule, this.position) != 65535)) {
-            this.pwmAnalogOutput = lc.getFunctionAddress(LeafletConfigurator.ModuleType.PWM, this.pwmModule, this.position);
+        if (this.lc.modbusModuleCheckout(LeafletConfigurator.ModuleType.PWM, config.module(), config.position(), config.id())
+                && (this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.PWM, this.pwmModule, this.position) != Error.ERROR.getValue())) {
+            this.pwmAnalogOutput = this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.PWM, this.pwmModule, this.position);
             //The mReg number for the DiscreteOutput is not the Position but one less.
-            this.pwmDiscreteOutput = lc.getPwmDiscreteOutputAddress(this.pwmModule, (this.position - 1));
+            this.pwmDiscreteOutput = this.lc.getPwmDiscreteOutputAddress(this.pwmModule, (this.position - 1));
 
             super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
                     "Modbus", config.modbusBridgeId());
@@ -96,7 +99,7 @@ public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
         } catch (OpenemsError.OpenemsNamedException ignored) {
             this.log.error("Error in getWritePwmPowerChannel.setNextWriteValue");
         }
-        lc.removeModule(LeafletConfigurator.ModuleType.PWM, this.pwmModule, this.position);
+        this.lc.removeModule(LeafletConfigurator.ModuleType.PWM, this.pwmModule, this.position);
         super.deactivate();
     }
 

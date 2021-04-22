@@ -54,9 +54,9 @@ public class TemperatureSensorImpl extends AbstractOpenemsModbusComponent implem
         this.temperatureModule = config.module();
         this.position = config.position();
         //Check if the Module is physically present, else throws ConfigurationException.
-        if (lc.modbusModuleCheckout(LeafletConfigurator.ModuleType.TMP, config.module(), config.position(), config.id())
-                && (lc.getFunctionAddress(LeafletConfigurator.ModuleType.TMP,this.temperatureModule,this.position) != 65535)) {
-            this.temperatureAnalogInput = lc.getFunctionAddress(LeafletConfigurator.ModuleType.TMP, this.temperatureModule,this.position);
+        if (this.lc.modbusModuleCheckout(LeafletConfigurator.ModuleType.TMP, config.module(), config.position(), config.id())
+                && (this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.TMP,this.temperatureModule,this.position) != 65535)) {
+            this.temperatureAnalogInput = this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.TMP, this.temperatureModule,this.position);
 
             super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
                     "Modbus", config.modbusBridgeId());
@@ -68,7 +68,7 @@ public class TemperatureSensorImpl extends AbstractOpenemsModbusComponent implem
 
     @Deactivate
     public void deactivate() {
-        lc.removeModule(LeafletConfigurator.ModuleType.TMP,this.temperatureModule,this.position);
+        this.lc.removeModule(LeafletConfigurator.ModuleType.TMP,this.temperatureModule,this.position);
         super.deactivate();
 
     }

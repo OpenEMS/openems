@@ -4,7 +4,8 @@ Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
     This Bundle provides an Signalsensor that is communicating over Modbus.
--includeresource: {readme.md}
+
+-Include-Resource: {readme.md}\
 
 -buildpath:  \
 	${buildpath},\
