@@ -6,8 +6,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -31,12 +29,9 @@ import io.openems.edge.ess.power.api.Relationship;
 public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 		implements LimitUsableCapacityController, Controller, OpenemsComponent {
 
-	// private final Logger log =
-	// LoggerFactory.getLogger(LimitUsableCapacityControllerImpl.class);
-
 	@Reference
 	protected ComponentManager componentManager;
-	
+
 	// Force charge power
 	private int forceChargePower = 2000;
 
@@ -57,14 +52,21 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 
 		this.config = config;
 
-		// Checking the Soc values in the configuration
-		// forceChargeSoc < stopDischargeSoc < allowDischargeSoc < allowChargeSoc 
-		// < stopChargeSoc
+		/**
+		 * Checking the Soc values in the configuration 
+		 * 
+		 * forceChargeSoc 
+		 * < stopDischargeSoc 
+		 * < allowDischargeSoc 
+		 * < allowChargeSoc 
+		 * < stopChargeSoc
+		 * 
+		 */
 		if (this.config.forceChargeSoc() > this.config.stopDischargeSoc()
 				&& this.config.stopDischargeSoc() > this.config.allowDischargeSoc()
 				&& this.config.allowDischargeSoc() > this.config.allowChargeSoc()
 				&& this.config.allowChargeSoc() > this.config.stopChargeSoc()) {
-			throw new OpenemsException("Please re-check the configuration, invalid values present in the Soc values");
+			throw new OpenemsException("Please re-check the configuration, invalid values present in the Soc columns");
 		}
 	}
 
@@ -82,6 +84,7 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 
 		// initialize allowedCharge
 		Integer allowedCharge = null;
+
 		// initialize allowedDischarge
 		Integer allowedDischarge = null;
 
@@ -91,9 +94,6 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 			switch (this.state) {
 			case UNDEFINED:
 			case NO_LIMIT:
-				/*
-				 * no-limit State
-				 */
 				// no constraints in normal operation mode
 				allowedDischarge = null;
 				allowedCharge = null;
@@ -108,9 +108,6 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 				}
 				break;
 			case STOP_DISCHARGE:
-				/*
-				 * Stop Discharge State
-				 */
 				allowedDischarge = 0;
 
 				if (soc <= this.config.forceChargeSoc()) {
@@ -123,12 +120,9 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 				}
 				break;
 			case FORCE_CHARGE:
-				/*
-				 * Force charging state
-				 */
 				allowedDischarge = (ess.getMaxApparentPower().getOrError() * 20) / 100;
 
-				// Force charging 
+				// Force charging
 				ess.setActivePowerLessOrEquals(ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL,
 						Pwr.ACTIVE, forceChargePower * -1));
 
@@ -138,9 +132,6 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 				}
 				break;
 			case STOP_CHARGE:
-				/*
-				 * Stop charge state
-				 */
 				allowedCharge = 0;
 
 				if (soc <= this.config.allowChargeSoc()) {
@@ -161,7 +152,7 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 					0); //
 			ess.getPower().addConstraintAndValidate(AllowedChargeConstraint);
 		}
-		
+
 		// Allowed Discharge Power
 		if (allowedDischarge != null) {
 			Constraint AllowedDischargeConstraint = ess.getPower().createSimpleConstraint( //

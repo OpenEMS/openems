@@ -47,25 +47,22 @@ public class LimitUsableCapacityControllerTest {
 				.next(new TestCase() //
 						.input(ESS_SOC, 9) //
 						.output(STATE_MACHINE, State.STOP_DISCHARGE)) //
-				
+
 				.next(new TestCase() //
 						.input(ESS_SOC, 13) //
-						.output(STATE_MACHINE, State.NO_LIMIT)) 
-				
+						.output(STATE_MACHINE, State.NO_LIMIT))
+
 				.next(new TestCase() //
 						.input(ESS_SOC, 9) //
 						.output(STATE_MACHINE, State.STOP_DISCHARGE))
-				
+
 				.next(new TestCase() //
 						.input(ESS_SOC, 5) //
-						.input(MAX_APPARENT_POWER, 5000)
-						.output(STATE_MACHINE, State.FORCE_CHARGE))
-				
+						.input(MAX_APPARENT_POWER, 5000).output(STATE_MACHINE, State.FORCE_CHARGE))
+
 				.next(new TestCase() //
 						.input(ESS_SOC, 84) //
 						.output(STATE_MACHINE, State.NO_LIMIT))
-				
-				
 
 				.next(new TestCase() //
 						.input(ESS_SOC, 84) //
