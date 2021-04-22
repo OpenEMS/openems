@@ -81,6 +81,11 @@ public enum Unit {
 	 * Unit of Voltage [mV]
 	 */
 	MILLIVOLT("mV", VOLT, -3),
+	
+	/**
+	 * Unit of Voltage [dV]
+	 */
+	DEZIVOLT("dV", VOLT, -1),
 
 	// ##########
 	// Current
@@ -95,6 +100,11 @@ public enum Unit {
 	 * Unit of Current [mA]
 	 */
 	MILLIAMPERE("mA", AMPERE, -3),
+	
+	/**
+	 * Unit of Current [dA]
+	 */
+	DEZIAMPERE("dA", AMPERE, -1),
 
 	// ##########
 	// Electric Charge
@@ -266,7 +276,9 @@ public enum Unit {
 			return value.toString();
 		case AMPERE:
 		case DEGREE_CELSIUS:
+		case DEZIAMPERE:
 		case DEZIDEGREE_CELSIUS:
+		case DEZIVOLT:
 		case HERTZ:
 		case MILLIAMPERE:
 		case MILLIHERTZ:

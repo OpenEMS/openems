@@ -159,9 +159,9 @@ public interface BmwBattery extends OpenemsComponent, EventHandler {
 				.accessMode(AccessMode.READ_ONLY) //
 				.unit(Unit.AMPERE)), //
 
-		MAXIMUM_OPERATING_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		CHARGE_MAX_VOLTAGE_0V1(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.VOLT)), //
+				.unit(Unit.DEZIVOLT)), //
 
 		MINIMUM_OPERATING_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //
@@ -221,17 +221,17 @@ public interface BmwBattery extends OpenemsComponent, EventHandler {
 				.accessMode(AccessMode.READ_ONLY) //
 				.unit(Unit.AMPERE_HOURS)), //
 
-		DC_VOLTAGE_CONNECTED_RACKS(Doc.of(OpenemsType.INTEGER) //
+		VOLTAGE_0V1(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.VOLT)), //
+				.unit(Unit.DEZIVOLT)), //
 
 		DC_VOLTAGE_AVERAGE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.unit(Unit.VOLT)), //
 
-		DC_CURRENT(Doc.of(OpenemsType.INTEGER) //
+		CURRENT_0A1(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.MILLIAMPERE)), //
+				.unit(Unit.DEZIAMPERE)), //
 
 		AVERAGE_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //

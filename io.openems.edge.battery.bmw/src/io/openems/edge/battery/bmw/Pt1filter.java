@@ -37,19 +37,19 @@ public class Pt1filter {
 	 * @param x 	the input value
 	 * @return the filtered value
 	 */
-	public int applyPt1Filter(int x) {
+	public double applyPt1Filter(double x) {
 		// cycle time have not to be zero
 		if (cycleTime_s == 0.0) {
-			return(0);
+			return(0.0);
 		}
 		// disable PT1-Filter if time constant is zero
 		if (filterTimeConstant_s == 0.0) {
-			yOld = (double)x;
+			yOld = x;
 			return(x);
 		}
 		// apply filter
-		double y = ((double)x + filterTimeConstant_s/cycleTime_s * yOld) / (1 + filterTimeConstant_s/cycleTime_s);
+		double y = (x + filterTimeConstant_s/cycleTime_s * yOld) / (1 + filterTimeConstant_s/cycleTime_s);
 		yOld = y;
-		return((int)y);
+		return(y);
 	}
 }

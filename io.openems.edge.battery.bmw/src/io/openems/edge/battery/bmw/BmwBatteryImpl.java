@@ -63,13 +63,9 @@ import io.openems.edge.common.cycle.Cycle;
 public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		implements BmwBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
-	private final double FILTER_TIME_CONSTANT_BATTERY_VOLTAGE_s = 0.0;	// Unit: seconds | chosse zero for disabling the PT1-filter
-	private final double FILTER_TIME_CONSTANT_BATTERY_CURRENT_s = 0.0;	// Unit: seconds | choose zero for disabling the PT1-filter
 	private final double FILTER_TIME_CONSTANT_MAX_CURRENT_s     = 10.0;	// Unit: seconds | choose zero for disabling the PT1-filter
 	
-	private Pt1filter pt1FilterBatteryVoltage;
-	private Pt1filter pt1FilterBatteryCurrent;
-	private Pt1filter pt1FilterMaxCurrent;
+	private Pt1filter pt1FilterMaxCurrentVoltLimit;
 	
 	private final Logger log = LoggerFactory.getLogger(BmwBatteryImpl.class);
 
@@ -111,9 +107,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
-		this.pt1FilterBatteryVoltage = new Pt1filter(FILTER_TIME_CONSTANT_BATTERY_VOLTAGE_s, 1.0);
-		this.pt1FilterBatteryCurrent = new Pt1filter(FILTER_TIME_CONSTANT_BATTERY_CURRENT_s, 1.0);
-		this.pt1FilterMaxCurrent = new Pt1filter(FILTER_TIME_CONSTANT_MAX_CURRENT_s, 1.0);
+		this.pt1FilterMaxCurrentVoltLimit = new Pt1filter(FILTER_TIME_CONSTANT_MAX_CURRENT_s, 1.0);
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -262,12 +256,12 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 
 	private void setChargeMaxCurrent() {
 		final double innerResistance_Ohm = 0.2;
-		final int maxVoltageOffset_V = -2;
+		final int maxVoltageOffset_0V1 = -20;
 		
 		int chargeMaxCurrentBcs_A = 0;
-		int batteryCurrent_A = 0;
-		int batteryVoltage_V = 0;
-		int batteryMaxVoltage_V = 0;
+		int batteryCurrent_0A1 = 0;
+		int batteryVoltage_0V1 = 0;
+		int batteryMaxVoltage_0V1 = 0;
 		IntegerReadChannel channel;
 		
 		//--- read battery values ---
@@ -277,36 +271,32 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		} catch (InvalidValueException | IllegalArgumentException e) {
 			this.logError(this.log, "could not read channel CHARGE_MAX_CURRENT_BCS!");
 		}
-		channel = this.channel(Battery.ChannelId.CURRENT);
+		channel = this.channel(BMWChannelId.CURRENT_0A1);
 		try {
-			batteryCurrent_A = channel.value().getOrError();
+			batteryCurrent_0A1 = channel.value().getOrError();
 		} catch (InvalidValueException | IllegalArgumentException e) {
 			this.logError(this.log, "could not read channel CURRENT!");
 		}
-		channel = this.channel(Battery.ChannelId.VOLTAGE);
+		channel = this.channel(BMWChannelId.VOLTAGE_0V1);
 		try {
-			batteryVoltage_V = channel.value().getOrError();
+			batteryVoltage_0V1 = channel.value().getOrError();
 		} catch (InvalidValueException | IllegalArgumentException e) {
 			this.logError(this.log, "could not read channel VOLTAGE!");
 		}
-		channel = this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE);
+		channel = this.channel(BMWChannelId.CHARGE_MAX_VOLTAGE_0V1);
 		try {
-			batteryMaxVoltage_V = channel.value().getOrError();
+			batteryMaxVoltage_0V1 = channel.value().getOrError();
 		} catch (InvalidValueException | IllegalArgumentException e) {
 			this.logError(this.log, "could not read channel CHARGE_MAX_VOLTAGE!");
 		}
-		//--- filtering of measured values ---
+		//--- update CycleTime of PT1-filter ---
 		double cycleTime_s = this.cycle.getCycleTime() / 1000.0;
-		this.pt1FilterBatteryVoltage.setCycleTime_s(cycleTime_s);
-		this.pt1FilterBatteryCurrent.setCycleTime_s(cycleTime_s);
-		this.pt1FilterMaxCurrent.setCycleTime_s(cycleTime_s);
-		batteryVoltage_V = pt1FilterBatteryVoltage.applyPt1Filter(batteryVoltage_V);
-		batteryCurrent_A = pt1FilterBatteryCurrent.applyPt1Filter(batteryCurrent_A);		
+		this.pt1FilterMaxCurrentVoltLimit.setCycleTime_s(cycleTime_s);		
 		
 		//--- calculate charge max. current by voltage limit ---
-		double deltaCurrent_A = (double)(batteryMaxVoltage_V - batteryVoltage_V + maxVoltageOffset_V) / innerResistance_Ohm;
-		int chargeMaxCurrentVoltLimit_A = -(batteryCurrent_A - (int)deltaCurrent_A);
-		chargeMaxCurrentVoltLimit_A = pt1FilterMaxCurrent.applyPt1Filter(chargeMaxCurrentVoltLimit_A);
+		double deltaCurrent_0A1 = (double)(batteryMaxVoltage_0V1 - batteryVoltage_0V1 + maxVoltageOffset_0V1) / innerResistance_Ohm;
+		double chargeMaxCurrentVoltLimit_0A1 = -((double)batteryCurrent_0A1 - deltaCurrent_0A1);
+		int chargeMaxCurrentVoltLimit_A = (int)pt1FilterMaxCurrentVoltLimit.applyPt1Filter(chargeMaxCurrentVoltLimit_0A1) / 10; // 0,1[A] --> [A]
 		// Limit min. Value to zero (no force charge)
 		if (chargeMaxCurrentVoltLimit_A < 0) {
 			chargeMaxCurrentVoltLimit_A = 0;
@@ -455,8 +445,10 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 						m(BMWChannelId.INFO_BITS, new UnsignedWordElement(1005)),
 						m(BMWChannelId.MAXIMUM_OPERATING_CURRENT, new SignedWordElement(1006)), //
 						m(BMWChannelId.MINIMUM_OPERATING_CURRENT, new SignedWordElement(1007)), //
-						m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(1008),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(new UnsignedWordElement(1008))
+								.m(BMWChannelId.CHARGE_MAX_VOLTAGE_0V1, ElementToChannelConverter.DIRECT_1_TO_1)
+								.m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1)
+								.build(),
 						m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(1009),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new SignedWordElement(1010)), //
@@ -482,13 +474,15 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 						m(Battery.ChannelId.CAPACITY, new UnsignedWordElement(1025)), //
 						m(Battery.ChannelId.SOH, new UnsignedWordElement(1026),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(1027),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(new UnsignedWordElement(1027))
+								.m(BMWChannelId.VOLTAGE_0V1, ElementToChannelConverter.DIRECT_1_TO_1)
+								.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1)
+								.build(),
 						m(BMWChannelId.DC_VOLTAGE_AVERAGE, new UnsignedWordElement(1028),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
 				new FC4ReadInputRegistersTask(1029, Priority.HIGH, //
 						m(new SignedWordElement(1029)) //
-								.m(BMWChannelId.DC_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.m(BMWChannelId.CURRENT_0A1, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build()), //
 				new FC4ReadInputRegistersTask(1030, Priority.HIGH, //
