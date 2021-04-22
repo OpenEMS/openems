@@ -25,7 +25,7 @@ export class WsData {
       if (request instanceof EdgeRpcRequest) {
         console.info("Request      [" + request.params.payload.method + ":" + request.params.edgeId + "]", request.params.payload.params);
       } else {
-        console.info("Request      [" + request.method + "]", request);
+        console.info("Request      [" + request.method + "]", request.params);
       }
     }
 

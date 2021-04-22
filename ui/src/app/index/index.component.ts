@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from '../../environments';
 import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
 import { AuthenticateWithPasswordResponse } from '../shared/jsonrpc/response/authenticateWithPasswordResponse';
@@ -107,10 +107,7 @@ export class IndexComponent {
     this.websocket.sendRequest(request).then(response => {
       this.handleAuthenticateWithPasswordResponse(response as AuthenticateWithPasswordResponse);
     }).catch(reason => {
-      this.toastController.create({
-        message: this.translate.instant('Login.authenticationFailed'),
-        color: "danger",
-      }).then(toastData => toastData.present());
+      this.service.toast(this.translate.instant('Login.authenticationFailed'), 'danger');
     })
   }
 
