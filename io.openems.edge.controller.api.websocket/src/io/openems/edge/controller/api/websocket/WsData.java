@@ -26,6 +26,14 @@ public class WsData extends io.openems.common.websocket.WsData {
 		this.subscribedChannelsWorker = new SubscribedChannelsWorker(parent, this);
 	}
 
+	/**
+	 * Logout and invalidate Session.
+	 */
+	public void logout() {
+		this.unsetUser();
+		this.subscribedChannelsWorker.dispose();
+	}
+
 	public void setSessionToken(String sessionToken) {
 		this.sessionToken = sessionToken;
 	}

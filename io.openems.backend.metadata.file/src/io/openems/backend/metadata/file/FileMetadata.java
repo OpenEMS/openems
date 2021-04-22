@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.component.annotations.Activate;
@@ -31,8 +32,8 @@ import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -63,15 +64,21 @@ import io.openems.common.utils.JsonUtils;
 )
 public class FileMetadata extends AbstractMetadata implements Metadata {
 
+	private static final String USER_ID = "admin";
+	private static final String USER_NAME = "Administrator";
+	private static final Role USER_GLOBAL_ROLE = Role.ADMIN;
+
 	private final Logger log = LoggerFactory.getLogger(FileMetadata.class);
 
-	private final User user = new User("admin", "Administrator", Role.ADMIN, new TreeMap<>());
 	private final Map<String, MyEdge> edges = new HashMap<>();
+
+	private User user;
 
 	private String path = "";
 
 	public FileMetadata() {
 		super("Metadata.File");
+		this.user = FileMetadata.generateUser();
 	}
 
 	@Activate
@@ -91,18 +98,21 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
-	public User authenticate() throws OpenemsException {
+	public User authenticate(String username, String password) throws OpenemsNamedException {
 		return this.user;
 	}
 
 	@Override
-	public User authenticate(String username, String password) throws OpenemsNamedException {
-		return this.authenticate();
+	public User authenticate(String token) throws OpenemsNamedException {
+		if (this.user.getToken().equals(token)) {
+			return this.user;
+		}
+		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 	}
 
 	@Override
-	public User authenticate(String sessionId) throws OpenemsException {
-		return this.authenticate();
+	public void logout(User user) {
+		this.user = FileMetadata.generateUser();
 	}
 
 	@Override
@@ -182,6 +192,11 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 			}
 		}
 		this.setInitialized();
+	}
+
+	private static User generateUser() {
+		return new User(FileMetadata.USER_ID, FileMetadata.USER_NAME, UUID.randomUUID().toString(),
+				FileMetadata.USER_GLOBAL_ROLE, new TreeMap<>());
 	}
 
 }

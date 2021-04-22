@@ -9,8 +9,8 @@ public class MyUser extends User {
 
 	private final int odooId;
 
-	public MyUser(int odooId, String name, Role globalRole, NavigableMap<String, Role> roles) {
-		super(String.valueOf(odooId), name, globalRole, roles);
+	public MyUser(int odooId, String name, String token, Role globalRole, NavigableMap<String, Role> roles) {
+		super(String.valueOf(odooId), name, token, globalRole, roles);
 		this.odooId = odooId;
 	}
 

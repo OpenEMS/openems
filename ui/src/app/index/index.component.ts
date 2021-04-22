@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ToastController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from '../../environments';
 import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
 import { AuthenticateWithPasswordResponse } from '../shared/jsonrpc/response/authenticateWithPasswordResponse';
@@ -35,30 +37,37 @@ export class IndexComponent {
     public utils: Utils,
     private router: Router,
     private service: Service,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toastController: ToastController,
+    private translate: TranslateService,
   ) {
 
     //Forwarding to device index if there is only 1 edge
-    service.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
-      let edgeIds = Object.keys(edges);
-      this.noEdges = edgeIds.length == 0;
-      if (edgeIds.length == 1) {
-        let edge = edges[edgeIds[0]];
-        if (edge.isOnline) {
-          this.router.navigate(['/device', edge.id]);
+    service.metadata
+      .pipe(
+        takeUntil(this.stopOnDestroy),
+        filter(metadata => metadata != null)
+      )
+      .subscribe(metadata => {
+        let edgeIds = Object.keys(metadata.edges);
+        this.noEdges = edgeIds.length == 0;
+        if (edgeIds.length == 1) {
+          let edge = metadata.edges[edgeIds[0]];
+          if (edge.isOnline) {
+            this.router.navigate(['/device', edge.id]);
+          }
         }
-      }
-      this.updateFilteredEdges();
-    })
+        this.updateFilteredEdges();
+      })
   }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     this.service.setCurrentComponent('', this.route);
   }
 
   updateFilteredEdges() {
     let filter = this.filter.toLowerCase();
-    let allEdges = this.service.edges.getValue();
+    let allEdges = this.service.metadata.value?.edges ?? {};
     this.filteredEdges = Object.keys(allEdges)
       .filter(edgeId => {
         let edge = allEdges[edgeId];
@@ -88,12 +97,17 @@ export class IndexComponent {
       .map(edgeId => allEdges[edgeId]);
   }
 
-  doLogin(password: string) {
-    let request = new AuthenticateWithPasswordRequest({ password: password });
+  /**
+   * Login to OpenEMS Edge or Backend.
+   * 
+   * @param param data provided in login form
+   */
+  public doLogin(param: { username?: string, password: string }) {
+    let request = new AuthenticateWithPasswordRequest(param);
     this.websocket.sendRequest(request).then(response => {
       this.handleAuthenticateWithPasswordResponse(response as AuthenticateWithPasswordResponse);
     }).catch(reason => {
-      console.error("Error on Login", reason);
+      this.service.toast(this.translate.instant('Login.authenticationFailed'), 'danger');
     })
   }
 

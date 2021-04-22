@@ -68,7 +68,7 @@ export class EdgeConfig {
                 }
                 let factory = this.factories[component.factoryId];
                 if (!factory) {
-                    console.warn("Factory definition for [" + component.factoryId + "] is missing.");
+                    console.warn("Factory definition [" + component.factoryId + "] for [" + componentId + "] is missing.");
                     continue;
                 }
 

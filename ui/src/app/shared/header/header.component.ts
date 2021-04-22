@@ -1,12 +1,12 @@
-import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { environment } from 'src/environments';
-import { MenuController, ModalController, ToastController } from '@ionic/angular';
-import { PickDateComponent } from '../pickdate/pickdate.component';
-import { Router, NavigationEnd } from '@angular/router';
-import { Service, Websocket, ChannelAddress, Edge } from '../shared';
-import { StatusSingleComponent } from '../status/single/status.component';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { MenuController, ModalController } from '@ionic/angular';
 import { Subject } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
+import { environment } from 'src/environments';
+import { PickDateComponent } from '../pickdate/pickdate.component';
+import { ChannelAddress, Edge, Service, Websocket } from '../shared';
+import { StatusSingleComponent } from '../status/single/status.component';
 
 
 @Component({
@@ -30,7 +30,6 @@ export class HeaderComponent {
         public modalCtrl: ModalController,
         public router: Router,
         public service: Service,
-        public toastController: ToastController,
         public websocket: Websocket,
     ) { }
 
@@ -71,7 +70,7 @@ export class HeaderComponent {
         let urlArray = url.split('/');
         let file = urlArray.pop();
 
-        if (file == 'settings' || file == 'about' || urlArray.length > 3) {
+        if (file == 'user' || file == 'settings' || urlArray.length > 3) {
             // disable side-menu; show back-button instead
             this.enableSideMenu = false;
         } else {
@@ -87,9 +86,9 @@ export class HeaderComponent {
             return;
         }
 
-        // set backUrl for general settings when an Edge had been selected before
+        // set backUrl for user when an Edge had been selected before
         let currentEdge: Edge = this.service.currentEdge.value;
-        if (url === '/settings' && currentEdge != null) {
+        if (url === '/user' && currentEdge != null) {
             this.backUrl = '/device/' + currentEdge.id + "/live"
             return;
         }
