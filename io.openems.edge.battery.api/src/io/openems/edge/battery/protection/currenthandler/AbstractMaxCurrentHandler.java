@@ -231,14 +231,20 @@ public abstract class AbstractMaxCurrentHandler {
 		final Double forceCurrent = this.getForceCurrent(minCellVoltage, maxCellVoltage);
 
 		/*
-		 * Store limits in Channels
+		 * Store limits in Channels. If value is 'null', store the bmsMaxEverCurrent
 		 */
-		battery.channel(this.getBpMinVoltageChannelId()).setNextValue(minCellVoltageLimit);
-		battery.channel(this.getBpMaxVoltageChannelId()).setNextValue(maxCellVoltageLimit);
-		battery.channel(this.getBpMinTemperatureChannelId()).setNextValue(minCellTemperatureLimit);
-		battery.channel(this.getBpMaxTemperatureChannelId()).setNextValue(maxCellTemperatureLimit);
-		battery.channel(this.getBpMaxIncreaseAmpereChannelId()).setNextValue(maxIncreaseAmpereLimit);
-		battery.channel(this.getBpForceCurrentChannelId()).setNextValue(forceCurrent);
+		battery.channel(this.getBpMinVoltageChannelId())
+				.setNextValue(TypeUtils.orElse(minCellVoltageLimit, this.bmsMaxEverCurrent));
+		battery.channel(this.getBpMaxVoltageChannelId())
+				.setNextValue(TypeUtils.orElse(maxCellVoltageLimit, this.bmsMaxEverCurrent));
+		battery.channel(this.getBpMinTemperatureChannelId())
+				.setNextValue(TypeUtils.orElse(minCellTemperatureLimit, this.bmsMaxEverCurrent));
+		battery.channel(this.getBpMaxTemperatureChannelId())
+				.setNextValue(TypeUtils.orElse(maxCellTemperatureLimit, this.bmsMaxEverCurrent));
+		battery.channel(this.getBpMaxIncreaseAmpereChannelId())
+				.setNextValue(TypeUtils.orElse(maxIncreaseAmpereLimit, this.bmsMaxEverCurrent));
+		battery.channel(this.getBpForceCurrentChannelId())
+				.setNextValue(TypeUtils.orElse(forceCurrent, this.bmsMaxEverCurrent));
 
 		// Get the minimum limit of all limits in Ampere
 		Double limit = TypeUtils.min(TypeUtils.toDouble(bpBms), minCellVoltageLimit, maxCellVoltageLimit,

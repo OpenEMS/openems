@@ -1,18 +1,14 @@
 package io.openems.backend.metadata.odoo.odoo.jsonrpc;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.odoo.EdgeCache;
-import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.MyUser;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -42,32 +38,26 @@ import io.openems.common.utils.JsonUtils;
  */
 public class AuthenticateWithSessionIdResponse extends JsonrpcResponseSuccess {
 
-	private static final Logger log = LoggerFactory.getLogger(AuthenticateWithSessionIdResponse.class);
-
 	public static AuthenticateWithSessionIdResponse from(JsonrpcResponseSuccess response, String sessionId,
 			EdgeCache edgeCache, boolean isMetadataServiceInitialized) throws OpenemsNamedException {
 		JsonObject r = response.getResult();
-		JsonObject jUser = JsonUtils.getAsJsonObject(r, "user");
-		MyUser user = new MyUser(//
-				JsonUtils.getAsInt(jUser, "id"), //
-				JsonUtils.getAsString(jUser, "name"), //
-				sessionId);
-		JsonArray jDevices = JsonUtils.getAsJsonArray(r, "devices");
-		List<String> notAvailableEdges = new ArrayList<>();
-		for (JsonElement jDevice : jDevices) {
-			int odooId = JsonUtils.getAsInt(jDevice, "id");
-			MyEdge edge = edgeCache.getEdgeFromOdooId(odooId);
-			if (edge == null) {
-				notAvailableEdges.add(String.valueOf(odooId));
-			} else {
-				user.addEdgeRole(edge.getId(), Role.getRole(JsonUtils.getAsString(jDevice, "role")));
-			}
+
+		// Parse Device-Roles
+		JsonArray devices = JsonUtils.getAsJsonArray(r, "devices");
+		NavigableMap<String, Role> roles = new TreeMap<>();
+		for (JsonElement device : devices) {
+			String edgeId = JsonUtils.getAsString(device, "name");
+			Role role = Role.getRole(JsonUtils.getAsString(device, "role"));
+			roles.put(edgeId, role);
 		}
-		if (!notAvailableEdges.isEmpty() && isMetadataServiceInitialized) {
-			log.warn("For User [" + user.getId() + "] following Edges are not available: "
-					+ String.join(",", notAvailableEdges));
-		}
-		return new AuthenticateWithSessionIdResponse(response.getId(), user);
+
+		JsonObject user = JsonUtils.getAsJsonObject(r, "user");
+		return new AuthenticateWithSessionIdResponse(response.getId(), //
+				new MyUser(//
+						JsonUtils.getAsInt(user, "id"), //
+						JsonUtils.getAsString(user, "name"), //
+						Role.getRole(JsonUtils.getAsString(user, "global_role")), //
+						roles));
 	}
 
 	private final MyUser user;

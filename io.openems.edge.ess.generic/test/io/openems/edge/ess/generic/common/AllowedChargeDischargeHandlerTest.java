@@ -12,6 +12,7 @@ import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.TimeLeapClock;
+import io.openems.edge.ess.generic.symmetric.AllowedChargeDischargeHandler;
 import io.openems.edge.ess.generic.symmetric.GenericManagedSymmetricEssImpl;
 
 public class AllowedChargeDischargeHandlerTest {
@@ -27,35 +28,35 @@ public class AllowedChargeDischargeHandlerTest {
 		AllowedChargeDischargeHandler sut = new AllowedChargeDischargeHandler(ess);
 
 		sut.calculateAllowedChargeDischargePower(clockProvider, false, null, null, null);
-		assertEquals(0, sut.lastAllowedChargePower, 0.001);
-		assertEquals(0, sut.lastAllowedDischargePower, 0.001);
+		assertEquals(0, sut.lastBatteryAllowedChargePower, 0.001);
+		assertEquals(0, sut.lastBatteryAllowedDischargePower, 0.001);
 		clock.leap(1, ChronoUnit.SECONDS);
 
 		sut.calculateAllowedChargeDischargePower(clockProvider, true, null, null, null);
-		assertEquals(0, sut.lastAllowedChargePower, 0.001);
-		assertEquals(0, sut.lastAllowedDischargePower, 0.001);
+		assertEquals(0, sut.lastBatteryAllowedChargePower, 0.001);
+		assertEquals(0, sut.lastBatteryAllowedDischargePower, 0.001);
 		clock.leap(1, ChronoUnit.SECONDS);
 
 		sut.calculateAllowedChargeDischargePower(clockProvider, true, 9, -1, 500);
-		assertEquals(225, sut.lastAllowedChargePower, 0.001);
-		assertEquals(-475, sut.lastAllowedDischargePower, 0.001);
+		assertEquals(225, sut.lastBatteryAllowedChargePower, 0.001);
+		assertEquals(-475, sut.lastBatteryAllowedDischargePower, 0.001);
 
 		clock.leap(250, ChronoUnit.MILLIS);
 		sut.calculateAllowedChargeDischargePower(clockProvider, true, 9, -1, 500);
 		clock.leap(250, ChronoUnit.MILLIS);
 		sut.calculateAllowedChargeDischargePower(clockProvider, true, 9, -1, 500);
-		assertEquals(-475, sut.lastAllowedDischargePower, 0.001);
+		assertEquals(-475, sut.lastBatteryAllowedDischargePower, 0.001);
 		clock.leap(250, ChronoUnit.MILLIS);
 		sut.calculateAllowedChargeDischargePower(clockProvider, true, 9, 0, 500);
 		clock.leap(250, ChronoUnit.MILLIS);
 		sut.calculateAllowedChargeDischargePower(clockProvider, true, 9, 0, 500);
-		assertEquals(450, sut.lastAllowedChargePower, 0.001);
-		assertEquals(0, sut.lastAllowedDischargePower, 0.001);
+		assertEquals(450, sut.lastBatteryAllowedChargePower, 0.001);
+		assertEquals(0, sut.lastBatteryAllowedDischargePower, 0.001);
 
 		clock.leap(1, ChronoUnit.SECONDS);
 		sut.calculateAllowedChargeDischargePower(clockProvider, true, 9, 0, 500);
-		assertEquals(675, sut.lastAllowedChargePower, 0.001);
-		assertEquals(0, sut.lastAllowedDischargePower, 0.001);
+		assertEquals(675, sut.lastBatteryAllowedChargePower, 0.001);
+		assertEquals(0, sut.lastBatteryAllowedDischargePower, 0.001);
 
 		for (int i = 0; i < 15; i++) {
 			clock.leap(1, ChronoUnit.SECONDS);
@@ -64,28 +65,28 @@ public class AllowedChargeDischargeHandlerTest {
 
 		clock.leap(1, ChronoUnit.SECONDS);
 		sut.calculateAllowedChargeDischargePower(clockProvider, true, 9, 1, 500);
-		assertEquals(4275, sut.lastAllowedChargePower, 0.001);
-		assertEquals(380, sut.lastAllowedDischargePower, 0.001);
+		assertEquals(4275, sut.lastBatteryAllowedChargePower, 0.001);
+		assertEquals(380, sut.lastBatteryAllowedDischargePower, 0.001);
 
 		clock.leap(1, ChronoUnit.SECONDS);
 		sut.calculateAllowedChargeDischargePower(clockProvider, true, 9, 1, 500);
-		assertEquals(4500, sut.lastAllowedChargePower, 0.001);
-		assertEquals(403.75, sut.lastAllowedDischargePower, 0.001);
+		assertEquals(4500, sut.lastBatteryAllowedChargePower, 0.001);
+		assertEquals(403.75, sut.lastBatteryAllowedDischargePower, 0.001);
 
 		clock.leap(1, ChronoUnit.SECONDS);
 		sut.calculateAllowedChargeDischargePower(clockProvider, true, 9, 2, 500);
-		assertEquals(4500, sut.lastAllowedChargePower, 0.001);
-		assertEquals(451.25, sut.lastAllowedDischargePower, 0.001);
+		assertEquals(4500, sut.lastBatteryAllowedChargePower, 0.001);
+		assertEquals(451.25, sut.lastBatteryAllowedDischargePower, 0.001);
 
 		clock.leap(1, ChronoUnit.SECONDS);
 		sut.calculateAllowedChargeDischargePower(clockProvider, true, 2, 0, 500);
-		assertEquals(1000, sut.lastAllowedChargePower, 0.001);
-		assertEquals(0, sut.lastAllowedDischargePower, 0.001);
+		assertEquals(1000, sut.lastBatteryAllowedChargePower, 0.001);
+		assertEquals(0, sut.lastBatteryAllowedDischargePower, 0.001);
 
 		clock.leap(1, ChronoUnit.SECONDS);
 		sut.calculateAllowedChargeDischargePower(clockProvider, true, 9, 9, 500);
-		assertEquals(1225, sut.lastAllowedChargePower, 0.001);
-		assertEquals(213.75, sut.lastAllowedDischargePower, 0.001);
+		assertEquals(1225, sut.lastBatteryAllowedChargePower, 0.001);
+		assertEquals(213.75, sut.lastBatteryAllowedDischargePower, 0.001);
 	}
 
 }

@@ -90,6 +90,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private final Logger log = LoggerFactory.getLogger(FeneconMiniEssImpl.class);
+	private final MaxApparentPowerHandler maxApparentPowerHandler = new MaxApparentPowerHandler(this);
 
 	/**
 	 * Manages the {@link State}s of the StateMachine.
@@ -116,6 +117,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 				FeneconMiniEss.ServiceInfoChannelId.values(), //
 				FeneconMiniEss.ChannelId.values() //
 		);
+		this._setMaxApparentPower(FeneconMiniEss.MAX_APPARENT_POWER);
 		this._setCapacity(3_000);
 	}
 
@@ -174,9 +176,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(109), //
 						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110)), //
 						m(FeneconMiniEss.ChannelId.BATTERY_CURRENT, new SignedWordElement(111)), //
-						m(FeneconMiniEss.ChannelId.BATTERY_POWER, new SignedWordElement(112)), //
-						new DummyRegisterElement(113, 133), //
-						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(134))), //
+						m(FeneconMiniEss.ChannelId.BATTERY_POWER, new SignedWordElement(112))), //
 				new FC3ReadRegistersTask(2007, Priority.HIGH, //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2007),
 								UNSIGNED_POWER_CONVERTER)), //
@@ -594,6 +594,9 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.calculateEnergy();
+			if (!this.config.readonly()) {
+				this.maxApparentPowerHandler.calculateMaxApparentPower();
+			}
 			break;
 		}
 	}
@@ -622,5 +625,10 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
+	}
+
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 }

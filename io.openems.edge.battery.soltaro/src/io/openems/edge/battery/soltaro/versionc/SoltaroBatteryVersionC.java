@@ -5,7 +5,7 @@ import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.enums.EmsBaudrate;
+import io.openems.edge.battery.soltaro.common.enums.EmsBaudrate;
 import io.openems.edge.common.channel.Doc;
 
 public interface SoltaroBatteryVersionC extends Battery {

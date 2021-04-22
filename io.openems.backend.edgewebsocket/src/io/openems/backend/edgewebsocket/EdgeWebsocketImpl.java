@@ -1,7 +1,6 @@
 package io.openems.backend.edgewebsocket;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
@@ -18,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.metadata.User;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.backend.common.uiwebsocket.UiWebsocket;
 import io.openems.common.exceptions.OpenemsError;
@@ -30,10 +30,13 @@ import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
-import io.openems.common.session.User;
 
 @Designate(ocd = Config.class, factory = false)
-@Component(name = "Edge.Websocket", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
+@Component(//
+		name = "Edge.Websocket", //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		immediate = true //
+)
 public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implements EdgeWebsocket {
 
 	private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);
@@ -112,7 +115,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		if (ws != null) {
 			WsData wsData = ws.getAttachment();
 			// Wrap Request in AuthenticatedRpc
-			AuthenticatedRpcRequest authenticatedRpc = new AuthenticatedRpcRequest(user, request);
+			AuthenticatedRpcRequest<User> authenticatedRpc = new AuthenticatedRpcRequest<User>(edgeId, user, request);
 			CompletableFuture<JsonrpcResponseSuccess> responseFuture = wsData.send(authenticatedRpc);
 
 			// Unwrap Response
@@ -178,7 +181,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			UUID token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
+			String token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, user, token, request);
 	}
 

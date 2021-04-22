@@ -47,8 +47,7 @@
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
-              "chart.js",
-              "ng2-cookies"
+              "chart.js"
             ]
           },
           "configurations": {

@@ -17,11 +17,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
@@ -41,7 +43,9 @@ public class SendChannelValuesWorker {
 
 	private final BackendApiImpl parent;
 	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS,
-			new ArrayBlockingQueue<>(1), new ThreadPoolExecutor.DiscardOldestPolicy());
+			new ArrayBlockingQueue<>(1), //
+			new ThreadFactoryBuilder().setNameFormat(BackendApiImpl.COMPONENT_NAME + ":SendWorker-%d").build(), //
+			new ThreadPoolExecutor.DiscardOldestPolicy());
 
 	/**
 	 * If true: next 'send' sends all channel values.
@@ -63,6 +67,21 @@ public class SendChannelValuesWorker {
 	}
 
 	/**
+	 * Triggers sending all Channel values once.
+	 */
+	public synchronized void sendValuesOfAllChannelsOnce() {
+		this.sendValuesOfAllChannels.set(true);
+	}
+
+	/**
+	 * Stops the {@link SendChannelValuesWorker}.
+	 */
+	public void deactivate() {
+		// Shutdown executor
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
+	}
+
+	/**
 	 * Called synchronously on AFTER_PROCESS_IMAGE event. Collects all the data and
 	 * triggers asynchronous sending.
 	 */
@@ -75,30 +94,6 @@ public class SendChannelValuesWorker {
 
 		// Add to send Queue
 		this.executor.execute(new SendTask(this, now, allValues));
-	}
-
-	/**
-	 * Triggers sending all Channel values once.
-	 */
-	public synchronized void sendValuesOfAllChannelsOnce() {
-		this.sendValuesOfAllChannels.set(true);
-	}
-
-	public void deactivate() {
-		// Shutdown executor
-		if (this.executor != null) {
-			try {
-				this.executor.shutdown();
-				this.executor.awaitTermination(5, TimeUnit.SECONDS);
-			} catch (InterruptedException e) {
-				this.log.warn("tasks interrupted");
-			} finally {
-				if (!this.executor.isTerminated()) {
-					this.log.warn("cancel non-finished tasks");
-				}
-				this.executor.shutdownNow();
-			}
-		}
 	}
 
 	/**
@@ -170,7 +165,7 @@ public class SendChannelValuesWorker {
 			Map<ChannelAddress, JsonElement> sendValuesMap = new HashMap<>();
 
 			// Collect Changed values
-			for (Entry<String, Map<String, JsonElement>> row : allValues.rowMap().entrySet()) {
+			for (Entry<String, Map<String, JsonElement>> row : this.allValues.rowMap().entrySet()) {
 				for (Entry<String, JsonElement> column : row.getValue().entrySet()) {
 					if (!Objects.equals(column.getValue(), lastAllValues.get(row.getKey(), column.getKey()))) {
 						sendValuesMap.put(new ChannelAddress(row.getKey(), column.getKey()), column.getValue());
@@ -196,7 +191,7 @@ public class SendChannelValuesWorker {
 
 			if (wasSent) {
 				// Successfully sent: update information for next runs
-				this.parent.lastAllValues = allValues;
+				this.parent.lastAllValues = this.allValues;
 				if (lastAllValues.isEmpty()) {
 					// 'lastSentValues' was empty, i.e. all values were sent
 					this.parent.lastSendValuesOfAllChannels = this.timestamp;
