@@ -13,8 +13,7 @@ export class StorageComponent extends AbstractFlatWidget {
     public essComponents: EdgeConfig.Component[] = [];
     public chargerComponents: EdgeConfig.Component[] = [];
     public storageItem: string = null;
-    public stateOfCharge: any[] = [];
-    public component_Id: string[] = [];
+    public stateOfCharge: number[] = [];
 
     protected getChannelAddresses() {
         let channelAddresses: ChannelAddress[] = [];
@@ -49,12 +48,19 @@ export class StorageComponent extends AbstractFlatWidget {
         }
         return channelAddresses
     }
+    /**
+     * Use 'checkStateOfCharge' to check, if a Storage-System has a State of Charge
+     * 
+     * @param componentID componentID of essComponents
+     * @returns boolean
+     */
     public checkStateOfCharge(componentID: string): boolean {
         if (this.stateOfCharge[componentID] != null) {
             return true;
         }
     }
     protected onCurrentData(currentData: CurrentData) {
+        // Check State_of_Charge for every component of essComponents
         for (let component of this.essComponents) {
             this.stateOfCharge[component.id] = currentData.allComponents[component.id + '/Soc'];
         }
@@ -75,6 +81,7 @@ export class StorageComponent extends AbstractFlatWidget {
         }
     }
     /**
+      * Use 'convertChargePower' to convert/map a value, to be only showed when not negative
       * 
       * @param value takes @Input value or channelAddress for chargePower
       * @returns only positive value
@@ -92,6 +99,7 @@ export class StorageComponent extends AbstractFlatWidget {
         }
     }
     /**
+     *  Use 'convertDischargePower' to convert/map a value, to be only showed when not negative
       * 
       * @param value takes @Input value or channelAddress for dischargePower
       * @returns only positive value
