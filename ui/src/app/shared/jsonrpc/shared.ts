@@ -9,5 +9,6 @@ export type Edges = [{
 
 export type User = [{
     id: string,
+    name: string,
     globalRole: "admin" | "installer" | "owner" | "guest",
 }];

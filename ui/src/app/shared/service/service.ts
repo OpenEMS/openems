@@ -2,7 +2,7 @@ import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { Cookie } from 'ng2-cookies';
+import { CookieService } from 'ngx-cookie-service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
@@ -16,7 +16,6 @@ import { ChannelAddress } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
-
 @Injectable()
 export class Service implements ErrorHandler {
 
@@ -64,6 +63,7 @@ export class Service implements ErrorHandler {
     private toaster: ToastController,
     public modalCtrl: ModalController,
     public translate: TranslateService,
+    private cookieService: CookieService,
   ) {
     // add language
     translate.addLangs(Language.getLanguages());
@@ -108,21 +108,21 @@ export class Service implements ErrorHandler {
    * Gets the token from the cookie
    */
   public getToken(): string {
-    return Cookie.get("token");
+    return this.cookieService.get('token');
   }
 
   /**
    * Sets the token in the cookie
    */
   public setToken(token: string) {
-    Cookie.set("token", token);
+    this.cookieService.set('token', token, { sameSite: 'Strict' });
   }
 
   /**
    * Removes the token from the cookie
    */
   public removeToken() {
-    Cookie.delete("token");
+    return this.cookieService.delete('token');
   }
 
   /**
