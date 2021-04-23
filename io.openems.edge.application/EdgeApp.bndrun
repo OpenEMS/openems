@@ -90,7 +90,6 @@
 	bnd.identity;id='io.openems.edge.ess.core',\
 	bnd.identity;id='io.openems.edge.ess.fenecon.commercial40',\
 	bnd.identity;id='io.openems.edge.ess.generic',\
-	bnd.identity;id='io.openems.edge.ess.kaco.blueplanet.gridsave50',\
 	bnd.identity;id='io.openems.edge.ess.mr.gridcon',\
 	bnd.identity;id='io.openems.edge.ess.refu',\
 	bnd.identity;id='io.openems.edge.ess.sinexcel',\
@@ -219,7 +218,6 @@
 	io.openems.edge.ess.core;version=snapshot,\
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
 	io.openems.edge.ess.generic;version=snapshot,\
-	io.openems.edge.ess.kaco.blueplanet.gridsave50;version=snapshot,\
 	io.openems.edge.ess.mr.gridcon;version=snapshot,\
 	io.openems.edge.ess.refu;version=snapshot,\
 	io.openems.edge.ess.sinexcel;version=snapshot,\
