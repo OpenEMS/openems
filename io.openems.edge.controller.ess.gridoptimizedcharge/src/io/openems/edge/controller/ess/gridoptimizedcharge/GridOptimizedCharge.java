@@ -31,6 +31,14 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 				.text("Target minute independent of the current mode Manual and Automatic.")),
 		DELAY_CHARGE_NEGATIVE_LIMIT(Doc.of(Level.INFO) //
 				.text("System would be charged from the grid under these constraints.")), //
+		ESS_HAS_NO_APPARENT_POWER(Doc.of(Level.INFO) //
+				.text("Apparent power of the configured ess is empty.")), //
+		ESS_HAS_NO_ACTIVE_POWER(Doc.of(Level.FAULT) //
+				.text("Active power of the configured ess is empty.")), //
+		ESS_HAS_NO_SOC(Doc.of(Level.FAULT) //
+				.text("State of charge of the configured ess is empty.")), //
+		ESS_HAS_NO_CAPACITY(Doc.of(Level.FAULT) //
+				.text("Capacity of the configured ess is empty. An Update of OpenEMS could help.")), //
 		;
 
 		private final Doc doc;
@@ -148,7 +156,7 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getSellToGridLimitChargeLimitChannel() {
+	public default IntegerReadChannel getSellToGridLimitMinimumChargeLimitChannel() {
 		return this.channel(ChannelId.SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT);
 	}
 
@@ -158,8 +166,8 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getSellToGridLimitChargeLimit() {
-		return this.getSellToGridLimitChargeLimitChannel().value();
+	public default Value<Integer> getSellToGridLimitMinimumChargeLimit() {
+		return this.getSellToGridLimitMinimumChargeLimitChannel().value();
 	}
 
 	/**
@@ -168,8 +176,8 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	public default void _setSellToGridLimitChargeLimit(Integer value) {
-		this.getSellToGridLimitChargeLimitChannel().setNextValue(value);
+	public default void _setSellToGridLimitMinimumChargeLimit(Integer value) {
+		this.getSellToGridLimitMinimumChargeLimitChannel().setNextValue(value);
 	}
 
 	/**
@@ -178,8 +186,8 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	public default void _setSellToGridLimitChargeLimit(int value) {
-		this.getSellToGridLimitChargeLimitChannel().setNextValue(value);
+	public default void _setSellToGridLimitMinimumChargeLimit(int value) {
+		this.getSellToGridLimitMinimumChargeLimitChannel().setNextValue(value);
 	}
 
 	/**

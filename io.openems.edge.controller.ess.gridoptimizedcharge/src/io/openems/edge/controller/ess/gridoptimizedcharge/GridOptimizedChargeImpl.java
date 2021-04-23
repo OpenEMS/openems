@@ -6,7 +6,6 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -27,6 +26,7 @@ import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -63,7 +63,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	// Keeps the current day to detect changes in day.
 	private LocalDate currentDay = LocalDate.MIN;
 
-	private Integer lastSellToGridLimit = null;
+	private int lastSellToGridLimit = 0;
 
 	private boolean debugMode;
 
@@ -173,33 +173,45 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	 */
 	public void applySellToGridLimit() throws OpenemsNamedException {
 
-		// current buy-from/sell-to grid
+		// Current buy-from/sell-to grid
 		int gridPower = this.meter.getActivePower().getOrError();
 
-		// Checking if the grid power is above the maximum feed into grid limit
-		if ((gridPower * -1) > this.config.maximumSellToGridPower()) {
+		// Current ess charge/discharge power
+		int essActivePower = getIntValueOrSetStateAndException(this.ess.getActivePower(),
+				GridOptimizedCharge.ChannelId.ESS_HAS_NO_ACTIVE_POWER);
 
-			// Calculate actual limit for Ess
-			int essPowerLimit = gridPower + this.ess.getActivePower().getOrError()
-					+ this.config.maximumSellToGridPower();
+		// Calculate actual limit for Ess
+		int essMinChargePower = gridPower + essActivePower + this.config.maximumSellToGridPower();
 
-			// Adjust value so that it fits into Min/MaxActivePower
-			essPowerLimit = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
-					essPowerLimit);
+		// Adjust value so that it fits into Min/MaxActivePower
+		essMinChargePower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
+				essMinChargePower);
 
-			// Adjust ramp
-			essPowerLimit = applyPowerRamp(essPowerLimit);
+		// Adjust ramp
+		essMinChargePower = applyPowerRamp(essMinChargePower);
 
-			// Apply limit
-			this.ess.setActivePowerLessOrEquals(essPowerLimit);
-			this._setSellToGridLimitState(SellToGridLimitState.ACTIVE_LIMIT);
-			this._setSellToGridLimitChargeLimit(essPowerLimit * -1);
-			this.lastSellToGridLimit = essPowerLimit;
-		} else {
-			this._setSellToGridLimitChargeLimit(null);
-			this._setSellToGridLimitState(SellToGridLimitState.NO_LIMIT);
-			this.lastSellToGridLimit = null;
+		// Avoid max discharge constraint
+		if (essMinChargePower > 0) {
+			setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState.NO_LIMIT, 0);
+			return;
 		}
+
+		// Apply limit
+		this.ess.setActivePowerLessOrEquals(essMinChargePower);
+		setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState.ACTIVE_LIMIT, essMinChargePower);
+	}
+
+	/**
+	 * Set Channels and lastLimit for SellToGridLimit part.
+	 * 
+	 * @param state                 SellToGridLimitState
+	 * @param sellToGridChargeLimit sellToGridLimit absolute charge limit
+	 * @param essPowerLimit         ess power limit
+	 */
+	private void setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState state, int essMinChargePower) {
+		this._setSellToGridLimitState(state);
+		this._setSellToGridLimitMinimumChargeLimit(essMinChargePower * -1);
+		this.lastSellToGridLimit = essMinChargePower;
 	}
 
 	/**
@@ -217,13 +229,14 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	private int applyPowerRamp(int essPowerLimit) throws InvalidValueException {
 
 		// Stronger Limit will be taken
-		if (this.lastSellToGridLimit == null || essPowerLimit <= this.lastSellToGridLimit) {
-			this.lastSellToGridLimit = essPowerLimit;
+		if (this.lastSellToGridLimit == 0 || essPowerLimit <= this.lastSellToGridLimit) {
 			return essPowerLimit;
 		}
 
-		int maxEssPower = this.ess.getMaxApparentPower().getOrError();
+		// Maximum power
+		int maxEssPower = this.ess.getMaxApparentPower().orElse(this.config.maximumSellToGridPower());
 
+		// Reduce last SellToGridLimit by configured percentage
 		double percentage = (this.config.sellToGridLimitRampPercentage() / 100.0);
 		int rampValue = (int) (maxEssPower * percentage);
 		essPowerLimit = lastSellToGridLimit + rampValue;
@@ -308,58 +321,28 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 		Integer currentLimit = calculatedPower;
 		DelayChargeState state = DelayChargeState.NO_CHARGE_LIMIT;
-		String constraintMessage = "";
-		boolean dcDelayCharge = false;
 
-		// DC System
-		if (this.sum.getProductionDcActualPower().isDefined()) {
-			dcDelayCharge = true;
+		// Avoid discharging the ESS
+		if (calculatedPower < 0) {
+			this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
+			this.logDebug("System would charge from the grid under these constraints");
+			this.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_NEGATIVE_LIMIT).setNextValue(true);
+			return;
 		}
 
-		// Set the constraint depending on AC and DC Systems
-		if (dcDelayCharge) {
-			constraintMessage = "GridOptimizedSelfConsumption - DcPredictiveDelayCharge";
+		// Calculate AC-Setpoint depending on the DC production
+		int productionDcPower = this.sum.getProductionDcActualPower().orElse(0);
+		currentLimit = productionDcPower - calculatedPower;
 
-			// Calculate discharge power to reduce the charge to the calculated power
-			Optional<Integer> productionDcPower = this.sum.getProductionDcActualPower().asOptional();
-			currentLimit = productionDcPower.get() - calculatedPower;
-
-			// Avoiding buying power from grid to charge the battery.
-			if (currentLimit <= 0) {
-				this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
-				this.logDebug("Hybrid system would charge from the grid under these constraints");
-				this.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_NEGATIVE_LIMIT).setNextValue(true);
-				return;
-			}
-
-			// Avoid discharging more than the sellToGridPowerLimit allows
-			if (currentLimit > this.config.maximumSellToGridPower()) {
-				currentLimit = this.config.maximumSellToGridPower() - DEFAULT_POWER_BUFFER;
-			}
-
-			this.logDebug("Set Constraint to Hybrid  system would charge from the grid under these constraints");
-
-			// Set the power limitation constraint
-			state = this.setActivePowerConstraint(constraintMessage, currentLimit);
-
-		} else {
-			constraintMessage = "GridOptimizedSelfConsumption - AcPredictiveDelayCharge";
-
-			// Never force discharge
-			if (currentLimit < 0) {
-
-				this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
-				this.logDebug("System would charge from the grid under these constraints");
-				this.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_NEGATIVE_LIMIT).setNextValue(true);
-				return;
-			}
-
-			currentLimit = currentLimit * -1;
+		// Avoid discharging more than the sellToGridPowerLimit allows
+		if (currentLimit > this.config.maximumSellToGridPower()) {
+			currentLimit = this.config.maximumSellToGridPower() - DEFAULT_POWER_BUFFER;
 		}
 
 		// Set the power limitation constraint
-		state = this.setActivePowerConstraint(constraintMessage, currentLimit);
+		state = this.setActivePowerConstraint("GridOptimizedSelfConsumption - PredictiveDelayCharge", currentLimit);
 
+		// Set channels
 		this.setDelayChargeStateAndLimit(state, calculatedPower);
 		this.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_NEGATIVE_LIMIT).setNextValue(false);
 	}
@@ -466,11 +449,15 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 		Integer calculatedPower = null;
 
-		// battery capacity in wh
-		int capacity = ess.getCapacity().getOrError();
+		// Battery capacity in wh
+		int capacity = getIntValueOrSetStateAndException(ess.getCapacity(),
+				GridOptimizedCharge.ChannelId.ESS_HAS_NO_CAPACITY);
+
+		// State of charge
+		int soc = getIntValueOrSetStateAndException(ess.getSoc(), GridOptimizedCharge.ChannelId.ESS_HAS_NO_SOC);
 
 		// Remaining capacity of the battery in Ws till target point.
-		int remainingCapacity = capacity * (100 - ess.getSoc().getOrError()) * 36;
+		int remainingCapacity = capacity * (100 - soc) * 36;
 
 		// No remaining capacity -> no restrictions
 		if (remainingCapacity <= 0) {
@@ -482,7 +469,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		int remainingTime = calculateRemainingTime(targetMinute);
 
 		// No remaining time -> no restrictions
-		if (remainingTime < 0) {
+		if (remainingTime <= 0) {
 			this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_TIME, null);
 			return null;
 		}
@@ -490,11 +477,37 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		// Calculate charge power limit
 		calculatedPower = remainingCapacity / remainingTime;
 
+		// Max apparent power
+		int maxApparentPower = this.getIntValueOrSetStateAndException(this.ess.getMaxApparentPower(),
+				GridOptimizedCharge.ChannelId.ESS_HAS_NO_APPARENT_POWER);
+
 		// Reduce limit to MaxApparentPower to avoid very high values in the last
 		// seconds
-		calculatedPower = Math.min(calculatedPower, ess.getMaxApparentPower().getOrError());
+		calculatedPower = Math.min(calculatedPower, maxApparentPower);
 
 		return calculatedPower;
+	}
+
+	/**
+	 * Get the int value of the given Channel value.
+	 * 
+	 * <p>
+	 * Set StateChannel's and throws OpenemsException if the value is not defined.
+	 * 
+	 * @param value        Channel value
+	 * @param stateChannel state channel that should be set
+	 * @return int value
+	 * @throws OpenemsException on null value
+	 */
+	private int getIntValueOrSetStateAndException(Value<Integer> value,
+			io.openems.edge.common.channel.ChannelId stateChannel) throws OpenemsException {
+		if (!value.isDefined()) {
+			this.channel(stateChannel).setNextValue(true);
+			this.logDebug(stateChannel.doc().getText());
+			throw new OpenemsException(stateChannel.doc().getText());
+		}
+		this.channel(stateChannel).setNextValue(false);
+		return value.get();
 	}
 
 	/**

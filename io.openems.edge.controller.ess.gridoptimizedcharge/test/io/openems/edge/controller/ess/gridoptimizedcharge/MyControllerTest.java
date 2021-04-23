@@ -1,11 +1,15 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 
 import org.junit.Test;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -55,6 +59,11 @@ public class MyControllerTest {
 			"DelayChargeMaximumChargeLimit");
 	private static final ChannelAddress SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT = new ChannelAddress(CTRL_ID,
 			"SellToGridLimitMinimumChargeLimit");
+	private static final ChannelAddress ESS_HAS_NO_APPARENT_POWER = new ChannelAddress(CTRL_ID,
+			"EssHasNoApparentPower");
+	private static final ChannelAddress ESS_HAS_NO_SOC = new ChannelAddress(CTRL_ID, "EssHasNoSoc");
+	private static final ChannelAddress ESS_HAS_NO_ACTIVE_POWER = new ChannelAddress(CTRL_ID, "EssHasNoActivePower");
+	private static final ChannelAddress ESS_HAS_NO_CAPACITY = new ChannelAddress(CTRL_ID, "EssHasNoCapacity");
 
 	private static final ChannelAddress SUM_PRODUCTION_DC_ACTUAL_POWER = new ChannelAddress("_sum",
 			"ProductionDcActualPower");
@@ -160,13 +169,14 @@ public class MyControllerTest {
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, 0) //
+						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.output(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
 						.output(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 0) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 533));
 
 	}
@@ -215,13 +225,14 @@ public class MyControllerTest {
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, 0) //
+						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.output(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
 						.output(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 0) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2666));
 	}
 
@@ -270,6 +281,7 @@ public class MyControllerTest {
 				.next(new TestCase()) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, 0) //
+						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
@@ -278,7 +290,7 @@ public class MyControllerTest {
 						.output(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
 						.output(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.NO_REMAINING_TIME) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 0) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, null));
 	}
 
@@ -321,10 +333,11 @@ public class MyControllerTest {
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, 0) //
+						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 0) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.TARGET_MINUTE_NOT_CALCULATED));
 	}
 
@@ -353,7 +366,7 @@ public class MyControllerTest {
 				.activate(MyConfig.create() //
 						.setEssId(ESS_ID) //
 						.setId(CTRL_ID) //
-						.setMaximumSellToGridPower(5000) //
+						.setMaximumSellToGridPower(7_000) //
 						.setMeterId(METER_ID) //
 						.setNoOfBufferMinutes(120) //
 						.setMode(Mode.AUTOMATIC) //
@@ -362,7 +375,7 @@ public class MyControllerTest {
 						.setManual_targetTime("") //
 						.build()) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -5500) //
+						.input(METER_ACTIVE_POWER, -7500) //
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
@@ -373,53 +386,41 @@ public class MyControllerTest {
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 500) //
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -6000) //
-						.input(ESS_ACTIVE_POWER, 3000) //
-						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, 0) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 0) //
+						.input(METER_ACTIVE_POWER, -12000) //
+						.input(ESS_ACTIVE_POWER, -1000) //
+						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6000) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6000) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
+				.next(new TestCase() //
+						.input(METER_ACTIVE_POWER, -7000) //
+						.input(ESS_ACTIVE_POWER, -6000) //
+						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6000) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6000) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
+				.next(new TestCase() //
+						.input(METER_ACTIVE_POWER, -5000) //
+						.input(ESS_ACTIVE_POWER, -6000) //
+						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -5500) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 5500) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
+				.next(new TestCase() //
+						.input(METER_ACTIVE_POWER, -8000) //
+						.input(ESS_ACTIVE_POWER, -5500) //
+						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6500) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6500) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
+				.next(new TestCase() //
+						.input(METER_ACTIVE_POWER, -7000) //
+						.input(ESS_ACTIVE_POWER, -6300) //
+						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6000) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6000) //
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -6000) //
-						.input(ESS_ACTIVE_POWER, 3000) //
-						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, 500) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, -500) //
-						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
-				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -6000) //
-						.input(ESS_ACTIVE_POWER, 3000) //
-						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, 1000) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, -1000) //
-						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
-				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -6000) //
-						.input(ESS_ACTIVE_POWER, 3000) //
-						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, 1500) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, -1500) //
-						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
-				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -6000) //
-						.input(ESS_ACTIVE_POWER, 3000) //
-						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, 2000) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, -2000) //
-						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
-				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -6000) //
-						.input(ESS_ACTIVE_POWER, 3000) //
-						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, 2000) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, -2000) //
-						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
-				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -5500) //
-						.input(ESS_CAPACITY, 10_000) //
-						.input(ESS_SOC, 20) //
-						.input(ESS_MAX_APPARENT_POWER, 10_000) //
-						.input(ESS_ACTIVE_POWER, 0) //
-						.output(DELAY_CHARGE_STATE, DelayChargeState.TARGET_MINUTE_NOT_CALCULATED) //
-						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, null) //
-						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -500) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 500) //
-						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
-		;
+						.input(ESS_ACTIVE_POWER, -6000) //
+						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -5500) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 5500) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT));
 	}
 
 	@Test
@@ -466,14 +467,14 @@ public class MyControllerTest {
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, 0) //
+						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
-						.input(ESS_MAX_APPARENT_POWER, 10_000) //
-						.output(TARGET_MINUTE, /* QuarterHour */ 1020) //
+						.input(ESS_MAX_APPARENT_POWER, 10_000)) //
+				.next(new TestCase().output(TARGET_MINUTE, /* QuarterHour */ 1020) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 0) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 470));
-
 	}
 
 	@Test
@@ -520,12 +521,13 @@ public class MyControllerTest {
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, 0) //
+						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.output(TARGET_MINUTE, /* QuarterHour */ 1020) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 0) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 1600));
 
 	}
@@ -574,14 +576,104 @@ public class MyControllerTest {
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, 0) //
+						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.input(SUM_PRODUCTION_DC_ACTUAL_POWER, 10_000).output(TARGET_MINUTE, /* QuarterHour */ 1020) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 0) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 1600));
 
 	}
 
+	@Test
+	public void exception_test() throws Exception {
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+
+		// Predictions
+		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+
+		// Predictors
+		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				productionPrediction, "_sum/ProductionActivePower");
+		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				consumptionPrediction, "_sum/ConsumptionActivePower");
+
+		// PredictorManager
+		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+				consumptionPredictor);
+
+		ControllerTest controller = new ControllerTest(new GridOptimizedChargeImpl()) //
+				.addReference("predictorManager", predictorManager) //
+				.addReference("componentManager", cm) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", ESS) //
+				.addReference("meter", METER) //
+				.addReference("sum", new DummySum()) //
+				.activate(MyConfig.create() //
+						.setEssId(ESS_ID) //
+						.setId(CTRL_ID) //
+						.setMaximumSellToGridPower(7_000) //
+						.setMeterId(METER_ID) //
+						.setNoOfBufferMinutes(120) //
+						.setMode(Mode.MANUAL) //
+						.setSellToGridLimitEnabled(true) //
+						.setManual_targetTime("17:00") //
+						.setSellToGridLimitRampPercentage(5) //
+						.build()); //
+
+		try {
+			controller.next(new TestCase() //
+					.input(ESS_MAX_APPARENT_POWER, null) //
+					.input(ESS_ACTIVE_POWER, -2000) //
+					.input(ESS_CAPACITY, 10_000) //
+					.input(ESS_SOC, 50) //
+					.output(ESS_HAS_NO_APPARENT_POWER, true) //
+					.output(ESS_HAS_NO_ACTIVE_POWER, false) //
+					.output(ESS_HAS_NO_CAPACITY, false) //
+					.output(ESS_HAS_NO_SOC, false)); //
+			fail();
+		} catch (OpenemsException e) {
+			assertEquals(e.getMessage(), GridOptimizedCharge.ChannelId.ESS_HAS_NO_APPARENT_POWER.doc().getText());
+		}
+
+		try {
+			controller.next(new TestCase() //
+					.input(ESS_MAX_APPARENT_POWER, 10_000) //
+					.input(ESS_ACTIVE_POWER, null) //
+					.input(ESS_CAPACITY, 10_000) //
+					.input(ESS_SOC, 50) //
+					.output(ESS_HAS_NO_ACTIVE_POWER, true)); //
+			fail();
+		} catch (OpenemsException e) {
+			assertEquals(e.getMessage(), GridOptimizedCharge.ChannelId.ESS_HAS_NO_ACTIVE_POWER.doc().getText());
+		}
+
+		try {
+			controller.next(new TestCase() //
+					.input(ESS_MAX_APPARENT_POWER, 10_000) //
+					.input(ESS_ACTIVE_POWER, -2000) //
+					.input(ESS_CAPACITY, null) //
+					.input(ESS_SOC, 50) //
+					.output(ESS_HAS_NO_CAPACITY, true)); //
+			fail();
+		} catch (OpenemsException e) {
+			assertEquals(e.getMessage(), GridOptimizedCharge.ChannelId.ESS_HAS_NO_CAPACITY.doc().getText());
+		}
+
+		try {
+			controller.next(new TestCase() //
+					.input(ESS_MAX_APPARENT_POWER, 10_000) //
+					.input(ESS_ACTIVE_POWER, -2000) //
+					.input(ESS_CAPACITY, 10_000) //
+					.input(ESS_SOC, null) //
+					.output(ESS_HAS_NO_SOC, true)); //
+			fail();
+		} catch (OpenemsException e) {
+			assertEquals(e.getMessage(), GridOptimizedCharge.ChannelId.ESS_HAS_NO_SOC.doc().getText());
+		}
+	}
 }
