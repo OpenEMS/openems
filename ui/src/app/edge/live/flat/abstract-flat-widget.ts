@@ -32,7 +32,6 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     ) {
     }
     public ngOnInit() {
-        // this.convert = this.changeWattInKiloWatt;
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.service.getConfig().then(config => {
                 // store important variables publically

@@ -29,10 +29,6 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
     private selector: string = UUID.UUID().toString();
 
     /** 
-     * displayName is the displayed @Input value in html
-     */
-    public displayName: string;
-    /** 
      * displayValue is the displayed @Input value in html
      */
     public displayValue: string;
@@ -45,10 +41,6 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
         @Inject(Service) protected service: Service,
         @Inject(ModalController) protected modalCtrl: ModalController
     ) {
-    }
-    protected setName(value: any) {
-        this.displayName = value;
-        this.isInitialized = true;
     }
     protected setValue(value: any) {
         if (this.converter != null) {

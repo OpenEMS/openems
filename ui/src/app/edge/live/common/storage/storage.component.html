@@ -1,23 +1,28 @@
-<ng-container *ngIf="isInitialized">
-    <oe-flat-widget [img]="storageItem" [title]="'General.storageSystem'| translate" (click)="presentModal()">
-        <ng-container *ngFor="let component of essComponents, let i = index">
-            <ng-container *ngIf="essComponents.length > 1">
-                <oe-flat-widget-line [name]="component.alias">
-                </oe-flat-widget-line>
-            </ng-container>
-            <ng-container *ngIf="checkStateOfCharge(component.id)">
-                <oe-flat-widget-percentagebar [channelAddress]="component.id + '/Soc'">
-                </oe-flat-widget-percentagebar>
-                <oe-flat-widget-line [name]="'General.chargePower' | translate"
-                    [channelAddress]="component.id + '/ActivePower'" [converter]="convertChargePower">
-                </oe-flat-widget-line>
-                <oe-flat-widget-line [name]="'General.dischargePower' | translate"
-                    [channelAddress]="component.id + '/ActivePower'" [converter]="convertDischargePower">
-                </oe-flat-widget-line>
-                <div *ngIf="essComponents.length > 1 && i != (essComponents.length -1)"
-                    style="border-bottom: 1px solid lightgray; width: 110%; margin-top: 2%; margin-bottom: 2%; margin-left: -5%;">
-                </div>
-            </ng-container>
+<oe-flat-widget [img]="storageItem" [title]="'General.storageSystem'| translate" (click)="presentModal()">
+    <ng-container *ngFor="let component of essComponents, let i = index">
+        <ng-container *ngIf="essComponents.length > 1">
+            <oe-flat-widget-line [name]="component.alias">
+            </oe-flat-widget-line>
         </ng-container>
-    </oe-flat-widget>
-</ng-container>
+        <oe-flat-widget-percentagebar [channelAddress]="component.id + '/Soc'">
+        </oe-flat-widget-percentagebar>
+        <ng-container *ngIf="!component.factoryId.includes('Hybrid'), else Hybrid">
+            <oe-flat-widget-line [name]="'General.chargePower' | translate"
+                [channelAddress]="component.id + '/ActivePower'" [converter]="convertChargePower">
+            </oe-flat-widget-line>
+            <oe-flat-widget-line [name]="'General.dischargePower' | translate"
+                [channelAddress]="component.id + '/ActivePower'" [converter]="convertDischargePower">
+            </oe-flat-widget-line>
+        </ng-container>
+        <ng-template #Hybrid>
+            <oe-flat-widget-line [name]="'General.chargePower' | translate" [channelAddress]="'_sum/PvProductionPower'"
+                [converter]="convertChargePower">
+            </oe-flat-widget-line>
+            <oe-flat-widget-line [name]="'General.dischargePower' | translate"
+                [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertDischargePower">
+            </oe-flat-widget-line>
+        </ng-template>
+        <oe-flat-widget-horizontal-line [storageComponents]="essComponents" [index]="i">
+        </oe-flat-widget-horizontal-line>
+    </ng-container>
+</oe-flat-widget>

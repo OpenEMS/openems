@@ -33,7 +33,9 @@ export class StorageComponent extends AbstractFlatWidget {
             )
         }
         this.essComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && component.isEnabled);
+        console.log("essComponents", this.essComponents);
         for (let component of this.essComponents) {
+
             channelAddresses.push(
                 new ChannelAddress(component.id, 'Soc'),
                 new ChannelAddress(component.id, 'Capacity'),
@@ -86,34 +88,42 @@ export class StorageComponent extends AbstractFlatWidget {
       * @param value takes @Input value or channelAddress for chargePower
       * @returns only positive value
       */
-    public convertChargePower = (value: any): string => {
-        let thisValue = (value / 1000 * -1).toFixed(1);
-        if (value <= 0) {
-            if (thisValue.endsWith('0')) {
-                return parseInt(thisValue).toString() + ' kW';
-            } else {
-                return thisValue + ' kW';
-            }
-        } else {
-            return '-'
-        }
+    public convertChargePower = (value: any) => {
+        return this.convertPower('charge', value)
     }
     /**
-     *  Use 'convertDischargePower' to convert/map a value, to be only showed when not negative
-      * 
-      * @param value takes @Input value or channelAddress for dischargePower
-      * @returns only positive value
-      */
+   *  Use 'convertDischargePower' to convert/map a value, to be only showed when not negative
+    * 
+    * @param value takes @Input value or channelAddress for dischargePower
+    * @returns only positive value
+    */
     public convertDischargePower = (value: any): string => {
-        let thisValue = (value / 1000).toFixed(1);
-        if (value > 0) {
-            if (thisValue.endsWith('0')) {
-                return parseInt(thisValue).toString() + ' kW';
-            } else {
-                return thisValue + ' kW';
+        return this.convertPower('discharge', value)
+    }
+    public convertPower(chargeOrDischarge: string, value: any) {
+        let thisValue: string = (value / 1000).toFixed(1);
+        let statement: string = '-';
+        var operators = {
+            '<=': function () { return (value <= 0) },
+            '>': function () { return (value > 0) },
+            '-': function () { return '-' }
+        }
+        if (value != null) {
+            if (chargeOrDischarge == 'charge') {
+                statement = '<=';
+                thisValue = (parseFloat(thisValue) * -1).toString();
+            } else if (chargeOrDischarge == 'discharge') {
+                statement = '>';
             }
-        } else {
-            return '-'
+            if (operators[statement]()) {
+                if (thisValue.endsWith('0')) {
+                    return (parseInt(thisValue)).toString() + ' kW';
+                } else {
+                    return thisValue + ' kW';
+                }
+            } else {
+                return '-'
+            }
         }
     }
     async presentModal() {
