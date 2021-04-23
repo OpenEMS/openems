@@ -43,7 +43,7 @@ export class GridOptimizedChargeModalComponent implements OnInit {
 
         this.formGroup = this.formBuilder.group({
             sellToGridLimitEnabled: new FormControl(this.component.properties.sellToGridLimitEnabled),
-            sellToGridPowerLimit: new FormControl(this.component.properties.sellToGridPowerLimit, Validators.compose([
+            maximumSellToGridPower: new FormControl(this.component.properties.maximumSellToGridPower, Validators.compose([
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
                 Validators.required
             ])),
@@ -96,14 +96,14 @@ export class GridOptimizedChargeModalComponent implements OnInit {
                 this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
 
                     this.component.properties.sellToGridLimitEnabled = this.formGroup.value.sellToGridLimitEnabled;
-                    this.component.properties.sellToGridPowerLimit = this.formGroup.value.sellToGridPowerLimit;
+                    this.component.properties.maximumSellToGridPower = this.formGroup.value.maximumSellToGridPower;
                     this.component.properties.noOfBufferMinutes = this.formGroup.value.noOfBufferMinutes;
                     this.component.properties['manual.targetTime'] = this.formGroup.value.manual_targetTime;
                     this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
                     this.loading = false;
                 }).catch(reason => {
                     this.formGroup.controls['sellToGridLimitEnabled'].setValue(this.component.properties.sellToGridLimitEnabled);
-                    this.formGroup.controls['sellToGridPowerLimit'].setValue(this.component.properties.sellToGridPowerLimit);
+                    this.formGroup.controls['maximumSellToGridPower'].setValue(this.component.properties.maximumSellToGridPower);
                     this.formGroup.controls['noOfBufferMinutes'].setValue(this.component.properties.noOfBufferMinutes);
                     this.formGroup.controls['manual_targetTime'].setValue(this.component.properties['manual.targetTime']);
                     this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
