@@ -84,8 +84,11 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		// forward
 		try {
 			this.parent.uiWebsocket.sendBroadcast(edgeId, new EdgeRpcNotification(edgeId, message));
-		} catch (OpenemsNamedException | NullPointerException e) {
+		} catch (OpenemsNamedException e) {
 			this.parent.logWarn(this.log, "Unable to forward EdgeConfigNotification to UI: " + e.getMessage());
+		} catch (NullPointerException e) {
+			this.parent.logWarn(this.log, "Unable to forward EdgeConfigNotification to UI: NullPointerException");
+			e.printStackTrace();
 		}
 	}
 

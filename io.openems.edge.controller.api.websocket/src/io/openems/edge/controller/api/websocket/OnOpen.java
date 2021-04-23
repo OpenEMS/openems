@@ -1,6 +1,7 @@
 package io.openems.edge.controller.api.websocket;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdFailedNotification;
@@ -34,6 +36,9 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		} catch (OpenemsNamedException e) {
 			// login using token/session_id failed. Still keeping the WebSocket opened to
 			// give the user the chance to authenticate manually.
+
+			// generate new, random Session Token
+			wsData.setSessionToken(UUID.randomUUID().toString());
 			try {
 				wsData.send(new AuthenticateWithSessionIdFailedNotification());
 			} catch (OpenemsException e1) {
@@ -42,11 +47,11 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			return;
 		}
 
-		// store user in attachment
-		wsData.setUser(authTuple.user);
+		// store token in attachment
+		wsData.setSessionToken(authTuple.token);
 
 		// store user in attachment
-		wsData.setSessionToken(authTuple.token);
+		wsData.setUser(authTuple.user);
 
 		// send connection successful reply
 		AuthenticateWithSessionIdNotification notification = new AuthenticateWithSessionIdNotification(authTuple.token,
@@ -70,7 +75,14 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 	private AuthTuple authenticate(JsonObject handshake) throws OpenemsNamedException {
 		// authenticate with Token
 		Optional<String> tokenOpt = io.openems.common.websocket.OnOpen.getFieldFromHandshakeCookie(handshake, "token");
+		if (!tokenOpt.isPresent()) {
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+		}
 		String token = tokenOpt.get();
+		User user = this.parent.sessionTokens.get(token);
+		if (user == null) {
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+		}
 		return new AuthTuple(this.parent.sessionTokens.get(token), token);
 	}
 }

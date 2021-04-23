@@ -90,6 +90,8 @@ export const TRANSLATION = {
         logout: 'Uitloggen',
         menu: 'Menu',
         overview: 'FEMS overzicht',
+        settings: 'Instellingen',
+        user: 'Gebruiker',
     },
     Index: {
         allConnected: 'Alle verbindingen gemaakt.',

@@ -17,6 +17,7 @@ import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { AdvertWidgets, Widgets } from '../type/widget';
 import { DefaultTypes } from './defaulttypes';
+import { Websocket } from './websocket';
 @Injectable()
 export class Service implements ErrorHandler {
 
@@ -51,12 +52,14 @@ export class Service implements ErrorHandler {
   /**
    * Holds references of Edge-IDs (=key) to Edge objects (=value)
    */
-  public readonly edges: BehaviorSubject<{ [edgeId: string]: Edge }> = new BehaviorSubject({});
+  public readonly metadata: BehaviorSubject<{
+    user: User, edges: { [edgeId: string]: Edge }
+  }> = new BehaviorSubject(null);
 
   /**
    * Holds reference to Websocket. This is set by Websocket in constructor.
    */
-  public websocket = null;
+  public websocket: Websocket = null;
 
   constructor(
     private router: Router,
@@ -72,14 +75,6 @@ export class Service implements ErrorHandler {
     translate.setDefaultLang(LanguageTag.DE);
     // initialize history period
     this.historyPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
-  }
-
-  /**
-   * Reset everything to default
-   */
-  public initialize() {
-    console.log("initialize")
-    this.edges.next({});
   }
 
   /**
@@ -212,11 +207,11 @@ export class Service implements ErrorHandler {
         resolve(edge);
       }
 
-      subscription = this.edges
+      subscription = this.metadata
         .pipe(
-          filter(edges => edgeId in edges),
+          filter(metadata => metadata != null && edgeId in metadata.edges),
           first(),
-          map(edges => edges[edgeId])
+          map(metadata => metadata.edges[edgeId])
         )
         .subscribe(edge => {
           setCurrentEdge(edge);
@@ -264,19 +259,39 @@ export class Service implements ErrorHandler {
     this.setToken(token);
 
     // Metadata
-    let newEdges = {};
-    for (let edge of edges) {
-      let newEdge = new Edge(
-        edge.id,
-        edge.comment,
-        edge.producttype,
-        ("version" in edge) ? edge["version"] : "0.0.0",
-        Role.getRole(edge.role),
-        edge.isOnline
-      );
-      newEdges[newEdge.id] = newEdge;
-    }
-    this.edges.next(newEdges);
+    this.metadata.next({
+      user: user,
+      edges: edges.reduce((map, edge) => {
+        map[edge.id] = new Edge(
+          edge.id,
+          edge.comment,
+          edge.producttype,
+          ("version" in edge) ? edge["version"] : "0.0.0",
+          Role.getRole(edge.role),
+          edge.isOnline
+        );
+        return map;
+      }, {})
+    });
+
+    // Resubscribe Channels
+    this.getCurrentEdge().then(edge => {
+      if (edge != null) {
+        edge.subscribeChannelsOnReconnect(this.websocket);
+      }
+    });
+  }
+
+  /**
+   * Handles being logged out.
+   */
+  public handleLogout() {
+    this.websocket.status = 'waiting for authentication';
+    this.currentEdge.next(null);
+    this.metadata.next(null);
+    this.removeToken();
+    this.router.navigate(['/index']);
+    this.websocket
   }
 
   /**

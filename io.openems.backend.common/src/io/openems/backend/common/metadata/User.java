@@ -17,8 +17,23 @@ import io.openems.common.session.Role;
  */
 public class User extends AbstractUser {
 
-	public User(String id, String name, Role globalRole, NavigableMap<String, Role> roles) {
+	/**
+	 * Keeps the login token.
+	 */
+	private final String token;
+
+	public User(String id, String name, String token, Role globalRole, NavigableMap<String, Role> roles) {
 		super(id, name, globalRole, roles);
+		this.token = token;
+	}
+
+	/**
+	 * Gets the login token.
+	 * 
+	 * @return the token
+	 */
+	public String getToken() {
+		return token;
 	}
 
 	/**

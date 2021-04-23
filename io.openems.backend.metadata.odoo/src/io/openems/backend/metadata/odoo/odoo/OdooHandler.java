@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.Field;
-import io.openems.backend.metadata.odoo.OdooMetadata;
 import io.openems.backend.metadata.odoo.MyEdge;
+import io.openems.backend.metadata.odoo.OdooMetadata;
 import io.openems.backend.metadata.odoo.odoo.OdooUtils.JsonrpcResponseSuccessAndHeaders;
 import io.openems.backend.metadata.odoo.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordRequest;
 import io.openems.common.exceptions.OpenemsError;
@@ -80,11 +80,11 @@ public class OdooHandler {
 		JsonrpcResponseSuccessAndHeaders response = OdooUtils
 				.sendJsonrpcRequest(this.credentials.getUrl() + "/web/session/authenticate", request);
 		List<String> setCookieHeaders = response.headers.get("Set-Cookie");
-		if(setCookieHeaders != null && !setCookieHeaders.isEmpty()) {
+		if (setCookieHeaders != null && !setCookieHeaders.isEmpty()) {
 			final String[] setCookieHeader = setCookieHeaders.get(0).split(";");
-			for(String entry : setCookieHeader) {
+			for (String entry : setCookieHeader) {
 				String[] values = entry.split("=", 2);
-				if(values.length == 2 && values[0].equals("session_id")) {
+				if (values.length == 2 && values[0].equals("session_id")) {
 					return values[1];
 				}
 			}
@@ -108,7 +108,15 @@ public class OdooHandler {
 		} catch (UnsupportedEncodingException e) {
 			throw OpenemsError.GENERIC.exception(e.getMessage());
 		}
-		return OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/info?" + query, request).response;
+		return OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/info?" + query,
+				request).response;
+	}
+
+	/**
+	 * Logout a User.
+	 */
+	public void logout(String sessionId) {
+		// TODO
 	}
 
 }

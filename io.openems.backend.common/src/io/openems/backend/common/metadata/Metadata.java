@@ -12,7 +12,6 @@ import org.osgi.annotation.versioning.ProviderType;
 import com.google.common.collect.HashMultimap;
 
 import io.openems.common.channel.Level;
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
@@ -45,20 +44,6 @@ public interface Metadata {
 	public void removeOnIsInitializedListener(Runnable callback);
 
 	/**
-	 * Authenticates a User without any information.
-	 * 
-	 * <p>
-	 * This is only useful for Dummy-Implementations. By default authentication is
-	 * denied in this case.
-	 * 
-	 * @return the User
-	 * @throws OpenemsNamedException on error
-	 */
-	public default User authenticate() throws OpenemsNamedException {
-		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-	}
-
-	/**
 	 * Authenticates the User by username and password.
 	 * 
 	 * @param username the Username
@@ -69,13 +54,20 @@ public interface Metadata {
 	public User authenticate(String username, String password) throws OpenemsNamedException;
 
 	/**
-	 * Authenticates the User by a Session-ID.
+	 * Authenticates the User by a Token.
 	 * 
-	 * @param sessionId the Session-ID
+	 * @param token the Token
 	 * @return the {@link User}
 	 * @throws OpenemsNamedException on error
 	 */
-	public User authenticate(String sessionId) throws OpenemsNamedException;
+	public User authenticate(String token) throws OpenemsNamedException;
+
+	/**
+	 * Closes a session for a User.
+	 * 
+	 * @param user the {@link User}
+	 */
+	public void logout(User user);
 
 	/**
 	 * Gets the Edge-ID for an API-Key, i.e. authenticates the API-Key.
@@ -180,4 +172,5 @@ public interface Metadata {
 		}
 		return result.toString();
 	}
+
 }

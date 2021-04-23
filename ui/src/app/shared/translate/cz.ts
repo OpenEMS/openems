@@ -95,6 +95,8 @@ export const TRANSLATION = {
         logout: 'Odhlásit',
         menu: 'Menu',
         overview: 'FEMS Přehled',
+        settings: 'nastavení',
+        user: 'Uživatel',
     },
     Index: {
         allConnected: 'Všechna připojení aktivní.',

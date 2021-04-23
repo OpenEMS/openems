@@ -1,7 +1,6 @@
 package io.openems.backend.uiwebsocket.impl;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
@@ -10,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.User;
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdFailedNotification;
@@ -84,13 +84,11 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		// authenticate with Session-ID
 		Optional<String> sessionIdOpt = io.openems.common.websocket.OnOpen.getFieldFromHandshakeCookie(handshake,
 				"session_id");
-		if (sessionIdOpt.isPresent()) {
-			String sessionId = sessionIdOpt.get();
-			return new AuthTuple(this.parent.metadata.authenticate(sessionId), sessionId);
-
-		} else {
-			// authenticate without Session-ID
-			return new AuthTuple(this.parent.metadata.authenticate(), UUID.randomUUID().toString());
+		if (!sessionIdOpt.isPresent()) {
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 		}
+
+		String sessionId = sessionIdOpt.get();
+		return new AuthTuple(this.parent.metadata.authenticate(sessionId), sessionId);
 	}
 }

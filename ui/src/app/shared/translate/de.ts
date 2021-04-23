@@ -97,6 +97,8 @@ export const TRANSLATION = {
         logout: 'Abmelden',
         menu: 'Menü',
         overview: 'FEMS Übersicht',
+        settings: 'Einstellungen',
+        user: 'Benutzer',
     },
     Index: {
         allConnected: 'Alle Verbindungen hergestellt.',
@@ -111,6 +113,7 @@ export const TRANSLATION = {
         preamble: "Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",
         passwordLabel: "Passwort",
         passwordPlaceholder: "Passwort",
+        authenticationFailed: "Authentifizierung fehlgeschlagen",
     },
     Edge: {
         Index: {
@@ -390,5 +393,11 @@ export const TRANSLATION = {
         failed: 'Verbindungsaufbau fehlgeschlagen.',
         loggedIn: 'Angemeldet.',
         loggedInAs: 'Angemeldet als Benutzer \'{{value}}\'.', // value = username
+    },
+    Role: {
+        guest: 'Gast',
+        owner: 'Eigentümer',
+        installer: 'Installateur',
+        admin: 'Administrator',
     }
 }
