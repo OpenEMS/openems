@@ -5,7 +5,8 @@ import { Component, Input } from "@angular/core";
     templateUrl: './flat-widget-horizontal-line.html'
 })
 export class FlatWidgetHorizontalLine {
-    /** components */
+    /** Components-Array to iterate over */
     @Input() storageComponents: any[];
+    /** index is an iterator */
     @Input() index: number;
 }
