@@ -1,9 +1,8 @@
-# io.openems.edge.consolinno.temperature.sensor Provider
+= consolinno Temperature Sensor Provider
 
 This Temperature Sensor will read the Temperature on a given Module and Position,
 by reading the according Modbus Registers.
 
-## Example
 
-## References
+
 

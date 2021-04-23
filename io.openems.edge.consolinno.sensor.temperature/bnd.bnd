@@ -3,17 +3,16 @@ Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
-    This Bundle provides an Temperaturesensor that is communicating over Modbus.
 
--Include-Resource: {readme.md}\
+
 
 -buildpath:  \
 	${buildpath},\
-	io.openems.edge.common;version=latest,\
-    io.openems.common;version=latest,\
-    io.openems.edge.bridge.modbus;version=latest,\
-    io.openems.edge.thermometer.api;version=latest,\
-    io.openems.edge.consolinno.modbus.configurator;version=latest,\
+	io.openems.edge.common,\
+    io.openems.common,\
+    io.openems.edge.bridge.modbus,\
+    io.openems.edge.thermometer.api,\
+    io.openems.edge.consolinno.modbus.configurator,\
 
 -testpath: \
 	${testpath}

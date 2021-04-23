@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "io.openems.edge.consolinno.modbus.configurator", immediate = true,
+@Component(name = "Consolinno.Leaflet.Configurator", immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 
 public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, LeafletConfigurator, EventHandler {
@@ -970,7 +970,6 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     }
 
     /**
-     * Writes the Error channel, if the Communication with the Firmware is interrupted.
      * Checks if we are still in Config mode and the Configuration has already taken place.
      *
      * @param event BEFORE_PROCESS_IMAGE
