@@ -5,8 +5,11 @@ Bundle-License: https://opensource.org/licenses/MIT
 Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
-	Java-WebSocket
-	
+	Java-WebSocket,\
+	lib/common-0.5-SNAPSHOT.jar;version=file,\
+    lib/OCPP-J-0.5-SNAPSHOT.jar;version=file,\
+    lib/v1_6-0.5-SNAPSHOT.jar;version=file
+
 -includeresource.ocpp: \
 	@lib/common-0.5-SNAPSHOT.jar; lib:=true,\
 	@lib/v1_6-0.5-SNAPSHOT.jar; lib:=true,\
@@ -43,6 +46,21 @@ Import-Package: \
 	eu.chargetime.ocpp.wss,\
 
 -metatypeannotations: *
+
+Export-Package: \
+    eu.chargetime.ocpp,\
+    eu.chargetime.ocpp.feature,\
+    eu.chargetime.ocpp.feature.profile,\
+    eu.chargetime.ocpp.model,\
+    eu.chargetime.ocpp.model.core,\
+    eu.chargetime.ocpp.model.firmware,\
+    eu.chargetime.ocpp.model.localauthlist,\
+    eu.chargetime.ocpp.model.remotetrigger,\
+    eu.chargetime.ocpp.model.reservation,\
+    eu.chargetime.ocpp.model.smartcharging,\
+    eu.chargetime.ocpp.profile,\
+    eu.chargetime.ocpp.utilities,\
+    eu.chargetime.ocpp.wss,\
 
 -sources: false
 
