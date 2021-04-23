@@ -30,6 +30,19 @@ public enum Unit {
 	ON_OFF(""),
 
 	// ##########
+	// Percolation Q
+	// ##########
+	/**
+	 * Unit of Percolation [m³/s]
+	 * */
+	CUBIC_METER_PER_SECOND("m³/s"),
+
+	/**
+	 * Unit of Percolation [m³/h].
+	 * */
+	CUBIC_METER_PER_HOUR("m³/h"),
+
+	// ##########
 	// Power
 	// ##########
 
@@ -47,6 +60,11 @@ public enum Unit {
 	 * Unit of Active Power [kW]
 	 */
 	KILOWATT("kW", WATT, 3),
+
+	/**
+	 * Unit of Energy[Ws]
+	 */
+	WATT_SECONDS("Ws"),
 
 	/**
 	 * Unit of Reactive Power [var]
@@ -232,7 +250,33 @@ public enum Unit {
 	/**
 	 * Unit of Resistance [uOhm]
 	 */
-	MICROOHM("uOhm", OHM, -6);
+	MICROOHM("uOhm", OHM, -6),
+
+	// ##########
+	// Pressure
+	// ##########
+
+	/**
+	 * Unit of Pressure [bar].
+	 */
+	BAR("bar"),
+
+	// #########
+	// Volume
+	// ########
+
+	/**
+	 * Unit volume [m³]
+	 * */
+	CUBIC_METER("m³"),
+	// #########
+	// Wireless signal strength
+	// ########
+
+	/**
+	 * Unit of wireless signal strength [dBm]
+	 * */
+	DECIBEL_MILLIWATT("dBm");
 
 	private final Unit baseUnit;
 	private final int scaleFactor;
@@ -252,6 +296,10 @@ public enum Unit {
 		return baseUnit;
 	}
 
+	public int getScaleFactor() {
+		return this.scaleFactor;
+	}
+
 	public int getAsBaseUnit(int value) {
 		return (int) (value * Math.pow(10, this.scaleFactor));
 	}
@@ -262,47 +310,51 @@ public enum Unit {
 
 	public String format(Object value, OpenemsType type) {
 		switch (this) {
-		case NONE:
-			return value.toString();
-		case AMPERE:
-		case DEGREE_CELSIUS:
-		case DEZIDEGREE_CELSIUS:
-		case HERTZ:
-		case MILLIAMPERE:
-		case MILLIHERTZ:
-		case MILLIVOLT:
-		case PERCENT:
-		case VOLT:
-		case VOLT_AMPERE:
-		case VOLT_AMPERE_REACTIVE:
-		case WATT:
-		case KILOWATT:
-		case MILLIWATT:
-		case WATT_HOURS:
-		case OHM:
-		case KILOOHM:
-		case SECONDS:
-		case AMPERE_HOURS:
-		case HOUR:
-		case CUMULATED_SECONDS:
-		case KILOAMPERE_HOURS:
-		case KILOVOLT_AMPERE:
-		case KILOVOLT_AMPERE_REACTIVE:
-		case KILOVOLT_AMPERE_REACTIVE_HOURS:
-		case KILOWATT_HOURS:
-		case MICROOHM:
-		case MILLIAMPERE_HOURS:
-		case MILLIOHM:
-		case MILLISECONDS:
-		case MINUTE:
-		case THOUSANDTH:
-		case VOLT_AMPERE_HOURS:
-		case VOLT_AMPERE_REACTIVE_HOURS:
-		case WATT_HOURS_BY_WATT_PEAK:
-			return value + " " + this.symbol;
-		case ON_OFF:
-			boolean booleanValue = (Boolean) value;
-			return booleanValue ? "ON" : "OFF";
+			case NONE:
+				return value.toString();
+			case PERCENT:
+			case THOUSANDTH:
+			case WATT:
+			case MILLIWATT:
+			case KILOWATT:
+			case WATT_SECONDS:
+			case VOLT_AMPERE_REACTIVE:
+			case KILOVOLT_AMPERE_REACTIVE:
+			case VOLT_AMPERE:
+			case KILOVOLT_AMPERE:
+			case VOLT:
+			case MILLIVOLT:
+			case AMPERE:
+			case MILLIAMPERE:
+			case AMPERE_HOURS:
+			case MILLIAMPERE_HOURS:
+			case KILOAMPERE_HOURS:
+			case WATT_HOURS:
+			case KILOWATT_HOURS:
+			case VOLT_AMPERE_REACTIVE_HOURS:
+			case KILOVOLT_AMPERE_REACTIVE_HOURS:
+			case WATT_HOURS_BY_WATT_PEAK:
+			case VOLT_AMPERE_HOURS:
+			case HERTZ:
+			case MILLIHERTZ:
+			case DEGREE_CELSIUS:
+			case DEZIDEGREE_CELSIUS:
+			case SECONDS:
+			case MILLISECONDS:
+			case MINUTE:
+			case HOUR:
+			case CUMULATED_SECONDS:
+			case OHM:
+			case KILOOHM:
+			case MILLIOHM:
+			case MICROOHM:
+			case BAR:
+			case CUBIC_METER:
+			case DECIBEL_MILLIWATT:
+				return value + " " + this.symbol;
+			case ON_OFF:
+				boolean booleanValue = (Boolean) value;
+				return booleanValue ? "ON" : "OFF";
 		}
 		return "FORMAT_ERROR"; // should never happen, if 'switch' is complete
 	}

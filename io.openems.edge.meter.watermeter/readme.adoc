@@ -1,0 +1,6 @@
+= Water meter
+
+Water meter that communicate over M-Bus and Wireless M-Bus. Data record addresses of several meter models included.
+Allows manual entering or automatic searching of data record addresses for any meter model not in the list.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.watermeter[Source Code icon:github[]]
