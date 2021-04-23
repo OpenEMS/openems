@@ -12,5 +12,8 @@ Include-Resource: @SDNotify-1.3.jar
 
 -exportcontents: \
 	info.faljse.SDNotify
+
+Export-Package: \
+    info.faljse.SDNotify
 	
 -sources: false

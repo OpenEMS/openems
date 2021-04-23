@@ -48,7 +48,7 @@ Import-Package: \
 -metatypeannotations: *
 
 Export-Package: \
-    eu.chargetime.ocpp.*,\
+    eu.chargetime.ocpp,\
     eu.chargetime.ocpp.feature,\
     eu.chargetime.ocpp.feature.profile,\
     eu.chargetime.ocpp.model,\
