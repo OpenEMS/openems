@@ -33,7 +33,6 @@ export class StorageComponent extends AbstractFlatWidget {
             )
         }
         this.essComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && component.isEnabled);
-        console.log("essComponents", this.essComponents);
         for (let component of this.essComponents) {
 
             channelAddresses.push(
@@ -49,17 +48,6 @@ export class StorageComponent extends AbstractFlatWidget {
             }
         }
         return channelAddresses
-    }
-    /**
-     * Use 'checkStateOfCharge' to check, if a Storage-System has a State of Charge
-     * 
-     * @param componentID componentID of essComponents
-     * @returns boolean
-     */
-    public checkStateOfCharge(componentID: string): boolean {
-        if (this.stateOfCharge[componentID] != null) {
-            return true;
-        }
     }
     protected onCurrentData(currentData: CurrentData) {
         // Check State_of_Charge for every component of essComponents
@@ -83,7 +71,7 @@ export class StorageComponent extends AbstractFlatWidget {
         }
     }
     /**
-      * Use 'convertChargePower' to convert/map a value, to be only showed when not negative
+      * Use 'convertChargePower' to convert/map a value
       * 
       * @param value takes @Input value or channelAddress for chargePower
       * @returns only positive value
@@ -92,7 +80,7 @@ export class StorageComponent extends AbstractFlatWidget {
         return this.convertPower('charge', value)
     }
     /**
-   *  Use 'convertDischargePower' to convert/map a value, to be only showed when not negative
+   *  Use 'convertDischargePower' to convert/map a value
     * 
     * @param value takes @Input value or channelAddress for dischargePower
     * @returns only positive value
@@ -100,21 +88,35 @@ export class StorageComponent extends AbstractFlatWidget {
     public convertDischargePower = (value: any): string => {
         return this.convertPower('discharge', value)
     }
+    /**
+     * Use 'convertPower' to check whether 'charge/discharge' and to be only showed when not negative
+     * 
+     * @param chargeOrDischarge takes string when called
+     * @param value takes passed value when called 
+     * @returns only positive and 0
+     */
     public convertPower(chargeOrDischarge: string, value: any) {
-        let thisValue: string = (value / 1000).toFixed(1);
+        let thisValue: any = (value / 1000);
         let statement: string = '-';
-        var operators = {
+        let operators = {
             '<=': function () { return (value <= 0) },
             '>': function () { return (value > 0) },
             '-': function () { return '-' }
         }
         if (value != null) {
+            // Check if charge or discharge
             if (chargeOrDischarge == 'charge') {
                 statement = '<=';
-                thisValue = (parseFloat(thisValue) * -1).toString();
+                thisValue = (thisValue * -1).toFixed(1);
             } else if (chargeOrDischarge == 'discharge') {
                 statement = '>';
+                thisValue = thisValue.toFixed(1);
             }
+            /**
+             * Check 
+             * if thisValue ends with 0 => convert it to Integer
+             * else returns '-'
+             */
             if (operators[statement]()) {
                 if (thisValue.endsWith('0')) {
                     return (parseInt(thisValue)).toString() + ' kW';
@@ -124,6 +126,8 @@ export class StorageComponent extends AbstractFlatWidget {
             } else {
                 return '-'
             }
+        } else {
+            return '-'
         }
     }
     async presentModal() {

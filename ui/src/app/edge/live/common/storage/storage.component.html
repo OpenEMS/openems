@@ -15,8 +15,8 @@
             </oe-flat-widget-line>
         </ng-container>
         <ng-template #Hybrid>
-            <oe-flat-widget-line [name]="'General.chargePower' | translate" [channelAddress]="'_sum/PvProductionPower'"
-                [converter]="convertChargePower">
+            <oe-flat-widget-line [name]="'General.chargePower' | translate"
+                [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertChargePower">
             </oe-flat-widget-line>
             <oe-flat-widget-line [name]="'General.dischargePower' | translate"
                 [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertDischargePower">
