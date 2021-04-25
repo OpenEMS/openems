@@ -55,6 +55,7 @@ public class AuthenticateWithSessionIdResponse extends JsonrpcResponseSuccess {
 		return new AuthenticateWithSessionIdResponse(response.getId(), //
 				new MyUser(//
 						JsonUtils.getAsInt(user, "id"), //
+						JsonUtils.getAsString(user, "login"), //
 						JsonUtils.getAsString(user, "name"), //
 						sessionId, //
 						Role.getRole(JsonUtils.getAsString(user, "global_role")), //
