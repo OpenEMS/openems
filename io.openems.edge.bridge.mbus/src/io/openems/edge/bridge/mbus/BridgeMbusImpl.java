@@ -74,10 +74,8 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 		if (!this.isEnabled()) {
 			return;
 		}
-		switch (event.getTopic()) {
-			case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-				this.worker.triggerNextRun();
-				break;
+		if (EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE.equals(event.getTopic())) {
+			this.worker.triggerNextRun();
 		}
 	}
 

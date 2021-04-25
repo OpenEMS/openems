@@ -82,15 +82,15 @@ public class WaterMeterMbusImpl extends AbstractOpenemsMbusComponent
             this.timeStampAddress = waterMeterModelMbus.getTimeStampPosition();
         }
         if (config.openEmsTimeStamp()) {
-            // Address of "-1" for the timestamp means internal method is used to create the timestamp.
+            // Address of "-1" for the timestamp means OpenEMS time is used to create the timestamp.
             this.timeStampAddress = -1;
         }
         if (config.usePollingInterval()) {
             super.activate(context, config.id(), config.alias(), config.enabled(), config.primaryAddress(), this.cm, "mbus",
-                    config.mbusBridgeId(), config.pollingIntervalSeconds(), this.getErrorChannel());     // If you want to use the polling interval, put the time as the last argument in super.activate().
+                    config.mbusBridgeId(), config.pollingIntervalSeconds(), this.getErrorMessageChannel());     // If you want to use the polling interval, put the time as the second last argument in super.activate().
         } else {
             super.activate(context, config.id(), config.alias(), config.enabled(), config.primaryAddress(), this.cm, "mbus",
-                    config.mbusBridgeId(), 0, this.getErrorChannel());  // If you don't want to use the polling interval, use super.activate() without the last argument.
+                    config.mbusBridgeId(), 0, this.getErrorMessageChannel());  // If you don't want to use the polling interval, use 0 for the second last argument in super.activate().
         }
     }
 

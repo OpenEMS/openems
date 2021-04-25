@@ -50,11 +50,7 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 	private final WMbusWorker worker = new WMbusWorker();
 
 	private WMBusConnection wMBusConnection;
-	private WMBusConnection.WMBusSerialBuilder builder;
-	private WMBusListener listener;
 	private String portName;
-	private WMBusConnection.WMBusManufacturer manufacturer;
-	private WMBusMode mode;
 	private boolean scan;
 	private boolean debug;
 
@@ -64,18 +60,20 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 	protected void activate(ComponentContext context, ConfigWMBus configWMBus) {
 		super.activate(context, configWMBus.id(), configWMBus.alias(), configWMBus.enabled());
 		this.portName = configWMBus.portName();
-		this.manufacturer = configWMBus.manufacturer();
-		this.mode = configWMBus.mode();
+		WMBusConnection.WMBusManufacturer manufacturer = configWMBus.manufacturer();
+		WMBusMode mode = configWMBus.mode();
 		this.scan = configWMBus.scan();
 		this.debug = configWMBus.debug();
-		this.listener = new WMBusReceiver(this);
+		WMBusListener listener = new WMBusReceiver(this);
 
 		this.worker.activate(configWMBus.id());
 
-		this.builder = new WMBusConnection.WMBusSerialBuilder(manufacturer, listener, portName).setMode(mode);
+		WMBusConnection.WMBusSerialBuilder builder = new WMBusConnection.WMBusSerialBuilder(manufacturer, listener, portName).setMode(mode);
 
+		// ToDo: Add hot plug&play, meaning you can unplug and replug the Wireles M-Bus receiver without the need to
+		//  restart the bridge.
 		try {
-			this.wMBusConnection = this.builder.build();
+			this.wMBusConnection = builder.build();
 		} catch (IOException e) {
 			this.logError(this.log,
 					"Connection via [" + portName + "] failed: " + e.getMessage());
@@ -98,10 +96,8 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 		if (!this.isEnabled()) {
 			return;
 		}
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+		if (EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE.equals(event.getTopic())) {
 			this.worker.triggerNextRun();
-			break;
 		}
 	}
 
@@ -169,8 +165,8 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 			// can be enabled by adding a few lines of code to the meter module.
 			// If there are two devices using the same radio address but you want to read data from only one of them,
 			// this is no problem. As long as they don't have the same decryption key, only messages from one devices
-			// can be decoded. The messages from the other device can not be decoded and are not processed. You will get
-			// constant decode-error messages though because of the other device.
+			// can be decoded. The messages from the other device can not be decoded and are not processed. But you will
+			// get constant decode-error messages because of the other device.
 
 			while (BridgeWMbusImpl.this.messageQueue.isEmpty() == false) {
 				WMBusMessage message;

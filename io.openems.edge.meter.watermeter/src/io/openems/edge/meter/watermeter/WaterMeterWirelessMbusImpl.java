@@ -89,7 +89,7 @@ public class WaterMeterWirelessMbusImpl extends AbstractOpenemsWMbusComponent im
             this.timeStampAddress = waterMeterModelWirelessMbus.getTimeStampPosition();
         }
         if (config.openEmsTimeStamp()) {
-            // Address of "-1" for the timestamp means internal method is used to create the timestamp.
+            // Address of "-1" for the timestamp means OpenEMS time is used to create the timestamp.
             this.timeStampAddress = -1;
         }
 
@@ -129,7 +129,7 @@ public class WaterMeterWirelessMbusImpl extends AbstractOpenemsWMbusComponent im
 
 	@Override
     protected WMbusProtocol defineWMbusProtocol(String key) {
-        WMbusProtocol protocol = new WMbusProtocol(this, key, this.getErrorChannel(),
+        WMbusProtocol protocol = new WMbusProtocol(this, key, this.getErrorMessageChannel(),
                 // The total_consumed_water channelRecord needs to be in the first position of this list, otherwise findRecordPositions()
                 // for the data records won't work correctly.
                 new ChannelRecord(this.channel(WaterMeter.ChannelId.TOTAL_CONSUMED_WATER), this.volAddress),

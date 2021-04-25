@@ -178,7 +178,7 @@ public interface WaterMeter extends OpenemsComponent {
      *
      * @return the Channel
      */
-    default StringReadChannel getErrorChannel() {
+    default StringReadChannel getErrorMessageChannel() {
         return this.channel(ChannelId.ERROR_MESSAGE);
     }
 
@@ -187,8 +187,8 @@ public interface WaterMeter extends OpenemsComponent {
      *
      * @return the Channel {@link Value}
      */
-    public default Value<String> isError() {
-        return this.getErrorChannel().value();
+    public default Value<String> getErrorMessage() {
+        return this.getErrorMessageChannel().value();
     }
 
     /**
@@ -197,7 +197,7 @@ public interface WaterMeter extends OpenemsComponent {
      *
      * @param value the next value
      */
-    public default void _setError(String value) {
-        this.getErrorChannel().setNextValue(value);
+    public default void _setErrorMessage(String value) {
+        this.getErrorMessageChannel().setNextValue(value);
     }
 }

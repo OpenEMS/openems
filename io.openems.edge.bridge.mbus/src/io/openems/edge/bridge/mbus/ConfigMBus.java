@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
 		name = "Bridge M-Bus", //
-		description = "Provides a service for connecting to, reading and writing an M-Bus device.")
+		description = "Provides a service for reading an M-Bus device.")
 @interface ConfigMBus {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
