@@ -160,7 +160,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
         //Modbus can address 4 different types of Registers. So the for loop sorts the values into those 4.
         for (int group = 0; group <= REGISTER_TYPE_COUNT; group++) {
             this.source.forEach(row -> {
-                if (!(row.get(0).equals("") || row.get(0).equals("Modbus Offset") || row.toString().contains("Register"))) {
+                if (!(row.get(0).equals("") || row.get(0).equals("Modbus Offset") || row.toString().contains("Register") || row.toString().contains("Version"))) {
                     if (currentGroup.get() < REGISTER_TYPE_COUNT && !this.checkForLastGroupMember(row, currentGroup.get())) {
                         switch (currentGroup.get()) {
                             case (0): {
