@@ -6,8 +6,6 @@ import org.eclipse.paho.mqttv5.client.IMqttClient;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
-import org.ops4j.pax.logging.spi.PaxAppender;
-import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -31,7 +29,6 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.common.ApiWorker;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -39,26 +36,21 @@ import io.openems.edge.timedata.api.Timedata;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				"org.ops4j.pax.logging.appender.name=Controller.Api.MQTT", //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CONFIG_UPDATE //
 		} //
 )
 public class MqttApiControllerImpl extends AbstractOpenemsComponent
-		implements MqttApiController, Controller, OpenemsComponent, PaxAppender, EventHandler {
+		implements MqttApiController, Controller, OpenemsComponent, EventHandler {
 
 	protected static final String COMPONENT_NAME = "Controller.Api.MQTT";
 
 	private final Logger log = LoggerFactory.getLogger(MqttApiControllerImpl.class);
 	private final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
-	private final ApiWorker apiWorker = new ApiWorker(this);
 	private final MqttConnector mqttConnector = new MqttConnector();
 
 	protected Config config;
 	private String topicPrefix;
-
-	// Used for SubscribeSystemLogRequests
-	private boolean isSystemLogSubscribed = false;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -72,7 +64,6 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 				Controller.ChannelId.values(), //
 				MqttApiController.ChannelId.values() //
 		);
-		this.apiWorker.setLogChannel(this.getApiWorkerLogChannel());
 	}
 
 	private IMqttClient mqttClient = null;
@@ -90,9 +81,6 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 					this.mqttClient = client;
 					System.out.println("Connected");
 				});
-
-		// initialize ApiWorker
-		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
 	}
 
 	@Deactivate
@@ -112,7 +100,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		this.apiWorker.run();
+		// nothing to do here
 	}
 
 	@Override
@@ -123,30 +111,6 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logInfo(log, message);
-	}
-
-	/**
-	 * Activates/deactivates subscription to System-Log.
-	 * 
-	 * <p>
-	 * If activated, all System-Log events are sent to the systemLog topic.
-	 * 
-	 * @param isSystemLogSubscribed true to activate
-	 */
-	protected synchronized void setSystemLogSubscribed(boolean isSystemLogSubscribed) {
-		this.isSystemLogSubscribed = isSystemLogSubscribed;
-	}
-
-	@Override
-	public void doAppend(PaxLoggingEvent event) {
-		if (!this.isSystemLogSubscribed) {
-			return;
-		}
-//		try {
-////			this.publish(QUEUE_SYSTEMLOG, SystemLog.fromPaxLoggingEvent(event).toJson().toString());
-//		} catch (IOException e) {
-//			this.logWarn(this.log, "Unable to send System-Log: " + e.getMessage());
-//		}
 	}
 
 	@Override
