@@ -6,7 +6,6 @@ Bundle-Description: \
     This Bundle provides a lot of simulators for complex heatsystems.\
     Containing: Thermometer, DecentralHeater, RelaysHeater, CommunicationMaster etc etc.
 
--includeresource: {readme.md}
 
 -buildpath:  \
 	${buildpath},\

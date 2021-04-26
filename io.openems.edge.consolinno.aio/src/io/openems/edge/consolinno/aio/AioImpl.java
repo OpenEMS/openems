@@ -108,11 +108,11 @@ public class AioImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
             if (this.type.contains("in")) {
                 this.aioRegister = this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.AIO, this.aioModule, this.inputMReg, true);
                 this.percentRegister = this.lc.getAioPercentAddress(LeafletConfigurator.ModuleType.AIO, this.aioModule, this.inputPercentMreg, true);
-                this.lc.setAioConfig(this.aioModule,this.inputMReg,this.type);
+                this.lc.setAioConfig(this.aioModule, this.inputMReg, this.type);
             } else if (this.type.contains("out")) {
                 this.aioRegister = this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.AIO, this.aioModule, this.outputMReg, false);
                 this.percentRegister = this.lc.getAioPercentAddress(LeafletConfigurator.ModuleType.AIO, this.aioModule, this.outputPercentMreg, false);
-                this.lc.setAioConfig(this.aioModule,this.outputMReg, this.type);
+                this.lc.setAioConfig(this.aioModule, this.outputMReg, this.type);
             }
 
             super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
@@ -133,37 +133,43 @@ public class AioImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
 
     @Override
     protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-        if (this.type.equals("Digital_in")) {
-            return new ModbusProtocol(this,
-                    new FC1ReadCoilsTask(this.aioRegister, Priority.HIGH,
-                            m(AioChannel.ChannelId.AIO_READ, new CoilElement(this.aioRegister),
-                                    ElementToChannelConverter.DIRECT_1_TO_1)),
-                    new FC3ReadRegistersTask(this.percentRegister, Priority.HIGH,
-                            m(AioChannel.ChannelId.AIO_PERCENT, new UnsignedWordElement(this.percentRegister),
-                                    ElementToChannelConverter.DIRECT_1_TO_1)));
-        } else if (this.type.contains("in")) {
-            return new ModbusProtocol(this,
-                    new FC3ReadRegistersTask(this.aioRegister, Priority.HIGH,
-                            m(AioChannel.ChannelId.AIO_READ, new UnsignedWordElement(this.aioRegister),
-                                    ElementToChannelConverter.DIRECT_1_TO_1)),
-                    new FC3ReadRegistersTask(this.percentRegister, Priority.HIGH,
-                            m(AioChannel.ChannelId.AIO_PERCENT, new UnsignedWordElement(this.percentRegister),
-                                    ElementToChannelConverter.DIRECT_1_TO_1)));
-        } else if (this.type.contains("out")) {
-            return new ModbusProtocol(this,
-                    new FC6WriteRegisterTask(this.aioRegister,
-                            m(AioChannel.ChannelId.AIO_WRITE,
-                                    new SignedWordElement(this.aioRegister),
-                                    ElementToChannelConverter.DIRECT_1_TO_1)),
-                    new FC3ReadRegistersTask(this.aioRegister, Priority.HIGH,
-                            m(AioChannel.ChannelId.AIO_CHECK_WRITE, new UnsignedWordElement(this.aioRegister),
-                                    ElementToChannelConverter.DIRECT_1_TO_1)),
-                    new FC3ReadRegistersTask(this.percentRegister, Priority.HIGH,
-                            m(AioChannel.ChannelId.AIO_PERCENT, new UnsignedWordElement(this.percentRegister),
-                                    ElementToChannelConverter.DIRECT_1_TO_1)));
+        if (this.lc.checkFirmwareCompatibility()) {
+            if (this.type.equals("Digital_in")) {
+                return new ModbusProtocol(this,
+                        new FC1ReadCoilsTask(this.aioRegister, Priority.HIGH,
+                                m(AioChannel.ChannelId.AIO_READ, new CoilElement(this.aioRegister),
+                                        ElementToChannelConverter.DIRECT_1_TO_1)),
+                        new FC3ReadRegistersTask(this.percentRegister, Priority.HIGH,
+                                m(AioChannel.ChannelId.AIO_PERCENT, new UnsignedWordElement(this.percentRegister),
+                                        ElementToChannelConverter.DIRECT_1_TO_1)));
+            } else if (this.type.contains("in")) {
+                return new ModbusProtocol(this,
+                        new FC3ReadRegistersTask(this.aioRegister, Priority.HIGH,
+                                m(AioChannel.ChannelId.AIO_READ, new UnsignedWordElement(this.aioRegister),
+                                        ElementToChannelConverter.DIRECT_1_TO_1)),
+                        new FC3ReadRegistersTask(this.percentRegister, Priority.HIGH,
+                                m(AioChannel.ChannelId.AIO_PERCENT, new UnsignedWordElement(this.percentRegister),
+                                        ElementToChannelConverter.DIRECT_1_TO_1)));
+            } else if (this.type.contains("out")) {
+                return new ModbusProtocol(this,
+                        new FC6WriteRegisterTask(this.aioRegister,
+                                m(AioChannel.ChannelId.AIO_WRITE,
+                                        new SignedWordElement(this.aioRegister),
+                                        ElementToChannelConverter.DIRECT_1_TO_1)),
+                        new FC3ReadRegistersTask(this.aioRegister, Priority.HIGH,
+                                m(AioChannel.ChannelId.AIO_CHECK_WRITE, new UnsignedWordElement(this.aioRegister),
+                                        ElementToChannelConverter.DIRECT_1_TO_1)),
+                        new FC3ReadRegistersTask(this.percentRegister, Priority.HIGH,
+                                m(AioChannel.ChannelId.AIO_PERCENT, new UnsignedWordElement(this.percentRegister),
+                                        ElementToChannelConverter.DIRECT_1_TO_1)));
 
 
+            }
+        } else {
+            this.deactivate();
+            return null;
         }
+
 
         return null;
     }

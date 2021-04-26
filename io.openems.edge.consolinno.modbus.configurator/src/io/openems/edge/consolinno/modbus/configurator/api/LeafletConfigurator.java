@@ -8,6 +8,8 @@ import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import org.osgi.annotation.versioning.ProviderType;
 
+import java.io.IOException;
+
 @ProviderType
 public interface LeafletConfigurator extends OpenemsComponent {
     boolean modbusModuleCheckout(ModuleType moduleType, int moduleNumber, int position, String id);
@@ -34,6 +36,9 @@ public interface LeafletConfigurator extends OpenemsComponent {
     int getAioPercentAddress(ModuleType type, int moduleNumber, int mReg, boolean b);
 
     void revertInversion(int moduleNumber, int position);
+
+    boolean checkFirmwareCompatibility();
+
 
 
     enum ChannelId implements io.openems.edge.common.channel.ChannelId {

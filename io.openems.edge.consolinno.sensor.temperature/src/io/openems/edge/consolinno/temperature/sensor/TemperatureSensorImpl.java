@@ -55,8 +55,8 @@ public class TemperatureSensorImpl extends AbstractOpenemsModbusComponent implem
         this.position = config.position();
         //Check if the Module is physically present, else throws ConfigurationException.
         if (this.lc.modbusModuleCheckout(LeafletConfigurator.ModuleType.TMP, config.module(), config.position(), config.id())
-                && (this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.TMP,this.temperatureModule,this.position) != 65535)) {
-            this.temperatureAnalogInput = this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.TMP, this.temperatureModule,this.position);
+                && (this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.TMP, this.temperatureModule, this.position) != 65535)) {
+            this.temperatureAnalogInput = this.lc.getFunctionAddress(LeafletConfigurator.ModuleType.TMP, this.temperatureModule, this.position);
 
             super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
                     "Modbus", config.modbusBridgeId());
@@ -68,18 +68,22 @@ public class TemperatureSensorImpl extends AbstractOpenemsModbusComponent implem
 
     @Deactivate
     public void deactivate() {
-        this.lc.removeModule(LeafletConfigurator.ModuleType.TMP,this.temperatureModule,this.position);
+        this.lc.removeModule(LeafletConfigurator.ModuleType.TMP, this.temperatureModule, this.position);
         super.deactivate();
 
     }
 
     @Override
     protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-        return new ModbusProtocol(this,
-                new FC4ReadInputRegistersTask(this.temperatureAnalogInput, Priority.HIGH,
-                        m(Thermometer.ChannelId.TEMPERATURE, new UnsignedWordElement(this.temperatureAnalogInput),
-                                ElementToChannelConverter.DIRECT_1_TO_1)));
-
+        if (this.lc.checkFirmwareCompatibility()) {
+            return new ModbusProtocol(this,
+                    new FC4ReadInputRegistersTask(this.temperatureAnalogInput, Priority.HIGH,
+                            m(Thermometer.ChannelId.TEMPERATURE, new UnsignedWordElement(this.temperatureAnalogInput),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)));
+        } else {
+            this.deactivate();
+            return null;
+        }
     }
 
     @Override

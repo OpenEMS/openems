@@ -91,11 +91,14 @@ public class SignalSensorImpl extends AbstractOpenemsModbusComponent implements 
 
     @Override
     protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-        return new ModbusProtocol(this,
-                new FC4ReadInputRegistersTask(this.temperatureAnalogInput, Priority.HIGH,
-                        m(Thermometer.ChannelId.TEMPERATURE, new UnsignedWordElement(this.temperatureAnalogInput),
-                                ElementToChannelConverter.DIRECT_1_TO_1)));
-
+        if (this.lc.checkFirmwareCompatibility()) {
+            return new ModbusProtocol(this,
+                    new FC4ReadInputRegistersTask(this.temperatureAnalogInput, Priority.HIGH,
+                            m(Thermometer.ChannelId.TEMPERATURE, new UnsignedWordElement(this.temperatureAnalogInput),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)));
+        } else {
+            return null;
+        }
     }
 
     @Override

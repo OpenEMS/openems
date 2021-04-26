@@ -8,7 +8,6 @@ Bundle-Description: \
 	\
 	${warning;Please update this Bundle-Description in io.openems.edge.controller.heatnetwork.pid.heatsystem/api.bnd}
 
--includeresource: {readme.md}
 
 -buildpath:  \
 		${buildpath},\

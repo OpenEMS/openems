@@ -5,7 +5,6 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
     Provides a Controller to calculate the AverageTemperature and writes into a VirutalThermometer.
 
--includeresource: {readme.md}
 
 -buildpath:  \
 	${buildpath},\

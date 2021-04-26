@@ -33,6 +33,9 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -104,6 +107,11 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     private int moduleTypeOffset;
     private int moduleNumberOffset;
     private int mRegOffset;
+    private static final int MINIMUM_COMPATIBLE_FIRMWARE_VERSION = 78;
+    //True if we are compatible
+    private boolean compatible;
+    //True if the compatibility Check was done once
+    private boolean compatibleFlag;
 
 
     public LeafletConfiguratorImpl() {
@@ -253,139 +261,178 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
 
     @Override
     protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-        return new ModbusProtocol(this,
-                //Read Module Connection Status
-                new FC4ReadInputRegistersTask(this.analogInputRegisters.get(LEAFLET_TMP_CONNECTION_STATUS), Priority.HIGH,
-                        m(LeafletConfigurator.ChannelId.TEMPERATURE_MODULES, new UnsignedWordElement(
-                                        this.analogInputRegisters.get(LEAFLET_TMP_CONNECTION_STATUS)),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC4ReadInputRegistersTask(this.analogInputRegisters.get(LEAFLET_REL_CONNECTION_STATUS), Priority.HIGH,
-                        m(LeafletConfigurator.ChannelId.RELAY_MODULES, new UnsignedWordElement(
-                                        this.analogInputRegisters.get(LEAFLET_REL_CONNECTION_STATUS)),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC4ReadInputRegistersTask(this.analogInputRegisters.get(LEAFLET_PWM_CONNECTION_STATUS), Priority.HIGH,
-                        m(LeafletConfigurator.ChannelId.PWM_MODULES, new UnsignedWordElement(
-                                        this.analogInputRegisters.get(LEAFLET_PWM_CONNECTION_STATUS)),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC4ReadInputRegistersTask(this.analogInputRegisters.get(LEAFLET_AIO_CONNECTION_STATUS), Priority.HIGH,
-                        m(LeafletConfigurator.ChannelId.AIO_MODULES, new UnsignedWordElement(
-                                        this.analogInputRegisters.get(LEAFLET_AIO_CONNECTION_STATUS)),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
+        if (checkFirmwareCompatibility() == false) {
+            this.log.error("Incompatible Firmware Version. Please Update the Firmware.");
+            this.deactivate();
+            return null;
+        } else {
+            return new ModbusProtocol(this,
+                    //Read Module Connection Status
+                    new FC4ReadInputRegistersTask(this.analogInputRegisters.get(LEAFLET_TMP_CONNECTION_STATUS), Priority.HIGH,
+                            m(LeafletConfigurator.ChannelId.TEMPERATURE_MODULES, new UnsignedWordElement(
+                                            this.analogInputRegisters.get(LEAFLET_TMP_CONNECTION_STATUS)),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC4ReadInputRegistersTask(this.analogInputRegisters.get(LEAFLET_REL_CONNECTION_STATUS), Priority.HIGH,
+                            m(LeafletConfigurator.ChannelId.RELAY_MODULES, new UnsignedWordElement(
+                                            this.analogInputRegisters.get(LEAFLET_REL_CONNECTION_STATUS)),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC4ReadInputRegistersTask(this.analogInputRegisters.get(LEAFLET_PWM_CONNECTION_STATUS), Priority.HIGH,
+                            m(LeafletConfigurator.ChannelId.PWM_MODULES, new UnsignedWordElement(
+                                            this.analogInputRegisters.get(LEAFLET_PWM_CONNECTION_STATUS)),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC4ReadInputRegistersTask(this.analogInputRegisters.get(LEAFLET_AIO_CONNECTION_STATUS), Priority.HIGH,
+                            m(LeafletConfigurator.ChannelId.AIO_MODULES, new UnsignedWordElement(
+                                            this.analogInputRegisters.get(LEAFLET_AIO_CONNECTION_STATUS)),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
 
-                new FC4ReadInputRegistersTask(this.analogOutputHoldingRegisters.get(LEAFLET_CONFIG_REGISTER), Priority.HIGH,
-                        m(LeafletConfigurator.ChannelId.READ_LEAFLET_CONFIG, new UnsignedWordElement(
-                                        this.analogOutputHoldingRegisters.get(LEAFLET_CONFIG_REGISTER)),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(this.analogOutputHoldingRegisters.get(LEAFLET_CONFIG_REGISTER),
-                        m(LeafletConfigurator.ChannelId.WRITE_LEAFLET_CONFIG,
-                                new UnsignedWordElement(this.analogOutputHoldingRegisters.get(LEAFLET_CONFIG_REGISTER)),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC4ReadInputRegistersTask(this.analogOutputHoldingRegisters.get(LEAFLET_CONFIG_REGISTER), Priority.HIGH,
+                            m(LeafletConfigurator.ChannelId.READ_LEAFLET_CONFIG, new UnsignedWordElement(
+                                            this.analogOutputHoldingRegisters.get(LEAFLET_CONFIG_REGISTER)),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC6WriteRegisterTask(this.analogOutputHoldingRegisters.get(LEAFLET_CONFIG_REGISTER),
+                            m(LeafletConfigurator.ChannelId.WRITE_LEAFLET_CONFIG,
+                                    new UnsignedWordElement(this.analogOutputHoldingRegisters.get(LEAFLET_CONFIG_REGISTER)),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
 
-                //Relay invert Configuration
-                new FC6WriteRegisterTask(this.relayInverseRegisters[0],
-                        m(LeafletConfigurator.ChannelId.WRITE_RELAY_ONE_INVERT_STATUS,
-                                new SignedWordElement(this.relayInverseRegisters[0]),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(this.relayInverseRegisters[1],
-                        m(LeafletConfigurator.ChannelId.WRITE_RELAY_TWO_INVERT_STATUS,
-                                new UnsignedWordElement(this.relayInverseRegisters[1]),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(this.relayInverseRegisters[2],
-                        m(LeafletConfigurator.ChannelId.WRITE_RELAY_THREE_INVERT_STATUS,
-                                new UnsignedWordElement(this.relayInverseRegisters[2]),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(this.relayInverseRegisters[3],
-                        m(LeafletConfigurator.ChannelId.WRITE_RELAY_FOUR_INVERT_STATUS,
-                                new UnsignedWordElement(this.relayInverseRegisters[3]),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                //PWM Frequency Configuration
-                new FC6WriteRegisterTask(this.pwmConfigRegisterOne,
-                        m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_ONE,
-                                new SignedWordElement(this.pwmConfigRegisterOne),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(this.pwmConfigRegisterTwo,
-                        m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_TWO,
-                                new UnsignedWordElement(this.pwmConfigRegisterTwo),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(this.pwmConfigRegisterThree,
-                        m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_THREE,
-                                new UnsignedWordElement(this.pwmConfigRegisterThree),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(this.pwmConfigRegisterFour,
-                        m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_FOUR,
-                                new UnsignedWordElement(this.pwmConfigRegisterFour),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(this.pwmConfigRegisterFive,
-                        m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_FIVE,
-                                new SignedWordElement(this.pwmConfigRegisterFive),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(this.pwmConfigRegisterSix,
-                        m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_SIX,
-                                new UnsignedWordElement(this.pwmConfigRegisterSix),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(this.pwmConfigRegisterSeven,
-                        m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_SEVEN,
-                                new UnsignedWordElement(this.pwmConfigRegisterSeven),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(this.pwmConfigRegisterEight,
-                        m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_EIGHT,
-                                new UnsignedWordElement(this.pwmConfigRegisterEight),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
+                    //Relay invert Configuration
+                    new FC6WriteRegisterTask(this.relayInverseRegisters[0],
+                            m(LeafletConfigurator.ChannelId.WRITE_RELAY_ONE_INVERT_STATUS,
+                                    new SignedWordElement(this.relayInverseRegisters[0]),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC6WriteRegisterTask(this.relayInverseRegisters[1],
+                            m(LeafletConfigurator.ChannelId.WRITE_RELAY_TWO_INVERT_STATUS,
+                                    new UnsignedWordElement(this.relayInverseRegisters[1]),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC6WriteRegisterTask(this.relayInverseRegisters[2],
+                            m(LeafletConfigurator.ChannelId.WRITE_RELAY_THREE_INVERT_STATUS,
+                                    new UnsignedWordElement(this.relayInverseRegisters[2]),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC6WriteRegisterTask(this.relayInverseRegisters[3],
+                            m(LeafletConfigurator.ChannelId.WRITE_RELAY_FOUR_INVERT_STATUS,
+                                    new UnsignedWordElement(this.relayInverseRegisters[3]),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    //PWM Frequency Configuration
+                    new FC6WriteRegisterTask(this.pwmConfigRegisterOne,
+                            m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_ONE,
+                                    new SignedWordElement(this.pwmConfigRegisterOne),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC6WriteRegisterTask(this.pwmConfigRegisterTwo,
+                            m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_TWO,
+                                    new UnsignedWordElement(this.pwmConfigRegisterTwo),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC6WriteRegisterTask(this.pwmConfigRegisterThree,
+                            m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_THREE,
+                                    new UnsignedWordElement(this.pwmConfigRegisterThree),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC6WriteRegisterTask(this.pwmConfigRegisterFour,
+                            m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_FOUR,
+                                    new UnsignedWordElement(this.pwmConfigRegisterFour),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC6WriteRegisterTask(this.pwmConfigRegisterFive,
+                            m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_FIVE,
+                                    new SignedWordElement(this.pwmConfigRegisterFive),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC6WriteRegisterTask(this.pwmConfigRegisterSix,
+                            m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_SIX,
+                                    new UnsignedWordElement(this.pwmConfigRegisterSix),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC6WriteRegisterTask(this.pwmConfigRegisterSeven,
+                            m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_SEVEN,
+                                    new UnsignedWordElement(this.pwmConfigRegisterSeven),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC6WriteRegisterTask(this.pwmConfigRegisterEight,
+                            m(LeafletConfigurator.ChannelId.WRITE_PWM_FREQUENCY_EIGHT,
+                                    new UnsignedWordElement(this.pwmConfigRegisterEight),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
 
-                new FC3ReadRegistersTask(this.pwmConfigRegisterOne, Priority.LOW,
-                        m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_ONE,
-                                new SignedWordElement(this.pwmConfigRegisterOne),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(this.pwmConfigRegisterTwo, Priority.LOW,
-                        m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_TWO,
-                                new UnsignedWordElement(this.pwmConfigRegisterTwo),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(this.pwmConfigRegisterThree, Priority.LOW,
-                        m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_THREE,
-                                new UnsignedWordElement(this.pwmConfigRegisterThree),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(this.pwmConfigRegisterFour, Priority.LOW,
-                        m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_FOUR,
-                                new UnsignedWordElement(this.pwmConfigRegisterFour),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(this.pwmConfigRegisterFive, Priority.LOW,
-                        m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_FIVE,
-                                new SignedWordElement(this.pwmConfigRegisterFive),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(this.pwmConfigRegisterSix, Priority.LOW,
-                        m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_SIX,
-                                new UnsignedWordElement(this.pwmConfigRegisterSix),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(this.pwmConfigRegisterSeven, Priority.LOW,
-                        m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_SEVEN,
-                                new UnsignedWordElement(this.pwmConfigRegisterSeven),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(this.pwmConfigRegisterEight, Priority.LOW,
-                        m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_EIGHT,
-                                new UnsignedWordElement(this.pwmConfigRegisterEight),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-
-
-                new FC3ReadRegistersTask(this.relayInverseRegisters[0], Priority.LOW,
-                        m(LeafletConfigurator.ChannelId.READ_RELAY_ONE_INVERT_STATUS,
-                                new UnsignedWordElement(this.relayInverseRegisters[0]),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(this.relayInverseRegisters[1], Priority.LOW,
-                        m(LeafletConfigurator.ChannelId.READ_RELAY_TWO_INVERT_STATUS,
-                                new UnsignedWordElement(this.relayInverseRegisters[1]),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(this.relayInverseRegisters[2], Priority.LOW,
-                        m(LeafletConfigurator.ChannelId.READ_RELAY_THREE_INVERT_STATUS,
-                                new UnsignedWordElement(this.relayInverseRegisters[2]),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC3ReadRegistersTask(this.relayInverseRegisters[3], Priority.LOW,
-                        m(LeafletConfigurator.ChannelId.READ_RELAY_FOUR_INVERT_STATUS,
-                                new UnsignedWordElement(this.relayInverseRegisters[3]),
-                                ElementToChannelConverter.DIRECT_1_TO_1))
-
-        );
+                    new FC3ReadRegistersTask(this.pwmConfigRegisterOne, Priority.LOW,
+                            m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_ONE,
+                                    new SignedWordElement(this.pwmConfigRegisterOne),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC3ReadRegistersTask(this.pwmConfigRegisterTwo, Priority.LOW,
+                            m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_TWO,
+                                    new UnsignedWordElement(this.pwmConfigRegisterTwo),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC3ReadRegistersTask(this.pwmConfigRegisterThree, Priority.LOW,
+                            m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_THREE,
+                                    new UnsignedWordElement(this.pwmConfigRegisterThree),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC3ReadRegistersTask(this.pwmConfigRegisterFour, Priority.LOW,
+                            m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_FOUR,
+                                    new UnsignedWordElement(this.pwmConfigRegisterFour),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC3ReadRegistersTask(this.pwmConfigRegisterFive, Priority.LOW,
+                            m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_FIVE,
+                                    new SignedWordElement(this.pwmConfigRegisterFive),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC3ReadRegistersTask(this.pwmConfigRegisterSix, Priority.LOW,
+                            m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_SIX,
+                                    new UnsignedWordElement(this.pwmConfigRegisterSix),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC3ReadRegistersTask(this.pwmConfigRegisterSeven, Priority.LOW,
+                            m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_SEVEN,
+                                    new UnsignedWordElement(this.pwmConfigRegisterSeven),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC3ReadRegistersTask(this.pwmConfigRegisterEight, Priority.LOW,
+                            m(LeafletConfigurator.ChannelId.READ_PWM_FREQUENCY_EIGHT,
+                                    new UnsignedWordElement(this.pwmConfigRegisterEight),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
 
 
+                    new FC3ReadRegistersTask(this.relayInverseRegisters[0], Priority.LOW,
+                            m(LeafletConfigurator.ChannelId.READ_RELAY_ONE_INVERT_STATUS,
+                                    new UnsignedWordElement(this.relayInverseRegisters[0]),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC3ReadRegistersTask(this.relayInverseRegisters[1], Priority.LOW,
+                            m(LeafletConfigurator.ChannelId.READ_RELAY_TWO_INVERT_STATUS,
+                                    new UnsignedWordElement(this.relayInverseRegisters[1]),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC3ReadRegistersTask(this.relayInverseRegisters[2], Priority.LOW,
+                            m(LeafletConfigurator.ChannelId.READ_RELAY_THREE_INVERT_STATUS,
+                                    new UnsignedWordElement(this.relayInverseRegisters[2]),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC3ReadRegistersTask(this.relayInverseRegisters[3], Priority.LOW,
+                            m(LeafletConfigurator.ChannelId.READ_RELAY_FOUR_INVERT_STATUS,
+                                    new UnsignedWordElement(this.relayInverseRegisters[3]),
+                                    ElementToChannelConverter.DIRECT_1_TO_1))
+
+            );
+
+        }
+    }
+
+    /**
+     * Checks if the Firmware version is at least the minimum required version for the Configurator to run properly.
+     *
+     * @return true if the Firmware is compatible
+     */
+    public boolean checkFirmwareCompatibility() {
+        if (!this.compatible && !this.compatibleFlag) {
+            String response = "";
+            try {
+                Process p = Runtime.getRuntime().exec("LeafletBaseSoftware -v");
+
+
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+                String line = "";
+                while ((line = reader.readLine()) != null) {
+                    response += line;
+                }
+            } catch (IOException e) {
+                this.log.error("This shouldn't have happened");
+            }
+            if (response.equals("") == false) {
+                String[] partOne = response.split("V");
+                String[] partTwo = partOne[1].split(" ");
+                if (MINIMUM_COMPATIBLE_FIRMWARE_VERSION <= Integer.parseInt(partTwo[0].replace(".", ""))) {
+                    this.compatible = true;
+                }
+            }
+            this.compatibleFlag = true;
+        }
+        return this.compatible;
     }
 
 

@@ -99,14 +99,18 @@ public class RelayImpl extends AbstractOpenemsModbusComponent implements Openems
 
     @Override
     protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-
-        return new ModbusProtocol(this,
-                new FC5WriteCoilTask(this.relayDiscreteOutput,
-                        (ModbusCoilElement) m(Relay.ChannelId.WRITE_ON_OFF, new CoilElement(this.relayDiscreteOutput),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC1ReadCoilsTask(this.relayDiscreteOutput, Priority.HIGH,
-                        m(Relay.ChannelId.READ_ON_OFF, new CoilElement(this.relayDiscreteOutput),
-                                ElementToChannelConverter.DIRECT_1_TO_1)));
+        if (this.lc.checkFirmwareCompatibility()) {
+            return new ModbusProtocol(this,
+                    new FC5WriteCoilTask(this.relayDiscreteOutput,
+                            (ModbusCoilElement) m(Relay.ChannelId.WRITE_ON_OFF, new CoilElement(this.relayDiscreteOutput),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC1ReadCoilsTask(this.relayDiscreteOutput, Priority.HIGH,
+                            m(Relay.ChannelId.READ_ON_OFF, new CoilElement(this.relayDiscreteOutput),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)));
+        } else {
+            this.deactivate();
+            return null;
+        }
     }
 
     @Override

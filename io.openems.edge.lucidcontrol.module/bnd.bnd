@@ -5,7 +5,6 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
 	This bundle implements the LucidControl module
 
--includeresource: {readme.md}
 
 -buildpath:  \
 	${buildpath},\

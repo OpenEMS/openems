@@ -81,7 +81,7 @@ public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
             throw new ConfigurationException("Pwm not configured properly. Please check the Config", "This Device doesn't Exist");
         }
         try {
-            getWritePwmPowerLevelChannel().setNextWriteValue((float)config.percent());
+            getWritePwmPowerLevelChannel().setNextWriteValue((float) config.percent());
         } catch (OpenemsError.OpenemsNamedException ignored) {
             this.log.error("Error in getWritePwmPowerChannel.setNextWriteValue");
         }
@@ -105,18 +105,23 @@ public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
 
     @Override
     protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-        return new ModbusProtocol(this,
-                new FC3ReadRegistersTask(this.pwmAnalogOutput, Priority.HIGH,
-                        m(Pwm.ChannelId.READ_POWER_LEVEL, new UnsignedWordElement(this.pwmAnalogOutput),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC6WriteRegisterTask(this.pwmAnalogOutput,
-                        m(Pwm.ChannelId.WRITE_POWER_LEVEL,
-                                new SignedWordElement(this.pwmAnalogOutput),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC5WriteCoilTask(this.pwmDiscreteOutput,
-                        (ModbusCoilElement) m(Pwm.ChannelId.INVERTED,
-                                new CoilElement(this.pwmDiscreteOutput),
-                                ElementToChannelConverter.DIRECT_1_TO_1)));
+        if (this.lc.checkFirmwareCompatibility()) {
+            return new ModbusProtocol(this,
+                    new FC3ReadRegistersTask(this.pwmAnalogOutput, Priority.HIGH,
+                            m(Pwm.ChannelId.READ_POWER_LEVEL, new UnsignedWordElement(this.pwmAnalogOutput),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC6WriteRegisterTask(this.pwmAnalogOutput,
+                            m(Pwm.ChannelId.WRITE_POWER_LEVEL,
+                                    new SignedWordElement(this.pwmAnalogOutput),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)),
+                    new FC5WriteCoilTask(this.pwmDiscreteOutput,
+                            (ModbusCoilElement) m(Pwm.ChannelId.INVERTED,
+                                    new CoilElement(this.pwmDiscreteOutput),
+                                    ElementToChannelConverter.DIRECT_1_TO_1)));
+        } else {
+            this.deactivate();
+            return null;
+        }
     }
 
     @Override
