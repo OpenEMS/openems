@@ -7,7 +7,6 @@ import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from '../../environments';
 import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
-import { AuthenticateWithPasswordResponse } from '../shared/jsonrpc/response/authenticateWithPasswordResponse';
 import { Edge, Service, Utils, Websocket } from '../shared/shared';
 
 @Component({
@@ -103,21 +102,7 @@ export class IndexComponent {
    * @param param data provided in login form
    */
   public doLogin(param: { username?: string, password: string }) {
-    let request = new AuthenticateWithPasswordRequest(param);
-    this.websocket.sendRequest(request).then(response => {
-      this.handleAuthenticateWithPasswordResponse(response as AuthenticateWithPasswordResponse);
-    }).catch(reason => {
-      this.service.toast(this.translate.instant('Login.authenticationFailed'), 'danger');
-    })
-  }
-
-  /**
-   * Handles a AuthenticateWithPasswordResponse.
-   * 
-   * @param message 
-   */
-  private handleAuthenticateWithPasswordResponse(message: AuthenticateWithPasswordResponse) {
-    this.service.handleAuthentication(message.result.token, message.result.user, message.result.edges);
+    this.websocket.login(new AuthenticateWithPasswordRequest(param));
   }
 
   doInfinite(infiniteScroll) {

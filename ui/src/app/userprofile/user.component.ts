@@ -35,11 +35,7 @@ export class UserComponent {
    * Logout from OpenEMS Edge or Backend.
    */
   public doLogout() {
-    this.websocket.sendRequest(new LogoutRequest()).then(response => {
-      this.service.handleLogout();
-    }).catch(reason => {
-      console.error(reason)
-    })
+    this.websocket.logout();
   }
 
   public toggleDebugMode(event: CustomEvent) {

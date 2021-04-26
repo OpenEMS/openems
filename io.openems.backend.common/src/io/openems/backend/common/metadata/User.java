@@ -8,7 +8,7 @@ import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse.EdgeMetadata;
+import io.openems.common.jsonrpc.response.AuthenticateResponse.EdgeMetadata;
 import io.openems.common.session.AbstractUser;
 import io.openems.common.session.Role;
 

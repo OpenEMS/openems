@@ -1,28 +1,27 @@
 <ion-app>
   <ion-content>
     <ion-grid>
-      <ion-row class="ion-justify-content-center">
-
-        <ion-col *ngIf="websocket.status == 'connecting'" size="12" size-md="6">
+      <ion-row class="ion-justify-content-center" [ngSwitch]="websocket.status">
+        <ion-col size="12" size-md="6">
           <ion-card>
-            <ion-item>
+
+            <!-- Trying to connect to backend -->
+            <ion-item *ngSwitchCase="'connecting'">
               <ion-icon slot="start" name="wifi-outline"></ion-icon>
               <ion-label class="ion-text-wrap">
                 <h2 translate>Index.connectionInProgress</h2>
               </ion-label>
             </ion-item>
-          </ion-card>
-        </ion-col>
 
-        <ion-col *ngIf="websocket.status == 'failed'" size="12" size-md="6">
-          <ion-card>
-            <ion-item>
+            <!-- Connection failed -->
+            <ion-item *ngSwitchCase="'failed'">
               <ion-icon slot="start" name="close-circle-outline"></ion-icon>
               <ion-label class="ion-text-wrap">
                 <h2 translate [translateParams]="{value: 'OpenEMS'}">Index.connectionFailed</h2>
                 <p color="light">{{ env.url }}</p>
               </ion-label>
             </ion-item>
+
           </ion-card>
         </ion-col>
       </ion-row>

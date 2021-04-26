@@ -39,7 +39,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	public String getSessionToken() {
-		return sessionToken;
+		return this.sessionToken;
 	}
 
 	public void setUser(User user) {
