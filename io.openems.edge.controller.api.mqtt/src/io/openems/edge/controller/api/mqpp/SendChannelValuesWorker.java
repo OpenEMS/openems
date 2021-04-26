@@ -194,9 +194,16 @@ public class SendChannelValuesWorker {
 			// Update lastUpdate timestamp
 			this.publish(MqttApiController.TOPIC_CHANNEL_LAST_UPDATE, String.valueOf(timestamp));
 
-			// Set the UNABLE_TO_SEND channel
+			// Successful?
 			if (allSendSuccessful) {
 				this.parent.parent.logInfo(this.parent.log, "Successfully sent MQTT topics: " + sendTopics);
+
+				// update information for next runs
+				this.parent.lastAllValues = this.allValues;
+				if (lastAllValues.isEmpty()) {
+					// 'lastSentValues' was empty, i.e. all values were sent
+					this.parent.lastSendValuesOfAllChannels = this.timestamp;
+				}
 			} else {
 				this.parent.parent.logWarn(this.parent.log, "Error while sending MQTT topics: " + sendTopics);
 			}

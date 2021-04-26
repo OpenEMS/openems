@@ -79,7 +79,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		this.mqttConnector.connect(config.uri(), config.clientId(), config.username(), config.password())
 				.thenAccept(client -> {
 					this.mqttClient = client;
-					System.out.println("Connected");
+					this.logInfo(this.log, "Connected to MQTT Broker [" + config.uri() + "]");
 				});
 	}
 
