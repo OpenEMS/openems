@@ -13,7 +13,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class ProductionTotalDcChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
+    @Input() public period: DefaultTypes.HistoryPeriod;
 
     ngOnChanges() {
         this.updateChart();

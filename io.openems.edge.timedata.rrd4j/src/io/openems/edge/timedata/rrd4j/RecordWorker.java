@@ -1,6 +1,7 @@
 package io.openems.edge.timedata.rrd4j;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -21,6 +22,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class RecordWorker extends AbstractImmediateWorker {
@@ -29,7 +31,6 @@ public class RecordWorker extends AbstractImmediateWorker {
 
 	private final Logger log = LoggerFactory.getLogger(RecordWorker.class);
 	private final Rrd4jTimedataImpl parent;
-	protected int noOfCycles = DEFAULT_NO_OF_CYCLES; // default, is going to be overwritten by config
 
 	// Counts the number of Cycles till data is recorded
 	private int cycleCount = 0;
@@ -77,25 +78,28 @@ public class RecordWorker extends AbstractImmediateWorker {
 			return;
 		}
 
-		// Stop here if not reached CycleCount
-		if (this.cycleCount < this.noOfCycles) {
+		if (
+		// No need to persist data, as it is still stored by the Channel itself. The
+		// Channel keeps the last NO_OF_PAST_VALUES values
+		this.cycleCount < Channel.NO_OF_PAST_VALUES
+				// RRD4j requires us to write one value per DEFAULT_HEARTBEAT_SECONDS
+				&& Duration.between(this.lastTimestamp, timestamp)
+						.getSeconds() < Rrd4jTimedataImpl.DEFAULT_HEARTBEAT_SECONDS - 1) {
 			return;
 		}
-
-		// Reset Cycle-Count
-		this.cycleCount = 0;
+		this.cycleCount = 0; // Reset Cycle-Count
 
 		this.lastTimestamp = timestamp;
 
 		for (OpenemsComponent component : this.parent.componentManager.getEnabledComponents()) {
 			for (Channel<?> channel : component.channels()) {
-				if (channel.channelDoc().getAccessMode() != AccessMode.READ_ONLY
-						&& channel.channelDoc().getAccessMode() != AccessMode.READ_WRITE) {
-					// Ignore WRITE_ONLY Channels
+				Doc doc = channel.channelDoc();
+				if ( // Ignore Low-Priority Channels
+				doc.getPersistencePriority().isLowerThan(this.parent.persistencePriority)
+						// Ignore WRITE_ONLY Channels
+						|| channel.channelDoc().getAccessMode() == AccessMode.WRITE_ONLY) {
 					continue;
 				}
-				
-				
 
 				ToDoubleFunction<? super Object> channelMapFunction = this
 						.getChannelMapFunction(channel.channelDoc().getType());
@@ -126,20 +130,21 @@ public class RecordWorker extends AbstractImmediateWorker {
 				}
 			}
 		}
+
 		this.readChannelValuesSince = nextReadChannelValuesSince;
-		this.triggerNextRun();
 	}
 
 	@Override
 	protected void forever() throws InterruptedException {
 		Record record = this.records.take();
 		RrdDb database = null;
+
 		try {
 			database = this.parent.getRrdDb(record.address, record.unit, record.timestamp - 1);
 
 			if (database.getLastUpdateTime() < record.timestamp) {
 				// Avoid and silently ignore error "IllegalArgumentException: Bad sample time:
-				// XXX. Last update time was YYY, at least one second step is required".
+				// YYY. Last update time was ZZZ, at least one second step is required".
 
 				// Add Sample to RRD4J
 				Sample sample = database.createSample(record.timestamp);
@@ -252,10 +257,6 @@ public class RecordWorker extends AbstractImmediateWorker {
 			return DoubleStream::max;
 		}
 		throw new IllegalArgumentException("Channel Unit [" + channelUnit + "] is not supported.");
-	}
-
-	public void setNoOfCycles(int noOfCycles) {
-		this.noOfCycles = noOfCycles;
 	}
 
 }

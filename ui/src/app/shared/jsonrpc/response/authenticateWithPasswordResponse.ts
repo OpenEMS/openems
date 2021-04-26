@@ -1,5 +1,5 @@
-import { Edges } from "../shared";
 import { JsonrpcResponseSuccess } from "../base";
+import { Edges, User } from "../shared";
 
 /**
  * Wraps a JSON-RPC Response for a AuthenticateWithPasswordRequest.
@@ -9,7 +9,7 @@ import { JsonrpcResponseSuccess } from "../base";
  *   "jsonrpc": "2.0",
  *   "id": UUID,
  *   "result": {
- *     "token": UUID,
+ *     "token": string,
  *     "edges": shared.Edges
  *   }
  * }
@@ -21,6 +21,7 @@ export class AuthenticateWithPasswordResponse extends JsonrpcResponseSuccess {
         public readonly id: string,
         public readonly result: {
             token: string,
+            user: User,
             edges: Edges
         }
     ) {

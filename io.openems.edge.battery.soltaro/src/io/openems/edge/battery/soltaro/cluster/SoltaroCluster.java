@@ -8,10 +8,10 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.ChargeIndication;
 import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
 import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
 import io.openems.edge.battery.soltaro.cluster.enums.RunningState;
+import io.openems.edge.battery.soltaro.common.enums.ChargeIndication;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.WriteChannel;
@@ -85,15 +85,9 @@ public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler,
 		 * IntegerReadChannels
 		 */
 		CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
-		SYSTEM_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
 		SYSTEM_INSULATION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.OHM)), //
-		CLUSTER_MAX_ALLOWED_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
-		CLUSTER_MAX_ALLOWED_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
-		
+
 		/*
 		 * StateChannels
 		 */

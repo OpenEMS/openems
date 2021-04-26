@@ -24,9 +24,10 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.api.SetAllowedCurrents;
-import io.openems.edge.battery.soltaro.SoltaroCellCharacteristic;
-import io.openems.edge.battery.soltaro.single.SingleRackSettings;
+import io.openems.edge.battery.protection.BatteryProtection;
+import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3000Wh;
+import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3500Wh;
+import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.Context;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.State;
@@ -46,6 +47,7 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -71,28 +73,24 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Reference
+	protected ComponentManager componentManager;
+
 	/**
 	 * Manages the {@link State}s of the StateMachine.
 	 */
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private Config config;
-	private SetAllowedCurrents setAllowedCurrents;
-	
+	private BatteryProtection batteryProtection = null;
+
 	public SingleRackVersionCImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
-				SingleRackVersionC.ChannelId.values() //
-		);
-		
-		this.setAllowedCurrents = new SetAllowedCurrents(//
-			this, //
-			new SoltaroCellCharacteristic(), //
-			new SingleRackSettings(), //
-			this.channel(SingleRackVersionC.ChannelId.SYSTEM_MAX_CHARGE_CURRENT), //
-			this.channel(SingleRackVersionC.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT) //
+				SingleRackVersionC.ChannelId.values(), //
+				BatteryProtection.ChannelId.values() //
 		);
 	}
 
@@ -107,6 +105,21 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
+		}
+
+		// Initialize Battery-Protection
+		if (config.moduleType() == ModuleType.MODULE_3_5_KWH) {
+			// Special settings for 3.5 kWh module
+			this.batteryProtection = BatteryProtection.create(this) //
+					.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro3500Wh(),
+							this.componentManager) //
+					.build();
+		} else {
+			// Default
+			this.batteryProtection = BatteryProtection.create(this) //
+					.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro3000Wh(),
+							this.componentManager) //
+					.build();
 		}
 
 		// Calculate Capacity
@@ -138,9 +151,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 		switch (event.getTopic()) {
 
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-
-			this.setAllowedCurrents.act();
-
+			this.batteryProtection.apply();
 			break;
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
@@ -244,6 +255,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionC.ChannelId.VOLTAGE_LOW_PROTECTION, new UnsignedWordElement(0x20F3)), //
 						m(SingleRackVersionC.ChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x20F4)) //
 				), //
+
 				// Single Cluster Running Status Registers
 				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
 						m(new UnsignedWordElement(0x2100)) //
@@ -291,14 +303,10 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 								.build(), //
 						m(SingleRackVersionC.ChannelId.CLUSTER_1_AVERAGE_VOLTAGE, new UnsignedWordElement(0x210D)), //
 						m(SingleRackVersionC.ChannelId.CLUSTER_1_SYSTEM_INSULATION, new UnsignedWordElement(0x210E)), //
-						m(new UnsignedWordElement(0x210F)) //
-								.m(SingleRackVersionC.ChannelId.SYSTEM_MAX_CHARGE_CURRENT,
-										ElementToChannelConverter.SCALE_FACTOR_2) //
-								.build(), //
-						m(new UnsignedWordElement(0x2110)) //
-								.m(SingleRackVersionC.ChannelId.SYSTEM_MAX_DISCHARGE_CURRENT,
-										ElementToChannelConverter.SCALE_FACTOR_2) //
-								.build(), //
+						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new UnsignedWordElement(0x210F),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new UnsignedWordElement(0x2110),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(SingleRackVersionC.ChannelId.POSITIVE_INSULATION, new UnsignedWordElement(0x2111)), //
 						m(SingleRackVersionC.ChannelId.NEGATIVE_INSULATION, new UnsignedWordElement(0x2112)), //
 						m(SingleRackVersionC.ChannelId.CLUSTER_RUN_STATE, new UnsignedWordElement(0x2113)), //
@@ -332,6 +340,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 								.bit(14, SingleRackVersionC.ChannelId.LEVEL2_DISCHARGE_TEMP_HIGH) //
 								.bit(15, SingleRackVersionC.ChannelId.LEVEL2_DISCHARGE_TEMP_LOW) //
 						), //
+
 						// Level 1 Alarm: EMS Control to stop charge, discharge, charge&discharge
 						m(new BitsWordElement(0x2141, this) //
 								.bit(0, SingleRackVersionC.ChannelId.LEVEL1_CELL_VOLTAGE_HIGH) //
@@ -351,6 +360,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 								.bit(14, SingleRackVersionC.ChannelId.LEVEL1_DISCHARGE_TEMP_HIGH) //
 								.bit(15, SingleRackVersionC.ChannelId.LEVEL1_DISCHARGE_TEMP_LOW) //
 						), //
+
 						// Pre-Alarm: Temperature Alarm will active current limication
 						m(new BitsWordElement(0x2142, this) //
 								.bit(0, SingleRackVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_HIGH) //
@@ -518,8 +528,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 							new UnsignedWordElement(0x204B), ElementToChannelConverter.SCALE_FACTOR_2), //
 					m(SingleRackVersionC.ChannelId.LEVEL1_CELL_OVER_TEMPERATURE_PROTECTION,
 							new SignedWordElement(0x204C)), //
-					m(SingleRackVersionC.ChannelId.LEVEL1_CELL_OVER_TEMPERATURE_RECOVER,
-							new SignedWordElement(0x204D)), //
+					m(SingleRackVersionC.ChannelId.LEVEL1_CELL_OVER_TEMPERATURE_RECOVER, new SignedWordElement(0x204D)), //
 					m(SingleRackVersionC.ChannelId.LEVEL1_CELL_UNDER_TEMPERATURE_PROTECTION,
 							new SignedWordElement(0x204E)), //
 					m(SingleRackVersionC.ChannelId.LEVEL1_CELL_UNDER_TEMPERATURE_RECOVER,
@@ -592,8 +601,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 							new UnsignedWordElement(0x240B), ElementToChannelConverter.SCALE_FACTOR_2), //
 					m(SingleRackVersionC.ChannelId.LEVEL2_CELL_OVER_TEMPERATURE_PROTECTION,
 							new SignedWordElement(0x240C)), //
-					m(SingleRackVersionC.ChannelId.LEVEL2_CELL_OVER_TEMPERATURE_RECOVER,
-							new SignedWordElement(0x240D)), //
+					m(SingleRackVersionC.ChannelId.LEVEL2_CELL_OVER_TEMPERATURE_RECOVER, new SignedWordElement(0x240D)), //
 					m(SingleRackVersionC.ChannelId.LEVEL2_CELL_UNDER_TEMPERATURE_PROTECTION,
 							new SignedWordElement(0x240E)), //
 					m(SingleRackVersionC.ChannelId.LEVEL2_CELL_UNDER_TEMPERATURE_RECOVER,
@@ -647,11 +655,11 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 					this.addChannel(channelId);
 					// Add the Modbus Element and map it to the Channel
 					if (type == Type.VOLTAGE) {
-						elements[j] = m(channelId, new UnsignedWordElement(type.getOffset() + sensorIndex));	
+						elements[j] = m(channelId, new UnsignedWordElement(type.getOffset() + sensorIndex));
 					} else {
 						elements[j] = m(channelId, new SignedWordElement(type.getOffset() + sensorIndex));
 					}
-					
+
 				}
 				// Add a Modbus read task for this module
 				int startAddress = type.getOffset() + i * type.getSensorsPerModule();

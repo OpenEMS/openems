@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.metadata.api.BackendUser;
+import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
@@ -43,7 +43,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			}
 			String username = values[0];
 			String password = values[1];
-			BackendUser user = this.parent.metadata.authenticate(username, password);
+			User user = this.parent.metadata.authenticate(username, password);
 
 			WsData wsData = ws.getAttachment();
 			wsData.setUser(user);

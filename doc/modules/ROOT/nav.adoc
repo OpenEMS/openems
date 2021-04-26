@@ -13,10 +13,10 @@
 ** xref:edge/build.adoc[Build OpenEMS Edge]
 ** xref:edge/deploy.adoc[Deploy OpenEMS Edge]
 * OpenEMS UI
+** xref:ui/architecture.adoc[Architecture]
 ** xref:ui/build.adoc[Build OpenEMS UI]
 * OpenEMS Backend
 ** xref:backend/architecture.adoc[Architecture]
-** xref:backend/configuration.adoc[Configuration]
 ** xref:backend/backend-to-backend.adoc[Backend-to-Backend]
 ** xref:backend/build.adoc[Build OpenEMS Backend]
 ** xref:backend/deploy.adoc[Deploy OpenEMS Backend]

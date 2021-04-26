@@ -13,7 +13,7 @@ export class TimeslotPeakshavingComponent {
 
     private static readonly SELECTOR = "timeslotpeakshaving";
 
-    @Input() private componentId: string;
+    @Input() public componentId: string;
 
     public edge: Edge = null;
 

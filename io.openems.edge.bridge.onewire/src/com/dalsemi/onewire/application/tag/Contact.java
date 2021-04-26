@@ -49,8 +49,7 @@ public class Contact extends TaggedDevice implements TaggedSensor {
 	 * connected to the supplied port adapter.
 	 * 
 	 * @param adapter    The adapter serving the sensor.
-	 * @param NetAddress The 1-Wire network address of the sensor.
-	 * @param netAddress
+	 * @param netAddress The 1-Wire network address of the sensor.
 	 */
 	public Contact(DSPortAdapter adapter, String netAddress) {
 		super(adapter, netAddress);
@@ -60,10 +59,7 @@ public class Contact extends TaggedDevice implements TaggedSensor {
 	 * The readSensor method returns the "max" string if the Sensor is present or
 	 * the "min" string if the Sensor is not present.
 	 * 
-	 * @param--none.
-	 *
-	 *               @return The "max" string if sensor is present or "min" string
-	 *               if not.
+	 * @return The "max" string if sensor is present or "min" string if not.
 	 */
 	public String readSensor() throws OneWireException {
 		String returnString = "";

@@ -91,7 +91,8 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 
 	public ExecuteSystemCommandRequest(UUID id, String command, boolean runInBackground, int timeoutSeconds,
 			Optional<String> username, Optional<String> password) {
-		super(id, METHOD);
+		super(id, METHOD,
+				timeoutSeconds + JsonrpcRequest.DEFAULT_TIMEOUT_SECONDS /* reuse timeoutSeconds with some buffer */);
 		this.command = command;
 		this.runInBackground = runInBackground;
 		this.timeoutSeconds = timeoutSeconds;
