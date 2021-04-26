@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.mqtt.MqttConnector;
+import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -47,11 +47,14 @@ import io.openems.edge.timedata.api.Timedata;
 public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		implements MqttApiController, Controller, OpenemsComponent, PaxAppender, EventHandler {
 
-	private final Logger log = LoggerFactory.getLogger(ChannelValuesWorker.class);
-	private final ChannelValuesWorker channelValuesWorker = new ChannelValuesWorker(this);
+	protected static final String COMPONENT_NAME = "Controller.Api.MQTT";
+
+	private final Logger log = LoggerFactory.getLogger(MqttApiControllerImpl.class);
+	private final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
 	private final ApiWorker apiWorker = new ApiWorker(this);
 	private final MqttConnector mqttConnector = new MqttConnector();
 
+	protected Config config;
 	private String topicPrefix;
 
 	// Used for SubscribeSystemLogRequests
@@ -76,6 +79,8 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws Exception {
+		this.config = config;
+
 		// Publish MQTT messages under the topic "edge/edge0/..."
 		this.topicPrefix = String.format(MqttApiController.TOPIC_PREFIX, config.clientId());
 
@@ -88,16 +93,13 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 
 		// initialize ApiWorker
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
-
-		// Activate worker
-		this.channelValuesWorker.activate(config.id());
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 		this.mqttConnector.deactivate();
-		this.channelValuesWorker.deactivate();
+		this.sendChannelValuesWorker.deactivate();
 		if (this.mqttClient != null) {
 			try {
 				this.mqttClient.close();
@@ -154,17 +156,18 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.channelValuesWorker.triggerNextRun();
+			this.sendChannelValuesWorker.collectData();
 			break;
 
 		case EdgeEventConstants.TOPIC_CONFIG_UPDATE:
-//			EdgeConfig config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
-//			EdgeConfigNotification message = new EdgeConfigNotification(config);
-//			WebsocketClient ws = this.websocket;
-//			if (ws == null) {
-//				return;
-//			}
-//			ws.sendMessage(message);
+			// Send new EdgeConfig
+			EdgeConfig config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
+			this.publish(MqttApiController.TOPIC_EDGE_CONFIG, config.toJson().toString(), //
+					1 /* QOS */, true /* retain */, new MqttProperties() /* no specific properties */);
+
+			// Trigger sending of all channel values, because a Component might have
+			// disappeared
+			this.sendChannelValuesWorker.sendValuesOfAllChannelsOnce();
 		}
 	}
 

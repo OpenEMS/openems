@@ -1,4 +1,4 @@
-package io.openems.common.mqtt;
+package io.openems.edge.controller.api.mqpp;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;

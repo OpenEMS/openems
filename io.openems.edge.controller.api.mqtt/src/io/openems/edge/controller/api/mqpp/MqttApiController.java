@@ -12,12 +12,9 @@ import io.openems.edge.controller.api.Controller;
 public interface MqttApiController extends Controller, OpenemsComponent, PaxAppender, EventHandler {
 
 	public final static String TOPIC_PREFIX = "edge/%s/";
-//	public final static String CHANNEL_PREFIX = "edge.";
-//	public final static String QUEUE_SYSTEMLOG = "systemlog";
-//	public final static String QUEUE_EDGE_CONFIG = "edgeConfig";
-//	public final static String QUEUE_RPC = "edgeRpc";
 	public final static String TOPIC_CHANNEL_PREFIX = "channel/";
 	public final static String TOPIC_CHANNEL_LAST_UPDATE = "lastUpdate";
+	public final static String TOPIC_EDGE_CONFIG = "edgeConfig/";
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		API_WORKER_LOG(Doc.of(OpenemsType.STRING) //
