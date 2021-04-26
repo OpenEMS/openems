@@ -25,13 +25,13 @@ public class BmwBatteryProtectionDefinition implements BatteryProtectionDefiniti
 				.addPoint(Math.nextDown(3906), 1) //
 				// 750 V Reset-Threshold
 				.addPoint(3906, 0.9999) //
-				// 770 V -> ~135 A
-				.addPoint(4010, 0.9999) //
-				// 800 V -> 5 A
-				.addPoint(4167, 0.037) //
-				// 803 V -> 0 A
+				// 790 V -> ~135 A
+				.addPoint(4115, 0.9999) //
+				// 802 V -> 5 A
+				.addPoint(4177, 0.037) //
+				// 804 V -> 0 A
 				.addPoint(Math.nextDown(4182), 0.0001) //
-				.addPoint(4182, 0) //
+				.addPoint(4188, 0) //
 				.build();
 	}
 
@@ -62,6 +62,6 @@ public class BmwBatteryProtectionDefinition implements BatteryProtectionDefiniti
 
 	@Override
 	public final Double getMaxIncreaseAmperePerSecond() {
-		return 0.1; // [A] per second
+		return 1.0; // [A] per second
 	}
 }
