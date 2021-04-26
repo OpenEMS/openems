@@ -31,7 +31,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 
-@Designate(ocd = ConfigWMBus.class, factory = true)
+// This module implements a Wireless M-Bus bridge using the jmbus library.
+// The supported WM-Bus receivers are the ones supported by the jmbus library. The bridge by itself can be used to scan
+// for devices by enabling the scan option in the config. A message will then be printed to the log whenever a signal is
+// received. Enabling debug mode will print the entire received messages to the log.
+// Data received from a device is automatically scaled to the unit of the associated channel. When the unit from the
+// device and the unit in the channel do not match, an error message is logged to the error message channel.
+// For sample code on how to use this bridge look in io.openems.edge.meter.watermeter.
+
+
+@Designate(ocd = ConfigWMbus.class, factory = true)
 @Component(name = "Bridge.WirelessMbus", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
@@ -57,18 +66,18 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 	private final LinkedBlockingDeque<WMBusMessage> messageQueue = new LinkedBlockingDeque<>();
 
 	@Activate
-	protected void activate(ComponentContext context, ConfigWMBus configWMBus) {
-		super.activate(context, configWMBus.id(), configWMBus.alias(), configWMBus.enabled());
-		this.portName = configWMBus.portName();
-		WMBusConnection.WMBusManufacturer manufacturer = configWMBus.manufacturer();
-		WMBusMode mode = configWMBus.mode();
-		this.scan = configWMBus.scan();
-		this.debug = configWMBus.debug();
-		WMBusListener listener = new WMBusReceiver(this);
+	protected void activate(ComponentContext context, ConfigWMbus configWMbus) {
+		super.activate(context, configWMbus.id(), configWMbus.alias(), configWMbus.enabled());
+		this.portName = configWMbus.portName();
+		WMBusConnection.WMBusManufacturer manufacturer = configWMbus.manufacturer();
+		WMBusMode mode = configWMbus.mode();
+		this.scan = configWMbus.scan();
+		this.debug = configWMbus.debug();
+		WMBusListener listener = new WMbusReceiver(this);
 
-		this.worker.activate(configWMBus.id());
+		this.worker.activate(configWMbus.id());
 
-		WMBusConnection.WMBusSerialBuilder builder = new WMBusConnection.WMBusSerialBuilder(manufacturer, listener, portName).setMode(mode);
+		WMBusConnection.WMBusSerialBuilder builder = new WMBusConnection.WMBusSerialBuilder(manufacturer, listener, this.portName).setMode(mode);
 
 		// ToDo: Add hot plug&play, meaning you can unplug and replug the Wireles M-Bus receiver without the need to
 		//  restart the bridge.
@@ -76,7 +85,7 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 			this.wMBusConnection = builder.build();
 		} catch (IOException e) {
 			this.logError(this.log,
-					"Connection via [" + portName + "] failed: " + e.getMessage());
+					"Connection via [" + this.portName + "] failed: " + e.getMessage());
 		}
 	}
 
@@ -114,16 +123,16 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 
 	// All WMBus messages are collected by the WMBusReceiver and placed in the message queue. The forever
 	// method takes the messages from the queue and processes them.
-	public static class WMBusReceiver implements WMBusListener {
+	public static class WMbusReceiver implements WMBusListener {
 		private final BridgeWMbusImpl parent;
 
-		public WMBusReceiver(BridgeWMbusImpl parent) {
+		public WMbusReceiver(BridgeWMbusImpl parent) {
 			this.parent = parent;
 		}
 
 		@Override
 		public void newMessage(WMBusMessage message) {
-			parent.messageQueue.add(message);
+			this.parent.messageQueue.add(message);
 		}
 
 		@Override
@@ -132,41 +141,49 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 
 		@Override
 		public void stoppedListening(IOException cause) {
-			parent.restartConnection(cause);
+			this.parent.restartConnection(cause);
 		}
 
 	}
 
+	/**
+	 * Display the error message that caused the connection loss. Currently no functionality to restart
+	 * the connection.
+	 *
+	 * @param cause the error message.
+	 */
 	public void restartConnection(IOException cause) {
+		// ToDo: Add code to restart the connection.
 		this.logError(this.log,
-				"Connection via [" + portName + "] failed: " + cause.getMessage());
+				"Connection via [" + this.portName + "] failed: " + cause.getMessage());
 	}
 
 	private class WMbusWorker extends AbstractCycleWorker {
 
+		/**
+		 * Structure of this code:
+		 * A message is taken from the message queue. Then the list of WMBus devices registered to the bridge is
+		 * traversed to see if the message is from any of those devices. A comparison is done first by radio address,
+		 * and if necessary also by meter number.
+		 * Currently, the comparison by meter number is only used to tell channel 1 and 2 apart for the Padpuls
+		 * Relay.
+		 * I'm not entirely sure if it is possible for two different devices to have the same radio address. If it
+		 * is, they could be told apart by their meter number. However, the "detection by meter number" of this
+		 * bridge can not be used by meter types other than the Padpuls Relay. This is a limitation of the jmbus
+		 * library. The reason is, the meter number is only readable after decoding the message, and the keys for
+		 * decoding are stored in a list with the radio address (more specifically, the dllSecondaryAddress) as the
+		 * identifier. This list is part of the jmbus library. So there can be only one key per radio address. The
+		 * Padpuls Relay circumvents this problem by using the same decryption key for both channels.
+		 * If you need to use two meters that happen to have the same radio address, "detection by meter number"
+		 * can be used to tell them apart if you set them to the same decryption key. "detection by meter number"
+		 * can be enabled by adding a few lines of code to the meter module.
+		 * If there are two devices using the same radio address but you want to read data from only one of them,
+		 * this is no problem. As long as they don't have the same decryption key, only messages from one devices
+		 * can be decoded. The messages from the other device can not be decoded and are not processed. But you will
+		 * get constant decode-error messages because of the other device.
+		 */
 		@Override
 		protected void forever() throws OpenemsException {
-
-			// Structure of this code:
-			// A message is taken from the message queue. Then the list of WMBus devices registered to the bridge is
-			// traversed to see if the message is from any of those devices. A comparison is done first by radio address,
-			// and if necessary also by meter number.
-			// Currently, the comparison by meter number is only used to tell channel 1 and 2 apart for the Padpuls
-			// Relay.
-			// I'm not entirely sure if it is possible for two different devices to have the same radio address. If it
-			// is, they could be told apart by their meter number. However, the "detection by meter number" of this
-			// bridge can not be used by meter types other than the Padpuls Relay. This is a limitation of the jmbus
-			// library. The reason is, the meter number is only readable after decoding the message, and the keys for
-			// decoding are stored in a list with the radio address (more specifically, the dllSecondaryAddress) as the
-			// identifier. This list is part of the jmbus library. So there can be only one key per radio address. The
-			// Padpuls Relay circumvents this problem by using the same decryption key for both channels.
-			// If you need to use two meters that happen to have the same radio address, "detection by meter number"
-			// can be used to tell them apart if you set them to the same decryption key. "detection by meter number"
-			// can be enabled by adding a few lines of code to the meter module.
-			// If there are two devices using the same radio address but you want to read data from only one of them,
-			// this is no problem. As long as they don't have the same decryption key, only messages from one devices
-			// can be decoded. The messages from the other device can not be decoded and are not processed. But you will
-			// get constant decode-error messages because of the other device.
 
 			while (BridgeWMbusImpl.this.messageQueue.isEmpty() == false) {
 				WMBusMessage message;
@@ -184,7 +201,7 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 
 					for (WMbusProtocol device : BridgeWMbusImpl.this.devices.values()) {
 						SecondaryAddress deviceDllAddress = device.getDllSecondaryAddress();
-						if (debug) {
+						if (BridgeWMbusImpl.this.debug) {
 							BridgeWMbusImpl.this.logInfo(BridgeWMbusImpl.this.log,
 									"Checking Device " + device.getComponentId() + " with radio address "
 											+ (device.getRadioAddress()) + ".");
@@ -205,7 +222,7 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 						if (deviceDllAddress == null) {
 							String radioAddress = device.getRadioAddress();
 							String detectedAddress = String.valueOf(dllSecondaryAddress.getDeviceId());
-							if (debug) {
+							if (BridgeWMbusImpl.this.debug) {
 								BridgeWMbusImpl.this.logInfo(BridgeWMbusImpl.this.log,
 										"Not yet detected. Comparing " + radioAddress + " with " + detectedAddress + ".");
 							}
@@ -218,7 +235,7 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 							} else {
 								// Detected device is not this device from the list. Abort here, otherwise null pointer
 								// exception in next "if" because this device does not have the secondary address set yet.
-								if (debug) {
+								if (BridgeWMbusImpl.this.debug) {
 									BridgeWMbusImpl.this.logInfo(BridgeWMbusImpl.this.log,
 											"Nope, that's not this device. Moving on to next device in list (if there are more).");
 								}
@@ -262,7 +279,8 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 					}
 
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					BridgeWMbusImpl.this.logError(BridgeWMbusImpl.this.log,
+							"Error: " + e);
 				}
 			}
 

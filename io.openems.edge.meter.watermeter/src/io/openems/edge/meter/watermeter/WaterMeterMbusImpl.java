@@ -25,6 +25,22 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import java.util.List;
 
+// This class implements a water meter communicating via M-Bus.
+// M-Bus devices are polled by the M-Bus bridge in an interval configured by the module. This done to preserve battery
+// energy on battery powered meters. Meters are identified by their primary address, which needs to be entered at
+// configuration.
+// The data in a message is organized as numbered data records that contain a value and a unit. The basic case is that
+// volume of consumed water is on record number 0, and the timestamp is on record number 1. On which record number which
+// data is stored depends on the meter model. Some meters even have dynamic addresses/positions.
+// Data values are transferred to channels by assigning a channel to a data record address. So you need to know on which
+// record position your meters stores which data. Since the data records have units, an autosearch function is possible
+// that compares the data record's unit with the channel unit until it finds a match. The units comparison is also used
+// to automatically scale the value to the channel unit. If that is not possible because of unit mismatch, an error
+// message is written in the error message channel.
+// This module includes a list of meters with their data record positions for volume and timestamp. If your meter is not
+// in that list, you can manually enter the record positions for volume and timestamp or use the autosearch function. It
+//// is also possible to let OpenEMS create the timestamp instead of reading it from the meter.
+
 @Designate(ocd = ConfigMbus.class, factory = true)
 @Component(name = "WaterMeter.Mbus", //
         immediate = true, //
@@ -77,9 +93,9 @@ public class WaterMeterMbusImpl extends AbstractOpenemsMbusComponent
             this.timeStampAddress = config.timeStampAddress();
         } else {
             // Select meter model from enum list. String in config.model has to be in WaterMeterModel list.
-            allocateAddressViaMeterModel(config.model());
-            this.volAddress = waterMeterModelMbus.getVolumeCounterPosition();
-            this.timeStampAddress = waterMeterModelMbus.getTimeStampPosition();
+            this.allocateAddressViaMeterModel(config.model());
+            this.volAddress = this.waterMeterModelMbus.getVolumeCounterPosition();
+            this.timeStampAddress = this.waterMeterModelMbus.getTimeStampPosition();
         }
         if (config.openEmsTimeStamp()) {
             // Address of "-1" for the timestamp means OpenEMS time is used to create the timestamp.
@@ -137,7 +153,7 @@ public class WaterMeterMbusImpl extends AbstractOpenemsMbusComponent
     public void findRecordPositions(VariableDataStructure data, List<ChannelRecord> channelDataRecordsList) {
 
         // Search for the entries starting at the top of the list.
-        if (waterMeterModelMbus == WaterMeterModelMbus.AUTOSEARCH) {
+        if (this.waterMeterModelMbus == WaterMeterModelMbus.AUTOSEARCH) {
             List<DataRecord> dataRecords = data.getDataRecords();
             int numberOfEntries = dataRecords.size();
             boolean volumePositionFound = false;

@@ -15,6 +15,19 @@ public enum WaterMeterModelMbus {
         this.timeStampPosition = time;
     }
 
-    public int getVolumeCounterPosition(){ return volumeCounterPosition; }
-    public int getTimeStampPosition(){ return timeStampPosition; }
+    /**
+     * Gets the record position for the volume counter.
+     *
+     * @return the record position.
+     */
+    public int getVolumeCounterPosition() {
+        return this.volumeCounterPosition;
+    }
+
+    /**
+     * Gets the record position for the timestamp.
+     *
+     * @return the record position.
+     */
+    public int getTimeStampPosition() { return this.timeStampPosition; }
 }

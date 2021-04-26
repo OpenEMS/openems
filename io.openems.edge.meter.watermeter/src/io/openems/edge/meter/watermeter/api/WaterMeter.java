@@ -60,9 +60,11 @@ public interface WaterMeter extends OpenemsComponent {
         ERROR_MESSAGE(Doc.of(OpenemsType.STRING).accessMode(AccessMode.READ_ONLY));
 
         private final Doc doc;
+
         private ChannelId(Doc doc) {
             this.doc = doc;
         }
+
         public Doc doc() {
             return this.doc;
         }

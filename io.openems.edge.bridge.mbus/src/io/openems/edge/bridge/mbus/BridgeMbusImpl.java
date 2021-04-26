@@ -30,7 +30,15 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
-@Designate(ocd = ConfigMBus.class, factory = true)
+// This module implements an M-Bus bridge using the jmbus library.
+// The bridge supports a polling interval, that allows to set the time between polling of an M-Bus device. This allows
+// to save battery energy on battery powered devices. Data received from a device is automatically scaled to the unit
+// of the associated channel. When the unit from the device and the unit in the channel do not match, an error message
+// is logged to the error message channel. Enabling debug mode in the config will print information to the log when
+// polling a device.
+// For sample code on how to use this bridge look in io.openems.edge.meter.watermeter.
+
+@Designate(ocd = ConfigMbus.class, factory = true)
 @Component(name = "Bridge.Mbus", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
@@ -54,7 +62,7 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 	private boolean debug;
 
 	@Activate
-	protected void activate(ComponentContext context, ConfigMBus config) {
+	protected void activate(ComponentContext context, ConfigMbus config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.portName = config.portName();
 		this.worker.activate(config.id());
@@ -79,6 +87,11 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 		}
 	}
 
+	/**
+	 * Get the M-Bus connection of the bridge.
+	 *
+	 * @return the MBusConnection.
+	 */
 	public MBusConnection getmBusConnection() {
 		return this.mBusConnection;
 	}
@@ -107,7 +120,7 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 							// set for MBus devices.
 							data.decode();
 							task.processData(data);
-							if (debug) {
+							if (BridgeMbusImpl.this.debug) {
 								BridgeMbusImpl.this.logInfo(BridgeMbusImpl.this.log,
 										"Polling M-Bus device [" + task.getMeterId() + "]:");
 								BridgeMbusImpl.this.logInfo(BridgeMbusImpl.this.log, data.toString());
@@ -130,7 +143,7 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 				BridgeMbusImpl.this.mBusConnection.close();
 			} catch (IOException e) {
 				BridgeMbusImpl.this.logError(BridgeMbusImpl.this.log,
-						"Connection via [" + portName + "] failed: " + e.getMessage());
+						"Connection via [" + BridgeMbusImpl.this.portName + "] failed: " + e.getMessage());
 			}
 		}
 	}

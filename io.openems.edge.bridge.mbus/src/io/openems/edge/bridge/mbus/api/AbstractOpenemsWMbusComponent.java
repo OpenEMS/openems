@@ -11,6 +11,9 @@ import org.osgi.service.component.ComponentContext;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+// This is the template class for a Wireless M-Bus device. For an example of how to implement a device using this class,
+// look in io.openems.edge.meter.watermeter.
+
 public abstract class AbstractOpenemsWMbusComponent extends AbstractOpenemsComponent {
 
 	private String radioAddress;
@@ -113,6 +116,11 @@ public abstract class AbstractOpenemsWMbusComponent extends AbstractOpenemsCompo
 		}
 	}
 
+	/**
+	 * Get the Wireless M-Bus radio address of this device.
+	 *
+	 * @return the radio address.
+	 */
 	public String getRadioAddress() {
 		return this.radioAddress;
 	}
@@ -169,7 +177,7 @@ public abstract class AbstractOpenemsWMbusComponent extends AbstractOpenemsCompo
 	 * @return use dynamicDataAddress true/false
 	 */
 	public boolean isDynamicDataAddress() {
-		return dynamicDataAddress;
+		return this.dynamicDataAddress;
 	}
 
 	/**
@@ -184,5 +192,10 @@ public abstract class AbstractOpenemsWMbusComponent extends AbstractOpenemsCompo
 	 */
 	public abstract void findRecordPositions(VariableDataStructure data, List<ChannelRecord> channelDataRecordsList);
 
+	/**
+	 * Log the signal strength of the received message.
+	 *
+	 * @param signalStrength The signal strength.
+	 */
 	public abstract void logSignalStrength(int signalStrength);
 }

@@ -16,6 +16,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
+// This class processes messages from a Wireless M-Bus or M-Bus devices. The constructor receives the variable data
+// structure from the WM-Bus/M-Bus message, as well as the channel data records list. This list contains channels and an
+// associated data record address. Each channel is then filled with the value from the associated data record. Before
+// doing that, the units of the channel and the data record are compared. If the units do not match, an error message is
+// logged and possibly no data is put in the channel. If the units are compatible, the value of the data record is
+// scaled to the unit of the channel before it is written to the channel.
+// This class will generate a timestamp in epoch when the channel is set to data record address -1. A string
+// representation of this timestamp is created when the address is set to -2. Note that the timestamp as string does not
+// create a timestamp. It only converts the last timestamp (read from the device or created by this class) to a string.
+
 public class ChannelDataRecordMapper {
 	protected VariableDataStructure data;
 	private long timestamp = 0;	// transfer variable to set TIMESTAMP_STRING with the same value as TIMESTAMP_SECONDS in interface WaterMeter
@@ -30,7 +40,7 @@ public class ChannelDataRecordMapper {
 		this.channelDataRecordsList = channelDataRecordsList;
 
 		for (ChannelRecord channelRecord : channelDataRecordsList) {
-			mapDataToChannel(data, channelRecord.getDataRecordPosition(), channelRecord.getChannel(),
+			this.mapDataToChannel(data, channelRecord.getDataRecordPosition(), channelRecord.getChannel(),
 					channelRecord.getDataType());
 		}
 	}
@@ -41,28 +51,38 @@ public class ChannelDataRecordMapper {
 		this.channelDataRecordsList = channelDataRecordsList;
 
 		for (ChannelRecord channelRecord : channelDataRecordsList) {
-			mapDataToChannel(data, channelRecord.getDataRecordPosition(), channelRecord.getChannel(),
+			this.mapDataToChannel(data, channelRecord.getDataRecordPosition(), channelRecord.getChannel(),
 					channelRecord.getDataType());
 		}
 
-		if (errorMessage.length() > 0) {
-			errorMessage.deleteCharAt(errorMessage.length() - 1);
-			errorMessageChannel.setNextValue(errorMessage);
+		if (this.errorMessage.length() > 0) {
+			this.errorMessage.deleteCharAt(this.errorMessage.length() - 1);
+			errorMessageChannel.setNextValue(this.errorMessage);
 		} else {
 			errorMessageChannel.setNextValue("No error");
 		}
 	}
 
+	/**
+	 * Get the variable data structure of this ChannelDataRecordMapper.
+	 *
+	 * @return the variable data structure.
+	 */
 	public VariableDataStructure getData() {
-		return data;
+		return this.data;
 	}
 
 	public void setData(VariableDataStructure data) {
 		this.data = data;
 	}
 
+	/**
+	 * Get the channel data record list of this ChannelDataRecordMapper.
+	 *
+	 * @return the channel data record list.
+	 */
 	public List<ChannelRecord> getChannelDataRecordsList() {
-		return channelDataRecordsList;
+		return this.channelDataRecordsList;
 	}
 
 	public void setChannelDataRecordsList(List<ChannelRecord> channelDataRecordsList) {
@@ -74,26 +94,27 @@ public class ChannelDataRecordMapper {
 		if (dataType == null) {
 			if (data.getDataRecords().size() > index && index >= 0) {
 				//	channel.setNextValue(data.getDataRecords().get(index).getScaledDataValue());
-				mapScaledCheckedDataToChannel(data.getDataRecords().get(index),channel);
+				this.mapScaledCheckedDataToChannel(data.getDataRecords().get(index),channel);
 			} else {
 				// Special case or error
 				switch (index) {
 					case -1:
 						// Address -1 signifies to let OpenEMS set the timestamp instead of reading it from the meter.
-						setTimestamp(channel);
+						this.setTimestamp(channel);
 						break;
 					case -2:
 						// Address -2 is used to write the timestamp as a string format. This is an additional channel that does
 						// not function on it's own. It just converts the contents of the variable "timestamp" into a string.
 						// That variable is updated when the meter timestamp is read or the address -1 is used.
-						setTimestampString(channel);
+						this.setTimestampString(channel);
 						break;
 					default:
 						// If you land here then something went wrong -> Error
 						if (index < 0) {
-							errorMessage.append("Address " + index + " is not a valid address. Cannot get data for channel " + channel.channelId().toString() + ". ");
+							this.errorMessage.append("Address " + index + " is not a valid address. Cannot get data for channel "
+									+ channel.channelId().toString() + ". ");
 						} else {
-							errorMessage.append("Address " + index + " is out of bounds. Tried to read record number "
+							this.errorMessage.append("Address " + index + " is out of bounds. Tried to read record number "
 									+ (index + 1) + ", but the meter only sent " + data.getDataRecords().size()
 									+ " records. Cannot get data for channel " + channel.channelId().toString() + ". ");
 						}
@@ -112,7 +133,7 @@ public class ChannelDataRecordMapper {
 				channel.setNextValue(data.getSecondaryAddress().getDeviceType());
 				break;
 			default:
-				errorMessage.append("Requested data type " + dataType.toString()
+				this.errorMessage.append("Requested data type " + dataType.toString()
 						+ ", but that is not yet supported by the software. Cannot get data for channel "
 						+ channel.channelId().toString() + ". ");
 		}
@@ -123,10 +144,10 @@ public class ChannelDataRecordMapper {
 	protected void setTimestampString(Channel<?> channel) {
 		if (channel.getType() == OpenemsType.STRING) {
 			ZoneOffset timezone = ZoneOffset.from(ZonedDateTime.now());
-			LocalDateTime localDateTime = LocalDateTime.ofEpochSecond((timestamp / 1000), 0, timezone);
+			LocalDateTime localDateTime = LocalDateTime.ofEpochSecond((this.timestamp / 1000), 0, timezone);
 			channel.setNextValue(localDateTime.format(timeformat));
 		} else {
-			errorMessage.append("Tried to write a string timestamp into channel " + channel.channelId().toString()
+			this.errorMessage.append("Tried to write a string timestamp into channel " + channel.channelId().toString()
 					+ ", but that channel is not of type \"String\". Aborted write. ");
 		}
 	}
@@ -134,12 +155,12 @@ public class ChannelDataRecordMapper {
 	protected void setTimestamp(Channel<?> channel) {
 		Unit openemsUnit = channel.channelDoc().getUnit();
 		long currentTimeMillis = System.currentTimeMillis();
-		int divisor = timeUnitDivisor(openemsUnit);
+		int divisor = this.timeUnitDivisor(openemsUnit);
 		if (divisor > 0) {
 			this.timestamp = currentTimeMillis;
 			channel.setNextValue(currentTimeMillis / divisor);
 		} else {
-			errorMessage.append("Tried to write a timestamp into channel " + channel.channelId().toString()
+			this.errorMessage.append("Tried to write a timestamp into channel " + channel.channelId().toString()
 					+ ", but that channel is not a timestamp channel. Aborted write. The channel needs to have the "
 					+ "unit MILLISECONDS, SECONDS, MINUTE or HOUR. ");
 		}
@@ -173,12 +194,12 @@ public class ChannelDataRecordMapper {
 		// However, meter time accuracy is minutes. If you want seconds accuracy, set your timestamp channel to address
 		// -1 which then uses "setTimestamp()" method and lets OpenEMS calculate the timestamp.
 		if (record.getDataValueType() == DataRecord.DataValueType.DATE) {
-			int divisor = timeUnitDivisor(openemsUnit);
+			int divisor = this.timeUnitDivisor(openemsUnit);
 			if (divisor > 0) {
 				this.timestamp = ((Date) record.getDataValue()).getTime();
 				channel.setNextValue(((Date) record.getDataValue()).getTime() / divisor);
 			} else {
-				errorMessage.append("Tried to write a timestamp into channel " + channel.channelId().toString()
+				this.errorMessage.append("Tried to write a timestamp into channel " + channel.channelId().toString()
 						+ ", but that channel is not a timestamp channel. Aborted write. The channel needs to have the "
 						+ "unit MILLISECONDS, SECONDS, MINUTE or HOUR. ");
 			}
@@ -195,7 +216,7 @@ public class ChannelDataRecordMapper {
 		// mbusUnit can be null. If the meter Channel is the error Channel for example.
 		if (mbusUnit == null) {
 			if (channel.channelDoc().getUnit() != null) {
-				errorMessage.append("Warning: Unit mismatch. The data written into channel " + channel.channelId().toString()
+				this.errorMessage.append("Warning: Unit mismatch. The data written into channel " + channel.channelId().toString()
 						+ " has no unit, while the channel has the unit " + channel.channelDoc().getUnit().toString() + ". ");
 			}
 			channel.setNextValue(((Number) record.getDataValue()).doubleValue());
@@ -210,7 +231,7 @@ public class ChannelDataRecordMapper {
 		//setting nominator and denominator: [mbusunit]=nominator/denominator * [openemsbaseunit]
 		switch (openemsUnit) {
 			case CUBIC_METER:
-				switch(mbusUnit) {
+				switch (mbusUnit) {
 					case CUBIC_METRE:
 						nominator = 1;
 						denominator = 1;
@@ -419,10 +440,10 @@ public class ChannelDataRecordMapper {
 				}
 				break;
 		}
-		if ( nominator > 0 & denominator > 0) {
+		if (nominator > 0 & denominator > 0) {
 			channel.setNextValue(((Number) record.getDataValue()).doubleValue() * nominator * Math.pow(10, scaleFactor) / denominator);
 		} else {
-			errorMessage.append("Error: Unit mismatch. Cannot write data with unit " + mbusUnit.toString()
+			this.errorMessage.append("Error: Unit mismatch. Cannot write data with unit " + mbusUnit.toString()
 					+ " into channel " + channel.channelId().toString()
 					+ " with unit " + channel.channelDoc().getUnit().toString() + ". ");
 		}

@@ -7,7 +7,11 @@ import org.openmuc.jmbus.wireless.WMBusConnection;
 
 import javax.xml.bind.DatatypeConverter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+// This class links the Wireless M-Bus bridge to a device. It is created by the module implementing the device and
+// contains all the information needed by the Wireless M-Bus bridge.
 
 public class WMbusProtocol {
 
@@ -29,18 +33,18 @@ public class WMbusProtocol {
 	private boolean useErrorChannel = false;
 	private StringReadChannel errorMessageChannel;	// If any error is detected, an error message will be written in this channel.
 
+	// Constructor without error logging.
 	public WMbusProtocol(AbstractOpenemsWMbusComponent parent, String keyAsHexString, ChannelRecord... channelRecords) {
 		this.parent = parent;
 		if (keyAsHexString.equals("")) {
 			this.key = null;
 		} else {
-			this.key = hexStringToByteArray(keyAsHexString);
+			this.key = this.hexStringToByteArray(keyAsHexString);
 		}
-		for (ChannelRecord channelRecord : channelRecords) {
-			this.channelDataRecordsList.add(channelRecord);
-		}
+		this.channelDataRecordsList.addAll(Arrays.asList(channelRecords));
 	}
 
+	// Constructor with error logging.
 	public WMbusProtocol(AbstractOpenemsWMbusComponent parent, String keyAsHexString, StringReadChannel errorMessageChannel,
                          ChannelRecord... channelRecords) {
 		this(parent, keyAsHexString, channelRecords);
@@ -49,23 +53,36 @@ public class WMbusProtocol {
 		this.errorMessageChannel.setNextValue("No signal received so far.");
 	}
 
-
 	private byte[] hexStringToByteArray(String value) {
 		return DatatypeConverter.parseHexBinary(value);
 	}
 
+	/**
+	 * Search the VariableDataStructure of a M-Bus or Wireless M-Bus message to extract the data records.
+	 * Data records have a unit, which is compared to the unit of the OpenEMS channel associated with that record.
+	 * This is done in the ChannelDataRecordMapper class. With that information the values are scaled, or an an error
+	 * message is logged when the units don't match. The error logging is optional and is enabled by creating the
+	 * WMbusProtocol with the right constructor.
+	 *
+	 * @param data the VariableDataStructure of a M-Bus or Wireless M-Bus message.
+	 */
 	public void processData(VariableDataStructure data) {
-		if (parent.isDynamicDataAddress()) {
+		if (this.parent.isDynamicDataAddress()) {
 			// Analyze the data to find the right address and modify the entry in channelDataRecordsList.
-			parent.findRecordPositions(data, this.channelDataRecordsList);
+			this.parent.findRecordPositions(data, this.channelDataRecordsList);
 		}
-		if (useErrorChannel) {
-			new ChannelDataRecordMapper(data, this.channelDataRecordsList, errorMessageChannel);
+		if (this.useErrorChannel) {
+			new ChannelDataRecordMapper(data, this.channelDataRecordsList, this.errorMessageChannel);
 		} else {
 			new ChannelDataRecordMapper(data, this.channelDataRecordsList);
 		}
 	}
 
+	/**
+	 * Gets the radio address of the meter that is the parent of this class.
+	 *
+	 * @return the radio address.
+	 */
 	public String getRadioAddress() {
 		return this.parent.getRadioAddress();
 	}
@@ -76,20 +93,40 @@ public class WMbusProtocol {
 		this.dllSecondaryAddress = dllSecondaryAddress;
 	}
 
+	/**
+	 * Gets the data link layer secondary address of the WM-Bus device that is the parent of this class.
+	 *
+	 * @return the data link layer secondary address.
+	 */
 	public SecondaryAddress getDllSecondaryAddress() {
-		return dllSecondaryAddress;
+		return this.dllSecondaryAddress;
 	}
 
+	/**
+	 * Register the decryption key to the currently active Wireless M-Bus receiver.
+	 *
+	 * @param connection the WMBusConnection created by the Wireless M-Bus receiver.
+	 */
 	public void registerKey(WMBusConnection connection) {
-		connection.addKey(dllSecondaryAddress, key);
+		connection.addKey(this.dllSecondaryAddress, this.key);
 	}
 
+	/**
+	 * Log the signal strength of the received message with the WM-Bus device associated with the message.
+	 *
+	 * @param signalStrength the signal strength of the received message. Unit is decibel Milliwatt.
+	 */
 	public void logSignalStrength(int signalStrength) {
-		parent.logSignalStrength(signalStrength);
+		this.parent.logSignalStrength(signalStrength);
 	}
 
+	/**
+	 * Query whether the "identify by meter number" mode is used for this WM-Bus device.
+	 *
+	 * @return true or false.
+	 */
 	public boolean isIdentifyByMeterNumber() {
-		return identifyByMeterNumber;
+		return this.identifyByMeterNumber;
 	}
 
 	public void setMeterNumber(String meterNumber) {
@@ -97,12 +134,23 @@ public class WMbusProtocol {
 		this.identifyByMeterNumber = true;
 	}
 
+	/**
+	 * Gets the meter number associated with this WM-Bus device. Only available when the WM-Bus device uses the
+	 * "identify by meter number" mode.
+	 *
+	 * @return the meter number.
+	 */
 	public String getMeterNumber() {
-		return meterNumber;
+		return this.meterNumber;
 	}
 
+	/**
+	 * Query whether error logging is active for this WM-Bus device.
+	 *
+	 * @return true or false.
+	 */
 	public boolean isUseErrorChannel() {
-		return useErrorChannel;
+		return this.useErrorChannel;
 	}
 
 	public void setError(String value) {

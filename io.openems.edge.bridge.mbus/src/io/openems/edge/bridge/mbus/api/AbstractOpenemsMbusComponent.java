@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+// This is the template class for a M-Bus device. For an example of how to implement a device using this class, look
+// in io.openems.edge.meter.watermeter.
+
 public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsComponent {
 
 	protected final List<ChannelRecord> channelDataRecordsList = new ArrayList<ChannelRecord>();
@@ -24,16 +27,31 @@ public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsCompon
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
+	/**
+	 * Get the channel data record list of this device.
+	 *
+	 * @return the channel data record list.
+	 */
 	public List<ChannelRecord> getChannelDataRecordsList() {
 		return this.channelDataRecordsList;
 	}
 
+	/**
+	 * Get the M-Bus primary address of this device.
+	 *
+	 * @return the primary address.
+	 */
 	public Integer getPrimaryAddress() {
 		return this.primaryAddress;
 	}
 
+	/**
+	 * Get the Id of this device.
+	 *
+	 * @return the Id.
+	 */
 	public String getModuleId() {
-		return moduleId;
+		return this.moduleId;
 	}
 
 	/**
@@ -54,6 +72,8 @@ public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsCompon
 	 *                       bridge
 	 * @param mbusId         The ID of the M-Bus bridge. Typically
 	 *                       'config.mbus_id()'
+	 * @param pollingInterval The polling interval for this device. Use 0 to not use
+	 *                        a polling interval.
 	 * @return true if the target filter was updated. You may use it to abort the
 	 *         activate() method.
 	 */
@@ -69,7 +89,7 @@ public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsCompon
 		BridgeMbus mbus = this.mbusId.get();
 		if (this.isEnabled() && mbus != null) {
 			this.addChannelDataRecords();
-			mbus.addTask(moduleId, new MbusTask(mbus, this, pollingInterval));
+			mbus.addTask(this.moduleId, new MbusTask(mbus, this, pollingInterval));
 		}
 		return false;
 	}
@@ -88,7 +108,7 @@ public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsCompon
 		BridgeMbus mbus = this.mbusId.get();
 		if (this.isEnabled() && mbus != null) {
 			this.addChannelDataRecords();
-			mbus.addTask(moduleId, new MbusTask(mbus, this, pollingInterval, errorMessageChannel));
+			mbus.addTask(this.moduleId, new MbusTask(mbus, this, pollingInterval, errorMessageChannel));
 		}
 		return false;
 	}
@@ -104,7 +124,7 @@ public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsCompon
 		super.deactivate();
 		BridgeMbus mbus = this.mbusId.getAndSet(null);
 		if (mbus != null) {
-			mbus.removeTask(moduleId);
+			mbus.removeTask(this.moduleId);
 		}
 	}
 
@@ -127,7 +147,7 @@ public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsCompon
 	protected void unsetMbus(BridgeMbus mbus) {
 		this.mbusId.compareAndSet(mbus, null);
 		if (mbus != null) {
-			mbus.removeTask(moduleId);;
+			mbus.removeTask(this.moduleId);;
 		}
 	}
 
@@ -144,7 +164,7 @@ public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsCompon
 	 * @return use dynamicDataAddress true/false
 	 */
 	public boolean isDynamicDataAddress() {
-		return dynamicDataAddress;
+		return this.dynamicDataAddress;
 	}
 
 	/**
