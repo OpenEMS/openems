@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.mqpp;
+package io.openems.edge.controller.api.mqtt;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -36,10 +36,11 @@ import io.openems.edge.common.component.OpenemsComponent;
  */
 public class SendChannelValuesWorker {
 
-	private final static int MQTT_QOS = 0; // loss is ok
-	private final static boolean MQTT_RETAIN = true; // send last value to subscriber
+	private static final int MQTT_QOS = 0; // loss is ok
+	private static final boolean MQTT_RETAIN = true; // send last value to subscriber
 	private static final int SEND_VALUES_OF_ALL_CHANNELS_AFTER_SECONDS = 300; /* 5 minutes */
-	private final static MqttProperties MQTT_PROPERTIES;
+	private static final MqttProperties MQTT_PROPERTIES;
+
 	static {
 		MQTT_PROPERTIES = new MqttProperties();
 		// channel value is only valid for restricted time
@@ -192,7 +193,7 @@ public class SendChannelValuesWorker {
 			}
 
 			// Update lastUpdate timestamp
-			this.publish(MqttApiController.TOPIC_CHANNEL_LAST_UPDATE, String.valueOf(timestamp));
+			this.publish(MqttApiController.TOPIC_CHANNEL_LAST_UPDATE, String.valueOf(this.timestamp));
 
 			// Successful?
 			if (allSendSuccessful) {

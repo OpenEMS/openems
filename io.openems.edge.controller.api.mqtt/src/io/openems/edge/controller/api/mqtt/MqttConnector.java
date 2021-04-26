@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.mqpp;
+package io.openems.edge.controller.api.mqtt;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -25,8 +25,8 @@ import org.eclipse.paho.mqttv5.common.MqttException;
  */
 public class MqttConnector {
 
-	private final static int INCREASE_WAIT_SECONDS = 5;
-	private final static int MAX_WAIT_SECONDS = 60 * 5;
+	private static final int INCREASE_WAIT_SECONDS = 5;
+	private static final int MAX_WAIT_SECONDS = 60 * 5;
 	private AtomicInteger waitSeconds = new AtomicInteger(0);
 
 	/**
@@ -48,7 +48,7 @@ public class MqttConnector {
 		public void run() {
 			try {
 				this.client.connect(this.options);
-				this.result.complete(client);
+				this.result.complete(this.client);
 			} catch (Exception e) {
 				System.out.println(new Date() + ": " + e.getMessage()); // TODO
 				MqttConnector.this.waitAndRetry();
@@ -60,17 +60,17 @@ public class MqttConnector {
 
 	private MyConnector connector;
 
-	public synchronized void deactivate() {
+	protected synchronized void deactivate() {
 		this.connector = null;
 		this.executor.shutdownNow();
 	}
 
-	public synchronized CompletableFuture<IMqttClient> connect(String serverUri, String clientId, String username,
+	protected synchronized CompletableFuture<IMqttClient> connect(String serverUri, String clientId, String username,
 			String password) throws IllegalArgumentException, MqttException {
 		return this.connect(serverUri, clientId, username, password, null);
 	}
 
-	public synchronized CompletableFuture<IMqttClient> connect(String serverUri, String clientId, String username,
+	protected synchronized CompletableFuture<IMqttClient> connect(String serverUri, String clientId, String username,
 			String password, MqttCallback callback) throws IllegalArgumentException, MqttException {
 		IMqttClient client = new MqttClient(serverUri, clientId);
 		if (callback != null) {

@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.mqpp;
+package io.openems.edge.controller.api.mqtt;
 
 import java.nio.charset.StandardCharsets;
 
@@ -141,6 +141,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	 * @param subTopic the MQTT topic. The global MQTT Topic prefix is added in
 	 *                 front of this string
 	 * @param message  the message
+	 * @return true if message was successfully published; false otherwise
 	 */
 	protected boolean publish(String subTopic, MqttMessage message) {
 		IMqttClient mqttClient = this.mqttClient;
@@ -159,10 +160,13 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	/**
 	 * Publish a message to a topic.
 	 * 
-	 * @param subTopic              the MQTT topic. The global MQTT Topic prefix is
-	 *                              added in front of this string
-	 * @param messageExpiryInterval The Message Expiry Interval in seconds
-	 * @param message               the message
+	 * @param subTopic   the MQTT topic. The global MQTT Topic prefix is added in
+	 *                   front of this string
+	 * @param message    the message; internally translated to a UTF-8 byte array
+	 * @param qos        the MQTT QOS
+	 * @param retained   the MQTT retained parameter
+	 * @param properties the {@link MqttProperties}
+	 * @return true if message was successfully published; false otherwise
 	 */
 	protected boolean publish(String subTopic, String message, int qos, boolean retained, MqttProperties properties) {
 		MqttMessage msg = new MqttMessage(message.getBytes(StandardCharsets.UTF_8), qos, retained, properties);

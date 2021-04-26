@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.mqpp;
+package io.openems.edge.controller.api.mqtt;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.AttributeType;
@@ -31,9 +31,6 @@ import io.openems.common.channel.PersistencePriority;
 
 	@AttributeDefinition(name = "Uri", description = "The connection Uri to MQTT broker.")
 	String uri() default "tcp://localhost:1883";
-
-	@AttributeDefinition(name = "Api-Timeout", description = "Sets the timeout in seconds for updates on Channels set by this Api.")
-	int apiTimeout() default 60;
 
 	@AttributeDefinition(name = "Persistence Priority", description = "Send only Channels with a Persistence Priority greater-or-equals this.")
 	PersistencePriority persistencePriority() default PersistencePriority.VERY_LOW;
