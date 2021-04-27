@@ -1,0 +1,22 @@
+Bundle-Name: OpenEMS Edge Controller Heatnetwork Performance Booster
+Bundle-Vendor: Consolinno Energy GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath:  \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.consolinno.sensor.signal,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.controller.heatnetwork.controlcenter,\
+	io.openems.edge.heater,\
+	io.openems.edge.heatsystem.components,\
+	io.openems.edge.lucidcontrol.device,\
+	io.openems.edge.relay.api,\
+	io.openems.edge.thermometer.api,\
+
+
+-testpath: \
+	${testpath}
+

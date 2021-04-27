@@ -1,0 +1,18 @@
+Bundle-Name: OpenEMS Edge Controller Heatnetwork AverageCalculator Temperature
+Bundle-Vendor: Consolinno Energy GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: \
+    Provides a Controller to calculate the AverageTemperature and writes into a VirutalThermometer.
+
+
+-buildpath:  \
+	${buildpath},\
+	io.openems.edge.common;version=latest,\
+	io.openems.common;version=latest,\
+	io.openems.edge.controller.api;version=latest,\
+	io.openems.edge.thermometer.api;version=latest,\
+
+-testpath: \
+	${testpath}
+

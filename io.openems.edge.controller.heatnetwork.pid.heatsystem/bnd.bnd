@@ -1,0 +1,22 @@
+#
+# io.openems.edge.controller.heatnetwork.pid.heatsystem PROVIDER BUNDLE
+#
+
+Bundle-Version:					1.0.0.${tstamp}
+Bundle-Description: \
+	The provider bundle for io.openems.edge.controller.heatnetwork.pid.heatsystem. \
+	\
+	${warning;Please update this Bundle-Description in io.openems.edge.controller.heatnetwork.pid.heatsystem/api.bnd}
+
+
+-buildpath:  \
+		${buildpath},\
+    	io.openems.common;version=latest,\
+    	io.openems.edge.common;version=latest,\
+    	io.openems.edge.heatsystem.components;version=latest,\
+    	io.openems.edge.thermometer.api;version=latest,\
+    	io.openems.edge.controller.api;version=latest,\
+
+-testpath: \
+	${testpath}
+

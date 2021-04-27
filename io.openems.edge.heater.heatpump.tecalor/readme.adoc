@@ -1,0 +1,6 @@
+= Heat Pump Tecalor
+
+This module reads the most important variables available via Modbus from a Tecalor heat pump and maps them to OpenEMS channels. 
+WriteChannels can be used to send commands to the heat pump via setter methods in HeatpumpTecalorChannel and HeatpumpSmartGridGeneralizedChannel.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.heater.heatpump.tecalor[Source Code icon:github[]]
