@@ -48,10 +48,10 @@ Import-Package: \
 -metatypeannotations: *
 
 Export-Package: \
-    eu.chargetime.ocpp,\
-    eu.chargetime.ocpp.feature,\
-    eu.chargetime.ocpp.feature.profile,\
-    eu.chargetime.ocpp.model,\
+    eu.chargetime.ocpp;-split-package:=merge-first,\
+    eu.chargetime.ocpp.feature;-split-package:=merge-first,\
+    eu.chargetime.ocpp.feature.profile;-split-package:=merge-first,\
+    eu.chargetime.ocpp.model;-split-package:=merge-first,\
     eu.chargetime.ocpp.model.core,\
     eu.chargetime.ocpp.model.firmware,\
     eu.chargetime.ocpp.model.localauthlist,\
