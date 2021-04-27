@@ -11,6 +11,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "predictorSolcast0";
 	
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
+	boolean enabled() default true;
+	
 	@AttributeDefinition(name = "Latitude", description = "Latitude for Forecast Position")
 	String lat() default "52.516273";
 	
@@ -40,12 +46,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	
 	@AttributeDefinition(name = "Debug File", description = "file to read prediction")
 	String debug_file() default "/usr/lib/openems/forecasts.json";
-
-	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
-	String alias() default "";
-
-	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
-	boolean enabled() default true;
 
 	String webconsole_configurationFactory_nameHint() default "Predictor Production Solcast-Model [{id}]";
 }

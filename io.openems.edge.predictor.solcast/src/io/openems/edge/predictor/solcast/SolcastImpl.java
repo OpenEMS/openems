@@ -2,8 +2,8 @@ package io.openems.edge.predictor.solcast;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;

@@ -129,6 +129,7 @@
 	bnd.identity;id='io.openems.edge.meter.weidmueller',\
 	bnd.identity;id='io.openems.edge.onewire.thermometer',\
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
+	bnd.identity;id='io.openems.edge.predictor.solcast',\
 	bnd.identity;id='io.openems.edge.pvinverter.cluster',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
 	bnd.identity;id='io.openems.edge.pvinverter.sma',\
@@ -141,8 +142,8 @@
 	bnd.identity;id='io.openems.edge.solaredge',\
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
-	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
-
+	bnd.identity;id='io.openems.edge.timedata.rrd4j'
+		
 -runbundles: \
 	Java-WebSocket;version='[1.5.1,1.5.2)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
@@ -262,6 +263,7 @@
 	io.openems.edge.onewire.thermometer;version=snapshot,\
 	io.openems.edge.predictor.api;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
+	io.openems.edge.predictor.solcast;version=snapshot,\
 	io.openems.edge.pvinverter.api;version=snapshot,\
 	io.openems.edge.pvinverter.cluster;version=snapshot,\
 	io.openems.edge.pvinverter.kaco.blueplanet;version=snapshot,\
