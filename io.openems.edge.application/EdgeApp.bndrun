@@ -282,6 +282,8 @@
 	io.openems.edge.pvinverter.sma;version=snapshot,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\
 	io.openems.edge.pvinverter.sunspec;version=snapshot,\
+	io.openems.edge.pwm.api;version=snapshot,\
+	io.openems.edge.relay.api;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.api;version=snapshot,\
 	io.openems.edge.scheduler.daily;version=snapshot,\
