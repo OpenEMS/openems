@@ -8,7 +8,7 @@ import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import org.osgi.annotation.versioning.ProviderType;
 
-import java.io.IOException;
+
 
 @ProviderType
 public interface LeafletConfigurator extends OpenemsComponent {

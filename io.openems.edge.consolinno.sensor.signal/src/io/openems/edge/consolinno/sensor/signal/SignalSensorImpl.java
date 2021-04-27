@@ -11,7 +11,7 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.consolinno.modbus.configurator.Error;
+import io.openems.edge.consolinno.modbus.configurator.api.Error;
 import io.openems.edge.consolinno.modbus.configurator.api.LeafletConfigurator;
 import io.openems.edge.consolinno.sensor.signal.api.SignalSensor;
 import io.openems.edge.thermometer.api.Thermometer;

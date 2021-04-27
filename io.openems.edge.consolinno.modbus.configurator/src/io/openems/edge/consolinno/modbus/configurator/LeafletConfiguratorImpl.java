@@ -14,6 +14,7 @@ import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.consolinno.modbus.configurator.api.Error;
 import io.openems.edge.consolinno.modbus.configurator.api.LeafletConfigurator;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -21,7 +22,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -659,6 +659,13 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                             return true;
                         }
                         break;
+                }case LEAFLET:{
+                	this.log.error("This should never happen");
+                	break;
+                }
+                case ERROR:{
+                	this.log.error("This should never happen");
+                	break;
                 }
 
         }

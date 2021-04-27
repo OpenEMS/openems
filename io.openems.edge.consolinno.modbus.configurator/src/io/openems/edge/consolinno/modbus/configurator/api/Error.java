@@ -1,4 +1,4 @@
-package io.openems.edge.consolinno.modbus.configurator;
+package io.openems.edge.consolinno.modbus.configurator.api;
 
 public enum Error {
     //65535 = 0xFFFF
