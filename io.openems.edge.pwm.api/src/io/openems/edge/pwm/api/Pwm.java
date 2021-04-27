@@ -10,18 +10,25 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public interface Pwm extends OpenemsComponent {
 
-    /**
-     * * How much of the low/highFlank the device uses. e.g. 80% power --> like a dimming light and
-     * it's "level" of brightness.
-     * <ul>
-     * <li>Interface: PowerLevel
-     * <li>Type: Float
-     * <li>Unit: Percent
-     * </ul>
-     */
+
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-        WRITE_POWER_LEVEL(Doc.of(OpenemsType.FLOAT).unit(Unit.PERCENT).accessMode(AccessMode.READ_WRITE)),
-        READ_POWER_LEVEL(Doc.of(OpenemsType.FLOAT).unit(Unit.PERCENT).accessMode(AccessMode.READ_ONLY)), //
+        /**
+         * * How much of the low/highFlank the device uses. e.g. 80% power --> like a dimming light and
+         * it's "level" of brightness.
+         * <ul>
+         * <li>Interface: PowerLevel
+         * <li>Type: Integer
+         * </ul>
+         */
+        WRITE_POWER_LEVEL(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)),
+        READ_POWER_LEVEL(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)), //
+        /**
+         * Inverts the Power Level Logic.
+         * <ul>
+         * <li>Interface: PowerLevel
+         * <li>Type: Boolean
+         * </ul>
+         */
         INVERTED(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_WRITE));
         private final Doc doc;
 
@@ -35,26 +42,45 @@ public interface Pwm extends OpenemsComponent {
 
     }
 
-    default Channel<Float> getReadPwmPowerLevelChannel() {
+    /**
+     * Returns Channel for the Read-Only Pwm Power Level.
+     *
+     * @return the Channel
+     */
+    default Channel<Integer> getReadPwmPowerLevelChannel() {
         return this.channel(ChannelId.READ_POWER_LEVEL);
     }
 
-    default WriteChannel<Float> getWritePwmPowerLevelChannel() {
+    /**
+     * Returns Configuration WriteChannel for Pwm PowerLevel.
+     *
+     * @return the WriteChannel
+     */
+    default WriteChannel<Integer> getWritePwmPowerLevelChannel() {
         return this.channel(ChannelId.WRITE_POWER_LEVEL);
     }
 
+    /**
+     * Return the Inversion Status Channel.
+     *
+     * @return the WriteChannel
+     */
     default WriteChannel<Boolean> getInvertedStatus() {
         return this.channel(ChannelId.INVERTED);
     }
 
+    /**
+     * Returns current Power Level.
+     *
+     * @return Integer PowerLevel
+     */
     default float getPowerLevelValue() {
         if (this.getReadPwmPowerLevelChannel().value().isDefined()) {
-            return this.getReadPwmPowerLevelChannel().value().get();
+            return (float) this.getReadPwmPowerLevelChannel().value().get() / 10;
         } else if (this.getReadPwmPowerLevelChannel().getNextValue().isDefined()) {
-            return this.getReadPwmPowerLevelChannel().getNextValue().get();
+            return (float) this.getReadPwmPowerLevelChannel().getNextValue().get() / 10;
         } else {
             return -9001;
         }
     }
 }
-

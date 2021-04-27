@@ -41,7 +41,7 @@ public class PwmConfiguratorImpl extends AbstractOpenemsComponent implements Ope
     private static final int MAX_MODULE_NUMBER = 8;
 
     @Activate
-    public void activate(ComponentContext context, Config config) throws ConfigurationException {
+    void activate(ComponentContext context, Config config) throws ConfigurationException {
         int frequency = config.frequency();
         this.moduleNumber = config.moduleNumber();
         if (this.moduleNumber >= MIN_MODULE_NUMBER && this.moduleNumber <= MAX_MODULE_NUMBER) {
@@ -54,7 +54,7 @@ public class PwmConfiguratorImpl extends AbstractOpenemsComponent implements Ope
     }
 
     @Modified
-    public void modified(ComponentContext context, Config config) throws ConfigurationException {
+    void modified(ComponentContext context, Config config) throws ConfigurationException {
         this.lc.setPwmConfiguration(this.moduleNumber, DEFAULT_PWM_FREQUENCY);
         int frequency = config.frequency();
         this.moduleNumber = config.moduleNumber();
@@ -69,7 +69,7 @@ public class PwmConfiguratorImpl extends AbstractOpenemsComponent implements Ope
     }
 
     @Deactivate
-    public void deactivate() {
+    protected void deactivate() {
         this.lc.setPwmConfiguration(this.moduleNumber, DEFAULT_PWM_FREQUENCY);
         super.deactivate();
     }

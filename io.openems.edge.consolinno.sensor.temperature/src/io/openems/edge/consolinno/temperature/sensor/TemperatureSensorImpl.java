@@ -67,7 +67,7 @@ public class TemperatureSensorImpl extends AbstractOpenemsModbusComponent implem
     }
 
     @Deactivate
-    public void deactivate() {
+    protected void deactivate() {
         this.lc.removeModule(LeafletConfigurator.ModuleType.TMP, this.temperatureModule, this.position);
         super.deactivate();
 

@@ -6,6 +6,9 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 
+/**
+ * Provides a modified Temperature Sensor that detects if the Temperature is above or below a set Value.
+ */
 public interface SignalSensor extends OpenemsComponent {
 
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -13,7 +16,7 @@ public interface SignalSensor extends OpenemsComponent {
          * Has an Error occurred.
          *
          * <ul>
-         * <li>Interface: ErrorSensorSpi
+         * <li>Interface: SignalSensor
          * <li>Type: Boolean
          * </ul>
          */
@@ -22,14 +25,18 @@ public interface SignalSensor extends OpenemsComponent {
         /**
          * Error Message String.
          * <ul>
-         *     <li> Interface: ErrorSensorSpi
+         *     <li> Interface: SignalSensor
          *     <li> Type: String
          * </ul>>
          */
         SIGNAL_MESSAGE(Doc.of(OpenemsType.STRING)),
 
         /**
-         * SignalType Stored As String
+         * SignalType Stored As String.
+         * <ul>
+         * <li>Interface: SignalSensor
+         * <li>Type: String
+         * </ul>
          */
         SIGNAL_TYPE(Doc.of(OpenemsType.STRING));
 
@@ -46,7 +53,7 @@ public interface SignalSensor extends OpenemsComponent {
     }
 
     /**
-     * Gets if Error Occured or not.
+     * Gets if Error Occurred or not.
      *
      * @return the Channel
      */
@@ -59,12 +66,17 @@ public interface SignalSensor extends OpenemsComponent {
      * Status
      * Error
      * Fault Message
+     *
      * @return the Channel
      */
     default Channel<String> getSignalMessage() {
         return this.channel(ChannelId.SIGNAL_MESSAGE);
     }
 
+    /**
+     * Gets the Type of Error.
+     * @return the Channel
+     */
     default Channel<String> getSignalType() {
         return this.channel(ChannelId.SIGNAL_TYPE);
     }

@@ -84,7 +84,7 @@ public class SignalSensorImpl extends AbstractOpenemsModbusComponent implements 
     }
 
     @Deactivate
-    public void deactivate() {
+    protected void deactivate() {
         this.lc.removeModule(LeafletConfigurator.ModuleType.TMP, this.signalModule, this.position);
         super.deactivate();
 

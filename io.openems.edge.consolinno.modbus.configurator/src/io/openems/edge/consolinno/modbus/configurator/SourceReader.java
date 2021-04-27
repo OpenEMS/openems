@@ -13,7 +13,7 @@ class SourceReader {
         List<List<String>> output = new ArrayList<>();
         try (Scanner csvScan = new Scanner(new File(path))) {
             while (csvScan.hasNextLine()) {
-                output.add(getOutputFromLine(csvScan.nextLine()));
+                output.add(this.getOutputFromLine(csvScan.nextLine()));
 
             }
             return output;

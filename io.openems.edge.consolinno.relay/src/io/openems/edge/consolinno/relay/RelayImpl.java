@@ -84,7 +84,7 @@ public class RelayImpl extends AbstractOpenemsModbusComponent implements Openems
     }
 
     @Deactivate
-    public void deactivate() {
+    protected void deactivate() {
         try {
             this.getRelaysWriteChannel().setNextWriteValue(false);
         } catch (OpenemsError.OpenemsNamedException ignored) {

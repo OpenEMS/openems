@@ -81,7 +81,7 @@ public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
             throw new ConfigurationException("Pwm not configured properly. Please check the Config", "This Device doesn't Exist");
         }
         try {
-            getWritePwmPowerLevelChannel().setNextWriteValue((float) config.percent());
+            getWritePwmPowerLevelChannel().setNextWriteValue(config.percent());
         } catch (OpenemsError.OpenemsNamedException ignored) {
             this.log.error("Error in getWritePwmPowerChannel.setNextWriteValue");
         }
@@ -93,9 +93,9 @@ public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
     }
 
     @Deactivate
-    public void deactivate() {
+    protected void deactivate() {
         try {
-            getWritePwmPowerLevelChannel().setNextWriteValue(0.f);
+            getWritePwmPowerLevelChannel().setNextWriteValue(0);
         } catch (OpenemsError.OpenemsNamedException ignored) {
             this.log.error("Error in getWritePwmPowerChannel.setNextWriteValue");
         }
