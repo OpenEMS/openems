@@ -22,6 +22,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.utils.StringUtils;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -197,7 +198,8 @@ public class SendChannelValuesWorker {
 
 			// Successful?
 			if (allSendSuccessful) {
-				this.parent.parent.logInfo(this.parent.log, "Successfully sent MQTT topics: " + sendTopics);
+				this.parent.parent.logInfo(this.parent.log, "Successfully sent MQTT topics: "
+						+ StringUtils.toShortString(String.join(", ", sendTopics), 100));
 
 				// update information for next runs
 				this.parent.lastAllValues = this.allValues;
@@ -206,7 +208,8 @@ public class SendChannelValuesWorker {
 					this.parent.lastSendValuesOfAllChannels = this.timestamp;
 				}
 			} else {
-				this.parent.parent.logWarn(this.parent.log, "Error while sending MQTT topics: " + sendTopics);
+				this.parent.parent.logWarn(this.parent.log, "Error while sending MQTT topics: "
+						+ StringUtils.toShortString(String.join(", ", sendTopics), 100));
 			}
 		}
 
