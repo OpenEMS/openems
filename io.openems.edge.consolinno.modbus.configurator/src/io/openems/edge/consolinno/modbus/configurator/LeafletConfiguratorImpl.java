@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.naming.ConfigurationException;
+
 /**
  * Configurator for Consolinno Modbus modules. Reads the CSV Register source file, sets the general Modbus Protocol and configures
  * module specific values (e.g Relay inversion status).
@@ -129,7 +131,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
     protected SourceReader sourceReader = new SourceReader();
 
     @Activate
-    public void activate(ComponentContext context, Config config) throws OpenemsException {
+    public void activate(ComponentContext context, Config config) throws OpenemsException, ConfigurationException {
         //Reads Source file CSV with the Register information
         this.source = this.sourceReader.readCsv(config.source());
         //Splits the big CSV Output into the different Modbus Types(OutputCoil,...)
@@ -137,8 +139,14 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
         //Sets the Register variables for the Configuration
         this.createRelayInverseRegisterArray();
         this.setPwmConfigurationAddresses();
-        super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-                "Modbus", config.modbusBridgeId());
+        if (checkFirmwareCompatibility()) {
+            super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+                    "Modbus", config.modbusBridgeId());
+        } else {
+            this.log.error("Firmware incompatible or not Running!");
+            this.log.info("The Configurator will now deactivate itself.");
+            this.deactivate();
+        }
     }
 
     /**
@@ -421,7 +429,7 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                     response += line;
                 }
             } catch (IOException e) {
-                this.log.error("This shouldn't have happened");
+                this.log.error("The Firmware is not Running!");
             }
             if (response.equals("") == false) {
                 String[] partOne = response.split("V");
@@ -659,14 +667,16 @@ public class LeafletConfiguratorImpl extends AbstractOpenemsModbusComponent impl
                             return true;
                         }
                         break;
-                }case LEAFLET:{
-                	this.log.error("This should never happen");
-                	break;
                 }
-                case ERROR:{
-                	this.log.error("This should never happen");
-                	break;
-                }
+                break;
+            case LEAFLET: {
+                this.log.error("This should never happen");
+                break;
+            }
+            case ERROR: {
+                this.log.error("This should never happen");
+                break;
+            }
 
         }
         return false;
