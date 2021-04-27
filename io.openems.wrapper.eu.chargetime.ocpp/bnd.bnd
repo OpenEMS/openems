@@ -43,7 +43,7 @@ Import-Package: \
 	eu.chargetime.ocpp.model.smartcharging,\
 	eu.chargetime.ocpp.profile,\
 	eu.chargetime.ocpp.utilities,\
-	eu.chargetime.ocpp.wss
+	eu.chargetime.ocpp.wss,\
 
 -metatypeannotations: *
 

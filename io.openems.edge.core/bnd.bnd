@@ -13,8 +13,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.predictor.api,\
 	io.openems.edge.scheduler.api,\
 	io.openems.edge.timedata.api,\
-	io.openems.wrapper.sdnotify,\
-	info.faljse:SDNotify,\
+	io.openems.wrapper.sdnotify
 
 -testpath: \
 	${testpath}

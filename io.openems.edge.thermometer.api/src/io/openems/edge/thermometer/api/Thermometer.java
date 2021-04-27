@@ -75,18 +75,4 @@ public interface Thermometer extends OpenemsComponent {
 		this.getTemperatureChannel().setNextValue(value);
 	}
 
-	/**
-	 * TODO COMMENT / REPLACE With other methods
-	 * @return a Temperature
-	 */
-	default int getTemperatureValue() {
-		if (this.getTemperatureChannel().value().isDefined()) {
-			return this.getTemperatureChannel().value().get();
-		} else if (this.getTemperatureChannel().getNextValue().isDefined()) {
-			return this.getTemperatureChannel().getNextValue().get();
-		} else {
-			return Integer.MIN_VALUE;
-		}
-	}
-
 }

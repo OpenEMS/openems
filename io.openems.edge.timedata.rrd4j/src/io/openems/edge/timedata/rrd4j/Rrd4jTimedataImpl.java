@@ -485,22 +485,8 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		switch (channelUnit) {
 		case AMPERE:
 		case AMPERE_HOURS:
-		case BAR:
-		case CENTI_BAR:
-		case CENTISECONDS:
-		case CUBIC_METER:
-		case CUBICMETER_PER_HOUR:
-		case CUBICMETER_PER_SECOND:
-		case DECI_BAR:
-		case DECIBEL_MILLIWATT:
-		case DECILITER_PER_MINUTE:
-		case DECI_VOLT:
-		case DEGREE:
 		case DEGREE_CELSIUS:
-		case DEGREE_KELVIN:
 		case DEZIDEGREE_CELSIUS:
-		case DEZIDEGREE_KELVIN:
-		case HECTO_PASCAL:
 		case HERTZ:
 		case HOUR:
 		case KILOAMPERE_HOURS:
@@ -508,12 +494,9 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		case KILOVOLT_AMPERE:
 		case KILOVOLT_AMPERE_REACTIVE:
 		case KILOWATT:
-		case LITRES:
-		case LITER_PER_MINUTE:
 		case MICROOHM:
 		case MILLIAMPERE_HOURS:
 		case MILLIAMPERE:
-		case MILLI_DEGREE:
 		case MILLIHERTZ:
 		case MILLIOHM:
 		case MILLISECONDS:
@@ -521,32 +504,25 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		case MILLIWATT:
 		case MINUTE:
 		case NONE:
-		case OHM:
-		case PASCAL:
-		case ROTATION_PER_MINUTE:
-		case ROTATION_PER_SECONDS:
-		case SECONDS:
-		case TEN_THOUSANDTH_VOLT:
-		case THOUSANDTH:
+		case WATT:
 		case VOLT:
 		case VOLT_AMPERE:
 		case VOLT_AMPERE_REACTIVE:
-		case WATT:
 		case WATT_HOURS_BY_WATT_PEAK:
+		case OHM:
+		case SECONDS:
+		case THOUSANDTH:
 			return new ChannelDef(DsType.GAUGE, Double.NaN, Double.NaN, ConsolFun.AVERAGE);
 		case PERCENT:
 			return new ChannelDef(DsType.GAUGE, 0, 100, ConsolFun.AVERAGE);
 		case ON_OFF:
 			return new ChannelDef(DsType.GAUGE, 0, 1, ConsolFun.AVERAGE);
 		case CUMULATED_SECONDS:
-		case HECTOWATT_HOURS:
-		case KILOVOLT_AMPERE_REACTIVE_HOURS:
+		case WATT_HOURS:
 		case KILOWATT_HOURS:
-		case MEGAWATT_HOURS:
 		case VOLT_AMPERE_HOURS:
 		case VOLT_AMPERE_REACTIVE_HOURS:
-		case WATT_HOURS:
-		case WATT_SECONDS:
+		case KILOVOLT_AMPERE_REACTIVE_HOURS:
 			return new ChannelDef(DsType.GAUGE, Double.NaN, Double.NaN, ConsolFun.MAX);
 		}
 		throw new IllegalArgumentException("Unhandled Channel unit [" + channelUnit + "]");
