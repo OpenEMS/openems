@@ -42,6 +42,7 @@
 	bnd.identity;id='io.openems.edge.controller.api.backend',\
 	bnd.identity;id='io.openems.edge.controller.api.common',\
 	bnd.identity;id='io.openems.edge.controller.api.modbus',\
+	bnd.identity;id='io.openems.edge.controller.api.mqtt',\
 	bnd.identity;id='io.openems.edge.controller.api.rest',\
 	bnd.identity;id='io.openems.edge.controller.api.websocket',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.balancingcosphi',\
@@ -171,6 +172,7 @@
 	io.openems.edge.controller.api.backend;version=snapshot,\
 	io.openems.edge.controller.api.common;version=snapshot,\
 	io.openems.edge.controller.api.modbus;version=snapshot,\
+	io.openems.edge.controller.api.mqtt;version=snapshot,\
 	io.openems.edge.controller.api.rest;version=snapshot,\
 	io.openems.edge.controller.api.websocket;version=snapshot,\
 	io.openems.edge.controller.asymmetric.balancingcosphi;version=snapshot,\
@@ -286,6 +288,7 @@
 	io.openems.wrapper.fastexcel;version=snapshot,\
 	io.openems.wrapper.influxdb-java;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
+	io.openems.wrapper.paho-mqttv5;version=snapshot,\
 	io.openems.wrapper.sdnotify;version=snapshot,\
 	org.apache.commons.commons-fileupload;version='[1.4.0,1.4.1)',\
 	org.apache.commons.commons-io;version='[2.8.0,2.8.1)',\

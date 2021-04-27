@@ -106,7 +106,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 		this.updatechannels();
 
 		// Apply Power Set-Point
-		ApplyPowerHandler.apply(this, false /* read-only mode is never true */, activePower);
+		ApplyPowerHandler.apply(this, config.readOnlyMode(), activePower);
 	}
 
 	@Override
