@@ -178,7 +178,6 @@ public class MyControllerTest {
 						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 0) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 533));
-
 	}
 
 	@Test

@@ -5,7 +5,8 @@ import io.openems.common.types.OptionsEnum;
 public enum SellToGridLimitState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	ACTIVE_LIMIT(0, "Active limitation"), //
-	NO_LIMIT(1, "No active limitation"); //
+	NO_LIMIT(1, "No active limitation"), //
+	NO_FEASABLE_SOLUTION(2, "Limit cannot be adapted because of other constraints with higher priority"); //
 
 	private final int value;
 	private final String name;
