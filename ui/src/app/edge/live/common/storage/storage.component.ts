@@ -1,4 +1,4 @@
-import { ChannelAddress, EdgeConfig } from '../../../../shared/shared';
+import { ChannelAddress, EdgeConfig, Utils } from '../../../../shared/shared';
 import { Component } from '@angular/core';
 import { StorageModalComponent } from './modal/modal.component';
 import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
@@ -14,6 +14,7 @@ export class StorageComponent extends AbstractFlatWidget {
     public chargerComponents: EdgeConfig.Component[] = [];
     public storageItem: string = null;
     public stateOfCharge: number[] = [];
+    public isHybridEss: boolean[] = [];
 
     protected getChannelAddresses() {
         let channelAddresses: ChannelAddress[] = [];
@@ -35,6 +36,13 @@ export class StorageComponent extends AbstractFlatWidget {
         this.essComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && component.isEnabled);
         for (let component of this.essComponents) {
 
+            // Check if essComponent is HybridEss
+            if (this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.ess.api.HybridEss")) {
+                this.isHybridEss[component.id] = true;
+            } else {
+                this.isHybridEss[component.id] = false;
+            }
+
             channelAddresses.push(
                 new ChannelAddress(component.id, 'Soc'),
                 new ChannelAddress(component.id, 'Capacity'),
@@ -50,10 +58,12 @@ export class StorageComponent extends AbstractFlatWidget {
         return channelAddresses
     }
     protected onCurrentData(currentData: CurrentData) {
+
         // Check State_of_Charge for every component of essComponents
         for (let component of this.essComponents) {
             this.stateOfCharge[component.id] = currentData.allComponents[component.id + '/Soc'];
         }
+
         // Check total State_of_Charge for dynamical icon in widget-header
         let soc = currentData.allComponents['_sum' + '/EssSoc'];
         if (soc < 20) {
@@ -74,59 +84,51 @@ export class StorageComponent extends AbstractFlatWidget {
       * Use 'convertChargePower' to convert/map a value
       * 
       * @param value takes @Input value or channelAddress for chargePower
-      * @returns only positive value
+      * @returns value
       */
-    public convertChargePower = (value: any) => {
-        return this.convertPower('charge', value)
+    public convertChargePower = (value: any): string => {
+        return this.convertPower(Utils.multiplySafely(value, -1), true);
     }
+
     /**
    *  Use 'convertDischargePower' to convert/map a value
     * 
     * @param value takes @Input value or channelAddress for dischargePower
-    * @returns only positive value
+    * @returns value
     */
     public convertDischargePower = (value: any): string => {
-        return this.convertPower('discharge', value)
+        return this.convertPower(value)
     }
     /**
      * Use 'convertPower' to check whether 'charge/discharge' and to be only showed when not negative
      * 
-     * @param chargeOrDischarge takes string when called
      * @param value takes passed value when called 
      * @returns only positive and 0
      */
-    public convertPower(chargeOrDischarge: string, value: any) {
-        let thisValue: any = (value / 1000);
-        let statement: string = '-';
-        let operators = {
-            '<=': function () { return (value <= 0) },
-            '>': function () { return (value > 0) },
-            '-': function () { return '-' }
-        }
+    public convertPower(value: number, isCharge?: boolean) {
         if (value != null) {
-            // Check if charge or discharge
-            if (chargeOrDischarge == 'charge') {
-                statement = '<=';
-                thisValue = (thisValue * -1).toFixed(1);
-            } else if (chargeOrDischarge == 'discharge') {
-                statement = '>';
-                thisValue = thisValue.toFixed(1);
-            }
-            /**
-             * Check 
-             * if thisValue ends with 0 => convert it to Integer
-             * else returns '-'
-             */
-            if (operators[statement]()) {
-                if (thisValue.endsWith('0')) {
-                    return (parseInt(thisValue)).toString() + ' kW';
+            let thisValue: number = (value / 1000);
+
+            // Round thisValue to Integer when decimal place equals 0 
+            if (thisValue > 0) {
+                if (thisValue.toFixed(1).endsWith('0')) {
+                    return parseInt(thisValue.toFixed(1)) + ' kW';
                 } else {
-                    return thisValue + ' kW';
+                    return thisValue.toFixed(1) + ' kW';
+                }
+            } else if (thisValue == 0) {
+
+                // Show value only when charge and not discharge
+                if (isCharge) {
+                    return '0 kW'
+                } else {
+                    return '-'
                 }
             } else {
                 return '-'
             }
-        } else {
+        }
+        else {
             return '-'
         }
     }

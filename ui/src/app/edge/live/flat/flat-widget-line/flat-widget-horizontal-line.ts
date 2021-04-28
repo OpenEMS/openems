@@ -6,7 +6,7 @@ import { Component, Input } from "@angular/core";
 })
 export class FlatWidgetHorizontalLine {
     /** Components-Array to iterate over */
-    @Input() storageComponents: any[];
+    @Input() components: any[];
     /** index is an iterator */
     @Input() index: number;
 }

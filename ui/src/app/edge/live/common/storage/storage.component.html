@@ -6,7 +6,7 @@
         </ng-container>
         <oe-flat-widget-percentagebar [channelAddress]="component.id + '/Soc'">
         </oe-flat-widget-percentagebar>
-        <ng-container *ngIf="!component.factoryId.includes('Hybrid'), else Hybrid">
+        <ng-container *ngIf="!isHybridEss[component.id], else HybridEss">
             <oe-flat-widget-line [name]="'General.chargePower' | translate"
                 [channelAddress]="component.id + '/ActivePower'" [converter]="convertChargePower">
             </oe-flat-widget-line>
@@ -14,7 +14,7 @@
                 [channelAddress]="component.id + '/ActivePower'" [converter]="convertDischargePower">
             </oe-flat-widget-line>
         </ng-container>
-        <ng-template #Hybrid>
+        <ng-template #HybridEss>
             <oe-flat-widget-line [name]="'General.chargePower' | translate"
                 [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertChargePower">
             </oe-flat-widget-line>
@@ -22,7 +22,7 @@
                 [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertDischargePower">
             </oe-flat-widget-line>
         </ng-template>
-        <oe-flat-widget-horizontal-line [storageComponents]="essComponents" [index]="i">
+        <oe-flat-widget-horizontal-line [components]="essComponents" [index]="i">
         </oe-flat-widget-horizontal-line>
     </ng-container>
 </oe-flat-widget>
