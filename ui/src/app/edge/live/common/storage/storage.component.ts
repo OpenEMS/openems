@@ -38,7 +38,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
             // Check if essComponent is HybridEss
             this.isHybridEss[component.id] = this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.ess.api.HybridEss");
-            console.log("this", this.isHybridEss)
+
             channelAddresses.push(
                 new ChannelAddress(component.id, 'Soc'),
                 new ChannelAddress(component.id, 'Capacity'),
