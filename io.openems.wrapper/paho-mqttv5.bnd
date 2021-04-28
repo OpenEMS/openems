@@ -9,7 +9,7 @@ Include-Resource: @org.eclipse.paho.mqttv5.client-1.2.5.jar
 
 -metatypeannotations: *
 
--exportcontents: \
+Export-Package: \
 	org.eclipse.paho.mqttv5.client,\
 	org.eclipse.paho.mqttv5.client.internal,\
 	org.eclipse.paho.mqttv5.client.util,\
