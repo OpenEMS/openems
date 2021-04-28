@@ -37,12 +37,8 @@ export class StorageComponent extends AbstractFlatWidget {
         for (let component of this.essComponents) {
 
             // Check if essComponent is HybridEss
-            if (this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.ess.api.HybridEss")) {
-                this.isHybridEss[component.id] = true;
-            } else {
-                this.isHybridEss[component.id] = false;
-            }
-
+            this.isHybridEss[component.id] = this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.ess.api.HybridEss");
+            console.log("this", this.isHybridEss)
             channelAddresses.push(
                 new ChannelAddress(component.id, 'Soc'),
                 new ChannelAddress(component.id, 'Capacity'),
@@ -118,7 +114,7 @@ export class StorageComponent extends AbstractFlatWidget {
                 }
             } else if (thisValue == 0) {
 
-                // Show value only when charge and not discharge
+                // if thisValue is 0, then show only when charge and not discharge
                 if (isCharge) {
                     return '0 kW'
                 } else {
