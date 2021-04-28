@@ -40,6 +40,9 @@ import io.openems.edge.common.event.EdgeEventConstants;
 )
 public class BmwBatteryCoolingUnit extends AbstractOpenemsComponent implements OpenemsComponent, EventHandler {
 
+	private final int TWO_POINT_CONTROLLER_UPPER_THRESHOLD_degC = 33;
+	private final int TWO_POINT_CONTROLLER_LOWER_THRESHOLD_degC = 32;
+	
 	private Config config = null;
 	private BooleanWriteChannel digitalOutputCoolingEnableChannel;
 
@@ -93,7 +96,7 @@ public class BmwBatteryCoolingUnit extends AbstractOpenemsComponent implements O
 		this.config = config;
 		this.digitalOutputCoolingEnableChannel = manager
 				.getChannel(ChannelAddress.fromString(config.coolingCommand()));
-		digitalOutputCoolingEnableChannel.setNextValue(false);
+		digitalOutputCoolingEnableChannel.setNextWriteValue(false);
 	}
 
 	@Deactivate
@@ -135,10 +138,10 @@ public class BmwBatteryCoolingUnit extends AbstractOpenemsComponent implements O
 		}
 		
 		//--- execute two-point Controller ---
-		if ((Collections.max(maxTemperatures) >= this.config.maxAllowedCellTemperature())
+		if ((Collections.max(maxTemperatures) >= TWO_POINT_CONTROLLER_UPPER_THRESHOLD_degC)
 				&& (this.getBatteryCoolingRunningStatus() == RunningStatus.OFF)) {
 			digitalOutputCoolingEnableChannel.setNextWriteValue(true);
-		} else if ((Collections.max(maxTemperatures) <= this.config.minAllowedCellTemperature())
+		} else if ((Collections.max(maxTemperatures) <= TWO_POINT_CONTROLLER_LOWER_THRESHOLD_degC)
 				&& (this.getBatteryCoolingRunningStatus() == RunningStatus.ON)) {
 			digitalOutputCoolingEnableChannel.setNextWriteValue(false);
 		}

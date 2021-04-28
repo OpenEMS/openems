@@ -18,16 +18,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean enabled() default true;
 	
 	@AttributeDefinition(name = "Battery-IDs", description = "IDs of the BMW Battery List")
-	String[] batteryIds() default {};
-	
-	@AttributeDefinition(name = "Max Allowed Cell Temp", description = "Max Allowed Temp Limit")
-	int maxAllowedCellTemperature() default 33;
-	
-	@AttributeDefinition(name = "Min Allowed Cell Temp", description = "Min Allowed Temp Limit")
-	int minAllowedCellTemperature() default 32;
+	String[] batteryIds() default {"bmsA1", "bmsA2", "bmsA3", "bmsA4", "bmsB1", "bmsB2", "bmsB3", "bmsB4"};
 	
 	@AttributeDefinition(name = "Digital Output for ON / OFF", description = "WagoIO Digital Output Cooling ON / OFF")
-	String coolingCommand() default "io0/DigitalOutputM1C1";
+	String coolingCommand() default "ioWago/DigitalOutputM1C5";
 
 	String webconsole_configurationFactory_nameHint() default "BMW Battery Cooling Unit [{id}]";
 
