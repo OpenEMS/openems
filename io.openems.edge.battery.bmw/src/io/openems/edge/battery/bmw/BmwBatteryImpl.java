@@ -410,16 +410,19 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build()), //
 				new FC4ReadInputRegistersTask(1030, Priority.HIGH, //
-						m(BMWChannelId.AVERAGE_TEMPERATURE, new SignedWordElement(1030))), //
+						m(BMWChannelId.AVERAGE_TEMPERATURE, new SignedWordElement(1030),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
 				new FC4ReadInputRegistersTask(1031, Priority.HIGH, //
 						m(new SignedWordElement(1031)) //
-								.m(BMWChannelId.MINIMUM_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(Battery.ChannelId.MIN_CELL_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(BMWChannelId.MINIMUM_TEMPERATURE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.m(Battery.ChannelId.MIN_CELL_TEMPERATURE,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build()), //
 				new FC4ReadInputRegistersTask(1032, Priority.HIGH, //
 						m(new SignedWordElement(1032)) //
-								.m(BMWChannelId.MAXIMUM_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(Battery.ChannelId.MAX_CELL_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(BMWChannelId.MAXIMUM_TEMPERATURE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.m(Battery.ChannelId.MAX_CELL_TEMPERATURE,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build()), //
 				new FC4ReadInputRegistersTask(1033, Priority.HIGH,
 						m(Battery.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(1033)), //
