@@ -163,7 +163,7 @@ public interface BmwBattery extends OpenemsComponent, EventHandler {
 				.accessMode(AccessMode.READ_ONLY) //
 				.unit(Unit.DEZIVOLT)), //
 
-		MINIMUM_OPERATING_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		DISCHARGE_MIN_VOLTAGE_0V1(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.unit(Unit.VOLT)), //
 
@@ -300,7 +300,15 @@ public interface BmwBattery extends OpenemsComponent, EventHandler {
 				.accessMode(AccessMode.READ_ONLY) //
 				.unit(Unit.AMPERE)), //
 		
+		DISCHARGE_MAX_CURRENT_BCS(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.unit(Unit.AMPERE)), //
+		
 		CHARGE_MAX_CURRENT_VOLT_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.unit(Unit.AMPERE)), //
+		
+		DISCHARGE_MAX_CURRENT_VOLT_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.unit(Unit.AMPERE)), //
 		;
