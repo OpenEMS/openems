@@ -67,6 +67,7 @@
 	bnd.identity;id='io.openems.edge.controller.ess.predictivedelaycharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.reactivepowervoltagecharacteristic',\
 	bnd.identity;id='io.openems.edge.controller.ess.selltogridlimit',\
+	bnd.identity;id='io.openems.edge.controller.ess.limitusablecapacity',\
 	bnd.identity;id='io.openems.edge.controller.evcs',\
 	bnd.identity;id='io.openems.edge.controller.evcs.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.generic.jsonlogic',\
@@ -142,8 +143,7 @@
 	bnd.identity;id='io.openems.edge.solaredge',\
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
-	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
-	bnd.identity;version='latest';id='io.openems.edge.controller.ess.limitusablecapacity'
+	bnd.identity;id='io.openems.edge.timedata.rrd4j'
 
 -runbundles: \
 	Java-WebSocket;version='[1.5.2,1.5.3)',\
@@ -197,6 +197,7 @@
 	io.openems.edge.controller.ess.predictivedelaycharge;version=snapshot,\
 	io.openems.edge.controller.ess.reactivepowervoltagecharacteristic;version=snapshot,\
 	io.openems.edge.controller.ess.selltogridlimit;version=snapshot,\
+	io.openems.edge.controller.ess.limitusablecapacity;version=snapshot,\
 	io.openems.edge.controller.evcs;version=snapshot,\
 	io.openems.edge.controller.evcs.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.generic.jsonlogic;version=snapshot,\
@@ -309,5 +310,4 @@
 	org.osgi.util.function;version='[1.1.0,1.1.1)',\
 	org.osgi.util.promise;version='[1.1.1,1.1.2)',\
 	rrd4j;version='[3.8.0,3.8.1)',\
-	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
-	io.openems.edge.controller.ess.limitusablecapacity;version=snapshot
+	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)'
