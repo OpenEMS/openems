@@ -3,8 +3,9 @@ package io.openems.edge.controller.api.websocket;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.java_websocket.WebSocket;
 import org.ops4j.pax.logging.spi.PaxAppender;
@@ -24,6 +25,8 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -31,12 +34,13 @@ import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.user.EdgeUser;
+import io.openems.edge.common.user.User;
 import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.ApiWorker;
@@ -71,7 +75,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	/**
 	 * Stores valid session tokens for authentication via Cookie.
 	 */
-	protected final Map<UUID, EdgeUser> sessionTokens = new ConcurrentHashMap<>();
+	protected final Map<String, User> sessionTokens = new ConcurrentHashMap<>();
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -81,6 +85,8 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
+
+	protected ScheduledExecutorService executor;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -112,6 +118,12 @@ public class WebsocketApi extends AbstractOpenemsComponent
 			// abort if disabled
 			return;
 		}
+
+		// initialize Executor
+		String name = "Controller.Api.Websocket" + ":" + this.id();
+		this.executor = Executors.newScheduledThreadPool(1,
+				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
+
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
 		this.startServer(config.port(), POOL_SIZE, false);
 	}
@@ -120,6 +132,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	protected void deactivate() {
 		super.deactivate();
 		this.stopServer();
+		ThreadPoolUtils.shutdownAndAwaitTermination(executor, 5);
 	}
 
 	/**
@@ -170,12 +183,12 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	 * @return the WsData
 	 * @throws OpenemsNamedException if there is no connection with this token
 	 */
-	protected WsData getWsDataForTokenOrError(UUID token) throws OpenemsNamedException {
+	protected WsData getWsDataForTokenOrError(String token) throws OpenemsNamedException {
 		Collection<WebSocket> connections = this.server.getConnections();
 		for (Iterator<WebSocket> iter = connections.iterator(); iter.hasNext();) {
 			WebSocket websocket = iter.next();
 			WsData wsData = websocket.getAttachment();
-			UUID thisToken = wsData.getSessionToken();
+			String thisToken = wsData.getSessionToken();
 			if (thisToken != null && thisToken.equals(token)) {
 				return wsData;
 			}
@@ -191,7 +204,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	 * @param request the SubscribeSystemLogRequest
 	 * @throws OpenemsNamedException on error
 	 */
-	protected void handleSubscribeSystemLogRequest(UUID token, SubscribeSystemLogRequest request)
+	protected void handleSubscribeSystemLogRequest(String token, SubscribeSystemLogRequest request)
 			throws OpenemsNamedException {
 		this.systemLogHandler.handleSubscribeSystemLogRequest(token, request);
 	}

@@ -25,7 +25,9 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.protection.BatteryProtection;
-import io.openems.edge.battery.soltaro.BatteryProtectionDefinitionSoltaro;
+import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3000Wh;
+import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3500Wh;
+import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.Context;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.State;
@@ -106,9 +108,19 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 		}
 
 		// Initialize Battery-Protection
-		this.batteryProtection = BatteryProtection.create(this) //
-				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro(), this.componentManager) //
-				.build();
+		if (config.moduleType() == ModuleType.MODULE_3_5_KWH) {
+			// Special settings for 3.5 kWh module
+			this.batteryProtection = BatteryProtection.create(this) //
+					.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro3500Wh(),
+							this.componentManager) //
+					.build();
+		} else {
+			// Default
+			this.batteryProtection = BatteryProtection.create(this) //
+					.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro3000Wh(),
+							this.componentManager) //
+					.build();
+		}
 
 		// Calculate Capacity
 		int capacity = this.config.numberOfSlaves() * this.config.moduleType().getCapacity_Wh();
@@ -243,7 +255,8 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionC.ChannelId.VOLTAGE_LOW_PROTECTION, new UnsignedWordElement(0x20F3)), //
 						m(SingleRackVersionC.ChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x20F4)) //
 				), //
-					// Single Cluster Running Status Registers
+
+				// Single Cluster Running Status Registers
 				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
 						m(new UnsignedWordElement(0x2100)) //
 								.m(SingleRackVersionC.ChannelId.CLUSTER_1_VOLTAGE,
@@ -327,7 +340,8 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 								.bit(14, SingleRackVersionC.ChannelId.LEVEL2_DISCHARGE_TEMP_HIGH) //
 								.bit(15, SingleRackVersionC.ChannelId.LEVEL2_DISCHARGE_TEMP_LOW) //
 						), //
-							// Level 1 Alarm: EMS Control to stop charge, discharge, charge&discharge
+
+						// Level 1 Alarm: EMS Control to stop charge, discharge, charge&discharge
 						m(new BitsWordElement(0x2141, this) //
 								.bit(0, SingleRackVersionC.ChannelId.LEVEL1_CELL_VOLTAGE_HIGH) //
 								.bit(1, SingleRackVersionC.ChannelId.LEVEL1_TOTAL_VOLTAGE_HIGH) //
@@ -346,7 +360,8 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 								.bit(14, SingleRackVersionC.ChannelId.LEVEL1_DISCHARGE_TEMP_HIGH) //
 								.bit(15, SingleRackVersionC.ChannelId.LEVEL1_DISCHARGE_TEMP_LOW) //
 						), //
-							// Pre-Alarm: Temperature Alarm will active current limication
+
+						// Pre-Alarm: Temperature Alarm will active current limication
 						m(new BitsWordElement(0x2142, this) //
 								.bit(0, SingleRackVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_HIGH) //
 								.bit(1, SingleRackVersionC.ChannelId.PRE_ALARM_TOTAL_VOLTAGE_HIGH) //
