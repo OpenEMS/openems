@@ -1,0 +1,32 @@
+version: 2
+updates:
+- package-ecosystem: maven
+  directory: "/cnf"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  target-branch: develop
+  ignore:
+  - dependency-name: com.squareup.okhttp3:logging-interceptor
+    versions:
+    - ">= 4.a, < 5"
+  - dependency-name: com.squareup.okhttp3:okhttp
+    versions:
+    - ">= 4.a, < 5"
+  - dependency-name: com.squareup.okio:okio
+    versions:
+    - "> 1.17.2"
+  - dependency-name: net.java.dev.jna:jna
+    versions:
+    - ">= 5.2.a, < 5.3"
+  - dependency-name: org.dhatim:fastexcel
+    versions:
+    - 0.12.5
+    - 0.12.6
+    - 0.12.8
+  - dependency-name: org.apache.felix:org.apache.felix.scr
+    versions:
+    - 2.1.26
+  - dependency-name: com.fazecast:jSerialComm
+    versions:
+    - 2.6.2
