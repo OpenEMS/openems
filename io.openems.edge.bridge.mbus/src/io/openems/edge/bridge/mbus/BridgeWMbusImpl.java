@@ -31,14 +31,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 
-// This module implements a Wireless M-Bus bridge using the jmbus library.
-// The supported WM-Bus receivers are the ones supported by the jmbus library. The bridge by itself can be used to scan
-// for devices by enabling the scan option in the config. A message will then be printed to the log whenever a signal is
-// received. Enabling debug mode will print the entire received messages to the log.
-// Data received from a device is automatically scaled to the unit of the associated channel. When the unit from the
-// device and the unit in the channel do not match, an error message is logged to the error message channel.
-// For sample code on how to use this bridge look in io.openems.edge.meter.watermeter.
-
+/**
+ * This module implements a Wireless M-Bus bridge using the jmbus library.
+ * The supported WM-Bus receivers are the ones supported by the jmbus library. The bridge by itself can be used to scan
+ * for devices by enabling the scan option in the config. A message will then be printed to the log whenever a signal is
+ * received. Enabling debug mode will print the entire received messages to the log.
+ * Data received from a device is automatically scaled to the unit of the associated channel. When the unit from the
+ * device and the unit in the channel do not match, an error message is logged to the error message channel.
+ * For sample code on how to use this bridge look in io.openems.edge.meter.watermeter.
+ */
 
 @Designate(ocd = ConfigWMbus.class, factory = true)
 @Component(name = "Bridge.WirelessMbus", //
@@ -121,8 +122,10 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 		this.devices.remove(sourceId);
 	}
 
-	// All WMBus messages are collected by the WMBusReceiver and placed in the message queue. The forever
-	// method takes the messages from the queue and processes them.
+	/**
+	 * This class collects any received WM-Bus messages and places them in messageQueue. The contents of messageQueue
+	 * are processed in the forever method of the WMbusWorker class.
+	 */
 	public static class WMbusReceiver implements WMBusListener {
 		private final BridgeWMbusImpl parent;
 
@@ -158,30 +161,30 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 				"Connection via [" + this.portName + "] failed: " + cause.getMessage());
 	}
 
+	/**
+	 * The class WMbusWorker processes the received MW-Bus messages. It is structured as follows:
+	 * A message is taken from the message queue. Then the list of WMBus devices registered to the bridge is
+	 * traversed to see if the message is from any of those devices. A comparison is done first by radio address,
+	 * and if necessary also by meter number.
+	 * Currently, the comparison by meter number is only used to tell channel 1 and 2 apart for the Padpuls
+	 * Relay.
+	 * I'm not entirely sure if it is possible for two different devices to have the same radio address. If it
+	 * is, they could be told apart by their meter number. However, the "detection by meter number" of this
+	 * bridge can not be used by meter types other than the Padpuls Relay. This is a limitation of the jmbus
+	 * library. The reason is, the meter number is only readable after decoding the message, and the keys for
+	 * decoding are stored in a list with the radio address (more specifically, the dllSecondaryAddress) as the
+	 * identifier. This list is part of the jmbus library. So there can be only one key per radio address. The
+	 * Padpuls Relay circumvents this problem by using the same decryption key for both channels.
+	 * If you need to use two meters that happen to have the same radio address, "detection by meter number"
+	 * can be used to tell them apart if you set them to the same decryption key. "detection by meter number"
+	 * can be enabled by adding a few lines of code to the meter module.
+	 * If there are two devices using the same radio address but you want to read data from only one of them,
+	 * this is no problem. As long as they don't have the same decryption key, only messages from one devices
+	 * can be decoded. The messages from the other device can not be decoded and are not processed. But you will
+	 * get constant decode-error messages because of the other device.
+	 */
 	private class WMbusWorker extends AbstractCycleWorker {
 
-		/**
-		 * Structure of this code:
-		 * A message is taken from the message queue. Then the list of WMBus devices registered to the bridge is
-		 * traversed to see if the message is from any of those devices. A comparison is done first by radio address,
-		 * and if necessary also by meter number.
-		 * Currently, the comparison by meter number is only used to tell channel 1 and 2 apart for the Padpuls
-		 * Relay.
-		 * I'm not entirely sure if it is possible for two different devices to have the same radio address. If it
-		 * is, they could be told apart by their meter number. However, the "detection by meter number" of this
-		 * bridge can not be used by meter types other than the Padpuls Relay. This is a limitation of the jmbus
-		 * library. The reason is, the meter number is only readable after decoding the message, and the keys for
-		 * decoding are stored in a list with the radio address (more specifically, the dllSecondaryAddress) as the
-		 * identifier. This list is part of the jmbus library. So there can be only one key per radio address. The
-		 * Padpuls Relay circumvents this problem by using the same decryption key for both channels.
-		 * If you need to use two meters that happen to have the same radio address, "detection by meter number"
-		 * can be used to tell them apart if you set them to the same decryption key. "detection by meter number"
-		 * can be enabled by adding a few lines of code to the meter module.
-		 * If there are two devices using the same radio address but you want to read data from only one of them,
-		 * this is no problem. As long as they don't have the same decryption key, only messages from one devices
-		 * can be decoded. The messages from the other device can not be decoded and are not processed. But you will
-		 * get constant decode-error messages because of the other device.
-		 */
 		@Override
 		protected void forever() throws OpenemsException {
 

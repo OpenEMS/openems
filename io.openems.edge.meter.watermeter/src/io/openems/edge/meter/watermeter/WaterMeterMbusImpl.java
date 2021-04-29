@@ -25,21 +25,23 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import java.util.List;
 
-// This class implements a water meter communicating via M-Bus.
-// M-Bus devices are polled by the M-Bus bridge in an interval configured by the module. This done to preserve battery
-// energy on battery powered meters. Meters are identified by their primary address, which needs to be entered at
-// configuration.
-// The data in a message is organized as numbered data records that contain a value and a unit. The basic case is that
-// volume of consumed water is on record number 0, and the timestamp is on record number 1. On which record number which
-// data is stored depends on the meter model. Some meters even have dynamic addresses/positions.
-// Data values are transferred to channels by assigning a channel to a data record address. So you need to know on which
-// record position your meters stores which data. Since the data records have units, an autosearch function is possible
-// that compares the data record's unit with the channel unit until it finds a match. The units comparison is also used
-// to automatically scale the value to the channel unit. If that is not possible because of unit mismatch, an error
-// message is written in the error message channel.
-// This module includes a list of meters with their data record positions for volume and timestamp. If your meter is not
-// in that list, you can manually enter the record positions for volume and timestamp or use the autosearch function. It
-//// is also possible to let OpenEMS create the timestamp instead of reading it from the meter.
+/**
+ * This class implements a water meter communicating via M-Bus.
+ * M-Bus devices are polled by the M-Bus bridge in an interval configured by the module. This done to preserve battery
+ * energy on battery powered meters. Meters are identified by their primary address, which needs to be entered at
+ * configuration.
+ * The data in a message is organized as numbered data records that contain a value and a unit. The basic case is that
+ * volume of consumed water is on record number 0, and the timestamp is on record number 1. On which record number which
+ * data is stored depends on the meter model. Some meters even have dynamic addresses/positions.
+ * Data values are transferred to channels by assigning a channel to a data record address. So you need to know on which
+ * record position your meters stores which data. Since the data records have units, an autosearch function is possible
+ * that compares the data record's unit with the channel unit until it finds a match. The units comparison is also used
+ * to automatically scale the value to the channel unit. If that is not possible because of unit mismatch, an error
+ * message is written in the error message channel.
+ * This module includes a list of meters with their data record positions for volume and timestamp. If your meter is not
+ * in that list, you can manually enter the record positions for volume and timestamp or use the autosearch function. It
+ * is also possible to let OpenEMS create the timestamp instead of reading it from the meter.
+ */
 
 @Designate(ocd = ConfigMbus.class, factory = true)
 @Component(name = "WaterMeter.Mbus", //
@@ -110,6 +112,12 @@ public class WaterMeterMbusImpl extends AbstractOpenemsMbusComponent
         }
     }
 
+    /**
+     * Maps the config option "Model" to the values in enum WaterMeterModelMbus and enables dynamicDataAddress
+     * if needed by that meter model.
+     *
+     * @param meterModel the meter model as a string.
+     */
     private void allocateAddressViaMeterModel(String meterModel) {
         switch (meterModel) {
             case "PAD_PULS_M2":
@@ -152,7 +160,12 @@ public class WaterMeterMbusImpl extends AbstractOpenemsMbusComponent
     @Override
     public void findRecordPositions(VariableDataStructure data, List<ChannelRecord> channelDataRecordsList) {
 
-        // Search for the entries starting at the top of the list.
+        // This is the code used for the "Autosearch" option.
+        // Entry 0 in channelDataRecordsList is the volume channel, entry 1 is the timestamp channel. This is defined in
+        // the "defineWMbusProtocol()" method.
+        // Look at the units in the WM-Bus data records. Find a data record that has the unit volume and another with
+        // unit date_time. Start searching from the top of the list. When a match is found, write the record position in
+        // the channelDataRecordsList.
         if (this.waterMeterModelMbus == WaterMeterModelMbus.AUTOSEARCH) {
             List<DataRecord> dataRecords = data.getDataRecords();
             int numberOfEntries = dataRecords.size();

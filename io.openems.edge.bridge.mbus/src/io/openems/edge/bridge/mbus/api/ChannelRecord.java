@@ -2,7 +2,9 @@ package io.openems.edge.bridge.mbus.api;
 
 import io.openems.edge.common.channel.Channel;
 
-// This class is used as the entries in the channelDataRecordsList. It links a channel to a data record address.
+/**
+ * This class is used as the entries in the channelDataRecordsList. It links a channel to a data record address.
+ */
 
 public class ChannelRecord {
 
@@ -47,6 +49,11 @@ public class ChannelRecord {
 		return this.channel;
 	}
 
+	/**
+	 * Set the channel associated with this channel record.
+	 *
+	 * @param channel	The channel.
+	 */
 	public void setChannelId(Channel<?> channel) {
 		this.channel = channel;
 	}
@@ -60,6 +67,11 @@ public class ChannelRecord {
 		return this.dataRecordPosition;
 	}
 
+	/**
+	 * Set the data record position associated with this channel record.
+	 *
+	 * @param dataRecordPosition	The data record position.
+	 */
 	public void setDataRecordPosition(int dataRecordPosition) {
 		this.dataRecordPosition = dataRecordPosition;
 	}

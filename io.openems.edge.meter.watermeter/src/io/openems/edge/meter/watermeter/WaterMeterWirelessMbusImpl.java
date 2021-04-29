@@ -27,25 +27,27 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-// This class implements a water meter communicating via Wireless M-Bus.
-// WM-Bus devices regularly send radio messages in an interval that is defined by the device. An active WM-Bus bridge
-// listens to these messages. The messages contain some identification information in the header and a usually encrypted
-// message body called the variable data structure. Part of the identification information is the radio address of the
-// device, that is usually printed on the meter.
-// This class uses the radio address of the meter to identify it's radio messages. The radio address is registered with
-// the WM-Bus bridge, who then assigns any received messages from this radio address to this device. If a decryption key
-// is entered when configuring the module, this key is used to decrypt the messages.
-// The data in a message is organized as numbered data records that contain a value and a unit. The basic case is that
-// volume of consumed water is on record number 0, and the timestamp is on record number 1. On which record number which
-// data is stored depends on the meter model. Some meters even have dynamic addresses/positions.
-// Data values are transferred to channels by assigning a channel to a data record address. So you need to know on which
-// record position your meters stores which data. Since the data records have units, an autosearch function is possible
-// that compares the data record's unit with the channel unit until it finds a match. The units comparison is also used
-// to automatically scale the value to the channel unit. If that is not possible because of unit mismatch, an error
-// message is written in the error message channel.
-// This module includes a list of meters with their data record positions for volume and timestamp. If your meter is not
-// in that list, you can manually enter the record positions for volume and timestamp or use the autosearch function. It
-// is also possible to let OpenEMS create the timestamp instead of reading it from the meter.
+/**
+ * This class implements a water meter communicating via Wireless M-Bus.
+ * WM-Bus devices regularly send radio messages in an interval that is defined by the device. An active WM-Bus bridge
+ * listens to these messages. The messages contain some identification information in the header and a usually encrypted
+ * message body called the variable data structure. Part of the identification information is the radio address of the
+ * device, that is usually printed on the meter.
+ * This class uses the radio address of the meter to identify it's radio messages. The radio address is registered with
+ * the WM-Bus bridge, who then assigns any received messages from this radio address to this device. If a decryption key
+ * is entered when configuring the module, this key is used to decrypt the messages.
+ * The data in a message is organized as numbered data records that contain a value and a unit. The basic case is that
+ * volume of consumed water is on record number 0, and the timestamp is on record number 1. On which record number which
+ * data is stored depends on the meter model. Some meters even have dynamic addresses/positions.
+ * Data values are transferred to channels by assigning a channel to a data record address. So you need to know on which
+ * record position your meters stores which data. Since the data records have units, an autosearch function is possible
+ * that compares the data record's unit with the channel unit until it finds a match. The units comparison is also used
+ * to automatically scale the value to the channel unit. If that is not possible because of unit mismatch, an error
+ * message is written in the error message channel.
+ * This module includes a list of meters with their data record positions for volume and timestamp. If your meter is not
+ * in that list, you can manually enter the record positions for volume and timestamp or use the autosearch function. It
+ * is also possible to let OpenEMS create the timestamp instead of reading it from the meter.
+ */
 
 @Designate(ocd = ConfigWirelessMbus.class, factory = true)
 @Component(name = "WaterMeter.WirelessMbus",
@@ -118,6 +120,12 @@ public class WaterMeterWirelessMbusImpl extends AbstractOpenemsWMbusComponent im
 
     }
 
+    /**
+     * Maps the config option "Model" to the values in enum WaterMeterModelWirelessMbus and enables dynamicDataAddress
+     * if needed by that meter model.
+     *
+     * @param meterModel the meter model as a string.
+     */
     private void allocateAddressViaMeterModel(String meterModel) {
         switch (meterModel) {
             case "Relay PadPuls M2W Channel 1":
@@ -188,7 +196,12 @@ public class WaterMeterWirelessMbusImpl extends AbstractOpenemsWMbusComponent im
     @Override
     public void findRecordPositions(VariableDataStructure data, List<ChannelRecord> channelDataRecordsList) {
 
-        // Search for the entries starting at the top of the list.
+        // This is the code used for the "Autosearch" option.
+        // Entry 0 in channelDataRecordsList is the volume channel, entry 1 is the timestamp channel. This is defined in
+        // the "defineWMbusProtocol()" method.
+        // Look at the units in the WM-Bus data records. Find a data record that has the unit volume and another with
+        // unit date_time. Start searching from the top of the list. When a match is found, write the record position in
+        // the channelDataRecordsList.
         if (this.waterMeterModelWirelessMbus == WaterMeterModelWirelessMbus.AUTOSEARCH) {
             List<DataRecord> dataRecords = data.getDataRecords();
             int numberOfEntries = dataRecords.size();
@@ -217,6 +230,7 @@ public class WaterMeterWirelessMbusImpl extends AbstractOpenemsWMbusComponent im
             }
         }
 
+        // This is the code used for the water meter model "Engelmann Waterstar M".
         // In the Waterstar, the entries for TOTAL_CONSUMED_WATER and TIMESTAMP_SECONDS are at the end of the record
         // list. So search the list starting from the end.
         if (this.waterMeterModelWirelessMbus == WaterMeterModelWirelessMbus.ENGELMANN_WATERSTAR_M) {

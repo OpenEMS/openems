@@ -8,8 +8,12 @@ import java.io.InterruptedIOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-// This class links the M-Bus bridge to a device. It is created by the module implementing the device and contains all
-// the information needed by the M-Bus bridge.
+/**
+ * This class is the representation of a device for the M-Bus bridge. It is the link between the M-Bus bridge and the
+ * device.
+ * An instance of this class is created by the module implementing the device. It contains all the information needed by
+ * the M-Bus bridge.
+ */
 
 public class MbusTask {
 
@@ -23,6 +27,15 @@ public class MbusTask {
 	private boolean useErrorChannel = false;
 	private StringReadChannel errorMessageChannel;	// If any error is detected, an error message will be written in this channel.
 
+	/**
+	 * Constructor. Is called in the "activate()" method of AbstractOpenemsMbusComponent.
+	 * This is the constructor without an error message channel. This will disable error logging.
+	 *
+	 * @param bridgeMbus        		The M-Bus bridge.
+	 * @param openemsMbusComponent    	The component creating the MbusTask.
+	 * @param pollingIntervalSeconds	The polling interval for this device, unit is seconds. Use 0 to not use a
+	 *                                  polling interval.
+	 */
 	public MbusTask(BridgeMbus bridgeMbus, AbstractOpenemsMbusComponent openemsMbusComponent, int pollingIntervalSeconds) {
 		this.openemsMbusComponent = openemsMbusComponent;
 		this.bridgeMbus = bridgeMbus;
@@ -33,6 +46,16 @@ public class MbusTask {
 		}
 	}
 
+	/**
+	 * Constructor. Is called in the "activate()" method of AbstractOpenemsMbusComponent.
+	 * This is the constructor using an error message channel for error logging.
+	 *
+	 * @param bridgeMbus        		The M-Bus bridge.
+	 * @param openemsMbusComponent    	The component creating the MbusTask.
+	 * @param pollingIntervalSeconds	The polling interval for this device, unit is seconds. Use 0 to not use a
+	 *                                  polling interval.
+	 * @param errorMessageChannel 		The channel for the error messages.
+	 */
 	public MbusTask(BridgeMbus bridgeMbus, AbstractOpenemsMbusComponent openemsMbusComponent, int pollingIntervalSeconds,
 					StringReadChannel errorMessageChannel) {
 		this(bridgeMbus, openemsMbusComponent, pollingIntervalSeconds);
@@ -98,6 +121,11 @@ public class MbusTask {
 		return this.openemsMbusComponent.getPrimaryAddress();
 	}
 
+	/**
+	 * Get the Id of the M-Bus device that is the parent of this class.
+	 *
+	 * @return true or false.
+	 */
 	public String getMeterId() { return this.openemsMbusComponent.getModuleId(); }
 
 	/**

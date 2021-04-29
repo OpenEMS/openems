@@ -30,13 +30,16 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
-// This module implements an M-Bus bridge using the jmbus library.
-// The bridge supports a polling interval, that allows to set the time between polling of an M-Bus device. This allows
-// to save battery energy on battery powered devices. Data received from a device is automatically scaled to the unit
-// of the associated channel. When the unit from the device and the unit in the channel do not match, an error message
-// is logged to the error message channel. Enabling debug mode in the config will print information to the log when
-// polling a device.
-// For sample code on how to use this bridge look in io.openems.edge.meter.watermeter.
+
+/**
+ * This module implements an M-Bus bridge using the jmbus library.
+ * The bridge supports a polling interval, that allows to set the time between polling of an M-Bus device. This allows
+ * to save battery energy on battery powered devices. Data received from a device is automatically scaled to the unit
+ * of the associated channel. When the unit from the device and the unit in the channel do not match, an error message
+ * is logged to the error message channel. Enabling debug mode in the config will print information to the log when
+ * polling a device.
+ * For sample code on how to use this bridge look in io.openems.edge.meter.watermeter.
+ */
 
 @Designate(ocd = ConfigMbus.class, factory = true)
 @Component(name = "Bridge.Mbus", //
@@ -96,6 +99,12 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 		return this.mBusConnection;
 	}
 
+	/**
+	 * This class creates the M-Bus connection and iterates through the devices registered to the bridge. Using the
+	 * "permissionToPoll()" method, the poll timer of a device is checked before it is polled. If the poll timer is 0,
+	 * the device is polled and the poll timer reset.
+	 * The "debug" option in the config can be used to print information to the log when a device is polled.
+	 */
 	private class MbusWorker extends AbstractCycleWorker {
 
 		@Override

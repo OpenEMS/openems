@@ -11,8 +11,10 @@ import org.osgi.service.component.ComponentContext;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-// This is the template class for a Wireless M-Bus device. For an example of how to implement a device using this class,
-// look in io.openems.edge.meter.watermeter.
+/**
+ * This is the template class for a Wireless M-Bus device. For an example of how to implement a device using this class,
+ * look in io.openems.edge.meter.watermeter.
+ */
 
 public abstract class AbstractOpenemsWMbusComponent extends AbstractOpenemsComponent {
 
@@ -69,22 +71,17 @@ public abstract class AbstractOpenemsWMbusComponent extends AbstractOpenemsCompo
 	/**
 	 * Call this method from Component implementations activate().
 	 * 
-	 * @param context        ComponentContext of this component. Receive it from
-	 *                       parameter for @Activate
-	 * @param id             ID of this component. Typically 'config.id()'
-	 * @param alias          Human-readable name of this Component. Typically
-	 *                       'config.alias()'. Defaults to 'id' if empty
-	 * @param enabled        Whether the component should be enabled. Typically
-	 *                       'config.enabled()'
-	 * @param radioAddress 		 Device Id of the M-Bus device, usually printed on the casing.
-	 *                       Typically 'config.radioAddress'
-	 * @param cm             An instance of ConfigurationAdmin. Receive it
-	 *                       using @Reference
-	 * @param wmbusReference  The name of the @Reference setter method for the M-Bus
-	 *                       bridge
-	 * @param wmbusId         The ID of the M-Bus bridge. Typically
-	 *                       'config.wmbusBridgeId()'
-	 * @param key         	 The decryption key for the encrypted data sent by the device.
+	 * @param context        	ComponentContext of this component. Receive it from parameter for @Activate.
+	 * @param id             	ID of this component. Typically 'config.id()'.
+	 * @param alias          	Human-readable name of this Component. Typically 'config.alias()'. Defaults to 'id' if
+	 *                          empty.
+	 * @param enabled        	Whether the component should be enabled. Typically 'config.enabled()'.
+	 * @param radioAddress   	Device Id of the M-Bus device, usually printed on the casing. Typically
+	 *                          'config.radioAddress'.
+	 * @param cm             	An instance of ConfigurationAdmin. Receive it using @Reference.
+	 * @param wmbusReference 	The name of the @Reference setter method for the M-Bus bridge.
+	 * @param wmbusId         	The ID of the M-Bus bridge. Typically 'config.wmbusBridgeId()'.
+	 * @param key         	 	The decryption key for the encrypted data sent by the device.
 	 * @return true if the target filter was updated. You may use it to abort the
 	 *         activate() method.
 	 */
@@ -148,6 +145,13 @@ public abstract class AbstractOpenemsWMbusComponent extends AbstractOpenemsCompo
 		}
 	}
 
+	/**
+	 * Gets the WMbus protocol.
+	 *
+	 * @param key      The decryption key for the encrypted data sent by the device.
+	 *
+	 * @return the WMbusProtocol
+	 */
 	private WMbusProtocol getWMbusProtocol(String key) {
 		WMbusProtocol protocol = this.protocol;
 		if (protocol != null) {
@@ -163,7 +167,7 @@ public abstract class AbstractOpenemsWMbusComponent extends AbstractOpenemsCompo
 	 * corresponding values or the datatype if the channel displays secondary
 	 * address values.
 	 *
-	 * @param key         	The decryption key for the encrypted data sent by the device.
+	 * @param key      The decryption key for the encrypted data sent by the device.
 	 *
 	 * @return the WMbusProtocol
 	 */
@@ -184,9 +188,9 @@ public abstract class AbstractOpenemsWMbusComponent extends AbstractOpenemsCompo
 	 * If "dynamicDataAddress" is true, this method is called. It checks for the correctness of the record position by
 	 * comparing the unit of the channel with the unit of the data on that record position. If it is a mismatch, the
 	 * records are searched to find a data item with matching unit.
+	 * For an example of how to implement this, look at io.openems.edge.meter.watermeter.
 	 *
 	 * @param data         				The data received from the WM-Bus device.
-	 *
 	 * @param channelDataRecordsList	The list of channelDataRecords, where the addresses are stored. The method
 	 *                                  should modify the addresses in this list.
 	 */

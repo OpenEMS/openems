@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-// This is the template class for a M-Bus device. For an example of how to implement a device using this class, look
-// in io.openems.edge.meter.watermeter.
+/**
+ * This is the template class for a M-Bus device. For an example of how to implement a device using this class, look
+ * in io.openems.edge.meter.watermeter.
+ */
 
 public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsComponent {
 
@@ -55,25 +57,18 @@ public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsCompon
 	}
 
 	/**
-	 * Call this method from Component implementations activate().
+	 * Call this method from Component implementations activate(). This is for modules that do not use an error message
+	 * channel.
 	 * 
-	 * @param context        ComponentContext of this component. Receive it from
-	 *                       parameter for @Activate
-	 * @param id             ID of this component. Typically 'config.id()'
-	 * @param alias          Human-readable name of this Component. Typically
-	 *                       'config.alias()'. Defaults to 'id' if empty
-	 * @param enabled        Whether the component should be enabled. Typically
-	 *                       'config.enabled()'
-	 * @param primaryAddress Primary address of the M-Bus device. Typically
-	 *                       'config.primaryAddress'
-	 * @param cm             An instance of ConfigurationAdmin. Receive it
-	 *                       using @Reference
-	 * @param mbusReference  The name of the @Reference setter method for the M-Bus
-	 *                       bridge
-	 * @param mbusId         The ID of the M-Bus bridge. Typically
-	 *                       'config.mbus_id()'
-	 * @param pollingInterval The polling interval for this device. Use 0 to not use
-	 *                        a polling interval.
+	 * @param context        	ComponentContext of this component. Receive it from parameter for @Activate.
+	 * @param id             	ID of this component. Typically 'config.id()'.
+	 * @param alias          	Human-readable name of this Component. Typically 'config.alias()'. Defaults to 'id' if empty.
+	 * @param enabled        	Whether the component should be enabled. Typically 'config.enabled()'.
+	 * @param primaryAddress 	Primary address of the M-Bus device. Typically 'config.primaryAddress'.
+	 * @param cm             	An instance of ConfigurationAdmin. Receive it using @Reference.
+	 * @param mbusReference  	The name of the @Reference setter method for the M-Bus bridge.
+	 * @param mbusId         	The ID of the M-Bus bridge. Typically 'config.mbus_id()'.
+	 * @param pollingInterval	The polling interval for this device, unit is seconds. Use 0 to not use a polling interval.
 	 * @return true if the target filter was updated. You may use it to abort the
 	 *         activate() method.
 	 */
@@ -94,7 +89,23 @@ public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsCompon
 		return false;
 	}
 
-	// Second constructor with added errorMessageChannel, to create tasks that use the errorMessageChannel.
+	/**
+	 * Call this method from Component implementations activate(). This is for modules that use an error message
+	 * channel.
+	 *
+	 * @param context        	ComponentContext of this component. Receive it from parameter for @Activate.
+	 * @param id             	ID of this component. Typically 'config.id()'.
+	 * @param alias          	Human-readable name of this Component. Typically 'config.alias()'. Defaults to 'id' if empty.
+	 * @param enabled        	Whether the component should be enabled. Typically 'config.enabled()'.
+	 * @param primaryAddress 	Primary address of the M-Bus device. Typically 'config.primaryAddress'.
+	 * @param cm             	An instance of ConfigurationAdmin. Receive it using @Reference.
+	 * @param mbusReference  	The name of the @Reference setter method for the M-Bus bridge.
+	 * @param mbusId         	The ID of the M-Bus bridge. Typically 'config.mbus_id()'.
+	 * @param pollingInterval		The polling interval for this device, unit is seconds. Use 0 to not use a polling interval.
+	 * @param errorMessageChannel 	The channel for the error messages.
+	 * @return true if the target filter was updated. You may use it to abort the
+	 *         activate() method.
+	 */
 	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int primaryAddress,
 							   ConfigurationAdmin cm, String mbusReference, String mbusId, int pollingInterval,
 							   StringReadChannel errorMessageChannel) {
@@ -151,6 +162,11 @@ public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsCompon
 		}
 	}
 
+	/**
+	 * Gets the M-Bus bridge.
+	 *
+	 * @return the M-Bus bridge.
+	 */
 	protected BridgeMbus getMBusBridge() {
 		BridgeMbus mbus = this.mbusId.get();
 		return mbus;
@@ -171,10 +187,11 @@ public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsCompon
 	 * If "dynamicDataAddress" is true, this method is called. It checks for the correctness of the record position by
 	 * comparing the unit of the channel with the unit of the data on that record position. If it is a mismatch, the
 	 * records are searched to find a data item with matching unit.
+	 * For an example of how to implement this, look at io.openems.edge.meter.watermeter.
 	 *
-	 * @param data                   The data received from the WM-Bus device.
-	 * @param channelDataRecordsList The list of channelDataRecords, where the addresses are stored. The method
-	 *                               should modify the addresses in this list.
+	 * @param data                   	The data received from the WM-Bus device.
+	 * @param channelDataRecordsList 	The list of channelDataRecords, where the addresses are stored. The method
+	 *                               	should modify the addresses in this list.
 	 */
 	public abstract void findRecordPositions(VariableDataStructure data, List<ChannelRecord> channelDataRecordsList);
 }

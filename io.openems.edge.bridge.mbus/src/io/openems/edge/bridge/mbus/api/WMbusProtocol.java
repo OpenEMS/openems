@@ -10,8 +10,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-// This class links the Wireless M-Bus bridge to a device. It is created by the module implementing the device and
-// contains all the information needed by the Wireless M-Bus bridge.
+/**
+ * This class is the representation of a device for the Wireless M-Bus bridge. It is the link between the Wireless M-Bus
+ * bridge and the device.
+ * An instance of this class is created by the module implementing the device. It contains all the information needed by
+ * the Wireless M-Bus bridge.
+ */
 
 public class WMbusProtocol {
 
@@ -33,7 +37,14 @@ public class WMbusProtocol {
 	private boolean useErrorChannel = false;
 	private StringReadChannel errorMessageChannel;	// If any error is detected, an error message will be written in this channel.
 
-	// Constructor without error logging.
+	/**
+	 * Constructor. Should be called in the "defineWMbusProtocol()" method of the WM-Bus component.
+	 * This is the constructor without an error message channel. This will disable error logging.
+	 *
+	 * @param parent        	The component creating the protocol.
+	 * @param keyAsHexString    The decryption key for the WM-Bus messages. Leave blank if not encrypted.
+	 * @param channelRecords    The channel records. Each channelRecord consists of a channel and a data record position.
+	 */
 	public WMbusProtocol(AbstractOpenemsWMbusComponent parent, String keyAsHexString, ChannelRecord... channelRecords) {
 		this.parent = parent;
 		if (keyAsHexString.equals("")) {
@@ -44,7 +55,15 @@ public class WMbusProtocol {
 		this.channelDataRecordsList.addAll(Arrays.asList(channelRecords));
 	}
 
-	// Constructor with error logging.
+	/**
+	 * Constructor. Should be called in the "defineWMbusProtocol()" method of the WM-Bus component.
+	 * This is the constructor using an error message channel for error logging.
+	 *
+	 * @param parent        		The component creating the protocol.
+	 * @param keyAsHexString    	The decryption key for the WM-Bus messages. Leave blank if not encrypted.
+	 * @param errorMessageChannel   A string channel to which any error messages will be written.
+	 * @param channelRecords    	The channel records. Each channelRecord consists of a channel and a data record position.
+	 */
 	public WMbusProtocol(AbstractOpenemsWMbusComponent parent, String keyAsHexString, StringReadChannel errorMessageChannel,
                          ChannelRecord... channelRecords) {
 		this(parent, keyAsHexString, channelRecords);
@@ -53,6 +72,12 @@ public class WMbusProtocol {
 		this.errorMessageChannel.setNextValue("No signal received so far.");
 	}
 
+	/**
+	 * A data converter to convert a hex number in string format to a byte array.
+	 *
+	 * @param value		A hex number in string format.
+	 * @return a byte array.
+	 */
 	private byte[] hexStringToByteArray(String value) {
 		return DatatypeConverter.parseHexBinary(value);
 	}
@@ -87,8 +112,18 @@ public class WMbusProtocol {
 		return this.parent.getRadioAddress();
 	}
 
+	/**
+	 * Gets the component Id of the meter that is the parent of this class.
+	 *
+	 * @return the radio address.
+	 */
 	public String getComponentId() { return this.parent.id(); }
 
+	/**
+	 * Register the data link layer secondary address for this device.
+	 *
+	 * @param dllSecondaryAddress	The data link layer secondary address.
+	 */
 	public void setDllSecondaryAddress(SecondaryAddress dllSecondaryAddress) {
 		this.dllSecondaryAddress = dllSecondaryAddress;
 	}
@@ -103,7 +138,7 @@ public class WMbusProtocol {
 	}
 
 	/**
-	 * Register the decryption key to the currently active Wireless M-Bus receiver.
+	 * Register the decryption key for this device to the currently active Wireless M-Bus receiver.
 	 *
 	 * @param connection the WMBusConnection created by the Wireless M-Bus receiver.
 	 */
@@ -112,7 +147,7 @@ public class WMbusProtocol {
 	}
 
 	/**
-	 * Log the signal strength of the received message with the WM-Bus device associated with the message.
+	 * Log the signal strength of the received message for this device.
 	 *
 	 * @param signalStrength the signal strength of the received message. Unit is decibel Milliwatt.
 	 */
@@ -121,7 +156,7 @@ public class WMbusProtocol {
 	}
 
 	/**
-	 * Query whether the "identify by meter number" mode is used for this WM-Bus device.
+	 * Query whether the "identify by meter number" mode is used by this WM-Bus device.
 	 *
 	 * @return true or false.
 	 */
@@ -129,6 +164,11 @@ public class WMbusProtocol {
 		return this.identifyByMeterNumber;
 	}
 
+	/**
+	 * Set the meter number for this device and enable "identify by meter number mode".
+	 *
+	 * @param meterNumber The meter number as a string.
+	 */
 	public void setMeterNumber(String meterNumber) {
 		this.meterNumber = meterNumber;
 		this.identifyByMeterNumber = true;
@@ -153,6 +193,11 @@ public class WMbusProtocol {
 		return this.useErrorChannel;
 	}
 
+	/**
+	 * Log an error message for this device.
+	 *
+	 * @param value The error message as a string.
+	 */
 	public void setError(String value) {
 		this.errorMessageChannel.setNextValue(value);
 	}
