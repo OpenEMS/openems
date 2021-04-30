@@ -66,65 +66,62 @@
           </ion-card>
 
           <!-- Logged in + normal operation -->
-          <ion-card *ngSwitchCase="'online'">
+          <ng-container *ngSwitchCase="'online'">
             <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
-
-              <ion-row *ngIf="noEdges; else showEdges" class="ion-justify-content-center">
+              <ion-card *ngIf="noEdges; else showEdges" class="ion-justify-content-center">
                 <!-- No access to Edges -->
-                <ion-col size-md="8" size-xl="4">
-                  <ion-card>
-                    <ion-item color="warning" lines="full">
-                      <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
-                      <ion-label>No access</ion-label>
-                    </ion-item>
-                    <ion-card-content>
-                      <p>Unfortunately, it seems that you do not have permission to access any OpenEMS Edge devices.
-                      </p>
-                    </ion-card-content>
-                  </ion-card>
-                </ion-col>
-              </ion-row>
+                <ion-item color="warning" lines="full">
+                  <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
+                  <ion-label>No access</ion-label>
+                </ion-item>
+                <ion-card-content>
+                  <p>Unfortunately, it seems that you do not have permission to access any OpenEMS Edge devices.
+                  </p>
+                </ion-card-content>
+              </ion-card>
 
               <ng-template #showEdges>
                 <!-- Show searchbar and list of Edges -->
-                <ion-row class="ion-justify-content-center">
-                  <ion-col size-md="12" size-xl="4">
-                    <ion-searchbar [(ngModel)]="filter" (ionChange)="updateFilteredEdges()"></ion-searchbar>
-                  </ion-col>
-                </ion-row>
+                <ion-grid>
+                  <ion-row class="ion-justify-content-center">
+                    <ion-col>
+                      <ion-searchbar [(ngModel)]="filter" (ionChange)="updateFilteredEdges()"></ion-searchbar>
+                    </ion-col>
+                  </ion-row>
 
-                <ion-row class="ion-justify-content-center">
-                  <ion-col size-md="12" size-xl="4">
-                    <ion-list lines="full">
+                  <ion-row class="ion-justify-content-center">
+                    <ion-col>
+                      <ion-list lines="full">
 
-                      <ion-item *ngFor="let edge of filteredEdges | slice:0:slice; let i=index" lines="inset"
-                        [routerLink]="['/device', edge.id]" [color]="edge.isOnline ? null : 'light'">
-                        <ion-label>
-                          <h2 class="ion-text-wrap">{{ edge.comment }}</h2>
-                          <p *ngIf="!edge.isOnline" class="ion-text-wrap">Das Gerät ist nicht verbunden!</p>
-                        </ion-label>
-                        <ion-label>
-                          <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
-                            <p>ID: {{ edge.id }}</p>
-                            <p class="ion-text-wrap">Typ: {{ edge.producttype }}</p>
-                          </ng-container>
-                          <p class="ion-text-wrap">Angemeldet als: {{ edge.getRoleString() }}.</p>
-                        </ion-label>
-                        <ion-icon slot="end" name="play-outline" color="primary"></ion-icon>
-                      </ion-item>
+                        <ion-item *ngFor="let edge of filteredEdges | slice:0:slice; let i=index" lines="inset"
+                          [routerLink]="['/device', edge.id]" [color]="edge.isOnline ? null : 'light'">
+                          <ion-label>
+                            <h2 class="ion-text-wrap">{{ edge.comment }}</h2>
+                            <p *ngIf="!edge.isOnline" class="ion-text-wrap">Das Gerät ist nicht verbunden!</p>
+                          </ion-label>
+                          <ion-label>
+                            <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
+                              <p>ID: {{ edge.id }}</p>
+                              <p class="ion-text-wrap">Typ: {{ edge.producttype }}</p>
+                            </ng-container>
+                            <p class="ion-text-wrap">Angemeldet als: {{ edge.getRoleString() }}.</p>
+                          </ion-label>
+                          <ion-icon slot="end" name="play-outline" color="primary"></ion-icon>
+                        </ion-item>
 
-                      <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
-                        <ion-infinite-scroll-content loadingSpinner="bubbles" distance="1%"
-                          loadingText="Loading more data...">
-                        </ion-infinite-scroll-content>
-                      </ion-infinite-scroll>
+                        <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
+                          <ion-infinite-scroll-content loadingSpinner="bubbles" distance="1%"
+                            loadingText="Loading more data...">
+                          </ion-infinite-scroll-content>
+                        </ion-infinite-scroll>
 
-                    </ion-list>
-                  </ion-col>
-                </ion-row>
+                      </ion-list>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
               </ng-template>
             </ng-container>
-          </ion-card>
+          </ng-container>
         </ng-container>
       </ion-col>
     </ion-row>

@@ -11,25 +11,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.MissingFormatArgumentException;
-import java.util.UUID;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.StringUtils;
 
 public class OdooUtils {
 
@@ -46,27 +41,43 @@ public class OdooUtils {
 
 	/**
 	 * Wrapper for the reply of a call to
-	 * {@link OdooUtils#sendJsonrpcRequest(String, JsonrpcRequest)}.
+	 * {@link OdooUtils#sendJsonrpcRequest(String, JsonObject)}
 	 */
-	public static class JsonrpcResponseSuccessAndHeaders {
-		public final JsonrpcResponseSuccess response;
+	public static class SuccessResponseAndHeaders {
+		public final JsonElement result;
 		public final Map<String, List<String>> headers;
 
-		public JsonrpcResponseSuccessAndHeaders(JsonrpcResponseSuccess response, Map<String, List<String>> headers) {
-			this.response = response;
+		public SuccessResponseAndHeaders(JsonElement result, Map<String, List<String>> headers) {
+			this.result = result;
 			this.headers = headers;
 		}
+	}
+
+	/**
+	 * Sends a JSON-RPC Request to an Odoo server - without Cookie header.
+	 * 
+	 * @param url     the URL
+	 * @param request the JSON-RPC Request as {@link JsonObject}
+	 * @return the {@link JsonObject} response and HTTP connection headers on
+	 *         success
+	 * @throws OpenemsNamedException on error
+	 */
+	public static SuccessResponseAndHeaders sendJsonrpcRequest(String url, JsonObject request)
+			throws OpenemsNamedException {
+		return OdooUtils.sendJsonrpcRequest(url, "", request);
 	}
 
 	/**
 	 * Sends a JSON-RPC Request to an Odoo server.
 	 * 
 	 * @param url     the URL
-	 * @param request the JSON-RPC Request
-	 * @return the JSON-RPC Response and HTTP connection headers
+	 * @param cookie  a Cookie string
+	 * @param request the JSON-RPC Request as {@link JsonObject}
+	 * @return the {@link JsonObject} response and HTTP connection headers on
+	 *         success
 	 * @throws OpenemsNamedException on error
 	 */
-	public static JsonrpcResponseSuccessAndHeaders sendJsonrpcRequest(String url, JsonrpcRequest request)
+	public static SuccessResponseAndHeaders sendJsonrpcRequest(String url, String cookie, JsonObject request)
 			throws OpenemsNamedException {
 		HttpURLConnection connection = null;
 		try {
@@ -78,10 +89,13 @@ public class OdooUtils {
 			connection.setRequestMethod("POST");
 			connection.setDoOutput(true);
 			connection.setRequestProperty("Content-Type", "application/json");
+			if (!cookie.isEmpty()) {
+				connection.setRequestProperty("Cookie", cookie);
+			}
 
 			// send JSON-RPC request
 			try (OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream())) {
-				out.write(request.toJsonObject().toString());
+				out.write(request.toString());
 				out.flush();
 			}
 
@@ -96,13 +110,7 @@ public class OdooUtils {
 			JsonObject json = JsonUtils.parseToJsonObject(sb.toString());
 
 			// Handle Success or Error
-			if (json.has("result")) {
-				UUID id = UUID.fromString(JsonUtils.getAsString(json, "id"));
-				JsonObject result = JsonUtils.getAsJsonObject(json, "result");
-				JsonrpcResponseSuccess response = new GenericJsonrpcResponseSuccess(id, result);
-				return new JsonrpcResponseSuccessAndHeaders(response, connection.getHeaderFields());
-
-			} else if (json.has("error")) {
+			if (json.has("error")) {
 				JsonObject error = JsonUtils.getAsJsonObject(json, "error");
 				// "code":200",
 				int code = JsonUtils.getAsInt(error, "code");
@@ -135,15 +143,18 @@ public class OdooUtils {
 							+ " ExceptionType [" + dataExceptionType + "]" //
 							+ " Arguments [" + dataArguments + "]" //
 							+ " Debug [" + dataDebug + "]";
-					try {
-						throw new OpenemsException(exception);
-					} catch (MissingFormatArgumentException e) {
-						System.out.println("Unable to throw Exception: " + exception + "; " + e.getMessage());
-						e.printStackTrace();
-					}
+					throw new OpenemsException(exception);
 				}
+			} else if (json.has("result")) {
+				return new SuccessResponseAndHeaders(JsonUtils.getSubElement(json, "result"),
+						connection.getHeaderFields());
+
+			} else {
+				// JSON-RPC response by Odoo on /logout is {jsonrpc:2.0, id:null} - without
+				// 'result' attribute
+				return new SuccessResponseAndHeaders(json, connection.getHeaderFields());
+
 			}
-			throw new OpenemsException("Unable to parse JsonrpcResponse from " + StringUtils.toShortString(json, 100));
 
 		} catch (IOException e) {
 			throw OpenemsError.GENERIC.exception(e.getMessage());
