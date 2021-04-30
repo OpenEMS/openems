@@ -1,23 +1,25 @@
 package io.openems.common.jsonrpc.notification;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
-import io.openems.common.jsonrpc.shared.EdgeMetadata;
+import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse.EdgeMetadata;
+import io.openems.common.session.AbstractUser;
 import io.openems.common.utils.JsonUtils;
 
 /**
- * Represents a JSON-RPC Notification for UI authentication with session_id.
+ * Represents a JSON-RPC Notification for UI authentication with a `session_id`
+ * or `token`.
  * 
  * <pre>
  * {
  *   "jsonrpc": "2.0",
  *   "method": "authenticatedWithSessionId",
  *   "params": {
- *     "token": UUID,
+ *     "token": String,
+ *     "user": {@link AbstractUser#toJsonObject()}
  *     "edges": {@link EdgeMetadata#toJson(java.util.Collection)}
  *   }
  * }
@@ -27,29 +29,32 @@ public class AuthenticateWithSessionIdNotification extends JsonrpcNotification {
 
 	public final static String METHOD = "authenticatedWithSessionId";
 
-	private final UUID token;
-	private final List<EdgeMetadata> metadatas;
+	private final String token;
+	private final AbstractUser user;
+	private final List<EdgeMetadata> edges;
 
-	public AuthenticateWithSessionIdNotification(UUID token, List<EdgeMetadata> metadatas) {
+	public AuthenticateWithSessionIdNotification(String token, AbstractUser user, List<EdgeMetadata> edges) {
 		super(METHOD);
 		this.token = token;
-		this.metadatas = metadatas;
+		this.user = user;
+		this.edges = edges;
 	}
 
+	/**
+	 * This method formats the {@link AuthenticateWithSessionIdNotification} so that
+	 * it contains the required information for OpenEMS UI.
+	 */
 	@Override
 	public JsonObject getParams() {
 		return JsonUtils.buildJsonObject() //
-				.addProperty("token", this.token.toString()) //
-				.add("edges", EdgeMetadata.toJson(this.metadatas)) //
+				.addProperty("token", this.token) //
+				.add("user", JsonUtils.buildJsonObject() //
+						.addProperty("id", this.user.getId()) //
+						.addProperty("name", this.user.getName()) //
+						.add("globalRole", this.user.getGlobalRole().asJson()) //
+						.build()) //
+				.add("edges", EdgeMetadata.toJson(this.edges)) //
 				.build();
-	}
-
-	public UUID getToken() {
-		return token;
-	}
-
-	public List<EdgeMetadata> getMetadatas() {
-		return metadatas;
 	}
 
 }

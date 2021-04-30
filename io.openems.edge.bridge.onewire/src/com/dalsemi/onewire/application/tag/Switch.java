@@ -71,8 +71,6 @@ public class Switch extends TaggedDevice implements TaggedActuator {
 	/**
 	 * Set the selection of this actuator
 	 *
-	 * @param The selection string.
-	 *
 	 * @throws OneWireException
 	 *
 	 */
@@ -105,8 +103,6 @@ public class Switch extends TaggedDevice implements TaggedActuator {
 	/**
 	 * Initializes the actuator
 	 * 
-	 * @param Init The initialization string.
-	 *
 	 * @throws OneWireException
 	 * 
 	 */

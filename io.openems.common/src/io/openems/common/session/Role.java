@@ -78,7 +78,7 @@ public enum Role {
 	 * @return the current Role
 	 * @throws OpenemsNamedException if the current Role privileges are less
 	 */
-	public Role assertRoleIsAtLeast(String resource, Role role) throws OpenemsNamedException {
+	public Role assertIsAtLeast(String resource, Role role) throws OpenemsNamedException {
 		if (this.isAtLeast(role)) {
 			// Ok
 			return this;

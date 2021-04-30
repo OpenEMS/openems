@@ -1,7 +1,5 @@
 package io.openems.common.websocket;
 
-import java.util.concurrent.CompletableFuture;
-
 import org.slf4j.Logger;
 
 public abstract class AbstractWebsocket<T extends WsData> {
@@ -58,6 +56,11 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	 */
 	protected abstract OnClose getOnClose();
 
+	/**
+	 * Construct this {@link AbstractWebsocket}.
+	 * 
+	 * @param name a name that is used to identify log messages
+	 */
 	public AbstractWebsocket(String name) {
 		this.name = name;
 	}
@@ -71,13 +74,27 @@ public abstract class AbstractWebsocket<T extends WsData> {
 		return name;
 	}
 
+	protected void start() {
+
+	}
+
+	public void stop() {
+	}
+
+	/**
+	 * Execute a {@link Runnable}.
+	 * 
+	 * @param command the {@link Runnable}
+	 */
+	protected abstract void execute(Runnable command);
+
 	/**
 	 * Handles an internal Error asynchronously
 	 * 
 	 * @param e
 	 */
 	protected void handleInternalErrorAsync(Exception e) {
-		CompletableFuture.runAsync(new OnInternalErrorHandler(this.getOnInternalError(), e));
+		this.execute(new OnInternalErrorHandler(this.getOnInternalError(), e));
 	}
 
 	/**

@@ -13,15 +13,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 
-@Designate(ocd = Config.class, factory = true)
-@Component(//
-		name = "Controller.$basePackageName$", //
-		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
-public class MyController extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
-
-	private Config config = null;
+public interface MyController extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -38,26 +30,4 @@ public class MyController extends AbstractOpenemsComponent implements Controller
 		}
 	}
 
-	public MyController() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				Controller.ChannelId.values(), //
-				ChannelId.values() //
-		);
-	}
-
-	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.config = config;
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
-	}
-
-	@Override
-	public void run() throws OpenemsNamedException {
-	}
 }

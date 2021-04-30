@@ -41,8 +41,6 @@ public class DummyBattery extends io.openems.edge.battery.test.DummyBattery impl
 		setMaximalDischargeCurrent(DEFAULT_MAX_DISCHARGE_CURRENT);
 		setDischargeMinVoltage(DEFAULT_MIN_VOLTAGE);
 		setChargeMaxVoltage(DEFAULT_MAX_VOLTAGE);
-		setForceChargeActive(false);
-		setForceDischargeActive(false);
 	}
 
 	public void setMinimalCellVoltage(int minimalCellVoltage) {
@@ -138,16 +136,6 @@ public class DummyBattery extends io.openems.edge.battery.test.DummyBattery impl
 	public void setCurrent(int current) {
 		this._setCurrent(current);
 		this.getCurrentChannel().nextProcessImage();
-	}
-
-	public void setForceChargeActive(boolean value) {
-		this._setForceChargeActive(value);
-		this.getForceChargeActiveChannel().nextProcessImage();
-	}
-
-	public void setForceDischargeActive(boolean value) {
-		this._setForceDischargeActive(value);
-		this.getForceDischargeActiveChannel().nextProcessImage();
 	}
 
 	@Override

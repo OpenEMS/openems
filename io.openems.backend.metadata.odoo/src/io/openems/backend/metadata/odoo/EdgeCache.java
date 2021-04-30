@@ -10,8 +10,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.metadata.api.Edge;
-import io.openems.backend.metadata.api.Edge.State;
+import io.openems.backend.common.metadata.Edge;
+import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.postgres.PgUtils;
@@ -19,7 +19,9 @@ import io.openems.backend.metadata.odoo.postgres.QueueWriteWorker;
 import io.openems.backend.metadata.odoo.postgres.task.InsertEdgeConfigUpdate;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeConfig;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeProducttype;
-import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeVersion;
+import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeStateActive;
+import io.openems.backend.metadata.odoo.postgres.task.UpdateSumState;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
@@ -30,7 +32,7 @@ import io.openems.common.utils.JsonUtils;
 public class EdgeCache {
 
 	private final Logger log = LoggerFactory.getLogger(EdgeCache.class);
-	private final MetadataOdoo parent;
+	private final OdooMetadata parent;
 
 	/**
 	 * Map Edge-ID (String) to Edge.
@@ -47,7 +49,7 @@ public class EdgeCache {
 	 */
 	private Map<String, String> apikeyToEdgeId = new HashMap<>();
 
-	public EdgeCache(MetadataOdoo parent) {
+	public EdgeCache(OdooMetadata parent) {
 		this.parent = parent;
 	}
 
@@ -97,11 +99,13 @@ public class EdgeCache {
 		String comment = PgUtils.getAsStringOrElse(rs, EdgeDevice.COMMENT, "");
 		String version = PgUtils.getAsStringOrElse(rs, EdgeDevice.OPENEMS_VERSION, "");
 		String productType = PgUtils.getAsStringOrElse(rs, EdgeDevice.PRODUCT_TYPE, "");
+		int sumStateInt = PgUtils.getAsIntegerOrElse(rs, EdgeDevice.OPENEMS_SUM_STATE, -1);
+		Level sumState = Level.fromValue(sumStateInt).orElse(null);
 
 		MyEdge edge = this.edgeIdToEdge.get(edgeId);
 		if (edge == null) {
 			// This is new -> create instance of Edge and register listeners
-			edge = new MyEdge(odooId, edgeId, apikey, comment, state, version, productType, config);
+			edge = new MyEdge(odooId, edgeId, apikey, comment, state, version, productType, sumState, config);
 			this.addListeners(edge);
 			this.edgeIdToEdge.put(edgeId, edge);
 			this.odooIdToEdgeId.put(odooId, edgeId);
@@ -112,6 +116,7 @@ public class EdgeCache {
 			edge.setState(state);
 			edge.setVersion(SemanticVersion.fromStringOrZero(version), false);
 			edge.setProducttype(productType);
+			edge.setSumState(sumState, false);
 			edge.setConfig(config, false);
 		}
 
@@ -181,7 +186,9 @@ public class EdgeCache {
 					this.parent.logInfo(this.log,
 							"Mark Edge [" + edge.getId() + "] as ACTIVE. It was [" + edge.getState().name() + "]");
 					edge.setState(State.ACTIVE);
-					this.parent.odooHandler.writeEdge(edge, new FieldValue<String>(Field.EdgeDevice.STATE, "active"));
+					this.parent.getPostgresHandler().getQueueWriteWorker();
+					QueueWriteWorker queueWriteWorker = this.parent.getPostgresHandler().getQueueWriteWorker();
+					queueWriteWorker.addTask(new UpdateEdgeStateActive(edge.getOdooId()));
 				}
 			} else {
 				// Set OpenEMS Is Connected in Odoo/Postgres
@@ -210,15 +217,16 @@ public class EdgeCache {
 			this.parent.getPostgresHandler().getPeriodicWriteWorker().onLastUpdate(edge);
 		});
 		edge.onSetVersion(version -> {
-			// Set Version in Odoo/Postgres
+			// Set Version in Odoo
 			this.parent.logInfo(this.log, "Edge [" + edge.getId() + "]: Update OpenEMS Edge version to [" + version
 					+ "]. It was [" + edge.getVersion() + "]");
-
-			this.parent.getPostgresHandler().getQueueWriteWorker()
-					.addTask(new UpdateEdgeVersion(edge.getOdooId(), version));
+			this.parent.odooHandler.writeEdge(edge,
+					new FieldValue<String>(Field.EdgeDevice.OPENEMS_VERSION, version.toString()));
 		});
-		edge.onSetComponentState(activeStateChannels -> {
-			this.parent.postgresHandler.updateDeviceStates(edge, activeStateChannels);
+		edge.onSetSumState(sumState -> {
+			// Set Sum-State in Odoo/Postgres
+			this.parent.getPostgresHandler().getQueueWriteWorker()
+					.addTask(new UpdateSumState(edge.getOdooId(), sumState));
 		});
 		edge.onSetProducttype(producttype -> {
 			// Set Producttype in Odoo/Postgres

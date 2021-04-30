@@ -12,7 +12,7 @@ public interface OcppStandardRequests {
 	 * Attention: The given power is given in watt. EVCS with the charging type AC
 	 * mostly send their limit values as amps.
 	 * 
-	 * @param ChargePower power that should be charged in watt.
+	 * @param chargePower power that should be charged in watt.
 	 * @return Valid request that can be sent to the EVCS.
 	 */
 	Request setChargePowerLimit(int chargePower);

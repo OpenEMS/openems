@@ -9,6 +9,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
@@ -25,6 +29,7 @@ import org.influxdb.dto.QueryResult.Series;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
@@ -33,16 +38,23 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
+import io.openems.common.utils.ThreadPoolUtils;
 import okhttp3.OkHttpClient;
 
 public class InfluxConnector {
 
 	public static final String MEASUREMENT = "data";
 
-	private static final Logger log = LoggerFactory.getLogger(InfluxConnector.class);
+	private static final Logger LOG = LoggerFactory.getLogger(InfluxConnector.class);
 	private static final int CONNECT_TIMEOUT = 10; // [s]
 	private static final int READ_TIMEOUT = 10; // [s]
 	private static final int WRITE_TIMEOUT = 10; // [s]
+
+	private static final int EXECUTOR_MIN_THREADS = 1;
+	private static final int EXECUTOR_MAX_THREADS = 50;
+	private static final int EXECUTOR_QUEUE_SIZE = 100;
+
+	private final Logger log = LoggerFactory.getLogger(InfluxConnector.class);
 
 	private final String ip;
 	private final int port;
@@ -52,6 +64,12 @@ public class InfluxConnector {
 	private final String retentionPolicy;
 	private final boolean isReadOnly;
 	private final BiConsumer<Iterable<Point>, Throwable> onWriteError;
+	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(EXECUTOR_MIN_THREADS, EXECUTOR_MAX_THREADS, 60L,
+			TimeUnit.SECONDS, //
+			new ArrayBlockingQueue<>(EXECUTOR_QUEUE_SIZE), //
+			new ThreadFactoryBuilder().setNameFormat("InfluxConnector-%d").build(), //
+			new ThreadPoolExecutor.DiscardPolicy());
+	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	/**
 	 * The Constructor.
@@ -65,7 +83,7 @@ public class InfluxConnector {
 	 * @param isReadOnly   If true, a 'Read-Only-Mode' is activated, where no data
 	 *                     is actually written to the database
 	 * @param onWriteError A callback for write-errors, i.e. '(failedPoints,
-	 *                     throwable) -> {}'
+	 *                     throwable) -&gt; {}'
 	 */
 	public InfluxConnector(String ip, int port, String username, String password, String database,
 			String retentionPolicy, boolean isReadOnly, BiConsumer<Iterable<Point>, Throwable> onWriteError) {
@@ -78,6 +96,15 @@ public class InfluxConnector {
 		this.retentionPolicy = retentionPolicy;
 		this.isReadOnly = isReadOnly;
 		this.onWriteError = onWriteError;
+		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
+			int queueSize = this.executor.getQueue().size();
+			this.log.info(String.format("[monitor] Pool: %d, Active: %d, Pending: %d, Completed: %d %s",
+					this.executor.getPoolSize(), //
+					this.executor.getActiveCount(), //
+					this.executor.getQueue().size(), //
+					this.executor.getCompletedTaskCount(), //
+					(queueSize == EXECUTOR_QUEUE_SIZE) ? "!!!BACKPRESSURE!!!" : "")); //
+		}, 10, 10, TimeUnit.SECONDS);
 	}
 
 	private InfluxDB _influxDB = null;
@@ -107,7 +134,11 @@ public class InfluxConnector {
 			influxDB.setDatabase(this.database);
 			influxDB.setRetentionPolicy(this.retentionPolicy);
 			influxDB.enableBatch(BatchOptions.DEFAULTS //
-					.jitterDuration(500) //
+					.precision(TimeUnit.MILLISECONDS) //
+					.flushDuration(1_000 /* milliseconds */) //
+					.jitterDuration(1_000 /* milliseconds */) //
+					.actions(1_000 /* entries */) //
+					.bufferLimit(1_000_000 /* entries */) //
 					.exceptionHandler(this.onWriteError));
 			this._influxDB = influxDB;
 		}
@@ -115,6 +146,8 @@ public class InfluxConnector {
 	}
 
 	public void deactivate() {
+		// Shutdown executor
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 		if (this._influxDB != null) {
 			this._influxDB.close();
 		}
@@ -196,6 +229,11 @@ public class InfluxConnector {
 	 */
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(Optional<Integer> influxEdgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		if (Math.random() * 4 < this.queryLimit.getLimit()) {
+			throw new OpenemsException("InfluxDB read is temporarily blocked for Energy values [" + this.queryLimit
+					+ "]. Edge [" + influxEdgeId + "] FromDate [" + fromDate + "] ToDate [" + toDate + "]");
+		}
+
 		// handle empty call
 		if (channels.isEmpty()) {
 			return new TreeMap<ChannelAddress, JsonElement>();
@@ -406,7 +444,7 @@ public class InfluxConnector {
 								Number number = (Number) valueObj;
 								if (number.intValue() < 0) {
 									// do not consider negative values
-									log.warn("Got negative Energy value [" + number + "] for query: " + query);
+									LOG.warn("Got negative Energy value [" + number + "] for query: " + query);
 									value = JsonNull.INSTANCE;
 								} else {
 									value = new JsonPrimitive(number);
@@ -431,7 +469,7 @@ public class InfluxConnector {
 				}
 			}
 			if (areAllValuesNull) {
-				throw new OpenemsException("Energy values are not available");
+				throw new OpenemsException("Energy values are not available for query: " + query);
 			}
 		}
 
@@ -478,7 +516,9 @@ public class InfluxConnector {
 			return;
 		}
 		try {
-			this.getConnection().write(point);
+			this.executor.execute(() -> {
+				this.getConnection().write(point);
+			});
 		} catch (InfluxDBIOException e) {
 			throw new OpenemsException("Unable to write point: " + e.getMessage());
 		}

@@ -174,7 +174,17 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 	private static void updateInactiveComponentsUsingConfigurationAdmin(Map<String, String> defectiveComponents,
 			List<OpenemsComponent> enabledComponents, Configuration[] configs) {
 		for (Configuration config : configs) {
-			Dictionary<String, Object> properties = config.getProperties();
+			Dictionary<String, Object> properties;
+			try {
+				properties = config.getProperties();
+				if (properties == null) {
+					// configuration was just created and update has not been called
+					continue;
+				}
+			} catch (IllegalStateException e) {
+				// Configuration has been deleted
+				continue;
+			}
 			String componentId = (String) properties.get("id");
 			if (componentId != null) {
 				if (defectiveComponents.containsKey(componentId)) {
@@ -254,6 +264,10 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 		Set<String> componentIds = new HashSet<>();
 		for (Configuration config : configs) {
 			Dictionary<String, Object> properties = config.getProperties();
+			if (properties == null) {
+				System.err.println(config.getPid() + ": Properties is 'null'");
+				continue;
+			}
 			String componentId = (String) properties.get("id");
 			if (componentId != null) {
 				if (componentIds.contains(componentId)) {

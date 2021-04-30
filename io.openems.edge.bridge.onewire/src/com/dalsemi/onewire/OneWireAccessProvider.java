@@ -399,8 +399,8 @@ public class OneWireAccessProvider {
 	 * <ul>
 	 * <li>Use adapter/port in System.properties for onewire.adapter.default, and
 	 * onewire.port.default properties tags.</li>
-	 * <li>Use adapter/port from onewire.properties file in current directory or <
-	 * java.home >/lib/ (Desktop) or /etc/ (TINI)</li>
+	 * <li>Use adapter/port from onewire.properties file in current directory or
+	 * &lt; java.home &gt;/lib/ (Desktop) or /etc/ (TINI)</li>
 	 * <li>Use smart default
 	 * <ul>
 	 * <li>Desktop
@@ -431,8 +431,8 @@ public class OneWireAccessProvider {
 	 * <p>
 	 * <ul>
 	 * <li>In System.properties
-	 * <li>In onewire.properties file in current directory or < java.home >/lib/
-	 * (Desktop) or /etc/ (TINI)
+	 * <li>In onewire.properties file in current directory or &lt; java.home
+	 * &gt;/lib/ (Desktop) or /etc/ (TINI)
 	 * <li>'smart' default if property is 'onewire.adapter.default' or
 	 * 'onewire.port.default'
 	 * </ul>

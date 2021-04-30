@@ -10,8 +10,8 @@ public class MyControllerTest {
 	private static final String CTRL_ID = "ctrl0";
 
 	@Test
-	private void test() throws Exception {
-		new ControllerTest(new MyController()) //
+	public void test() throws Exception {
+		new ControllerTest(new MyControllerImpl()) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.build())

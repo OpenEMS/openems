@@ -21,15 +21,16 @@ import io.openems.edge.common.type.TypeUtils;
  * <ul>
  * <li>a Channel-ID which is unique among the OpenemsComponent. (see
  * {@link io.openems.edge.common.channel.ChannelId})
- * <li>a {@link Doc} as static meta information. (via {@link #channelDoc()})
+ * <li>a {@link Doc} as static meta information. (via
+ * {@link Channel#channelDoc()})
  * <li>a system-wide unique {@link ChannelAddress} built from Component-ID and
- * Channel-ID. (via {@link #address()}
+ * Channel-ID. (via {@link Channel#address()}
  * <li>a {@link OpenemsType} which needs to map to the generic parameter
- * &lt;T&gt;. (via {@link #getType()})
- * <li>an (active) {@link Value}. (via {@link #value()})
+ * &lt;T&gt;. (via {@link Channel#getType()})
+ * <li>an (active) {@link Value}. (via {@link Channel#value()})
  * <li>callback methods to listen on value updates and changes. (see
- * {@link #onChange(Consumer)}, {@link #onUpdate(Consumer)} and
- * {@link #onSetNextValue(Consumer)})
+ * {@link Channel#onChange(Consumer)}, {@link Channel#onUpdate(Consumer)} and
+ * {@link Channel#onSetNextValue(Consumer)})
  * </ul>
  * 
  * <p>
@@ -45,6 +46,13 @@ import io.openems.edge.common.type.TypeUtils;
  * @param <T> the type of the Channel. One out of {@link OpenemsType}.
  */
 public interface Channel<T> {
+
+	/**
+	 * Holds the number of past values for this Channel that are kept in the
+	 * 'pastValues' variable.
+	 */
+	public static final int NO_OF_PAST_VALUES = 300;
+
 	/**
 	 * Gets the ChannelId of this Channel.
 	 * 
