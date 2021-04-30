@@ -13,6 +13,7 @@ import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/query
 import { User } from '../jsonrpc/shared';
 import { ChannelAddress } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
+import { AdvertWidgets, Widgets } from '../type/widget';
 import { DefaultTypes } from './defaulttypes';
 import { Websocket } from './websocket';
 
@@ -83,6 +84,17 @@ export class Service implements ErrorHandler {
   }
 
   /**
+   * Returns the configured language for docs.fenecon.de
+   */
+  public getDocsLang(): string {
+    if (this.translate.currentLang == "German") {
+      return "de";
+    } else {
+      return "en";
+    }
+  }
+
+  /**
    * Convert the browser language in Language Tag
    */
   public browserLangToLangTag(browserLang: string): LanguageTag {
@@ -125,7 +137,7 @@ export class Service implements ErrorHandler {
       // Set the currentPageTitle only once per ActivatedRoute
       if (this.currentActivatedRoute != activatedRoute) {
         if (currentPageTitle == null || currentPageTitle.trim() === '') {
-          this.currentPageTitle = 'OpenEMS UI';
+          this.currentPageTitle = 'FENECON Online-Monitoring';
         } else {
           this.currentPageTitle = currentPageTitle;
         }
@@ -368,7 +380,50 @@ export class Service implements ErrorHandler {
    * Checks if this Edge is allowed to show kWh values
    */
   public isKwhAllowed(edge: Edge): boolean {
+    if (!edge) {
+      return false;
+    }
+    if (edge.isVersionAtLeast('2020.25')) {
+      return true;
+    }
     return false;
+  }
+
+  /**
+   * checks if fems is allowed to show advertisement widget
+   */
+  public isAdvertAllowed(edge: Edge, advertWidgets: AdvertWidgets, widgets: Widgets) {
+    if (advertWidgets.names.includes(edge.producttype) == true) {
+      return true;
+    }
+    if (widgets.names.includes('io.openems.edge.evcs.api.Evcs') == false || advertWidgets.names.includes('Heimatstrom') == true) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Checks if this Edge is allowed to show BYD Battery Box Firmware Update Widget
+   */
+  public isBatteryBoxAllowed(edge: Edge): boolean {
+    if (['Pro Hybrid GW'].includes(edge.producttype)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * checks if fems is allowed to show partner widget
+   */
+  // TODO: encapsulate data for different partners
+  public isPartnerAllowed(edge: Edge): boolean {
+    if (!edge) {
+      return false;
+    }
+    if (['fems1267', 'fems1495', 'fems1886'].includes(edge.id)) {
+      return true;
+    }
   }
 
   /**
