@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>29.0-jre</version>
+			<version>30.1.1-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -182,6 +182,12 @@
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
 			<version>0.12.7</version>
+		</dependency>
+		<dependency>
+			<!-- Eclipse Paho MQTTv5 Client -->
+			<groupId>org.eclipse.paho</groupId>
+			<artifactId>org.eclipse.paho.mqttv5.client</artifactId>
+			<version>1.2.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
