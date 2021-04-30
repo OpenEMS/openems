@@ -13,7 +13,7 @@ import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
  * Represents a JSON-RPC Request to authenticate with a Password.
  * 
  * <p>
- * This is used by UI to login with password-only at the Edge.
+ * This is used by UI to login with username + password at Edge or Backend.
  * 
  * <pre>
  * {
