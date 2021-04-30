@@ -15,7 +15,12 @@ public class MyUser extends User {
 		this.odooId = odooId;
 	}
 
+	/**
+	 * Gets the internal Odoo record ID.
+	 * 
+	 * @return the odoo id
+	 */
 	public int getOdooId() {
-		return odooId;
+		return this.odooId;
 	}
 }

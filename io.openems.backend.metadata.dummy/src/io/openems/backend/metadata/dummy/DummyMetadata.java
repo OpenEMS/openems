@@ -139,7 +139,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 		return Collections.unmodifiableCollection(this.edges.values());
 	}
 
-	public static Optional<Integer> parseNumberFromName(String name) {
+	private static Optional<Integer> parseNumberFromName(String name) {
 		try {
 			Matcher matcher = NAME_NUMBER_PATTERN.matcher(name);
 			if (matcher.find()) {

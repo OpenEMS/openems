@@ -3,10 +3,10 @@ package io.openems.edge.core.predictormanager;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Core ComponentManager", //
-		description = "The global OpenEMS manager for Component.")
+		name = "Core Predictor-Manager", //
+		description = "The global manager for Predictors.")
 @interface Config {
 
-	String webconsole_configurationFactory_nameHint() default "Core ComponentManager";
+	String webconsole_configurationFactory_nameHint() default "Core Predictor-Manager";
 
 }

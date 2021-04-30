@@ -26,6 +26,7 @@ public interface Metadata {
 	/**
 	 * Was the Metadata service fully initialized?.
 	 * 
+	 * <p>
 	 * The service might take some time in the beginning to establish a connection
 	 * or to cache data from an external database.
 	 * 
@@ -35,11 +36,15 @@ public interface Metadata {
 
 	/**
 	 * See {@link #isInitialized()}.
+	 * 
+	 * @param callback the callback on 'isInitialized'
 	 */
 	public void addOnIsInitializedListener(Runnable callback);
 
 	/**
 	 * See {@link #isInitialized()}.
+	 * 
+	 * @param callback the callback on 'isInitialized'
 	 */
 	public void removeOnIsInitializedListener(Runnable callback);
 
