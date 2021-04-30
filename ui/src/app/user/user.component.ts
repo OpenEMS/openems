@@ -1,29 +1,40 @@
 import { Component } from '@angular/core';
-import { environment } from '../../environments';
-import { LanguageTag, Language } from '../shared/translate/language';
 import { ActivatedRoute } from '@angular/router';
-import { Service, Edge } from '../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
+import { environment } from '../../environments';
+import { Service, Websocket } from '../shared/shared';
+import { Language, LanguageTag } from '../shared/translate/language';
 
 @Component({
-  selector: 'settings',
-  templateUrl: './settings.component.html'
+  selector: 'user',
+  templateUrl: './user.component.html'
 })
-export class SettingsComponent {
+export class UserComponent {
 
   public env = environment;
 
-  public edge: Edge = null
   public readonly languages: LanguageTag[];
   public currentLanguage: LanguageTag;
 
   constructor(
     public translate: TranslateService,
-    private service: Service,
+    public service: Service,
     private route: ActivatedRoute,
+    private websocket: Websocket,
   ) {
     this.languages = Language.getLanguageTags();
-    this.currentLanguage = translate.currentLang as LanguageTag;
+  }
+
+  ngOnInit() {
+    this.currentLanguage = this.translate.currentLang as LanguageTag;
+    this.service.setCurrentComponent(this.translate.instant('Menu.user'), this.route);
+  }
+
+  /**
+   * Logout from OpenEMS Edge or Backend.
+   */
+  public doLogout() {
+    this.websocket.logout();
   }
 
   public toggleDebugMode(event: CustomEvent) {
@@ -33,11 +44,5 @@ export class SettingsComponent {
   public setLanguage(language: LanguageTag): void {
     this.currentLanguage = language;
     this.translate.use(language);
-  }
-
-  ngOnInit() {
-    this.service.setCurrentComponent(this.translate.instant('Menu.generalSettings'), this.route).then(edge => {
-      this.edge = edge
-    });
   }
 }
