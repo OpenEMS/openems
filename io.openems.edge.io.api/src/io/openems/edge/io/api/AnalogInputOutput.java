@@ -1,4 +1,4 @@
-package io.openems.edge.aio.api;
+package io.openems.edge.io.api;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
@@ -19,7 +19,7 @@ import io.openems.edge.common.component.OpenemsComponent;
  * </ul>
  */
 
-public interface AioChannel extends OpenemsComponent {
+public interface AnalogInputOutput extends OpenemsComponent {
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
         /**
