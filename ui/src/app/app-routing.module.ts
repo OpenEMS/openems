@@ -17,7 +17,6 @@ import { SelfconsumptionChartOverviewComponent } from './edge/history/selfconsum
 import { SinglethresholdChartOverviewComponent } from './edge/history/singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
 import { StorageChartOverviewComponent } from './edge/history/storage/storagechartoverview/storagechartoverview.component';
 import { LiveComponent as EdgeLiveComponent } from './edge/live/live.component';
-import { AutoinstallerComponent as EdgeSettingsAutoinstallerComponent } from './edge/settings/autoinstaller/autoinstaller.component';
 import { ChannelsComponent as EdgeSettingsChannelsComponent } from './edge/settings/channels/channels.component';
 import { IndexComponent as EdgeSettingsComponentInstallIndexComponentComponent } from './edge/settings/component/install/index.component';
 import { ComponentInstallComponent as EdgeSettingsComponentInstallComponentComponent } from './edge/settings/component/install/install.component';
@@ -26,13 +25,11 @@ import { ComponentUpdateComponent as EdgeSettingsComponentUpdateComponentCompone
 import { NetworkComponent as EdgeSettingsNetworkComponent } from './edge/settings/network/network.component';
 import { AliasUpdateComponent } from './edge/settings/profile/aliasupdate.component';
 import { ProfileComponent as EdgeSettingsProfileComponent } from './edge/settings/profile/profile.component';
-import { ServiceAssistantComponent as EdgeSettingsServiceAssistant } from './edge/settings/serviceassistant/serviceassistant.component';
 import { SettingsComponent as EdgeSettingsComponent } from './edge/settings/settings.component';
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
-import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
 import { IndexComponent } from './index/index.component';
-import { UserComponent } from './userprofile/user.component';
+import { UserComponent } from './user/user.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
@@ -40,7 +37,7 @@ const routes: Routes = [
 
   { path: 'user', component: UserComponent },
 
-  // Edge Settings Pages
+  // Edge Pages
   { path: 'device/:edgeId', redirectTo: 'device/:edgeId/live', pathMatch: 'full' },
   { path: 'device/:edgeId/live', component: EdgeLiveComponent },
   { path: 'device/:edgeId/history', component: EdgeHistoryComponent },
@@ -68,14 +65,11 @@ const routes: Routes = [
   { path: 'device/:edgeId/settings/component.install/:factoryId', component: EdgeSettingsComponentInstallComponentComponent },
   { path: 'device/:edgeId/settings/component.update', component: EdgeSettingsComponentUpdateIndexComponentComponent },
   { path: 'device/:edgeId/settings/component.update/:componentId', component: EdgeSettingsComponentUpdateComponentComponent },
-  { path: 'device/:edgeId/settings/autoinstaller', component: EdgeSettingsAutoinstallerComponent },
   { path: 'device/:edgeId/settings/network', component: EdgeSettingsNetworkComponent },
   { path: 'device/:edgeId/settings/profile', component: EdgeSettingsProfileComponent },
   { path: 'device/:edgeId/settings/profile/:componentId', component: AliasUpdateComponent },
-  { path: 'device/:edgeId/settings/servcieAssistant', component: EdgeSettingsServiceAssistant },
   { path: 'device/:edgeId/settings/systemexecute', component: EdgeSettingsSystemExecuteComponent },
   { path: 'device/:edgeId/settings/systemlog', component: EdgeSettingsSystemLogComponent },
-  { path: 'device/:edgeId/settings/systemupdate', component: EdgeSettingsSystemUpdateComponent },
 ];
 
 export const appRoutingProviders: any[] = [

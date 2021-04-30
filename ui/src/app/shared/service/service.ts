@@ -2,7 +2,6 @@ import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { CookieService } from 'ngx-cookie-service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
@@ -11,13 +10,12 @@ import { EdgeConfig } from '../edge/edgeconfig';
 import { JsonrpcResponseError } from '../jsonrpc/base';
 import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { Edges, User } from '../jsonrpc/shared';
+import { User } from '../jsonrpc/shared';
 import { ChannelAddress } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
-import { Role } from '../type/role';
-import { AdvertWidgets, Widgets } from '../type/widget';
 import { DefaultTypes } from './defaulttypes';
 import { Websocket } from './websocket';
+
 @Injectable()
 export class Service implements ErrorHandler {
 
@@ -67,7 +65,6 @@ export class Service implements ErrorHandler {
     private toaster: ToastController,
     public modalCtrl: ModalController,
     public translate: TranslateService,
-    private cookieService: CookieService,
   ) {
     // add language
     translate.addLangs(Language.getLanguages());
@@ -86,17 +83,6 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * Returns the configured language for docs.fenecon.de
-   */
-  public getDocsLang(): string {
-    if (this.translate.currentLang == "German") {
-      return "de";
-    } else {
-      return "en";
-    }
-  }
-
-  /**
    * Convert the browser language in Language Tag
    */
   public browserLangToLangTag(browserLang: string): LanguageTag {
@@ -109,27 +95,6 @@ export class Service implements ErrorHandler {
       case "fr": return LanguageTag.FR;
       default: return LanguageTag.DE;
     }
-  }
-
-  /**
-   * Gets the token from the cookie
-   */
-  public getToken(): string {
-    return this.cookieService.get('token');
-  }
-
-  /**
-   * Sets the token in the cookie
-   */
-  public setToken(token: string) {
-    this.cookieService.set('token', token, { sameSite: 'Strict' });
-  }
-
-  /**
-   * Removes the token from the cookie
-   */
-  public removeToken() {
-    return this.cookieService.delete('token');
   }
 
   /**
@@ -160,7 +125,7 @@ export class Service implements ErrorHandler {
       // Set the currentPageTitle only once per ActivatedRoute
       if (this.currentActivatedRoute != activatedRoute) {
         if (currentPageTitle == null || currentPageTitle.trim() === '') {
-          this.currentPageTitle = 'FENECON Online-Monitoring';
+          this.currentPageTitle = 'OpenEMS UI';
         } else {
           this.currentPageTitle = currentPageTitle;
         }
@@ -250,48 +215,12 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * Handles being authenticated. Updates the list of Edges.
-   */
-  public handleAuthentication(token: string, user: User, edges: Edges) {
-    this.websocket.status = 'online';
-
-    // received login token -> save in cookie
-    this.setToken(token);
-
-    // Metadata
-    this.metadata.next({
-      user: user,
-      edges: edges.reduce((map, edge) => {
-        map[edge.id] = new Edge(
-          edge.id,
-          edge.comment,
-          edge.producttype,
-          ("version" in edge) ? edge["version"] : "0.0.0",
-          Role.getRole(edge.role),
-          edge.isOnline
-        );
-        return map;
-      }, {})
-    });
-
-    // Resubscribe Channels
-    this.getCurrentEdge().then(edge => {
-      if (edge != null) {
-        edge.subscribeChannelsOnReconnect(this.websocket);
-      }
-    });
-  }
-
-  /**
    * Handles being logged out.
    */
-  public handleLogout() {
-    this.websocket.status = 'waiting for authentication';
+  public onLogout() {
     this.currentEdge.next(null);
     this.metadata.next(null);
-    this.removeToken();
     this.router.navigate(['/index']);
-    this.websocket
   }
 
   /**
@@ -439,57 +368,7 @@ export class Service implements ErrorHandler {
    * Checks if this Edge is allowed to show kWh values
    */
   public isKwhAllowed(edge: Edge): boolean {
-    if (!edge) {
-      return false;
-    }
-    if (['fems1', 'fems7', 'fems66', 'fems566', 'fems888', 'fems1802', 'fems361', 'fems970', 'fems1327'].includes(edge.id)) {
-      return true;
-    }
-    if (['PRO Hybrid 9-10', 'Pro Hybrid 10-Serie', 'Pro Hybrid GW', 'Commercial 30-Serie'].includes(edge.producttype)) {
-      return true;
-    }
-    if (edge.isVersionAtLeast('2020.25')) {
-      return true;
-    }
     return false;
-  }
-
-  /**
-   * checks if fems is allowed to show partner widget
-   */
-  // TODO: encapsulate data for different partners
-  public isPartnerAllowed(edge: Edge): boolean {
-    if (!edge) {
-      return false;
-    }
-    if (['fems1267', 'fems1495', 'fems1886'].includes(edge.id)) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * checks if fems is allowed to show advertisement widget
-   */
-  public isAdvertAllowed(edge: Edge, advertWidgets: AdvertWidgets, widgets: Widgets) {
-    if (advertWidgets.names.includes(edge.producttype) == true) {
-      return true;
-    }
-    if (widgets.names.includes('io.openems.edge.evcs.api.Evcs') == false || advertWidgets.names.includes('Heimatstrom') == true) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Checks if this Edge is allowed to show BYD Battery Box Firmware Update Widget
-   */
-  public isBatteryBoxAllowed(edge: Edge): boolean {
-    if (['Pro Hybrid GW'].includes(edge.producttype)) {
-      return true;
-    } else {
-      return false;
-    }
   }
 
   /**

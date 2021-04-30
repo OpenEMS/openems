@@ -8,7 +8,6 @@ import { PickDateComponent } from '../pickdate/pickdate.component';
 import { ChannelAddress, Edge, Service, Websocket } from '../shared';
 import { StatusSingleComponent } from '../status/single/status.component';
 
-
 @Component({
     selector: 'header',
     templateUrl: './header.component.html'

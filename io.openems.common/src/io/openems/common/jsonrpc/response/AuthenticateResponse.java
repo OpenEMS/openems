@@ -8,13 +8,16 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.request.AuthenticateWithPasswordRequest;
+import io.openems.common.jsonrpc.request.AuthenticateWithTokenRequest;
 import io.openems.common.session.AbstractUser;
 import io.openems.common.session.Role;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
 
 /**
- * Represents a JSON-RPC Response for 'authenticateWithPassword'.
+ * Represents a JSON-RPC Response for {@link AuthenticateWithPasswordRequest} or
+ * {@link AuthenticateWithTokenRequest}.
  * 
  * <pre>
  * {
@@ -28,7 +31,7 @@ import io.openems.common.utils.JsonUtils;
  * }
  * </pre>
  */
-public class AuthenticateWithPasswordResponse extends JsonrpcResponseSuccess {
+public class AuthenticateResponse extends JsonrpcResponseSuccess {
 
 	public static class EdgeMetadata {
 
@@ -74,7 +77,7 @@ public class AuthenticateWithPasswordResponse extends JsonrpcResponseSuccess {
 			this.isOnline = isOnline;
 		}
 
-		public JsonObject toJsonObject() {
+		protected JsonObject toJsonObject() {
 			return JsonUtils.buildJsonObject() //
 					.addProperty("id", this.id) //
 					.addProperty("comment", this.comment) //
@@ -90,7 +93,7 @@ public class AuthenticateWithPasswordResponse extends JsonrpcResponseSuccess {
 	private final AbstractUser user;
 	private final List<EdgeMetadata> edges;
 
-	public AuthenticateWithPasswordResponse(UUID id, String token, AbstractUser user, List<EdgeMetadata> edges) {
+	public AuthenticateResponse(UUID id, String token, AbstractUser user, List<EdgeMetadata> edges) {
 		super(id);
 		this.token = token;
 		this.user = user;
@@ -98,8 +101,8 @@ public class AuthenticateWithPasswordResponse extends JsonrpcResponseSuccess {
 	}
 
 	/**
-	 * This method formats the {@link AuthenticateWithPasswordResponse} so that it
-	 * contains the required information for OpenEMS UI.
+	 * This method formats the {@link AuthenticateResponse} so that it contains the
+	 * required information for OpenEMS UI.
 	 */
 	@Override
 	public JsonObject getResult() {

@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.SortedMap;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
@@ -20,6 +21,7 @@ import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.AuthenticateWithPasswordRequest;
+import io.openems.common.jsonrpc.request.AuthenticateWithTokenRequest;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
@@ -33,7 +35,7 @@ import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
-import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse;
+import io.openems.common.jsonrpc.response.AuthenticateResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
@@ -59,8 +61,12 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		// get websocket attachment
 		WsData wsData = ws.getAttachment();
 
-		// special handling for 'authenticate' request
-		if (request.getMethod().equals(AuthenticateWithPasswordRequest.METHOD)) {
+		// Start with authentication requests
+		switch (request.getMethod()) {
+		case AuthenticateWithTokenRequest.METHOD:
+			return this.handleAuthenticateWithTokenRequest(wsData, AuthenticateWithTokenRequest.from(request));
+
+		case AuthenticateWithPasswordRequest.METHOD:
 			return this.handleAuthenticateWithPasswordRequest(wsData, AuthenticateWithPasswordRequest.from(request));
 		}
 
@@ -180,6 +186,21 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
+	 * Handles a {@link AuthenticateWithTokenRequest}.
+	 * 
+	 * @param wsData  the WebSocket attachment
+	 * @param request the {@link AuthenticateWithTokenRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithTokenRequest(WsData wsData,
+			AuthenticateWithTokenRequest request) throws OpenemsNamedException {
+		String token = request.getToken();
+		return this.handleAuthentication(wsData, request.getId(),
+				Optional.ofNullable(this.parent.sessionTokens.get(token)), token);
+	}
+
+	/**
 	 * Handles a {@link AuthenticateWithPasswordRequest}.
 	 * 
 	 * @param wsData  the WebSocket attachment
@@ -189,18 +210,36 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithPasswordRequest(WsData wsData,
 			AuthenticateWithPasswordRequest request) throws OpenemsNamedException {
-		Optional<User> userOpt = this.parent.userService.authenticate(request.getPassword());
-		if (!userOpt.isPresent()) {
+		return this.handleAuthentication(wsData, request.getId(),
+				this.parent.userService.authenticate(request.getPassword()), UUID.randomUUID().toString());
+	}
+
+	/**
+	 * Common handler for {@link AuthenticateWithTokenRequest} and
+	 * {@link AuthenticateWithPasswordRequest}.
+	 * 
+	 * @param wsData    the WebSocket attachment
+	 * @param requestId the ID of the original {@link JsonrpcRequest}
+	 * @param userOpt   the optional {@link User}
+	 * @param token     the existing or new token
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleAuthentication(WsData wsData, UUID requestId,
+			Optional<User> userOpt, String token) throws OpenemsNamedException {
+		if (userOpt.isPresent()) {
+			User user = userOpt.get();
+			wsData.setSessionToken(token);
+			wsData.setUser(user);
+			this.parent.sessionTokens.put(token, user);
+			this.parent.logInfo(this.log, "User [" + user.getId() + ":" + user.getName() + "] connected.");
+
+			return CompletableFuture.completedFuture(
+					new AuthenticateResponse(requestId, token, user, Utils.getEdgeMetadata(user.getRole())));
+		} else {
 			wsData.unsetUser();
 			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 		}
-
-		// authentication successful
-		User user = userOpt.get();
-		wsData.setUser(user);
-		this.parent.sessionTokens.put(wsData.getSessionToken(), user);
-		return CompletableFuture.completedFuture(new AuthenticateWithPasswordResponse(request.getId(),
-				wsData.getSessionToken(), user, Utils.getEdgeMetadata(user.getRole())));
 	}
 
 	/**

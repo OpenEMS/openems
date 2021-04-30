@@ -34,24 +34,47 @@ public class WsData extends io.openems.common.websocket.WsData {
 		this.subscribedChannelsWorker.dispose();
 	}
 
+	/**
+	 * Sets the Session Token.
+	 * 
+	 * @param sessionToken the Session Token
+	 */
 	public void setSessionToken(String sessionToken) {
 		this.sessionToken = sessionToken;
 	}
 
+	/**
+	 * Gets the Session Token.
+	 * 
+	 * @return the Session Token
+	 */
 	public String getSessionToken() {
-		return sessionToken;
+		return this.sessionToken;
 	}
 
+	/**
+	 * Sets the {@link User}.
+	 * 
+	 * @param user the {@link User}
+	 */
 	public void setUser(User user) {
 		this.user = Optional.ofNullable(user);
 	}
 
+	/**
+	 * Unsets the {@link User}.
+	 */
 	public void unsetUser() {
 		this.user = Optional.empty();
 	}
 
+	/**
+	 * Gets the {@link User}.
+	 * 
+	 * @return the {@link Optional} {@link User}
+	 */
 	public Optional<User> getUser() {
-		return user;
+		return this.user;
 	}
 
 	/**
@@ -71,12 +94,13 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	/**
-	 * Gets the SubscribedChannelsWorker to take care of subscribe to CurrentData.
+	 * Gets the {@link SubscribedChannelsWorker} to take care of subscribe to
+	 * CurrentData.
 	 * 
-	 * @return the SubscribedChannelsWorker
+	 * @return the {@link SubscribedChannelsWorker}
 	 */
 	public SubscribedChannelsWorker getSubscribedChannelsWorker() {
-		return subscribedChannelsWorker;
+		return this.subscribedChannelsWorker;
 	}
 
 	@Override
@@ -87,7 +111,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 		} else {
 			tokenString = "UNKNOWN";
 		}
-		return "WebsocketApi.WsData [sessionToken=" + tokenString + ", user=" + user + "]";
+		return "WebsocketApi.WsData [sessionToken=" + tokenString + ", user=" + this.user + "]";
 	}
 
 	@Override

@@ -25,7 +25,8 @@ import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.comp
 import { SharedModule } from './shared/shared.module';
 import { StatusSingleComponent } from './shared/status/single/status.component';
 import { Language } from './shared/translate/language';
-import { UserModule } from './userprofile/user.module';
+import { UserModule } from './user/user.module';
+
 @NgModule({
   declarations: [
     AppComponent,

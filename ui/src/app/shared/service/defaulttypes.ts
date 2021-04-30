@@ -1,11 +1,9 @@
-import { endOfMonth, format, getDay, getMonth, getYear, isSameDay, isSameMonth, startOfMonth, subDays } from 'date-fns';
 import { TranslateService } from '@ngx-translate/core';
+import { endOfMonth, format, getDay, getMonth, getYear, isSameDay, isSameMonth, startOfMonth, subDays } from 'date-fns';
 
 export module DefaultTypes {
 
   export type Backend = "OpenEMS Backend" | "OpenEMS Edge";
-
-  export type ConnectionStatus = 'initial' | 'online' | 'connecting' | 'waiting for authentication' | 'failed';
 
   export interface ChannelAddresses {
     [componentId: string]: string[];

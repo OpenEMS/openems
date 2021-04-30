@@ -462,6 +462,7 @@ export class EdgeConfig {
         return result;
     }
 
+
     /**
      * Get the implemented Natures by Component-ID.
      * 
