@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../environments';
-import { LogoutRequest } from '../shared/jsonrpc/request/logoutRequest';
 import { Service, Websocket } from '../shared/shared';
 import { Language, LanguageTag } from '../shared/translate/language';
 

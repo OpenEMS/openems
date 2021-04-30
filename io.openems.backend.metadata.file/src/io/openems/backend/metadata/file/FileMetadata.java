@@ -69,11 +69,9 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	private static final Role USER_GLOBAL_ROLE = Role.ADMIN;
 
 	private final Logger log = LoggerFactory.getLogger(FileMetadata.class);
-
 	private final Map<String, MyEdge> edges = new HashMap<>();
 
 	private User user;
-
 	private String path = "";
 
 	public FileMetadata() {

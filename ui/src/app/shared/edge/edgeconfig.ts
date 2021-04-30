@@ -1,6 +1,6 @@
 import { ChannelAddress } from '../type/channeladdress';
-import { Edge } from './edge';
 import { Widgets } from '../type/widget';
+import { Edge } from './edge';
 
 export interface CategorizedComponents {
     category: {

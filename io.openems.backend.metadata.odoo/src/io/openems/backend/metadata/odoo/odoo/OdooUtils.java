@@ -41,7 +41,7 @@ public class OdooUtils {
 
 	/**
 	 * Wrapper for the reply of a call to
-	 * {@link OdooUtils#sendJsonrpcRequest(String, JsonObject)}
+	 * {@link OdooUtils#sendJsonrpcRequest(String, JsonObject)}.
 	 */
 	public static class SuccessResponseAndHeaders {
 		public final JsonElement result;

@@ -33,7 +33,7 @@ public class User extends AbstractUser {
 	 * @return the token
 	 */
 	public String getToken() {
-		return token;
+		return this.token;
 	}
 
 	/**
@@ -77,6 +77,7 @@ public class User extends AbstractUser {
 	/**
 	 * Gets the Metadata information of the accessible Edges.
 	 * 
+	 * @param user            the {@link User}
 	 * @param metadataService a {@link Metadata} provider
 	 * @return a list of {@link EdgeMetadata}
 	 */

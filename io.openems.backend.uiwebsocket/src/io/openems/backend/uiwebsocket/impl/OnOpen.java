@@ -13,6 +13,5 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 	@Override
 	public void run(WebSocket ws, JsonObject handshake) throws OpenemsException {
-
 	}
 }

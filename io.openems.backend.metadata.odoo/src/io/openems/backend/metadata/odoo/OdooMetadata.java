@@ -64,7 +64,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 				+ "Database [" + config.database() + "]");
 
 		this.odooHandler = new OdooHandler(this, config);
-		this.postgresHandler = new PostgresHandler(this, edgeCache, config, () -> {
+		this.postgresHandler = new PostgresHandler(this, this.edgeCache, config, () -> {
 			this.setInitialized();
 		});
 	}
@@ -144,12 +144,22 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 		return this.edgeCache.getAllEdges();
 	}
 
+	/**
+	 * Gets the {@link OdooHandler}.
+	 * 
+	 * @return the {@link OdooHandler}
+	 */
 	public OdooHandler getOdooHandler() {
-		return odooHandler;
+		return this.odooHandler;
 	}
 
+	/**
+	 * Gets the {@link PostgresHandler}.
+	 * 
+	 * @return the {@link PostgresHandler}
+	 */
 	public PostgresHandler getPostgresHandler() {
-		return postgresHandler;
+		return this.postgresHandler;
 	}
 
 	@Override

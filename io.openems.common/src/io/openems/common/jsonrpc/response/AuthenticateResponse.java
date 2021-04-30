@@ -77,7 +77,7 @@ public class AuthenticateResponse extends JsonrpcResponseSuccess {
 			this.isOnline = isOnline;
 		}
 
-		public JsonObject toJsonObject() {
+		protected JsonObject toJsonObject() {
 			return JsonUtils.buildJsonObject() //
 					.addProperty("id", this.id) //
 					.addProperty("comment", this.comment) //

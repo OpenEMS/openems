@@ -112,6 +112,7 @@ public class OdooHandler {
 	/**
 	 * Logout a User.
 	 * 
+	 * @param sessionId the Session-ID
 	 * @throws OpenemsNamedException on error
 	 */
 	public void logout(String sessionId) {

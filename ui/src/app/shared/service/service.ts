@@ -15,6 +15,7 @@ import { ChannelAddress } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
 import { DefaultTypes } from './defaulttypes';
 import { Websocket } from './websocket';
+
 @Injectable()
 export class Service implements ErrorHandler {
 
