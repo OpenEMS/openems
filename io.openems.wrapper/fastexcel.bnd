@@ -9,7 +9,7 @@ Include-Resource: @fastexcel-0.12.7.jar
 
 -metatypeannotations: *
 
--exportcontents: \
-	org.dhatim.fastexcel
-	
+Export-Package: \
+    org.dhatim.fastexcel
+
 -sources: false
