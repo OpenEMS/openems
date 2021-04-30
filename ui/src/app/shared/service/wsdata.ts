@@ -23,9 +23,9 @@ export class WsData {
   public sendRequest(ws: WebSocketSubject<any>, request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
     if (env.debugMode) {
       if (request instanceof EdgeRpcRequest) {
-        console.info("Request      [" + request.params.payload.method + ":" + request.params.edgeId + "]", request.params.payload);
+        console.info("Request      [" + request.params.payload.method + ":" + request.params.edgeId + "]", request.params.payload.params);
       } else {
-        console.info("Request      [" + request.method + "]", request);
+        console.info("Request      [" + request.method + "]", request.params);
       }
     }
 
