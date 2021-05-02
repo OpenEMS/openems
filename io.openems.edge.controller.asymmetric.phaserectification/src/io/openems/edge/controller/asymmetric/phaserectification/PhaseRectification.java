@@ -90,16 +90,16 @@ public class PhaseRectification extends AbstractOpenemsComponent implements Cont
 			return;
 		}
 
-		int meterL1 = meter.getActivePowerL1().orElse(0) * -1;
-		int meterL2 = meter.getActivePowerL2().orElse(0) * -1;
-		int meterL3 = meter.getActivePowerL3().orElse(0) * -1;
+		int meterL1 = meter.getActivePowerL1().getOrError() * -1;
+		int meterL2 = meter.getActivePowerL2().getOrError() * -1;
+		int meterL3 = meter.getActivePowerL3().getOrError() * -1;
 		int meterPowerAvg = (meterL1 + meterL2 + meterL3) / 3;
 		int meterL1Delta = meterPowerAvg - meterL1;
 		int meterL2Delta = meterPowerAvg - meterL2;
 		int meterL3Delta = meterPowerAvg - meterL3;
-		int essL1 = ess.getActivePowerL1().orElse(0);
-		int essL2 = ess.getActivePowerL2().orElse(0);
-		int essL3 = ess.getActivePowerL3().orElse(0);
+		int essL1 = ess.getActivePowerL1().getOrError();
+		int essL2 = ess.getActivePowerL2().getOrError();
+		int essL3 = ess.getActivePowerL3().getOrError();
 		int activePowerL1 = essL1 + meterL1Delta;
 		int activePowerL2 = essL2 + meterL2Delta;
 		int activePowerL3 = essL3 + meterL3Delta;

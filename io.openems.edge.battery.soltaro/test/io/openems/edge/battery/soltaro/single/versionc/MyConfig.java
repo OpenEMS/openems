@@ -1,7 +1,7 @@
 package io.openems.edge.battery.soltaro.single.versionc;
 
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.battery.soltaro.ModuleType;
+import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
@@ -23,7 +23,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public ModuleType moduleType;
 		public int watchdog;
 		public int socLowAlarm;
-		public boolean ReduceTasks;
+		public boolean reduceTasks;
 
 		private Builder() {
 		}

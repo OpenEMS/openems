@@ -6,6 +6,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
@@ -25,14 +27,18 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.ApiWorker;
@@ -51,18 +57,16 @@ import io.openems.edge.timedata.api.Timedata;
 public class BackendApiImpl extends AbstractOpenemsComponent
 		implements BackendApi, Controller, OpenemsComponent, PaxAppender, EventHandler {
 
-	protected static final int DEFAULT_NO_OF_CYCLES = 10;
 	protected static final String COMPONENT_NAME = "Controller.Api.Backend";
 
-	protected final BackendWorker worker = new BackendWorker(this);
+	protected final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
 
-	protected final ApiWorker apiWorker = new ApiWorker();
+	protected final ApiWorker apiWorker = new ApiWorker(this);
 
 	private final Logger log = LoggerFactory.getLogger(BackendApiImpl.class);
 
 	protected WebsocketClient websocket = null;
-	protected int noOfCycles = DEFAULT_NO_OF_CYCLES; // default, is going to be overwritten by config
-	protected boolean debug = false;
+	protected Config config;
 
 	// Used for SubscribeSystemLogRequests
 	private boolean isSystemLogSubscribed = false;
@@ -72,6 +76,11 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 	@Reference
 	protected ComponentManager componentManager;
+
+	@Reference
+	protected Cycle cycle;
+
+	protected ScheduledExecutorService executor;
 
 	public BackendApiImpl() {
 		super(//
@@ -84,13 +93,17 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
+		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.noOfCycles = config.noOfCycles();
-		this.debug = config.debug();
 
 		if (!this.isEnabled()) {
 			return;
 		}
+
+		// initialize Executor
+		String name = COMPONENT_NAME + ":" + this.id();
+		this.executor = Executors.newScheduledThreadPool(1,
+				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
 
 		// initialize ApiWorker
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
@@ -117,20 +130,18 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		httpHeaders.put("apikey", config.apikey());
 
 		// Create Websocket instance
-		this.websocket = new WebsocketClient(this, COMPONENT_NAME + ":" + this.id(), uri, httpHeaders, proxy);
+		this.websocket = new WebsocketClient(this, name, uri, httpHeaders, proxy);
 		this.websocket.start();
-
-		// Activate worker
-		this.worker.activate(config.id());
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		this.worker.deactivate();
+		this.sendChannelValuesWorker.deactivate();
 		if (this.websocket != null) {
 			this.websocket.stop();
 		}
+		ThreadPoolUtils.shutdownAndAwaitTermination(executor, 5);
 	}
 
 	@Override
@@ -181,10 +192,11 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.worker.triggerNextRun();
+			this.sendChannelValuesWorker.collectData();
 			break;
 
 		case EdgeEventConstants.TOPIC_CONFIG_UPDATE:
+			// Send new EdgeConfig
 			EdgeConfig config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
 			EdgeConfigNotification message = new EdgeConfigNotification(config);
 			WebsocketClient ws = this.websocket;
@@ -192,6 +204,14 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 				return;
 			}
 			ws.sendMessage(message);
+
+			// Trigger sending of all channel values, because a Component might have
+			// disappeared
+			this.sendChannelValuesWorker.sendValuesOfAllChannelsOnce();
 		}
+	}
+
+	public boolean isConnected() {
+		return this.websocket.isConnected();
 	}
 }

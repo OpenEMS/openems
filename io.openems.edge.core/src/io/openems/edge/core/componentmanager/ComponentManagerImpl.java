@@ -29,7 +29,11 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.component.runtime.ServiceComponentRuntime;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.metatype.MetaTypeService;
+import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
@@ -45,7 +49,6 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.session.Role;
-import io.openems.common.session.User;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -53,7 +56,9 @@ import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
+import io.openems.edge.common.user.User;
 
+@Designate(ocd = Config.class, factory = false)
 @Component(//
 		name = "Core.ComponentManager", //
 		immediate = true, //
@@ -133,6 +138,18 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends OpenemsComponent> List<T> getEnabledComponentsOfType(Class<T> clazz) {
+		List<T> result = new ArrayList<>();
+		for (OpenemsComponent component : this.enabledComponents) {
+			if (component.getClass().isInstance(clazz)) {
+				result.add((T) component);
+			}
+		}
+		return result;
+	}
+
+	@Override
 	public List<OpenemsComponent> getAllComponents() {
 		return Collections.unmodifiableList(this.allComponents);
 	}
@@ -193,10 +210,10 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Handles a GetEdgeConfigRequest.
+	 * Handles a {@link GetEdgeConfigRequest}.
 	 * 
-	 * @param user    the User
-	 * @param request the GetEdgeConfigRequest
+	 * @param user    the {@link User}
+	 * @param request the {@link GetEdgeConfigRequest}
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
@@ -208,10 +225,10 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Handles a CreateComponentConfigRequest.
+	 * Handles a {@link CreateComponentConfigRequest}.
 	 * 
-	 * @param user    the User
-	 * @param request the CreateComponentConfigRequest
+	 * @param user    the {@link User}
+	 * @param request the {@link CreateComponentConfigRequest}
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
@@ -284,10 +301,10 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Handles a UpdateComponentConfigRequest.
+	 * Handles a {@link UpdateComponentConfigRequest}.
 	 * 
-	 * @param user    the User
-	 * @param request the UpdateComponentConfigRequest
+	 * @param user    the {@link User}
+	 * @param request the {@link UpdateComponentConfigRequest}
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
@@ -297,14 +314,25 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		// Create map with changed configuration attributes
 		Dictionary<String, Object> properties = config.getProperties();
+		if (properties == null) {
+			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.getComponentId(),
+					config.getPid() + ": Properties is 'null'");
+		}
 		for (Property property : request.getProperties()) {
 			// do not allow certain properties to be updated, like pid and service.pid
 			if (!EdgeConfig.ignorePropertyKey(property.getName())) {
-				Object value = JsonUtils.getAsBestType(property.getValue());
-				if (value instanceof Object[] && ((Object[]) value).length == 0) {
-					value = new String[0];
+				JsonElement jValue = property.getValue();
+				if (jValue == null || jValue == JsonNull.INSTANCE) {
+					// Remove NULL property
+					properties.remove(property.getName());
+				} else {
+					// Add updated Property
+					Object value = JsonUtils.getAsBestType(property.getValue());
+					if (value instanceof Object[] && ((Object[]) value).length == 0) {
+						value = new String[0];
+					}
+					properties.put(property.getName(), value);
 				}
-				properties.put(property.getName(), value);
 			}
 		}
 
@@ -320,10 +348,10 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Handles a DeleteComponentConfigRequest.
+	 * Handles a {@link DeleteComponentConfigRequest}.
 	 * 
-	 * @param user    the User
-	 * @param request the DeleteComponentConfigRequest
+	 * @param user    the {@link User}
+	 * @param request the {@link DeleteComponentConfigRequest}
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
@@ -345,7 +373,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * Updates the Configuration from the given Properties and adds some meta
 	 * information.
 	 * 
-	 * @param user       the User
+	 * @param user       the {@link User}
 	 * @param config     the Configuration object
 	 * @param properties the properties
 	 * @throws IOException on error

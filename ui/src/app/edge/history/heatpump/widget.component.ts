@@ -6,10 +6,10 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ModalController } from '@ionic/angular';
 
 @Component({
-    selector: HeatpumptWidgetComponent.SELECTOR,
+    selector: HeatpumpWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class HeatpumptWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
+export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;

@@ -94,6 +94,8 @@ export const TRANSLATION = {
         logout: 'Odhlásit',
         menu: 'Menu',
         overview: 'OpenEMS Edge Přehled',
+        settings: 'nastavení',
+        user: 'Uživatel',
     },
     Index: {
         allConnected: 'Všechna připojení aktivní.',
@@ -141,6 +143,11 @@ export const TRANSLATION = {
                     switchOnBelow: 'Zapněte pod',
                     threshold: 'Prahována',
                 },
+                DelayedSellToGrid: {
+                    sellToGridPowerLimit: 'Poplatek výše',
+                    continuousSellToGridPower: 'Výboj níže',
+                    relationError: 'Limit poplatku musí být vyšší než limit vybití',
+                },
                 Peakshaving: {
                     asymmetricInfo: 'Zadané hodnoty výkonu se vztahují k jednotlivým fázím. Je nastavena na nejvíce namáhanou fázi.',
                     endDate: 'Datum Ukončení',
@@ -153,6 +160,7 @@ export const TRANSLATION = {
                     relationError: 'Mez vypouštění musí být větší nebo rovna limitu zatížení',
                     startDate: 'Datum Začátku',
                     startTime: 'Doba spuštění',
+                    startTimeCharge: 'Čas zahájení načítání',
                 },
                 CHP: {
                     highThreshold: 'vysoký práh',

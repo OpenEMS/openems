@@ -8,9 +8,11 @@ import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
+import org.slf4j.Logger;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -181,7 +183,8 @@ public interface OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// Running State of the component. Keep values in sync with 'Level' enum!
-		STATE(new StateCollectorChannelDoc());
+		STATE(new StateCollectorChannelDoc() //
+				.persistencePriority(PersistencePriority.VERY_HIGH));
 
 		private final Doc doc;
 
@@ -377,4 +380,66 @@ public interface OpenemsComponent {
 			System.out.println("ERROR: " + e.getMessage());
 		}
 	}
+
+	/**
+	 * Log a debug message including the Component ID.
+	 * 
+	 * @param component the {@link OpenemsComponent}
+	 * @param log       the {@link Logger} instance
+	 * @param message   the message
+	 */
+	public static void logDebug(OpenemsComponent component, Logger log, String message) {
+		// TODO use log.debug(String, Object...) to improve speed
+		if (component != null) {
+			log.debug("[" + component.id() + "] " + message);
+		} else {
+			log.debug(message);
+		}
+	}
+
+	/**
+	 * Log a info message including the Component ID.
+	 * 
+	 * @param component the {@link OpenemsComponent}
+	 * @param log       the {@link Logger} instance
+	 * @param message   the message
+	 */
+	public static void logInfo(OpenemsComponent component, Logger log, String message) {
+		if (component != null) {
+			log.info("[" + component.id() + "] " + message);
+		} else {
+			log.info(message);
+		}
+	}
+
+	/**
+	 * Log a warn message including the Component ID.
+	 * 
+	 * @param component the {@link OpenemsComponent}
+	 * @param log       the {@link Logger} instance
+	 * @param message   the message
+	 */
+	public static void logWarn(OpenemsComponent component, Logger log, String message) {
+		if (component != null) {
+			log.warn("[" + component.id() + "] " + message);
+		} else {
+			log.warn(message);
+		}
+	}
+
+	/**
+	 * Log a error message including the Component ID.
+	 * 
+	 * @param component the {@link OpenemsComponent}
+	 * @param log       the {@link Logger} instance
+	 * @param message   the message
+	 */
+	public static void logError(OpenemsComponent component, Logger log, String message) {
+		if (component != null) {
+			log.error("[" + component.id() + "] " + message);
+		} else {
+			log.error(message);
+		}
+	}
+
 }

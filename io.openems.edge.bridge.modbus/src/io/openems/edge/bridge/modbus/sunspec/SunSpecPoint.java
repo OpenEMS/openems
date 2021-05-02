@@ -85,9 +85,10 @@ public interface SunSpecPoint {
 			this.mandatory = mandatory;
 			this.accessMode = accessMode;
 			this.unit = unit;
+			this.scaleFactor = Optional.ofNullable(scaleFactor);
 			if (options.length == 0) {
 				this.channelId = new SunSChannelId<>(channelId, //
-						Doc.of(this.getMatchingOpenemsType()) //
+						Doc.of(this.getMatchingOpenemsType(this.scaleFactor.isPresent())) //
 								.unit(unit) //
 								.accessMode(accessMode));
 			} else {
@@ -95,7 +96,6 @@ public interface SunSpecPoint {
 						new EnumDoc(options) //
 								.accessMode(accessMode));
 			}
-			this.scaleFactor = Optional.ofNullable(scaleFactor);
 			this.options = options;
 		}
 
@@ -168,9 +168,16 @@ public interface SunSpecPoint {
 		/**
 		 * Gets the {@link OpenemsType} that matches this SunSpec-Type.
 		 * 
+		 * @param hasScaleFactor true if this Point has a ScaleFactor. If true, a
+		 *                       floating point type is applied to avoid rounding
+		 *                       errors.
 		 * @return the {@link OpenemsType}
 		 */
-		public final OpenemsType getMatchingOpenemsType() {
+		public final OpenemsType getMatchingOpenemsType(boolean hasScaleFactor) {
+			if(hasScaleFactor) {
+				return OpenemsType.FLOAT;
+			}
+			
 			// TODO: map to floating point OpenemsType when appropriate
 			switch (this.type) {
 			case UINT16:

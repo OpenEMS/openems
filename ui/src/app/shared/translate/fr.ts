@@ -92,6 +92,8 @@ export const TRANSLATION = {
         logout: 'Déconnexion',
         menu: 'Menu',
         overview: 'Apperçu FEMS ',
+        profile: 'Utilisateur',
+        settings: 'Réglages',
     },
     Index: {
         allConnected: 'Toutes les connections sont établies.',
@@ -144,6 +146,11 @@ export const TRANSLATION = {
                     switchOnBelow: 'Switch on below',
                     threshold: 'Threshold',
                 },
+                DelayedSellToGrid: {
+                    sellToGridPowerLimit: 'Charge ci-dessus',
+                    continuousSellToGridPower: 'Décharge ci-dessous',
+                    relationError: 'La limite de charge doit être supérieure à la limite de décharge',
+                },
                 Peakshaving: {
                     asymmetricInfo: 'The entered performance values ​​refer to individual phases. It is adjusted to the most stressed phase.',
                     endDate: 'Date de fin',
@@ -156,6 +163,7 @@ export const TRANSLATION = {
                     relationError: 'Discharge limit must be greater than or equal to the load limit',
                     startDate: 'Date de début',
                     startTime: 'Heure de début',
+                    startTimeCharge: 'Heure de début du chargement',
                 },
                 CHP: {
                     highThreshold: 'Seuil Haut',

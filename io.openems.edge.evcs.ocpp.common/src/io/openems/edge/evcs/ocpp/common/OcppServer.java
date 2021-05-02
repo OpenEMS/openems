@@ -18,7 +18,7 @@ public interface OcppServer {
 	 * Example: <blockquote>
 	 * 
 	 * <pre>
-	 * send(session, request).whenComplete((confirmation, throwable) -> {
+	 * send(session, request).whenComplete((confirmation, throwable) -&gt; {
 	 * 	this.logInfo(log, confirmation.toString());
 	 * });
 	 * </pre>

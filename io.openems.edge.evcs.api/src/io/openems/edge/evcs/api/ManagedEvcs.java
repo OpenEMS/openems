@@ -3,6 +3,7 @@ package io.openems.edge.evcs.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
@@ -25,7 +26,7 @@ public interface ManagedEvcs extends Evcs {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		/**
-		 * Gets the smallest power steps that can be set (given in W). 
+		 * Gets the smallest power steps that can be set (given in W).
 		 * 
 		 * <p>
 		 * Example:
@@ -45,8 +46,9 @@ public interface ManagedEvcs extends Evcs {
 		 */
 		POWER_PRECISION(Doc.of(OpenemsType.DOUBLE) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY)),
-		
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+
 		/**
 		 * Sets the charge power limit of the EVCS in [W].
 		 * 
@@ -77,7 +79,8 @@ public interface ManagedEvcs extends Evcs {
 		 */
 		SET_CHARGE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE)),
+				.accessMode(AccessMode.READ_WRITE) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Applies the configured filter in {@link EvcsPowerComponent} and sets a the
@@ -121,7 +124,8 @@ public interface ManagedEvcs extends Evcs {
 		 * </ul>
 		 */
 		IS_CLUSTERED(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_ONLY)), //
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Sets a Text that is shown on the display of the EVCS.
@@ -200,8 +204,8 @@ public interface ManagedEvcs extends Evcs {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#POWER_PRECISION} Channel.
+	 * Internal method to set the 'nextValue' on {@link ChannelId#POWER_PRECISION}
+	 * Channel.
 	 *
 	 * @param value the next value
 	 */
@@ -210,15 +214,15 @@ public interface ManagedEvcs extends Evcs {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#POWER_PRECISION} Channel.
+	 * Internal method to set the 'nextValue' on {@link ChannelId#POWER_PRECISION}
+	 * Channel.
 	 *
 	 * @param value the next value
 	 */
 	public default void _setPowerPrecision(double value) {
 		this.getPowerPrecisionChannel().setNextValue(value);
 	}
-	
+
 	/**
 	 * Gets the Channel for {@link ChannelId#SET_CHARGE_POWER_LIMIT}.
 	 *

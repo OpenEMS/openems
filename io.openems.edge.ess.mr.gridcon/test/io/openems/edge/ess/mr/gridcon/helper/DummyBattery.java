@@ -2,12 +2,9 @@ package io.openems.edge.ess.mr.gridcon.helper;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
-import io.openems.edge.common.startstop.StartStoppable;
 
-public class DummyBattery extends AbstractOpenemsComponent implements Battery {
+public class DummyBattery extends io.openems.edge.battery.test.DummyBattery implements Battery {
 
 	public static int DEFAULT_SOC = 50;
 	public static int DEFAULT_SOH = 99;
@@ -24,16 +21,12 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery {
 
 	public static int DEFAULT_MIN_VOLTAGE = 700;
 	public static int DEFAULT_MAX_VOLTAGE = 900;
-	
+
 //	private boolean running = false;
 
 	public DummyBattery(//
 	) { //
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				Battery.ChannelId.values(), //
-				StartStoppable.ChannelId.values()
-		);
+		super("battery0");
 
 		setMinimalCellVoltage(DEFAULT_MIN_CELL_VOLTAGE);
 		setMaximalCellVoltage(DEFAULT_MAX_CELL_VOLTAGE);
@@ -99,12 +92,12 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery {
 		this._setSoc(null);
 		this.getSocChannel().nextProcessImage();
 	}
-	
+
 	public void setSoh(int soh) {
 		this._setSoh(soh);
 		this.getSohChannel().nextProcessImage();
 	}
-	
+
 	public void setCapacity(int cap) {
 		this._setCapacity(cap);
 		this.getCapacityChannel().nextProcessImage();
@@ -139,7 +132,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery {
 		this._setVoltage(null);
 		this.getVoltageChannel().nextProcessImage();
 	}
-	
+
 	public void setCurrent(int current) {
 		this._setCurrent(current);
 		this.getCurrentChannel().nextProcessImage();
@@ -148,25 +141,25 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery {
 	@Override
 	public void start() throws OpenemsNamedException {
 		this.setStartStop(StartStop.START);
-		this.getStartStopChannel().nextProcessImage();		
+		this.getStartStopChannel().nextProcessImage();
 	}
 
 	@Override
 	public void stop() throws OpenemsNamedException {
 		this.setStartStop(StartStop.STOP);
-		this.getStartStopChannel().nextProcessImage();		
+		this.getStartStopChannel().nextProcessImage();
 	}
 
 	public void setChargeMaxVoltage(int voltage) {
 		this._setChargeMaxVoltage(voltage);
 		this.getChargeMaxVoltageChannel().nextProcessImage();
 	}
-	
+
 	public void setDischargeMinVoltage(int voltage) {
 		this._setDischargeMinVoltage(voltage);
 		this.getDischargeMinVoltageChannel().nextProcessImage();
 	}
-	
+
 	public float getMinimalCellVoltage() {
 		return getMinCellVoltage().orElse(0);
 	}

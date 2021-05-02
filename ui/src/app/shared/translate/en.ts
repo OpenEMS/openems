@@ -95,6 +95,8 @@ export const TRANSLATION = {
         logout: 'Sign Out',
         menu: 'Menu',
         overview: 'OpenEMS Edge Overview',
+        settings: 'Settings',
+        user: 'User',
     },
     Index: {
         allConnected: 'All connections established.',
@@ -109,6 +111,7 @@ export const TRANSLATION = {
         preamble: "Please enter your password or submit the default value to login as a guest.",
         passwordLabel: "Password",
         passwordPlaceholder: "Password",
+        authenticationFailed: "Authentication Failed",
     },
     Edge: {
         Index: {
@@ -149,6 +152,11 @@ export const TRANSLATION = {
                     switchOnBelow: 'Switch on below',
                     threshold: 'Threshold',
                 },
+                DelayedSellToGrid: {
+                    sellToGridPowerLimit: 'Charge above',
+                    continuousSellToGridPower: 'Discharge below',
+                    relationError: 'Charge limit must be greater than the Discharge limit',
+                },
                 Peakshaving: {
                     asymmetricInfo: 'The entered performance values ​​refer to individual phases. It is adjusted to the most stressed phase.',
                     endDate: 'End date',
@@ -158,9 +166,10 @@ export const TRANSLATION = {
                     peakshavingPower: 'Discharge above',
                     recharge: 'Recharge Power',
                     rechargePower: 'Charge below',
-                    relationError: 'Discharge limit must be greater than or equal to the load limit',
+                    relationError: 'Discharge limit must be greater than or equal to the charge limit',
                     startDate: 'Start date',
                     startTime: 'Start time',
+                    startTimeCharge: 'Charge Start time',
                 },
                 CHP: {
                     highThreshold: 'High Threshold',
@@ -372,5 +381,11 @@ export const TRANSLATION = {
         failed: 'Connection failed.',
         loggedIn: 'Logged in.',
         loggedInAs: 'Logged in as \'{{value}}\'.', // value = username
+    },
+    Role: {
+        guest: 'Guest',
+        owner: 'Owner',
+        installer: 'Installer',
+        admin: 'Administrator',
     }
 }

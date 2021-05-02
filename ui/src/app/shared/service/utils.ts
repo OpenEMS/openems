@@ -201,7 +201,7 @@ export class Utils {
    * @param v1 
    * @param v2 
    */
-  public static divideSafely(v1: number, v2: number): number {
+  public static divideSafely(v1: number, v2: number): number | null {
     if (v1 == null || v2 == null) {
       return null;
     } else if (v2 == 0) {

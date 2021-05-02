@@ -174,6 +174,15 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 	public List<OpenemsComponent> getEnabledComponents();
 
 	/**
+	 * Gets all enabled OpenEMS-Components of the given Type.
+	 * 
+	 * @param <T>   the given Type, subclass of {@link OpenemsComponent}
+	 * @param clazz the given Type, subclass of {@link OpenemsComponent}
+	 * @return a List of OpenEMS-Components
+	 */
+	public <T extends OpenemsComponent> List<T> getEnabledComponentsOfType(Class<T> clazz);
+
+	/**
 	 * Gets all OpenEMS-Components.
 	 * 
 	 * @return a List of OpenEMS-Components

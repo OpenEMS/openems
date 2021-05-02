@@ -3,6 +3,7 @@ package io.openems.edge.ess.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
@@ -299,7 +300,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		DEBUG_SET_ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Holds settings of Reactive Power for debugging
 		 * 
@@ -314,7 +316,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		DEBUG_SET_REACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
+				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Holds settings of Active Power L2 for debugging
 		 * 
@@ -329,7 +332,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		DEBUG_SET_ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Holds settings of Reactive Power for debugging
 		 * 
@@ -344,7 +348,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		DEBUG_SET_REACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
+				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Holds settings of Active Power L1 for debugging
 		 * 
@@ -359,7 +364,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		DEBUG_SET_ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Holds settings of Reactive Power for debugging
 		 * 
@@ -374,8 +380,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		DEBUG_SET_REACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
-		;
+				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.persistencePriority(PersistencePriority.HIGH)); //
 
 		private final Doc doc;
 

@@ -1,12 +1,13 @@
-import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
+import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets } from 'chart.js';
-import { ChartOptions, EMPTY_DATASET } from './shared';
+import { differenceInDays } from 'date-fns';
+import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
+import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
-import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
-import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { TranslateService } from '@ngx-translate/core';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared/shared";
+import { ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET } from './shared';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
@@ -22,10 +23,10 @@ export abstract class AbstractHistoryChart {
 
     // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
-    protected labels: Date[] = [];
-    protected datasets: ChartDataSets[] = EMPTY_DATASET;
-    protected options: ChartOptions | null = null;
-    protected colors = []
+    public labels: Date[] = [];
+    public datasets: ChartDataSets[] = EMPTY_DATASET;
+    public options: ChartOptions | null = null;
+    public colors = []
     // prevents subscribing more than once
     protected hasSubscribed: boolean = false;
 
@@ -111,6 +112,17 @@ export abstract class AbstractHistoryChart {
                 })
             });
         });
+    }
+
+    protected createDefaultChartOptions(): ChartOptions {
+        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+        //x-axis
+        if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 5) {
+            options.scales.xAxes[0].time.unit = "day";
+        } else {
+            options.scales.xAxes[0].time.unit = "hour";
+        }
+        return options
     }
 
     /**

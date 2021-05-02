@@ -90,6 +90,8 @@ export const TRANSLATION = {
         logout: 'Uitloggen',
         menu: 'Menu',
         overview: 'OpenEMS Edge overzicht',
+        settings: 'Instellingen',
+        user: 'Gebruiker',
     },
     Index: {
         allConnected: 'Alle verbindingen gemaakt.',
@@ -147,6 +149,12 @@ export const TRANSLATION = {
                     relationError: 'Ontladingslimiet moet groter zijn dan of gelijk zijn aan de belastingslimiet',
                     startDate: 'Startdatum',
                     startTime: 'Starttijd',
+                    startTimeCharge: 'Starttijd laden',
+                },
+                DelayedSellToGrid: {
+                    sellToGridPowerLimit: 'Laad hierboven op',
+                    continuousSellToGridPower: 'Ontlading hieronder',
+                    relationError: 'De kostenlimiet moet groter zijn dan de ontladingslimiet',
                 },
                 CHP: {
                     highThreshold: 'hoge drempel',

@@ -76,7 +76,7 @@
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="12" size-lg="6" class="ion-no-padding">
-                <fixdigitaloutput [componentId]="widget.componentId"></fixdigitaloutput>
+                <Controller_Io_FixDigitalOutput [componentId]="widget.componentId"></Controller_Io_FixDigitalOutput>
               </ion-col>
 
               <!-- Widgets that are likely to be configured seldomly -->
@@ -105,6 +105,10 @@
                 <timeslotpeakshaving [componentId]="widget.componentId"></timeslotpeakshaving>
               </ion-col>
 
+              <ion-col *ngSwitchCase="'Controller.Ess.DelayedSellToGrid'" size="12" size-lg="6" class="ion-no-padding">
+                <delayedselltogrid [componentId]="widget.componentId"></delayedselltogrid>
+              </ion-col>
+
               <ion-col *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'" size="12" size-lg="6"
                 class="ion-no-padding">
                 <singlethreshold [componentId]="widget.componentId"></singlethreshold>
@@ -116,7 +120,7 @@
               </ion-col>
 
               <ion-col size="12" *ngSwitchCase="'Controller.Ess.FixActivePower'" size-lg="6" class="ion-no-padding">
-                <fixactivepower [componentId]="widget.componentId"></fixactivepower>
+                <Controller_Ess_FixActivePower [componentId]="widget.componentId"></Controller_Ess_FixActivePower>
               </ion-col>
             </ng-container>
 

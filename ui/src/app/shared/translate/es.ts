@@ -91,6 +91,8 @@ export const TRANSLATION = {
         logout: 'Desuscribirse',
         menu: 'Menú',
         overview: 'estudio OpenEMS Edge',
+        settings: 'Ajustes',
+        user: 'Usuario',
     },
     Index: {
         allConnected: 'Todas las conexiones establecidas.',
@@ -138,6 +140,11 @@ export const TRANSLATION = {
                     switchOnBelow: 'Encender debajo',
                     threshold: 'Thresholded',
                 },
+                DelayedSellToGrid: {
+                    sellToGridPowerLimit: 'Cargar arriba',
+                    continuousSellToGridPower: 'Descarga a continuación',
+                    relationError: 'El límite de carga debe ser mayor que el límite de descarga',
+                },
                 Peakshaving: {
                     asymmetricInfo: 'Los valores de rendimiento introducidos se refieren a fases individuales. Se ajusta a la fase más estresada.',
                     endDate: 'Fecha final',
@@ -150,6 +157,7 @@ export const TRANSLATION = {
                     relationError: 'Límite de descarga debe ser mayor o igual que el límite de carga',
                     startDate: 'Fecha de inicio',
                     startTime: 'Hora de inicio',
+                    startTimeCharge: 'Hora de inicio de carga',
                 },
                 CHP: {
                     highThreshold: 'Umbral alto',

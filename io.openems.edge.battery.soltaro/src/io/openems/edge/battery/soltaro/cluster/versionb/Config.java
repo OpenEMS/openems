@@ -3,8 +3,8 @@ package io.openems.edge.battery.soltaro.cluster.versionb;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.battery.soltaro.BatteryState;
-import io.openems.edge.battery.soltaro.ModuleType;
+import io.openems.edge.battery.soltaro.common.enums.BatteryState;
+import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 
 @ObjectClassDefinition(//
 		name = "BMS Soltaro Cluster Version B", //

@@ -1,6 +1,6 @@
 import { ChannelAddress } from '../type/channeladdress';
-import { Edge } from './edge';
 import { Widgets } from '../type/widget';
+import { Edge } from './edge';
 
 export interface CategorizedComponents {
     category: {
@@ -68,7 +68,7 @@ export class EdgeConfig {
                 }
                 let factory = this.factories[component.factoryId];
                 if (!factory) {
-                    console.warn("Factory definition for [" + component.factoryId + "] is missing.");
+                    console.warn("Factory definition [" + component.factoryId + "] for [" + componentId + "] is missing.");
                     continue;
                 }
 

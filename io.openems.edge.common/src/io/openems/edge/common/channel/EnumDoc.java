@@ -85,7 +85,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 	 * 
 	 * @param name the name of the option. Comparison is case insensitive
 	 * @return the {@link OptionsEnum}
-	 * @throws Throws OpenemsNamedException if there is no option with that name
+	 * @throws OpenemsNamedException if there is no option with that name
 	 */
 	public OptionsEnum getOptionFromString(String name) throws OpenemsNamedException {
 		for (OptionsEnum e : this.options) {
@@ -101,7 +101,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 	 * 
 	 * @param name the name of the option. Comparison is case insensitive
 	 * @return the integer value of the {@link OptionsEnum}
-	 * @throws Throws OpenemsNamedException if there is no option with that name
+	 * @throws OpenemsNamedException if there is no option with that name
 	 */
 	public int getOptionValueFromString(String name) throws OpenemsNamedException {
 		return this.getOptionFromString(name).getValue();

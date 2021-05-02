@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -50,17 +52,14 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
 import io.openems.common.session.Role;
-import io.openems.common.session.User;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.common.utils.UuidUtils;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
-import io.openems.edge.common.user.EdgeUser;
+import io.openems.edge.common.user.User;
 
 public class RestHandler extends AbstractHandler {
 
@@ -142,7 +141,7 @@ public class RestHandler extends AbstractHandler {
 						String username = credentials.substring(0, p).trim();
 						String password = credentials.substring(p + 1).trim();
 						// authenticate using username & password
-						Optional<EdgeUser> userOpt = this.parent.getUserService().authenticate(username, password);
+						Optional<User> userOpt = this.parent.getUserService().authenticate(username, password);
 						if (userOpt.isPresent()) {
 							return userOpt.get();
 						}
@@ -208,8 +207,8 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles HTTP GET request.
 	 * 
-	 * @param user           the User
-	 * @param channelAddress the ChannelAddress
+	 * @param user           the {@link User}
+	 * @param channelAddress the ChannelAddress (may include RegExp)
 	 * @param baseRequest    the HTTP POST base-request
 	 * @param request        the HTTP POST request
 	 * @param response       the result to be returned
@@ -220,32 +219,64 @@ public class RestHandler extends AbstractHandler {
 			HttpServletResponse response) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("HTTP GET", Role.GUEST);
 
-		// get channel
-		Channel<?> channel;
-		try {
-			channel = this.parent.getComponentManager().getChannel(channelAddress);
-		} catch (IllegalArgumentException e) {
-			this.parent.logWarn(this.log, e.getMessage());
+		List<Channel<?>> channellist = new ArrayList<Channel<?>>();
+
+		if (this.parent.isDebugModeEnabled()) {
+			this.parent.logInfo(this.log,
+					"REST call by User [" + user.getName() + "]: GET Channel [" + channelAddress.toString() + "]");
+		}
+
+		// Build list of all channels where components are enabled
+		List<OpenemsComponent> ComponentList = this.parent.getComponentManager().getEnabledComponents();
+		for (OpenemsComponent component : ComponentList) {
+			// Loop over enabled ComponentIds, look for exact or RegExp match
+			if (component.id().matches(channelAddress.getComponentId())) {
+				for (Channel<?> channel : component.channels()) {
+					// Loop over attached channels, look for exact or RegExp match
+					if (channel.channelId().id().matches(channelAddress.getChannelId())) {
+						channellist.add(channel);
+					}
+				}
+			}
+		}
+
+		// Return with error when no matching channel was found
+		if (channellist.size() == 0) {
+			this.parent.logWarn(this.log, "REST call by User [" + user.getName() + "]: GET Channel ["
+					+ channelAddress.toString() + "] Result [No Match]");
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return false;
 		}
 
-		JsonObject j = new JsonObject();
-		JsonElement value = channel.value().asJson();
+		// Creating JSON response for all matched channels
+		JsonArray channeljson = new JsonArray();
+		for (Channel<?> channel : channellist) {
+			JsonObject j = new JsonObject();
+			// name
+			j.addProperty("address", channel.address().toString());
+			// type
+			j.addProperty("type", channel.getType().name());
+			// accessMode
+			j.addProperty("accessMode", channel.channelDoc().getAccessMode().getAbbreviation());
+			// text
+			j.addProperty("text", channel.channelDoc().getText());
+			// unit
+			j.addProperty("unit", channel.channelDoc().getUnit().getSymbol());
+			// value
+			j.add("value", channel.value().asJson());
+			channeljson.add(j);
+		}
+
+		// if this a request for a single channel only return a single JsonObject, not
+		// an array (for compatibility to previous versions)
+		JsonElement result = channeljson.size() == 1 ? channeljson.get(0) : channeljson;
+
 		if (this.parent.isDebugModeEnabled()) {
 			this.parent.logInfo(this.log, "REST call by User [" + user.getName() + "]: GET Channel ["
-					+ channelAddress.toString() + "] value [" + value + "]");
+					+ channelAddress.toString() + "] Result [" + result.toString() + "]");
 		}
-		j.add("value", value);
-		// type
-		OpenemsType type = channel.channelDoc().getType();
-		j.addProperty("type", type.toString().toLowerCase());
-		// writable
-		j.addProperty("writable", //
-				channel instanceof WriteChannel<?> ? true : false //
-		);
 
-		return this.sendOkResponse(baseRequest, response, j);
+		return this.sendOkResponse(baseRequest, response, result);
 	}
 
 	private void sendErrorResponse(Request baseRequest, HttpServletResponse response, UUID jsonrpcId, Throwable ex) {
@@ -255,6 +286,11 @@ public class RestHandler extends AbstractHandler {
 			baseRequest.setHandled(true);
 			JsonrpcResponseError message;
 			if (ex instanceof OpenemsNamedException) {
+				// Check for authentication error and set more specific response code
+				// accordingly
+				if (((OpenemsNamedException) ex).getError() == OpenemsError.COMMON_AUTHENTICATION_FAILED) {
+					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				}
 				// Get Named Exception error response
 				message = new JsonrpcResponseError(jsonrpcId, (OpenemsNamedException) ex);
 			} else {
@@ -267,7 +303,7 @@ public class RestHandler extends AbstractHandler {
 		}
 	}
 
-	private boolean sendOkResponse(Request baseRequest, HttpServletResponse response, JsonObject data)
+	private boolean sendOkResponse(Request baseRequest, HttpServletResponse response, JsonElement data)
 			throws OpenemsException {
 		try {
 			response.setContentType("application/json");
@@ -283,8 +319,8 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles HTTP POST request.
 	 *
-	 * @param user           the User
-	 * @param channelAddress the ChannelAddress
+	 * @param user           the {@link User}
+	 * @param channelAddress the {@link ChannelAddress}
 	 * @param baseRequest    the HTTP POST base-request
 	 * @param request        the HTTP POST request
 	 * @param response       the result to be returned
@@ -338,7 +374,7 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles an http request to 'jsonrpc' endpoint.
 	 * 
-	 * @param user         the User
+	 * @param user         the {@link User}
 	 * @param baseRequest  the HTTP POST base-request
 	 * @param httpRequest  the HTTP POST request
 	 * @param httpResponse the HTTP response
@@ -453,8 +489,8 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles a QueryHistoricDataRequest.
 	 * 
-	 * @param user    the User
-	 * @param request the QueryHistoricDataRequest
+	 * @param user    the {@link User}
+	 * @param request the {@link QueryHistoricTimeseriesDataRequest}
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
@@ -490,8 +526,8 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles a GetEdgeConfigRequest.
 	 *
-	 * @param user                 the User
-	 * @param getEdgeConfigRequest the GetEdgeConfigRequest
+	 * @param user                 the {@link User}
+	 * @param getEdgeConfigRequest the {@link GetEdgeConfigRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
@@ -507,8 +543,8 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles a CreateComponentConfigRequest.
 	 * 
-	 * @param user                         the User
-	 * @param createComponentConfigRequest the CreateComponentConfigRequest
+	 * @param user                         the {@link User}
+	 * @param createComponentConfigRequest the {@link CreateComponentConfigRequest}
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
@@ -524,8 +560,8 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles a UpdateComponentConfigRequest.
 	 * 
-	 * @param user                         the User
-	 * @param updateComponentConfigRequest the UpdateComponentConfigRequest
+	 * @param user                         the {@link User}
+	 * @param updateComponentConfigRequest the {@link UpdateComponentConfigRequest}
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */

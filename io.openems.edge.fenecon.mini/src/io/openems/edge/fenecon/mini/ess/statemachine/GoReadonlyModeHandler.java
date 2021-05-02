@@ -9,8 +9,8 @@ public class GoReadonlyModeHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		if (context.component.getSetupMode() == SetupMode.OFF) {
-			switch (context.component.getPcsMode()) {
+		if (context.getParent().getSetupMode() == SetupMode.OFF) {
+			switch (context.getParent().getPcsMode()) {
 			case CONSUMERS_PEAK_PATTERN:
 			case ECO:
 			case ECONOMIC:

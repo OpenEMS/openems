@@ -96,6 +96,8 @@ export const TRANSLATION = {
         logout: 'Abmelden',
         menu: 'Menü',
         overview: 'OpenEMS Edge Übersicht',
+        settings: 'Einstellungen',
+        user: 'Benutzer',
     },
     Index: {
         allConnected: 'Alle Verbindungen hergestellt.',
@@ -110,6 +112,7 @@ export const TRANSLATION = {
         preamble: "Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",
         passwordLabel: "Passwort",
         passwordPlaceholder: "Passwort",
+        authenticationFailed: "Authentifizierung fehlgeschlagen",
     },
     Edge: {
         Index: {
@@ -150,6 +153,11 @@ export const TRANSLATION = {
                     switchOnBelow: 'Einschalten unter',
                     threshold: 'Schwellenwert',
                 },
+                DelayedSellToGrid: {
+                    sellToGridPowerLimit: 'Beladung über',
+                    continuousSellToGridPower: 'Entladung unter',
+                    relationError: 'Beladungsgrenze muss größer der Entladungsgrenze sein',
+                },
                 Peakshaving: {
                     asymmetricInfo: 'Eingetragene Leistungswerte beziehen sich auf einzelne Phasen. Es wird auf die jeweils am stärksten belastete Phase ausgeregelt.',
                     endDate: 'End Datum',
@@ -157,11 +165,12 @@ export const TRANSLATION = {
                     mostStressedPhase: 'Meist belastete Phase',
                     peakshaving: 'Lastspitzenkappung',
                     peakshavingPower: 'Entladung über',
-                    recharge: 'Aufladeleistung',
+                    recharge: 'Beladeleistung',
                     rechargePower: 'Beladung unter',
                     relationError: 'Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein',
                     startDate: 'Start Datum',
                     startTime: 'Startzeit',
+                    startTimeCharge: 'Start-Zeit Beladung',
                 },
                 CHP: {
                     highThreshold: 'Oberer Schwellenwert',
@@ -372,5 +381,11 @@ export const TRANSLATION = {
         failed: 'Verbindungsaufbau fehlgeschlagen.',
         loggedIn: 'Angemeldet.',
         loggedInAs: 'Angemeldet als Benutzer \'{{value}}\'.', // value = username
+    },
+    Role: {
+        guest: 'Gast',
+        owner: 'Eigentümer',
+        installer: 'Installateur',
+        admin: 'Administrator',
     }
 }

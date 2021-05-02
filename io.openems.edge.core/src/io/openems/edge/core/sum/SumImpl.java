@@ -8,7 +8,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
@@ -35,6 +37,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.api.VirtualMeter;
 import io.openems.edge.timedata.api.Timedata;
 
+@Designate(ocd = Config.class, factory = false)
 @Component(//
 		name = "Core.Sum", //
 		immediate = true, //
@@ -44,8 +47,8 @@ import io.openems.edge.timedata.api.Timedata;
 		})
 public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsComponent, ModbusSlave {
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	protected Timedata timedata = null;
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	protected volatile Timedata timedata = null;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -95,9 +98,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		final CalculateIntegerSum essActivePowerL1 = new CalculateIntegerSum();
 		final CalculateIntegerSum essActivePowerL2 = new CalculateIntegerSum();
 		final CalculateIntegerSum essActivePowerL3 = new CalculateIntegerSum();
-		
+
 		final CalculateIntegerSum essReactivePower = new CalculateIntegerSum();
-		
+
 		final CalculateIntegerSum essMaxApparentPower = new CalculateIntegerSum();
 		final CalculateGridMode essGridMode = new CalculateGridMode();
 		final CalculateLongSum essActiveChargeEnergy = new CalculateLongSum();
@@ -267,10 +270,10 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this._setEssActivePowerL2(essActivePowerL2Sum);
 		Integer essActivePowerL3Sum = essActivePowerL3.calculate();
 		this._setEssActivePowerL3(essActivePowerL3Sum);
-		
+
 		Integer essReactivePowerSum = essReactivePower.calculate();
 		this._setEssReactivePower(essReactivePowerSum);
-		
+
 		Integer essMaxApparentPowerSum = essMaxApparentPower.calculate();
 		this._setEssMaxApparentPower(essMaxApparentPowerSum);
 		this._setGridMode(essGridMode.calculate());
