@@ -122,7 +122,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		// Get the MetaTypeService via ServiceTracker
 		// If we wouldn't do this here, each inheriting Component would have to get an
 		// @Reference to MetaTypeService, which would be cumbersome.
-		if (context != null) {
+		if (context != null && context.getBundleContext() != null) {
 			this.metaTypeServiceTracker = new ServiceTracker<MetaTypeService, MetaTypeService>(
 					context.getBundleContext(), MetaTypeService.class, null) {
 
