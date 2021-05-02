@@ -122,24 +122,27 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		// Get the MetaTypeService via ServiceTracker
 		// If we wouldn't do this here, each inheriting Component would have to get an
 		// @Reference to MetaTypeService, which would be cumbersome.
-		this.metaTypeServiceTracker = new ServiceTracker<MetaTypeService, MetaTypeService>(context.getBundleContext(),
-				MetaTypeService.class, null) {
+		if (context != null) {
+			this.metaTypeServiceTracker = new ServiceTracker<MetaTypeService, MetaTypeService>(
+					context.getBundleContext(), MetaTypeService.class, null) {
 
-			@Override
-			public MetaTypeService addingService(ServiceReference<MetaTypeService> serviceReference) {
-				MetaTypeService metaTypeService = super.addingService(serviceReference);
-				AbstractOpenemsComponent.this.metaTypeService.set(metaTypeService);
-				AbstractOpenemsComponent.this.addChannelsForProperties();
-				return metaTypeService;
-			}
+				@Override
+				public MetaTypeService addingService(ServiceReference<MetaTypeService> serviceReference) {
+					MetaTypeService metaTypeService = super.addingService(serviceReference);
+					AbstractOpenemsComponent.this.metaTypeService.set(metaTypeService);
+					AbstractOpenemsComponent.this.addChannelsForProperties();
+					return metaTypeService;
+				}
 
-			@Override
-			public void removedService(ServiceReference<MetaTypeService> serviceReference, MetaTypeService service) {
-				AbstractOpenemsComponent.this.metaTypeService.set(null);
-				super.removedService(serviceReference, service);
-			}
-		};
-		this.metaTypeServiceTracker.open(true);
+				@Override
+				public void removedService(ServiceReference<MetaTypeService> serviceReference,
+						MetaTypeService service) {
+					AbstractOpenemsComponent.this.metaTypeService.set(null);
+					super.removedService(serviceReference, service);
+				}
+			};
+			this.metaTypeServiceTracker.open(true);
+		}
 
 		this.updateContext(context, id, alias, enabled);
 
