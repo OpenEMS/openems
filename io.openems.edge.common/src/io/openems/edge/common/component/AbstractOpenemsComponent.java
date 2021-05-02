@@ -7,9 +7,15 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.metatype.MetaTypeInformation;
+import org.osgi.service.metatype.MetaTypeService;
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +62,9 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	private String alias = null;
 	private ComponentContext componentContext = null;
 	private boolean enabled = true;
+
+	private ServiceTracker<MetaTypeService, MetaTypeService> metaTypeServiceTracker = null;
+	private AtomicReference<MetaTypeService> metaTypeService = new AtomicReference<>();
 
 	/**
 	 * Default constructor for AbstractOpenemsComponent.
@@ -110,6 +119,28 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param enabled is the Component enabled?
 	 */
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
+		// Get the MetaTypeService via ServiceTracker
+		// If we wouldn't do this here, each inheriting Component would have to get an
+		// @Reference to MetaTypeService, which would be cumbersome.
+		this.metaTypeServiceTracker = new ServiceTracker<MetaTypeService, MetaTypeService>(context.getBundleContext(),
+				MetaTypeService.class, null) {
+
+			@Override
+			public MetaTypeService addingService(ServiceReference<MetaTypeService> serviceReference) {
+				MetaTypeService metaTypeService = super.addingService(serviceReference);
+				AbstractOpenemsComponent.this.metaTypeService.set(metaTypeService);
+				AbstractOpenemsComponent.this.addChannelsForProperties();
+				return metaTypeService;
+			}
+
+			@Override
+			public void removedService(ServiceReference<MetaTypeService> serviceReference, MetaTypeService service) {
+				AbstractOpenemsComponent.this.metaTypeService.set(null);
+				super.removedService(serviceReference, service);
+			}
+		};
+		this.metaTypeServiceTracker.open(true);
+
 		this.updateContext(context, id, alias, enabled);
 
 		if (isEnabled()) {
@@ -143,6 +174,9 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 */
 	protected void deactivate() {
 		this.logMessage("Deactivate");
+		// disable the ServiceTracker
+		this.metaTypeServiceTracker.close();
+
 		// deactivate all Channels
 		for (Channel<?> channel : this.channels.values()) {
 			channel.deactivate();
@@ -190,7 +224,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		this.enabled = enabled;
 		this.componentContext = context;
 
-		this.addChannelsForProperties(context);
+		this.addChannelsForProperties();
 	}
 
 	/**
@@ -199,13 +233,26 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * <p>
 	 * If the Property key is "enabled" then a Channel with the ID
 	 * "_PropertyEnabled" is generated.
-	 * 
-	 * @param context the {@link ComponentContext}
 	 */
-	private void addChannelsForProperties(ComponentContext context) {
-		if (context == null) {
+	private synchronized void addChannelsForProperties() {
+		// Make sure ComponentContext, MetaTypeService, Bundle and MetaTypeInformation
+		// are available
+		final ComponentContext context = this.componentContext;
+		final MetaTypeService metaTypeService = this.metaTypeService.get();
+		if (context == null || metaTypeService == null) {
 			return;
 		}
+		final Bundle bundle = context.getUsingBundle();
+		if (bundle == null) {
+			return;
+		}
+		final MetaTypeInformation mti = metaTypeService.getMetaTypeInformation(bundle);
+		if (mti == null) {
+			return;
+		}
+
+		// TODO check type of Properties. Do not add 'Password' properties as Channels.
+
 		Dictionary<String, Object> properties = context.getProperties();
 		if (properties == null) {
 			return;
