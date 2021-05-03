@@ -22,6 +22,7 @@ export class StorageComponent extends AbstractFlatWidget {
             new ChannelAddress('_sum', 'EssSoc'),
             new ChannelAddress('_sum', 'EssActivePower'),
             // channels for modal component, subscribe here for better UX
+            // TODO should be moved to Modal
             new ChannelAddress('_sum', 'EssActivePowerL1'),
             new ChannelAddress('_sum', 'EssActivePowerL2'),
             new ChannelAddress('_sum', 'EssActivePowerL3'),
