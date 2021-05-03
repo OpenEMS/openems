@@ -10,11 +10,6 @@ import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared"
 export abstract class AbstractFlatWidgetLine implements OnDestroy {
 
     /**
-     * True after this.edge, this.config and this.component are set.
-     */
-    public isInitialized: boolean = false;
-
-    /**
      * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
      * 
      * @param value the value from CurrentData
@@ -42,15 +37,11 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
         @Inject(ModalController) protected modalCtrl: ModalController
     ) {
     }
+
     protected setValue(value: any) {
-        if (this.converter != null) {
-            this.displayValue = this.converter(value);
-        } else {
-            this.displayValue = value;
-        }
-        // announce initialized
-        this.isInitialized = true;
+        this.displayValue = this.converter(value);
     }
+
     protected subscribe(channelAddress: ChannelAddress) {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
@@ -63,6 +54,7 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
             });
         });
     }
+
     public ngOnDestroy() {
         // Unsubscribe from OpenEMS
         if (this.edge != null) {
