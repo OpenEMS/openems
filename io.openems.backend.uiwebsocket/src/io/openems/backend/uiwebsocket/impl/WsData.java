@@ -29,8 +29,24 @@ public class WsData extends io.openems.common.websocket.WsData {
 		}
 	}
 
+	/**
+	 * Logout and invalidate Session.
+	 */
+	public void logout() {
+		this.unsetToken();
+		this.unsetUserId();
+		this.dispose();
+	}
+
 	public synchronized void setUserId(String userId) {
 		this.userId = Optional.ofNullable(userId);
+	}
+
+	/**
+	 * Unsets the User-Token.
+	 */
+	public synchronized void unsetUserId() {
+		this.userId = Optional.empty();
 	}
 
 	/**
@@ -58,7 +74,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return Optional.empty();
 	}
 
-	public void setToken(String token) {
+	public synchronized void setToken(String token) {
 		this.token = Optional.ofNullable(token);
 	}
 
@@ -69,6 +85,13 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	public Optional<String> getToken() {
 		return this.token;
+	}
+
+	/**
+	 * Unsets the Login-Token.
+	 */
+	public void unsetToken() {
+		this.token = Optional.empty();
 	}
 
 	/**
@@ -116,4 +139,5 @@ public class WsData extends io.openems.common.websocket.WsData {
 			TimeUnit unit) {
 		return this.parent.scheduleWithFixedDelay(command, initialDelay, delay, unit);
 	}
+
 }
