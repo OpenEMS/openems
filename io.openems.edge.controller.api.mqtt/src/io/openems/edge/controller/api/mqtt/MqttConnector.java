@@ -79,7 +79,9 @@ public class MqttConnector {
 
 		MqttConnectionOptions options = new MqttConnectionOptions();
 		options.setUserName(username);
-		options.setPassword(password.getBytes(StandardCharsets.UTF_8));
+		if (password != null) {
+			options.setPassword(password.getBytes(StandardCharsets.UTF_8));
+		}
 		options.setAutomaticReconnect(true);
 		options.setCleanStart(true);
 		options.setConnectionTimeout(10);
