@@ -29,6 +29,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.component.runtime.ServiceComponentRuntime;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.metatype.MetaTypeService;
+import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
 import com.google.gson.JsonElement;
@@ -57,6 +58,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
 
+@Designate(ocd = Config.class, factory = false)
 @Component(//
 		name = "Core.ComponentManager", //
 		immediate = true, //

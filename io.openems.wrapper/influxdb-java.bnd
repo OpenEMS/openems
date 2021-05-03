@@ -12,7 +12,7 @@ Include-Resource: \
 	@msgpack-core-0.8.22.jar,\
 	@okhttp-3.14.9.jar,\
 	@okio-1.17.2.jar,\
-	@retrofit-2.8.1.jar
+	@retrofit-2.9.0.jar
 
 Export-Package: \
    com.squareup.moshi, \

@@ -300,11 +300,12 @@
 	org.apache.felix.scr;version='[2.1.20,2.1.21)',\
 	org.apache.felix.webconsole;version='[4.6.0,4.6.1)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.1.0,2.1.1)',\
+	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[2.0.8,2.0.9)',\
-	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.8,2.0.9)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[2.0.9,2.0.10)',\
+	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.9,2.0.10)',\
 	org.osgi.util.function;version='[1.1.0,1.1.1)',\
 	org.osgi.util.promise;version='[1.1.1,1.1.2)',\
 	rrd4j;version='[3.8.0,3.8.1)'
