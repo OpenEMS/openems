@@ -178,7 +178,9 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	protected void deactivate() {
 		this.logMessage("Deactivate");
 		// disable the ServiceTracker
-		this.metaTypeServiceTracker.close();
+		if (this.metaTypeServiceTracker != null) {
+			this.metaTypeServiceTracker.close();
+		}
 
 		// deactivate all Channels
 		for (Channel<?> channel : this.channels.values()) {
