@@ -60,6 +60,7 @@
 	bnd.identity;id='io.openems.edge.controller.ess.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.ess.hybrid.surplusfeedtogrid',\
 	bnd.identity;id='io.openems.edge.controller.ess.limittotaldischarge',\
+	bnd.identity;id='io.openems.edge.controller.ess.limitusablecapacity',\
 	bnd.identity;id='io.openems.edge.controller.ess.linearpowerband',\
 	bnd.identity;id='io.openems.edge.controller.ess.mindischargeperiod',\
 	bnd.identity;id='io.openems.edge.controller.ess.onefullcycle',\
@@ -188,6 +189,7 @@
 	io.openems.edge.controller.ess.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.ess.hybrid.surplusfeedtogrid;version=snapshot,\
 	io.openems.edge.controller.ess.limittotaldischarge;version=snapshot,\
+	io.openems.edge.controller.ess.limitusablecapacity;version=snapshot,\
 	io.openems.edge.controller.ess.linearpowerband;version=snapshot,\
 	io.openems.edge.controller.ess.mindischargeperiod;version=snapshot,\
 	io.openems.edge.controller.ess.onefullcycle;version=snapshot,\
