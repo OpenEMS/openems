@@ -6,7 +6,7 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
-	io.openems.wrapper.influxdb-java
+	io.openems.wrapper.influxdb-java,\
 
 -testpath: \
 	${testpath}
