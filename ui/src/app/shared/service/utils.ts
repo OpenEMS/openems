@@ -293,4 +293,27 @@ export class Utils {
       return 0 + ' kW';
     }
   }
+
+  /**
+   * Gets the image path for storage depending on State-of-Charge.
+   * 
+   * @param soc the state-of-charge
+   * @returns the image path
+   */
+  public static getStorageSocImage(soc: number | null): string {
+    if (!soc || soc < 10) {
+      return 'storage_0.png';
+    } else if (soc < 30) {
+      return 'storage_20.png';
+    } else if (soc < 50) {
+      return 'storage_40.png';
+    } else if (soc < 70) {
+      return 'storage_60.png';
+    } else if (soc < 90) {
+      return 'storage_80.png';
+    } else {
+      return 'storage_100.png';
+    }
+  }
+
 }
