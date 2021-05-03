@@ -210,18 +210,20 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 											+ (device.getRadioAddress()) + ".");
 						}
 
-						// This executes if no message from this device has been received yet. The reason why it is done
-						// this way:
-						// jmbus library stores the decryption key with the dllSecondaryAddress as identifier. The
-						// dllSecondaryAddress contains the radio address, but is not identical to it. But the number
-						// printed on a meter to identify it is the radio address, so this is what is entered in the
-						// meter config.
-						// The easiest way to get the dllSecondaryAddress is to simply take it from the first received
-						// message of that device and store it in deviceDllAddress. If that field is still null (no message
-						// yet from this device), extract the radio address from dllSecondaryAddress and identify by
-						// radio address. Then get and store the dllSecondaryAddress for this device and use it to
-						// register the decryption key. Further messages can then be identified directly by the
-						// dllSecondaryAddress.
+						/**
+						 * This executes if no message from this device has been received yet. The reason why it is done
+						 * this way:
+						 * jmbus library stores the decryption key with the dllSecondaryAddress as identifier. The
+						 * dllSecondaryAddress contains the radio address, but is not identical to it. But the number
+						 * printed on a meter to identify it is the radio address, so this is what is entered in the
+						 * meter config.
+						 * The easiest way to get the dllSecondaryAddress is to simply take it from the first received
+						 * message of that device and store it in deviceDllAddress. If that field is still null (no message
+						 * yet from this device), extract the radio address from dllSecondaryAddress and identify by
+						 * radio address. Then get and store the dllSecondaryAddress for this device and use it to
+						 * register the decryption key. Further messages can then be identified directly by the
+						 * dllSecondaryAddress.
+						 */
 						if (deviceDllAddress == null) {
 							String radioAddress = device.getRadioAddress();
 							String detectedAddress = String.valueOf(dllSecondaryAddress.getDeviceId());

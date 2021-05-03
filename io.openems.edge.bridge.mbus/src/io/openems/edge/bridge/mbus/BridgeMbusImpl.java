@@ -114,19 +114,24 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 
 				for (MbusTask task : BridgeMbusImpl.this.tasks.values()) {
 
-					// MBus devices have an optional polling interval. If enabled, the device is not polled every cycle
-					// but only once every polling interval. This is used to to conserve the energy of battery powered
-					// meters.
-					// permissionToPoll() will always return true if no polling interval has been set.
+					/**
+					 * MBus devices have an optional polling interval. If enabled, the device is not polled every cycle
+					 * but only once every polling interval. This is used to to conserve the energy of battery powered
+					 * meters.
+					 * permissionToPoll() will always return true if no polling interval has been set.
+					 */
 					if (task.permissionToPoll()) {
 						try {
 							VariableDataStructure data = task.getRequest();
-							// From jmbus library:
-							// "Before accessing elements of a variable data structure it has to be decoded using the
-							// decode method."
-							// This decode() here is probably redundant, but it also doesn't hurt. MBus messages are
-							// usually not encrypted. There is also currently no code to allow a decryption key to be
-							// set for MBus devices.
+
+							/**
+							 * From jmbus library:
+							 * "Before accessing elements of a variable data structure it has to be decoded using the
+							 * decode method."
+							 * This decode() here is probably redundant, but it also doesn't hurt. MBus messages are
+							 * usually not encrypted. There is also currently no code to allow a decryption key to be
+							 * set for MBus devices.
+							 */
 							data.decode();
 							task.processData(data);
 							if (BridgeMbusImpl.this.debug) {

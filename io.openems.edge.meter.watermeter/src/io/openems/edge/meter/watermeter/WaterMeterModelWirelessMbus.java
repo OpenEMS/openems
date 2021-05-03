@@ -1,7 +1,9 @@
 package io.openems.edge.meter.watermeter;
 
+/**
+ * Water meter models with their record positions for WMbus.
+ */
 public enum WaterMeterModelWirelessMbus {
-    // Water meter models with their record positions for WMbus.
     AUTOSEARCH(0, 1),
     RELAY_PADPULS_M2W_CHANNEL1(0, 1),
     RELAY_PADPULS_M2W_CHANNEL2(0, 1),

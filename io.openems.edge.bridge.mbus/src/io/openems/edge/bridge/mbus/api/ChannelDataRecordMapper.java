@@ -317,14 +317,21 @@ public class ChannelDataRecordMapper {
 	 * @param mbusUnit		The unit of the data record.
 	 */
 	protected void setNominatorAndDenominator(Unit openemsUnit, DlmsUnit mbusUnit) {
+		if (openemsUnit == Unit.CUBIC_METER && mbusUnit == DlmsUnit.CUBIC_METRE
+			|| openemsUnit == Unit.DEGREE_CELSIUS && mbusUnit == DlmsUnit.DEGREE_CELSIUS
+			|| openemsUnit == Unit.BAR && mbusUnit == DlmsUnit.BAR
+			|| openemsUnit == Unit.VOLT_AMPERE_REACTIVE && mbusUnit == DlmsUnit.VAR
+			|| openemsUnit == Unit.VOLT_AMPERE_REACTIVE_HOURS && mbusUnit == DlmsUnit.VAR_HOUR
+			|| openemsUnit == Unit.VOLT_AMPERE && mbusUnit == DlmsUnit.VOLT_AMPERE
+			|| openemsUnit == Unit.VOLT_AMPERE_HOURS && mbusUnit == DlmsUnit.VOLT_AMPERE_HOUR
+			|| openemsUnit == Unit.VOLT && mbusUnit == DlmsUnit.VOLT
+			|| openemsUnit == Unit.AMPERE && mbusUnit == DlmsUnit.AMPERE) {
+			this.nominator = 1;
+			this.denominator = 1;
+			return;
+		}
+
 		switch (openemsUnit) {
-			case CUBIC_METER:
-				if (mbusUnit == DlmsUnit.CUBIC_METRE) {
-					this.nominator = 1;
-					this.denominator = 1;
-				}
-				break;
-			//return error
 			case CUBIC_METER_PER_HOUR:
 				switch (mbusUnit) {
 					case CUBIC_METRE_PER_DAY:
@@ -430,18 +437,6 @@ public class ChannelDataRecordMapper {
 					default:
 				}
 				break;
-			case DEGREE_CELSIUS:
-				if (mbusUnit == DlmsUnit.DEGREE_CELSIUS) {
-					this.nominator = 1;
-					this.denominator = 1;
-				}
-				break;
-			case BAR:
-				if (mbusUnit == DlmsUnit.BAR) {
-					this.nominator = 1;
-					this.denominator = 1;
-				}
-				break;
 			case WATT:
 				switch (mbusUnit) {
 					case WATT:
@@ -468,30 +463,6 @@ public class ChannelDataRecordMapper {
 					default:
 				}
 				break;
-			case VOLT_AMPERE_REACTIVE:
-				if (mbusUnit == DlmsUnit.VAR) {
-					this.nominator = 1;
-					this.denominator = 1;
-				}
-				break;
-			case VOLT_AMPERE_REACTIVE_HOURS:
-				if (mbusUnit == DlmsUnit.VAR_HOUR) {
-					this.nominator = 1;
-					this.denominator = 1;
-				}
-				break;
-			case VOLT_AMPERE:
-				if (mbusUnit == DlmsUnit.VOLT_AMPERE) {
-					this.nominator = 1;
-					this.denominator = 1;
-				}
-				break;
-			case VOLT_AMPERE_HOURS:
-				if (mbusUnit == DlmsUnit.VOLT_AMPERE_HOUR) {
-					this.nominator = 1;
-					this.denominator = 1;
-				}
-				break;
 			case WATT_HOURS:
 				switch (mbusUnit) {
 					case JOULE:
@@ -505,18 +476,7 @@ public class ChannelDataRecordMapper {
 					default:
 				}
 				break;
-			case VOLT:
-				if (mbusUnit == DlmsUnit.VOLT) {
-					this.nominator = 1;
-					this.denominator = 1;
-				}
-				break;
-			case AMPERE:
-				if (mbusUnit == DlmsUnit.AMPERE) {
-					this.nominator = 1;
-					this.denominator = 1;
-				}
-				break;
+			default:
 		}
 	}
 

@@ -10,6 +10,10 @@ import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
+/**
+ * This is the water meter interface, containing the shared channels of M-Bus and Wireless M-Bus water meters.
+ */
+
 public interface WaterMeter extends OpenemsComponent {
 
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

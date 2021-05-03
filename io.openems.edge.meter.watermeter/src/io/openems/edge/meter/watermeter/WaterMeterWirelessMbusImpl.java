@@ -136,8 +136,10 @@ public class WaterMeterWirelessMbusImpl extends AbstractOpenemsWMbusComponent im
                 break;
             case "Engelmann Waterstar M":
                 this.waterMeterModelWirelessMbus = WaterMeterModelWirelessMbus.ENGELMANN_WATERSTAR_M;
-                // The Waterstar transmits stored records before the current data. The number of stored records can vary,
-                // so the address of the data after the stored records can change as well.
+                /**
+                 * The Waterstar transmits stored records before the current data. The number of stored records can vary,
+                 * so the address of the data after the stored records can change as well.
+                 */
                 super.dynamicDataAddress = true;
                 break;
             case "Autosearch":
@@ -158,16 +160,22 @@ public class WaterMeterWirelessMbusImpl extends AbstractOpenemsWMbusComponent im
 	@Override
     protected WMbusProtocol defineWMbusProtocol(String key) {
         WMbusProtocol protocol = new WMbusProtocol(this, key, this.getErrorMessageChannel(),
-                // The total_consumed_water channelRecord needs to be in the first position of this list, otherwise findRecordPositions()
-                // for the data records won't work correctly.
+                /**
+                 * The total_consumed_water channelRecord needs to be in the first position of this list, otherwise findRecordPositions()
+                 * for the data records won't work correctly.
+                 */
                 new ChannelRecord(this.channel(WaterMeter.ChannelId.TOTAL_CONSUMED_WATER), this.volAddress),
 
-                // The timestamp_seconds channelRecord needs to be in the second position of this list, otherwise findRecordPositions()
-                // for the data records won't work correctly.
+                /**
+                 * The timestamp_seconds channelRecord needs to be in the second position of this list, otherwise findRecordPositions()
+                 * for the data records won't work correctly.
+                 */
                 new ChannelRecord(this.channel(WaterMeter.ChannelId.TIMESTAMP_SECONDS), this.timeStampAddress),
 
-                // TimestampString is always on address -2, since it's an internal method. This channel needs to be
-                // called after the TimestampSeconds Channel, as it takes it's value from that channel.
+                /**
+                 * TimestampString is always on address -2, since it's an internal method. This channel needs to be
+                 * called after the TimestampSeconds Channel, as it takes it's value from that channel.
+                 */
                 new ChannelRecord(this.channel(WaterMeter.ChannelId.TIMESTAMP_STRING), -2),
                 new ChannelRecord(this.channel(ChannelId.MANUFACTURER_ID), ChannelRecord.DataType.Manufacturer),
                 new ChannelRecord(this.channel(ChannelId.DEVICE_ID), ChannelRecord.DataType.DeviceId)
@@ -196,19 +204,23 @@ public class WaterMeterWirelessMbusImpl extends AbstractOpenemsWMbusComponent im
     @Override
     public void findRecordPositions(VariableDataStructure data, List<ChannelRecord> channelDataRecordsList) {
 
-        // This is the code used for the "Autosearch" option.
-        // Entry 0 in channelDataRecordsList is the volume channel, entry 1 is the timestamp channel. This is defined in
-        // the "defineWMbusProtocol()" method.
-        // Look at the units in the WM-Bus data records. Find a data record that has the unit volume and another with
-        // unit date_time. Start searching from the top of the list. When a match is found, write the record position in
-        // the channelDataRecordsList.
+        /**
+         * This is the code used for the "Autosearch" option.
+         * Entry 0 in channelDataRecordsList is the volume channel, entry 1 is the timestamp channel. This is defined in
+         * the "defineWMbusProtocol()" method.
+         * Look at the units in the WM-Bus data records. Find a data record that has the unit volume and another with
+         * unit date_time. Start searching from the top of the list. When a match is found, write the record position in
+         * the channelDataRecordsList.
+         */
         if (this.waterMeterModelWirelessMbus == WaterMeterModelWirelessMbus.AUTOSEARCH) {
             List<DataRecord> dataRecords = data.getDataRecords();
             int numberOfEntries = dataRecords.size();
             boolean volumePositionFound = false;
             boolean timestampPositionFound = false;
-            // Check to see if "openEMS timestamp" option is active, which sets the address to -1. If that is active,
-            // don't change that address.
+            /**
+             * Check to see if "openEMS timestamp" option is active, which sets the address to -1. If that is active,
+             * don't change that addres
+             */
             if (channelDataRecordsList.get(1).getDataRecordPosition() < 0) {
                 timestampPositionFound = true;
             }
@@ -230,16 +242,20 @@ public class WaterMeterWirelessMbusImpl extends AbstractOpenemsWMbusComponent im
             }
         }
 
-        // This is the code used for the water meter model "Engelmann Waterstar M".
-        // In the Waterstar, the entries for TOTAL_CONSUMED_WATER and TIMESTAMP_SECONDS are at the end of the record
-        // list. So search the list starting from the end.
+        /**
+         * This is the code used for the water meter model "Engelmann Waterstar M".
+         * In the Waterstar, the entries for TOTAL_CONSUMED_WATER and TIMESTAMP_SECONDS are at the end of the record
+         * list. So search the list starting from the end.
+         */
         if (this.waterMeterModelWirelessMbus == WaterMeterModelWirelessMbus.ENGELMANN_WATERSTAR_M) {
             List<DataRecord> dataRecords = data.getDataRecords();
             int numberOfEntries = dataRecords.size();
             boolean volumePositionFound = false;
             boolean timestampPositionFound = false;
-            // Check to see if "openEMS timestamp" option is active, which sets the address to -1. If that is active,
-            // don't change that address.
+            /**
+             * Check to see if "openEMS timestamp" option is active, which sets the address to -1. If that is active,
+             * don't change that address.
+             */
             if (channelDataRecordsList.get(1).getDataRecordPosition() < 0) {
                 timestampPositionFound = true;
             }

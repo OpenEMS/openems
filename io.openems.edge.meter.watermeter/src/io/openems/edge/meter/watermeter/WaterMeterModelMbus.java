@@ -1,7 +1,9 @@
 package io.openems.edge.meter.watermeter;
 
+/**
+ * Water meter models with their record positions for Mbus.
+ */
 public enum WaterMeterModelMbus {
-    // Water meter models with their record positions for Mbus.
     AUTOSEARCH(0, 1),
     PAD_PULS_M2(0,1),
     ITRON_BM_M(1,4),
