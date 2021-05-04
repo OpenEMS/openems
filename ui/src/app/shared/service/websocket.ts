@@ -149,7 +149,7 @@ export class Websocket {
       this.status = 'online';
 
       // received login token -> save in cookie
-      this.cookieService.set('token', response.token, { sameSite: 'Strict' });
+      this.cookieService.set('token', response.token, { expires: 365, path: '/', sameSite: 'Strict' });
 
       // Metadata
       this.service.metadata.next({
