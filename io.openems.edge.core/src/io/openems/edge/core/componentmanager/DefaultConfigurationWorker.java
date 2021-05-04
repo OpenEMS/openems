@@ -197,7 +197,6 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 			AtomicBoolean configurationFailed) {
 		this.migrateConfigurationOnVersion_2020_11_5(existingConfigs, configurationFailed);
 		this.migrateConfigurationOnVersion_2020_23_4(existingConfigs, configurationFailed);
-		this.migrateConfigurationOnVersion_2021_4_14(existingConfigs, configurationFailed);
 	}
 
 	/**
@@ -260,7 +259,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 	}
 
 	/**
-	 * Migrate to OpenEMS version 2020.23.4.
+	 * Migrate to OpenEMS version 2020.23.4 and 2021.4.14.
 	 */
 	private void migrateConfigurationOnVersion_2020_23_4(List<Config> existingConfigs,
 			AtomicBoolean configurationFailed) {
@@ -269,14 +268,19 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 		 */
 		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
 		("GoodWe.Charger-PV1".equals(c.factoryPid) || "GoodWe.Charger-PV2".equals(c.factoryPid)) //
-				&& DictionaryUtils.getAsOptionalString(c.properties, "ess.target").orElse("").isEmpty()) //
+				&& DictionaryUtils.getAsOptionalString(c.properties, "essOrBatteryInverter.target").orElse("")
+						.isEmpty()) //
 		).forEach(c -> {
 			String servicePid = DictionaryUtils.getAsString(c.properties, "service.pid");
-			String essId = DictionaryUtils.getAsString(c.properties, "ess.id");
-			String essTarget = ConfigUtils.generateReferenceTargetFilter(servicePid, essId);
+			String essOrBatteryInverterId = DictionaryUtils.getAsString(c.properties, "ess.id");
+			String essOrBatteryInverterTarget = ConfigUtils.generateReferenceTargetFilter(servicePid,
+					essOrBatteryInverterId);
 
 			this.updateConfiguration(configurationFailed, c.componentId.get(), Arrays.asList(//
-					new Property("ess.target", essTarget) //
+					new Property("essOrBatteryInverter.id", essOrBatteryInverterId), //
+					new Property("essOrBatteryInverter.target", essOrBatteryInverterTarget), //
+					new Property("ess.id", JsonNull.INSTANCE), //
+					new Property("ess.target", JsonNull.INSTANCE) //
 			));
 		});
 
@@ -369,33 +373,6 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 					new Property("ess.target", essTarget), //
 					new Property("modbus.id", modbusId), //
 					new Property("modbusUnitId", modbusUnitId) //
-			));
-		});
-	}
-
-	/**
-	 * Migrate to OpenEMS version 2021.4.14.
-	 */
-	private void migrateConfigurationOnVersion_2021_4_14(List<Config> existingConfigs,
-			AtomicBoolean configurationFailed) {
-		/*
-		 * Fix GoodWe configuration upgrade for Chargers
-		 */
-		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
-		("GoodWe.Charger-PV1".equals(c.factoryPid) || "GoodWe.Charger-PV2".equals(c.factoryPid)) //
-				&& DictionaryUtils.getAsOptionalString(c.properties, "essOrBatteryInverter.target").orElse("")
-						.isEmpty()) //
-		).forEach(c -> {
-			String servicePid = DictionaryUtils.getAsString(c.properties, "service.pid");
-			String essOrBatteryInverterId = DictionaryUtils.getAsString(c.properties, "ess.id");
-			String essOrBatteryInverterTarget = ConfigUtils.generateReferenceTargetFilter(servicePid,
-					essOrBatteryInverterId);
-
-			this.updateConfiguration(configurationFailed, c.componentId.get(), Arrays.asList(//
-					new Property("essOrBatteryInverter.id", essOrBatteryInverterId), //
-					new Property("essOrBatteryInverter.target", essOrBatteryInverterTarget), //
-					new Property("ess.id", JsonNull.INSTANCE), //
-					new Property("ess.target", JsonNull.INSTANCE) //
 			));
 		});
 	}
