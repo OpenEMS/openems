@@ -30,7 +30,7 @@ import java.util.Map;
 
 /**
  * The implementation of an OutputDevice connected to the LucidControl Output Module.
- * You can configure a device here at set the Output via the Percentage Channel.
+ * You can configure a device here and set the Output via the Percentage Channel.
  * The Task will be handled by the LucidControlBridge.
  */
 @Designate(ocd = OutputConfig.class, factory = true)

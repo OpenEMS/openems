@@ -27,7 +27,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The LucidControlBridge. Modules are adding their Paths and maxVoltage and Devices add their tasks that will be handled.
+ * The LucidControlBridge. Modules are adding their Path and maxVoltage to this Bridge.
+ * Devices add their tasks that will be handled by this Bridge.
  * Note: This Bridge only works if you install the Software from LucidControl here:
  *
  * @see <a href="https://www.lucid-control.com/downloads/">https://www.lucid-control.com/downloads/</a> <br>

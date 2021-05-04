@@ -10,7 +10,7 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
- * The Nature for a LucidControlOutput. IRL it's attached to a LucidControlModule and you can write a PercentValue
+ * The Nature for a LucidControlOutput. The concrete device is attached to a LucidControlModule and you can write a PercentValue
  * Depending on the max Voltage the Output will be adapted.
  */
 public interface LucidControlDeviceOutput extends OpenemsComponent {
