@@ -4,6 +4,9 @@ import io.openems.edge.bridge.communication.remote.rest.api.RestRequest;
 import io.openems.edge.common.component.ComponentManager;
 import org.slf4j.Logger;
 
+/**
+ * This class hold the general information a RestTask has.
+ */
 public abstract class AbstractRestRemoteDeviceTask implements RestRequest {
 
     private final String remoteDeviceId;
@@ -22,9 +25,10 @@ public abstract class AbstractRestRemoteDeviceTask implements RestRequest {
     }
 
     /**
-     * Returns the Request. (ComponentId/ChannelId) For the Bridge.
+     * Returns the Request (ComponentId/ChannelId). Usually called by the
+     * {@link io.openems.edge.bridge.communication.remote.rest.RestBridgeImpl}.
      *
-     * @return the ComponentId/ChannelId String.
+     * @return The ChannelAddress String.
      */
     @Override
     public String getRequest() {

@@ -88,7 +88,7 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
     }
 
     /**
-     * Check the Connection. If it's ok, read / get Data in Before Process Image,
+     * Check the Connection. If it's ok, read/GET Data in Before Process Image,
      * otherwise write into Channel in Execute Write.
      *
      * @param event the Event, either BeforeProcessImage or Execute Write
@@ -196,15 +196,15 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
     /**
      * Handles PostRequests called by the CycleWorker.
      *
-     * @param entry the RestWriteRequest given by the CycleWorker. from this.tasks
+     * @param entry the RestWriteRequest given by the CycleWorker. From this.tasks
      *              <p>
      *              Creates URL and if ReadyToWrite (can be changed via Interface) && isAudoadapt --> AutoAdaptRequest.
      *              AutoAdaptRequests is only necessary if Device is a Relays. --> IsCloser will be asked.
-     *              Bc Opener and Closer have Inverse Logic. A Closer is Normally Open and an Opener is NormallyClosed,
+     *              Because Opener and Closer have Inverse Logic. A Closer is Normally Open and an Opener is NormallyClosed,
      *              Therefore Changes in Relays needs to be Adapted. "ON" means true with closer but false with opener and
      *              vice versa.
      *              </p>
-     * @throws IOException Bc of URL and connection.
+     * @throws IOException Because of URL and connection.
      */
 
     private void handlePostRequest(RestWriteRequest entry) throws IOException {
@@ -241,10 +241,10 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
     /**
      * Gets a RestRequest and creates the GET Rest Method.
      *
-     * @param entry entry the RestWriteRequest given by the CycleWorker. from this.tasks
-     * @throws IOException bc of URL requests etc.
+     * @param entry entry the RestWriteRequest given by the CycleWorker. From this.tasks
+     * @throws IOException because of URL requests etc.
      *                     <p>
-     *                     Gets a Request via Cycleworker. Creates the URL and reacts if HTTP_OK is true
+     *                     Gets a Request via CycleWorker. Creates the URL and reacts if HTTP_OK is true
      *                     If that's the case, the response will be set to entry.
      *                     </p>
      */
@@ -275,7 +275,7 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
     }
 
     /**
-     * Is the Connection OK (Test Get request) Not ideal but it works.
+     * Is the Connection OK (Test GET request). Not ideal but it works.
      *
      * @return a boolean if connection is Ok.
      */
@@ -288,7 +288,7 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
     /**
      * Adds the RestRequest to the tasks map.
      *
-     * @param id      identifier == remote device Id usually from Remote Device config
+     * @param id      identifier = remote device Id usually from Remote Device config
      * @param request the RestRequest created by the Remote Device.
      * @throws ConfigurationException if the id is already in the Map.
      */
@@ -296,7 +296,7 @@ public class RestBridgeImpl extends AbstractOpenemsComponent implements RestBrid
     public void addRestRequest(String id, RestRequest request) throws ConfigurationException {
 
         if (this.tasks.containsKey(id)) {
-            throw new ConfigurationException(id, "Already in RemoteTasks Check your UniqueId please.");
+            throw new ConfigurationException(id, "Already in RemoteTasks. Check your UniqueId please.");
         }
         if (request instanceof RestWriteRequest) {
             this.writeTasks.put(id, request);

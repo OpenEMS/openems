@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 /**
  * This Task gets the value of a remote Channel and sets the value into the ValueReadChannel of the RestRemoteDevice.
- * The GetRequest will be handled by the RestBridge.
+ * The GETRequest will be handled by the RestBridge.
  */
 public class RestRemoteReadTask extends AbstractRestRemoteDeviceTask implements RestReadRequest {
 
@@ -47,7 +47,7 @@ public class RestRemoteReadTask extends AbstractRestRemoteDeviceTask implements 
      * @param answer REST response
      *               <p>Get only Number Value and set that value to the Value of the Remote Device.
      *               Splits after "value" and get the substring of 0 and "\"" ---> only the Value number Part will be
-     *               considered. ---> Get Only Numbers (with optional floatingpoint) .
+     *               considered. ---> Get Only Numbers (with optional floatingPoint) .
      *               Example: {"value": 1023.42345, "Unit":WATT}
      *               split at "value" till first " is found
      *               temp result=  :1023.42345, "

@@ -8,10 +8,13 @@ import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
+/**
+ * This Nature provides a simple read and Write Channel to test the RestRemoteDevices.
+ */
 public interface RestRemoteTestDevice extends OpenemsComponent {
     enum ChannelId implements io.openems.edge.common.channel.ChannelId {
         /**
-         * Value Read, This Channel is for Read Devices -> GET Request.
+         * Value Read. This Channel is for Read Devices -> GET Request.
          *
          * <ul>
          * <li>Interface: RestRemoteChannel
@@ -21,7 +24,7 @@ public interface RestRemoteTestDevice extends OpenemsComponent {
          */
         VALUE_READ(Doc.of(OpenemsType.STRING)),
         /**
-         * Value Write; This Channel is for Write Devices -> POST Request.
+         * Value Write. This Channel is for Write Devices -> POST Request.
          *
          * <ul>
          * <li>Interface: RestRemoteChannel

@@ -3,14 +3,14 @@ package io.openems.edge.bridge.communication.remote.rest.api;
 import org.osgi.service.cm.ConfigurationException;
 
 /**
- * This interface allows Devices to add and Remove their RestRequests. This enables the remote communication with a
+ * This interface allows Devices to add and remove their RestRequests. This enables the remote communication with a
  * different Openems via REST. One Request handles one Channel. Either read a ChannelValue or write into a Channel.
  */
 public interface RestBridge {
     /**
      * Adds the RestRequest to the tasks map.
      *
-     * @param id      identifier == remote device Id usually from Remote Device config
+     * @param id      identifier = remote device Id usually from Remote Device config
      * @param request the RestRequest created by the Remote Device.
      * @throws ConfigurationException if the id is already in the Map.
      */

@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A Remote Device Communicating via REST.
  * One can configure a Channel to get Information from / write into.
- * Note: ATM Only Numeric Values are possible to read from!
+ * Note: Momentarily only numeric values are possible to read from!
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Rest.Remote.Device", immediate = true,
@@ -52,10 +52,10 @@ public class RestRemoteDeviceImpl extends AbstractOpenemsComponent implements Op
      * @param context the context of the Component.
      * @param config  the Config.
      * @throws ConfigurationException             if the Rest Bridge is incorrect or the Connection gets an Error.
-     * @throws OpenemsError.OpenemsNamedException if the Id is no available.
+     * @throws OpenemsError.OpenemsNamedException if the Id is not available.
      */
     @Activate
-    public void activate(ComponentContext context, Config config) throws ConfigurationException, OpenemsError.OpenemsNamedException {
+    void activate(ComponentContext context, Config config) throws ConfigurationException, OpenemsError.OpenemsNamedException {
         super.activate(context, config.id(), config.alias(), config.enabled());
         if (config.enabled()) {
             this.activationOrModifiedRoutine(config);
@@ -226,11 +226,8 @@ public class RestRemoteDeviceImpl extends AbstractOpenemsComponent implements Op
         return false;
     }
 
-    /**
-     * Deactivates the component and removes it's task from the bridge.
-     */
     @Deactivate
-    public void deactivate() {
+    protected void deactivate() {
         this.restBridge.removeRestRemoteDevice(super.id());
         super.deactivate();
     }

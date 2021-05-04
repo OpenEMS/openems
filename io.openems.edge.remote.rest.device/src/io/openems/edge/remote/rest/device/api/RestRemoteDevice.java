@@ -20,7 +20,7 @@ public interface RestRemoteDevice extends OpenemsComponent {
 
     enum ChannelId implements io.openems.edge.common.channel.ChannelId {
         /**
-         * Value Read, This Channel is for Read Devices -> GET Request.
+         * Value Read. This Channel is for Read Devices -> GET Request.
          *
          * <ul>
          * <li>Interface: RestRemoteChannel
@@ -30,7 +30,7 @@ public interface RestRemoteDevice extends OpenemsComponent {
          */
         VALUE_READ(Doc.of(OpenemsType.STRING)),
         /**
-         * Value Write; This Channel is for Write Devices -> POST Request.
+         * Value Write. This Channel is for Write Devices -> POST Request.
          *
          * <ul>
          * <li>Interface: RestRemoteChannel
@@ -105,7 +105,7 @@ public interface RestRemoteDevice extends OpenemsComponent {
     }
 
     /**
-     * get the AllowRequestChannel.
+     * Get the AllowRequestChannel.
      *
      * @return the channel.
      */
@@ -114,7 +114,7 @@ public interface RestRemoteDevice extends OpenemsComponent {
     }
 
     /**
-     * Sets the Value of the Device if it's type is Write /allows to write.
+     * Sets the Value of the Device if it's type is Write/allows to write.
      *
      * @param value the Value that the Remote Device will be set to and therefore the Remote Device too.
      */

@@ -69,7 +69,7 @@ public class RestRemoteWriteTask extends AbstractRestRemoteDeviceTask implements
     }
 
     /**
-     * Checks if the Component is Ready To Write/ Allowed to Write (Write false in Channel ALLOW_REQUEST).
+     * Checks if the Component is Ready To Write/Allowed to Write (Write false in Channel ALLOW_REQUEST).
      *
      * @return a boolean.
      */
