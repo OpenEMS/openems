@@ -16,7 +16,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     @AttributeDefinition(name = "Alias", description = "Human readable Name.")
     String alias() default "PressureMeterOutput";
 
-    @AttributeDefinition(name = "LucidControlModule-ID", description = "ID of LucidControlModule where the Device is connected with.")
+    @AttributeDefinition(name = "LucidControlModule-ID", description = "Id of LucidControlModule the device is connected to.")
     String moduleId() default "LucidControlOutputModule0";
 
     @AttributeDefinition(name = "Position", description = "Position of Device (0-3)")

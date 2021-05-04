@@ -8,7 +8,8 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
- * The Nature for a LucidControlInput. IRL it's attached to a LucidControlModule and gets the Voltage or Pressure.
+ * The Nature for a LucidControlInput. The real devices are attached to a LucidControlModule.
+ * They get the Voltage of a connected Device and convert them into the Pressure Channel, depending on the max Voltage.
  */
 public interface LucidControlDeviceInput extends OpenemsComponent {
 
@@ -56,7 +57,7 @@ public interface LucidControlDeviceInput extends OpenemsComponent {
     /**
      * Get the Value of the Voltage Channel.
      *
-     * @return the ValueWrapper of the Channel.
+     * @return the ValueWrapper (Double) of the Channel Input_Voltage.
      */
 
     default Value<Double> getVoltage() {
@@ -76,7 +77,7 @@ public interface LucidControlDeviceInput extends OpenemsComponent {
     /**
      * Get the Wrapper Value of the Pressure Channel.
      *
-     * @return the ValueWrapper of Pressure.
+     * @return the ValueWrapper (Double) of Pressure.
      */
 
     default Value<Double> getPressure() {

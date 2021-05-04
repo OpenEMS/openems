@@ -1,9 +1,11 @@
 package io.openems.edge.bridge.lucidcontrol.api;
 
 /**
- * The LucidControlBridgeTask. This is implemented by the Input and Output tasks holding ChannelAddresses as well as
- * Request Strings to Read and Write to/from LucidControlDevices using a shell command + the LucidControl Software.
- */
+ * The LucidControlBridgeTask. This is implemented by the Input and Output tasks. They hold ChannelAddresses as well as
+ * Request Strings to Read and Write to/from LucidControlDevices.
+ * Their information are used in the {@link io.openems.edge.bridge.lucidcontrol.LucidControlBridgeImpl} to execute
+ * a shell command.
+ * */
 public interface LucidControlBridgeTask {
     /**
      * Calculate the Pressure using the given param and setNextValue in the PressureChannel.
@@ -35,9 +37,9 @@ public interface LucidControlBridgeTask {
     boolean isWriteDefined();
 
     /**
-     * Gets the Path / Information that the Bridge needs to call the LucidControl Software and read the Input/write Output.
+     * Gets the Path/Information that the Bridge needs to call the LucidControl Software and read the Input/write Output.
      *
-     * @return the Request / Shell String input
+     * @return the Request/Shell String input
      */
     String getRequest();
 

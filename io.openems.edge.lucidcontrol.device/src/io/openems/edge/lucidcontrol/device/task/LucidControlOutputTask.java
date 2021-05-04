@@ -39,6 +39,10 @@ public class LucidControlOutputTask extends AbstractLucidControlBridgeTask imple
         this.keyList = keyList;
     }
 
+    /**
+     * Allocates the Max Voltage,
+     * depends on the config from the {@link io.openems.edge.lucidcontrol.device.LucidControlOutputDeviceImpl}.
+     */
     private void allocateMaxVoltage() {
         this.maxVoltage = Integer.parseInt(this.voltage.replaceAll("\\D+", ""));
 
@@ -50,7 +54,7 @@ public class LucidControlOutputTask extends AbstractLucidControlBridgeTask imple
     }
 
     /**
-     * Path of the LucidControModule.
+     * Path of the LucidControlModule.
      *
      * @return the path.
      */
@@ -84,13 +88,19 @@ public class LucidControlOutputTask extends AbstractLucidControlBridgeTask imple
      */
     @Override
     public String getRequest() {
-        return " -w" + calculateVoltage() + " -c" + this.pinPos + " -tV";
+        return " -w" + this.calculateVoltage() + " -c" + this.pinPos + " -tV";
     }
 
+    /**
+     * Calculate the Voltage that will be written into the output device. It uses the Channel Value and the
+     * additional voltage value from the config
+     *
+     * @return the calculated Voltage to write into the device.
+     */
     private double calculateVoltage() {
         double adaptedVoltage;
         try {
-            adaptedVoltage = calculateAdaptedVoltage();
+            adaptedVoltage = this.calculateAdaptedVoltage();
         } catch (OpenemsError.OpenemsNamedException e) {
             super.log.warn("Couldn't read percent Channel " + this.percentAddress);
             adaptedVoltage = 0.d;
@@ -98,9 +108,17 @@ public class LucidControlOutputTask extends AbstractLucidControlBridgeTask imple
         return adaptedVoltage * this.maxVoltage / 100;
     }
 
+    /**
+     * Calculates the adapted VoltageValue usually called by {@link #calculateVoltage()}
+     * It uses the additional Volt value set by the Config of the corresponding
+     * {@link io.openems.edge.lucidcontrol.device.LucidControlOutputDeviceImpl}.
+     *
+     * @return the adapted voltage value.
+     * @throws OpenemsError.OpenemsNamedException if the Channel couldn't be found.
+     */
     private double calculateAdaptedVoltage() throws OpenemsError.OpenemsNamedException {
         Channel<?> percentChannel = this.cpm.getChannel(this.percentAddress);
-        double percentChannelValue = percentChannel.value().isDefined() ?  (Double) percentChannel.value().get() : 0;
+        double percentChannelValue = percentChannel.value().isDefined() ? (Double) percentChannel.value().get() : 0;
         double percent = percentChannelValue >= 0 ? percentChannelValue : 0;
         if (this.keyList.size() > 0) {
             AtomicBoolean wasSet = new AtomicBoolean();
@@ -126,6 +144,12 @@ public class LucidControlOutputTask extends AbstractLucidControlBridgeTask imple
 
         return percent;
     }
+
+    /**
+     * Tells the Bridge if this Task is a Read Task.
+     *
+     * @return true if readTask.
+     */
 
     @Override
     public boolean isRead() {

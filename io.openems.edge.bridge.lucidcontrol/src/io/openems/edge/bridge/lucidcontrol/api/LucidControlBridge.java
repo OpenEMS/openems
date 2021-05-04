@@ -1,7 +1,7 @@
 package io.openems.edge.bridge.lucidcontrol.api;
 
 /**
- * The LucidControlBridge Interface, it provides methods, so LucidControl modules and devices can be added and tasks
+ * The LucidControlBridge Interface provides methods, so LucidControl modules and devices can be added and tasks
  * can be handled.
  */
 public interface LucidControlBridge {
