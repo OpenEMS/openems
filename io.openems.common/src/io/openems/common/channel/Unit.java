@@ -164,6 +164,15 @@ public enum Unit {
 	MILLIHERTZ("mHz", HERTZ, -3),
 
 	// ##########
+	// Pressure
+	// ##########
+	/**
+	 * Unit of Pressure [bar].
+	 */
+	BAR("bar"),
+
+
+	// ##########
 	// Temperature
 	// ##########
 
@@ -265,6 +274,7 @@ public enum Unit {
 		case NONE:
 			return value.toString();
 		case AMPERE:
+		case BAR:
 		case DEGREE_CELSIUS:
 		case DEZIDEGREE_CELSIUS:
 		case HERTZ:

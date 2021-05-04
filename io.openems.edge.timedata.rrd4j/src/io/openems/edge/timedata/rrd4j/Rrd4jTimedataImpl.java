@@ -485,6 +485,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		switch (channelUnit) {
 		case AMPERE:
 		case AMPERE_HOURS:
+		case BAR:
 		case DEGREE_CELSIUS:
 		case DEZIDEGREE_CELSIUS:
 		case HERTZ:

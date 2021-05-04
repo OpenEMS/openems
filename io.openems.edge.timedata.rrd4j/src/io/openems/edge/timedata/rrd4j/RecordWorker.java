@@ -218,6 +218,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 		switch (channelUnit) {
 		case AMPERE:
 		case AMPERE_HOURS:
+		case BAR:
 		case DEGREE_CELSIUS:
 		case DEZIDEGREE_CELSIUS:
 		case HERTZ:
