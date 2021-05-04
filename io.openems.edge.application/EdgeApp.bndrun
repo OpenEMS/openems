@@ -28,7 +28,6 @@
 	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
 	bnd.identity;id='org.apache.felix.inventory',\
 	bnd.identity;id='io.openems.edge.application',\
-	bnd.identity;id='io.openems.edge.aio.api',\
 	bnd.identity;id='io.openems.edge.battery.bmw',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
 	bnd.identity;id='io.openems.edge.battery.fenecon.home',\
@@ -120,6 +119,7 @@
 	bnd.identity;id='io.openems.edge.io.shelly',\
 	bnd.identity;id='io.openems.edge.io.wago',\
 	bnd.identity;id='io.openems.edge.kostal.piko',\
+	bnd.identity;id='io.openems.edge.heatsystem.components',\
 	bnd.identity;id='io.openems.edge.meter.abb',\
 	bnd.identity;id='io.openems.edge.meter.artemes.am2',\
 	bnd.identity;id='io.openems.edge.meter.bcontrol.em300',\
@@ -161,7 +161,6 @@
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
 	com.sun.jna;version='[5.8.0,5.8.1)',\
 	io.openems.common;version=snapshot,\
-	io.openems.edge.aio.api;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
 	io.openems.edge.battery.api;version=snapshot,\
 	io.openems.edge.battery.bmw;version=snapshot,\
@@ -259,6 +258,7 @@
 	io.openems.edge.io.revpi;version=snapshot,\
 	io.openems.edge.io.shelly;version=snapshot,\
 	io.openems.edge.io.wago;version=snapshot,\
+	io.openems.edge.heatsystem.components;version=snapshot,\
 	io.openems.edge.kostal.piko;version=snapshot,\
 	io.openems.edge.meter.abb;version=snapshot,\
 	io.openems.edge.meter.api;version=snapshot,\

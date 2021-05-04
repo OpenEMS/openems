@@ -1,0 +1,4 @@
+= Heatsystem Components
+
+This Bundle provides basic Interfaces and Components that will be used in Heatsystems/Heatnetworks.
+
