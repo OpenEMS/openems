@@ -95,7 +95,7 @@ export const TRANSLATION = {
         index: 'Index',
         logout: 'Sign Out',
         menu: 'Menu',
-        overview: 'FEMS Overview',
+        overview: 'All Systems',
         settings: 'Settings',
         user: 'User',
     },
