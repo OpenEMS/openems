@@ -134,9 +134,9 @@ public class ChannelDataRecordMapper {
 		if (dataType == null) {
 			// Check that the index is not out of bounds.
 			if (data.getDataRecords().size() > index && index >= 0) {
-				// Call method to write the data to the channel. Before the data is written, it is scaled based on a
-				// unit comparison between the unit of the data and the unit of the channel. Does not write to the
-				// channel if the units are not compatible (and logs an error if error logging is enabled).
+				/* Call method to write the data to the channel. Before the data is written, it is scaled based on a
+				   unit comparison between the unit of the data and the unit of the channel. Does not write to the
+				   channel if the units are not compatible (and logs an error if error logging is enabled). */
 				this.mapScaledCheckedDataToChannel(data.getDataRecords().get(index),channel);
 			} else {
 				// Special case or error
@@ -146,9 +146,9 @@ public class ChannelDataRecordMapper {
 						this.setTimestamp(channel);
 						break;
 					case -2:
-						// Address -2 is used to write the timestamp as a string format. This is an additional channel that does
-						// not function on it's own. It just converts the contents of the variable "timestamp" into a string.
-						// That variable is updated when the meter timestamp is read or the address -1 is used.
+						/* Address -2 is used to write the timestamp as a string format. This is an additional channel that does
+						   not function on it's own. It just converts the contents of the variable "timestamp" into a string.
+						   That variable is updated when the meter timestamp is read or the address -1 is used. */
 						this.setTimestampString(channel);
 						break;
 					default:
@@ -257,9 +257,9 @@ public class ChannelDataRecordMapper {
 	protected void mapScaledCheckedDataToChannel(DataRecord record, Channel<?> channel) {
 		Unit openemsUnit = channel.channelDoc().getUnit();
 
-		// Timestamp unit from meter is milliseconds since epoch, same as System.currentTimeMillis().
-		// However, meter time accuracy is minutes. If you want seconds accuracy, set your timestamp channel to address
-		// -1 which then uses "setTimestamp()" method and lets OpenEMS calculate the timestamp.
+		/* Timestamp unit from meter is milliseconds since epoch, same as System.currentTimeMillis().
+		   However, meter time accuracy is minutes. If you want seconds accuracy, set your timestamp channel to address
+		   -1 which then uses "setTimestamp()" method and lets OpenEMS calculate the timestamp. */
 		if (record.getDataValueType() == DataRecord.DataValueType.DATE) {
 			int divisor = this.timeUnitDivisor(openemsUnit);
 			if (divisor > 0) {

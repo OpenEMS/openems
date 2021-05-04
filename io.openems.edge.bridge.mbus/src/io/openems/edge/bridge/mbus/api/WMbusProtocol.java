@@ -27,9 +27,9 @@ public class WMbusProtocol {
 	// This is the data link layer (=dll) secondary address. The radio address is part of this.
 	private SecondaryAddress dllSecondaryAddress = null;
 
-	// The meter number is part of the transport layer (=tpl) secondary address. Most meters can be identified by the
-	// radio address alone, but for some cases (like distinguishing between channel 1 and 2 for the Padpuls Relay)
-	// the meter number is also needed.
+	/* The meter number is part of the transport layer (=tpl) secondary address. Most meters can be identified by the
+	   radio address alone, but for some cases (like distinguishing between channel 1 and 2 for the Padpuls Relay)
+	   the meter number is also needed. */
 	private boolean identifyByMeterNumber = false;
 	private String meterNumber = "";
 

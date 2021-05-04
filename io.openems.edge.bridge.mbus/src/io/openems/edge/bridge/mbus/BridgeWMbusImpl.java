@@ -210,20 +210,18 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 											+ (device.getRadioAddress()) + ".");
 						}
 
-						/**
-						 * This executes if no message from this device has been received yet. The reason why it is done
-						 * this way:
-						 * jmbus library stores the decryption key with the dllSecondaryAddress as identifier. The
-						 * dllSecondaryAddress contains the radio address, but is not identical to it. But the number
-						 * printed on a meter to identify it is the radio address, so this is what is entered in the
-						 * meter config.
-						 * The easiest way to get the dllSecondaryAddress is to simply take it from the first received
-						 * message of that device and store it in deviceDllAddress. If that field is still null (no message
-						 * yet from this device), extract the radio address from dllSecondaryAddress and identify by
-						 * radio address. Then get and store the dllSecondaryAddress for this device and use it to
-						 * register the decryption key. Further messages can then be identified directly by the
-						 * dllSecondaryAddress.
-						 */
+						/* This executes if no message from this device has been received yet. The reason why it is done
+						   this way:
+						   jmbus library stores the decryption key with the dllSecondaryAddress as identifier. The
+						   dllSecondaryAddress contains the radio address, but is not identical to it. But the number
+						   printed on a meter to identify it is the radio address, so this is what is entered in the
+						   meter config.
+						   The easiest way to get the dllSecondaryAddress is to simply take it from the first received
+						   message of that device and store it in deviceDllAddress. If that field is still null (no message
+						   yet from this device), extract the radio address from dllSecondaryAddress and identify by
+						   radio address. Then get and store the dllSecondaryAddress for this device and use it to
+						   register the decryption key. Further messages can then be identified directly by the
+						   dllSecondaryAddress. */
 						if (deviceDllAddress == null) {
 							String radioAddress = device.getRadioAddress();
 							String detectedAddress = String.valueOf(dllSecondaryAddress.getDeviceId());
@@ -238,8 +236,8 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 								BridgeWMbusImpl.this.logInfo(BridgeWMbusImpl.this.log,
 										"Device " + device.getComponentId() + " with radio address " + radioAddress + " has been detected.");
 							} else {
-								// Detected device is not this device from the list. Abort here, otherwise null pointer
-								// exception in next "if" because this device does not have the secondary address set yet.
+								/* Detected device is not this device from the list. Abort here, otherwise null pointer
+								   exception in next "if" because this device does not have the secondary address set yet. */
 								if (BridgeWMbusImpl.this.debug) {
 									BridgeWMbusImpl.this.logInfo(BridgeWMbusImpl.this.log,
 											"Nope, that's not this device. Moving on to next device in list (if there are more).");
@@ -254,10 +252,10 @@ public class BridgeWMbusImpl extends AbstractOpenemsComponent implements BridgeW
 							try {
 								data.decode();	// WMBus messages are usually encrypted. Need to decode before it can be read.
 								if (device.isIdentifyByMeterNumber()) {
-									// This is needed to distinguishing between channel 1 and 2 for the Padpuls Relay.
-									// Both channels have identical radio addresses, only the meter number is different.
-									// Data has another secondary address, which is the "transport layer secondary address".
-									// It contains the meter number.
+									/* This is needed to distinguishing between channel 1 and 2 for the Padpuls Relay.
+									   Both channels have identical radio addresses, only the meter number is different.
+									   Data has another secondary address, which is the "transport layer secondary address".
+									   It contains the meter number. */
 									String detectedMeterNumber = String.valueOf(data.getSecondaryAddress().getDeviceId());	// jmbus calls the meter number deviceId. Very confusing, since radio address is also called deviceId in jmbus.
 									if (detectedMeterNumber.equals(device.getMeterNumber()) == false) {
 										// This is not the right device. Abort and try next device in list.

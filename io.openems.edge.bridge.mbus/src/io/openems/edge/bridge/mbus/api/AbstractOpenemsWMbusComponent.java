@@ -21,9 +21,7 @@ public abstract class AbstractOpenemsWMbusComponent extends AbstractOpenemsCompo
 	private String radioAddress;
 	protected boolean dynamicDataAddress = false; // For WM-Bus devices that have dynamic addresses of their data.
 
-	/*
-	 * The protocol. Consume via 'getWMbusProtocol()'
-	 */
+	// The protocol. Consume via 'getWMbusProtocol()'.
 	private WMbusProtocol protocol = null;
 
 	/**
