@@ -9,6 +9,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class StorageModalComponent {
 
+    // TODO after refactoring of Model: subscribe to EssActivePowerL1/L2/L3 here instead of Flat Widget
 
     @Input() edge: Edge;
     @Input() config: EdgeConfig;
