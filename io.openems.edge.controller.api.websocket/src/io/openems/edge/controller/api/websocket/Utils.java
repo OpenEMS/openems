@@ -5,7 +5,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import io.openems.common.OpenemsConstants;
-import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse.EdgeMetadata;
+import io.openems.common.jsonrpc.response.AuthenticateResponse.EdgeMetadata;
 import io.openems.common.session.Role;
 
 public class Utils {

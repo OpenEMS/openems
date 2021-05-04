@@ -3,7 +3,7 @@ Bundle-DocURL: https://github.com/eclipse/paho.mqtt.java
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.2.5
 
-Include-Resource: @org.eclipse.paho.mqttv5.client-1.2.5.jar
+Fragment-Host: org.eclipse.paho.mqttv5.client
 
 -dsannotations: *
 
