@@ -1,0 +1,34 @@
+Bundle-Name: ojalgo
+Bundle-DocURL: https://www.ojalgo.org
+Bundle-License: https://opensource.org/licenses/MIT
+Bundle-Version: 48.4.1
+
+Include-Resource: @ojalgo-48.4.1.jar
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+Export-Package: \
+    org.ojalgo,\
+    org.ojalgo.algebra,\
+    org.ojalgo.array,\
+    org.ojalgo.function,\
+    org.ojalgo.function.aggregator,\
+    org.ojalgo.function.multiary,\
+    org.ojalgo.machine,\
+    org.ojalgo.matrix,\
+    org.ojalgo.matrix.decomposition,\
+    org.ojalgo.matrix.decomposition.function,\
+    org.ojalgo.matrix.transformation,\
+    org.ojalgo.matrix.store,\
+    org.ojalgo.matrix.task,\
+    org.ojalgo.netio,\
+    org.ojalgo.optimisation,\
+    org.ojalgo.scalar,\
+    org.ojalgo.structure,\
+    org.ojalgo.type,\
+    org.ojalgo.type.context,\
+    org.ojalgo.type.format,\
+
+-sources: false

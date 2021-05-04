@@ -210,6 +210,11 @@
 			<version>0.8.22</version>
 		</dependency>
 		<dependency>
+			<groupId>org.ojalgo</groupId>
+			<artifactId>ojalgo</artifactId>
+			<version>48.4.1</version>
+		</dependency>
+		<dependency>
 			<groupId>org.openmuc</groupId>
 			<artifactId>jmbus</artifactId>
 			<version>3.3.0</version>
