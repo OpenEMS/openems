@@ -403,17 +403,6 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * Checks if this Edge is allowed to show BYD Battery Box Firmware Update Widget
-   */
-  public isBatteryBoxAllowed(edge: Edge): boolean {
-    if (['Pro Hybrid GW'].includes(edge.producttype)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  /**
    * checks if fems is allowed to show partner widget
    */
   // TODO: encapsulate data for different partners
