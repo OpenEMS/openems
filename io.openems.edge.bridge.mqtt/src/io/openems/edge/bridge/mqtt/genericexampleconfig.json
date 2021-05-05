@@ -1,0 +1,36 @@
+{
+  "payloadStyle": "Standard",
+  "mqttId": "ID",
+  "subscription": [
+    {
+      "mqttType": "Telemetry",
+      "priority": "Low",
+      "topic": "topic",
+      "qos": 0,
+      "retain": true,
+      "useTime": false,
+      "timeToWait": 10,
+      "payload": {
+        "NameIDinBroker": "OpenEMSChannelID",
+        "NameIDBroker": "ChannelID",
+        "Test": "SumGrid"
+      }
+    }
+  ],
+  "publish": [
+    {
+      "mqttType": "Telemetry",
+      "priority": "Low",
+      "topic": "topic",
+      "qos": 0,
+      "retain": true,
+      "useTime": true,
+      "timeToWait": 10,
+      "payload": {
+        "NameIDinBroker": "OpenEMSChannelID",
+        "NameIDBroker": "ChannelID",
+        "Grid": "SumGrid"
+      }
+    }
+      ]
+    }
