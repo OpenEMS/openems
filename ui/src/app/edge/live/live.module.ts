@@ -49,8 +49,8 @@ import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.com
 import { SelfConsumptionComponent } from './selfconsumption/selfconsumption.component';
 import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.component';
 import { SinglethresholdComponent } from './singlethreshold/singlethreshold.component';
-import { StorageModalComponent } from './storage/modal/modal.component';
-import { StorageComponent } from './storage/storage.component';
+import { StorageModalComponent } from './common/storage/modal/modal.component';
+import { StorageComponent } from './common/storage/storage.component';
 
 @NgModule({
   imports: [
