@@ -1,3 +1,4 @@
+import { formatNumber } from '@angular/common';
 import { Injectable } from '@angular/core';
 
 @Injectable()
@@ -280,18 +281,21 @@ export class Utils {
    * 
    * @param value the value from passed value in html
    * @returns converted value
-   */
-  public static CONVERT_WATT_TO_KILOWATT = (value: any): string => {
-    if (value >= 0) {
-      let thisValue = (value / 1000);
-      if (thisValue.toFixed(1).endsWith('0')) {
-        return Math.round(thisValue).toString() + ' kW';
-      } else {
-        return thisValue.toFixed(1).replace('.', ',') + ' kW';
-      }
-    } else {
-      return 0 + ' kW';
+        */
+  public CONVERT_WATT_TO_KILOWATT = (value: any): string => {
+    if (value == null) {
+      return '-'
     }
+    let thisValue: number = (value / 1000);
+
+    if (thisValue > 0) {
+      return formatNumber(thisValue, 'de', '1.0-1') + ' kW'
+    } else if (thisValue == 0) {
+      return thisValue + ' kW';
+    } else {
+      return '-'
+    }
+
   }
 
   /**

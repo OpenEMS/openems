@@ -43,7 +43,7 @@ export class ConsumptionComponent extends AbstractFlatWidget {
 
   protected onCurrentData(currentData: CurrentData) {
 
-    // Iterate over evcsComponents for every component
+    // Iterate over evcsComponents to get ChargePower for every component
     for (let component of this.evcsComponents) {
       this.evcsChargePower[component.id] = currentData.allComponents[component.id + '/ChargePower'];
     }

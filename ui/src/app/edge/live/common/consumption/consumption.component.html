@@ -3,7 +3,8 @@
         <ng-container *ngIf="evcsComponents.length > 0">
             <ng-container *ngFor="let component of evcsComponents">
                 <ng-container *ngIf="evcsChargePower[component.id] > 0">
-                    <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ChargePower'">
+                    <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ChargePower'"
+                        [converter]="this.utils.CONVERT_WATT_TO_KILOWATT">
                     </oe-flat-widget-line>
                 </ng-container>
             </ng-container>
@@ -20,7 +21,7 @@
         </ng-container>
         <ng-container *ngIf="evcsComponents.length != 0 || consumptionMeterComponents.length != 0">
             <ng-container *ngIf="otherPower <= 0, else showOtherPower">
-                <oe-flat-widget-line [name]="'General.otherConsumption' | translate" [value]="0"
+                <oe-flat-widget-line [name]="'General.grid' | translate" [value]="0"
                     [converter]="this.utils.CONVERT_WATT_TO_KILOWATT">
                 </oe-flat-widget-line>
             </ng-container>
