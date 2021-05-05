@@ -196,10 +196,11 @@ export class Utils {
     }
   }
   /**
-       * 
-       * @param value the value from passed value in html
-       * @returns converted value
-       */
+     * Converts a value in Watt [W] to KiloWatt [kW].
+     * 
+     * @param value the value from passed value in html
+     * @returns converted value
+          */
   public CONVERT_WATT_TO_KILOWATT = (value: any): string => {
     if (value == null) {
       return '-'
