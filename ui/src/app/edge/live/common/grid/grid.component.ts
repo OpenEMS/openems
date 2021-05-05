@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { GridModalComponent } from './modal/modal.component';
 import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
-import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
+import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 
 @Component({
   selector: 'grid',
@@ -27,7 +27,6 @@ export class GridComponent extends AbstractFlatWidget {
     let gridActivePower = currentData.allComponents[GridComponent.GRID_ACTIVE_POWER.toString()];
     this.gridBuyAdvancedChannel = gridActivePower;
     this.gridSellAdvancedChannel = gridActivePower * -1;
-    console.log(this.gridBuyAdvancedChannel)
   }
 
   async presentModal() {
