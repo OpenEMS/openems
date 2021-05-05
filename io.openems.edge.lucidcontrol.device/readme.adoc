@@ -1,10 +1,13 @@
-# io.openems.edge.lucidcontrol.device Provider
+== LucidControlDevice In/Output
 
-This Bundle Provides the LucidControl Device, connected to a Module. Usually it's used for
-Pressure. Creates a Task, handled by the  LucidControl Bridge.
-The Task get's a Voltage result of the bridge and calculates a Pressure.
+This Bundle Provides the LucidControl Device, connected to a Module. Usually it's used to measure
+Pressure by reading a Voltage input. Otherwise, you can set an output as a percentValue that will be set into the Device.
 
-## Example
+The created In- or OutputTask will be handled by the LucidControl Bridge.
 
-## References
+Implemented Natures::
+
+- LucidControlDeviceInput
+- LucidControlDeviceOutput
+
 
