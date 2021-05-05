@@ -1,15 +1,12 @@
-<ng-container *ngIf="isInitialized">
-    <table class="full_width">
-        <tr>
-            <!-- Name of Parameter on the left side -->
-            <td style="width:65%">
-                <ng-container *ngIf="displayName">{{ displayName }}</ng-container>
-            </td>
-
-            <!-- Value of Parameter on the right side -->
-            <td style="width:35%" class="align_right">
-                <ng-container *ngIf="displayValue">{{ displayValue }}</ng-container>
-            </td>
-        </tr>
-    </table>
-</ng-container>
+<table class="full_width">
+    <tr>
+        <!-- Name of Parameter on the left side -->
+        <td style="width:65%">
+            <ng-container *ngIf="name">{{ name }}</ng-container>
+        </td>
+        <!-- Value of Parameter on the right side -->
+        <td style="width:35%" class="align_right">
+            <ng-container *ngIf="displayValue">{{ displayValue }}</ng-container>
+        </td>
+    </tr>
+</table>
