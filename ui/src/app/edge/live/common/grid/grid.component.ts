@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { GridModalComponent } from './modal/modal.component';
 import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
-import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
+import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
 
 @Component({
   selector: 'grid',

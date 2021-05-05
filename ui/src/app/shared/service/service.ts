@@ -1,3 +1,4 @@
+import { formatNumber } from '@angular/common';
 import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, ToastController } from '@ionic/angular';
@@ -94,23 +95,6 @@ export class Service implements ErrorHandler {
       case "cz": return LanguageTag.CZ;
       case "fr": return LanguageTag.FR;
       default: return LanguageTag.DE;
-    }
-  }
-  /**
-      * 
-      * @param value the value from passed value in html
-      * @returns converted value
-      */
-  public convertWattToKiloWatt = (value: any): string => {
-    if (value >= 0) {
-      let thisValue = (value / 1000);
-      if (thisValue.toFixed(1).endsWith('0')) {
-        return Math.round(thisValue).toString() + ' kW';
-      } else {
-        return thisValue.toFixed(1).replace('.', ',') + ' kW'
-      }
-    } else {
-      return 0 + ' kW'
     }
   }
 

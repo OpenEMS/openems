@@ -21,7 +21,7 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
      * @returns converter function
      */
     @Input()
-    public converter = (value: any): string => { return value }
+    protected converter = (value: any): string => { return value }
     /** 
      * displayValue is the displayed @Input value in html
      */
