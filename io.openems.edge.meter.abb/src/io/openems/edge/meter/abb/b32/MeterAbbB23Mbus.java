@@ -1,5 +1,6 @@
 package io.openems.edge.meter.abb.b32;
 
+import org.openmuc.jmbus.VariableDataStructure;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -17,13 +18,14 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.mbus.api.AbstractOpenemsMbusComponent;
 import io.openems.edge.bridge.mbus.api.BridgeMbus;
 import io.openems.edge.bridge.mbus.api.ChannelRecord;
-import io.openems.edge.bridge.mbus.api.MbusTask;
 import io.openems.edge.bridge.mbus.api.ChannelRecord.DataType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
+
+import java.util.List;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.ABB.B23", //
@@ -38,7 +40,9 @@ public class MeterAbbB23Mbus extends AbstractOpenemsMbusComponent
 	protected ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected BridgeMbus mbus;
+	protected void setMbus(BridgeMbus mbus) {
+		super.setMbus(mbus);
+	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		TOTAL_CONSUMED_ENERGY(Doc.of(OpenemsType.INTEGER) //
@@ -71,9 +75,7 @@ public class MeterAbbB23Mbus extends AbstractOpenemsMbusComponent
 	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.primaryAddress(), this.cm, "mbus",
-				config.mbus_id());
-		// register into mbus bridge task list
-		this.mbus.addTask(config.id(), new MbusTask(this.mbus, this));
+				config.mbus_id(), 0);
 	}
 
 	@Deactivate
@@ -98,6 +100,11 @@ public class MeterAbbB23Mbus extends AbstractOpenemsMbusComponent
 		this.channelDataRecordsList.add(new ChannelRecord(channel(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3), 6));
 		this.channelDataRecordsList.add(new ChannelRecord(channel(ChannelId.MANUFACTURER_ID), DataType.Manufacturer));
 		this.channelDataRecordsList.add(new ChannelRecord(channel(ChannelId.DEVICE_ID), DataType.DeviceId));
+	}
+
+	@Override
+	public void findRecordPositions(VariableDataStructure data, List<ChannelRecord> channelDataRecordsList) {
+		// Not needed so far.
 	}
 
 }

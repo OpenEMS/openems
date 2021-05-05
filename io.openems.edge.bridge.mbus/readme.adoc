@@ -1,6 +1,9 @@
 = M-Bus
 
-M-Bus is a widely used standard for fieldbus communication. It enables connection to M-Bus devices like meters.																										
+M-Bus is a widely used standard for fieldbus communication. It enables connection to M-Bus devices like meters.
+
+Currently no hot plug&play is supported. If you unplug and replug the Wireless M-Bus receiver or the M-Bus connection, you need to
+restart the bridge.
 
 == Setup note
 
