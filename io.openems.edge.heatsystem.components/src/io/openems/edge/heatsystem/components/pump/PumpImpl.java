@@ -184,14 +184,9 @@ public class PumpImpl extends AbstractOpenemsComponent implements OpenemsCompone
     }
 
 
-    /**
-     * Deactivates the pump.
-     * if the relays is a closer --> false is written --> open
-     * if the relays is an opener --> true is written --> open
-     * --> no voltage.
-     */
+
     @Deactivate
-    public void deactivate() {
+    protected void deactivate() {
         super.deactivate();
         this.deactivateDevices();
     }

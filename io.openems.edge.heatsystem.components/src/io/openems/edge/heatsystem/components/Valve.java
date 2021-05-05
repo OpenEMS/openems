@@ -2,7 +2,7 @@ package io.openems.edge.heatsystem.components;
 
 /**
  * The Valve interface, an expansion of a HeatsystemComponent.
- * It allows other Components / Controller to force Open/Close or reset the Valve.
+ * It allows other Components/Controller to force Open/Close or reset the Valve.
  */
 public interface Valve extends HeatsystemComponent {
 

@@ -77,7 +77,7 @@ public interface HeatsystemComponent extends OpenemsComponent {
                 ((IntegerWriteChannel) channel).onSetNextWrite(channel::setNextValue))),
 
         /**
-         * Reset.
+         * Reset the HeatsystemComponent e.g. closes the Valve.
          * <ul>
          *     <li> Interface: HeatsystemComponent
          *     <li> Type: Boolean
@@ -129,7 +129,6 @@ public interface HeatsystemComponent extends OpenemsComponent {
          * </ul>
          */
 
-
         TIME(Doc.of(OpenemsType.DOUBLE).accessMode(AccessMode.READ_ONLY).unit(Unit.SECONDS));
 
         private final Doc doc;
@@ -153,7 +152,7 @@ public interface HeatsystemComponent extends OpenemsComponent {
      * .
      * <ul>
      * <li> Tells how much percent of the Device is used aka how much the valve is opened or
-     *      how much % of the Pump is on a high / low.
+     *      how much % of the Pump is on a high/low.
      * <li> Unit: Double
      * </ul>
      *

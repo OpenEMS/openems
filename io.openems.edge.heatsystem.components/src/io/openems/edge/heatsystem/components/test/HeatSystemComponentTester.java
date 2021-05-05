@@ -1,12 +1,11 @@
 package io.openems.edge.heatsystem.components.test;
 
-import io.openems.common.exceptions.OpenemsError;
+
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.pwm.api.Pwm;
 import io.openems.edge.relay.api.Relay;
-import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -35,7 +34,7 @@ import java.util.Optional;
 )
 public class HeatSystemComponentTester extends AbstractOpenemsComponent implements OpenemsComponent, Relay, Pwm, EventHandler {
 
-    private Logger log = LoggerFactory.getLogger(HeatSystemComponentTester.class);
+    private final Logger log = LoggerFactory.getLogger(HeatSystemComponentTester.class);
 
     public HeatSystemComponentTester() {
         super(OpenemsComponent.ChannelId.values(),

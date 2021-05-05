@@ -137,7 +137,7 @@ public class ValveImpl extends AbstractOpenemsComponent implements OpenemsCompon
 
 
     /**
-     * Called on Activation or Modification. Checks if the Strings match a Relay configured within OpenEms
+     * Called on Activation or Modification. Checks if the Strings match a Relay configured within OpenEms.
      *
      * @param open  the String/Id of the Relay that opens the Valve
      * @param close the String/Id of the Relay that closes the Valve
@@ -206,9 +206,7 @@ public class ValveImpl extends AbstractOpenemsComponent implements OpenemsCompon
                     if (this.changeByPercentage(changeByPercent)) {
                         this.setPointPowerLevelChannel().setNextValue(-1);
                     }
-                }
-                //Calculate current % State of Valve
-                else if (this.powerLevelReached() == false) {
+                } else if (this.powerLevelReached() == false) {
                     this.updatePowerLevel();
                 }
             }
@@ -608,7 +606,7 @@ public class ValveImpl extends AbstractOpenemsComponent implements OpenemsCompon
 
 
     /**
-     * Checks if the max and Min Values are correct and not bizarre that leads to bugs and errors.
+     * Checks if the max and Min Values are correct.
      *
      * @return validation.
      */
