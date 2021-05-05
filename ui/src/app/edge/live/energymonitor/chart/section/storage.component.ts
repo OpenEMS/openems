@@ -1,10 +1,10 @@
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
+import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Component, OnDestroy } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
-import { TranslateService } from '@ngx-translate/core';
-import { trigger, state, style, animate, transition } from '@angular/animations';
-import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
 
 @Component({
     selector: '[storagesection]',
@@ -148,29 +148,7 @@ export class StorageSectionComponent extends AbstractSection implements OnDestro
     }
 
     protected getImagePath(): string {
-        if (this.socValue < 11) {
-            return "storage_10_monitor.png"
-        } else if (this.socValue < 21) {
-            return "storage_20_monitor.png"
-        } else if (this.socValue < 31) {
-            return "storage_30_monitor.png"
-        } else if (this.socValue < 41) {
-            return "storage_40_monitor.png"
-        } else if (this.socValue < 51) {
-            return "storage_50_monitor.png"
-        } else if (this.socValue < 61) {
-            return "storage_60_monitor.png"
-        } else if (this.socValue < 71) {
-            return "storage_70_monitor.png"
-        } else if (this.socValue < 81) {
-            return "storage_80_monitor.png"
-        } else if (this.socValue < 91) {
-            return "storage_90_monitor.png"
-        } else if (this.socValue < 101) {
-            return "storage_100_monitor.png"
-        } else {
-            return "storage_empty_monitor.png"
-        }
+        return Utils.getStorageSocImage(this.socValue);
     }
 
     protected getValueText(value: number): string {
