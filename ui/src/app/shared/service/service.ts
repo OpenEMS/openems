@@ -1,4 +1,3 @@
-import { formatNumber } from '@angular/common';
 import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, ToastController } from '@ionic/angular';
