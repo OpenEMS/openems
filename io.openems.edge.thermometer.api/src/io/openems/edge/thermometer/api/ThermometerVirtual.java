@@ -11,8 +11,9 @@ import java.util.Optional;
 
 /**
  * This Nature is an expansion of the Thermometer-Nature.
- * It allows a VirtualThermometer to receive a virtual Temperature, updates it into the Thermometer: Temperature Channel
- * and other components sees the virtual Thermometer as a normal Thermometer.
+ * It allows a VirtualThermometer to receive a virtual Temperature.
+ * After receiving the virtual Temperature the virtual Thermometer
+ * will set the Next Value into the "Temperature" Channel of the {@link Thermometer}.
  */
 public interface ThermometerVirtual extends Thermometer {
     enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -32,7 +33,7 @@ public interface ThermometerVirtual extends Thermometer {
     }
 
     /**
-     * Gets the Virutal Temperature Channel.
+     * Gets the Virtual Temperature Channel.
      *
      * @return the Channel.
      */
@@ -51,7 +52,7 @@ public interface ThermometerVirtual extends Thermometer {
     }
 
     /**
-     * Sets the Virutal Temperature. Can be called by other Components.
+     * Sets the Virtual Temperature. Can be called by other Components.
      *
      * @param virtualTemperature the virtual Temperature that will be applied.
      * @throws OpenemsError.OpenemsNamedException if Channel cannot be found. (Shouldn't occur)

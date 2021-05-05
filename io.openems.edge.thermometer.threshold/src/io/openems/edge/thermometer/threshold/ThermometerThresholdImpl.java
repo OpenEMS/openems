@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * This Component Helps to Handle Thermometer and their thresholds.
  * It has a reference Thermometer to get the "real" Temperature and works furthermore with it.
- * "Jumping" / Fluctuations on the Thermometer are prevented, other HeatsystemComponents/HeatnetworkController can use this Thermometer for easier decisioning.
+ * "Jumping"/Fluctuations on the Thermometer are prevented, other HeatsystemComponents/HeatnetworkController can use this Thermometer for easier decisioning.
  * Sometimes there are TemperatureFluctuations; The IntervalCounter prevents "jumping" of temperature
  * Example: The temperature is usually 500 dC; the maxInterval is (for easier explanation) 1
  * if for one cycle the temperature falls to 490 dC and the current interval counter is 0 ; nothing will happen.

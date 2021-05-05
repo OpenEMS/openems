@@ -86,7 +86,8 @@ public interface ThermometerThreshold extends Thermometer {
     // ------------------ THRESHOLD ---------------- //
 
     /**
-     * get ThresholdTemperatureChannel. Only for the Owning component! Never call channel directley
+     * Get Threshold of this Channel. Sets the temperature steps this Component reacts to.
+     * E.g. if Threshold is 10 dC only Temperatures are rounded up/down to 400dC 410dC 420dC etc etc.
      *
      * @return the channel.
      */
@@ -135,7 +136,7 @@ public interface ThermometerThreshold extends Thermometer {
     }
 
     /**
-     * get the ThermometerState or undefined on null.
+     * Get the ThermometerState or undefined on null.
      *
      * @return the ThermometerState.
      */
@@ -166,7 +167,7 @@ public interface ThermometerThreshold extends Thermometer {
     //-----------------Set Point Temperature-------------//
 
     /**
-     * get the SetPoint Temperature Channel.
+     * Get the SetPoint Temperature Channel.
      *
      * @return the Channel.
      */
@@ -222,7 +223,7 @@ public interface ThermometerThreshold extends Thermometer {
     //------------------------------------------------------------------//
 
     /**
-     * Accept always > temperautres, if < temperature is given,
+     * Accept always > temperatures, if < temperature is given,
      * calling Component has to be in "GuideValueSetById".
      * EXAMPLE:
      * current GuideValue is 400 dC and set By CommunicationMaster0
@@ -248,11 +249,12 @@ public interface ThermometerThreshold extends Thermometer {
     }
 
     /**
-     * Activates the SetPoint Temperature as well as setting the ID and the SetPointTemperature as well.
-     * Only possible if either the id is equal to the "owning" setpointTemperatureId OR is null OR
+     * Set the ID and the SetPointTemperature.
+     * Only possible if either the id is equal to the saved Id OR is null
+     * OR if the temperature is greater than the current SetPoint.
      *
-     * @param temperature the new setpoint  temperature
-     * @param id          the id of the calling component.
+     * @param temperature the new SetPointTemperature
+     * @param id          the id of the calling component
      */
     default void setSetPointTemperatureAndActivate(int temperature, String id) {
         if (this.getSetPointTemperatureSetById() == null || this.getSetPointTemperatureSetById().equals(id) || temperature > this.getSetPointTemperature()) {
@@ -262,7 +264,7 @@ public interface ThermometerThreshold extends Thermometer {
     }
 
     /**
-     * Set Your Id to null if you're the current "Owner" of the SetPointTemperature.
+     * Set your Id to null if you're the current "Owner" of the SetPointTemperature.
      *
      * @param id id of the calling component
      */
@@ -274,12 +276,12 @@ public interface ThermometerThreshold extends Thermometer {
     }
 
     /**
-     * Important: If Temperature is rising --> "Greater than" setpoint temperature is still ok if the current Temperature
-     * is greater than or equal to the setpoint.
+     * Important: If Temperature is rising --> "Greater than" SetPoint temperature is still ok if the current Temperature
+     * is greater than or equal to the SetPoint.
      * <p>
      * Example: Temperature is rising: 400 dc 450 dc 500dc Set point is 500 dC.
-     * --> Since the temperature is rising --> 500dC of thermometer will be equal or greater than setpoint so return true.
-     * However if the temperature is falling ---> 600dC --> 550 dC 500 dC and the Setpoint is 500 -->
+     * --> Since the temperature is rising --> 500dC of thermometer will be equal or greater than SetPoint so return true.
+     * However if the temperature is falling ---> 600dC --> 550 dC 500 dC and the SetPoint is 500 -->
      * The Temperature will only be checked if it's greater not greater than or equals (> instead of >=)
      * Since the expected temperature will be falling further.
      * </p>
@@ -287,7 +289,7 @@ public interface ThermometerThreshold extends Thermometer {
      * This will be Equivalent to "SetPointTemperatureBelowThermometer"
      * </p>
      *
-     * @return a boolean: result -> greaterOrEquals than Setpoint /greater than Setpoint
+     * @return a boolean: result -> greaterOrEquals than SetPoint/greater than SetPoint
      */
 
     default boolean setPointTemperatureAboveThermometer() {
@@ -295,12 +297,12 @@ public interface ThermometerThreshold extends Thermometer {
     }
 
     /**
-     * Important: If Temperature is falling --> "less than" setpoint temperature is still ok if the current Temperature
-     * is less than or equal to the setpoint.
+     * Important: If Temperature is falling --> "less than" SetPoint temperature is still ok if the current Temperature
+     * is less than or equal to the SetPoint.
      * <p>
      * Example: Temperature is falling: 500 dc 450 dc 400dc Set point is 400 dC.
-     * --> Since the temperature is falling --> 400 of thermometer will be equal or greater than setpoint so return true.
-     * However if the temperature is rising ---> 500 --> 550 dC 600 dC and the Setpoint is 600 -->
+     * --> Since the temperature is falling --> 400 of thermometer will be equal or greater than SetPoint so return true.
+     * However if the temperature is rising ---> 500 --> 550 dC 600 dC and the SetPoint is 600 -->
      * The Temperature will only be checked if it's less not less than or equals (< instead of <=)
      * Since the expected temperature will be rising further.
      * </p>
@@ -308,7 +310,7 @@ public interface ThermometerThreshold extends Thermometer {
      * This will be Equivalent to "SetPointTemperatureBelowThermometer"
      * </p>
      *
-     * @return a boolean: result -> lessOrEquals than setpoint /less than setpoint
+     * @return a boolean: result -> lessOrEquals than SetPoint/less than SetPoint
      */
     default boolean setPointTemperatureBelowThermometer() {
         return this.thermometerBelowGivenTemperature(this.getSetPointTemperature());
@@ -329,7 +331,7 @@ public interface ThermometerThreshold extends Thermometer {
      * </p>
      *
      * @param temperature the given temperature either by calling component or this.
-     * @return a boolean: result -> lessOrEquals than given Temperature /less than given Temperature
+     * @return a boolean: result -> lessOrEquals than given Temperature/less than given Temperature
      */
     default boolean thermometerBelowGivenTemperature(int temperature) {
         boolean result;
@@ -356,7 +358,7 @@ public interface ThermometerThreshold extends Thermometer {
      * </p>
      *
      * @param temperature the given temperature either by calling component or this.
-     * @return a boolean: result -> greaterOrEquals than given Temperature /greater than given Temperature
+     * @return a boolean: result -> greaterOrEquals than given Temperature/greater than given Temperature
      */
     default boolean thermometerAboveGivenTemperature(int temperature) {
         boolean result;
@@ -383,7 +385,7 @@ public interface ThermometerThreshold extends Thermometer {
     }
 
     /**
-     * get the next value of a Channel. Happens if current value is not defined.
+     * Get the next value of a Channel. Happens if current value is not defined.
      *
      * @param requestedChannel the Channel, usually from this nature.
      * @return the Value or null if not defined.
