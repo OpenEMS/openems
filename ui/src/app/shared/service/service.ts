@@ -96,23 +96,6 @@ export class Service implements ErrorHandler {
       default: return LanguageTag.DE;
     }
   }
-  /**
-      * 
-      * @param value the value from passed value in html
-      * @returns converted value
-      */
-  public convertWattToKiloWatt = (value: any): string => {
-    if (value >= 0) {
-      let thisValue = (value / 1000);
-      if (thisValue.toFixed(1).endsWith('0')) {
-        return Math.round(thisValue).toString() + ' kW';
-      } else {
-        return thisValue.toFixed(1).replace('.', ',') + ' kW'
-      }
-    } else {
-      return 0 + ' kW'
-    }
-  }
 
   /**
    * Shows a nofication using toastr
