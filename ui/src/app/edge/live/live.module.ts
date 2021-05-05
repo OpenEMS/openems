@@ -28,6 +28,7 @@ import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal
 import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
 import { FlatWidgetPercentagebar } from './flat/flat-widget-line/flat-widget-percentagebar';
 import { FlatWidgetComponent } from './flat/flat-widget.component';
+import { FlatWidgetHorizontalLine } from './flat/flat-widget-line/flat-widget-horizontal-line';
 import { GridComponent } from './common/grid/grid.component';
 import { GridModalComponent } from './common/grid/modal/modal.component';
 import { HeatingElementComponent } from './heatingelement/heatingelement.component';
@@ -75,6 +76,7 @@ import { StorageComponent } from './common/storage/storage.component';
     EvcsModalComponent,
     EvcsPopoverComponent,
     FlatWidgetComponent,
+    FlatWidgetHorizontalLine,
     FlatWidgetLine,
     FlatWidgetPercentagebar,
     GridModalComponent,
@@ -113,6 +115,7 @@ import { StorageComponent } from './common/storage/storage.component';
     EvcsModalComponent,
     EvcsPopoverComponent,
     FlatWidgetComponent,
+    FlatWidgetHorizontalLine,
     FlatWidgetLine,
     FlatWidgetPercentagebar,
     GridComponent,

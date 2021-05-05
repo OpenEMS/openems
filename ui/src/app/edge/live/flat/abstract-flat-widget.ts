@@ -5,7 +5,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { UUID } from "angular2-uuid";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 
 @Directive()
 export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
@@ -28,6 +28,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
         @Inject(Websocket) protected websocket: Websocket,
         @Inject(ActivatedRoute) protected route: ActivatedRoute,
         @Inject(Service) protected service: Service,
+        @Inject(Utils) protected utils: Utils,
         @Inject(ModalController) protected modalController: ModalController,
         @Inject(TranslateService) protected translate: TranslateService
     ) {
