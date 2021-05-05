@@ -1,0 +1,36 @@
+<oe-flat-widget [img]="storageItem" [title]="'General.storageSystem'| translate" (click)="presentModal()">
+    <ng-container *ngFor="let component of essComponents, let i = index">
+        <!-- Show Alias if there are more than one ESS -->
+        <ng-container *ngIf="essComponents.length > 1">
+            <oe-flat-widget-line [name]="component.alias">
+            </oe-flat-widget-line>
+        </ng-container>
+
+        <oe-flat-widget-percentagebar [channelAddress]="component.id + '/Soc'">
+        </oe-flat-widget-percentagebar>
+
+        <ng-container *ngIf="!isHybridEss[component.id], else HybridEss">
+            <!-- For AC system: show ActivePower channel -->
+            <oe-flat-widget-line [name]="'General.chargePower' | translate"
+                [channelAddress]="component.id + '/ActivePower'" [converter]="convertChargePower">
+            </oe-flat-widget-line>
+            <oe-flat-widget-line [name]="'General.dischargePower' | translate"
+                [channelAddress]="component.id + '/ActivePower'" [converter]="convertDischargePower">
+            </oe-flat-widget-line>
+        </ng-container>
+
+        <ng-template #HybridEss>
+            <!-- For DC/hybrid system: show DcDischargePower channel -->
+            <oe-flat-widget-line [name]="'General.chargePower' | translate"
+                [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertChargePower">
+            </oe-flat-widget-line>
+            <oe-flat-widget-line [name]="'General.dischargePower' | translate"
+                [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertDischargePower">
+            </oe-flat-widget-line>
+        </ng-template>
+
+        <oe-flat-widget-horizontal-line [components]="essComponents" [index]="i">
+        </oe-flat-widget-horizontal-line>
+
+    </ng-container>
+</oe-flat-widget>

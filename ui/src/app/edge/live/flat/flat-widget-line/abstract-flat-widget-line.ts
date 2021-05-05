@@ -10,11 +10,6 @@ import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared"
 export abstract class AbstractFlatWidgetLine implements OnDestroy {
 
     /**
-     * True after this.edge, this.config and this.component are set.
-     */
-    public isInitialized: boolean = false;
-
-    /**
      * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
      * 
      * @param value the value from CurrentData
