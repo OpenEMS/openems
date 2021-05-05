@@ -7,8 +7,8 @@ import { ChpSocComponent } from './chpsoc/chpsoc.component';
 import { ChpsocModalComponent } from './chpsoc/modal/modal.component';
 import { AutarchyComponent } from './common/autarchy/autarchy.component';
 import { AutarchyModalComponent } from './common/autarchy/modal/modal.component';
-import { ConsumptionComponent } from './consumption/consumption.component';
-import { ConsumptionModalComponent } from './consumption/modal/modal.component';
+import { ConsumptionComponent } from './common/consumption/consumption.component';
+import { ConsumptionModalComponent } from './common/consumption/modal/modal.component';
 import { Controller_Ess_FixActivePower } from './Controller_Ess_FixActivePower/Controller_Ess_FixActivePower';
 import { Controller_Ess_FixActivePowerModalComponent } from './Controller_Ess_FixActivePower/modal/modal.component';
 import { Controller_Io_FixDigitalOutput } from './Controller_Io_FixDigitalOutput/Controller_Io_FixDigitalOutput';
@@ -49,8 +49,8 @@ import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.com
 import { SelfConsumptionComponent } from './selfconsumption/selfconsumption.component';
 import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.component';
 import { SinglethresholdComponent } from './singlethreshold/singlethreshold.component';
-import { StorageModalComponent } from './storage/modal/modal.component';
-import { StorageComponent } from './storage/storage.component';
+import { StorageModalComponent } from './common/storage/modal/modal.component';
+import { StorageComponent } from './common/storage/storage.component';
 
 @NgModule({
   imports: [
