@@ -42,5 +42,11 @@ import org.osgi.service.metatype.annotations.Option;
 
     boolean enabled() default true;
 
+    @AttributeDefinition(name = "Use default powerLevel", description = "Use a default PowerLevel on Activation")
+    boolean useDefault() default false;
+
+    @AttributeDefinition(name = "Default PowerLevel", description = "Default PowerLevel Value")
+    double defaultPowerLevel() default 100;
+
     String webconsole_configurationFactory_nameHint() default "Pump [{id}]";
 }

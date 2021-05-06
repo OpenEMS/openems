@@ -59,10 +59,12 @@ public class PumpImpl extends AbstractOpenemsComponent implements OpenemsCompone
         super.activate(context, config.id(), config.alias(), config.enabled());
         this.allocateComponents(config.configType(), config.pump_Type(), config.pump_Relays(), config.pump_Pwm());
         this.getIsBusyChannel().setNextValue(false);
-        this.getPowerLevelChannel().setNextValue(0);
-        this.getLastPowerLevelChannel().setNextValue(0);
+
         if (config.disableOnActivation()) {
             this.deactivateDevices();
+        } else if (config.useDefault()) {
+            this.getPowerLevelChannel().setNextValue(0);
+            this.setPowerLevel(config.defaultPowerLevel());
         }
     }
 
@@ -184,7 +186,6 @@ public class PumpImpl extends AbstractOpenemsComponent implements OpenemsCompone
     }
 
 
-
     @Deactivate
     protected void deactivate() {
         super.deactivate();
@@ -266,7 +267,11 @@ public class PumpImpl extends AbstractOpenemsComponent implements OpenemsCompone
      * @return true on success.
      */
     private boolean controlRelay(boolean activate) {
-
+        if (activate) {
+            this.getPowerLevelChannel().setNextValue(100);
+        } else {
+            this.getPowerLevelChannel().setNextValue(0);
+        }
         switch (this.configurationType) {
             case CHANNEL:
                 try {
