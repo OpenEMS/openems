@@ -5,8 +5,10 @@ import static io.openems.controller.emsig.ojalgo.Constants.ESS_MAX_CHARGE;
 import static io.openems.controller.emsig.ojalgo.Constants.ESS_MAX_DISCHARGE;
 import static io.openems.controller.emsig.ojalgo.Constants.ESS_MAX_ENERGY;
 import static io.openems.controller.emsig.ojalgo.Constants.ESS_MIN_ENERGY;
+import static io.openems.controller.emsig.ojalgo.Constants.GRID_BUY_COST;
 import static io.openems.controller.emsig.ojalgo.Constants.GRID_BUY_LIMIT;
 import static io.openems.controller.emsig.ojalgo.Constants.GRID_SELL_LIMIT;
+import static io.openems.controller.emsig.ojalgo.Constants.GRID_SELL_REVENUE;
 import static io.openems.controller.emsig.ojalgo.Constants.MINUTES_PER_PERIOD;
 import static io.openems.controller.emsig.ojalgo.Constants.NO_OF_PERIODS;
 import static java.math.BigDecimal.ONE;
@@ -82,10 +84,17 @@ public class EnergyModel {
 					.set(p.grid.buy.power, ONE.negate()) //
 					.set(p.grid.sell.power, ONE) //
 					.level(0);
+
+			// TODO Grid-Sell can never be more than Production. This simple model assumes
+			// no production, so Grid-Sell must be zero - at least outside of HLZF period.
+			p.grid.sell.power.upper(0);
+
+			p.grid.buy.cost = GRID_BUY_COST[i];
+			p.grid.sell.revenue = GRID_SELL_REVENUE[i];
 		}
 	}
 
-	public void print() {
+	public void prettyPrint() {
 		for (int i = 0; i < this.periods.length; i++) {
 			Period p = this.periods[i];
 			System.out.println(

@@ -54,6 +54,7 @@
 	bnd.identity;id='io.openems.edge.controller.chp.soc',\
 	bnd.identity;id='io.openems.edge.controller.debug.detailedlog',\
 	bnd.identity;id='io.openems.edge.controller.debug.log',\
+	bnd.identity;id='io.openems.edge.controller.emsig',\
 	bnd.identity;id='io.openems.edge.controller.ess.acisland',\
 	bnd.identity;id='io.openems.edge.controller.ess.activepowervoltagecharacteristic',\
 	bnd.identity;id='io.openems.edge.controller.ess.delaycharge',\
@@ -183,6 +184,7 @@
 	io.openems.edge.controller.chp.soc;version=snapshot,\
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
 	io.openems.edge.controller.debug.log;version=snapshot,\
+	io.openems.edge.controller.emsig;version=snapshot,\
 	io.openems.edge.controller.ess.acisland;version=snapshot,\
 	io.openems.edge.controller.ess.activepowervoltagecharacteristic;version=snapshot,\
 	io.openems.edge.controller.ess.delaycharge;version=snapshot,\
@@ -285,6 +287,7 @@
 	io.openems.wrapper.eu.chargetime.ocpp;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\
 	io.openems.wrapper.influxdb-java;version=snapshot,\
+	io.openems.wrapper.ojalgo;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
 	io.openems.wrapper.paho-mqttv5;version=snapshot,\
 	io.openems.wrapper.sdnotify;version=snapshot,\
