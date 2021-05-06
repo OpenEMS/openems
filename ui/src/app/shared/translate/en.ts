@@ -112,7 +112,7 @@ export const TRANSLATION = {
         preamble: "Please enter your password or submit the default value to login as a guest.",
         passwordLabel: "Password",
         passwordPlaceholder: "Password",
-        passwordReset: "reset Password",
+        passwordReset: "Reset Password",
         authenticationFailed: "Authentication Failed",
     },
     Edge: {
