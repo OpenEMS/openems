@@ -1,5 +1,7 @@
 package io.openems.edge.core.host;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.framework.BundleContext;
@@ -22,6 +24,7 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.session.Role;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.host.Host;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
@@ -45,7 +48,6 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	// only systemd-network is implemented currently
 	protected final OperatingSystem operatingSystem;
 
 	private final DiskSpaceWorker diskSpaceWorker;
@@ -70,6 +72,13 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 		this.diskSpaceWorker = new DiskSpaceWorker(this);
 		this.networkConfigurationWorker = new NetworkConfigurationWorker(this);
 		this.usbConfigurationWorker = new UsbConfigurationWorker(this);
+
+		// Initialize 'Hostname' channel
+		try {
+			this._setHostname(InetAddress.getLocalHost().getHostName());
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Activate
