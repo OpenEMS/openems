@@ -1,4 +1,4 @@
-package io.openems.edge.common.user;
+package io.openems.edge.core.user;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.AttributeType;
