@@ -1,4 +1,4 @@
-package io.openems.edge.common.user;
+package io.openems.edge.core.user;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,14 +13,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.session.Role;
+import io.openems.edge.common.user.ManagedUser;
+import io.openems.edge.common.user.User;
+import io.openems.edge.common.user.UserService;
 
 /**
  * This component handles User authentication.
  */
 @Designate(ocd = Config.class, factory = false)
-@Component(name = "Core.User", //
+@Component(//
+		name = "Core.User", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.OPTIONAL)
+		configurationPolicy = ConfigurationPolicy.OPTIONAL //
+)
 public class UserServiceImpl implements UserService {
 
 	private final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
