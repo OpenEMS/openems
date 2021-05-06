@@ -383,43 +383,45 @@ public class MyControllerTest {
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, null) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -500) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 500) //
-						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -12000) //
 						.input(ESS_ACTIVE_POWER, -1000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6000) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6000) //
-						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -7000) //
 						.input(ESS_ACTIVE_POWER, -6000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6000) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6000) //
-						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -5000) //
 						.input(ESS_ACTIVE_POWER, -6000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -5500) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 5500) //
-						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -8000) //
 						.input(ESS_ACTIVE_POWER, -5500) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6500) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6500) //
-						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
+						// Difference between last limit and current lower than the ramp - ramp is not
+						// applied
 						.input(METER_ACTIVE_POWER, -7000) //
 						.input(ESS_ACTIVE_POWER, -6300) //
-						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6000) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6000) //
-						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT)) //
+						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6300) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6300) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -6000) //
 						.input(ESS_ACTIVE_POWER, -6000) //
-						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -5500) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 5500) //
-						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT));
+						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -5800) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 5800) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT));
 	}
 
 	@Test

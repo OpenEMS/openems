@@ -42,9 +42,9 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 	protected Config config = null;
 
-	private DelayCharge delayCharge = new DelayCharge(this);
+	private DelayCharge delayCharge;
 
-	private SellToGridLimit sellToGridLimit = new SellToGridLimit(this);
+	private SellToGridLimit sellToGridLimit;
 
 	@Reference
 	protected Sum sum;
@@ -86,6 +86,8 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 	private void updateConfig(Config config) {
 		this.config = config;
+		this.delayCharge = new DelayCharge(this);
+		this.sellToGridLimit = new SellToGridLimit(this);
 
 		// update filter for 'ess'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
@@ -179,7 +181,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 				this.setActivePowerConstraint(sellToGridLimitMinChargePower, Relationship.EQUALS);
 				this.delayCharge.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
-				this.sellToGridLimit.setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState.ACTIVE_LIMIT,
+				this.sellToGridLimit.setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState.ACTIVE_LIMIT_FIXED,
 						sellToGridLimitMinChargePower);
 				this.logDebug("Applying both constraints not possible - Set active power according to SellToGridLimit: "
 						+ sellToGridLimitMinChargePower);
@@ -194,7 +196,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 		// Apply minimum charge power
 		if (sellToGridLimitIsDefined) {
-			this.sellToGridLimit.applyCalculatedLimit(sellToGridLimitMinChargePower);
+			this.sellToGridLimit.applyCalculatedMinimumChargePower(sellToGridLimitMinChargePower);
 		}
 	}
 

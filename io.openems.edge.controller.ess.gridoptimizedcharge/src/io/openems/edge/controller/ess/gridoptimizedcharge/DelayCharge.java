@@ -24,8 +24,12 @@ public class DelayCharge {
 	// Reference to parent controller
 	private GridOptimizedChargeImpl parent;
 
+	// The whole prediction should only be logged once
+	private boolean predictionDebugLog = true;
+
 	public DelayCharge(GridOptimizedChargeImpl parent) {
 		this.parent = parent;
+		this.predictionDebugLog = parent.config != null ? this.parent.config.debugMode() : false;
 	}
 
 	/**
@@ -161,8 +165,11 @@ public class DelayCharge {
 		Integer[] hourlyConsumption = hourlyPredictionConsumption.getValues();
 
 		// Displays the production values once.
-		this.parent.logDebug("Production: " + Arrays.toString(hourlyProduction));
-		this.parent.logDebug("Consumption: " + Arrays.toString(hourlyConsumption));
+		if (this.predictionDebugLog) {
+			this.parent.logDebug("Production: " + Arrays.toString(hourlyProduction));
+			this.parent.logDebug("Consumption: " + Arrays.toString(hourlyConsumption));
+			this.predictionDebugLog = false;
+		}
 
 		// Calculate target minute
 		targetMinute = this.calculateTargetMinute(hourlyProduction, hourlyConsumption, predictionStartQuarterHour);
@@ -298,10 +305,6 @@ public class DelayCharge {
 		 * consumption in this prediction
 		 */
 		if (targetMinuteAdjusted == null) {
-			// TODO: Specify if the initial target minute already passed or no higher
-			// production during the day and set a more expressive Channel/State
-			// e.g. if(predictionStartQuarterHourIndex == 0 || this.initialPrediction)
-
 			// Return the initial or last defined predicted target minute
 			if (this.parent.getPredictedTargetMinuteAdjusted().isDefined()) {
 				return this.parent.getPredictedTargetMinuteAdjusted().get();
