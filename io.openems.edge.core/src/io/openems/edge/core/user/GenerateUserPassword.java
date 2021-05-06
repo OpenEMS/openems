@@ -1,5 +1,9 @@
 package io.openems.edge.core.user;
 
+import java.util.stream.Collectors;
+
+import com.google.common.base.Splitter;
+
 import io.openems.common.session.Role;
 import io.openems.edge.common.host.DummyHost;
 
@@ -18,7 +22,9 @@ public class GenerateUserPassword {
 
 		DummyHost host = new DummyHost().withHostname(hostname);
 
-		System.out.println(UserServiceUtils.generatePassword(host, username, role));
+		String password = UserServiceUtils.generatePassword(host, username, role);
+
+		System.out.println(Splitter.fixedLength(4).splitToStream(password).collect(Collectors.joining(" ")));
 	}
 
 }
