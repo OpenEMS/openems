@@ -209,6 +209,8 @@ export class Utils {
 
     if (thisValue > 0) {
       return formatNumber(thisValue, 'de', '1.0-1') + ' kW'
+
+      //** show value equals 0, if showWhenValueEquals is set */
     } else if (thisValue == 0 && showWhenValueEquals0 == true) {
       return thisValue + ' kW';
     } else {
