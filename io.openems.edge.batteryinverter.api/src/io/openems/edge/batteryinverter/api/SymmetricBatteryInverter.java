@@ -3,6 +3,7 @@ package io.openems.edge.batteryinverter.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -33,7 +34,9 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
 		 * </ul>
 		 */
-		GRID_MODE(Doc.of(GridMode.values())),
+		GRID_MODE(Doc.of(GridMode.values()) //
+				.persistencePriority(PersistencePriority.HIGH) //
+		),
 		/**
 		 * Active Power.
 		 * 
@@ -47,6 +50,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text(POWER_DOC_TEXT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 		),
 		/**
 		 * Reactive Power.
@@ -61,6 +65,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.text(POWER_DOC_TEXT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 		),
 		/**
 		 * Holds the currently maximum possible apparent power. This value is commonly
@@ -74,7 +79,9 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * </ul>
 		 */
 		MAX_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE)), //
+				.unit(Unit.VOLT_AMPERE) //
+				.persistencePriority(PersistencePriority.HIGH) //
+		),
 		/**
 		 * Active Charge Energy.
 		 * 
@@ -85,7 +92,9 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH) //
+		),
 		/**
 		 * Active Discharge Energy.
 		 * 
@@ -96,7 +105,9 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS));
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH) //
+		);
 
 		private final Doc doc;
 
