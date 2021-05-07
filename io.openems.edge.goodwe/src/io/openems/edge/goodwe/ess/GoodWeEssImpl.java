@@ -17,11 +17,9 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -35,7 +33,6 @@ import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
-import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -64,11 +61,6 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 	@Reference
 	private Power power;
 
-	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(this,
-			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
-	private final CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(this,
-			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
-
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -91,6 +83,12 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 	public GoodWeEssImpl() throws OpenemsNamedException {
 		super(//
+				SymmetricEss.ChannelId.ACTIVE_POWER, //
+				HybridEss.ChannelId.DC_DISCHARGE_POWER, //
+				SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, //
+				SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
+				HybridEss.ChannelId.DC_CHARGE_ENERGY, //
+				HybridEss.ChannelId.DC_DISCHARGE_ENERGY, //
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
@@ -102,9 +100,6 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		// Calculate ActivePower and Energy values.
-		this.updatechannels();
-
 		// Apply Power Set-Point
 		ApplyPowerHandler.apply(this, false /* read-only mode is never true */, activePower);
 	}
@@ -126,38 +121,11 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.updatechannels();
+			this.updatePowerAndEnergyChannels();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.allowedChargeDischargeHandler.accept(this.componentManager);
 			break;
-		}
-	}
-
-	private void updatechannels() {
-		/*
-		 * Update ActivePower from P_BATTERY1 and chargers ACTUAL_POWER
-		 */
-		Integer productionPower = this.calculatePvProduction();
-		final Channel<Integer> batteryPower = this.channel(GoodWe.ChannelId.P_BATTERY1);
-		Integer activePower = TypeUtils.sum(productionPower, batteryPower.value().get());
-		this._setActivePower(activePower);
-
-		/*
-		 * Calculate AC Energy
-		 */
-		if (activePower == null) {
-			// Not available
-			this.calculateAcChargeEnergy.update(null);
-			this.calculateAcDischargeEnergy.update(null);
-		} else if (activePower > 0) {
-			// Discharge
-			this.calculateAcChargeEnergy.update(0);
-			this.calculateAcDischargeEnergy.update(activePower);
-		} else {
-			// Charge
-			this.calculateAcChargeEnergy.update(activePower * -1);
-			this.calculateAcDischargeEnergy.update(0);
 		}
 	}
 
