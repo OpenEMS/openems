@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar class="ion-justify-content-center" color="primary">
+    <ion-title>Batterieerweiterung auf 6 kWh</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="modalCtrl.dismiss()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-row class="ion-justify-content-center" style="min-height: 100%;">
+    <ion-col size="12" class="ion-align-self-center ion-text-center">
+      <p>
+        Ist Ihr Speicher oft schon um die Mittagszeit voll und Sie müssen den selbst produzierten Strom für wenig Geld
+        einspeisen?
+      </p>
+      <p>
+        Gleichzeitig ist Ihr Speicher abends schon wieder leer und Sie müssen ab da den Strom teuer aus dem Netz
+        beziehen?
+      </p>
+      <p>
+        Wir haben die Lösung für Sie:
+      </p>
+    </ion-col>
+    <ion-col size="12" class="ion-align-self-start ion-text-center ">
+      <img src="assets/img/Mini3-3to3-6.png" style="width: 60%">
+    </ion-col>
+    <ion-col size="12" class="ion-align-self-center ion-text-center">
+      <p>
+        Verdoppeln Sie Ihre Speicherkapazität, um den Anteil von selbst genutztem Solar-Strom erhöhen zu können.
+      </p>
+    </ion-col>
+    <ion-col size="12" class="ion-text-center">
+      <ion-button
+        href="mailto:innendienst@fenecon.de?subject=Anfrage%20Mini%203-6%20Batterieerweiterung%20{{edge.id}}&body=Sehr%20geehrte%20Damen%20und%20Herren%2C%0A%0Aich%20interessiere%20mich%20f%C3%BCr%20eine%20Erweiterung%20meines%20Speichersystems%20und%20bitte%20Sie%20hiermit%20mir%20ein%20Angebot%20f%C3%BCr%20eine%20Batterieerweiterung%20auf%20einen%20Mini%203-6%20zu%20zusenden.%0A%0AIch%20bin%20damit%20einverstanden%2C%20dass%20meine%20Daten%20gespeichert%2C%20verarbeitet%20und%20zum%20Zwecke%20der%20Angebotserstellung%20weitergeleitet%20werden%20bis%20ich%20diese%20Zusage%20widerrufe.%0A%0A%5B%20%5D%20Ich%20m%C3%B6chte%20direkt%20ein%20Angebot%20f%C3%BCr%20die%20Komponenten%20der%20FENECON%20erhalten%20und%20k%C3%BCmmere%20mich%20selbst%20um%20die%20Installation.%0A%0A%5B%20%5D%20Ich%20m%C3%B6chte%2C%20dass%20Sie%20sich%20mit%20einem%20Installateur%20f%C3%BCr%20FENECON%20Speichersysteme%20der%20Region%20in%20Verbindung%20setzen%2C%20damit%20dieser%20mir%20ein%20Angebot%20inklusive%20Installation%20erstellt.%0A%0A*Anrede%20*Vorname%20*Nachname%0A*Stra%C3%9Fe%20*Hausnummer%0A*Postleitzahl%20*Ort%0A*Telefonnummer%0A{{edge.id}}%0A*Seriennummer%20des%20Mini%203-3%0A%0AMit%20freundlichen%20Gr%C3%BC%C3%9Fen%2C">
+        Angebot anfordern</ion-button>
+    </ion-col>
+  </ion-row>
+</ion-content>

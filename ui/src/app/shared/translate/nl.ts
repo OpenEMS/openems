@@ -83,13 +83,13 @@ export const TRANSLATION = {
         },
     },
     Menu: {
-        aboutUI: 'Over OpenEMS UI',
-        edgeSettings: 'OpenEMS Edge instellingen',
+        aboutUI: 'Over FEMS',
+        edgeSettings: 'FEMS instellingen',
         generalSettings: 'Algemene instellingen',
         index: 'Overzicht',
         logout: 'Uitloggen',
         menu: 'Menu',
-        overview: 'OpenEMS Edge overzicht',
+        overview: 'FEMS overzicht',
         settings: 'Instellingen',
         user: 'Gebruiker',
     },
@@ -270,6 +270,7 @@ export const TRANSLATION = {
             lastYear: 'Vorig jaar',
             month: 'Maand',
             noData: 'geen gegevens beschikbaar',
+            tryAgain: 'Probeer het later nog eens...',
             otherPeriod: 'Andere periode',
             period: 'Periode',
             selectedDay: '{{value}}',
@@ -349,16 +350,26 @@ export const TRANSLATION = {
                 newConnection: 'Nieuwe verbinding...',
                 newDevice: 'Nieuw apparaat…',
             }
+        },
+        Service: {
+            entireSystem: "Hele systeem",
+            Cell: {
+                voltages: "Celspanningen",
+                temperatures: "Celtemperaturen",
+                insulation: "Isolatie",
+            }
         }
     },
     About: {
-        build: 'Versie',
-        contact: 'Voor meer informatie of suggesties over het systeem, neem contact op met het team via <a href=\'mailto:{{value}}\'>{{value}}</a>.',
-        currentDevelopments: 'Huidige ontwikkelingen',
-        developed: 'Deze gebruikersinterface is ontwikkeld als open-source-software.',
-        language: 'Selecteer taal: ',
-        sourcecode: 'Broncode',
-        ui: 'Gebruikersinterface voor OpenEMS',
+        build: "Versie",
+        contact: "Voor meer informatie of suggesties over het systeem, neem contact op met het team via <a href=\"mailto:{{value}}\">{{value}}</a>.",
+        currentDevelopments: "Huidige ontwikkelingen",
+        developed: "Deze gebruikersinterface is ontwikkeld als open-source-software.",
+        faq: "Veel Gestelde Vragen (FAQ)",
+        language: "Selecteer taal: ",
+        patchnotes: "Veranderingen in de monitoring voor deze build",
+        sourcecode: "Broncode",
+        ui: "Gebruikersinterface voor FEMS",
     },
     Notifications: {
         authenticationFailed: 'Geen verbinding.Autorisatie mislukt.',

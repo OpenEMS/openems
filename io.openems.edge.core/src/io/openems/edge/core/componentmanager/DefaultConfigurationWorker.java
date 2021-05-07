@@ -2,6 +2,7 @@ package io.openems.edge.core.componentmanager;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -18,6 +19,8 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonNull;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -25,6 +28,8 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
+import io.openems.common.utils.ConfigUtils;
+import io.openems.common.utils.JsonUtils;
 
 /**
  * This Worker checks if certain OpenEMS-Components are configured and - if not
@@ -118,7 +123,258 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 			}
 		}
 
+		/*
+		 * Delete configuration for deprecated Controller.Api.Rest
+		 */
+		existingConfigs.stream().filter(c -> //
+		c.componentId.isPresent() && "Controller.Api.Rest".equals(c.factoryPid)).forEach(c -> {
+			this.deleteConfiguration(defaultConfigurationFailed, c.componentId.get());
+		});
+
+		/*
+		 * Create Controller.Api.Rest.ReadOnly
+		 */
+		if (existingConfigs.stream().noneMatch(c -> //
+		// Check if either "Controller.Api.Rest.ReadOnly" or
+		// "Controller.Api.Rest.ReadWrite" exist
+		"Controller.Api.Rest.ReadOnly".equals(c.factoryPid) || "Controller.Api.Rest.ReadWrite".equals(c.factoryPid))) {
+			// if not -> create configuration for "Controller.Api.Rest.ReadOnly"
+			this.createConfiguration(defaultConfigurationFailed, "Controller.Api.Rest.ReadOnly", Arrays.asList(//
+					new Property("id", "ctrlApiRest0"), //
+					new Property("alias", ""), //
+					new Property("enabled", true), //
+					new Property("port", 8084), //
+					new Property("debugMode", false) //
+			));
+		}
+
+		/*
+		 * Create Controller.Api.Modbus.ReadOnly
+		 */
+		if (existingConfigs.stream().noneMatch(c -> //
+		// Check if either "Controller.Api.Rest.ReadOnly" or
+		// "Controller.Api.Rest.ReadWrite" exist
+		"Controller.Api.ModbusTcp.ReadOnly".equals(c.factoryPid)
+				|| "Controller.Api.ModbusTcp.ReadWrite".equals(c.factoryPid))) {
+			// if not -> create configuration for "Controller.Api.Rest.ReadOnly"
+			this.createConfiguration(defaultConfigurationFailed, "Controller.Api.ModbusTcp.ReadOnly", Arrays.asList(//
+					new Property("id", "ctrlApiModbusTcp0"), //
+					new Property("alias", ""), //
+					new Property("enabled", true), //
+					new Property("port", 502), //
+					new Property("component.ids", JsonUtils.buildJsonArray().add("_sum").build()), //
+					new Property("maxConcurrentConnections", 5) //
+			));
+		}
+
+		/*
+		 * Create Timedata.Rrd4j
+		 */
+		if (existingConfigs.stream().noneMatch(c -> //
+		// Check if either "Timedata.Rrd4j" or
+		// "Timedata.InfluxDB" exist
+		"Timedata.Rrd4j".equals(c.factoryPid) || "Timedata.InfluxDB".equals(c.factoryPid))) {
+			// if not -> create configuration for "Timedata.Rrd4j"
+			this.createConfiguration(defaultConfigurationFailed, "Timedata.Rrd4j", Arrays.asList(//
+					new Property("id", "rrd4j0"), //
+					new Property("alias", ""), //
+					new Property("enabled", true), //
+					new Property("noOfCycles", 60) //
+			));
+		}
+
+		this.migrateConfigurationsOnVersionUpgrade(existingConfigs, defaultConfigurationFailed);
+
 		return defaultConfigurationFailed.get();
+	}
+
+	/**
+	 * Apply upgrades to newer versions of OpenEMS Edge.
+	 * 
+	 * @param configurationFailed the result of the configuration, updated on error
+	 */
+	private void migrateConfigurationsOnVersionUpgrade(List<Config> existingConfigs,
+			AtomicBoolean configurationFailed) {
+		this.migrateConfigurationOnVersion_2020_11_5(existingConfigs, configurationFailed);
+		this.migrateConfigurationOnVersion_2020_23_4(existingConfigs, configurationFailed);
+	}
+
+	/**
+	 * Migrate to OpenEMS version 2020.11.5.
+	 */
+	private void migrateConfigurationOnVersion_2020_11_5(List<Config> existingConfigs,
+			AtomicBoolean configurationFailed) {
+		/*
+		 * Upgrade to generic SOCOMEC implementation.
+		 */
+		// Threephase
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
+		"Meter.SOCOMEC.DirisA10".equals(c.factoryPid) || //
+				"Meter.SOCOMEC.DirisA14".equals(c.factoryPid) || //
+				"Meter.SOCOMEC.DirisB30".equals(c.factoryPid) || //
+				"Meter.SOCOMEC.DirisE24".equals(c.factoryPid) //
+		)).forEach(c -> {
+			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
+			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
+			String modbusId = DictionaryUtils.getAsString(c.properties, "modbus.id");
+			int modbusUnitId = DictionaryUtils.getAsInteger(c.properties, "modbusUnitId"); // can cause NPE
+			boolean invert = DictionaryUtils.getAsOptionalBoolean(c.properties, "invert").orElse(false);
+			String type = DictionaryUtils.getAsString(c.properties, "type");
+
+			this.deleteConfiguration(configurationFailed, c.componentId.get());
+
+			this.createConfiguration(configurationFailed, "Meter.Socomec.Threephase", Arrays.asList(//
+					new Property("id", c.componentId.get()), //
+					new Property("alias", alias), //
+					new Property("enabled", enabled), //
+					new Property("modbus.id", modbusId), //
+					new Property("modbusUnitId", modbusUnitId), //
+					new Property("invert", invert), //
+					new Property("type", type) //
+			));
+		});
+		// Singlephase
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() && //
+				"Meter.SOCOMEC.CountisE24".equals(c.factoryPid)//
+		).forEach(c -> {
+			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
+			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
+			String modbusId = DictionaryUtils.getAsString(c.properties, "modbus.id");
+			int modbusUnitId = DictionaryUtils.getAsInteger(c.properties, "modbusUnitId"); // can cause NPE
+			boolean invert = DictionaryUtils.getAsOptionalBoolean(c.properties, "invert").orElse(false);
+			String type = DictionaryUtils.getAsString(c.properties, "type");
+
+			this.deleteConfiguration(configurationFailed, c.componentId.get());
+
+			this.createConfiguration(configurationFailed, "Meter.Socomec.Singlephase", Arrays.asList(//
+					new Property("id", c.componentId.get()), //
+					new Property("alias", alias), //
+					new Property("enabled", enabled), //
+					new Property("modbus.id", modbusId), //
+					new Property("modbusUnitId", modbusUnitId), //
+					new Property("invert", invert), //
+					new Property("type", type) //
+			));
+		});
+	}
+
+	/**
+	 * Migrate to OpenEMS version 2020.23.4 and 2021.4.14.
+	 */
+	private void migrateConfigurationOnVersion_2020_23_4(List<Config> existingConfigs,
+			AtomicBoolean configurationFailed) {
+		/*
+		 * Fix GoodWe configuration upgrade for Chargers
+		 */
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
+		("GoodWe.Charger-PV1".equals(c.factoryPid) || "GoodWe.Charger-PV2".equals(c.factoryPid)) //
+				&& DictionaryUtils.getAsOptionalString(c.properties, "essOrBatteryInverter.target").orElse("")
+						.isEmpty()) //
+		).forEach(c -> {
+			String servicePid = DictionaryUtils.getAsString(c.properties, "service.pid");
+			String essOrBatteryInverterId = DictionaryUtils.getAsString(c.properties, "ess.id");
+			String essOrBatteryInverterTarget = ConfigUtils.generateReferenceTargetFilter(servicePid,
+					essOrBatteryInverterId);
+
+			this.updateConfiguration(configurationFailed, c.componentId.get(), Arrays.asList(//
+					new Property("essOrBatteryInverter.id", essOrBatteryInverterId), //
+					new Property("essOrBatteryInverter.target", essOrBatteryInverterTarget), //
+					new Property("ess.id", JsonNull.INSTANCE), //
+					new Property("ess.target", JsonNull.INSTANCE) //
+			));
+		});
+
+		/*
+		 * Upgrade GoodWe configuration.
+		 */
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
+		"GoodWe.ET.Grid-Meter".equals(c.factoryPid) //
+		)).forEach(c -> {
+			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
+			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
+			int modbusUnitId = DictionaryUtils.getAsOptionalInteger(c.properties, "unit.id").orElse(0xF7);
+			String modbusId = DictionaryUtils.getAsString(c.properties, "modbus.id");
+
+			this.deleteConfiguration(configurationFailed, c.componentId.get());
+
+			this.createConfiguration(configurationFailed, "GoodWe.Grid-Meter", Arrays.asList(//
+					new Property("id", c.componentId.get()), //
+					new Property("alias", alias), //
+					new Property("enabled", enabled), //
+					new Property("modbus.id", modbusId), //
+					new Property("modbusUnitId", modbusUnitId) //
+			));
+		});
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
+		"GoodWe.ET.Battery-Inverter".equals(c.factoryPid) //
+		)).forEach(c -> {
+			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
+			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
+			boolean readOnlyMode = DictionaryUtils.getAsOptionalBoolean(c.properties, "readOnlyMode").orElse(true);
+			int modbusUnitId = DictionaryUtils.getAsOptionalInteger(c.properties, "unit.id").orElse(0xF7);
+			String modbusId = DictionaryUtils.getAsString(c.properties, "modbus.id");
+			int capacity = DictionaryUtils.getAsOptionalInteger(c.properties, "capacity").orElse(9_000);
+			int maxBatteryPower = 5_200;
+
+			this.deleteConfiguration(configurationFailed, c.componentId.get());
+
+			this.createConfiguration(configurationFailed, "GoodWe.Ess", Arrays.asList(//
+					new Property("id", c.componentId.get()), //
+					new Property("alias", alias), //
+					new Property("enabled", enabled), //
+					new Property("readOnlyMode", readOnlyMode), //
+					new Property("modbus.id", modbusId), //
+					new Property("modbusUnitId", modbusUnitId), //
+					new Property("capacity", capacity), //
+					new Property("maxBatteryPower", maxBatteryPower) //
+			));
+		});
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
+		"GoodWe.ET.Charger-PV1".equals(c.factoryPid) //
+		)).forEach(c -> {
+			String servicePid = DictionaryUtils.getAsString(c.properties, "service.pid");
+			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
+			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
+			String essId = DictionaryUtils.getAsString(c.properties, "ess.id");
+			String essTarget = ConfigUtils.generateReferenceTargetFilter(servicePid, essId);
+			int modbusUnitId = DictionaryUtils.getAsOptionalInteger(c.properties, "unit.id").orElse(0xF7);
+			String modbusId = DictionaryUtils.getAsString(c.properties, "modbus.id");
+
+			this.deleteConfiguration(configurationFailed, c.componentId.get());
+
+			this.createConfiguration(configurationFailed, "GoodWe.Charger-PV1", Arrays.asList(//
+					new Property("id", c.componentId.get()), //
+					new Property("alias", alias), //
+					new Property("enabled", enabled), //
+					new Property("ess.id", essId), //
+					new Property("ess.target", essTarget), //
+					new Property("modbus.id", modbusId), //
+					new Property("modbusUnitId", modbusUnitId) //
+			));
+		});
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
+		"GoodWe.ET.Charger-PV2".equals(c.factoryPid) //
+		)).forEach(c -> {
+			String servicePid = DictionaryUtils.getAsString(c.properties, "service.pid");
+			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
+			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
+			String essId = DictionaryUtils.getAsString(c.properties, "ess.id");
+			String essTarget = ConfigUtils.generateReferenceTargetFilter(servicePid, essId);
+			int modbusUnitId = DictionaryUtils.getAsOptionalInteger(c.properties, "unit.id").orElse(0xF7);
+			String modbusId = DictionaryUtils.getAsString(c.properties, "modbus.id");
+
+			this.deleteConfiguration(configurationFailed, c.componentId.get());
+
+			this.createConfiguration(configurationFailed, "GoodWe.Charger-PV2", Arrays.asList(//
+					new Property("id", c.componentId.get()), //
+					new Property("alias", alias), //
+					new Property("enabled", enabled), //
+					new Property("ess.id", essId), //
+					new Property("ess.target", essTarget), //
+					new Property("modbus.id", modbusId), //
+					new Property("modbusUnitId", modbusUnitId) //
+			));
+		});
 	}
 
 	@Override
