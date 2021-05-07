@@ -43,11 +43,11 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 	protected abstract void identifiedCountisE23_E24_E27_E28() throws OpenemsException;
 
 	/**
-	 * Applies the modbus protocol for Socomec Countis E44.
+	 * Applies the modbus protocol for Socomec Countis E34, E44.
 	 * 
 	 * @throws OpenemsException on error
 	 */
-	protected abstract void identifiedCountisE44() throws OpenemsException;
+	protected abstract void identifiedCountisE34_E44() throws OpenemsException;
 
 	/**
 	 * Applies the modbus protocol for Socomec Diris A10.
@@ -97,9 +97,13 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 					this.logInfo(this.log, "Identified Socomec Countis E28 meter");
 					this.identifiedCountisE23_E24_E27_E28();
 
+				} else if (name.startsWith("countis e34")) {
+					this.logInfo(this.log, "Identified Socomec Countis E34 meter");
+					this.identifiedCountisE34_E44();
+					
 				} else if (name.startsWith("countis e44")) {
 					this.logInfo(this.log, "Identified Socomec Countis E44 meter");
-					this.identifiedCountisE44();
+					this.identifiedCountisE34_E44();
 
 				} else if (name.startsWith("diris a-10") || name.startsWith("diris a10")) {
 					this.logInfo(this.log, "Identified Socomec Diris A10 meter");
