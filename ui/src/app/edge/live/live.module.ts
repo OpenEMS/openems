@@ -25,6 +25,7 @@ import { EvcsComponent } from './evcs/evcs.component';
 import { EvcsModalComponent } from './evcs/modal/modal.page';
 import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
 import { FlatWidgetComponent } from './flat/flat-widget.component';
+import { FlatWidgetHorizontalLine } from './flat/flat-widget-line/flat-widget-horizontal-line';
 import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
 import { FlatWidgetPercentagebar } from './flat/flat-widget-line/flat-widget-percentagebar';
 import { GridComponent } from './common/grid/grid.component';
@@ -75,6 +76,7 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     EvcsModalComponent,
     EvcsPopoverComponent,
     FlatWidgetComponent,
+    FlatWidgetHorizontalLine,
     FlatWidgetLine,
     FlatWidgetPercentagebar,
     GridModalComponent,
@@ -113,6 +115,7 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     EvcsModalComponent,
     EvcsPopoverComponent,
     FlatWidgetComponent,
+    FlatWidgetHorizontalLine,
     FlatWidgetLine,
     FlatWidgetPercentagebar,
     GridComponent,

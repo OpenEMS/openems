@@ -36,8 +36,8 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
     ) {
     }
 
-    protected setValue(value: any, showWhen0?: boolean) {
-        this.displayValue = this.converter(value, showWhen0);
+    protected setValue(value: any, showNotWhenValueEquals0?: boolean) {
+        this.displayValue = this.converter(value, showNotWhenValueEquals0);
     }
 
     protected subscribe(channelAddress: ChannelAddress) {
