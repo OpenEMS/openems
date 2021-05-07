@@ -343,7 +343,7 @@ public class PumpImpl extends AbstractOpenemsComponent implements OpenemsCompone
 
     @Override
     public void setPowerLevel(double percent) {
-        if (percent >= 0) {
+       if (percent >= 0 && percent != getPowerLevelValue()) {
             double changeByPercent = percent - getPowerLevelValue();
             this.changeByPercentage(changeByPercent);
         }
