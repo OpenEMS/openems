@@ -40,7 +40,7 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
         this.displayValue = this.converter(value, showNotWhenValueEquals0);
     }
 
-    protected subscribe(channelAddress: ChannelAddress) {
+    protected subscribe(channelAddress: ChannelAddress, showNotWhenValueEquals0?: boolean) {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
 
@@ -48,7 +48,7 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
 
             // call onCurrentData() with latest data
             edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                this.setValue(currentData.channel[channelAddress.toString()]);
+                this.setValue(currentData.channel[channelAddress.toString()], showNotWhenValueEquals0);
             });
         });
     }

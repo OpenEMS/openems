@@ -24,7 +24,7 @@ export class FlatWidgetLine extends AbstractFlatWidgetLine {
     /** Channel defines the channel, you need for this line */
     @Input()
     set channelAddress(channelAddress: string) {
-        this.subscribe(ChannelAddress.fromString(channelAddress));
+        this.subscribe(ChannelAddress.fromString(channelAddress), this.showNotWhenValueEquals0);
     }
 }
 
