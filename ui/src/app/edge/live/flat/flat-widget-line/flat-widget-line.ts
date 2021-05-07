@@ -8,14 +8,19 @@ import { AbstractFlatWidgetLine } from "./abstract-flat-widget-line";
 })
 export class FlatWidgetLine extends AbstractFlatWidgetLine {
 
-    /** Name for parameter, displayed on the left side*/
+    /** Name for parameter, displayed on the left side */
     @Input()
     name: string;
+
+    /** shows @Input() value when 0 */
+    @Input() showWhenValueEquals0?: boolean = false;
 
     /** value defines value of the parameter, displayed on the right */
     @Input()
     set value(value: any) {
-        this.setValue(value);
+        if (this.showWhenValueEquals0 != null) {
+            this.setValue(value, this.showWhenValueEquals0);
+        }
     }
 
     /** Channel defines the channel, you need for this line */

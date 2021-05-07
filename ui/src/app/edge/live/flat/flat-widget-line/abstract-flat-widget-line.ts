@@ -16,7 +16,7 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
      * @returns converter function
      */
     @Input()
-    protected converter = (value: any): string => { return value }
+    public converter = (value: any, showWhen0?: boolean): string => { return value }
     /** 
      * displayValue is the displayed @Input value in html
      */
@@ -36,8 +36,8 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
     ) {
     }
 
-    protected setValue(value: any) {
-        this.displayValue = this.converter(value);
+    protected setValue(value: any, showWhen0?: boolean) {
+        this.displayValue = this.converter(value, showWhen0);
     }
 
     protected subscribe(channelAddress: ChannelAddress) {

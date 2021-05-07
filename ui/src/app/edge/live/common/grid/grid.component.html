@@ -1,6 +1,6 @@
 <oe-flat-widget img="assets/img/grid.png" [title]="'General.grid' | translate" (click)="presentModal()">
     <oe-flat-widget-line [name]="'General.gridBuyAdvanced'| translate" [value]="gridBuyAdvancedChannel"
-        [converter]="this.utils.CONVERT_WATT_TO_KILOWATT">
+        [converter]="this.utils.CONVERT_WATT_TO_KILOWATT" [showWhenValueEquals0]="true">
     </oe-flat-widget-line>
     <oe-flat-widget-line [name]="'General.gridSellAdvanced' | translate" [value]="gridSellAdvancedChannel"
         [converter]="this.utils.CONVERT_WATT_TO_KILOWATT">
