@@ -35,7 +35,7 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 	// Force charge power
 	private int forceChargePower = 2000;
 
-	protected Config config;
+	private Config config;
 	private State state = State.UNDEFINED;
 
 	public LimitUsableCapacityControllerImpl() {
@@ -52,14 +52,11 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 
 		this.config = config;
 
-		/**
-		 * Checking the Soc values in the configuration 
+		/*
+		 * Checking the Soc values in the configuration
 		 * 
-		 * forceChargeSoc 
-		 * < stopDischargeSoc 
-		 * < allowDischargeSoc 
-		 * < allowChargeSoc 
-		 * < stopChargeSoc
+		 * forceChargeSoc < stopDischargeSoc < allowDischargeSoc < allowChargeSoc <
+		 * stopChargeSoc
 		 * 
 		 */
 		if (this.config.forceChargeSoc() > this.config.stopDischargeSoc()
@@ -124,7 +121,7 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 
 				// Force charging
 				ess.setActivePowerLessOrEquals(ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL,
-						Pwr.ACTIVE, forceChargePower * -1));
+						Pwr.ACTIVE, this.forceChargePower * -1));
 
 				if (soc >= this.config.stopDischargeSoc()) {
 					stateChanged = this.changeState(State.STOP_DISCHARGE);
@@ -146,20 +143,20 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 
 		// Allowed Charge Power
 		if (allowedCharge != null) {
-			Constraint AllowedChargeConstraint = ess.getPower().createSimpleConstraint( //
-					ess.id() + ": Allowed Charge", //
+			Constraint allowedChargeConstraint = ess.getPower().createSimpleConstraint(//
+					ess.id() + ": LimitUsableCapacity", //
 					ess, Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, //
 					0); //
-			ess.getPower().addConstraintAndValidate(AllowedChargeConstraint);
+			ess.getPower().addConstraintAndValidate(allowedChargeConstraint);
 		}
 
 		// Allowed Discharge Power
 		if (allowedDischarge != null) {
-			Constraint AllowedDischargeConstraint = ess.getPower().createSimpleConstraint( //
-					ess.id() + ": Allowed Discharge", //
+			Constraint allowedDischargeConstraint = ess.getPower().createSimpleConstraint(//
+					ess.id() + ": LimitUsableCapacity", //
 					ess, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, //
 					0); //
-			ess.getPower().addConstraintAndValidate(AllowedDischargeConstraint);
+			ess.getPower().addConstraintAndValidate(allowedDischargeConstraint);
 		}
 
 		this.channel(LimitUsableCapacityController.ChannelId.STATE_MACHINE).setNextValue(this.state);

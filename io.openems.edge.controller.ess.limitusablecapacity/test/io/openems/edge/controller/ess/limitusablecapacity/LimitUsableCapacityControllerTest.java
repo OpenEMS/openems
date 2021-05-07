@@ -15,7 +15,7 @@ public class LimitUsableCapacityControllerTest {
 	private static final String ESS_ID = "ess0";
 	private static final ChannelAddress ESS_SOC = new ChannelAddress(ESS_ID, "Soc");
 	private static final ChannelAddress STATE_MACHINE = new ChannelAddress(CTRL_ID, "StateMachine");
-	private final static ChannelAddress MAX_APPARENT_POWER = new ChannelAddress(ESS_ID, "MaxApparentPower");
+	private static final ChannelAddress MAX_APPARENT_POWER = new ChannelAddress(ESS_ID, "MaxApparentPower");
 
 	@Test
 	public void test() throws Exception {
@@ -58,7 +58,8 @@ public class LimitUsableCapacityControllerTest {
 
 				.next(new TestCase() //
 						.input(ESS_SOC, 5) //
-						.input(MAX_APPARENT_POWER, 5000).output(STATE_MACHINE, State.FORCE_CHARGE))
+						.input(MAX_APPARENT_POWER, 5000) //
+						.output(STATE_MACHINE, State.FORCE_CHARGE))
 
 				.next(new TestCase() //
 						.input(ESS_SOC, 84) //

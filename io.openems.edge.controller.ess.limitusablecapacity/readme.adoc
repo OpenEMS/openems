@@ -1,5 +1,16 @@
 = Ess Limit Total Usable Capacity
 
-This controller would limits the capacity of the Ess from over charge or discharge according to its State-of-Charge. Typically for deep discharge or over charging.
+This controller allows limiting the usable capacity of an Energy Storage System (ESS) according to its State-of-Charge (SoC).
+
+== On lower boundary
+
+- Allow discharging till "Stop-Discharge-Soc"
+- If ESS SoC reduces further till "Force-Charge-Soc", start to force-charge the ESS with 20 % of ESS `MaxApparentPower` till "Stop-Discharge-Soc"
+- Afterwards block any discharging below "Allow-Discharge-Soc"
+
+== On upper boundary
+
+- Allow charging till "Stop-Charge-Soc"
+- Afterwards block any charging above "Allow Charge Soc"
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.limitusablecapacity[Source Code icon:github[]]
