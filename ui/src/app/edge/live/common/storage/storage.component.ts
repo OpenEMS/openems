@@ -1,9 +1,9 @@
-import { Component, Inject } from '@angular/core';
+import { formatNumber } from '@angular/common';
+import { Component } from '@angular/core';
 import { CurrentData } from "src/app/shared/shared";
 import { ChannelAddress, EdgeConfig, Utils } from '../../../../shared/shared';
 import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
 import { StorageModalComponent } from './modal/modal.component';
-import { DecimalPipe, formatNumber } from '@angular/common';
 
 @Component({
     selector: 'storage',

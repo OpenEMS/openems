@@ -4,11 +4,9 @@
         <td style="width:65%">
             <ng-container *ngIf="name">{{ name }}</ng-container>
         </td>
-        <ng-container *ngIf="isInitialized">
-            <!-- Value of Parameter on the right side -->
-            <td style="width:35%" class="align_right">
-                <ng-container *ngIf="displayValue">{{ displayValue }}</ng-container>
-            </td>
-        </ng-container>
+        <!-- Value of Parameter on the right side -->
+        <td style="width:35%" class="align_right">
+            <ng-container *ngIf="displayValue != null">{{ displayValue }}</ng-container>
+        </td>
     </tr>
 </table>
