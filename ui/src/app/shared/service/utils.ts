@@ -201,7 +201,7 @@ export class Utils {
      * @param value the value from passed value in html
      * @returns converted value
           */
-  public CONVERT_WATT_TO_KILOWATT = (value: any, showWhenValueEquals0?: boolean): string => {
+  public CONVERT_WATT_TO_KILOWATT = (value: any, showNotWhenValueEquals0?: boolean): string => {
     if (value == null) {
       return '-'
     }
@@ -211,7 +211,7 @@ export class Utils {
       return formatNumber(thisValue, 'de', '1.0-1') + ' kW'
 
       //** show value equals 0, if showWhenValueEquals is set */
-    } else if (thisValue == 0 && showWhenValueEquals0 == true) {
+    } else if (thisValue == 0 && showNotWhenValueEquals0 == true) {
       return thisValue + ' kW';
     } else {
       return '-'
