@@ -1,3 +1,85 @@
 = io.openems.controller.emsig
 
+Simulation:
+
+[source,json]
+----
+{
+   "method":"componentJsonApi",
+   "params":{
+      "componentId":"_simulator",
+      "payload":{
+         "method":"executeSimulation",
+         "params":{
+            "components":[
+               {
+                  "factoryPid":"Scheduler.AllAlphabetically",
+                  "properties":[
+                     {
+                        "name":"id",
+                        "value":"scheduler0"
+                     }
+                  ]
+               },
+               {
+                  "factoryPid":"Simulator.GridMeter.Reacting",
+                  "properties":[
+                     {
+                        "name":"id",
+                        "value":"meter0"
+                     }
+                  ]
+               },
+               {
+                  "factoryPid":"Simulator.EssSymmetric.Reacting",
+                  "properties":[
+                     {
+                        "name":"id",
+                        "value":"ess0"
+                     },
+                     {
+                        "name":"maxApparentPower",
+                        "value":10000
+                     },
+                     {
+                        "name":"capacity",
+                        "value":10200
+                     },
+                     {
+                        "name":"initialSoc",
+                        "value":50
+                     }
+                  ]
+               },
+               {
+                  "factoryPid":"Controller.EMSIG",
+                  "properties":[
+                     {
+                        "name":"id",
+                        "value":"ctrlEmsig0"
+                     }
+                  ]
+               }
+            ],
+            "clock":{
+               "start":"2000-01-01T00:00:00.00Z",
+               "end":"2000-01-02T00:00:00.00Z",
+               "timeleapPerCycle":900000,
+               "executeCycleTwice":true
+            },
+            "profiles":{},
+            "collect":[
+               "_sum/GridActivePower",
+               "_sum/EssActivePower",
+               "_sum/ProductionActivePower",
+               "_sum/ConsumptionActivePower",
+               "_sum/EssSoc"
+            ]
+         }
+      }
+   }
+}
+----
+
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.controller.emsig[Source Code icon:github[]]

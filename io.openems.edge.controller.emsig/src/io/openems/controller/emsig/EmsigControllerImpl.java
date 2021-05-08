@@ -2,11 +2,13 @@ package io.openems.controller.emsig;
 
 import static io.openems.controller.emsig.ojalgo.Constants.ESS_MAX_ENERGY;
 import static io.openems.controller.emsig.ojalgo.Constants.GRID_SELL_LIMIT;
+import static io.openems.controller.emsig.ojalgo.Constants.MINUTES_PER_PERIOD;
 import static io.openems.controller.emsig.ojalgo.Constants.NO_OF_PERIODS;
 import static java.math.BigDecimal.ONE;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 import org.ojalgo.optimisation.Expression;
 import org.ojalgo.optimisation.Variable;
@@ -15,14 +17,17 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.controller.emsig.ojalgo.EnergyModel;
 import io.openems.controller.emsig.ojalgo.Period;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -33,9 +38,15 @@ import io.openems.edge.controller.api.Controller;
 public class EmsigControllerImpl extends AbstractOpenemsComponent
 		implements EmsigController, Controller, OpenemsComponent {
 
+	@Reference
+	private ClockProvider clockProvider;
+
+	@Reference
+	private ManagedSymmetricEss ess;
+
 	private Config config = null;
 
-	private EnergyModel schedule = null;
+	private Schedule schedule = null;
 
 	public EmsigControllerImpl() {
 		super(//
@@ -58,13 +69,27 @@ public class EmsigControllerImpl extends AbstractOpenemsComponent
 		// Create the actual optimal Schedule
 		EnergyModel schedule = this.calculateSchedule();
 		schedule.prettyPrint();
+		this.schedule = new Schedule(LocalDateTime.now(this.clockProvider.getClock()), schedule);
 
 		System.out.println("Time: " + Duration.between(now, Instant.now()).toMillis() + "ms");
 	}
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		// TODO apply Schedule
+		if (this.schedule == null) {
+			return;
+		}
+
+		LocalDateTime now = LocalDateTime.now(this.clockProvider.getClock());
+		int periodIndex = (int) (Duration.between(this.schedule.startTime, now).getSeconds() / 60 / MINUTES_PER_PERIOD);
+		if (periodIndex > schedule.energyModel.periods.length - 1) {
+			return;
+		}
+
+		Period period = schedule.energyModel.periods[periodIndex];
+		System.out.println(
+				now + " - Period [" + periodIndex + "] Power [" + period.ess.power.getValue().intValue() + "]");
+		ess.setActivePowerEquals(period.ess.power.getValue().intValue());
 	}
 
 	@Deactivate
@@ -108,6 +133,16 @@ public class EmsigControllerImpl extends AbstractOpenemsComponent
 		}
 
 		return flexibility;
+	}
+
+	private static class Schedule {
+		protected final LocalDateTime startTime;
+		protected final EnergyModel energyModel;
+
+		public Schedule(LocalDateTime startTime, EnergyModel energyModel) {
+			this.startTime = startTime;
+			this.energyModel = energyModel;
+		}
 	}
 
 	private EnergyModel calculateSchedule() {
