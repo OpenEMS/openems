@@ -1,6 +1,7 @@
 import { formatNumber } from '@angular/common';
 import { Injectable } from '@angular/core';
 
+@Injectable()
 export class Utils {
 
   /**
@@ -22,7 +23,6 @@ export class Utils {
       timeout
     ])
   }
-
   constructor() { }
 
   /**
@@ -285,14 +285,10 @@ export class Utils {
     }
     let thisValue: number = (value / 1000);
 
-    if (thisValue > 0) {
+    if (thisValue >= 0) {
       return formatNumber(thisValue, 'de', '1.0-1') + ' kW'
-
-      //** show value equals 0, if showWhen0 is  */
-    } else if (thisValue == 0) {
-      return '0 kW';
     } else {
-      return '-'
+      return '0 kW'
     }
 
   }

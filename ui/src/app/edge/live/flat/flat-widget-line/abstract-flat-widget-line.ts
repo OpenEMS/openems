@@ -4,7 +4,7 @@ import { ModalController } from "@ionic/angular";
 import { UUID } from "angular2-uuid";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
+import { ChannelAddress, Edge, Service, Utils, Websocket } from "src/app/shared/shared";
 
 @Directive()
 export abstract class AbstractFlatWidgetLine implements OnDestroy {
@@ -40,7 +40,7 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
         this.displayValue = this.converter(value);
     }
 
-    protected subscribe(channelAddress: ChannelAddress, showNotWhenValueEquals0?: boolean) {
+    protected subscribe(channelAddress: ChannelAddress) {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
 
