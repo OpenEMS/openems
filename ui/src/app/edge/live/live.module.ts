@@ -24,6 +24,8 @@ import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
 import { EvcsComponent } from './evcs/evcs.component';
 import { EvcsModalComponent } from './evcs/modal/modal.page';
 import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
+import { FlatModalComponent } from './flat/modal/flat-modal';
+import { FlatModalLineComponent } from './flat/modal/modal-line/flat-modal-line';
 import { FlatWidgetComponent } from './flat/flat-widget.component';
 import { FlatWidgetHorizontalLine } from './flat/flat-widget-line/flat-widget-horizontal-line';
 import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
@@ -75,6 +77,8 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     DigitalInputModalComponent,
     EvcsModalComponent,
     EvcsPopoverComponent,
+    FlatModalComponent,
+    FlatModalLineComponent,
     FlatWidgetComponent,
     FlatWidgetHorizontalLine,
     FlatWidgetLine,
@@ -114,6 +118,8 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     EvcsComponent,
     EvcsModalComponent,
     EvcsPopoverComponent,
+    FlatModalComponent,
+    FlatModalLineComponent,
     FlatWidgetComponent,
     FlatWidgetHorizontalLine,
     FlatWidgetLine,
