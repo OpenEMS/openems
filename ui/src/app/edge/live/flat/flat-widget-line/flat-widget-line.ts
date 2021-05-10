@@ -12,19 +12,16 @@ export class FlatWidgetLine extends AbstractFlatWidgetLine {
     @Input()
     name: string;
 
-    /** shows @Input() value when not 0 */
-    @Input('showNotWhenValueEquals0') showNotWhenValueEquals0: boolean = true;
-
     /** value defines value of the parameter, displayed on the right */
     @Input()
     set value(value: any) {
-        this.setValue(value, this.showNotWhenValueEquals0);
+        this.setValue(value);
     }
 
     /** Channel defines the channel, you need for this line */
     @Input()
     set channelAddress(channelAddress: string) {
-        this.subscribe(ChannelAddress.fromString(channelAddress), this.showNotWhenValueEquals0);
+        this.subscribe(ChannelAddress.fromString(channelAddress));
     }
 }
 

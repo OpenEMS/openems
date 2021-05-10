@@ -14,13 +14,16 @@ export class GridComponent extends AbstractFlatWidget {
 
   public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
-  public gridBuyAdvancedChannel: number;
-  public gridSellAdvancedChannel: number;
+  public gridBuyChannel: number;
+  public gridSellChannel: number;
   public gridMode: number;
 
   protected getChannelAddresses(): ChannelAddress[] {
     let channelAddresses: ChannelAddress[] = [
-      GridComponent.GRID_ACTIVE_POWER, GridComponent.GRID_MODE, new ChannelAddress('_sum', 'GridActivePowerL1'),
+      GridComponent.GRID_ACTIVE_POWER, GridComponent.GRID_MODE,
+
+      // TODO should be moved to Modal 
+      new ChannelAddress('_sum', 'GridActivePowerL1'),
       new ChannelAddress('_sum', 'GridActivePowerL2'),
       new ChannelAddress('_sum', 'GridActivePowerL3')
     ]
@@ -29,8 +32,8 @@ export class GridComponent extends AbstractFlatWidget {
   protected onCurrentData(currentData: CurrentData) {
     this.gridMode = currentData.allComponents[GridComponent.GRID_MODE.toString()];
     let gridActivePower = currentData.allComponents[GridComponent.GRID_ACTIVE_POWER.toString()];
-    this.gridBuyAdvancedChannel = gridActivePower;
-    this.gridSellAdvancedChannel = gridActivePower * -1;
+    this.gridBuyChannel = gridActivePower;
+    this.gridSellChannel = Utils.multiplySafely(gridActivePower, -1);
   }
 
   async presentModal() {

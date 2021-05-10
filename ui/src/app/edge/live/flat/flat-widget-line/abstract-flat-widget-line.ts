@@ -16,7 +16,7 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
      * @returns converter function
      */
     @Input()
-    public converter = (value: any, showWhen0?: boolean): string => { return value }
+    public converter = (value: any): string => { return value }
     /** 
      * displayValue is the displayed @Input value in html
      */
@@ -36,8 +36,8 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
     ) {
     }
 
-    protected setValue(value: any, showNotWhenValueEquals0?: boolean) {
-        this.displayValue = this.converter(value, showNotWhenValueEquals0);
+    protected setValue(value: any) {
+        this.displayValue = this.converter(value);
     }
 
     protected subscribe(channelAddress: ChannelAddress, showNotWhenValueEquals0?: boolean) {
@@ -48,7 +48,7 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
 
             // call onCurrentData() with latest data
             edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                this.setValue(currentData.channel[channelAddress.toString()], showNotWhenValueEquals0);
+                this.setValue(currentData.channel[channelAddress.toString()]);
             });
         });
     }

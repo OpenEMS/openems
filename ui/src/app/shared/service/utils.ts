@@ -1,7 +1,6 @@
 import { formatNumber } from '@angular/common';
 import { Injectable } from '@angular/core';
 
-@Injectable()
 export class Utils {
 
   /**
@@ -196,29 +195,6 @@ export class Utils {
     }
   }
   /**
-     * Converts a value in Watt [W] to KiloWatt [kW].
-     * 
-     * @param value the value from passed value in html
-     * @returns converted value
-          */
-  public CONVERT_WATT_TO_KILOWATT = (value: any, showNotWhenValueEquals0?: boolean): string => {
-    if (value == null) {
-      return '-'
-    }
-    let thisValue: number = (value / 1000);
-
-    if (thisValue > 0) {
-      return formatNumber(thisValue, 'de', '1.0-1') + ' kW'
-
-      //** show value equals 0, if showWhenValueEquals is set */
-    } else if (thisValue == 0 && showNotWhenValueEquals0 == true) {
-      return thisValue + ' kW';
-    } else {
-      return '-'
-    }
-
-  }
-  /**
    * Safely divides two - possibly 'null' - values: v1 / v2
    * 
    * @param v1 
@@ -297,26 +273,29 @@ export class Utils {
     }
     return true;
   }
-
   /**
-   * Converts a value in Watt [W] to KiloWatt [kW].
-   * 
-   * @param value the value from passed value in html
-   * @returns converted value
-   */
+       * Converts a value in Watt [W] to KiloWatt [kW].
+       * 
+       * @param value the value from passed value in html
+       * @returns converted value
+            */
   public static CONVERT_WATT_TO_KILOWATT = (value: any): string => {
-    if (value >= 0) {
-      let thisValue = (value / 1000);
-      if (thisValue.toFixed(1).endsWith('0')) {
-        return Math.round(thisValue).toString() + ' kW';
-      } else {
-        return thisValue.toFixed(1).replace('.', ',') + ' kW';
-      }
-    } else {
-      return 0 + ' kW';
+    if (value == null) {
+      return '-'
     }
-  }
+    let thisValue: number = (value / 1000);
 
+    if (thisValue > 0) {
+      return formatNumber(thisValue, 'de', '1.0-1') + ' kW'
+
+      //** show value equals 0, if showWhen0 is  */
+    } else if (thisValue == 0) {
+      return '0 kW';
+    } else {
+      return '-'
+    }
+
+  }
   /**
    * Gets the image path for storage depending on State-of-Charge.
    * 
