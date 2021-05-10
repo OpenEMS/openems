@@ -1,10 +1,14 @@
 package io.openems.edge.controller.ess.limitusablecapacity;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -31,6 +35,12 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 
 	@Reference
 	protected ComponentManager componentManager;
+	
+	@Reference
+	protected ConfigurationAdmin cm;
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	private ManagedSymmetricEss ess;
 
 	// Force charge power
 	private int forceChargePower = 2000;
@@ -51,6 +61,11 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.config = config;
+		
+		// update filter for 'ess'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
+			return;
+		}
 
 		/*
 		 * Checking the Soc values in the configuration
@@ -69,10 +84,9 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 
 		// Set to normal state and return if SoC is not available
-		Value<Integer> socOpt = ess.getSoc();
+		Value<Integer> socOpt = this.ess.getSoc();
 		if (!socOpt.isDefined()) {
 			this.state = State.NO_LIMIT;
 			return;
@@ -117,10 +131,10 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 				}
 				break;
 			case FORCE_CHARGE:
-				allowedDischarge = (ess.getMaxApparentPower().getOrError() * 20) / 100;
+				allowedDischarge = (this.ess.getMaxApparentPower().getOrError() * 20) / 100;
 
 				// Force charging
-				ess.setActivePowerLessOrEquals(ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL,
+				this.ess.setActivePowerLessOrEquals(this.ess.getPower().fitValueIntoMinMaxPower(this.id(), this.ess, Phase.ALL,
 						Pwr.ACTIVE, this.forceChargePower * -1));
 
 				if (soc >= this.config.stopDischargeSoc()) {
@@ -143,20 +157,20 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 
 		// Allowed Charge Power
 		if (allowedCharge != null) {
-			Constraint allowedChargeConstraint = ess.getPower().createSimpleConstraint(//
-					ess.id() + ": LimitUsableCapacity", //
-					ess, Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, //
+			Constraint allowedChargeConstraint = this.ess.getPower().createSimpleConstraint(//
+					this.ess.id() + ": LimitUsableCapacity", //
+					this.ess, Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, //
 					0); //
-			ess.getPower().addConstraintAndValidate(allowedChargeConstraint);
+			this.ess.getPower().addConstraintAndValidate(allowedChargeConstraint);
 		}
 
 		// Allowed Discharge Power
 		if (allowedDischarge != null) {
-			Constraint allowedDischargeConstraint = ess.getPower().createSimpleConstraint(//
-					ess.id() + ": LimitUsableCapacity", //
-					ess, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, //
+			Constraint allowedDischargeConstraint = this.ess.getPower().createSimpleConstraint(//
+					this.ess.id() + ": LimitUsableCapacity", //
+					this.ess, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, //
 					0); //
-			ess.getPower().addConstraintAndValidate(allowedDischargeConstraint);
+			this.ess.getPower().addConstraintAndValidate(allowedDischargeConstraint);
 		}
 
 		this.channel(LimitUsableCapacityController.ChannelId.STATE_MACHINE).setNextValue(this.state);

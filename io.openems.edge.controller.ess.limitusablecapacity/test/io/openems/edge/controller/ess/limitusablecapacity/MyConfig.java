@@ -103,5 +103,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public int allowChargeSoc() {
 		return this.builder.allowChargeSoc;
 	}
+	
+	@Override
+    public String ess_target() {
+        return "(&(enabled=true)(!(service.pid=ctrl0))(|(id=" + this.ess_id() + ")))";
+    }
 
 }
