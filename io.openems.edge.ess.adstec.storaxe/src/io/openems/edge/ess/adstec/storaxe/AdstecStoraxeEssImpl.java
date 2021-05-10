@@ -34,7 +34,7 @@ import io.openems.edge.ess.api.SymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Adstec.StoraXe.Ess", //
+		name = "Ess.Adstec.StoraXe", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
