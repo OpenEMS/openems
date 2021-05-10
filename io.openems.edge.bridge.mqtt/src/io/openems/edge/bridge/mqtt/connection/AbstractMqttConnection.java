@@ -2,9 +2,12 @@ package io.openems.edge.bridge.mqtt.connection;
 
 import com.google.gson.JsonObject;
 import io.openems.edge.bridge.mqtt.api.MqttConnection;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +21,8 @@ import static io.openems.edge.bridge.mqtt.api.ConfigurationSplits.PAYLOAD_MAPPIN
 /**
  * A Mqtt Connection Created by either the MqttBridge, subscribe or publish-manager.
  */
-public abstract class AbstractMqttConnection implements MqttConnection {
+public abstract class AbstractMqttConnection implements MqttConnection, MqttCallbackExtended {
+
     protected final Logger log = LoggerFactory.getLogger(AbstractMqttConnection.class);
     //MqttClient, information by MqttBridge
     MqttClient mqttClient;
@@ -54,6 +58,7 @@ public abstract class AbstractMqttConnection implements MqttConnection {
         this.mqttConnectOptions.setCleanSession(cleanSession);
         this.mqttConnectOptions.setKeepAliveInterval(keepAlive);
         this.mqttConnectOptions.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
+        this.mqttClient.setCallback(this);
         this.mqttConnectOptions.setAutomaticReconnect(true);
         this.cleanSessionFlag = cleanSession;
     }
@@ -153,5 +158,25 @@ public abstract class AbstractMqttConnection implements MqttConnection {
      */
     public boolean isConnected() {
         return this.mqttClient.isConnected();
+    }
+
+    @Override
+    public void connectComplete(boolean b, String s) {
+        this.log.info("Connected to Broker" + this.mqttClient.getClientId());
+    }
+
+    @Override
+    public void connectionLost(Throwable throwable) {
+        this.log.warn("Connection to Broker lost");
+    }
+
+    @Override
+    public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
+
+    }
+
+    @Override
+    public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
+
     }
 }
