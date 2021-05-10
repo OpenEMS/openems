@@ -10,6 +10,11 @@ import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared"
 export abstract class AbstractFlatWidgetLine implements OnDestroy {
 
     /**
+     * True after this.edge, this.config and this.component are set.
+     */
+    public isInitialized: boolean = false;
+
+    /**
      * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
      * 
      * @param value the value from CurrentData
@@ -29,6 +34,9 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
     public displayValue: string;
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private edge: Edge = null;
+    public activePowerL2;
+    public activePowerL3;
+
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -39,15 +47,22 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
     }
 
     protected setValue(value: any) {
-        this.displayValue = this.converter(value);
+        if (this.converter != null) {
+            this.displayValue = this.converter(value);
+        } else {
+            this.displayValue = value;
+        }
+
+        // announce initialized
+        this.isInitialized = true;
     }
 
-    protected subscribe(channelAddress: ChannelAddress) {
+    protected subscribe(channelAddress?: ChannelAddress) {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
 
             edge.subscribeChannels(this.websocket, this.selector, [channelAddress]);
-
+            this.edge.subscribedChannels;
             // call onCurrentData() with latest data
             edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
                 this.setValue(currentData.channel[channelAddress.toString()]);
