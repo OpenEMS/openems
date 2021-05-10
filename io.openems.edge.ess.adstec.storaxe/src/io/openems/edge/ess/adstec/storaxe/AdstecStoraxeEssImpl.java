@@ -17,16 +17,17 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverterChain;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -71,13 +72,20 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		final int offset = -1; // The Modbus library seems to use 0 offsets.
+
+		// We need to override because the ess returns neg for capacitative, pos for
+		// inductive, but the channel expects
+		// pos for from-battery, neg for to-battery.
+		final ElementToChannelConverter reactivePowerConverter = new ElementToChannelConverter(
+				value -> Math.abs((Short)value) * Integer.signum(this.getActivePower().get()));
+
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(1 + offset, Priority.LOW, //
 						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(1 + offset), GRID_MODE_CONVERTER),
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(2 + offset),
 								ElementToChannelConverter.SCALE_FACTOR_2),
 						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(3 + offset),
-								ElementToChannelConverter.SCALE_FACTOR_2)),
+								new ElementToChannelConverterChain(ElementToChannelConverter.SCALE_FACTOR_2, reactivePowerConverter))),
 				new FC4ReadInputRegistersTask(125 + offset, Priority.LOW, //
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(125 + offset),
 								ElementToChannelConverter.SCALE_FACTOR_2),
@@ -91,14 +99,13 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 						m(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(138 + offset),
 								ElementToChannelConverter.DIRECT_1_TO_1),
 						m(SymmetricEss.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(139 + offset),
-								ElementToChannelConverter.DIRECT_1_TO_1)) //
+								ElementToChannelConverter.DIRECT_1_TO_1))
 		);
 	}
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().asString() //
-				+ "|L:" + this.getActivePower().asString(); //
+		return "SoC:" + this.getSoc().asString() + "|L:" + this.getActivePower().asString();
 	}
 
 	@Override
@@ -110,33 +117,16 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 				ModbusSlaveNatureTable.of(AdstecStoraxeEss.class, accessMode, 300) //
 						.build());
 	}
-
-	@Override
-	public Value<Integer> getReactivePower() {
-		// We need to override because the ess returns neg for capacitative, pos for
-		// inductive, but the channel expects
-		// pos for from-battery, neg for to-battery.
-		return new Value<Integer>(this.getReactivePowerChannel(),
-				Math.abs(this.getReactivePowerChannel().value().get()) * Integer.signum(this.getActivePower().get()));
-	}
-
-	private static final ElementToChannelConverter GRID_MODE_CONVERTER = new ElementToChannelConverter(value -> {
-		switch ((Integer) value) {
-		case 1:
-			return 2;
-		case 2:
-			return 1;
-		default:
-			return 0;
-		}
-	}, value -> {
-		switch ((Integer) value) {
-		case 1:
-			return 2;
-		case 2:
-			return 1;
-		default:
-			return 0;
-		}
-	});
+	
+	private static final ElementToChannelConverter GRID_MODE_CONVERTER = new ElementToChannelConverter(
+			value -> {
+				switch ((Integer) value) {
+				case 1:
+					return GridMode.OFF_GRID;
+				case 2:
+					return GridMode.ON_GRID;
+				default:
+					return GridMode.UNDEFINED;
+				}
+			});
 }
