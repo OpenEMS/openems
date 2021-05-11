@@ -1,7 +1,0 @@
-= Consolinno Pwm
-
-This Pwm will regulate power output on a given Module and Position by
-writing the Modbus Registers accordingly.
-
-
-

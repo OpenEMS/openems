@@ -28,7 +28,6 @@
 	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
 	bnd.identity;id='org.apache.felix.inventory',\
 	bnd.identity;id='io.openems.edge.application',\
-	bnd.identity;id='io.openems.edge.aio.api',\
 	bnd.identity;id='io.openems.edge.battery.bmw',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
 	bnd.identity;id='io.openems.edge.battery.fenecon.home',\
@@ -40,11 +39,7 @@
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
 	bnd.identity;id='io.openems.edge.bridge.onewire',\
 	bnd.identity;id='io.openems.edge.common',\
-	bnd.identity;id='io.openems.edge.consolinno.modbus.configurator',\
-	bnd.identity;id='io.openems.edge.consolinno.pwm',\
-	bnd.identity;id='io.openems.edge.consolinno.relay',\
-	bnd.identity;id='io.openems.edge.consolinno.sensor.signal',\
-	bnd.identity;id='io.openems.edge.consolinno.sensor.temperature',\
+	bnd.identity;id='io.openems.edge.consolinno.leaflet',\
 	bnd.identity;id='io.openems.edge.controller.api.backend',\
 	bnd.identity;id='io.openems.edge.controller.api.common',\
 	bnd.identity;id='io.openems.edge.controller.api.modbus',\
@@ -141,7 +136,6 @@
 	bnd.identity;id='io.openems.edge.pvinverter.sma',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
 	bnd.identity;id='io.openems.edge.pvinverter.sunspec',\
-	bnd.identity;id='io.openems.edge.pwm.api',\
 	bnd.identity;id='io.openems.edge.relay.api',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.scheduler.daily',\
@@ -161,7 +155,6 @@
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
 	com.sun.jna;version='[5.8.0,5.8.1)',\
 	io.openems.common;version=snapshot,\
-	io.openems.edge.aio.api;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
 	io.openems.edge.battery.api;version=snapshot,\
 	io.openems.edge.battery.bmw;version=snapshot,\
@@ -176,11 +169,7 @@
 	io.openems.edge.bridge.modbus;version=snapshot,\
 	io.openems.edge.bridge.onewire;version=snapshot,\
 	io.openems.edge.common;version=snapshot,\
-	io.openems.edge.consolinno.modbus.configurator;version=snapshot,\
-	io.openems.edge.consolinno.pwm;version=snapshot,\
-	io.openems.edge.consolinno.relay;version=snapshot,\
-	io.openems.edge.consolinno.sensor.signal;version=snapshot,\
-	io.openems.edge.consolinno.sensor.temperature;version=snapshot,\
+	io.openems.edge.consolinno.leaflet;version=snapshot,\
 	io.openems.edge.controller.api;version=snapshot,\
 	io.openems.edge.controller.api.backend;version=snapshot,\
 	io.openems.edge.controller.api.common;version=snapshot,\
@@ -284,7 +273,6 @@
 	io.openems.edge.pvinverter.sma;version=snapshot,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\
 	io.openems.edge.pvinverter.sunspec;version=snapshot,\
-	io.openems.edge.pwm.api;version=snapshot,\
 	io.openems.edge.relay.api;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.api;version=snapshot,\
