@@ -23,4 +23,6 @@ export class FlatModalLineComponent extends AbstractFlatWidgetLine {
     set channelAddress(channelAddress: string) {
         this.subscribe(ChannelAddress.fromString(channelAddress));
     }
+
+    @Input() indentation_from_left: string;
 }

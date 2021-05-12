@@ -1,3 +1,4 @@
+import { formatNumber } from '@angular/common';
 import { Injectable } from '@angular/core';
 
 @Injectable()
@@ -274,32 +275,12 @@ export class Utils {
     }
     return true;
   }
-
   /**
-   * Converts a value in Watt [W] to KiloWatt [kW].
-   * 
-   * @param value the value from passed value in html
-   * @returns converted value
-   */
-  public static CONVERT_WATT_TO_KILOWATT = (value: any): string => {
-    if (value >= 0) {
-      let thisValue = (value / 1000);
-      if (thisValue.toFixed(1).endsWith('0')) {
-        return Math.round(thisValue).toString() + ' kW';
-      } else {
-        return thisValue.toFixed(1).replace('.', ',') + ' kW';
-      }
-    } else {
-      return 0 + ' kW';
-    }
-  }
-
-  /**
-   * Gets the image path for storage depending on State-of-Charge.
-   * 
-   * @param soc the state-of-charge
-   * @returns the image path
-   */
+    * Gets the image path for storage depending on State-of-Charge.
+    * 
+    * @param soc the state-of-charge
+    * @returns the image path
+    */
   public static getStorageSocImage(soc: number | null): string {
     if (!soc || soc < 10) {
       return 'storage_0.png';
@@ -315,5 +296,90 @@ export class Utils {
       return 'storage_100.png';
     }
   }
+  // CONVERTERs
 
+  /**
+       * Use 'convertChargePower' to convert/map a value
+       * 
+       * @param value takes @Input value or channelAddress for chargePower
+       * @returns value
+       */
+  public static CONVERT_CHARGE_POWER_TO_WATT = (value: any): string => {
+    return Utils.convertPowerToWatt(Utils.multiplySafely(value, -1), true);
+  }
+
+  /**
+      * Use 'convertDischargePower' to convert/map a value
+      * 
+      * @param value takes @Input value or channelAddress for dischargePower
+      * @returns value
+      */
+  public static CONVERT_DISCHARGE_POWER_TO_WATT = (value: any): string => {
+    return Utils.convertPowerToWatt(value)
+  }
+
+  /**
+      * Use 'convertPower' to check whether 'charge/discharge' and to be only showed when not negative
+      * 
+      * @param value takes passed value when called 
+      * @returns only positive and 0
+      */
+  public static convertPowerToWatt(value: number, isCharge?: boolean) {
+    if (value == null) {
+      return '-';
+    }
+
+
+
+    // Round thisValue to Integer when decimal place equals 0 
+    if (value > 0) {
+      return formatNumber(value, 'de', '1.0-1') + " W"; // TODO get locale dynamically
+
+    } else if (value == 0 && isCharge) {
+      // if thisValue is 0, then show only when charge and not discharge
+      return '0 W';
+
+    } else {
+      return '-'
+    }
+  }
+
+
+  public static CONVERT_TO_WATT = (value: any): string => {
+    if (value == null) {
+      return '-'
+    }
+    if (value >= 0) {
+      return formatNumber(value, 'de', '1.0-0') + ' W'
+    } else {
+      return '0 W'
+    }
+  }
+
+  /**
+   * Converts a value in Watt [W] to KiloWatt [kW].
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
+  public static CONVERT_WATT_TO_KILOWATT = (value: any): string => {
+    if (value == null) {
+      return '-'
+    }
+    let thisValue: number = (value / 1000);
+
+    if (thisValue >= 0) {
+      return formatNumber(thisValue, 'de', '1.0-1') + ' kW'
+    } else {
+      return '0 kW'
+    }
+  }
+
+  public static CONVERT_TO_PERCENT = (value: any): string => {
+    return value + ' %'
+  }
+
+  public static CONVERT_TO_WATTHOURS = (value: any): string => {
+    return formatNumber(value, 'de', '1.0-1') + ' Wh'
+  }
 }

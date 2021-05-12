@@ -29,6 +29,7 @@ import { FlatModalLineComponent } from './flat/modal/modal-line/flat-modal-line'
 import { FlatWidgetComponent } from './flat/flat-widget.component';
 import { FlatWidgetHorizontalLine } from './flat/flat-widget-line/flat-widget-horizontal-line';
 import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
+import { ModalInfoText } from './flat/modal/modal-info-text/modal-line-text';
 import { FlatWidgetPercentagebar } from './flat/flat-widget-line/flat-widget-percentagebar';
 import { GridComponent } from './grid/grid.component';
 import { GridModalComponent } from './grid/modal/modal.component';
@@ -81,6 +82,7 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     FlatModalLineComponent,
     FlatWidgetComponent,
     FlatWidgetHorizontalLine,
+    ModalInfoText,
     FlatWidgetLine,
     FlatWidgetPercentagebar,
     GridModalComponent,
@@ -105,6 +107,7 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     ChpsocModalComponent,
     ConsumptionComponent,
     ConsumptionModalComponent,
+    ModalInfoText,
     Controller_Ess_FixActivePower,
     Controller_Ess_FixActivePowerModalComponent,
     Controller_Io_FixDigitalOutput,
