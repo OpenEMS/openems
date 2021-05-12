@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { GridModalComponent } from './modal/modal.component';
 import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
-import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
+import { ChannelAddress, CurrentData, GridMode, Utils } from 'src/app/shared/shared';
 
 @Component({
   selector: 'grid',
@@ -13,9 +13,10 @@ export class GridComponent extends AbstractFlatWidget {
   private static readonly GRID_MODE: ChannelAddress = new ChannelAddress('_sum', 'GridMode')
 
   public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
+  public readonly GridMode = GridMode;
 
-  public gridBuyChannel: number;
-  public gridSellChannel: number;
+  public gridBuyPower: number;
+  public gridSellPower: number;
   public gridMode: number;
 
   protected getChannelAddresses(): ChannelAddress[] {
@@ -32,8 +33,8 @@ export class GridComponent extends AbstractFlatWidget {
   protected onCurrentData(currentData: CurrentData) {
     this.gridMode = currentData.allComponents[GridComponent.GRID_MODE.toString()];
     let gridActivePower = currentData.allComponents[GridComponent.GRID_ACTIVE_POWER.toString()];
-    this.gridBuyChannel = gridActivePower;
-    this.gridSellChannel = Utils.multiplySafely(gridActivePower, -1);
+    this.gridBuyPower = gridActivePower;
+    this.gridBuyPower = Utils.multiplySafely(gridActivePower, -1);
   }
 
   async presentModal() {
