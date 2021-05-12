@@ -30,6 +30,8 @@ import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
 import { FlatWidgetPercentagebar } from './flat/flat-widget-line/flat-widget-percentagebar';
 import { GridComponent } from './grid/grid.component';
 import { GridModalComponent } from './grid/modal/modal.component';
+import { GridOptimizedChargeComponent } from './gridoptimizedcharge/gridoptimizedcharge.component';
+import { GridOptimizedChargeModalComponent } from './gridoptimizedcharge/modal/modal.component';
 import { HeatingElementComponent } from './heatingelement/heatingelement.component';
 import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
 import { HeatPumpComponent } from './heatpump/heatpump.component';
@@ -80,6 +82,7 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     FlatWidgetLine,
     FlatWidgetPercentagebar,
     GridModalComponent,
+    GridOptimizedChargeModalComponent,
     HeatingElementModalComponent,
     HeatPumpModalComponent,
     ModalComponentEvcsCluster,
@@ -120,6 +123,8 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     FlatWidgetPercentagebar,
     GridComponent,
     GridModalComponent,
+    GridOptimizedChargeComponent,
+    GridOptimizedChargeModalComponent,
     HeatingElementComponent,
     HeatingElementModalComponent,
     HeatPumpComponent,

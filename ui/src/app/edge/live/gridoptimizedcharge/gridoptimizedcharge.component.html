@@ -1,0 +1,89 @@
+<ng-container *ngIf="component && service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+        <ion-card button (click)="presentModal()">
+            <ion-item lines="full" color="light">
+                <ion-avatar slot="start">
+                    <!-- <img src="assets/img/selfconsumption.png"> -->
+                    <img src="assets/img/gridStorage.png">
+                </ion-avatar>
+                <ion-label>{{ component.alias }}</ion-label>
+            </ion-item>
+            <ion-card-content>
+
+                <!--TODO: Translate-->
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            General.mode
+                        </td>
+                        <td *ngIf="component.properties['mode'] == 'MANUAL'" style="width: 35%" class="align_right"
+                            translate>
+                            General.manually
+                        </td>
+                        <td *ngIf="component.properties['mode'] == 'OFF'" style="width: 35%" class="align_right"
+                            translate>
+                            General.off
+                        </td>
+                        <td *ngIf="component.properties['mode'] == 'AUTOMATIC'" style="width: 35%" class="align_right"
+                            translate>
+                            General.automatic
+                        </td>
+                    </tr>
+
+                    <!--SellToGridLimit-->
+                    <ng-container
+                        *ngIf="currentData.channel[component.id + '/SellToGridLimitChargeLimit'] != null as limit; else sellToGridLimitNotActive">
+                        <tr>
+                            <td style="width:100%" translate>Maximales Einspeiselimit erreicht</td>
+
+                            <td style="width:65%" translate>Minimale Beladung</td>
+                            <td style="width:35%" class="align_right" translate>
+                                <ng-container>
+                                    {{limit}}
+                                </ng-container>
+                            </td>
+                        </tr>
+                    </ng-container>
+
+                    <!--DelayCharge-->
+                    <ng-template #sellToGridLimitNotActive>
+                        <ng-container
+                            *ngIf="currentData.channel[component.id + '/DelayChargeMaximumChargeLimit'] != null as limit">
+                            <!-- Maybe show current State 
+                                <tr>
+                                <td style="width:65%" translate>General.state</td>
+                                <td style="width:35%" class="align_right" translate>
+                                    <ng-container
+                                        *ngIf="currentData.channel[component.id + '/DelayChargeState'] as delayChargeState">
+                                        {{delayChargeState}}
+                                    </ng-container>
+                                </td>
+                            </tr> -->
+                            <tr>
+                                <td style="width:65%" translate>Maximale Beladung</td>
+                                <td style="width:35%" class="align_right" translate>
+                                    <ng-container>
+                                        {{ currentData.channel[component.id + '/DelayChargeMaximumChargeLimit'] |
+                                        unitvalue:'kW' }}
+                                    </ng-container>
+                                </td>
+                            </tr>
+                        </ng-container>
+                    </ng-template>
+
+                    <tr
+                        *ngIf="component.properties.mode != 'OFF' && currentData.channel[component.id + '/TargetMinute'] as targetMinute">
+                        <ng-container>
+                            <td style="width: 65%" translate>
+                                Endzeitpunkt der beschränkten Beladung
+                            </td>
+                            <td style="width:35%" class="align_right">
+                                {{ targetMinute * 60 * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+                            </td>
+                        </ng-container>
+                    </tr>
+                </table>
+            </ion-card-content>
+        </ion-card>
+    </ng-container>
+</ng-container>
