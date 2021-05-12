@@ -8,7 +8,7 @@ import { AbstractFlatWidgetLine } from "./abstract-flat-widget-line";
 })
 export class FlatWidgetLine extends AbstractFlatWidgetLine {
 
-    /** Name for parameter, displayed on the left side*/
+    /** Name for parameter, displayed on the left side */
     @Input()
     name: string;
 
