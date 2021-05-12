@@ -4,7 +4,7 @@ import { ModalController } from "@ionic/angular";
 import { UUID } from "angular2-uuid";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, Edge, Service, Utils, Websocket } from "src/app/shared/shared";
+import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 
 @Directive()
 export abstract class AbstractFlatWidgetLine implements OnDestroy {
@@ -17,10 +17,12 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
      */
     @Input()
     public converter = (value: any): string => { return value }
+
     /** 
      * displayValue is the displayed @Input value in html
      */
     public displayValue: string = null;
+
     /**
      * selector used for subscribe
      */
