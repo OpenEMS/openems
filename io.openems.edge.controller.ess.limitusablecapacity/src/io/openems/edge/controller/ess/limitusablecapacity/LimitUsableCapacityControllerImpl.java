@@ -35,7 +35,7 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 
 	@Reference
 	protected ComponentManager componentManager;
-	
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -61,7 +61,7 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.config = config;
-		
+
 		// update filter for 'ess'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
@@ -85,19 +85,25 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 
-		// Set to normal state and return if SoC is not available
-		Value<Integer> socOpt = this.ess.getSoc();
-		if (!socOpt.isDefined()) {
-			this.state = State.NO_LIMIT;
-			return;
-		}
-		int soc = socOpt.get();
-
 		// initialize allowedCharge
 		Integer allowedCharge = null;
 
 		// initialize allowedDischarge
 		Integer allowedDischarge = null;
+
+		// Set to normal state and return if SoC is not available
+		Value<Integer> socOpt = this.ess.getSoc();
+		if (!socOpt.isDefined()) {
+			this.state = State.NO_LIMIT;
+
+			// Update the channels before returning
+			updateAllowedChargePower(allowedCharge);
+			updateAllowedDischargePower(allowedDischarge);
+			this.channel(LimitUsableCapacityController.ChannelId.STATE_MACHINE).setNextValue(this.state);
+
+			return;
+		}
+		int soc = socOpt.get();
 
 		boolean stateChanged;
 		do {
@@ -134,8 +140,8 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 				allowedDischarge = (this.ess.getMaxApparentPower().getOrError() * 20) / 100;
 
 				// Force charging
-				this.ess.setActivePowerLessOrEquals(this.ess.getPower().fitValueIntoMinMaxPower(this.id(), this.ess, Phase.ALL,
-						Pwr.ACTIVE, this.forceChargePower * -1));
+				this.ess.setActivePowerLessOrEquals(this.ess.getPower().fitValueIntoMinMaxPower(this.id(), this.ess,
+						Phase.ALL, Pwr.ACTIVE, this.forceChargePower * -1));
 
 				if (soc >= this.config.stopDischargeSoc()) {
 					stateChanged = this.changeState(State.STOP_DISCHARGE);
@@ -155,6 +161,21 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 
 		} while (stateChanged);
 
+		updateAllowedChargePower(allowedCharge);
+
+		updateAllowedDischargePower(allowedDischarge);
+
+		this.channel(LimitUsableCapacityController.ChannelId.STATE_MACHINE).setNextValue(this.state);
+	}
+
+	/**
+	 * Update the allowedChargePower for the Ess, also updates the Allowed charge
+	 * power channel
+	 * 
+	 * @param allowedCharge
+	 * @throws OpenemsException
+	 */
+	private void updateAllowedChargePower(Integer allowedCharge) throws OpenemsException {
 		// Allowed Charge Power
 		if (allowedCharge != null) {
 			Constraint allowedChargeConstraint = this.ess.getPower().createSimpleConstraint(//
@@ -164,6 +185,17 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 			this.ess.getPower().addConstraintAndValidate(allowedChargeConstraint);
 		}
 
+		this.channel(LimitUsableCapacityController.ChannelId.ALLOWED_CHARGE_POWER).setNextValue(allowedCharge);
+	}
+
+	/**
+	 * Update the allowedDishargePower for the Ess, also updates the Allowed
+	 * Discharge power channel
+	 * 
+	 * @param allowedDischarge
+	 * @throws OpenemsException
+	 */
+	private void updateAllowedDischargePower(Integer allowedDischarge) throws OpenemsException {
 		// Allowed Discharge Power
 		if (allowedDischarge != null) {
 			Constraint allowedDischargeConstraint = this.ess.getPower().createSimpleConstraint(//
@@ -172,9 +204,6 @@ public class LimitUsableCapacityControllerImpl extends AbstractOpenemsComponent
 					0); //
 			this.ess.getPower().addConstraintAndValidate(allowedDischargeConstraint);
 		}
-
-		this.channel(LimitUsableCapacityController.ChannelId.STATE_MACHINE).setNextValue(this.state);
-		this.channel(LimitUsableCapacityController.ChannelId.ALLOWED_CHARGE_POWER).setNextValue(allowedCharge);
 		this.channel(LimitUsableCapacityController.ChannelId.ALLOWED_DISCHARGE_POWER).setNextValue(allowedDischarge);
 	}
 
