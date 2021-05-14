@@ -4,9 +4,12 @@ This controller allows limiting the usable capacity of an Energy Storage System 
 
 == On lower boundary
 
-- Allow discharging till "Stop-Discharge-Soc"
-- If ESS SoC reduces further till "Force-Charge-Soc", start to force-charge the ESS with 20 % of ESS `MaxApparentPower` till "Stop-Discharge-Soc"
-- Afterwards block any discharging below "Allow-Discharge-Soc"
+* Allow discharging till "Stop-Discharge-Soc"
+* If ESS SoC reduces further till "Force-Charge-Soc", start to force-charge the ESS 
+	** with 20 % of ESS `MaxApparentPower`  OR
+	** with Static power example 2kW +
+	till "Stop-Discharge-Soc"
+* Afterwards block any discharging below "Allow-Discharge-Soc"
 
 == On upper boundary
 
