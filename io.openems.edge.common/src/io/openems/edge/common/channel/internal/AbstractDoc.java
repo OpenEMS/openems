@@ -9,6 +9,7 @@ import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -32,21 +33,22 @@ public abstract class AbstractDoc<T> implements Doc {
 
 	@Override
 	public OpenemsType getType() {
-		return type;
+		return this.type;
 	}
 
 	/**
-	 * Allowed Access-Mode for this Channel.
+	 * Allowed {@link AccessMode} for this Channel.
 	 */
 	private AccessMode accessMode = AccessMode.READ_ONLY;
 
 	/**
-	 * Sets the Access-Mode for the Channel.
+	 * Sets the {@link AccessMode} for the Channel.
 	 * 
 	 * <p>
 	 * This is validated on construction of the Channel by
 	 * {@link AbstractReadChannel}
 	 * 
+	 * @param accessMode the {@link AccessMode}
 	 * @return myself
 	 */
 	public AbstractDoc<T> accessMode(AccessMode accessMode) {
@@ -65,13 +67,15 @@ public abstract class AbstractDoc<T> implements Doc {
 	private PersistencePriority persistencePriority = PersistencePriority.VERY_LOW;
 
 	/**
-	 * Sets the Persistence Priority. Defaults to VERY_LOW.
+	 * Sets the {@link PersistencePriority}. Defaults to
+	 * {@link PersistencePriority#VERY_LOW}.
 	 * 
 	 * <p>
 	 * This parameter may be used by persistence services to decide, if the Channel
 	 * should be persisted to the hard disk.
 	 * 
 	 * @param persistencePriority the {@link PersistencePriority}
+	 * @return myself
 	 */
 	public AbstractDoc<T> persistencePriority(PersistencePriority persistencePriority) {
 		this.persistencePriority = persistencePriority;
@@ -91,7 +95,7 @@ public abstract class AbstractDoc<T> implements Doc {
 	/**
 	 * Initial-Value. Default: none
 	 * 
-	 * @param initialValue
+	 * @param initialValue the initial value
 	 * @return myself
 	 */
 	public AbstractDoc<T> initialValue(T initialValue) {
@@ -155,7 +159,7 @@ public abstract class AbstractDoc<T> implements Doc {
 	private final List<Consumer<Channel<T>>> onInitCallback = new CopyOnWriteArrayList<>();
 
 	/**
-	 * Provides a callback on initialization of the actual Channel
+	 * Provides a callback on initialization of the actual Channel.
 	 * 
 	 * @param callback the method to call on initialization
 	 * @return myself
@@ -171,14 +175,16 @@ public abstract class AbstractDoc<T> implements Doc {
 	 * @return a list of callbacks
 	 */
 	protected List<Consumer<Channel<T>>> getOnInitCallbacks() {
-		return onInitCallback;
+		return this.onInitCallback;
 	}
 
 	/**
 	 * Creates an instance of {@link Channel} for the given Channel-ID using its
 	 * Channel-{@link AbstractDoc}.
 	 * 
-	 * @param channelId the Channel-ID
+	 * @param <C>       the {@link Channel} type
+	 * @param component the {@link OpenemsComponent}
+	 * @param channelId the {@link ChannelId}
 	 * @return the Channel
 	 */
 	public abstract <C extends Channel<?>> C createChannelInstance(OpenemsComponent component,
