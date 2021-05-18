@@ -9,7 +9,8 @@ public enum DelayChargeState implements OptionsEnum {
 	NO_REMAINING_CAPACITY(2, "No remaining capacity"), //
 	TARGET_MINUTE_NOT_CALCULATED(3, "Target minute not calculated"), //
 	NO_FEASABLE_SOLUTION(4, "Limit cannot be adapted because of other constraints with higher priority"), //
-	NO_CHARGE_LIMIT(5, "No active limitation"); //
+	NO_CHARGE_LIMIT(5, "No active limitation"), //
+	DISABLED(6, "Delay charge part is disabled"); //
 
 	private final int value;
 	private final String name;

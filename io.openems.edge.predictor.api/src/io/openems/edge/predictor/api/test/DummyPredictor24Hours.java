@@ -39,18 +39,19 @@ public class DummyPredictor24Hours extends AbstractPredictor24Hours implements P
 
 	@Override
 	protected Prediction24Hours createNewPrediction(ChannelAddress channelAddress) {
-		
+
 		ZonedDateTime now = ZonedDateTime.now(clockProvider.getClock()).withZoneSameInstant(ZoneOffset.UTC);
 		now = roundZonedDateTimeDownTo15Minutes(now);
-		
+
 		int quarterHourIndex = now.get(ChronoField.MINUTE_OF_DAY) / 15;
 		Integer[] values = this.prediction48Hours.getValues();
 		Integer[] adjustedValues = new Integer[Prediction24Hours.NUMBER_OF_VALUES];
-		
-		for (int i = quarterHourIndex, y = 0; i < quarterHourIndex + Prediction24Hours.NUMBER_OF_VALUES  && i < values.length; i++, y++) {
+
+		for (int i = quarterHourIndex, y = 0; i < quarterHourIndex + Prediction24Hours.NUMBER_OF_VALUES
+				&& i < values.length; i++, y++) {
 			adjustedValues[y] = values[i];
 		}
-		
+
 		return new Prediction24Hours(adjustedValues);
 	}
 

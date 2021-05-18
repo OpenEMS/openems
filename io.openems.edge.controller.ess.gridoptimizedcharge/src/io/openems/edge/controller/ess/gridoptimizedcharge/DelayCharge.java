@@ -41,7 +41,7 @@ public class DelayCharge {
 	 * charge value of the ESS, to get full at this calculated target minute
 	 * including a configured buffer.
 	 * 
-	 * @return result
+	 * @return Maximum charge power
 	 * @throws OpenemsNamedException on error
 	 */
 	protected Integer getPredictiveDelayChargeMaxCharge() throws OpenemsNamedException {
@@ -55,12 +55,11 @@ public class DelayCharge {
 	 * <p>
 	 * Limits the charge value of the ESS, to get full at the given target minute.
 	 * 
-	 * @return result
+	 * @return Maximum charge power
 	 * @throws OpenemsNamedException on error
 	 */
 	protected Integer getManualDelayChargeMaxCharge() throws OpenemsNamedException {
-		LocalTime configureTargetTime = LocalTime.parse(this.parent.config.manual_targetTime());
-		int targetMinute = configureTargetTime.get(ChronoField.MINUTE_OF_DAY);
+		int targetMinute = LocalTime.parse(this.parent.config.manual_targetTime()).get(ChronoField.MINUTE_OF_DAY);
 		return this.calculateDelayChargeMaxCharge(targetMinute);
 	}
 
@@ -99,7 +98,7 @@ public class DelayCharge {
 	 * 
 	 * @param targetMinute Minute when the production get's lower than the
 	 *                     consumption
-	 * @return result
+	 * @return Maximum charge power
 	 * @throws OpenemsNamedException on error
 	 */
 	private Integer calculateDelayChargeMaxCharge(Integer targetMinute) throws OpenemsNamedException {
@@ -164,7 +163,7 @@ public class DelayCharge {
 		Integer[] hourlyProduction = hourlyPredictionProduction.getValues();
 		Integer[] hourlyConsumption = hourlyPredictionConsumption.getValues();
 
-		// Displays the production values once.
+		// Displays the production values once, if debug mode is activated.
 		if (this.predictionDebugLog) {
 			this.parent.logDebug("Production: " + Arrays.toString(hourlyProduction));
 			this.parent.logDebug("Consumption: " + Arrays.toString(hourlyConsumption));

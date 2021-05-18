@@ -65,6 +65,7 @@ public class MyControllerTest {
 	private static final ChannelAddress ESS_HAS_NO_ACTIVE_POWER = new ChannelAddress(CTRL_ID, "EssHasNoActivePower");
 	private static final ChannelAddress ESS_HAS_NO_CAPACITY = new ChannelAddress(CTRL_ID, "EssHasNoCapacity");
 
+	// Sum channels
 	private static final ChannelAddress SUM_PRODUCTION_DC_ACTUAL_POWER = new ChannelAddress("_sum",
 			"ProductionDcActualPower");
 
@@ -676,5 +677,54 @@ public class MyControllerTest {
 		} catch (OpenemsException e) {
 			assertEquals(e.getMessage(), GridOptimizedCharge.ChannelId.ESS_HAS_NO_SOC.doc().getText());
 		}
+	}
+
+	@Test
+	public void mode_off_test() throws Exception {
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+
+		// Predictions
+		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+
+		// Predictors
+		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				productionPrediction, "_sum/ProductionActivePower");
+		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				consumptionPrediction, "_sum/ConsumptionActivePower");
+
+		// PredictorManager
+		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+				consumptionPredictor);
+
+		new ControllerTest(new GridOptimizedChargeImpl()) //
+				.addReference("predictorManager", predictorManager) //
+				.addReference("componentManager", cm) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", ESS) //
+				.addReference("meter", METER) //
+				.addReference("sum", new DummySum()) //
+				.activate(MyConfig.create() //
+						.setEssId(ESS_ID) //
+						.setId(CTRL_ID) //
+						.setMaximumSellToGridPower(7_000) //
+						.setMeterId(METER_ID) //
+						.setNoOfBufferMinutes(120) //
+						.setMode(Mode.OFF) //
+						.setSellToGridLimitEnabled(true) //
+						.setSellToGridLimitRampPercentage(5) //
+						.setManual_targetTime("") //
+						.build()) //
+				.next(new TestCase() //
+						.input(METER_ACTIVE_POWER, 0) //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(ESS_CAPACITY, 10_000) //
+						.input(ESS_SOC, 20) //
+						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.DISABLED) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.DISABLED) //
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, null) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null)); //
 	}
 }

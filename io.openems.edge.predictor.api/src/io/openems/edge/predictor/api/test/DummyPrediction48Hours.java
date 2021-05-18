@@ -10,12 +10,11 @@ import io.openems.edge.predictor.api.oneday.Prediction24Hours;
  * to _sum/ProductionGridActivePower, the value is in unit Watt and represents
  * the average Watt within a 15 minutes period.
  */
-public class DummyPrediction48Hours extends Prediction24Hours{
-
+public class DummyPrediction48Hours extends Prediction24Hours {
 
 	private final static int DUMMY_NUMBER_OF_VALUES = Prediction24Hours.NUMBER_OF_VALUES * 2;
 	private final Integer[] values = new Integer[DUMMY_NUMBER_OF_VALUES];
-	
+
 	/**
 	 * Holds a {@link DummyPrediction48Hours} with all values null.
 	 */

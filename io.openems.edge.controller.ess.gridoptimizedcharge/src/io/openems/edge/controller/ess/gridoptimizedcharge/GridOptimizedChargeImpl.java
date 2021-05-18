@@ -134,6 +134,8 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		 */
 		switch (this.config.mode()) {
 		case OFF:
+			this.delayCharge.setDelayChargeStateAndLimit(DelayChargeState.DISABLED, null);
+			this.sellToGridLimit.setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState.DISABLED, null);
 			return;
 		case AUTOMATIC:
 			sellToGridLimitMinChargePower = this.sellToGridLimit.getSellToGridLimit();
@@ -200,6 +202,16 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	/**
+	 * Calculating the AC limit.
+	 * 
+	 * <p>
+	 * Calculating the maximum charge power in AC systems and the maximum discharge
+	 * power in DC systems as inverter setpoint.
+	 * 
+	 * @param delayChargeMaxChargePower maximum charge power of the battery
+	 * @return Maximum power to is allowed to charged(AC) or discharged(DC)
+	 */
 	private int calculateDelayChargeAcLimit(int delayChargeMaxChargePower) {
 
 		// Calculate AC-Setpoint depending on the DC production
