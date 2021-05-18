@@ -14,7 +14,6 @@ export class ConsumptionComponent extends AbstractFlatWidget {
   public sumActivePower: number;
   public evcsChargePower: any[] = [];
   public otherPower: number;
-  public channelAddresses: ChannelAddress[] = [];
   public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
   protected getChannelAddresses() {
