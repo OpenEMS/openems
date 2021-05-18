@@ -282,20 +282,17 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
         */
-  public CONVERT_WATT_TO_KILOWATT = (value: any): string => {
+  public static CONVERT_WATT_TO_KILOWATT = (value: any): string => {
     if (value == null) {
-      return '-'
+      return '-';
     }
     let thisValue: number = (value / 1000);
 
-    if (thisValue > 0) {
-      return formatNumber(thisValue, 'de', '1.0-1') + ' kW'
-    } else if (thisValue == 0) {
-      return thisValue + ' kW';
+    if (thisValue >= 0) {
+      return formatNumber(thisValue, 'de', '1.0-1') + ' kW';
     } else {
-      return '-'
+      return '0 kW';
     }
-
   }
 
   /**

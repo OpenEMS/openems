@@ -1,4 +1,4 @@
-import { ChannelAddress, CurrentData, Edge, EdgeConfig } from '../../../../shared/shared';
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../../shared/shared';
 import { ConsumptionModalComponent } from './modal/modal.component';
 import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
 import { Component } from '@angular/core';
@@ -8,19 +8,23 @@ import { Component } from '@angular/core';
   templateUrl: './consumption.component.html'
 })
 export class ConsumptionComponent extends AbstractFlatWidget {
-  public config: EdgeConfig = null;
-  public edge: Edge = null;
-  public channelAddresses: ChannelAddress[] = [];
+
   public evcsComponents: EdgeConfig.Component[] | null = null;
   public consumptionMeterComponents: EdgeConfig.Component[] = null;
   public sumActivePower: number;
   public evcsChargePower: any[] = [];
   public otherPower: number;
+  public channelAddresses: ChannelAddress[] = [];
+  public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
   protected getChannelAddresses() {
-    let channelAddresses: ChannelAddress[] = [new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
-    new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
-    new ChannelAddress('_sum', 'ConsumptionActivePowerL3')]
+
+    // TODO should be moved to modal
+    let channelAddresses: ChannelAddress[] = [
+      new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
+      new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
+      new ChannelAddress('_sum', 'ConsumptionActivePowerL3')
+    ]
 
     // Get consumptionMeterComponents
     this.consumptionMeterComponents = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED');
@@ -37,7 +41,6 @@ export class ConsumptionComponent extends AbstractFlatWidget {
         new ChannelAddress(component.id, 'ChargePower'),
       )
     }
-
     return channelAddresses;
   }
 
@@ -54,6 +57,7 @@ export class ConsumptionComponent extends AbstractFlatWidget {
     })
     this.otherPower = this.sumActivePower - this.getTotalOtherPower();
   }
+
   public getTotalOtherPower(): number {
     return this.currentTotalChargingPower() + this.currentTotalConsumptionMeterPower();
   }
@@ -76,13 +80,20 @@ export class ConsumptionComponent extends AbstractFlatWidget {
     });
     return sum;
   }
+
   async presentModal() {
     const modal = await this.modalController.create({
       component: ConsumptionModalComponent,
       componentProps: {
         edge: this.edge,
+        evcsComponents: this.evcsComponents,
+        consumptionMeterComponents: this.consumptionMeterComponents,
+        currentTotalChargingPower: this.currentTotalChargingPower,
+        currentTotalConsumptionMeterPower: this.currentTotalConsumptionMeterPower,
+        sumOfChannel: this.sumOfChannel,
+        getTotalOtherPower: this.getTotalOtherPower,
       }
-
-    })
+    });
+    return await modal.present();
   }
 }
