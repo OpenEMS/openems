@@ -281,7 +281,7 @@ export class Utils {
    * 
    * @param value the value from passed value in html
    * @returns converted value
-        */
+   */
   public static CONVERT_WATT_TO_KILOWATT = (value: any): string => {
     if (value == null) {
       return '-';
