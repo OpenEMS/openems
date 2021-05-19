@@ -1,51 +1,49 @@
-import { ActivatedRoute } from '@angular/router';
 import { Component } from '@angular/core';
-import { Edge, Service, Utils } from '../../../shared/shared';
-import { ModalController } from '@ionic/angular';
 import { SelfconsumptionModalComponent } from './modal/modal.component';
+import { AbstractFlatWidget } from '../flat/abstract-flat-widget';
+import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 
 @Component({
     selector: 'selfconsumption',
     templateUrl: './selfconsumption.component.html'
 })
-export class SelfConsumptionComponent {
+export class SelfConsumptionComponent extends AbstractFlatWidget {
 
+    private static readonly SUM_GRID_ACTIVE_POWER: ChannelAddress = new ChannelAddress('_sum', 'GridActivePower')
+    private static readonly SUM_PRODUCTION_ACTIVE_POWER: ChannelAddress = new ChannelAddress('_sum', 'ProductionActivePower')
+    public percentageValue: number;
 
-    public edge: Edge = null;
+    protected getChannelAddresses() {
+        return [SelfConsumptionComponent.SUM_GRID_ACTIVE_POWER, SelfConsumptionComponent.SUM_PRODUCTION_ACTIVE_POWER]
+    }
 
-    constructor(
-        private route: ActivatedRoute,
-        public modalCtrl: ModalController,
-        public service: Service,
-    ) { }
+    protected onCurrentData(currentData: CurrentData) {
+        this.percentageValue = this.calculateSelfConsumption(
+            currentData.allComponents[SelfConsumptionComponent.SUM_GRID_ACTIVE_POWER.toString()],
+            currentData.allComponents[SelfConsumptionComponent.SUM_PRODUCTION_ACTIVE_POWER.toString()])
+    }
 
-    ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
-            this.edge = edge;
-        });
-        let x = Math.max(
-            Utils.orElse(
-                (
-                    1 - (
-                        Utils.divideSafely(
-                            Utils.orElse(0, 0), (
-                            Math.max(Utils.orElse(1600, 0), 0)
-                        )
-                        )
-                    )
-                ) * 100, 0
-            ), 0)
-        let y = (
-            Utils.divideSafely(
-                Utils.orElse(0, 0), (
-                Math.max(Utils.orElse(1600, 0), 0)
-            )
-            )
-        )
+    public calculateSelfConsumption(sellToGrid: number, productionActivePower: number): number | null {
+        if (sellToGrid != null && productionActivePower != null) {
+            if (productionActivePower <= 0) {
+                /* avoid divide by zero; production == 0 -> selfconsumption 0 % */
+                return null;
+            } else {
+                if (sellToGrid < 0) {
+                    return /* min 0 */ Math.max(0,
+                        /* calculate selfconsumption */
+                        (1 - sellToGrid * -1 / productionActivePower) * 100)
+                } else {
+                    return 100
+                }
+            }
+        } else {
+            return null;
+        }
     }
 
     async presentModal() {
-        const modal = await this.modalCtrl.create({
+        const modal = await this.modalController.create({
             component: SelfconsumptionModalComponent,
         });
         return await modal.present();
