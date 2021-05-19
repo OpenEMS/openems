@@ -21,16 +21,17 @@ export class ConsumptionComponent extends AbstractFlatWidget {
 
     let channelAddresses: ChannelAddress[] = [
       new ChannelAddress('_sum', 'ConsumptionActivePower'),
-      new ChannelAddress('_sum', 'ConsumptionChargePower'),
 
-      // TODO should be moved to modal
+      // TODO should be moved to Modal
       new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
       new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
       new ChannelAddress('_sum', 'ConsumptionActivePowerL3')
     ]
 
     // Get consumptionMeterComponents
-    this.consumptionMeterComponents = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED');
+    this.consumptionMeterComponents = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+      .filter(component => component.properties['type'] == 'CONSUMPTION_METERED');
+
     for (let component of this.consumptionMeterComponents) {
       channelAddresses.push(
         new ChannelAddress(component.id, 'ActivePower'),
@@ -70,7 +71,8 @@ export class ConsumptionComponent extends AbstractFlatWidget {
       }
     }
 
-    this.otherPower = this.sumActivePower - (this.evcsSumOfChargePower + this.consumptionMetersSumOfActivePower);
+    this.otherPower = Utils.subtractSafely(this.sumActivePower,
+      Utils.addSafely(this.evcsSumOfChargePower, this.consumptionMetersSumOfActivePower));
   }
 
   async presentModal() {
