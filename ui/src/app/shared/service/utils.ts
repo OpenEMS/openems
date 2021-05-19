@@ -1,8 +1,99 @@
-import { formatNumber } from '@angular/common';
+import { Injectable } from '@angular/core';
 
+@Injectable()
 export class Utils {
 
+  /**
+   * Promise with timeout
+   * Source: https://italonascimento.github.io/applying-a-timeout-to-your-promises/
+   */
+  public static timeoutPromise = function (ms, promise) {
+    // Create a promise that rejects in <ms> milliseconds
+    let timeout = new Promise((resolve, reject) => {
+      let id = setTimeout(() => {
+        clearTimeout(id);
+        reject('Timed out in ' + ms + 'ms.')
+      }, ms)
+    })
+
+    // Returns a race between our timeout and the passed in promise
+    return Promise.race([
+      promise,
+      timeout
+    ])
+  }
+
   constructor() { }
+
+  /**
+   * Helps to use an object inside an *ngFor loop. Returns the object keys.
+   * Source: https://stackoverflow.com/a/39896058
+   */
+  public keys(object: {}): string[] {
+    return Object.keys(object);
+  }
+
+  /**
+   * Helps to use an object inside an *ngFor loop. Returns the object key value pairs.
+   */
+  public keyvalues(object: {}): any[] | {} {
+    if (!object) {
+      return object;
+    }
+    let keyvalues = [];
+    for (let key in object) {
+      keyvalues.push({ key: key, value: object[key] });
+    }
+    return keyvalues;
+  }
+
+  /**
+   * Helps to use an object inside an *ngFor loop. Returns the object values.
+   * Source: https://stackoverflow.com/a/39896058
+   */
+  public values(object: {}): any[] {
+    let values = [];
+    for (let key in object) {
+      values.push(object[key]);
+    }
+    return values;
+  }
+
+  /**
+   * Returns true if an object has a property
+   */
+  public has(object: {}, property: string): boolean {
+    if (property in object) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Returns a sorted array
+   */
+  public sort(obj: any[], ascending: boolean = true, property?: string) {
+    if (obj == null) {
+      return obj;
+    }
+    return obj.sort((a, b) => {
+      if (property) {
+        a = a[property];
+        b = b[property];
+      }
+      let result = 0;
+      if (a > b) {
+        result = 1;
+      } else if (a < b) {
+        result = -1;
+      }
+      if (!ascending) {
+        result *= -1;
+      }
+      return result;
+    })
+  }
 
   /**
    * Returns true for last element of array
@@ -11,6 +102,14 @@ export class Utils {
    */
   public static isLastElement(element, array: any[]) {
     return element == array[array.length - 1];
+  }
+
+  /**
+   * Returns the short classname
+   */
+  public classname(value): string {
+    let parts = value.split(".");
+    return parts[parts.length - 1];
   }
 
   /**
@@ -95,6 +194,7 @@ export class Utils {
       return v1 - v2;
     }
   }
+
   /**
    * Safely divides two - possibly 'null' - values: v1 / v2
    * 
@@ -182,15 +282,15 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_WATT_TO_KILOWATT = (value: any): string => {
-    if (value == null) {
-      return '-';
-    }
-    let thisValue: number = (value / 1000);
-
-    if (thisValue >= 0) {
-      return formatNumber(thisValue, 'de', '1.0-1') + ' kW';
+    if (value >= 0) {
+      let thisValue = (value / 1000);
+      if (thisValue.toFixed(1).endsWith('0')) {
+        return Math.round(thisValue).toString() + ' kW';
+      } else {
+        return thisValue.toFixed(1).replace('.', ',') + ' kW';
+      }
     } else {
-      return '0 kW';
+      return 0 + ' kW';
     }
   }
 
