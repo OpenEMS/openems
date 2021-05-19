@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { SelfconsumptionModalComponent } from './modal/modal.component';
-import { AbstractFlatWidget } from '../flat/abstract-flat-widget';
+import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 
 @Component({
