@@ -11,14 +11,14 @@ export class SelfConsumptionComponent extends AbstractFlatWidget {
 
     private static readonly SUM_GRID_ACTIVE_POWER: ChannelAddress = new ChannelAddress('_sum', 'GridActivePower')
     private static readonly SUM_PRODUCTION_ACTIVE_POWER: ChannelAddress = new ChannelAddress('_sum', 'ProductionActivePower')
-    public percentageValue: number;
+    public calculatedSelfConsumption: number;
 
     protected getChannelAddresses() {
         return [SelfConsumptionComponent.SUM_GRID_ACTIVE_POWER, SelfConsumptionComponent.SUM_PRODUCTION_ACTIVE_POWER]
     }
 
     protected onCurrentData(currentData: CurrentData) {
-        this.percentageValue = this.calculateSelfConsumption(
+        this.calculatedSelfConsumption = this.calculateSelfConsumption(
             currentData.allComponents[SelfConsumptionComponent.SUM_GRID_ACTIVE_POWER.toString()],
             currentData.allComponents[SelfConsumptionComponent.SUM_PRODUCTION_ACTIVE_POWER.toString()])
     }
