@@ -30,15 +30,7 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 		TARGET_MINUTE(Doc.of(OpenemsType.INTEGER) //
 				.text("Target minute independent of the current mode Manual and Automatic.")),
 		DELAY_CHARGE_NEGATIVE_LIMIT(Doc.of(Level.INFO) //
-				.text("System would be charged from the grid under these constraints.")), //
-		ESS_HAS_NO_APPARENT_POWER(Doc.of(Level.INFO) //
-				.text("Apparent power of the configured ess is empty.")), //
-		ESS_HAS_NO_ACTIVE_POWER(Doc.of(Level.FAULT) //
-				.text("Active power of the configured ess is empty.")), //
-		ESS_HAS_NO_SOC(Doc.of(Level.FAULT) //
-				.text("State of charge of the configured ess is empty.")), //
-		ESS_HAS_NO_CAPACITY(Doc.of(Level.FAULT) //
-				.text("Capacity of the configured ess is empty. An Update of OpenEMS could help.")), //
+				.text("System would be charged from the grid under these constraints.")) //
 		;
 
 		private final Doc doc;

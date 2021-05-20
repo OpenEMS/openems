@@ -1,15 +1,11 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 
 import org.junit.Test;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -59,11 +55,6 @@ public class MyControllerTest {
 			"DelayChargeMaximumChargeLimit");
 	private static final ChannelAddress SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT = new ChannelAddress(CTRL_ID,
 			"SellToGridLimitMinimumChargeLimit");
-	private static final ChannelAddress ESS_HAS_NO_APPARENT_POWER = new ChannelAddress(CTRL_ID,
-			"EssHasNoApparentPower");
-	private static final ChannelAddress ESS_HAS_NO_SOC = new ChannelAddress(CTRL_ID, "EssHasNoSoc");
-	private static final ChannelAddress ESS_HAS_NO_ACTIVE_POWER = new ChannelAddress(CTRL_ID, "EssHasNoActivePower");
-	private static final ChannelAddress ESS_HAS_NO_CAPACITY = new ChannelAddress(CTRL_ID, "EssHasNoCapacity");
 
 	// Sum channels
 	private static final ChannelAddress SUM_PRODUCTION_DC_ACTUAL_POWER = new ChannelAddress("_sum",
@@ -166,7 +157,7 @@ public class MyControllerTest {
 						.setMode(Mode.AUTOMATIC) //
 						.setSellToGridLimitEnabled(true) //
 						.setSellToGridLimitRampPercentage(5) //
-						.setManual_targetTime("") //
+						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, 0) //
@@ -221,7 +212,7 @@ public class MyControllerTest {
 						.setMode(Mode.AUTOMATIC) //
 						.setSellToGridLimitEnabled(true) //
 						.setSellToGridLimitRampPercentage(5) //
-						.setManual_targetTime("") //
+						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, 0) //
@@ -276,7 +267,7 @@ public class MyControllerTest {
 						.setMode(Mode.AUTOMATIC) //
 						.setSellToGridLimitEnabled(true) //
 						.setSellToGridLimitRampPercentage(5) //
-						.setManual_targetTime("") //
+						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase()) //
 				.next(new TestCase() //
@@ -329,7 +320,7 @@ public class MyControllerTest {
 						.setMode(Mode.AUTOMATIC) //
 						.setSellToGridLimitEnabled(true) //
 						.setSellToGridLimitRampPercentage(5) //
-						.setManual_targetTime("") //
+						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, 0) //
@@ -372,7 +363,7 @@ public class MyControllerTest {
 						.setMode(Mode.AUTOMATIC) //
 						.setSellToGridLimitEnabled(true) //
 						.setSellToGridLimitRampPercentage(5) //
-						.setManual_targetTime("") //
+						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -7500) //
@@ -464,7 +455,7 @@ public class MyControllerTest {
 						.setNoOfBufferMinutes(120) //
 						.setMode(Mode.MANUAL) //
 						.setSellToGridLimitEnabled(true) //
-						.setManual_targetTime("17:00") //
+						.setManualTargetTime("17:00") //
 						.setSellToGridLimitRampPercentage(5) //
 						.build()) //
 				.next(new TestCase() //
@@ -518,7 +509,7 @@ public class MyControllerTest {
 						.setNoOfBufferMinutes(120) //
 						.setMode(Mode.MANUAL) //
 						.setSellToGridLimitEnabled(true) //
-						.setManual_targetTime("17:00") //
+						.setManualTargetTime("17:00") //
 						.setSellToGridLimitRampPercentage(5) //
 						.build()) //
 				.next(new TestCase() //
@@ -573,7 +564,7 @@ public class MyControllerTest {
 						.setNoOfBufferMinutes(120) //
 						.setMode(Mode.MANUAL) //
 						.setSellToGridLimitEnabled(true) //
-						.setManual_targetTime("17:00") //
+						.setManualTargetTime("17:00") //
 						.setSellToGridLimitRampPercentage(5) //
 						.build()) //
 				.next(new TestCase() //
@@ -587,96 +578,6 @@ public class MyControllerTest {
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 0) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 1600));
 
-	}
-
-	@Test
-	public void exception_test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
-
-		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
-
-		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
-
-		// PredictorManager
-		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
-
-		ControllerTest controller = new ControllerTest(new GridOptimizedChargeImpl()) //
-				.addReference("predictorManager", predictorManager) //
-				.addReference("componentManager", cm) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("ess", ESS) //
-				.addReference("meter", METER) //
-				.addReference("sum", new DummySum()) //
-				.activate(MyConfig.create() //
-						.setEssId(ESS_ID) //
-						.setId(CTRL_ID) //
-						.setMaximumSellToGridPower(7_000) //
-						.setMeterId(METER_ID) //
-						.setNoOfBufferMinutes(120) //
-						.setMode(Mode.MANUAL) //
-						.setSellToGridLimitEnabled(true) //
-						.setManual_targetTime("17:00") //
-						.setSellToGridLimitRampPercentage(5) //
-						.build()); //
-
-		try {
-			controller.next(new TestCase() //
-					.input(ESS_MAX_APPARENT_POWER, null) //
-					.input(ESS_ACTIVE_POWER, -2000) //
-					.input(ESS_CAPACITY, 10_000) //
-					.input(ESS_SOC, 50) //
-					.output(ESS_HAS_NO_APPARENT_POWER, true) //
-					.output(ESS_HAS_NO_ACTIVE_POWER, false) //
-					.output(ESS_HAS_NO_CAPACITY, false) //
-					.output(ESS_HAS_NO_SOC, false)); //
-			fail();
-		} catch (OpenemsException e) {
-			assertEquals(e.getMessage(), GridOptimizedCharge.ChannelId.ESS_HAS_NO_APPARENT_POWER.doc().getText());
-		}
-
-		try {
-			controller.next(new TestCase() //
-					.input(ESS_MAX_APPARENT_POWER, 10_000) //
-					.input(ESS_ACTIVE_POWER, null) //
-					.input(ESS_CAPACITY, 10_000) //
-					.input(ESS_SOC, 50) //
-					.output(ESS_HAS_NO_ACTIVE_POWER, true)); //
-			fail();
-		} catch (OpenemsException e) {
-			assertEquals(e.getMessage(), GridOptimizedCharge.ChannelId.ESS_HAS_NO_ACTIVE_POWER.doc().getText());
-		}
-
-		try {
-			controller.next(new TestCase() //
-					.input(ESS_MAX_APPARENT_POWER, 10_000) //
-					.input(ESS_ACTIVE_POWER, -2000) //
-					.input(ESS_CAPACITY, null) //
-					.input(ESS_SOC, 50) //
-					.output(ESS_HAS_NO_CAPACITY, true)); //
-			fail();
-		} catch (OpenemsException e) {
-			assertEquals(e.getMessage(), GridOptimizedCharge.ChannelId.ESS_HAS_NO_CAPACITY.doc().getText());
-		}
-
-		try {
-			controller.next(new TestCase() //
-					.input(ESS_MAX_APPARENT_POWER, 10_000) //
-					.input(ESS_ACTIVE_POWER, -2000) //
-					.input(ESS_CAPACITY, 10_000) //
-					.input(ESS_SOC, null) //
-					.output(ESS_HAS_NO_SOC, true)); //
-			fail();
-		} catch (OpenemsException e) {
-			assertEquals(e.getMessage(), GridOptimizedCharge.ChannelId.ESS_HAS_NO_SOC.doc().getText());
-		}
 	}
 
 	@Test
@@ -714,7 +615,7 @@ public class MyControllerTest {
 						.setMode(Mode.OFF) //
 						.setSellToGridLimitEnabled(true) //
 						.setSellToGridLimitRampPercentage(5) //
-						.setManual_targetTime("") //
+						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, 0) //

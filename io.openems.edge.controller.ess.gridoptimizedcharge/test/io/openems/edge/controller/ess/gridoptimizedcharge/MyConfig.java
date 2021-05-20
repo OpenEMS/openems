@@ -12,7 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public int maximumSellToGridPower;
 		public int noOfBufferMinutes;
 		public Mode mode;
-		public String manual_targetTime;
+		public String manualTargetTime;
 		public boolean sellToGridLimitEnabled;
 		public int sellToGridLimitRampPercentage;
 
@@ -54,8 +54,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setManual_targetTime(String manual_targetTime) {
-			this.manual_targetTime = manual_targetTime;
+		public Builder setManualTargetTime(String manualTargetTime) {
+			this.manualTargetTime = manualTargetTime;
 			return this;
 		}
 
@@ -126,8 +126,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String manual_targetTime() {
-		return this.builder.manual_targetTime;
+	public String manualTargetTime() {
+		return this.builder.manualTargetTime;
 	}
 
 	@Override

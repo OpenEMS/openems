@@ -8,16 +8,11 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -25,7 +20,6 @@ import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 
@@ -47,7 +41,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	private SellToGridLimit sellToGridLimit;
 
 	@Reference
-	protected Sum sum;
+	private Sum sum;
 
 	@Reference
 	protected PredictorManager predictorManager;
@@ -56,12 +50,10 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	protected ComponentManager componentManager;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected ManagedSymmetricEss ess;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected SymmetricMeter meter;
 
 	public GridOptimizedChargeImpl() {
@@ -73,13 +65,13 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.updateConfig(config);
 	}
 
 	@Modified
-	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.updateConfig(config);
 	}
@@ -181,7 +173,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		if (sellToGridLimitIsDefined && delayChargeIsDefined) {
 			if (sellToGridLimitMinChargePower <= delayChargeMaxChargePower) {
 
-				this.setActivePowerConstraint(sellToGridLimitMinChargePower, Relationship.EQUALS);
+				this.ess.setActivePowerEquals(sellToGridLimitMinChargePower);
 				this.delayCharge.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
 				this.sellToGridLimit.setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState.ACTIVE_LIMIT_FIXED,
 						sellToGridLimitMinChargePower);
@@ -219,60 +211,6 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		delayChargeMaxChargePower = productionDcPower - delayChargeMaxChargePower;
 
 		return delayChargeMaxChargePower;
-	}
-
-	/**
-	 * Set active power constraint.
-	 * 
-	 * <p>
-	 * Sets an active power constraint depending on the given power limit and
-	 * relationship.
-	 * 
-	 * @param currentLimit limit that needs to be set
-	 * @param relationship Relationship of the limit
-	 * @return was the constraint successfully set
-	 * 
-	 */
-	protected boolean setActivePowerConstraint(int currentLimit, Relationship relationship) {
-		try {
-			// Set the constraints and the according channels for testing
-			switch (relationship) {
-			case EQUALS:
-				this.ess.setActivePowerEquals(currentLimit);
-				break;
-			case GREATER_OR_EQUALS:
-				this.ess.setActivePowerGreaterOrEquals(currentLimit);
-				break;
-			case LESS_OR_EQUALS:
-				this.ess.setActivePowerLessOrEquals(currentLimit);
-				break;
-			}
-			return true;
-		} catch (OpenemsNamedException e) {
-			return false;
-		}
-	}
-
-	/**
-	 * Get the int value of the given Channel value.
-	 * 
-	 * <p>
-	 * Set StateChannel's and throws OpenemsException if the value is not defined.
-	 * 
-	 * @param value        Channel value
-	 * @param stateChannel state channel that should be set
-	 * @return int value
-	 * @throws OpenemsException on null value
-	 */
-	protected int getIntValueOrSetStateAndException(Value<Integer> value,
-			io.openems.edge.common.channel.ChannelId stateChannel) throws OpenemsException {
-		if (!value.isDefined()) {
-			this.channel(stateChannel).setNextValue(true);
-			this.logDebug(stateChannel.doc().getText());
-			throw new OpenemsException(stateChannel.doc().getText());
-		}
-		this.channel(stateChannel).setNextValue(false);
-		return value.get();
 	}
 
 	protected void logDebug(String message) {
