@@ -578,10 +578,18 @@ public class JsonUtils {
 	 */
 	public static boolean getAsBoolean(JsonElement jElement) throws OpenemsNamedException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement);
-		if (!jPrimitive.isBoolean()) {
-			throw OpenemsError.JSON_NO_BOOLEAN.exception(jPrimitive.toString().replaceAll("%", "%%"));
+		if (jPrimitive.isBoolean()) {
+			return jPrimitive.getAsBoolean();
 		}
-		return jPrimitive.getAsBoolean();
+		if (jPrimitive.isString()) {
+			String element = jPrimitive.getAsString();
+			if (element.equalsIgnoreCase("false")) {
+				return false;
+			} else if (element.equalsIgnoreCase("true")) {
+				return true;
+			}
+		}
+		throw OpenemsError.JSON_NO_BOOLEAN.exception(jPrimitive.toString().replaceAll("%", "%%"));
 	}
 
 	/**
