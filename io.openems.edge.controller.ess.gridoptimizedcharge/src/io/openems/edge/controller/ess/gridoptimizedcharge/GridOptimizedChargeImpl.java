@@ -52,8 +52,10 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	@Reference
 	private ConfigurationAdmin cm;
 
+	@Reference
 	protected ManagedSymmetricEss ess;
 
+	@Reference
 	protected SymmetricMeter meter;
 
 	public GridOptimizedChargeImpl() {
