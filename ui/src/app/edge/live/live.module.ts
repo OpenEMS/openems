@@ -24,12 +24,9 @@ import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
 import { EvcsComponent } from './evcs/evcs.component';
 import { EvcsModalComponent } from './evcs/modal/modal.page';
 import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
-import { FlatModalComponent } from './flat/modal/flat-modal';
-import { FlatModalLineComponent } from './flat/modal/modal-line/flat-modal-line';
 import { FlatWidgetComponent } from './flat/flat-widget.component';
 import { FlatWidgetHorizontalLine } from './flat/flat-widget-line/flat-widget-horizontal-line';
 import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
-import { ModalLineText } from './flat/modal/modal-line-text/modal-line-text';
 import { FlatWidgetPercentagebar } from './flat/flat-widget-line/flat-widget-percentagebar';
 import { GridComponent } from './grid/grid.component';
 import { GridModalComponent } from './grid/modal/modal.component';
@@ -39,7 +36,10 @@ import { HeatPumpComponent } from './heatpump/heatpump.component';
 import { HeatPumpModalComponent } from './heatpump/modal/modal.component';
 import { InfoComponent } from './info/info.component';
 import { LiveComponent } from './live.component';
+import { ModalComponent } from './flat/modal/modal';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
+import { ModalLineComponent } from './flat/modal/modal-line/modal-line';
+import { ModalLineText } from './flat/modal/modal-line-text/modal-line-for-info-text';
 import { NgModule } from '@angular/core';
 import { OfflineComponent } from './offline/offline.component';
 import { ProductionComponent } from './production/production.component';
@@ -63,6 +63,7 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     EnergymonitorModule,
     SharedModule,
   ],
+
   entryComponents: [
     AdministrationComponent,
     AsymmetricPeakshavingModalComponent,
@@ -78,17 +79,17 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     DigitalInputModalComponent,
     EvcsModalComponent,
     EvcsPopoverComponent,
-    FlatModalComponent,
-    FlatModalLineComponent,
     FlatWidgetComponent,
     FlatWidgetHorizontalLine,
-    ModalLineText,
     FlatWidgetLine,
     FlatWidgetPercentagebar,
     GridModalComponent,
     HeatingElementModalComponent,
     HeatPumpModalComponent,
+    ModalComponent,
     ModalComponentEvcsCluster,
+    ModalLineComponent,
+    ModalLineText,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
     SinglethresholdModalComponent,
@@ -107,7 +108,6 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     ChpsocModalComponent,
     ConsumptionComponent,
     ConsumptionModalComponent,
-    ModalLineText,
     Controller_Ess_FixActivePower,
     Controller_Ess_FixActivePowerModalComponent,
     Controller_Io_FixDigitalOutput,
@@ -121,8 +121,6 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     EvcsComponent,
     EvcsModalComponent,
     EvcsPopoverComponent,
-    FlatModalComponent,
-    FlatModalLineComponent,
     FlatWidgetComponent,
     FlatWidgetHorizontalLine,
     FlatWidgetLine,
@@ -135,7 +133,10 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     HeatPumpModalComponent,
     InfoComponent,
     LiveComponent,
+    ModalComponent,
     ModalComponentEvcsCluster,
+    ModalLineComponent,
+    ModalLineText,
     OfflineComponent,
     ProductionComponent,
     ProductionModalComponent,

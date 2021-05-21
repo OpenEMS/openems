@@ -4,10 +4,10 @@ import { AbstractFlatWidgetLine } from "../../flat-widget-line/abstract-flat-wid
 
 
 @Component({
-    selector: 'oe-flat-modal-line',
-    templateUrl: './flat-modal-line.html',
+    selector: 'oe-modal-line',
+    templateUrl: './modal-line.html',
 })
-export class FlatModalLineComponent extends AbstractFlatWidgetLine {
+export class ModalLineComponent extends AbstractFlatWidgetLine {
     /** Name for parameter, displayed on the left side*/
     @Input()
     name: string;

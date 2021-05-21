@@ -6,7 +6,7 @@ import { Icon } from "src/app/shared/type/widget";
  */
 @Component({
     selector: 'oe-modal-line-text',
-    templateUrl: './modal-line-text.html'
+    templateUrl: './modal-line-for-info-text.html'
 })
 export class ModalLineText {
 

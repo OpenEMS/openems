@@ -1,0 +1,15 @@
+<ng-container>
+    <ion-header>
+        <ion-toolbar color="primary">
+            <ion-title translate>{{title}}</ion-title>
+            <ion-buttons slot="end">
+                <ion-button (click)="modalCtrl.dismiss()">
+                    <ion-icon name="close-outline" size="medium" color="light"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-toolbar>
+    </ion-header>
+    <ion-content scrollbar='you_custom_scrollbar_style'>
+        <ng-content></ng-content>
+    </ion-content>
+</ng-container>

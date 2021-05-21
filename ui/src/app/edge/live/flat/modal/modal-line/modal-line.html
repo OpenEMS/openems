@@ -1,13 +1,13 @@
-<table class="full_width"
+<table class="full_width" style="line-height: 1.4;"
     [ngStyle]="indentation_from_left == 'simple' && {'text-indent': '2em'} || indentation_from_left == 'double' && {'text-indent': '5em'}">
     <ng-container>
         <tr>
             <!-- Name of Parameter on the left side -->
-            <td style="width:62.5%" class="align_left">
+            <td style="width:60%; padding-left: 5%;" class="align_left">
                 <ng-container *ngIf="name">{{ name }}</ng-container>
             </td>
             <!-- Value of Parameter on the right side -->
-            <td style="width:32.5%" class="align_right">
+            <td style="width:30%; padding-right: 5%;" class="align_right">
                 <ng-container *ngIf="displayValue">{{ displayValue }}</ng-container>
             </td>
         </tr>
