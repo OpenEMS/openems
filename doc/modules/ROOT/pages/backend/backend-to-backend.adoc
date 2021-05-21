@@ -9,7 +9,11 @@
 :source-highlighter: highlight.js
 :icons: font
 
-OpenEMS Backend provides two "Backend-to-Backend-Api" implementations, that provide a way to communicate with one or more OpenEMS Edge devices via backend connection. They are designed using the JSON-RPC communication protocol via REST/JSON (_io.openems.backend.b2brest_) or via Websocket (_io.openems.backend.b2bwebsocket_) connection.
+FEMS Backend provides two "Backend-to-Backend-Api" implementations, that provide a way to communicate with one or more FEMS devices via backend connection. They are designed using the JSON-RPC communication protocol via REST/JSON (_io.openems.backend.b2brest_) or via Websocket (_io.openems.backend.b2bwebsocket_) connection.
+
+== Base URLs
+
+The base URL for REST/JSON Api is https://fenecon.de/fems/rest/jsonrpc. For Websocket/JSON use the base URL https://fenecon.de/fems-backend-to-backend.
 
 == Authentication
 

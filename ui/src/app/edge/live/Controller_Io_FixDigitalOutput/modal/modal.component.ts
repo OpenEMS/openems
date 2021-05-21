@@ -14,7 +14,7 @@ export class Controller_Io_FixDigitalOutputModalComponent {
   @Input() public component: EdgeConfig.Component;
 
   constructor(
-    protected service: Service,
+    public service: Service,
     protected translate: TranslateService,
     public modalCtrl: ModalController,
     public router: Router,

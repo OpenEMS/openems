@@ -1,0 +1,19 @@
+<!-- TODO: encapsulate data for different partners -->
+<ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+        <ion-card>
+            <ion-item lines="full" color="light">
+                <img style="width: 175px" src="assets/img/wegatech-logo-vector.svg">
+            </ion-item>
+            <ion-card-content *ngIf="currentData.summary as sum">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 100%">
+                            &nbsp;
+                        </td>
+                    </tr>
+                </table>
+            </ion-card-content>
+        </ion-card>
+    </ng-container>
+</ng-container>

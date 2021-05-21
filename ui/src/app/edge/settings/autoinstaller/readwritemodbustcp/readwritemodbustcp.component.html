@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-toolbar class="ion-justify-content-center" color="primary">
+    <ion-title>Installations-Status</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="modalCtrl.dismiss()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-card-content *ngIf="loading == false && showInit == true">
+    <ion-grid>
+      <ion-card-title class="ion-text-center">Möchten Sie die Modbus/TCP lesend/schreibend App wirklich installieren?
+      </ion-card-title>
+      <ion-row class="ion-justify-content-center">
+        <ion-button (click)="startInstallation()">Ok</ion-button>
+        <ion-button (click)="modalCtrl.dismiss()">Abbrechen</ion-button>
+      </ion-row>
+    </ion-grid>
+  </ion-card-content>
+
+  <ion-card-content *ngIf="installing == true">
+    <ion-grid>
+      <ion-row class="ion-justify-content-center">
+        <ion-note>{{ progressPercentage * 100 }}%</ion-note>
+      </ion-row>
+      <ion-progress-bar [value]="progressPercentage"></ion-progress-bar>
+      <ion-row *ngFor="let string of loadingStrings" class="ion-justify-content-center">
+        <ion-item lines="none" class="ion-no-padding">
+          <ion-label class="ion-text-center">{{ string.string }}
+          </ion-label>
+          <ng-container [ngSwitch]="string.type">
+            <ion-icon *ngSwitchCase="'success'" color="success" name="checkmark-circle-outline"></ion-icon>
+            <ion-icon *ngSwitchCase="'setup'" color="success" name="information-outline"></ion-icon>
+            <ion-icon *ngSwitchCase="'danger'" color="danger" name="alert-outline"></ion-icon>
+          </ng-container>
+        </ion-item>
+      </ion-row>
+    </ion-grid>
+  </ion-card-content>
+
+  <ion-card-content *ngIf="running == true">
+    <ion-text class="ion-text-center ion-padding-top">
+      <h2>App wurde korrekt installiert und läuft ohne Fehler</h2>
+    </ion-text>
+  </ion-card-content>
+
+</ion-content>

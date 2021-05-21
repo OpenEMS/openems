@@ -1,6 +1,6 @@
 {
-  "name": "Open Energy Management System",
-  "short_name": "OpenEMS",
+  "name": "FENECON Energy Management System",
+  "short_name": "FEMS",
   "icons": [
     {
       "src": "android-chrome-192x192.png",

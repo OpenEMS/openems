@@ -87,7 +87,6 @@
 	bnd.identity;id='io.openems.edge.controller.symmetric.randompower',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.timeslotpeakshaving',\
 	bnd.identity;id='io.openems.edge.core',\
-	bnd.identity;id='io.openems.edge.ess.adstec.storaxe',\
 	bnd.identity;id='io.openems.edge.ess.byd.container',\
 	bnd.identity;id='io.openems.edge.ess.cluster',\
 	bnd.identity;id='io.openems.edge.ess.core',\
@@ -115,6 +114,7 @@
 	bnd.identity;id='io.openems.edge.io.revpi',\
 	bnd.identity;id='io.openems.edge.io.shelly',\
 	bnd.identity;id='io.openems.edge.io.wago',\
+	bnd.identity;id='io.openems.edge.kaco.blueplanet.hybrid10',\
 	bnd.identity;id='io.openems.edge.kostal.piko',\
 	bnd.identity;id='io.openems.edge.meter.abb',\
 	bnd.identity;id='io.openems.edge.meter.artemes.am2',\
@@ -145,7 +145,7 @@
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
 	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
-
+	
 -runbundles: \
 	Java-WebSocket;version='[1.5.2,1.5.3)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
@@ -218,7 +218,6 @@
 	io.openems.edge.controller.symmetric.randompower;version=snapshot,\
 	io.openems.edge.controller.symmetric.timeslotpeakshaving;version=snapshot,\
 	io.openems.edge.core;version=snapshot,\
-	io.openems.edge.ess.adstec.storaxe;version=snapshot,\
 	io.openems.edge.ess.api;version=snapshot,\
 	io.openems.edge.ess.byd.container;version=snapshot,\
 	io.openems.edge.ess.cluster;version=snapshot,\
@@ -249,6 +248,7 @@
 	io.openems.edge.io.revpi;version=snapshot,\
 	io.openems.edge.io.shelly;version=snapshot,\
 	io.openems.edge.io.wago;version=snapshot,\
+	io.openems.edge.kaco.blueplanet.hybrid10;version=snapshot,\
 	io.openems.edge.kostal.piko;version=snapshot,\
 	io.openems.edge.meter.abb;version=snapshot,\
 	io.openems.edge.meter.api;version=snapshot,\
