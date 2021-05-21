@@ -1,7 +1,7 @@
-import { ChannelAddress, EdgeConfig, Utils } from '../../../shared/shared';
+import { ChannelAddress, EdgeConfig, Utils } from '../../../../shared/shared';
 import { Component } from '@angular/core';
 import { ProductionModalComponent } from './modal/modal.component';
-import { AbstractFlatWidget } from '../flat/abstract-flat-widget';
+import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
 
 @Component({
     selector: 'production',
@@ -24,14 +24,14 @@ export class ProductionComponent extends AbstractFlatWidget {
             new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
         ]
         // Get Chargers
-        this.chargerComponents = 
-        this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
-            .filter(component => component.isEnabled);
+        this.chargerComponents =
+            this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
+                .filter(component => component.isEnabled);
 
         // Get productionMeters
-        this.productionMeterComponents = 
-        this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
-            .filter(component => component.isEnabled && this.config.isProducer(component));
+        this.productionMeterComponents =
+            this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+                .filter(component => component.isEnabled && this.config.isProducer(component));
 
         return channelAddresses
     }
