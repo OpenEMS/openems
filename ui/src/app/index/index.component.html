@@ -58,10 +58,18 @@
                 <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
                 <input type="submit" style="visibility: hidden; position: absolute; position: -999px" />
 
-                <ion-button type="submit" class="ion-float-right ion-margin-top ion-margin-bottom" size="medium">
-                  <small>LOGIN</small>
-                  <ion-icon slot="end" name="log-in-outline"></ion-icon>
-                </ion-button>
+                <ion-item lines="none" class="ion-margin-top">
+                  <table class=" full_width">
+                    <a type="button" class="ion-float-left" size="small"
+                      href="https://portal.fenecon.de/web/reset_password?" style="text-decoration: none;">
+                      <small translate>Login.passwordReset</small>
+                    </a>
+                    <ion-button type="submit" class="ion-float-right" size="medium">
+                      <small>Login</small>
+                      <ion-icon slot="end" name="log-in-outline"></ion-icon>
+                    </ion-button>
+                  </table>
+                </ion-item>
               </form>
             </ion-card-content>
           </ion-card>
@@ -76,8 +84,7 @@
                   <ion-label>No access</ion-label>
                 </ion-item>
                 <ion-card-content>
-                  <p>Unfortunately, it seems that you do not have permission to access any OpenEMS Edge devices.
-                  </p>
+                  <p>Bitte versuchen Sie es später noch einmal.</p>
                 </ion-card-content>
               </ion-card>
 

@@ -84,13 +84,13 @@ export const TRANSLATION = {
         },
     },
     Menu: {
-        aboutUI: 'Sobre OpenEMS-UI',
-        edgeSettings: 'Configuración OpenEMS Edge',
+        aboutUI: 'Sobre FEMS',
+        edgeSettings: 'Configuración FEMS',
         generalSettings: 'Configuración general',
         index: 'Visión general',
         logout: 'Desuscribirse',
         menu: 'Menú',
-        overview: 'estudio OpenEMS Edge',
+        overview: 'estudio FEMS',
         settings: 'Ajustes',
         user: 'Usuario',
     },
@@ -352,17 +352,26 @@ export const TRANSLATION = {
                 newConnection: 'Nueva conexión...',
                 newDevice: 'Nuevo dispositivo...',
             }
+        },
+        Service: {
+            entireSystem: "Sistema entero",
+            Cell: {
+                voltages: "Voltajes de celda",
+                temperatures: "temperaturas de celda",
+                insulation: "Aislamiento",
+            }
         }
     },
     About: {
-        build: 'Esta compilación',
-        contact: 'Para preguntas y sugerencias sobre el sistema, por favor contacte a nuestro OpenEMS-Team en <a href=\'mailto:{{value}}\'>{{value}}</a>.',
-        currentDevelopments: 'Desarrollos actuales',
-        developed: 'Esta interfaz de usario es desarrollada por FENECON como software de código abierto.',
-        fenecon: 'Acerca de FENECON',
-        language: 'Seleccionar idioma:',
-        openEMS: 'Acerca de OpenEMS',
-        ui: 'Interfaz de usario para OpenEMS',
+        build: "Esta compilación",
+        contact: "Para preguntas y sugerencias sobre el sistema, por favor contacte a nuestro FEMS-Team en <a href=\"mailto:{{value}}\">{{value}}</a>.",
+        currentDevelopments: "Desarrollos actuales",
+        developed: "Esta interfaz de usario es desarrollada por FENECON como software de código abierto.",
+        faq: "Preguntas frecuentes (FAQ)",
+        language: "Seleccionar idioma:",
+        openEMS: "Acerca de OpenEMS",
+        patchnotes: "Cambios en la supervisión de esta compilación",
+        ui: "Interfaz de usario para FEMS y OpenEMS",
     },
     Notifications: {
         authenticationFailed: 'Sin conexión: error de autenticación.',

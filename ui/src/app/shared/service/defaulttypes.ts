@@ -45,7 +45,6 @@ export module DefaultTypes {
       effectivePower: number,
       effectiveChargePower: number,
       effectiveDischargePower: number,
-      capacity: number,
     }, production: {
       powerRatio: number,
       hasDC: boolean,

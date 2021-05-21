@@ -214,10 +214,12 @@ export class Websocket {
 
       return new Promise((resolve, reject) => {
         this.wsdata.sendRequest(this.socket, request).then(response => {
-          if (request instanceof EdgeRpcRequest) {
-            console.info("Response     [" + request.params.payload.method + ":" + request.params.edgeId + "]", response.result['payload']['result']);
-          } else {
-            console.info("Response     [" + request.method + "]", response.result);
+          if (env.debugMode) {
+            if (request instanceof EdgeRpcRequest) {
+              console.info("Response     [" + request.params.payload.method + ":" + request.params.edgeId + "]", response.result['payload']['result']);
+            } else {
+              console.info("Response     [" + request.method + "]", response.result);
+            }
           }
           resolve(response);
 

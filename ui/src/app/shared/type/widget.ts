@@ -27,6 +27,7 @@ export enum WidgetFactory {
     'Controller.IO.HeatingElement',
     'Controller.Io.HeatPump.SgReady',
     'Controller.Symmetric.PeakShaving',
+    'Controller.Symmetric.DynamicDischarge',
     'Controller.TimeslotPeakshaving',
     'Controller.Ess.DelayedSellToGrid',
     'Evcs.Cluster.PeakShaving',
@@ -42,6 +43,62 @@ export type Icon = {
 export class Widget {
     name: WidgetNature | WidgetFactory | String;
     componentId: string
+}
+
+export class AdvertWidget {
+    name: string
+}
+
+export enum advertisableWidgetNautre {
+    'io.openems.edge.evcs.api.Evcs',
+}
+
+export enum advertisableWidgetProducttype {
+    //empty for now
+}
+
+
+export class AdvertWidgets {
+
+    public static parseAdvertWidgets(edge: Edge, config: EdgeConfig) {
+
+        let list: AdvertWidget[] = [];
+
+        for (let producttype of Object.values(advertisableWidgetProducttype).filter(v => typeof v === 'string')) {
+            if (producttype == edge.producttype) {
+                list.push({ name: producttype });
+            }
+        }
+
+        for (let nature of Object.values(advertisableWidgetNautre).filter(v => typeof v === 'string')) {
+            if (nature == 'io.openems.edge.evcs.api.Evcs' && config.widgets.names.includes('io.openems.edge.evcs.api.Evcs') == false) {
+                list.push({ name: nature });
+            }
+        }
+        list.push({ name: 'Heimatstrom' });
+        return new AdvertWidgets(list);
+    }
+
+    /**
+     * Names of Widgets.
+     */
+    public readonly names: string[] = [];
+
+    private constructor(
+        /**
+         * List of all Widgets.
+         */
+        public readonly list: AdvertWidget[],
+    ) {
+        // fill names
+        for (let widget of list) {
+            let name: string = widget.name.toString();
+            if (!this.names.includes(name)) {
+                this.names.push(name);
+            }
+        }
+    }
+
 }
 
 export class Widgets {

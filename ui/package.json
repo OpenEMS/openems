@@ -1,7 +1,7 @@
 {
-  "name": "openems-ui",
-  "version": "2021.11.0-SNAPSHOT",
-  "author": "OpenEMS Association e.V.",
+  "name": "fems-ui",
+  "version": "2021.10.4-SNAPSHOT",
+  "author": "FENECON GmbH",
   "homepage": "http://openems.io",
   "scripts": {
     "ng": "ng",
@@ -68,5 +68,5 @@
     "tslint": "~6.1.0",
     "typescript": "~4.1.5"
   },
-  "description": "OpenEMS UI"
+  "description": "FEMS"
 }
