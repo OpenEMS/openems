@@ -8,6 +8,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -78,7 +79,16 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
+	}
+
+	@Modified
+	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		if (super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
 		}

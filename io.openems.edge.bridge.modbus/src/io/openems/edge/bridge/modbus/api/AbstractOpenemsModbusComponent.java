@@ -123,6 +123,49 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		throw new IllegalArgumentException("Use the other activate() for Modbus compoenents!");
 	}
 
+	/**
+	 * Call this method from Component implementations activate().
+	 * 
+	 * @param context         ComponentContext of this component. Receive it from
+	 *                        parameter for @Activate
+	 * @param id              ID of this component. Typically 'config.id()'
+	 * @param alias           Human-readable name of this Component. Typically
+	 *                        'config.alias()'. Defaults to 'id' if empty
+	 * @param enabled         Whether the component should be enabled. Typically
+	 *                        'config.enabled()'
+	 * @param unitId          Unit-ID of the Modbus target
+	 * @param cm              An instance of ConfigurationAdmin. Receive it
+	 *                        using @Reference
+	 * @param modbusReference The name of the @Reference setter method for the
+	 *                        Modbus bridge - e.g. 'Modbus' if you have a
+	 *                        setModbus()-method
+	 * @param modbusId        The ID of the Modbus bridge. Typically
+	 *                        'config.modbus_id()'
+	 * @return true if the target filter was updated. You may use it to abort the
+	 *         activate() method.
+	 * @throws OpenemsException on error
+	 */
+	protected boolean modified(ComponentContext context, String id, String alias, boolean enabled, int unitId,
+			ConfigurationAdmin cm, String modbusReference, String modbusId) throws OpenemsException {
+		super.modified(context, id, alias, enabled);
+		// update filter for 'Modbus'
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Modbus", modbusId)) {
+			return true;
+		}
+		this.unitId = unitId;
+		BridgeModbus modbus = this.modbus.get();
+		modbus.removeProtocol(this.id());
+		if (this.isEnabled() && modbus != null) {
+			modbus.addProtocol(this.id(), this.getModbusProtocol());
+		}
+		return false;
+	}
+
+	@Override
+	protected void modified(ComponentContext context, String id, String alias, boolean enabled) {
+		throw new IllegalArgumentException("Use the other activate() for Modbus compoenents!");
+	}
+
 	@Override
 	protected void deactivate() {
 		super.deactivate();
