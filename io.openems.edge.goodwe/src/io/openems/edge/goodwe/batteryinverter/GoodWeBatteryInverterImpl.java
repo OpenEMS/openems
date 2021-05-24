@@ -128,19 +128,36 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
 		// Battery String
 		IntegerWriteChannel bmsBatteryString = this.channel(GoodWe.ChannelId.BATT_STRINGS);
-		if (!Objects.equals(bmsBatteryString.value().orElse(0),
-				(battery.getDischargeMinVoltage().orElse(0) / MODULE_MIN_VOLTAGE))) {
-			bmsBatteryString.setNextWriteValue(battery.getDischargeMinVoltage().orElse(0) / MODULE_MIN_VOLTAGE);
+		Integer dischargeMinVoltage = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
+		if (!Objects.equals(bmsBatteryString.value().get(), dischargeMinVoltage)) {
+			bmsBatteryString.setNextWriteValue(dischargeMinVoltage);
 		}
 
 		IntegerWriteChannel bmsLeadBatCapacity = this.channel(GoodWe.ChannelId.LEAD_BAT_CAPACITY);
-		if (!Objects.equals(bmsLeadBatCapacity.value().orElse(0), LEAD_BATTERY_CAPACITY)) {
+		if (!Objects.equals(bmsLeadBatCapacity.value().get(), LEAD_BATTERY_CAPACITY)) {
 			bmsLeadBatCapacity.setNextWriteValue(LEAD_BATTERY_CAPACITY);
 		}
 
 		IntegerWriteChannel bmsVoltUnderMin = this.channel(GoodWe.ChannelId.BATT_VOLT_UNDER_MIN);
 		if (!Objects.equals(bmsVoltUnderMin.value().get(), battery.getDischargeMinVoltage().get())) {
 			bmsVoltUnderMin.setNextWriteValueFromObject(battery.getDischargeMinVoltage());
+		}
+
+		IntegerWriteChannel bmsDischargeCurrentMax = this.channel(GoodWe.ChannelId.BATT_DISCHARGE_CURR_MAX);
+		Integer dischargeMaxCurrent = TypeUtils.min(MAX_DC_CURRENT, battery.getDischargeMaxCurrent().get());
+		if (!Objects.equals(bmsDischargeCurrentMax.value().get(), dischargeMaxCurrent)) {
+			bmsDischargeCurrentMax.setNextWriteValueFromObject(dischargeMaxCurrent);
+		}
+
+		IntegerWriteChannel bmsChargeVoltMax = this.channel(GoodWe.ChannelId.BATT_CHARGE_VOLT_MAX);
+		if (!Objects.equals(bmsChargeVoltMax.value().get(), battery.getChargeMaxVoltage().get())) {
+			bmsChargeVoltMax.setNextWriteValueFromObject(battery.getChargeMaxVoltage());
+		}
+
+		IntegerWriteChannel bmsChargeMaxCurrent = this.channel(GoodWe.ChannelId.BATT_CHARGE_CURR_MAX);
+		Integer chargeMaxCurrent = TypeUtils.min(MAX_DC_CURRENT, battery.getChargeMaxCurrent().get());
+		if (!Objects.equals(bmsChargeMaxCurrent.value().get(), chargeMaxCurrent)) {
+			bmsChargeMaxCurrent.setNextWriteValueFromObject(chargeMaxCurrent);
 		}
 	}
 
