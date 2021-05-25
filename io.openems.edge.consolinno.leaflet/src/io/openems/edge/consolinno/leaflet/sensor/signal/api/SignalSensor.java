@@ -73,8 +73,10 @@ public interface SignalSensor extends OpenemsComponent {
         return this.channel(ChannelId.SIGNAL_MESSAGE);
     }
 
+
     /**
      * Gets the Type of Error.
+     *
      * @return the Channel
      */
     default Channel<String> getSignalType() {

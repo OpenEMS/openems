@@ -116,16 +116,22 @@ public class SignalSensorImpl extends AbstractOpenemsModbusComponent implements 
             if (this.isInverted) {
                 if (currentTempDefined && currentTemperature.get() < maxTemperature) {
                     getSignalType().setNextValue("Error");
+                    signalActive().setNextValue(true);
+                    getSignalMessage().setNextValue("Error");
                     return;
                 }
             } else {
                 if (currentTempDefined && currentTemperature.get() > maxTemperature) {
                     getSignalType().setNextValue("Error");
+                    signalActive().setNextValue(true);
+                    getSignalMessage().setNextValue("Error");
                     return;
                 }
             }
             if (!getSignalType().value().get().equals("Status")) {
                 getSignalType().setNextValue("Status");
+                signalActive().setNextValue(false);
+                getSignalMessage().setNextValue("Status");
             }
         }
     }
