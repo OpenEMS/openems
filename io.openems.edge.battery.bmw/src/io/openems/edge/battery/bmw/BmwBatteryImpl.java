@@ -63,11 +63,12 @@ import io.openems.edge.common.cycle.Cycle;
 public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		implements BmwBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
-	private final double FILTER_TIME_CONSTANT_MAX_CURRENT_s     = 10.0;	// Unit: seconds | choose zero for disabling the PT1-filter
+	private final double FILTER_TIME_CONSTANT_MAX_CURRENT_s     = 5.0;	// Unit: seconds | choose zero for disabling the PT1-filter
+	private final int BATTERY_MIN_VOLTAGE_LIMIT_0V1				= 6200;	// Unit: 0.1 V
 	
 	private Pt1filter pt1FilterChargeMaxCurrentVoltLimit;
 	private Pt1filter pt1FilterDischargeMaxCurrentVoltLimit;
-	
+
 	private final Logger log = LoggerFactory.getLogger(BmwBatteryImpl.class);
 
 	@Reference
@@ -322,8 +323,14 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		}
 		this.channel(BMWChannelId.CHARGE_MAX_CURRENT_VOLT_LIMIT).setNextValue(chargeMaxCurrentVoltLimit_A);
 		
+		//--- limit minimum battery voltage ---
+		//TODO: this should not be part of the battery implementation, because this limit is regarding the Refu-inverter
+		if (batteryMinVoltage_0V1 < BATTERY_MIN_VOLTAGE_LIMIT_0V1) {
+			batteryMinVoltage_0V1 = BATTERY_MIN_VOLTAGE_LIMIT_0V1;
+		}
+		
 		//--- calculate discharge max. current by voltage limit ---
-		double deltaDischargeCurrent_0A1 = (double)(batteryVoltage_0V1 - batteryMinVoltage_0V1 + minVoltageOffset_0V1) / innerResistance_Ohm;
+		double deltaDischargeCurrent_0A1 = (double)(batteryVoltage_0V1 - batteryMinVoltage_0V1 - minVoltageOffset_0V1) / innerResistance_Ohm;
 		double dischargeMaxCurrentVoltLimit_0A1 = ((double)batteryCurrent_0A1 + deltaDischargeCurrent_0A1);
 		int dischargeMaxCurrentVoltLimit_A = (int)pt1FilterDischargeMaxCurrentVoltLimit.applyPt1Filter(dischargeMaxCurrentVoltLimit_0A1) / 10; // 0,1[A] --> [A]
 		// Limit min. Value to force charge current (e.g. to compensate internal 1 kW heater of battery)
