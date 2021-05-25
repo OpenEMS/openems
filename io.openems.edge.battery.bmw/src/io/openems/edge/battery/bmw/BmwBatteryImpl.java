@@ -259,7 +259,8 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	private void setMaxCurrents() {
 		final double innerResistance_Ohm = 0.2;
 		final int maxVoltageOffset_0V1 = -20;
-		final int minVoltageOffset_0V1 = 20;
+		final int minVoltageOffset_0V1 = 40;
+		final int forceChargeCurrent_A = 2;
 		
 		int chargeMaxCurrentBcs_A = 0;
 		int dischargeMaxCurrentBcs_A = 0;
@@ -315,7 +316,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		double deltaChargeCurrent_0A1 = (double)(batteryMaxVoltage_0V1 - batteryVoltage_0V1 + maxVoltageOffset_0V1) / innerResistance_Ohm;
 		double chargeMaxCurrentVoltLimit_0A1 = -((double)batteryCurrent_0A1 - deltaChargeCurrent_0A1);
 		int chargeMaxCurrentVoltLimit_A = (int)pt1FilterChargeMaxCurrentVoltLimit.applyPt1Filter(chargeMaxCurrentVoltLimit_0A1) / 10; // 0,1[A] --> [A]
-		// Limit min. Value to zero (no force charge)
+		// Limit min. Value to zero (no force discharge)
 		if (chargeMaxCurrentVoltLimit_A < 0) {
 			chargeMaxCurrentVoltLimit_A = 0;
 		}
@@ -325,9 +326,9 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		double deltaDischargeCurrent_0A1 = (double)(batteryVoltage_0V1 - batteryMinVoltage_0V1 + minVoltageOffset_0V1) / innerResistance_Ohm;
 		double dischargeMaxCurrentVoltLimit_0A1 = ((double)batteryCurrent_0A1 + deltaDischargeCurrent_0A1);
 		int dischargeMaxCurrentVoltLimit_A = (int)pt1FilterDischargeMaxCurrentVoltLimit.applyPt1Filter(dischargeMaxCurrentVoltLimit_0A1) / 10; // 0,1[A] --> [A]
-		// Limit min. Value to zero (no force discharge)
-		if (dischargeMaxCurrentVoltLimit_A < 0) {
-			dischargeMaxCurrentVoltLimit_A = 0;
+		// Limit min. Value to force charge current (e.g. to compensate internal 1 kW heater of battery)
+		if (dischargeMaxCurrentVoltLimit_A < -forceChargeCurrent_A) {
+			dischargeMaxCurrentVoltLimit_A = -forceChargeCurrent_A;
 		}
 		this.channel(BMWChannelId.DISCHARGE_MAX_CURRENT_VOLT_LIMIT).setNextValue(dischargeMaxCurrentVoltLimit_A);	
 		
