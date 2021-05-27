@@ -10,7 +10,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id = null;
 		public String modbusId;
 		public int modbusUnitId;
-		
+
 		private Builder() {
 
 		}

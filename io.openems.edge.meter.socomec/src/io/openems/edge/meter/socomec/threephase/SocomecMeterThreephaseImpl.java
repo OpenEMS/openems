@@ -147,7 +147,7 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 	}
 
 	@Override
-	protected void identifiedCountisE44() throws OpenemsException {
+	protected void identifiedCountisE34_E44() throws OpenemsException {
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0xc558),
