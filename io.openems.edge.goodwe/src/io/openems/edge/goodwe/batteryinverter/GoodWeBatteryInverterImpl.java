@@ -13,6 +13,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
@@ -47,6 +49,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent {
 
 	private static final int MAX_DC_CURRENT = 25; // [A]
+
+	private final Logger log = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -116,36 +120,72 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 * @throws OpenemsNamedException on error
 	 */
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
-		// Battery String
-		IntegerWriteChannel bmsBatteryString = this.channel(GoodWe.ChannelId.BATT_STRINGS);
-		if (!Objects.equals(bmsBatteryString.value().orElse(0),
-				(battery.getDischargeMinVoltage().orElse(0) / MODULE_MIN_VOLTAGE))) {
-			bmsBatteryString.setNextWriteValue(battery.getDischargeMinVoltage().orElse(0) / MODULE_MIN_VOLTAGE);
+		// BATT_STRINGS
+		{
+			IntegerWriteChannel battStringsChannel = this.channel(GoodWe.ChannelId.BATT_STRINGS);
+			Integer battStrings = battStringsChannel.value().get();
+			Integer setBattStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
+			if (setBattStrings != null && !Objects.equals(battStrings, setBattStrings)) {
+				this.logInfo(this.log, "Set BATT_STRINGS " + setBattStrings + " - was " + battStrings);
+				battStringsChannel.setNextWriteValue(setBattStrings);
+			}
 		}
 
-		IntegerWriteChannel bmsLeadBatCapacity = this.channel(GoodWe.ChannelId.LEAD_BAT_CAPACITY);
-		if (!Objects.equals(bmsLeadBatCapacity.value().orElse(0), LEAD_BATTERY_CAPACITY)) {
-			bmsLeadBatCapacity.setNextWriteValue(LEAD_BATTERY_CAPACITY);
+		// LEAD_BAT_CAPACITY
+		{
+			IntegerWriteChannel leadBatCapacityChannel = this.channel(GoodWe.ChannelId.LEAD_BAT_CAPACITY);
+			Integer leadBatCapacity = leadBatCapacityChannel.value().get();
+			if (!Objects.equals(leadBatCapacity, LEAD_BATTERY_CAPACITY)) {
+				this.logInfo(this.log, "Set LEAD_BAT_CAPACITY " + LEAD_BATTERY_CAPACITY + " - was " + leadBatCapacity);
+				leadBatCapacityChannel.setNextWriteValue(LEAD_BATTERY_CAPACITY);
+			}
 		}
 
-		IntegerWriteChannel bmsVoltUnderMin = this.channel(GoodWe.ChannelId.BATT_VOLT_UNDER_MIN);
-		if (!Objects.equals(bmsVoltUnderMin.value().get(), battery.getDischargeMinVoltage().get())) {
-			bmsVoltUnderMin.setNextWriteValueFromObject(battery.getDischargeMinVoltage());
+		// BATT_VOLT_UNDER_MIN
+		{
+			IntegerWriteChannel battVoltUnderMinChannel = this.channel(GoodWe.ChannelId.BATT_VOLT_UNDER_MIN);
+			Integer battVoltUnderMin = battVoltUnderMinChannel.value().get();
+			Integer setBattVoltUnderMin = battery.getDischargeMinVoltage().get();
+			if (setBattVoltUnderMin != null && !Objects.equals(battVoltUnderMin, setBattVoltUnderMin)) {
+				this.logInfo(this.log, "Set BATT_VOLT_UNDER_MIN " + setBattVoltUnderMin + " - was " + battVoltUnderMin);
+				battVoltUnderMinChannel.setNextWriteValueFromObject(setBattVoltUnderMin);
+			}
 		}
-		
-		IntegerWriteChannel bmsDischargeCurrentMax = this.channel(GoodWe.ChannelId.BATT_DISCHARGE_CURR_MAX);
-		if (!Objects.equals(bmsDischargeCurrentMax.value().get(), battery.getDischargeMaxCurrent().get())) {
-			bmsDischargeCurrentMax.setNextWriteValueFromObject(battery.getDischargeMaxCurrent());
+
+		// BATT_DISCHARGE_CURR_MAX
+		{
+			IntegerWriteChannel battDischargeCurrMaxChannel = this.channel(GoodWe.ChannelId.BATT_DISCHARGE_CURR_MAX);
+			Integer battDischargeCurrMax = battDischargeCurrMaxChannel.value().get();
+			Integer setBattDischargeCurrMax = TypeUtils.min(MAX_DC_CURRENT, battery.getDischargeMaxCurrent().get());
+			if (setBattDischargeCurrMax != null && !Objects.equals(battDischargeCurrMax, setBattDischargeCurrMax)) {
+				this.logInfo(this.log,
+						"Set BATT_DISCHARGE_CURR_MAX " + setBattDischargeCurrMax + " - was " + battDischargeCurrMax);
+				battDischargeCurrMaxChannel.setNextWriteValueFromObject(setBattDischargeCurrMax);
+			}
 		}
-		
-		IntegerWriteChannel bmsChargeVoltMax = this.channel(GoodWe.ChannelId.BATT_CHARGE_VOLT_MAX);
-		if (!Objects.equals(bmsChargeVoltMax.value().get(), battery.getChargeMaxVoltage().get())) {
-			bmsChargeVoltMax.setNextWriteValueFromObject(battery.getChargeMaxVoltage());
+
+		// BATT_CHARGE_VOLT_MAX
+		{
+			IntegerWriteChannel battChargeVoltMaxChannel = this.channel(GoodWe.ChannelId.BATT_CHARGE_VOLT_MAX);
+			Integer battChargeVoltMax = battChargeVoltMaxChannel.value().get();
+			Integer setBattChargeVoltMax = battery.getChargeMaxVoltage().get();
+			if (setBattChargeVoltMax != null && !Objects.equals(battChargeVoltMax, setBattChargeVoltMax)) {
+				this.logInfo(this.log,
+						"Set BATT_CHARGE_VOLT_MAX " + setBattChargeVoltMax + " - was " + battChargeVoltMax);
+				battChargeVoltMaxChannel.setNextWriteValueFromObject(setBattChargeVoltMax);
+			}
 		}
-		
-		IntegerWriteChannel bmsChargeMaxCurrent = this.channel(GoodWe.ChannelId.BATT_CHARGE_CURR_MAX);
-		if (!Objects.equals(bmsChargeMaxCurrent.value().get(), battery.getChargeMaxCurrent().get())) {
-			bmsChargeMaxCurrent.setNextWriteValueFromObject(battery.getChargeMaxCurrent());
+
+		// BATT_CHARGE_CURR_MAX
+		{
+			IntegerWriteChannel battChargeCurrMaxChannel = this.channel(GoodWe.ChannelId.BATT_CHARGE_CURR_MAX);
+			Integer battChargeCurrMax = battChargeCurrMaxChannel.value().get();
+			Integer setBattChargeCurrMax = TypeUtils.min(MAX_DC_CURRENT, battery.getChargeMaxCurrent().get());
+			if (setBattChargeCurrMax != null && !Objects.equals(battChargeCurrMax, setBattChargeCurrMax)) {
+				this.logInfo(this.log,
+						"Set BATT_CHARGE_CURR_MAX " + setBattChargeCurrMax + " - was " + battChargeCurrMax);
+				battChargeCurrMaxChannel.setNextWriteValueFromObject(setBattChargeCurrMax);
+			}
 		}
 	}
 
