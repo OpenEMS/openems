@@ -44,9 +44,9 @@ public class SellToGridLimit {
 		int essMinChargePower = gridPower + essActivePower + this.parent.config.maximumSellToGridPower();
 
 		// Log debug
-		this.parent.logDebug("SellToGridLimit: " + essMinChargePower + "(Grid:" + gridPower + " + Ess:" + essActivePower
-				+ " + MaximumGrid:" + this.parent.config.maximumSellToGridPower() + ")| Last limit: "
-				+ this.lastSellToGridLimit);
+		this.parent.logDebug("Maximum Discharge/Minimum Charge Power: " + essMinChargePower + "(Grid:" + gridPower
+				+ " + Ess:" + essActivePower + " + MaximumGrid:" + this.parent.config.maximumSellToGridPower()
+				+ ")| Last limit: " + this.lastSellToGridLimit);
 
 		// Adjust value so that it fits into Min/MaxActivePower
 		essMinChargePower = this.parent.ess.getPower().fitValueIntoMinMaxPower(this.parent.id(), this.parent.ess,
@@ -54,12 +54,6 @@ public class SellToGridLimit {
 
 		// Adjust ramp
 		essMinChargePower = this.applyPowerRamp(essMinChargePower);
-
-		// Avoid max discharge constraint
-		if (essMinChargePower > 0) {
-			this.setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState.NO_LIMIT, 0);
-			return null;
-		}
 
 		return essMinChargePower;
 	}
