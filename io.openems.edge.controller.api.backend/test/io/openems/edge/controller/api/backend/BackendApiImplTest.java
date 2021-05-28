@@ -1,14 +1,10 @@
 package io.openems.edge.controller.api.backend;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.net.Proxy.Type;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.function.BiConsumer;
 
 import org.java_websocket.WebSocket;
 import org.junit.Test;
@@ -19,6 +15,7 @@ import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.ThrowingBiConsumer;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
@@ -46,13 +43,13 @@ public class BackendApiImplTest {
 
 		protected boolean wasCalled = false;
 
-		private BiConsumer<Long, JsonObject> callback = (timestamp, values) -> {
+		private ThrowingBiConsumer<Long, JsonObject, OpenemsNamedException> callback = (timestamp, values) -> {
 		};
 
 		public TimestampedDataNotificationHandler() {
 		}
 
-		public void onNotification(BiConsumer<Long, JsonObject> callback) {
+		public void onNotification(ThrowingBiConsumer<Long, JsonObject, OpenemsNamedException> callback) {
 			this.wasCalled = false;
 			this.callback = callback;
 		}
@@ -69,13 +66,16 @@ public class BackendApiImplTest {
 
 		@Override
 		public void run(WebSocket websocket, JsonrpcNotification notification) throws OpenemsNamedException {
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			if (notification.getMethod().equals(TimestampedDataNotification.METHOD)) {
 				for (String timestamp : notification.getParams().keySet()) {
 					JsonObject values = JsonUtils.getAsJsonObject(notification.getParams().get(timestamp));
-					System.out.println(values);
-					this.callback.accept(Long.valueOf(timestamp), values);
 					this.wasCalled = true;
-					return;
+					this.callback.accept(Long.valueOf(timestamp), values);
 				}
 			}
 		}
@@ -113,7 +113,7 @@ public class BackendApiImplTest {
 
 			// All Values initially
 			handler.onNotification((timestamp, values) -> {
-				assertTrue(values.size() > 50); // all values
+				assertTrue(values.size() > 40); // all values
 			});
 			test.next(new TestCase()); //
 			handler.waitForCallback(5000);
@@ -142,11 +142,29 @@ public class BackendApiImplTest {
 
 			// All values after 5 minutes
 			handler.onNotification((timestamp, values) -> {
-				assertTrue(values.size() > 50); // all values
+				assertTrue(values.size() > 40); // all values
 			});
 			test.next(new TestCase() //
 					.timeleap(clock, 6, ChronoUnit.MINUTES));
 			handler.waitForCallback(5000);
+		}
+	}
+
+	private static void assertTrue(boolean condition) throws OpenemsException {
+		try {
+			org.junit.Assert.assertTrue(condition);
+		} catch (AssertionError e) {
+			System.err.println("AssertionError: " + e.getMessage());
+			System.exit(1);
+		}
+	}
+
+	private static void assertEquals(Object expected, Object actual) throws OpenemsException {
+		try {
+			org.junit.Assert.assertEquals(expected, actual);
+		} catch (AssertionError e) {
+			System.err.println("AssertionError: " + e.getMessage());
+			System.exit(1);
 		}
 	}
 

@@ -1,7 +1,8 @@
-import { EdgeRpcRequest } from "../jsonrpc/request/edgeRpcRequest";
+import { WebSocketSubject } from "rxjs/webSocket";
 import { environment as env } from '../../../environments';
 import { JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
-import { WebSocketSubject } from "rxjs/webSocket";
+import { AuthenticateWithPasswordRequest } from "../jsonrpc/request/authenticateWithPasswordRequest";
+import { EdgeRpcRequest } from "../jsonrpc/request/edgeRpcRequest";
 
 export class WsData {
 
@@ -24,6 +25,8 @@ export class WsData {
     if (env.debugMode) {
       if (request instanceof EdgeRpcRequest) {
         console.info("Request      [" + request.params.payload.method + ":" + request.params.edgeId + "]", request.params.payload.params);
+      } else if (request instanceof AuthenticateWithPasswordRequest) {
+        console.info("Request      [" + AuthenticateWithPasswordRequest.METHOD + "]");
       } else {
         console.info("Request      [" + request.method + "]", request.params);
       }

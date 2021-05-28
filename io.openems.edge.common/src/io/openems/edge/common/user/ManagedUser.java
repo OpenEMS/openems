@@ -17,8 +17,8 @@ import io.openems.common.session.Role;
  */
 public class ManagedUser extends User {
 
-	private final static int KEY_LENGTH = 256;
-	private final static int ITERATIONS = 10;
+	public static final int KEY_LENGTH = 256;
+	public static final int ITERATIONS = 10;
 
 	private final byte[] password;
 	private final byte[] salt;
@@ -33,37 +33,71 @@ public class ManagedUser extends User {
 		this.salt = salt;
 	}
 
+	/**
+	 * Validates a given password against the Users password+salt.
+	 * 
+	 * @param password the given password
+	 * @return true if passwords match
+	 */
 	public boolean validatePassword(String password) {
 		if (this.password == null || this.salt == null) {
 			// no password existing -> allow access
 			return true;
 		}
-		byte[] hashedPassword = ManagedUser.hashPassword(password, this.salt);
+		byte[] hashedPassword = ManagedUser.hashPassword(password, this.salt, ITERATIONS, KEY_LENGTH);
 		return Arrays.equals(hashedPassword, this.password);
 	}
 
-	public byte[] getPassword() {
-		return password;
-	}
-
-	public byte[] getSalt() {
-		return salt;
-	}
-
-	private static byte[] hashPassword(final String password, final byte[] salt) {
-		return hashPassword(password.toCharArray(), salt, ITERATIONS, KEY_LENGTH);
+	/**
+	 * Validates if password+salt match the given password.
+	 * 
+	 * @param passwordAsBase64 the hashed password
+	 * @param saltAsBase64     the salt
+	 * @param password         the given password
+	 * @return true if they match.
+	 */
+	public static boolean validatePassword(String passwordAsBase64, String saltAsBase64, String password) {
+		return ManagedUser.validatePassword(Base64.getDecoder().decode(passwordAsBase64),
+				Base64.getDecoder().decode(saltAsBase64), password);
 	}
 
 	/**
-	 * Source: https://www.owasp.org/index.php/Hashing_Java
-	 *
-	 * @param password
-	 * @param salt
-	 * @param iterations
-	 * @param keyLength
-	 * @return
+	 * Validates if password+salt match the given password.
+	 * 
+	 * @param password1 the hashed password
+	 * @param salt      the salt
+	 * @param password2 the given password
+	 * @return true if they match.
 	 */
-	private static byte[] hashPassword(final char[] password, final byte[] salt, final int iterations,
+	public static boolean validatePassword(final byte[] password1, final byte[] salt, String password2) {
+		byte[] hashedPassword = ManagedUser.hashPassword(password2, salt, ITERATIONS, KEY_LENGTH);
+		return Arrays.equals(hashedPassword, password1);
+	}
+
+	/**
+	 * Hashes a password. Source: https://www.owasp.org/index.php/Hashing_Java.
+	 * 
+	 * @param password   the password
+	 * @param salt       the salt
+	 * @param iterations the number of iterations
+	 * @param keyLength  the length of the key
+	 * @return the hashed password
+	 */
+	public static byte[] hashPassword(final String password, final byte[] salt, final int iterations,
+			final int keyLength) {
+		return ManagedUser.hashPassword(password.toCharArray(), salt, iterations, keyLength);
+	}
+
+	/**
+	 * Hashes a password. Source: https://www.owasp.org/index.php/Hashing_Java.
+	 *
+	 * @param password   the password
+	 * @param salt       the salt
+	 * @param iterations the number of iterations
+	 * @param keyLength  the length of the key
+	 * @return the hashed password
+	 */
+	public static byte[] hashPassword(final char[] password, final byte[] salt, final int iterations,
 			final int keyLength) {
 		try {
 			SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
@@ -76,4 +110,5 @@ public class ManagedUser extends User {
 			throw new RuntimeException(e);
 		}
 	}
+
 }
