@@ -24,8 +24,7 @@ import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
@@ -83,7 +82,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
@@ -131,68 +129,34 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 * @throws OpenemsNamedException on error
 	 */
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
-		// BATT_STRINGS
-		{
-			IntegerWriteChannel battStringsChannel = this.channel(GoodWe.ChannelId.BATT_STRINGS);
-			Integer battStrings = battStringsChannel.value().get();
-			Integer setBattStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
-			if (setBattStrings != null && !Objects.equals(battStrings, setBattStrings)) {
-				this.logInfo(this.log, "Set BATT_STRINGS " + setBattStrings + " - was " + battStrings);
-				battStringsChannel.setNextWriteValue(setBattStrings);
-			}
+		this.writeToChannel(GoodWe.ChannelId.WBMS_SOC, //
+				battery.getSoc().get());
+		this.writeToChannel(GoodWe.ChannelId.WBMS_SOH, //
+				battery.getSoh().get());
+		this.writeToChannel(GoodWe.ChannelId.WBMS_STRINGS, //
+				TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE));
+		this.writeToChannel(GoodWe.ChannelId.LEAD_BAT_CAPACITY, //
+				LEAD_BATTERY_CAPACITY);
+		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, //
+				battery.getDischargeMinVoltage().get());
+		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT, //
+				TypeUtils.min(MAX_DC_CURRENT, battery.getDischargeMaxCurrent().get()));
+		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, //
+				battery.getChargeMaxVoltage().get());
+		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, //
+				TypeUtils.min(MAX_DC_CURRENT, battery.getChargeMaxCurrent().get()));
+	}
+
+	private void writeToChannel(GoodWe.ChannelId channelId, Object value)
+			throws IllegalArgumentException, OpenemsNamedException {
+		WriteChannel<?> channel = this.channel(channelId);
+		Object currentValue = channel.value().get();
+		if (value != null && !Objects.equals(currentValue, value)) {
+			this.logInfo(this.log, "Update  " + channelId.id() + " from [" + currentValue + "] to [" + value + "]");
+		} else {
+			this.logInfo(this.log, "Refresh " + channelId.id() + " [" + currentValue + "]");
 		}
-		// LEAD_BAT_CAPACITY
-		{
-			IntegerWriteChannel leadBatCapacityChannel = this.channel(GoodWe.ChannelId.LEAD_BAT_CAPACITY);
-			Integer leadBatCapacity = leadBatCapacityChannel.value().get();
-			if (!Objects.equals(leadBatCapacity, LEAD_BATTERY_CAPACITY)) {
-				this.logInfo(this.log, "Set LEAD_BAT_CAPACITY " + LEAD_BATTERY_CAPACITY + " - was " + leadBatCapacity);
-				leadBatCapacityChannel.setNextWriteValue(LEAD_BATTERY_CAPACITY);
-			}
-		}
-		// BATT_VOLT_UNDER_MIN
-		{
-			IntegerWriteChannel battVoltUnderMinChannel = this.channel(GoodWe.ChannelId.BATT_VOLT_UNDER_MIN);
-			Integer battVoltUnderMin = battVoltUnderMinChannel.value().get();
-			Integer setBattVoltUnderMin = battery.getDischargeMinVoltage().get();
-			if (setBattVoltUnderMin != null && !Objects.equals(battVoltUnderMin, setBattVoltUnderMin)) {
-				this.logInfo(this.log, "Set BATT_VOLT_UNDER_MIN " + setBattVoltUnderMin + " - was " + battVoltUnderMin);
-				battVoltUnderMinChannel.setNextWriteValueFromObject(setBattVoltUnderMin);
-			}
-		}
-		// BATT_DISCHARGE_CURR_MAX
-		{
-			IntegerWriteChannel battDischargeCurrMaxChannel = this.channel(GoodWe.ChannelId.BATT_DISCHARGE_CURR_MAX);
-			Integer battDischargeCurrMax = battDischargeCurrMaxChannel.value().get();
-			Integer setBattDischargeCurrMax = TypeUtils.min(MAX_DC_CURRENT, battery.getDischargeMaxCurrent().get());
-			if (setBattDischargeCurrMax != null && !Objects.equals(battDischargeCurrMax, setBattDischargeCurrMax)) {
-				this.logInfo(this.log,
-						"Set BATT_DISCHARGE_CURR_MAX " + setBattDischargeCurrMax + " - was " + battDischargeCurrMax);
-				battDischargeCurrMaxChannel.setNextWriteValueFromObject(setBattDischargeCurrMax);
-			}
-		}
-		// BATT_CHARGE_VOLT_MAX
-		{
-			IntegerWriteChannel battChargeVoltMaxChannel = this.channel(GoodWe.ChannelId.BATT_CHARGE_VOLT_MAX);
-			Integer battChargeVoltMax = battChargeVoltMaxChannel.value().get();
-			Integer setBattChargeVoltMax = battery.getChargeMaxVoltage().get();
-			if (setBattChargeVoltMax != null && !Objects.equals(battChargeVoltMax, setBattChargeVoltMax)) {
-				this.logInfo(this.log,
-						"Set BATT_CHARGE_VOLT_MAX " + setBattChargeVoltMax + " - was " + battChargeVoltMax);
-				battChargeVoltMaxChannel.setNextWriteValueFromObject(setBattChargeVoltMax);
-			}
-		}
-		// BATT_CHARGE_CURR_MAX
-		{
-			IntegerWriteChannel battChargeCurrMaxChannel = this.channel(GoodWe.ChannelId.BATT_CHARGE_CURR_MAX);
-			Integer battChargeCurrMax = battChargeCurrMaxChannel.value().get();
-			Integer setBattChargeCurrMax = TypeUtils.min(MAX_DC_CURRENT, battery.getChargeMaxCurrent().get());
-			if (setBattChargeCurrMax != null && !Objects.equals(battChargeCurrMax, setBattChargeCurrMax)) {
-				this.logInfo(this.log,
-						"Set BATT_CHARGE_CURR_MAX " + setBattChargeCurrMax + " - was " + battChargeCurrMax);
-				battChargeCurrMaxChannel.setNextWriteValueFromObject(setBattChargeCurrMax);
-			}
-		}
+		channel.setNextWriteValueFromObject(value);
 	}
 
 	@Override

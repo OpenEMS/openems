@@ -23,7 +23,6 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -255,32 +254,10 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 				new FC16WriteRegistersTask(45350, //
 						m(GoodWe.ChannelId.LEAD_BAT_CAPACITY, new UnsignedWordElement(45350),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.BATT_STRINGS, new UnsignedWordElement(45351)), //
-						m(GoodWe.ChannelId.BATT_CHARGE_VOLT_MAX, new UnsignedWordElement(45352),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						m(GoodWe.ChannelId.BATT_CHARGE_CURR_MAX, new UnsignedWordElement(45353),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
-				new FC6WriteRegisterTask(45354, //
-						m(GoodWe.ChannelId.BATT_VOLT_UNDER_MIN, new UnsignedWordElement(45354), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
-				new FC16WriteRegistersTask(45355, //
-						m(GoodWe.ChannelId.BATT_DISCHARGE_CURR_MAX, new UnsignedWordElement(45355),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
 
 				new FC3ReadRegistersTask(45350, Priority.LOW, //
 						m(GoodWe.ChannelId.LEAD_BAT_CAPACITY, new UnsignedWordElement(45350), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.BATT_STRINGS, new UnsignedWordElement(45351)), //
-						m(GoodWe.ChannelId.BATT_CHARGE_VOLT_MAX, new UnsignedWordElement(45352),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						m(GoodWe.ChannelId.BATT_CHARGE_CURR_MAX, new UnsignedWordElement(45353),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
-				new FC3ReadRegistersTask(45354, Priority.HIGH, //
-						m(GoodWe.ChannelId.BATT_VOLT_UNDER_MIN, new UnsignedWordElement(45354),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
-				new FC3ReadRegistersTask(45355, Priority.HIGH, //
-						m(GoodWe.ChannelId.BATT_DISCHARGE_CURR_MAX, new UnsignedWordElement(45355),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
 
 				new FC16WriteRegistersTask(47000, //
@@ -320,73 +297,83 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.SOC_START_TO_FORCE_CHARGE, new UnsignedWordElement(47531)), //
 						m(GoodWe.ChannelId.SOC_STOP_TO_FORCE_CHARGE, new UnsignedWordElement(47532))), //
 
-				new FC6WriteRegisterTask(47906, //
-						m(GoodWe.ChannelId.WBMS_BAT_VOLTAGE, new UnsignedWordElement(47906),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
-				new FC6WriteRegisterTask(47907, //
-						m(GoodWe.ChannelId.WBMS_BAT_CURRENT, new UnsignedWordElement(47907))), //
-				new FC6WriteRegisterTask(47908, //
-						m(GoodWe.ChannelId.WBMS_BAT_SOC, new UnsignedWordElement(47908))), //
-				new FC6WriteRegisterTask(47909, //
-						m(GoodWe.ChannelId.WBMS_BAT_SOH, new UnsignedWordElement(47909))), //
-				new FC6WriteRegisterTask(47910, //
-						m(GoodWe.ChannelId.WBMS_BAT_TEMPERATURE, new SignedWordElement(47910),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
+				new FC16WriteRegistersTask(47900, //
+						m(GoodWe.ChannelId.WBMS_VERSION, new UnsignedWordElement(47900)), //
+						m(GoodWe.ChannelId.WBMS_STRINGS, new UnsignedWordElement(47901)), //
+						m(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, new UnsignedWordElement(47902),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, new UnsignedWordElement(47903),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(47904),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT, new UnsignedWordElement(47905),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(GoodWe.ChannelId.WBMS_VOLTAGE, new UnsignedWordElement(47906),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(GoodWe.ChannelId.WBMS_CURRENT, new UnsignedWordElement(47907),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(GoodWe.ChannelId.WBMS_SOC, new UnsignedWordElement(47908)), //
+						m(GoodWe.ChannelId.WBMS_SOH, new UnsignedWordElement(47909)), //
+						m(GoodWe.ChannelId.WBMS_TEMPERATURE, new SignedWordElement(47910),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						new DummyRegisterElement(47911, 47915), //
+						m(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, new UnsignedWordElement(47916))), //
 
 				new FC3ReadRegistersTask(47900, Priority.LOW, //
-						m(GoodWe.ChannelId.BMS_VERSION, new UnsignedWordElement(47900)), //
-						m(GoodWe.ChannelId.BATT_STRINGS_RS485, new UnsignedWordElement(47901)), //
-						m(GoodWe.ChannelId.WBMS_BAT_CHARGE_VMAX, new UnsignedWordElement(47902),
+						m(GoodWe.ChannelId.WBMS_VERSION, new UnsignedWordElement(47900)), //
+						m(GoodWe.ChannelId.WBMS_STRINGS, new UnsignedWordElement(47901)), //
+						m(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, new UnsignedWordElement(47902),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.WBMS_BAT_CHARGE_IMAX, new UnsignedWordElement(47903),
+						m(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, new UnsignedWordElement(47903),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.WBMS_BAT_DISCHARGE_VMIN, new UnsignedWordElement(47904),
+						m(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(47904),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.WBMS_BAT_DISCHARGE_IMAX, new UnsignedWordElement(47905),
+						m(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT, new UnsignedWordElement(47905),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.WBMS_BAT_VOLTAGE, new UnsignedWordElement(47906),
+						m(GoodWe.ChannelId.WBMS_VOLTAGE, new UnsignedWordElement(47906),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.WBMS_BAT_CURRENT, new UnsignedWordElement(47907)), //
-						m(GoodWe.ChannelId.WBMS_BAT_SOC, new UnsignedWordElement(47908)), //
-						m(GoodWe.ChannelId.WBMS_BAT_SOH, new UnsignedWordElement(47909)), //
-						m(GoodWe.ChannelId.WBMS_BAT_TEMPERATURE, new SignedWordElement(47910),
+						m(GoodWe.ChannelId.WBMS_CURRENT, new UnsignedWordElement(47907)), //
+						m(GoodWe.ChannelId.WBMS_SOC, new UnsignedWordElement(47908)), //
+						m(GoodWe.ChannelId.WBMS_SOH, new UnsignedWordElement(47909)), //
+						m(GoodWe.ChannelId.WBMS_TEMPERATURE, new SignedWordElement(47910),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(new BitsWordElement(47911, this) //
-								.bit(0, GoodWe.ChannelId.STATE_58) //
-								.bit(1, GoodWe.ChannelId.STATE_59) //
-								.bit(2, GoodWe.ChannelId.STATE_60) //
-								.bit(3, GoodWe.ChannelId.STATE_61) //
-								.bit(4, GoodWe.ChannelId.STATE_62) //
-								.bit(5, GoodWe.ChannelId.STATE_63) //
-								.bit(6, GoodWe.ChannelId.STATE_64) //
-								.bit(7, GoodWe.ChannelId.STATE_65) //
-								.bit(8, GoodWe.ChannelId.STATE_66) //
-								.bit(9, GoodWe.ChannelId.STATE_67) //
-								.bit(10, GoodWe.ChannelId.STATE_68) //
-								.bit(11, GoodWe.ChannelId.STATE_69)), //
+								.bit(0, GoodWe.ChannelId.WBMS_WARNING_01) //
+								.bit(1, GoodWe.ChannelId.WBMS_WARNING_02) //
+								.bit(2, GoodWe.ChannelId.WBMS_WARNING_03) //
+								.bit(3, GoodWe.ChannelId.WBMS_WARNING_04) //
+								.bit(4, GoodWe.ChannelId.WBMS_WARNING_05) //
+								.bit(5, GoodWe.ChannelId.WBMS_WARNING_06) //
+								.bit(6, GoodWe.ChannelId.WBMS_WARNING_07) //
+								.bit(7, GoodWe.ChannelId.WBMS_WARNING_08) //
+								.bit(8, GoodWe.ChannelId.WBMS_WARNING_09) //
+								.bit(9, GoodWe.ChannelId.WBMS_WARNING_10) //
+								.bit(10, GoodWe.ChannelId.WBMS_WARNING_11) //
+								.bit(11, GoodWe.ChannelId.WBMS_WARNING_12)), //
 						new DummyRegisterElement(47912), //
 						m(new BitsWordElement(47913, this) //
-								.bit(0, GoodWe.ChannelId.STATE_42) //
-								.bit(1, GoodWe.ChannelId.STATE_43) //
-								.bit(2, GoodWe.ChannelId.STATE_44) //
-								.bit(3, GoodWe.ChannelId.STATE_45) //
-								.bit(4, GoodWe.ChannelId.STATE_46) //
-								.bit(5, GoodWe.ChannelId.STATE_47) //
-								.bit(6, GoodWe.ChannelId.STATE_48) //
-								.bit(7, GoodWe.ChannelId.STATE_49) //
-								.bit(8, GoodWe.ChannelId.STATE_50) //
-								.bit(9, GoodWe.ChannelId.STATE_51) //
-								.bit(10, GoodWe.ChannelId.STATE_52) //
-								.bit(11, GoodWe.ChannelId.STATE_53) //
-								.bit(12, GoodWe.ChannelId.STATE_54) //
-								.bit(13, GoodWe.ChannelId.STATE_55) //
-								.bit(14, GoodWe.ChannelId.STATE_56) //
-								.bit(15, GoodWe.ChannelId.STATE_57)), //
+								.bit(0, GoodWe.ChannelId.WBMS_ALARM_01) //
+								.bit(1, GoodWe.ChannelId.WBMS_ALARM_02) //
+								.bit(2, GoodWe.ChannelId.WBMS_ALARM_03) //
+								.bit(3, GoodWe.ChannelId.WBMS_ALARM_04) //
+								.bit(4, GoodWe.ChannelId.WBMS_ALARM_05) //
+								.bit(5, GoodWe.ChannelId.WBMS_ALARM_06) //
+								.bit(6, GoodWe.ChannelId.WBMS_ALARM_07) //
+								.bit(7, GoodWe.ChannelId.WBMS_ALARM_08) //
+								.bit(8, GoodWe.ChannelId.WBMS_ALARM_09) //
+								.bit(9, GoodWe.ChannelId.WBMS_ALARM_10) //
+								.bit(10, GoodWe.ChannelId.WBMS_ALARM_11) //
+								.bit(11, GoodWe.ChannelId.WBMS_ALARM_12) //
+								.bit(12, GoodWe.ChannelId.WBMS_ALARM_13) //
+								.bit(13, GoodWe.ChannelId.WBMS_ALARM_14) //
+								.bit(14, GoodWe.ChannelId.WBMS_ALARM_15) //
+								.bit(15, GoodWe.ChannelId.WBMS_ALARM_16)), //
 						new DummyRegisterElement(47914), //
 						m(new BitsWordElement(47915, this) //
-								.bit(0, GoodWe.ChannelId.STATE_79) //
-								.bit(1, GoodWe.ChannelId.STATE_80) //
-								.bit(2, GoodWe.ChannelId.STATE_81))));
+								.bit(0, GoodWe.ChannelId.WBMS_SET_FORCE_CHARGE) //
+								.bit(1, GoodWe.ChannelId.WBMS_SET_STOP_CHARGE) //
+								.bit(2, GoodWe.ChannelId.WBMS_SET_STOP_DISCHARGE)),
+						m(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, new UnsignedWordElement(47916)))); //
 	}
 
 	protected AbstractModbusElement<?> getSocModbusElement(int address) throws NotImplementedException {

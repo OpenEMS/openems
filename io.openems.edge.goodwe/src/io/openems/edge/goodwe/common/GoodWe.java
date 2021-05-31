@@ -290,40 +290,10 @@ public interface GoodWe extends OpenemsComponent {
 		BMS_DISCHARGE_IMAX(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 
-		STATE_42(Doc.of(Level.WARNING).text("Charging over-voltage2")), //
-		STATE_43(Doc.of(Level.WARNING).text("Discharging under-voltage2")), //
-		STATE_44(Doc.of(Level.WARNING).text("CellHigh temperature2")), //
-		STATE_45(Doc.of(Level.WARNING).text("CellLow temperature2")), //
-		STATE_46(Doc.of(Level.WARNING).text("Charging overcurrent2")), //
-		STATE_47(Doc.of(Level.WARNING).text("Discharging overcurrent2")), //
-		STATE_48(Doc.of(Level.WARNING).text("Precharge fault")), //
-		STATE_49(Doc.of(Level.WARNING).text("DC bus fault")), //
-		STATE_50(Doc.of(Level.WARNING).text("Battery break")), //
-		STATE_51(Doc.of(Level.WARNING).text("Battery Lock")), //
-		STATE_52(Doc.of(Level.WARNING).text("Discharge circuit Fault")), //
-		STATE_53(Doc.of(Level.WARNING).text("Charging circuit Failure")), //
-		STATE_54(Doc.of(Level.WARNING).text("Communication failure2")), //
-		STATE_55(Doc.of(Level.WARNING).text("Cell High temperature3")), //
-		STATE_56(Doc.of(Level.WARNING).text("Discharging under-voltage3")), //
-		STATE_57(Doc.of(Level.WARNING).text("Charging over-voltage3")), //
-
 		BMS_SOH(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT).accessMode(AccessMode.READ_ONLY)),
 		BMS_BATTERY_STRINGS(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-
-		STATE_58(Doc.of(Level.WARNING).text("Charging over-voltage1")), //
-		STATE_59(Doc.of(Level.WARNING).text("Discharging under-voltage1")), //
-		STATE_60(Doc.of(Level.WARNING).text("Cell High temperature1")), //
-		STATE_61(Doc.of(Level.WARNING).text("Cell Low temperature1")), //
-		STATE_62(Doc.of(Level.WARNING).text("Charging over-current1")), //
-		STATE_63(Doc.of(Level.WARNING).text("Discharging over-current1")), //
-		STATE_64(Doc.of(Level.WARNING).text("communication failure1")), //
-		STATE_65(Doc.of(Level.WARNING).text("System Reboot")), //
-		STATE_66(Doc.of(Level.WARNING).text("Cell- imbalance")), //
-		STATE_67(Doc.of(Level.WARNING).text("System Low temperature1")), //
-		STATE_68(Doc.of(Level.WARNING).text("System Low temperature2")), //
-		STATE_69(Doc.of(Level.WARNING).text("System High temperature")), //
 
 		BATTERY_PROTOCOL(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
@@ -672,36 +642,77 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.NONE).accessMode(AccessMode.WRITE_ONLY)), //
 
 		// BMS for RS485
-		BMS_VERSION(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-		BATT_STRINGS_RS485(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-		WBMS_BAT_CHARGE_VMAX(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)), //
-		WBMS_BAT_CHARGE_IMAX(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY)), //
-		WBMS_BAT_DISCHARGE_VMIN(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)), //
-		WBMS_BAT_DISCHARGE_IMAX(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY)), //
-		WBMS_BAT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)), //
-		WBMS_BAT_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE)), //
-		WBMS_BAT_SOC(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT).accessMode(AccessMode.READ_WRITE)), //
-		WBMS_BAT_SOH(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT).accessMode(AccessMode.READ_WRITE)), //
-		WBMS_BAT_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS).accessMode(AccessMode.READ_WRITE)), //
-
-		// BMS_STATUS()
-		STATE_79(Doc.of(Level.INFO) //
-				.text("force to charge")), //
-		STATE_80(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Stop charging")), //
-		STATE_81(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Stop discharging"));
+		WBMS_VERSION(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WBMS_STRINGS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WBMS_CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WBMS_CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WBMS_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WBMS_DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WBMS_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WBMS_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WBMS_SOC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WBMS_SOH(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WBMS_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WBMS_WARNING_01(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: Charging Over-Voltage")), //
+		WBMS_WARNING_02(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: Discharging Under-Voltage")), //
+		WBMS_WARNING_03(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: Cell High Temperature")), //
+		WBMS_WARNING_04(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: Cell Low Temperature")), //
+		WBMS_WARNING_05(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: Charging Over-Current")), //
+		WBMS_WARNING_06(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: Discharging Over-Current")), //
+		WBMS_WARNING_07(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: Communication Failure")), //
+		WBMS_WARNING_08(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: System Reboot")), //
+		WBMS_WARNING_09(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: Cell Imbalance")), //
+		WBMS_WARNING_10(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: System Low Temperature")), //
+		WBMS_WARNING_11(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: System Low Temperature")), //
+		WBMS_WARNING_12(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: System High Temperature")), //
+		WBMS_ALARM_01(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Charging Over-Voltage")), //
+		WBMS_ALARM_02(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Discharging Under-Voltage")), //
+		WBMS_ALARM_03(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Cell High Temperature")), //
+		WBMS_ALARM_04(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Cell Low Temperature")), //
+		WBMS_ALARM_05(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Charging Over-Current")), //
+		WBMS_ALARM_06(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Discharging Over-Current")), //
+		WBMS_ALARM_07(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Precharge Fault")), //
+		WBMS_ALARM_08(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: DC Bus Fault")), //
+		WBMS_ALARM_09(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Battery Break")), //
+		WBMS_ALARM_10(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Battery Lock")), //
+		WBMS_ALARM_11(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Discharge Circuit Fault")), //
+		WBMS_ALARM_12(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Charging Circuit Failure")), //
+		WBMS_ALARM_13(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Communication Failure")), //
+		WBMS_ALARM_14(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Cell High Temperature Error")), //
+		WBMS_ALARM_15(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Discharging Under-Voltage Error")), //
+		WBMS_ALARM_16(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Charging Over-Voltage Error")), //
+		WBMS_SET_FORCE_CHARGE(Doc.of(Level.INFO) //
+				.text("BMS Status Force Charge")), //
+		WBMS_SET_STOP_CHARGE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BMS Status Stop Charging")), //
+		WBMS_SET_STOP_DISCHARGE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BMS Status Stop Discharging")),
+		WBMS_DISABLE_TIMEOUT_DETECTION(Doc.of(OpenemsType.INTEGER) //
+				.text("Cancel EMS mode BMS communication timeout detection") //
+				.accessMode(AccessMode.READ_WRITE)), //
+		;
 
 		private final Doc doc;
 
