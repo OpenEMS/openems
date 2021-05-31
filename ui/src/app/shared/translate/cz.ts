@@ -94,6 +94,8 @@ export const TRANSLATION = {
         logout: 'Odhlásit',
         menu: 'Menu',
         overview: 'OpenEMS Edge Přehled',
+        settings: 'nastavení',
+        user: 'Uživatel',
     },
     Index: {
         allConnected: 'Všechna připojení aktivní.',

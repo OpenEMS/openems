@@ -1,7 +1,5 @@
 package io.openems.edge.goodwe.ess;
 
-import java.util.Optional;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -19,12 +17,9 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -34,23 +29,24 @@ import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
+import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
-import io.openems.edge.goodwe.common.applypower.ApplyPowerStateMachine;
-import io.openems.edge.goodwe.common.applypower.Context;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
-import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "GoodWe.Ess", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
-) //
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		}) //
 public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, HybridEss, ManagedSymmetricEss,
 		SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler {
 
+	private final AllowedChargeDischargeHandler allowedChargeDischargeHandler = new AllowedChargeDischargeHandler(this);
 	private Config config;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
@@ -60,15 +56,10 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 	protected ConfigurationAdmin cm;
 
 	@Reference
+	protected ComponentManager componentManager;
+
+	@Reference
 	private Power power;
-
-	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(this,
-			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
-	private final CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(this,
-			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
-
-	private final ApplyPowerStateMachine applyPowerStateMachine = new ApplyPowerStateMachine(
-			ApplyPowerStateMachine.State.UNDEFINED);
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -92,6 +83,12 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 	public GoodWeEssImpl() throws OpenemsNamedException {
 		super(//
+				SymmetricEss.ChannelId.ACTIVE_POWER, //
+				HybridEss.ChannelId.DC_DISCHARGE_POWER, //
+				SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, //
+				SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
+				HybridEss.ChannelId.DC_CHARGE_ENERGY, //
+				HybridEss.ChannelId.DC_DISCHARGE_ENERGY, //
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
@@ -103,27 +100,8 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		int pvProduction = Optional.ofNullable(this.calculatePvProduction()).orElse(0);
-		int soc = this.getSoc().orElse(0);
-		ApplyPowerStateMachine.State state = ApplyPowerStateMachine.evaluateState(this.getGoodweType(),
-				this.config.readOnlyMode(), pvProduction, soc, activePower);
-
-		// Store the current State
-		this.channel(GoodWe.ChannelId.APPLY_POWER_STATE_MACHINE).setNextValue(state);
-
-		// Prepare Context
-		Context context = new Context(this, pvProduction, activePower);
-
-		this.applyPowerStateMachine.forceNextState(state);
-		this.applyPowerStateMachine.run(context); // apply the force next state
-		this.applyPowerStateMachine.run(context); // execute correct handler
-
-		IntegerWriteChannel emsPowerSetChannel = this.channel(GoodWe.ChannelId.EMS_POWER_SET);
-		emsPowerSetChannel.setNextWriteValue(context.getEssPowerSet());
-
-		EnumWriteChannel emsPowerModeChannel = this.channel(GoodWe.ChannelId.EMS_POWER_MODE);
-		emsPowerModeChannel.setNextWriteValue(context.getNextPowerMode());
-
+		// Apply Power Set-Point
+		ApplyPowerHandler.apply(this, config.readOnlyMode(), activePower);
 	}
 
 	@Override
@@ -143,80 +121,12 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.updatechannels();
+			this.updatePowerAndEnergyChannels();
+			break;
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.allowedChargeDischargeHandler.accept(this.componentManager);
 			break;
 		}
-	}
-
-	private void updatechannels() {
-		/*
-		 * Update ActivePower from P_BATTERY1 and chargers ACTUAL_POWER
-		 */
-		Integer productionPower = this.calculatePvProduction();
-		final Channel<Integer> batteryPower = this.channel(GoodWe.ChannelId.P_BATTERY1);
-		Integer activePower = TypeUtils.sum(productionPower, batteryPower.value().get());
-		this._setActivePower(activePower);
-
-		/*
-		 * Calculate AC Energy
-		 */
-		if (activePower == null) {
-			// Not available
-			this.calculateAcChargeEnergy.update(null);
-			this.calculateAcDischargeEnergy.update(null);
-		} else if (activePower > 0) {
-			// Discharge
-			this.calculateAcChargeEnergy.update(0);
-			this.calculateAcDischargeEnergy.update(activePower);
-		} else {
-			// Charge
-			this.calculateAcChargeEnergy.update(activePower * -1);
-			this.calculateAcDischargeEnergy.update(0);
-		}
-
-		/*
-		 * Update Allowed charge and Allowed discharge
-		 */
-
-		Integer soc = this.getSoc().get();
-		Integer maxBatteryPower = this.config.maxBatteryPower();
-
-		Integer allowedCharge = null;
-		Integer allowedDischarge = null;
-
-		if (productionPower == null) {
-			productionPower = 0;
-		}
-
-		if (soc == null) {
-
-			allowedCharge = 0;
-			allowedDischarge = 0;
-
-		} else if (soc == 100) {
-
-			allowedDischarge = maxBatteryPower + productionPower;
-			allowedCharge = 0;
-
-		} else if (soc > 0) {
-
-			allowedDischarge = maxBatteryPower + productionPower;
-			allowedCharge = maxBatteryPower;
-
-		} else if (soc == 0) {
-
-			allowedDischarge = productionPower;
-			allowedCharge = maxBatteryPower;
-
-		}
-
-		// to avoid charging when production is greater than maximum battery power.
-		if (allowedCharge < 0) {
-			allowedCharge = 0;
-		}
-
-		this._setAllowedChargePower(TypeUtils.multiply(allowedCharge * -1));
-		this._setAllowedDischargePower(allowedDischarge);
 	}
 
 	@Override
@@ -256,7 +166,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 		if (productionPower == null || productionPower < 100) {
 			return null;
 		}
-		return productionPower;
+		return productionPower + 200 /* discharge more than PV production to avoid PV curtail */;
 	}
 
 }

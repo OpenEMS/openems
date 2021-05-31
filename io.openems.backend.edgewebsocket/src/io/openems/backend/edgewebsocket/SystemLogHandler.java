@@ -2,7 +2,6 @@ package io.openems.backend.edgewebsocket;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -12,6 +11,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import io.openems.backend.common.metadata.Edge;
+import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.DeprecatedJsonrpcNotification;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
@@ -19,7 +19,6 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
-import io.openems.common.session.User;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
 
@@ -27,7 +26,11 @@ public class SystemLogHandler {
 
 	private final Logger log = LoggerFactory.getLogger(SystemLogHandler.class);
 	private final EdgeWebsocketImpl parent;
-	private final Multimap<String, UUID> subscriptions = HashMultimap.create();
+
+	/**
+	 * Edge-ID to Session-Token.
+	 */
+	private final Multimap<String, String> subscriptions = HashMultimap.create();
 
 	public SystemLogHandler(EdgeWebsocketImpl parent) {
 		this.parent = parent;
@@ -37,13 +40,14 @@ public class SystemLogHandler {
 	 * Handles a {@link SubscribeSystemLogRequest}.
 	 * 
 	 * @param edgeId  the Edge-ID
+	 * @param user    the {@link User}
 	 * @param token   the UI session token
 	 * @param request the {@link SubscribeSystemLogRequest}
 	 * @return a reply
 	 * @throws OpenemsNamedException on error
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			UUID token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
+			String token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		if (request.getSubscribe()) {
 			/*
 			 * Start subscription
@@ -94,16 +98,16 @@ public class SystemLogHandler {
 	 * {@link SubscribeSystemLogRequest}.
 	 * 
 	 * @param edgeId       the Edge-ID
-	 * @param user         the User
-	 * @param notification the SystemLogNotification
+	 * @param user         the {@link User}
+	 * @param notification the {@link SystemLogNotification}
 	 */
 	public void handleSystemLogNotification(String edgeId, User user, SystemLogNotification notification) {
-		Collection<UUID> tokens;
+		Collection<String> tokens;
 		synchronized (this.subscriptions) {
 			tokens = this.subscriptions.get(edgeId);
 		}
 
-		for (UUID token : tokens) {
+		for (String token : tokens) {
 			try {
 				this.parent.uiWebsocket.send(token, new EdgeRpcNotification(edgeId, notification));
 			} catch (OpenemsNamedException | NullPointerException e) {
@@ -117,10 +121,10 @@ public class SystemLogHandler {
 	 * Unsubscribe from System-Log.
 	 * 
 	 * @param edgeId the Edge-ID#
-	 * @param user   the User; possibly null
+	 * @param user   the {@link User}; possibly null
 	 * @param token  the UI token
 	 */
-	private void unsubscribe(String edgeId, User user, UUID token) {
+	private void unsubscribe(String edgeId, User user, String token) {
 		boolean isAnySubscriptionForThisEdgeLeft;
 		synchronized (this.subscriptions) {
 			this.subscriptions.remove(edgeId, token);

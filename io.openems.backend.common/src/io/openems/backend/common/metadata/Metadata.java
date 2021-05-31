@@ -12,7 +12,6 @@ import org.osgi.annotation.versioning.ProviderType;
 import com.google.common.collect.HashMultimap;
 
 import io.openems.common.channel.Level;
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
@@ -27,6 +26,7 @@ public interface Metadata {
 	/**
 	 * Was the Metadata service fully initialized?.
 	 * 
+	 * <p>
 	 * The service might take some time in the beginning to establish a connection
 	 * or to cache data from an external database.
 	 * 
@@ -36,46 +36,43 @@ public interface Metadata {
 
 	/**
 	 * See {@link #isInitialized()}.
+	 * 
+	 * @param callback the callback on 'isInitialized'
 	 */
 	public void addOnIsInitializedListener(Runnable callback);
 
 	/**
 	 * See {@link #isInitialized()}.
+	 * 
+	 * @param callback the callback on 'isInitialized'
 	 */
 	public void removeOnIsInitializedListener(Runnable callback);
-
-	/**
-	 * Authenticates a User without any information.
-	 * 
-	 * <p>
-	 * This is only useful for Dummy-Implementations. By default authentication is
-	 * denied in this case.
-	 * 
-	 * @return the User
-	 * @throws OpenemsNamedException on error
-	 */
-	public default BackendUser authenticate() throws OpenemsNamedException {
-		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-	}
 
 	/**
 	 * Authenticates the User by username and password.
 	 * 
 	 * @param username the Username
 	 * @param password the Password
-	 * @return the User
+	 * @return the {@link User}
 	 * @throws OpenemsNamedException on error
 	 */
-	public BackendUser authenticate(String username, String password) throws OpenemsNamedException;
+	public User authenticate(String username, String password) throws OpenemsNamedException;
 
 	/**
-	 * Authenticates the User by a Session-ID.
+	 * Authenticates the User by a Token.
 	 * 
-	 * @param sessionId the Session-ID
-	 * @return the User
+	 * @param token the Token
+	 * @return the {@link User}
 	 * @throws OpenemsNamedException on error
 	 */
-	public BackendUser authenticate(String sessionId) throws OpenemsNamedException;
+	public User authenticate(String token) throws OpenemsNamedException;
+
+	/**
+	 * Closes a session for a User.
+	 * 
+	 * @param user the {@link User}
+	 */
+	public void logout(User user);
 
 	/**
 	 * Gets the Edge-ID for an API-Key, i.e. authenticates the API-Key.
@@ -114,9 +111,9 @@ public interface Metadata {
 	 * Gets the User for the given User-ID.
 	 * 
 	 * @param userId the User-ID
-	 * @return the User, or Empty
+	 * @return the {@link User}, or Empty
 	 */
-	public abstract Optional<BackendUser> getUser(String userId);
+	public abstract Optional<User> getUser(String userId);
 
 	/**
 	 * Gets all Edges.
@@ -180,4 +177,5 @@ public interface Metadata {
 		}
 		return result.toString();
 	}
+
 }

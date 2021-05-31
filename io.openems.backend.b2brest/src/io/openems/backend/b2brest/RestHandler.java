@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.openems.backend.common.metadata.BackendUser;
+import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -49,7 +49,7 @@ public class RestHandler extends AbstractHandler {
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 		try {
-			BackendUser user = this.authenticate(request);
+			User user = this.authenticate(request);
 
 			List<String> targets = Arrays.asList(//
 					target.substring(1) // remove leading '/'
@@ -74,10 +74,10 @@ public class RestHandler extends AbstractHandler {
 	 * Authenticate a user.
 	 * 
 	 * @param request the HttpServletRequest
-	 * @return the User
+	 * @return the {@link User}
 	 * @throws OpenemsNamedException on error
 	 */
-	private BackendUser authenticate(HttpServletRequest request) throws OpenemsNamedException {
+	private User authenticate(HttpServletRequest request) throws OpenemsNamedException {
 		String authHeader = request.getHeader("Authorization");
 		if (authHeader != null) {
 			StringTokenizer st = new StringTokenizer(authHeader);
@@ -158,12 +158,12 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles an http request to 'jsonrpc' endpoint.
 	 * 
-	 * @param user         the User
+	 * @param user         the {@link User}
 	 * @param baseRequest  the {@link Request}
 	 * @param httpRequest  the {@link HttpServletRequest}
 	 * @param httpResponse the {@link HttpServletResponse}
 	 */
-	private void handleJsonRpc(BackendUser user, Request baseRequest, HttpServletRequest httpRequest,
+	private void handleJsonRpc(User user, Request baseRequest, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse) {
 		UUID requestId = new UUID(0L, 0L); /* dummy UUID */
 		try {

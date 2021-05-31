@@ -3,7 +3,6 @@ package io.openems.edge.ess.sinexcel;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.AbstractChannelListenerManager;
 import io.openems.edge.common.component.ClockProvider;
-import io.openems.edge.ess.generic.common.AllowedChargeDischargeHandler;
 
 public class ChannelManager extends AbstractChannelListenerManager {
 

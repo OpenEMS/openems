@@ -3,6 +3,8 @@ package io.openems.common.websocket;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
@@ -146,4 +148,11 @@ public abstract class WsData {
 	 * @return a specific string for this instance
 	 */
 	public abstract String toString();
+
+	/**
+	 * Execute a {@link Runnable}.
+	 * 
+	 * @param command the {@link Runnable}
+	 */
+	protected abstract ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit);
 }

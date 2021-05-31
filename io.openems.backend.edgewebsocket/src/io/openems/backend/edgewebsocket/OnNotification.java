@@ -72,8 +72,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	 * 
 	 * @param message the EdgeConfigNotification
 	 * @param wsData  the WebSocket attachment
-	 * @throws OpenemsException
-	 * @throws OpenemsNamedException on error
+	 * @throws OpenemsException on error
 	 */
 	private void handleEdgeConfigNotification(EdgeConfigNotification message, WsData wsData) throws OpenemsException {
 		String edgeId = wsData.assertEdgeId(message);
@@ -84,7 +83,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 
 		// forward
 		try {
-			this.parent.uiWebsocket.send(edgeId, new EdgeRpcNotification(edgeId, message));
+			this.parent.uiWebsocket.sendBroadcast(edgeId, new EdgeRpcNotification(edgeId, message));
 		} catch (OpenemsNamedException | NullPointerException e) {
 			this.parent.logWarn(this.log, "Unable to forward EdgeConfigNotification to UI: " + e.getMessage());
 		}

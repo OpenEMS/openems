@@ -7,6 +7,7 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -205,7 +206,8 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	private TreeMap<String, EdgeConfig.Component.Channel> getChannels(OpenemsComponent component) {
 		TreeMap<String, EdgeConfig.Component.Channel> result = new TreeMap<>();
 		if (component != null) {
-			for (Channel<?> channel : component.channels()) {
+			for (Iterator<Channel<?>> iter = component.channels().iterator(); iter.hasNext();) {
+				Channel<?> channel = iter.next();
 				io.openems.edge.common.channel.ChannelId channelId = channel.channelId();
 				Doc doc = channelId.doc();
 				ChannelDetail detail = null;
@@ -263,7 +265,10 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 		if (configs != null) {
 			for (Configuration config : configs) {
 				Dictionary<String, Object> properties = config.getProperties();
-
+				if (properties == null) {
+					this.log.warn(config.getPid() + ": Properties is 'null'");
+					continue;
+				}
 				// Read Component-ID
 				String componentId = null;
 				Object componentIdObj = properties.get("id");

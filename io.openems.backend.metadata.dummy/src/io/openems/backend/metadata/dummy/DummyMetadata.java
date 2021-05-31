@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,13 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.metadata.AbstractMetadata;
-import io.openems.backend.common.metadata.BackendUser;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfigDiff;
@@ -44,7 +46,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 	private final AtomicInteger nextUserId = new AtomicInteger(-1);
 	private final AtomicInteger nextEdgeId = new AtomicInteger(-1);
 
-	private final Map<String, BackendUser> users = new HashMap<>();
+	private final Map<String, User> users = new HashMap<>();
 	private final Map<String, MyEdge> edges = new HashMap<>();
 
 	public DummyMetadata() {
@@ -63,25 +65,31 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
-	public BackendUser authenticate() throws OpenemsException {
-		int id = this.nextUserId.incrementAndGet();
-		String userId = "user" + id;
-		BackendUser user = new BackendUser(userId, "User #" + id);
+	public User authenticate(String username, String password) throws OpenemsNamedException {
+		String name = "User #" + this.nextUserId.incrementAndGet();
+		String token = UUID.randomUUID().toString();
+		TreeMap<String, Role> roles = new TreeMap<>();
 		for (String edgeId : this.edges.keySet()) {
-			user.addEdgeRole(edgeId, Role.ADMIN);
+			roles.put(edgeId, Role.ADMIN);
 		}
-		this.users.put(userId, user);
+		User user = new User(username, name, token, Role.ADMIN, roles);
+		this.users.put(user.getId(), user);
 		return user;
 	}
 
 	@Override
-	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
-		return this.authenticate();
+	public User authenticate(String token) throws OpenemsNamedException {
+		for (User user : this.users.values()) {
+			if (user.getToken().equals(token)) {
+				return user;
+			}
+		}
+		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 	}
 
 	@Override
-	public BackendUser authenticate(String sessionId) throws OpenemsException {
-		return this.authenticate();
+	public void logout(User user) {
+		this.users.remove(user.getId(), user);
 	}
 
 	@Override
@@ -122,7 +130,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
-	public Optional<BackendUser> getUser(String userId) {
+	public Optional<User> getUser(String userId) {
 		return Optional.ofNullable(this.users.get(userId));
 	}
 
@@ -131,7 +139,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 		return Collections.unmodifiableCollection(this.edges.values());
 	}
 
-	public static Optional<Integer> parseNumberFromName(String name) {
+	private static Optional<Integer> parseNumberFromName(String name) {
 		try {
 			Matcher matcher = NAME_NUMBER_PATTERN.matcher(name);
 			if (matcher.find()) {

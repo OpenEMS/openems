@@ -38,10 +38,10 @@ import io.openems.edge.ess.power.api.Power;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		} //
 )
-public class GenericHybridManagedSymmetricEssImpl
-		extends AbstractGenericManagedEss<Battery, HybridManagedSymmetricBatteryInverter>
-		implements HybridEss, GenericManagedEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler,
-		StartStoppable, ModbusSlave {
+public class GenericHybridManagedSymmetricEssImpl extends
+		AbstractGenericManagedEss<GenericHybridManagedSymmetricEss, Battery, HybridManagedSymmetricBatteryInverter>
+		implements GenericHybridManagedSymmetricEss, HybridEss, GenericManagedEss, ManagedSymmetricEss, SymmetricEss,
+		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	@Reference
 	private Power power;
