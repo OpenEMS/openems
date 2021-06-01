@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { SelfconsumptionModalComponent } from './modal/modal.component';
-import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
+import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
+import { SelfconsumptionModalComponent } from './modal/modal.component';
 
 @Component({
     selector: 'selfconsumption',
@@ -18,28 +18,9 @@ export class SelfConsumptionComponent extends AbstractFlatWidget {
     }
 
     protected onCurrentData(currentData: CurrentData) {
-        this.calculatedSelfConsumption = this.calculateSelfConsumption(
-            currentData.allComponents[SelfConsumptionComponent.SUM_GRID_ACTIVE_POWER.toString()],
+        this.calculatedSelfConsumption = Utils.calculateSelfConsumption(
+            Utils.multiplySafely(currentData.allComponents[SelfConsumptionComponent.SUM_GRID_ACTIVE_POWER.toString()], -1),
             currentData.allComponents[SelfConsumptionComponent.SUM_PRODUCTION_ACTIVE_POWER.toString()])
-    }
-
-    public calculateSelfConsumption(sellToGrid: number, productionActivePower: number): number | null {
-        if (sellToGrid != null && productionActivePower != null) {
-            if (productionActivePower <= 0) {
-                /* avoid divide by zero; production == 0 -> selfconsumption 0 % */
-                return null;
-            } else {
-                if (sellToGrid < 0) {
-                    return /* min 0 */ Math.max(0,
-                        /* calculate selfconsumption */
-                        (1 - sellToGrid * -1 / productionActivePower) * 100)
-                } else {
-                    return 100
-                }
-            }
-        } else {
-            return null;
-        }
     }
 
     async presentModal() {
