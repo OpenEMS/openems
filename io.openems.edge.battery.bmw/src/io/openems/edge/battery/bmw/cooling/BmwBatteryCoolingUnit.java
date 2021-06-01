@@ -42,7 +42,8 @@ public class BmwBatteryCoolingUnit extends AbstractOpenemsComponent implements O
 
 	private final int TWO_POINT_CONTROLLER_UPPER_THRESHOLD_degC = 33;
 	private final int TWO_POINT_CONTROLLER_LOWER_THRESHOLD_degC = 32;
-	
+	private final int DEFAULT_MAX_CELL_TEMPERATURE_degC = 0;
+
 	private Config config = null;
 	private BooleanWriteChannel digitalOutputCoolingEnableChannel;
 
@@ -50,7 +51,6 @@ public class BmwBatteryCoolingUnit extends AbstractOpenemsComponent implements O
 	@Reference
 	private ComponentManager manager;
 
-	
 	protected List<BmwBatteryImpl> getBatteryList() throws OpenemsNamedException {
 		List<BmwBatteryImpl> batteryList = new ArrayList<BmwBatteryImpl>();
 		for (String batteryId : this.config.batteryIds()) {
@@ -94,8 +94,7 @@ public class BmwBatteryCoolingUnit extends AbstractOpenemsComponent implements O
 	void activate(ComponentContext context, Config config) throws IllegalArgumentException, OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		this.digitalOutputCoolingEnableChannel = manager
-				.getChannel(ChannelAddress.fromString(config.coolingCommand()));
+		this.digitalOutputCoolingEnableChannel = manager.getChannel(ChannelAddress.fromString(config.coolingCommand()));
 		digitalOutputCoolingEnableChannel.setNextWriteValue(false);
 	}
 
@@ -122,22 +121,26 @@ public class BmwBatteryCoolingUnit extends AbstractOpenemsComponent implements O
 		}
 	}
 
-	private void doBatteryCooling(List<BmwBatteryImpl> batteryList) throws Exception {		
+	private void doBatteryCooling(List<BmwBatteryImpl> batteryList) throws Exception {
 		List<Integer> maxTemperatures = new ArrayList<Integer>();
-		
-		//--- read Status of Digital-Output Cooling-Enable ---
+
+		// --- read Status of Digital-Output Cooling-Enable ---
 		if (this.digitalOutputCoolingEnableChannel.value().orElse(false)) {
 			this.setBatteryCoolingRunningStatus(RunningStatus.ON);
 		} else {
 			this.setBatteryCoolingRunningStatus(RunningStatus.OFF);
 		}
 
-		//--- read maximum Temperature ---
+		// --- read maximum Temperature ---
 		for (BmwBatteryImpl bmwBatteryImpl : batteryList) {
-			maxTemperatures.add(bmwBatteryImpl.getMaxCellTemperature().orElse(0));
+			if (bmwBatteryImpl.isStarted()) {
+				maxTemperatures.add(bmwBatteryImpl.getMaxCellTemperature().orElse(0));
+			} else {
+				maxTemperatures.add(DEFAULT_MAX_CELL_TEMPERATURE_degC);
+			}
 		}
-		
-		//--- execute two-point Controller ---
+
+		// --- execute two-point Controller ---
 		if ((Collections.max(maxTemperatures) >= TWO_POINT_CONTROLLER_UPPER_THRESHOLD_degC)
 				&& (this.getBatteryCoolingRunningStatus() == RunningStatus.OFF)) {
 			digitalOutputCoolingEnableChannel.setNextWriteValue(true);
