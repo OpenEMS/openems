@@ -94,7 +94,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 
 		this.config = config;
 		this.soc = config.initialSoc();
-		this.energy = (long) (((float) config.capacity() /* [Wh] */ * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */
+		this.energy = (long) (((double) config.capacity() /* [Wh] */ * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */
 				/ 100 /* [%] */) * this.soc /* [current SoC] */);
 		this._setSoc(config.initialSoc());
 		this._setMaxApparentPower(config.maxApparentPower());
