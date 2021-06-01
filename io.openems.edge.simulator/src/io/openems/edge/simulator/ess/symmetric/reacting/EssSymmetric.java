@@ -49,12 +49,12 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	/**
 	 * Current state of charge.
 	 */
-	private float soc = 0;
+	private double soc = 0;
 
 	/**
 	 * Current Energy in the battery [Wms], based on SoC
 	 */
-	private double energy = 0;
+	private long energy = 0;
 
 	private Config config;
 
@@ -94,8 +94,8 @@ public class EssSymmetric extends AbstractOpenemsComponent
 
 		this.config = config;
 		this.soc = config.initialSoc();
-		this.energy = ((float) config.capacity() /* [Wh] */ * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */
-				/ 100 /* [%] */) * this.soc /* [current SoC] */;
+		this.energy = (long) (((float) config.capacity() /* [Wh] */ * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */
+				/ 100 /* [%] */) * this.soc /* [current SoC] */);
 		this._setSoc(config.initialSoc());
 		this._setMaxApparentPower(config.maxApparentPower());
 		this._setAllowedChargePower(config.maxApparentPower() * -1);
@@ -159,7 +159,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 			// Adding the energy to the initial energy.
 			this.energy -= energy;
 
-			double soc = this.energy //
+			soc = this.energy //
 					/ ((float) this.config.capacity() * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */) //
 					* 100 /* [SoC] */;
 
