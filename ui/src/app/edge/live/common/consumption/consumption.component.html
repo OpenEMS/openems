@@ -3,8 +3,8 @@
         (click)="presentModal()">
 
         <!-- Evcss -->
-        <ng-container *ngIf="evcsComponents.length > 0">
-            <ng-container *ngFor="let component of evcsComponents, let i = index">
+        <ng-container *ngIf="evcss.length > 0">
+            <ng-container *ngFor="let component of evcss, let i = index">
 
                 <!-- Show Alias of components -->
                 <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ChargePower'"
@@ -16,8 +16,8 @@
         </ng-container>
 
         <!-- ConsumptionMeters -->
-        <ng-container *ngIf="consumptionMeterComponents.length > 0">
-            <ng-container *ngFor="let component of consumptionMeterComponents">
+        <ng-container *ngIf="consumptionMeters.length > 0">
+            <ng-container *ngFor="let component of consumptionMeters">
                 <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ActivePower'"
                     [converter]="CONVERT_WATT_TO_KILOWATT">
                 </oe-flat-widget-line>
@@ -25,17 +25,17 @@
         </ng-container>
 
         <!-- If at least Evcss or ConsumptionMeters -->
-        <ng-container *ngIf="evcsComponents.length != 0 || consumptionMeterComponents.length != 0">
+        <ng-container *ngIf="evcss.length != 0 || consumptionMeters.length != 0; else noMeters">
             <oe-flat-widget-line [name]="'General.otherConsumption' | translate" [value]="otherPower"
                 [converter]="CONVERT_WATT_TO_KILOWATT">
             </oe-flat-widget-line>
         </ng-container>
 
         <!-- For no Evcss and ConsumptionMeters -->
-        <ng-container *ngIf="evcsComponents.length == 0 && consumptionMeterComponents.length == 0">
+        <ng-template #noMeters>
             <oe-flat-widget-line [value]="sumActivePower" [converter]="CONVERT_WATT_TO_KILOWATT">
             </oe-flat-widget-line>
-        </ng-container>
+        </ng-template>
 
     </oe-flat-widget>
 </ng-container>
