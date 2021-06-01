@@ -57,7 +57,7 @@
       </ng-container>
     </ng-container>
   </ng-container>
-  <ng-container *ngIf="evcsComponents.length > 1">
+  <ng-container *ngIf="evcss.length > 1">
     <ion-card-content class="underline">
       <table class="full_width">
         <tr>
@@ -65,7 +65,7 @@
               translate>Edge.Index.Widgets.EVCS.chargingPower</span>
           </td>
           <td class="align_right" style="width: 35%">
-            {{ currentTotalChargingPower() | unitvalue:'W' }}
+            {{ evcsSumOfChargePower | unitvalue:'W' }}
           </td>
         </tr>
       </table>
@@ -117,7 +117,7 @@
           <table class="full_width" *ngIf="evcsComponents.length != 0  || consumptionMeterComponents.length != 0">
             <tr>
               <td style="width: 65%" translate>General.otherConsumption</td>
-              <ng-container *ngIf="sum.activePower - getTotalOtherPower() as otherPower">
+              <ng-container *ngIf="otherPower">
                 <td style="width: 35%" class="align_right" *ngIf="otherPower > 0">
                   {{ otherPower | unitvalue:'W' }}
                 </td>
