@@ -71,7 +71,7 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 		RACK_LEVEL_1_CELL_UNDER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Cell Under Voltage warning")), //
-		
+
 		RACK_PRE_ALARM_CELL_OVER_VOLTAGE(Doc.of(Level.INFO) //
 				.text("Rack Cell Over Voltage Alarm")), //
 		RACK_PRE_ALARM_OVER_CHARGING_CURRENT(Doc.of(Level.INFO) //
@@ -177,10 +177,10 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.text("Rack Hardware Fault")), //
 
 		// Alarm BCU Position
-		ALARM_POSITION_BCU_2(Doc.of(Level.INFO) //
+		ALARM_POSITION_BCU_2(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Alarm BCU 2 Position")), //
-		ALARM_POSITION_BCU_3(Doc.of(Level.INFO) //
+		ALARM_POSITION_BCU_3(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Alarm BCU 3 Position")), //
 		ALARM_POSITION_BCU_4(Doc.of(Level.INFO) //
@@ -206,10 +206,10 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.text("Alarm BCU 10 Position")), //
 
 		// Warning BCU Position
-		WARNING_POSITION_BCU_2(Doc.of(Level.WARNING) //
+		WARNING_POSITION_BCU_2(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Warning BCU 2 Position")), //
-		WARNING_POSITION_BCU_3(Doc.of(Level.WARNING) //
+		WARNING_POSITION_BCU_3(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Warning BCU 3 Position")), //
 		WARNING_POSITION_BCU_4(Doc.of(Level.WARNING) //
