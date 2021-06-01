@@ -154,13 +154,13 @@ public class EssSymmetric extends AbstractOpenemsComponent
 			long duration /* [msec] */ = Duration.between(this.lastTimestamp, now).toMillis();
 
 			// calculate energy since last run in [Wh]
-			double energy /* [Wmsec] */ = this.getActivePower().orElse(0) /* [W] */ * duration /* [msec] */;
+			long energy /* [Wmsec] */ = this.getActivePower().orElse(0) /* [W] */ * duration /* [msec] */;
 
 			// Adding the energy to the initial energy.
 			this.energy -= energy;
 
 			soc = this.energy //
-					/ ((float) this.config.capacity() * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */) //
+					/ ((double) this.config.capacity() * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */) //
 					* 100 /* [SoC] */;
 
 			if (soc > 100) {
