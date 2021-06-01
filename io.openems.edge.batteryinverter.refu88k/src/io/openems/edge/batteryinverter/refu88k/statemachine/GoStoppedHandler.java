@@ -20,11 +20,11 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 			return State.GO_STOPPED;
 		case FAULT:
 		case STANDBY:
+		case UNDEFINED:
 			return State.STOPPED;
 		case SHUTTING_DOWN:
 		case OFF:
 		case SLEEPING:
-		case UNDEFINED:
 			return State.UNDEFINED;
 		}
 

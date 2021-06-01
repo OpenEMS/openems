@@ -13,6 +13,7 @@ public class StoppedHandler extends StateHandler<State, Context> {
 
 		switch (inverter.getOperatingState()) {
 		case STANDBY:
+		case UNDEFINED:
 			// Mark as stopped
 			inverter._setStartStop(StartStop.STOP);
 			return State.STOPPED;
@@ -27,7 +28,7 @@ public class StoppedHandler extends StateHandler<State, Context> {
 		case SHUTTING_DOWN:
 		case OFF:
 		case SLEEPING:
-		case UNDEFINED:
+		
 		}
 		return State.UNDEFINED;
 	}

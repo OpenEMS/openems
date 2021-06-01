@@ -1,5 +1,6 @@
 package io.openems.edge.batteryinverter.refu88k;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -44,6 +45,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
@@ -149,6 +151,9 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
 
+		// Set ControllerHb (Watchdog)
+		this.setControllerHb();
+
 		// Calculate the Energy values from ActivePower.
 		this.calculateEnergy();
 
@@ -169,20 +174,16 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 
 	@Override
 	public BatteryInverterConstraint[] getStaticConstraints() throws OpenemsException {
-		BatteryInverterConstraint noReactivePower = new BatteryInverterConstraint("Reactive power is not allowed",
-				Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0d);
-
 		if (this.stateMachine.getCurrentState() == State.RUNNING) {
-			return new BatteryInverterConstraint[] { noReactivePower };
-
+			return BatteryInverterConstraint.NO_CONSTRAINTS;
 		} else {
-			// Block any power as long as we are not RUNNING
+			// Block any power as long as the inverter is not RUNNING!
 			return new BatteryInverterConstraint[] { //
-					noReactivePower, //
+					new BatteryInverterConstraint("Reactive power is not allowed", Phase.ALL, Pwr.REACTIVE,
+							Relationship.EQUALS, 0d), //
 					new BatteryInverterConstraint("Refu inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
 							0d) //
 			};
-
 		}
 	}
 
@@ -196,6 +197,11 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 
 		IntegerWriteChannel maxBatADischaChannel = this.channel(RefuStore88kChannelId.MAX_BAT_A_DISCHA);
 		maxBatADischaChannel.setNextWriteValue(maxBatteryDischargeValue);
+	}
+
+	private void setControllerHb() throws OpenemsNamedException {
+		IntegerWriteChannel controllerHbChannel = this.channel(RefuStore88kChannelId.CONTROLLER_HB);
+		controllerHbChannel.setNextWriteValue(LocalDateTime.now().getSecond());
 	}
 
 	@Override
@@ -219,6 +225,9 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException { // Register
+		if (this.config.startStop() == StartStopConfig.STOP) {
+			return new ModbusProtocol(this);
+		}
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(SUNSPEC_1, Priority.ONCE, //
 						m(RefuStore88kChannelId.ID_1, new UnsignedWordElement(SUNSPEC_1)), // 40002
@@ -428,9 +437,10 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 						m(RefuStore88kChannelId.LOC_REM_CTL, new SignedWordElement(SUNSPEC_64800 + 2))), // 40227
 
 				new FC3ReadRegistersTask(SUNSPEC_64800 + 3, Priority.LOW, //
-						m(RefuStore88kChannelId.PCS_HB, new SignedWordElement(SUNSPEC_64800 + 3)), // 40228
-						m(RefuStore88kChannelId.CONTROLLER_HB, new SignedWordElement(SUNSPEC_64800 + 4)), // 40229
-						new DummyRegisterElement(SUNSPEC_64800 + 5)),
+						m(RefuStore88kChannelId.PCS_HB, new SignedWordElement(SUNSPEC_64800 + 3))),// 40228
+				
+				new FC16WriteRegistersTask(SUNSPEC_64800 + 4, //
+						m(RefuStore88kChannelId.CONTROLLER_HB, new SignedWordElement(SUNSPEC_64800 + 4))), // 40229
 
 				new FC16WriteRegistersTask(SUNSPEC_64800 + 6, //
 						m(RefuStore88kChannelId.PCS_SET_OPERATION, new SignedWordElement(SUNSPEC_64800 + 6)), // 40231

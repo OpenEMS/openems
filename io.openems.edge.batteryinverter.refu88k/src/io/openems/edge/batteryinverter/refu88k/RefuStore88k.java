@@ -168,23 +168,23 @@ public interface RefuStore88k
 		pcsSetOperation.setNextWriteValue(PCSSetOperation.ENTER_STANDBY_MODE);
 	}
 
-	public default String getSerialNumber() {
-		return this.channel(RefuStore88kChannelId.SN).value().asString();
+	public default Channel<String> getSerialNumberChannel() {
+		return this.channel(RefuStore88kChannelId.SN);
 	}
 
-	public default Channel<Integer> getDcVoltage() {
+	public default Channel<Integer> getDcVoltageChannel() {
 		return this.channel(RefuStore88kChannelId.DCV);
 	}
 
-	public default Channel<Integer> getAcVoltage() {
+	public default Channel<Integer> getAcVoltageChannel() {
 		return this.channel(RefuStore88kChannelId.PP_VPH_AB);
 	}
 
-	public default Channel<Integer> getAcCurrent() {
+	public default Channel<Integer> getAcCurrentChannel() {
 		return this.channel(RefuStore88kChannelId.A);
 	}
 
-	public default Channel<Integer> getApparentPower() {
+	public default Channel<Integer> getApparentPowerChannel() {
 		return this.channel(RefuStore88kChannelId.VA);
 	}
 
