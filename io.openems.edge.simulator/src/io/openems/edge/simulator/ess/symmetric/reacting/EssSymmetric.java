@@ -47,11 +47,6 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	/**
-	 * Current state of charge.
-	 */
-	private double soc = 0;
-
-	/**
 	 * Current Energy in the battery [Wms], based on SoC
 	 */
 	private long energy = 0;
@@ -93,9 +88,8 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.config = config;
-		this.soc = config.initialSoc();
 		this.energy = (long) (((double) config.capacity() /* [Wh] */ * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */
-				/ 100 /* [%] */) * this.soc /* [current SoC] */);
+				/ 100 /* [%] */) * this.config.initialSoc() /* [current SoC] */);
 		this._setSoc(config.initialSoc());
 		this._setMaxApparentPower(config.maxApparentPower());
 		this._setAllowedChargePower(config.maxApparentPower() * -1);
@@ -149,7 +143,12 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		 * calculate State of charge
 		 */
 		Instant now = Instant.now(this.componentManager.getClock());
-		if (this.lastTimestamp != null) {
+		final int soc;
+		if (this.lastTimestamp == null) {
+			// initial run
+			soc = this.config.initialSoc();
+
+		} else {
 			// calculate duration since last value
 			long duration /* [msec] */ = Duration.between(this.lastTimestamp, now).toMillis();
 
@@ -159,17 +158,19 @@ public class EssSymmetric extends AbstractOpenemsComponent
 			// Adding the energy to the initial energy.
 			this.energy -= energy;
 
-			soc = this.energy //
-					/ ((double) this.config.capacity() * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */) //
+			double calculatedSoc = this.energy //
+					/ (this.config.capacity() * 3600. /* [Wsec] */ * 1000 /* [Wmsec] */) //
 					* 100 /* [SoC] */;
 
-			if (soc > 100) {
+			if (calculatedSoc > 100) {
 				soc = 100;
-			} else if (soc < 0) {
+			} else if (calculatedSoc < 0) {
 				soc = 0;
+			} else {
+				soc = (int) Math.round(calculatedSoc);
 			}
 
-			this._setSoc((int) Math.round(soc));
+			this._setSoc(soc);
 		}
 		this.lastTimestamp = now;
 
