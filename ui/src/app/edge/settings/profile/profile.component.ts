@@ -6,6 +6,7 @@ import { environment } from '../../../../environments';
 import { ModbusApiUtil } from './modbusapi/modbusapi';
 import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { ModbusRegistersExportUtil } from './modbusregisters/modbusregistersutil';
 
 @Component({
   selector: ProfileComponent.SELECTOR,
@@ -44,4 +45,9 @@ export class ProfileComponent {
   public getModbusProtocol(componentId: string) {
     ModbusApiUtil.getModbusProtocol(this.service, componentId);
   };
+
+  public getModbusRegisters(componentId: string) {
+    ModbusRegistersExportUtil.getModbusRegisters(this.service, componentId);
+  };
+
 }
