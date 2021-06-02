@@ -32,6 +32,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
@@ -93,6 +94,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				"Modbus", config.modbus_id())) {
 			return;
 		}
+		this.config = config;
 	}
 
 	@Modified
@@ -102,6 +104,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				"Modbus", config.modbus_id())) {
 			return;
 		}
+		this.config = config;
 	}
 
 	@Deactivate
@@ -194,7 +197,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	}
 
 	@Override
-	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
+	public void run(Battery battery, int setActivePower, int setReactivePower, ApplyPowerContext context)
+			throws OpenemsNamedException {
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
 
@@ -227,7 +231,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			emsPowerModeChannel.setNextWriteValue(this.config.emsPowerMode());
 		} else {
 			// Apply Power Set-Point
-			ApplyPowerHandler.apply(this, false /* read-only mode is never true */, setActivePower);
+			ApplyPowerHandler.apply(this, false /* read-only mode is never true */, setActivePower, context);
 		}
 	}
 
