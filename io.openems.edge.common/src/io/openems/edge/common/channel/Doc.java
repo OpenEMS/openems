@@ -134,6 +134,22 @@ public interface Doc {
 	public String getText();
 
 	/**
+	 * Sets a source information text, i.e. a Modbus Register or REST-Api endpoint
+	 * address. Defaults to an empty string.
+	 * 
+	 * @param text the text
+	 * @return myself
+	 */
+	public Doc source(String source);
+
+	/**
+	 * Gets the source information text. Defaults to empty String.
+	 * 
+	 * @return the text
+	 */
+	public String getSource();
+
+	/**
 	 * Is the more verbose debug mode activated?
 	 * 
 	 * @return true for debug mode

@@ -128,6 +128,27 @@ public abstract class AbstractDoc<T> implements Doc {
 		return this.text;
 	}
 
+	/*
+	 * A source information text, i.e. a Modbus Register or REST-Api endpoint
+	 * address. Defaults to an empty string.
+	 */
+	private String source = "";
+
+	@Override
+	public AbstractDoc<T> source(String source) {
+		if (this.source.isEmpty()) {
+			this.source = source;
+		} else {
+			this.source += " | " + source;
+		}
+		return this.self();
+	}
+
+	@Override
+	public String getSource() {
+		return this.source;
+	}
+
 	@Override
 	public Unit getUnit() {
 		return Unit.NONE;
