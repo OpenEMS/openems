@@ -24,6 +24,8 @@ import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -37,6 +39,7 @@ import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
+import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -76,6 +79,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 */
 	private Value<Integer> lastSoc = null;
 
+	private Config config;
+
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -83,6 +88,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -91,6 +97,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Modified
 	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.config = config;
 		if (super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -213,8 +220,15 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 						/* Battery Voltage */ battery.getVoltage().get()),
 				/* PV Production */ pvProduction));
 
-		// Apply Power Set-Point
-		ApplyPowerHandler.apply(this, false /* read-only mode is never true */, setActivePower);
+		if (this.config.emsPowerMode() != EmsPowerMode.UNDEFINED && this.config.emsPowerSet() >= 0) {
+			IntegerWriteChannel emsPowerSetChannel = this.channel(GoodWe.ChannelId.EMS_POWER_SET);
+			emsPowerSetChannel.setNextWriteValue(this.config.emsPowerSet());
+			EnumWriteChannel emsPowerModeChannel = this.channel(GoodWe.ChannelId.EMS_POWER_MODE);
+			emsPowerModeChannel.setNextWriteValue(this.config.emsPowerMode());
+		} else {
+			// Apply Power Set-Point
+			ApplyPowerHandler.apply(this, false /* read-only mode is never true */, setActivePower);
+		}
 	}
 
 	@Override
