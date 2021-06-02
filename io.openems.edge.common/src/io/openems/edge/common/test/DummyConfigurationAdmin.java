@@ -35,6 +35,16 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 			return this.properties;
 		}
 
+		/**
+		 * Adds a configuration property to thhis {@link DummyConfiguration}.
+		 * 
+		 * @param key   the property key
+		 * @param value the property value
+		 */
+		public void addProperty(String key, Object value) {
+			this.properties.put(key, value);
+		}
+
 		@Override
 		public void update(Dictionary<String, ?> properties) throws IOException {
 			Enumeration<String> keys = properties.keys();
@@ -137,7 +147,14 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 		return this.configurations.get(factoryPid);
 	}
 
-	private synchronized DummyConfiguration getOrCreateEmptyConfiguration(String id) {
+	/**
+	 * Gets a {@link DummyConfiguration} by id or creates a new empty
+	 * {@link DummyConfiguration} for the given id.
+	 * 
+	 * @param id the given id
+	 * @return the {@link DummyConfiguration}
+	 */
+	public synchronized DummyConfiguration getOrCreateEmptyConfiguration(String id) {
 		return this.configurations.computeIfAbsent(id, (ignore) -> new DummyConfiguration());
 	}
 
