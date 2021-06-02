@@ -13,6 +13,7 @@ import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
@@ -737,9 +738,9 @@ public interface FeneconMiniEss extends ManagedSinglePhaseEss, ManagedAsymmetric
 
 	@Override
 	public default void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
+			int activePowerL3, int reactivePowerL3, ApplyPowerContext context) throws OpenemsNamedException {
 		ManagedSinglePhaseEss.super.applyPower(activePowerL1, reactivePowerL1, activePowerL2, reactivePowerL2,
-				activePowerL3, reactivePowerL3);
+				activePowerL3, reactivePowerL3, context);
 	}
 
 }

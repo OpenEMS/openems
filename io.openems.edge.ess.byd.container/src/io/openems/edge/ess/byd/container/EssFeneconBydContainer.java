@@ -35,6 +35,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
@@ -124,7 +125,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
+	public void applyPower(int activePower, int reactivePower, ApplyPowerContext context) throws OpenemsNamedException {
 		if (this.readonly) {
 			return;
 		}

@@ -601,7 +601,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * @throws OpenemsNamedException on error; causes activation of
 	 *                               APPLY_POWER_FAILED StateChannel
 	 */
-	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException;
+	public void applyPower(int activePower, int reactivePower, ApplyPowerContext context) throws OpenemsNamedException;
 
 	/**
 	 * Gets the smallest positive power that can be set (in W, VA or var). Example:

@@ -418,11 +418,12 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 	}
 
 	@Override
-	default void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
+	default void applyPower(int activePower, int reactivePower, ApplyPowerContext context)
+			throws OpenemsNamedException {
 		int activePowerBy3 = activePower / 3;
 		int reactivePowerBy3 = reactivePower / 3;
 		this.applyPower(activePowerBy3, reactivePowerBy3, activePowerBy3, reactivePowerBy3, activePowerBy3,
-				reactivePowerBy3);
+				reactivePowerBy3, context);
 	}
 
 	/**
@@ -436,7 +437,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 	 * @param reactivePowerL3
 	 */
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException;
+			int activePowerL3, int reactivePowerL3, ApplyPowerContext context) throws OpenemsNamedException;
 
 	/**
 	 * Gets the Channel for {@link ChannelId#SET_ACTIVE_POWER_L1_EQUALS}.

@@ -6,6 +6,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -158,7 +159,7 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) {
+	public void applyPower(int activePower, int reactivePower, ApplyPowerContext context) {
 		if (this.symmetricApplyPowerCallback != null) {
 			this.symmetricApplyPowerCallback.accept(new SymmetricApplyPowerRecord(activePower, reactivePower));
 		}

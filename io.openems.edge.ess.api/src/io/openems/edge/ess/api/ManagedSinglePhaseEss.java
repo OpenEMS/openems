@@ -26,16 +26,16 @@ public interface ManagedSinglePhaseEss extends ManagedSymmetricEss, SinglePhaseE
 	}
 
 	public default void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
+			int activePowerL3, int reactivePowerL3, ApplyPowerContext context) throws OpenemsNamedException {
 		switch (this.getPhase()) {
 		case L1:
-			this.applyPower(activePowerL1, reactivePowerL1);
+			this.applyPower(activePowerL1, reactivePowerL1, context);
 			break;
 		case L2:
-			this.applyPower(activePowerL2, reactivePowerL2);
+			this.applyPower(activePowerL2, reactivePowerL2, context);
 			break;
 		case L3:
-			this.applyPower(activePowerL3, reactivePowerL3);
+			this.applyPower(activePowerL3, reactivePowerL3, context);
 			break;
 		}
 	}

@@ -30,7 +30,7 @@ public class ManagedSymmetricEssTest extends AbstractComponentTest<ManagedSymmet
 			activePower = allowedDischargePower;
 		}
 
-		this.getSut().applyPower(activePower, reactivePower);
+		this.getSut().applyPower(activePower, reactivePower, null);
 	}
 
 	@Override

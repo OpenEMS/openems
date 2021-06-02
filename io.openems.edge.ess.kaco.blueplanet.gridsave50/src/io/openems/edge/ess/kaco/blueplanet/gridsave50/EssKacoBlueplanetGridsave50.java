@@ -49,6 +49,7 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
@@ -192,7 +193,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
+	public void applyPower(int activePower, int reactivePower, ApplyPowerContext context) throws OpenemsException {
 		// TODO reactive power
 		IntegerWriteChannel wSetPctChannel = this.channel(ChannelId.W_SET_PCT);
 		IntegerReadChannel wSetPct_SFChannel = this.channel(ChannelId.W_SET_PCT_SF);

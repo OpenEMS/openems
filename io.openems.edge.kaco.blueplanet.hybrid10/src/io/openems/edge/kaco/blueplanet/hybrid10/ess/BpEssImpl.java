@@ -36,6 +36,7 @@ import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -302,7 +303,7 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 	private int lastSetActivePower = Integer.MIN_VALUE;
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) {
+	public void applyPower(int activePower, int reactivePower, ApplyPowerContext context) {
 		if (this.config.readOnly()) {
 			return;
 		}

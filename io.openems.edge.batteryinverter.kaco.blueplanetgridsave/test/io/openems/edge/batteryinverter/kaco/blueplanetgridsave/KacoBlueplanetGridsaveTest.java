@@ -53,7 +53,7 @@ public class KacoBlueplanetGridsaveTest {
 		@Override
 		protected void handleEvent(String topic) throws Exception {
 			if (topic.equals(EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE)) {
-				((KacoBlueplanetGridsaveImpl) this.getSut()).run(this.battery, 0, 0);
+				((KacoBlueplanetGridsaveImpl) this.getSut()).run(this.battery, 0, 0, null);
 			}
 			super.handleEvent(topic);
 		}

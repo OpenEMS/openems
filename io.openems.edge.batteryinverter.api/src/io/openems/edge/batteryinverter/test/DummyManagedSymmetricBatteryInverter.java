@@ -9,6 +9,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.ess.api.ApplyPowerContext;
 
 /**
  * Provides a simple, simulated {@link ManagedSymmetricBatteryInverter}
@@ -42,7 +43,8 @@ public class DummyManagedSymmetricBatteryInverter extends AbstractOpenemsCompone
 	}
 
 	@Override
-	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
+	public void run(Battery battery, int setActivePower, int setReactivePower, ApplyPowerContext context)
+			throws OpenemsNamedException {
 		this._setActivePower(setActivePower);
 		this._setReactivePower(setReactivePower);
 	}

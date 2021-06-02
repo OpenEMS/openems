@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingFunction;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
@@ -31,6 +32,7 @@ import io.openems.edge.ess.core.power.solver.ConstraintSolver;
 import io.openems.edge.ess.core.power.solver.PowerTuple;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Inverter;
+import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.OnSolved;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.PowerException.Type;
@@ -216,9 +218,9 @@ public class Solver {
 				this.log.warn("Power-Solver: Applying Inverter Precisions failed: " + e.getMessage());
 				inverterSolutionMap = this.getZeroSolution(allInverters);
 			}
-			this.applySolution(inverterSolutionMap);
+			this.applySolution(inverterSolutionMap, allConstraints);
 		} else {
-			this.applySolution(this.getZeroSolution(allInverters));
+			this.applySolution(this.getZeroSolution(allInverters), allConstraints);
 		}
 	}
 
@@ -287,9 +289,10 @@ public class Solver {
 	/**
 	 * Send the final solution to each Inverter.
 	 * 
-	 * @param finalSolution a map of inverters to PowerTuples
+	 * @param finalSolution  a map of inverters to PowerTuples
+	 * @param allConstraints all Constraints
 	 */
-	private void applySolution(Map<Inverter, PowerTuple> finalSolution) {
+	private void applySolution(Map<Inverter, PowerTuple> finalSolution, List<Constraint> allConstraints) {
 		// store last value inside Inverter
 		finalSolution.forEach((inv, powerTuple) -> {
 			inv.setLastActivePower(powerTuple.getActivePower());
@@ -300,6 +303,7 @@ public class Solver {
 				// ignore MetaEss
 				continue;
 			}
+
 			PowerTuple inv = null;
 			PowerTuple invL1 = null;
 			PowerTuple invL2 = null;
@@ -324,6 +328,16 @@ public class Solver {
 					}
 				}
 			}
+
+			// Create ApplyPowerContext
+			List<Constraint> thisEssConstraints = new ArrayList<>();
+			for (Constraint constraint : allConstraints) {
+				LinearCoefficient[] coefficients = constraint.getCoefficients();
+				if (coefficients.length == 1 && coefficients[0].getCoefficient().getEssId() == ess.id()) {
+					thisEssConstraints.add(constraint);
+				}
+			}
+			ApplyPowerContext context = new ApplyPowerContext(thisEssConstraints);
 
 			if (ess instanceof ManagedAsymmetricEss && (invL1 != null || invL2 != null || invL3 != null)) {
 				/*
@@ -356,7 +370,8 @@ public class Solver {
 					e.applyPower(//
 							invL1.getActivePower(), invL1.getReactivePower(), //
 							invL2.getActivePower(), invL2.getReactivePower(), //
-							invL3.getActivePower(), invL3.getReactivePower());
+							invL3.getActivePower(), invL3.getReactivePower(), //
+							context);
 
 					// announce applying power was ok
 					ess._setApplyPowerFailed(false);
@@ -379,7 +394,7 @@ public class Solver {
 
 				// apply Power
 				try {
-					ess.applyPower(inv.getActivePower(), inv.getReactivePower());
+					ess.applyPower(inv.getActivePower(), inv.getReactivePower(), context);
 
 					// announce applying power was ok
 					ess._setApplyPowerFailed(false);

@@ -27,6 +27,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.CalculateGridMode;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
@@ -190,13 +191,13 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
+	public void applyPower(int activePower, int reactivePower, ApplyPowerContext context) throws OpenemsException {
 		throw new OpenemsException("EssClusterImpl.applyPower() should never be called.");
 	}
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsException {
+			int activePowerL3, int reactivePowerL3, ApplyPowerContext context) throws OpenemsException {
 		throw new OpenemsException("EssClusterImpl.applyPower() should never be called.");
 	}
 

@@ -26,6 +26,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
@@ -150,7 +151,7 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) {
+	public void applyPower(int activePower, int reactivePower, ApplyPowerContext context) {
 		/*
 		 * calculate State of charge
 		 */
@@ -219,9 +220,9 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
+			int activePowerL3, int reactivePowerL3, ApplyPowerContext context) throws OpenemsNamedException {
 		ManagedSinglePhaseEss.super.applyPower(activePowerL1, reactivePowerL1, activePowerL2, reactivePowerL2,
-				activePowerL3, reactivePowerL3);
+				activePowerL3, reactivePowerL3, context);
 	}
 
 	@Override

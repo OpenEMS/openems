@@ -24,6 +24,7 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
@@ -85,7 +86,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
+	public void applyPower(int activePower, int reactivePower, ApplyPowerContext context) throws OpenemsException {
 		if (!this.readonly) {
 			this.powerHandler.accept(activePower, reactivePower);
 		}

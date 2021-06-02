@@ -44,6 +44,7 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -91,7 +92,7 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
+			int activePowerL3, int reactivePowerL3, ApplyPowerContext context) throws OpenemsNamedException {
 		int activePower = activePowerL1 + activePowerL2 + activePowerL3;
 		int allowedCharge = this.getAllowedChargePower().orElse(0);
 		int allowedDischarge = this.getAllowedDischargePower().orElse(0);

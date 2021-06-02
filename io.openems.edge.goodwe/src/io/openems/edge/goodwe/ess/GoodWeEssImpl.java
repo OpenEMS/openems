@@ -20,6 +20,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -99,9 +100,9 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
+	public void applyPower(int activePower, int reactivePower, ApplyPowerContext context) throws OpenemsNamedException {
 		// Apply Power Set-Point
-		ApplyPowerHandler.apply(this, config.readOnlyMode(), activePower);
+		ApplyPowerHandler.apply(this, config.readOnlyMode(), this.getSoc().orElse(50), activePower, context);
 	}
 
 	@Override

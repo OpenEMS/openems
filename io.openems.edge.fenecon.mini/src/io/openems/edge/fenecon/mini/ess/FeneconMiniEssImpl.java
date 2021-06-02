@@ -44,6 +44,7 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
@@ -541,7 +542,8 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
+	public void applyPower(int activePower, int reactivePower, ApplyPowerContext applyPowerContext)
+			throws OpenemsNamedException {
 		// Store the current State
 		this.channel(FeneconMiniEss.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
 

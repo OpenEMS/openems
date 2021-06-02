@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -35,7 +36,7 @@ public class DummyManagedAsymmetricEss extends DummyManagedSymmetricEss
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
+			int activePowerL3, int reactivePowerL3, ApplyPowerContext context) throws OpenemsNamedException {
 		if (this.asymmetricApplyPowerCallback != null) {
 			this.asymmetricApplyPowerCallback.accept(new AsymmetricApplyPowerRecord(activePowerL1, reactivePowerL1,
 					activePowerL2, reactivePowerL2, activePowerL3, reactivePowerL3));

@@ -27,6 +27,7 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -175,8 +176,8 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		this.getBatteryInverter().run(this.getBattery(), activePower, reactivePower);
+	public void applyPower(int activePower, int reactivePower, ApplyPowerContext context) throws OpenemsNamedException {
+		this.getBatteryInverter().run(this.getBattery(), activePower, reactivePower, context);
 	}
 
 	/**

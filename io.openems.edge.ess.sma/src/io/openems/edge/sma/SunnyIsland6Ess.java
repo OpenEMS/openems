@@ -27,6 +27,7 @@ import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
@@ -91,7 +92,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 
 	// TODO IMP!! LOAD_POWER "30861"
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
+	public void applyPower(int activePower, int reactivePower, ApplyPowerContext context) throws OpenemsNamedException {
 		EnumWriteChannel setControlMode = this.channel(SiChannelId.SET_CONTROL_MODE);
 		IntegerWriteChannel setActivePowerChannel = this.channel(SiChannelId.SET_ACTIVE_POWER);
 		IntegerWriteChannel setReactivePowerChannel = this.channel(SiChannelId.SET_REACTIVE_POWER);
@@ -102,9 +103,9 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
+			int activePowerL3, int reactivePowerL3, ApplyPowerContext context) throws OpenemsNamedException {
 		ManagedSinglePhaseEss.super.applyPower(activePowerL1, reactivePowerL1, activePowerL2, reactivePowerL2,
-				activePowerL3, reactivePowerL3);
+				activePowerL3, reactivePowerL3, context);
 	}
 
 	@Override

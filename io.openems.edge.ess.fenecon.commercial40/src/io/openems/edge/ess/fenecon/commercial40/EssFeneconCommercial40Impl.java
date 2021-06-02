@@ -48,6 +48,7 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -122,7 +123,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
+	public void applyPower(int activePower, int reactivePower, ApplyPowerContext context) throws OpenemsNamedException {
 		if (this.config.readOnlyMode()) {
 			return;
 		}

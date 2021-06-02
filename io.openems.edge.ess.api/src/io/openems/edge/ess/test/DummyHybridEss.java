@@ -8,6 +8,7 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -67,7 +68,7 @@ public class DummyHybridEss extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) {
+	public void applyPower(int activePower, int reactivePower, ApplyPowerContext context) {
 	}
 
 	@Override

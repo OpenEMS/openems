@@ -26,6 +26,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -144,7 +145,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsException {
+			int activePowerL3, int reactivePowerL3, ApplyPowerContext context) throws OpenemsException {
 		int activePower = activePowerL1 + activePowerL2 + activePowerL3;
 		/*
 		 * calculate State of charge

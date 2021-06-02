@@ -47,6 +47,7 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
@@ -139,7 +140,8 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 	}
 
 	@Override
-	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
+	public void run(Battery battery, int setActivePower, int setReactivePower, ApplyPowerContext applyPowerContext)
+			throws OpenemsNamedException {
 		// Store the current State
 		this.channel(RefuStore88k.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
 

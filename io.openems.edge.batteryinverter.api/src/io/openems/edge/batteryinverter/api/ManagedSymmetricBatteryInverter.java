@@ -9,6 +9,7 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.ess.api.ApplyPowerContext;
 
 /**
  * Represents a Symmetric Battery-Inverter that can be controlled.
@@ -60,9 +61,11 @@ public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverte
 	 * @param battery          the {@link Battery}
 	 * @param setActivePower   the active power setpoint
 	 * @param setReactivePower the reactive power setpoint
+	 * @param context          the {@link ApplyPowerContext}
 	 * @throws OpenemsNamedException on error
 	 */
-	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException;
+	public void run(Battery battery, int setActivePower, int setReactivePower, ApplyPowerContext context)
+			throws OpenemsNamedException;
 
 	/**
 	 * Gets static Constraints for this Battery-Inverter. Override this method to

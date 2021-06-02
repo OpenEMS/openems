@@ -3,6 +3,7 @@ package io.openems.edge.goodwe.common;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 
 public class ApplyPowerHandler {
@@ -14,10 +15,12 @@ public class ApplyPowerHandler {
 	 * @param goodWe         the GoodWe - either Battery-Inverter or ESS
 	 * @param readOnlyMode   is Read-Only-Mode activated?
 	 * @param setActivePower the Active-Power Set-Point
+	 * @param context        the {@link ApplyPowerContext}
 	 * @throws OpenemsNamedException on error
 	 */
-	public static void apply(GoodWe goodWe, boolean readOnlyMode, int setActivePower) throws OpenemsNamedException {
-		ApplyPowerHandler.Result apply = calculate(readOnlyMode, setActivePower);
+	public static void apply(AbstractGoodWe goodWe, boolean readOnlyMode, int soc, int setActivePower,
+			ApplyPowerContext context) throws OpenemsNamedException {
+		ApplyPowerHandler.Result apply = calculate(goodWe, readOnlyMode, soc, setActivePower, context);
 
 		IntegerWriteChannel emsPowerSetChannel = goodWe.channel(GoodWe.ChannelId.EMS_POWER_SET);
 		emsPowerSetChannel.setNextWriteValue(apply.emsPowerSet);
@@ -36,7 +39,8 @@ public class ApplyPowerHandler {
 		}
 	}
 
-	private static ApplyPowerHandler.Result calculate(boolean readOnlyMode, int activePowerSetPoint) {
+	private static ApplyPowerHandler.Result calculate(AbstractGoodWe goodWe, boolean readOnlyMode, int soc,
+			int activePowerSetPoint, ApplyPowerContext context) {
 		if (readOnlyMode) {
 			// Read-Only
 			return new Result(EmsPowerMode.AUTO, 0);

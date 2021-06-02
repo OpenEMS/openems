@@ -24,6 +24,7 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId0;
@@ -237,7 +238,7 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
+	public void applyPower(int activePower, int reactivePower, ApplyPowerContext context) throws OpenemsNamedException {
 		this.getGridconPcs().setPower(activePower, reactivePower);
 	}
 
