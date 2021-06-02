@@ -139,22 +139,22 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 * @throws OpenemsNamedException on error
 	 */
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
-		this.writeToChannel(GoodWe.ChannelId.WBMS_SOC, //
-				battery.getSoc().get());
-		this.writeToChannel(GoodWe.ChannelId.WBMS_SOH, //
-				battery.getSoh().get());
-		this.writeToChannel(GoodWe.ChannelId.WBMS_STRINGS, //
-				TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE));
-		this.writeToChannel(GoodWe.ChannelId.LEAD_BAT_CAPACITY, //
-				LEAD_BATTERY_CAPACITY);
-		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, //
-				battery.getDischargeMinVoltage().get());
-		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT, //
-				TypeUtils.min(MAX_DC_CURRENT, battery.getDischargeMaxCurrent().get()));
-		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, //
-				battery.getChargeMaxVoltage().get());
-		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, //
-				TypeUtils.min(MAX_DC_CURRENT, battery.getChargeMaxCurrent().get()));
+//		this.writeToChannel(GoodWe.ChannelId.WBMS_SOC, //
+//				battery.getSoc().get());
+//		this.writeToChannel(GoodWe.ChannelId.WBMS_SOH, //
+//				battery.getSoh().get());
+//		this.writeToChannel(GoodWe.ChannelId.WBMS_STRINGS, //
+//				TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE));
+//		this.writeToChannel(GoodWe.ChannelId.LEAD_BAT_CAPACITY, //
+//				LEAD_BATTERY_CAPACITY);
+//		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, //
+//				battery.getDischargeMinVoltage().get());
+//		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT, //
+//				TypeUtils.min(MAX_DC_CURRENT, battery.getDischargeMaxCurrent().get()));
+//		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, //
+//				battery.getChargeMaxVoltage().get());
+//		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, //
+//				TypeUtils.min(MAX_DC_CURRENT, battery.getChargeMaxCurrent().get()));
 	}
 
 	private void writeToChannel(GoodWe.ChannelId channelId, Object value)
@@ -181,6 +181,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Override
 	public Integer getSurplusPower() {
+		// TODO logic is insufficient
 		if (this.lastSoc == null || this.lastSoc.orElse(0) < 99) {
 			return null;
 		}
@@ -213,7 +214,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 						/* Charge-Max-Current; max 25 A */ TypeUtils.min(battery.getChargeMaxCurrent().get(),
 								MAX_DC_CURRENT), //
 						/* Battery Voltage */ battery.getVoltage().get());
-		Integer pvProduction = TypeUtils.min(0, this.calculatePvProduction());
+		int pvProduction = TypeUtils.min(0, this.calculatePvProduction());
 		this._setMaxAcImport(TypeUtils.multiply(/* negate */ -1, //
 				TypeUtils.subtract(maxDcChargePower,
 						TypeUtils.min(maxDcChargePower /* avoid negative number for `subtract` */, pvProduction))));
@@ -225,6 +226,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				/* PV Production */ pvProduction));
 
 		if (this.config.emsPowerMode() != EmsPowerMode.UNDEFINED && this.config.emsPowerSet() >= 0) {
+			System.out.println("Static " + this.config.emsPowerMode() + "[" + this.config.emsPowerSet() + "]");
 			IntegerWriteChannel emsPowerSetChannel = this.channel(GoodWe.ChannelId.EMS_POWER_SET);
 			emsPowerSetChannel.setNextWriteValue(this.config.emsPowerSet());
 			EnumWriteChannel emsPowerModeChannel = this.channel(GoodWe.ChannelId.EMS_POWER_MODE);

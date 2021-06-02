@@ -160,6 +160,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 	@Override
 	public Integer getSurplusPower() {
+		// TODO logic is insufficient
 		if (this.getSoc().orElse(0) < 99) {
 			return null;
 		}

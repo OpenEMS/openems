@@ -3,7 +3,10 @@ package io.openems.edge.goodwe.common;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ApplyPowerContext;
+import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 
 public class ApplyPowerHandler {
@@ -20,8 +23,8 @@ public class ApplyPowerHandler {
 	 */
 	public static void apply(AbstractGoodWe goodWe, boolean readOnlyMode, int setActivePower, ApplyPowerContext context)
 			throws OpenemsNamedException {
-		ApplyPowerHandler.Result apply = calculate(goodWe, readOnlyMode, setActivePower, context);
-
+		int pvProduction = TypeUtils.min(0, goodWe.calculatePvProduction());
+		ApplyPowerHandler.Result apply = calculate(goodWe, readOnlyMode, setActivePower, pvProduction, context);
 
 		IntegerWriteChannel emsPowerSetChannel = goodWe.channel(GoodWe.ChannelId.EMS_POWER_SET);
 		emsPowerSetChannel.setNextWriteValue(apply.emsPowerSet);
@@ -41,86 +44,60 @@ public class ApplyPowerHandler {
 	}
 
 	private static ApplyPowerHandler.Result calculate(AbstractGoodWe goodWe, boolean readOnlyMode,
-			int activePowerSetPoint, ApplyPowerContext context) {
+			int activePowerSetPoint, int pvProduction, ApplyPowerContext context) {
 		if (readOnlyMode) {
 			// Read-Only
 			return new Result(EmsPowerMode.AUTO, 0);
 		}
 
 		if (activePowerSetPoint > 0) {
-			// Export to AC
-//			Integer pvProduction = goodWe.calculatePvProduction();
-//			if (pvProduction != null && pvProduction > 0 && soc > 98) {
-//				System.out.println("DISCHARGE_PV [0] PV [" + goodWe.calculatePvProduction() + "] Set-Point ["
-//						+ activePowerSetPoint + "]");
-//				return new Result(EmsPowerMode.DISCHARGE_PV, 0);
-//			} else {
-			System.out.println("EXPORT_AC [" + activePowerSetPoint + "] PV [" + goodWe.calculatePvProduction()
-					+ "] Set-Point [" + activePowerSetPoint + "]");
-			return new Result(EmsPowerMode.EXPORT_AC, activePowerSetPoint);
-//			}
+			Integer minPowerConstraint = null;
+			Integer maxPowerConstraint = null;
+			for (Constraint constraint : context.getConstraints()) {
+				if (constraint.getRelationship() == Relationship.GREATER_OR_EQUALS && constraint.getValue().isPresent()
+				// Do not consider the default 'Allowed Charge' Constraint
+						&& !constraint.getDescription().endsWith("Allowed Charge")) {
+					minPowerConstraint = TypeUtils.min((int) Math.round(constraint.getValue().get()),
+							maxPowerConstraint);
+					System.out.println("minPowerConstraint [" + minPowerConstraint + "] Constraint: " + constraint);
+				}
+				if (constraint.getRelationship() == Relationship.LESS_OR_EQUALS && constraint.getValue().isPresent()
+				// Do not consider the default 'Allowed Discharge' Constraint
+						&& !constraint.getDescription().endsWith("Allowed Discharge")) {
+					maxPowerConstraint = TypeUtils.min((int) Math.round(constraint.getValue().get()),
+							maxPowerConstraint);
+					System.out.println("maxPowerConstraint [" + maxPowerConstraint + "] Constraint: " + constraint);
+				}
+			}
 
-//			// Is there any Max-Power Constraint? (e.g. curtail grid-feed-in power)
+			if (maxPowerConstraint != null && maxPowerConstraint == activePowerSetPoint) {
+				System.out.println("EXPORT_AC [" + maxPowerConstraint
+						+ "] MaxPowerConstraint for PV Curtail is set and equals activePowerSetPoint");
+				// TODO try after a while if PV curtail is still required
+				return new Result(EmsPowerMode.EXPORT_AC, maxPowerConstraint);
 
-//			Integer maxPowerConstraint = null;
-//			for (Constraint constraint : context.getConstraints()) {
-//				if (constraint.getRelationship() == Relationship.LESS_OR_EQUALS && constraint.getValue().isPresent()) {
-//					maxPowerConstraint = TypeUtils.min((int) Math.round(constraint.getValue().get()), maxPowerConstraint);
-//					System.out.println("maxPowerConstraint [" + maxPowerConstraint + "] Constraint: " + constraint);
-//				}
-//			}
-//			Integer maxPowerConstraint = null;
-//			if (context.getConstraints().size() > 1) {
-//				for (Constraint constraint : context.getConstraints()) {
-//					if (constraint.getRelationship() == Relationship.LESS_OR_EQUALS && constraint.getValue().isPresent()
-//					// Do not consider the default 'Allowed Discharge' Constraint
-//							&& !constraint.getDescription().endsWith("Allowed Discharge")) {
-//						maxPowerConstraint = TypeUtils.min((int) Math.round(constraint.getValue().get()),
-//								maxPowerConstraint);
-//						System.out.println("maxPowerConstraint [" + maxPowerConstraint + "] Constraint: " + constraint);
-//					}
-//				}
-//			}
+			} else if (minPowerConstraint != null && minPowerConstraint == goodWe.getSurplusPower()) {
+				System.out.println(
+						"DISCHARGE_PV [0] MinPowerConstraint equals SurplusPower -> surplus feed-in is activated");
+				return new Result(EmsPowerMode.DISCHARGE_PV, 0);
 
-			// Szenarien:
-			// Tagsueber: Überschusseinspeisung (Set-Point < PV)
-			// Tagsueber: Überschusseinspeisung reicht nicht aus um Lasten zu versorgen
-			// (Set-Point > PV)
-			// Nachts: Entladung (Set-Point > PV)
-//			if (maxPowerConstraint == null) {
-//				// No Limit
-//				if (activePowerSetPoint > goodWe.calculatePvProduction()) {
-//					// Discharge
-//					System.out.println("Discharge EXPORT_AC [" + activePowerSetPoint + "] PV ["
-//							+ goodWe.calculatePvProduction() + "] Set-Point [" + activePowerSetPoint + "]");
-//				} else {
-//					//
-//				}
-//			}
-//
-//			if (maxPowerConstraint != null) {
-//				if (maxPowerConstraint > goodWe.calculatePvProduction()) {
-//					// Curtail
-//					System.out.println("Curtail EXPORT_AC [" + Math.min(activePowerSetPoint, maxPowerConstraint)
-//							+ "] PV [" + goodWe.calculatePvProduction() + "] Set-Point [" + activePowerSetPoint + "]");
-//				}
-//			}
-//
-//			if (maxPowerConstraint == null || goodWe.calculatePvProduction() < activePowerSetPoint) {
-//				// Apply Constraint or Active-Power-SetPoint
-//
-//				return new Result(EmsPowerMode.EXPORT_AC, Math.min(activePowerSetPoint, maxPowerConstraint));
-//			} else if (maxPowerConstraint != null) {
-//				System.out.println("EXPORT_AC [" + Math.min(activePowerSetPoint, maxPowerConstraint) + "] PV ["
-//						+ goodWe.calculatePvProduction() + "] Set-Poinet [" + activePowerSetPoint + "]");
-//				return new Result(EmsPowerMode.EXPORT_AC, Math.min(activePowerSetPoint, maxPowerConstraint));
-//
-//			} else {
-//				System.out.println("CHARGE_BAT [0]");
-//				return new Result(EmsPowerMode.CHARGE_BAT, 0);
-//			}
+			} else if (activePowerSetPoint > pvProduction) {
+				// Set-Point is positive && bigger than PV-Production -> feed all PV to grid +
+				// discharge battery
+				System.out.println("DISCHARGE_PV [" + (activePowerSetPoint - pvProduction) + "] Set-Point ["
+						+ activePowerSetPoint + "] bigger than PV [" + pvProduction + "]");
+				return new Result(EmsPowerMode.DISCHARGE_PV, activePowerSetPoint - pvProduction);
+
+			} else {
+				// Set-Point is positive && less than PV-Production -> feed PV partly to grid +
+				// charge battery
+				System.out.println("CHARGE_BAT [" + (pvProduction - activePowerSetPoint) + "] Set-Point ["
+						+ activePowerSetPoint + "] less than PV [" + pvProduction + "]");
+				return new Result(EmsPowerMode.CHARGE_BAT, pvProduction - activePowerSetPoint);
+			}
 
 		} else {
+			System.out.println("IMPORT_AC [" + (activePowerSetPoint * -1) + "]");
 			// Import from AC
 			return new Result(EmsPowerMode.IMPORT_AC, activePowerSetPoint * -1);
 		}

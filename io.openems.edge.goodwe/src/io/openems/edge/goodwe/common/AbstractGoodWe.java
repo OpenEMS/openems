@@ -497,4 +497,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 			}
 		}
 	}
+
+	public abstract Integer getSurplusPower();
 }
