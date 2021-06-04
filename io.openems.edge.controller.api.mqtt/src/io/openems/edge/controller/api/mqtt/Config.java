@@ -38,5 +38,8 @@ import io.openems.common.channel.PersistencePriority;
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
 
+	@AttributeDefinition(name = "Filter Spec", description = "A list of valid topic paths. Follows the MQTT topic subscription rules for globbing.")
+	String filterSpec();
+
 	String webconsole_configurationFactory_nameHint() default "Controller Api MQTT [{id}]";
 }
