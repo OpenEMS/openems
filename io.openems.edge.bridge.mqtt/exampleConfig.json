@@ -1,0 +1,44 @@
+{
+  "payloadStyle": "Standard",
+  "mqttID": "Example-Component",
+  "subscription": [
+    {
+      "mqttType": "Telemetry",
+      "priority": "Low",
+      "topic": "Test/OpenEms/JsonConfig/Testing",
+      "qos": 0,
+      "retain": true,
+      "useTime": false,
+      "timeToWait": 10,
+      "payload": {
+        "dummy": "DummyTwo",
+        "Power": "Power",
+        "Temperatur": "Temperature"
+      }
+    },{
+      "mqttType": "Command",
+      "priority": "Low",
+      "topic":"control/chp-1/setPower",
+      "qos": 0,
+      "retain": true,
+      "useTime":false,
+      "timeToWait": 10
+    }
+  ],
+  "publish": [
+    {
+      "mqttType": "Telemetry",
+      "priority": "Low",
+      "topic": "Test/OpenEms/JsonConfig/Testing",
+      "qos": 0,
+      "retain": true,
+      "useTime": true,
+      "timeToWait": 10,
+      "payload": {
+        "dummy": "DummyTwo",
+        "Power": "Power",
+        "Temperatur": "Temperature"
+      }
+    }
+  ]
+}
