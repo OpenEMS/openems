@@ -659,4 +659,16 @@ public class TypeUtils {
 		}
 	}
 
+	/**
+	 * Fits a value within a lower and upper boundary.
+	 * 
+	 * @param lowLimit  the lower boundary
+	 * @param highLimit the upper boundary
+	 * @param value     the actual value
+	 * @return the adjusted value
+	 */
+	public static Integer fitWithin(Integer lowLimit, Integer highLimit, Integer value) {
+		return TypeUtils.max(lowLimit, //
+				TypeUtils.min(highLimit, value));
+	}
 }

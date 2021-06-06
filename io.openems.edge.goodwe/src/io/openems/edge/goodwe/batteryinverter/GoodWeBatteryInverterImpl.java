@@ -139,22 +139,22 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 * @throws OpenemsNamedException on error
 	 */
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
-//		this.writeToChannel(GoodWe.ChannelId.WBMS_SOC, //
-//				battery.getSoc().get());
-//		this.writeToChannel(GoodWe.ChannelId.WBMS_SOH, //
-//				battery.getSoh().get());
-//		this.writeToChannel(GoodWe.ChannelId.WBMS_STRINGS, //
-//				TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE));
-//		this.writeToChannel(GoodWe.ChannelId.LEAD_BAT_CAPACITY, //
-//				LEAD_BATTERY_CAPACITY);
-//		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, //
-//				battery.getDischargeMinVoltage().get());
-//		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT, //
-//				TypeUtils.min(MAX_DC_CURRENT, battery.getDischargeMaxCurrent().get()));
-//		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, //
-//				battery.getChargeMaxVoltage().get());
-//		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, //
-//				TypeUtils.min(MAX_DC_CURRENT, battery.getChargeMaxCurrent().get()));
+		this.writeToChannel(GoodWe.ChannelId.WBMS_SOC, //
+				battery.getSoc().get());
+		this.writeToChannel(GoodWe.ChannelId.WBMS_SOH, //
+				battery.getSoh().get());
+		this.writeToChannel(GoodWe.ChannelId.WBMS_STRINGS, //
+				TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE));
+		this.writeToChannel(GoodWe.ChannelId.LEAD_BAT_CAPACITY, //
+				LEAD_BATTERY_CAPACITY);
+		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, //
+				battery.getDischargeMinVoltage().get());
+		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT, //
+				TypeUtils.fitWithin(0, MAX_DC_CURRENT, battery.getDischargeMaxCurrent().get()));
+		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, //
+				battery.getChargeMaxVoltage().get());
+		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, //
+				TypeUtils.fitWithin(0, MAX_DC_CURRENT, battery.getChargeMaxCurrent().get()));
 	}
 
 	private void writeToChannel(GoodWe.ChannelId channelId, Object value)
