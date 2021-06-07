@@ -237,6 +237,16 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Override
 	public BatteryInverterConstraint[] getStaticConstraints() throws OpenemsNamedException {
+		if (this.config.emsPowerMode() != EmsPowerMode.UNDEFINED && this.config.emsPowerSet() >= 0) {
+			// Manual EMS Settings active
+			return new BatteryInverterConstraint[] { //
+					new BatteryInverterConstraint("Manual Override", Phase.ALL, Pwr.ACTIVE, //
+							Relationship.EQUALS, 0), //
+					new BatteryInverterConstraint("Manual Override", Phase.ALL, Pwr.REACTIVE, //
+							Relationship.EQUALS, 0), //
+			};
+		}
+
 		return new BatteryInverterConstraint[] { //
 				new BatteryInverterConstraint("Max AC Import", Phase.ALL, Pwr.ACTIVE, //
 						Relationship.GREATER_OR_EQUALS, this.getMaxAcImport().orElse(0)), //
