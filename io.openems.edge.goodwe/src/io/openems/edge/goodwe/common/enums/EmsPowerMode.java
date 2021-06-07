@@ -55,7 +55,8 @@ public enum EmsPowerMode implements OptionsEnum {
 	 * 
 	 * <p>
 	 * Interpretation: Charge Battery from PV (high priority) or Grid (low
-	 * priority); EmsPowerSet = negative ESS ActivePower (if possible because of PV).
+	 * priority); EmsPowerSet = negative ESS ActivePower (if possible because of
+	 * PV).
 	 * 
 	 * <ul>
 	 * <li>Grid: low priority
@@ -102,7 +103,9 @@ public enum EmsPowerMode implements OptionsEnum {
 	 * 
 	 * <p>
 	 * Interpretation: Charge Battery from Grid (high priority) or PV (low
-	 * priority); EmsPowerSet = negative ESS ActivePower.
+	 * priority); EmsPowerSet = negative ESS ActivePower; as long as
+	 * BMS_CHARGE_MAX_CURRENT is > 0, no AC-Power is exported; when
+	 * BMS_CHARGE_MAX_CURRENT == 0, PV surplus feed in starts!
 	 * 
 	 * <ul>
 	 * <li>Grid: high priority
