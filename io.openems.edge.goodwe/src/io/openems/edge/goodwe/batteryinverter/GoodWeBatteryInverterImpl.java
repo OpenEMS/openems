@@ -211,8 +211,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		// getStaticConstraints()
 		Integer maxDcChargePower = /* can be negative for force-discharge */
 				TypeUtils.multiply(//
-						/* Charge-Max-Current; max 25 A */ TypeUtils.min(battery.getChargeMaxCurrent().get(),
-								MAX_DC_CURRENT), //
+						/* Charge-Max-Current */ this.getBmsChargeMaxCurrent().get(), //
 						/* Battery Voltage */ battery.getVoltage().get());
 		int pvProduction = TypeUtils.min(0, this.calculatePvProduction());
 		this._setMaxAcImport(TypeUtils.multiply(/* negate */ -1, //
@@ -220,8 +219,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 						TypeUtils.min(maxDcChargePower /* avoid negative number for `subtract` */, pvProduction))));
 		this._setMaxAcExport(TypeUtils.sum(//
 				/* Max DC-Discharge-Power */ TypeUtils.multiply(//
-						/* Charge-Max-Current; max 25 A */ TypeUtils.min(battery.getDischargeMaxCurrent().get(),
-								MAX_DC_CURRENT), //
+						/* Discharge-Max-Current */ this.getBmsDischargeMaxCurrent().get(), //
 						/* Battery Voltage */ battery.getVoltage().get()),
 				/* PV Production */ pvProduction));
 
@@ -245,5 +243,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				new BatteryInverterConstraint("Max AC Export", Phase.ALL, Pwr.ACTIVE, //
 						Relationship.LESS_OR_EQUALS, this.getMaxAcExport().orElse(0)) //
 		};
+	}
+
+	@Override
+	public String debugLog() {
+		return "AllowedAC:" + this.getMaxAcImport().asStringWithoutUnit() + ";" + this.getMaxAcExport().asString();
 	}
 }
