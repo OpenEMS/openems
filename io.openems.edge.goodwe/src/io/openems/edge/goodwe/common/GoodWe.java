@@ -3,9 +3,11 @@ package io.openems.edge.goodwe.common;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.goodwe.charger.AbstractGoodWeEtCharger;
@@ -219,8 +221,6 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_ONLY)), //
 		E_DISCHARGE_DAY(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_ONLY)), //
-		BATT_STRINGS(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 		CPLD_WARNING_CODE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 		W_CHARGER_CTRL_FLAG(Doc.of(OpenemsType.INTEGER) //
@@ -409,8 +409,6 @@ public interface GoodWe extends OpenemsComponent {
 		UPSPHASE_TYPE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 		DERATE_RATE_VDE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		LEAD_BAT_CAPACITY(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 		BATTERY_STRINGS(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
@@ -641,6 +639,27 @@ public interface GoodWe extends OpenemsComponent {
 		CLEAR_ALL_ECONOMIC_MODE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.WRITE_ONLY)), //
 
+		// BMS
+		BMS_LEAD_CAPACITY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+		BMS_STRINGS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+		BMS_CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		BMS_CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		BMS_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		BMS_DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		BMS_DEPTH_OF_DISCHARGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT) //
+				.accessMode(AccessMode.READ_WRITE)), //
+
 		// BMS for RS485
 		WBMS_VERSION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
@@ -744,4 +763,83 @@ public interface GoodWe extends OpenemsComponent {
 		return this.getGoodweTypeChannel().value().asEnum();
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#BMS_CHARGE_MAX_CURRENT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getBmsChargeMaxCurrentChannel() {
+		return this.channel(ChannelId.BMS_CHARGE_MAX_CURRENT);
+	}
+
+	/**
+	 * Gets the BMS Charge-Max-Current in [A]. See
+	 * {@link ChannelId#BMS_CHARGE_MAX_CURRENT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getBmsChargeMaxCurrent() {
+		return this.getBmsChargeMaxCurrentChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#BMS_CHARGE_MAX_CURRENT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setBmsChargeMaxCurrent(Integer value) {
+		this.getBmsChargeMaxCurrentChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the BMS Charge-Max-Current in [A]. See
+	 * {@link ChannelId#BMS_CHARGE_MAX_CURRENT}.
+	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setBmsChargeMaxCurrent(Integer value) throws OpenemsNamedException {
+		this.getBmsChargeMaxCurrentChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#BMS_DISCHARGE_MAX_CURRENT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getBmsDischargeMaxCurrentChannel() {
+		return this.channel(ChannelId.BMS_DISCHARGE_MAX_CURRENT);
+	}
+
+	/**
+	 * Gets the BMS Discharge-Max-Current in [A]. See
+	 * {@link ChannelId#BMS_DISCHARGE_MAX_CURRENT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getBmsDischargeMaxCurrent() {
+		return this.getBmsDischargeMaxCurrentChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#BMS_DISCHARGE_MAX_CURRENT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setBmsDischargeMaxCurrent(Integer value) {
+		this.getBmsDischargeMaxCurrentChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the BMS Discharge-Max-Current in [A]. See
+	 * {@link ChannelId#BMS_DISCHARGE_MAX_CURRENT}.
+	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setBmsDischargeMaxCurrent(Integer value) throws OpenemsNamedException {
+		this.getBmsDischargeMaxCurrentChannel().setNextWriteValue(value);
+	}
 }
