@@ -23,7 +23,7 @@ public class ApplyPowerHandler {
 	 */
 	public static void apply(AbstractGoodWe goodWe, boolean readOnlyMode, int setActivePower, ApplyPowerContext context)
 			throws OpenemsNamedException {
-		int pvProduction = TypeUtils.min(0, goodWe.calculatePvProduction());
+		int pvProduction = TypeUtils.max(0, goodWe.calculatePvProduction());
 		ApplyPowerHandler.Result apply = calculate(goodWe, readOnlyMode, setActivePower, pvProduction, context);
 
 		IntegerWriteChannel emsPowerSetChannel = goodWe.channel(GoodWe.ChannelId.EMS_POWER_SET);
