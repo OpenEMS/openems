@@ -1,5 +1,7 @@
 package io.openems.edge.goodwe.batteryinverter;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -26,7 +28,6 @@ import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
@@ -139,34 +140,113 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 * @throws OpenemsNamedException on error
 	 */
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
-		this.writeToChannel(GoodWe.ChannelId.WBMS_SOC, //
-				battery.getSoc().get());
-		this.writeToChannel(GoodWe.ChannelId.WBMS_SOH, //
-				battery.getSoh().get());
-		this.writeToChannel(GoodWe.ChannelId.WBMS_STRINGS, //
-				TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE));
-		this.writeToChannel(GoodWe.ChannelId.LEAD_BAT_CAPACITY, //
-				LEAD_BATTERY_CAPACITY);
-		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, //
-				battery.getDischargeMinVoltage().get());
-		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT, //
-				TypeUtils.fitWithin(0, MAX_DC_CURRENT, battery.getDischargeMaxCurrent().get()));
-		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, //
-				battery.getChargeMaxVoltage().get());
-		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, //
-				TypeUtils.fitWithin(0, MAX_DC_CURRENT, battery.getChargeMaxCurrent().get()));
+		switch (this.config.batteryRegisters()) {
+		case FROM_45350:
+			// this.writeToChannel(GoodWe.ChannelId.BMS_LEAD_CAPACITY, //
+			// LEAD_BATTERY_CAPACITY);
+			// this.writeToChannel(GoodWe.ChannelId.BMS_STRINGS, //
+			// TypeUtils.divide(battery.getDischargeMinVoltage().get(),
+			// MODULE_MIN_VOLTAGE));
+			// this.writeToChannel(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, //
+			// battery.getDischargeMinVoltage().get());
+			writeBmsChannels(battery);
+			break;
+
+		case FROM_47900:
+//			this.writeToChannel(GoodWe.ChannelId.WBMS_SOC, //
+//					battery.getSoc().get());
+//			this.writeToChannel(GoodWe.ChannelId.WBMS_SOH, //
+//					battery.getSoh().get());
+//			this.writeToChannel(GoodWe.ChannelId.WBMS_STRINGS, //
+//					TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE));
+//			this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, //
+//					battery.getDischargeMinVoltage().get());
+//			this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT, //
+//					TypeUtils.fitWithin(0, MAX_DC_CURRENT, battery.getDischargeMaxCurrent().get()));
+//			this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, //
+//					battery.getChargeMaxVoltage().get());
+//			this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, //
+//					TypeUtils.fitWithin(0, MAX_DC_CURRENT, battery.getChargeMaxCurrent().get()));
+			break;
+		case NONE:
+		}
 	}
 
-	private void writeToChannel(GoodWe.ChannelId channelId, Object value)
-			throws IllegalArgumentException, OpenemsNamedException {
-		WriteChannel<?> channel = this.channel(channelId);
-		Object currentValue = channel.value().get();
-		if (value != null && !Objects.equals(currentValue, value)) {
-			this.logInfo(this.log, "Update  " + channelId.id() + " from [" + currentValue + "] to [" + value + "]");
-		} else {
-			this.logInfo(this.log, "Refresh " + channelId.id() + " [" + currentValue + "]");
+	private final Map<GoodWe.ChannelId, Integer> lastWrittenValues = new HashMap<>();
+
+	private static Integer preprocessAmpereValue(Value<Integer> v) {
+		Integer value = v.get();
+		value = TypeUtils.fitWithin(0, MAX_DC_CURRENT, value);
+
+		if (value != null && value > 0 && value < MAX_DC_CURRENT) {
+			// To avoid very frequent updates, round newValue to nearest multiple of 5, but
+			// at least 1. This is because each update of BMS values currently causes a
+			// downtime of the inverter.
+			value = (int) (5 * Math.floor(value / 5.));
+			if (value == 0) {
+				value = 1;
+			}
 		}
-		channel.setNextWriteValueFromObject(value);
+		return value;
+	}
+
+//	private void writeToChannel(GoodWe.ChannelId channelId, Object value)
+//			throws IllegalArgumentException, OpenemsNamedException {
+//		WriteChannel<?> channel = this.channel(channelId);
+//		Object currentValue = channel.value().get();
+//		if (value != null && !Objects.equals(currentValue, value)) {
+//			this.logInfo(this.log, "Update  " + channelId.id() + " from [" + currentValue + "] to [" + value + "]");
+//		} else {
+//			this.logInfo(this.log, "Refresh " + channelId.id() + " [" + currentValue + "]");
+//		}
+//		channel.setNextWriteValueFromObject(value);
+//	}
+
+	/**
+	 * BMS-Registers need to be written all at once.
+	 */
+	private void writeBmsChannels(Battery battery) throws OpenemsNamedException {
+		// Read battery values
+		Integer chargeMaxVoltage = this.getBmsChargeMaxVoltage().orElse(0);
+		Integer chargeMaxCurrent = preprocessAmpereValue(battery.getChargeMaxCurrent());
+		Integer dischargeMinVoltage = this.getBmsDischargeMinVoltage().orElse(0);
+		Integer dischargeMaxCurrent = preprocessAmpereValue(battery.getDischargeMaxCurrent());
+
+		// Replace null values
+		TypeUtils.orElse(chargeMaxVoltage, 0);
+		TypeUtils.orElse(chargeMaxCurrent, 0);
+		TypeUtils.orElse(dischargeMinVoltage, 0);
+		TypeUtils.orElse(dischargeMaxCurrent, 0);
+
+		// Is Update required?
+		if (Objects.equals(this.lastWrittenValues.get(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE), chargeMaxVoltage)
+				&& Objects.equals(this.lastWrittenValues.get(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT), chargeMaxCurrent)
+				&& Objects.equals(this.lastWrittenValues.get(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE),
+						dischargeMinVoltage)
+				&& Objects.equals(this.lastWrittenValues.get(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT),
+						dischargeMaxCurrent)) {
+			// No Update required
+			this.logInfo(this.log, "No Update Required for Voltages [" + dischargeMinVoltage + ";" + chargeMaxVoltage
+					+ "] and Currents [" + chargeMaxCurrent + ";" + dischargeMaxCurrent + "]");
+
+			return;
+		}
+
+		// Print log
+		this.logInfo(this.log, "Update Voltages [" + dischargeMinVoltage + ";" + chargeMaxVoltage + "] and Currents ["
+				+ chargeMaxCurrent + ";" + dischargeMaxCurrent + "]");
+
+		// Write to Channels
+		this.setBmsChargeMaxVoltage(chargeMaxVoltage);
+		this.setBmsChargeMaxCurrent(chargeMaxCurrent);
+		this.setBmsDischargeMinVoltage(dischargeMinVoltage);
+		this.setBmsDischargeMaxCurrent(dischargeMaxCurrent);
+
+		// Store lastWrittenValues
+		this.lastWrittenValues.put(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, chargeMaxVoltage);
+		this.lastWrittenValues.put(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, chargeMaxCurrent);
+		this.lastWrittenValues.put(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, dischargeMinVoltage);
+		this.lastWrittenValues.put(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, dischargeMaxCurrent);
 	}
 
 	@Override

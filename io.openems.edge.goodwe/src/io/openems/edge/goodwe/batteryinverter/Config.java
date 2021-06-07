@@ -35,5 +35,9 @@ import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 	@AttributeDefinition(name = "Fixed EMS Power Set", description = "")
 	int emsPowerSet() default -1;
 
+	@AttributeDefinition(name = "Battery Registers", description = "")
+	BatteryRegisters batteryRegisters();
+
 	String webconsole_configurationFactory_nameHint() default "GoodWe Battery Inverter [{id}]";
+
 }

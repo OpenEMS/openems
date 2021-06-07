@@ -252,14 +252,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.BMS_SOH, new UnsignedWordElement(37008)), //
 						m(GoodWe.ChannelId.BMS_BATTERY_STRINGS, new UnsignedWordElement(37009))), //
 
-				new FC16WriteRegistersTask(45350, //
-						m(GoodWe.ChannelId.LEAD_BAT_CAPACITY, new UnsignedWordElement(45350),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
-
-				new FC3ReadRegistersTask(45350, Priority.LOW, //
-						m(GoodWe.ChannelId.LEAD_BAT_CAPACITY, new UnsignedWordElement(45350), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
-
 				new FC16WriteRegistersTask(47000, //
 						m(GoodWe.ChannelId.APP_MODE_INDEX, new UnsignedWordElement(47000)), //
 						m(GoodWe.ChannelId.METER_CHECK_VALUE, new UnsignedWordElement(47001)), //
@@ -296,6 +288,32 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(47531, Priority.LOW,
 						m(GoodWe.ChannelId.SOC_START_TO_FORCE_CHARGE, new UnsignedWordElement(47531)), //
 						m(GoodWe.ChannelId.SOC_STOP_TO_FORCE_CHARGE, new UnsignedWordElement(47532))), //
+
+				new FC16WriteRegistersTask(45350, //
+						m(GoodWe.ChannelId.BMS_LEAD_CAPACITY, new UnsignedWordElement(45350)), // [25,2000]
+						m(GoodWe.ChannelId.BMS_STRINGS, new UnsignedWordElement(45351)), // [4~12] N
+						m(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, new UnsignedWordElement(45352),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [500*N,600*N]
+						m(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, new UnsignedWordElement(45353),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [0,1000]
+						m(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(45354),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [400*N,480*N]
+						m(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, new UnsignedWordElement(45355),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [0,1000]
+						m(GoodWe.ChannelId.BMS_DEPTH_OF_DISCHARGE, new UnsignedWordElement(45356))), // [0,100]
+
+				new FC3ReadRegistersTask(45350, Priority.LOW, //
+						m(GoodWe.ChannelId.BMS_LEAD_CAPACITY, new UnsignedWordElement(45350)), // [25,2000]
+						m(GoodWe.ChannelId.BMS_STRINGS, new UnsignedWordElement(45351)), // [4~12] N
+						m(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, new UnsignedWordElement(45352),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [500*N,600*N]
+						m(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, new UnsignedWordElement(45353),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [0,1000]
+						m(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(45354),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [400*N,480*N]
+						m(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, new UnsignedWordElement(45355),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [0,1000]
+						m(GoodWe.ChannelId.BMS_DEPTH_OF_DISCHARGE, new UnsignedWordElement(45356))), // [0,100]
 
 				new FC16WriteRegistersTask(47900, //
 						m(GoodWe.ChannelId.WBMS_VERSION, new UnsignedWordElement(47900)), //

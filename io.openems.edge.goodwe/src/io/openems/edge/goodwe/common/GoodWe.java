@@ -842,4 +842,84 @@ public interface GoodWe extends OpenemsComponent {
 	public default void setBmsDischargeMaxCurrent(Integer value) throws OpenemsNamedException {
 		this.getBmsDischargeMaxCurrentChannel().setNextWriteValue(value);
 	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#BMS_CHARGE_MAX_VOLTAGE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getBmsChargeMaxVoltageChannel() {
+		return this.channel(ChannelId.BMS_CHARGE_MAX_VOLTAGE);
+	}
+
+	/**
+	 * Gets the BMS Charge-Max-Voltage in [V]. See
+	 * {@link ChannelId#BMS_CHARGE_MAX_VOLTAGE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getBmsChargeMaxVoltage() {
+		return this.getBmsChargeMaxVoltageChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#BMS_CHARGE_MAX_VOLTAGE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setBmsChargeMaxVoltage(Integer value) {
+		this.getBmsChargeMaxVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the BMS Charge-Max-Voltage in [V]. See
+	 * {@link ChannelId#BMS_CHARGE_MAX_VOLTAGE}.
+	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setBmsChargeMaxVoltage(Integer value) throws OpenemsNamedException {
+		this.getBmsChargeMaxVoltageChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#BMS_DISCHARGE_MIN_VOLTAGE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getBmsDischargeMinVoltageChannel() {
+		return this.channel(ChannelId.BMS_DISCHARGE_MIN_VOLTAGE);
+	}
+
+	/**
+	 * Gets the BMS Discharge-Min-Voltage in [V]. See
+	 * {@link ChannelId#BMS_DISCHARGE_MIN_VOLTAGE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getBmsDischargeMinVoltage() {
+		return this.getBmsDischargeMinVoltageChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#BMS_DISCHARGE_MIN_VOLTAGE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setBmsDischargeMinVoltage(Integer value) {
+		this.getBmsDischargeMinVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the BMS Discharge-Min-Voltage in [V]. See
+	 * {@link ChannelId#BMS_DISCHARGE_MIN_VOLTAGE}.
+	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setBmsDischargeMinVoltage(Integer value) throws OpenemsNamedException {
+		this.getBmsDischargeMinVoltageChannel().setNextWriteValue(value);
+	}
 }
