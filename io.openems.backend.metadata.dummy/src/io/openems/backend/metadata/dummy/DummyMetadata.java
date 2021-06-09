@@ -104,15 +104,18 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 		Optional<Integer> idOpt = DummyMetadata.parseNumberFromName(apikey);
 		int id;
 		String edgeId;
+		String setupPassword;
 		if (idOpt.isPresent()) {
 			edgeId = apikey;
 			id = idOpt.get();
+			setupPassword = edgeId;
 		} else {
 			// create new ID
 			id = this.nextEdgeId.incrementAndGet();
 			edgeId = "edge" + id;
+			setupPassword = edgeId;
 		}
-		MyEdge edge = new MyEdge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "", Level.OK,
+		MyEdge edge = new MyEdge(edgeId, apikey, setupPassword, "OpenEMS Edge #" + id, State.ACTIVE, "", "", Level.OK,
 				new EdgeConfig());
 		edge.onSetConfig(config -> {
 			this.logInfo(this.log, "Edge [" + edgeId + "]. Update config: "
@@ -121,6 +124,19 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 		this.edges.put(edgeId, edge);
 		return Optional.ofNullable(edgeId);
 
+	}
+
+	@Override
+	public Optional<Edge> getEdgeBySetupPassword(String setupPassword) {
+		Optional<MyEdge> optEdge = this.edges.values().stream()
+				.filter(edge -> edge.getSetupPassword().equals(setupPassword)).findFirst();
+
+		if (optEdge.isPresent()) {
+			MyEdge edge = optEdge.get();
+			return Optional.of(edge);
+		}
+
+		return Optional.empty();
 	}
 
 	@Override
@@ -151,4 +167,11 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 		}
 		return Optional.empty();
 	}
+
+	@Override
+	public void addEdgeToUser(User user, Edge edge) throws OpenemsNamedException {
+		// Metadata.Dummy only used for local development
+		return;
+	}
+
 }

@@ -31,6 +31,7 @@ public interface Field {
 	public enum EdgeDevice implements Field {
 		ID("id", true), //
 		APIKEY("apikey", true), //
+		SETUP_PASSWORD("setup_password", true), //
 		NAME("name", true), //
 		COMMENT("comment", true), //
 		STATE("state", true), //
@@ -175,5 +176,55 @@ public interface Field {
 		public boolean isQuery() {
 			return this.query;
 		}
+	}
+
+	/**
+	 * 
+	 * The EdgeDeviceUserRole-Model.
+	 *
+	 */
+	public enum EdgeDeviceUserRole implements Field {
+		DEVICE_ID("device_id", false), //
+		USER_ID("user_id", false), //
+		ROLE("role", false);
+
+		public static final String ODOO_MODEL = "fems.device_user_role";
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+
+		private static final class StaticFields {
+			private static int nextQueryIndex = 1;
+		}
+
+		private final int queryIndex;
+		private final String id;
+
+		/**
+		 * Holds information if this Field should be queried from and written to
+		 * Database.
+		 */
+		private final boolean query;
+
+		private EdgeDeviceUserRole(String id, boolean query) {
+			this.id = id;
+			this.query = query;
+			if (query) {
+				this.queryIndex = StaticFields.nextQueryIndex++;
+			} else {
+				this.queryIndex = -1;
+			}
+		}
+
+		public String id() {
+			return this.id;
+		}
+
+		public int index() {
+			return this.queryIndex;
+		}
+
+		public boolean isQuery() {
+			return this.query;
+		}
+
 	}
 }

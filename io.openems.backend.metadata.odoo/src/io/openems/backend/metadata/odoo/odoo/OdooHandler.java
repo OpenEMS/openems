@@ -15,7 +15,9 @@ import com.google.gson.JsonObject;
 import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.MyEdge;
+import io.openems.backend.metadata.odoo.MyUser;
 import io.openems.backend.metadata.odoo.OdooMetadata;
+import io.openems.backend.metadata.odoo.OdooUserRole;
 import io.openems.backend.metadata.odoo.odoo.OdooUtils.SuccessResponseAndHeaders;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -66,6 +68,60 @@ public class OdooHandler {
 					+ "Message [" + message + "]" //
 					+ ": " + e.getMessage());
 		}
+	}
+
+	/**
+	 * Returns Edge by setupPassword, otherwise an empty {@link Optional}.
+	 * 
+	 * @param setupPassword to find Edge
+	 * @return Edge or empty {@link Optional}
+	 */
+	public Optional<String> getEdgeIdBySetupPassword(String setupPassword) {
+		Domain filter = new Domain(Field.EdgeDevice.SETUP_PASSWORD, "=", setupPassword);
+
+		try {
+			int[] search = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL, filter);
+			if (search.length == 0) {
+				return Optional.empty();
+			}
+
+			Map<String, Object> read = OdooUtils.readOne(this.credentials, Field.EdgeDevice.ODOO_MODEL, search[0],
+					Field.EdgeDevice.NAME);
+
+			String name = (String) read.get(Field.EdgeDevice.NAME.id());
+			if (name == null) {
+				return Optional.empty();
+			}
+
+			return Optional.of(name);
+		} catch (OpenemsException e) {
+			this.parent.logInfo(this.log, "Unable to find Edge by setupPassowrd [" + setupPassword + "]");
+		}
+
+		return Optional.empty();
+	}
+
+	/**
+	 * Assigns the given user to the Edge. If Edge already assigned to user exit
+	 * method.
+	 * 
+	 * @param user the Odoo user
+	 * @param edge the Odoo edge
+	 * @throws OpenemsException on error
+	 */
+	public void assignEdgeToUser(MyUser user, MyEdge edge) throws OpenemsException {
+		int[] found = OdooUtils.search(this.credentials, Field.EdgeDeviceUserRole.ODOO_MODEL,
+				new Domain(Field.EdgeDeviceUserRole.USER_ID, "=", user.getOdooId()),
+				new Domain(Field.EdgeDeviceUserRole.DEVICE_ID, "=", edge.getOdooId()));
+
+		if (found.length > 0) {
+			return;
+		}
+
+		OdooUtils.create(this.credentials, Field.EdgeDeviceUserRole.ODOO_MODEL, //
+				new FieldValue<Integer>(Field.EdgeDeviceUserRole.USER_ID, user.getOdooId()), //
+				new FieldValue<Integer>(Field.EdgeDeviceUserRole.DEVICE_ID, edge.getOdooId()), //
+				new FieldValue<String>(Field.EdgeDeviceUserRole.ROLE, OdooUserRole.INSTALLER.getOdooRole()));
 	}
 
 	/**
