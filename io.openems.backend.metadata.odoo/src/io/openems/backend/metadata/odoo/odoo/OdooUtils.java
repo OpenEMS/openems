@@ -423,6 +423,36 @@ public class OdooUtils {
 	}
 
 	/**
+	 * Create a record in Odoo.
+	 * 
+	 * @param credentials the Odoo credentials
+	 * @param model       the Oddo model
+	 * @param fieldValues fields and values that should be written
+	 * @throws OpenemsException on error
+	 */
+	protected static void create(Credentials credentials, String model, FieldValue<?>... fieldValues)
+			throws OpenemsException {
+		String action = "create";
+
+		Map<String, Object> paramsFieldValues = new HashMap<>();
+		for (FieldValue<?> fieldValue : fieldValues) {
+			paramsFieldValues.put(fieldValue.getField().id(), fieldValue.getValue());
+		}
+
+		Object[] params = new Object[] { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(),
+				model, action, new Object[] { paramsFieldValues } };
+
+		try {
+			Object resultObj = (Object) executeKw(credentials.getUrl(), params);
+			if (resultObj == null) {
+				throw new OpenemsException("Not created.");
+			}
+		} catch (Throwable e) {
+			throw new OpenemsException("Unable to write to Odoo: " + e.getMessage());
+		}
+	}
+
+	/**
 	 * Update a record in Odoo.
 	 * 
 	 * @param credentials the Odoo credentials
@@ -492,4 +522,5 @@ public class OdooUtils {
 			return null;
 		}
 	}
+
 }

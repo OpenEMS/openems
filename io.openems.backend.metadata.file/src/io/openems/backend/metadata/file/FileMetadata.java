@@ -126,6 +126,17 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
+	public synchronized Optional<Edge> getEdgeBySetupPassword(String setupPassword) {
+		this.refreshData();
+		for (MyEdge edge : this.edges.values()) {
+			if (edge.getSetupPassword().equals(setupPassword)) {
+				return Optional.of(edge);
+			}
+		}
+		return Optional.empty();
+	}
+
+	@Override
 	public synchronized Optional<Edge> getEdge(String edgeId) {
 		this.refreshData();
 		Edge edge = this.edges.get(edgeId);
@@ -169,6 +180,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 					edges.add(new MyEdge(//
 							entry.getKey(), // Edge-ID
 							JsonUtils.getAsString(edge, "apikey"), //
+							JsonUtils.getAsString(edge, "setuppassword"), //
 							JsonUtils.getAsString(edge, "comment"), //
 							State.ACTIVE, // State
 							"", // Version
@@ -195,6 +207,12 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	private static User generateUser() {
 		return new User(FileMetadata.USER_ID, FileMetadata.USER_NAME, UUID.randomUUID().toString(),
 				FileMetadata.USER_GLOBAL_ROLE, new TreeMap<>());
+	}
+
+	@Override
+	public void addEdgeToUser(User user, Edge edge) throws OpenemsNamedException {
+		// Metadata.File only used for local development
+		return;
 	}
 
 }

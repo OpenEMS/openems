@@ -12,6 +12,7 @@ import org.osgi.annotation.versioning.ProviderType;
 import com.google.common.collect.HashMultimap;
 
 import io.openems.common.channel.Level;
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
@@ -108,6 +109,14 @@ public interface Metadata {
 	}
 
 	/**
+	 * Get an Edge by Edge-SetupPassword.
+	 * 
+	 * @param setupPassword to find Edge
+	 * @return Edge as a Optional
+	 */
+	public abstract Optional<Edge> getEdgeBySetupPassword(String setupPassword);
+
+	/**
 	 * Gets the User for the given User-ID.
 	 * 
 	 * @param userId the User-ID
@@ -121,6 +130,42 @@ public interface Metadata {
 	 * @return collection of Edges.
 	 */
 	public abstract Collection<Edge> getAllEdges();
+
+	/**
+	 * Assigns Edge with given setupPassword to the logged in user and returns it.
+	 * 
+	 * <p>
+	 * If the setupPassword is invalid, an OpenemsNamedException is thrown.
+	 * 
+	 * @param user          the {@link User}
+	 * @param setupPassword the Setup-Password
+	 * @return the Edge for the given Setup-Password
+	 * @throws OpenemsNamedException on error
+	 */
+	public default Edge addEdgeToUser(User user, String setupPassword) throws OpenemsNamedException {
+		Optional<Edge> optEdge = this.getEdgeBySetupPassword(setupPassword);
+		if (!optEdge.isPresent()) {
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+		}
+
+		Edge edge = optEdge.get();
+		this.addEdgeToUser(user, edge);
+
+		return edge;
+	}
+
+	/**
+	 * Assigns Edge to current user.
+	 * 
+	 * <p>
+	 * If assignment fails, an OpenemsNamedException is thrown.
+	 * 
+	 * @param user The {@link User}
+	 * @param edge The {@link Edge}
+	 *
+	 * @throws OpenemsNamedException on error
+	 */
+	public void addEdgeToUser(User user, Edge edge) throws OpenemsNamedException;
 
 	/**
 	 * Helper method for creating a String of all active State-Channels by Level.

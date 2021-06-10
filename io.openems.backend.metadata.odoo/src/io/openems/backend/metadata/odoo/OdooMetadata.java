@@ -130,6 +130,15 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
+	public Optional<Edge> getEdgeBySetupPassword(String setupPassword) {
+		Optional<String> optEdgeId = this.odooHandler.getEdgeIdBySetupPassword(setupPassword);
+		if (!optEdgeId.isPresent()) {
+			return Optional.empty();
+		}
+		return this.getEdge(optEdgeId.get());
+	}
+
+	@Override
 	public Optional<Edge> getEdge(String edgeId) {
 		return Optional.ofNullable(this.edgeCache.getEdgeFromEdgeId(edgeId));
 	}
@@ -176,4 +185,10 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	public void logError(Logger log, String message) {
 		super.logError(log, message);
 	}
+
+	@Override
+	public void addEdgeToUser(User user, Edge edge) throws OpenemsException {
+		this.odooHandler.assignEdgeToUser((MyUser) user, (MyEdge) edge);
+	}
+
 }
