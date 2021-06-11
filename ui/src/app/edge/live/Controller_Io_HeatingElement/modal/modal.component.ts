@@ -4,15 +4,15 @@ import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { Websocket, Service, EdgeConfig, Edge } from 'src/app/shared/shared';
+import { Websocket, Service, EdgeConfig, Edge } from '../../../../shared/shared';
 
 type Mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 
 @Component({
-    selector: HeatingElementModalComponent.SELECTOR,
+    selector: Controller_Io_HeatingElementModalComponent.SELECTOR,
     templateUrl: './modal.component.html',
 })
-export class HeatingElementModalComponent implements OnInit {
+export class Controller_Io_HeatingElementModalComponent implements OnInit {
 
 
     @Input() public edge: Edge;

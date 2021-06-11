@@ -1,4 +1,5 @@
 import { formatNumber } from '@angular/common';
+import { format } from 'date-fns';
 
 export class Utils {
 
@@ -192,6 +193,16 @@ export class Utils {
     } else {
       return '0 kW';
     }
+  }
+
+  /**
+   * Converts a value in Seconds [s] to Dateformat [kk:mm:ss].
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
+  public static CONVERT_SECONDS_TO_DATE_FORMAT = (value: any): string => {
+    return format(new Date(value * 1000), 'HH:mm:ss')
   }
 
   /**
