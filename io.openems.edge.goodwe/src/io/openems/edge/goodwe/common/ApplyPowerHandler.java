@@ -1,5 +1,7 @@
 package io.openems.edge.goodwe.common;
 
+import com.google.common.base.Objects;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -55,20 +57,28 @@ public class ApplyPowerHandler {
 			Integer maxPowerConstraint = null;
 			for (Constraint constraint : context.getConstraints()) {
 				if (constraint.getRelationship() == Relationship.GREATER_OR_EQUALS && constraint.getValue().isPresent()
-				// Do not consider the default 'Allowed Charge' Constraint
-						&& !constraint.getDescription().endsWith("Allowed Charge")) {
+						&& constraint.getDescription().contains("[SetActivePowerGreaterOrEquals]")) {
+					// Only consider runtime Constraints, provided by a Controller via
+					// SetActivePowerGreaterOrEquals.
 					minPowerConstraint = TypeUtils.min((int) Math.round(constraint.getValue().get()),
 							maxPowerConstraint);
-					System.out.println("minPowerConstraint [" + minPowerConstraint + "] Constraint: " + constraint);
+					System.out.println("-minPowerConstraint [" + minPowerConstraint + "] Constraint: " + constraint);
 				}
 				if (constraint.getRelationship() == Relationship.LESS_OR_EQUALS && constraint.getValue().isPresent()
-				// Do not consider the default 'Allowed Discharge' Constraint
-						&& !constraint.getDescription().endsWith("Allowed Discharge")) {
+						&& constraint.getDescription().contains("[SetActivePowerLessOrEquals]")) {
+					// Only consider runtime Constraints, provided by a Controller via
+					// SetActivePowerLessOrEquals.
 					maxPowerConstraint = TypeUtils.min((int) Math.round(constraint.getValue().get()),
 							maxPowerConstraint);
-					System.out.println("maxPowerConstraint [" + maxPowerConstraint + "] Constraint: " + constraint);
+					System.out.println("-maxPowerConstraint [" + maxPowerConstraint + "] Constraint: " + constraint);
 				}
 			}
+			System.out.println("actual setpoint [" + activePowerSetPoint + "] minPowerConstraint [" + minPowerConstraint
+					+ "] maxPowerConstraint [" + maxPowerConstraint + "] surpluspower [" + goodWe.getSurplusPower()
+					+ "] pvProduction [" + pvProduction + "]");
+
+			// maxPowerConstraint: Limitierung Netzeinspeisung
+			// minPowerConstraint: surplus feed-in ist aktiviert
 
 			if (maxPowerConstraint != null && maxPowerConstraint == activePowerSetPoint) {
 				System.out.println("EXPORT_AC [" + maxPowerConstraint
@@ -76,12 +86,12 @@ public class ApplyPowerHandler {
 				// TODO try after a while if PV curtail is still required
 				return new Result(EmsPowerMode.EXPORT_AC, maxPowerConstraint);
 
-			} else if (minPowerConstraint != null && minPowerConstraint == goodWe.getSurplusPower()) {
+			} else if (minPowerConstraint != null && Objects.equal(minPowerConstraint, goodWe.getSurplusPower())) {
 				System.out.println(
 						"DISCHARGE_PV [0] MinPowerConstraint equals SurplusPower -> surplus feed-in is activated");
 				return new Result(EmsPowerMode.DISCHARGE_PV, 0);
 
-			} else if (activePowerSetPoint > pvProduction) {
+			} else if (activePowerSetPoint >= pvProduction) {
 				// Set-Point is positive && bigger than PV-Production -> feed all PV to grid +
 				// discharge battery
 				System.out.println("DISCHARGE_PV [" + (activePowerSetPoint - pvProduction) + "] Set-Point ["
