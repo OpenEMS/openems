@@ -9,6 +9,7 @@ import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 
+
 public class ApplyPowerHandler {
 
 	/**
