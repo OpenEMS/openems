@@ -1,7 +1,5 @@
 package io.openems.edge.goodwe.common;
 
-import com.google.common.base.Objects;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
