@@ -1,5 +1,7 @@
 package io.openems.edge.goodwe.common;
 
+import java.util.Objects;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -8,7 +10,6 @@ import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
-
 
 public class ApplyPowerHandler {
 
@@ -85,7 +86,7 @@ public class ApplyPowerHandler {
 				// TODO try after a while if PV curtail is still required
 				return new Result(EmsPowerMode.EXPORT_AC, maxPowerConstraint);
 
-			} else if (minPowerConstraint != null && Objects.equal(minPowerConstraint, goodWe.getSurplusPower())) {
+			} else if (minPowerConstraint != null && Objects.equals(minPowerConstraint, goodWe.getSurplusPower())) {
 				System.out.println(
 						"DISCHARGE_PV [0] MinPowerConstraint equals SurplusPower -> surplus feed-in is activated");
 				return new Result(EmsPowerMode.DISCHARGE_PV, 0);
