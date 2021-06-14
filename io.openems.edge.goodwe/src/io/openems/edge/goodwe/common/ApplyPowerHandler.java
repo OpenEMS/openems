@@ -106,10 +106,22 @@ public class ApplyPowerHandler {
 				return new Result(EmsPowerMode.CHARGE_BAT, pvProduction - activePowerSetPoint);
 			}
 
-		} else {
+		} else if (activePowerSetPoint < 0) {
 			System.out.println("IMPORT_AC [" + (activePowerSetPoint * -1) + "]");
 			// Import from AC
 			return new Result(EmsPowerMode.IMPORT_AC, activePowerSetPoint * -1);
+
+		} else { // activePowerSetPoint == 0
+			if (pvProduction == 0) {
+				// Stop inverter
+				System.out.println("STOPPED [0]");
+				return new Result(EmsPowerMode.STOPPED, 0);
+				// TODO consequences for Off-Grid?
+			} else {
+				System.out.println("IMPORT_AC [0]");
+				return new Result(EmsPowerMode.IMPORT_AC, 0);
+			}
+
 		}
 	}
 }
