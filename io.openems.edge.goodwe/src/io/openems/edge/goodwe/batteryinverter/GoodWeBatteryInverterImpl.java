@@ -67,10 +67,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	@Reference
 	private Power power;
 
-	// For Fenecon Home Battery, Lead Battery Capacity has to be set as a battery
-	// parameter
-	// TODO get from Battery
-	private static final int LEAD_BATTERY_CAPACITY = 200;
 	// Fenecon Home Battery Static module min voltage, used to calculate battery
 	// module number per tower
 	// TODO get from Battery
@@ -142,32 +138,13 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
 		switch (this.config.batteryRegisters()) {
 		case FROM_45350:
-			// this.writeToChannel(GoodWe.ChannelId.BMS_LEAD_CAPACITY, //
-			// LEAD_BATTERY_CAPACITY);
-			// this.writeToChannel(GoodWe.ChannelId.BMS_STRINGS, //
-			// TypeUtils.divide(battery.getDischargeMinVoltage().get(),
-			// MODULE_MIN_VOLTAGE));
-			// this.writeToChannel(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, //
-			// battery.getDischargeMinVoltage().get());
-			writeBmsChannels(battery);
+			writeBmsChannels45350(battery);
 			break;
 
 		case FROM_47900:
-//			this.writeToChannel(GoodWe.ChannelId.WBMS_SOC, //
-//					battery.getSoc().get());
-//			this.writeToChannel(GoodWe.ChannelId.WBMS_SOH, //
-//					battery.getSoh().get());
-//			this.writeToChannel(GoodWe.ChannelId.WBMS_STRINGS, //
-//					TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE));
-//			this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, //
-//					battery.getDischargeMinVoltage().get());
-//			this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT, //
-//					TypeUtils.fitWithin(0, MAX_DC_CURRENT, battery.getDischargeMaxCurrent().get()));
-//			this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, //
-//					battery.getChargeMaxVoltage().get());
-//			this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, //
-//					TypeUtils.fitWithin(0, MAX_DC_CURRENT, battery.getChargeMaxCurrent().get()));
+			writeWbmsChannels47900(battery);
 			break;
+
 		case NONE:
 		}
 	}
@@ -190,22 +167,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		return value;
 	}
 
-//	private void writeToChannel(GoodWe.ChannelId channelId, Object value)
-//			throws IllegalArgumentException, OpenemsNamedException {
-//		WriteChannel<?> channel = this.channel(channelId);
-//		Object currentValue = channel.value().get();
-//		if (value != null && !Objects.equals(currentValue, value)) {
-//			this.logInfo(this.log, "Update  " + channelId.id() + " from [" + currentValue + "] to [" + value + "]");
-//		} else {
-//			this.logInfo(this.log, "Refresh " + channelId.id() + " [" + currentValue + "]");
-//		}
-//		channel.setNextWriteValueFromObject(value);
-//	}
-
 	/**
 	 * BMS-Registers need to be written all at once.
 	 */
-	private void writeBmsChannels(Battery battery) throws OpenemsNamedException {
+	private void writeBmsChannels45350(Battery battery) throws OpenemsNamedException {
 		// Read battery values
 		Integer chargeMaxVoltage = this.getBmsChargeMaxVoltage().orElse(0);
 		Integer chargeMaxCurrent = preprocessAmpereValue(battery.getChargeMaxCurrent());
@@ -247,6 +212,87 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		this.lastWrittenValues.put(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, chargeMaxCurrent);
 		this.lastWrittenValues.put(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, dischargeMinVoltage);
 		this.lastWrittenValues.put(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, dischargeMaxCurrent);
+	}
+
+	/**
+	 * BMS-Registers need to be written all at once.
+	 */
+	private void writeWbmsChannels47900(Battery battery) throws OpenemsNamedException {
+		Integer batteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
+
+		/*
+		 * Make sure PV-Master registers are correct, because they define the overall
+		 * min/max limits.
+		 */
+		Value<Integer> bmsChargeMaxCurrent = this.getBmsChargeMaxCurrent();
+		Value<Integer> bmsDischargeMaxCurrent = this.getBmsDischargeMaxCurrent();
+		Value<Integer> bmsChargeMaxVoltage = this.getBmsChargeMaxVoltage();
+		// TODO: this should not be required anymore with latest (beta) firmware
+		// For example, the nominal voltage of the battery rack is 240V, then
+		// BattStrings shall be 5. And max charge voltage range of the battery shall be
+		// within in 5*50V~6*50V (250V~300V), and min discharge voltage of battery shall
+		// be within 5*40V~5*48V (200V~240V). of course please make sure the battery
+		// real acceptable charge/discharge limitation is also in this range.
+		Integer setChargeMaxVoltage = TypeUtils.fitWithin(//
+				TypeUtils.multiply(batteryStrings, 50), //
+				TypeUtils.multiply(TypeUtils.sum(batteryStrings, 1), 50), //
+				battery.getChargeMaxVoltage().get());
+		Integer setDischargeMinVoltage = TypeUtils.fitWithin(//
+				TypeUtils.multiply(batteryStrings, 40), //
+				TypeUtils.multiply(batteryStrings, 48), //
+				battery.getDischargeMinVoltage().get());
+		Value<Integer> bmsDischargeMinVoltage = this.getBmsDischargeMinVoltage();
+		if ((bmsChargeMaxCurrent.isDefined() && !Objects.equals(bmsChargeMaxCurrent.get(), MAX_DC_CURRENT))
+				|| (bmsDischargeMaxCurrent.isDefined() && !Objects.equals(bmsDischargeMaxCurrent.get(), MAX_DC_CURRENT))
+//				|| (bmsChargeMaxVoltage.isDefined() && !Objects.equals(bmsChargeMaxVoltage.get(), setChargeMaxVoltage))
+//				|| (bmsDischargeMinVoltage.isDefined()
+//						&& !Objects.equals(bmsDischargeMinVoltage.get(), setDischargeMinVoltage))
+		// TODO: it is not clear to me, why ChargeMaxVoltage is set to 250 but
+		// frequently gets reset to 210. This is with first beta firmware on fems888.
+		) {
+			// Update is required
+			this.logInfo(this.log, "Update for PV-Master BMS Registers is required. " //
+					+ "Voltages " //
+					+ "[" + bmsDischargeMinVoltage.get() + ";" + bmsChargeMaxVoltage.get() + "] to " //
+					+ "[" + setDischargeMinVoltage + "/" + battery.getDischargeMinVoltage().get() + ";"
+					+ setChargeMaxVoltage + "/" + battery.getChargeMaxVoltage().get() + "]" //
+					+ " and " //
+					+ "Currents " //
+					+ "[" + bmsChargeMaxCurrent.get() + ";" + bmsDischargeMaxCurrent.get() + "] to " //
+					+ "[" + MAX_DC_CURRENT + ";" + MAX_DC_CURRENT + "]");
+			this.setBmsChargeMaxCurrent(MAX_DC_CURRENT);
+			this.setBmsDischargeMaxCurrent(MAX_DC_CURRENT);
+			this.setBmsChargeMaxVoltage(setChargeMaxVoltage);
+			this.setBmsDischargeMinVoltage(setDischargeMinVoltage);
+		}
+
+		/*
+		 * Regularly write all WBMS Channels.
+		 */
+		this.writeToChannel(GoodWe.ChannelId.WBMS_VERSION, 1);
+		this.writeToChannel(GoodWe.ChannelId.WBMS_STRINGS, batteryStrings); // numberOfModulesPerTower
+		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, battery.getChargeMaxVoltage().orElse(0));
+		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT,
+				TypeUtils.orElse(preprocessAmpereValue(battery.getChargeMaxCurrent()), 0));
+		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, battery.getDischargeMinVoltage().orElse(0));
+		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT,
+				TypeUtils.orElse(preprocessAmpereValue(battery.getDischargeMaxCurrent()), 0));
+		this.writeToChannel(GoodWe.ChannelId.WBMS_VOLTAGE, battery.getVoltage().orElse(0));
+		this.writeToChannel(GoodWe.ChannelId.WBMS_CURRENT, TypeUtils.abs(battery.getCurrent().orElse(0)));
+		this.writeToChannel(GoodWe.ChannelId.WBMS_SOC, battery.getSoc().orElse(0));
+		this.writeToChannel(GoodWe.ChannelId.WBMS_SOH, battery.getSoh().orElse(100));
+		this.writeToChannel(GoodWe.ChannelId.WBMS_TEMPERATURE, TypeUtils.orElse(
+				TypeUtils.sum(battery.getMaxCellTemperature().get(), battery.getMinCellTemperature().get()), 0));
+		this.writeToChannel(GoodWe.ChannelId.WBMS_WARNING_CODE, 0);
+		this.writeToChannel(GoodWe.ChannelId.WBMS_ALARM_CODE, 0);
+		this.writeToChannel(GoodWe.ChannelId.WBMS_STATUS, 0);
+		this.writeToChannel(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, 0);
+	}
+
+	private void writeToChannel(GoodWe.ChannelId channelId, Integer value)
+			throws IllegalArgumentException, OpenemsNamedException {
+		IntegerWriteChannel channel = this.channel(channelId);
+		channel.setNextWriteValue(value);
 	}
 
 	@Override

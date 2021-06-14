@@ -15,7 +15,6 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
-import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
@@ -334,8 +333,61 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.WBMS_SOH, new UnsignedWordElement(47909)), //
 						m(GoodWe.ChannelId.WBMS_TEMPERATURE, new SignedWordElement(47910),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						new DummyRegisterElement(47911, 47915), //
-						m(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, new UnsignedWordElement(47916))), //
+						/**
+						 * Warning Codes (table 8-8).
+						 * 
+						 * <ul>
+						 * <li>Bit 12-31 Reserved
+						 * <li>Bit 11: System High Temperature
+						 * <li>Bit 10: System Low Temperature 2
+						 * <li>Bit 09: System Low Temperature 1
+						 * <li>Bit 08: Cell Imbalance
+						 * <li>Bit 07: System Reboot
+						 * <li>Bit 06: Communication Failure
+						 * <li>Bit 05: Discharge Over-Current
+						 * <li>Bit 04: Charge Over-Current
+						 * <li>Bit 03: Cell Low Temperature
+						 * <li>Bit 02: Cell High Temperature
+						 * <li>Bit 01: Discharge Under-Voltage
+						 * <li>Bit 00: Charge Over-Voltage
+						 * </ul>
+						 */
+						m(GoodWe.ChannelId.WBMS_WARNING_CODE, new UnsignedDoublewordElement(47911)), //
+						/**
+						 * Alarm Codes (table 8-7).
+						 * 
+						 * <ul>
+						 * <li>Bit 16-31 Reserved
+						 * <li>Bit 15: Charge Over-Voltage Fault
+						 * <li>Bit 14: Discharge Under-Voltage Fault
+						 * <li>Bit 13: Cell High Temperature
+						 * <li>Bit 12: Communication Fault
+						 * <li>Bit 11: Charge Circuit Fault
+						 * <li>Bit 10: Discharge Circuit Fault
+						 * <li>Bit 09: Battery Lock
+						 * <li>Bit 08: Battery Break
+						 * <li>Bit 07: DC Bus Fault
+						 * <li>Bit 06: Precharge Fault
+						 * <li>Bit 05: Discharge Over-Current
+						 * <li>Bit 04: Charge Over-Current
+						 * <li>Bit 03: Cell Low Temperature
+						 * <li>Bit 02: Cell High Temperature
+						 * <li>Bit 01: Discharge Under-Voltage
+						 * <li>Bit 00: Charge Over-Voltage
+						 * </ul>
+						 */
+						m(GoodWe.ChannelId.WBMS_ALARM_CODE, new UnsignedDoublewordElement(47913)), //
+						/**
+						 * BMS Status
+						 * 
+						 * <ul>
+						 * <li>Bit 2: Stop Discharge
+						 * <li>Bit 1: Stop Charge
+						 * <li>Bit 0: Force Charge
+						 * </ul>
+						 */
+						m(GoodWe.ChannelId.WBMS_STATUS, new UnsignedWordElement(47915)), //
+						m(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, new UnsignedWordElement(47916))).debug(), //
 
 				new FC3ReadRegistersTask(47900, Priority.LOW, //
 						m(GoodWe.ChannelId.WBMS_VERSION, new UnsignedWordElement(47900)), //
@@ -355,42 +407,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.WBMS_SOH, new UnsignedWordElement(47909)), //
 						m(GoodWe.ChannelId.WBMS_TEMPERATURE, new SignedWordElement(47910),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(new BitsWordElement(47911, this) //
-								.bit(0, GoodWe.ChannelId.WBMS_WARNING_01) //
-								.bit(1, GoodWe.ChannelId.WBMS_WARNING_02) //
-								.bit(2, GoodWe.ChannelId.WBMS_WARNING_03) //
-								.bit(3, GoodWe.ChannelId.WBMS_WARNING_04) //
-								.bit(4, GoodWe.ChannelId.WBMS_WARNING_05) //
-								.bit(5, GoodWe.ChannelId.WBMS_WARNING_06) //
-								.bit(6, GoodWe.ChannelId.WBMS_WARNING_07) //
-								.bit(7, GoodWe.ChannelId.WBMS_WARNING_08) //
-								.bit(8, GoodWe.ChannelId.WBMS_WARNING_09) //
-								.bit(9, GoodWe.ChannelId.WBMS_WARNING_10) //
-								.bit(10, GoodWe.ChannelId.WBMS_WARNING_11) //
-								.bit(11, GoodWe.ChannelId.WBMS_WARNING_12)), //
-						new DummyRegisterElement(47912), //
-						m(new BitsWordElement(47913, this) //
-								.bit(0, GoodWe.ChannelId.WBMS_ALARM_01) //
-								.bit(1, GoodWe.ChannelId.WBMS_ALARM_02) //
-								.bit(2, GoodWe.ChannelId.WBMS_ALARM_03) //
-								.bit(3, GoodWe.ChannelId.WBMS_ALARM_04) //
-								.bit(4, GoodWe.ChannelId.WBMS_ALARM_05) //
-								.bit(5, GoodWe.ChannelId.WBMS_ALARM_06) //
-								.bit(6, GoodWe.ChannelId.WBMS_ALARM_07) //
-								.bit(7, GoodWe.ChannelId.WBMS_ALARM_08) //
-								.bit(8, GoodWe.ChannelId.WBMS_ALARM_09) //
-								.bit(9, GoodWe.ChannelId.WBMS_ALARM_10) //
-								.bit(10, GoodWe.ChannelId.WBMS_ALARM_11) //
-								.bit(11, GoodWe.ChannelId.WBMS_ALARM_12) //
-								.bit(12, GoodWe.ChannelId.WBMS_ALARM_13) //
-								.bit(13, GoodWe.ChannelId.WBMS_ALARM_14) //
-								.bit(14, GoodWe.ChannelId.WBMS_ALARM_15) //
-								.bit(15, GoodWe.ChannelId.WBMS_ALARM_16)), //
-						new DummyRegisterElement(47914), //
-						m(new BitsWordElement(47915, this) //
-								.bit(0, GoodWe.ChannelId.WBMS_SET_FORCE_CHARGE) //
-								.bit(1, GoodWe.ChannelId.WBMS_SET_STOP_CHARGE) //
-								.bit(2, GoodWe.ChannelId.WBMS_SET_STOP_DISCHARGE)),
+						m(GoodWe.ChannelId.WBMS_WARNING_CODE, new UnsignedDoublewordElement(47911)), //
+						m(GoodWe.ChannelId.WBMS_ALARM_CODE, new UnsignedDoublewordElement(47913)), //
+						m(GoodWe.ChannelId.WBMS_STATUS, new UnsignedWordElement(47915)), //
 						m(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, new UnsignedWordElement(47916)))); //
 	}
 

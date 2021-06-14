@@ -694,40 +694,12 @@ public interface GoodWe extends OpenemsComponent {
 		WBMS_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEGREE_CELSIUS) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		WBMS_WARNING_01(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: Charging Over-Voltage")), //
-		WBMS_WARNING_02(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: Discharging Under-Voltage")), //
-		WBMS_WARNING_03(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: Cell High Temperature")), //
-		WBMS_WARNING_04(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: Cell Low Temperature")), //
-		WBMS_WARNING_05(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: Charging Over-Current")), //
-		WBMS_WARNING_06(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: Discharging Over-Current")), //
-		WBMS_WARNING_07(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: Communication Failure")), //
-		WBMS_WARNING_08(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: System Reboot")), //
-		WBMS_WARNING_09(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: Cell Imbalance")), //
-		WBMS_WARNING_10(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: System Low Temperature")), //
-		WBMS_WARNING_11(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: System Low Temperature")), //
-		WBMS_WARNING_12(Doc.of(OpenemsType.BOOLEAN).text("BMS Warning: System High Temperature")), //
-		WBMS_ALARM_01(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Charging Over-Voltage")), //
-		WBMS_ALARM_02(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Discharging Under-Voltage")), //
-		WBMS_ALARM_03(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Cell High Temperature")), //
-		WBMS_ALARM_04(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Cell Low Temperature")), //
-		WBMS_ALARM_05(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Charging Over-Current")), //
-		WBMS_ALARM_06(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Discharging Over-Current")), //
-		WBMS_ALARM_07(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Precharge Fault")), //
-		WBMS_ALARM_08(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: DC Bus Fault")), //
-		WBMS_ALARM_09(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Battery Break")), //
-		WBMS_ALARM_10(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Battery Lock")), //
-		WBMS_ALARM_11(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Discharge Circuit Fault")), //
-		WBMS_ALARM_12(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Charging Circuit Failure")), //
-		WBMS_ALARM_13(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Communication Failure")), //
-		WBMS_ALARM_14(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Cell High Temperature Error")), //
-		WBMS_ALARM_15(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Discharging Under-Voltage Error")), //
-		WBMS_ALARM_16(Doc.of(OpenemsType.BOOLEAN).text("BMS Alarm: Charging Over-Voltage Error")), //
-		WBMS_SET_FORCE_CHARGE(Doc.of(Level.INFO) //
-				.text("BMS Status Force Charge")), //
-		WBMS_SET_STOP_CHARGE(Doc.of(OpenemsType.BOOLEAN) //
-				.text("BMS Status Stop Charging")), //
-		WBMS_SET_STOP_DISCHARGE(Doc.of(OpenemsType.BOOLEAN) //
-				.text("BMS Status Stop Discharging")),
+		WBMS_WARNING_CODE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WBMS_ALARM_CODE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WBMS_STATUS(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //
 		WBMS_DISABLE_TIMEOUT_DETECTION(Doc.of(OpenemsType.INTEGER) //
 				.text("Cancel EMS mode BMS communication timeout detection") //
 				.accessMode(AccessMode.READ_WRITE)), //
