@@ -115,7 +115,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 						m(FeneconDessEss.ChannelId.BSMU_WORK_STATE, new UnsignedWordElement(10001)), //
 						m(FeneconDessEss.ChannelId.STACK_CHARGE_STATE, new UnsignedWordElement(10002))), //
 				new FC3ReadRegistersTask(10143, Priority.LOW, //
-						m(FeneconDessEss.ChannelId.ORIGINAL_SOC, new UnsignedWordElement(10143)), //
+						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(10143)), //
 						new DummyRegisterElement(10144, 10150),
 						m(FeneconDessEss.ChannelId.ORIGINAL_ACTIVE_CHARGE_ENERGY,
 								new UnsignedDoublewordElement(10151).wordOrder(WordOrder.MSWLSW),
