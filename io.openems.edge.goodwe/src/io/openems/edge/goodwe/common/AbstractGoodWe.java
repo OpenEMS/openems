@@ -792,7 +792,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [400*N,480*N]
 						m(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, new UnsignedWordElement(45355),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [0,1000]
-						m(GoodWe.ChannelId.BMS_DEPTH_OF_DISCHARGE, new UnsignedWordElement(45356)), // [0,100]
+						m(GoodWe.ChannelId.BMS_SOC_UNDER_MIN, new UnsignedWordElement(45356)), // [0,100]
 						m(GoodWe.ChannelId.BMS_OFFLINE_DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(45357)), //
 						m(GoodWe.ChannelId.BMS_OFFLINE_SOC_UNDER_MIN, new UnsignedWordElement(45358))), //
 
@@ -1170,7 +1170,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [400*N,480*N]
 						m(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, new UnsignedWordElement(45355),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [0,1000]
-						m(GoodWe.ChannelId.BMS_DEPTH_OF_DISCHARGE, new UnsignedWordElement(45356))), // [0,100]
+						m(GoodWe.ChannelId.BMS_SOC_UNDER_MIN, new UnsignedWordElement(45356))), // [0,100]
 
 				new FC16WriteRegistersTask(45360, //
 						m(GoodWe.ChannelId.CLEAR_BATTERY_SETTING, new UnsignedWordElement(45360)), //

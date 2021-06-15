@@ -945,7 +945,7 @@ public interface GoodWe extends OpenemsComponent {
 		BMS_DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		BMS_DEPTH_OF_DISCHARGE(Doc.of(OpenemsType.INTEGER) //
+		BMS_SOC_UNDER_MIN(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		BMS_OFFLINE_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
@@ -1376,6 +1376,7 @@ public interface GoodWe extends OpenemsComponent {
 		return this.getGoodweTypeChannel().value().asEnum();
 	}
 
+	// TODO drop these methods
 	/**
 	 * Gets the Channel for {@link ChannelId#BMS_CHARGE_MAX_CURRENT}.
 	 *

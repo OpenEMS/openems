@@ -219,7 +219,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 * BMS-Registers need to be written all at once.
 	 */
 	private void writeWbmsChannels47900(Battery battery) throws OpenemsNamedException {
-		Integer batteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
+		Integer setBatteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
 
 		/*
 		 * Make sure PV-Master registers are correct, because they define the overall
@@ -235,19 +235,19 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		// be within 5*40V~5*48V (200V~240V). of course please make sure the battery
 		// real acceptable charge/discharge limitation is also in this range.
 		Integer setChargeMaxVoltage = TypeUtils.fitWithin(//
-				TypeUtils.multiply(batteryStrings, 50), //
-				TypeUtils.multiply(TypeUtils.sum(batteryStrings, 1), 50), //
+				TypeUtils.multiply(setBatteryStrings, 50), //
+				TypeUtils.multiply(TypeUtils.sum(setBatteryStrings, 1), 50), //
 				battery.getChargeMaxVoltage().get());
 		Integer setDischargeMinVoltage = TypeUtils.fitWithin(//
-				TypeUtils.multiply(batteryStrings, 40), //
-				TypeUtils.multiply(batteryStrings, 48), //
+				TypeUtils.multiply(setBatteryStrings, 40), //
+				TypeUtils.multiply(setBatteryStrings, 48), //
 				battery.getDischargeMinVoltage().get());
 		Value<Integer> bmsDischargeMinVoltage = this.getBmsDischargeMinVoltage();
 		if ((bmsChargeMaxCurrent.isDefined() && !Objects.equals(bmsChargeMaxCurrent.get(), MAX_DC_CURRENT))
 				|| (bmsDischargeMaxCurrent.isDefined() && !Objects.equals(bmsDischargeMaxCurrent.get(), MAX_DC_CURRENT))
-//				|| (bmsChargeMaxVoltage.isDefined() && !Objects.equals(bmsChargeMaxVoltage.get(), setChargeMaxVoltage))
-//				|| (bmsDischargeMinVoltage.isDefined()
-//						&& !Objects.equals(bmsDischargeMinVoltage.get(), setDischargeMinVoltage))
+				|| (bmsChargeMaxVoltage.isDefined() && !Objects.equals(bmsChargeMaxVoltage.get(), setChargeMaxVoltage))
+				|| (bmsDischargeMinVoltage.isDefined()
+						&& !Objects.equals(bmsDischargeMinVoltage.get(), setDischargeMinVoltage))
 		// TODO: it is not clear to me, why ChargeMaxVoltage is set to 250 but
 		// frequently gets reset to 210. This is with first beta firmware on fems888.
 		) {
@@ -261,17 +261,27 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 					+ "Currents " //
 					+ "[" + bmsChargeMaxCurrent.get() + ";" + bmsDischargeMaxCurrent.get() + "] to " //
 					+ "[" + MAX_DC_CURRENT + ";" + MAX_DC_CURRENT + "]");
-			this.setBmsChargeMaxCurrent(MAX_DC_CURRENT);
-			this.setBmsDischargeMaxCurrent(MAX_DC_CURRENT);
-			this.setBmsChargeMaxVoltage(setChargeMaxVoltage);
-			this.setBmsDischargeMinVoltage(setDischargeMinVoltage);
+
+			this.writeToChannel(GoodWe.ChannelId.BATTERY_PROTOCOL_ARM, 287); // EMS-Mode
+
+			// Registers 45350
+			this.writeToChannel(GoodWe.ChannelId.BMS_LEAD_CAPACITY, 200); // TODO: calculate value
+			this.writeToChannel(GoodWe.ChannelId.BMS_STRINGS, setBatteryStrings); // [4-12]
+			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, setChargeMaxVoltage); // [150-600]
+			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, MAX_DC_CURRENT); // [0-100]
+			this.writeToChannel(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, setDischargeMinVoltage); // [150-600]
+			this.writeToChannel(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, MAX_DC_CURRENT); // [0-100]
+			this.writeToChannel(GoodWe.ChannelId.BMS_SOC_UNDER_MIN, 100); // [0-100]
+			this.writeToChannel(GoodWe.ChannelId.BMS_OFFLINE_DISCHARGE_MIN_VOLTAGE, setDischargeMinVoltage); // [150-600]
+			this.writeToChannel(GoodWe.ChannelId.BMS_OFFLINE_SOC_UNDER_MIN, 100); // [0-100]
+			// TODO must be 100 or 0 to use entire battery?
 		}
 
 		/*
 		 * Regularly write all WBMS Channels.
 		 */
 		this.writeToChannel(GoodWe.ChannelId.WBMS_VERSION, 1);
-		this.writeToChannel(GoodWe.ChannelId.WBMS_STRINGS, batteryStrings); // numberOfModulesPerTower
+		this.writeToChannel(GoodWe.ChannelId.WBMS_STRINGS, setBatteryStrings); // numberOfModulesPerTower
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, battery.getChargeMaxVoltage().orElse(0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT,
 				TypeUtils.orElse(preprocessAmpereValue(battery.getChargeMaxCurrent()), 0));
