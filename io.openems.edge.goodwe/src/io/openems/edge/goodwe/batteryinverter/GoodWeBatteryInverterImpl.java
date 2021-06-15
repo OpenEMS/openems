@@ -172,9 +172,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 */
 	private void writeBmsChannels45350(Battery battery) throws OpenemsNamedException {
 		// Read battery values
-		Integer chargeMaxVoltage = this.getBmsChargeMaxVoltage().orElse(0);
+		Integer chargeMaxVoltage = battery.getChargeMaxVoltage().orElse(0);
 		Integer chargeMaxCurrent = preprocessAmpereValue(battery.getChargeMaxCurrent());
-		Integer dischargeMinVoltage = this.getBmsDischargeMinVoltage().orElse(0);
+		Integer dischargeMinVoltage = battery.getDischargeMinVoltage().orElse(0);
 		Integer dischargeMaxCurrent = preprocessAmpereValue(battery.getDischargeMaxCurrent());
 
 		// Replace null values
