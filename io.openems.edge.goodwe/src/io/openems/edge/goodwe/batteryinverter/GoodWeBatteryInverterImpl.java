@@ -73,9 +73,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	private static final int MODULE_MIN_VOLTAGE = 42;
 
 	/**
-	 * Holds the latest known SoC. Updated in {@link #run(Battery, int, int)}.
+	 * Holds the latest known Charge-Max-Current. Updated in
+	 * {@link #run(Battery, int, int)}.
 	 */
-	private Value<Integer> lastSoc = null;
+	private Value<Integer> lastChargeMaxCurrent = null;
 
 	private Config config;
 
@@ -308,13 +309,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	@Override
 	public Integer getSurplusPower() {
 		// TODO logic is insufficient
-		if (this.lastSoc == null || this.lastSoc.orElse(0) < 99) {
+		if (this.lastChargeMaxCurrent == null || !this.lastChargeMaxCurrent.isDefined()
+				|| this.lastChargeMaxCurrent.get() >= MAX_DC_CURRENT) {
 			return null;
 		}
 		Integer productionPower = this.calculatePvProduction();
-		if (productionPower == null || productionPower < 100) {
-			return null;
-		}
 		return productionPower;
 	}
 
@@ -331,7 +330,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 		// Calculate ActivePower and Energy values.
 		this.updatePowerAndEnergyChannels();
-		this.lastSoc = battery.getSoc();
+		this.lastChargeMaxCurrent = battery.getChargeMaxCurrent();
 
 		// Calculate and store Max-AC-Export and -Import for use in
 		// getStaticConstraints()
