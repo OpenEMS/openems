@@ -112,15 +112,16 @@ public class ApplyPowerHandler {
 			return new Result(EmsPowerMode.IMPORT_AC, activePowerSetPoint * -1);
 
 		} else { // activePowerSetPoint == 0
-			if (pvProduction == 0) {
-				// Stop inverter
-				System.out.println("STOPPED [0]");
-				return new Result(EmsPowerMode.STOPPED, 0);
-				// TODO consequences for Off-Grid?
-			} else {
-				System.out.println("IMPORT_AC [0]");
-				return new Result(EmsPowerMode.IMPORT_AC, 0);
-			}
+//			if (pvProduction == 0) {
+//				// Stop inverter to reduce power; 
+//				System.out.println("STOPPED [0]");
+//				return new Result(EmsPowerMode.STOPPED, 0);
+//				// TODO consequences for Off-Grid?
+			// TODO disabled for now, because STOPPED also stops the PV
+//			} else {
+			System.out.println("IMPORT_AC [0]");
+			return new Result(EmsPowerMode.IMPORT_AC, 0);
+//			}
 
 		}
 	}
