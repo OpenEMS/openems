@@ -66,7 +66,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	private static final int SENSORS_PER_MODULE = 14;
 	private static final int ADDRESS_OFFSET_FOR_CELL_VOLT_AND_TEMP = 100;
 	private static final int MODULE_MIN_VOLTAGE = 42; // [V]
-	private static final int MODULE_MAX_VOLTAGE = 49; // [V]
+	private static final int MODULE_MAX_VOLTAGE = 49; // [V]; 3.5 V x 14 Cells per Module
 	private static final int CAPACITY_PER_MODULE = 2200; // [Wh]
 
 	private final Logger log = LoggerFactory.getLogger(FeneconHomeBatteryImpl.class);
