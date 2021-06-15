@@ -16,12 +16,14 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.AbstractGenericManagedEss;
@@ -39,8 +41,8 @@ import io.openems.edge.ess.power.api.Power;
 )
 public class GenericManagedSymmetricEssImpl
 		extends AbstractGenericManagedEss<GenericManagedSymmetricEss, Battery, ManagedSymmetricBatteryInverter>
-		implements GenericManagedSymmetricEss, GenericManagedEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent,
-		EventHandler, StartStoppable, ModbusSlave {
+		implements GenericManagedSymmetricEss, GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
+		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	@Reference
 	private Power power;
@@ -65,7 +67,8 @@ public class GenericManagedSymmetricEssImpl
 				StartStoppable.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
-				GenericManagedEss.ChannelId.values() //
+				GenericManagedEss.ChannelId.values(), //
+				HybridEss.ChannelId.values() //
 		);
 	}
 
@@ -103,6 +106,15 @@ public class GenericManagedSymmetricEssImpl
 	@Override
 	protected ManagedSymmetricBatteryInverter getBatteryInverter() {
 		return this.batteryInverter;
+	}
+
+	@Override
+	public Integer getSurplusPower() {
+		if (this.batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
+			return ((HybridManagedSymmetricBatteryInverter) this.batteryInverter).getSurplusPower();
+		} else {
+			return null;
+		}
 	}
 
 	@Override
