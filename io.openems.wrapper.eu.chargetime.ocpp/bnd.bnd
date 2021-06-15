@@ -48,4 +48,3 @@ Export-Package: \
     eu.chargetime.ocpp.wss,\
 
 -sources: false
-

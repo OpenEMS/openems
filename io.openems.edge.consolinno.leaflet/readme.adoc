@@ -1,0 +1,29 @@
+= Consolinno Leaflet
+
+This Module provides the functionality of the Consolinno Leaflet. This includes:
+
+- Consolinno Leaflet Core
+This Configurator reads an Input CSV file with the Modbus Register Map.
+It will allocate these to the correct components and configures the Modules connected.
+
+- Consolinno Leaflet Pwm
+This Pwm will regulate power output on a given Module and Position by
+writing the Modbus Registers accordingly.
+
+- Consolinno Leaflet Relay
+This Relay will set the relay state on a given Module and Position,
+by writing the Modbus Registers accordingly.
+
+- Consolinno Leaflet Sensor Signal
+This Signal Sensor will read the Temperature on a given Module and Position,
+by reading the according Modbus Registers.
+Additionally, it will write a Status in the Status Channel,
+if the temperature reading is below or above a given Value.
+
+- Consolinno Leaflet Sensor Temperature
+This Temperature Sensor will read the Temperature on a given Module and Position,
+by reading the according Modbus Registers.
+
+
+
+

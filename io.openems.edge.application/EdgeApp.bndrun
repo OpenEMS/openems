@@ -39,6 +39,7 @@
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
 	bnd.identity;id='io.openems.edge.bridge.onewire',\
 	bnd.identity;id='io.openems.edge.common',\
+	bnd.identity;id='io.openems.edge.consolinno.leaflet',\
 	bnd.identity;id='io.openems.edge.controller.api.backend',\
 	bnd.identity;id='io.openems.edge.controller.api.common',\
 	bnd.identity;id='io.openems.edge.controller.api.modbus',\
@@ -137,6 +138,7 @@
 	bnd.identity;id='io.openems.edge.pvinverter.sma',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
 	bnd.identity;id='io.openems.edge.pvinverter.sunspec',\
+	bnd.identity;id='io.openems.edge.relay.api',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.scheduler.daily',\
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
@@ -169,6 +171,7 @@
 	io.openems.edge.bridge.modbus;version=snapshot,\
 	io.openems.edge.bridge.onewire;version=snapshot,\
 	io.openems.edge.common;version=snapshot,\
+	io.openems.edge.consolinno.leaflet;version=snapshot,\
 	io.openems.edge.controller.api;version=snapshot,\
 	io.openems.edge.controller.api.backend;version=snapshot,\
 	io.openems.edge.controller.api.common;version=snapshot,\
@@ -274,6 +277,7 @@
 	io.openems.edge.pvinverter.sma;version=snapshot,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\
 	io.openems.edge.pvinverter.sunspec;version=snapshot,\
+	io.openems.edge.relay.api;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.api;version=snapshot,\
 	io.openems.edge.scheduler.daily;version=snapshot,\
