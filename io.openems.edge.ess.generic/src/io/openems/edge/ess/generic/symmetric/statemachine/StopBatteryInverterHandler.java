@@ -1,4 +1,4 @@
-package io.openems.edge.ess.generic.common.statemachine;
+package io.openems.edge.ess.generic.symmetric.statemachine;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -6,9 +6,9 @@ import java.time.Instant;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
-import io.openems.edge.ess.generic.common.statemachine.StateMachine.State;
+import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 
-public class StopBatteryHandler extends StateHandler<State, Context> {
+public class StopBatteryInverterHandler extends StateHandler<State, Context> {
 
 	private Instant lastAttempt = Instant.MIN;
 	private int attemptCounter = 0;
@@ -18,15 +18,15 @@ public class StopBatteryHandler extends StateHandler<State, Context> {
 		this.lastAttempt = Instant.MIN;
 		this.attemptCounter = 0;
 		GenericManagedEss ess = context.getParent();
-		ess._setMaxBatteryStopAttemptsFault(false);
+		ess._setMaxBatteryInverterStopAttemptsFault(false);
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 		GenericManagedEss ess = context.getParent();
 
-		if (context.battery.isStopped()) {
-			return State.STOPPED;
+		if (context.batteryInverter.isStopped()) {
+			return State.STOP_BATTERY;
 		}
 
 		boolean isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
@@ -36,22 +36,22 @@ public class StopBatteryHandler extends StateHandler<State, Context> {
 
 			if (this.attemptCounter > GenericManagedEss.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				ess._setMaxBatteryStopAttemptsFault(true);
+				ess._setMaxBatteryInverterStopAttemptsFault(true);
 				return State.UNDEFINED;
 
 			} else {
-				// Trying to stop Battery
-				context.battery.stop();
+				// Trying to stop Battery Inverter
+				context.batteryInverter.stop();
 
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
-				return State.STOP_BATTERY;
+				return State.STOP_BATTERY_INVERTER;
 
 			}
 
 		} else {
 			// Still waiting...
-			return State.STOP_BATTERY;
+			return State.STOP_BATTERY_INVERTER;
 		}
 	}
 

@@ -75,6 +75,14 @@ public interface HybridManagedSymmetricBatteryInverter
 	}
 
 	/**
+	 * Gets the DC-PV Power, i.e. the sum of the {@link EssDcCharger}s of this
+	 * {@link HybridManagedSymmetricBatteryInverter}.
+	 * 
+	 * @return the DC-PV power, or 'null' if there is no {@link EssDcCharger}
+	 */
+	public Integer getDcPvPower();
+
+	/**
 	 * Gets the Surplus Power of the {@link EssDcCharger}s of this
 	 * {@link HybridManagedSymmetricBatteryInverter}.
 	 * 
