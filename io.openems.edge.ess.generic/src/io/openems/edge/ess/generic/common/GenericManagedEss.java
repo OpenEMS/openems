@@ -1,20 +1,14 @@
 package io.openems.edge.ess.generic.common;
 
-import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
-import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.generic.common.statemachine.StateMachine.State;
+import io.openems.edge.ess.generic.symmetric.ChannelManager;
 
 public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, ModbusSlave {
 
@@ -36,10 +30,6 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	public static int RETRY_COMMAND_MAX_ATTEMPTS = 30;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(State.values()) //
-				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.FAULT) //
-				.text("Running the Logic failed")), //
 		MAX_BATTERY_START_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //
 				.text("The maximum number of Battery start attempts failed")), //
 		MAX_BATTERY_STOP_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //
@@ -59,19 +49,6 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 		public Doc doc() {
 			return this.doc;
 		}
-	}
-
-	@Override
-	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable(//
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				StartStoppable.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(GenericManagedEss.class, accessMode, 100) //
-						.channel(0, GenericManagedEss.ChannelId.STATE_MACHINE, ModbusType.UINT16) //
-						.build());
-
 	}
 
 	/**
