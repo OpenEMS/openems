@@ -37,7 +37,7 @@ import io.openems.edge.ess.power.api.Relationship;
  * consisting of a Battery-Inverter component and a Battery component.
  */
 public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTERY extends Battery, BATTERY_INVERTER extends ManagedSymmetricBatteryInverter>
-		extends AbstractOpenemsComponent implements GenericManagedEss, ManagedSymmetricEss, SymmetricEss,
+		extends AbstractOpenemsComponent implements GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
 		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	/**
@@ -183,6 +183,16 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 					Relationship.EQUALS, 0));
 		}
 		return result.toArray(new Constraint[result.size()]);
+	}
+
+	@Override
+	public Integer getSurplusPower() {
+		BATTERY_INVERTER batteryInverter = this.getBatteryInverter();
+		if (batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
+			return ((HybridManagedSymmetricBatteryInverter) batteryInverter).getSurplusPower();
+		} else {
+			return null;
+		}
 	}
 
 	@Override
