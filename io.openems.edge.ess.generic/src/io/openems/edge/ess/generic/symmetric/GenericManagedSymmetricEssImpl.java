@@ -86,7 +86,8 @@ public class GenericManagedSymmetricEssImpl
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				GenericManagedEss.ChannelId.values(), //
-				HybridEss.ChannelId.values() //
+				HybridEss.ChannelId.values(), //
+				GenericManagedSymmetricEss.ChannelId.values() //
 		);
 	}
 
