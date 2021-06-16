@@ -1,4 +1,4 @@
-package io.openems.edge.ess.generic.common.statemachine;
+package io.openems.edge.ess.generic.symmetric.statemachine;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -6,7 +6,7 @@ import java.time.Instant;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
-import io.openems.edge.ess.generic.common.statemachine.StateMachine.State;
+import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 
 public class StartBatteryInverterHandler extends StateHandler<State, Context> {
 
