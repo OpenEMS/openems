@@ -617,8 +617,8 @@ public interface Sum extends OpenemsComponent {
 				.channel(69, ChannelId.PRODUCTION_AC_ACTIVE_ENERGY, ModbusType.FLOAT64) //
 				.channel(73, ChannelId.PRODUCTION_DC_ACTIVE_ENERGY, ModbusType.FLOAT64) //
 				.channel(77, ChannelId.CONSUMPTION_ACTIVE_ENERGY, ModbusType.FLOAT64) //
-				.float64Reserved(81) //
-				.float64Reserved(85) //
+				.channel(81, ChannelId.ESS_DC_CHARGE_ENERGY, ModbusType.FLOAT64) //
+				.channel(85, ChannelId.ESS_DC_DISCHARGE_ENERGY, ModbusType.FLOAT64) //
 				.channel(89, ChannelId.ESS_ACTIVE_POWER_L1, ModbusType.FLOAT32) //
 				.channel(91, ChannelId.ESS_ACTIVE_POWER_L2, ModbusType.FLOAT32) //
 				.channel(93, ChannelId.ESS_ACTIVE_POWER_L3, ModbusType.FLOAT32) //
@@ -631,6 +631,7 @@ public interface Sum extends OpenemsComponent {
 				.channel(107, ChannelId.CONSUMPTION_ACTIVE_POWER_L1, ModbusType.FLOAT32) //
 				.channel(109, ChannelId.CONSUMPTION_ACTIVE_POWER_L2, ModbusType.FLOAT32) //
 				.channel(111, ChannelId.CONSUMPTION_ACTIVE_POWER_L3, ModbusType.FLOAT32) //
+				.channel(113, ChannelId.ESS_DISCHARGE_POWER, ModbusType.FLOAT32) //
 				.build();
 	}
 

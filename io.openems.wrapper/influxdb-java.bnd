@@ -9,7 +9,7 @@ Include-Resource: \
 	@influxdb-java-2.17.jar,\
 	@logging-interceptor-3.14.9.jar,\
 	@moshi-1.12.0.jar,\
-	@msgpack-core-0.8.22.jar,\
+	@msgpack-core-0.9.0.jar,\
 	@okhttp-3.14.9.jar,\
 	@okio-1.17.2.jar,\
 	@retrofit-2.9.0.jar
