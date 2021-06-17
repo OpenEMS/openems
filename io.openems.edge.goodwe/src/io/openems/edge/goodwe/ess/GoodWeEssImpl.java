@@ -166,7 +166,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 		if (productionPower == null || productionPower < 100) {
 			return null;
 		}
-		return productionPower;
+		return productionPower + 200 /* discharge more than PV production to avoid PV curtail */;
 	}
 
 }

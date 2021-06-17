@@ -207,7 +207,7 @@
 		<dependency>
 			<groupId>org.msgpack</groupId>
 			<artifactId>msgpack-core</artifactId>
-			<version>0.8.22</version>
+			<version>0.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openmuc</groupId>
@@ -243,7 +243,7 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.2.20</version>
+			<version>42.2.21</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.edge.timedata.rrd4j -->
