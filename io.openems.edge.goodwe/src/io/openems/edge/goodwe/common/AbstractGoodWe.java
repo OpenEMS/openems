@@ -1079,8 +1079,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 				// Setting and Controlling Data Registers
 				new FC16WriteRegistersTask(45075, //
-				// Read Error For "FEED_POWER_LIMIT_COEFFICIENT", "ROUTER_PASSWORD",
-				// "ROUTER_ENCRYPTION_METHOD"
+						// Read Error For "FEED_POWER_LIMIT_COEFFICIENT", "ROUTER_PASSWORD",
+						// "ROUTER_ENCRYPTION_METHOD"
 						// m(GoodWe.ChannelId.ROUTER_SSID, new StringWordElement(45024, 30)), //
 						// m(GoodWe.ChannelId.ROUTER_PASSWORD, new StringWordElement(45054, 20)), //
 						// m(GoodWe.ChannelId.ROUTER_ENCRYPTION_METHOD, new StringWordElement(45074,
@@ -1458,7 +1458,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.T_PHASE_FEED_POWER_PARA, new UnsignedWordElement(47537)), //
 						m(GoodWe.ChannelId.STOP_SOC_ADJUST, new UnsignedWordElement(47538)), //
 						m(GoodWe.ChannelId.WIFI_RESET, new UnsignedWordElement(47539)), //
-						m(GoodWe.ChannelId.ARM_SOFT_RESET, new UnsignedWordElement(47540))), //
+						m(GoodWe.ChannelId.ARM_SOFT_RESET, new UnsignedWordElement(47540))).debug(), //
 
 				new FC16WriteRegistersTask(47900, //
 						m(GoodWe.ChannelId.WBMS_VERSION, new UnsignedWordElement(47900)), //

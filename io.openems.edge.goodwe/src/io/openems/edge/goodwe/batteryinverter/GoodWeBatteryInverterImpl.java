@@ -228,35 +228,33 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		Value<Integer> bmsChargeMaxCurrent = this.getBmsChargeMaxCurrent();
 		Value<Integer> bmsDischargeMaxCurrent = this.getBmsDischargeMaxCurrent();
 		Value<Integer> bmsChargeMaxVoltage = this.getBmsChargeMaxVoltage();
+		Value<Integer> bmsDischargeMinVoltage = this.getBmsDischargeMinVoltage();
 		// TODO: this should not be required anymore with latest (beta) firmware
 		// For example, the nominal voltage of the battery rack is 240V, then
 		// BattStrings shall be 5. And max charge voltage range of the battery shall be
 		// within in 5*50V~6*50V (250V~300V), and min discharge voltage of battery shall
 		// be within 5*40V~5*48V (200V~240V). of course please make sure the battery
 		// real acceptable charge/discharge limitation is also in this range.
-		Integer setChargeMaxVoltage = TypeUtils.fitWithin(//
-				TypeUtils.multiply(setBatteryStrings, 50), //
-				TypeUtils.multiply(TypeUtils.sum(setBatteryStrings, 1), 50), //
-				battery.getChargeMaxVoltage().get());
-		Integer setDischargeMinVoltage = TypeUtils.fitWithin(//
-				TypeUtils.multiply(setBatteryStrings, 40), //
-				TypeUtils.multiply(setBatteryStrings, 48), //
-				battery.getDischargeMinVoltage().get());
-		Value<Integer> bmsDischargeMinVoltage = this.getBmsDischargeMinVoltage();
+//		Integer setChargeMaxVoltage = TypeUtils.fitWithin(//
+//				TypeUtils.multiply(setBatteryStrings, 50), //
+//				TypeUtils.multiply(TypeUtils.sum(setBatteryStrings, 1), 50), //
+//				battery.getChargeMaxVoltage().get());
+		Integer setChargeMaxVoltage = battery.getChargeMaxVoltage().orElse(0);
+		Integer setDischargeMinVoltage = battery.getDischargeMinVoltage().orElse(0);
 		if ((bmsChargeMaxCurrent.isDefined() && !Objects.equals(bmsChargeMaxCurrent.get(), MAX_DC_CURRENT))
 				|| (bmsDischargeMaxCurrent.isDefined() && !Objects.equals(bmsDischargeMaxCurrent.get(), MAX_DC_CURRENT))
-				|| (bmsChargeMaxVoltage.isDefined() && !Objects.equals(bmsChargeMaxVoltage.get(), setChargeMaxVoltage))
-				|| (bmsDischargeMinVoltage.isDefined()
-						&& !Objects.equals(bmsDischargeMinVoltage.get(), setDischargeMinVoltage))
+//				|| (bmsChargeMaxVoltage.isDefined() && !Objects.equals(bmsChargeMaxVoltage.get(), setChargeMaxVoltage))
+//				|| (bmsDischargeMinVoltage.isDefined()
+//						&& !Objects.equals(bmsDischargeMinVoltage.get(), setDischargeMinVoltage))
 		// TODO: it is not clear to me, why ChargeMaxVoltage is set to 250 but
 		// frequently gets reset to 210. This is with first beta firmware on fems888.
+		// Disabling Voltage-Check because of this.
 		) {
 			// Update is required
 			this.logInfo(this.log, "Update for PV-Master BMS Registers is required. " //
 					+ "Voltages " //
 					+ "[" + bmsDischargeMinVoltage.get() + ";" + bmsChargeMaxVoltage.get() + "] to " //
-					+ "[" + setDischargeMinVoltage + "/" + battery.getDischargeMinVoltage().get() + ";"
-					+ setChargeMaxVoltage + "/" + battery.getChargeMaxVoltage().get() + "]" //
+					+ "[" + setDischargeMinVoltage + ";" + setChargeMaxVoltage + "]" //
 					+ " and " //
 					+ "Currents " //
 					+ "[" + bmsChargeMaxCurrent.get() + ";" + bmsDischargeMaxCurrent.get() + "] to " //
