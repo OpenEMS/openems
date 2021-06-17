@@ -1,4 +1,4 @@
-package io.openems.edge.ess.generic.common.statemachine;
+package io.openems.edge.ess.generic.symmetric.statemachine;
 
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;

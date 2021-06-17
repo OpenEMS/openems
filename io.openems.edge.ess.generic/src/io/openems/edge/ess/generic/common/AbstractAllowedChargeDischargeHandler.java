@@ -8,7 +8,6 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.generic.symmetric.ChannelManager;
 
 /**
  * Helper class to handle calculation of Allowed-Charge-Power and
