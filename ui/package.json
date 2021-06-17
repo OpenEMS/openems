@@ -56,7 +56,7 @@
     "@angular/language-service": "~12.0.1",
     "@ionic/angular-toolkit": "^4.0.0",
     "@types/jasmine": "~3.6.0",
-    "@types/jasminewd2": "~2.0.3",
+    "@types/jasminewd2": "~2.0.9",
     "@types/node": "^12.11.1",
     "@typescript-eslint/eslint-plugin": "4.16.1",
     "@typescript-eslint/parser": "4.16.1",
