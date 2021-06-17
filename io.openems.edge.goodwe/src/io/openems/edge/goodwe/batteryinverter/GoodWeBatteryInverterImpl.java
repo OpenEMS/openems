@@ -1,7 +1,5 @@
 package io.openems.edge.goodwe.batteryinverter;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -137,88 +135,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 * @throws OpenemsNamedException on error
 	 */
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
-		switch (this.config.batteryRegisters()) {
-		case FROM_45350:
-			writeBmsChannels45350(battery);
-			break;
-
-		case FROM_47900:
-			writeWbmsChannels47900(battery);
-			break;
-
-		case NONE:
-		}
-	}
-
-	private final Map<GoodWe.ChannelId, Integer> lastWrittenValues = new HashMap<>();
-
-	private static Integer preprocessAmpereValue(Value<Integer> v) {
-		Integer value = v.get();
-		value = TypeUtils.fitWithin(0, MAX_DC_CURRENT, value);
-
-		if (value != null && value > 0 && value < MAX_DC_CURRENT) {
-			// To avoid very frequent updates, round newValue to nearest multiple of 5, but
-			// at least 1. This is because each update of BMS values currently causes a
-			// downtime of the inverter.
-			value = (int) (5 * Math.floor(value / 5.));
-			if (value == 0) {
-				value = 1;
-			}
-		}
-		return value;
-	}
-
-	/**
-	 * BMS-Registers need to be written all at once.
-	 */
-	private void writeBmsChannels45350(Battery battery) throws OpenemsNamedException {
-		// Read battery values
-		Integer chargeMaxVoltage = battery.getChargeMaxVoltage().orElse(0);
-		Integer chargeMaxCurrent = preprocessAmpereValue(battery.getChargeMaxCurrent());
-		Integer dischargeMinVoltage = battery.getDischargeMinVoltage().orElse(0);
-		Integer dischargeMaxCurrent = preprocessAmpereValue(battery.getDischargeMaxCurrent());
-
-		// Replace null values
-		TypeUtils.orElse(chargeMaxVoltage, 0);
-		TypeUtils.orElse(chargeMaxCurrent, 0);
-		TypeUtils.orElse(dischargeMinVoltage, 0);
-		TypeUtils.orElse(dischargeMaxCurrent, 0);
-
-		// Is Update required?
-		if (Objects.equals(this.lastWrittenValues.get(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE), chargeMaxVoltage)
-				&& Objects.equals(this.lastWrittenValues.get(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT), chargeMaxCurrent)
-				&& Objects.equals(this.lastWrittenValues.get(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE),
-						dischargeMinVoltage)
-				&& Objects.equals(this.lastWrittenValues.get(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT),
-						dischargeMaxCurrent)) {
-			// No Update required
-			this.logInfo(this.log, "No Update Required for Voltages [" + dischargeMinVoltage + ";" + chargeMaxVoltage
-					+ "] and Currents [" + chargeMaxCurrent + ";" + dischargeMaxCurrent + "]");
-
-			return;
-		}
-
-		// Print log
-		this.logInfo(this.log, "Update Voltages [" + dischargeMinVoltage + ";" + chargeMaxVoltage + "] and Currents ["
-				+ chargeMaxCurrent + ";" + dischargeMaxCurrent + "]");
-
-		// Write to Channels
-		this.setBmsChargeMaxVoltage(chargeMaxVoltage);
-		this.setBmsChargeMaxCurrent(chargeMaxCurrent);
-		this.setBmsDischargeMinVoltage(dischargeMinVoltage);
-		this.setBmsDischargeMaxCurrent(dischargeMaxCurrent);
-
-		// Store lastWrittenValues
-		this.lastWrittenValues.put(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, chargeMaxVoltage);
-		this.lastWrittenValues.put(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, chargeMaxCurrent);
-		this.lastWrittenValues.put(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, dischargeMinVoltage);
-		this.lastWrittenValues.put(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, dischargeMaxCurrent);
-	}
-
-	/**
-	 * BMS-Registers need to be written all at once.
-	 */
-	private void writeWbmsChannels47900(Battery battery) throws OpenemsNamedException {
 		Integer setBatteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
 
 		/*
@@ -296,6 +212,22 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		this.writeToChannel(GoodWe.ChannelId.WBMS_ALARM_CODE, 0);
 		this.writeToChannel(GoodWe.ChannelId.WBMS_STATUS, 0);
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, 0);
+	}
+
+	private static Integer preprocessAmpereValue(Value<Integer> v) {
+		Integer value = v.get();
+		value = TypeUtils.fitWithin(0, MAX_DC_CURRENT, value);
+
+		if (value != null && value > 0 && value < MAX_DC_CURRENT) {
+			// To avoid very frequent updates, round newValue to nearest multiple of 5, but
+			// at least 1. This is because each update of BMS values currently causes a
+			// downtime of the inverter.
+			value = (int) (5 * Math.floor(value / 5.));
+			if (value == 0) {
+				value = 1;
+			}
+		}
+		return value;
 	}
 
 	private void writeToChannel(GoodWe.ChannelId channelId, Integer value)
