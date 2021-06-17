@@ -315,6 +315,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	}
 
 	@Override
+	public Integer getDcPvPower() {
+		return this.calculatePvProduction();
+	}
+
+	@Override
 	public Integer getSurplusPower() {
 		// TODO logic is insufficient
 		if (this.lastChargeMaxCurrent == null || !this.lastChargeMaxCurrent.isDefined()

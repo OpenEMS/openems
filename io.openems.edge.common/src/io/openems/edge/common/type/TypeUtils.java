@@ -59,7 +59,9 @@ public class TypeUtils {
 
 			} else if (value instanceof String) {
 				String stringValue = (String) value;
-				if (stringValue.equalsIgnoreCase("false")) {
+				if (stringValue.isEmpty()) {
+					return null;
+				} else if (stringValue.equalsIgnoreCase("false")) {
 					return (T) Boolean.FALSE;
 				} else if (stringValue.equalsIgnoreCase("true")) {
 					return (T) Boolean.TRUE;
@@ -119,6 +121,9 @@ public class TypeUtils {
 
 			} else if (value instanceof String) {
 				String stringValue = (String) value;
+				if (stringValue.isEmpty()) {
+					return null;
+				}
 				return (T) Short.valueOf(Short.parseShort(stringValue));
 			}
 			break;
@@ -162,6 +167,9 @@ public class TypeUtils {
 
 			} else if (value instanceof String) {
 				String stringValue = (String) value;
+				if (stringValue.isEmpty()) {
+					return null;
+				}
 				return (T) Integer.valueOf(Integer.parseInt(stringValue));
 			}
 			break;
@@ -191,6 +199,9 @@ public class TypeUtils {
 
 			} else if (value instanceof String) {
 				String stringValue = (String) value;
+				if (stringValue.isEmpty()) {
+					return null;
+				}
 				return (T) Long.valueOf(Long.parseLong(stringValue));
 			}
 			break;
@@ -232,6 +243,9 @@ public class TypeUtils {
 
 			} else if (value instanceof String) {
 				String stringValue = (String) value;
+				if (stringValue.isEmpty()) {
+					return null;
+				}
 				return (T) Float.valueOf(Float.parseFloat(stringValue));
 			}
 			break;
@@ -261,6 +275,9 @@ public class TypeUtils {
 
 			} else if (value instanceof String) {
 				String stringValue = (String) value;
+				if (stringValue.isEmpty()) {
+					return null;
+				}
 				return (T) Double.valueOf(Double.parseDouble(stringValue));
 			}
 			break;

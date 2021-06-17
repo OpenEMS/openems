@@ -8,12 +8,14 @@ import { BrowserModule } from '@angular/platform-browser';
 import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.component';
 import { ChpSocComponent } from './chpsoc/chpsoc.component';
 import { ChpsocModalComponent } from './chpsoc/modal/modal.component';
-import { ConsumptionComponent } from './consumption/consumption.component';
-import { ConsumptionModalComponent } from './consumption/modal/modal.component';
+import { ConsumptionComponent } from './common/consumption/consumption.component';
+import { ConsumptionModalComponent } from './common/consumption/modal/modal.component';
 import { Controller_Ess_FixActivePower } from './Controller_Ess_FixActivePower/Controller_Ess_FixActivePower';
 import { Controller_Ess_FixActivePowerModalComponent } from './Controller_Ess_FixActivePower/modal/modal.component';
 import { Controller_Io_FixDigitalOutput } from './Controller_Io_FixDigitalOutput/Controller_Io_FixDigitalOutput';
 import { Controller_Io_FixDigitalOutputModalComponent } from './Controller_Io_FixDigitalOutput/modal/modal.component';
+import { Controller_Io_HeatingElementComponent } from './Controller_Io_HeatingElement/Controller_Io_HeatingElement';
+import { Controller_Io_HeatingElementModalComponent } from './Controller_Io_HeatingElement/modal/modal.component';
 import { DelayedSellToGridComponent } from './delayedselltogrid/delayedselltogrid.component';
 import { DelayedSellToGridModalComponent } from './delayedselltogrid/modal/modal.component';
 import { DigitalInputComponent } from './digitalinput/digitalinput.component';
@@ -30,8 +32,6 @@ import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
 import { FlatWidgetPercentagebar } from './flat/flat-widget-line/flat-widget-percentagebar';
 import { GridComponent } from './common/grid/grid.component';
 import { GridModalComponent } from './common/grid/modal/modal.component';
-import { HeatingElementComponent } from './heatingelement/heatingelement.component';
-import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
 import { HeatPumpComponent } from './heatpump/heatpump.component';
 import { HeatPumpModalComponent } from './heatpump/modal/modal.component';
 import { InfoComponent } from './info/info.component';
@@ -70,6 +70,7 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     Controller_Ess_FixActivePowerModalComponent,
     Controller_Io_FixDigitalOutput,
     Controller_Io_FixDigitalOutputModalComponent,
+    Controller_Io_HeatingElementModalComponent,
     DelayedSellToGridModalComponent,
     DigitalInputComponent,
     DigitalInputModalComponent,
@@ -80,7 +81,6 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     FlatWidgetLine,
     FlatWidgetPercentagebar,
     GridModalComponent,
-    HeatingElementModalComponent,
     HeatPumpModalComponent,
     ModalComponentEvcsCluster,
     ProductionModalComponent,
@@ -105,6 +105,8 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     Controller_Ess_FixActivePowerModalComponent,
     Controller_Io_FixDigitalOutput,
     Controller_Io_FixDigitalOutputModalComponent,
+    Controller_Io_HeatingElementComponent,
+    Controller_Io_HeatingElementModalComponent,
     DelayedSellToGridComponent,
     DelayedSellToGridModalComponent,
     DigitalInputComponent,
@@ -120,8 +122,6 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     FlatWidgetPercentagebar,
     GridComponent,
     GridModalComponent,
-    HeatingElementComponent,
-    HeatingElementModalComponent,
     HeatPumpComponent,
     HeatPumpModalComponent,
     InfoComponent,

@@ -8,6 +8,9 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.backend.common.jsonrpc.request.AddEdgeToUserRequest;
+import io.openems.backend.common.jsonrpc.response.AddEdgeToUserResponse;
+import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -58,6 +61,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		case EdgeRpcRequest.METHOD:
 			result = this.handleEdgeRpcRequest(wsData, user, EdgeRpcRequest.from(request));
+			break;
+
+		case AddEdgeToUserRequest.METHOD:
+			result = this.handleAddEdgeToUserRequest(user, AddEdgeToUserRequest.from(request));
 			break;
 		}
 
@@ -247,6 +254,22 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// Forward to Edge
 		return this.parent.edgeWebsocket.handleSubscribeSystemLogRequest(edgeId, user, token, request);
+	}
+
+	/**
+	 * Handles an {@link AddEdgeToUserRequest}.
+	 * 
+	 * @param user      the {@link User}
+	 * @param messageId the JSON-RPC Message-ID
+	 * @param request   the AddEdgeToUserRequest
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<AddEdgeToUserResponse> handleAddEdgeToUserRequest(User user, AddEdgeToUserRequest request)
+			throws OpenemsNamedException {
+		Edge edge = this.parent.metadata.addEdgeToUser(user, request.getSetupPassword());
+
+		return CompletableFuture.completedFuture(new AddEdgeToUserResponse(request.getId(), edge));
 	}
 
 }
