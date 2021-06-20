@@ -128,25 +128,22 @@ public abstract class AbstractDoc<T> implements Doc {
 		return this.text;
 	}
 
-	/*
-	 * A source information text, i.e. a Modbus Register or REST-Api endpoint
-	 * address. Defaults to an empty string.
+	/**
+	 * An object that holds information about the source of this Channel, i.e. a
+	 * Modbus Register or REST-Api endpoint address. Defaults to null.
 	 */
-	private String source = "";
+	private Object source = null;
 
 	@Override
-	public AbstractDoc<T> source(String source) {
-		if (this.source.isEmpty()) {
-			this.source = source;
-		} else {
-			this.source += " | " + source;
-		}
+	public <SOURCE> AbstractDoc<T> source(SOURCE source) {
+		this.source = source;
 		return this.self();
 	}
 
 	@Override
-	public String getSource() {
-		return this.source;
+	@SuppressWarnings("unchecked")
+	public <SOURCE> SOURCE getSource() {
+		return (SOURCE) this.source;
 	}
 
 	@Override

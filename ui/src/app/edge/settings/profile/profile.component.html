@@ -130,11 +130,11 @@
                             href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_cloud_websocketjson_api"
                             translate>General.manual</ion-button>
                         </ion-text>
-                        <ion-text *ngSwitchDefault>
-                          <ng-container *ngIf="edge.roleIsAtLeast('admin')">
-                            <ion-button (click)="getModbusRegisters(item.id)">Download Modbus-Registers</ion-button>
-                          </ng-container>
-                        </ion-text>
+
+                        <ng-container *ngIf="edge.roleIsAtLeast('admin')">
+                          <ion-button (click)="getChannelExport(item.id)">Export Channels</ion-button>
+                        </ng-container>
+
                         <ion-icon name="arrow-dropdown-outline"></ion-icon>
                       </ng-container>
                     </ng-container>

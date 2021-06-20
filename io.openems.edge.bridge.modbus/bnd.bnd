@@ -7,10 +7,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	${buildpath},\
 	com.ghgande.j2mod;version=2.5.5,\
 	io.openems.common,\
-	io.openems.edge.common,\
-	io.openems.wrapper.fastexcel
-
+	io.openems.edge.common
+	
 -testpath: \
-	${testpath},\
-	io.openems.wrapper.fastexcel,\
-	io.openems.wrapper.opczip
+	${testpath}

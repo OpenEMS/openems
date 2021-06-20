@@ -3,7 +3,6 @@ package io.openems.edge.bridge.modbus.api;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
@@ -12,27 +11,20 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
-import io.openems.edge.bridge.modbus.jsonrpc.ModbusRegistersExportXlsxRequest;
-import io.openems.edge.bridge.modbus.jsonrpc.ModbusRegistersExportXlsxResponse;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.common.user.User;
 
-public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComponent implements JsonApi {
+public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComponent implements ModbusComponent {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsModbusComponent.class);
 
@@ -48,7 +40,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * 
 	 * <p>
 	 * Automatically initializes (i.e. creates {@link Channel} instances for each
-	 * given {@link ChannelId} using the Channel-{@link Doc}.
+	 * given ChannelId using the Channel-{@link Doc}.
 	 * 
 	 * <p>
 	 * It is important to list all Channel-ID enums of all inherited
@@ -381,7 +373,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 */
 	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
 			T element, ElementToChannelConverter converter) {
-		channelId.doc().source(Integer.toHexString(element.getStartAddress()));
+		channelId.doc().source(new ModbusChannelSource(element.getStartAddress()));
 		return new ChannelMapper<T>(element) //
 				.m(channelId, converter) //
 				.build();
@@ -389,17 +381,6 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	public enum BitConverter {
 		DIRECT_1_TO_1, INVERT
-	}
-
-	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest message)
-			throws OpenemsNamedException {
-		switch (message.getMethod()) {
-		case ModbusRegistersExportXlsxRequest.METHOD:
-			return CompletableFuture
-					.completedFuture(new ModbusRegistersExportXlsxResponse(message.getId(), this.protocol));
-		}
-		return null;
 	}
 
 }

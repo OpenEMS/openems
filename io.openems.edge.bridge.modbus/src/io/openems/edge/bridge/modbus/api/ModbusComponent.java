@@ -2,10 +2,8 @@ package io.openems.edge.bridge.modbus.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import io.openems.edge.bridge.modbus.jsonrpc.ModbusRegistersExportXlsxRequest;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.JsonApi;
 
 /**
  * A OpenEMS Component that uses Modbus communication.
@@ -13,13 +11,9 @@ import io.openems.edge.common.jsonapi.JsonApi;
  * <p>
  * Classes implementing this interface typically inherit
  * {@link AbstractOpenemsModbusComponent}.
- * 
- * <p>
- * This {@link JsonApi} expects handling of
- * {@link ModbusRegistersExportXlsxRequest} JSON-RPC Requests.
  */
 @ProviderType
-public interface ModbusComponent extends OpenemsComponent, JsonApi {
+public interface ModbusComponent extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// TODO
