@@ -385,6 +385,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 */
 	protected CompletableFuture<JsonrpcResponseSuccess> handleChannelExportXlsxRequest(User user,
 			ChannelExportXlsxRequest request) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast("ChannelExportXlsxRequest", Role.ADMIN);
 		OpenemsComponent component = this.getComponent(request.getComponentId());
 		if (component == null) {
 			throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(request.getComponentId());
