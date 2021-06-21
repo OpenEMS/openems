@@ -1259,13 +1259,18 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 		BATTERY_PROTOCOL_ARM(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		START_TIME_1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		END_TIME_1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		BMS_POWER_PERCENT_1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT).accessMode(AccessMode.READ_WRITE)), //
 
+		WORK_WEEK_1_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Work Week 1 Enabled")), //
+		WORK_WEEK_1_START_TIME(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_1_END_TIME(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_1_BAT_POWER_PERCENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT) //
+				.accessMode(AccessMode.READ_WRITE)), //
 		WORK_WEEK_1_SUNDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_1_MONDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_1_TUESDAY(Doc.of(OpenemsType.BOOLEAN)), //
@@ -1274,9 +1279,18 @@ public interface GoodWe extends OpenemsComponent {
 		WORK_WEEK_1_FRIDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_1_SATURDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_1_NA(Doc.of(OpenemsType.BOOLEAN)), //
-		WORK_WEEK_1_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Work Week 1 Enabled")), //
 
+		WORK_WEEK_2_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Work Week 2 Enabled")), //
+		WORK_WEEK_2_START_TIME(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_2_END_TIME(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_2_BAT_POWER_PERCENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT) //
+				.accessMode(AccessMode.READ_WRITE)), //
 		WORK_WEEK_2_SUNDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_2_MONDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_2_TUESDAY(Doc.of(OpenemsType.BOOLEAN)), //
@@ -1285,9 +1299,18 @@ public interface GoodWe extends OpenemsComponent {
 		WORK_WEEK_2_FRIDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_2_SATURDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_2_NA(Doc.of(OpenemsType.BOOLEAN)), //
-		WORK_WEEK_2_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Work Week 2 Enabled")), //
 
+		WORK_WEEK_3_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Work Week 3 Enabled")), //
+		WORK_WEEK_3_START_TIME(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_3_END_TIME(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_3_BAT_POWER_PERCENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT) //
+				.accessMode(AccessMode.READ_WRITE)), //
 		WORK_WEEK_3_SUNDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_3_MONDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_3_TUESDAY(Doc.of(OpenemsType.BOOLEAN)), //
@@ -1296,9 +1319,18 @@ public interface GoodWe extends OpenemsComponent {
 		WORK_WEEK_3_FRIDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_3_SATURDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_3_NA(Doc.of(OpenemsType.BOOLEAN)), //
-		WORK_WEEK_3_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Work Week 3 Enabled")), //
 
+		WORK_WEEK_4_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Work Week 4 Enabled")), //
+		WORK_WEEK_4_START_TIME(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_4_END_TIME(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_4_BMS_POWER_PERCENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT) //
+				.accessMode(AccessMode.READ_WRITE)), //
 		WORK_WEEK_4_SUNDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_4_MONDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_4_TUESDAY(Doc.of(OpenemsType.BOOLEAN)), //
@@ -1307,27 +1339,7 @@ public interface GoodWe extends OpenemsComponent {
 		WORK_WEEK_4_FRIDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_4_SATURDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_4_NA(Doc.of(OpenemsType.BOOLEAN)), //
-		WORK_WEEK_4_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Work Week 4 Enabled")), //
 
-		START_TIME_2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		END_TIME_2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		BMS_POWER_PERCENT_2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT).accessMode(AccessMode.READ_WRITE)), //
-		START_TIME_3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		END_TIME_3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		BMS_POWER_PERCENT_3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT).accessMode(AccessMode.READ_WRITE)), //
-		START_TIME_4(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		END_TIME_4(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		BMS_POWER_PERCENT_4(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT).accessMode(AccessMode.READ_WRITE)), //
 		SOC_START_TO_FORCE_CHARGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 		SOC_STOP_TO_FORCE_CHARGE(Doc.of(OpenemsType.INTEGER) //
