@@ -13,6 +13,11 @@ import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 
 public class ApplyPowerHandler {
 
+	private final static int CHANGE_EMS_POWER_MODE_AFTER_CYCLES = 10;
+
+	private EmsPowerMode lastEmsPowerMode = EmsPowerMode.UNDEFINED;
+	private int changeEmsPowerModeCounter = Integer.MAX_VALUE;
+
 	/**
 	 * Apply the desired Active-Power Set-Point by setting the appropriate
 	 * EMS_POWER_SET and EMS_POWER_MODE settings.
@@ -23,31 +28,41 @@ public class ApplyPowerHandler {
 	 * @param context        the {@link ApplyPowerContext}
 	 * @throws OpenemsNamedException on error
 	 */
-	public static boolean apply(AbstractGoodWe goodWe, boolean readOnlyMode, int setActivePower,
-			ApplyPowerContext context) throws OpenemsNamedException {
+	public boolean apply(AbstractGoodWe goodWe, boolean readOnlyMode, int setActivePower, ApplyPowerContext context)
+			throws OpenemsNamedException {
 		int pvProduction = TypeUtils.max(0, goodWe.calculatePvProduction());
 		ApplyPowerHandler.Result apply = calculate(goodWe, readOnlyMode, setActivePower, pvProduction, context);
 
+		// Do not change EMS-Power-Mode faster than CHANGE_EMS_POWER_MODE_AFTER_CYCLES
+		if (this.lastEmsPowerMode == apply.emsPowerMode) {
+			// Keep EMS-Power-Mode and -Set
+		} else if (++this.changeEmsPowerModeCounter >= CHANGE_EMS_POWER_MODE_AFTER_CYCLES) {
+			// Apply new EMS-Power-Mode
+			this.changeEmsPowerModeCounter = 0;
+			System.out.println(
+					"Changing EMS-Power-Mode from [" + this.lastEmsPowerMode + "] to [" + apply.emsPowerMode + "]");
+		} else {
+			// Keep old EMS-Power-Mode, but 'set' zero
+			System.out.println("Waiting to change EMS-Power-Mode from [" + this.lastEmsPowerMode + "] to ["
+					+ apply.emsPowerMode + "]");
+			apply.emsPowerMode = this.lastEmsPowerMode;
+			apply.emsPowerSet = 0;
+		}
+		this.lastEmsPowerMode = apply.emsPowerMode;
+
+		// Set Channels
 		IntegerWriteChannel emsPowerSetChannel = goodWe.channel(GoodWe.ChannelId.EMS_POWER_SET);
 		emsPowerSetChannel.setNextWriteValue(apply.emsPowerSet);
 		EnumWriteChannel emsPowerModeChannel = goodWe.channel(GoodWe.ChannelId.EMS_POWER_MODE);
 		emsPowerModeChannel.setNextWriteValue(apply.emsPowerMode);
 
 		return apply.setChargeMaxCurrentToZero;
-
-//
-//		EnumWriteChannel wbmsChargeMaxCurrentChannel = goodWe.channel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT);
-//		if (apply.setChargeMaxCurrentToZero) {
-//			wbmsChargeMaxCurrentChannel.setNextWriteValue(0);
-//		} else {
-//			wbmsChargeMaxCurrentChannel.setNextWriteValue(chargeMaxCurrent);
-//		}
 	}
 
 	private static class Result {
 
-		public final EmsPowerMode emsPowerMode;
-		public final int emsPowerSet;
+		protected EmsPowerMode emsPowerMode;
+		protected int emsPowerSet;
 		public final boolean setChargeMaxCurrentToZero;
 
 		public Result(EmsPowerMode emsPowerMode, int emsPowerSet, boolean setChargeMaxCurrentToZero) {
@@ -55,6 +70,7 @@ public class ApplyPowerHandler {
 			this.emsPowerSet = emsPowerSet;
 			this.setChargeMaxCurrentToZero = setChargeMaxCurrentToZero;
 		}
+
 	}
 
 	private static ApplyPowerHandler.Result calculate(AbstractGoodWe goodWe, boolean readOnlyMode,
@@ -98,9 +114,11 @@ public class ApplyPowerHandler {
 				// TODO try after a while if PV curtail is still required
 				return new Result(EmsPowerMode.EXPORT_AC, maxPowerConstraint, false);
 
-			} else if (minPowerConstraint != null && Objects.equals(minPowerConstraint, goodWe.getSurplusPower())) {
+			} else if (minPowerConstraint != null && Objects.equals(minPowerConstraint, goodWe.getSurplusPower())
+					&& Objects.equals(minPowerConstraint, activePowerSetPoint)) {
 				System.out.println(
-						"CHARGE_PV [0] MinPowerConstraint equals SurplusPower -> surplus feed-in is activated");
+						"CHARGE_PV [0] MinPowerConstraint equals SurplusPower -> surplus feed-in is activated ["
+								+ activePowerSetPoint + "]");
 				return new Result(EmsPowerMode.CHARGE_PV, 0, false);
 
 			} else if (pvProduction >= activePowerSetPoint) {

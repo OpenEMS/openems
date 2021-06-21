@@ -48,6 +48,8 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 		SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final AllowedChargeDischargeHandler allowedChargeDischargeHandler = new AllowedChargeDischargeHandler(this);
+	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler();
+
 	private Config config;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
@@ -102,7 +104,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 	@Override
 	public void applyPower(int activePower, int reactivePower, ApplyPowerContext context) throws OpenemsNamedException {
 		// Apply Power Set-Point
-		ApplyPowerHandler.apply(this, config.readOnlyMode(), activePower, context);
+		this.applyPowerHandler.apply(this, config.readOnlyMode(), activePower, context);
 	}
 
 	@Override

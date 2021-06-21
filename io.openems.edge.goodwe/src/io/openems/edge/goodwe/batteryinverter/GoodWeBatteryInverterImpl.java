@@ -57,6 +57,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	private static final int MAX_DC_CURRENT = 25; // [A]
 
 	private final Logger log = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
+	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler();
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -269,6 +270,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			// Registers 45350
 			this.writeToChannel(GoodWe.ChannelId.BMS_LEAD_CAPACITY, 200); // TODO: calculate value
 			this.writeToChannel(GoodWe.ChannelId.BMS_STRINGS, setBatteryStrings); // [4-12]
+			// TODO is writing BMS_STRINGS and BMS_LEAD_CAPACITY still required with latest
+			// firmware?
 			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, setChargeMaxVoltage); // [150-600]
 			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, MAX_DC_CURRENT); // [0-100]
 			this.writeToChannel(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, setDischargeMinVoltage); // [150-600]
@@ -284,6 +287,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		 */
 		this.writeToChannel(GoodWe.ChannelId.WBMS_VERSION, 1);
 		this.writeToChannel(GoodWe.ChannelId.WBMS_STRINGS, setBatteryStrings); // numberOfModulesPerTower
+		// TODO is writing WBMS_STRINGS still required with latest firmware?
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, battery.getChargeMaxVoltage().orElse(0));
 
 		// WBMS_CHARGE_MAX_CURRENT is set in ApplyPowerHandler
@@ -396,7 +400,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 		} else {
 			// Apply Power Set-Point
-			setChargeMaxCurrentToZero = ApplyPowerHandler.apply(this, false /* read-only mode is never true */,
+			setChargeMaxCurrentToZero = this.applyPowerHandler.apply(this, false /* read-only mode is never true */,
 					setActivePower, context);
 		}
 
