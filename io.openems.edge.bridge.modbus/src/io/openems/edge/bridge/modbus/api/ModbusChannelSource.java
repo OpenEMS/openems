@@ -27,7 +27,7 @@ public class ModbusChannelSource {
 		StringBuilder b = new StringBuilder();
 		b.append("0x").append(Integer.toHexString(this.address));
 		if (this.bit >= 0) {
-			b.append("|bit").append(this.bit);
+			b.append("|bit").append(String.format("%02d", this.bit));
 		}
 		return b.toString();
 	}
