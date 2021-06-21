@@ -1,4 +1,6 @@
 import { formatNumber } from '@angular/common';
+import { saveAs } from 'file-saver-es';
+import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 
 export class Utils {
 
@@ -214,6 +216,29 @@ export class Utils {
     } else {
       return 'storage_100.png';
     }
+  }
+
+  /**
+   * Download a JSONRPC Base64PayloadResponse in Excel (XLSX) file format.
+   *  
+   * @param response the Base64PayloadResponse
+   * @param filename the filename without .xlsx suffix
+   */
+  public static downloadXlsx(response: Base64PayloadResponse, filename: string) {
+    // decode base64 string, remove space for IE compatibility
+    // source: https://stackoverflow.com/questions/36036280/base64-representing-pdf-to-blob-javascript/45872086
+    var binary = atob(response.result.payload.replace(/\s/g, ''));
+    var len = binary.length;
+    var buffer = new ArrayBuffer(len);
+    var view = new Uint8Array(buffer);
+    for (var i = 0; i < len; i++) {
+      view[i] = binary.charCodeAt(i);
+    }
+    const data: Blob = new Blob([view], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+    });
+
+    saveAs(data, filename + '.xlsx');
   }
 
 }
