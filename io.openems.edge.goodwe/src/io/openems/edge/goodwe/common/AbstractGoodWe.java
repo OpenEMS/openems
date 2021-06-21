@@ -1555,6 +1555,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodWe.ChannelId.WBMS_WARNING_CODE, new UnsignedDoublewordElement(47911)), //
 						m(GoodWe.ChannelId.WBMS_ALARM_CODE, new UnsignedDoublewordElement(47913)), //
+						// TODO reset to individual states
+						
 						m(GoodWe.ChannelId.WBMS_STATUS, new UnsignedWordElement(47915)), //
 						m(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, new UnsignedWordElement(47916)))); //
 	}

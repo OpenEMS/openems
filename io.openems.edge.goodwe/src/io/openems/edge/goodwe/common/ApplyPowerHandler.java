@@ -119,6 +119,9 @@ public class ApplyPowerHandler {
 //				// TODO consequences for Off-Grid?
 			// TODO disabled for now, because STOPPED also stops the PV
 //			} else {
+			
+			// IMPORT_AC seems to not curtail PV...
+			
 			System.out.println("IMPORT_AC [0]");
 			return new Result(EmsPowerMode.IMPORT_AC, 0);
 //			}
