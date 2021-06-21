@@ -36,11 +36,14 @@ public class ApplyPowerHandler {
 		// Do not change EMS-Power-Mode faster than CHANGE_EMS_POWER_MODE_AFTER_CYCLES
 		if (this.lastEmsPowerMode == apply.emsPowerMode) {
 			// Keep EMS-Power-Mode and -Set
+			this.changeEmsPowerModeCounter = 0;
+
 		} else if (++this.changeEmsPowerModeCounter >= CHANGE_EMS_POWER_MODE_AFTER_CYCLES) {
 			// Apply new EMS-Power-Mode
 			this.changeEmsPowerModeCounter = 0;
 			System.out.println(
 					"Changing EMS-Power-Mode from [" + this.lastEmsPowerMode + "] to [" + apply.emsPowerMode + "]");
+
 		} else {
 			// Keep old EMS-Power-Mode, but 'set' zero
 			System.out.println("Waiting to change EMS-Power-Mode from [" + this.lastEmsPowerMode + "] to ["
