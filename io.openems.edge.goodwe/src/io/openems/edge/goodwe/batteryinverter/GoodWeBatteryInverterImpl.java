@@ -137,14 +137,14 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 * @param setDischargePower
 	 * @throws OpenemsNamedException on error
 	 */
-	private void setBatteryLimits(Battery battery, int setDischargePower) throws OpenemsNamedException {
+	private void setBatteryLimits(Battery battery, boolean setChargeMaxCurrentToZero) throws OpenemsNamedException {
 		switch (this.config.batteryRegisters()) {
 		case FROM_45350:
 			writeBmsChannels45350(battery);
 			break;
 
 		case FROM_47900:
-			writeWbmsChannels47900(battery, setDischargePower);
+			writeWbmsChannels47900(battery, setChargeMaxCurrentToZero);
 			break;
 
 		case NONE:
@@ -221,7 +221,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 * 
 	 * @param setActivePower
 	 */
-	private void writeWbmsChannels47900(Battery battery, int setDischargePower) throws OpenemsNamedException {
+	private void writeWbmsChannels47900(Battery battery, boolean setChargeMaxCurrentToZero)
+			throws OpenemsNamedException {
 		Integer setBatteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
 
 		/*
@@ -285,20 +286,23 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		this.writeToChannel(GoodWe.ChannelId.WBMS_STRINGS, setBatteryStrings); // numberOfModulesPerTower
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, battery.getChargeMaxVoltage().orElse(0));
 
+		// WBMS_CHARGE_MAX_CURRENT is set in ApplyPowerHandler
 		if (this.config.allowedChargeCurrent() >= 0) {
+			System.out.println("Static WBMS_CHARGE_MAX_CURRENT [" + this.config.allowedChargeCurrent() + "]");
 			this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, this.config.allowedChargeCurrent());
+
+		} else if (setChargeMaxCurrentToZero) {
+			// For some reason the GoodWe inverter only discharges the battery if
+			// ChargeMaxCurrent is zero
+			System.out.println("WBMS_CHARGE_MAX_CURRENT for discharge always zero");
+			this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, 0);
+
 		} else {
+			System.out.println("WBMS_CHARGE_MAX_CURRENT ["
+					+ TypeUtils.orElse(preprocessAmpereValue47900(battery.getChargeMaxCurrent()), 0) + "]");
 			this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT,
 					TypeUtils.orElse(preprocessAmpereValue47900(battery.getChargeMaxCurrent()), 0));
 		}
-
-//		if (setDischargePower > 0) {
-//			// GoodWe only discharges the battery if ChargeMaxCurrent is zero
-//			this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, 0);
-//		} else {
-//			this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT,
-//					TypeUtils.orElse(preprocessAmpereValue(battery.getChargeMaxCurrent()), 0));
-//		}
 
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, battery.getDischargeMinVoltage().orElse(0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT,
@@ -381,21 +385,23 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 						/* Battery Voltage */ battery.getVoltage().get()),
 				/* PV Production */ pvProduction));
 
-		int setDischargePower = Math.max(0, pvProduction - setActivePower);
-
-		// Set Battery Limits
-		this.setBatteryLimits(battery, setDischargePower);
-
+		final boolean setChargeMaxCurrentToZero;
 		if (this.config.emsPowerMode() != EmsPowerMode.UNDEFINED && this.config.emsPowerSet() >= 0) {
 			System.out.println("Static " + this.config.emsPowerMode() + "[" + this.config.emsPowerSet() + "]");
 			IntegerWriteChannel emsPowerSetChannel = this.channel(GoodWe.ChannelId.EMS_POWER_SET);
 			emsPowerSetChannel.setNextWriteValue(this.config.emsPowerSet());
 			EnumWriteChannel emsPowerModeChannel = this.channel(GoodWe.ChannelId.EMS_POWER_MODE);
 			emsPowerModeChannel.setNextWriteValue(this.config.emsPowerMode());
+			setChargeMaxCurrentToZero = false;
+
 		} else {
 			// Apply Power Set-Point
-			ApplyPowerHandler.apply(this, false /* read-only mode is never true */, setActivePower, context);
+			setChargeMaxCurrentToZero = ApplyPowerHandler.apply(this, false /* read-only mode is never true */,
+					setActivePower, context);
 		}
+
+		// Set Battery Limits
+		this.setBatteryLimits(battery, setChargeMaxCurrentToZero);
 	}
 
 	@Override
