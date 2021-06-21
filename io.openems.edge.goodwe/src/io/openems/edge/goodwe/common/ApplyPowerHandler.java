@@ -101,6 +101,7 @@ public class ApplyPowerHandler {
 //					System.out.println("-maxPowerConstraint [" + maxPowerConstraint + "] Constraint: " + constraint);
 				}
 			}
+
 //			System.out.println("actual setpoint [" + activePowerSetPoint + "] minPowerConstraint [" + minPowerConstraint
 //					+ "] maxPowerConstraint [" + maxPowerConstraint + "] surpluspower [" + goodWe.getSurplusPower()
 //					+ "] pvProduction [" + pvProduction + "]");
