@@ -298,12 +298,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		} else if (setChargeMaxCurrentToZero) {
 			// For some reason the GoodWe inverter only discharges the battery if
 			// ChargeMaxCurrent is zero
-			System.out.println("WBMS_CHARGE_MAX_CURRENT for discharge always zero");
 			this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, 0);
 
 		} else {
-			System.out.println("WBMS_CHARGE_MAX_CURRENT ["
-					+ TypeUtils.orElse(preprocessAmpereValue47900(battery.getChargeMaxCurrent()), 0) + "]");
 			this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT,
 					TypeUtils.orElse(preprocessAmpereValue47900(battery.getChargeMaxCurrent()), 0));
 		}

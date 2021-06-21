@@ -397,16 +397,26 @@ public interface GoodWe extends OpenemsComponent {
 		E_TOTAL_BUY_F(Doc.of(OpenemsType.FLOAT) //
 				.unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_ONLY)), //
 
-		STATE_32(Doc.of(Level.WARNING).text("DRM0")), //
-		STATE_33(Doc.of(Level.WARNING).text("DRM1")), //
-		STATE_34(Doc.of(Level.WARNING).text("DRM2")), //
-		STATE_35(Doc.of(Level.WARNING).text("DRM3")), //
-		STATE_36(Doc.of(Level.WARNING).text("DRM4")), //
-		STATE_37(Doc.of(Level.WARNING).text("DRM5")), //
-		STATE_38(Doc.of(Level.WARNING).text("DRM6")), //
-		STATE_39(Doc.of(Level.WARNING).text("DRM7")), //
-		STATE_40(Doc.of(Level.WARNING).text("DRM8")), //
-		STATE_41(Doc.of(Level.WARNING).text("DRED Connect Status")), //
+		DRM0(Doc.of(OpenemsType.BOOLEAN) //
+				.text("DRM Switch 1 On")), //
+		DRM1(Doc.of(OpenemsType.BOOLEAN) //
+				.text("DRM Switch 2 On")), //
+		DRM2(Doc.of(OpenemsType.BOOLEAN) //
+				.text("DRM Switch 3 On")), //
+		DRM3(Doc.of(OpenemsType.BOOLEAN) //
+				.text("DRM Switch 4 On")), //
+		DRM4(Doc.of(OpenemsType.BOOLEAN) //
+				.text("DRM Switch 5 On")), //
+		DRM5(Doc.of(OpenemsType.BOOLEAN) //
+				.text("DRM Switch 6 On")), //
+		DRM6(Doc.of(OpenemsType.BOOLEAN) //
+				.text("DRM Switch 7 On")), //
+		DRM7(Doc.of(OpenemsType.BOOLEAN) //
+				.text("DRM Switch 8 On")), //
+		DRM8(Doc.of(OpenemsType.BOOLEAN) //
+				.text("DRM Switch 9 On")), //
+		DRED_CONNECT(Doc.of(OpenemsType.BOOLEAN) //
+				.text("DRED Connected")), //
 
 		BATTERY_TYPE_INDEX(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
@@ -1046,8 +1056,10 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.WATT).accessMode(AccessMode.READ_WRITE)), //
 
 		// Power and frequency curve
-		STATE_70(Doc.of(Level.INFO).text("ON/OFF")), //
-		STATE_71(Doc.of(Level.INFO).text("response mode")), //
+		POWER_FREQUENCY_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Power and Frequency Curve Enabled")), //
+		POWER_FREQUENCY_RESPONSE_MODE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Power and Frequency Curve: 0=Slope, 1=Fstop")), //
 
 		FFROZEN_DCH(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.HERTZ).accessMode(AccessMode.READ_WRITE)), //
@@ -1254,13 +1266,49 @@ public interface GoodWe extends OpenemsComponent {
 		BMS_POWER_PERCENT_1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT).accessMode(AccessMode.READ_WRITE)), //
 
-		STATE_72(Doc.of(Level.INFO).text("SUNDAY")), //
-		STATE_73(Doc.of(Level.WARNING).text("MONDAY")), //
-		STATE_74(Doc.of(Level.WARNING).text("TUESDAY")), //
-		STATE_75(Doc.of(Level.WARNING).text("Wednesday")), //
-		STATE_76(Doc.of(Level.WARNING).text("Thursday")), //
-		STATE_77(Doc.of(Level.WARNING).text("Friday")), //
-		STATE_78(Doc.of(Level.WARNING).text("Saturday")), //
+		WORK_WEEK_1_SUNDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_1_MONDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_1_TUESDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_1_WEDNESDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_1_THURSDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_1_FRIDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_1_SATURDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_1_NA(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_1_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Work Week 1 Enabled")), //
+
+		WORK_WEEK_2_SUNDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_2_MONDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_2_TUESDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_2_WEDNESDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_2_THURSDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_2_FRIDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_2_SATURDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_2_NA(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_2_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Work Week 2 Enabled")), //
+
+		WORK_WEEK_3_SUNDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_3_MONDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_3_TUESDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_3_WEDNESDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_3_THURSDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_3_FRIDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_3_SATURDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_3_NA(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_3_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Work Week 3 Enabled")), //
+
+		WORK_WEEK_4_SUNDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_4_MONDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_4_TUESDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_4_WEDNESDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_4_THURSDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_4_FRIDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_4_SATURDAY(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_4_NA(Doc.of(OpenemsType.BOOLEAN)), //
+		WORK_WEEK_4_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Work Week 4 Enabled")), //
 
 		START_TIME_2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //

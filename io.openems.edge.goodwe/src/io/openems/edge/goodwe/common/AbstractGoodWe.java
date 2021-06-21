@@ -425,16 +425,16 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.BMS_BATTERY_STRINGS, new UnsignedWordElement(37009))), //
 				new FC3ReadRegistersTask(37000, Priority.LOW, //
 						m(new BitsWordElement(37000, this) //
-								.bit(0, GoodWe.ChannelId.STATE_32)//
-								.bit(1, GoodWe.ChannelId.STATE_33)//
-								.bit(2, GoodWe.ChannelId.STATE_34)//
-								.bit(3, GoodWe.ChannelId.STATE_35)//
-								.bit(4, GoodWe.ChannelId.STATE_36)//
-								.bit(5, GoodWe.ChannelId.STATE_37)//
-								.bit(6, GoodWe.ChannelId.STATE_38)//
-								.bit(7, GoodWe.ChannelId.STATE_39)//
-								.bit(8, GoodWe.ChannelId.STATE_40)//
-								.bit(15, GoodWe.ChannelId.STATE_41)//
+								.bit(0, GoodWe.ChannelId.DRM0)//
+								.bit(1, GoodWe.ChannelId.DRM1)//
+								.bit(2, GoodWe.ChannelId.DRM2)//
+								.bit(3, GoodWe.ChannelId.DRM3)//
+								.bit(4, GoodWe.ChannelId.DRM4)//
+								.bit(5, GoodWe.ChannelId.DRM5)//
+								.bit(6, GoodWe.ChannelId.DRM6)//
+								.bit(7, GoodWe.ChannelId.DRM7)//
+								.bit(8, GoodWe.ChannelId.DRM8)//
+								.bit(15, GoodWe.ChannelId.DRED_CONNECT)//
 						), //
 						m(GoodWe.ChannelId.BATTERY_TYPE_INDEX, new UnsignedWordElement(37001)), //
 						m(GoodWe.ChannelId.BMS_STATUS, new UnsignedWordElement(37002)), //
@@ -873,8 +873,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 						// Power and frequency curve
 						m(new BitsWordElement(45443, this)//
-								.bit(0, GoodWe.ChannelId.STATE_70)//
-								.bit(1, GoodWe.ChannelId.STATE_71)//
+								.bit(0, GoodWe.ChannelId.POWER_FREQUENCY_ENABLED)//
+								.bit(1, GoodWe.ChannelId.POWER_FREQUENCY_RESPONSE_MODE)//
 						), //
 						m(GoodWe.ChannelId.FFROZEN_DCH, new UnsignedWordElement(45444),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
@@ -1019,13 +1019,15 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.END_TIME_1, new UnsignedWordElement(47516)), //
 						m(GoodWe.ChannelId.BMS_POWER_PERCENT_1, new UnsignedWordElement(47517)), //
 						m(new BitsWordElement(47518, this)//
-								.bit(0, GoodWe.ChannelId.STATE_72)//
-								.bit(1, GoodWe.ChannelId.STATE_73)//
-								.bit(2, GoodWe.ChannelId.STATE_74)//
-								.bit(3, GoodWe.ChannelId.STATE_75)//
-								.bit(4, GoodWe.ChannelId.STATE_76)//
-								.bit(5, GoodWe.ChannelId.STATE_77)//
-								.bit(6, GoodWe.ChannelId.STATE_78)//
+								.bit(0, GoodWe.ChannelId.WORK_WEEK_1_SUNDAY)//
+								.bit(1, GoodWe.ChannelId.WORK_WEEK_1_MONDAY)//
+								.bit(2, GoodWe.ChannelId.WORK_WEEK_1_TUESDAY)//
+								.bit(3, GoodWe.ChannelId.WORK_WEEK_1_WEDNESDAY)//
+								.bit(4, GoodWe.ChannelId.WORK_WEEK_1_THURSDAY)//
+								.bit(5, GoodWe.ChannelId.WORK_WEEK_1_FRIDAY)//
+								.bit(6, GoodWe.ChannelId.WORK_WEEK_1_SATURDAY)//
+								.bit(7, GoodWe.ChannelId.WORK_WEEK_1_NA)//
+								.bit(8, GoodWe.ChannelId.WORK_WEEK_1_ENABLED)//
 						)), //
 
 				new FC3ReadRegistersTask(47519, Priority.LOW, //
@@ -1033,39 +1035,45 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.END_TIME_2, new UnsignedWordElement(47520)), //
 						m(GoodWe.ChannelId.BMS_POWER_PERCENT_2, new UnsignedWordElement(47521)), //
 						m(new BitsWordElement(47522, this)//
-								.bit(0, GoodWe.ChannelId.STATE_72)//
-								.bit(1, GoodWe.ChannelId.STATE_73)//
-								.bit(2, GoodWe.ChannelId.STATE_74)//
-								.bit(3, GoodWe.ChannelId.STATE_75)//
-								.bit(4, GoodWe.ChannelId.STATE_76)//
-								.bit(5, GoodWe.ChannelId.STATE_77)//
-								.bit(6, GoodWe.ChannelId.STATE_78)//
+								.bit(0, GoodWe.ChannelId.WORK_WEEK_1_SUNDAY)//
+								.bit(1, GoodWe.ChannelId.WORK_WEEK_1_MONDAY)//
+								.bit(2, GoodWe.ChannelId.WORK_WEEK_1_TUESDAY)//
+								.bit(3, GoodWe.ChannelId.WORK_WEEK_1_WEDNESDAY)//
+								.bit(4, GoodWe.ChannelId.WORK_WEEK_1_THURSDAY)//
+								.bit(5, GoodWe.ChannelId.WORK_WEEK_1_FRIDAY)//
+								.bit(6, GoodWe.ChannelId.WORK_WEEK_1_SATURDAY)//
+								.bit(7, GoodWe.ChannelId.WORK_WEEK_1_NA)//
+								.bit(8, GoodWe.ChannelId.WORK_WEEK_1_ENABLED)//
 						), //
 
 						m(GoodWe.ChannelId.START_TIME_3, new UnsignedWordElement(47523)), //
 						m(GoodWe.ChannelId.END_TIME_3, new UnsignedWordElement(47524)), //
 						m(GoodWe.ChannelId.BMS_POWER_PERCENT_3, new UnsignedWordElement(47525)), //
 						m(new BitsWordElement(47526, this)//
-								.bit(0, GoodWe.ChannelId.STATE_72)//
-								.bit(1, GoodWe.ChannelId.STATE_73)//
-								.bit(2, GoodWe.ChannelId.STATE_74)//
-								.bit(3, GoodWe.ChannelId.STATE_75)//
-								.bit(4, GoodWe.ChannelId.STATE_76)//
-								.bit(5, GoodWe.ChannelId.STATE_77)//
-								.bit(6, GoodWe.ChannelId.STATE_78)//
+								.bit(0, GoodWe.ChannelId.WORK_WEEK_1_SUNDAY)//
+								.bit(1, GoodWe.ChannelId.WORK_WEEK_1_MONDAY)//
+								.bit(2, GoodWe.ChannelId.WORK_WEEK_1_TUESDAY)//
+								.bit(3, GoodWe.ChannelId.WORK_WEEK_1_WEDNESDAY)//
+								.bit(4, GoodWe.ChannelId.WORK_WEEK_1_THURSDAY)//
+								.bit(5, GoodWe.ChannelId.WORK_WEEK_1_FRIDAY)//
+								.bit(6, GoodWe.ChannelId.WORK_WEEK_1_SATURDAY)//
+								.bit(7, GoodWe.ChannelId.WORK_WEEK_1_NA)//
+								.bit(8, GoodWe.ChannelId.WORK_WEEK_1_ENABLED)//
 						), //
 
 						m(GoodWe.ChannelId.START_TIME_4, new UnsignedWordElement(47527)), //
 						m(GoodWe.ChannelId.END_TIME_4, new UnsignedWordElement(47528)), //
 						m(GoodWe.ChannelId.BMS_POWER_PERCENT_4, new UnsignedWordElement(47529)), //
 						m(new BitsWordElement(47530, this)//
-								.bit(0, GoodWe.ChannelId.STATE_72)//
-								.bit(1, GoodWe.ChannelId.STATE_73)//
-								.bit(2, GoodWe.ChannelId.STATE_74)//
-								.bit(3, GoodWe.ChannelId.STATE_75)//
-								.bit(4, GoodWe.ChannelId.STATE_76)//
-								.bit(5, GoodWe.ChannelId.STATE_77)//
-								.bit(6, GoodWe.ChannelId.STATE_78)//
+								.bit(0, GoodWe.ChannelId.WORK_WEEK_1_SUNDAY)//
+								.bit(1, GoodWe.ChannelId.WORK_WEEK_1_MONDAY)//
+								.bit(2, GoodWe.ChannelId.WORK_WEEK_1_TUESDAY)//
+								.bit(3, GoodWe.ChannelId.WORK_WEEK_1_WEDNESDAY)//
+								.bit(4, GoodWe.ChannelId.WORK_WEEK_1_THURSDAY)//
+								.bit(5, GoodWe.ChannelId.WORK_WEEK_1_FRIDAY)//
+								.bit(6, GoodWe.ChannelId.WORK_WEEK_1_SATURDAY)//
+								.bit(7, GoodWe.ChannelId.WORK_WEEK_1_NA)//
+								.bit(8, GoodWe.ChannelId.WORK_WEEK_1_ENABLED)//
 						), //
 						m(GoodWe.ChannelId.SOC_START_TO_FORCE_CHARGE, new UnsignedWordElement(47531)), //
 						m(GoodWe.ChannelId.SOC_STOP_TO_FORCE_CHARGE, new UnsignedWordElement(47532)), //
@@ -1401,54 +1409,23 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.START_TIME_1, new UnsignedWordElement(47515)), //
 						m(GoodWe.ChannelId.END_TIME_1, new UnsignedWordElement(47516)), //
 						m(GoodWe.ChannelId.BMS_POWER_PERCENT_1, new UnsignedWordElement(47517)), //
-						m(new BitsWordElement(47518, this)//
-								.bit(0, GoodWe.ChannelId.STATE_72)//
-								.bit(1, GoodWe.ChannelId.STATE_73)//
-								.bit(2, GoodWe.ChannelId.STATE_74)//
-								.bit(3, GoodWe.ChannelId.STATE_75)//
-								.bit(4, GoodWe.ChannelId.STATE_76)//
-								.bit(5, GoodWe.ChannelId.STATE_77)//
-								.bit(6, GoodWe.ChannelId.STATE_78)//
-						), //
+						new DummyRegisterElement(47518), //
 
 						m(GoodWe.ChannelId.START_TIME_2, new UnsignedWordElement(47519)), //
 						m(GoodWe.ChannelId.END_TIME_2, new UnsignedWordElement(47520)), //
 						m(GoodWe.ChannelId.BMS_POWER_PERCENT_2, new UnsignedWordElement(47521)), //
-						m(new BitsWordElement(47522, this)//
-								.bit(0, GoodWe.ChannelId.STATE_72)//
-								.bit(1, GoodWe.ChannelId.STATE_73)//
-								.bit(2, GoodWe.ChannelId.STATE_74)//
-								.bit(3, GoodWe.ChannelId.STATE_75)//
-								.bit(4, GoodWe.ChannelId.STATE_76)//
-								.bit(5, GoodWe.ChannelId.STATE_77)//
-								.bit(6, GoodWe.ChannelId.STATE_78)//
-						), //
+						new DummyRegisterElement(47522), //
 
 						m(GoodWe.ChannelId.START_TIME_3, new UnsignedWordElement(47523)), //
 						m(GoodWe.ChannelId.END_TIME_3, new UnsignedWordElement(47524)), //
 						m(GoodWe.ChannelId.BMS_POWER_PERCENT_3, new UnsignedWordElement(47525)), //
-						m(new BitsWordElement(47526, this)//
-								.bit(0, GoodWe.ChannelId.STATE_72)//
-								.bit(1, GoodWe.ChannelId.STATE_73)//
-								.bit(2, GoodWe.ChannelId.STATE_74)//
-								.bit(3, GoodWe.ChannelId.STATE_75)//
-								.bit(4, GoodWe.ChannelId.STATE_76)//
-								.bit(5, GoodWe.ChannelId.STATE_77)//
-								.bit(6, GoodWe.ChannelId.STATE_78)//
-						), //
+						new DummyRegisterElement(47526), //
 
 						m(GoodWe.ChannelId.START_TIME_4, new UnsignedWordElement(47527)), //
 						m(GoodWe.ChannelId.END_TIME_4, new UnsignedWordElement(47528)), //
 						m(GoodWe.ChannelId.BMS_POWER_PERCENT_4, new UnsignedWordElement(47529)), //
-						m(new BitsWordElement(47530, this)//
-								.bit(0, GoodWe.ChannelId.STATE_72)//
-								.bit(1, GoodWe.ChannelId.STATE_73)//
-								.bit(2, GoodWe.ChannelId.STATE_74)//
-								.bit(3, GoodWe.ChannelId.STATE_75)//
-								.bit(4, GoodWe.ChannelId.STATE_76)//
-								.bit(5, GoodWe.ChannelId.STATE_77)//
-								.bit(6, GoodWe.ChannelId.STATE_78)//
-						), //
+						new DummyRegisterElement(47530), //
+
 						m(GoodWe.ChannelId.SOC_START_TO_FORCE_CHARGE, new UnsignedWordElement(47531)), //
 						m(GoodWe.ChannelId.SOC_STOP_TO_FORCE_CHARGE, new UnsignedWordElement(47532)), //
 						m(GoodWe.ChannelId.CLEAR_ALL_ECONOMIC_MODE, new UnsignedWordElement(47533)), //
@@ -1556,7 +1533,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.WBMS_WARNING_CODE, new UnsignedDoublewordElement(47911)), //
 						m(GoodWe.ChannelId.WBMS_ALARM_CODE, new UnsignedDoublewordElement(47913)), //
 						// TODO reset to individual states
-						
+
 						m(GoodWe.ChannelId.WBMS_STATUS, new UnsignedWordElement(47915)), //
 						m(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, new UnsignedWordElement(47916)))); //
 	}

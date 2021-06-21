@@ -16,7 +16,7 @@ public class ApplyPowerHandler {
 	private final static int CHANGE_EMS_POWER_MODE_AFTER_CYCLES = 10;
 
 	private EmsPowerMode lastEmsPowerMode = EmsPowerMode.UNDEFINED;
-	private int changeEmsPowerModeCounter = Integer.MAX_VALUE;
+	private int changeEmsPowerModeCounter = CHANGE_EMS_POWER_MODE_AFTER_CYCLES;
 
 	/**
 	 * Apply the desired Active-Power Set-Point by setting the appropriate
@@ -44,7 +44,7 @@ public class ApplyPowerHandler {
 		} else {
 			// Keep old EMS-Power-Mode, but 'set' zero
 			System.out.println("Waiting to change EMS-Power-Mode from [" + this.lastEmsPowerMode + "] to ["
-					+ apply.emsPowerMode + "]");
+					+ apply.emsPowerMode + "]: " + this.changeEmsPowerModeCounter);
 			apply.emsPowerMode = this.lastEmsPowerMode;
 			apply.emsPowerSet = 0;
 		}
@@ -90,7 +90,7 @@ public class ApplyPowerHandler {
 					// SetActivePowerGreaterOrEquals.
 					minPowerConstraint = TypeUtils.min((int) Math.round(constraint.getValue().get()),
 							maxPowerConstraint);
-					System.out.println("-minPowerConstraint [" + minPowerConstraint + "] Constraint: " + constraint);
+//					System.out.println("-minPowerConstraint [" + minPowerConstraint + "] Constraint: " + constraint);
 				}
 				if (constraint.getRelationship() == Relationship.LESS_OR_EQUALS && constraint.getValue().isPresent()
 						&& constraint.getDescription().contains("[SetActivePowerLessOrEquals]")) {
@@ -98,12 +98,12 @@ public class ApplyPowerHandler {
 					// SetActivePowerLessOrEquals.
 					maxPowerConstraint = TypeUtils.min((int) Math.round(constraint.getValue().get()),
 							maxPowerConstraint);
-					System.out.println("-maxPowerConstraint [" + maxPowerConstraint + "] Constraint: " + constraint);
+//					System.out.println("-maxPowerConstraint [" + maxPowerConstraint + "] Constraint: " + constraint);
 				}
 			}
-			System.out.println("actual setpoint [" + activePowerSetPoint + "] minPowerConstraint [" + minPowerConstraint
-					+ "] maxPowerConstraint [" + maxPowerConstraint + "] surpluspower [" + goodWe.getSurplusPower()
-					+ "] pvProduction [" + pvProduction + "]");
+//			System.out.println("actual setpoint [" + activePowerSetPoint + "] minPowerConstraint [" + minPowerConstraint
+//					+ "] maxPowerConstraint [" + maxPowerConstraint + "] surpluspower [" + goodWe.getSurplusPower()
+//					+ "] pvProduction [" + pvProduction + "]");
 
 			// maxPowerConstraint: Limitierung Netzeinspeisung
 			// minPowerConstraint: surplus feed-in ist aktiviert
@@ -139,8 +139,9 @@ public class ApplyPowerHandler {
 				// PV < Set-Point?
 				// (PV 4000; Set-Point 5000)
 				// Discharge_BAT 1000; Charge-Max-Current 0
-				System.out.println("DISCHARGE_BAT [" + (activePowerSetPoint - pvProduction) + "] Set-Point ["
-						+ activePowerSetPoint + "] bigger than PV [" + pvProduction + "]");
+				System.out.println(
+						"DISCHARGE_BAT [" + (activePowerSetPoint - pvProduction) + "] Set-Point [" + activePowerSetPoint
+								+ "] bigger than PV [" + pvProduction + "] Force WBMS_CHARGE_MAX_CURRENT = 0");
 				return new Result(EmsPowerMode.DISCHARGE_BAT, activePowerSetPoint - pvProduction, true);
 			}
 
