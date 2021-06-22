@@ -711,7 +711,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						// m(GoodWe.ChannelId.PORT_NUMBER2, new UnsignedWordElement(45126)), //
 						m(GoodWe.ChannelId.MODBUS_ADDRESS, new UnsignedWordElement(45127)), //
 						m(GoodWe.ChannelId.MODBUS_MANUFACTURER, new StringWordElement(45128, 4)), //
-						m(GoodWe.ChannelId.MODBUS_BADRATE_485, new UnsignedDoublewordElement(45132))), //
+						m(GoodWe.ChannelId.MODBUS_BAUDRATE, new UnsignedDoublewordElement(45132))), //
 
 				// TODO RTC reg num 45200-45201-45202
 
@@ -1100,7 +1100,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.PORT_NUMBER2, new UnsignedWordElement(45126)), //
 						m(GoodWe.ChannelId.MODBUS_ADDRESS, new UnsignedWordElement(45127)), //
 						m(GoodWe.ChannelId.MODBUS_MANUFACTURER, new StringWordElement(45128, 4)), //
-						m(GoodWe.ChannelId.MODBUS_BADRATE_485, new UnsignedDoublewordElement(45132))), //
+						m(GoodWe.ChannelId.MODBUS_BAUDRATE, new UnsignedDoublewordElement(45132))), //
 
 				new FC16WriteRegistersTask(45203, //
 						m(GoodWe.ChannelId.SERIAL_NUMBER, new StringWordElement(45203, 8)), //

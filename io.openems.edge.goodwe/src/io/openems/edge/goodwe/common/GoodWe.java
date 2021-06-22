@@ -816,7 +816,7 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 		MODBUS_MANUFACTURER(Doc.of(OpenemsType.STRING) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		MODBUS_BADRATE_485(Doc.of(OpenemsType.INTEGER) //
+		MODBUS_BAUDRATE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 		RTC_YEAR_MONTH_2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
