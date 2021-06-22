@@ -1,8 +1,8 @@
-<oe-modal [title]="'General.storageSystem' | translate"
-    style="height: 100%; margin-bottom: 10%; overflow-y: unset; overflow-x: unset;">
+<oe-modal [title]="'General.storageSystem' | translate" style="height: 100%; margin-bottom: 10%;">
+
     <!-- Total Section -->
     <ng-container *ngIf=" essComponents !=null && essComponents.length> 1">
-        <oe-modal-line [name]="'General.total'| translate" style="font-weight: bold;color: #074679">
+        <oe-modal-line [name]="'General.total'| translate">
         </oe-modal-line>
         <oe-modal-line [name]="'General.soc' | translate" [value]="this.totalStateOfCharge"
             [converter]="CONVERT_TO_PERCENT" indentation_from_left="simple">
@@ -36,11 +36,9 @@
 
     <!-- EssComponents -->
     <ng-container *ngFor="let component of essComponents, let i=index">
-        <div *ngIf="i != essComponents.length"
-            style="border-bottom: 2px solid #074679; width: 110%; margin-top: 2%; margin-bottom: 2%; margin-left: -5%;">
-        </div>
-        <oe-modal-line *ngIf="essComponents.length > 1" [name]="component.alias"
-            style="font-weight: bold; color: #074679; padding-top: 5%">
+        <oe-modal-horizontal-line [index]="i" [components]="essComponents">
+        </oe-modal-horizontal-line>
+        <oe-modal-line *ngIf="essComponents.length > 1" [name]="component.alias">
         </oe-modal-line>
         <oe-modal-line [name]="'General.soc' | translate" [channelAddress]="component.id + '/Soc'"
             [converter]="CONVERT_TO_PERCENT" indentation_from_left="simple">
@@ -58,15 +56,15 @@
             </oe-modal-line>
 
             <!-- 3 Phases -->
-            <oe-modal-line [name]="    ('General.phase' | translate)+' L1 '+ ('General.dischargePower'|translate)"
+            <oe-modal-line [name]="    ('General.phase' | translate)+' L1 '+ (this.state['ActivePowerL1'])"
                 [channelAddress]="component.id + '/ActivePowerL1'" [converter]="CONVERT_TO_WATT"
                 indentation_from_left="double">
             </oe-modal-line>
-            <oe-modal-line [name]="    ('General.phase' | translate)+' L2 '+ ('General.dischargePower'|translate)"
+            <oe-modal-line [name]="    ('General.phase' | translate)+' L2 '+ (this.state['ActivePowerL1'])"
                 [channelAddress]="component.id + '/ActivePowerL2'" [converter]="CONVERT_TO_WATT"
                 indentation_from_left="double">
             </oe-modal-line>
-            <oe-modal-line [name]="    ('General.phase' | translate)+' L3 '+ ('General.dischargePower'|translate)"
+            <oe-modal-line [name]="    ('General.phase' | translate)+' L3 '+ (this.state['ActivePowerL1'])"
                 [channelAddress]="component.id + '/ActivePowerL3'" [converter]="CONVERT_TO_WATT"
                 indentation_from_left="double">
             </oe-modal-line>
@@ -87,10 +85,9 @@
 
     <!-- Section for DC Charger -->
     <ng-container *ngFor="let component of chargerComponents, let i = index">
-        <div *ngIf="i != essComponents.length"
-            style="border-bottom: 1px solid #074679; width: 110%; margin-top: 2%; margin-bottom: 2%; margin-left: -5%;">
-        </div>
-        <oe-modal-line [name]="component.alias" style="font-weight: bold; color: #074679" class="io-margin-top">
+        <oe-modal-horizontal-line [index]="i" [components]="chargerComponents">
+        </oe-modal-horizontal-line>
+        <oe-modal-line [name]="component.alias" class="io-margin-top">
         </oe-modal-line>
 
         <!-- TODO find good name for CONVERTERS, Problem: ActualPower is positve for charge, unlike for Example ActivePower -->
