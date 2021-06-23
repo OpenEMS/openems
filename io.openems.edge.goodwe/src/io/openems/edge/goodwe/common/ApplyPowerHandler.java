@@ -139,9 +139,8 @@ public class ApplyPowerHandler {
 				// PV < Set-Point?
 				// (PV 4000; Set-Point 5000)
 				// Discharge_BAT 1000; Charge-Max-Current 0
-				System.out.println(
-						"DISCHARGE_BAT [" + (activePowerSetPoint - pvProduction) + "] Set-Point [" + activePowerSetPoint
-								+ "] bigger than PV [" + pvProduction + "] Force WBMS_CHARGE_MAX_CURRENT = 0");
+				System.out.println("DISCHARGE_BAT [" + (activePowerSetPoint - pvProduction) + "] Set-Point ["
+						+ activePowerSetPoint + "] bigger than PV [" + pvProduction + "]");
 				return new Result(EmsPowerMode.DISCHARGE_BAT, activePowerSetPoint - pvProduction);
 			}
 
