@@ -35,9 +35,6 @@ import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 	@AttributeDefinition(name = "Fixed EMS Power Set", description = "")
 	int emsPowerSet() default -1;
 
-	@AttributeDefinition(name = "Battery Registers", description = "")
-	BatteryRegisters batteryRegisters();
-
 	@AttributeDefinition(name = "Fix Allowed Charge Current", description = "")
 	int allowedChargeCurrent() default 0;
 

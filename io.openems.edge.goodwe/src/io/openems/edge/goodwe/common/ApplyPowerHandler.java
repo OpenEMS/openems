@@ -28,7 +28,7 @@ public class ApplyPowerHandler {
 	 * @param context        the {@link ApplyPowerContext}
 	 * @throws OpenemsNamedException on error
 	 */
-	public boolean apply(AbstractGoodWe goodWe, boolean readOnlyMode, int setActivePower, ApplyPowerContext context)
+	public void apply(AbstractGoodWe goodWe, boolean readOnlyMode, int setActivePower, ApplyPowerContext context)
 			throws OpenemsNamedException {
 		int pvProduction = TypeUtils.max(0, goodWe.calculatePvProduction());
 		ApplyPowerHandler.Result apply = calculate(goodWe, readOnlyMode, setActivePower, pvProduction, context);
@@ -58,20 +58,16 @@ public class ApplyPowerHandler {
 		emsPowerSetChannel.setNextWriteValue(apply.emsPowerSet);
 		EnumWriteChannel emsPowerModeChannel = goodWe.channel(GoodWe.ChannelId.EMS_POWER_MODE);
 		emsPowerModeChannel.setNextWriteValue(apply.emsPowerMode);
-
-		return apply.setChargeMaxCurrentToZero;
 	}
 
 	private static class Result {
 
 		protected EmsPowerMode emsPowerMode;
 		protected int emsPowerSet;
-		public final boolean setChargeMaxCurrentToZero;
 
-		public Result(EmsPowerMode emsPowerMode, int emsPowerSet, boolean setChargeMaxCurrentToZero) {
+		public Result(EmsPowerMode emsPowerMode, int emsPowerSet) {
 			this.emsPowerMode = emsPowerMode;
 			this.emsPowerSet = emsPowerSet;
-			this.setChargeMaxCurrentToZero = setChargeMaxCurrentToZero;
 		}
 
 	}
@@ -80,7 +76,7 @@ public class ApplyPowerHandler {
 			int activePowerSetPoint, int pvProduction, ApplyPowerContext context) {
 		if (readOnlyMode) {
 			// Read-Only
-			return new Result(EmsPowerMode.AUTO, 0, false);
+			return new Result(EmsPowerMode.AUTO, 0);
 		}
 
 		if (activePowerSetPoint > 0) {
@@ -116,14 +112,14 @@ public class ApplyPowerHandler {
 				System.out.println("EXPORT_AC [" + maxPowerConstraint
 						+ "] MaxPowerConstraint for PV Curtail is set and equals activePowerSetPoint");
 				// TODO try after a while if PV curtail is still required
-				return new Result(EmsPowerMode.EXPORT_AC, maxPowerConstraint, false);
+				return new Result(EmsPowerMode.EXPORT_AC, maxPowerConstraint);
 
 			} else if (minPowerConstraint != null && Objects.equals(minPowerConstraint, goodWe.getSurplusPower())
 					&& Objects.equals(minPowerConstraint, activePowerSetPoint)) {
 				System.out.println(
 						"CHARGE_PV [0] MinPowerConstraint equals SurplusPower -> surplus feed-in is activated ["
 								+ activePowerSetPoint + "]");
-				return new Result(EmsPowerMode.CHARGE_PV, 0, false);
+				return new Result(EmsPowerMode.CHARGE_PV, 0);
 
 			} else if (pvProduction >= activePowerSetPoint) {
 				// Set-Point is positive && bigger than PV-Production -> feed all PV to grid +
@@ -134,7 +130,7 @@ public class ApplyPowerHandler {
 				// Charge_BAT 1000; Charge-Max-Current -1
 				System.out.println("CHARGE_BAT [" + (pvProduction - activePowerSetPoint) + "] Set-Point ["
 						+ activePowerSetPoint + "] less than PV [" + pvProduction + "]");
-				return new Result(EmsPowerMode.CHARGE_BAT, pvProduction - activePowerSetPoint, false);
+				return new Result(EmsPowerMode.CHARGE_BAT, pvProduction - activePowerSetPoint);
 
 			} else {
 				// Set-Point is positive && less than PV-Production -> feed PV partly to grid +
@@ -146,7 +142,7 @@ public class ApplyPowerHandler {
 				System.out.println(
 						"DISCHARGE_BAT [" + (activePowerSetPoint - pvProduction) + "] Set-Point [" + activePowerSetPoint
 								+ "] bigger than PV [" + pvProduction + "] Force WBMS_CHARGE_MAX_CURRENT = 0");
-				return new Result(EmsPowerMode.DISCHARGE_BAT, activePowerSetPoint - pvProduction, true);
+				return new Result(EmsPowerMode.DISCHARGE_BAT, activePowerSetPoint - pvProduction);
 			}
 
 		} else if (activePowerSetPoint < 0) {
@@ -158,7 +154,7 @@ public class ApplyPowerHandler {
 			// Charge_BAT 9000; Charge-Max-Current -1
 			System.out.println("CHARGE_BAT [" + (activePowerSetPoint * -1 + pvProduction) + "] Set-Point ["
 					+ activePowerSetPoint + "] PV [" + pvProduction + "]");
-			return new Result(EmsPowerMode.CHARGE_BAT, activePowerSetPoint * -1 + pvProduction, false);
+			return new Result(EmsPowerMode.CHARGE_BAT, activePowerSetPoint * -1 + pvProduction);
 
 //			System.out.println("IMPORT_AC [" + (activePowerSetPoint * -1) + "]");
 //			// Import from AC
@@ -176,7 +172,7 @@ public class ApplyPowerHandler {
 			// IMPORT_AC seems to not curtail PV...
 
 			System.out.println("IMPORT_AC [0]");
-			return new Result(EmsPowerMode.IMPORT_AC, 0, false);
+			return new Result(EmsPowerMode.IMPORT_AC, 0);
 
 		}
 	}
