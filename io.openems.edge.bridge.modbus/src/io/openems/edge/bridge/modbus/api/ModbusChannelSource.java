@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.api;
 
+import java.util.Objects;
+
 public class ModbusChannelSource {
 
 	/**
@@ -30,6 +32,26 @@ public class ModbusChannelSource {
 			b.append("|bit").append(String.format("%02d", this.bit));
 		}
 		return b.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(address, bit);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		ModbusChannelSource other = (ModbusChannelSource) obj;
+		return address == other.address && bit == other.bit;
 	}
 
 }
