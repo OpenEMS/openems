@@ -39,7 +39,7 @@ import { LiveComponent } from './live.component';
 import { ModalComponent } from './flat/modal/modal';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
 import { ModalLineComponent } from './flat/modal/modal-line/modal-line';
-import { ModalLineText } from './flat/modal/modal-line-text/modal-line-for-info-text';
+import { ModalLineNote } from './flat/modal/modal-line-text/modal-line-note';
 import { NgModule } from '@angular/core';
 import { OfflineComponent } from './offline/offline.component';
 import { ProductionComponent } from './production/production.component';
@@ -90,7 +90,7 @@ import { ModalHorizontalLine } from './flat/modal/modal-line/modal-horizontal-li
     ModalComponent,
     ModalComponentEvcsCluster,
     ModalLineComponent,
-    ModalLineText,
+    ModalLineNote,
     ModalHorizontalLine,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
@@ -138,7 +138,7 @@ import { ModalHorizontalLine } from './flat/modal/modal-line/modal-horizontal-li
     ModalComponent,
     ModalComponentEvcsCluster,
     ModalLineComponent,
-    ModalLineText,
+    ModalLineNote,
     ModalHorizontalLine,
     OfflineComponent,
     ProductionComponent,

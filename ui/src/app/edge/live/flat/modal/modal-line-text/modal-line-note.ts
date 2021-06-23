@@ -5,10 +5,10 @@ import { Icon } from "src/app/shared/type/widget";
  * Shows the Info-Text.
  */
 @Component({
-    selector: 'oe-modal-line-text',
-    templateUrl: './modal-line-for-info-text.html'
+    selector: 'oe-modal-line-note',
+    templateUrl: './modal-line-note.html'
 })
-export class ModalLineText {
+export class ModalLineNote {
 
     @Input() icon: Icon;
 

@@ -25,6 +25,7 @@ export class StorageModalComponent extends AbstractFlatWidget {
     public effectiveActivePowerL1: any;
     public effectiveActivePowerL2: any;
     public effectiveActivePowerL3: any;
+    public isHybridEss: boolean[] = [];
 
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
     public readonly CONVERT_TO_PERCENT = Utils.CONVERT_TO_PERCENT;
@@ -48,6 +49,18 @@ export class StorageModalComponent extends AbstractFlatWidget {
         for (let component of this.essComponents) {
             channelAddresses.push(ChannelAddress.fromString(component.id + '/ActivePower'));
         }
+        for (let component of this.config
+            .getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
+            .filter(component => component.isEnabled && !this.config
+                .getNatureIdsByFactoryId(component.factoryId)
+                .includes("io.openems.edge.ess.api.MetaEss"))) {
+
+            // Check if essComponent is HybridEss
+            this.isHybridEss[component.id] = this.config
+                .getNatureIdsByFactoryId(component.factoryId)
+                .includes("io.openems.edge.ess.api.HybridEss");
+        }
+
         return channelAddresses
     }
     protected onCurrentData(currentData: CurrentData) {
