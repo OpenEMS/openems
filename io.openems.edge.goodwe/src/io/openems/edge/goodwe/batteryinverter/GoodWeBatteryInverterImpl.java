@@ -24,6 +24,7 @@ import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -137,7 +138,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 * @throws OpenemsNamedException on error
 	 */
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
-		Integer setBatteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
 
 		/*
 		 * Make sure PV-Master registers are correct, because they define the overall
@@ -147,6 +147,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		Value<Integer> bmsDischargeMaxCurrent = this.getBmsDischargeMaxCurrent();
 		Value<Integer> bmsChargeMaxVoltage = this.getBmsChargeMaxVoltage();
 		Value<Integer> bmsDischargeMinVoltage = this.getBmsDischargeMinVoltage();
+
+		Channel<Integer> bmsSocUnderMinChannel = this.channel(GoodWe.ChannelId.BMS_SOC_UNDER_MIN);
+		Value<Integer> bmsSocUnderMin = bmsSocUnderMinChannel.value();
+		Channel<Integer> bmsOfflineSocUnderMinChannel = this.channel(GoodWe.ChannelId.BMS_OFFLINE_SOC_UNDER_MIN);
+		Value<Integer> bmsOfflineSocUnderMin = bmsOfflineSocUnderMinChannel.value();
 		// TODO: this should not be required anymore with latest (beta) firmware
 		// For example, the nominal voltage of the battery rack is 240V, then
 		// BattStrings shall be 5. And max charge voltage range of the battery shall be
@@ -157,10 +162,23 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 //				TypeUtils.multiply(setBatteryStrings, 50), //
 //				TypeUtils.multiply(TypeUtils.sum(setBatteryStrings, 1), 50), //
 //				battery.getChargeMaxVoltage().get());
+
+		Integer setBatteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
+		Integer setChargeMaxCurrent = MAX_DC_CURRENT;
+		Integer setDischargeMaxCurrent = MAX_DC_CURRENT;
 		Integer setChargeMaxVoltage = battery.getChargeMaxVoltage().orElse(0);
 		Integer setDischargeMinVoltage = battery.getDischargeMinVoltage().orElse(0);
-		if ((bmsChargeMaxCurrent.isDefined() && !Objects.equals(bmsChargeMaxCurrent.get(), MAX_DC_CURRENT))
-				|| (bmsDischargeMaxCurrent.isDefined() && !Objects.equals(bmsDischargeMaxCurrent.get(), MAX_DC_CURRENT))
+		Integer setSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
+		Integer setOfflineSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
+		if ((bmsChargeMaxCurrent.isDefined() && !Objects.equals(bmsChargeMaxCurrent.get(), setChargeMaxCurrent))
+				|| (bmsDischargeMaxCurrent.isDefined()
+						&& !Objects.equals(bmsDischargeMaxCurrent.get(), setDischargeMaxCurrent))
+				|| (bmsSocUnderMin.isDefined() && !Objects.equals(bmsSocUnderMin.get(), setSocUnderMin))
+
+		// TODO bmsOfflineSocUnderMin change is not applied!
+				
+//				|| (bmsOfflineSocUnderMin.isDefined()
+//						&& !Objects.equals(bmsOfflineSocUnderMin.get(), setOfflineSocUnderMin))
 //				|| (bmsChargeMaxVoltage.isDefined() && !Objects.equals(bmsChargeMaxVoltage.get(), setChargeMaxVoltage))
 //				|| (bmsDischargeMinVoltage.isDefined()
 //						&& !Objects.equals(bmsDischargeMinVoltage.get(), setDischargeMinVoltage))
@@ -169,14 +187,16 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		// Disabling Voltage-Check because of this.
 		) {
 			// Update is required
-			this.logInfo(this.log, "Update for PV-Master BMS Registers is required. " //
-					+ "Voltages " //
-					+ "[" + bmsDischargeMinVoltage.get() + ";" + bmsChargeMaxVoltage.get() + "] to " //
-					+ "[" + setDischargeMinVoltage + ";" + setChargeMaxVoltage + "]" //
-					+ " and " //
-					+ "Currents " //
-					+ "[" + bmsChargeMaxCurrent.get() + ";" + bmsDischargeMaxCurrent.get() + "] to " //
-					+ "[" + MAX_DC_CURRENT + ";" + MAX_DC_CURRENT + "]");
+			this.logInfo(this.log, "Update for PV-Master BMS Registers is required." //
+					+ " Voltages" //
+					+ " [Discharge" + bmsDischargeMinVoltage.get() + " -> " + setDischargeMinVoltage + "]" //
+					+ " [Charge" + bmsChargeMaxVoltage + " -> " + setChargeMaxVoltage + "]" //
+					+ " Currents " //
+					+ " [Charge " + bmsChargeMaxCurrent.get() + " -> " + setChargeMaxCurrent + "]" //
+					+ " [Discharge " + bmsDischargeMaxCurrent.get() + " -> " + setDischargeMaxCurrent + "]" //
+					+ " MinSoc " //
+					+ " [" + bmsSocUnderMin.get() + " -> " + setSocUnderMin + "] " //
+					+ " [" + bmsOfflineSocUnderMin.get() + " -> " + setOfflineSocUnderMin + "]");
 
 			this.writeToChannel(GoodWe.ChannelId.BATTERY_PROTOCOL_ARM, 287); // EMS-Mode
 
@@ -186,12 +206,12 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			// TODO is writing BMS_STRINGS and BMS_LEAD_CAPACITY still required with latest
 			// firmware?
 			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, setChargeMaxVoltage); // [150-600]
-			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, MAX_DC_CURRENT); // [0-100]
+			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, setChargeMaxCurrent); // [0-100]
 			this.writeToChannel(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, setDischargeMinVoltage); // [150-600]
-			this.writeToChannel(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, MAX_DC_CURRENT); // [0-100]
-			this.writeToChannel(GoodWe.ChannelId.BMS_SOC_UNDER_MIN, 0); // [0-100]; 0 MinSoc = 100 DoD
+			this.writeToChannel(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, setDischargeMaxCurrent); // [0-100]
+			this.writeToChannel(GoodWe.ChannelId.BMS_SOC_UNDER_MIN, setSocUnderMin);
 			this.writeToChannel(GoodWe.ChannelId.BMS_OFFLINE_DISCHARGE_MIN_VOLTAGE, setDischargeMinVoltage); // [150-600]
-			this.writeToChannel(GoodWe.ChannelId.BMS_OFFLINE_SOC_UNDER_MIN, 0); // [0-100]; 0 MinSoc = 100 DoD
+			this.writeToChannel(GoodWe.ChannelId.BMS_OFFLINE_SOC_UNDER_MIN, setOfflineSocUnderMin);
 		}
 
 		/*
