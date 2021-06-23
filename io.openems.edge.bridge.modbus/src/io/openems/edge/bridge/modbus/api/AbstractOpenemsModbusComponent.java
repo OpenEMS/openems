@@ -373,7 +373,13 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 */
 	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
 			T element, ElementToChannelConverter converter) {
-		channelId.doc().source(new ModbusChannelSource(element.getStartAddress()));
+		try {
+			channelId.doc().source(new ModbusChannelSource(element.getStartAddress()));
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException(
+					"Unable to add Modbus mapping for [" + channelId.id() + "]: " + e.getMessage());
+		}
+
 		return new ChannelMapper<T>(element) //
 				.m(channelId, converter) //
 				.build();

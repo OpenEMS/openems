@@ -135,7 +135,11 @@ public abstract class AbstractDoc<T> implements Doc {
 	private Object source = null;
 
 	@Override
-	public <SOURCE> AbstractDoc<T> source(SOURCE source) {
+	public <SOURCE> AbstractDoc<T> source(SOURCE source) throws IllegalArgumentException {
+		if (this.source != null && source != null) {
+			throw new IllegalArgumentException("Unable to set source [" + source.toString()
+					+ "]. Channel already has a source [" + this.source.toString() + "]");
+		}
 		this.source = source;
 		return this.self();
 	}
