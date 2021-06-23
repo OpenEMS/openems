@@ -47,9 +47,9 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	/**
-	 * Current state of charge.
+	 * Current Energy in the battery [Wms], based on SoC
 	 */
-	private float soc = 0;
+	private long energy = 0;
 
 	private Config config;
 
@@ -88,7 +88,8 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.config = config;
-		this.soc = config.initialSoc();
+		this.energy = (long) (((double) config.capacity() /* [Wh] */ * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */
+				/ 100 /* [%] */) * this.config.initialSoc() /* [current SoC] */);
 		this._setSoc(config.initialSoc());
 		this._setMaxApparentPower(config.maxApparentPower());
 		this._setAllowedChargePower(config.maxApparentPower() * -1);
@@ -142,51 +143,63 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		 * calculate State of charge
 		 */
 		Instant now = Instant.now(this.componentManager.getClock());
-		if (this.lastTimestamp != null) {
+		final int soc;
+		if (this.lastTimestamp == null) {
+			// initial run
+			soc = this.config.initialSoc();
+
+		} else {
 			// calculate duration since last value
 			long duration /* [msec] */ = Duration.between(this.lastTimestamp, now).toMillis();
 
 			// calculate energy since last run in [Wh]
-			float energy /* [Wh] */ = this.getActivePower().orElse(0) /* [W] */ * duration /* [msec] */
-					/ 1000 /* [sec] */ / 60 /* [m] */ / 60 /* [h] */;
+			long energy /* [Wmsec] */ = this.getActivePower().orElse(0) /* [W] */ * duration /* [msec] */;
 
-			this.soc -= (energy / this.config.capacity()) * 100;
-			if (this.soc > 100) {
-				this.soc = 100;
-			} else if (this.soc < 0) {
-				this.soc = 0;
+			// Adding the energy to the initial energy.
+			this.energy -= energy;
+
+			double calculatedSoc = this.energy //
+					/ (this.config.capacity() * 3600. /* [Wsec] */ * 1000 /* [Wmsec] */) //
+					* 100 /* [SoC] */;
+
+			if (calculatedSoc > 100) {
+				soc = 100;
+			} else if (calculatedSoc < 0) {
+				soc = 0;
+			} else {
+				soc = (int) Math.round(calculatedSoc);
 			}
 
-			this._setSoc(Math.round(this.soc));
+			this._setSoc(soc);
 		}
 		this.lastTimestamp = now;
 
 		/*
 		 * Apply Active/Reactive power to simulated channels
 		 */
-		if (this.soc == 0 && activePower > 0) {
+		if (soc == 0 && activePower > 0) {
 			activePower = 0;
 		}
-		if (this.soc == 100 && activePower < 0) {
+		if (soc == 100 && activePower < 0) {
 			activePower = 0;
 		}
 		this._setActivePower(activePower);
-		if (this.soc == 0 && reactivePower > 0) {
+		if (soc == 0 && reactivePower > 0) {
 			reactivePower = 0;
 		}
-		if (this.soc == 100 && reactivePower < 0) {
+		if (soc == 100 && reactivePower < 0) {
 			reactivePower = 0;
 		}
 		this._setReactivePower(reactivePower);
 		/*
 		 * Set AllowedCharge / Discharge based on SoC
 		 */
-		if (this.soc == 100) {
+		if (soc == 100) {
 			this._setAllowedChargePower(0);
 		} else {
 			this._setAllowedChargePower(this.config.maxApparentPower() * -1);
 		}
-		if (this.soc == 0) {
+		if (soc == 0) {
 			this._setAllowedDischargePower(0);
 		} else {
 			this._setAllowedDischargePower(this.config.maxApparentPower());
