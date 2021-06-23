@@ -5,7 +5,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { UUID } from "angular2-uuid";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 
 @Directive()
 export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
@@ -21,9 +21,6 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     public config: EdgeConfig = null;
     public component: EdgeConfig.Component = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
-    public effectiveActivePowerL1: number;
-    public effectiveActivePowerL2;
-    public effectiveActivePowerL3;
 
     private selector: string = UUID.UUID().toString();
 
@@ -59,9 +56,6 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
 
                 // call onCurrentData() with latest data
                 edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                    this.effectiveActivePowerL1 = currentData.summary.storage.effectiveActivePowerL1;
-                    this.effectiveActivePowerL2 = currentData.summary.storage.effectiveActivePowerL2;
-                    this.effectiveActivePowerL3 = currentData.summary.storage.effectiveActivePowerL3;
                     let allComponents = {};
                     let thisComponent = {};
                     for (let channelAddress of channelAddresses) {

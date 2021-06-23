@@ -16,22 +16,19 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
      * @returns converter function
      */
     @Input()
-    protected converter = (value: any): string => { return value }
+    public converter = (value: any): string => { return value }
+
+    /** 
+     * displayValue is the displayed @Input value in html
+     */
+    public displayValue: string = null;
 
     /**
      * selector used for subscribe
      */
     private selector: string = UUID.UUID().toString();
-
-    /** 
-     * displayValue is the displayed @Input value in html
-     */
-    public displayValue: string;
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private edge: Edge = null;
-    public activePowerL2;
-    public activePowerL3;
-
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -50,6 +47,7 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
             this.edge = edge;
 
             edge.subscribeChannels(this.websocket, this.selector, [channelAddress]);
+
             // call onCurrentData() with latest data
             edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
                 this.setValue(currentData.channel[channelAddress.toString()]);
