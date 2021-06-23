@@ -1,9 +1,7 @@
 package io.openems.common.websocket;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import org.java_websocket.WebSocket;
@@ -51,7 +49,7 @@ public class OnRequestHandler implements Runnable {
 			// Get Named Exception error response
 			this.parent.logWarn(this.log, "JSON-RPC Error Response: " + e.getMessage());
 			response = new JsonrpcResponseError(request.getId(), e);
-		} catch (ExecutionException | InterruptedException | TimeoutException e) {
+		} catch (Exception e) {
 			// Get GENERIC error response
 			this.parent.logWarn(this.log, "JSON-RPC Error Response. " + e.getClass().getSimpleName() + ". " //
 					+ "Request: " + this.request.toString() + ". " //
