@@ -35,8 +35,8 @@ import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 	@AttributeDefinition(name = "Fixed EMS Power Set", description = "")
 	int emsPowerSet() default -1;
 
-	@AttributeDefinition(name = "Fix Allowed Charge Current", description = "")
-	int allowedChargeCurrent() default 0;
+	@AttributeDefinition(name = "Block all writes (i.e. trigger watchdog function)", description = "")
+	boolean blockWrites() default false;
 
 	String webconsole_configurationFactory_nameHint() default "GoodWe Battery Inverter [{id}]";
 

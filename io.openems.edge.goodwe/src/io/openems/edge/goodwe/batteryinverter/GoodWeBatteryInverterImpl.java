@@ -137,15 +137,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 * @throws OpenemsNamedException on error
 	 */
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
-		writeWbmsChannels47900(battery);
-	}
-
-	/**
-	 * BMS-Registers need to be written all at once.
-	 * 
-	 * @param setActivePower
-	 */
-	private void writeWbmsChannels47900(Battery battery) throws OpenemsNamedException {
 		Integer setBatteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
 
 		/*
@@ -210,17 +201,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		this.writeToChannel(GoodWe.ChannelId.WBMS_STRINGS, setBatteryStrings); // numberOfModulesPerTower
 		// TODO is writing WBMS_STRINGS still required with latest firmware?
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, battery.getChargeMaxVoltage().orElse(0));
-
-		// WBMS_CHARGE_MAX_CURRENT is set in ApplyPowerHandler
-		if (this.config.allowedChargeCurrent() >= 0) {
-			System.out.println("Static WBMS_CHARGE_MAX_CURRENT [" + this.config.allowedChargeCurrent() + "]");
-			this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, this.config.allowedChargeCurrent());
-
-		} else {
-			this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT,
-					TypeUtils.orElse(preprocessAmpereValue47900(battery.getChargeMaxCurrent()), 0));
-		}
-
+		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT,
+				TypeUtils.orElse(preprocessAmpereValue47900(battery.getChargeMaxCurrent()), 0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, battery.getDischargeMinVoltage().orElse(0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT,
 				TypeUtils.orElse(preprocessAmpereValue47900(battery.getDischargeMaxCurrent()), 0));
@@ -301,6 +283,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 						/* Discharge-Max-Current */ this.getBmsDischargeMaxCurrent().get(), //
 						/* Battery Voltage */ battery.getVoltage().get()),
 				/* PV Production */ pvProduction));
+
+		if (this.config.blockWrites()) {
+			return;
+		}
 
 		if (this.config.emsPowerMode() != EmsPowerMode.UNDEFINED && this.config.emsPowerSet() >= 0) {
 			System.out.println("Static " + this.config.emsPowerMode() + "[" + this.config.emsPowerSet() + "]");
