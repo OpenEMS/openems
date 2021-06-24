@@ -1,6 +1,6 @@
 import { Component, Input } from "@angular/core";
 import { ChannelAddress } from "src/app/shared/shared";
-import { AbstractFlatWidgetLine } from "../../flat-widget-line/abstract-flat-widget-line";
+import { AbstractFlatWidgetLine } from "../../flat/flat-widget-line/abstract-flat-widget-line";
 
 
 @Component({

@@ -1,4 +1,4 @@
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar class="ion-justify-content-center" color="primary">
     <ion-title>{{ component.alias }}</ion-title>
     <ion-buttons slot="end">
@@ -101,4 +101,35 @@
   <ion-grid *ngIf="loading == true">
     <ion-progress-bar type="indeterminate"></ion-progress-bar>
   </ion-grid>
-</ion-content>
+</ion-content> -->
+
+<oe-modal [title]="this.component.alias" style="height: 100%; margin-bottom: 10%;" [component]="component">
+  <div style="margin-top: 3%;">
+    <oe-modal-line [name]="'General.state' | translate" [channelAddress]="component.id + '/_PropertyMode'"
+      [converter]="stateConverter">
+    </oe-modal-line>
+    <ng-container>
+      <oe-modal-line [name]="chargeState | translate" [value]="chargeStateValue | async" [converter]="CONVERT_TO_WATT">
+      </oe-modal-line>
+    </ng-container>
+
+    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+    <oe-modal-buttons [value]="component.properties['mode']" [formGroup]="formGroup" [component]="component"
+      controlName="mode"
+      [labels]="[{name: ('General.on' | translate), value: 'MANUAL_ON'},{name: ('General.off'| translate), value:'MANUAL_OFF'}]"
+      [icons]="[{color:'success', name: 'power-outline'},{color:'primary', name: 'power-outline'},{color:'primary', name: 'power-outline'}]">
+    </oe-modal-buttons>
+
+    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+    <oe-modal-line-input [name]="'General.power'| translate" type="number" [formGroup]="formGroup" controlName="power"
+      [component]="component">
+    </oe-modal-line-input>
+
+    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+    <oe-modal-line [name]="'Negative values correspond to memory loading'"
+      [value]="'Positive values correspond to memory discharge'"></oe-modal-line>
+  </div>
+</oe-modal>

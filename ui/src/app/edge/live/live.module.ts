@@ -11,7 +11,7 @@ import { ChpsocModalComponent } from './chpsoc/modal/modal.component';
 import { ConsumptionComponent } from './common/consumption/consumption.component';
 import { ConsumptionModalComponent } from './common/consumption/modal/modal.component';
 import { Controller_Ess_FixActivePower } from './Controller_Ess_FixActivePower/Controller_Ess_FixActivePower';
-import { Controller_Ess_FixActivePowerModalComponent } from './Controller_Ess_FixActivePower/modal/modal.component';
+import { Controller_Ess_FixActivePower_Modal } from './Controller_Ess_FixActivePower/modal/modal.component';
 import { Controller_Io_FixDigitalOutput } from './Controller_Io_FixDigitalOutput/Controller_Io_FixDigitalOutput';
 import { Controller_Io_FixDigitalOutputModalComponent } from './Controller_Io_FixDigitalOutput/modal/modal.component';
 import { DelayedSellToGridComponent } from './delayedselltogrid/delayedselltogrid.component';
@@ -36,10 +36,12 @@ import { HeatPumpComponent } from './heatpump/heatpump.component';
 import { HeatPumpModalComponent } from './heatpump/modal/modal.component';
 import { InfoComponent } from './info/info.component';
 import { LiveComponent } from './live.component';
-import { ModalComponent } from './flat/modal/modal';
+import { ModalComponent } from './modal/modal';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
-import { ModalLineComponent } from './flat/modal/modal-line/modal-line';
-import { ModalLineNote } from './flat/modal/modal-line-text/modal-line-note';
+import { ModalLineComponent } from './modal/modal-line/modal-line';
+import { ModalLineNote } from './modal/modal-line-note/modal-line-note';
+import { ModalButtons } from './modal/modal-button/modal-button';
+import { ModalLineInput } from './modal/modal-line/modal-line-input'
 import { NgModule } from '@angular/core';
 import { OfflineComponent } from './offline/offline.component';
 import { ProductionComponent } from './production/production.component';
@@ -55,7 +57,7 @@ import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetric
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
 import { TimeslotPeakshavingComponent } from './peakshaving/timeslot/timeslotpeakshaving.component';
 import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/modal.component';
-import { ModalHorizontalLine } from './flat/modal/modal-line/modal-horizontal-line';
+import { ModalHorizontalLine } from './modal/modal-line/modal-horizontal-line';
 
 @NgModule({
   imports: [
@@ -72,7 +74,7 @@ import { ModalHorizontalLine } from './flat/modal/modal-line/modal-horizontal-li
     ChpsocModalComponent,
     ConsumptionModalComponent,
     Controller_Ess_FixActivePower,
-    Controller_Ess_FixActivePowerModalComponent,
+    Controller_Ess_FixActivePower_Modal,
     Controller_Io_FixDigitalOutput,
     Controller_Io_FixDigitalOutputModalComponent,
     DelayedSellToGridModalComponent,
@@ -91,6 +93,8 @@ import { ModalHorizontalLine } from './flat/modal/modal-line/modal-horizontal-li
     ModalComponentEvcsCluster,
     ModalLineComponent,
     ModalLineNote,
+    ModalButtons,
+    ModalLineInput,
     ModalHorizontalLine,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
@@ -111,7 +115,7 @@ import { ModalHorizontalLine } from './flat/modal/modal-line/modal-horizontal-li
     ConsumptionComponent,
     ConsumptionModalComponent,
     Controller_Ess_FixActivePower,
-    Controller_Ess_FixActivePowerModalComponent,
+    Controller_Ess_FixActivePower_Modal,
     Controller_Io_FixDigitalOutput,
     Controller_Io_FixDigitalOutputModalComponent,
     DelayedSellToGridComponent,
@@ -139,6 +143,8 @@ import { ModalHorizontalLine } from './flat/modal/modal-line/modal-horizontal-li
     ModalComponentEvcsCluster,
     ModalLineComponent,
     ModalLineNote,
+    ModalLineInput,
+    ModalButtons,
     ModalHorizontalLine,
     OfflineComponent,
     ProductionComponent,

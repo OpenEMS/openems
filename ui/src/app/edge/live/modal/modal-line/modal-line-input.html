@@ -1,0 +1,30 @@
+<form [formGroup]="formGroup2">
+    <table class="full_width" style="line-height: 1.4;">
+        <ng-container>
+            <!-- <tr> -->
+            <!-- Name of Parameter on the left side -->
+            <td style="width:55%; padding-left: 5%;" class="align_left">
+                <ng-container *ngIf="name">{{ name }}</ng-container>
+            </td>
+
+            <!-- Value of Parameter on the right side -->
+            <ng-container>
+                <td style="width:35%; padding-right: 5%;" class="align_right">
+                    <ion-item lines="inset">
+                        <ion-input class="regularFont" type="number" formControlName="power" style="text-align: end;">
+                        </ion-input>
+                        <ion-label class="regularFont">&nbsp;W</ion-label>
+                    </ion-item>
+
+                </td>
+            </ng-container>
+            <ion-fab *ngIf="formGroup2.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="end">
+                <ion-fab-button (click)="applyChanges()">
+                    <ion-icon size="large" name="checkmark-circle-outline">
+                    </ion-icon>
+                </ion-fab-button>
+            </ion-fab>
+            <!-- </tr> -->
+        </ng-container>
+    </table>
+</form>

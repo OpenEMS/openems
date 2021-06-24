@@ -17,7 +17,6 @@
             <oe-modal-line [name]="'General.dischargePower' | translate" [value]="this.totalDischargePower"
                 [converter]="CONVERT_DISCHARGE_POWER_TO_WATT" indentation_from_left="simple">
             </oe-modal-line>
-
             <!-- 3 Phases in total section -->
             <ng-container>
                 <oe-modal-line
@@ -103,8 +102,8 @@
             </oe-modal-horizontal-line>
         </ng-container>
 
-        <oe-modal-line-text [text]="'Edge.Index.Widgets.phasesInfo' | translate"
+        <oe-modal-line-note [text]="'Edge.Index.Widgets.phasesInfo' | translate"
             [icon]="{name: 'alert-outline', size: 'large', color: 'primary'}">
-        </oe-modal-line-text>
+        </oe-modal-line-note>
     </div>
 </oe-modal>

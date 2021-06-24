@@ -3,7 +3,8 @@
         <oe-flat-widget-line [name]="'General.state' | translate" [channelAddress]="component.id + '/_PropertyMode'"
             [converter]="stateConverter">
         </oe-flat-widget-line>
-        <oe-flat-widget-line [name]="chargeState | translate" [value]="chargeStateValue | unitvalue:'kW'">
+        <oe-flat-widget-line [name]="chargeState | translate" [value]="chargeStateValue | async"
+            [converter]="CONVERT_WATT_TO_KILOWATT">
         </oe-flat-widget-line>
     </oe-flat-widget>
 </ng-container>

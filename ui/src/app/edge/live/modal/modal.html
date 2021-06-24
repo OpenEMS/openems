@@ -1,4 +1,4 @@
-<ng-container>
+<ng-container *ngIf="edge">
     <ion-header>
         <ion-toolbar color="primary">
             <ion-title translate>{{title}}</ion-title>
@@ -9,7 +9,7 @@
             </ion-buttons>
         </ion-toolbar>
     </ion-header>
-    <ion-content style="margin-top: 10%;">
+    <ion-content>
         <ng-content></ng-content>
     </ion-content>
 </ng-container>
