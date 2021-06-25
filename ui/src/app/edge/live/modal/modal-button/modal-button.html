@@ -1,8 +1,8 @@
 <form [formGroup]="formGroup">
     <ion-card-content>
-        <ion-segment scrollable="false" [value]="value" mode="md">
+        <ion-segment [value]="value">
             <ng-container *ngFor="let label of labels, let i=index">
-                <ion-segment-button [value]="label.value" (click)="updateControllerMode($event, label.value)">
+                <ion-segment-button [value]="label.value" button (click)="updateControllerMode($event, label.value);">
                     <ion-label translate>
                         {{label.name}}
                     </ion-label>

@@ -3,7 +3,7 @@
         <oe-flat-widget-line [name]="'General.state' | translate" [channelAddress]="component.id + '/_PropertyMode'"
             [converter]="stateConverter">
         </oe-flat-widget-line>
-        <oe-flat-widget-line [name]="chargeState | translate" [value]="chargeStateValue | async"
+        <oe-flat-widget-line [name]="chargeState | translate" [value]="chargeStateValue"
             [converter]="CONVERT_WATT_TO_KILOWATT">
         </oe-flat-widget-line>
     </oe-flat-widget>

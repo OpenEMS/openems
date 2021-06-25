@@ -1,15 +1,15 @@
-<form [formGroup]="formGroup2">
-    <table class="full_width" style="line-height: 1.4;">
+<form [formGroup]="formGroup">
+    <table style="line-height: 1.4; width: 90%;">
         <ng-container>
             <!-- <tr> -->
             <!-- Name of Parameter on the left side -->
-            <td style="width:55%; padding-left: 5%;" class="align_left">
+            <td style="width: 70%; padding-left: 5%;">
                 <ng-container *ngIf="name">{{ name }}</ng-container>
             </td>
 
             <!-- Value of Parameter on the right side -->
             <ng-container>
-                <td style="width:35%; padding-right: 5%;" class="align_right">
+                <td>
                     <ion-item lines="inset">
                         <ion-input class="regularFont" type="number" formControlName="power" style="text-align: end;">
                         </ion-input>
@@ -18,7 +18,7 @@
 
                 </td>
             </ng-container>
-            <ion-fab *ngIf="formGroup2.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="end">
+            <ion-fab *ngIf="formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="center">
                 <ion-fab-button (click)="applyChanges()">
                     <ion-icon size="large" name="checkmark-circle-outline">
                     </ion-icon>

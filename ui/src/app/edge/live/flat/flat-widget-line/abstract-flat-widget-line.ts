@@ -1,6 +1,8 @@
 import { Directive, Inject, Input, OnDestroy } from "@angular/core";
+import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
 import { UUID } from "angular2-uuid";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
@@ -29,9 +31,6 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
     private selector: string = UUID.UUID().toString();
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private edge: Edge = null;
-    public activePowerL2;
-    public activePowerL3;
-
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,

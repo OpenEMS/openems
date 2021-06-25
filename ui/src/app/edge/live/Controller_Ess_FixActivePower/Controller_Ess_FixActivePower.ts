@@ -14,7 +14,7 @@ export class Controller_Ess_FixActivePower extends AbstractFlatWidget {
   private static PROPERTY_POWER: string = "_PropertyPower";
 
   public chargeState: string;
-  public chargeStateValue: BehaviorSubject<number> = new BehaviorSubject(0);
+  public chargeStateValue: number;
 
   public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT
 
@@ -29,20 +29,18 @@ export class Controller_Ess_FixActivePower extends AbstractFlatWidget {
   }
 
   protected getChannelAddresses(): ChannelAddress[] {
-    console.log("component2", this.component)
     let channelAddresses: ChannelAddress[] = [new ChannelAddress(this.componentId, Controller_Ess_FixActivePower.PROPERTY_POWER)]
     return channelAddresses;
   }
 
   protected onCurrentData(currentData: CurrentData) {
     let channelPower = currentData.thisComponent['_PropertyPower'];
-    console.log("test channelPower", channelPower)
     if (channelPower >= 0) {
       this.chargeState = 'General.dischargePower';
-      this.chargeStateValue.next(channelPower)
+      this.chargeStateValue = channelPower
     } else {
       this.chargeState = 'General.chargePower';
-      this.chargeStateValue.next(channelPower * -1);
+      this.chargeStateValue = channelPower * -1;
     }
   }
 
@@ -58,6 +56,7 @@ export class Controller_Ess_FixActivePower extends AbstractFlatWidget {
         chargeState: this.chargeState,
         chargeStateValue: this.chargeStateValue,
         stateConverter: this.stateConverter,
+        convertToWatt: this.CONVERT_WATT_TO_KILOWATT,
         componentId: this.componentId
       }
     });
