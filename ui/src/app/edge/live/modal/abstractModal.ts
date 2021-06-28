@@ -11,7 +11,7 @@ import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } fro
 @Directive()
 export abstract class AbstractModal {
 
-    @Input() protected componentId;
+    @Input() componentId;
     @Input() controlName: string;
     @Input() formGroup: FormGroup;
 
@@ -27,7 +27,7 @@ export abstract class AbstractModal {
         @Inject(Websocket) protected websocket: Websocket,
         @Inject(ActivatedRoute) protected route: ActivatedRoute,
         @Inject(Service) protected service: Service,
-        @Inject(ModalController) protected modalCtrl: ModalController,
+        @Inject(ModalController) public modalCtrl: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
         @Inject(FormBuilder) public formBuilder: FormBuilder,
     ) {
@@ -45,10 +45,8 @@ export abstract class AbstractModal {
                 // // announce initialized
                 this.isInitialized = true;
 
-                console.log("data test 1")
                 // get the channel addresses that should be subscribed
                 let channelAddresses: ChannelAddress[] = this.getChannelAddresses();
-                console.log("data test 2")
                 let channelIds = this.getChannelIds();
                 for (let channelId of channelIds) {
                     channelAddresses.push(new ChannelAddress(this.componentId, channelId));
@@ -56,10 +54,8 @@ export abstract class AbstractModal {
                 if (channelAddresses.length != 0) {
                     this.edge.subscribeChannels(this.websocket, this.selector, channelAddresses);
                 }
-                console.log("data test 3")
                 // call onCurrentData() with latest data
                 edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                    console.log("data test 4")
                     let allComponents = {};
                     let thisComponent = {};
                     for (let channelAddress of channelAddresses) {
@@ -80,7 +76,6 @@ export abstract class AbstractModal {
        * @param currentData new data for the subscribed Channel-Addresses
        */
     protected onCurrentData(currentData: CurrentData) {
-        console.log("data test")
     }
 
     /**

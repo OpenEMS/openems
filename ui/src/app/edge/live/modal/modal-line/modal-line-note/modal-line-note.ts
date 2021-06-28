@@ -10,7 +10,9 @@ import { Icon } from "src/app/shared/type/widget";
 })
 export class ModalLineNote {
 
+    /** Icon, displayed on the left side */
     @Input() icon: Icon;
 
+    /** InfoText, displayed on the right side */
     @Input() text: string;
 }

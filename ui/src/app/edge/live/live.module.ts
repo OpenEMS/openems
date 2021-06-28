@@ -39,9 +39,9 @@ import { LiveComponent } from './live.component';
 import { ModalComponent } from './modal/modal';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
 import { ModalLineComponent } from './modal/modal-line/modal-line';
-import { ModalLineNote } from './modal/modal-line-note/modal-line-note';
+import { ModalLineNote } from './modal/modal-line/modal-line-note/modal-line-note';
 import { ModalButtons } from './modal/modal-button/modal-button';
-import { ModalLineInput } from './modal/modal-line/modal-line-input'
+import { ModalLineInput } from './modal/modal-line/modal-line-input/modal-line-input'
 import { NgModule } from '@angular/core';
 import { OfflineComponent } from './offline/offline.component';
 import { ProductionComponent } from './production/production.component';
@@ -57,7 +57,7 @@ import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetric
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
 import { TimeslotPeakshavingComponent } from './peakshaving/timeslot/timeslotpeakshaving.component';
 import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/modal.component';
-import { ModalHorizontalLine } from './modal/modal-line/modal-horizontal-line';
+import { ModalHorizontalLine } from './modal/modal-line/modal-horizontal-line/modal-horizontal-line';
 
 @NgModule({
   imports: [

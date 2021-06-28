@@ -11,7 +11,16 @@ import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } fro
 @Directive()
 export abstract class AbstractModalLine implements OnDestroy {
 
+    /** FormGroup */
     @Input() formGroup: FormGroup;
+
+    /** component */
+    @Input() component: EdgeConfig.Component = null;
+
+    /** Component-Properties ControlName */
+    @Input() controlName: string;
+
+
     /**
     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
     * 
@@ -19,26 +28,38 @@ export abstract class AbstractModalLine implements OnDestroy {
     * @returns converter function
     */
     @Input()
-    public converter = (value: any): string => { return value }
+    converter = (value: any): string => { return value }
 
-    @Input() component: EdgeConfig.Component = null;
-    @Input() controlName: string;
+    /** Name for parameter, displayed on the left side*/
+    @Input()
+    name: string;
+
+    /** value defines value of the parameter, displayed on the right */
+    @Input() value: number;
+
+
+    /** Channel defines the channel, you need for this line */
+    @Input()
+    set channelAddress(channelAddress: string) {
+        this.subscribe(ChannelAddress.fromString(channelAddress));
+    }
+
+    /** Indentation from Left (single, double) */
+    @Input() indentation_from_left: string;
+
+    /** Selector needed for Subscribe (Identifier) */
+    private selector: string = UUID.UUID().toString();
 
     /** 
      * displayValue is the displayed @Input value in html
      */
     public displayValue: string = null;
 
-    /**
-     * selector used for subscribe
-     */
-
+    public loading: boolean;
     public isInitialized: boolean = false;
     public edge: Edge = null;
     public config: EdgeConfig = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
-
-    private selector: string = UUID.UUID().toString();
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -50,13 +71,18 @@ export abstract class AbstractModalLine implements OnDestroy {
     ) {
     }
 
+    ngOnChanges() {
+        if (this.value) {
+            this.setValue(this.value)
+        }
+    }
+
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.service.getConfig().then(config => {
                 // store important variables publically
                 this.edge = edge;
                 this.config = config;
-                // this.component = config.components[this.componentId];
 
                 // announce initialized
                 this.isInitialized = true;
@@ -86,7 +112,35 @@ export abstract class AbstractModalLine implements OnDestroy {
                 });
             })
         })
-        this.formGroup = this.getFormGroup()
+    }
+
+    /** value defines value of the parameter, displayed on the right */
+    protected setValue(value: any) {
+        this.displayValue = this.converter(value);
+    }
+
+    /** Subscribe on HTML passed Channels */
+    protected subscribe(channelAddress: ChannelAddress) {
+        this.service.setCurrentComponent('', this.route).then(edge => {
+            this.edge = edge;
+            edge.subscribeChannels(this.websocket, this.selector, [channelAddress]);
+
+            // call onCurrentData() with latest data
+            edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
+                this.setValue(currentData.channel[channelAddress.toString()]);
+            });
+        });
+    }
+
+    public ngOnDestroy() {
+        // Unsubscribe from OpenEMS
+        if (this.edge != null) {
+            this.edge.unsubscribeChannels(this.websocket, this.selector);
+        }
+
+        // Unsubscribe from CurrentData subject
+        this.stopOnDestroy.next();
+        this.stopOnDestroy.complete();
     }
     /**
      * Called on every new data.
@@ -112,33 +166,36 @@ export abstract class AbstractModalLine implements OnDestroy {
         return [];
     }
 
-    protected setValue(value: any) {
-        console.log("converter", value, this.converter(value))
-        this.displayValue = this.converter(value);
-    }
-
-    protected subscribe(channelAddress: ChannelAddress) {
-        this.service.setCurrentComponent('', this.route).then(edge => {
-            this.edge = edge;
-
-            edge.subscribeChannels(this.websocket, this.selector, [channelAddress]);
-            // call onCurrentData() with latest data
-            edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                console.log("converter address", currentData.channel[channelAddress.toString()])
-                this.setValue(currentData.channel[channelAddress.toString()]);
-            });
-        });
-    }
-
-    public ngOnDestroy() {
-        // Unsubscribe from OpenEMS
+    /** Confirm Changes through Confirmation-Button */
+    applyChanges() {
         if (this.edge != null) {
-            this.edge.unsubscribeChannels(this.websocket, this.selector);
-        }
+            if (this.edge.roleIsAtLeast('owner')) {
 
-        // Unsubscribe from CurrentData subject
-        this.stopOnDestroy.next();
-        this.stopOnDestroy.complete();
+                let updateComponentArray = [];
+                Object.keys(this.formGroup.controls).forEach((element, index) => {
+                    if (this.formGroup.controls[element].dirty) {
+                        updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                    }
+                })
+                this.loading = true;
+                this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
+                    this.component.properties[this.controlName] = this.formGroup.controls[this.controlName].value;
+                    this.loading = false;
+                    this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+                }).catch(reason => {
+                    this.formGroup.controls['mode'].setValue(this.component.properties.mode);
+                    this.formGroup.controls['power'].setValue(this.component.properties['power']);
+                    this.loading = false;
+                    this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+                    console.warn(reason);
+                })
+                this.formGroup.markAsPristine()
+            } else {
+                this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
+            }
+        }
     }
+
+
 }
 

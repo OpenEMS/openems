@@ -1,7 +1,6 @@
 import { Component, Input } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { Icon } from "src/app/shared/type/widget";
-import { AbstractModal } from "../abstractModal";
 import { AbstractModalLine } from "../modal-line/abstract-modal-line";
 
 @Component({
@@ -11,6 +10,7 @@ import { AbstractModalLine } from "../modal-line/abstract-modal-line";
 export class ModalButtons extends AbstractModalLine {
     /** Name for parameter, displayed on the left side*/
 
+    /**  */
     @Input() labels: ButtonLabel;
 
     @Input() icons: Icon[];
@@ -18,17 +18,17 @@ export class ModalButtons extends AbstractModalLine {
     @Input() value;
 
     /**
+     * Updates Controller-Mode for Change
      * 
-     * @param event get
-     * @param labelValue 
+     * @param event 
      */
-    public updateControllerMode(event: CustomEvent, labelValue: string) {
-        // console.log("test 1")
+    public updateControllerMode(event: CustomEvent) {
+
         let oldMode = this.value;
         let newMode = event.detail.value;
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, this.component.id, [
-                { name: this.controlName, value: labelValue }
+                { name: this.controlName, value: newMode }
             ]).then(() => {
                 this.value = newMode;
                 this.formGroup.markAsPristine();
@@ -41,9 +41,10 @@ export class ModalButtons extends AbstractModalLine {
             });
         }
     }
+
     /**
      * 
-     * @returns 
+     * @returns FormGroup
      */
     protected getFormGroup(): FormGroup {
         this.formGroup = this.formBuilder.group({

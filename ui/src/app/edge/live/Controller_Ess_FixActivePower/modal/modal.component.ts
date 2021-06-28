@@ -13,41 +13,23 @@ import { AbstractModal } from '../../modal/abstractModal';
 })
 export class Controller_Ess_FixActivePower_Modal extends AbstractModal {
 
-  @Input() public edge: Edge | null = null;
-  @Input() public component: EdgeConfig.Component = null;
   public chargeState: any;
-  public chargeStateValue: number;
+  @Input() public chargeStateValue: BehaviorSubject<number>;
 
   @Input() public stateConverter = (value: any): string => { return value }
-  // public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
 
-  public readonly CONVERT_TO_WATT = (value: any): string => {
-    if (value == null) {
-      return '-'
-    }
-    if (value >= 0) {
-      return formatNumber(value, 'de', '1.0-0') + ' W'
-    } else {
-      return '0 W'
-    }
-  }
+  public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
 
   protected getChannelAddresses() {
+    console.log("charegState", this.chargeStateValue)
     let channelAddresses: ChannelAddress[] = [
       new ChannelAddress(this.componentId, '_PropertyPower')
     ]
     return channelAddresses
   }
 
-  protected onCurrentData(currentData: CurrentData) {
-    let channelPower = currentData.allComponents['ctrlFixActivePower0/_PropertyPower'];
-    if (channelPower >= 0) {
-      this.chargeState = 'General.dischargePower';
-      this.chargeStateValue = channelPower
-    } else {
-      this.chargeState = 'General.chargePower';
-      this.chargeStateValue = channelPower * -1;
-    }
+  getModalData() {
+    console.log("test send2")
   }
 
   protected getFormGroup() {
@@ -56,6 +38,10 @@ export class Controller_Ess_FixActivePower_Modal extends AbstractModal {
       power: new FormControl(this.component.properties.power),
     })
     return this.formGroup
+  }
+
+  protected getComponentProperties() {
+    return this.component.properties[this.controlName] = this.formGroup.controls[this.controlName].value;
   }
 
 }

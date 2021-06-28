@@ -1,7 +1,7 @@
 import { Component, Input } from "@angular/core";
 
 /**
- * Shows a Hoizontal Line for every but the last component.
+ * Shows a Hoizontal Line for every but the last component or a simple Line.
  */
 @Component({
     selector: 'oe-modal-horizontal-line',

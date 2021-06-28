@@ -1,13 +1,14 @@
 <form [formGroup]="formGroup">
     <ion-card-content>
-        <ion-segment [value]="value">
-            <ng-container *ngFor="let label of labels, let i=index">
-                <ion-segment-button [value]="label.value" button (click)="updateControllerMode($event, label.value);">
+        <ion-segment [value]="value" (ionChange)="updateControllerMode($event)">
+            <ng-container *ngFor=" let label of labels, let i=index">
+                <ion-segment-button [value]="label.value">
                     <ion-label translate>
                         {{label.name}}
                     </ion-label>
-                    <ion-icon style="width:40px" [name]="icons[i].name || 'power-outline'"
-                        [color]="icons[i].color || 'success'" [size]="icons[i].size || 'medium'"></ion-icon>
+                    <ion-icon style=" width:40px" [name]="icons[i].name || 'power-outline'"
+                        [color]="icons[i].color || 'success'" [size]="icons[i].size || 'medium'">
+                    </ion-icon>
                 </ion-segment-button>
             </ng-container>
         </ion-segment>

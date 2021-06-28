@@ -1,27 +1,27 @@
-<oe-modal [title]="this.component.alias" style="height: 100%; margin-bottom: 10%;" [component]="component">
-  <div style="margin-top: 3%;">
-    <oe-modal-line [name]="'General.state' | translate" [channelAddress]="component.id + '/_PropertyMode'"
-      [converter]="stateConverter">
-    </oe-modal-line>
-    <oe-modal-line [name]="chargeState | translate" [value]="chargeStateValue" [converter]="this.CONVERT_TO_WATT">
-    </oe-modal-line>
+<oe-modal [title]="this.component.alias" style="height: 100%; margin-bottom: 10%;" (change)="getModalData()">
 
-    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+  <oe-modal-line [name]="'General.state' | translate" [channelAddress]="component.id + '/_PropertyMode'"
+    [converter]="stateConverter">
+  </oe-modal-line>
+  <oe-modal-line [name]="chargeState | translate" [value]="chargeStateValue.value" [converter]="CONVERT_TO_WATT">
+  </oe-modal-line>
 
-    <oe-modal-buttons [value]="component.properties['mode']" [formGroup]="formGroup" controlName="mode" [labels]=" [{name: ('General.on' | translate), value: 'MANUAL_ON' },{name: ('General.off'| translate),
+  <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+  <oe-modal-buttons [value]="component.properties['mode']" [formGroup]="formGroup" controlName="mode" [labels]=" [{name: ('General.on' | translate), value: 'MANUAL_ON' },{name: ('General.off'| translate),
       value:'MANUAL_OFF'}]" [component]="component"
-      [icons]="[{color:'success', name: 'power-outline'},{color:'primary', name: 'power-outline'},{color:'primary', name: 'power-outline'}]">
-    </oe-modal-buttons>
+    [icons]="[{color:'success', name: 'power-outline'},{color:'primary', name: 'power-outline'},{color:'primary', name: 'power-outline'}]">
+  </oe-modal-buttons>
 
-    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+  <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
-    <oe-modal-line-input [name]="'General.power'| translate" type="number" [formGroup]="formGroup" controlName="power"
-      [component]="component">
-    </oe-modal-line-input>
+  <oe-modal-line-input [name]="'General.power'| translate" type="number" [formGroup]="formGroup" controlName="power"
+    [component]="component">
+  </oe-modal-line-input>
 
-    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+  <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
-    <oe-modal-line [name]="'Negative values = memory loading'" [value]="'Positive values = memory discharge'">
-    </oe-modal-line>
-  </div>
+  <oe-modal-line [name]="'Negative values = memory loading'" [value]="'Positive values = memory discharge'">
+  </oe-modal-line>
+
 </oe-modal>
