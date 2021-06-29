@@ -20,7 +20,6 @@ export abstract class AbstractModalLine implements OnDestroy {
     /** Component-Properties ControlName */
     @Input() controlName: string;
 
-
     /**
     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
     * 
@@ -167,34 +166,34 @@ export abstract class AbstractModalLine implements OnDestroy {
     }
 
     /** Confirm Changes through Confirmation-Button */
-    applyChanges() {
-        if (this.edge != null) {
-            if (this.edge.roleIsAtLeast('owner')) {
+    // applyChanges() {
+    //     if (this.edge != null) {
+    //         if (this.edge.roleIsAtLeast('owner')) {
 
-                let updateComponentArray = [];
-                Object.keys(this.formGroup.controls).forEach((element, index) => {
-                    if (this.formGroup.controls[element].dirty) {
-                        updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
-                    }
-                })
-                this.loading = true;
-                this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
-                    this.component.properties[this.controlName] = this.formGroup.controls[this.controlName].value;
-                    this.loading = false;
-                    this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-                }).catch(reason => {
-                    this.formGroup.controls['mode'].setValue(this.component.properties.mode);
-                    this.formGroup.controls['power'].setValue(this.component.properties['power']);
-                    this.loading = false;
-                    this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-                    console.warn(reason);
-                })
-                this.formGroup.markAsPristine()
-            } else {
-                this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
-            }
-        }
-    }
+    //             let updateComponentArray = [];
+    //             Object.keys(this.formGroup.controls).forEach((element, index) => {
+    //                 if (this.formGroup.controls[element].dirty) {
+    //                     updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+    //                 }
+    //             })
+    //             this.loading = true;
+    //             this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
+    //                 this.component.properties[this.controlName] = this.formGroup.controls[this.controlName].value;
+    //                 this.loading = false;
+    //                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+    //             }).catch(reason => {
+    //                 this.formGroup.controls['mode'].setValue(this.component.properties.mode);
+    //                 this.formGroup.controls['power'].setValue(this.component.properties['power']);
+    //                 this.loading = false;
+    //                 this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+    //                 console.warn(reason);
+    //             })
+    //             this.formGroup.markAsPristine()
+    //         } else {
+    //             this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
+    //         }
+    //     }
+    // }
 
 
 }

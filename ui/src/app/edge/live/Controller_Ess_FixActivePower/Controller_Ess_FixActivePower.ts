@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
-import { AbstractFlatWidget } from '../flat/abstract-flat-widget';
+import { AbstractFlatWidget } from '../Generic Components/flat/abstract-flat-widget';
 import { Controller_Ess_FixActivePower_Modal } from './modal/modal.component';
 
 @Component({
