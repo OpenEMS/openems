@@ -1,9 +1,8 @@
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { CurrentData } from 'src/app/shared/edge/currentdata';
+import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: SelfconsumptionWidgetComponent.SELECTOR,
@@ -44,7 +43,7 @@ export class SelfconsumptionWidgetComponent extends AbstractHistoryWidget implem
             this.getChannelAddresses(this.edge, config).then(channels => {
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
                     let result = response.result;
-                    this.selfconsumptionValue = CurrentData.calculateSelfConsumption(result.data['_sum/GridSellActiveEnergy'],
+                    this.selfconsumptionValue = Utils.calculateSelfConsumption(result.data['_sum/GridSellActiveEnergy'],
                         result.data['_sum/ProductionActiveEnergy']);
                 }).catch(() => {
                     this.selfconsumptionValue = null;
