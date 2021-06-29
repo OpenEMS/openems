@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { formatNumber } from '@angular/common';
 import { saveAs } from 'file-saver-es';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
-import { formatNumber } from '@angular/common';
+
 export class Utils {
 
   constructor() { }

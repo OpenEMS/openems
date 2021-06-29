@@ -9,7 +9,7 @@ import { AbstractModal } from '../../Generic Components/modal/abstractModal';
   selector: 'controller_ess_fixactivepower-modal',
   templateUrl: './modal.component.html'
 })
-export class Controller_Ess_FixActivePower_Modal extends AbstractModal {
+export class Controller_Ess_FixActivePowerModalComponent extends AbstractModal {
 
   public chargeState: any;
   public is: boolean = false;

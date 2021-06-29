@@ -11,7 +11,7 @@ import { ChpsocModalComponent } from './chpsoc/modal/modal.component';
 import { ConsumptionComponent } from './common/consumption/consumption.component';
 import { ConsumptionModalComponent } from './common/consumption/modal/modal.component';
 import { Controller_Ess_FixActivePower } from './Controller_Ess_FixActivePower/Controller_Ess_FixActivePower';
-import { Controller_Ess_FixActivePower_Modal } from './Controller_Ess_FixActivePower/modal/modal.component';
+import { Controller_Ess_FixActivePowerModalComponent } from './Controller_Ess_FixActivePower/modal/modal.component';
 import { Controller_Io_FixDigitalOutput } from './Controller_Io_FixDigitalOutput/Controller_Io_FixDigitalOutput';
 import { Controller_Io_FixDigitalOutputModalComponent } from './Controller_Io_FixDigitalOutput/modal/modal.component';
 import { DelayedSellToGridComponent } from './delayedselltogrid/delayedselltogrid.component';
@@ -74,7 +74,7 @@ import { ModalHorizontalLine } from './Generic Components/modal/modal-line/modal
     ChpsocModalComponent,
     ConsumptionModalComponent,
     Controller_Ess_FixActivePower,
-    Controller_Ess_FixActivePower_Modal,
+    Controller_Ess_FixActivePowerModalComponent,
     Controller_Io_FixDigitalOutput,
     Controller_Io_FixDigitalOutputModalComponent,
     DelayedSellToGridModalComponent,
@@ -115,7 +115,7 @@ import { ModalHorizontalLine } from './Generic Components/modal/modal-line/modal
     ConsumptionComponent,
     ConsumptionModalComponent,
     Controller_Ess_FixActivePower,
-    Controller_Ess_FixActivePower_Modal,
+    Controller_Ess_FixActivePowerModalComponent,
     Controller_Io_FixDigitalOutput,
     Controller_Io_FixDigitalOutputModalComponent,
     DelayedSellToGridComponent,
