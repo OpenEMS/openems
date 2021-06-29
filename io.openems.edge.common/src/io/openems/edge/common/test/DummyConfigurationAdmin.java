@@ -36,7 +36,7 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 		}
 
 		/**
-		 * Adds a configuration property to thhis {@link DummyConfiguration}.
+		 * Adds a configuration property to this {@link DummyConfiguration}.
 		 * 
 		 * @param key   the property key
 		 * @param value the property value

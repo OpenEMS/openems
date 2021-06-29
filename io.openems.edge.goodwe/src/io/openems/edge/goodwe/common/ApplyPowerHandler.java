@@ -1,6 +1,8 @@
 package io.openems.edge.goodwe.common;
 
+import java.time.Instant;
 import java.util.Objects;
+import java.util.TreeSet;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.EnumWriteChannel;
@@ -14,9 +16,15 @@ import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 public class ApplyPowerHandler {
 
 	private final static int CHANGE_EMS_POWER_MODE_AFTER_CYCLES = 10;
+	private final static int MIN_WATCH_PERIOD = 2; // seconds
+	private final static int MAX_WATCH_PERIOD = 100; // seconds
+	private int watchPeriodForEmsPowerModeChanges = 10; // seconds
+	private final TreeSet<Instant> emsPowerModeChanges = new TreeSet<>();
 
+//
 	private EmsPowerMode lastEmsPowerMode = EmsPowerMode.UNDEFINED;
 	private int changeEmsPowerModeCounter = CHANGE_EMS_POWER_MODE_AFTER_CYCLES;
+//	private Instant lastChangeEmsPowerMode = Instant.MIN;
 
 	/**
 	 * Apply the desired Active-Power Set-Point by setting the appropriate
@@ -28,10 +36,29 @@ public class ApplyPowerHandler {
 	 * @param context        the {@link ApplyPowerContext}
 	 * @throws OpenemsNamedException on error
 	 */
-	public void apply(AbstractGoodWe goodWe, boolean readOnlyMode, int setActivePower, ApplyPowerContext context)
-			throws OpenemsNamedException {
+	public synchronized void apply(AbstractGoodWe goodWe, boolean readOnlyMode, int setActivePower,
+			ApplyPowerContext context) throws OpenemsNamedException {
 		int pvProduction = TypeUtils.max(0, goodWe.calculatePvProduction());
 		ApplyPowerHandler.Result apply = calculate(goodWe, readOnlyMode, setActivePower, pvProduction, context);
+
+		// TODO new logic for ems power mode change
+//		if (this.lastEmsPowerMode == apply.emsPowerMode) {
+//			// no change in Set-Power-Mode
+//		} else {
+//			// change in Set-Power-Mode
+//			Instant now = Instant.now();
+//			this.emsPowerModeChanges
+//					.removeIf(instant -> instant.isBefore(now.minusSeconds(this.watchPeriodForEmsPowerModeChanges)));
+//			if (this.emsPowerModeChanges.isEmpty()) {
+//				// decrease 'watchPeriodForEmsPowerModeChanges'
+//				this.watchPeriodForEmsPowerModeChanges = TypeUtils.fitWithin(MIN_WATCH_PERIOD, MAX_WATCH_PERIOD,
+//						this.watchPeriodForEmsPowerModeChanges - 1);
+//			} else {
+//				// increase 'watchPeriodForEmsPowerModeChanges'
+//				this.watchPeriodForEmsPowerModeChanges = TypeUtils.fitWithin(MIN_WATCH_PERIOD, MAX_WATCH_PERIOD,
+//						this.watchPeriodForEmsPowerModeChanges + 1);
+//			}
+//		}
 
 		// Do not change EMS-Power-Mode faster than CHANGE_EMS_POWER_MODE_AFTER_CYCLES
 		if (this.lastEmsPowerMode == apply.emsPowerMode) {
