@@ -9,6 +9,7 @@ import io.openems.edge.battery.fenecon.home.enums.BmsControl;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
@@ -374,6 +375,10 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.unit(Unit.VOLT) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.text("CV Point")),
+		BMS_SOFTWARE_VERSION(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Bms Software Version")),
 
 		// BCU Status Flags
 		STATUS_ALARM(Doc.of(Level.INFO) //
@@ -651,9 +656,33 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.unit(Unit.MILLIVOLT) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Min Cell Voltage Limit")),
-		BMU_NUMBER(Doc.of(OpenemsType.INTEGER) //
+		NUMBER_OF_MODULES_PER_TOWER(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Bmu Number")),
+				.text("Number of modules per tower") //
+				.onInit(FeneconHomeBatteryImpl.UPDATE_NUMBER_OF_TOWERS_AND_MODULES_CALLBACK)),
+
+		NUMBER_OF_TOWERS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Number of towers of the built system")),
+
+		TOWER_3_BMS_SOFTWARE_VERSION(new IntegerDoc() //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Bms software version of third tower") //
+				.onInit(FeneconHomeBatteryImpl.UPDATE_NUMBER_OF_TOWERS_AND_MODULES_CALLBACK)),
+
+		TOWER_2_BMS_SOFTWARE_VERSION(new IntegerDoc() //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Bms software version of second tower") //
+				.onInit(FeneconHomeBatteryImpl.UPDATE_NUMBER_OF_TOWERS_AND_MODULES_CALLBACK)),
+
+		TOWER_1_BMS_SOFTWARE_VERSION(new IntegerDoc() //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Bms software version of first tower")),
+
 		BMU_SOFTWARE_VERSION(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BMU Software Version")),
