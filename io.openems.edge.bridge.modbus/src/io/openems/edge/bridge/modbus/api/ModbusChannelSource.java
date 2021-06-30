@@ -5,6 +5,15 @@ import java.util.Objects;
 public class ModbusChannelSource {
 
 	/**
+	 * This can be used in {@link AbstractOpenemsModbusComponent} to ignore the
+	 * check for duplicated source mappings.
+	 */
+	public static final IgnoreDuplicatedSource IGNORE_DUPLICATED_SOURCE = new IgnoreDuplicatedSource();
+
+	protected static class IgnoreDuplicatedSource {
+	}
+
+	/**
 	 * Holds the Start-Address of the Modbus Register.
 	 */
 	private final int address;
@@ -36,7 +45,7 @@ public class ModbusChannelSource {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(address, bit);
+		return Objects.hash(this.address, this.bit);
 	}
 
 	@Override
@@ -51,7 +60,7 @@ public class ModbusChannelSource {
 			return false;
 		}
 		ModbusChannelSource other = (ModbusChannelSource) obj;
-		return address == other.address && bit == other.bit;
+		return this.address == other.address && this.bit == other.bit;
 	}
 
 }
