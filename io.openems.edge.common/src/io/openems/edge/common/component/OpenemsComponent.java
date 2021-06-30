@@ -340,7 +340,8 @@ public interface OpenemsComponent {
 				return true;
 			}
 		} catch (IOException | SecurityException e) {
-			System.out.println("ERROR: " + e.getMessage());
+			System.err.println("updateReferenceFilter ERROR " + e.getClass().getSimpleName() + ": " + e.getMessage());
+			e.printStackTrace();
 		}
 		return false;
 	}

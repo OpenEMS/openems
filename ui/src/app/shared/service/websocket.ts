@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { CookieService } from 'ngx-cookie-service';
 import { delay, retryWhen } from 'rxjs/operators';
@@ -38,6 +39,7 @@ export class Websocket {
     private service: Service,
     private translate: TranslateService,
     private cookieService: CookieService,
+    private router: Router,
   ) {
     service.websocket = this;
 
@@ -80,6 +82,7 @@ export class Websocket {
           } else {
             // No Token -> directly ask for Login credentials
             this.status = 'waiting for credentials';
+            this.router.navigate(['/index']);
           }
         }
       },
@@ -149,7 +152,7 @@ export class Websocket {
       this.status = 'online';
 
       // received login token -> save in cookie
-      this.cookieService.set('token', response.token, { sameSite: 'Strict' });
+      this.cookieService.set('token', response.token, { expires: 365, path: '/', sameSite: 'Strict' });
 
       // Metadata
       this.service.metadata.next({

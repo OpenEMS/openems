@@ -94,7 +94,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	private int unsuccessfulStarts = 0;
 	private LocalDateTime startAttemptTime = null;
 
-	// indicates that system is stopping; during that time no commands should be
+	// Indicates that system is stopping; during that time no commands should be
 	// sent
 	private boolean isStopping = false;
 
@@ -1106,7 +1106,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				.text("Voltage sampling fault")), //
 		FAILURE_LTC6803(Doc.of(Level.FAULT) //
 				.text("LTC6803 fault")), //
-		FAILURE_CONNECTOR_WIRE(Doc.of(Level.FAULT) //
+		FAILURE_CONNECTOR_WIRE(Doc.of(Level.WARNING) //
 				.text("connector wire fault")), //
 		FAILURE_SAMPLING_WIRE(Doc.of(Level.FAULT) //
 				.text("sampling wire fault")), //

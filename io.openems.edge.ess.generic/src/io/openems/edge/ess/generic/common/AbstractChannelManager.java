@@ -1,6 +1,7 @@
 package io.openems.edge.ess.generic.common;
 
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.channel.AbstractChannelListenerManager;
@@ -8,6 +9,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
 /**
@@ -75,6 +77,29 @@ public class AbstractChannelManager<ESS extends SymmetricEss, BATTERY extends Ba
 		this.<Long>addCopyListener(batteryInverter, //
 				SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, //
 				SymmetricEss.ChannelId.REACTIVE_POWER);
+
+		if (batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
+			this.<Long>addCopyListener(batteryInverter, //
+					HybridManagedSymmetricBatteryInverter.ChannelId.DC_CHARGE_ENERGY, //
+					HybridEss.ChannelId.DC_CHARGE_ENERGY);
+			this.<Long>addCopyListener(batteryInverter, //
+					HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_ENERGY, //
+					HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
+			this.<Long>addCopyListener(batteryInverter, //
+					HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_POWER, //
+					HybridEss.ChannelId.DC_DISCHARGE_POWER);
+
+		} else {
+			this.<Long>addCopyListener(batteryInverter, //
+					SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY, //
+					HybridEss.ChannelId.DC_CHARGE_ENERGY);
+			this.<Long>addCopyListener(batteryInverter, //
+					SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
+					HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
+			this.<Long>addCopyListener(batteryInverter, //
+					SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, //
+					HybridEss.ChannelId.DC_DISCHARGE_POWER);
+		}
 	}
 
 	/**

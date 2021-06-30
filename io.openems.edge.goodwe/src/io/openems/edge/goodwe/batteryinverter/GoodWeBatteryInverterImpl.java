@@ -21,14 +21,12 @@ import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
@@ -37,8 +35,6 @@ import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.timedata.api.Timedata;
-import io.openems.edge.timedata.api.TimedataProvider;
-import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -48,7 +44,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 ) //
 public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		implements GoodWeBatteryInverter, GoodWe, HybridManagedSymmetricBatteryInverter,
-		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, TimedataProvider {
+		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent {
 
 	private static final int MAX_DC_CURRENT = 25; // [A]
 
@@ -60,15 +56,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Reference
 	private Power power;
-
-	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(this,
-			SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY);
-	private final CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(this,
-			SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY);
-	private final CalculateEnergyFromPower calculateDcChargeEnergy = new CalculateEnergyFromPower(this,
-			HybridEss.ChannelId.DC_CHARGE_ENERGY);
-	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
-			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
 
 	// For Fenecon Home Battery, Lead Battery Capacity has to be set as a battery
 	// parameter
@@ -104,6 +91,12 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	public GoodWeBatteryInverterImpl() throws OpenemsNamedException {
 		super(//
+				SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, //
+				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_POWER, //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY, //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
+				HybridManagedSymmetricBatteryInverter.ChannelId.DC_CHARGE_ENERGY, //
+				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_ENERGY, //
 				OpenemsComponent.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				SymmetricBatteryInverter.ChannelId.values(), //
@@ -114,54 +107,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		);
 		// GoodWe is always started
 		this._setStartStop(StartStop.START);
-	}
-
-	private void updatechannels() {
-		Integer productionPower = this.calculatePvProduction();
-		final Channel<Integer> pBattery1Channel = this.channel(GoodWe.ChannelId.P_BATTERY1);
-		Integer dcDischargePower = pBattery1Channel.value().get();
-		Integer acActivePower = TypeUtils.sum(productionPower, dcDischargePower);
-
-		/*
-		 * Update ActivePower
-		 */
-		this._setActivePower(acActivePower);
-
-		/*
-		 * Calculate AC Energy
-		 */
-		if (acActivePower == null) {
-			// Not available
-			this.calculateAcChargeEnergy.update(null);
-			this.calculateAcDischargeEnergy.update(null);
-		} else if (acActivePower > 0) {
-			// Discharge
-			this.calculateAcChargeEnergy.update(0);
-			this.calculateAcDischargeEnergy.update(acActivePower);
-		} else {
-			// Charge
-			this.calculateAcChargeEnergy.update(acActivePower * -1);
-			this.calculateAcDischargeEnergy.update(0);
-		}
-		/*
-		 * Calculate DC Power and Energy
-		 */
-		this._setDcDischargePower(dcDischargePower);
-		if (dcDischargePower == null) {
-			// Not available
-			this.calculateDcChargeEnergy.update(null);
-			this.calculateDcDischargeEnergy.update(null);
-		} else {
-			if (dcDischargePower > 0) {
-				// Discharge
-				this.calculateDcChargeEnergy.update(0);
-				this.calculateDcDischargeEnergy.update(dcDischargePower);
-			} else {
-				// Charge
-				this.calculateDcChargeEnergy.update(dcDischargePower * -1);
-				this.calculateDcDischargeEnergy.update(0);
-			}
-		}
 	}
 
 	/**
@@ -200,6 +145,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	}
 
 	@Override
+	public Integer getDcPvPower() {
+		return this.calculatePvProduction();
+	}
+
+	@Override
 	public Integer getSurplusPower() {
 		if (this.lastSoc == null || this.lastSoc.orElse(0) < 99) {
 			return null;
@@ -222,7 +172,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		this.setBatteryLimits(battery);
 
 		// Calculate ActivePower and Energy values.
-		this.updatechannels();
+		this.updatePowerAndEnergyChannels();
 		this.lastSoc = battery.getSoc();
 
 		// Calculate and store Max-AC-Export and -Import for use in

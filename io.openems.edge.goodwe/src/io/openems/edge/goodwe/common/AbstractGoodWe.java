@@ -24,7 +24,9 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
@@ -34,16 +36,39 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.goodwe.charger.AbstractGoodWeEtCharger;
 import io.openems.edge.goodwe.common.enums.BatteryMode;
 import io.openems.edge.goodwe.common.enums.GoodweType;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
-public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent implements GoodWe, OpenemsComponent {
+public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
+		implements GoodWe, OpenemsComponent, TimedataProvider {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractGoodWe.class);
 
+	private final io.openems.edge.common.channel.ChannelId activePowerChannelId;
+	private final io.openems.edge.common.channel.ChannelId dcDischargePowerChannelId;
+	private final CalculateEnergyFromPower calculateAcChargeEnergy;
+	private final CalculateEnergyFromPower calculateAcDischargeEnergy;
+	private final CalculateEnergyFromPower calculateDcChargeEnergy;
+	private final CalculateEnergyFromPower calculateDcDischargeEnergy;
+
 	protected final Set<AbstractGoodWeEtCharger> chargers = new HashSet<>();
 
-	public AbstractGoodWe(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+	protected AbstractGoodWe(//
+			io.openems.edge.common.channel.ChannelId activePowerChannelId, //
+			io.openems.edge.common.channel.ChannelId dcDischargePowerChannelId, //
+			io.openems.edge.common.channel.ChannelId activeChargeEnergyChannelId, //
+			io.openems.edge.common.channel.ChannelId activeDischargeEnergyChannelId, //
+			io.openems.edge.common.channel.ChannelId dcChargeEnergyChannelId, //
+			io.openems.edge.common.channel.ChannelId dcDischargeEnergyChannelId, //
+			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds, //
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsNamedException {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
+		this.activePowerChannelId = activePowerChannelId;
+		this.dcDischargePowerChannelId = dcDischargePowerChannelId;
+		this.calculateAcChargeEnergy = new CalculateEnergyFromPower(this, activeChargeEnergyChannelId);
+		this.calculateAcDischargeEnergy = new CalculateEnergyFromPower(this, activeDischargeEnergyChannelId);
+		this.calculateDcChargeEnergy = new CalculateEnergyFromPower(this, dcChargeEnergyChannelId);
+		this.calculateDcDischargeEnergy = new CalculateEnergyFromPower(this, dcDischargeEnergyChannelId);
 	}
 
 	@Override
@@ -431,4 +456,58 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent impl
 		return productionPower;
 	}
 
+	protected void updatePowerAndEnergyChannels() {
+		Integer productionPower = this.calculatePvProduction();
+		final Channel<Integer> pBattery1Channel = this.channel(GoodWe.ChannelId.P_BATTERY1);
+		Integer dcDischargePower = pBattery1Channel.value().get();
+		Integer acActivePower = TypeUtils.sum(productionPower, dcDischargePower);
+
+		/*
+		 * Update AC Active Power
+		 */
+		IntegerReadChannel activePowerChannel = this.channel(this.activePowerChannelId);
+		activePowerChannel.setNextValue(acActivePower);
+
+		/*
+		 * Calculate AC Energy
+		 */
+		if (acActivePower == null) {
+			// Not available
+			this.calculateAcChargeEnergy.update(null);
+			this.calculateAcDischargeEnergy.update(null);
+		} else if (acActivePower > 0) {
+			// Discharge
+			this.calculateAcChargeEnergy.update(0);
+			this.calculateAcDischargeEnergy.update(acActivePower);
+		} else {
+			// Charge
+			this.calculateAcChargeEnergy.update(acActivePower * -1);
+			this.calculateAcDischargeEnergy.update(0);
+		}
+
+		/*
+		 * Update DC Discharge Power
+		 */
+		IntegerReadChannel dcDischargePowerChannel = this.channel(this.dcDischargePowerChannelId);
+		dcDischargePowerChannel.setNextValue(dcDischargePower);
+
+		/*
+		 * Calculate DC Energy
+		 */
+		if (dcDischargePower == null) {
+			// Not available
+			this.calculateDcChargeEnergy.update(null);
+			this.calculateDcDischargeEnergy.update(null);
+		} else {
+			if (dcDischargePower > 0) {
+				// Discharge
+				this.calculateDcChargeEnergy.update(0);
+				this.calculateDcDischargeEnergy.update(dcDischargePower);
+			} else {
+				// Charge
+				this.calculateDcChargeEnergy.update(dcDischargePower * -1);
+				this.calculateDcDischargeEnergy.update(0);
+			}
+		}
+	}
 }
