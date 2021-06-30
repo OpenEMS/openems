@@ -6,9 +6,8 @@
         </td>
 
         <!-- Value of Parameter on the right side -->
-        <td style="width:45%; padding-right: 5%;" class="align_right">
-            <ng-container *ngIf="displayValue != null">{{ displayValue }}</ng-container>
+        <td style="width:45%; padding-right: 5%;" class="align_right" *ngIf="displayValue">
+            <ng-container>{{ displayValue }}</ng-container>
         </td>
-
     </tr>
 </table>

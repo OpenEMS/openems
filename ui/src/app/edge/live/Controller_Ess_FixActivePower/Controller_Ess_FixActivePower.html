@@ -1,10 +1,9 @@
 <ng-container *ngIf="isInitialized">
-    <oe-flat-widget (click)="presentModal()" (change)="sendModal()" [icon]="{name:'swap-vertical-outline'}"
-        [title]="component.alias">
+    <oe-flat-widget (click)="presentModal()" [icon]="{name:'swap-vertical-outline'}" [title]="component.alias">
         <oe-flat-widget-line [name]="'General.state' | translate" [channelAddress]="component.id + '/_PropertyMode'"
             [converter]="stateConverter">
         </oe-flat-widget-line>
-        <oe-flat-widget-line [name]="chargeState | translate" [value]="chargeStateValue.value"
+        <oe-flat-widget-line [name]="chargeState.value | translate" [value]="chargeStateValue.value"
             [converter]="CONVERT_WATT_TO_KILOWATT">
         </oe-flat-widget-line>
     </oe-flat-widget>

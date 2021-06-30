@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 import { AbstractFlatWidget } from '../Generic Components/flat/abstract-flat-widget';
-import { Controller_Ess_FixActivePower_Modal } from './modal/modal.component';
+import { Controller_Ess_FixActivePowerModalComponent } from './modal/modal.component';
 
 @Component({
   selector: 'Controller_Ess_FixActivePower',
@@ -12,7 +12,7 @@ export class Controller_Ess_FixActivePower extends AbstractFlatWidget {
 
   private static PROPERTY_POWER: string = "_PropertyPower";
 
-  public chargeState: string;
+  public chargeState: BehaviorSubject<string> = new BehaviorSubject('');
   public chargeStateValue: BehaviorSubject<number> = new BehaviorSubject(0);
 
   public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT
@@ -35,17 +35,17 @@ export class Controller_Ess_FixActivePower extends AbstractFlatWidget {
   protected onCurrentData(currentData: CurrentData) {
     let channelPower = currentData.thisComponent['_PropertyPower'];
     if (channelPower >= 0) {
-      this.chargeState = 'General.dischargePower';
+      this.chargeState.next('General.dischargePower');
       this.chargeStateValue.next(channelPower)
     } else {
-      this.chargeState = 'General.chargePower';
+      this.chargeState.next('General.chargePower');
       this.chargeStateValue.next(channelPower * -1);
     }
   }
 
   async presentModal() {
     const modal = await this.modalController.create({
-      component: Controller_Ess_FixActivePower_Modal,
+      component: Controller_Ess_FixActivePowerModalComponent,
       componentProps: {
         component: this.component,
         edge: this.edge,

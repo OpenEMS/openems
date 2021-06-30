@@ -5,24 +5,23 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { UUID } from "angular2-uuid";
 import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
 @Directive()
 export abstract class AbstractModal {
 
-    @Input() componentId: string;
-    @Input() controlName: string;
-    @Input() formGroup: FormGroup;
+    @Input() component: EdgeConfig.Component = null;
+    @Input() formGroup: FormGroup = null;
+    @Input() set controlName(value: any) {
+        this.updateComponentArray.push(value)
+    }
 
-    public loading: boolean;
+    public updateComponentArray: any[]
     public isInitialized: boolean = false;
     public edge: Edge = null;
     public config: EdgeConfig = null;
-    @Input() component: EdgeConfig.Component = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
-
-    private selector: string = UUID.UUID().toString();
+    public selector: string = UUID.UUID().toString();
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -34,45 +33,47 @@ export abstract class AbstractModal {
     ) {
     }
 
-    ngOnChanges() {
-        this.formGroup = this.getFormGroup()
-    }
     ngOnInit() {
-        this.formGroup = this.getFormGroup();
         this.service.setCurrentComponent('', this.route).then(edge => {
-            this.service.getConfig().then(config => {
-                // store important variables publically
-                this.edge = edge;
-                this.config = config;
-
-                // // announce initialized
-                this.isInitialized = true;
-
-                // get the channel addresses that should be subscribed
-                let channelAddresses: ChannelAddress[] = this.getChannelAddresses();
-                let channelIds = this.getChannelIds();
-                for (let channelId of channelIds) {
-                    channelAddresses.push(new ChannelAddress(this.componentId, channelId));
-                }
-                if (channelAddresses.length != 0) {
-                    this.edge.subscribeChannels(this.websocket, this.selector, channelAddresses);
-                }
-                // call onCurrentData() with latest data
-                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                    let allComponents = {};
-                    let thisComponent = {};
-                    for (let channelAddress of channelAddresses) {
-                        let ca = channelAddress.toString();
-                        allComponents[ca] = currentData.channel[ca];
-                        if (channelAddress.componentId === this.componentId) {
-                            thisComponent[channelAddress.channelId] = currentData.channel[ca];
-                        }
-                    }
-                    this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
-                });
-            });
+            this.edge = edge;
         });
     }
+
+    applyChanges() {
+        if (this.edge != null && this.edge.roleIsAtLeast('owner')) {
+
+            /** fill udateComponentArray with changed formgroup.controls */
+            let updateComponentArray = [];
+            Object.keys(this.formGroup.controls).forEach((element, index) => {
+                if (this.formGroup.controls[element].dirty) {
+                    updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                }
+            })
+
+            /** Update component.properties */
+            this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
+
+                /** set Components-properties-value to FormGroup-value   */
+                for (let i = 0; i < updateComponentArray.length; i++) {
+                    this.component.properties[updateComponentArray[i].name] = this.formGroup.controls[updateComponentArray[i].name].value
+                }
+
+                this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+            }).catch(reason => {
+
+                /** set Formgroup-value to Components-properties-value */
+                for (let i = 0; i < updateComponentArray.length; i++) {
+                    this.formGroup.controls[updateComponentArray[i].name].setValue(this.component.properties[updateComponentArray[i].name])
+                }
+                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+                console.warn(reason);
+            })
+            this.formGroup.markAsPristine()
+        } else {
+            this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
+        }
+    }
+
     /**
        * Called on every new data.
        * 
@@ -87,9 +88,7 @@ export abstract class AbstractModal {
     protected getChannelAddresses(): ChannelAddress[] {
         return [];
     }
-    protected getFormGroup(): FormGroup {
-        return
-    }
+
     /**
    * Gets the ChannelIds of the current Component that should be subscribed.
    */
@@ -97,35 +96,8 @@ export abstract class AbstractModal {
         return [];
     }
 
-    // applyChanges() {
-    //     console.log("test 1")
-    //     if (this.edge != null) {
-    //         console.log("test 2")
-    //         // if (this.edge.roleIsAtLeast('owner')) {
-    //         console.log("test 3")
-    //         let updateComponentArray = [];
-    //         Object.keys(this.formGroup.controls).forEach((element, index) => {
-    //             if (this.formGroup.controls[element].dirty) {
-    //                 updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
-    //             }
-    //         })
-    //         this.loading = true;
-    //         this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
-    //             this.component.properties['power'] = this.formGroup.controls['power'].value;
-    //             console.log("componentproperties", this.component.properties['power'])
-    //             this.loading = false;
-    //             this.formGroup.markAsPristine()
-    //             this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-    //         }).catch(reason => {
-    //             this.formGroup.controls['mode'].setValue(this.component.properties.mode);
-    //             this.formGroup.controls['power'].setValue(this.component.properties['power']);
-    //             this.loading = false;
-    //             this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-    //             console.warn(reason);
-    //         })
-    //         // } else {
-    //         //     this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
-    //     }
-    //     // }
-    // }
+    /** Gets the FormGroup of the current Component */
+    protected getFormGroup(): FormGroup {
+        return
+    }
 }

@@ -1,35 +1,26 @@
-<oe-modal [title]="this.component.alias" [formGroup]="formGroup" style="height: 100%;" [component]="this.component"
-  (change)="this.is = true">
+<oe-modal style="height: 100%;" [title]="this.component.alias" [component]="component" [formGroup]="formGroup">
 
   <oe-modal-line [name]="'General.state' | translate" [channelAddress]="component.id + '/_PropertyMode'"
     [converter]="stateConverter">
   </oe-modal-line>
-  <oe-modal-line [name]="chargeState | translate" [value]="chargeStateValue.value" [converter]="CONVERT_TO_WATT">
+  <oe-modal-line [name]="chargeState.value | translate" [value]="chargeStateValue.value" [converter]="CONVERT_TO_WATT">
   </oe-modal-line>
 
   <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
-  <oe-modal-buttons [value]="component.properties['mode']" [formGroup]="formGroup" controlName="mode" [labels]=" [{name: ('General.on' | translate), value: 'MANUAL_ON' },{name: ('General.off'| translate),
+  <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [labels]=" [{name: ('General.on' | translate), value: 'MANUAL_ON' },{name: ('General.off'| translate),
       value:'MANUAL_OFF'}]" [component]="component"
     [icons]="[{color:'success', name: 'power-outline'},{color:'primary', name: 'power-outline'},{color:'primary', name: 'power-outline'}]">
   </oe-modal-buttons>
 
   <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
-  <oe-modal-line-input [name]="'General.power'| translate" [formGroup]="formGroup" controlName="power"
-    [component]="component">
+  <oe-modal-line-input [name]="'General.power'| translate" [formGroup]="formGroup" controlName="power">
   </oe-modal-line-input>
 
   <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
   <oe-modal-line [name]="'Negative values = memory loading'" [value]="'Positive values = memory discharge'">
   </oe-modal-line>
-
-  <ion-fab *ngIf="formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="end">
-    <ion-fab-button (click)="applyChanges()">
-      <ion-icon size="large" name="checkmark-circle-outline">
-      </ion-icon>
-    </ion-fab-button>
-  </ion-fab>
 
 </oe-modal>

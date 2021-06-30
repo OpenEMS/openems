@@ -36,15 +36,11 @@ export abstract class AbstractModalLine implements OnDestroy {
     /** value defines value of the parameter, displayed on the right */
     @Input() value: number;
 
-
     /** Channel defines the channel, you need for this line */
     @Input()
     set channelAddress(channelAddress: string) {
         this.subscribe(ChannelAddress.fromString(channelAddress));
     }
-
-    /** Indentation from Left (single, double) */
-    @Input() indentation_from_left: string;
 
     /** Selector needed for Subscribe (Identifier) */
     private selector: string = UUID.UUID().toString();
@@ -53,9 +49,6 @@ export abstract class AbstractModalLine implements OnDestroy {
      * displayValue is the displayed @Input value in html
      */
     public displayValue: string = null;
-
-    public loading: boolean;
-    public isInitialized: boolean = false;
     public edge: Edge = null;
     public config: EdgeConfig = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
@@ -82,9 +75,6 @@ export abstract class AbstractModalLine implements OnDestroy {
                 // store important variables publically
                 this.edge = edge;
                 this.config = config;
-
-                // announce initialized
-                this.isInitialized = true;
 
                 // get the channel addresses that should be subscribed
                 let channelAddresses: ChannelAddress[] = this.getChannelAddresses();
@@ -164,37 +154,5 @@ export abstract class AbstractModalLine implements OnDestroy {
     protected getChannelIds(): string[] {
         return [];
     }
-
-    /** Confirm Changes through Confirmation-Button */
-    // applyChanges() {
-    //     if (this.edge != null) {
-    //         if (this.edge.roleIsAtLeast('owner')) {
-
-    //             let updateComponentArray = [];
-    //             Object.keys(this.formGroup.controls).forEach((element, index) => {
-    //                 if (this.formGroup.controls[element].dirty) {
-    //                     updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
-    //                 }
-    //             })
-    //             this.loading = true;
-    //             this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
-    //                 this.component.properties[this.controlName] = this.formGroup.controls[this.controlName].value;
-    //                 this.loading = false;
-    //                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-    //             }).catch(reason => {
-    //                 this.formGroup.controls['mode'].setValue(this.component.properties.mode);
-    //                 this.formGroup.controls['power'].setValue(this.component.properties['power']);
-    //                 this.loading = false;
-    //                 this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-    //                 console.warn(reason);
-    //             })
-    //             this.formGroup.markAsPristine()
-    //         } else {
-    //             this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
-    //         }
-    //     }
-    // }
-
-
 }
 

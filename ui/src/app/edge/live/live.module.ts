@@ -41,7 +41,7 @@ import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal
 import { ModalLineComponent } from './Generic Components/modal/modal-line/modal-line';
 import { ModalLineNote } from './Generic Components/modal/modal-line/modal-line-note/modal-line-note';
 import { ModalButtons } from './Generic Components/modal/modal-button/modal-button';
-import { ModalLineInput } from './Generic Components/modal/modal-line/modal-line-input/modal-line-input'
+import { ModalLineInput } from './Generic Components/modal/modal-line/modal-line-input/modal-line-input';
 import { NgModule } from '@angular/core';
 import { OfflineComponent } from './offline/offline.component';
 import { ProductionComponent } from './production/production.component';

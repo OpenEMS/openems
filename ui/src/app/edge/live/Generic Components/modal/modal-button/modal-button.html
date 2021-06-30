@@ -1,6 +1,6 @@
 <form [formGroup]="formGroup">
     <ion-card-content>
-        <ion-segment [value]="value" [formControlName]="controlName">
+        <ion-segment [value]="component.properties[controlName]" [formControlName]="controlName">
             <ng-container *ngFor=" let label of labels, let i=index">
                 <ion-segment-button [value]="label.value">
                     <ion-label translate>

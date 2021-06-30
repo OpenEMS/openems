@@ -101,6 +101,4 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     protected getChannelIds(): string[] {
         return [];
     }
-
-
 }
