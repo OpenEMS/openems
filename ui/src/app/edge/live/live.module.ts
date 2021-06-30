@@ -66,7 +66,6 @@ import { ModalHorizontalLine } from './Generic Components/modal/modal-line/modal
     EnergymonitorModule,
     SharedModule,
   ],
-
   entryComponents: [
     AdministrationComponent,
     AsymmetricPeakshavingModalComponent,

@@ -48,10 +48,8 @@ export class Controller_Ess_FixActivePower extends AbstractFlatWidget {
       component: Controller_Ess_FixActivePowerModalComponent,
       componentProps: {
         component: this.component,
-        edge: this.edge,
         chargeState: this.chargeState,
         chargeStateValue: this.chargeStateValue,
-        componentId: this.componentId,
         stateConverter: this.stateConverter,
       }
     });

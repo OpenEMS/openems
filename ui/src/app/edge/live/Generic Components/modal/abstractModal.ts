@@ -12,11 +12,8 @@ export abstract class AbstractModal {
 
     @Input() component: EdgeConfig.Component = null;
     @Input() formGroup: FormGroup = null;
-    @Input() set controlName(value: any) {
-        this.updateComponentArray.push(value)
-    }
+    @Input() controlName: string;
 
-    public updateComponentArray: any[]
     public isInitialized: boolean = false;
     public edge: Edge = null;
     public config: EdgeConfig = null;

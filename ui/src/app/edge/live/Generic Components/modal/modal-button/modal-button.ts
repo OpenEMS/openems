@@ -7,10 +7,11 @@ import { AbstractModalLine } from "../modal-line/abstract-modal-line";
     templateUrl: './modal-button.html',
 })
 export class ModalButtons extends AbstractModalLine {
-    /** Name for parameter, displayed on the left side*/
 
+    /** Name of Label, displayed below the icon */
     @Input() labels: ButtonLabel;
 
+    /** Icons for Button, displayed above the corresponding name */
     @Input() icons: Icon[];
 }
 
