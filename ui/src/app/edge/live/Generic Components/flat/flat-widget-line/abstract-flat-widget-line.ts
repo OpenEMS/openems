@@ -1,6 +1,8 @@
 import { Directive, Inject, Input, OnDestroy } from "@angular/core";
+import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
 import { UUID } from "angular2-uuid";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
@@ -47,7 +49,6 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
             this.edge = edge;
 
             edge.subscribeChannels(this.websocket, this.selector, [channelAddress]);
-
             // call onCurrentData() with latest data
             edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
                 this.setValue(currentData.channel[channelAddress.toString()]);

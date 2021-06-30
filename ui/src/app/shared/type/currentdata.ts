@@ -1,5 +1,5 @@
 /**
- * Holds subscribed 'CurrentData' provided by AbstractFlatWidget.
+ * Holds subscribed 'CurrentData' provided by AbstractFlatWidget or AbstractModal.
  */
 export interface CurrentData {
     thisComponent: {
