@@ -57,6 +57,8 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
+import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxRequest;
+import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxResponse;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -203,6 +205,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		case DeleteComponentConfigRequest.METHOD:
 			return this.handleDeleteComponentConfigRequest(user, DeleteComponentConfigRequest.from(request));
+
+		case ChannelExportXlsxRequest.METHOD:
+			return this.handleChannelExportXlsxRequest(user, ChannelExportXlsxRequest.from(request));
 
 		default:
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
@@ -367,6 +372,24 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		}
 
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	/**
+	 * Handles a {@link ChannelExportXlsxRequest}.
+	 * 
+	 * @param user    the {@link User}
+	 * @param request the {@link ChannelExportXlsxRequest}
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	protected CompletableFuture<JsonrpcResponseSuccess> handleChannelExportXlsxRequest(User user,
+			ChannelExportXlsxRequest request) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast("ChannelExportXlsxRequest", Role.ADMIN);
+		OpenemsComponent component = this.getComponent(request.getComponentId());
+		if (component == null) {
+			throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(request.getComponentId());
+		}
+		return CompletableFuture.completedFuture(new ChannelExportXlsxResponse(request.getId(), component));
 	}
 
 	/**
