@@ -176,7 +176,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				|| (bmsSocUnderMin.isDefined() && !Objects.equals(bmsSocUnderMin.get(), setSocUnderMin))
 
 		// TODO bmsOfflineSocUnderMin change is not applied!
-				
+
 //				|| (bmsOfflineSocUnderMin.isDefined()
 //						&& !Objects.equals(bmsOfflineSocUnderMin.get(), setOfflineSocUnderMin))
 //				|| (bmsChargeMaxVoltage.isDefined() && !Objects.equals(bmsChargeMaxVoltage.get(), setChargeMaxVoltage))
@@ -228,7 +228,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				TypeUtils.orElse(preprocessAmpereValue47900(battery.getDischargeMaxCurrent()), 0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_VOLTAGE, battery.getVoltage().orElse(0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CURRENT, TypeUtils.abs(battery.getCurrent().orElse(0)));
-		this.writeToChannel(GoodWe.ChannelId.WBMS_SOC, battery.getSoc().orElse(0));
+		// Set SoC within [1;100] to avoid force-charge internally by PCS at 0 %
+		this.writeToChannel(GoodWe.ChannelId.WBMS_SOC, TypeUtils.fitWithin(1, 100, battery.getSoc().orElse(1)));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_SOH, battery.getSoh().orElse(100));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_TEMPERATURE, TypeUtils.orElse(
 				TypeUtils.sum(battery.getMaxCellTemperature().get(), battery.getMinCellTemperature().get()), 0));
