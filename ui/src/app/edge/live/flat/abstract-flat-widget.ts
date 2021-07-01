@@ -2,10 +2,10 @@ import { Directive, Inject, Input, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { UUID } from "angular2-uuid";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { v4 as uuidv4 } from 'uuid';
 
 @Directive()
 export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
@@ -22,7 +22,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     public component: EdgeConfig.Component = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
 
-    private selector: string = UUID.UUID().toString();
+    private selector: string = uuidv4();
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
