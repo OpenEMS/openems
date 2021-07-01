@@ -1,10 +1,10 @@
 import { Directive, Inject, Input, OnDestroy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
-import { UUID } from "angular2-uuid";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
+import { v4 as uuidv4 } from 'uuid';
 
 @Directive()
 export abstract class AbstractFlatWidgetLine implements OnDestroy {
@@ -26,7 +26,7 @@ export abstract class AbstractFlatWidgetLine implements OnDestroy {
     /**
      * selector used for subscribe
      */
-    private selector: string = UUID.UUID().toString();
+    private selector: string = uuidv4();
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private edge: Edge = null;
 
