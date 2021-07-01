@@ -1,0 +1,81 @@
+Bundle-Name: OpenEMS Edge Controller io.openems.edge.predictor.weka
+Bundle-Vendor: OpenEMS Association e.V.
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	com.googlecode.matrix-toolkits-java:mtj;version='1.0.4',\
+	com.googlecode.netlib-java:netlib-java;version='1.1',\
+	com.github.fommil.netlib:core;version='1.1.2',\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.predictor.api,\
+	nz.ac.waikato.cms.weka:timeseriesForecasting;version='1.1.27',\
+	nz.ac.waikato.cms.weka:weka-dev;version='3.9.5',\
+	net.sourceforge.f2j:arpack_combined_all;version='0.1',\
+
+-testpath: \
+	${testpath}
+
+Export-Package: \
+   com.github.fommil.netlib, \
+   weka.classifiers, \
+   weka.classifiers.evaluation, \
+   weka.classifiers.evaluation.output.prediction, \
+   weka.classifiers.functions, \
+   weka.classifiers.functions.neural, \
+   weka.classifiers.functions.supportVector, \
+   weka.classifiers.meta, \
+   weka.attributeSelection, \
+   weka.classifiers.bayes, \
+   weka.classifiers.bayes.net, \
+   weka.classifiers.bayes.net.estimate, \
+   weka.classifiers.bayes.net.icons, \
+   weka.classifiers.bayes.net.search, \
+   weka.classifiers.bayes.net.search.ci, \
+   weka.classifiers.bayes.net.search.fixed, \
+   weka.classifiers.bayes.net.search.global, \
+   weka.classifiers.bayes.net.search.local, \
+   weka.classifiers.lazy, \
+   weka.classifiers.lazy.kstar, \
+   weka.classifiers.misc, \
+   weka.classifiers.pmml.consumer, \
+   weka.classifiers.pmml.producer, \
+   weka.classifiers.rules, \
+   weka.classifiers.rules.part, \
+   weka.classifiers.trees, \
+   weka.classifiers.trees.ht, \
+   weka.classifiers.trees.j48, \
+   weka.classifiers.trees.lmt, \
+   weka.classifiers.trees.m5, \
+   weka.classifiers.xml, \
+   weka.clusterers, \
+   weka.core, \
+   weka.core.converters, \
+   weka.core.expressionlanguage.common, \
+   weka.core.expressionlanguage.core, \
+   weka.core.expressionlanguage.parser, \
+   weka.core.expressionlanguage.weka, \
+   weka.core.json, \
+   weka.core.logging, \
+   weka.core.matrix, \
+   weka.core.metastore, \
+   weka.core.neighboursearch, \
+   weka.core.neighboursearch.balltrees, \
+   weka.core.neighboursearch.covertrees, \
+   weka.core.neighboursearch.kdtrees, \
+   weka.core.packageManagement, \
+   weka.core.pmml, \
+   weka.core.pmml.jaxbbindings, \
+   weka.core.scripting, \
+   weka.core.stemmers, \
+   weka.core.stopwords, \
+   weka.core.tokenizers, \
+   weka.core.xml, \
+   no.uib.cipr.matrix, \
+   no.uib.cipr.matrix.io, \
+   org.netlib.arpack, \
+   org.netlib.blas, \
+   org.netlib.lapack, \
+   org.netlib.util, \

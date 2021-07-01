@@ -261,5 +261,38 @@
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.7.30</version>
 		</dependency>
+
+		<dependency>
+			<groupId>nz.ac.waikato.cms.weka</groupId>
+			<artifactId>timeseriesForecasting</artifactId>
+			<version>1.1.27</version>
+		</dependency>
+		<dependency>
+			<groupId>nz.ac.waikato.cms.weka</groupId>
+			<artifactId>weka-dev</artifactId>
+			<version>3.9.5</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.fommil.netlib</groupId>
+			<artifactId>core</artifactId>
+			<version>1.1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.matrix-toolkits-java</groupId>
+			<artifactId>mtj</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.netlib-java</groupId>
+			<artifactId>netlib-java</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.f2j</groupId>
+			<artifactId>arpack_combined_all</artifactId>
+			<version>0.1</version>
+		</dependency>
+
+
 	</dependencies>
 </project>
