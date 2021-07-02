@@ -1,6 +1,7 @@
 import { saveAs } from 'file-saver-es';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 import { formatNumber } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
 export class Utils {
 
   constructor() { }
@@ -329,6 +330,24 @@ export class Utils {
       return formatNumber(thisValue, 'de', '1.0-1') + ' kW'
     } else {
       return '0 kW'
+    }
+  }
+
+  /**
+   * Converts states 'MANUAL_ON' and 'MANUAL_OFF' to translated strings.
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
+  public static CONVERT_MANUAL_ON_OFF = (translate: TranslateService) => {
+    return (value: any): string => {
+      if (value === 'MANUAL_ON') {
+        return translate.instant('General.on');
+      } else if (value === 'MANUAL_OFF') {
+        return translate.instant('General.off');
+      } else {
+        return '-';
+      }
     }
   }
 

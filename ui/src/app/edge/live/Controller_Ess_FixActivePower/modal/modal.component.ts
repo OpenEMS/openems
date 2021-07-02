@@ -1,10 +1,9 @@
 
 import { Component, Input } from '@angular/core';
-import { FormControl, } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { ChannelAddress, Utils } from 'src/app/shared/shared';
+import { FormControl } from '@angular/forms';
+import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 import { AbstractModal } from '../../Generic Components/modal/abstractModal';
+import { Controller_Ess_FixActivePower } from '../Controller_Ess_FixActivePower';
 
 @Component({
   selector: 'controller_ess_fixactivepower-modal',
@@ -12,13 +11,22 @@ import { AbstractModal } from '../../Generic Components/modal/abstractModal';
 })
 export class Controller_Ess_FixActivePowerModalComponent extends AbstractModal {
 
-  @Input() public chargeStateValue: BehaviorSubject<number>;
-  @Input() public stateConverter = (value: any): string => { return value }
-  @Input() public chargeState: BehaviorSubject<string>;
+  public chargeState: { name: string, value: number };
+
   public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
+  public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
 
   ngOnInit() {
+    super.ngOnInit();
     this.getFormGroup()
+  }
+
+  protected getChannelAddresses(): ChannelAddress[] {
+    return [new ChannelAddress(this.component.id, "_PropertyPower")];
+  }
+
+  protected onCurrentData(currentData: CurrentData) {
+    this.chargeState = Controller_Ess_FixActivePower.FORMAT_POWER(this.translate, currentData.thisComponent['_PropertyPower']);
   }
 
   protected getFormGroup() {

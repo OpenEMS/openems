@@ -1,18 +1,26 @@
-import { Directive, Inject, Input, } from "@angular/core";
+import { Directive, Inject, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { UUID } from "angular2-uuid";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
 @Directive()
-export abstract class AbstractModal {
+export abstract class AbstractModal implements OnInit, OnDestroy {
 
     @Input() component: EdgeConfig.Component = null;
     @Input() formGroup: FormGroup = null;
     @Input() controlName: string;
 
+    public isInitialized: boolean = false;
     public edge: Edge = null;
+    public config: EdgeConfig = null;
+    public stopOnDestroy: Subject<void> = new Subject<void>();
+
+    private selector: string = UUID.UUID().toString();
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -24,10 +32,54 @@ export abstract class AbstractModal {
     ) {
     }
 
-    ngOnInit() {
+    public ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
-            this.edge = edge;
+            this.service.getConfig().then(config => {
+                console.log("AbstractModal")
+
+                // store important variables publically
+                this.edge = edge;
+                this.config = config;
+                this.component = config.components[this.component.id];
+
+                // announce initialized
+                this.isInitialized = true;
+
+                // get the channel addresses that should be subscribed
+                let channelAddresses: ChannelAddress[] = this.getChannelAddresses();
+                console.log(channelAddresses)
+                let channelIds = this.getChannelIds();
+                for (let channelId of channelIds) {
+                    channelAddresses.push(new ChannelAddress(this.component.id, channelId));
+                }
+                if (channelAddresses.length != 0) {
+                    this.edge.subscribeChannels(this.websocket, this.selector, channelAddresses);
+                }
+
+                // call onCurrentData() with latest data
+                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
+                    let allComponents = {};
+                    let thisComponent = {};
+                    for (let channelAddress of channelAddresses) {
+                        let ca = channelAddress.toString();
+                        allComponents[ca] = currentData.channel[ca];
+                        if (channelAddress.componentId === this.component.id) {
+                            thisComponent[channelAddress.channelId] = currentData.channel[ca];
+                        }
+                    }
+                    this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
+                });
+            });
         });
+    };
+
+    public ngOnDestroy() {
+        // Unsubscribe from OpenEMS
+        this.edge.unsubscribeChannels(this.websocket, this.selector);
+
+        // Unsubscribe from CurrentData subject
+        this.stopOnDestroy.next();
+        this.stopOnDestroy.complete();
     }
 
     /**
@@ -70,10 +122,10 @@ export abstract class AbstractModal {
     }
 
     /**
-       * Called on every new data.
-       * 
-       * @param currentData new data for the subscribed Channel-Addresses
-       */
+     * Called on every new data.
+     * 
+     * @param currentData new data for the subscribed Channel-Addresses
+     */
     protected onCurrentData(currentData: CurrentData) {
     }
 
@@ -85,8 +137,8 @@ export abstract class AbstractModal {
     }
 
     /**
-   * Gets the ChannelIds of the current Component that should be subscribed.
-   */
+     * Gets the ChannelIds of the current Component that should be subscribed.
+     */
     protected getChannelIds(): string[] {
         return [];
     }

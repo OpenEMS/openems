@@ -9,4 +9,5 @@ export class ModalComponent extends AbstractModal {
 
     /** Title in Header */
     @Input() title: string;
+
 }
