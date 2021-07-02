@@ -3,8 +3,6 @@ import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { UUID } from "angular2-uuid";
-import { Subject } from "rxjs";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
 @Directive()
@@ -14,11 +12,7 @@ export abstract class AbstractModal {
     @Input() formGroup: FormGroup = null;
     @Input() controlName: string;
 
-    public isInitialized: boolean = false;
     public edge: Edge = null;
-    public config: EdgeConfig = null;
-    public stopOnDestroy: Subject<void> = new Subject<void>();
-    public selector: string = UUID.UUID().toString();
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -36,38 +30,42 @@ export abstract class AbstractModal {
         });
     }
 
+    /**
+     * Applies all Value-Changes with updating ComponentConfig
+     */
     applyChanges() {
-        if (this.edge != null && this.edge.roleIsAtLeast('owner')) {
+        if (this.edge != null) {
+            if (this.edge.roleIsAtLeast('owner')) {
 
-            /** fill udateComponentArray with changed formgroup.controls */
-            let updateComponentArray = [];
-            Object.keys(this.formGroup.controls).forEach((element, index) => {
-                if (this.formGroup.controls[element].dirty) {
-                    updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
-                }
-            })
+                /** fill udateComponentArray with changed formgroup.controls */
+                let updateComponentArray = [];
+                Object.keys(this.formGroup.controls).forEach((element, index) => {
+                    if (this.formGroup.controls[element].dirty) {
+                        updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                    }
+                })
 
-            /** Update component.properties */
-            this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
+                /** Update component.properties */
+                this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
 
-                /** set Components-properties-value to FormGroup-value   */
-                for (let i = 0; i < updateComponentArray.length; i++) {
-                    this.component.properties[updateComponentArray[i].name] = this.formGroup.controls[updateComponentArray[i].name].value
-                }
+                    /** set Components-properties-value to FormGroup-value   */
+                    for (let i = 0; i < updateComponentArray.length; i++) {
+                        this.component.properties[updateComponentArray[i].name] = this.formGroup.controls[updateComponentArray[i].name].value
+                    }
+                    this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+                }).catch(reason => {
 
-                this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-            }).catch(reason => {
-
-                /** set Formgroup-value to Components-properties-value */
-                for (let i = 0; i < updateComponentArray.length; i++) {
-                    this.formGroup.controls[updateComponentArray[i].name].setValue(this.component.properties[updateComponentArray[i].name])
-                }
-                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-                console.warn(reason);
-            })
-            this.formGroup.markAsPristine()
-        } else {
-            this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
+                    /** set Formgroup-value to Components-properties-value */
+                    for (let i = 0; i < updateComponentArray.length; i++) {
+                        this.formGroup.controls[updateComponentArray[i].name].setValue(this.component.properties[updateComponentArray[i].name])
+                    }
+                    this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+                    console.warn(reason);
+                })
+                this.formGroup.markAsPristine()
+            } else {
+                this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
+            }
         }
     }
 

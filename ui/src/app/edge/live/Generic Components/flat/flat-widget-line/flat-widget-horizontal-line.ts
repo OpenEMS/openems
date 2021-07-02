@@ -1,7 +1,7 @@
 import { Component, Input } from "@angular/core";
 
 /**
- * Shows a horizontal line on all but the last entry of a flat widget.
+ * Shows a horizontal line on all but the last entry of a flat widget or a simple Line.
  */
 @Component({
     selector: 'oe-flat-widget-horizontal-line',

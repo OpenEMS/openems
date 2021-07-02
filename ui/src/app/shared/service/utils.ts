@@ -198,7 +198,6 @@ export class Utils {
     }
   }
 
-
   /**
    * Download a JSONRPC Base64PayloadResponse in Excel (XLSX) file format.
    *  
@@ -220,9 +219,7 @@ export class Utils {
     });
 
     saveAs(data, filename + '.xlsx');
-
   }
-
 
   /*
   * Calculate the Self-Consumption rate.

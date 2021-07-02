@@ -64,9 +64,7 @@ export abstract class AbstractModalLine implements OnDestroy {
     }
 
     ngOnChanges() {
-        if (this.value) {
-            this.setValue(this.value)
-        }
+        this.setValue(this.value)
     }
 
     ngOnInit() {
