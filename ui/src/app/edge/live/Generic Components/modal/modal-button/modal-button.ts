@@ -8,14 +8,14 @@ import { AbstractModalLine } from "../modal-line/abstract-modal-line";
 })
 export class ModalButtons extends AbstractModalLine {
 
-    /** Name of Label, displayed below the icon */
-    @Input() labels: ButtonLabel;
+    @Input() buttons: ButtonLabel;
 
-    /** Icons for Button, displayed above the corresponding name */
-    @Input() icons: Icon[];
 }
 
 export type ButtonLabel = {
+    /** Name of Label, displayed below the icon */
     name: string;
     value: string;
+    /** Icons for Button, displayed above the corresponding name */
+    icons: Icon;
 }
