@@ -241,4 +241,32 @@ export class Utils {
     saveAs(data, filename + '.xlsx');
   }
 
+  /*
+  * Calculate the Self-Consumption rate.
+  * 
+  * @param sellToGrid the Sell-To-Grid power (i.e. the inverted GridActivePower)
+  * @param productionActivePower  the Production Power
+  * @returns  the Self-Consumption rate
+  */
+  public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number): number | null {
+    if (sellToGrid == null || productionActivePower == null) {
+      return null;
+    }
+
+    if (productionActivePower <= 0) {
+      /* avoid divide by zero; production == 0 -> selfconsumption 0 % */
+      return 0;
+    }
+
+    // Self-Consumption rate
+    let result = (1 - (sellToGrid / productionActivePower)) * 100;
+
+    // At least 0 %
+    result = Math.max(result, 0);
+
+    // At most 100 %
+    result = Math.min(result, 100);
+
+    return result;
+  }
 }

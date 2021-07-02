@@ -3,7 +3,7 @@ package io.openems.edge.controller.ess.fixactivepower;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Ess Fix Active Power", //
 		description = "Defines a fixed charge/discharge power to a symmetric energy storage system.")
 @interface Config {
