@@ -1,10 +1,9 @@
 package io.openems.edge.common.component;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -30,6 +29,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.internal.AbstractDoc;
+import io.openems.edge.common.type.TypeUtils;
 
 /**
  * This is the default implementation of the {@link OpenemsComponent} interface.
@@ -49,7 +49,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * Holds all Channels by their Channel-ID String representation (in
 	 * CaseFormat.UPPER_CAMEL).
 	 */
-	private final Map<String, Channel<?>> channels = Collections.synchronizedMap(new HashMap<>());
+	private final Map<String, Channel<?>> channels = new ConcurrentHashMap<>();
 
 	private String id = null;
 	private String alias = null;
@@ -307,7 +307,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 			}
 
 			// Set the Value
-			Object value = properties.get(property.getId());
+			Object value = TypeUtils.getAsType(property.getType(), properties.get(property.getId()));
 			if (value == null) {
 				try {
 					value = JsonUtils.getAsType(property.getType(), property.getDefaultValue());

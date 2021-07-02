@@ -441,7 +441,7 @@ public class RestHandler extends AbstractHandler {
 			// send response
 			this.sendOkResponse(baseRequest, httpResponse, response.toJsonObject());
 
-		} catch (OpenemsNamedException e) {
+		} catch (Exception e) {
 			this.sendErrorResponse(baseRequest, httpResponse, requestId,
 					new OpenemsException("Unable to get Response: " + e.getMessage()));
 		}
