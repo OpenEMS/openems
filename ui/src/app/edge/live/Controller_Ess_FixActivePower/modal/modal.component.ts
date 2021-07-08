@@ -1,8 +1,8 @@
 
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
-import { AbstractModal } from '../../Generic Components/modal/abstractModal';
+import { AbstractModal } from '../../Generic_Components/modal/abstractModal';
 import { Controller_Ess_FixActivePower } from '../Controller_Ess_FixActivePower';
 
 @Component({

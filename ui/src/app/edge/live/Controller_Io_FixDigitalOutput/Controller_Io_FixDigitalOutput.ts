@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
-import { AbstractFlatWidget } from '../Generic Components/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from '../Generic_Components/flat/abstract-flat-widget';
 import { Controller_Io_FixDigitalOutputModalComponent } from './modal/modal.component';
 
 

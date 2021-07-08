@@ -1,6 +1,6 @@
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../../shared/shared';
 import { ConsumptionModalComponent } from './modal/modal.component';
-import { AbstractFlatWidget } from '../../Generic Components/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from '../../Generic_Components/flat/abstract-flat-widget';
 import { Component } from '@angular/core';
 
 @Component({

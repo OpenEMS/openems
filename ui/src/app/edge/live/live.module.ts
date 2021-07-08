@@ -24,10 +24,10 @@ import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
 import { EvcsComponent } from './evcs/evcs.component';
 import { EvcsModalComponent } from './evcs/modal/modal.page';
 import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
-import { FlatWidgetComponent } from './Generic Components/flat/flat-widget.component';
-import { FlatWidgetHorizontalLine } from './Generic Components/flat/flat-widget-line/flat-widget-horizontal-line'
-import { FlatWidgetLine } from './Generic Components/flat/flat-widget-line/flat-widget-line';
-import { FlatWidgetPercentagebar } from './Generic Components/flat/flat-widget-line/flat-widget-percentagebar';
+import { FlatWidgetComponent } from './Generic_Components/flat/flat-widget.component';
+import { FlatWidgetHorizontalLine } from './Generic_Components/flat/flat-widget-line/flat-widget-horizontal-line'
+import { FlatWidgetLine } from './Generic_Components/flat/flat-widget-line/flat-widget-line';
+import { FlatWidgetPercentagebar } from './Generic_Components/flat/flat-widget-line/flat-widget-percentagebar';
 import { GridComponent } from './common/grid/grid.component';
 import { GridModalComponent } from './common/grid/modal/modal.component';
 import { HeatingElementComponent } from './heatingelement/heatingelement.component';
@@ -36,12 +36,13 @@ import { HeatPumpComponent } from './heatpump/heatpump.component';
 import { HeatPumpModalComponent } from './heatpump/modal/modal.component';
 import { InfoComponent } from './info/info.component';
 import { LiveComponent } from './live.component';
-import { ModalComponent } from './Generic Components/modal/modal';
+import { ModalButtons } from './Generic_Components/modal/modal-button/modal-button';
+import { ModalComponent } from './Generic_Components/modal/modal';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
-import { ModalLineComponent } from './Generic Components/modal/modal-line/modal-line';
-import { ModalLineNote } from './Generic Components/modal/modal-line/modal-line-note/modal-line-note';
-import { ModalButtons } from './Generic Components/modal/modal-button/modal-button';
-import { ModalLineInput } from './Generic Components/modal/modal-line/modal-line-input/modal-line-input';
+import { ModalHorizontalLine } from './Generic_Components/modal/modal-line/modal-horizontal-line/modal-horizontal-line';
+import { ModalLineComponent } from './Generic_Components/modal/modal-line/modal-line';
+import { ModalLineInput } from './Generic_Components/modal/modal-line/modal-line-input/modal-line-input';
+import { ModalLineNote } from './Generic_Components/modal/modal-line/modal-line-note/modal-line-note';
 import { NgModule } from '@angular/core';
 import { OfflineComponent } from './offline/offline.component';
 import { ProductionComponent } from './production/production.component';
@@ -57,7 +58,6 @@ import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetric
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
 import { TimeslotPeakshavingComponent } from './peakshaving/timeslot/timeslotpeakshaving.component';
 import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/modal.component';
-import { ModalHorizontalLine } from './Generic Components/modal/modal-line/modal-horizontal-line/modal-horizontal-line';
 
 @NgModule({
   imports: [
@@ -88,13 +88,13 @@ import { ModalHorizontalLine } from './Generic Components/modal/modal-line/modal
     GridModalComponent,
     HeatingElementModalComponent,
     HeatPumpModalComponent,
+    ModalButtons,
     ModalComponent,
     ModalComponentEvcsCluster,
-    ModalLineComponent,
-    ModalLineNote,
-    ModalButtons,
-    ModalLineInput,
     ModalHorizontalLine,
+    ModalLineComponent,
+    ModalLineInput,
+    ModalLineNote,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
     SinglethresholdModalComponent,
@@ -138,13 +138,13 @@ import { ModalHorizontalLine } from './Generic Components/modal/modal-line/modal
     HeatPumpModalComponent,
     InfoComponent,
     LiveComponent,
+    ModalButtons,
     ModalComponent,
     ModalComponentEvcsCluster,
-    ModalLineComponent,
-    ModalLineNote,
-    ModalLineInput,
-    ModalButtons,
     ModalHorizontalLine,
+    ModalLineComponent,
+    ModalLineInput,
+    ModalLineNote,
     OfflineComponent,
     ProductionComponent,
     ProductionModalComponent,

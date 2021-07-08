@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ChannelAddress, CurrentData } from '../../../../shared/shared';
-import { AbstractFlatWidget } from '../../Generic Components/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from '../../Generic_Components/flat/abstract-flat-widget';
 import { AutarchyModalComponent } from './modal/modal.component';
 
 @Component({

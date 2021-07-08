@@ -1,4 +1,4 @@
-<oe-modal style="height: 100%;" [title]="this.component.alias" [component]="component" [formGroup]="formGroup">
+<oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup">
 
   <oe-modal-line [name]="'General.state' | translate" [channelAddress]="component.id + '/_PropertyMode'"
     [converter]="CONVERT_MANUAL_ON_OFF">
@@ -20,7 +20,7 @@
 
   <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
-  <oe-modal-line [name]="'Negative values = memory loading'" [value]="'Positive values = memory discharge'">
+  <oe-modal-line [name]="'Edge.Index.Widgets.twoWayInfoGrid'| translate" [value]="'Positive values = memory discharge'">
   </oe-modal-line>
 
 </oe-modal>

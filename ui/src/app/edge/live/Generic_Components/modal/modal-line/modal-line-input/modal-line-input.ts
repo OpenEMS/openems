@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { AbstractModalLine } from "../abstract-modal-line";
+import { AbstractModalLine } from "../../abstract-modal-line";
 
 /**
  * Shows a Line with Input-Field on the right

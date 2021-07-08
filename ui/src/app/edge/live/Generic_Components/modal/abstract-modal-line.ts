@@ -1,4 +1,4 @@
-import { Directive, Inject, Input, OnDestroy } from "@angular/core";
+import { ChangeDetectorRef, Directive, Inject, Input, OnDestroy } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -60,8 +60,7 @@ export abstract class AbstractModalLine implements OnDestroy {
         @Inject(ModalController) protected modalCtrl: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
         @Inject(FormBuilder) public formBuilder: FormBuilder,
-    ) {
-    }
+    ) { }
 
     ngOnChanges() {
         this.setValue(this.value)

@@ -2,7 +2,7 @@ import { formatNumber } from '@angular/common';
 import { Component } from '@angular/core';
 import { CurrentData } from "src/app/shared/shared";
 import { ChannelAddress, EdgeConfig, Utils } from '../../../../shared/shared';
-import { AbstractFlatWidget } from '../../Generic Components/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from '../../Generic_Components/flat/abstract-flat-widget';
 import { StorageModalComponent } from './modal/modal.component';
 
 @Component({

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
-import { AbstractFlatWidget } from '../Generic Components/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from '../Generic_Components/flat/abstract-flat-widget';
 import { Controller_Ess_FixActivePowerModalComponent } from './modal/modal.component';
 
 @Component({

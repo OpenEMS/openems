@@ -1,4 +1,4 @@
-import { Directive, Inject, Input, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Directive, Inject, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -29,46 +29,55 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
         @Inject(ModalController) public modalCtrl: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
         @Inject(FormBuilder) public formBuilder: FormBuilder,
+        private ref: ChangeDetectorRef
+
     ) {
+        ref.detach();
+        setInterval(() => {
+            this.ref.detectChanges(); // manually trigger change detection
+        }, 0);
     }
 
     public ngOnInit() {
+        // this.getFormGroup()
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.service.getConfig().then(config => {
-                console.log("AbstractModal")
 
                 // store important variables publically
                 this.edge = edge;
                 this.config = config;
-                this.component = config.components[this.component.id];
 
-                // announce initialized
-                this.isInitialized = true;
+                // If component is passed
+                if (this.component != null) {
+                    this.component = config.components[this.component.id];
 
-                // get the channel addresses that should be subscribed
-                let channelAddresses: ChannelAddress[] = this.getChannelAddresses();
-                console.log(channelAddresses)
-                let channelIds = this.getChannelIds();
-                for (let channelId of channelIds) {
-                    channelAddresses.push(new ChannelAddress(this.component.id, channelId));
-                }
-                if (channelAddresses.length != 0) {
-                    this.edge.subscribeChannels(this.websocket, this.selector, channelAddresses);
-                }
+                    // announce initialized
+                    this.isInitialized = true;
 
-                // call onCurrentData() with latest data
-                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                    let allComponents = {};
-                    let thisComponent = {};
-                    for (let channelAddress of channelAddresses) {
-                        let ca = channelAddress.toString();
-                        allComponents[ca] = currentData.channel[ca];
-                        if (channelAddress.componentId === this.component.id) {
-                            thisComponent[channelAddress.channelId] = currentData.channel[ca];
-                        }
+                    // get the channel addresses that should be subscribed
+                    let channelAddresses: ChannelAddress[] = this.getChannelAddresses();
+                    let channelIds = this.getChannelIds();
+                    for (let channelId of channelIds) {
+                        channelAddresses.push(new ChannelAddress(this.component.id, channelId));
                     }
-                    this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
-                });
+                    if (channelAddresses.length != 0) {
+                        this.edge.subscribeChannels(this.websocket, this.selector, channelAddresses);
+                    }
+
+                    // call onCurrentData() with latest data
+                    edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
+                        let allComponents = {};
+                        let thisComponent = {};
+                        for (let channelAddress of channelAddresses) {
+                            let ca = channelAddress.toString();
+                            allComponents[ca] = currentData.channel[ca];
+                            if (channelAddress.componentId === this.component.id) {
+                                thisComponent[channelAddress.channelId] = currentData.channel[ca];
+                            }
+                        }
+                        this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
+                    });
+                }
             });
         });
     };
