@@ -47,6 +47,24 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 		this(id, new DummyPower(MAX_APPARENT_POWER));
 	}
 
+	public DummyManagedSymmetricEss setMaxApparentPower(Integer value) {
+		this._setMaxApparentPower(value);
+		this.getMaxApparentPowerChannel().nextProcessImage();
+		return this;
+	}
+
+	public DummyManagedSymmetricEss setGridMode(GridMode gridMode) {
+		this._setGridMode(gridMode);
+		this.getGridModeChannel().nextProcessImage();
+		return this;
+	}
+
+	public DummyManagedSymmetricEss setSoc(int soc) {
+		this._setSoc(soc);
+		this.getSocChannel().nextProcessImage();
+		return this;
+	}
+
 	@Override
 	public Power getPower() {
 		return this.power;

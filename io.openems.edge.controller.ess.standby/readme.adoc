@@ -1,0 +1,11 @@
+= ESS Standby
+
+Regularly checks the functionality of an ESS once per week while being in Standby mode.
+
+Use-Case::
+  In projects with Hochlastzeitfenster (HLZF) the storage system might not be used for some weeks or months. In these periods it is required to make a regular check of the system and to calibrate the battery. This controller automates this function.
+
+Scheduling::
+  The controller is supposed to be configured to run with less priority than "LimitTotalDischarge", "BatteryHandling",... and higher priority than "HLZF", "Balancing", "Peak-Shaving",...
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.standby[Source Code icon:github[]]
