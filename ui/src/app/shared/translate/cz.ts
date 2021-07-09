@@ -20,6 +20,7 @@ export const TRANSLATION = {
         currentValue: 'Aktuální hodnota',
         dateFormat: 'dd.MM.yyyy', // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         digitalInputs: 'Digitální vstupy',
+        numberOfComponents: 'Počet komponentů',
         directConsumption: 'Přímá spotřeba',
         dischargePower: 'Vybíjecí výkon',
         fault: 'Chyba',
@@ -89,21 +90,27 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'About FEMS',
+        accessLevel: 'Úroveň přístupu',
         edgeSettings: 'FEMS Předvolby',
         generalSettings: 'Obecné Nastavení',
         index: 'Přehled',
         logout: 'Odhlásit',
         menu: 'Menu',
+        name: 'Název',
         overview: 'FEMS Přehled',
         settings: 'nastavení',
         user: 'Uživatel',
     },
     Index: {
         allConnected: 'Všechna připojení aktivní.',
+        connectionInProgress: 'Navázání spojení...',
         connectionFailed: 'Připojení k {{value}} selhalo.', // value = name of websocket
         connectionSuccessful: 'Úspěšně připojeno k {{value}}.', // value = name of websocket
+        deviceOffline: 'Zařízení není připojeno!',
         isOffline: 'OpenEMS je ve stavu offline!',
+        loggedInAs: 'Registrováno jako:',
         toEnergymonitor: 'Do Monitoringu energetických toků…',
+        type: 'Typ:'
     },
     Edge: {
         Index: {
@@ -122,8 +129,9 @@ export const TRANSLATION = {
                 autarchyInfo: 'Autarky označuje procento aktuální energie, kterou lze pokrýt vybitím z výroby a skladování.',
                 phasesInfo: 'Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.',
                 selfconsumptionInfo: 'Vlastní spotřeba označuje procento aktuálně generovaného výstupu, který lze použít přímou spotřebou a samotným zatížením úložiště.',
-                twoWayInfoGrid: 'Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug',
-                twoWayInfoStorage: 'Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung',
+                twoWayInfoGrid: 'Záporné hodnoty odpovídají dodávkám ze sítě, Kladné hodnoty odpovídají napájení ze sítě',
+                InfoStorageForCharge: 'Záporné hodnoty odpovídají zatížení paměti',
+                InfoStorageForDischarge: 'Kladné hodnoty odpovídají vybití paměti',
                 Channeltreshold: {
                     output: 'Výstup'
                 },

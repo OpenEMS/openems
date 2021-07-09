@@ -20,6 +20,7 @@ export const TRANSLATION = {
         currentValue: 'current value',
         dateFormat: 'yyyy-MM-dd', // e.g. German: dd.MM.yyyy (dd = Day, MM = Month, yyyy = Year)
         digitalInputs: 'Digital Inputs',
+        numberOfComponents: 'Number of Components',
         directConsumption: 'Direct consumption',
         dischargePower: 'Discharge power',
         fault: 'Fault',
@@ -90,11 +91,13 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'About FEMS',
+        accessLevel: 'Access Level',
         edgeSettings: 'FEMS Settings',
         generalSettings: 'General Settings',
         index: 'Index',
         logout: 'Sign Out',
         menu: 'Menu',
+        name: 'Name',
         overview: 'All Systems',
         settings: 'Settings',
         user: 'User',
@@ -104,8 +107,11 @@ export const TRANSLATION = {
         connectionInProgress: 'Establishing connection...',
         connectionFailed: 'Connection to {{value}} failed.', // value = name of websocket
         connectionSuccessful: 'Successfully connected to {{value}}.', // value = name of websocket
+        deviceOffline: 'The device is not connected!',
         isOffline: 'OpenEMS is offline!',
+        loggedInAs: 'Logged in as:',
         toEnergymonitor: 'To Energymonitor...',
+        type: 'Type:'
     },
     Login: {
         title: "Login",
@@ -132,8 +138,9 @@ export const TRANSLATION = {
                 autarchyInfo: 'Autarky indicates the percentage of current power that can be covered by generation and storage discharge.',
                 phasesInfo: 'For technical reasons, the sum of the individual phases can be slightly different from the total sum.',
                 selfconsumptionInfo: 'Self-consumption indicates the percentage of the currently generated output that can be used by direct consumption and storage load itself.',
-                twoWayInfoGrid: 'Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug',
-                twoWayInfoStorage: 'Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung',
+                twoWayInfoGrid: 'Negative values correspond to grid feed-in, Positive values correspond to mains supply',
+                InfoStorageForCharge: 'Negative values correspond to memory loading',
+                InfoStorageForDischarge: 'Positive values correspond to memory discharge',
                 Channeltreshold: {
                     output: 'Output'
                 },
