@@ -1,0 +1,1 @@
+cmd: "docker build -t stromdao/openems-backend .;docker push stromdao/openems-backend"
