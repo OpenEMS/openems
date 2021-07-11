@@ -14,8 +14,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
 	String alias() default "";
 
-	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
+	@AttributeDefinition(name = "Enabled", description = "Enable Component")
 	boolean enabled() default true;
+	
+	@AttributeDefinition(name = "Read DataOut Initially", description = "Init Outputs with state from hardware initially")
+	boolean initOutputFromHardware() default true;
 
 	String webconsole_configurationFactory_nameHint() default "IO RevolutionPi DigitalIO Board [{id}]";
 
