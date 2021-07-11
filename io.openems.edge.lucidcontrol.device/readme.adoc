@@ -1,0 +1,13 @@
+== LucidControlDevice In/Output
+
+This Bundle Provides the LucidControl Device, connected to a Module. Usually it's used to measure
+Pressure by reading a Voltage input. Otherwise, you can set an output as a percentValue that will be set into the Device.
+
+The created In- or OutputTask will be handled by the LucidControl Bridge.
+
+Implemented Natures::
+
+- LucidControlDeviceInput
+- LucidControlDeviceOutput
+
+

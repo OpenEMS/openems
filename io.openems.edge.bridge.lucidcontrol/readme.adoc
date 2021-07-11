@@ -1,0 +1,11 @@
+== LucidControlBridge
+
+This Bridge provides the Communication with LucidControl Modules, and it's Devices.
+It handles the tasks of the LucidControlDevices and Reads/Writes the values and set a response to those tasks.
+
+    Note::
+
+- This Bridge only works with the Linux OS due to a shell command execution.
+- You need to download the LucidControlSoftware here: https://www.lucid-control.com/downloads/[Source Code icon:Lucid-Control[]]
+
+- Order of activation/configuration: Bridge->Module->Devices
