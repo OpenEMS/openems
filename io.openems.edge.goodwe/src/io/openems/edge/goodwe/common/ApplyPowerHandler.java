@@ -1,12 +1,12 @@
 package io.openems.edge.goodwe.common;
 
-import java.time.Instant;
 import java.util.Objects;
-import java.util.TreeSet;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.power.api.Constraint;
@@ -15,15 +15,15 @@ import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 
 public class ApplyPowerHandler {
 
-	private final static int CHANGE_EMS_POWER_MODE_AFTER_CYCLES = 10;
-	private final static int MIN_WATCH_PERIOD = 2; // seconds
-	private final static int MAX_WATCH_PERIOD = 100; // seconds
-	private int watchPeriodForEmsPowerModeChanges = 10; // seconds
-	private final TreeSet<Instant> emsPowerModeChanges = new TreeSet<>();
+	private final static int awaitingHysteresisForEmsPowerModeChange = 10;
+//	private final static int MIN_WATCH_PERIOD = 2; // seconds
+//	private final static int MAX_WATCH_PERIOD = 100; // seconds
+//	private int watchPeriodForEmsPowerModeChanges = 10; // seconds
+//	private final TreeSet<Instant> emsPowerModeChanges = new TreeSet<>();
 
 //
 	private EmsPowerMode lastEmsPowerMode = EmsPowerMode.UNDEFINED;
-	private int changeEmsPowerModeCounter = CHANGE_EMS_POWER_MODE_AFTER_CYCLES;
+	private int changeEmsPowerModeCounter = awaitingHysteresisForEmsPowerModeChange;
 //	private Instant lastChangeEmsPowerMode = Instant.MIN;
 
 	/**
@@ -65,7 +65,7 @@ public class ApplyPowerHandler {
 			// Keep EMS-Power-Mode and -Set
 			this.changeEmsPowerModeCounter = 0;
 
-		} else if (++this.changeEmsPowerModeCounter >= CHANGE_EMS_POWER_MODE_AFTER_CYCLES) {
+		} else if (++this.changeEmsPowerModeCounter >= awaitingHysteresisForEmsPowerModeChange) {
 			// Apply new EMS-Power-Mode
 			this.changeEmsPowerModeCounter = 0;
 			System.out.println(
@@ -101,6 +101,8 @@ public class ApplyPowerHandler {
 
 	private static ApplyPowerHandler.Result calculate(AbstractGoodWe goodWe, boolean readOnlyMode,
 			int activePowerSetPoint, int pvProduction, ApplyPowerContext context) {
+		IntegerReadChannel wbmsSocChannel = goodWe.channel(GoodWe.ChannelId.WBMS_SOC);
+		Value<?> wbmsSoc = wbmsSocChannel.value();
 		if (readOnlyMode) {
 			// Read-Only
 			return new Result(EmsPowerMode.AUTO, 0);
@@ -115,22 +117,17 @@ public class ApplyPowerHandler {
 					// Only consider runtime Constraints, provided by a Controller via
 					// SetActivePowerGreaterOrEquals.
 					minPowerConstraint = TypeUtils.min((int) Math.round(constraint.getValue().get()),
-							maxPowerConstraint);
-//					System.out.println("-minPowerConstraint [" + minPowerConstraint + "] Constraint: " + constraint);
+							minPowerConstraint);
 				}
+
 				if (constraint.getRelationship() == Relationship.LESS_OR_EQUALS && constraint.getValue().isPresent()
 						&& constraint.getDescription().contains("[SetActivePowerLessOrEquals]")) {
 					// Only consider runtime Constraints, provided by a Controller via
 					// SetActivePowerLessOrEquals.
 					maxPowerConstraint = TypeUtils.min((int) Math.round(constraint.getValue().get()),
 							maxPowerConstraint);
-//					System.out.println("-maxPowerConstraint [" + maxPowerConstraint + "] Constraint: " + constraint);
 				}
 			}
-
-//			System.out.println("actual setpoint [" + activePowerSetPoint + "] minPowerConstraint [" + minPowerConstraint
-//					+ "] maxPowerConstraint [" + maxPowerConstraint + "] surpluspower [" + goodWe.getSurplusPower()
-//					+ "] pvProduction [" + pvProduction + "]");
 
 			// maxPowerConstraint: Limitierung Netzeinspeisung
 			// minPowerConstraint: surplus feed-in ist aktiviert
@@ -159,6 +156,11 @@ public class ApplyPowerHandler {
 						+ activePowerSetPoint + "] less than PV [" + pvProduction + "]");
 				return new Result(EmsPowerMode.CHARGE_BAT, pvProduction - activePowerSetPoint);
 
+			} else if (Objects.equals(wbmsSoc.get(), 0)) {
+				// Set-Point is positive && battery has 0 percent SOC
+				// Avoid Battery Force Charge
+				System.out.println("CHARGE_BAT [" + 0 + "] Set-Point [" + 0 + "] | Avoid Battery Force-Charge ");
+				return new Result(EmsPowerMode.CHARGE_BAT, 0);
 			} else {
 				// Set-Point is positive && less than PV-Production -> feed PV partly to grid +
 				// charge battery
@@ -182,18 +184,14 @@ public class ApplyPowerHandler {
 					+ activePowerSetPoint + "] PV [" + pvProduction + "]");
 			return new Result(EmsPowerMode.CHARGE_BAT, activePowerSetPoint * -1 + pvProduction);
 
-//			System.out.println("IMPORT_AC [" + (activePowerSetPoint * -1) + "]");
-//			// Import from AC
-//			return new Result(EmsPowerMode.IMPORT_AC, activePowerSetPoint * -1);
-
 		} else { // activePowerSetPoint == 0
-//			if (pvProduction == 0) {
-//				// Stop inverter to reduce power; 
-//				System.out.println("STOPPED [0]");
-//				return new Result(EmsPowerMode.STOPPED, 0);
-//				// TODO consequences for Off-Grid?
+			// if (pvProduction == 0) {
+			//// Stop inverter to reduce power;
+			// System.out.println("STOPPED [0]");
+			// return new Result(EmsPowerMode.STOPPED, 0);
+			//// TODO consequences for Off-Grid?
 			// TODO disabled for now, because STOPPED also stops the PV
-//			} else {
+			// } else {
 
 			// IMPORT_AC seems to not curtail PV...
 

@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.OptionsEnum;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
@@ -41,6 +42,8 @@ import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
+import io.openems.edge.goodwe.common.enums.EnableCurve;
+import io.openems.edge.goodwe.common.enums.FixedPowerFactor;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -87,22 +90,20 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
 		}
-		this.config = config;
+		this.applyConfig(config);
 	}
 
 	@Modified
 	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
-		this.config = config;
 		if (super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
 		}
-		this.config = config;
+		this.applyConfig(config);
 	}
 
 	@Deactivate
@@ -131,10 +132,200 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	}
 
 	/**
+	 * Apply the configuration on Activate and Modified.
+	 * 
+	 * <p>
+	 * Feed In Power Setting consist of: Installed inverter country, feeding method:
+	 * whether according to the power factor or power and frequency. In addition, it
+	 * consist backup power availability.
+	 * 
+	 * @param config Configuration parameters.
+	 * @throws OpenemsNamedException on error
+	 */
+	private void applyConfig(Config config) throws OpenemsNamedException {
+		this.config = config;
+
+		/**
+		 * Should be always set to general mode
+		 * <ul>
+		 * <li>0x00: General Mode: Self use
+		 * <li>0x01: Off-grid Mode
+		 * <li>0x02: Backup Mode
+		 * <li>0x03: Economic Mode
+		 * </ul>
+		 */
+		this.writeToChannel(GoodWe.ChannelId.SELECT_WORK_MODE, 0);
+
+		// country setting
+		this.writeToChannel(GoodWe.ChannelId.SAFETY_COUNTRY_CODE, config.safetyCountry());
+
+		// Backup Power on / off
+		this.writeToChannel(GoodWe.ChannelId.BACK_UP_ENABLE, config.backupEnable());
+
+		// Feed-in limitation on / off
+		this.writeToChannel(GoodWe.ChannelId.FEED_POWER_ENABLE, config.feedPowerEnable());
+
+		// Feed-in limitation
+		this.writeToChannel(GoodWe.ChannelId.FEED_POWER_PARA, config.feedPowerPara());
+
+		// Set to feed in power settings to default
+		this.writeToChannel(GoodWe.ChannelId.ENABLE_CURVE_QU, EnableCurve.DISABLE);
+		this.writeToChannel(GoodWe.ChannelId.ENABLE_CURVE_PU, EnableCurve.DISABLE);
+
+		// Feed-in settings
+		switch (config.setfeedInPowerSettings()) {
+		case QU_ENABLE_CURVE:
+			this.writeToChannel(GoodWe.ChannelId.LOCK_IN_POWER_QU, 200);
+			this.writeToChannel(GoodWe.ChannelId.LOCK_OUT_POWER_QU, 50);
+			this.writeToChannel(GoodWe.ChannelId.V1_VOLTAGE, 214);
+			this.writeToChannel(GoodWe.ChannelId.V1_VALUE, 436);
+			this.writeToChannel(GoodWe.ChannelId.V2_VOLTAGE, 223);
+			this.writeToChannel(GoodWe.ChannelId.V2_VALUE, 0);
+			this.writeToChannel(GoodWe.ChannelId.V3_VOLTAGE, 237);
+			this.writeToChannel(GoodWe.ChannelId.V3_VALUE, 0);
+			this.writeToChannel(GoodWe.ChannelId.V4_VOLTAGE, 247);
+			this.writeToChannel(GoodWe.ChannelId.V4_VALUE, 65009);
+			break;
+		case PU_ENABLE_CURVE:
+			this.writeToChannel(GoodWe.ChannelId.POINT_A_VALUE, 2000);
+			this.writeToChannel(GoodWe.ChannelId.POINT_A_PF, 0);
+			this.writeToChannel(GoodWe.ChannelId.POINT_B_VALUE, 2000);
+			this.writeToChannel(GoodWe.ChannelId.POINT_B_PF, 0);
+			this.writeToChannel(GoodWe.ChannelId.POINT_C_VALUE, 2000);
+			this.writeToChannel(GoodWe.ChannelId.POINT_C_PF, 0);
+			break;
+		case LAGGING_0_80:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_80);
+			break;
+		case LAGGING_0_81:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_81);
+			break;
+		case LAGGING_0_82:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_82);
+			break;
+		case LAGGING_0_83:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_83);
+			break;
+		case LAGGING_0_84:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_84);
+			break;
+		case LAGGING_0_85:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_85);
+			break;
+		case LAGGING_0_86:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_86);
+			break;
+		case LAGGING_0_87:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_87);
+			break;
+		case LAGGING_0_88:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_88);
+			break;
+		case LAGGING_0_89:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_89);
+			break;
+		case LAGGING_0_90:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_90);
+			break;
+		case LAGGING_0_91:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_91);
+			break;
+		case LAGGING_0_92:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_92);
+			break;
+		case LAGGING_0_93:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_93);
+			break;
+		case LAGGING_0_94:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_94);
+			break;
+		case LAGGING_0_95:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_95);
+			break;
+		case LAGGING_0_96:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_96);
+			break;
+		case LAGGING_0_97:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_97);
+			break;
+		case LAGGING_0_98:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_98);
+			break;
+		case LAGGING_0_99:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_99);
+			break;
+		case LEADING_0_80:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_80);
+			break;
+		case LEADING_0_81:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_81);
+			break;
+		case LEADING_0_82:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_82);
+			break;
+		case LEADING_0_83:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_83);
+			break;
+		case LEADING_0_84:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_84);
+			break;
+		case LEADING_0_85:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_85);
+			break;
+		case LEADING_0_86:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_86);
+			break;
+		case LEADING_0_87:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_87);
+			break;
+		case LEADING_0_88:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_88);
+			break;
+		case LEADING_0_89:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_89);
+			break;
+		case LEADING_0_90:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_90);
+			break;
+		case LEADING_0_91:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_91);
+			break;
+		case LEADING_0_92:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_92);
+			break;
+		case LEADING_0_93:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_93);
+			break;
+		case LEADING_0_94:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_94);
+			break;
+		case LEADING_0_95:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_95);
+			break;
+		case LEADING_0_96:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_96);
+			break;
+		case LEADING_0_97:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_97);
+			break;
+		case LEADING_0_98:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_98);
+			break;
+		case LEADING_0_99:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_99);
+			break;
+		case LEADING_1:
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_1);
+			break;
+		case UNDEFINED:
+			break;
+		}
+	}
+
+	/**
 	 * Sets the Battery Limits.
 	 * 
-	 * @param battery           the linked {@link Battery}
-	 * @param setDischargePower
+	 * @param battery linked {@link Battery}.
 	 * @throws OpenemsNamedException on error
 	 */
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
@@ -179,7 +370,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 //				|| (bmsOfflineSocUnderMin.isDefined()
 //						&& !Objects.equals(bmsOfflineSocUnderMin.get(), setOfflineSocUnderMin))
-//				|| (bmsChargeMaxVoltage.isDefined() && !Objects.equals(bmsChargeMaxVoltage.get(), setChargeMaxVoltage))
+		// || (bmsChargeMaxVoltage.isDefined() &&
+		// !Objects.equals(bmsChargeMaxVoltage.get(), setChargeMaxVoltage))
 //				|| (bmsDischargeMinVoltage.isDefined()
 //						&& !Objects.equals(bmsDischargeMinVoltage.get(), setDischargeMinVoltage))
 		// TODO: it is not clear to me, why ChargeMaxVoltage is set to 250 but
@@ -243,6 +435,12 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		Integer value = v.get();
 		value = TypeUtils.fitWithin(0, MAX_DC_CURRENT, value);
 		return value;
+	}
+
+	private void writeToChannel(GoodWe.ChannelId channelId, OptionsEnum value)
+			throws IllegalArgumentException, OpenemsNamedException {
+		EnumWriteChannel channel = this.channel(channelId);
+		channel.setNextWriteValue(value);
 	}
 
 	private void writeToChannel(GoodWe.ChannelId channelId, Integer value)

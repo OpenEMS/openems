@@ -104,7 +104,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 	@Override
 	public void applyPower(int activePower, int reactivePower, ApplyPowerContext context) throws OpenemsNamedException {
 		// Apply Power Set-Point
-		this.applyPowerHandler.apply(this, config.readOnlyMode(), activePower, context);
+		this.applyPowerHandler.apply(this, this.config.readOnlyMode(), activePower, context);
 	}
 
 	@Override

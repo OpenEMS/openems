@@ -2,15 +2,18 @@ package io.openems.edge.goodwe.common.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum BackupEnable implements OptionsEnum {
+public enum FeedPowerEnable implements OptionsEnum {
+
+	// TODO Is 0 disables or enables, likewise 1 disables or enables
+
 	UNDEFINED(-1, "Undefined"), //
-	DISABLE(0, "Backup output Off"), //
-	ENABLE(1, "Backup output On");//
+	DISABLE(0, "Feed Power Disable"), //
+	ENABLE(1, "Feed Power Enable");//
 
 	private final int value;
 	private final String option;
 
-	private BackupEnable(int value, String option) {
+	private FeedPowerEnable(int value, String option) {
 		this.value = value;
 		this.option = option;
 	}

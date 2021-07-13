@@ -2,15 +2,16 @@ package io.openems.edge.goodwe.common.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum BackupEnable implements OptionsEnum {
+public enum EnableCurve implements OptionsEnum {
+
 	UNDEFINED(-1, "Undefined"), //
-	DISABLE(0, "Backup output Off"), //
-	ENABLE(1, "Backup output On");//
+	DISABLE(0, "Feed Power Disable"), //
+	ENABLE(1, "Feed Power Enable");//
 
 	private final int value;
 	private final String option;
 
-	private BackupEnable(int value, String option) {
+	private EnableCurve(int value, String option) {
 		this.value = value;
 		this.option = option;
 	}

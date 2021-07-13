@@ -44,8 +44,7 @@ public enum FixedPowerFactor implements OptionsEnum {
 	LEADING_0_97(97, "0.97 leading"), //
 	LEADING_0_98(98, "0.98 leading"), //
 	LEADING_0_99(99, "0.99 leading"), //
-	LEADING_1(100, "1 leading"), //
-	ON(1, "Backup output On");//
+	LEADING_1(100, "1 leading");
 
 	private final int value;
 	private final String option;
