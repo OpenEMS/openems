@@ -1,5 +1,9 @@
 package io.openems.edge.controller.api.mqtt;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import java.nio.charset.StandardCharsets;
 
 import org.eclipse.paho.mqttv5.client.IMqttClient;
@@ -51,6 +55,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 
 	protected Config config;
 	private String topicPrefix;
+	private Pattern[] filterList;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -71,6 +76,18 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	@Activate
 	void activate(ComponentContext context, Config config) throws Exception {
 		this.config = config;
+
+		// Expand the filterSpec to the filterList
+		String[] buildList = config.filterSpec().split(";");
+		filterList = new Pattern[buildList.length];
+		for( int i=0; i<buildList.length; i++ ){
+			try {
+				filterList[i] = Pattern.compile( "^" +buildList[i].replace("+", "[^/]+").replace( "#", ".+" ) + "$" );
+			} catch( PatternSyntaxException e ) {
+				this.logWarn(this.log, "Unable to parse filter pattern: '" +buildList[i]+ "'" );
+				e.printStackTrace();
+			}
+		}
 
 		// Publish MQTT messages under the topic "edge/edge0/..."
 		this.topicPrefix = String.format(MqttApiController.TOPIC_PREFIX, config.clientId());
@@ -141,7 +158,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	 * @param subTopic the MQTT topic. The global MQTT Topic prefix is added in
 	 *                 front of this string
 	 * @param message  the message
-	 * @return true if message was successfully published; false otherwise
+	 * @return true if message was successfully published (or filtered); false otherwise
 	 */
 	protected boolean publish(String subTopic, MqttMessage message) {
 		IMqttClient mqttClient = this.mqttClient;
@@ -149,12 +166,28 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 			return false;
 		}
 		try {
-			mqttClient.publish(this.topicPrefix + subTopic, message);
+			if( filterTopic( this.topicPrefix + subTopic ) )
+				mqttClient.publish(this.topicPrefix + subTopic, message);
 			return true;
 		} catch (MqttException e) {
 			this.logWarn(this.log, e.getMessage());
 			return false;
 		}
+	}
+
+	protected boolean filterTopic( String topic ) {
+
+		// Skip any attempts to check for empty filters
+		if( this.filterList.length == 0 )
+			return true;
+		
+		// Otherwise filter by each regex until we either run out of patterns, or find a matching one
+		for (Pattern pattern : filterList) {
+			Matcher m = pattern.matcher( topic );
+			if( m.matches() )
+				return true;
+		}
+		return false;
 	}
 
 	/**
