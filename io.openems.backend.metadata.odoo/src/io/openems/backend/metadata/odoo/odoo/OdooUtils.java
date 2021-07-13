@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
@@ -428,25 +429,42 @@ public class OdooUtils {
 	 * @param credentials the Odoo credentials
 	 * @param model       the Oddo model
 	 * @param fieldValues fields and values that should be written
+	 * @return Odoo id of created record
 	 * @throws OpenemsException on error
 	 */
-	protected static void create(Credentials credentials, String model, FieldValue<?>... fieldValues)
+	protected static int create(Credentials credentials, String model, FieldValue<?>... fieldValues)
 			throws OpenemsException {
-		String action = "create";
-
 		Map<String, Object> paramsFieldValues = new HashMap<>();
 		for (FieldValue<?> fieldValue : fieldValues) {
 			paramsFieldValues.put(fieldValue.getField().id(), fieldValue.getValue());
 		}
 
+		return create(credentials, model, paramsFieldValues);
+	}
+
+	/**
+	 * Create a record in Odoo.
+	 * 
+	 * @param credentials the Odoo credentials
+	 * @param model       the Oddo model
+	 * @param fieldValues fields and values that should be written
+	 * @return Odoo id of created record
+	 * @throws OpenemsException on error
+	 */
+	protected static int create(Credentials credentials, String model, Map<String, Object> fieldValues)
+			throws OpenemsException {
+		String action = "create";
+
 		Object[] params = new Object[] { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(),
-				model, action, new Object[] { paramsFieldValues } };
+				model, action, new Object[] { fieldValues } };
 
 		try {
 			Object resultObj = (Object) executeKw(credentials.getUrl(), params);
 			if (resultObj == null) {
 				throw new OpenemsException("Not created.");
 			}
+
+			return OdooUtils.getAsInteger(resultObj);
 		} catch (Throwable e) {
 			throw new OpenemsException("Unable to write to Odoo: " + e.getMessage());
 		}
@@ -474,16 +492,32 @@ public class OdooUtils {
 		// }
 		// System.out.println(b.toString());
 
-		// Create request params
-		String action = "write";
 		// Add fieldValues
 		Map<String, Object> paramsFieldValues = new HashMap<>();
 		for (FieldValue<?> fieldValue : fieldValues) {
 			paramsFieldValues.put(fieldValue.getField().id(), fieldValue.getValue());
 		}
+
+		write(credentials, model, ids, paramsFieldValues);
+	}
+
+	/**
+	 * Update a record in Odoo.
+	 * 
+	 * @param credentials the Odoo credentials
+	 * @param model       the Odoo model
+	 * @param ids         ids of model to update
+	 * @param fieldValues fields and values that should be written
+	 * @throws OpenemsException on error
+	 */
+	protected static void write(Credentials credentials, String model, Integer[] ids, Map<String, Object> fieldValues)
+			throws OpenemsException {
+		// Create request params
+		String action = "write";
+
 		// Create request params
 		Object[] params = new Object[] { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(),
-				model, action, new Object[] { ids, paramsFieldValues } };
+				model, action, new Object[] { ids, fieldValues } };
 		try {
 			// Execute XML request
 			Boolean resultObj = (Boolean) executeKw(credentials.getUrl(), params);
@@ -521,6 +555,25 @@ public class OdooUtils {
 		} else {
 			return null;
 		}
+	}
+
+	/**
+	 * Return the odoo reference id as a {@link Integer}, otherwise empty
+	 * {@link Optional}.
+	 * 
+	 * @param object the odoo reference to extract
+	 * @return the odoo reference id or empty {@link Optional}
+	 */
+	protected static Optional<Integer> getOdooRefernceId(Object object) {
+		if (object != null && object instanceof Object[]) {
+			Object[] odooRefernce = (Object[]) object;
+
+			if (odooRefernce[0] != null && odooRefernce[0] instanceof Integer) {
+				return Optional.of((Integer) odooRefernce[0]);
+			}
+		}
+
+		return Optional.empty();
 	}
 
 }

@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.osgi.annotation.versioning.ProviderType;
 
 import com.google.common.collect.HashMultimap;
+import com.google.gson.JsonObject;
 
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
@@ -222,5 +223,33 @@ public interface Metadata {
 		}
 		return result.toString();
 	}
+
+	/**
+	 * Gets information about the given user {@link User}.
+	 * 
+	 * @param user {@link User} to read information
+	 * @return {@link Map} about the user
+	 * @throws OpenemsNamedException on error
+	 */
+	public Map<String, Object> getUserInformation(User user) throws OpenemsNamedException;
+
+	/**
+	 * Update the given user {@link User} with new information {@link JsonObject}.
+	 * 
+	 * @param user       {@link User} to update
+	 * @param jsonObject {@link JsonObject} information about the user
+	 * @throws OpenemsNamedException on error
+	 */
+	public void setUserInformation(User user, JsonObject jsonObject) throws OpenemsNamedException;
+
+	/**
+	 * Submit the installation assistant protocol.
+	 * 
+	 * @param user       {@link User} the current user
+	 * @param jsonObject {@link JsonObject} the setup protocol
+	 * @return id of created setup protocol
+	 * @throws OpenemsNamedException on error
+	 */
+	public int submitSetupProtocol(User user, JsonObject jsonObject) throws OpenemsNamedException;
 
 }
