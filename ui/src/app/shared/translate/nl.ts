@@ -18,6 +18,7 @@ export const TRANSLATION = {
         currentValue: 'Huidige waarde',
         dateFormat: 'dd-MM-yyyy', // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         digitalInputs: 'Digitale Ingangen',
+        numberOfComponents: 'aantal componenten',
         directConsumption: 'Directe consumptie',
         dischargePower: 'Ontlaad vermogen',
         fault: 'Fout',
@@ -84,21 +85,27 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'Over FEMS',
+        accessLevel: 'Toegangsniveau',
         edgeSettings: 'FEMS instellingen',
         generalSettings: 'Algemene instellingen',
         index: 'Overzicht',
         logout: 'Uitloggen',
         menu: 'Menu',
+        name: 'Naam',
         overview: 'FEMS overzicht',
         settings: 'Instellingen',
         user: 'Gebruiker',
     },
     Index: {
         allConnected: 'Alle verbindingen gemaakt.',
+        connectionInProgress: 'Verbinding tot stand brengen...',
         connectionFailed: 'Verbinding met {{ value } } mislukt.', // (value = Name vom Websocket)
         connectionSuccessful: 'Succesvol verbonden met {{value }}.', // (value = Name vom Websocket)
+        deviceOffline: 'Het apparaat is niet aangesloten!',
         isOffline: 'OpenEMS is offline!',
+        loggedInAs: 'Geregistreerd als:',
         toEnergymonitor: 'Naar Energiemonitor...',
+        type: 'Type:'
     },
     Edge: {
         Index: {
@@ -115,8 +122,9 @@ export const TRANSLATION = {
                 autarchyInfo: 'Autarky geeft het percentage huidig ​​vermogen aan dat kan worden gedekt door opwekking en ontlading van de opslag.',
                 phasesInfo: 'De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.',
                 selfconsumptionInfo: 'Eigen verbruik geeft het percentage van de momenteel gegenereerde uitvoer aan dat kan worden gebruikt door direct verbruik en opslagbelasting zelf.',
-                twoWayInfoGrid: 'Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug',
-                twoWayInfoStorage: 'Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung',
+                twoWayInfoGrid: 'Negatieve waarden komen overeen met netinvoeding, Positieve waarden komen overeen met netvoeding',
+                InfoStorageForCharge: 'Negatieve waarden komen overeen met het laden van geheugen',
+                InfoStorageForDischarge: 'Positieve waarden komen overeen met geheugenontlading',
                 Channeltreshold: {
                     output: 'uitgang'
                 },
@@ -367,6 +375,7 @@ export const TRANSLATION = {
         developed: "Deze gebruikersinterface is ontwikkeld als open-source-software.",
         faq: "Veel Gestelde Vragen (FAQ)",
         language: "Selecteer taal: ",
+        openEMS: "Meer over OpenEMS",
         patchnotes: "Veranderingen in de monitoring voor deze build",
         sourcecode: "Broncode",
         ui: "Gebruikersinterface voor FEMS",

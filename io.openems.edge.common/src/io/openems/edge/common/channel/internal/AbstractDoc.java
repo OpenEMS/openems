@@ -1,6 +1,7 @@
 package io.openems.edge.common.channel.internal;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
@@ -135,7 +136,11 @@ public abstract class AbstractDoc<T> implements Doc {
 	private Object source = null;
 
 	@Override
-	public <SOURCE> AbstractDoc<T> source(SOURCE source) {
+	public <SOURCE> AbstractDoc<T> source(SOURCE source) throws IllegalArgumentException {
+		if (this.source != null && source != null && !Objects.equals(this.source, source)) {
+			throw new IllegalArgumentException("Unable to set source [" + source.toString()
+					+ "]. Channel already has a source [" + this.source.toString() + "]");
+		}
 		this.source = source;
 		return this.self();
 	}

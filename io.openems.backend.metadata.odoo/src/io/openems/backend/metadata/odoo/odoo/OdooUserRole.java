@@ -1,4 +1,4 @@
-package io.openems.backend.metadata.odoo;
+package io.openems.backend.metadata.odoo.odoo;
 
 public enum OdooUserRole {
 
@@ -8,13 +8,13 @@ public enum OdooUserRole {
 	GUEST("guest");
 
 	private final String odooRole;
-	
+
 	OdooUserRole(String odooRole) {
 		this.odooRole = odooRole;
 	}
-	
+
 	public String getOdooRole() {
-		return odooRole;
+		return this.odooRole;
 	}
 
 }

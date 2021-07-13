@@ -19,12 +19,15 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
+
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Role;
@@ -170,8 +173,22 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 
 	@Override
 	public void addEdgeToUser(User user, Edge edge) throws OpenemsNamedException {
-		// Metadata.Dummy only used for local development
-		return;
+		throw new NotImplementedException("DummyMetadata.addEdgeToUser()");
+	}
+
+	@Override
+	public Map<String, Object> getUserInformation(User user) throws OpenemsNamedException {
+		throw new NotImplementedException("DummyMetadata.getUserInformation()");
+	}
+
+	@Override
+	public void setUserInformation(User user, JsonObject jsonObject) throws OpenemsNamedException {
+		throw new NotImplementedException("DummyMetadata.setUserInformation()");
+	}
+
+	@Override
+	public int submitSetupProtocol(User user, JsonObject jsonObject) {
+		throw new IllegalArgumentException("DummyMetadata.submitSetupProtocol() is not implemented");
 	}
 
 }

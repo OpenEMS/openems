@@ -142,8 +142,10 @@ public interface Doc {
 	 * @param <SOURCE> the type of the source attachment
 	 * @param source   the source object
 	 * @return myself
+	 * @throws IllegalArgumentException if there is already a source registered with
+	 *                                  the Channel
 	 */
-	public <SOURCE> Doc source(SOURCE source);
+	public <SOURCE> Doc source(SOURCE source) throws IllegalArgumentException;
 
 	/**
 	 * Gets the source information object. Defaults to empty String.

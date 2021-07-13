@@ -1,5 +1,6 @@
 package io.openems.backend.uiwebsocket.impl;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -8,8 +9,14 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
+
 import io.openems.backend.common.jsonrpc.request.AddEdgeToUserRequest;
+import io.openems.backend.common.jsonrpc.request.GetUserInformationRequest;
+import io.openems.backend.common.jsonrpc.request.SetUserInformationRequest;
+import io.openems.backend.common.jsonrpc.request.SubmitSetupProtocolRequest;
 import io.openems.backend.common.jsonrpc.response.AddEdgeToUserResponse;
+import io.openems.backend.common.jsonrpc.response.GetUserInformationResponse;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
@@ -26,6 +33,7 @@ import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticateResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.session.Role;
+import io.openems.common.utils.JsonUtils;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
@@ -58,13 +66,20 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case LogoutRequest.METHOD:
 			result = this.handleLogoutRequest(wsData, user, LogoutRequest.from(request));
 			break;
-
 		case EdgeRpcRequest.METHOD:
 			result = this.handleEdgeRpcRequest(wsData, user, EdgeRpcRequest.from(request));
 			break;
-
 		case AddEdgeToUserRequest.METHOD:
 			result = this.handleAddEdgeToUserRequest(user, AddEdgeToUserRequest.from(request));
+			break;
+		case GetUserInformationRequest.METHOD:
+			result = this.handleGetUserInformationRequest(user, GetUserInformationRequest.from(request));
+			break;
+		case SetUserInformationRequest.METHOD:
+			result = this.handleSetUserInformationRequest(user, SetUserInformationRequest.from(request));
+			break;
+		case SubmitSetupProtocolRequest.METHOD:
+			result = this.handleSubmitSetupProtocolRequest(user, SubmitSetupProtocolRequest.from(request));
 			break;
 		}
 
@@ -170,7 +185,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles an EdgeRpcRequest.
+	 * Handles an {@link EdgeRpcRequest}.
 	 * 
 	 * @param wsData         the WebSocket attachment
 	 * @param user           the authenticated {@link User}
@@ -218,7 +233,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a SubscribeChannelsRequest.
+	 * Handles a {@link SubscribeChannelsRequest}.
 	 * 
 	 * @param wsData  the WebSocket attachment
 	 * @param edgeId  the Edge-ID
@@ -259,9 +274,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles an {@link AddEdgeToUserRequest}.
 	 * 
-	 * @param user      the {@link User}
-	 * @param messageId the JSON-RPC Message-ID
-	 * @param request   the AddEdgeToUserRequest
+	 * @param user    the {@link User}
+	 * @param request the {@link AddEdgeToUserRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
@@ -270,6 +284,55 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		Edge edge = this.parent.metadata.addEdgeToUser(user, request.getSetupPassword());
 
 		return CompletableFuture.completedFuture(new AddEdgeToUserResponse(request.getId(), edge));
+	}
+
+	/**
+	 * Handles a {@link GetUserInformationRequest}.
+	 * 
+	 * @param user    the {@link User}
+	 * @param request the {@link GetUserInformationRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<GetUserInformationResponse> handleGetUserInformationRequest(User user,
+			GetUserInformationRequest request) throws OpenemsNamedException {
+		Map<String, Object> userInformation = this.parent.metadata.getUserInformation(user);
+
+		return CompletableFuture.completedFuture(new GetUserInformationResponse(request.getId(), userInformation));
+	}
+
+	/**
+	 * Handles a {@link SetUserInformationRequest}.
+	 * 
+	 * @param user    the {@link User}r
+	 * @param request the {@link SetUserInformationRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSetUserInformationRequest(User user,
+			SetUserInformationRequest request) throws OpenemsNamedException {
+		this.parent.metadata.setUserInformation(user, request.getJsonObject());
+
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	/**
+	 * Handles a {@link SubmitSetupProtocolRequest}.
+	 * 
+	 * @param user    the {@link User}r
+	 * @param request the {@link SubmitSetupProtocolRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSubmitSetupProtocolRequest(User user,
+			SubmitSetupProtocolRequest request) throws OpenemsNamedException {
+		int protocolId = this.parent.metadata.submitSetupProtocol(user, request.getJsonObject());
+
+		JsonObject response = JsonUtils.buildJsonObject() //
+				.addProperty("setupProtocolId", protocolId) //
+				.build();
+
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), response));
 	}
 
 }
