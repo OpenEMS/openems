@@ -1,12 +1,11 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Service, Utils } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { CurrentData } from 'src/app/shared/edge/currentdata';
-import { Data, TooltipItem } from './../shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Service, Utils } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Data, TooltipItem } from './../shared';
 
 @Component({
     selector: 'selfconsumptionChart',
@@ -112,7 +111,6 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
                 });
             }
 
-
             /*
             * Self Consumption
             */
@@ -120,7 +118,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
                 if (value == null) {
                     return null
                 } else {
-                    return CurrentData.calculateSelfConsumption(sellToGridData[index], value);
+                    return Utils.calculateSelfConsumption(sellToGridData[index], value);
                 }
             })
 

@@ -844,6 +844,8 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 				.text("Initialization failure")), //
 		FAILURE_EEPROM(Doc.of(Level.FAULT) //
 				.text("EEPROM fault")), //
+		FAILURE_EEPROM2(Doc.of(Level.FAULT) //
+				.text("EEPROM2 fault")), //
 		FAILURE_INTRANET_COMMUNICATION(Doc.of(Level.FAULT) //
 				.text("Intranet communication fault")), //
 		FAILURE_TEMP_SAMPLING_LINE(Doc.of(Level.FAULT) //
