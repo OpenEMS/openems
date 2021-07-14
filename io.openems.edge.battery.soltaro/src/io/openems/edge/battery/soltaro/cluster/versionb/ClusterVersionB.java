@@ -556,7 +556,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 				), //
 
 				new FC16WriteRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3),
-						m(ClusterVersionBChannelId.RACK_2_POSITIVE_CONTACTOR,
+						m(ClusterVersionBChannelId.RACK_3_POSITIVE_CONTACTOR,
 								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3))) //
 				), //
 				new FC3ReadRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3), Priority.HIGH,

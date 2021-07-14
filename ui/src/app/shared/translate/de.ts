@@ -21,8 +21,10 @@ export const TRANSLATION = {
         dateFormat: 'dd.MM.yyyy', // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
         dateFormatShort: 'dd.MM',
         digitalInputs: 'Digitaleingänge',
+        numberOfComponents: 'Anzahl der Komponenten',
         directConsumption: 'Direktverbrauch',
         dischargePower: 'Entladung',
+        energyLimit: 'Energielimit',
         fault: 'Fehler',
         grid: 'Netz',
         gridBuy: 'Netzbezug',
@@ -91,11 +93,13 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'Über FEMS',
+        accessLevel: 'Zugriffslevel',
         edgeSettings: 'Einstellungen',
         generalSettings: 'Allgemeine Einstellungen',
         index: 'Übersicht',
         logout: 'Abmelden',
         menu: 'Menü',
+        name: 'Name',
         overview: 'Alle Systeme',
         settings: 'Einstellungen',
         user: 'Benutzer',
@@ -105,8 +109,11 @@ export const TRANSLATION = {
         connectionInProgress: 'Verbindung wird aufgebaut...',
         connectionFailed: 'Verbindung zu {{value}} getrennt.', // value = name of websocket
         connectionSuccessful: 'Verbindung zu {{value}} hergestellt.', // value = name of websocket
+        deviceOffline: 'Das Gerät ist nicht verbunden!',
         isOffline: 'OpenEMS ist offline!',
+        loggedInAs: 'Angemeldet als:',
         toEnergymonitor: 'Zum Energiemonitor...',
+        type: 'Typ:'
     },
     Login: {
         title: "Login",
@@ -134,7 +141,8 @@ export const TRANSLATION = {
                 phasesInfo: 'Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.',
                 selfconsumptionInfo: 'Der Eigenverbrauch gibt an zu wie viel Prozent die aktuell erzeugte Leistung durch direkten Verbrauch und durch Speicherbeladung selbst genutzt wird.',
                 twoWayInfoGrid: 'Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug',
-                twoWayInfoStorage: 'Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung',
+                InfoStorageForCharge: 'Negative Werte entsprechen Speicher Beladung',
+                InfoStorageForDischarge: 'Positive Werte entsprechen Speicher Entladung',
                 Channeltreshold: {
                     output: 'Ausgang'
                 },

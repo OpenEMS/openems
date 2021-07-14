@@ -272,7 +272,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 								.bit(1, BatteryBoxC130.ChannelId.ALARM_BCU_NTC) //
 								.bit(2, BatteryBoxC130.ChannelId.ALARM_CONTACTOR_ADHESION) //
 								.bit(3, BatteryBoxC130.ChannelId.ALARM_BCU_BMU_COMMUNICATION)//
-								.bit(4, BatteryBoxC130.ChannelId.FAILURE_EEPROM) //
+								.bit(4, BatteryBoxC130.ChannelId.FAILURE_EEPROM2) //
 								.bit(5, BatteryBoxC130.ChannelId.ALARM_CURRENT_SENSOR) //
 								.bit(6, BatteryBoxC130.ChannelId.ALARM_INSULATION_CHECK) //
 								.bit(7, BatteryBoxC130.ChannelId.ALARM_BAU_COMMUNICATION) //

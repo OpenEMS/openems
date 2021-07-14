@@ -32,6 +32,7 @@ import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Role;
@@ -211,8 +212,22 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 
 	@Override
 	public void addEdgeToUser(User user, Edge edge) throws OpenemsNamedException {
-		// Metadata.File only used for local development
-		return;
+		throw new NotImplementedException("FileMetadata.addEdgeToUser()");
+	}
+
+	@Override
+	public Map<String, Object> getUserInformation(User user) throws OpenemsNamedException {
+		throw new NotImplementedException("FileMetadata.getUserInformation()");
+	}
+
+	@Override
+	public void setUserInformation(User user, JsonObject jsonObject) throws OpenemsNamedException {
+		throw new NotImplementedException("FileMetadata.setUserInformation()");
+	}
+
+	@Override
+	public int submitSetupProtocol(User user, JsonObject jsonObject) {
+		throw new IllegalArgumentException("FileMetadata.submitSetupProtocol() is not implemented");
 	}
 
 }

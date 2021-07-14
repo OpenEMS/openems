@@ -18,6 +18,7 @@ export const TRANSLATION = {
         currentValue: 'Valor actual',
         dateFormat: 'dd.MM.yyyy', // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         digitalInputs: 'Entradas digitales',
+        numberOfComponents: 'número de componentes',
         directConsumption: 'Consumo directo',
         dischargePower: 'Descarga',
         fault: 'Error',
@@ -85,21 +86,27 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'Sobre FEMS',
+        accessLevel: 'Nivel de acceso',
         edgeSettings: 'Configuración FEMS',
         generalSettings: 'Configuración general',
         index: 'Visión general',
         logout: 'Desuscribirse',
         menu: 'Menú',
+        name: 'Nombre',
         overview: 'estudio FEMS',
         settings: 'Ajustes',
-        user: 'Usuario',
+        user: 'Usuario'
     },
     Index: {
         allConnected: 'Todas las conexiones establecidas.',
+        connectionInProgress: 'Establecimiento de la conexión...',
         connectionFailed: 'Conexión a {{value}} seperados.', // value = name of websocket
         connectionSuccessful: 'Conexión a {{value}} hecho.', // value = name of websocket
+        deviceOffline: 'El aparato no está conectado!',
         isOffline: 'OpenEMS está fuera de línea!',
+        loggedInAs: 'Conectado como:',
         toEnergymonitor: 'Al monitor de energía...',
+        type: 'Tipo:'
     },
     Edge: {
         Index: {
@@ -118,9 +125,9 @@ export const TRANSLATION = {
                 autarchyInfo: 'La autarquía indica el porcentaje de energía actual que puede cubrirse mediante la descarga de generación y almacenamiento.',
                 phasesInfo: 'La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.',
                 selfconsumptionInfo: 'El autoconsumo indica el porcentaje de la salida generada actualmente que puede ser utilizado por el consumo directo y la carga de almacenamiento.',
-                twoWayInfoGrid: 'Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug',
-                twoWayInfoStorage: 'Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung',
-                Channeltreshold: {
+                twoWayInfoGrid: 'Los valores negativos corresponden a la inyección a la red, Los valores positivos corresponden a la alimentación de la red',
+                InfoStorageForCharge: 'Los valores negativos corresponden a la carga de memoria',
+                InfoStorageForDischarge: 'Los valores positivos corresponden a la descarga de la memoria', Channeltreshold: {
                     output: 'Salida'
                 },
                 Singlethreshold: {

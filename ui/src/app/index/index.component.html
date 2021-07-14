@@ -105,14 +105,20 @@
                           [routerLink]="['/device', edge.id]" [color]="edge.isOnline ? null : 'light'">
                           <ion-label>
                             <h2 class="ion-text-wrap">{{ edge.comment }}</h2>
-                            <p *ngIf="!edge.isOnline" class="ion-text-wrap">Das Gerät ist nicht verbunden!</p>
+                            <p *ngIf="!edge.isOnline" class="ion-text-wrap">
+                              <ion-text translate>Index.deviceOffline</ion-text>
+                            </p>
                           </ion-label>
                           <ion-label>
                             <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
                               <p>ID: {{ edge.id }}</p>
-                              <p class="ion-text-wrap">Typ: {{ edge.producttype }}</p>
+                              <p class="ion-text-wrap">
+                                <ion-text translate>Index.type</ion-text> {{ edge.producttype }}
+                              </p>
                             </ng-container>
-                            <p class="ion-text-wrap">Angemeldet als: {{ edge.getRoleString() }}.</p>
+                            <p class="ion-text-wrap">
+                              <ion-text translate>Index.loggedInAs</ion-text> {{ edge.getRoleString() }}.
+                            </p>
                           </ion-label>
                           <ion-icon slot="end" name="play-outline" color="primary"></ion-icon>
                         </ion-item>

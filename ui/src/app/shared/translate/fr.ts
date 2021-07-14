@@ -7,6 +7,7 @@ export const TRANSLATION = {
         automatic: 'Automatiquement',
         cancel: 'cancel',
         capacity: 'Capacité',
+        numberOfComponents: 'nombre de composants',
         changeAccepted: 'Changement accepté',
         changeFailed: 'Changement échoué',
         chargeDischarge: 'Puissance de Charge/Décharge',
@@ -19,6 +20,7 @@ export const TRANSLATION = {
         currentValue: 'current value',
         dateFormat: 'yyyy-MM-dd', // e.g. German: dd.MM.yyyy (dd = Day, MM = Month, yyyy = Year)
         dischargePower: 'Puissance de décharge',
+        digitalInputs: 'Entrées numériques',
         fault: 'Fault',
         grid: 'Réseau',
         gridBuy: 'Acheté sur le réseau',
@@ -86,21 +88,27 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'à propos de OpenEMS UI',
+        accessLevel: 'Niveau d\'accès',
         edgeSettings: 'Réglages de FEMS',
         generalSettings: 'Réglages généraux',
         index: 'Index',
         logout: 'Déconnexion',
         menu: 'Menu',
+        name: 'Nom',
         overview: 'Apperçu FEMS ',
         profile: 'Utilisateur',
         settings: 'Réglages',
     },
     Index: {
         allConnected: 'Toutes les connections sont établies.',
+        connectionInProgress: 'Établir la connexion...',
         connectionSuccessful: 'Connecté avec succès à {{value}}.', // value = name of websocket
         connectionFailed: 'Connection avec {{value}} échouée.', // value = name of websocket
+        deviceOffline: 'Ld\'appareil n d\'est pas connecté!',
         isOffline: 'OpenEMS est hors ligne!',
+        loggedInAs: 'Enregistré en tant que:',
         toEnergymonitor: 'Vers le moniteur d\'énergie...',
+        type: 'Type:'
     },
     Edge: {
         Index: {
@@ -124,8 +132,9 @@ export const TRANSLATION = {
                 autarchyInfo: 'L\'AUtarcie indique le pourcentage de la puissance actuelle qui peut être couverte par la production et la décharge du stockage.',
                 phasesInfo: 'Pour des raisons technique, la somme des phases individuelles peut être légerement différente de la somme totale.',
                 selfconsumptionInfo: 'L\'auto-consommation indique le pourcentage de la puissance générée actuellement qui peut être utilisé par une consommation directe et une recharge du stockage.',
-                twoWayInfoStorage: 'Les valeurs négatives correspondent à la charge de la batterie, les valeurs positives correspondent à la charge de la batterie',
-                twoWayInfoGrid: 'Les valeurs négatives correspondent à l\'injection sur le réseau, les valeurs positives correspondent à la consommation sur le réseau',
+                twoWayInfoGrid: "Les valeurs négatives correspondent à l'alimentation du réseau, Les valeurs positives correspondent à l'alimentation secteur",
+                InfoStorageForCharge: 'Les valeurs négatives correspondent au chargement de la mémoire',
+                InfoStorageForDischarge: 'Les valeurs positives correspondent à une décharge de la mémoire',
                 Channeltreshold: {
                     output: 'Output'
                 },
