@@ -1191,7 +1191,8 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)), //
 
 		// Meter Control ARM
-		SELECT_WORK_MODE(Doc.of(AppModeIndex.values())), //
+		SELECT_WORK_MODE(Doc.of(AppModeIndex.values()) //
+				.accessMode(AccessMode.READ_WRITE)), //
 		METER_CHECK_VALUE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		WMETER_CONNECT_CHECK_FLAG(Doc.of(MeterConnectCheckFlag.values())), //

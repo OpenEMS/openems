@@ -1452,7 +1452,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.T_PHASE_FEED_POWER_PARA, new UnsignedWordElement(47537)), //
 						m(GoodWe.ChannelId.STOP_SOC_ADJUST, new UnsignedWordElement(47538)), //
 						m(GoodWe.ChannelId.WIFI_RESET, new UnsignedWordElement(47539)), //
-						m(GoodWe.ChannelId.ARM_SOFT_RESET, new UnsignedWordElement(47540))).debug(), //
+						m(GoodWe.ChannelId.ARM_SOFT_RESET, new UnsignedWordElement(47540)))
+				// TODO .debug()
+				, //
 
 				new FC16WriteRegistersTask(47900, //
 						m(GoodWe.ChannelId.WBMS_VERSION, new UnsignedWordElement(47900)), //
@@ -1527,7 +1529,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						 * </ul>
 						 */
 						m(GoodWe.ChannelId.WBMS_STATUS, new UnsignedWordElement(47915)), //
-						m(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, new UnsignedWordElement(47916))).debug(), //
+						m(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, new UnsignedWordElement(47916)))
+				// TODO .debug()
+				, //
 
 				new FC3ReadRegistersTask(47900, Priority.LOW, //
 						m(GoodWe.ChannelId.WBMS_VERSION, new UnsignedWordElement(47900)), //

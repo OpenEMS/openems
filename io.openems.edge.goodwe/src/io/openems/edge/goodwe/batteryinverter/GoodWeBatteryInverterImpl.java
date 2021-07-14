@@ -41,6 +41,7 @@ import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
+import io.openems.edge.goodwe.common.enums.AppModeIndex;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.FixedPowerFactor;
@@ -145,16 +146,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	private void applyConfig(Config config) throws OpenemsNamedException {
 		this.config = config;
 
-		/**
-		 * Should be always set to general mode
-		 * <ul>
-		 * <li>0x00: General Mode: Self use
-		 * <li>0x01: Off-grid Mode
-		 * <li>0x02: Backup Mode
-		 * <li>0x03: Economic Mode
-		 * </ul>
-		 */
-		this.writeToChannel(GoodWe.ChannelId.SELECT_WORK_MODE, 0);
+		// TODO write values only if update is required
+		
+		// (0x00) 'General Mode: Self use' instead of (0x01) 'Off-grid Mode', (0x02)
+		// 'Backup Mode' or (0x03) 'Economic Mode'.
+		this.writeToChannel(GoodWe.ChannelId.SELECT_WORK_MODE, AppModeIndex.SELF_USE);
 
 		// country setting
 		this.writeToChannel(GoodWe.ChannelId.SAFETY_COUNTRY_CODE, config.safetyCountry());
