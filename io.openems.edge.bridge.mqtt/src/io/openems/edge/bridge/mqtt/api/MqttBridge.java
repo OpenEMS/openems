@@ -78,7 +78,7 @@ public interface MqttBridge extends OpenemsComponent {
     List<MqttTask> getSubscribeTasks(String id);
 
     /**
-     * Adds the MqttComponent to the Bridge; Used for Update ; React to Events/ Controls / etc.
+     * Adds the MqttComponent to the Bridge. Used for Update. React to Events/Controls/etc.
      *
      * @param id        id of the MqttComponent usually from config of the Component
      * @param component the Component itself.
