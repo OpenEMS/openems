@@ -20,6 +20,7 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -91,7 +92,7 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		return new ModbusProtocol(this, //
+		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(3845, Priority.HIGH, //
 						m(new FloatDoublewordElement(3845))
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.DIRECT_1_TO_1)//
@@ -129,6 +130,20 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert))), //
 				new FC3ReadRegistersTask(3995, Priority.LOW, //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3995))));
+		
+		if (this.invert) {
+			modbusProtocol.addTask(new FC3ReadRegistersTask(19068, Priority.LOW, //
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(19068)),
+					new DummyRegisterElement(19070, 19075),
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(19076))));
+		} else {
+			modbusProtocol.addTask(new FC3ReadRegistersTask(19068, Priority.LOW, //
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(19068)),
+					new DummyRegisterElement(19070, 19075),
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(19076))));
+		}
+
+		return modbusProtocol;
 	}
 
 	@Override
