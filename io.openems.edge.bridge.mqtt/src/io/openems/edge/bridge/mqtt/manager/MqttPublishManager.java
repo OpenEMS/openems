@@ -36,7 +36,9 @@ public class MqttPublishManager extends AbstractMqttManager {
         }
     }
 
-    @Override
+    /**
+     * This method gets the current PublishTasks and publishes the Data to the MqttBroker.
+     */
     public void forever() {
         super.foreverAbstract();
         //Handle Tasks given by Parent
@@ -76,7 +78,6 @@ public class MqttPublishManager extends AbstractMqttManager {
      * This will disconnect every connection and stops the communication with the Broker.
      */
     public void deactivate() {
-        super.deactivate();
         this.connections.forEach((key, value) -> {
             try {
                 value.disconnect();

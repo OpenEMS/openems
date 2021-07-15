@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * This class provides the AbstractMqttManager. This class stores most important data of the Subscribe-/PublishManager,
  * as well as providing methods to tell the extending Manager, what tasks to handle in the current OpenEmsCycle.
  */
-abstract class AbstractMqttManager extends AbstractCycleWorker {
+abstract class AbstractMqttManager {
 
     protected static final Logger log = LoggerFactory.getLogger(AbstractMqttManager.class);
     ComponentManager cpm;

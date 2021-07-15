@@ -34,7 +34,9 @@ public class MqttSubscribeManager extends AbstractMqttManager {
 
     }
 
-    @Override
+    /**
+     * This Method sets the current Time, and refreshes all Payloads of the current SubscribeTasks.
+     */
     public void forever() {
         super.calculateCurrentTime();
         //Get all tasks and update them.
@@ -68,7 +70,6 @@ public class MqttSubscribeManager extends AbstractMqttManager {
      * Closes the connection.
      */
     public void deactivate() {
-        super.deactivate();
         this.connections.forEach((key, value) -> {
             try {
                 value.disconnect();
@@ -92,6 +93,7 @@ public class MqttSubscribeManager extends AbstractMqttManager {
 
     /**
      * Unsubscribes a Topic if there is no other subscriber left.
+     *
      * @param task the task you wish to unsubscribe.
      * @throws MqttException if somethings wrong with the connection.
      */

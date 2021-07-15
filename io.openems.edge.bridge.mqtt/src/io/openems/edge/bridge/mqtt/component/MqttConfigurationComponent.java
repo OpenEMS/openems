@@ -90,4 +90,11 @@ public interface MqttConfigurationComponent {
      * @return a Boolean
      */
     boolean valueLegit(String value);
+
+    /**
+     * Getter for the {@link AbstractMqttComponent}.
+     *
+     * @return the AbstractMqttComponent
+     */
+    AbstractMqttComponent getAbstractComponent();
 }

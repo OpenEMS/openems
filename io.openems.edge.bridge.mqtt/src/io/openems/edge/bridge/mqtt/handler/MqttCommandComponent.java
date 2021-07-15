@@ -9,6 +9,7 @@ import io.openems.edge.bridge.mqtt.api.MqttSubscribeTask;
 import io.openems.edge.bridge.mqtt.api.MqttType;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
@@ -19,6 +20,9 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import java.io.IOException;
@@ -30,14 +34,17 @@ import java.util.stream.Collectors;
 @Designate(ocd = CommandComponentConfig.class, factory = true)
 @Component(name = "MqttCommandComponent",
         configurationPolicy = ConfigurationPolicy.REQUIRE,
-        immediate = true)
-public class MqttCommandComponent extends MqttOpenemsComponentConnector implements OpenemsComponent {
+        immediate = true,
+        property = {EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE}
+)
+public class MqttCommandComponent extends MqttOpenemsComponentConnector implements OpenemsComponent, EventHandler {
 
     @Reference
     ConfigurationAdmin cm;
 
     @Reference
     ComponentManager cpm;
+    CommandComponentConfig config;
 
     public MqttCommandComponent() {
         super(OpenemsComponent.ChannelId.values(), MqttComponent.ChannelId.values());
@@ -45,15 +52,16 @@ public class MqttCommandComponent extends MqttOpenemsComponentConnector implemen
 
     @Activate
     void activate(ComponentContext context, CommandComponentConfig config) throws OpenemsError.OpenemsNamedException, IOException, ConfigurationException, MqttException {
-        if (super.activate(context, config.id(), config.alias(), config.enabled(), this.cpm, config.mqttBridgeId())) {
+        this.config = config;
+        super.connectorDeactivate();
+        if (super.modified(context, config.id(), config.alias(), config.enabled(), this.cpm, config.mqttBridgeId())) {
             this.configureMqtt(config);
-        } else {
-            throw new ConfigurationException("Something went wrong", "Somethings wrong in Activate method");
         }
     }
 
     @Modified
     void modified(ComponentContext context, CommandComponentConfig config) throws OpenemsError.OpenemsNamedException, IOException, ConfigurationException, MqttException {
+        this.config = config;
         super.modified(context, config.id(), config.alias(), config.enabled());
         super.connectorDeactivate();
         this.configureMqtt(config);
@@ -167,6 +175,22 @@ public class MqttCommandComponent extends MqttOpenemsComponentConnector implemen
     @Deactivate
     protected void deactivate() {
         super.connectorDeactivate();
+    }
+
+    @Override
+    public void handleEvent(Event event) {
+        if (event.getTopic().equals(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)) {
+            if (this.mqttBridge.get() != null && this.mqttBridge.get().isEnabled() && this.mqttConfigurationComponent == null) {
+                this.mqttBridge.get().removeMqttComponent(this.id());
+                try {
+                    super.setConfiguration(MqttType.COMMAND, this.config.subscriptionList(), null,
+                            this.config.payloads(), this.config.createdByOsgi(), this.config.mqttId(), this.cm, this.config.channelIdList().length,
+                            this.config.pathForJson(), this.config.payloadStyle(), this.config.configurationDone());
+                } catch (IOException | MqttException | ConfigurationException e) {
+                    super.log.warn("Couldn't apply config for this mqttComponent");
+                }
+            }
+        }
     }
 }
 

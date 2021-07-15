@@ -10,7 +10,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	com.google.guava,\
 	com.google.gson,\
 	joda-time;version=2.10.8,\
-    io.openems.wrapper.paho-mqttv3,\
+	io.openems.wrapper.paho-mqttv3,\
     org.eclipse.paho.client.mqttv3;version='1.2',\
 
 -testpath: \

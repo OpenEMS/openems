@@ -139,9 +139,6 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
         this.subscribeManager.setComponentManager(this.cpm);
         this.publishManager.setCoreCycle(config.useCoreCycleTime());
         this.subscribeManager.setCoreCycle(config.useCoreCycleTime());
-        this.publishManager.activate(super.id() + "_publish");
-        this.subscribeManager.activate(super.id() + "_subscribe");
-
     }
 
     /**
@@ -322,9 +319,36 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
         this.publishTasks.remove(id);
     }
 
+    /**
+     * List of all SubscribeTasks corresponding to the given device Id.
+     *
+     * @param id the id of the corresponding Component
+     * @return the MqttTaskList.
+     */
+
     @Override
     public List<MqttTask> getSubscribeTasks(String id) {
-        return this.subscribeTasks.get(id);
+        if (this.subscribeTasks.containsKey(id)) {
+            return this.subscribeTasks.get(id);
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Gets the Publish tasks mapped to a MqttComponent.
+     *
+     * @param id the componentId
+     * @return the List of MqttTasks
+     */
+
+    @Override
+    public List<MqttTask> getPublishTasks(String id) {
+        if (this.publishTasks.containsKey(id)) {
+            return this.publishTasks.get(id);
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     /**
@@ -381,8 +405,8 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
         }
         if (event.getTopic().equals(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)) {
             //handle all Tasks
-            this.subscribeManager.triggerNextRun();
-            this.publishManager.triggerNextRun();
+            this.subscribeManager.forever();
+            this.publishManager.forever();
             //Update the components Config if available
             this.components.forEach((key, value) -> {
                 if (value.getConfiguration().value().isDefined() && !value.getConfiguration().value().get().equals("")) {
@@ -395,8 +419,9 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
                 }
                 //React to Events and Commands
                 if (value.isConfigured()) {
-                    value.reactToEvent();
-                    value.reactToCommand();
+                    if (value.checkForMissingTasks() == false) {
+                        value.reactToCommand();
+                    }
                 }
             });
         }

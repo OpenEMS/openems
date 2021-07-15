@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.openems.edge.bridge.mqtt.api.ConfigurationSplits.PAYLOAD_MAPPING_SPLITTER;
@@ -48,7 +49,7 @@ public abstract class AbstractMqttConnection implements MqttConnection, MqttCall
      */
     private void createMqttSessionBasicSetup(String mqttBroker, String mqttClientId, String username, String mqttPassword,
                                              boolean cleanSession, int keepAlive) throws MqttException {
-        this.mqttClient = new MqttClient(mqttBroker, mqttClientId, this.persistence);
+        this.mqttClient = new MqttClient(mqttBroker, mqttClientId + "_RandomId_" + new Random().nextInt(), this.persistence);
         if (!username.trim().equals("")) {
             this.mqttConnectOptions.setUserName(username);
         }
@@ -167,7 +168,7 @@ public abstract class AbstractMqttConnection implements MqttConnection, MqttCall
 
     @Override
     public void connectionLost(Throwable throwable) {
-        this.log.warn("Connection to Broker lost");
+        this.log.warn("Connection to Broker lost " + this.mqttClient.getClientId());
     }
 
     @Override

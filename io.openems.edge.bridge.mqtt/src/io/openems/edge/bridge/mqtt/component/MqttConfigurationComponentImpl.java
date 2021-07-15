@@ -100,7 +100,7 @@ public class MqttConfigurationComponentImpl implements MqttConfigurationComponen
      */
     @Override
     public boolean isConfigured() {
-        return this.mqttComponent.hasBeenConfigured();
+        return this.hasBeenConfigured();
     }
 
     /**
@@ -141,6 +141,17 @@ public class MqttConfigurationComponentImpl implements MqttConfigurationComponen
     @Override
     public boolean valueLegit(String value) {
         return !(value.toUpperCase().equals("NOTDEFINED") || value.toUpperCase().equals("NAN"));
+    }
+
+    /**
+     * Getter for the {@link AbstractMqttComponent}.
+     *
+     * @return the AbstractMqttComponent
+     */
+
+    @Override
+    public AbstractMqttComponent getAbstractComponent() {
+        return this.mqttComponent;
     }
 
 

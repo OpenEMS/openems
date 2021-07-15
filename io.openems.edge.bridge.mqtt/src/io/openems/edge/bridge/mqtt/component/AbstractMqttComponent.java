@@ -368,6 +368,24 @@ public abstract class AbstractMqttComponent {
     }
 
     /**
+     * Gets the stored Publish Tasks.
+     *
+     * @return the current publish Tasks.
+     */
+    public Map<String, MqttPublishTask> getPublishTasks() {
+        return this.publishTasks;
+    }
+
+    /**
+     * Gets the stored SubscribeTasks.
+     *
+     * @return the current SubscribeTasks.
+     */
+    public Map<String, MqttSubscribeTask> getSubscribeTasks() {
+        return this.subscribeTasks;
+    }
+
+    /**
      * Checks if this Component has been Configured (Channels are updated).
      *
      * @return a Boolean

@@ -3,6 +3,8 @@ package io.openems.edge.bridge.mqtt.handler;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.bridge.mqtt.api.MqttBridge;
 import io.openems.edge.bridge.mqtt.api.MqttComponent;
+import io.openems.edge.bridge.mqtt.api.MqttPublishTask;
+import io.openems.edge.bridge.mqtt.api.MqttSubscribeTask;
 import io.openems.edge.bridge.mqtt.api.MqttType;
 import io.openems.edge.bridge.mqtt.component.MqttConfigurationComponent;
 import io.openems.edge.bridge.mqtt.component.MqttConfigurationComponentImpl;
@@ -20,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -48,10 +51,32 @@ public abstract class MqttOpenemsComponentConnector extends AbstractOpenemsCompo
             MqttBridge mqtt = this.mqttBridge.get();
             if (this.isEnabled() && mqtt != null && mqtt.isEnabled()) {
                 this.mqttBridge.get().addMqttComponent(super.id(), this);
+            } else {
+                this.log.info("MqttBridge is not enabled or null! Component won't be added");
             }
             return true;
         }
+        this.log.warn("The Configured MqttBridge Id is not an instance of the MqttBridge, please check your config!");
         return false;
+    }
+
+    protected boolean modified(ComponentContext context, String id, String alias,
+                               boolean enabled, ComponentManager cpm, String mqttBridgeId) throws OpenemsError.OpenemsNamedException {
+        super.modified(context, id, alias, enabled);
+        if (cpm.getComponent(mqttBridgeId) instanceof MqttBridge) {
+            this.mqttBridge.set(cpm.getComponent(mqttBridgeId));
+            MqttBridge mqtt = this.mqttBridge.get();
+            if (this.isEnabled() && mqtt != null && mqtt.isEnabled()) {
+                this.mqttBridge.get().addMqttComponent(super.id(), this);
+
+            } else {
+                this.log.info("MqttBridge is not enabled or null! Component won't be added");
+            }
+            return true;
+        }
+        this.log.warn("The Configured MqttBridge Id is not an instance of the MqttBridge, please check your config!");
+        return false;
+
     }
 
     /**
@@ -162,5 +187,37 @@ public abstract class MqttOpenemsComponentConnector extends AbstractOpenemsCompo
      */
     void setCorrespondingComponent(String otherComponentId, ComponentManager cpm) throws OpenemsError.OpenemsNamedException {
         this.otherComponent = cpm.getComponent(otherComponentId);
+    }
+
+    protected MqttConfigurationComponent getMqttConfigurationComponent() {
+        return this.mqttConfigurationComponent;
+    }
+
+    @Override
+    public boolean checkForMissingTasks() {
+        Map<String, MqttPublishTask> pubTasks = this.getMqttConfigurationComponent().getAbstractComponent().getPublishTasks();
+        Map<String, MqttSubscribeTask> subTasks = this.getMqttConfigurationComponent().getAbstractComponent().getSubscribeTasks();
+        boolean pubSizeEquals = this.mqttBridge.get().getPublishTasks(super.id()).size() == pubTasks.size();
+        boolean subSizeEquals = this.mqttBridge.get().getSubscribeTasks(super.id()).size() == subTasks.size();
+
+        if (!pubSizeEquals || !subSizeEquals) {
+            this.mqttBridge.get().removeMqttTasks(super.id());
+            pubTasks.forEach((topic, task) -> {
+                try {
+                    this.mqttBridge.get().addMqttTask(super.id(), task);
+                } catch (MqttException e) {
+                    this.log.warn("Couldn't add MqttTask due to an error in : " + super.id() + e.getMessage());
+                }
+            });
+            subTasks.forEach((topic, task) -> {
+                try {
+                    this.mqttBridge.get().addMqttTask(super.id(), task);
+                } catch (MqttException e) {
+                    this.log.warn("Couldn't add MqttTask due to an error in : " + super.id() + e.getMessage());
+                }
+            });
+            return true;
+        }
+        return false;
     }
 }

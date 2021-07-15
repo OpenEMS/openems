@@ -99,6 +99,15 @@ public interface MqttBridge extends OpenemsComponent {
      */
     boolean isConnected();
 
+    /**
+     * Gets the Publish tasks mapped to a MqttComponent.
+     *
+     * @param id the componentId
+     * @return the List of MqttTasks
+     */
+    List<MqttTask> getPublishTasks(String id);
+
+
 }
 
 

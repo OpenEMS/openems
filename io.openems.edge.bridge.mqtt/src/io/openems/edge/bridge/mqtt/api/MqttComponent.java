@@ -77,4 +77,11 @@ public interface MqttComponent extends OpenemsComponent {
      * @return aBoolean;
      */
     boolean isConfigured();
+
+    /**
+     * Check if tasks are somehow missing, and add them.
+     *
+     * @return true if Tasks were Missing so react to command and event won't be called
+     */
+    boolean checkForMissingTasks();
 }
