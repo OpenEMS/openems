@@ -89,7 +89,7 @@ public interface MqttConfigurationComponent {
      * @param value value of CommandWrapper in Parent Task.
      * @return a Boolean
      */
-    boolean valueLegit(String value);
+    boolean valueValid(String value);
 
     /**
      * Getter for the {@link AbstractMqttComponent}.

@@ -82,7 +82,7 @@ public abstract class AbstractMqttConnection implements MqttConnection, MqttCall
     }
 
     /**
-     * Creates the publish connection. Connection not already occurs bc a last will flag could be set.
+     * Creates the publish connection. Connection not already occurs because a last will flag could be set.
      *
      * @param broker       URL of Broker usually from manager/bridge.
      * @param clientId     ClientID of the Connection.
@@ -101,7 +101,7 @@ public abstract class AbstractMqttConnection implements MqttConnection, MqttCall
     }
 
     /**
-     * Adds last will to the Connection.
+     * Adds the MQTT - 'Last Will' to the Connection, that will be executed if the Connection ist lost.
      *
      * @param topicLastWill   topic of the last will.
      * @param payloadLastWill payload.

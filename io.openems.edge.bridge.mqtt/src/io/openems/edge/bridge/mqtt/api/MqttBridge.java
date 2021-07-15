@@ -18,7 +18,7 @@ import org.joda.time.DateTimeZone;
 public interface MqttBridge extends OpenemsComponent {
 
     /**
-     * Get the Timezone set for the Bridge and therefore for all Timestamps of each payload who have a Timestamp bool set.
+     * Get the Timezone set for the Bridge and therefore for all Timestamps of each payload who have a Timestamp boolean set.
      *
      * @return the TimeZone of Joda.Time
      */

@@ -179,7 +179,7 @@ public abstract class MqttOpenemsComponentConnector extends AbstractOpenemsCompo
     }
 
     /**
-     * Get the Component via ComponentManager. This method gets the OpenEmsComponent you want to monitor/send information/ communicate via MQTT.
+     * Get the Component via ComponentManager. This method gets the OpenEmsComponent you want to monitor/send information/communicate via MQTT.
      *
      * @param otherComponentId the Id of the other OpenEmsComponent. Usually from Config.
      * @param cpm              the ComponentManager.
@@ -189,6 +189,10 @@ public abstract class MqttOpenemsComponentConnector extends AbstractOpenemsCompo
         this.otherComponent = cpm.getComponent(otherComponentId);
     }
 
+    /**
+     * Gets the {@link MqttConfigurationComponent}.
+     * @return the {@link MqttConfigurationComponent}.
+     */
     protected MqttConfigurationComponent getMqttConfigurationComponent() {
         return this.mqttConfigurationComponent;
     }

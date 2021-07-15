@@ -46,8 +46,7 @@ import static io.openems.edge.bridge.mqtt.api.ConfigurationSplits.TIME_TO_WAIT_P
 import static io.openems.edge.bridge.mqtt.api.ConfigurationSplits.TOPIC_POSITION;
 
 /**
- * This is where most of the Magic happens.
- * In this component, The Publish and Subscribe Task are created and added together by config (Either OSGi or JSON)
+ * In this component, the Publish and Subscribe Task are created and added together by config (Either OSGi or JSON).
  */
 public abstract class AbstractMqttComponent {
 
@@ -139,6 +138,11 @@ public abstract class AbstractMqttComponent {
 
     }
 
+    /**
+     * This Method adds the previously created subscribe and publish tasks to the MqttBridge.
+     *
+     * @throws MqttException if connection/subscription fails.
+     */
     private void addTasksToBridge() throws MqttException {
         MqttException[] exMqtt = {null};
         this.subscribeTasks.forEach((key, value) -> {

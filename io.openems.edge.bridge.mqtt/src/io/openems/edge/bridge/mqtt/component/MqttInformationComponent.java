@@ -59,6 +59,10 @@ public class MqttInformationComponent extends AbstractOpenemsComponent implement
 
     }
 
+    /**
+     * Updates the Config in Apache Felix to tell the Configurator what available options for MQTT are.
+     */
+
     private void update() {
         Configuration c;
 
@@ -81,6 +85,12 @@ public class MqttInformationComponent extends AbstractOpenemsComponent implement
         }
     }
 
+    /**
+     * Trims and splits the Array in a correct way.
+     *
+     * @param types the String possible Information displays. Stored in an Enum.
+     * @return the split String.
+     */
     private String[] propertyInput(String types) {
         types = types.replaceAll("\\[", "");
         types = types.replaceAll("]", "");

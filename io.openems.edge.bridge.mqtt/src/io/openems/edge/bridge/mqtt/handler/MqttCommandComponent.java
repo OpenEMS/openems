@@ -97,7 +97,7 @@ public class MqttCommandComponent extends MqttOpenemsComponentConnector implemen
                 if (entry instanceof MqttSubscribeTask) {
                     MqttSubscribeTask task = (MqttSubscribeTask) entry;
                     task.getCommandValues().forEach((key, value) -> {
-                        if (this.mqttConfigurationComponent.valueLegit(value.getValue())) {
+                        if (this.mqttConfigurationComponent.valueValid(value.getValue())) {
                             if (!this.mqttConfigurationComponent.expired(task, value)) {
                                 this.reactToComponentCommand(key, value);
                             } else {

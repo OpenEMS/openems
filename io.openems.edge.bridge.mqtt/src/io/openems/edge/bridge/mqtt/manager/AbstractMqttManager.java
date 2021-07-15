@@ -73,6 +73,12 @@ abstract class AbstractMqttManager {
         this.timeZone = timeZone;
     }
 
+    /**
+     * This Method is called by the {@link MqttPublishManager}
+     * To calculate the Average Time a MqttTask with a certain QoS needs.
+     * Sets the Current Time and adds the MqttTasks to the {@link #currentToDo} that will be handled by the Manager.
+     */
+
     void foreverAbstract() {
         this.calculateAverageTimes();
         this.calculateCurrentTime();

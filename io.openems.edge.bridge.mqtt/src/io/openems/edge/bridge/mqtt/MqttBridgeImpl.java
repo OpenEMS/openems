@@ -352,7 +352,7 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
     }
 
     /**
-     * Adds The MqttComponent to the Bridge. Important for Updating JSON Config and Reacting to Commands and Events
+     * Adds The MqttComponent to the Bridge. Important for Updating JSON Config and Reacting to Commands and Events.
      *
      * @param id        id of the MqttComponent usually from config of the Component
      * @param component the Component itself.
@@ -368,7 +368,7 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
     }
 
     /**
-     * Removes the Mqtt  Component and their Tasks. Usually called on deactivation of the MqttComponent
+     * Removes the Mqtt Component and their Tasks. Usually called on deactivation of the MqttComponent.
      *
      * @param id id of the Component you want to remove.
      */
