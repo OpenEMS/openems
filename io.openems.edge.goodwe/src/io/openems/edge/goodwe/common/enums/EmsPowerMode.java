@@ -243,7 +243,7 @@ public enum EmsPowerMode implements OptionsEnum {
 	 * <li>The control object is 'Battery'
 	 * </ul>
 	 */
-	CHARGE_BAT(11, "Charge Bat"), //
+	CHARGE_BAT(0x0B, "Charge Bat"), //
 
 	/**
 	 * Scenario: Force the battery to work at set power value.
@@ -266,7 +266,7 @@ public enum EmsPowerMode implements OptionsEnum {
 	 * <li>The control object is 'Battery'
 	 * </ul>
 	 */
-	DISCHARGE_BAT(12, "Discharge Bat"); //
+	DISCHARGE_BAT(0x0C, "Discharge Bat"); //
 
 	private final int value;
 	private final String option;
