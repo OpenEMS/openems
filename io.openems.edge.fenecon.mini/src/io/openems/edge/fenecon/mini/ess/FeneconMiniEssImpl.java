@@ -27,6 +27,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ElementToChannelOffsetConverter;
+import io.openems.edge.bridge.modbus.api.ModbusChannelSource;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -455,9 +456,10 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 						m(FeneconMiniEss.ChannelId.RTC_SECOND, new UnsignedWordElement(9019))), //
 				new FC16WriteRegistersTask(30526, //
 						m(FeneconMiniEss.ChannelId.GRID_MAX_CHARGE_CURRENT, new UnsignedWordElement(30526),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								ElementToChannelConverter.SCALE_FACTOR_2, ModbusChannelSource.IGNORE_DUPLICATED_SOURCE), //
 						m(FeneconMiniEss.ChannelId.GRID_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(30527),
-								ElementToChannelConverter.SCALE_FACTOR_2)), //
+								ElementToChannelConverter.SCALE_FACTOR_2,
+								ModbusChannelSource.IGNORE_DUPLICATED_SOURCE)), //
 				new FC16WriteRegistersTask(30558, //
 						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30558))), //
 				new FC16WriteRegistersTask(30559, //

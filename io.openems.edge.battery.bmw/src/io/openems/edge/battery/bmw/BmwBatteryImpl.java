@@ -20,8 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.bmw.enums.BmsState;
 import io.openems.edge.battery.bmw.enums.State;
@@ -451,9 +451,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 						// not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
 						m(BMWChannelId.SERIAL_NUMBER, new UnsignedDoublewordElement(1048)),
 						// not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
-						m(BMWChannelId.SERIAL_NUMBER, new UnsignedDoublewordElement(1050)),
-						// not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
-						m(BMWChannelId.SOFTWARE_VERSION, new UnsignedDoublewordElement(1052)) //
+						m(BMWChannelId.SOFTWARE_VERSION, new UnsignedDoublewordElement(1050)) //
 				));
 	}
 
