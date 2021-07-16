@@ -252,4 +252,12 @@ public interface Metadata {
 	 */
 	public int submitSetupProtocol(User user, JsonObject jsonObject) throws OpenemsNamedException;
 
+	/**
+	 * Register a user.
+	 * 
+	 * @param jsonObject {@link JsonObject} that represents an user
+	 * @throws OpenemsNamedException on error
+	 */
+	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException;
+
 }

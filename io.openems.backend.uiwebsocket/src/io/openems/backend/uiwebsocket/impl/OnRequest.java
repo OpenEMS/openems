@@ -13,6 +13,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.common.jsonrpc.request.AddEdgeToUserRequest;
 import io.openems.backend.common.jsonrpc.request.GetUserInformationRequest;
+import io.openems.backend.common.jsonrpc.request.RegisterUserRequest;
 import io.openems.backend.common.jsonrpc.request.SetUserInformationRequest;
 import io.openems.backend.common.jsonrpc.request.SubmitSetupProtocolRequest;
 import io.openems.backend.common.jsonrpc.response.AddEdgeToUserResponse;
@@ -57,6 +58,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		case AuthenticateWithPasswordRequest.METHOD:
 			return this.handleAuthenticateWithPasswordRequest(wsData, AuthenticateWithPasswordRequest.from(request));
+
+		case RegisterUserRequest.METHOD:
+			return this.handleRegisterUserReuqest(wsData, RegisterUserRequest.from(request));
 		}
 
 		// should be authenticated
@@ -143,6 +147,21 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		wsData.setToken(user.getToken());
 		return CompletableFuture.completedFuture(new AuthenticateResponse(requestId, user.getToken(), user,
 				User.generateEdgeMetadatas(user, this.parent.metadata)));
+	}
+
+	/**
+	 * Handles a {@link RegisterUserRequest}.
+	 * 
+	 * @param wsData  the WebSocket attachment
+	 * @param request the {@link RegisterUserRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleRegisterUserReuqest(WsData wsData,
+			RegisterUserRequest request) throws OpenemsNamedException {
+		this.parent.metadata.registerUser(request.getJsonObject());
+
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
 	/**

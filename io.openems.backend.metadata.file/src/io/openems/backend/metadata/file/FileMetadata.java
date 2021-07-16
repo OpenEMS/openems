@@ -230,4 +230,9 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 		throw new IllegalArgumentException("FileMetadata.submitSetupProtocol() is not implemented");
 	}
 
+	@Override
+	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException {
+		throw new IllegalArgumentException("FileMetadata.registerUser() is not implemented");
+	}
+
 }

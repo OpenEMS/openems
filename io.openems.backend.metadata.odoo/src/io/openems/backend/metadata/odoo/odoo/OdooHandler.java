@@ -602,4 +602,45 @@ public class OdooHandler {
 		return odooPartnerId.get();
 	}
 
+	/**
+	 * Register an user in Odoo with the given {@link OdooUserRole}.
+	 * 
+	 * @param jsonObject {@link JsonObject} that represents an user
+	 * @param role       {@link OdooUserRole} to set for the user
+	 * @throws OpenemsException on error
+	 */
+	public void registerUser(JsonObject jsonObject, OdooUserRole role) throws OpenemsException {
+		Optional<String> optEmail = JsonUtils.getAsOptionalString(jsonObject, "email");
+		if (!optEmail.isPresent()) {
+			throw new OpenemsException("No email specified");
+		}
+		String email = optEmail.get();
+
+		int[] userFound = OdooUtils.search(this.credentials, Field.User.ODOO_MODEL, //
+				new Domain(Field.User.LOGIN, "=", email));
+		if (userFound.length > 0) {
+			throw new OpenemsException("User already exists with email [" + email + "]");
+		}
+
+		Map<String, Object> userFields = new HashMap<>();
+		userFields.put(Field.User.LOGIN.id(), email);
+		userFields.put(Field.Partner.EMAIL.id(), email);
+		userFields.put(Field.User.GLOBAL_ROLE.id(), role.getOdooRole());
+		userFields.putAll(this.updateAddress(jsonObject));
+		userFields.putAll(this.updateCompany(jsonObject));
+
+		JsonUtils.getAsOptionalString(jsonObject, "firstname") //
+				.ifPresent(firstname -> userFields.put("firstname", firstname));
+		JsonUtils.getAsOptionalString(jsonObject, "lastname") //
+				.ifPresent(lastname -> userFields.put("lastname", lastname));
+		JsonUtils.getAsOptionalString(jsonObject, "phone") //
+				.ifPresent(phone -> userFields.put("phone", phone));
+		JsonUtils.getAsOptionalString(jsonObject, "password") //
+				.ifPresent(password -> userFields.put("password", password));
+		JsonUtils.getAsOptionalBoolean(jsonObject, "subscribeNewsletter") //
+				.ifPresent(subscribeNewsletter -> userFields.put("fenecon_crm_newsletter", subscribeNewsletter));
+
+		OdooUtils.create(this.credentials, Field.User.ODOO_MODEL, userFields);
+	}
+
 }

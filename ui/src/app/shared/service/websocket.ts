@@ -15,6 +15,7 @@ import { AuthenticateWithPasswordRequest } from '../jsonrpc/request/authenticate
 import { AuthenticateWithTokenRequest } from '../jsonrpc/request/authenticateWithTokenRequest';
 import { EdgeRpcRequest } from '../jsonrpc/request/edgeRpcRequest';
 import { LogoutRequest } from '../jsonrpc/request/logoutRequest';
+import { RegisterUserRequest } from '../jsonrpc/request/registerUserRequest';
 import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
 import { AuthenticateResponse } from '../jsonrpc/response/authenticateResponse';
 import { Role } from '../type/role';
@@ -210,7 +211,7 @@ export class Websocket {
       // logged in + normal operation
       this.status == 'online'
       // otherwise only authentication request allowed
-      || (request instanceof AuthenticateWithPasswordRequest || request instanceof AuthenticateWithTokenRequest)) {
+      || (request instanceof AuthenticateWithPasswordRequest || request instanceof AuthenticateWithTokenRequest || request instanceof RegisterUserRequest)) {
 
       return new Promise((resolve, reject) => {
         this.wsdata.sendRequest(this.socket, request).then(response => {

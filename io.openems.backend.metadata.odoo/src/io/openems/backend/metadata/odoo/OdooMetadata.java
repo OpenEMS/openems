@@ -208,4 +208,9 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 		return this.odooHandler.submitSetupProtocol((MyUser) user, jsonObject);
 	}
 
+	@Override
+	public void registerUser(JsonObject jsonObject) throws OpenemsException {
+		this.odooHandler.registerUser(jsonObject, OdooUserRole.INSTALLER);
+	}
+
 }

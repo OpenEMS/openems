@@ -123,6 +123,32 @@ export const TRANSLATION = {
         passwordReset: "Passwort zurücksetzen",
         authenticationFailed: "Authentifizierung fehlgeschlagen",
     },
+    Register: {
+        title: "Installateurs Account anlegen",
+        form: {
+            companyName: "Firmenname",
+            firstname: "Vorname",
+            lastname: "Nachname",
+            street: "Straße | Hausnummer",
+            zip: "PLZ",
+            city: "Ort",
+            country: "Land",
+            phone: "Telefonnummer",
+            email: "E-Mail Adresse",
+            password: "Passwort",
+            confirmPassword: "Passwort wiederholen",
+            isElectrician: "Hiermit bestätige ich, dass mein Betrieb ins Installateursverzeichnis eingetragen ist und somit bin ich berechtigt ein Speichersystem anzuschließen und in Betrieb zu nehmen.*",
+            acceptPrivacyPolicy: "Durch das Erstellen eines FENECON Installateur Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*",
+            acceptAgb: "Hiermit bestätige ich die <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
+            subscribeNewsletter: "Ich möchte den FENECON Newsletter abonnieren um immer alle Neuigkeiten von FENECON zu erhalten."
+        },
+        button: "Anlegen",
+        errors: {
+            requiredFields: "Bitte alle Felder ausfüllen",
+            passwordNotEqual: "Passwörter sind nicht gleich"
+        },
+        success: "Registrierung erfolgreich"
+    },
     Edge: {
         Index: {
             Energymonitor: {
