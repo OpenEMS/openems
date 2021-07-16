@@ -1,7 +1,7 @@
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 import { Component } from '@angular/core';
-import { SetChannelVaLueRequest } from 'src/app/shared/jsonrpc/request/setChannelValueRequest';
+import { SetChannelValueRequest } from 'src/app/shared/jsonrpc/request/setChannelValueRequest';
 
 @Component({
   selector: ChannelsComponent.SELECTOR,
@@ -72,7 +72,7 @@ export class ChannelsComponent {
     if (this.edge) {
       this.edge.sendRequest(
         this.service.websocket,
-        new SetChannelVaLueRequest({
+        new SetChannelValueRequest({
           componentId: address.componentId,
           channelId: address.channelId,
           value: value

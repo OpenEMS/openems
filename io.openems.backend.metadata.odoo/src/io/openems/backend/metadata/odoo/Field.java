@@ -295,7 +295,8 @@ public interface Field {
 		ZIP("zip", true), //
 		CITY("city", true), //
 		COUNTRY("country_id", true), //
-		ADDRESS_TYPE("type", true);
+		ADDRESS_TYPE("type", true), //
+		NEWSLETTER("fenecon_crm_newsletter", true);
 
 		public static final String ODOO_MODEL = "res.partner";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");

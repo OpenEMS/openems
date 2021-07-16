@@ -1,0 +1,32 @@
+<installation-view iconName="checkmark-done-outline" header="Zusammenfassung" (previousClicked)="onPreviousClicked()"
+  (nextClicked)="onNextClicked()">
+
+  <ion-list>
+    <ion-item *ngFor="let block of tableData" lines="none">
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <div>
+              <b>{{block.header}}</b>
+            </div>
+          </ion-col>
+        </ion-row>
+        <ion-row *ngFor="let row of block.rows;">
+          <ion-col style="border: 1px solid black; border-right: none;">
+            <div>
+              <b>{{row.label}}</b>
+            </div>
+          </ion-col>
+          <ion-col style="border: 1px solid black">{{row.value}}</ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+  </ion-list>
+
+  <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+
+  <ion-textarea readonly auto-grow
+    value="Wenn Sie jetzt 'weiter' klicken, wird das Speichersystem konfiguriert. Stellen Sie sicher, dass die Batterie und der Wechselrichter während des gesamten Konfigurationsvorgangs eingeschaltet sind.">
+  </ion-textarea>
+
+</installation-view>

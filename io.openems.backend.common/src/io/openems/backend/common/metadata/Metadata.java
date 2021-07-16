@@ -243,6 +243,16 @@ public interface Metadata {
 	public void setUserInformation(User user, JsonObject jsonObject) throws OpenemsNamedException;
 
 	/**
+	 * Returns the Setup Protocol PDF for the given id.
+	 * 
+	 * @param user            {@link User} the current user
+	 * @param setupProtocolId the setup protocol id to search
+	 * @return the Setup Protocol PDF as a byte array
+	 * @throws OpenemsNamedException on error
+	 */
+	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException;
+
+	/**
 	 * Submit the installation assistant protocol.
 	 * 
 	 * @param user       {@link User} the current user
@@ -251,5 +261,13 @@ public interface Metadata {
 	 * @throws OpenemsNamedException on error
 	 */
 	public int submitSetupProtocol(User user, JsonObject jsonObject) throws OpenemsNamedException;
+
+	/**
+	 * Register a user.
+	 * 
+	 * @param jsonObject {@link JsonObject} that represents an user
+	 * @throws OpenemsNamedException on error
+	 */
+	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException;
 
 }

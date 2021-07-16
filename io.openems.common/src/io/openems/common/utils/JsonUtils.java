@@ -1350,8 +1350,7 @@ public class JsonUtils {
 	 */
 	public static JsonElement parse(String string) throws OpenemsNamedException {
 		try {
-			JsonParser parser = new JsonParser();
-			return parser.parse(string);
+			return JsonParser.parseString(string);
 		} catch (JsonParseException e) {
 			throw OpenemsError.JSON_PARSE_FAILED.exception(e.getMessage(), string);
 		}

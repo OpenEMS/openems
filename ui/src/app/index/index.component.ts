@@ -8,6 +8,7 @@ import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from '../../environments';
 import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
 import { Edge, Service, Utils, Websocket } from '../shared/shared';
+import { Role } from '../shared/type/role';
 
 @Component({
   selector: 'index',
@@ -32,10 +33,10 @@ export class IndexComponent {
   public slice: number = 20;
 
   constructor(
+    public service: Service,
     public websocket: Websocket,
     public utils: Utils,
     private router: Router,
-    private service: Service,
     private route: ActivatedRoute,
     private toastController: ToastController,
     private translate: TranslateService,
@@ -116,4 +117,9 @@ export class IndexComponent {
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
   }
+
+  public loggedInUserCanInstall(): boolean {
+    return Role.isAtLeast(this.service.metadata.value?.user.globalRole, "installer");
+  }
+
 }
