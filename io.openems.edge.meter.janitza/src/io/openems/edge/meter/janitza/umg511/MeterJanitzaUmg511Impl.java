@@ -20,7 +20,6 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -98,8 +97,10 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.DIRECT_1_TO_1)//
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1)//
 								.build(),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3847), ElementToChannelConverter.SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(3849),ElementToChannelConverter.SCALE_FACTOR_3), //, //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3847),
+								ElementToChannelConverter.SCALE_FACTOR_3), //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(3849),
+								ElementToChannelConverter.SCALE_FACTOR_3), // , //
 						new DummyRegisterElement(3851, 3852), m(new FloatDoublewordElement(3853)) //
 								.m(AsymmetricMeter.ChannelId.CURRENT_L1,
 										ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)) //
@@ -130,7 +131,7 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert))), //
 				new FC3ReadRegistersTask(3995, Priority.LOW, //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3995))));
-		
+
 		if (this.invert) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(19068, Priority.LOW, //
 					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(19068)),

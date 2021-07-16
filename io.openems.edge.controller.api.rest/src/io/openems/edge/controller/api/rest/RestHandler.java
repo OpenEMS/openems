@@ -362,10 +362,12 @@ public class RestHandler extends AbstractHandler {
 	 * @throws OpenemsException on error
 	 */
 	private static JsonObject parseJson(Request baseRequest) throws OpenemsException {
-		JsonParser parser = new JsonParser();
 		try {
-			return parser.parse(new BufferedReader(new InputStreamReader(baseRequest.getInputStream())).lines()
-					.collect(Collectors.joining("\n"))).getAsJsonObject();
+			return JsonParser.parseString(//
+					new BufferedReader(new InputStreamReader(baseRequest.getInputStream())) //
+							.lines() //
+							.collect(Collectors.joining("\n"))) //
+					.getAsJsonObject();
 		} catch (Exception e) {
 			throw new OpenemsException("Unable to parse: " + e.getMessage());
 		}
