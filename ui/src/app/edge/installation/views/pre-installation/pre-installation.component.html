@@ -1,0 +1,6 @@
+<installation-view iconName="key-outline" header="Installateursschlüssel eingeben" (nextClicked)="onNextClicked()"
+  [isWaiting]="isWaiting || websocket.status !== 'online'" [isFirstView]="true">
+
+  <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+
+</installation-view>

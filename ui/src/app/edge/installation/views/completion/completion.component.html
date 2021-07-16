@@ -1,0 +1,14 @@
+<installation-view iconName="checkmark-done-outline" header="Abschließen" (previousClicked)="onPreviousClicked()"
+  (nextClicked)="onNextClicked()" isLastView="true">
+
+  <ion-textarea readonly auto-grow value="Herzlichen Glückwunsch, Sie haben Ihr FEMS erfolgreich in Betrieb genommen!">
+  </ion-textarea>
+
+  <ion-item>
+    <ion-button (click)="downloadProtocol()">
+      <ion-label>IBN-Protokoll herunterladen</ion-label>
+      <ion-icon name="download-outline" slot="end"></ion-icon>
+    </ion-button>
+  </ion-item>
+
+</installation-view>

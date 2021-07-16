@@ -140,6 +140,32 @@
           </ng-container>
         </ng-container>
       </ion-col>
+
+      <!-- not Smartphoneresolution -->
+      <!-- TODO avoid calling method in template -->
+      <ion-fab style="position: fixed;" vertical="bottom" horizontal="center"
+        *ngIf="loggedInUserCanInstall() && !this.service.isSmartphoneResolution">
+        <ion-fab-button size="large">
+          <ion-icon name="add-outline"></ion-icon>
+        </ion-fab-button>
+        <ion-fab-list side="top" style="left: 0; align-items: flex-start;" id="blurred">
+          <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">Neues FEMS hinzufügen
+          </ion-button>
+        </ion-fab-list>
+      </ion-fab>
+
+      <!-- SmartPhoneResolution -->
+      <ion-fab style="position: fixed;" horizontal="end" vertical="bottom"
+        *ngIf="loggedInUserCanInstall() && this.service.isSmartphoneResolution">
+        <ion-fab-button size="small">
+          <ion-icon name="add-outline"></ion-icon>
+        </ion-fab-button>
+        <ion-fab-list side="top" style="right: 0; align-items: flex-end;">
+          <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">Neues FEMS hinzufügen
+          </ion-button>
+        </ion-fab-list>
+      </ion-fab>
+
     </ion-row>
   </ion-grid>
 </ion-content>

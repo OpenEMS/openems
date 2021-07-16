@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.jsonrpc.request.AddEdgeToUserRequest;
+import io.openems.backend.common.jsonrpc.request.GetSetupProtocolRequest;
 import io.openems.backend.common.jsonrpc.request.GetUserInformationRequest;
 import io.openems.backend.common.jsonrpc.request.RegisterUserRequest;
 import io.openems.backend.common.jsonrpc.request.SetUserInformationRequest;
@@ -32,6 +33,7 @@ import io.openems.common.jsonrpc.request.LogoutRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticateResponse;
+import io.openems.common.jsonrpc.response.Base64PayloadResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
@@ -81,6 +83,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			break;
 		case SetUserInformationRequest.METHOD:
 			result = this.handleSetUserInformationRequest(user, SetUserInformationRequest.from(request));
+			break;
+		case GetSetupProtocolRequest.METHOD:
+			result = this.handleGetSetupProtocolRequest(user, GetSetupProtocolRequest.from(request));
 			break;
 		case SubmitSetupProtocolRequest.METHOD:
 			result = this.handleSubmitSetupProtocolRequest(user, SubmitSetupProtocolRequest.from(request));
@@ -352,6 +357,21 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 				.build();
 
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), response));
+	}
+
+	/**
+	 * Handles a {@link GetSetupProtocolRequest}.
+	 * 
+	 * @param user    the {@link User}r
+	 * @param request the {@link GetSetupProtocolRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<Base64PayloadResponse> handleGetSetupProtocolRequest(User user,
+			GetSetupProtocolRequest request) throws OpenemsNamedException {
+		byte[] protocol = this.parent.metadata.getSetupProtocol(user, request.getSetupProtocolId());
+
+		return CompletableFuture.completedFuture(new Base64PayloadResponse(request.getId(), protocol));
 	}
 
 }

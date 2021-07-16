@@ -189,7 +189,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
-	public void addEdgeToUser(User user, Edge edge) throws OpenemsException {
+	public void addEdgeToUser(User user, Edge edge) throws OpenemsNamedException {
 		this.odooHandler.assignEdgeToUser((MyUser) user, (MyEdge) edge, OdooUserRole.INSTALLER);
 	}
 
@@ -201,6 +201,11 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	@Override
 	public void setUserInformation(User user, JsonObject jsonObject) throws OpenemsNamedException {
 		this.odooHandler.setUserInformation((MyUser) user, jsonObject);
+	}
+
+	@Override
+	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException {
+		return this.odooHandler.getOdooSetupProtocolReport((MyUser) user, setupProtocolId);
 	}
 
 	@Override

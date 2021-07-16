@@ -17,6 +17,7 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
+import com.google.common.io.ByteStreams;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -574,6 +575,39 @@ public class OdooUtils {
 		}
 
 		return Optional.empty();
+	}
+
+	/**
+	 * Returns a Odoo report as a byte array. Search for the given template id in
+	 * combination with the concrete report id.
+	 * 
+	 * @param credentials the Odoo credentialss
+	 * @param userToken   to authenticate in Odoo
+	 * @param report      the Odoo template id
+	 * @param id          the Odoo report id
+	 * @return the Odoo report as a byte array
+	 * @throws OpenemsNamedException on error
+	 */
+	protected static byte[] getOdooReport(Credentials credentials, String userToken, String report, int id)
+			throws OpenemsNamedException {
+		HttpURLConnection connection = null;
+		try {
+			connection = (HttpURLConnection) new URL(
+					credentials.getUrl() + "/report/pdf/" + report + "/" + id + "?session_id=" + userToken)
+							.openConnection();
+			connection.setConnectTimeout(5000);
+			connection.setReadTimeout(5000);
+			connection.setRequestMethod("GET");
+			connection.setDoOutput(true);
+
+			return ByteStreams.toByteArray(connection.getInputStream());
+		} catch (Exception e) {
+			throw OpenemsError.GENERIC.exception(e.getMessage());
+		} finally {
+			if (connection != null) {
+				connection.disconnect();
+			}
+		}
 	}
 
 }

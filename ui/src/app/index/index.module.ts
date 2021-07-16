@@ -4,7 +4,6 @@ import { SharedModule } from './../shared/shared.module';
 
 import { IndexComponent } from './index.component';
 
-
 @NgModule({
   imports: [
     SharedModule,

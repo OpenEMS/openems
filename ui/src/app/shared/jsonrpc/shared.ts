@@ -7,8 +7,8 @@ export type Edges = [{
     isOnline: boolean
 }];
 
-export type User = [{
+export type User = {
     id: string,
     name: string,
     globalRole: "admin" | "installer" | "owner" | "guest",
-}];
+};

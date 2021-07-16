@@ -226,6 +226,11 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
+	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException {
+		throw new IllegalArgumentException("FileMetadata.getSetupProtocol() is not implemented");
+	}
+
+	@Override
 	public int submitSetupProtocol(User user, JsonObject jsonObject) {
 		throw new IllegalArgumentException("FileMetadata.submitSetupProtocol() is not implemented");
 	}

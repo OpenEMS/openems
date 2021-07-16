@@ -1,0 +1,38 @@
+<installation-view iconName="clipboard-outline" header="Zusätzliche AC-Erzeuger" (previousClicked)="onPreviousClicked()"
+  (nextClicked)="onNextClicked()">
+
+  <ion-item>
+    <div>
+      Die hier hinzufügten zusätzlichen AC-Erzeuger werden ausschließlich im IBN-Protokoll
+      einsehbar sein.
+    </div>
+  </ion-item>
+
+  <formly-form *ngIf="insertModeEnabled" [form]="form" [fields]="fields" [model]="model"></formly-form>
+
+  <ion-item lines="none">
+    <ion-button (click)="switchMode()">
+      <ion-label>{{insertModeEnabled ? "Erzeuger speichern" : "Erzeuger hinzufügen"}}</ion-label>
+      <ion-icon name="add-outline" slot="start"></ion-icon>
+    </ion-button>
+  </ion-item>
+
+  <ion-card *ngIf="installationData.pv.ac && installationData.pv.ac.length > 0">
+    <ion-card-content>
+      <ion-item *ngFor="let ac of installationData.pv.ac">
+        <ion-item slot="start" lines="none">
+          <ion-button (click)="editElement(ac)" title="bearbeiten">
+            <ion-icon name="pencil-outline">
+            </ion-icon>
+          </ion-button>
+          <ion-button (click)="removeElement(ac)" title="entfernen">
+            <ion-icon name="trash-outline">
+            </ion-icon>
+          </ion-button>
+        </ion-item>
+        <div>{{ac.alias}}</div>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+</installation-view>

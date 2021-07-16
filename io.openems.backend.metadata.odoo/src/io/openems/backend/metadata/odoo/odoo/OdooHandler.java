@@ -115,10 +115,11 @@ public class OdooHandler {
 	 * @param user     the Odoo user
 	 * @param edge     the Odoo edge
 	 * @param userRole the Odoo user role
-	 * @throws OpenemsException on error
+	 * @throws OpenemsNamedException on error
 	 */
-	public void assignEdgeToUser(MyUser user, MyEdge edge, OdooUserRole userRole) throws OpenemsException {
+	public void assignEdgeToUser(MyUser user, MyEdge edge, OdooUserRole userRole) throws OpenemsNamedException {
 		this.assignEdgeToUser(user.getOdooId(), edge.getOdooId(), userRole);
+		this.parent.authenticate(user.getToken());
 	}
 
 	/**
@@ -130,7 +131,7 @@ public class OdooHandler {
 	 * @param userRole the Odoo user role
 	 * @throws OpenemsException on error
 	 */
-	public void assignEdgeToUser(int userId, int edgeId, OdooUserRole userRole) throws OpenemsException {
+	private void assignEdgeToUser(int userId, int edgeId, OdooUserRole userRole) throws OpenemsException {
 		int[] found = OdooUtils.search(this.credentials, Field.EdgeDeviceUserRole.ODOO_MODEL,
 				new Domain(Field.EdgeDeviceUserRole.USER_ID, "=", userId),
 				new Domain(Field.EdgeDeviceUserRole.DEVICE_ID, "=", edgeId));
@@ -389,11 +390,25 @@ public class OdooHandler {
 	}
 
 	/**
-	 * Save the installation assistant protocol to Odoo.
+	 * Returns the Odoo report for a setup protocol.
 	 * 
-	 * @param user     {@link MyUser} current user
-	 * @param protocol {@link SetupProtocol} the setup protocol
-	 * @throws OpenemsNamedException
+	 * @param user            to authenticate in Odoo
+	 * @param setupProtocolId the Odoo setup protocol id
+	 * @return report as a byte array
+	 * @throws OpenemsNamedException on error
+	 */
+	public byte[] getOdooSetupProtocolReport(MyUser user, int setupProtocolId) throws OpenemsNamedException {
+		return OdooUtils.getOdooReport(this.credentials, user.getToken(), "fems.report_fems_setup_protocol_template",
+				setupProtocolId);
+	}
+
+	/**
+	 * Save the Setup Protocol to Odoo.
+	 * 
+	 * @param user              {@link MyUser} current user
+	 * @param setupProtocolJson {@link SetupProtocol} the setup protocol
+	 * @return the Setup Protocol ID
+	 * @throws OpenemsNamedException on error
 	 */
 	public int submitSetupProtocol(MyUser user, JsonObject setupProtocolJson) throws OpenemsNamedException {
 		JsonObject userJson = JsonUtils.getAsJsonObject(setupProtocolJson, "customer");
@@ -413,21 +428,39 @@ public class OdooHandler {
 		int installerId = this.getOdooPartnerId(user);
 		this.assignEdgeToUser(odooUserId, foundFems[0], OdooUserRole.OWNER);
 
-		return this.createSetupProtocol(setupProtocolJson, foundFems[0], customerId, installerId);
+		int protocolId = this.createSetupProtocol(setupProtocolJson, foundFems[0], customerId, installerId);
+		this.sendSetupProtocolMail(user, protocolId, femsId);
+		return protocolId;
+	}
+
+	/**
+	 * Call Odoo api to send mail via Odoo.
+	 * 
+	 * @param user       the Odoo user
+	 * @param protocolId the Odoo setup protocol id
+	 * @param femsId     the Odoo edge
+	 * @throws OpenemsNamedException on error
+	 */
+	private void sendSetupProtocolMail(MyUser user, int protocolId, String femsId) throws OpenemsNamedException {
+		OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/sendSetupProtocolEmail",
+				"session_id=" + user.getToken(), JsonUtils.buildJsonObject() //
+						.add("params", JsonUtils.buildJsonObject() //
+								.addProperty("setupProtocolId", protocolId) //
+								.addProperty("femsId", femsId) //
+								.build()) //
+						.build());
 	}
 
 	/**
 	 * Create an Odoo user and return thats id. If user already exists the user will
 	 * be updated and return the user id.
 	 * 
-	 * @param partner  the {@link Partner} to create user
+	 * @param userJson the {@link Partner} to create user
 	 * @param password the password to set for the new user
 	 * @return the Odoo user id
-	 * @throws OpenemsNamedException
+	 * @throws OpenemsNamedException on error
 	 */
 	private int createOdooUser(JsonObject userJson, String password) throws OpenemsNamedException {
-		String email = JsonUtils.getAsString(userJson, "email");
-
 		Map<String, Object> customerFields = new HashMap<>();
 		customerFields.putAll(this.updateAddress(userJson));
 		customerFields.putAll(this.updateCompany(userJson));
@@ -436,6 +469,8 @@ public class OdooHandler {
 				.ifPresent(firstname -> customerFields.put(Field.Partner.FIRSTNAME.id(), firstname));
 		JsonUtils.getAsOptionalString(userJson, "lastname") //
 				.ifPresent(lastname -> customerFields.put(Field.Partner.LASTNAME.id(), lastname));
+
+		String email = JsonUtils.getAsString(userJson, "email");
 		JsonUtils.getAsOptionalString(userJson, "email") //
 				.ifPresent(mail -> customerFields.put(Field.Partner.EMAIL.id(), mail));
 		JsonUtils.getAsOptionalString(userJson, "phone") //
@@ -460,10 +495,10 @@ public class OdooHandler {
 	/**
 	 * Create a setup protocol in Odoo.
 	 * 
-	 * @param protocol    {@link SetupProtocol} to create
+	 * @param jsonObject  {@link SetupProtocol} to create
+	 * @param femsId      the Edge-ID
 	 * @param customerId  Odoo customer id to set
 	 * @param installerId Odoo installer id to set
-	 * @param
 	 * @return the Odoo id of created setup protocol
 	 * @throws OpenemsException on error
 	 */

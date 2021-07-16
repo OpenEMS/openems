@@ -48,12 +48,18 @@ export class HeatingElementTcpInstallerComponent {
     this.service.getConfig().then(config => {
       this.config = config;
     }).then(() => {
+
+      // Gather already existing components
       switch (this.gatherAddedComponents().length) {
+
+        // If there's no component installed, show initial page
         case 0: {
           this.showInit = true;
           this.loading = false;
           break;
         }
+
+        // Some components already installed
         case 1: case 2: {
           this.loadingStrings.push({ string: 'Teile dieser App sind bereits installiert', type: 'setup' });
           setTimeout(() => {
@@ -61,6 +67,8 @@ export class HeatingElementTcpInstallerComponent {
           }, 2000);
           break;
         }
+
+        // All components already installed
         case 3: {
           this.gatherAddedComponentsIntoArray();
           this.checkingState = true;
@@ -183,6 +191,7 @@ export class HeatingElementTcpInstallerComponent {
         }
       }
     }
+
     let properties = this.createProperties(fields, model);
     return properties;
   }
@@ -296,6 +305,11 @@ export class HeatingElementTcpInstallerComponent {
     }, 27000);
   }
 
+  /**
+   * Sucht die bereits existierenden Komponenten zusammen.
+   * 
+   * @returns 
+   */
   private gatherAddedComponents(): EdgeConfig.Component[] {
     let result = [];
     this.config.getComponentsByFactory('Bridge.Modbus.Tcp').forEach(component => {
@@ -333,6 +347,8 @@ export class HeatingElementTcpInstallerComponent {
         this.components.push(component)
       }
     })
+
+
     this.edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
       let workState = 0;
       this.components.forEach(component => {
@@ -347,6 +363,7 @@ export class HeatingElementTcpInstallerComponent {
         this.appWorking.next(false);
       }
     })
+
     this.subscribeOnAddedComponents();
   }
 
@@ -428,4 +445,5 @@ export class HeatingElementTcpInstallerComponent {
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
   }
+
 }
