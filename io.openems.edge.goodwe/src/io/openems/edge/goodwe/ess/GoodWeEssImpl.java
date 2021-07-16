@@ -101,7 +101,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		// Apply Power Set-Point
-		ApplyPowerHandler.apply(this, false /* read-only mode is never true */, activePower);
+		ApplyPowerHandler.apply(this, config.readOnlyMode(), activePower);
 	}
 
 	@Override
@@ -166,7 +166,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 		if (productionPower == null || productionPower < 100) {
 			return null;
 		}
-		return productionPower;
+		return productionPower + 200 /* discharge more than PV production to avoid PV curtail */;
 	}
 
 }

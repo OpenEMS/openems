@@ -17,7 +17,7 @@ public class User extends AbstractUser {
 	/**
 	 * Default-Edge-ID for User.
 	 */
-	public final static String DEFAULT_EDGE_ID = "0";
+	public static final String DEFAULT_EDGE_ID = "0";
 
 	/**
 	 * Constructs an {@link User}.
@@ -35,7 +35,6 @@ public class User extends AbstractUser {
 	 * Gets the Role (Global and Per-Edge-Role are the same for OpenEMS Edge
 	 * {@link User}).
 	 * 
-	 * @param edgeId the Edge-ID
 	 * @return the {@link Role}
 	 */
 	public Role getRole() {

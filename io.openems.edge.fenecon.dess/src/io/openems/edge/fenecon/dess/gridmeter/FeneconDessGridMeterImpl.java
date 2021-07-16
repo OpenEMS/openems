@@ -106,16 +106,16 @@ public class FeneconDessGridMeterImpl extends AbstractOpenemsModbusComponent imp
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(11138), DELTA_10000), //
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new UnsignedWordElement(11139), DELTA_10000)), //
 				new FC3ReadRegistersTask(11166, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(11166),
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(11166),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(11167),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(11167),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(11168), DELTA_10000), //
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new UnsignedWordElement(11169), DELTA_10000)), //
 				new FC3ReadRegistersTask(11196, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(11196),
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(11196),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(11197),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(11197),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(11198), DELTA_10000), //
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new UnsignedWordElement(11199), DELTA_10000)) //
