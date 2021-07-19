@@ -1008,6 +1008,7 @@ public class JsonUtils {
 				// identify the array type (boolean, int or String)
 				boolean isBoolean = true;
 				boolean isInt = true;
+
 				for (JsonElement jE : jA) {
 					if (jE.isJsonPrimitive()) {
 						JsonPrimitive jP = jE.getAsJsonPrimitive();
@@ -1023,6 +1024,15 @@ public class JsonUtils {
 						break;
 					}
 				}
+
+				boolean isJsonObject = true;
+				for (JsonElement jE : jA) {
+					if (!jE.isJsonObject()) {
+						isJsonObject = false;
+						break;
+					}
+				}
+
 				if (isBoolean) {
 					// convert to boolean array
 					boolean[] result = new boolean[jA.size()];
@@ -1037,6 +1047,8 @@ public class JsonUtils {
 						result[i] = jA.get(i).getAsInt();
 					}
 					return result;
+				} else if (isJsonObject) {
+					return j.toString();
 				} else {
 					// convert to string array
 					String[] result = new String[jA.size()];

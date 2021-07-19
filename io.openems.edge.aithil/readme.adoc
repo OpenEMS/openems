@@ -18,4 +18,45 @@ Example Schedule
 ]
 ----
 
+
+Full JSON-RPC Request
+----
+{
+    "method": "updateComponentConfig",
+    "params": {
+        "componentId": "ctrlPByF0",
+        "properties": [
+            {
+                "name": "schedule",
+                "value": [
+                    {
+                        "startTimestamp": 1626703200,
+                        "duration": 900,
+                        "enabled": true,
+                        "curve": [
+                            {
+                                "f": 49.5,
+                                "p": 90
+                            },
+                            {
+                                "f": 49.8,
+                                "p": 90
+                            },
+                            {
+                                "f": 50.2,
+                                "p": -80
+                            },
+                            {
+                                "f": 50.5,
+                                "p": -80
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+----
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.aithil[Source Code icon:github[]]
