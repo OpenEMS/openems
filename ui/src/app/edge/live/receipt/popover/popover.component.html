@@ -1,0 +1,8 @@
+<ion-list>
+    <ion-item lines="none" *ngFor="let item of evcsComponents" style="cursor: pointer;">
+        <ion-icon name="{{ item.icon }}"></ion-icon>
+        <ion-label class="ion-text-wrap" (click)="getComponentClosePopover(item)">
+            {{ item.component.alias }}
+        </ion-label>
+    </ion-item>
+</ion-list>

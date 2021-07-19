@@ -10,6 +10,11 @@ export interface CategorizedComponents {
     components: EdgeConfig.Component[]
 };
 
+export interface EvcsComponents {
+    icon: string,
+    component: EdgeConfig.Component
+}
+
 export interface CategorizedFactories {
     category: {
         title: string,

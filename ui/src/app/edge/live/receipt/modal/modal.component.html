@@ -1,0 +1,129 @@
+<ion-header>
+    <ion-toolbar class="ion-justify-content-center" color="primary">
+        <ion-title translate>Edge.Index.Widgets.Receipt.receipt</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ion-card-content class="underline">
+        <table class="full_width">
+            <tr>
+                <td style="width:35%" translate>Edge.Index.Widgets.Receipt.component
+                </td>
+                <td style="width:65%" class="align_right">
+                    {{ pickedComponent }}
+                </td>
+            </tr>
+            <tr>
+                <td style="width:35%" translate>Edge.Index.Widgets.Receipt.energy
+                </td>
+                <td style="width:65%" class="align_right">
+                    {{ pickedComponentsEnergy == null? "-":pickedComponentsEnergy | unitvalue:'kWh' }}
+                </td>
+            </tr>
+        </table>
+        <table class="full_width">
+            <tr>
+                <td style="width:100%" translate>Edge.Index.Widgets.Receipt.timeframe
+                </td>
+            </tr>
+        </table>
+        <!-- used for spacing -->
+        <div style="padding-top: 5px;"></div>
+        <table class="full_width">
+            <tr>
+                <td style="width:2%"></td>
+                <td style="width:33%" translate>Edge.Index.Widgets.Receipt.date
+                </td>
+                <td style="width:65%" class="align_right">
+                    {{ this.service.historyPeriod.getText(this.translate) }}
+                </td>
+            </tr>
+            <tr>
+                <td style="width:2%"></td>
+                <td style="width:33%" translate>Edge.Index.Widgets.Receipt.time
+                </td>
+                <td style="width:65%" class="align_right">
+                    {{ clockTimeframe }}
+                </td>
+            </tr>
+        </table>
+    </ion-card-content>
+    <ion-card-content class="underline">
+        <ion-row class="ion-justify-content-center">
+            <ion-note class="ion-text-center" translate>
+                Edge.Index.Widgets.Receipt.evcsInfo
+            </ion-note>
+        </ion-row>
+        <table class="full_width">
+            <tr>
+                <td style="width: 100%;" translate>Edge.Index.Widgets.Receipt.pickDate</td>
+            </tr>
+        </table>
+        <ion-grid>
+            <ion-row class="ion-justify-content-center">
+                <ion-buttons>
+                    <pickdate class="ion-text-center"></pickdate>
+                </ion-buttons>
+            </ion-row>
+        </ion-grid>
+        <table class=" full_width">
+            <tr>
+                <td translate>
+                    Edge.Index.Widgets.Receipt.pickTime
+                </td>
+            </tr>
+        </table>
+        <ion-grid>
+            <ion-row class="ion-justify-content-center">
+                <ion-col size-xl="3" size-md="6" size-sm="12">
+                    <ion-item lines="none" class="ion-text-start">
+                        <ion-label translate>
+                            Edge.Index.Widgets.Receipt.from
+                        </ion-label>
+                        <ion-datetime (ionChange)="fromTimeChanged($event)"
+                            [cancelText]="translate.instant('General.cancel')" [value]="fromTime"
+                            [doneText]="translate.instant('General.ok')" displayFormat="HH:mm" pickerFormat="HH:mm"
+                            minuteValues="0,5,10,15,20,25,30,35,40,45,50,55">
+                        </ion-datetime>
+                    </ion-item>
+                </ion-col>
+                <ion-col size-xl="3" size-md="6" size-sm="12">
+                    <ion-item lines="none" class="ion-text-start">
+                        <ion-label translate>
+                            Edge.Index.Widgets.Receipt.until
+                        </ion-label>
+                        <ion-datetime (ionChange)="toTimeChanged($event)"
+                            [cancelText]="translate.instant('General.cancel')" [value]="toTime"
+                            [doneText]="translate.instant('General.ok')" displayFormat="HH:mm" pickerFormat="HH:mm"
+                            minuteValues="0,5,10,15,20,25,30,35,40,45,50,55">
+                        </ion-datetime>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </ion-card-content>
+    <ion-card-content class="underline">
+        <ion-grid>
+            <ion-row class="ion-justify-content-center">
+                <ion-button fill="outline" (click)="presentPopover()" translate>
+                    Edge.Index.Widgets.Receipt.pickComponent
+                </ion-button>
+            </ion-row>
+        </ion-grid>
+    </ion-card-content>
+    <ion-card-content>
+        <ion-grid>
+            <ion-row class="ion-justify-content-center">
+                <ion-button translate (click)="createReceipt()">
+                    Edge.Index.Widgets.Receipt.createReceipt
+                </ion-button>
+            </ion-row>
+        </ion-grid>
+    </ion-card-content>
+</ion-content>
