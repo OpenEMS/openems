@@ -10,37 +10,16 @@ import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint.PointImpl;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint.PointType;
 
 public enum KacoSunSpecModel implements SunSpecModel {
-	S_64201(//
+	S_134(//
 			"Bidirectional inverter control", //
 			"Bidirectional inverter control backend", //
 			"", //
 			52, //
 			KacoSunSpecModel.S64201.values(), //
-			SunSpecModelType.VENDOR_SPECIFIC), //
-	S_64202(//
-			"Battery Charge Discharge Characteristic", //
-			"Bidirectional inverter battery charge discharge characteristic", //
-			"", //
-			14, //
-			KacoSunSpecModel.S64202.values(), //
-			SunSpecModelType.VENDOR_SPECIFIC), //
-	S_64203(//
-			"Batterysystem Information", //
-			"Batterysystem Information Frontend", //
-			"", //
-			26, //
-			KacoSunSpecModel.S64203.values(), //
-			SunSpecModelType.VENDOR_SPECIFIC), //
-	S_64204(//
-			"Q(U) extended", //
-			"Q(U) offset extension", //
-			"", //
-			8, //
-			KacoSunSpecModel.S64204.values(), //
 			SunSpecModelType.VENDOR_SPECIFIC //
 	); //
 
-	public static enum S64201 implements SunSpecPoint {
+	public static enum S134 implements SunSpecPoint {
 		VERSION_MAJOR(new PointImpl(//
 				"S64201_VERSION_MAJOR", //
 				"Version", //
