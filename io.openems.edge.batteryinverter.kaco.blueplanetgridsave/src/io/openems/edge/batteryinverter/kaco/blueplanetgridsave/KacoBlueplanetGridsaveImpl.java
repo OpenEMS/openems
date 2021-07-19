@@ -473,8 +473,9 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 		return this.timedata;
 	}
 
-	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
-		super.addBlock(startAddress, model, priority);
+	protected void addBlock(int startAddress, SunSpecModel model, int length, Priority priority)
+			throws OpenemsException {
+		super.addBlock(startAddress, model, length, priority);
 
 		// Mark S_64203 as available
 		if (model.equals(KacoSunSpecModel.S_64203)) {
