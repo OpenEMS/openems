@@ -24,7 +24,16 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String Modbus_target() default "";
 
 	@AttributeDefinition(name = "Freq-Watt Crv", description = "")
-	String freqWattCrv() default "";
+	String freqWattCrv() default "{\n" //
+			+ "	 enabled: true,\n" //
+			+ "	 curve: [\n" //
+			+ "		{ f: 49.5, p: 100 },\n" //
+			+ "		{ f: 49.8, p: 50 },\n" //
+			+ "		{ f: 50, p: 0 },\n" //
+			+ "		{ f: 50.2, p: -50 },\n" //
+			+ "		{ f: 50.5, p: -100 }\n" //
+			+ "	 ]\n" //
+			+ "}";
 
 	String webconsole_configurationFactory_nameHint() default "AIT HIL [{id}]";
 
