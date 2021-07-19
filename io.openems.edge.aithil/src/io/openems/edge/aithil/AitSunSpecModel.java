@@ -296,6 +296,50 @@ public enum AitSunSpecModel implements SunSpecModel {
 				Unit.PERCENT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
+		HZ8(new PointImpl(//
+				"S134_HZ8", //
+				"Hz8", //
+				"Point 8 Hertz.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.HERTZ, //
+				"HZ_SF", //
+				new OptionsEnum[0])), //
+		W8(new PointImpl(//
+				"S134_W8", //
+				"W8", //
+				"Point 8 Watts.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
+				"W_SF", //
+				new OptionsEnum[0])), //
+		HZ9(new PointImpl(//
+				"S134_HZ9", //
+				"Hz9", //
+				"Point 9 Hertz.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.HERTZ, //
+				"HZ_SF", //
+				new OptionsEnum[0])), //
+		W9(new PointImpl(//
+				"S134_W9", //
+				"W9", //
+				"Point 9 Watts.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
+				"W_SF", //
+				new OptionsEnum[0])), //
 		;
 
 		protected final PointImpl impl;
