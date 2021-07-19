@@ -15,13 +15,11 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
@@ -60,8 +58,6 @@ public class AitHilImpl extends AbstractOpenemsSunSpecComponent implements AitHi
 //			.put(DefaultSunSpecModel.S_134, Priority.LOW) //
 			.build();
 
-	private Config config = null;
-
 	public AitHilImpl() throws OpenemsException {
 		super(//
 				ACTIVE_MODELS, //
@@ -84,7 +80,6 @@ public class AitHilImpl extends AbstractOpenemsSunSpecComponent implements AitHi
 				config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
 			return;
 		}
-		this.applyConfig(config);
 	}
 
 	@Modified
@@ -92,15 +87,6 @@ public class AitHilImpl extends AbstractOpenemsSunSpecComponent implements AitHi
 		if (super.modified(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id())) {
 			return;
-		}
-		this.applyConfig(config);
-	}
-
-	private synchronized void applyConfig(Config config) {
-		this.config = config;
-
-		if (this.sunSpecInitializationCompleted) {
-			this.writeRegisters();
 		}
 	}
 
@@ -120,36 +106,33 @@ public class AitHilImpl extends AbstractOpenemsSunSpecComponent implements AitHi
 	@Override
 	protected synchronized void onSunSpecInitializationCompleted() {
 		this.sunSpecInitializationCompleted = true;
-		this.writeRegisters();
 	}
 
-	private void writeRegisters() {
-		if (this.config.freqWattCrv().trim().isEmpty()) {
+	private FreqWattCrv activeFreqWattCrv = null;
+
+	@Override
+	public void applyFreqWattCrv(FreqWattCrv freqWattCrv) throws OpenemsNamedException {
+		if (!this.sunSpecInitializationCompleted) {
+			// Wait for initialization
 			return;
 		}
 
-		try {
-			JsonObject j = JsonUtils.parseToJsonObject(this.config.freqWattCrv());
+		if (Objects.equal(this.activeFreqWattCrv, freqWattCrv)) {
+			// FreqWattCrv is already active
+			return;
+		}
+		this.activeFreqWattCrv = freqWattCrv;
 
-			this.writeRegister(AitSunSpecModel.S134.ACT_CRV, 1);
+		this.writeRegister(AitSunSpecModel.S134.ACT_CRV, 1);
+		this.writeRegister(AitSunSpecModel.S134.MOD_ENA, freqWattCrv.enabled ? 0 : 1);
 
-			boolean enabled = JsonUtils.getAsBoolean(j, "enabled");
-			this.writeRegister(AitSunSpecModel.S134.MOD_ENA, enabled ? 0 : 1);
+		// Number of active points in array.
+		this.writeRegister(AitSunSpecModel.S134.ACT_PT, freqWattCrv.curve.length);
 
-			JsonArray curve = JsonUtils.getAsJsonArray(j, "curve");
-
-			// Number of active points in array.
-			this.writeRegister(AitSunSpecModel.S134.ACT_PT, curve.size());
-
-			for (int i = 0; i < curve.size(); i++) {
-				JsonObject point = JsonUtils.getAsJsonObject(curve.get(i));
-				float hz = JsonUtils.getAsFloat(point, "f");
-				float w = JsonUtils.getAsFloat(point, "p");
-				this.writeRegister(AitSunSpecModel.S134.valueOf("HZ" + (i + 1)), hz);
-				this.writeRegister(AitSunSpecModel.S134.valueOf("W" + (i + 1)), w);
-			}
-		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
+		for (int i = 0; i < freqWattCrv.curve.length; i++) {
+			PByF pByF = freqWattCrv.curve[i];
+			this.writeRegister(AitSunSpecModel.S134.valueOf("HZ" + (i + 1)), pByF.f);
+			this.writeRegister(AitSunSpecModel.S134.valueOf("W" + (i + 1)), pByF.p);
 		}
 	}
 
