@@ -3,6 +3,7 @@ package io.openems.edge.controller.ess.gridoptimizedcharge;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -10,6 +11,7 @@ import java.util.Arrays;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 
 public class DelayCharge {
@@ -33,6 +35,11 @@ public class DelayCharge {
 	 * The whole prediction should only be logged once.
 	 */
 	private boolean predictionDebugLog = true;
+
+	/**
+	 * Last delayChargePower used when the SoC is 100 percent.
+	 */
+	private Integer lastDelayChargePower;
 
 	public DelayCharge(GridOptimizedChargeImpl parent) {
 		this.parent = parent;
@@ -66,7 +73,29 @@ public class DelayCharge {
 	 * @throws OpenemsNamedException on error
 	 */
 	protected Integer getManualDelayChargeMaxCharge() throws OpenemsNamedException {
-		int targetMinute = LocalTime.parse(this.parent.config.manualTargetTime()).get(ChronoField.MINUTE_OF_DAY);
+		LocalTime targetTime = LocalTime.of(17, 0);
+
+		// Try to parse the configured Time as LocalTime or ZonedDateTime, which is the
+		// format that comes from UI.
+		// TODO extract this feature into a DateTimeUtils class and reuse it wherever
+		// feasible
+		try {
+			targetTime = LocalTime.parse(this.parent.config.manualTargetTime());
+		} catch (DateTimeParseException e) {
+			try {
+				targetTime = ZonedDateTime.parse(this.parent.config.manualTargetTime()).toLocalTime();
+
+			} catch (DateTimeParseException i) {
+
+				// Set Info state channel and log
+				StateChannel noValidManualTargetTime = this.parent
+						.channel(GridOptimizedCharge.ChannelId.NO_VALID_MANUAL_TARGET_TIME);
+				noValidManualTargetTime.setNextValue(true);
+				this.parent.logDebug(noValidManualTargetTime.channelDoc().getText());
+			}
+		}
+
+		int targetMinute = targetTime.get(ChronoField.MINUTE_OF_DAY);
 		return this.calculateDelayChargeMaxCharge(targetMinute);
 	}
 
@@ -230,8 +259,15 @@ public class DelayCharge {
 			return null;
 		}
 
-		// Calculate charge power limit
-		Integer calculatedPower = remainingCapacity / remainingTime;
+		Integer calculatedPower;
+
+		// Still try to charge, even if there's 100% SoC calculated
+		if (soc >= 100) {
+			calculatedPower = this.lastDelayChargePower;
+		} else {
+			// Calculate charge power limit
+			calculatedPower = remainingCapacity / remainingTime;
+		}
 
 		// Max apparent power
 		int maxApparentPower = this.parent.ess.getMaxApparentPower().orElse(Integer.MAX_VALUE);
@@ -240,6 +276,7 @@ public class DelayCharge {
 		// seconds
 		calculatedPower = Math.min(calculatedPower, maxApparentPower);
 
+		this.lastDelayChargePower = calculatedPower;
 		return calculatedPower;
 	}
 
@@ -301,7 +338,7 @@ public class DelayCharge {
 					.get(ChronoField.MINUTE_OF_DAY);
 
 			// target hour adjusted based on buffer hour.
-			targetMinuteAdjusted = targetMinuteActual - this.parent.config.noOfBufferMinutes();
+			targetMinuteAdjusted = targetMinuteActual - this.parent.config.delayChargeRiskLevel().bufferMinutes;
 		}
 
 		/*

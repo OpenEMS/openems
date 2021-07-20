@@ -40,13 +40,27 @@ public class SellToGridLimit {
 		// Current ess charge/discharge power
 		int essActivePower = this.parent.ess.getActivePower().getOrError();
 
+		// State of charge
+		int soc = this.parent.ess.getSoc().getOrError();
+
+		int maximumSellToGridPower = this.parent.config.maximumSellToGridPower();
+
+		// Reduce the maximum sell to grid power with a buffer, to avoid PV curtail
+		// TODO improve logic to make sure we always meet the maximum sell to grid
+		// power. Right now we simply try to target a value 5 % below the configured
+		// maximum sell to grid power.
+		if (soc < 100) {
+			maximumSellToGridPower = Math.round(maximumSellToGridPower * 0.95F);
+			this.parent.logDebug("Reduced SellToGridPowerLimit: " + maximumSellToGridPower);
+		}
+
 		// Calculate actual limit for Ess
-		int essMinChargePower = gridPower + essActivePower + this.parent.config.maximumSellToGridPower();
+		int essMinChargePower = gridPower + essActivePower + maximumSellToGridPower;
 
 		// Log debug
 		this.parent.logDebug("Maximum Discharge/Minimum Charge Power: " + essMinChargePower + "(Grid:" + gridPower
-				+ " + Ess:" + essActivePower + " + MaximumGrid:" + this.parent.config.maximumSellToGridPower()
-				+ ")| Last limit: " + this.lastSellToGridLimit);
+				+ " + Ess:" + essActivePower + " + MaximumGrid:" + maximumSellToGridPower + ")| Last limit: "
+				+ this.lastSellToGridLimit);
 
 		// Adjust value so that it fits into Min/MaxActivePower
 		essMinChargePower = this.parent.ess.getPower().fitValueIntoMinMaxPower(this.parent.id(), this.parent.ess,
@@ -119,10 +133,17 @@ public class SellToGridLimit {
 		this.parent._setSellToGridLimitState(state);
 		if (essMinChargePower == null) {
 			this.parent._setSellToGridLimitMinimumChargeLimit(null);
+			this.parent._setRawSellToGridLimitChargeLimit(null);
 			this.lastSellToGridLimit = 0;
 			return;
 		}
-		this.parent._setSellToGridLimitMinimumChargeLimit(essMinChargePower * -1);
+
+		this.parent._setRawSellToGridLimitChargeLimit(essMinChargePower);
 		this.lastSellToGridLimit = essMinChargePower;
+
+		// Calculate & set readable AC format
+		int dcProduction = this.parent.sum.getProductionDcActualPower().orElse(0);
+		int essMinChargePowerAc = essMinChargePower - dcProduction;
+		this.parent._setSellToGridLimitMinimumChargeLimit(essMinChargePowerAc * -1);
 	}
 }
