@@ -666,19 +666,19 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Number of towers of the built system")),
 
-		TOWER_3_BMS_SOFTWARE_VERSION(new IntegerDoc() //
+		TOWER_2_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Bms software version of third tower") //
 				.onInit(FeneconHomeBatteryImpl.UPDATE_NUMBER_OF_TOWERS_AND_MODULES_CALLBACK)),
 
-		TOWER_2_BMS_SOFTWARE_VERSION(new IntegerDoc() //
+		TOWER_1_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Bms software version of second tower") //
 				.onInit(FeneconHomeBatteryImpl.UPDATE_NUMBER_OF_TOWERS_AND_MODULES_CALLBACK)),
 
-		TOWER_1_BMS_SOFTWARE_VERSION(new IntegerDoc() //
+		TOWER_0_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Bms software version of first tower")),

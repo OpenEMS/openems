@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -38,6 +39,7 @@ import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
@@ -64,10 +66,7 @@ import io.openems.edge.common.taskmanager.Priority;
 public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 		implements OpenemsComponent, Battery, EventHandler, ModbusSlave, StartStoppable, FeneconHomeBattery {
 
-	private static final int TEMPERATURE_ADDRESS_OFFSET = 18;
-	private static final int VOLTAGE_ADDRESS_OFFSET = 2;
 	private static final int SENSORS_PER_MODULE = 14;
-	private static final int ADDRESS_OFFSET_FOR_CELL_VOLT_AND_TEMP = 100;
 	private static final int MODULE_MIN_VOLTAGE = 42; // [V]
 	private static final int MODULE_MAX_VOLTAGE = 49; // [V]; 3.5 V x 14 Cells per Module
 	private static final int CAPACITY_PER_MODULE = 2200; // [Wh]
@@ -298,11 +297,11 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 								.bit(8, FeneconHomeBattery.ChannelId.RACK_SYSTEM_SHORT_CIRCUIT)), //
 						m(FeneconHomeBattery.ChannelId.UPPER_VOLTAGE, new UnsignedWordElement(528))), //
 				new FC3ReadRegistersTask(14000, Priority.LOW, //
-						m(FeneconHomeBattery.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION, new UnsignedWordElement(14000))), //
+						m(FeneconHomeBattery.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION, new UnsignedWordElement(14000))), //
 				new FC3ReadRegistersTask(12000, Priority.LOW, //
-						m(FeneconHomeBattery.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION, new UnsignedWordElement(12000))), //
+						m(FeneconHomeBattery.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION, new UnsignedWordElement(12000))), //
 				new FC3ReadRegistersTask(10000, Priority.LOW, //
-						m(FeneconHomeBattery.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION, new UnsignedWordElement(10000)), //
+						m(FeneconHomeBattery.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION, new UnsignedWordElement(10000)), //
 						new DummyRegisterElement(10001, 10023), //
 						m(FeneconHomeBattery.ChannelId.NUMBER_OF_MODULES_PER_TOWER, new UnsignedWordElement(10024))), //
 				new FC3ReadRegistersTask(44000, Priority.LOW, //
@@ -330,10 +329,25 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	 * 
 	 * @param tower           number of the Tower
 	 * @param channelIdSuffix e.g. "STATUS_ALARM"
+	 * @param openemsType     specified type e.g. "INTEGER"
 	 * @return a channel with Channel-ID "TOWER_1_STATUS_ALARM"
 	 */
 	private ChannelIdImpl generateTowerChannel(int tower, String channelIdSuffix, OpenemsType openemsType) {
 		ChannelIdImpl channelId = new ChannelIdImpl("TOWER_" + tower + "_" + channelIdSuffix, Doc.of(openemsType));
+		this.addChannel(channelId);
+		return channelId;
+	}
+
+	/**
+	 * Generates a Channel-ID for channels that are specific to a tower.
+	 * 
+	 * @param tower           number of the Tower
+	 * @param channelIdSuffix e.g. "STATUS_ALARM"
+	 * @param level     specified level e.g. "INFO"
+	 * @return a channel with Channel-ID "TOWER_1_STATUS_ALARM"
+	 */
+	private ChannelIdImpl generateTowerChannel(int tower, String channelIdSuffix, Level level) {
+		ChannelIdImpl channelId = new ChannelIdImpl("TOWER_" + tower + "_" + channelIdSuffix, Doc.of(level));
 		this.addChannel(channelId);
 		return channelId;
 	}
@@ -401,10 +415,10 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 				.channel(FeneconHomeBattery.ChannelId.NUMBER_OF_MODULES_PER_TOWER);
 		Value<Integer> numberOfModulesPerTowerOpt = numberOfModulesPerTowerChannel.value();
 		Channel<Integer> tower2BmsSoftwareVersionChannel = this
-				.channel(FeneconHomeBattery.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION);
+				.channel(FeneconHomeBattery.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION);
 		Value<Integer> tower2BmsSoftwareVersion = tower2BmsSoftwareVersionChannel.value();
 		Channel<Integer> tower3BmsSoftwareVersionChannel = this
-				.channel(FeneconHomeBattery.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION);
+				.channel(FeneconHomeBattery.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION);
 		Value<Integer> tower3BmsSoftwareVersion = tower3BmsSoftwareVersionChannel.value();
 
 		// Were all required registers read?
@@ -453,217 +467,253 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	 * @param numberOfModulesPerTower the number of modulers per tower
 	 * @throws OpenemsException on error
 	 */
-	private void initializeTowerModulesChannels(int numberOfTowers, int numberOfModulesPerTower)
+	private synchronized void initializeTowerModulesChannels(int numberOfTowers, int numberOfModulesPerTower)
 			throws OpenemsException {
 		try {
-			for (int t = this.lastNumberOfTowers + 1; t <= numberOfTowers; t++) {
+			for (int tower = this.lastNumberOfTowers; tower < numberOfTowers; tower++) {
 				/*
 				 * Number Of Towers increased
 				 */
-				final int towerOffset = (t - 1) * 2000 + 10000;
+				final int towerOffset = tower * 2000 + 10000;
 				this.getModbusProtocol().addTasks(//
 						new FC3ReadRegistersTask(towerOffset + 1, Priority.HIGH, //
-								m(this.generateTowerChannel(t, "BMS_HARDWARE_VERSION", OpenemsType.INTEGER),
+								m(this.generateTowerChannel(tower, "BMS_HARDWARE_VERSION", OpenemsType.INTEGER),
 										new UnsignedWordElement(towerOffset + 1)), //
 								m(new BitsWordElement(towerOffset + 2, this)//
-										.bit(0, this.generateTowerChannel(t, "STATUS_ALARM", OpenemsType.BOOLEAN)) //
-										.bit(1, this.generateTowerChannel(t, "STATUS_WARNING", OpenemsType.BOOLEAN)) //
-										.bit(2, this.generateTowerChannel(t, "STATUS_FAULT", OpenemsType.BOOLEAN)) //
-										.bit(3, this.generateTowerChannel(t, "STATUS_PFET", OpenemsType.BOOLEAN)) //
-										.bit(4, this.generateTowerChannel(t, "STATUS_CFET", OpenemsType.BOOLEAN)) //
-										.bit(5, this.generateTowerChannel(t, "STATUS_DFET", OpenemsType.BOOLEAN)) //
-										.bit(6, this.generateTowerChannel(t, "STATUS_BATTERY_IDLE",
-												OpenemsType.BOOLEAN)) //
-										.bit(7, this.generateTowerChannel(t, "STATUS_BATTERY_CHARGING",
-												OpenemsType.BOOLEAN)) //
-										.bit(8, this.generateTowerChannel(t, "STATUS_BATTERY_DISCHARGING",
-												OpenemsType.BOOLEAN)) //
+										.bit(0, this.generateTowerChannel(tower, "STATUS_ALARM", Level.INFO)) //
+										.bit(1, this.generateTowerChannel(tower, "STATUS_WARNING", Level.INFO)) //
+										.bit(2, this.generateTowerChannel(tower, "STATUS_FAULT", Level.INFO)) //
+										.bit(3, this.generateTowerChannel(tower, "STATUS_PFET", Level.INFO)) //
+										.bit(4, this.generateTowerChannel(tower, "STATUS_CFET", Level.INFO)) //
+										.bit(5, this.generateTowerChannel(tower, "STATUS_DFET", Level.INFO)) //
+										.bit(6, this.generateTowerChannel(tower, "STATUS_BATTERY_IDLE", Level.INFO)) //
+										.bit(7, this.generateTowerChannel(tower, "STATUS_BATTERY_CHARGING", Level.INFO)) //
+										.bit(8, this.generateTowerChannel(tower, "STATUS_BATTERY_DISCHARGING",
+												Level.INFO)) //
 								), //
 								m(new BitsWordElement(towerOffset + 3, this)
-										.bit(0, this.generateTowerChannel(t, "PRE_ALARM_CELL_OVER_VOLTAGE",
-												OpenemsType.BOOLEAN)) //
-										.bit(1, this.generateTowerChannel(t, "PRE_ALARM_CELL_UNDER_VOLTAGE",
-												OpenemsType.BOOLEAN)) //
-										.bit(2, this.generateTowerChannel(t, "PRE_ALARM_OVER_CHARGING_CURRENT",
-												OpenemsType.BOOLEAN)) //
-										.bit(3, this.generateTowerChannel(t, "PRE_ALARM_OVER_DISCHARGING_CURRENT",
-												OpenemsType.BOOLEAN)) //
-										.bit(4, this.generateTowerChannel(t, "PRE_ALARM_OVER_TEMPERATURE",
-												OpenemsType.BOOLEAN)) //
-										.bit(5, this.generateTowerChannel(t, "PRE_ALARM_UNDER_TEMPERATURE",
-												OpenemsType.BOOLEAN)) //
-										.bit(6, this.generateTowerChannel(t, "PRE_ALARM_CELL_VOLTAGE_DIFFERENCE",
-												OpenemsType.BOOLEAN)) //
-										.bit(7, this.generateTowerChannel(t, "PRE_ALARM_BCU_TEMP_DIFFERENCE",
-												OpenemsType.BOOLEAN)) //
-										.bit(8, this.generateTowerChannel(t, "PRE_ALARM_UNDER_SOC",
-												OpenemsType.BOOLEAN)) //
-										.bit(9, this.generateTowerChannel(t, "PRE_ALARM_UNDER_SOH",
-												OpenemsType.BOOLEAN)) //
-										.bit(10, this.generateTowerChannel(t, "PRE_ALARM_OVER_CHARGING_POWER",
-												OpenemsType.BOOLEAN)) //
-										.bit(11, this.generateTowerChannel(t, "PRE_ALARM_OVER_DISCHARGING_POWER",
-												OpenemsType.BOOLEAN))), //
+										.bit(0, this.generateTowerChannel(tower, "PRE_ALARM_CELL_OVER_VOLTAGE",
+												Level.INFO)) //
+										.bit(1, this.generateTowerChannel(tower, "PRE_ALARM_CELL_UNDER_VOLTAGE",
+												Level.INFO)) //
+										.bit(2, this.generateTowerChannel(tower, "PRE_ALARM_OVER_CHARGING_CURRENT",
+												Level.INFO)) //
+										.bit(3, this.generateTowerChannel(tower, "PRE_ALARM_OVER_DISCHARGING_CURRENT",
+												Level.INFO)) //
+										.bit(4, this.generateTowerChannel(tower, "PRE_ALARM_OVER_TEMPERATURE",
+												Level.INFO)) //
+										.bit(5, this.generateTowerChannel(tower, "PRE_ALARM_UNDER_TEMPERATURE",
+												Level.INFO)) //
+										.bit(6, this.generateTowerChannel(tower, "PRE_ALARM_CELL_VOLTAGE_DIFFERENCE",
+												Level.INFO)) //
+										.bit(7, this.generateTowerChannel(tower, "PRE_ALARM_BCU_TEMP_DIFFERENCE",
+												Level.INFO)) //
+										.bit(8, this.generateTowerChannel(tower, "PRE_ALARM_UNDER_SOC", Level.INFO)) //
+										.bit(9, this.generateTowerChannel(tower, "PRE_ALARM_UNDER_SOH", Level.INFO)) //
+										.bit(10, this.generateTowerChannel(tower, "PRE_ALARM_OVER_CHARGING_POWER",
+												Level.INFO)) //
+										.bit(11, this.generateTowerChannel(tower, "PRE_ALARM_OVER_DISCHARGING_POWER",
+												Level.INFO))
+										.bit(12, this.generateTowerChannel(tower, "PRE_ALARM_BAT_OVER_VOLTAGE",
+												Level.INFO))
+										.bit(13, this.generateTowerChannel(tower, "PRE_ALARM_BAT_UNDER_VOLTAGE",
+												Level.INFO))), //
 								m(new BitsWordElement(towerOffset + 4, this)
-										.bit(0, this.generateTowerChannel(t, "LEVEL_1_CELL_OVER_VOLTAGE",
-												OpenemsType.BOOLEAN)) //
-										.bit(1, this.generateTowerChannel(t, "LEVEL_1_CELL_UNDER_VOLTAGE",
-												OpenemsType.BOOLEAN)) //
-										.bit(2, this.generateTowerChannel(t, "LEVEL_1_OVER_CHARGING_CURRENT",
-												OpenemsType.BOOLEAN)) //
-										.bit(3, this.generateTowerChannel(t, "LEVEL_1_OVER_DISCHARGING_CURRENT",
-												OpenemsType.BOOLEAN)) //
-										.bit(4, this.generateTowerChannel(t, "LEVEL_1_OVER_TEMPERATURE",
-												OpenemsType.BOOLEAN)) //
-										.bit(5, this.generateTowerChannel(t, "LEVEL_1_UNDER_TEMPERATURE",
-												OpenemsType.BOOLEAN)) //
-										.bit(6, this.generateTowerChannel(t, "LEVEL_1_CELL_VOLTAGE_DIFFERENCE",
-												OpenemsType.BOOLEAN)) //
-										.bit(7, this.generateTowerChannel(t, "LEVEL_1_BCU_TEMP_DIFFERENCE",
-												OpenemsType.BOOLEAN)) //
-										.bit(8, this.generateTowerChannel(t, "LEVEL_1_UNDER_SOC", OpenemsType.BOOLEAN)) //
-										.bit(9, this.generateTowerChannel(t, "LEVEL_1_UNDER_SOH", OpenemsType.BOOLEAN)) //
-										.bit(10, this.generateTowerChannel(t, "LEVEL_1_OVER_CHARGING_POWER",
-												OpenemsType.BOOLEAN)) //
-										.bit(11, this.generateTowerChannel(t, "LEVEL_1_OVER_DISCHARGING_POWER",
-												OpenemsType.BOOLEAN))),
+										.bit(0, this.generateTowerChannel(tower, "LEVEL_1_CELL_OVER_VOLTAGE",
+												Level.INFO)) //
+										.bit(1, this.generateTowerChannel(tower, "LEVEL_1_CELL_UNDER_VOLTAGE",
+												Level.INFO)) //
+										.bit(2, this.generateTowerChannel(tower, "LEVEL_1_OVER_CHARGING_CURRENT",
+												Level.INFO)) //
+										.bit(3, this.generateTowerChannel(tower, "LEVEL_1_OVER_DISCHARGING_CURRENT",
+												Level.INFO)) //
+										.bit(4, this.generateTowerChannel(tower, "LEVEL_1_OVER_TEMPERATURE",
+												Level.INFO)) //
+										.bit(5, this.generateTowerChannel(tower, "LEVEL_1_UNDER_TEMPERATURE",
+												Level.INFO)) //
+										.bit(6, this.generateTowerChannel(tower, "LEVEL_1_CELL_VOLTAGE_DIFFERENCE",
+												Level.INFO)) //
+										.bit(7, this.generateTowerChannel(tower, "LEVEL_1_BCU_TEMP_DIFFERENCE",
+												Level.INFO)) //
+										.bit(8, this.generateTowerChannel(tower, "LEVEL_1_UNDER_SOC", Level.INFO)) //
+										.bit(9, this.generateTowerChannel(tower, "LEVEL_1_UNDER_SOH", Level.INFO)) //
+										.bit(10, this.generateTowerChannel(tower, "LEVEL_1_OVER_CHARGING_POWER",
+												Level.INFO)) //
+										.bit(11, this.generateTowerChannel(tower, "LEVEL_1_OVER_DISCHARGING_POWER",
+												Level.INFO))
+										.bit(12, this.generateTowerChannel(tower, "LEVEL_1_BAT_OVER_VOLTAGE",
+												Level.INFO))
+										.bit(13, this.generateTowerChannel(tower, "LEVEL_1_BAT_UNDER_VOLTAGE",
+												Level.INFO))),
 								m(new BitsWordElement(towerOffset + 5, this)
-										.bit(0, this.generateTowerChannel(t, "LEVEL_2_CELL_OVER_VOLTAGE",
-												OpenemsType.BOOLEAN)) //
-										.bit(1, this.generateTowerChannel(t, "LEVEL_2_CELL_UNDER_VOLTAGE",
-												OpenemsType.BOOLEAN)) //
-										.bit(2, this.generateTowerChannel(t, "LEVEL_2_OVER_CHARGING_CURRENT",
-												OpenemsType.BOOLEAN)) //
-										.bit(3, this.generateTowerChannel(t, "LEVEL_2_OVER_DISCHARGING_CURRENT",
-												OpenemsType.BOOLEAN)) //
-										.bit(4, this.generateTowerChannel(t, "LEVEL_2_OVER_TEMPERATURE",
-												OpenemsType.BOOLEAN)) //
-										.bit(5, this.generateTowerChannel(t, "LEVEL_2_UNDER_TEMPERATURE",
-												OpenemsType.BOOLEAN)) //
-										.bit(6, this.generateTowerChannel(t, "LEVEL_2_CELL_VOLTAGE_DIFFERENCE",
-												OpenemsType.BOOLEAN)) //
-										.bit(7, this.generateTowerChannel(t, "LEVEL_2_BCU_TEMP_DIFFERENCE",
-												OpenemsType.BOOLEAN)) //
-										.bit(8, this.generateTowerChannel(t, "LEVEL_2_TEMPERATURE_DIFFERENCE",
-												OpenemsType.BOOLEAN)) //
-										.bit(9, this.generateTowerChannel(t, "LEVEL_2_INTERNAL_COMMUNICATION",
-												OpenemsType.BOOLEAN)) //
-										.bit(10, this.generateTowerChannel(t, "LEVEL_2_EXTERNAL_COMMUNICATION",
-												OpenemsType.BOOLEAN)) //
-										.bit(11, this.generateTowerChannel(t, "LEVEL_2_PRECHARGE_FAIL",
-												OpenemsType.BOOLEAN)) //
-										.bit(12, this.generateTowerChannel(t, "LEVEL_2_PARALLEL_FAIL",
-												OpenemsType.BOOLEAN)) //
-										.bit(13, this.generateTowerChannel(t, "LEVEL_2_SYSTEM_FAIL",
-												OpenemsType.BOOLEAN)) //
-										.bit(14, this.generateTowerChannel(t, "LEVEL_2_HARDWARE_FAIL",
-												OpenemsType.BOOLEAN))), //
+										.bit(0, this.generateTowerChannel(tower, "LEVEL_2_CELL_OVER_VOLTAGE",
+												Level.INFO)) //
+										.bit(1, this.generateTowerChannel(tower, "LEVEL_2_CELL_UNDER_VOLTAGE",
+												Level.INFO)) //
+										.bit(2, this.generateTowerChannel(tower, "LEVEL_2_OVER_CHARGING_CURRENT",
+												Level.INFO)) //
+										.bit(3, this.generateTowerChannel(tower, "LEVEL_2_OVER_DISCHARGING_CURRENT",
+												Level.INFO)) //
+										.bit(4, this.generateTowerChannel(tower, "LEVEL_2_OVER_TEMPERATURE",
+												Level.INFO)) //
+										.bit(5, this.generateTowerChannel(tower, "LEVEL_2_UNDER_TEMPERATURE",
+												Level.INFO)) //
+										.bit(6, this.generateTowerChannel(tower, "LEVEL_2_CELL_VOLTAGE_DIFFERENCE",
+												Level.INFO)) //
+										.bit(7, this.generateTowerChannel(tower, "LEVEL_2_BCU_TEMP_DIFFERENCE",
+												Level.INFO)) //
+										.bit(8, this.generateTowerChannel(tower, "LEVEL_2_BAT_OVER_VOLTAGE",
+												Level.INFO)) //
+										.bit(9, this.generateTowerChannel(tower, "LEVEL_2_INTERNAL_COMMUNICATION",
+												Level.INFO)) //
+										.bit(10, this.generateTowerChannel(tower, "LEVEL_2_EXTERNAL_COMMUNICATION",
+												Level.INFO)) //
+										.bit(11, this.generateTowerChannel(tower, "LEVEL_2_PRECHARGE_FAIL", Level.INFO)) //
+										.bit(12, this.generateTowerChannel(tower, "LEVEL_2_PARALLEL_FAIL", Level.INFO)) //
+										.bit(13, this.generateTowerChannel(tower, "LEVEL_2_SYSTEM_FAIL", Level.INFO)) //
+										.bit(14, this.generateTowerChannel(tower, "LEVEL_2_HARDWARE_FAIL", Level.INFO)) //
+										.bit(14, this.generateTowerChannel(tower, "LEVEL_2_BAT_UNDER_VOLTAGE",
+												Level.INFO))), //
 								m(new BitsWordElement(towerOffset + 6, this)
-										.bit(0, this.generateTowerChannel(t, "HW_AFE_COMMUNICAITON_FAULT",
-												OpenemsType.BOOLEAN)) //
-										.bit(1, this.generateTowerChannel(t, "HW_ACTOR_DRIVER_FAULT",
-												OpenemsType.BOOLEAN)) //
-										.bit(2, this.generateTowerChannel(t, "HW_EEPROM_COMMUNICATION_FAULT",
-												OpenemsType.BOOLEAN)) //
-										.bit(3, this.generateTowerChannel(t, "HW_VOLTAGE_DETECT_FAULT",
-												OpenemsType.BOOLEAN)) //
-										.bit(4, this.generateTowerChannel(t, "HW_TEMPERATURE_DETECT_FAULT",
-												OpenemsType.BOOLEAN)) //
-										.bit(5, this.generateTowerChannel(t, "HW_CURRENT_DETECT_FAULT",
-												OpenemsType.BOOLEAN)) //
-										.bit(6, this.generateTowerChannel(t, "HW_ACTOR_NOT_CLOSE", OpenemsType.BOOLEAN)) //
-										.bit(7, this.generateTowerChannel(t, "HW_ACTOR_NOT_OPEN", OpenemsType.BOOLEAN)) //
-										.bit(8, this.generateTowerChannel(t, "HW_FUSE_BROKEN", OpenemsType.BOOLEAN))), //
+										.bit(0, this.generateTowerChannel(tower, "HW_AFE_COMMUNICAITON_FAULT",
+												Level.INFO)) //
+										.bit(1, this.generateTowerChannel(tower, "HW_ACTOR_DRIVER_FAULT", Level.INFO)) //
+										.bit(2, this.generateTowerChannel(tower, "HW_EEPROM_COMMUNICATION_FAULT",
+												Level.INFO)) //
+										.bit(3, this.generateTowerChannel(tower, "HW_VOLTAGE_DETECT_FAULT", Level.INFO)) //
+										.bit(4, this.generateTowerChannel(tower, "HW_TEMPERATURE_DETECT_FAULT",
+												Level.INFO)) //
+										.bit(5, this.generateTowerChannel(tower, "HW_CURRENT_DETECT_FAULT", Level.INFO)) //
+										.bit(6, this.generateTowerChannel(tower, "HW_ACTOR_NOT_CLOSE", Level.INFO)) //
+										.bit(7, this.generateTowerChannel(tower, "HW_ACTOR_NOT_OPEN", Level.INFO)) //
+										.bit(8, this.generateTowerChannel(tower, "HW_FUSE_BROKEN", Level.INFO))), //
 								m(new BitsWordElement(towerOffset + 7, this)
-										.bit(0, this.generateTowerChannel(t, "SYSTEM_AFE_OVER_TEMPERATURE",
-												OpenemsType.BOOLEAN)) //
-										.bit(1, this.generateTowerChannel(t, "SYSTEM_AFE_UNDER_TEMPERATURE",
-												OpenemsType.BOOLEAN)) //
-										.bit(2, this.generateTowerChannel(t, "SYSTEM_AFE_OVER_VOLTAGE",
-												OpenemsType.BOOLEAN)) //
-										.bit(3, this.generateTowerChannel(t, "SYSTEM_AFE_UNDER_VOLTAGE",
-												OpenemsType.BOOLEAN)) //
-										.bit(4, this.generateTowerChannel(t,
-												"SYSTEM_HIGH_TEMPERATURE_PERMANENT_FAILURE", OpenemsType.BOOLEAN)) //
-										.bit(5, this.generateTowerChannel(t, "SYSTEM_LOW_TEMPERATURE_PERMANENT_FAILURE",
-												OpenemsType.BOOLEAN)) //
-										.bit(6, this.generateTowerChannel(t,
-												"SYSTEM_HIGH_CELL_VOLTAGE_PERMANENT_FAILURE", OpenemsType.BOOLEAN)) //
-										.bit(7, this.generateTowerChannel(t,
-												"SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE", OpenemsType.BOOLEAN)) //
-										.bit(8, this.generateTowerChannel(t, "SYSTEM_SHORT_CIRCUIT",
-												OpenemsType.BOOLEAN))), //
-								m(this.generateTowerChannel(t, "_SOC", OpenemsType.INTEGER),
+										.bit(0, this.generateTowerChannel(tower, "SYSTEM_AFE_OVER_TEMPERATURE",
+												Level.INFO)) //
+										.bit(1, this.generateTowerChannel(tower, "SYSTEM_AFE_UNDER_TEMPERATURE",
+												Level.INFO)) //
+										.bit(2, this.generateTowerChannel(tower, "SYSTEM_AFE_OVER_VOLTAGE", Level.INFO)) //
+										.bit(3, this.generateTowerChannel(tower, "SYSTEM_AFE_UNDER_VOLTAGE",
+												Level.INFO)) //
+										.bit(4, this.generateTowerChannel(tower,
+												"SYSTEM_HIGH_TEMPERATURE_PERMANENT_FAILURE", Level.INFO)) //
+										.bit(5, this.generateTowerChannel(tower,
+												"SYSTEM_LOW_TEMPERATURE_PERMANENT_FAILURE", Level.INFO)) //
+										.bit(6, this.generateTowerChannel(tower,
+												"SYSTEM_HIGH_CELL_VOLTAGE_PERMANENT_FAILURE", Level.INFO)) //
+										.bit(7, this.generateTowerChannel(tower,
+												"SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE", Level.INFO)) //
+										.bit(8, this.generateTowerChannel(tower, "SYSTEM_SHORT_CIRCUIT", Level.INFO))), //
+								m(this.generateTowerChannel(tower, "_SOC", OpenemsType.INTEGER),
 										new UnsignedWordElement(towerOffset + 8), // [%]
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-								m(this.generateTowerChannel(t, "_SOH", OpenemsType.INTEGER),
+								m(this.generateTowerChannel(tower, "_SOH", OpenemsType.INTEGER),
 										new UnsignedWordElement(towerOffset + 9), // [%]
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-								m(this.generateTowerChannel(t, "_VOLTAGE", OpenemsType.INTEGER),
+								m(this.generateTowerChannel(tower, "_VOLTAGE", OpenemsType.INTEGER),
 										new UnsignedWordElement(towerOffset + 10), // [V]
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-								m(this.generateTowerChannel(t, "_CURRENT", OpenemsType.INTEGER),
+								m(this.generateTowerChannel(tower, "_CURRENT", OpenemsType.INTEGER),
 										new SignedWordElement(towerOffset + 11), // [A]
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-								m(this.generateTowerChannel(t, "_MIN_CELL_VOLTAGE", OpenemsType.INTEGER),
+								m(this.generateTowerChannel(tower, "_MIN_CELL_VOLTAGE", OpenemsType.INTEGER),
 										new UnsignedWordElement(towerOffset + 12)), // [mV]
-								m(this.generateTowerChannel(t, "_MAX_CELL_VOLTAGE", OpenemsType.INTEGER),
+								m(this.generateTowerChannel(tower, "_MAX_CELL_VOLTAGE", OpenemsType.INTEGER),
 										new UnsignedWordElement(towerOffset + 13)), // [mV]
-								m(this.generateTowerChannel(t, "_AVARAGE_CELL_VOLTAGE", OpenemsType.INTEGER),
+								m(this.generateTowerChannel(tower, "_AVARAGE_CELL_VOLTAGE", OpenemsType.INTEGER),
 										new UnsignedWordElement(towerOffset + 14)), //
-								m(this.generateTowerChannel(t, "_MAX_CHARGE_CURRENT", OpenemsType.INTEGER),
+								m(this.generateTowerChannel(tower, "_MAX_CHARGE_CURRENT", OpenemsType.INTEGER),
 										new UnsignedWordElement(towerOffset + 15)), //
-								m(this.generateTowerChannel(t, "_MIN_CHARGE_CURRENT", OpenemsType.INTEGER),
+								m(this.generateTowerChannel(tower, "_MIN_CHARGE_CURRENT", OpenemsType.INTEGER),
 										new UnsignedWordElement(towerOffset + 16)), //
-								m(this.generateTowerChannel(t, "_BMS_SERIAL_NUMBER", OpenemsType.INTEGER),
-										new UnsignedWordElement(towerOffset + 17)), //
-								m(this.generateTowerChannel(t, "_NO_OF_CYCLES", OpenemsType.INTEGER),
+								new DummyRegisterElement(towerOffset + 17), //
+								m(this.generateTowerChannel(tower, "_NO_OF_CYCLES", OpenemsType.INTEGER),
 										new UnsignedWordElement(towerOffset + 18)), //
-								m(this.generateTowerChannel(t, "_DESIGN_CAPACITY", OpenemsType.INTEGER),
+								m(this.generateTowerChannel(tower, "_DESIGN_CAPACITY", OpenemsType.INTEGER),
 										new UnsignedWordElement(towerOffset + 19),
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
-								m(this.generateTowerChannel(t, "_USABLE_CAPACITY", OpenemsType.INTEGER),
+								m(this.generateTowerChannel(tower, "_USABLE_CAPACITY", OpenemsType.INTEGER),
 										new UnsignedWordElement(towerOffset + 20), //
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
-								m(this.generateTowerChannel(t, "_REMAINING_CAPACITY", OpenemsType.INTEGER),
+								m(this.generateTowerChannel(tower, "_REMAINING_CAPACITY", OpenemsType.INTEGER),
 										new UnsignedWordElement(towerOffset + 21), //
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [Ah]
-								m(this.generateTowerChannel(t, "_MAX_CELL_VOLTAGE_LIMIT", OpenemsType.INTEGER),
+								m(this.generateTowerChannel(tower, "_MAX_CELL_VOLTAGE_LIMIT", OpenemsType.INTEGER),
 										new UnsignedWordElement(towerOffset + 22)), //
-								m(this.generateTowerChannel(t, "_MIN_CELL_VOLTAGE_LIMIT", OpenemsType.INTEGER),
-										new UnsignedWordElement(towerOffset + 23))));
+								m(this.generateTowerChannel(tower, "_MIN_CELL_VOLTAGE_LIMIT", OpenemsType.INTEGER),
+										new UnsignedWordElement(towerOffset + 23)),
+								m(this.generateTowerChannel(tower, "BMU_NUMBER", OpenemsType.INTEGER),
+										new UnsignedWordElement(towerOffset + 24)),
+								new DummyRegisterElement(towerOffset + 25), //
+								new DummyRegisterElement(towerOffset + 26), //
+								new DummyRegisterElement(towerOffset + 27), //
+								m(new BitsWordElement(towerOffset + 28, this) //
+										.bit(0, this.generateTowerChannel(tower,
+												"BCU_SYSTEM_FAULT_DETAIL_EXPAND_ASSIGN_FAIL", Level.INFO))),
+								new DummyRegisterElement(towerOffset + 29), //
+								new DummyRegisterElement(towerOffset + 30), //
+								new DummyRegisterElement(towerOffset + 31), //
+								new DummyRegisterElement(towerOffset + 32), //
+								new DummyRegisterElement(towerOffset + 33), //
+								m(this.generateTowerChannel(tower, "PACK_VOLTAGE", OpenemsType.INTEGER), //
+										new UnsignedWordElement(towerOffset + 34)),
+								m(this.generateTowerChannel(tower, "MAX_TEMPERATURE", OpenemsType.INTEGER), //
+										new SignedWordElement(towerOffset + 35)),
+								m(this.generateTowerChannel(tower, "MIN_TEMPERATURE", OpenemsType.INTEGER), //
+										new SignedWordElement(towerOffset + 36)),
+								new DummyRegisterElement(towerOffset + 37), //
+								new DummyRegisterElement(towerOffset + 38), //
+								new DummyRegisterElement(towerOffset + 39), //
+								new DummyRegisterElement(towerOffset + 40), //
+								new DummyRegisterElement(towerOffset + 41), //
+								new DummyRegisterElement(towerOffset + 42), //
+								m(this.generateTowerChannel(tower, "TEMPERATURE_PRE_MOS", OpenemsType.INTEGER), //
+										new SignedWordElement(towerOffset + 43)),
+								new DummyRegisterElement(towerOffset + 44), //
+								new DummyRegisterElement(towerOffset + 45), //
+								new DummyRegisterElement(towerOffset + 46), //
+								m(this.generateTowerChannel(tower, "ACC_CHARGE_ENERGY", OpenemsType.INTEGER),
+										new UnsignedDoublewordElement(towerOffset + 47)),
+								m(this.generateTowerChannel(tower, "ACC_DISCHARGE_ENERGY", OpenemsType.INTEGER),
+										new UnsignedDoublewordElement(towerOffset + 49)),
+								m(this.generateTowerChannel(tower, "HV_BOX_SERIAL_NUMBER", OpenemsType.INTEGER),
+										new UnsignedDoublewordElement(towerOffset + 51))));
 			}
 
-			for (int t = 1; t <= numberOfTowers; t++) {
-				final int towerOffset = (t - 1) * 2000 + 10000;
+			for (int tower = 0; tower < numberOfTowers; tower++) {
+				final int towerOffset = tower * 2000 + 10000;
+				final int moduleOffset = towerOffset + 100;
 
-				for (int i = this.lastNumberOfModulesPerTower; i < numberOfModulesPerTower + 1; i++) {
+				for (int module = this.lastNumberOfModulesPerTower; module < numberOfModulesPerTower; module++) {
 					/*
 					 * Number Of Modules per Tower increased.
 					 * 
 					 * Dynamically generate Channels and Modbus mappings for Cell-Temperatures and
-					 * for Cell-Voltages.Channel-IDs are like "TOWER_1_OFFSET_2_TEMPERATURE_003".
-					 * Channel-IDs are like "TOWER_1_OFFSET_2_VOLTAGE_003".
+					 * for Cell-Voltages.Channel-IDs are like "TOWER_0_OFFSET_2_TEMPERATURE_003".
+					 * Channel-IDs are like "TOWER_0_OFFSET_2_VOLTAGE_003".
 					 */
 					AbstractModbusElement<?>[] ameVolt = new AbstractModbusElement<?>[SENSORS_PER_MODULE];
 					AbstractModbusElement<?>[] ameTemp = new AbstractModbusElement<?>[SENSORS_PER_MODULE];
 					for (int j = 0; j < SENSORS_PER_MODULE; j++) {
 						{
+							// TODO why 14 and not 16 voltages; or more...
+
 							// Create Voltage Channel
 							ChannelIdImpl channelId = new ChannelIdImpl(//
-									getSingleCellPrefix(t, i, j) + "_VOLTAGE",
+									getSingleCellPrefix(tower, module, j) + "_VOLTAGE",
 									Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT));
 							this.addChannel(channelId);
 
 							// Create Modbus-Mapping for Voltages
-							UnsignedWordElement uwe = new UnsignedWordElement(towerOffset
-									+ i * ADDRESS_OFFSET_FOR_CELL_VOLT_AND_TEMP + VOLTAGE_ADDRESS_OFFSET + j);
+							UnsignedWordElement uwe = new UnsignedWordElement(moduleOffset + module * 100 + 2 + j);
 							ameVolt[j] = m(channelId, uwe);
 						}
 						{
+							// TODO only 8 temperatures
+
 							// Create Temperature Channel
 							ChannelIdImpl channelId = new ChannelIdImpl(//
-									getSingleCellPrefix(t, i, j) + "_TEMPERATURE",
+									getSingleCellPrefix(tower, module, j) + "_TEMPERATURE",
 									Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS));
 							this.addChannel(channelId);
 
@@ -671,19 +721,22 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 							// Cell Temperatures Read Registers for Tower_1 starts from 10000, for Tower_2
 							// 12000, for Tower_3 14000
 							// (t-1)*2000+10000) calculates Tower Offset value
-							SignedWordElement uwe = new SignedWordElement(towerOffset
-									+ i * ADDRESS_OFFSET_FOR_CELL_VOLT_AND_TEMP + TEMPERATURE_ADDRESS_OFFSET + j);
+							SignedWordElement uwe = new SignedWordElement(moduleOffset + module * 100 + 18 + j);
 							ameTemp[j] = m(channelId, uwe);
 						}
 					}
+
+					ChannelIdImpl channelId = new ChannelIdImpl(//
+							"TOWER_" + tower + "_MODULE_" + module + "_MODULE_SERIAL_NUMBER", //
+							Doc.of(OpenemsType.INTEGER));
+					this.addChannel(channelId);
+
+					// TODO combine to one read task
 					this.getModbusProtocol().addTasks(//
-							new FC3ReadRegistersTask(
-									towerOffset + ADDRESS_OFFSET_FOR_CELL_VOLT_AND_TEMP * i + VOLTAGE_ADDRESS_OFFSET,
-									Priority.LOW, ameVolt), //
-							new FC3ReadRegistersTask(//
-									towerOffset + ADDRESS_OFFSET_FOR_CELL_VOLT_AND_TEMP * i
-											+ TEMPERATURE_ADDRESS_OFFSET,
-									Priority.LOW, ameTemp));
+							new FC3ReadRegistersTask(moduleOffset + module * 100 + 2, Priority.LOW, ameVolt),
+							new FC3ReadRegistersTask(moduleOffset + module * 100 + 18, Priority.LOW, ameTemp),
+							new FC3ReadRegistersTask(moduleOffset + module * 100 + 83, Priority.LOW,
+									m(channelId, new UnsignedDoublewordElement(moduleOffset + module * 100 + 83))));
 				}
 			}
 
