@@ -1,5 +1,5 @@
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
-import { SetChannelVaLueRequest } from "src/app/shared/jsonrpc/request/setChannelValueRequest";
+import { SetChannelValueRequest } from "src/app/shared/jsonrpc/request/setChannelValueRequest";
 import { TranslateService } from "@ngx-translate/core";
 
 export abstract class AbstractBattery {
@@ -140,7 +140,7 @@ export abstract class AbstractBattery {
         if (this.edge) {
             this.edge.sendRequest(
                 this.service.websocket,
-                new SetChannelVaLueRequest({
+                new SetChannelValueRequest({
                     componentId: address.componentId,
                     channelId: address.channelId,
                     value: value

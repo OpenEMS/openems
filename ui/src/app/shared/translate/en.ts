@@ -113,6 +113,32 @@ export const TRANSLATION = {
         toEnergymonitor: 'To Energymonitor...',
         type: 'Type:'
     },
+    Register: {
+        title: "Create installer account",
+        form: {
+            companyName: "Company name",
+            firstname: "Firstname",
+            lastname: "Lastname",
+            street: "Street",
+            zip: "Postal code",
+            city: "City",
+            country: "Country",
+            phone: "Phone number",
+            email: "E-Mail",
+            password: "Password",
+            confirmPassword: "Confirm password",
+            isElectrician: "I confirm that my company is registered in the installer register and i am therefore authorised to connect and commission a storage system.",
+            acceptPrivacyPolicy: "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
+            acceptAgb: "I confirm the <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
+            subscribeNewsletter: "I would like to subscribe to the FENECON newsletter to receive all the latest news from FENECON."
+        },
+        button: "Create",
+        errors: {
+            requiredFields: "Please fill in all fields",
+            passwordNotEqual: "Passwords are not equal"
+        },
+        success: "Registration successful"
+    },
     Login: {
         title: "Login",
         preamble: "Please enter your password or submit the default value to login as a guest.",
@@ -179,6 +205,33 @@ export const TRANSLATION = {
                     startDate: 'Start date',
                     startTime: 'Start time',
                     startTimeCharge: 'Charge Start time',
+                },
+                GridOptimizedCharge: {
+                    considerGridFeedInLimit: 'Consider maximum grid feed-in',
+                    endTime: 'End time',
+                    endTimeDescription: 'The charging does not take place with the maximum output for a few hours, but steadily up to that point.',
+                    endTimeLong: 'End time of restricted loading',
+                    expectedSoc: 'Expected state of charge',
+                    expectedSocWithoutSellToGridLimit: 'Without avoiding the maximum grid feed-in',
+                    gridOptimizedChargeDisabled: 'Grid optimized charge deactivated',
+                    high: 'High',
+                    low: 'Low',
+                    maximumCharge: 'Maximum charge',
+                    maximumGridFeedIn: 'Maximum allowed grid feed-in',
+                    medium: 'Medium',
+                    minimumCharge: 'Minimal charge',
+                    riskPropensity: 'Risk propensity',
+                    settingOnlyVisableForInstaller: 'This setting is only visible to the installer',
+                    State: {
+                        chargeLimitActive: 'Charge limit active',
+                        endTimeNotCalculated: 'End time not calculated',
+                        GridFeedInLimitationIsAvoided: 'Grid-Feed-in limitation is avoided',
+                        noLimitActive: 'No charge limit active',
+                        noLimitPossible: 'No limitation possible (restricted by controls with higher priority)',
+                        notDefined: 'Not defined',
+                        passedEndTime: 'End time of limited charging exceeded',
+                        storageAlreadyFull: 'Memory already full',
+                    },
                 },
                 CHP: {
                     highThreshold: 'High Threshold',

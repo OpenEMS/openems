@@ -1,0 +1,18 @@
+<installation-view iconName="clipboard-outline" header="Kontaktdaten Installateur"
+  (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()">
+
+  <formly-form [form]="form" [fields]="fields" [model]="model" [contentEditable]="false"></formly-form>
+
+  <ion-item>
+    <ion-button slot="start" (click)="onEditClicked()">
+      <ion-label>Daten {{editModeEnabled ? 'speichern' : 'bearbeiten'}}</ion-label>
+      <ion-icon name="pencil-outline" slot="start"></ion-icon>
+    </ion-button>
+
+    <ion-button *ngIf="editModeEnabled" slot="end" (click)="onResetClicked()">
+      <ion-label>Zurücksetzen</ion-label>
+      <ion-icon name="arrow-undo-circle-outline" slot="start"></ion-icon>
+    </ion-button>
+  </ion-item>
+
+</installation-view>

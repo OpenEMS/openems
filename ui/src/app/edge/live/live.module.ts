@@ -32,6 +32,8 @@ import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
 import { FlatWidgetPercentagebar } from './flat/flat-widget-line/flat-widget-percentagebar';
 import { GridComponent } from './common/grid/grid.component';
 import { GridModalComponent } from './common/grid/modal/modal.component';
+import { GridOptimizedChargeComponent } from './gridoptimizedcharge/gridoptimizedcharge.component';
+import { GridOptimizedChargeModalComponent } from './gridoptimizedcharge/modal/modal.component';
 import { HeatPumpComponent } from './heatpump/heatpump.component';
 import { HeatPumpModalComponent } from './heatpump/modal/modal.component';
 import { InfoComponent } from './info/info.component';
@@ -39,6 +41,7 @@ import { LiveComponent } from './live.component';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
 import { NgModule } from '@angular/core';
 import { OfflineComponent } from './offline/offline.component';
+import { PredictionChartComponent } from './gridoptimizedcharge/modal/predictionChart';
 import { ProductionComponent } from './production/production.component';
 import { ProductionModalComponent } from './production/modal/modal.component';
 import { SelfConsumptionComponent } from './common/selfconsumption/selfconsumption.component';
@@ -81,6 +84,7 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     FlatWidgetLine,
     FlatWidgetPercentagebar,
     GridModalComponent,
+    GridOptimizedChargeModalComponent,
     HeatPumpModalComponent,
     ModalComponentEvcsCluster,
     ProductionModalComponent,
@@ -122,12 +126,15 @@ import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/
     FlatWidgetPercentagebar,
     GridComponent,
     GridModalComponent,
+    GridOptimizedChargeComponent,
+    GridOptimizedChargeModalComponent,
     HeatPumpComponent,
     HeatPumpModalComponent,
     InfoComponent,
     LiveComponent,
     ModalComponentEvcsCluster,
     OfflineComponent,
+    PredictionChartComponent,
     ProductionComponent,
     ProductionModalComponent,
     SelfConsumptionComponent,

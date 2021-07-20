@@ -6,6 +6,7 @@ import { ConsumptionChartOverviewComponent } from './edge/history/consumption/co
 import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { FixDigitalOutputChartOverviewComponent } from './edge/history/fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
 import { GridChartOverviewComponent } from './edge/history/grid/gridchartoverview/gridchartoverview.component';
+import { GridOptimizedChargeChartOverviewComponent } from './edge/history/gridoptimizedcharge/gridoptimizedchargechartoverview/gridoptimizedchargechartoverview.component';
 import { HeatingelementChartOverviewComponent } from './edge/history/heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
 import { HeatPumpChartOverviewComponent } from './edge/history/heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
 import { HistoryComponent as EdgeHistoryComponent } from './edge/history/history.component';
@@ -16,6 +17,7 @@ import { ProductionChartOverviewComponent } from './edge/history/production/prod
 import { SelfconsumptionChartOverviewComponent } from './edge/history/selfconsumption/selfconsumptionchartoverview/selfconsumptionchartoverview.component';
 import { SinglethresholdChartOverviewComponent } from './edge/history/singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
 import { StorageChartOverviewComponent } from './edge/history/storage/storagechartoverview/storagechartoverview.component';
+import { InstallationComponent } from './edge/installation/installation.component';
 import { LiveComponent as EdgeLiveComponent } from './edge/live/live.component';
 import { AutoinstallerComponent as EdgeSettingsAutoinstallerComponent } from './edge/settings/autoinstaller/autoinstaller.component';
 import { ChannelsComponent as EdgeSettingsChannelsComponent } from './edge/settings/channels/channels.component';
@@ -40,6 +42,8 @@ const routes: Routes = [
 
   { path: 'user', component: UserComponent },
 
+  { path: 'index/installation', component: InstallationComponent },
+
   // Edge Pages
   { path: 'device/:edgeId', redirectTo: 'device/:edgeId/live', pathMatch: 'full' },
   { path: 'device/:edgeId/live', component: EdgeLiveComponent },
@@ -50,6 +54,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/history/:componentId/channelthresholdchart', component: ChannelthresholdChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/delayedselltogridchart', component: DelayedSellToGridChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/fixdigitaloutputchart', component: FixDigitalOutputChartOverviewComponent },
+  { path: 'device/:edgeId/history/:componentId/gridOptimizedChargeChart', component: GridOptimizedChargeChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/heatingelementchart', component: HeatingelementChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/heatpumpchart', component: HeatPumpChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/singlethresholdchart', component: SinglethresholdChartOverviewComponent },

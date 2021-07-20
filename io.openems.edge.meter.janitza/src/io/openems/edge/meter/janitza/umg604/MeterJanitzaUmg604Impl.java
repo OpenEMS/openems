@@ -91,7 +91,7 @@ public class MeterJanitzaUmg604Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		return new ModbusProtocol(this, //
+		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(1317, Priority.HIGH, //
 						m(new FloatDoublewordElement(1317))
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_3)//
@@ -134,6 +134,20 @@ public class MeterJanitzaUmg604Impl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(1439, Priority.LOW, //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(1439), //
 								ElementToChannelConverter.SCALE_FACTOR_3)));
+
+		if (this.invert) {
+			modbusProtocol.addTask(new FC3ReadRegistersTask(9851, Priority.LOW, //
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(9851)),
+					new DummyRegisterElement(9853, 9862),
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(9863))));
+		} else {
+			modbusProtocol.addTask(new FC3ReadRegistersTask(9851, Priority.LOW, //
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(9851)),
+					new DummyRegisterElement(9853, 9862),
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(9863))));
+		}
+
+		return modbusProtocol;
 	}
 
 	@Override

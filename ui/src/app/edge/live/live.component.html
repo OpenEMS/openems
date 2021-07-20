@@ -130,6 +130,11 @@
               <ion-col size="12" *ngSwitchCase="'Controller.Ess.FixActivePower'" size-lg="6" class="ion-no-padding">
                 <Controller_Ess_FixActivePower [componentId]="widget.componentId"></Controller_Ess_FixActivePower>
               </ion-col>
+
+              <ion-col size="12" *ngSwitchCase="'Controller.Ess.GridOptimizedCharge'" size-lg="6"
+                class="ion-no-padding">
+                <gridoptimizedcharge [componentId]="widget.componentId"></gridoptimizedcharge>
+              </ion-col>
             </ng-container>
 
             <ion-col *ngIf="this.edge.id == 'fems66'" size="12" size-lg="6" class="ion-no-padding">
@@ -140,6 +145,8 @@
               *ngIf="service.isAdvertAllowed(edge, advertWidgets, widgets)">
               <advertisement [advertWidgets]="advertWidgets"></advertisement>
             </ion-col>
+
+
 
             <!-- <ion-col size="12" size-lg="12">
             <info></info>
