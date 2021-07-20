@@ -8,6 +8,12 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,33 +21,55 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.component.ComponentManagerProvider;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.predictor.api.manager.PredictorManager;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.Ess.GridOptimizedCharge", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 )
-public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
-		implements GridOptimizedCharge, Controller, OpenemsComponent {
+public class GridOptimizedChargeImpl extends AbstractOpenemsComponent implements GridOptimizedCharge, EventHandler,
+		Controller, OpenemsComponent, TimedataProvider, ComponentManagerProvider {
 
 	private final Logger log = LoggerFactory.getLogger(GridOptimizedChargeImpl.class);
 
 	protected Config config = null;
 
+	/**
+	 * Delay Charge logic.
+	 */
 	private DelayCharge delayCharge;
 
+	/**
+	 * Sell to grid logic.
+	 */
 	private SellToGridLimit sellToGridLimit;
 
+	/*
+	 * Time counter for the important states
+	 */
+	private final CalculateActiveTime calculateDelayChargeTime = new CalculateActiveTime(this,
+			GridOptimizedCharge.ChannelId.DELAY_CHARGE_TIME);
+	private final CalculateActiveTime calculateSellToGridTime = new CalculateActiveTime(this,
+			GridOptimizedCharge.ChannelId.SELL_TO_GRID_LIMIT_TIME);
+	private final CalculateActiveTime calculateNoLimitationTime = new CalculateActiveTime(this,
+			GridOptimizedCharge.ChannelId.NO_LIMITATION_TIME);
+	
 	@Reference
-	private Sum sum;
+	protected Sum sum;
 
 	@Reference
 	protected PredictorManager predictorManager;
@@ -57,6 +85,9 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 	@Reference
 	protected SymmetricMeter meter;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	public GridOptimizedChargeImpl() {
 		super(//
@@ -98,6 +129,44 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+
+			// Updates the time channels.
+			this.calculateTime();
+			break;
+		}
+	}
+
+	/**
+	 * Counts up the time of each state when it is active.
+	 */
+	private void calculateTime() {
+		boolean sellToGridLimitIsActive = false;
+		boolean delayChargeLimitIsActive = false;
+		boolean noLimitIsActive = false;
+
+		SellToGridLimitState sellToGridLimitState = this.getSellToGridLimitState();
+		DelayChargeState delayChargeState = this.getDelayChargeState();
+		int sellToGridLimit = this.getSellToGridLimitMinimumChargeLimit().orElse(0);
+
+		if (sellToGridLimitState.equals(SellToGridLimitState.ACTIVE_LIMIT_FIXED)) {
+			sellToGridLimitIsActive = true;
+		} else if (delayChargeState.equals(DelayChargeState.ACTIVE_LIMIT)) {
+			delayChargeLimitIsActive = true;
+		} else if (sellToGridLimitState.equals(SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT) && sellToGridLimit > 0) {
+			sellToGridLimitIsActive = true;
+		} else {
+			noLimitIsActive = true;
+		}
+
+		this.calculateSellToGridTime.update(sellToGridLimitIsActive);
+		this.calculateDelayChargeTime.update(delayChargeLimitIsActive);
+		this.calculateNoLimitationTime.update(noLimitIsActive);
 	}
 
 	@Override
@@ -219,5 +288,15 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		if (this.config.debugMode()) {
 			this.logInfo(this.log, message);
 		}
+	}
+
+	@Override
+	public ComponentManager getComponentManager() {
+		return this.componentManager;
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }

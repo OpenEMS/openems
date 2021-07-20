@@ -19,7 +19,7 @@ public class StatusDefinition {
 	public StatusDefinition(HeatPumpImpl parent, Status status, HeatPump.ChannelId activeTimeChannelId) {
 		this.parent = parent;
 		this.status = status;
-		this.calculateActiveTime = new CalculateActiveTime(this.parent, this.parent, this.parent, activeTimeChannelId);
+		this.calculateActiveTime = new CalculateActiveTime(this.parent, activeTimeChannelId);
 	}
 
 	/**
