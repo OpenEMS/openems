@@ -89,6 +89,25 @@
 			<artifactId>commons-fileupload</artifactId>
 			<version>1.4</version>
 		</dependency>
+		<!-- eu -->
+		<dependency>
+			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<groupId>eu.chargetime.ocpp</groupId>
+			<artifactId>common</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<groupId>eu.chargetime.ocpp</groupId>
+			<artifactId>OCPP-J</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<groupId>eu.chargetime.ocpp</groupId>
+			<artifactId>v1_6</artifactId>
+			<version>1.0</version>
+		</dependency>
 		<!-- info -->
 		<dependency>
 			<groupId>info.faljse</groupId>
