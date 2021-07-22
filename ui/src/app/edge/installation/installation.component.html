@@ -16,10 +16,8 @@
       <!-- Collect Data -->
 
       <ion-row *ngSwitchCase="view.PreInstallation" class="ion-justify-content-center">
-        <ion-col size="12" size-md="8" size-lg="6" class="ion-no-padding">
-          <pre-installation [installationData]="installationData" (nextViewEvent)="displayNextView($event)">
-          </pre-installation>
-        </ion-col>
+        <pre-installation [installationData]="installationData" (nextViewEvent)="displayNextView($event)">
+        </pre-installation>
       </ion-row>
 
       <ion-row *ngSwitchCase="view.ProtocolInstaller" class="ion-justify-content-center">
@@ -93,6 +91,11 @@
       <ion-row *ngSwitchCase="view.ProtocolCompletion" class="ion-justify-content-center">
         <protocol-completion [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
           (nextViewEvent)="displayNextView()"></protocol-completion>
+      </ion-row>
+
+      <ion-row *ngSwitchCase="view.ProtocolSerialNumbers" class="ion-justify-content-center">
+        <protocol-serial-numbers [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
+          (nextViewEvent)="displayNextView()"></protocol-serial-numbers>
       </ion-row>
 
       <ion-row *ngSwitchCase="view.Completion" class="ion-justify-content-center">

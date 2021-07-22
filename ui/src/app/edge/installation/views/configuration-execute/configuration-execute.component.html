@@ -5,9 +5,9 @@
     value="Es wurden eine bereits bestehende Konfiguration gefunden; drücken Sie 'weiter' um den Konfigurationsvorgang trotzdem zu starten.">
   </div>
 
+  <!-- Items -->
   <ion-item lines="none">
-    <!-- Items -->
-    <ion-card slot="start">
+    <ion-card>
       <ion-card-content>
         <ion-list>
           <ion-item *ngFor="let configurationObject of configurationObjectsToBeConfigured" lines="none"
@@ -36,9 +36,11 @@
         </ion-list>
       </ion-card-content>
     </ion-card>
+  </ion-item>
 
-    <!-- Legend -->
-    <ion-card slot="end">
+  <!-- Legend -->
+  <ion-item lines="none">
+    <ion-card>
       <ion-card-header>
         <ion-item>
           <ion-icon slot="start" name="reader-outline" style="pointer-events: none;"></ion-icon>

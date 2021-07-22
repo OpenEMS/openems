@@ -1,0 +1,51 @@
+<installation-view iconName="clipboard-outline" header="Seriennummern" (previousClicked)="onPreviousClicked()"
+  (nextClicked)="onNextClicked()" [isWaiting]="isWaiting">
+
+  <ion-item lines=" none">
+    <ion-card>
+      <ion-card-header>
+        <ion-item>
+          <ion-label>
+            <ion-card-title class="ion-text-wrap">Speichersystemkomponenten</ion-card-title>
+          </ion-label>
+        </ion-item>
+      </ion-card-header>
+      <ion-card-content>
+        <formly-form [form]="formTower1" [fields]="fieldsTower1" [model]="modelTower1"></formly-form>
+      </ion-card-content>
+    </ion-card>
+  </ion-item>
+
+  <ion-item lines="none">
+    <ion-card>
+      <ion-card-header>
+        <ion-item>
+          <ion-label>
+            <ion-card-title class="ion-text-wrap">Batterieturm 2</ion-card-title>
+          </ion-label>
+        </ion-item>
+      </ion-card-header>
+      <ion-card-content>
+        <formly-form [form]="formTower2" [fields]="fieldsTower2" [model]="modelTower2"></formly-form>
+      </ion-card-content>
+    </ion-card>
+  </ion-item>
+
+  <ion-item lines="none">
+    <ion-card>
+      <ion-card-header>
+        <ion-item>
+          <ion-label>
+            <ion-card-title class="ion-text-wrap">Batterieturm 3</ion-card-title>
+          </ion-label>
+        </ion-item>
+      </ion-card-header>
+      <ion-card-content>
+        <formly-form [form]="formTower3" [fields]="fieldsTower3" [model]="modelTower3"></formly-form>
+      </ion-card-content>
+    </ion-card>
+  </ion-item>
+
+  <div>Wenn Sie jetzt auf weiter klicken, wird das IBN-Protokoll automatisch an die FENECON GmbH übermittelt.</div>
+
+</installation-view>

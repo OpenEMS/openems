@@ -18,48 +18,19 @@ import { ConfigurationSystemComponent } from "./views/configuration-system/confi
 import { ProtocolDynamicFeedInLimitation } from "./views/protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component";
 import { ProtocolAdditionalAcProducersComponent } from "./views/protocol-additional-ac-producers/protocol-additional-ac-producers.component";
 
-import { FormControl, ValidationErrors, Validators } from "@angular/forms";
+import { FormControl, ValidationErrors } from "@angular/forms";
 import { ConfigurationSummaryComponent } from "./views/configuration-summary/configuration-summary.component";
+import { ProtocolSerialNumbersComponent } from "./views/protocol-serial-numbers/protocol-serial-numbers.component";
 
-export function IntegerValidator(control: FormControl): ValidationErrors {
-  return !isNaN(parseInt(control.value)) ? null : { "integer": true };
-}
-
-export function IntegerValidatorMessage(err, field: FormlyFieldConfig) {
-  return `Nur Ganzzahlen sind als Werte erlaubt.`;
-}
+//#region Validators
 
 export function ZipValidator(control: FormControl): ValidationErrors {
   return /^\d{5}$/.test(control.value) ? null : { "zip": true };
 }
 
-export function ZipValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${field.formControl.value}" ist keine gültige Postleitzahl.`;
-}
-
-export function ZeroToHundredValidator(control: FormControl): ValidationErrors {
-  return control.value >= 0 && control.value <= 100 ? null : { "zeroToHundred": true };
-}
-
-export function ZeroToHundredValidatorMessage(err, field: FormlyFieldConfig) {
-  return `Nur Werte zwischen 0 und 100 sind erlaubt.`;
-}
-
-export function MinValidatorMessage(err, field: FormlyFieldConfig) {
-  return `Nur Werte über ${field.templateOptions.min} sind erlaubt.`;
-}
-
-export function EmailValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${field.formControl.value}" ist keine gültige E-Mail-Adresse.`;
-}
-
 export function EmailMatchValidator(control: FormControl): ValidationErrors {
 
   const { email, emailConfirm } = control.value;
-
-  if (!email || !emailConfirm) {
-    return null;
-  }
 
   if (email === emailConfirm) {
     return null;
@@ -68,22 +39,44 @@ export function EmailMatchValidator(control: FormControl): ValidationErrors {
   return { emailMatch: { message: 'E-Mails stimmen nicht überein.' } };
 }
 
+//#endregion
+
+//#region Validator Messages
+
+export function RequiredValidatorMessage(err, field: FormlyFieldConfig) {
+  return "Dies ist ein Pflichtfeld.";
+}
+
+export function MinValidatorMessage(err, field: FormlyFieldConfig) {
+  return `Nur Werte größer oder gleich ${field.templateOptions.min} sind erlaubt.`;
+}
+
+export function MaxValidatorMessage(err, field: FormlyFieldConfig) {
+  return `Nur Werte kleiner oder gleich ${field.templateOptions.max} sind erlaubt.`;
+}
+
+export function ZipValidatorMessage(err, field: FormlyFieldConfig) {
+  return `"${field.formControl.value}" ist keine gültige Postleitzahl.`;
+}
+
+export function EmailValidatorMessage(err, field: FormlyFieldConfig) {
+  return `"${field.formControl.value}" ist keine gültige E-Mail-Adresse.`;
+}
+
+//#endregion
+
 @NgModule({
   imports: [
     FormlyModule.forRoot({
       validators: [
-        { name: "integer", validation: IntegerValidator },
         { name: "zip", validation: ZipValidator },
-        { name: "zeroToHundred", validation: ZeroToHundredValidator },
         { name: "emailMatch", validation: EmailMatchValidator }
       ],
       validationMessages: [
-        { name: "integer", message: IntegerValidatorMessage },
-        { name: "zip", message: ZipValidatorMessage },
-        { name: "zeroToHundred", message: ZeroToHundredValidatorMessage },
-        { name: "required", message: "Dies ist ein Pflichtfeld." },
+        { name: "required", message: RequiredValidatorMessage },
         { name: "min", message: MinValidatorMessage },
-        { name: "pattern", message: "Die Anforderungen sind nicht erfüllt." },
+        { name: "max", message: MaxValidatorMessage },
+        { name: "zip", message: ZipValidatorMessage },
         { name: "email", message: EmailValidatorMessage }
       ]
     }),
@@ -105,7 +98,8 @@ export function EmailMatchValidator(control: FormControl): ValidationErrors {
     ConfigurationSystemComponent,
     ProtocolPv,
     ProtocolAdditionalAcProducersComponent,
-    ConfigurationSummaryComponent
+    ConfigurationSummaryComponent,
+    ProtocolSerialNumbersComponent
   ]
 })
 export class InstallationModule { }

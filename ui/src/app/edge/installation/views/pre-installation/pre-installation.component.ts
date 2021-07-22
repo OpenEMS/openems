@@ -100,25 +100,9 @@ export class PreInstallationComponent implements OnInit {
         edges: metadata.edges
       });
 
-      // Set config if it is available
-      let configSubscription = this.installationData.edge.getConfig(this.websocket).subscribe((config) => {
-
-        // Test if config is available
-        if (!config) {
-          return;
-        }
-
-        // Set config
-        this.installationData.config = config;
-
-        // Unsubscribe the BehaviourSubject
-        configSubscription.unsubscribe();
-
-        // Start installation process
-        this.service.toast("Installation für " + this.installationData.edge.id + " gestartet.", "success");
-        this.nextViewEvent.emit(this.installationData);
-
-      });
+      // Start installation process
+      this.service.toast("Installation für " + this.installationData.edge.id + " gestartet.", "success");
+      this.nextViewEvent.emit(this.installationData);
 
     }).catch((reason) => {
       this.service.toast("Fehler bei der Authentifizierung.", "danger");

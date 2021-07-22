@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Edge, EdgeConfig } from 'src/app/shared/shared';
+import { Edge } from 'src/app/shared/shared';
+import { AcPv } from './views/protocol-additional-ac-producers/protocol-additional-ac-producers.component';
 import { FeedInSetting } from './views/protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component';
 import { DcPv } from './views/protocol-pv/protocol-pv.component';
 
@@ -17,6 +18,7 @@ enum View {
   ProtocolDynamicFeedInLimitation,
   ProtocolInstaller,
   ProtocolPv,
+  ProtocolSerialNumbers,
   ProtocolSystem
 };
 
@@ -61,19 +63,30 @@ export type InstallationData = {
     zip: string,
     city: string,
     country: string,
-    email: string,
-    phone: string
+    email?: string,
+    phone?: string
   },
 
   edge?: Edge,
-  config?: EdgeConfig,
 
   battery: {
     // configuration-system
     type?: string,
-    // -> via channels
-    capacity: number,
-    serialNumbers: string[],
+    // protocol-serial-numbers
+    serialNumbers: {
+      tower1: {
+        label: string,
+        value: string
+      }[],
+      tower2: {
+        label: string,
+        value: string
+      }[],
+      tower3: {
+        label: string,
+        value: string
+      }[]
+    },
     // configuration-emergency-reserve
     emergencyReserve?: {
       isEnabled: boolean,
@@ -90,13 +103,14 @@ export type InstallationData = {
   },
 
   batteryInverter?: {
-    // -> via channels
+    // -> Channel
     type: string,
     serialNumber: string,
     // protocol-dynamic-feed-in-limitation
     dynamicFeedInLimitation?: {
       maximumFeedInPower: number,
-      feedInSetting: FeedInSetting
+      feedInSetting: FeedInSetting,
+      fixedPowerFactor: FeedInSetting
     }
   },
 
@@ -104,17 +118,11 @@ export type InstallationData = {
   pv: {
     dc1?: DcPv,
     dc2?: DcPv,
-    ac?: {
-      alias: string,
-      value: number,
-      orientation: string,
-      moduleType: string,
-      modulesPerString: number,
-      meterType: string,
-      modbusCommunicationAddress: number
-    }[]
+    ac?: AcPv[]
   }
 
+  // protocol-serial-numbers
+  setupProtocolId?: string
 }
 
 export const COUNTRY_OPTIONS: { value: string, label: string }[] = [
@@ -150,7 +158,9 @@ export class InstallationComponent implements OnInit {
     View.ProtocolDynamicFeedInLimitation,
     View.ConfigurationSummary,
     View.ConfigurationExecute,
-    View.ProtocolCompletion,
+    // TODO Read data from batttery inverter here if possible
+    // View.ProtocolCompletion,
+    View.ProtocolSerialNumbers,
     View.Completion
   ];
 
@@ -158,36 +168,30 @@ export class InstallationComponent implements OnInit {
 
   public ngOnInit() {
 
-    // TODO Find better solution
-
-    //#region Init (Old)
+    // TODO Find better initialization solution
+    //#region Init installation data
 
     this.installationData = {
-
       battery: {
-        // -> via channels
-        capacity: 0,
-        serialNumbers: []
+        serialNumbers: {
+          tower1: [],
+          tower2: [],
+          tower3: []
+        }
       },
-
       misc: {
         lineSideMeterFuse: {
           fixedValue: 0,
           otherValue: 0
         }
       },
-
       batteryInverter: {
-        // -> via channels
         type: "",
         serialNumber: ""
       },
-
       pv: {
         ac: []
       }
-
-
     }
 
     //#endregion
@@ -224,7 +228,8 @@ export class InstallationComponent implements OnInit {
   /**
    * Displays the next view.
    * 
-   * It is possible to pass an InstallationData-Object. 
+   * It is possible to pass an InstallationData-Object, which then
+   * will be saved in this class.
    */
   public displayNextView(installationData?: InstallationData) {
     if (installationData) {
