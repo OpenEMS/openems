@@ -234,6 +234,7 @@ export class ProtocolInstallerComponent implements OnInit {
     } else {
 
       if (this.form.invalid) {
+        this.service.toast("Geben Sie zuerst gültige Daten ein, um diese zu speichern.", "warning");
         return;
       }
 

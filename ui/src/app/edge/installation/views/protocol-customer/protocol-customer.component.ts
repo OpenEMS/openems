@@ -25,8 +25,10 @@ export class ProtocolCustomerComponent implements OnInit {
   public ngOnInit() {
 
     this.form = new FormGroup({});
-    this.fields = this.generateFields();
-    this.model = this.installationData.customer ?? {};
+    this.fields = this.getFields();
+    this.model = this.installationData.customer ?? {
+      isCorporateClient: false
+    };
 
   }
 
@@ -48,7 +50,7 @@ export class ProtocolCustomerComponent implements OnInit {
 
   }
 
-  public generateFields(): FormlyFieldConfig[] {
+  public getFields(): FormlyFieldConfig[] {
 
     let fields: FormlyFieldConfig[] = [];
 

@@ -26,14 +26,15 @@ export class ProtocolSystemComponent implements OnInit {
 
     this.form = new FormGroup({});
     this.fields = this.generateFields();
-    this.model = this.installationData.location ?? {};
+    this.model = this.installationData.location ?? {
+      isEqualToCustomerData: false,
+      isCorporateClient: false
+    };
 
   }
 
   public onPreviousClicked() {
-
     this.previousViewEvent.emit();
-
   }
 
   public onNextClicked() {
@@ -152,8 +153,7 @@ export class ProtocolSystemComponent implements OnInit {
           type: "input",
           templateOptions: {
             type: "email",
-            label: "E-Mail-Adresse",
-            required: true
+            label: "E-Mail-Adresse"
           },
           validators: {
             validation: [Validators.email]
@@ -165,8 +165,7 @@ export class ProtocolSystemComponent implements OnInit {
           templateOptions: {
             type: "email",
             label: "E-Mail-Adresse",
-            description: "Wiederholen",
-            required: true
+            description: "Wiederholen"
           }
         }
       ],
@@ -182,8 +181,7 @@ export class ProtocolSystemComponent implements OnInit {
       key: "phone",
       type: "input",
       templateOptions: {
-        label: "Telefonnummer",
-        required: true
+        label: "Telefonnummer"
       },
       hideExpression: model => model.isEqualToCustomerData
     });

@@ -199,19 +199,16 @@ export class ConfigurationSummaryComponent implements OnInit {
 
     let batteryInverter = this.installationData.batteryInverter;
     let batteryInverterData: { label: string, value: any }[] = [
-      { label: "Ländereinstellung", value: "" },
       { label: "Maximale Einspeiseleistung", value: batteryInverter.dynamicFeedInLimitation.maximumFeedInPower }
     ]
 
-    // TODO add feed-in-setting
+    let feedInSetting = batteryInverter.dynamicFeedInLimitation.feedInSetting;
 
-    // let feedInType = batteryInverter.dynamicFeedInLimitation.type;
+    batteryInverterData.push({ label: "Typ", value: feedInSetting });
 
-    // if (feedInType === FeedInSetting.FixedPowerFactor) {
-    //   batteryInverterData.push({ label: "Fester Leistungsfaktor", value: batteryInverter.dynamicFeedInLimitation.fixedPowerFactor });
-    // } else {
-    //   batteryInverterData.push({ label: "Leistungskurve", value: feedInType });
-    // }
+    if (feedInSetting === FeedInSetting.FixedPowerFactor) {
+      batteryInverterData.push({ label: "Cos ɸ Festwert ", value: batteryInverter.dynamicFeedInLimitation.fixedPowerFactor });
+    }
 
     this.tableData.push({
       header: "Wechselrichter",
@@ -219,8 +216,6 @@ export class ConfigurationSummaryComponent implements OnInit {
     });
 
     //#endregion
-
-    // TODO Add PV-Data
 
   }
 

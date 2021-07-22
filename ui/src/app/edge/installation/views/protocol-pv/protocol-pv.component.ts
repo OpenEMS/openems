@@ -39,18 +39,20 @@ export class ProtocolPv implements OnInit {
 
     this.formMppt1 = new FormGroup({});
     this.fieldsMppt1 = this.getFields(1);
-    this.modelMppt1 = this.installationData.pv.dc1 ?? {};
+    this.modelMppt1 = this.installationData.pv.dc1 ?? {
+      isSelected: false
+    };
 
     this.formMppt2 = new FormGroup({});
     this.fieldsMppt2 = this.getFields(2);
-    this.modelMppt2 = this.installationData.pv.dc2 ?? {};
+    this.modelMppt2 = this.installationData.pv.dc2 ?? {
+      isSelected: false
+    };
 
   }
 
   public onPreviousClicked() {
-
     this.previousViewEvent.emit();
-
   }
 
   public onNextClicked() {
@@ -84,7 +86,7 @@ export class ProtocolPv implements OnInit {
       type: "input",
       templateOptions: {
         label: "Bezeichnung",
-        description: "wird im Online-Monitoring angezeigt, z. B. ''Garage''",
+        description: "wird im Online-Monitoring angezeigt, z. B. ''PV Hausdach''",
         required: true
       },
       hideExpression: model => !model.isSelected
@@ -109,15 +111,15 @@ export class ProtocolPv implements OnInit {
       templateOptions: {
         label: "Ausrichtung",
         options: [
-          { label: "", value: undefined },
-          { label: "Nord", value: "n" },
-          { label: "Nordost", value: "no" },
-          { label: "Ost", value: "o" },
-          { label: "Südost", value: "so" },
-          { label: "Süd", value: "s" },
-          { label: "Südwest", value: "sw" },
-          { label: "West", value: "w" },
           { label: "Nordwest", value: "nw" },
+          { label: "West", value: "w" },
+          { label: "Südwest", value: "sw" },
+          { label: "Süd", value: "s" },
+          { label: "Südost", value: "so" },
+          { label: "Ost", value: "o" },
+          { label: "Nordost", value: "no" },
+          { label: "Nord", value: "n" },
+          { label: "", value: undefined }
         ]
       },
       hideExpression: model => !model.isSelected

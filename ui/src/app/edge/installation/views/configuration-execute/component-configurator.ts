@@ -14,8 +14,8 @@ export enum ConfigurationStatus {
     Configured = "configured",          // Configuration of component was successful
     Error = "error",                    // Configuration of component was not successful
 
-    FunctionTestPassed = "function-test-passed",
-    FunctionTestFailed = "function-test-failed"
+    FunctionTestPassed = "function-test-passed",    // TODO implement function test
+    FunctionTestFailed = "function-test-failed"     // TODO implement function test
 }
 
 export type ConfigurationObject = {
@@ -184,27 +184,23 @@ export class ComponentConfigurator {
 
             configurationObject.status = ConfigurationStatus.Configuring;
 
-            let status;
-
             if (configurationObject.mode === ConfigurationMode.RemoveAndConfigure) {
                 // When in RemoveAndConfigure-Mode the component gets configured and
                 // marked as 'Configured'. When the configuration fails, the corresponding
                 // configuration object gets marked with 'Error' and the Promise gets rejected. 
                 this.edge.createComponentConfig(this.websocket, configurationObject.factoryId, properties).then(() => {
-                    status = ConfigurationStatus.Configured;
+                    configurationObject.status = ConfigurationStatus.Configured;
                 }).catch((reason) => {
-                    status = ConfigurationStatus.Error;
+                    configurationObject.status = ConfigurationStatus.Error;
                     reject(reason);
                 });
             } else {
                 // When in RemoveOnly-Mode, the component simply gets marked
                 // as 'Configured'.
-                status = ConfigurationStatus.Configured;
+                configurationObject.status = ConfigurationStatus.Configured;
             }
 
             setTimeout(() => {
-                // Set status of element
-                configurationObject.status = status;
                 // Recursively installs the next elements
                 if (index + 1 < this.configurationObjects.length) {
                     this.configureNext(index + 1).then(() => {
@@ -226,7 +222,7 @@ export class ComponentConfigurator {
      */
     private updateScheduler() {
         let scheduler: EdgeConfig.Component = this.config.getComponent("scheduler0");
-        let requiredControllerIds = ["ctrlEssSurplusFeedToGrid0", "ctrlBalancing0"];
+        let requiredControllerIds = ["ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0", "ctrlBalancing0"];
 
         if (!scheduler) {
             // If scheduler is not existing, it gets configured as required
