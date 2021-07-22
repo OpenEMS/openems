@@ -29,6 +29,7 @@ public class SimilardayModelPredictorTest {
 				Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
 
 		Integer[] values = Data.data;
+		Integer[] predictedValues = Data.predictedData;
 
 		DummyTimedata timedata = new DummyTimedata(TIMEDATA_ID);
 		ZonedDateTime start = ZonedDateTime.of(2019, 12, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
@@ -50,9 +51,9 @@ public class SimilardayModelPredictorTest {
 		Prediction24Hours prediction = sut.get24HoursPrediction(METER1_ACTIVE_POWER);
 		Integer[] p = prediction.getValues();
 
-		assertEquals((Integer) 8931905, p[0]);
-		assertEquals((Integer) 8395602, p[48]);
-		assertEquals((Integer) 14108152, p[95]);
+		assertEquals(predictedValues[0], p[0]);
+		assertEquals(predictedValues[48], p[48]);
+		assertEquals(predictedValues[95], p[95]);
 
 		System.out.println(Arrays.toString(prediction.getValues()));
 

@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
 		name = "Predictor Similarday-Model", //
-		description = "Implements Similar day predictor model")
+		description = "Implements Similarday-Model predictor")
 @interface Config {
 	
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -17,7 +17,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 	
-	@AttributeDefinition(name = "How many weaks?", description = "No of weaks the data is needed?")
+	@AttributeDefinition(name = "How many weeks?", description = "No of weeks the data is needed?")
 	int numOfWeeks() default 4;
 	
 	@AttributeDefinition(name = "Channel-Addresses", description = "List of Channel-Addresses this Predictor is used for, e.g. '*/ActivePower', '*/ActualPower'")
