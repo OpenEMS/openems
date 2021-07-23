@@ -676,4 +676,30 @@ public class TypeUtils {
 		}
 	}
 
+	/**
+	 * Fits a value within a lower and upper boundary.
+	 * 
+	 * @param lowLimit  the lower boundary
+	 * @param highLimit the upper boundary
+	 * @param value     the actual value
+	 * @return the adjusted value
+	 */
+	public static Integer fitWithin(Integer lowLimit, Integer highLimit, Integer value) {
+		return TypeUtils.max(lowLimit, //
+				TypeUtils.min(highLimit, value));
+	}
+
+	/**
+	 * Safely returns the absolute value of an Integer value.
+	 *
+	 * @param value the Integer value, possibly null
+	 * @return the absolute value, possibly null
+	 */
+	public static Integer abs(Integer value) {
+		if (value == null) {
+			return null;
+		} else {
+			return Math.abs(value);
+		}
+	}
 }

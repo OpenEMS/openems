@@ -540,7 +540,8 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_188(Doc.of(Level.WARNING).text("Harmonic protection")), //
 		STATE_189(Doc.of(Level.WARNING).text("Battery emergency stop")), //
 		// ADAS_WARNING_1_0
-		STATE_190(Doc.of(Level.FAULT).text("Reserved")),
+		STATE_190(Doc.of(Level.FAULT).text("Reserved")), //
+		STATE_203(Doc.of(Level.FAULT).text("Reserved")), //
 		// ADAS_WARNING_1_1
 		STATE_191(Doc.of(Level.FAULT).text("Serious overheating of ambient temperature in PCS room")), //
 		STATE_192(Doc.of(Level.FAULT).text("Serious overheating of ambient temperature in Battery room")), //
@@ -554,8 +555,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_199(Doc.of(Level.FAULT).text("DCAC module 4 Communication disconnected")), //
 		STATE_200(Doc.of(Level.FAULT).text("BECU1 Communication disconnected")), //
 		STATE_201(Doc.of(Level.FAULT).text("BECU2 Communication disconnected")), //
-		STATE_202(Doc.of(Level.FAULT).text("BECU3 Communication disconnected")), //
-		STATE_203(Doc.of(Level.FAULT).text("BECU4 Communication disconnected"));//
+		STATE_202(Doc.of(Level.FAULT).text("BECU3 Communication disconnected")); //
 
 		private final Doc doc;
 
@@ -910,7 +910,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						), //
 							// ADAS_WARNING_1_1
 						m(new BitsWordElement(0x3451, this) //
-								.bit(3, EssFeneconBydContainer.ChannelId.STATE_190) //
+								.bit(3, EssFeneconBydContainer.ChannelId.STATE_203) //
 								.bit(4, EssFeneconBydContainer.ChannelId.STATE_191) //
 								.bit(5, EssFeneconBydContainer.ChannelId.STATE_192) //
 								.bit(6, EssFeneconBydContainer.ChannelId.STATE_193) //

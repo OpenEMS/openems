@@ -1,5 +1,6 @@
 package io.openems.edge.battery.soltaro.cluster.versionc;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.edge.battery.soltaro.common.enums.ModuleType;
@@ -12,6 +13,11 @@ public class ClusterVersionCImplTest {
 
 	private static final String BATTERY_ID = "battery0";
 	private static final String MODBUS_ID = "modbus0";
+
+	@Before
+	public void before() {
+		ResetChannelSources.run();
+	}
 
 	@Test
 	public void test() throws Exception {
