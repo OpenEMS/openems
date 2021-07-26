@@ -92,8 +92,8 @@ public class HardyBarthWriteHandler implements Runnable {
 				Integer current = (int) Math.round(power / (double) phases.orElse(3) / 230.0);
 
 				// TODO: Read separate saliaconf.json and set minimum and maximum dynamically
-				int maximum = this.parent.config.maxHwCurrent();
-				int minimum = this.parent.config.minHwCurrent();
+				int maximum = this.parent.config.maxHwCurrent() / 1000;
+				int minimum = this.parent.config.minHwCurrent() / 1000;
 				if (current > maximum) {
 					current = maximum;
 				}
@@ -131,7 +131,6 @@ public class HardyBarthWriteHandler implements Runnable {
 	}
 
 	private Integer lastEnergySession = null;
-	private LocalDateTime nextEnergySessionWrite = LocalDateTime.MIN;
 
 	/**
 	 * Sets the nextValue of the SET_ENERGY_LIMIT channel.
@@ -143,8 +142,8 @@ public class HardyBarthWriteHandler implements Runnable {
 			Integer energyLimit = valueOpt.get();
 
 
-			// Set every WRITE_INTERVAL_SECONDS or if the energy target to set changed
-			if (!energyLimit.equals(this.lastEnergySession) || this.nextEnergySessionWrite.isBefore(LocalDateTime.now())) {
+			// Set if the energy target to set changed
+			if (!energyLimit.equals(this.lastEnergySession)) {
 
 				// Set energy limit
 				this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT).setNextValue(energyLimit);
@@ -153,7 +152,6 @@ public class HardyBarthWriteHandler implements Runnable {
 				
 				// Prepare next write
 				this.lastEnergySession = energyLimit;
-				this.nextEnergySessionWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
 			}
 		}
 	}
