@@ -1,20 +1,8 @@
 package io.openems.edge.evcs.goe.chargerhome;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.evcs.api.ChargingType;
-import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.api.EvcsPower;
-import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.api.Status;
 import java.net.UnknownHostException;
 import java.util.Optional;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -27,6 +15,23 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.evcs.api.ChargingType;
+import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.EvcsPower;
+import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.Status;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Evcs.Goe.ChargerHome", //
@@ -101,62 +106,70 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 
 			// handle writes
 			JsonObject json = this.goeapi.getStatus();
-			if (json != null) {
-
-				// Is Active
-				int alw = json.get("alw").getAsInt();
-				if (alw == 1) {
-					this.isActive = true;
-				} else {
-					this.isActive = false;
-				}
-
-				// General information
-				this.channel(GoeChannelId.SERIAL).setNextValue(json.get("sse").getAsString());
-				this.channel(GoeChannelId.FIRMWARE).setNextValue(json.get("fwv").getAsString());
-
-				// Current status
-				this.channel(GoeChannelId.STATUS_GOE).setNextValue(json.get("car").getAsInt());
-				this.channel(Evcs.ChannelId.STATUS).setNextValue(this.convertGoeStatus(json.get("car").getAsInt()));
-
-				// Detailed charge information
-				this.activeCurrent = json.get("amp").getAsInt() * 1000;
-				this.channel(GoeChannelId.CURR_USER).setNextValue(this.activeCurrent);
-
-				JsonArray nrg = json.get("nrg").getAsJsonArray();
-				this.channel(GoeChannelId.VOLTAGE_L1).setNextValue(nrg.get(0).getAsInt());
-				this.channel(GoeChannelId.VOLTAGE_L2).setNextValue(nrg.get(1).getAsInt());
-				this.channel(GoeChannelId.VOLTAGE_L3).setNextValue(nrg.get(2).getAsInt());
-				this.channel(GoeChannelId.CURRENT_L1).setNextValue(nrg.get(4).getAsInt() * 100);
-				this.channel(GoeChannelId.CURRENT_L2).setNextValue(nrg.get(5).getAsInt() * 100);
-				this.channel(GoeChannelId.CURRENT_L3).setNextValue(nrg.get(6).getAsInt() * 100);
-				this.channel(GoeChannelId.ACTUAL_POWER).setNextValue(nrg.get(11).getAsInt() * 10);
-				this.channel(Evcs.ChannelId.CHARGE_POWER).setNextValue(nrg.get(11).getAsInt() * 10);
-
-				int phases = this.convertGoePhase(json.get("pha").getAsInt());
-				this.channel(Evcs.ChannelId.PHASES).setNextValue(phases);
-
-				// Hardware limits
-				int cableCurrent = json.get("cbl").getAsInt() * 1000;
-				this.maxCurrent = cableCurrent > 0 && cableCurrent < this.config.maxHwCurrent() ? cableCurrent
-						: this.config.maxHwCurrent();
-				this._setMinimumHardwarePower(this.minCurrent * phases * 230);
-				this._setMaximumHardwarePower(this.maxCurrent * phases * 230);
-
-				// Energy
-				this.channel(GoeChannelId.ENERGY_TOTAL).setNextValue(json.get("eto").getAsInt() * 100);
-				this.channel(Evcs.ChannelId.ENERGY_SESSION).setNextValue(json.get("dws").getAsInt() * 10 / 3600);
-
-				// Error
-				String err = json.get("err").getAsString();
-				this.channel(GoeChannelId.ERROR).setNextValue(err);
-				this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(false);
-
-				// Set the power and energy
-				this.setPower();
-				this.setEnergySession();
-			} else {
+			if (json == null) {
 				this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(true);
+
+			} else {
+				try {
+					// Is Active
+					int alw = JsonUtils.getAsInt(json, "alw");
+					if (alw == 1) {
+						this.isActive = true;
+					} else {
+						this.isActive = false;
+					}
+
+					// General information
+					this.channel(GoeChannelId.SERIAL).setNextValue(JsonUtils.getAsString(json, "sse"));
+					this.channel(GoeChannelId.FIRMWARE).setNextValue(JsonUtils.getAsString(json, "fwv"));
+
+					// Current status
+					int status = JsonUtils.getAsInt(json, "car");
+					this.channel(GoeChannelId.STATUS_GOE).setNextValue(status);
+					this.channel(Evcs.ChannelId.STATUS).setNextValue(this.convertGoeStatus(status));
+
+					// Detailed charge information
+					this.activeCurrent = JsonUtils.getAsInt(json, "amp") * 1000;
+					this.channel(GoeChannelId.CURR_USER).setNextValue(this.activeCurrent);
+
+					JsonArray nrg = JsonUtils.getAsJsonArray(json, "nrg");
+					this.channel(GoeChannelId.VOLTAGE_L1).setNextValue(JsonUtils.getAsInt(nrg, 0));
+					this.channel(GoeChannelId.VOLTAGE_L2).setNextValue(JsonUtils.getAsInt(nrg, 1));
+					this.channel(GoeChannelId.VOLTAGE_L3).setNextValue(JsonUtils.getAsInt(nrg, 2));
+					this.channel(GoeChannelId.CURRENT_L1).setNextValue(JsonUtils.getAsInt(nrg, 4) * 100);
+					this.channel(GoeChannelId.CURRENT_L2).setNextValue(JsonUtils.getAsInt(nrg, 5) * 100);
+					this.channel(GoeChannelId.CURRENT_L3).setNextValue(JsonUtils.getAsInt(nrg, 6) * 100);
+					int power = JsonUtils.getAsInt(nrg, 11);
+					this.channel(GoeChannelId.ACTUAL_POWER).setNextValue(power * 10);
+					this.channel(Evcs.ChannelId.CHARGE_POWER).setNextValue(power * 10);
+
+					int phases = this.convertGoePhase(JsonUtils.getAsInt(json, "pha"));
+					this.channel(Evcs.ChannelId.PHASES).setNextValue(phases);
+
+					// Hardware limits
+					int cableCurrent = JsonUtils.getAsInt(json, "cbl") * 1000;
+					this.maxCurrent = cableCurrent > 0 && cableCurrent < this.config.maxHwCurrent() //
+							? cableCurrent //
+							: this.config.maxHwCurrent();
+					this._setMinimumHardwarePower(this.minCurrent * phases * 230);
+					this._setMaximumHardwarePower(this.maxCurrent * phases * 230);
+
+					// Energy
+					this.channel(GoeChannelId.ENERGY_TOTAL).setNextValue(JsonUtils.getAsInt(json, "eto") * 100);
+					this.channel(Evcs.ChannelId.ENERGY_SESSION)
+							.setNextValue(JsonUtils.getAsInt(json, "dws") * 10 / 3600);
+
+					// Error
+					this.channel(GoeChannelId.ERROR).setNextValue(JsonUtils.getAsString(json, "err"));
+					this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(false);
+
+					// Set the power and energy
+					this.setPower();
+					this.setEnergySession();
+
+				} catch (OpenemsNamedException e) {
+					this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(true);
+				}
 			}
 			break;
 		default:
@@ -165,18 +178,18 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 
 	}
 
-	private int convertGoeStatus(int status) {
+	private Status convertGoeStatus(int status) {
 		switch (status) {
 		case 1: // ready for charging, car unplugged
-			return Status.NOT_READY_FOR_CHARGING.getValue();
+			return Status.NOT_READY_FOR_CHARGING;
 		case 2: // charging
-			return Status.CHARGING.getValue();
+			return Status.CHARGING;
 		case 3: // waiting for car
-			return Status.READY_FOR_CHARGING.getValue();
+			return Status.READY_FOR_CHARGING;
 		case 4: // charging finished, car plugged
-			return Status.CHARGING_FINISHED.getValue();
+			return Status.CHARGING_FINISHED;
 		default:
-			return Status.UNDEFINED.getValue();
+			return Status.UNDEFINED;
 		}
 	}
 
