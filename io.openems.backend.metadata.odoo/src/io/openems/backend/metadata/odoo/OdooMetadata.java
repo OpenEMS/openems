@@ -104,13 +104,16 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 			roles.put(edgeId, role);
 		}
 		JsonObject jUser = JsonUtils.getAsJsonObject(result, "user");
+		int odooUserId = JsonUtils.getAsInt(jUser, "id");
+
 		MyUser user = new MyUser(//
-				JsonUtils.getAsInt(jUser, "id"), //
+				odooUserId, //
 				JsonUtils.getAsString(jUser, "login"), //
 				JsonUtils.getAsString(jUser, "name"), //
 				sessionId, //
 				Role.getRole(JsonUtils.getAsString(jUser, "global_role")), //
-				roles);
+				roles, //
+				JsonUtils.getAsString(jUser, "language"));
 
 		this.users.put(user.getId(), user);
 		return user;
