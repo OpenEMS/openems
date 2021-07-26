@@ -342,7 +342,8 @@ public interface Field {
 	}
 
 	public enum Country implements Field {
-		NAME("name", true);
+		NAME("name", true), //
+		CODE("code", true);
 
 		public static final String ODOO_MODEL = "res.country";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");

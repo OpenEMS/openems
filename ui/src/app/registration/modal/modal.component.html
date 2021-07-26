@@ -44,8 +44,11 @@
             </ion-item>
             <ion-item>
                 <ion-label position="floating" translate>Register.form.country<span>*</span></ion-label>
-                <ion-input formControlName="country" type="input" [placeholder]="'Register.form.country' | translate">
-                </ion-input>
+                <ion-select formControlName="country">
+                    <ion-select-option value="de">Deutschland</ion-select-option>
+                    <ion-select-option value="at">Österreich</ion-select-option>
+                    <ion-select-option value="ch">Schweiz</ion-select-option>
+                </ion-select>
             </ion-item>
             <ion-item>
                 <ion-label position="floating" translate>Register.form.phone<span>*</span></ion-label>

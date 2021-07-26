@@ -54,8 +54,8 @@ public class GetUserInformationResponse extends JsonrpcResponseSuccess {
 
 		String country = null;
 		Object[] array = ObjectUtils.getAsObjectArrray(this.userInformation.get("country_id"));
-		if (array.length > 1) {
-			country = ObjectUtils.getAsString(array[1]);
+		if (array.length > 2) {
+			country = ObjectUtils.getAsString(array[2]).toLowerCase();
 		}
 
 		JsonObject addressJson = JsonUtils.buildJsonObject() //
