@@ -68,6 +68,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	private static final String USER_ID = "admin";
 	private static final String USER_NAME = "Administrator";
 	private static final Role USER_GLOBAL_ROLE = Role.ADMIN;
+	private static final String USER_LANGUAGE = "de_DE";
 
 	private final Logger log = LoggerFactory.getLogger(FileMetadata.class);
 	private final Map<String, MyEdge> edges = new HashMap<>();
@@ -207,7 +208,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 
 	private static User generateUser() {
 		return new User(FileMetadata.USER_ID, FileMetadata.USER_NAME, UUID.randomUUID().toString(),
-				FileMetadata.USER_GLOBAL_ROLE, new TreeMap<>());
+				FileMetadata.USER_GLOBAL_ROLE, new TreeMap<>(), USER_LANGUAGE);
 	}
 
 	@Override

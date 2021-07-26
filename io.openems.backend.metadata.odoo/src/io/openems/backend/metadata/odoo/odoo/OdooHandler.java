@@ -1,5 +1,6 @@
 package io.openems.backend.metadata.odoo.odoo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -20,11 +21,10 @@ import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.Partner;
 import io.openems.backend.metadata.odoo.Field.SetupProtocol;
+import io.openems.backend.metadata.odoo.Field.SetupProtocolItem;
 import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.MyUser;
 import io.openems.backend.metadata.odoo.OdooMetadata;
-import io.openems.backend.metadata.odoo.odoo.OdooUtils.SuccessResponseAndHeaders;
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
@@ -155,23 +155,7 @@ public class OdooHandler {
 	 * @throws OpenemsNamedException on login error
 	 */
 	public String authenticate(String username, String password) throws OpenemsNamedException {
-		JsonObject request = JsonUtils.buildJsonObject() //
-				.addProperty("jsonrpc", "2.0") //
-				.addProperty("method", "call") //
-				.add("params", JsonUtils.buildJsonObject() //
-						.addProperty("db", "v12") //
-						.addProperty("login", username) //
-						.addProperty("password", password) //
-						.build()) //
-				.build();
-		SuccessResponseAndHeaders response = OdooUtils
-				.sendJsonrpcRequest(this.credentials.getUrl() + "/web/session/authenticate", request);
-		Optional<String> sessionId = getFieldFromSetCookieHeader(response.headers, "session_id");
-		if (!sessionId.isPresent()) {
-			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-		} else {
-			return sessionId.get();
-		}
+		return OdooUtils.login(this.credentials, username, password);
 	}
 
 	/**
@@ -254,6 +238,20 @@ public class OdooHandler {
 				Field.Partner.COUNTRY, //
 				Field.Partner.COMPANY_NAME);
 
+		Object[] odooCountryId = ObjectUtils.getAsObjectArrray(odooPartner.get("country_id"));
+		if (odooCountryId.length > 1) {
+			Map<String, Object> countryCode = OdooUtils.readOne(this.credentials, Field.Country.ODOO_MODEL,
+					(Integer) odooCountryId[0], Field.Country.CODE);
+
+			Optional<String> optCode = ObjectUtils.getAsOptionalString(countryCode.get("code"));
+			if (optCode.isPresent()) {
+				Object[] countryElement = Arrays.copyOf(odooCountryId, odooCountryId.length + 1);
+				countryElement[2] = countryCode.get("code");
+
+				odooPartner.put("country_id", countryElement);
+			}
+		}
+
 		return odooPartner;
 	}
 
@@ -305,18 +303,16 @@ public class OdooHandler {
 		JsonUtils.getAsOptionalString(address, "city") //
 				.ifPresent(city -> addressFields.put(Field.Partner.CITY.id(), city));
 
-		Optional<String> optCountry = JsonUtils.getAsOptionalString(address, "country");
-		if (optCountry.isPresent()) {
-			String country = optCountry.get();
+		Optional<String> optCountryCode = JsonUtils.getAsOptionalString(address, "country");
+		if (optCountryCode.isPresent()) {
+			String countryCode = optCountryCode.get().toUpperCase();
 
 			int[] countryFound = OdooUtils.search(this.credentials, Field.Country.ODOO_MODEL, //
-					new Domain(Field.Country.NAME, "=", country));
+					new Domain(Field.Country.CODE, "=", countryCode));
 			if (countryFound.length == 1) {
 				addressFields.put(Field.Partner.COUNTRY.id(), countryFound[0]);
 			} else {
-				int createdCountryId = OdooUtils.create(this.credentials, Field.Country.ODOO_MODEL, //
-						new FieldValue<>(Field.Country.NAME, country));
-				addressFields.put(Field.Partner.COUNTRY.id(), createdCountryId);
+				this.log.info("Country with code [" + countryCode + "] not found");
 			}
 		}
 
@@ -429,7 +425,13 @@ public class OdooHandler {
 		this.assignEdgeToUser(odooUserId, foundFems[0], OdooUserRole.OWNER);
 
 		int protocolId = this.createSetupProtocol(setupProtocolJson, foundFems[0], customerId, installerId);
-		this.sendSetupProtocolMail(user, protocolId, femsId);
+
+		try {
+			this.sendSetupProtocolMail(user, protocolId, femsId);
+		} catch (OpenemsNamedException ex) {
+			this.log.warn("Unable to send email", ex);
+		}
+
 		return protocolId;
 	}
 
@@ -442,8 +444,8 @@ public class OdooHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	private void sendSetupProtocolMail(MyUser user, int protocolId, String femsId) throws OpenemsNamedException {
-		OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/sendSetupProtocolEmail",
-				"session_id=" + user.getToken(), JsonUtils.buildJsonObject() //
+		OdooUtils.sendAdminJsonrpcRequest(credentials, "/openems_backend/sendSetupProtocolEmail",
+				JsonUtils.buildJsonObject() //
 						.add("params", JsonUtils.buildJsonObject() //
 								.addProperty("setupProtocolId", protocolId) //
 								.addProperty("femsId", femsId) //
@@ -554,6 +556,7 @@ public class OdooHandler {
 	 * @throws OpenemsException on error
 	 */
 	private void createSetupProtocolProductionLots(int setupProtocolId, JsonArray lots) throws OpenemsException {
+		List<JsonElement> serialNumbersNotFound = new ArrayList<>();
 		for (int i = 0; i < lots.size(); i++) {
 			JsonElement lot = lots.get(i);
 
@@ -573,10 +576,39 @@ public class OdooHandler {
 
 				if (lotId.length > 0) {
 					lotFields.put(Field.SetupProtocolProductionLot.LOT.id(), lotId[0]);
+					OdooUtils.create(this.credentials, Field.SetupProtocolProductionLot.ODOO_MODEL, lotFields);
+				} else {
+					serialNumbersNotFound.add(lot);
 				}
 			}
 
-			OdooUtils.create(this.credentials, Field.SetupProtocolProductionLot.ODOO_MODEL, lotFields);
+		}
+
+		this.createNotFoundSerialNumbers(setupProtocolId, serialNumbersNotFound);
+	}
+
+	/**
+	 * Create for the given serial numbers that were not found a {@link SetupProtocolItem}.
+	 * 
+	 * @param setupProtocolId the protocol id
+	 * @param serialNumbers not found serial numbers
+	 * @throws OpenemsException on error
+	 */
+	private void createNotFoundSerialNumbers(int setupProtocolId, List<JsonElement> serialNumbers) throws OpenemsException {
+		for (int i = 0; i < serialNumbers.size(); i++) {
+			JsonElement item = serialNumbers.get(i);
+
+			Map<String, Object> setupProtocolItem = new HashMap<>();
+			setupProtocolItem.put(Field.SetupProtocolItem.SETUP_PROTOCOL.id(), setupProtocolId);
+			setupProtocolItem.put(Field.SetupProtocolItem.SEQUENCE.id(), i);
+			setupProtocolItem.put("category", "Seriennummern wurden im System nicht gefunden");
+
+			JsonUtils.getAsOptionalString(item, "name") //
+					.ifPresent(name -> setupProtocolItem.put("name", name));
+			JsonUtils.getAsOptionalString(item, "serialNumber") //
+					.ifPresent(serialNumber -> setupProtocolItem.put("value", serialNumber));
+
+			OdooUtils.create(this.credentials, Field.SetupProtocolItem.ODOO_MODEL, setupProtocolItem);
 		}
 	}
 
@@ -661,6 +693,7 @@ public class OdooHandler {
 		userFields.put(Field.User.LOGIN.id(), email);
 		userFields.put(Field.Partner.EMAIL.id(), email);
 		userFields.put(Field.User.GLOBAL_ROLE.id(), role.getOdooRole());
+		userFields.put(Field.User.GROUPS.id(), Arrays.asList(OdooUserGroup.CUSTOMER.getGroupId()));
 		userFields.putAll(this.updateAddress(jsonObject));
 		userFields.putAll(this.updateCompany(jsonObject));
 

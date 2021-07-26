@@ -52,6 +52,8 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 	private final Map<String, User> users = new HashMap<>();
 	private final Map<String, MyEdge> edges = new HashMap<>();
 
+	private final String DEFAULT_LANGUAGE = "de_DE";
+
 	public DummyMetadata() {
 		super("Metadata.Dummy");
 		this.setInitialized();
@@ -75,7 +77,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 		for (String edgeId : this.edges.keySet()) {
 			roles.put(edgeId, Role.ADMIN);
 		}
-		User user = new User(username, name, token, Role.ADMIN, roles);
+		User user = new User(username, name, token, Role.ADMIN, roles, DEFAULT_LANGUAGE);
 		this.users.put(user.getId(), user);
 		return user;
 	}
