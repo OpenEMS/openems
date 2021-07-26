@@ -53,6 +53,7 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.TypeUtils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -70,6 +71,8 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	private static final int MODULE_MIN_VOLTAGE = 42; // [V]
 	private static final int MODULE_MAX_VOLTAGE = 49; // [V]; 3.5 V x 14 Cells per Module
 	private static final int CAPACITY_PER_MODULE = 2200; // [Wh]
+	private static final String BMS_SERIAL_NUMBER_PREFIX = "519100001009";
+	private static final String BMU_SERIAL_NUMBER_PREFIX = "519110001210";
 
 	private final Logger log = LoggerFactory.getLogger(FeneconHomeBatteryImpl.class);
 
@@ -343,7 +346,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	 * 
 	 * @param tower           number of the Tower
 	 * @param channelIdSuffix e.g. "STATUS_ALARM"
-	 * @param level     specified level e.g. "INFO"
+	 * @param level           specified level e.g. "INFO"
 	 * @return a channel with Channel-ID "TOWER_1_STATUS_ALARM"
 	 */
 	private ChannelIdImpl generateTowerChannel(int tower, String channelIdSuffix, Level level) {
@@ -676,8 +679,12 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 										new UnsignedDoublewordElement(towerOffset + 47)),
 								m(this.generateTowerChannel(tower, "ACC_DISCHARGE_ENERGY", OpenemsType.INTEGER),
 										new UnsignedDoublewordElement(towerOffset + 49)),
-								m(this.generateTowerChannel(tower, "HV_BOX_SERIAL_NUMBER", OpenemsType.INTEGER),
-										new UnsignedDoublewordElement(towerOffset + 51))));
+								m(this.generateTowerChannel(tower, "HV_BOX_SERIAL_NUMBER", OpenemsType.STRING),
+										new UnsignedDoublewordElement(towerOffset + 51),
+										new ElementToChannelConverter((value) -> {
+											Integer intValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
+											return buildSerialNumber(BMS_SERIAL_NUMBER_PREFIX, intValue);
+										}))));
 			}
 
 			for (int tower = 0; tower < numberOfTowers; tower++) {
@@ -728,7 +735,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 
 					ChannelIdImpl channelId = new ChannelIdImpl(//
 							"TOWER_" + tower + "_MODULE_" + module + "_MODULE_SERIAL_NUMBER", //
-							Doc.of(OpenemsType.INTEGER));
+							Doc.of(OpenemsType.STRING));
 					this.addChannel(channelId);
 
 					// TODO combine to one read task
@@ -736,7 +743,11 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 							new FC3ReadRegistersTask(moduleOffset + module * 100 + 2, Priority.LOW, ameVolt),
 							new FC3ReadRegistersTask(moduleOffset + module * 100 + 18, Priority.LOW, ameTemp),
 							new FC3ReadRegistersTask(moduleOffset + module * 100 + 83, Priority.LOW,
-									m(channelId, new UnsignedDoublewordElement(moduleOffset + module * 100 + 83))));
+									m(channelId, new UnsignedDoublewordElement(moduleOffset + module * 100 + 83),
+											new ElementToChannelConverter((value) -> {
+												Integer intValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
+												return buildSerialNumber(BMU_SERIAL_NUMBER_PREFIX, intValue);
+											}))));
 				}
 			}
 
@@ -746,4 +757,48 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 			this.lastNumberOfModulesPerTower = numberOfModulesPerTower;
 		}
 	}
+
+	/**
+	 * Build the serial number with prefix.
+	 * 
+	 * @param prefix the serial number prefix
+	 * @param value  the serial number
+	 * @return The serial number
+	 */
+	private static String buildSerialNumber(String prefix, int value) {
+		int year = extractNumber(value, 7, 26);
+		int month = extractNumber(value, 4, 22);
+		int day = extractNumber(value, 5, 17);
+		int number = extractNumber(value, 16, 1);
+
+		StringBuilder serialNumber = new StringBuilder();
+		serialNumber.append(prefix);
+		serialNumber.append(year < 10 ? "0" + year : year);
+		serialNumber.append(month < 10 ? "0" + month : month);
+		serialNumber.append(day < 10 ? "0" + day : day);
+
+		int digits = String.valueOf(number).length();
+		if (digits <= 6) {
+			String maxDigits = "000000";
+			String formattedNumber = maxDigits.substring(0, maxDigits.length() - digits) + number;
+			serialNumber.append(formattedNumber);
+		} else {
+			serialNumber.append(number);
+		}
+
+		return serialNumber.toString();
+	}
+
+	/**
+	 * Gets number from given value via bit shifting.
+	 * 
+	 * @param value    to get number from
+	 * @param length   of the number
+	 * @param position to start extracting
+	 * @return Number
+	 */
+	private static int extractNumber(int value, int length, int position) {
+		return ((1 << length) - 1) & (value >> (position - 1));
+	}
+
 }
