@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.goodwe.GoodWeConstants;
 import io.openems.edge.goodwe.common.enums.BackupEnable;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
-import io.openems.edge.goodwe.common.enums.FeedInPowerSettingsSelection;
+import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
 import io.openems.edge.goodwe.common.enums.FeedPowerEnable;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
 
@@ -55,7 +55,7 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 			+ "For QuEnableCurve inverter will operate based on power and frequency curve, "
 			+ "For PuEnableCurve inverter will operate based on power factor(cos phi)"
 			+ "Rest of the selections for specific Lagging or Leading factors.")
-	FeedInPowerSettingsSelection setfeedInPowerSettings() default FeedInPowerSettingsSelection.UNDEFINED;
+	FeedInPowerSettings setfeedInPowerSettings() default FeedInPowerSettings.UNDEFINED;
 
 	@AttributeDefinition(name = "Fixed EMS Power Mode", description = "")
 	EmsPowerMode emsPowerMode() default EmsPowerMode.UNDEFINED;

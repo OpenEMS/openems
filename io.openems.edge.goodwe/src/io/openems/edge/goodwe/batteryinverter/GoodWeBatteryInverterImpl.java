@@ -44,7 +44,7 @@ import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
-import io.openems.edge.goodwe.common.enums.FixedPowerFactor;
+import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -169,7 +169,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		this.writeToChannel(GoodWe.ChannelId.ENABLE_CURVE_PU, EnableCurve.DISABLE);
 
 		// Feed-in settings
-		switch (config.setfeedInPowerSettings()) {
+		FeedInPowerSettings setFeedInPowerSettings = config.setfeedInPowerSettings();
+		switch (setFeedInPowerSettings) {
+		case UNDEFINED:
+			break;
 		case QU_ENABLE_CURVE:
 			this.writeToChannel(GoodWe.ChannelId.LOCK_IN_POWER_QU, 200);
 			this.writeToChannel(GoodWe.ChannelId.LOCK_OUT_POWER_QU, 50);
@@ -191,129 +194,53 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			this.writeToChannel(GoodWe.ChannelId.POINT_C_PF, 0);
 			break;
 		case LAGGING_0_80:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_80);
-			break;
 		case LAGGING_0_81:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_81);
-			break;
 		case LAGGING_0_82:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_82);
-			break;
 		case LAGGING_0_83:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_83);
-			break;
 		case LAGGING_0_84:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_84);
-			break;
 		case LAGGING_0_85:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_85);
-			break;
 		case LAGGING_0_86:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_86);
-			break;
 		case LAGGING_0_87:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_87);
-			break;
 		case LAGGING_0_88:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_88);
-			break;
 		case LAGGING_0_89:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_89);
-			break;
 		case LAGGING_0_90:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_90);
-			break;
 		case LAGGING_0_91:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_91);
-			break;
 		case LAGGING_0_92:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_92);
-			break;
 		case LAGGING_0_93:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_93);
-			break;
 		case LAGGING_0_94:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_94);
-			break;
 		case LAGGING_0_95:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_95);
-			break;
 		case LAGGING_0_96:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_96);
-			break;
 		case LAGGING_0_97:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_97);
-			break;
 		case LAGGING_0_98:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_98);
-			break;
 		case LAGGING_0_99:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LAGGING_0_99);
-			break;
 		case LEADING_0_80:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_80);
-			break;
 		case LEADING_0_81:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_81);
-			break;
 		case LEADING_0_82:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_82);
-			break;
 		case LEADING_0_83:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_83);
-			break;
 		case LEADING_0_84:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_84);
-			break;
 		case LEADING_0_85:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_85);
-			break;
 		case LEADING_0_86:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_86);
-			break;
 		case LEADING_0_87:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_87);
-			break;
 		case LEADING_0_88:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_88);
-			break;
 		case LEADING_0_89:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_89);
-			break;
 		case LEADING_0_90:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_90);
-			break;
 		case LEADING_0_91:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_91);
-			break;
 		case LEADING_0_92:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_92);
-			break;
 		case LEADING_0_93:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_93);
-			break;
 		case LEADING_0_94:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_94);
-			break;
 		case LEADING_0_95:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_95);
-			break;
 		case LEADING_0_96:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_96);
-			break;
 		case LEADING_0_97:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_97);
-			break;
 		case LEADING_0_98:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_98);
-			break;
 		case LEADING_0_99:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_0_99);
-			break;
 		case LEADING_1:
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_1);
-			break;
-		case UNDEFINED:
+			if (setFeedInPowerSettings.fixedPowerFactor == null) {
+				throw new IllegalArgumentException(
+						"Feed-In-Power-Setting [" + setFeedInPowerSettings + "] has no fixed power factor");
+			} else {
+				this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR,
+						config.setfeedInPowerSettings().fixedPowerFactor);
+			}
 			break;
 		}
 	}
