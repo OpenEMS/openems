@@ -275,17 +275,10 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Id. (Max Cell Voltage)")), //
-		MIN_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Min Temperature of Battery Rack")), //
 		ID_OF_MIN_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Id. (Min Temp)")), //
-		MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Max Temperature of Battery Rack")), //
 		ID_OF_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Id. (Max Temp)")), //
@@ -593,69 +586,6 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU System Short Circuit Fault")),
 
-		// Rest of the Bcu registers
-		TOWER_SOC(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("BCU SOC")),
-		BCU_SOH(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("BCU SOH")),
-		BCU_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Battery BCU Voltage")),
-		BCU_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Battery BCU Current")),
-		BCU_MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("BCU Min Cell Voltage")),
-		BCU_MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("BCU Maxc Cell Voltage")),
-		AVERAGE_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("BCU Average Of All Cell Voltages")),
-		BCU_MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("BCU DC Charge Current Limit")),
-		MIN_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("BCU DC Discharge Current Limit")),
-		BMS_SERIAL_NUMBER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("BMS Serial Number")),
-		NO_OF_CYCLES(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Number Of Full charged/discharged cycles")),
-		DESIGN_CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE_HOURS) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Design Capacity Of the Module")),
-		USEABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE_HOURS) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Useable Capacity Of The Module")),
-		REMAINING_CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE_HOURS) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Remaining Capacity Of The Module")),
-		MAX_CELL_VOLTAGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("BCU Max Cell Voltage Limit")),
-		MIN_CELL_VOLTAGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("BCU Min Cell Voltage Limit")),
 		NUMBER_OF_MODULES_PER_TOWER(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Number of modules per tower") //
@@ -683,37 +613,8 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Bms software version of first tower")),
 
-		BMU_SOFTWARE_VERSION(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("BMU Software Version")),
-		BMU_HARDWARE_VERSION(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("BMU Hardware Version")),
-		BMU_MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT)//
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("BMU Max Cell Voltage")),
-		BMU_MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT)//
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("BMU Min Cell Voltage")),
-		BMU_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS)//
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Max BMU Temperature")),
-		BMU_MIN_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS)//
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Min BMU Temperature")),
-		SUM_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)//
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("BMU Sum Voltage")),
 		BMS_CONTROL(Doc.of(BmsControl.values()) //
 				.text("BMS CONTROL(1: Shutdown, 0: no action, 2: Ignore)")),
-		KEEP_FET_OPEN(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Keep FET Open (Disconnect the relay; 1:Keep open, 0: normal operation)")),
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
 		RUN_FAILED(Doc.of(Level.FAULT) //
