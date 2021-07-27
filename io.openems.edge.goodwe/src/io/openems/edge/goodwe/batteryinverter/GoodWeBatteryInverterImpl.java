@@ -147,7 +147,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		this.config = config;
 
 		// TODO write values only if update is required
-		
+
 		// (0x00) 'General Mode: Self use' instead of (0x01) 'Off-grid Mode', (0x02)
 		// 'Backup Mode' or (0x03) 'Economic Mode'.
 		this.writeToChannel(GoodWe.ChannelId.SELECT_WORK_MODE, AppModeIndex.SELF_USE);
@@ -416,11 +416,18 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				TypeUtils.orElse(preprocessAmpereValue47900(battery.getDischargeMaxCurrent()), 0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_VOLTAGE, battery.getVoltage().orElse(0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CURRENT, TypeUtils.abs(battery.getCurrent().orElse(0)));
+
 		// Set SoC within [1;100] to avoid force-charge internally by PCS at 0 %
 		this.writeToChannel(GoodWe.ChannelId.WBMS_SOC, TypeUtils.fitWithin(1, 100, battery.getSoc().orElse(1)));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_SOH, battery.getSoh().orElse(100));
-		this.writeToChannel(GoodWe.ChannelId.WBMS_TEMPERATURE, TypeUtils.orElse(
-				TypeUtils.sum(battery.getMaxCellTemperature().get(), battery.getMinCellTemperature().get()), 0));
+
+		// Average Min/Max Cell Temperature; defaults to 0
+		this.writeToChannel(GoodWe.ChannelId.WBMS_TEMPERATURE, //
+				TypeUtils.orElse(//
+						TypeUtils.averageRounded(//
+								battery.getMaxCellTemperature().get(), battery.getMinCellTemperature().get()),
+						0));
+
 		this.writeToChannel(GoodWe.ChannelId.WBMS_WARNING_CODE, 0);
 		this.writeToChannel(GoodWe.ChannelId.WBMS_ALARM_CODE, 0);
 		this.writeToChannel(GoodWe.ChannelId.WBMS_STATUS, 0);
