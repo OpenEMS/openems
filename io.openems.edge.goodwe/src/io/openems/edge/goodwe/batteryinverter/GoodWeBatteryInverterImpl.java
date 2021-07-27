@@ -433,10 +433,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 						/* Battery Voltage */ battery.getVoltage().get()),
 				/* PV Production */ pvProduction));
 
-		if (this.config.blockWrites()) {
-			return;
-		}
-
 		if (this.config.emsPowerMode() != EmsPowerMode.UNDEFINED && this.config.emsPowerSet() >= 0) {
 			System.out.println("Static " + this.config.emsPowerMode() + "[" + this.config.emsPowerSet() + "]");
 			IntegerWriteChannel emsPowerSetChannel = this.channel(GoodWe.ChannelId.EMS_POWER_SET);

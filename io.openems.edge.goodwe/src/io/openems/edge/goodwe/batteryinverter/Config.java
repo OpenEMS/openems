@@ -63,8 +63,5 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 	@AttributeDefinition(name = "Fixed EMS Power Set", description = "")
 	int emsPowerSet() default -1;
 
-	@AttributeDefinition(name = "Block all writes (i.e. trigger watchdog function)", description = "")
-	boolean blockWrites() default false;
-
 	String webconsole_configurationFactory_nameHint() default "GoodWe Battery Inverter [{id}]";
 }
