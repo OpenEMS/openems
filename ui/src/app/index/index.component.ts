@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
+import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from '../../environments';
@@ -25,6 +23,12 @@ export class IndexComponent {
    */
   public noEdges: boolean = false;
 
+  /**
+   * True, if the logged in user is allowed to install
+   * new edges.
+   */
+  public loggedInUserCanInstall: boolean = false;
+
   public form: FormGroup;
   public filter: string = '';
   public filteredEdges: Edge[] = [];
@@ -36,27 +40,17 @@ export class IndexComponent {
     public service: Service,
     public websocket: Websocket,
     public utils: Utils,
-    private router: Router,
     private route: ActivatedRoute,
-    private toastController: ToastController,
-    private translate: TranslateService,
   ) {
-
-    //Forwarding to device index if there is only 1 edge
     service.metadata
       .pipe(
         takeUntil(this.stopOnDestroy),
         filter(metadata => metadata != null)
       )
       .subscribe(metadata => {
-        let edgeIds = Object.keys(metadata.edges);
-        this.noEdges = edgeIds.length == 0;
-        if (edgeIds.length == 1) {
-          let edge = metadata.edges[edgeIds[0]];
-          if (edge.isOnline) {
-            this.router.navigate(['/device', edge.id]);
-          }
-        }
+        this.noEdges = Object.keys(metadata.edges).length === 0;
+        this.loggedInUserCanInstall = Role.isAtLeast(metadata.user.globalRole, "installer");
+
         this.updateFilteredEdges();
       })
   }
@@ -117,9 +111,4 @@ export class IndexComponent {
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
   }
-
-  public loggedInUserCanInstall(): boolean {
-    return Role.isAtLeast(this.service.metadata.value?.user.globalRole, "installer");
-  }
-
 }

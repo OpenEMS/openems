@@ -167,6 +167,50 @@ public class OdooUtils {
 		}
 	}
 
+	/**
+	 * Sends a request with admin privileges.
+	 * 
+	 * @param credentials the Odoo credentials
+	 * @param url         to send the request
+	 * @param request     to send
+	 * @throws OpenemsNamedException on error
+	 */
+	protected static void sendAdminJsonrpcRequest(Credentials credentials, String url, JsonObject request)
+			throws OpenemsNamedException {
+		String session = login(credentials, "admin", credentials.getPassword());
+		sendJsonrpcRequest(credentials.getUrl() + url, "session_id=" + session, request);
+	}
+
+	/**
+	 * Authenticates a user using Username and Password.
+	 * 
+	 * @param credentials used to get Odoo url
+	 * @param username    the Username
+	 * @param password    the Password
+	 * @return the session_id
+	 * @throws OpenemsNamedException on login error
+	 */
+	protected static String login(Credentials credentials, String username, String password)
+			throws OpenemsNamedException {
+		JsonObject request = JsonUtils.buildJsonObject() //
+				.addProperty("jsonrpc", "2.0") //
+				.addProperty("method", "call") //
+				.add("params", JsonUtils.buildJsonObject() //
+						.addProperty("db", "v12") //
+						.addProperty("login", username) //
+						.addProperty("password", password) //
+						.build()) //
+				.build();
+		SuccessResponseAndHeaders response = OdooUtils
+				.sendJsonrpcRequest(credentials.getUrl() + "/web/session/authenticate", request);
+		Optional<String> sessionId = OdooHandler.getFieldFromSetCookieHeader(response.headers, "session_id");
+		if (!sessionId.isPresent()) {
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+		} else {
+			return sessionId.get();
+		}
+	}
+
 	private static Object executeKw(String url, Object[] params) throws XmlRpcException, MalformedURLException {
 		final XmlRpcClient client = new XmlRpcClient();
 		XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();

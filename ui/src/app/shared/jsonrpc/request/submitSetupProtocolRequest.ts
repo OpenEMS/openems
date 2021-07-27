@@ -15,7 +15,7 @@ export type SetupProtocol = {
             zip: string,
             country: string
         },
-        company: {
+        company?: {
             name: string
         }
     },
@@ -30,7 +30,7 @@ export type SetupProtocol = {
             zip: string,
             country: string
         },
-        company: {
+        company?: {
             name: string
 
         }
@@ -69,7 +69,7 @@ export type SetupProtocol = {
  *                  zip: string,
  *                  country: string
  *              },
- *              company: {
+ *              company?: {
  *                  name: string
  *              }
  *          },
@@ -84,7 +84,7 @@ export type SetupProtocol = {
  *                  zip: string,
  *                  country: string
  *              },
- *              company: {
+ *              company?: {
  *                  name: string
  *              }
  *          },

@@ -66,7 +66,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       type: "input",
       templateOptions: {
         label: "Bezeichnung",
-        description: "wird im Online-Monitoring angezeigt, z. B. ''Garage''",
+        description: "z. B. ''PV Hausdach''",
         required: true
       }
     });
@@ -89,15 +89,15 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       templateOptions: {
         label: "Ausrichtung",
         options: [
-          { label: "", value: undefined },
-          { label: "Nord", value: "n" },
-          { label: "Nordost", value: "no" },
-          { label: "Ost", value: "o" },
-          { label: "Südost", value: "so" },
-          { label: "Süd", value: "s" },
-          { label: "Südwest", value: "sw" },
-          { label: "West", value: "w" },
           { label: "Nordwest", value: "nw" },
+          { label: "West", value: "w" },
+          { label: "Südwest", value: "sw" },
+          { label: "Süd", value: "s" },
+          { label: "Südost", value: "so" },
+          { label: "Ost", value: "o" },
+          { label: "Nordost", value: "no" },
+          { label: "Nord", value: "n" },
+          { label: "", value: undefined }
         ]
       }
     });
@@ -117,7 +117,8 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       templateOptions: {
         type: "number",
         label: "Anzahl Module"
-      }
+      },
+      parsers: [Number]
     });
 
     fields.push({
@@ -138,8 +139,10 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       templateOptions: {
         type: "number",
         label: "Modbus Kommunikationsadresse",
-        description: "Der Zähler muss mit den folgenden Parametern konfiguriert werden: Kommunikationsgeschwindigkeit (bAud) ''9600'', Kommunikationsparität (PrtY) ''n'', Kommunikations-Stopbit (StoP) ''1''"
+        description: "Der Zähler muss mit den folgenden Parametern konfiguriert werden: Kommunikationsgeschwindigkeit (bAud) ''9600'', Kommunikationsparität (PrtY) ''n'', Kommunikations-Stopbit (StoP) ''1''",
+        min: 6
       },
+      parsers: [Number],
       defaultValue: 6
     });
 

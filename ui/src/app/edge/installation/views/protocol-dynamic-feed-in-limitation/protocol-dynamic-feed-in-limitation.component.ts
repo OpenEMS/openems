@@ -6,6 +6,7 @@ import { InstallationData } from '../../installation.component';
 export enum FeedInSetting {
   QuEnableCurve = "QU_ENABLE_CURVE",
   PuEnableCurve = "PU_ENABLE_CURVE",
+  FixedPowerFactor = "FIXED_POWER_FACTOR",
   // Lagging Power Factor
   Lagging_0_80 = "LAGGING_0_80",
   Lagging_0_81 = "LAGGING_0_81",
@@ -119,34 +120,31 @@ export class ProtocolDynamicFeedInLimitation implements OnInit {
         description: "Diesen Wert entnehmen Sie der Anschlussbestätigung des Netzbetreibers",
         required: true
       },
-      defaultValue: (totalPvPower * 0.7).toFixed(2)
+      parsers: [Number],
+      defaultValue: parseInt((totalPvPower * 0.7).toFixed(0))
     });
 
-    // fields.push({
-    //   key: "feedInSetting",
-    //   type: "radio",
-    //   templateOptions: {
-    //     label: "Typ",
-    //     description: "Wirkleistungsreduzierung bei Überfrequenz",
-    //     options: [
-    //       { label: "Blindleistungs-Spannungskennlinie Q(U)", value: FeedInSetting.QuEnableCurve },
-    //       { label: "Verschiebungsfaktor-/Wirkleistungskennlinie Cos φ (P)", value: FeedInSetting.PuEnableCurve },
-    //       { label: "Fester Verschiebungsfaktor Cos φ", value: undefined }
-    //     ],
-    //     required: true
-    //   }
-    // });
-
-    // TODO split?
     fields.push({
       key: "feedInSetting",
-      type: "select",
+      type: "radio",
       templateOptions: {
         label: "Typ",
+        description: "Wirkleistungsreduzierung bei Überfrequenz",
         options: [
-          // Curves
           { label: "Blindleistungs-Spannungskennlinie Q(U)", value: FeedInSetting.QuEnableCurve },
           { label: "Verschiebungsfaktor-/Wirkleistungskennlinie Cos φ (P)", value: FeedInSetting.PuEnableCurve },
+          { label: "Fester Verschiebungsfaktor Cos φ", value: FeedInSetting.FixedPowerFactor }
+        ],
+        required: true
+      }
+    });
+
+    fields.push({
+      key: "fixedPowerFactor",
+      type: "select",
+      templateOptions: {
+        label: "Cos φ Festwert",
+        options: [
           // Lagging
           { label: "0.80 Lagging", value: FeedInSetting.Lagging_0_80 },
           { label: "0.81 Lagging", value: FeedInSetting.Lagging_0_81 },
@@ -192,7 +190,8 @@ export class ProtocolDynamicFeedInLimitation implements OnInit {
           { label: "1 Leading", value: FeedInSetting.Leading_1 }
         ],
         required: true
-      }
+      },
+      hideExpression: model => model.feedInSetting !== FeedInSetting.FixedPowerFactor
     });
 
     return fields;

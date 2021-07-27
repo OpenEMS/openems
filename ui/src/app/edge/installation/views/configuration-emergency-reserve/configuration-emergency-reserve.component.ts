@@ -26,7 +26,10 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
 
     this.form = new FormGroup({});
     this.fields = this.getFields();
-    this.model = this.installationData.battery.emergencyReserve ?? {};
+    this.model = this.installationData.battery.emergencyReserve ?? {
+      isEnabled: true,
+      value: 20
+    };
 
   }
 
@@ -69,6 +72,7 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
         max: 100,
         change: (field, event) => { field.templateOptions.description = "Aktuell: " + field.formControl.value; }
       },
+      parsers: [Number],
       hideExpression: model => !model.isEnabled
     });
 
