@@ -71,8 +71,8 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	private static final int MODULE_MIN_VOLTAGE = 42; // [V]
 	private static final int MODULE_MAX_VOLTAGE = 49; // [V]; 3.5 V x 14 Cells per Module
 	private static final int CAPACITY_PER_MODULE = 2200; // [Wh]
-	private static final String BMS_SERIAL_NUMBER_PREFIX = "519100001009";
-	private static final String BMU_SERIAL_NUMBER_PREFIX = "519110001210";
+	private static final String SERIAL_NUMBER_PREFIX_BMS = "519100001009";
+	private static final String SERIAL_NUMBER_PREFIX_MODULE = "519110001210";
 
 	private final Logger log = LoggerFactory.getLogger(FeneconHomeBatteryImpl.class);
 
@@ -679,11 +679,11 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 										new UnsignedDoublewordElement(towerOffset + 47)),
 								m(this.generateTowerChannel(tower, "ACC_DISCHARGE_ENERGY", OpenemsType.INTEGER),
 										new UnsignedDoublewordElement(towerOffset + 49)),
-								m(this.generateTowerChannel(tower, "HV_BOX_SERIAL_NUMBER", OpenemsType.STRING),
+								m(this.generateTowerChannel(tower, "BMS_SERIAL_NUMBER", OpenemsType.STRING),
 										new UnsignedDoublewordElement(towerOffset + 51),
 										new ElementToChannelConverter((value) -> {
 											Integer intValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
-											return buildSerialNumber(BMS_SERIAL_NUMBER_PREFIX, intValue);
+											return buildSerialNumber(SERIAL_NUMBER_PREFIX_BMS, intValue);
 										}))));
 			}
 
@@ -734,7 +734,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 					}
 
 					ChannelIdImpl channelId = new ChannelIdImpl(//
-							"TOWER_" + tower + "_MODULE_" + module + "_MODULE_SERIAL_NUMBER", //
+							"TOWER_" + tower + "_MODULE_" + module + "_SERIAL_NUMBER", //
 							Doc.of(OpenemsType.STRING));
 					this.addChannel(channelId);
 
@@ -746,7 +746,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 									m(channelId, new UnsignedDoublewordElement(moduleOffset + module * 100 + 83),
 											new ElementToChannelConverter((value) -> {
 												Integer intValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
-												return buildSerialNumber(BMU_SERIAL_NUMBER_PREFIX, intValue);
+												return buildSerialNumber(SERIAL_NUMBER_PREFIX_MODULE, intValue);
 											}))));
 				}
 			}
