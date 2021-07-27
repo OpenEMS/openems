@@ -766,6 +766,11 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	 * @return The serial number
 	 */
 	private static String buildSerialNumber(String prefix, int value) {
+		if (value == 0) {
+			// Old BMS firmware versions do not provide serial number
+			return null;
+		}
+
 		int year = extractNumber(value, 7, 26);
 		int month = extractNumber(value, 4, 22);
 		int day = extractNumber(value, 5, 17);
