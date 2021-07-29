@@ -97,7 +97,7 @@ public class MqttTelemetryComponent extends MqttOpenemsComponentConnector implem
     @Override
     public void handleEvent(Event event) {
         if (event.getTopic().equals(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)) {
-            if (this.mqttBridge.get() != null && this.mqttBridge.get().isEnabled() && this.mqttConfigurationComponent == null) {
+            if ((this.mqttConfigurationComponent == null && this.mqttBridge.get() != null && this.mqttBridge.get().isEnabled())) {
                 this.mqttBridge.get().removeMqttComponent(this.id());
                 try {
                     super.setConfiguration(MqttType.TELEMETRY, this.config.subscriptionList(), this.config.publishList(),

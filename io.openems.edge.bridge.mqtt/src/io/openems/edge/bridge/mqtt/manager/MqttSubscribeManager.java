@@ -6,6 +6,8 @@ import io.openems.edge.bridge.mqtt.api.MqttType;
 import io.openems.edge.bridge.mqtt.connection.MqttConnectionSubscribeImpl;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +17,8 @@ import java.util.Map;
  * Created by MqttBridge. Handles all SubscribeTasks.
  */
 public class MqttSubscribeManager extends AbstractMqttManager {
+
+    private final Logger log = LoggerFactory.getLogger(MqttSubscribeManager.class);
 
     private final Map<MqttType, MqttConnectionSubscribeImpl> connections = new HashMap<>();
 
