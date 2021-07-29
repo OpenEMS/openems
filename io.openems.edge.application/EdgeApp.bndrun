@@ -99,6 +99,7 @@
 	bnd.identity;id='io.openems.edge.ess.sma',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.core',\
+	bnd.identity;id='io.openems.edge.evcs.goe.chargerhome',\
 	bnd.identity;id='io.openems.edge.evcs.hardybarth',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.abl',\
@@ -148,7 +149,7 @@
 	Java-WebSocket;version='[1.5.2,1.5.3)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
 	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
-	com.google.gson;version='[2.8.5,2.8.6)',\
+	com.google.gson;version='[2.8.7,2.8.8)',\
 	com.google.guava;version='[30.1.1,30.1.2)',\
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
 	com.sun.jna;version='[5.8.0,5.8.1)',\
@@ -230,6 +231,7 @@
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
 	io.openems.edge.evcs.core;version=snapshot,\
+	io.openems.edge.evcs.goe.chargerhome;version=snapshot,\
 	io.openems.edge.evcs.hardybarth;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.evcs.ocpp.abl;version=snapshot,\

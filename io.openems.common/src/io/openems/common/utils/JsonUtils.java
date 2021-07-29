@@ -701,6 +701,21 @@ public class JsonUtils {
 	}
 
 	/**
+	 * Gets the member with given index of the {@link JsonArray} as int.
+	 * 
+	 * @param jArray the {@link JsonArray}
+	 * @param index  the index of the member
+	 * @return the int value
+	 * @throws OpenemsNamedException on error
+	 */
+	public static int getAsInt(JsonArray jArray, int index) throws OpenemsNamedException {
+		if (index < 0 || jArray.size() <= index) {
+			throw OpenemsError.JSON_NO_INTEGER_MEMBER.exception(index, jArray.toString().replaceAll("%", "%%"));
+		}
+		return JsonUtils.getAsInt(jArray.get(index));
+	}
+
+	/**
 	 * Gets the {@link JsonElement} as {@link Optional} {@link Integer}.
 	 * 
 	 * @param jElement the {@link JsonElement}
@@ -1350,8 +1365,7 @@ public class JsonUtils {
 	 */
 	public static JsonElement parse(String string) throws OpenemsNamedException {
 		try {
-			JsonParser parser = new JsonParser();
-			return parser.parse(string);
+			return JsonParser.parseString(string);
 		} catch (JsonParseException e) {
 			throw OpenemsError.JSON_PARSE_FAILED.exception(e.getMessage(), string);
 		}
@@ -1378,4 +1392,5 @@ public class JsonUtils {
 		String json = gson.toJson(j);
 		System.out.println(json);
 	}
+
 }
