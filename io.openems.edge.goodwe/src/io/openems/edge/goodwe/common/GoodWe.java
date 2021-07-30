@@ -7,6 +7,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -1244,10 +1246,18 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 		FEED_POWER_PARA(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT).accessMode(AccessMode.READ_WRITE)), //
+
+		DEBUG_EMS_POWER_MODE(Doc.of(EmsPowerMode.values()) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		DEBUG_EMS_POWER_SET(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY)), //
 		EMS_POWER_MODE(Doc.of(EmsPowerMode.values()) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		EMS_POWER_SET(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
+				.accessMode(AccessMode.READ_WRITE) //
+				.onInit(new EnumWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_EMS_POWER_MODE))), //
+		EMS_POWER_SET(new IntegerDoc() //
+				.accessMode(AccessMode.READ_WRITE) //
+				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_EMS_POWER_SET))), //
+
 		BMS_CURR_LMT_COFF(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		BATTERY_PROTOCOL_ARM(Doc.of(OpenemsType.INTEGER) //
