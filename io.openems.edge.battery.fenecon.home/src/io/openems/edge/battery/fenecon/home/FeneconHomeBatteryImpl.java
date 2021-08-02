@@ -487,9 +487,13 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 										.bit(1, this.generateTowerChannel(tower, "STATUS_WARNING", Level.INFO)) //
 										.bit(2, this.generateTowerChannel(tower, "STATUS_FAULT", Level.INFO)) //
 										.bit(3, this.generateTowerChannel(tower, "STATUS_PFET", Level.INFO)) //
-										.bit(4, this.generateTowerChannel(tower, "STATUS_CFET", Level.INFO)) //
-										.bit(5, this.generateTowerChannel(tower, "STATUS_DFET", Level.INFO)) //
-										.bit(6, this.generateTowerChannel(tower, "STATUS_BATTERY_IDLE", Level.INFO)) //
+										// CFET (1: Charge FET ON, 0: OFF)
+										.bit(4, this.generateTowerChannel(tower, "STATUS_CFET", OpenemsType.BOOLEAN)) //
+										// DFET (1: Discharge FET ON, 0: OFF)
+										.bit(5, this.generateTowerChannel(tower, "STATUS_DFET", OpenemsType.BOOLEAN)) //
+										// BATTERY_IDLE (1: Idle)
+										.bit(6, this.generateTowerChannel(tower, "STATUS_BATTERY_IDLE",
+												OpenemsType.BOOLEAN)) //
 										.bit(7, this.generateTowerChannel(tower, "STATUS_BATTERY_CHARGING", Level.INFO)) //
 										.bit(8, this.generateTowerChannel(tower, "STATUS_BATTERY_DISCHARGING",
 												Level.INFO)) //
