@@ -4,9 +4,7 @@ import java.util.Objects;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ApplyPowerContext;
 import io.openems.edge.ess.power.api.Constraint;
@@ -101,8 +99,6 @@ public class ApplyPowerHandler {
 
 	private static ApplyPowerHandler.Result calculate(AbstractGoodWe goodWe, boolean readOnlyMode,
 			int activePowerSetPoint, int pvProduction, ApplyPowerContext context) {
-		IntegerReadChannel wbmsSocChannel = goodWe.channel(GoodWe.ChannelId.WBMS_SOC);
-		Value<?> wbmsSoc = wbmsSocChannel.value();
 		if (readOnlyMode) {
 			// Read-Only
 			return new Result(EmsPowerMode.AUTO, 0);
@@ -146,28 +142,15 @@ public class ApplyPowerHandler {
 				return new Result(EmsPowerMode.CHARGE_PV, 0);
 
 			} else if (pvProduction >= activePowerSetPoint) {
-				// Set-Point is positive && bigger than PV-Production -> feed all PV to grid +
-				// discharge battery
-
-				// PV > Set-Point?
-				// (PV 4000; Set-Point 3000)
-				// Charge_BAT 1000; Charge-Max-Current -1
+				// Set-Point is positive && less than PV-Production -> feed PV partly to grid +
+				// charge battery
 				System.out.println("CHARGE_BAT [" + (pvProduction - activePowerSetPoint) + "] Set-Point ["
 						+ activePowerSetPoint + "] less than PV [" + pvProduction + "]");
 				return new Result(EmsPowerMode.CHARGE_BAT, pvProduction - activePowerSetPoint);
 
-			} else if (Objects.equals(wbmsSoc.get(), 0)) {
-				// Set-Point is positive && battery has 0 percent SOC
-				// Avoid Battery Force Charge
-				System.out.println("CHARGE_BAT [" + 0 + "] Set-Point [" + 0 + "] | Avoid Battery Force-Charge ");
-				return new Result(EmsPowerMode.CHARGE_BAT, 0);
 			} else {
-				// Set-Point is positive && less than PV-Production -> feed PV partly to grid +
-				// charge battery
-
-				// PV < Set-Point?
-				// (PV 4000; Set-Point 5000)
-				// Discharge_BAT 1000; Charge-Max-Current 0
+				// Set-Point is positive && bigger than PV-Production -> feed all PV to grid +
+				// discharge battery
 				System.out.println("DISCHARGE_BAT [" + (activePowerSetPoint - pvProduction) + "] Set-Point ["
 						+ activePowerSetPoint + "] bigger than PV [" + pvProduction + "]");
 				return new Result(EmsPowerMode.DISCHARGE_BAT, activePowerSetPoint - pvProduction);
