@@ -173,6 +173,7 @@ export const TRANSLATION = {
                     endTimeLong: 'Hora de finalización de la carga restringida',
                     expectedSoc: 'Estado de carga esperado',
                     expectedSocWithoutSellToGridLimit: 'Sin evitar la máxima inyección a la red',
+                    gridFeedInLimitationAvoided: 'Se evitó una limitación de la fuente de alimentación de la red',
                     gridOptimizedChargeDisabled: 'Carga optimizada de red desactivada',
                     high: 'Alto',
                     low: 'Bajo',
@@ -180,12 +181,29 @@ export const TRANSLATION = {
                     maximumGridFeedIn: 'Inyección de red máxima permitida',
                     medium: 'Medio',
                     minimumCharge: 'Carga mínima',
+                    RiskDescription: {
+                        Low: {
+                            functionDescription: 'Carga relativamente temprana de la tienda',
+                            storageDescription: 'Mayor probabilidad de que la memoria se cargue por completo',
+                            pvCurtail: 'Menor probabilidad de que se evite la reducción del sistema fotovoltaico',
+                        },
+                        Medium: {
+                            functionDescription: 'Carga comparativamente uniforme de la tienda',
+                            storageDescription: 'Alta probabilidad de que el almacenamiento esté completamente cargado',
+                            pvCurtail: '',
+                        },
+                        High: {
+                            functionDescription: 'Carga comparativamente posterior del sistema de almacenamiento',
+                            storageDescription: 'Menos probabilidad de que el sistema de almacenamiento se cargue por completo',
+                            pvCurtail: 'Mayor probabilidad de que se evite la reducción del sistema fotovoltaico',
+                        },
+                    },
                     riskPropensity: 'Propensión al riesgo',
                     settingOnlyVisableForInstaller: 'Esta configuración solo es visible para el instalador',
                     State: {
                         chargeLimitActive: 'Límite de carga activo',
                         endTimeNotCalculated: 'Hora de finalización no calculada',
-                        GridFeedInLimitationIsAvoided: 'Se evita la limitación de la alimentación a la red',
+                        gridFeedInLimitationIsAvoided: 'Se evita la limitación de la alimentación a la red',
                         noLimitActive: 'Sin límite de carga activo',
                         noLimitPossible: 'Sin limitación posible (restringido por controles con mayor prioridad)',
                         notDefined: 'No definida',
