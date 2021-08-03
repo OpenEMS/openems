@@ -178,6 +178,7 @@ export const TRANSLATION = {
                     endTimeLong: 'Čas ukončení omezeného načítání',
                     expectedSoc: 'Očekávaný stav nabití',
                     expectedSocWithoutSellToGridLimit: 'Aniž bychom se vyhnuli maximálnímu přívodu do sítě',
+                    gridFeedInLimitationAvoided: 'Omezení přívodu do sítě vyloučeno',
                     gridOptimizedChargeDisabled: 'Mřížkově optimalizované nabíjení deaktivováno',
                     high: 'Vysoké',
                     low: 'Nízký',
@@ -185,12 +186,29 @@ export const TRANSLATION = {
                     maximumGridFeedIn: 'Maximální povolený přívod mřížky',
                     medium: 'Střední',
                     minimumCharge: 'Minimální zatížení',
+                    RiskDescription: {
+                        Low: {
+                            functionDescription: 'Relativně brzké načtení obchodu',
+                            storageDescription: 'Vyšší pravděpodobnost, že paměť bude plně načtena',
+                            pvCurtail: 'Nižší pravděpodobnost, že nedojde ke zkrácení FV systému',
+                        },
+                        Medium: {
+                            functionDescription: 'Srovnatelně rovnoměrné načítání obchodu',
+                            storageDescription: 'Vysoká pravděpodobnost, že úložiště bude plně načteno',
+                            pvCurtail: 'Vysoká pravděpodobnost, že nedojde ke zkrácení FV systému',
+                        },
+                        High: {
+                            functionDescription: 'Poměrně pozdější nabíjení úložného systému',
+                            storageDescription: 'Menší pravděpodobnost, že systém úložiště bude plně nabitý',
+                            pvCurtail: 'Vyšší pravděpodobnost, že nedojde ke zkrácení FV systémuVyšší pravděpodobnost, že nedojde ke zkrácení FV systému',
+                        },
+                    },
                     riskPropensity: 'Sklon k riziku',
                     settingOnlyVisableForInstaller: 'Toto nastavení je viditelné pouze pro instalačního technika',
                     State: {
                         chargeLimitActive: 'Aktivní limit načítání',
                         endTimeNotCalculated: 'Čas ukončení se nepočítá',
-                        GridFeedInLimitationIsAvoided: 'Je vyloučeno omezení přívodu mřížky',
+                        gridFeedInLimitationIsAvoided: 'Je vyloučeno omezení přívodu mřížky',
                         noLimitActive: 'Není aktivní žádný limit načítání',
                         noLimitPossible: 'Žádné omezení není možné (omezeno ovládacími prvky s vyšší prioritou)',
                         notDefined: 'Není definovaný',

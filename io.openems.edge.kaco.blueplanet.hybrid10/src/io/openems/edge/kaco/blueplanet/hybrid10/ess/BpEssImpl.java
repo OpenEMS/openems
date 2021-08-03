@@ -387,4 +387,8 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 		return pvPower;
 	}
 
+	@Override
+	public boolean isManaged() {
+		return !this.config.readOnly();
+	}
 }

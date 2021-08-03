@@ -213,6 +213,7 @@ export const TRANSLATION = {
                     endTimeLong: 'End time of restricted loading',
                     expectedSoc: 'Expected state of charge',
                     expectedSocWithoutSellToGridLimit: 'Without avoiding the maximum grid feed-in',
+                    gridFeedInLimitationAvoided: 'Grid feed-in limitation avoided',
                     gridOptimizedChargeDisabled: 'Grid optimized charge deactivated',
                     high: 'High',
                     low: 'Low',
@@ -220,12 +221,29 @@ export const TRANSLATION = {
                     maximumGridFeedIn: 'Maximum allowed grid feed-in',
                     medium: 'Medium',
                     minimumCharge: 'Minimal charge',
+                    RiskDescription: {
+                        Low: {
+                            functionDescription: 'Comparatively early charging of the storage system',
+                            storageDescription: 'Higher chance that the storage system will be fully charged',
+                            pvCurtail: 'Lower probability that curtailment of the PV system will be avoided',
+                        },
+                        Medium: {
+                            functionDescription: 'Comparatively even charging of the store system',
+                            storageDescription: 'High probability that the storage system will be fully charged',
+                            pvCurtail: 'High probability that the curtailment of the PV system will be avoided',
+                        },
+                        High: {
+                            functionDescription: 'Comparatively later charging of the storage system',
+                            storageDescription: 'Less probability that the storage system will be fully charged',
+                            pvCurtail: 'Higher probability that the curtailment of the PV system will be avoided',
+                        },
+                    },
                     riskPropensity: 'Risk propensity',
                     settingOnlyVisableForInstaller: 'This setting is only visible to the installer',
                     State: {
                         chargeLimitActive: 'Charge limit active',
                         endTimeNotCalculated: 'End time not calculated',
-                        GridFeedInLimitationIsAvoided: 'Grid-Feed-in limitation is avoided',
+                        gridFeedInLimitationIsAvoided: 'Grid-Feed-in limitation is avoided',
                         noLimitActive: 'No charge limit active',
                         noLimitPossible: 'No limitation possible (restricted by controls with higher priority)',
                         notDefined: 'Not defined',
