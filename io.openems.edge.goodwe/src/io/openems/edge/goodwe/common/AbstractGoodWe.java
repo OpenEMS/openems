@@ -342,11 +342,11 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodWe.ChannelId.E_LOAD_DAY, new UnsignedWordElement(35205),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(this.getDcChargeEnergyChannel(), new UnsignedDoublewordElement(35206), //
+						m(GoodWe.ChannelId.E_BATTERY_CHARGE, new UnsignedDoublewordElement(35206), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(GoodWe.ChannelId.E_CHARGE_DAY, new UnsignedWordElement(35208),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(this.getDcDischargeEnergyChannel(), new UnsignedDoublewordElement(35209),
+						m(GoodWe.ChannelId.E_BATTERY_DISCHARGE, new UnsignedDoublewordElement(35209),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(GoodWe.ChannelId.E_DISCHARGE_DAY, new UnsignedWordElement(35211),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
@@ -1578,26 +1578,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 					value -> value));
 		} else if (this instanceof HybridManagedSymmetricBatteryInverter) {
 			return new DummyRegisterElement(address);
-		} else {
-			throw new NotImplementedException("Wrong implementation of AbstractGoodWe");
-		}
-	}
-
-	private io.openems.edge.common.channel.ChannelId getDcDischargeEnergyChannel() throws NotImplementedException {
-		if (this instanceof HybridEss) {
-			return HybridEss.ChannelId.DC_DISCHARGE_ENERGY;
-		} else if (this instanceof HybridManagedSymmetricBatteryInverter) {
-			return HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_ENERGY;
-		} else {
-			throw new NotImplementedException("Wrong implementation of AbstractGoodWe");
-		}
-	}
-
-	private io.openems.edge.common.channel.ChannelId getDcChargeEnergyChannel() throws OpenemsException {
-		if (this instanceof HybridEss) {
-			return HybridEss.ChannelId.DC_CHARGE_ENERGY;
-		} else if (this instanceof HybridManagedSymmetricBatteryInverter) {
-			return HybridManagedSymmetricBatteryInverter.ChannelId.DC_CHARGE_ENERGY;
 		} else {
 			throw new NotImplementedException("Wrong implementation of AbstractGoodWe");
 		}
