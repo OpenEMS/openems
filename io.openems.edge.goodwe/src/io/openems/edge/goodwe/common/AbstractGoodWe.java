@@ -1649,21 +1649,19 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 			// Not available
 			this.calculateDcChargeEnergy.update(null);
 			this.calculateDcDischargeEnergy.update(null);
+		} else if (dcDischargePower > 0) {
+			// Discharge
+			this.calculateDcChargeEnergy.update(0);
+			this.calculateDcDischargeEnergy.update(dcDischargePower);
 		} else {
-			if (dcDischargePower > 0) {
-				// Discharge
-				this.calculateDcChargeEnergy.update(0);
-				this.calculateDcDischargeEnergy.update(dcDischargePower);
-			} else {
-				// Charge
-				this.calculateDcChargeEnergy.update(dcDischargePower * -1);
-				this.calculateDcDischargeEnergy.update(0);
-			}
+			// Charge
+			this.calculateDcChargeEnergy.update(dcDischargePower * -1);
+			this.calculateDcDischargeEnergy.update(0);
 		}
 	}
 
 	/**
-	 * TODO Gets Surplus Power.
+	 * Gets Surplus Power.
 	 * 
 	 * @return {@link Integer}
 	 */
