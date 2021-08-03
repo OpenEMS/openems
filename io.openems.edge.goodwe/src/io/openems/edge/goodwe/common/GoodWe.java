@@ -821,7 +821,7 @@ public interface GoodWe extends OpenemsComponent {
 		SERIAL_NUMBER_2(Doc.of(OpenemsType.STRING) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		GOODWE_TYPE(Doc.of(GoodweType.values()) //
-				.accessMode(AccessMode.READ_WRITE)), //
+				.accessMode(AccessMode.READ_ONLY)), //
 		RESUME_FACTORY_SETTING(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		CLEAR_DATA(Doc.of(OpenemsType.INTEGER) //

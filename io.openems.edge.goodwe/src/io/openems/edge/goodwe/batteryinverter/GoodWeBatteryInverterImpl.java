@@ -413,25 +413,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	@Override
 	public void run(Battery battery, int setActivePower, int setReactivePower, ApplyPowerContext context)
 			throws OpenemsNamedException {
-		// Calculate ActivePower and Energy values.
+		// Calculate ActivePower, Energy and Max-AC-Power.
 		this.updatePowerAndEnergyChannels();
-		this.lastChargeMaxCurrent = battery.getChargeMaxCurrent();
+		this.calculateMaxAcPower(battery);
 
-		// Calculate and store Max-AC-Export and -Import for use in
-		// getStaticConstraints()
-		Integer maxDcChargePower = /* can be negative for force-discharge */
-				TypeUtils.multiply(//
-						/* Charge-Max-Current */ this.getBmsChargeMaxCurrent().get(), //
-						/* Battery Voltage */ battery.getVoltage().get());
-		int pvProduction = TypeUtils.max(0, this.calculatePvProduction());
-		this._setMaxAcImport(TypeUtils.multiply(/* negate */ -1, //
-				TypeUtils.subtract(maxDcChargePower,
-						TypeUtils.min(maxDcChargePower /* avoid negative number for `subtract` */, pvProduction))));
-		this._setMaxAcExport(TypeUtils.sum(//
-				/* Max DC-Discharge-Power */ TypeUtils.multiply(//
-						/* Discharge-Max-Current */ this.getBmsDischargeMaxCurrent().get(), //
-						/* Battery Voltage */ battery.getVoltage().get()),
-				/* PV Production */ pvProduction));
+		this.lastChargeMaxCurrent = battery.getChargeMaxCurrent();
 
 		if (this.config.emsPowerMode() != EmsPowerMode.UNDEFINED && this.config.emsPowerSet() >= 0) {
 			System.out.println("Static " + this.config.emsPowerMode() + "[" + this.config.emsPowerSet() + "]");
@@ -447,6 +433,40 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
+	}
+
+	/**
+	 * Calculate and store Max-AC-Export and -Import for use in
+	 * getStaticConstraints().
+	 * 
+	 * @param battery the Battery
+	 */
+	private void calculateMaxAcPower(Battery battery) {
+		// Calculate and store Max-AC-Export and -Import for use in
+		// getStaticConstraints()
+		Integer maxDcChargePower = /* can be negative for force-discharge */
+				TypeUtils.multiply(//
+						/* Charge-Max-Current */ this.getBmsChargeMaxCurrent().get(), //
+						/* Battery Voltage */ battery.getVoltage().get());
+		int pvProduction = TypeUtils.max(0, this.calculatePvProduction());
+
+		// Calculates Max-AC-Import and Max-AC-Export as positive numbers
+		Integer maxAcImport = TypeUtils.subtract(maxDcChargePower,
+				TypeUtils.min(maxDcChargePower /* avoid negative number for `subtract` */, pvProduction));
+		Integer maxAcExport = TypeUtils.sum(//
+				/* Max DC-Discharge-Power */ TypeUtils.multiply(//
+						/* Discharge-Max-Current */ this.getBmsDischargeMaxCurrent().get(), //
+						/* Battery Voltage */ battery.getVoltage().get()),
+				/* PV Production */ pvProduction);
+
+		// Limit Max-AC-Power to inverter specific limit
+		int maxApparentPower = this.getMaxApparentPower().orElse(0);
+		maxAcImport = TypeUtils.min(maxAcImport, maxApparentPower);
+		maxAcExport = TypeUtils.min(maxAcExport, maxApparentPower);
+
+		// Set Channels
+		this._setMaxAcImport(TypeUtils.multiply(maxAcImport, /* negate */ -1));
+		this._setMaxAcExport(maxAcExport);
 	}
 
 	@Override
