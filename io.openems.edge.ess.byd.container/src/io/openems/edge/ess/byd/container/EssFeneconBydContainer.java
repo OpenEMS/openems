@@ -141,6 +141,11 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
+	public boolean isManaged() {
+		return !this.readonly;
+	}
+
+	@Override
 	public int getPowerPrecision() {
 		return 1000;
 	}
