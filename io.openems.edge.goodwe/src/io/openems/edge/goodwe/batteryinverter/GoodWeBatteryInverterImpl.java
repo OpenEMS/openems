@@ -423,7 +423,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				TypeUtils.multiply(//
 						/* Charge-Max-Current */ this.getBmsChargeMaxCurrent().get(), //
 						/* Battery Voltage */ battery.getVoltage().get());
-		int pvProduction = TypeUtils.min(0, this.calculatePvProduction());
+		int pvProduction = TypeUtils.max(0, this.calculatePvProduction());
 		this._setMaxAcImport(TypeUtils.multiply(/* negate */ -1, //
 				TypeUtils.subtract(maxDcChargePower,
 						TypeUtils.min(maxDcChargePower /* avoid negative number for `subtract` */, pvProduction))));
