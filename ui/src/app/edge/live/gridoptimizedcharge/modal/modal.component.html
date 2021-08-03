@@ -25,7 +25,7 @@
                         <tr>
                             <td style="width:65%" translate>General.state</td>
                             <td style="width:35%" class="align_right" translate>
-                                Edge.Index.Widgets.GridOptimizedCharge.State.GridFeedInLimitationIsAvoided
+                                Edge.Index.Widgets.GridOptimizedCharge.State.gridFeedInLimitationIsAvoided
                             </td>
                         </tr>
                         <!--Minimum charge limit - negative are not shown-->
@@ -207,9 +207,8 @@
                             <table class="full_width">
                                 <tr>
                                     <td style="width:100%">
-                                        <ion-label class="ion-text-wrap">
-                                            Die Beladung erfolgt nicht mit der Maximalleistung für wenige
-                                            Stunden, sondern gleichmäßig bis zu dem errechneten Zeitpunkt. <br>
+                                        <ion-label class="ion-text-wrap" translate>
+                                            Edge.Index.Widgets.GridOptimizedCharge.endTimeDescription <br>
                                         </ion-label>
                                     </td>
                                 </tr>
@@ -292,7 +291,13 @@
 
                         <!--Risk description-->
                         <ion-card-content class="underline" *ngIf="riskDescription != null">
-                            <ng-container *ngFor="let description of riskDescription">
+                            <table class="full_width">
+                                <tr>
+                                    <td>{{riskDescription.functionDescription}}</td>
+                                </tr>
+                            </table>
+                            <br>
+                            <ng-container *ngFor="let description of riskDescription.riskLevelDescription">
                                 <table class="full_width">
                                     <tr style="padding-bottom: 10px;">
                                         <td style="width:5%">
@@ -320,56 +325,6 @@
                             <ion-card-content *ngIf="!isInstaller">
                                 <div style="padding-top: 50px;"></div>
                             </ion-card-content>
-
-                        </ion-card-content>
-                    </ng-container>
-
-                    <!--Set the maximum feed into grid limit only visible for installer & admin-->
-                    <ng-container *ngIf="component.properties['mode'] != 'OFF'">
-                        <ion-card-content *ngIf="isInstaller">
-                            <table class="full_width ion-text-center" style="background-color: rgba(0, 200, 0, 0.2); ">
-                                <tr>
-                                    <td class="align_left">
-                                        <ion-icon name="information-outline" size="large" color="black"></ion-icon>
-                                    </td>
-                                    <td class="align-right">
-                                        <ion-note class=" ion-text-wrap ion-align-items-center">
-                                            <ion-text translate>
-                                                Edge.Index.Widgets.GridOptimizedCharge.settingOnlyVisableForInstaller
-                                            </ion-text>
-                                        </ion-note>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!--Enable/Disable SellToGridLimit control-->
-                            <table class="full_width">
-                                <tr *ngIf=" component.properties['sellToGridLimitEnabled'] !=null as sellToGridLimit">
-                                    <td style="width: 65%" class="align_left" translate>
-                                        Edge.Index.Widgets.GridOptimizedCharge.considerGridFeedInLimit
-                                    </td>
-                                    <td style="width: 35%" class="align_right">
-                                        <ion-toggle
-                                            (ionChange)="updateToggleProperty('sellToGridLimitEnabled', formGroup.controls['sellToGridLimitEnabled'].value)"
-                                            [checked]="formGroup.controls['sellToGridLimitEnabled'].value">
-                                        </ion-toggle>
-                                    </td>
-                                </tr>
-                                <!--Set sell to grid limit-->
-                                <tr *ngIf="formGroup.controls['sellToGridLimitEnabled'].value">
-                                    <td style="width:65%" translate>
-                                        Edge.Index.Widgets.GridOptimizedCharge.maximumGridFeedIn
-                                    </td>
-                                    <td style="width: 35%" class="align_right">
-                                        <ion-item lines="full" class="noPadding">
-                                            <ion-input class="regularFont" type="number"
-                                                formControlName="maximumSellToGridPower" style="text-align: end;">
-                                            </ion-input>
-                                            <ion-label class="regularFont">&nbsp;W</ion-label>
-                                        </ion-item>
-                                    </td>
-                                </tr>
-                            </table>
                         </ion-card-content>
                     </ng-container>
 
@@ -389,6 +344,53 @@
                             </ion-card-content>
                         </ng-container>
                     </ng-container>
+
+                    <!--Set the maximum feed into grid limit only visible for installer & admin-->
+                    <ion-card-content *ngIf="isInstaller">
+                        <table class="full_width ion-text-center" style="background-color: rgba(0, 200, 0, 0.2); ">
+                            <tr>
+                                <td class="align_left">
+                                    <ion-icon name="information-outline" size="large" color="black"></ion-icon>
+                                </td>
+                                <td class="align-right">
+                                    <ion-note class=" ion-text-wrap ion-align-items-center">
+                                        <ion-text translate>
+                                            Edge.Index.Widgets.GridOptimizedCharge.settingOnlyVisableForInstaller
+                                        </ion-text>
+                                    </ion-note>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!--Enable/Disable SellToGridLimit control-->
+                        <table class="full_width">
+                            <tr *ngIf=" component.properties['sellToGridLimitEnabled'] !=null as sellToGridLimit">
+                                <td style="width: 65%" class="align_left" translate>
+                                    Edge.Index.Widgets.GridOptimizedCharge.considerGridFeedInLimit
+                                </td>
+                                <td style="width: 35%" class="align_right">
+                                    <ion-toggle
+                                        (ionChange)="updateToggleProperty('sellToGridLimitEnabled', formGroup.controls['sellToGridLimitEnabled'].value)"
+                                        [checked]="formGroup.controls['sellToGridLimitEnabled'].value">
+                                    </ion-toggle>
+                                </td>
+                            </tr>
+                            <!--Set sell to grid limit-->
+                            <tr *ngIf="formGroup.controls['sellToGridLimitEnabled'].value">
+                                <td style="width:65%" translate>
+                                    Edge.Index.Widgets.GridOptimizedCharge.maximumGridFeedIn
+                                </td>
+                                <td style="width: 35%" class="align_right">
+                                    <ion-item lines="full" class="noPadding">
+                                        <ion-input class="regularFont" type="number"
+                                            formControlName="maximumSellToGridPower" style="text-align: end;">
+                                        </ion-input>
+                                        <ion-label class="regularFont">&nbsp;W</ion-label>
+                                    </ion-item>
+                                </td>
+                            </tr>
+                        </table>
+                    </ion-card-content>
                 </form>
             </ng-container>
         </ng-container>

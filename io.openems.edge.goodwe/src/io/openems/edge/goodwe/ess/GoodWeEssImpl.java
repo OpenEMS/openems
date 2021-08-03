@@ -169,4 +169,8 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 		return productionPower + 200 /* discharge more than PV production to avoid PV curtail */;
 	}
 
+	@Override
+	public boolean isManaged() {
+		return !this.config.readOnlyMode();
+	}
 }
