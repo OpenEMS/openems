@@ -90,6 +90,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 									} else {
 										String stringValue = TypeUtils.<String>getAsType(OpenemsType.STRING, value);
 										switch (stringValue) {
+										// TODO add identification for FENECON branded inverter
 										case "GW10K-BT":
 											result = GoodweType.GOODWE_10K_BT;
 											break;
