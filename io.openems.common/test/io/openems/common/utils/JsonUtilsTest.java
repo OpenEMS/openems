@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.junit.Test;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
@@ -53,6 +54,30 @@ public class JsonUtilsTest {
 			fail();
 		} catch (OpenemsNamedException e) {
 		}
+	}
+
+	@Test
+	public void testGetAsInt() throws OpenemsNamedException {
+		JsonArray arr = JsonUtils.buildJsonArray() //
+				.add(10) //
+				.add(20) //
+				.add(30) //
+				.build();
+
+		try {
+			JsonUtils.getAsInt(arr, -1);
+			fail();
+		} catch (OpenemsNamedException e) {
+		}
+		assertEquals(10, JsonUtils.getAsInt(arr, 0));
+		assertEquals(20, JsonUtils.getAsInt(arr, 1));
+		assertEquals(30, JsonUtils.getAsInt(arr, 2));
+		try {
+			JsonUtils.getAsInt(arr, 3);
+			fail();
+		} catch (OpenemsNamedException e) {
+		}
+
 	}
 
 }
