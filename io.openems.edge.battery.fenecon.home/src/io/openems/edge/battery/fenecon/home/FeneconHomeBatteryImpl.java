@@ -494,9 +494,12 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 										// BATTERY_IDLE (1: Idle)
 										.bit(6, this.generateTowerChannel(tower, "STATUS_BATTERY_IDLE",
 												OpenemsType.BOOLEAN)) //
-										.bit(7, this.generateTowerChannel(tower, "STATUS_BATTERY_CHARGING", Level.INFO)) //
+										// BATTERY_CHARGING (1: charging)
+										.bit(7, this.generateTowerChannel(tower, "STATUS_BATTERY_CHARGING",
+												OpenemsType.BOOLEAN)) //
+										// BATTERY_DISCHARGING (1: discharging)
 										.bit(8, this.generateTowerChannel(tower, "STATUS_BATTERY_DISCHARGING",
-												Level.INFO)) //
+												OpenemsType.BOOLEAN)) //
 								), //
 								m(new BitsWordElement(towerOffset + 3, this)
 										.bit(0, this.generateTowerChannel(tower, "PRE_ALARM_CELL_OVER_VOLTAGE",
