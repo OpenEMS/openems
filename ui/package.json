@@ -35,7 +35,7 @@
     "date-fns": "^2.23.0",
     "file-saver-es": "^2.0.5",
     "ng2-charts": "^2.4.3",
-    "ngx-cookie-service": "^12.0.0",
+    "ngx-cookie-service": "^12.0.2",
     "ngx-spinner": "^12.0.0",
     "roboto-fontface": "^0.10.0",
     "rxjs": "~6.6.0",
