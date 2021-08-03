@@ -25,7 +25,7 @@ export class GridOptimizedChargeModalComponent implements OnInit {
     public channelCapacity: string = null;
     public isInstaller: boolean;
     public image: string | null;
-    public riskDescription: Description[] | null;
+    public riskDescription: Description | null;
     public descriptionStateEnum: typeof DescriptionState = DescriptionState;
     public refreshChart: boolean;
 
@@ -91,25 +91,29 @@ export class GridOptimizedChargeModalComponent implements OnInit {
     }
 
     showPreview(value: string) {
-        //TODO: Translate (this.translate.instant()) when the text is final
-
         // Use images if there is a more intelligent risk algorithm 
+
+        let risk: string;
         switch (value) {
             case 'LOW':
-                this.riskDescription = [];
-                this.riskDescription.push({ state: DescriptionState.POSITIVE, text: "Sehr große Wahrscheinlichkeit, dass der Speicher voll wird" });
-                this.riskDescription.push({ state: DescriptionState.NEGATIVE, text: "Größere Wahrscheinlichkeit, dass die PV abgeregelt wird, weil der Speicher bereits voll ist" });
+                risk = 'Low';
                 break;
             case 'MEDIUM':
-                this.riskDescription = [];
-                this.riskDescription.push({ state: DescriptionState.NEUTRAL, text: "Große Wahrscheinlichkeit, dass der Speicher voll wird" });
-                this.riskDescription.push({ state: DescriptionState.NEUTRAL, text: "Niedrigere Wahrscheinlichkeit, dass die PV abgeregelt wird, weil der Speicher bereits voll ist" });
+                risk = 'Medium';
                 break;
             case 'HIGH':
-                this.riskDescription = [];
-                this.riskDescription.push({ state: DescriptionState.NEGATIVE, text: "Niedrigere Wahrscheinlichkeit, dass der Speicher voll wird" });
-                this.riskDescription.push({ state: DescriptionState.POSITIVE, text: "Sehr geringe Wahrscheinlichkeit, dass die PV abgeregelt wird" });
+                risk = 'High';
                 break;
+            default:
+                return;
+        }
+
+        this.riskDescription = {
+            functionDescription: this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.RiskDescription." + risk + ".functionDescription"),
+            riskLevelDescription: [
+                { state: DescriptionState.POSITIVE, text: this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.RiskDescription." + risk + ".storageDescription"), },
+                { state: DescriptionState.NEGATIVE, text: this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.RiskDescription." + risk + ".pvCurtail"), },
+            ]
         }
 
         // Only needed if the risk choice is the last content in the widget
@@ -164,8 +168,11 @@ export enum DescriptionState {
     NEUTRAL,
 }
 export type Description = {
-    state: DescriptionState;
-    text: string,
+    functionDescription: string;
+    riskLevelDescription: {
+        state: DescriptionState;
+        text: string,
+    }[];
 }
 
 

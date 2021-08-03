@@ -2,8 +2,6 @@ package io.openems.edge.controller.ess.gridoptimizedcharge;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 
 public class SellToGridLimit {
 
@@ -61,10 +59,6 @@ public class SellToGridLimit {
 		this.parent.logDebug("Maximum Discharge/Minimum Charge Power: " + essMinChargePower + "(Grid:" + gridPower
 				+ " + Ess:" + essActivePower + " + MaximumGrid:" + maximumSellToGridPower + ")| Last limit: "
 				+ this.lastSellToGridLimit);
-
-		// Adjust value so that it fits into Min/MaxActivePower
-		essMinChargePower = this.parent.ess.getPower().fitValueIntoMinMaxPower(this.parent.id(), this.parent.ess,
-				Phase.ALL, Pwr.ACTIVE, essMinChargePower);
 
 		// Adjust ramp
 		essMinChargePower = this.applyPowerRamp(essMinChargePower);

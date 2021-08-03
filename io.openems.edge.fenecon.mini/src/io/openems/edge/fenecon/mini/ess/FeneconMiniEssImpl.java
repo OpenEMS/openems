@@ -543,6 +543,11 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
+	public boolean isManaged() {
+		return !this.config.readonly();
+	}
+
+	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		// Store the current State
 		this.channel(FeneconMiniEss.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());

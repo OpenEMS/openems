@@ -61,7 +61,7 @@ public class MyControllerTest {
 	// Sum channels
 	private static final ChannelAddress SUM_PRODUCTION_DC_ACTUAL_POWER = new ChannelAddress("_sum",
 			"ProductionDcActualPower");
-	
+
 	/*
 	 * Default Prediction values
 	 */
@@ -118,6 +118,7 @@ public class MyControllerTest {
 			/* 20:00-23:45 */
 			3226, 2358, 1778, 1002, 455, 654, 534, 1587, 1638, 459, 330, 258, 368, 728, 1096, 878 //
 	};
+
 	@Test
 	public void automatic_default_predictions_at_midnight_test() throws Exception {
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
@@ -272,13 +273,15 @@ public class MyControllerTest {
 						.setSellToGridLimitRampPercentage(5) //
 						.setManualTargetTime("") //
 						.build()) //
-				.next(new TestCase()) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, 0) //
 						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+						.input(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
+						.input(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120)) //
+				.next(new TestCase() //
 						.input(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
 						.input(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
 						.output(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
@@ -336,7 +339,7 @@ public class MyControllerTest {
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, 6650) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.TARGET_MINUTE_NOT_CALCULATED));
 	}
-	
+
 	@Test
 	public void automatic_sell_to_grid_limit_test() throws Exception {
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
@@ -525,7 +528,6 @@ public class MyControllerTest {
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT));
 	}
 
-	
 	@Test
 	public void automatic_sell_to_grid_limit_buffer_test() throws Exception {
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
@@ -822,15 +824,14 @@ public class MyControllerTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, 0) //
-						.input(ESS_ACTIVE_POWER, 0) //
-						.input(ESS_CAPACITY, 10_000) //
-						.input(ESS_SOC, 20) //
+						.input(METER_ACTIVE_POWER, -7500) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+						.input(ESS_ACTIVE_POWER, 0) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.DISABLED) //
-						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.DISABLED) //
-						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, null) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, null) //
-						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, null)); //
+						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -850) //
+						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -850) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 850)); //
 	}
 }

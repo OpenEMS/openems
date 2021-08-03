@@ -67,7 +67,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent implements
 			GridOptimizedCharge.ChannelId.SELL_TO_GRID_LIMIT_TIME);
 	private final CalculateActiveTime calculateNoLimitationTime = new CalculateActiveTime(this,
 			GridOptimizedCharge.ChannelId.NO_LIMITATION_TIME);
-	
+
 	@Reference
 	protected Sum sum;
 
@@ -198,8 +198,8 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent implements
 		switch (this.config.mode()) {
 		case OFF:
 			this.delayCharge.setDelayChargeStateAndLimit(DelayChargeState.DISABLED, null);
-			this.sellToGridLimit.setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState.DISABLED, null);
-			return;
+			sellToGridLimitMinChargePower = this.sellToGridLimit.getSellToGridLimit();
+			break;
 		case AUTOMATIC:
 			sellToGridLimitMinChargePower = this.sellToGridLimit.getSellToGridLimit();
 			delayChargeMaxChargePower = this.delayCharge.getPredictiveDelayChargeMaxCharge();
@@ -245,11 +245,13 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent implements
 			if (sellToGridLimitMinChargePower <= delayChargeMaxChargePower) {
 
 				this.ess.setActivePowerEquals(sellToGridLimitMinChargePower);
-				this.delayCharge.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
 				this.sellToGridLimit.setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState.ACTIVE_LIMIT_FIXED,
 						sellToGridLimitMinChargePower);
 				this.logDebug("Applying both constraints not possible - Set active power according to SellToGridLimit: "
 						+ sellToGridLimitMinChargePower);
+
+				this.delayCharge.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
+
 				return;
 			}
 		}

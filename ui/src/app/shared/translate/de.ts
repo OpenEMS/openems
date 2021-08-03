@@ -215,6 +215,7 @@ export const TRANSLATION = {
                     endTimeLong: 'Endzeitpunkt der beschränkten Beladung',
                     expectedSoc: 'Erwarteter Ladezustand',
                     expectedSocWithoutSellToGridLimit: 'Ohne Vermeidung der maximalen Netzeinspeisung',
+                    gridFeedInLimitationAvoided: 'Einspeisebegrenzung vermieden',
                     gridOptimizedChargeDisabled: 'Netzdienliche Beladung deaktiviert',
                     high: 'Hoch',
                     low: 'Gering',
@@ -222,12 +223,29 @@ export const TRANSLATION = {
                     maximumGridFeedIn: 'Maximal erlaubte Netzeinspeisung',
                     medium: 'Mittel',
                     minimumCharge: 'Minimale Beladung',
+                    RiskDescription: {
+                        Low: {
+                            functionDescription: 'Vergleichsweise frühzeitige Beladung des Speichers',
+                            storageDescription: 'Höhere Wahrscheinlichkeit, dass der Speicher vollständig beladen wird',
+                            pvCurtail: 'Geringere Wahrscheinlichkeit, dass die Abregelung der PV-Anlage vermieden wird',
+                        },
+                        Medium: {
+                            functionDescription: 'Vergleichsweise gleichmäßige Beladung des Speichers',
+                            storageDescription: 'Hohe Wahrscheinlichkeit, dass der Speicher vollständig beladen wird',
+                            pvCurtail: 'Hohe Wahrscheinlichkeit, dass die Abregelung der PV-Anlage vermieden wird',
+                        },
+                        High: {
+                            functionDescription: 'Vergleichsweise spätere Beladung des Speichers',
+                            storageDescription: 'Geringere Wahrscheinlichkeit, dass der Speicher voll wird',
+                            pvCurtail: 'Höhere Wahrscheinlichkeit, dass die Abregelung der PV-Anlage vermieden wird',
+                        },
+                    },
                     riskPropensity: 'Risikobereitschaft',
                     settingOnlyVisableForInstaller: 'Diese Einstellung ist nur für den Installateur sichtbar',
                     State: {
                         chargeLimitActive: 'Beladelimit aktiv',
                         endTimeNotCalculated: 'Endzeitpunkt nicht berechnet',
-                        GridFeedInLimitationIsAvoided: 'Einspeisebegrenzung wird vermieden',
+                        gridFeedInLimitationIsAvoided: 'Einspeisebegrenzung wird vermieden',
                         noLimitActive: 'Kein Beladelimit aktiv',
                         noLimitPossible: 'Keine Begrenzung Möglich(Eingeschränkt durch Steuerungen mit höherer Priorität)',
                         notDefined: 'Nicht definiert',

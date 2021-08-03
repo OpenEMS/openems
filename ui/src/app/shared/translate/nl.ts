@@ -171,6 +171,7 @@ export const TRANSLATION = {
                     endTimeLong: 'Eindtijd van beperkt laden',
                     expectedSoc: 'Verwachte laadstatus',
                     expectedSocWithoutSellToGridLimit: 'Zonder de maximale teruglevering aan het net te vermijden',
+                    gridFeedInLimitationAvoided: 'Netterugleveringsbeperking vermeden',
                     gridOptimizedChargeDisabled: 'Laden geoptimaliseerd voor raster gedeactiveerd',
                     high: 'Hoog',
                     low: 'Laag',
@@ -178,12 +179,29 @@ export const TRANSLATION = {
                     maximumGridFeedIn: 'Maximaal toegestane teruglevering',
                     medium: 'Medium',
                     minimumCharge: 'Minimale lading',
+                    RiskDescription: {
+                        Low: {
+                            functionDescription: 'Relatief vroeg laden van de winkel',
+                            storageDescription: 'Grotere kans dat het geheugen volledig wordt geladen',
+                            pvCurtail: 'Lagere kans dat inperking van het PV-systeem wordt voorkomen',
+                        },
+                        Medium: {
+                            functionDescription: 'Relatief gelijkmatige belading van de winkel',
+                            storageDescription: 'Grote kans dat de opslag volledig wordt geladen',
+                            pvCurtail: 'Grote kans dat de inperking van het PV-systeem wordt vermeden',
+                        },
+                        High: {
+                            functionDescription: 'Relatief later opladen van het opslagsysteem',
+                            storageDescription: 'Minder kans dat het opslagsysteem volledig wordt opgeladen',
+                            pvCurtail: 'Grotere kans dat de inperking van het PV-systeem wordt vermeden',
+                        },
+                    },
                     riskPropensity: 'Risicobereidheid',
                     settingOnlyVisableForInstaller: 'Deze instelling is alleen zichtbaar voor de installateur',
                     State: {
                         chargeLimitActive: 'Laadlimiet actief',
                         endTimeNotCalculated: 'Eindtijd niet berekend',
-                        GridFeedInLimitationIsAvoided: 'Grid-Feed-in beperking wordt vermeden',
+                        gridFeedInLimitationIsAvoided: 'Grid-Feed-in beperking wordt vermeden',
                         noLimitActive: 'Geen laadlimiet actief',
                         noLimitPossible: 'Geen beperking mogelijk (beperkt door controles met hogere prioriteit)',
                         notDefined: 'Niet gedefinieerd',
