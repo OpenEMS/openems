@@ -151,8 +151,8 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 					this.maxCurrent = cableCurrent > 0 && cableCurrent < this.config.maxHwCurrent() //
 							? cableCurrent //
 							: this.config.maxHwCurrent();
-					this._setMinimumHardwarePower(this.minCurrent * phases * 230);
-					this._setMaximumHardwarePower(this.maxCurrent * phases * 230);
+					this._setMinimumHardwarePower(this.minCurrent / 1000 * phases * 230);
+					this._setMaximumHardwarePower(this.maxCurrent / 1000 * phases * 230);
 
 					// Energy
 					this.channel(GoeChannelId.ENERGY_TOTAL).setNextValue(JsonUtils.getAsInt(json, "eto") * 100);
