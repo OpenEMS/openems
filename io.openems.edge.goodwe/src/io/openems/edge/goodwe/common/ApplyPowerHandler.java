@@ -106,7 +106,7 @@ public class ApplyPowerHandler {
 
 		if (activePowerSetPoint > 0) {
 			Integer minPowerConstraint = null;
-			Integer maxPowerConstraint = null;
+//			Integer maxPowerConstraint = null;
 			for (Constraint constraint : context.getConstraints()) {
 				if (constraint.getRelationship() == Relationship.GREATER_OR_EQUALS && constraint.getValue().isPresent()
 						&& constraint.getDescription().contains("[SetActivePowerGreaterOrEquals]")) {
@@ -116,25 +116,26 @@ public class ApplyPowerHandler {
 							minPowerConstraint);
 				}
 
-				if (constraint.getRelationship() == Relationship.LESS_OR_EQUALS && constraint.getValue().isPresent()
-						&& constraint.getDescription().contains("[SetActivePowerLessOrEquals]")) {
-					// Only consider runtime Constraints, provided by a Controller via
-					// SetActivePowerLessOrEquals.
-					maxPowerConstraint = TypeUtils.min((int) Math.round(constraint.getValue().get()),
-							maxPowerConstraint);
-				}
+//				if (constraint.getRelationship() == Relationship.LESS_OR_EQUALS && constraint.getValue().isPresent()
+//						&& constraint.getDescription().contains("[SetActivePowerLessOrEquals]")) {
+//					// Only consider runtime Constraints, provided by a Controller via
+//					// SetActivePowerLessOrEquals.
+//					maxPowerConstraint = TypeUtils.min((int) Math.round(constraint.getValue().get()),
+//							maxPowerConstraint);
+//				}
 			}
 
 			// maxPowerConstraint: Limitierung Netzeinspeisung
 			// minPowerConstraint: surplus feed-in ist aktiviert
 
-			if (maxPowerConstraint != null && maxPowerConstraint == activePowerSetPoint) {
-				System.out.println("EXPORT_AC [" + maxPowerConstraint
-						+ "] MaxPowerConstraint for PV Curtail is set and equals activePowerSetPoint");
-				// TODO try after a while if PV curtail is still required
-				return new Result(EmsPowerMode.EXPORT_AC, maxPowerConstraint);
-
-			} else if (minPowerConstraint != null && Objects.equals(minPowerConstraint, goodWe.getSurplusPower())
+//			if (maxPowerConstraint != null && maxPowerConstraint == activePowerSetPoint) {
+//				System.out.println("EXPORT_AC [" + maxPowerConstraint
+//						+ "] MaxPowerConstraint for PV Curtail is set and equals activePowerSetPoint");
+//				// TODO try after a while if PV curtail is still required
+//				return new Result(EmsPowerMode.EXPORT_AC, maxPowerConstraint);
+//
+//			} else 
+			if (minPowerConstraint != null && Objects.equals(minPowerConstraint, goodWe.getSurplusPower())
 					&& Objects.equals(minPowerConstraint, activePowerSetPoint)) {
 				System.out.println(
 						"CHARGE_PV [0] MinPowerConstraint equals SurplusPower -> surplus feed-in is activated ["
