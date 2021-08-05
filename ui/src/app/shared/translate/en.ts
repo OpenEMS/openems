@@ -114,7 +114,11 @@ export const TRANSLATION = {
         type: 'Type:'
     },
     Register: {
-        title: "Create installer account",
+        title: "Create user account",
+        segment: {
+            user: "User",
+            installer: "Installer"
+        },
         form: {
             companyName: "Company name",
             firstname: "Firstname",

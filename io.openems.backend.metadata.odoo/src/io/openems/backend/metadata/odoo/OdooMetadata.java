@@ -208,7 +208,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 
 	@Override
 	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException {
-		return this.odooHandler.getOdooSetupProtocolReport((MyUser) user, setupProtocolId);
+		return this.odooHandler.getOdooSetupProtocolReport(setupProtocolId);
 	}
 
 	@Override
@@ -218,7 +218,14 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 
 	@Override
 	public void registerUser(JsonObject jsonObject) throws OpenemsException {
-		this.odooHandler.registerUser(jsonObject, OdooUserRole.INSTALLER);
+		OdooUserRole role = OdooUserRole.OWNER;
+
+		Optional<String> optRole = JsonUtils.getAsOptionalString(jsonObject, "role");
+		if (optRole.isPresent()) {
+			role = OdooUserRole.getRole(optRole.get());
+		}
+
+		this.odooHandler.registerUser(jsonObject, role);
 	}
 
 }

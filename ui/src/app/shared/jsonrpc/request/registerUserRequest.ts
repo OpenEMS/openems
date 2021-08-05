@@ -44,10 +44,11 @@ export class RegisterUserRequest extends JsonrpcRequest {
                     city: string,
                     country: string
                 },
-                company: {
+                company?: {
                     name: string
                 },
-                subscribeNewsletter: boolean
+                subscribeNewsletter: boolean,
+                role: string
             }
         }
     ) {
