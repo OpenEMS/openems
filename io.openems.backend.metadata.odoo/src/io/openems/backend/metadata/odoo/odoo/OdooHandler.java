@@ -388,14 +388,12 @@ public class OdooHandler {
 	/**
 	 * Returns the Odoo report for a setup protocol.
 	 * 
-	 * @param user            to authenticate in Odoo
 	 * @param setupProtocolId the Odoo setup protocol id
 	 * @return report as a byte array
 	 * @throws OpenemsNamedException on error
 	 */
-	public byte[] getOdooSetupProtocolReport(MyUser user, int setupProtocolId) throws OpenemsNamedException {
-		return OdooUtils.getOdooReport(this.credentials, user.getToken(), "fems.report_fems_setup_protocol_template",
-				setupProtocolId);
+	public byte[] getOdooSetupProtocolReport(int setupProtocolId) throws OpenemsNamedException {
+		return OdooUtils.getOdooReport(this.credentials, "fems.report_fems_setup_protocol_template", setupProtocolId);
 	}
 
 	/**
@@ -489,7 +487,7 @@ public class OdooHandler {
 			customerFields.put(Field.User.LOGIN.id(), email);
 			customerFields.put(Field.User.PASSWORD.id(), password);
 			customerFields.put(Field.User.GLOBAL_ROLE.id(), OdooUserRole.OWNER.getOdooRole());
-			customerFields.put(Field.User.GROUPS.id(), Arrays.asList(OdooUserGroup.CUSTOMER.getGroupId()));
+			customerFields.put(Field.User.GROUPS.id(), OdooUserRole.OWNER.toOdooIds());
 			return OdooUtils.create(this.credentials, Field.User.ODOO_MODEL, customerFields);
 		}
 	}
@@ -588,13 +586,15 @@ public class OdooHandler {
 	}
 
 	/**
-	 * Create for the given serial numbers that were not found a {@link SetupProtocolItem}.
+	 * Create for the given serial numbers that were not found a
+	 * {@link SetupProtocolItem}.
 	 * 
 	 * @param setupProtocolId the protocol id
-	 * @param serialNumbers not found serial numbers
+	 * @param serialNumbers   not found serial numbers
 	 * @throws OpenemsException on error
 	 */
-	private void createNotFoundSerialNumbers(int setupProtocolId, List<JsonElement> serialNumbers) throws OpenemsException {
+	private void createNotFoundSerialNumbers(int setupProtocolId, List<JsonElement> serialNumbers)
+			throws OpenemsException {
 		for (int i = 0; i < serialNumbers.size(); i++) {
 			JsonElement item = serialNumbers.get(i);
 
@@ -693,7 +693,7 @@ public class OdooHandler {
 		userFields.put(Field.User.LOGIN.id(), email);
 		userFields.put(Field.Partner.EMAIL.id(), email);
 		userFields.put(Field.User.GLOBAL_ROLE.id(), role.getOdooRole());
-		userFields.put(Field.User.GROUPS.id(), Arrays.asList(OdooUserGroup.CUSTOMER.getGroupId()));
+		userFields.put(Field.User.GROUPS.id(), role.toOdooIds());
 		userFields.putAll(this.updateAddress(jsonObject));
 		userFields.putAll(this.updateCompany(jsonObject));
 

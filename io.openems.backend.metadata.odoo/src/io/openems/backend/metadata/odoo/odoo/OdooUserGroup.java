@@ -2,7 +2,7 @@ package io.openems.backend.metadata.odoo.odoo;
 
 public enum OdooUserGroup {
 
-	CUSTOMER(107);
+	PORTAL(65);
 
 	private final int groupId;
 

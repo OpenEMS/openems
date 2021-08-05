@@ -626,18 +626,19 @@ public class OdooUtils {
 	 * combination with the concrete report id.
 	 * 
 	 * @param credentials the Odoo credentialss
-	 * @param userToken   to authenticate in Odoo
 	 * @param report      the Odoo template id
 	 * @param id          the Odoo report id
 	 * @return the Odoo report as a byte array
 	 * @throws OpenemsNamedException on error
 	 */
-	protected static byte[] getOdooReport(Credentials credentials, String userToken, String report, int id)
+	protected static byte[] getOdooReport(Credentials credentials, String report, int id)
 			throws OpenemsNamedException {
+		String session = login(credentials, "admin", credentials.getPassword());
+
 		HttpURLConnection connection = null;
 		try {
 			connection = (HttpURLConnection) new URL(
-					credentials.getUrl() + "/report/pdf/" + report + "/" + id + "?session_id=" + userToken)
+					credentials.getUrl() + "/report/pdf/" + report + "/" + id + "?session_id=" + session)
 							.openConnection();
 			connection.setConnectTimeout(5000);
 			connection.setReadTimeout(5000);

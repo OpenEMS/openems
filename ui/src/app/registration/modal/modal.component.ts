@@ -11,7 +11,8 @@ import { Service, Websocket } from 'src/app/shared/shared';
 })
 export class RegistrationModalComponent implements OnInit {
 
-  public formGroup: FormGroup;
+  formGroup: FormGroup;
+  activeSegment: string = "owner";
 
   constructor(
     private formBuilder: FormBuilder,
@@ -22,25 +23,21 @@ export class RegistrationModalComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.formGroup = this.formBuilder.group({
-      companyName: new FormControl("", Validators.required),
-      firstname: new FormControl("", Validators.required),
-      lastname: new FormControl("", Validators.required),
-      street: new FormControl("", Validators.required),
-      zip: new FormControl("", [Validators.required, Validators.minLength(4), Validators.maxLength(5)]),
-      city: new FormControl("", Validators.required),
-      country: new FormControl("", Validators.required),
-      phone: new FormControl("", Validators.required),
-      email: new FormControl("", [Validators.required, Validators.email]),
-      password: new FormControl("", Validators.required),
-      confirmPassword: new FormControl("", Validators.required),
-      isElectrician: new FormControl(false, Validators.requiredTrue),
-      acceptPrivacyPolicy: new FormControl(false, Validators.requiredTrue),
-      acceptAgb: new FormControl(false, Validators.requiredTrue),
-      subscribeNewsletter: new FormControl()
-    });
+    this.formGroup = this.getForm(this.activeSegment);
   }
 
+  /**
+   * Update the form depending on the thrown event (ionChange) value.
+   * 
+   * @param event to get current value and change the form
+   */
+  updateRegistrationForm(event: CustomEvent) {
+    this.formGroup = this.getForm(event.detail.value);
+  }
+
+  /**
+   * Validate the current form and sends the registration request.
+   */
   onSubmit() {
     if (!this.formGroup.valid) {
       this.service.toast(this.translate.instant("Register.errors.requiredFields"), 'danger');
@@ -69,12 +66,17 @@ export class RegistrationModalComponent implements OnInit {
           city: this.formGroup.value.city,
           country: this.formGroup.value.country
         },
-        company: {
-          name: this.formGroup.value.companyName
-        },
-        subscribeNewsletter: this.formGroup.value.subscribeNewsletter
+        subscribeNewsletter: this.formGroup.value.subscribeNewsletter,
+        role: this.activeSegment
       }
     });
+
+    let companyName = this.formGroup.value.companyName;
+    if (companyName) {
+      request.params.user.company = {
+        name: companyName
+      }
+    }
 
     this.websocket.sendRequest(request)
       .then(res => {
@@ -84,6 +86,48 @@ export class RegistrationModalComponent implements OnInit {
       .catch(reason => {
         this.service.toast(reason.error.message, 'danger');
       });
+  }
+
+  /**
+   * Get from depending on given role.
+   * If no role matches then the default (owner) from will be returnd.
+   */
+  private getForm(role: string): FormGroup {
+    if (role === 'installer') {
+      return this.formBuilder.group({
+        companyName: new FormControl("", Validators.required),
+        firstname: new FormControl("", Validators.required),
+        lastname: new FormControl("", Validators.required),
+        street: new FormControl("", Validators.required),
+        zip: new FormControl("", [Validators.required, Validators.minLength(4), Validators.maxLength(5)]),
+        city: new FormControl("", Validators.required),
+        country: new FormControl("", Validators.required),
+        phone: new FormControl("", Validators.required),
+        email: new FormControl("", [Validators.required, Validators.email]),
+        password: new FormControl("", Validators.required),
+        confirmPassword: new FormControl("", Validators.required),
+        isElectrician: new FormControl(false, Validators.requiredTrue),
+        acceptPrivacyPolicy: new FormControl(false, Validators.requiredTrue),
+        acceptAgb: new FormControl(false, Validators.requiredTrue),
+        subscribeNewsletter: new FormControl(false)
+      });
+    } else {
+      return this.formBuilder.group({
+        firstname: new FormControl("", Validators.required),
+        lastname: new FormControl("", Validators.required),
+        street: new FormControl("", Validators.required),
+        zip: new FormControl("", [Validators.required, Validators.minLength(4), Validators.maxLength(5)]),
+        city: new FormControl("", Validators.required),
+        country: new FormControl("", Validators.required),
+        phone: new FormControl("", Validators.required),
+        email: new FormControl("", [Validators.required, Validators.email]),
+        password: new FormControl("", Validators.required),
+        confirmPassword: new FormControl("", Validators.required),
+        acceptPrivacyPolicy: new FormControl(false, Validators.requiredTrue),
+        acceptAgb: new FormControl(false, Validators.requiredTrue),
+        subscribeNewsletter: new FormControl(false)
+      });
+    }
   }
 
 }

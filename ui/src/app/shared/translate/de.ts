@@ -124,7 +124,11 @@ export const TRANSLATION = {
         authenticationFailed: "Authentifizierung fehlgeschlagen",
     },
     Register: {
-        title: "Installateurs Account anlegen",
+        title: "Benutzer Account anlegen",
+        segment: {
+            user: "Benutzer",
+            installer: "Installateur"
+        },
         form: {
             companyName: "Firmenname",
             firstname: "Vorname",

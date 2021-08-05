@@ -35,7 +35,7 @@ public class RegisterUserRequest extends JsonrpcRequest {
 	}
 
 	public JsonObject getJsonObject() {
-		return jsonObject;
+		return this.jsonObject;
 	}
 
 }
