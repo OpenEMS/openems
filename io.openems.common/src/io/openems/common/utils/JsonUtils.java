@@ -1411,4 +1411,34 @@ public class JsonUtils {
 		System.out.println(json);
 	}
 
+	/**
+	 * Check if the given {@link JsonElement} is an empty JsonObject {}.
+	 * 
+	 * @param j the {@link JsonElement} to check
+	 * @return true if is empty, otherwise false
+	 */
+	public static boolean isEmptyJsonObject(JsonElement j) {
+		if (j != null && j.isJsonObject()) {
+			JsonObject object = j.getAsJsonObject();
+			return object.size() == 0;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check if the given {@link JsonElement} is an empty JsonArray [].
+	 * 
+	 * @param j the {@link JsonElement} to check
+	 * @return true if is empty, otherwise false
+	 */
+	public static boolean isEmptyJsonArray(JsonElement j) {
+		if (j != null && j.isJsonArray()) {
+			JsonArray array = j.getAsJsonArray();
+			return array.size() == 0;
+		}
+
+		return false;
+	}
+
 }

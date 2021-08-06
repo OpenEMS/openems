@@ -20,6 +20,7 @@ export const TRANSLATION = {
         currentValue: 'current value',
         dateFormat: 'yyyy-MM-dd', // e.g. German: dd.MM.yyyy (dd = Day, MM = Month, yyyy = Year)
         digitalInputs: 'Digital Inputs',
+        numberOfComponents: 'Number of Components',
         directConsumption: 'Direct consumption',
         dischargePower: 'Discharge power',
         fault: 'Fault',
@@ -35,6 +36,7 @@ export const TRANSLATION = {
         insufficientRights: 'Insufficient rights',
         live: 'Live',
         load: 'Load',
+        manual: 'Manual',
         manually: 'Manually',
         measuredValue: 'Measured Value',
         mode: 'Mode',
@@ -88,13 +90,15 @@ export const TRANSLATION = {
         },
     },
     Menu: {
-        aboutUI: 'About OpenEMS UI',
-        edgeSettings: 'OpenEMS Edge Settings',
+        aboutUI: 'About FEMS',
+        accessLevel: 'Access Level',
+        edgeSettings: 'FEMS Settings',
         generalSettings: 'General Settings',
         index: 'Index',
         logout: 'Sign Out',
         menu: 'Menu',
-        overview: 'OpenEMS Edge Overview',
+        name: 'Name',
+        overview: 'All Systems',
         settings: 'Settings',
         user: 'User',
     },
@@ -103,14 +107,48 @@ export const TRANSLATION = {
         connectionInProgress: 'Establishing connection...',
         connectionFailed: 'Connection to {{value}} failed.', // value = name of websocket
         connectionSuccessful: 'Successfully connected to {{value}}.', // value = name of websocket
+        deviceOffline: 'The device is not connected!',
         isOffline: 'OpenEMS is offline!',
+        loggedInAs: 'Logged in as:',
         toEnergymonitor: 'To Energymonitor...',
+        type: 'Type:'
+    },
+    Register: {
+        title: "Create user account",
+        segment: {
+            user: "User",
+            installer: "Installer"
+        },
+        form: {
+            companyName: "Company name",
+            firstname: "Firstname",
+            lastname: "Lastname",
+            street: "Street",
+            zip: "Postal code",
+            city: "City",
+            country: "Country",
+            phone: "Phone number",
+            email: "E-Mail",
+            password: "Password",
+            confirmPassword: "Confirm password",
+            isElectrician: "I confirm that my company is registered in the installer register and i am therefore authorised to connect and commission a storage system.",
+            acceptPrivacyPolicy: "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
+            acceptAgb: "I confirm the <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
+            subscribeNewsletter: "I would like to subscribe to the FENECON newsletter to receive all the latest news from FENECON."
+        },
+        button: "Create",
+        errors: {
+            requiredFields: "Please fill in all fields",
+            passwordNotEqual: "Passwords are not equal"
+        },
+        success: "Registration successful"
     },
     Login: {
         title: "Login",
         preamble: "Please enter your password or submit the default value to login as a guest.",
         passwordLabel: "Password",
         passwordPlaceholder: "Password",
+        passwordReset: "Reset Password",
         authenticationFailed: "Authentication Failed",
     },
     Edge: {
@@ -130,8 +168,9 @@ export const TRANSLATION = {
                 autarchyInfo: 'Autarky indicates the percentage of current power that can be covered by generation and storage discharge.',
                 phasesInfo: 'For technical reasons, the sum of the individual phases can be slightly different from the total sum.',
                 selfconsumptionInfo: 'Self-consumption indicates the percentage of the currently generated output that can be used by direct consumption and storage load itself.',
-                twoWayInfoGrid: 'Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug',
-                twoWayInfoStorage: 'Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung',
+                twoWayInfoGrid: 'Negative values correspond to grid feed-in, Positive values correspond to mains supply',
+                InfoStorageForCharge: 'Negative values correspond to memory loading',
+                InfoStorageForDischarge: 'Positive values correspond to memory discharge',
                 Channeltreshold: {
                     output: 'Output'
                 },
@@ -170,6 +209,51 @@ export const TRANSLATION = {
                     startDate: 'Start date',
                     startTime: 'Start time',
                     startTimeCharge: 'Charge Start time',
+                },
+                GridOptimizedCharge: {
+                    considerGridFeedInLimit: 'Consider maximum grid feed-in',
+                    endTime: 'End time',
+                    endTimeDescription: 'The charging does not take place with the maximum output for a few hours, but steadily up to that point.',
+                    endTimeLong: 'End time of restricted loading',
+                    expectedSoc: 'Expected state of charge',
+                    expectedSocWithoutSellToGridLimit: 'Without avoiding the maximum grid feed-in',
+                    gridFeedInLimitationAvoided: 'Grid feed-in limitation avoided',
+                    gridOptimizedChargeDisabled: 'Grid optimized charge deactivated',
+                    high: 'High',
+                    low: 'Low',
+                    maximumCharge: 'Maximum charge',
+                    maximumGridFeedIn: 'Maximum allowed grid feed-in',
+                    medium: 'Medium',
+                    minimumCharge: 'Minimal charge',
+                    RiskDescription: {
+                        Low: {
+                            functionDescription: 'Comparatively early charging of the storage system',
+                            storageDescription: 'Higher chance that the storage system will be fully charged',
+                            pvCurtail: 'Lower probability that curtailment of the PV system will be avoided',
+                        },
+                        Medium: {
+                            functionDescription: 'Comparatively even charging of the store system',
+                            storageDescription: 'High probability that the storage system will be fully charged',
+                            pvCurtail: 'High probability that the curtailment of the PV system will be avoided',
+                        },
+                        High: {
+                            functionDescription: 'Comparatively later charging of the storage system',
+                            storageDescription: 'Less probability that the storage system will be fully charged',
+                            pvCurtail: 'Higher probability that the curtailment of the PV system will be avoided',
+                        },
+                    },
+                    riskPropensity: 'Risk propensity',
+                    settingOnlyVisableForInstaller: 'This setting is only visible to the installer',
+                    State: {
+                        chargeLimitActive: 'Charge limit active',
+                        endTimeNotCalculated: 'End time not calculated',
+                        gridFeedInLimitationIsAvoided: 'Grid-Feed-in limitation is avoided',
+                        noLimitActive: 'No charge limit active',
+                        noLimitPossible: 'No limitation possible (restricted by controls with higher priority)',
+                        notDefined: 'Not defined',
+                        passedEndTime: 'End time of limited charging exceeded',
+                        storageAlreadyFull: 'Memory already full',
+                    },
                 },
                 CHP: {
                     highThreshold: 'High Threshold',
@@ -285,6 +369,7 @@ export const TRANSLATION = {
             lastYear: 'Last year',
             month: 'Month',
             noData: 'No data available',
+            tryAgain: 'try again later...',
             otherPeriod: 'Other period',
             period: 'Period',
             selectedDay: '{{value}}',
@@ -364,16 +449,26 @@ export const TRANSLATION = {
                 newConnection: 'New connection...',
                 newDevice: 'New device...',
             }
+        },
+        Service: {
+            entireSystem: "Entire system",
+            Cell: {
+                voltages: "Cell-voltages",
+                temperatures: "Cell-temperatures",
+                insulation: "Isolation",
+            }
         }
     },
     About: {
-        build: 'This build',
-        contact: 'Please contact our team for further information or suggestions about the system at <a href=\'mailto:{{value}}\'>{{value}}</a>.',
-        currentDevelopments: 'Current developments',
-        developed: 'This user interface is developed as open-source software.',
-        language: 'Select language:',
-        openEMS: 'More about OpenEMS',
-        ui: 'User interface for OpenEMS',
+        build: "This build",
+        contact: "Please contact our team for further information or suggestions about the system at <a href=\"mailto:{{value}}\">{{value}}</a>.",
+        currentDevelopments: "Current developments",
+        developed: "This user interface is developed as open-source software.",
+        faq: "Frequently asked questions (FAQ)",
+        language: "Select language:",
+        openEMS: "More about OpenEMS",
+        patchnotes: "Changes in the monitoring for this build",
+        ui: "User interface for FEMS",
     },
     Notifications: {
         authenticationFailed: 'No Connection: Authentication failed.',

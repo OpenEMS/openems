@@ -31,6 +31,7 @@ public interface Field {
 	public enum EdgeDevice implements Field {
 		ID("id", true), //
 		APIKEY("apikey", true), //
+		SETUP_PASSWORD("setup_password", true), //
 		NAME("name", true), //
 		COMMENT("comment", true), //
 		STATE("state", true), //
@@ -43,7 +44,7 @@ public interface Field {
 		OPENEMS_SUM_STATE("openems_sum_state_level", true), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false);
 
-		public static final String ODOO_MODEL = "edge.device";
+		public static final String ODOO_MODEL = "fems.device";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -78,6 +79,7 @@ public interface Field {
 		public boolean isQuery() {
 			return this.query;
 		}
+
 	}
 
 	/**
@@ -93,7 +95,7 @@ public interface Field {
 		LAST_ACKNOWLEDGE("last_acknowledge", false), //
 		ACKNOWLEDGE_DAYS("acknowledge_days", false);
 
-		public static final String ODOO_MODEL = "edge.device_status";
+		public static final String ODOO_MODEL = "fems.device_status";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -129,6 +131,7 @@ public interface Field {
 		public boolean isQuery() {
 			return this.query;
 		}
+
 	}
 
 	/**
@@ -139,7 +142,7 @@ public interface Field {
 		TEASER("teaser", false), //
 		DETAILS("details", false);
 
-		public static final String ODOO_MODEL = "edge.openemsconfigupdate";
+		public static final String ODOO_MODEL = "fems.openemsconfigupdate";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -175,5 +178,400 @@ public interface Field {
 		public boolean isQuery() {
 			return this.query;
 		}
+
 	}
+
+	/**
+	 * The EdgeDeviceUserRole-Model.
+	 */
+	public enum EdgeDeviceUserRole implements Field {
+		DEVICE_ID("device_id", false), //
+		USER_ID("user_id", false), //
+		ROLE("role", false);
+
+		public static final String ODOO_MODEL = "fems.device_user_role";
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+
+		private static final class StaticFields {
+			private static int nextQueryIndex = 1;
+		}
+
+		private final int queryIndex;
+		private final String id;
+
+		/**
+		 * Holds information if this Field should be queried from and written to
+		 * Database.
+		 */
+		private final boolean query;
+
+		private EdgeDeviceUserRole(String id, boolean query) {
+			this.id = id;
+			this.query = query;
+			if (query) {
+				this.queryIndex = StaticFields.nextQueryIndex++;
+			} else {
+				this.queryIndex = -1;
+			}
+		}
+
+		@Override
+		public String id() {
+			return this.id;
+		}
+
+		@Override
+		public int index() {
+			return this.queryIndex;
+		}
+
+		@Override
+		public boolean isQuery() {
+			return this.query;
+		}
+
+	}
+
+	public enum User implements Field {
+		LOGIN("login", true), //
+		PASSWORD("password", true), //
+		PARTNER("partner_id", true), //
+		GLOBAL_ROLE("global_role", true), //
+		GROUPS("groups_id", true);
+
+		public static final String ODOO_MODEL = "res.users";
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+
+		private static final class StaticFields {
+			private static int nextQueryIndex = 1;
+		}
+
+		private final int queryIndex;
+		private final String id;
+
+		/**
+		 * Holds information if this Field should be queried from and written to
+		 * Database.
+		 */
+		private final boolean query;
+
+		private User(String id, boolean query) {
+			this.id = id;
+			this.query = query;
+			if (query) {
+				this.queryIndex = StaticFields.nextQueryIndex++;
+			} else {
+				this.queryIndex = -1;
+			}
+		}
+
+		@Override
+		public String id() {
+			return this.id;
+		}
+
+		@Override
+		public int index() {
+			return this.queryIndex;
+		}
+
+		@Override
+		public boolean isQuery() {
+			return this.query;
+		}
+
+	}
+
+	public enum Partner implements Field {
+		FIRSTNAME("firstname", true), //
+		LASTNAME("lastname", true), //
+		EMAIL("email", true), //
+		PHONE("phone", true), //
+		COMPANY_NAME("commercial_company_name", true), //
+		NAME("name", true), //
+		IS_COMPANY("is_company", true), //
+		PARENT("parent_id", true), //
+		STREET("street", true), //
+		ZIP("zip", true), //
+		CITY("city", true), //
+		COUNTRY("country_id", true), //
+		ADDRESS_TYPE("type", true), //
+		NEWSLETTER("fenecon_crm_newsletter", true),
+		LANGUAGE("lang", true);
+
+		public static final String ODOO_MODEL = "res.partner";
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+
+		private static final class StaticFields {
+			private static int nextQueryIndex = 1;
+		}
+
+		private final int queryIndex;
+		private final String id;
+
+		/**
+		 * Holds information if this Field should be queried from and written to
+		 * Database.
+		 */
+		private final boolean query;
+
+		private Partner(String id, boolean query) {
+			this.id = id;
+			this.query = query;
+			if (query) {
+				this.queryIndex = StaticFields.nextQueryIndex++;
+			} else {
+				this.queryIndex = -1;
+			}
+		}
+
+		@Override
+		public String id() {
+			return this.id;
+		}
+
+		@Override
+		public int index() {
+			return this.queryIndex;
+		}
+
+		@Override
+		public boolean isQuery() {
+			return this.query;
+		}
+
+	}
+
+	public enum Country implements Field {
+		NAME("name", true), //
+		CODE("code", true);
+
+		public static final String ODOO_MODEL = "res.country";
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+
+		private static final class StaticFields {
+			private static int nextQueryIndex = 1;
+		}
+
+		private final int queryIndex;
+		private final String id;
+
+		/**
+		 * Holds information if this Field should be queried from and written to
+		 * Database.
+		 */
+		private final boolean query;
+
+		private Country(String id, boolean query) {
+			this.id = id;
+			this.query = query;
+			if (query) {
+				this.queryIndex = StaticFields.nextQueryIndex++;
+			} else {
+				this.queryIndex = -1;
+			}
+		}
+
+		@Override
+		public String id() {
+			return this.id;
+		}
+
+		@Override
+		public int index() {
+			return this.queryIndex;
+		}
+
+		@Override
+		public boolean isQuery() {
+			return this.query;
+		}
+	}
+
+	public enum SetupProtocol implements Field {
+		CUSTOMER("customer_id", true), //
+		DIFFERENT_LOCATION("different_location_id", true), //
+		INSTALLER("installer_id", true), //
+		FEMS("fems_device_id", true);
+
+		public static final String ODOO_MODEL = "fems.setup_protocol";
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+
+		private static final class StaticFields {
+			private static int nextQueryIndex = 1;
+		}
+
+		private final int queryIndex;
+		private final String id;
+
+		/**
+		 * Holds information if this Field should be queried from and written to
+		 * Database.
+		 */
+		private final boolean query;
+
+		private SetupProtocol(String id, boolean query) {
+			this.id = id;
+			this.query = query;
+			if (query) {
+				this.queryIndex = StaticFields.nextQueryIndex++;
+			} else {
+				this.queryIndex = -1;
+			}
+		}
+
+		@Override
+		public String id() {
+			return this.id;
+		}
+
+		@Override
+		public int index() {
+			return this.queryIndex;
+		}
+
+		@Override
+		public boolean isQuery() {
+			return this.query;
+		}
+	}
+
+	public enum SetupProtocolProductionLot implements Field {
+		SETUP_PROTOCOL("setup_protocol_id", true), //
+		SEQUENCE("sequence", true), //
+		LOT("lot_id", true);
+
+		public static final String ODOO_MODEL = "fems.setup_protocol_production_lot";
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+
+		private static final class StaticFields {
+			private static int nextQueryIndex = 1;
+		}
+
+		private final int queryIndex;
+		private final String id;
+
+		/**
+		 * Holds information if this Field should be queried from and written to
+		 * Database.
+		 */
+		private final boolean query;
+
+		private SetupProtocolProductionLot(String id, boolean query) {
+			this.id = id;
+			this.query = query;
+			if (query) {
+				this.queryIndex = StaticFields.nextQueryIndex++;
+			} else {
+				this.queryIndex = -1;
+			}
+		}
+
+		@Override
+		public String id() {
+			return this.id;
+		}
+
+		@Override
+		public int index() {
+			return this.queryIndex;
+		}
+
+		@Override
+		public boolean isQuery() {
+			return this.query;
+		}
+	}
+
+	public enum SetupProtocolItem implements Field {
+		SETUP_PROTOCOL("setup_protocol_id", true), //
+		SEQUENCE("sequence", true);
+
+		public static final String ODOO_MODEL = "fems.setup_protocol_item";
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+
+		private static final class StaticFields {
+			private static int nextQueryIndex = 1;
+		}
+
+		private final int queryIndex;
+		private final String id;
+
+		/**
+		 * Holds information if this Field should be queried from and written to
+		 * Database.
+		 */
+		private final boolean query;
+
+		private SetupProtocolItem(String id, boolean query) {
+			this.id = id;
+			this.query = query;
+			if (query) {
+				this.queryIndex = StaticFields.nextQueryIndex++;
+			} else {
+				this.queryIndex = -1;
+			}
+		}
+
+		@Override
+		public String id() {
+			return this.id;
+		}
+
+		@Override
+		public int index() {
+			return this.queryIndex;
+		}
+
+		@Override
+		public boolean isQuery() {
+			return this.query;
+		}
+	}
+
+	public enum StockProductionLot implements Field {
+		SERIAL_NUMBER("name", true), //
+		PRODUCT("product_id", true);
+		public static final String ODOO_MODEL = "stock.production.lot";
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+
+		private static final class StaticFields {
+			private static int nextQueryIndex = 1;
+		}
+
+		private final int queryIndex;
+		private final String id;
+
+		/**
+		 * Holds information if this Field should be queried from and written to
+		 * Database.
+		 */
+		private final boolean query;
+
+		private StockProductionLot(String id, boolean query) {
+			this.id = id;
+			this.query = query;
+			if (query) {
+				this.queryIndex = StaticFields.nextQueryIndex++;
+			} else {
+				this.queryIndex = -1;
+			}
+		}
+
+		@Override
+		public String id() {
+			return this.id;
+		}
+
+		@Override
+		public int index() {
+			return this.queryIndex;
+		}
+
+		@Override
+		public boolean isQuery() {
+			return this.query;
+		}
+	}
+
 }
