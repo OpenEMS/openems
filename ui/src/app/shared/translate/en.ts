@@ -120,6 +120,12 @@ export const TRANSLATION = {
             installer: "Installer"
         },
         form: {
+            user: {
+                acceptPrivacyPolicy: "By creating a FENECON account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
+            },
+            installer: {
+                acceptPrivacyPolicy: "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
+            },
             companyName: "Company name",
             firstname: "Firstname",
             lastname: "Lastname",
