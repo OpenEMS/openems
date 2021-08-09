@@ -105,12 +105,50 @@ export const TRANSLATION = {
         connectionSuccessful: 'Successfully connected to {{value}}.', // value = name of websocket
         isOffline: 'OpenEMS is offline!',
         toEnergymonitor: 'To Energymonitor...',
+        type: 'Type:'
+    },
+    Register: {
+        title: "Create user account",
+        segment: {
+            user: "User",
+            installer: "Installer"
+        },
+        form: {
+            user: {
+                acceptPrivacyPolicy: "By creating a FENECON account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
+            },
+            installer: {
+                acceptPrivacyPolicy: "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
+            },
+            companyName: "Company name",
+            firstname: "Firstname",
+            lastname: "Lastname",
+            street: "Street",
+            zip: "Postal code",
+            city: "City",
+            country: "Country",
+            phone: "Phone number",
+            email: "E-Mail",
+            password: "Password",
+            confirmPassword: "Confirm password",
+            isElectrician: "I confirm that my company is registered in the installer register and i am therefore authorised to connect and commission a storage system.",
+            acceptPrivacyPolicy: "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
+            acceptAgb: "I confirm the <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
+            subscribeNewsletter: "I would like to subscribe to the FENECON newsletter to receive all the latest news from FENECON."
+        },
+        button: "Create",
+        errors: {
+            requiredFields: "Please fill in all fields",
+            passwordNotEqual: "Passwords are not equal"
+        },
+        success: "Registration successful"
     },
     Login: {
         title: "Login",
         preamble: "Please enter your password or submit the default value to login as a guest.",
         passwordLabel: "Password",
         passwordPlaceholder: "Password",
+        passwordReset: "Reset Password",
         authenticationFailed: "Authentication Failed",
     },
     Edge: {

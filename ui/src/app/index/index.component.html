@@ -58,10 +58,20 @@
                 <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
                 <input type="submit" style="visibility: hidden; position: absolute; position: -999px" />
 
-                <ion-button type="submit" class="ion-float-right ion-margin-top ion-margin-bottom" size="medium">
-                  <small>LOGIN</small>
-                  <ion-icon slot="end" name="log-in-outline"></ion-icon>
-                </ion-button>
+                <ion-item lines="none" class="ion-margin-top">
+                  <table class=" full_width">
+                    <a type="button" class="ion-float-left" size="small"
+                      href="https://portal.fenecon.de/web/reset_password?" style="text-decoration: none;">
+                      <small translate>Login.passwordReset</small>
+                    </a>
+                    <ion-button type="submit" class="ion-float-right" size="medium">
+                      <small>Login</small>
+                      <ion-icon slot="end" name="log-in-outline"></ion-icon>
+                    </ion-button>
+                    <br>
+                    <registration style="cursor: pointer;"></registration>
+                  </table>
+                </ion-item>
               </form>
             </ion-card-content>
           </ion-card>

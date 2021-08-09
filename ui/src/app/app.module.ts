@@ -20,6 +20,7 @@ import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
 import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.module';
 import { SystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { IndexModule } from './index/index.module';
+import { RegistrationModule } from './registration/registration.module';
 import { ChartOptionsPopoverComponent } from './shared/chartoptions/popover/popover.component';
 import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
 import { SharedModule } from './shared/shared.module';
@@ -66,6 +67,7 @@ import { UserModule } from './user/user.module';
       loader: { provide: TranslateLoader, useClass: Language }
     }),
     UserModule,
+    RegistrationModule
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
