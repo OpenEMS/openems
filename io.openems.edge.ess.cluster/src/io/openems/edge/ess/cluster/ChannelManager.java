@@ -107,7 +107,6 @@ public class ChannelManager extends AbstractChannelListenerManager {
 			}
 
 			if (socCapacity != null && totalCapacity != null) {
-				System.out.println(socCapacity / Float.valueOf(totalCapacity));
 				this.parent._setSoc(Math.round(socCapacity / Float.valueOf(totalCapacity)));
 			}
 		};

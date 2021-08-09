@@ -79,12 +79,13 @@ public class EssClusterImpl extends AbstractOpenemsComponent implements EssClust
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_ids())) {
 			return;
 		}
+		this.channelManager.activate(this.esss);
 	}
 
 	@Deactivate

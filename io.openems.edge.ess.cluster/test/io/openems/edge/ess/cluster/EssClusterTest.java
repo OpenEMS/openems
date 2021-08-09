@@ -2,8 +2,6 @@ package io.openems.edge.ess.cluster;
 
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -62,9 +60,8 @@ public class EssClusterTest {
 		new ComponentTest(new EssClusterImpl()) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("esss", Lists.newArrayList(//
-						new DummyManagedSymmetricEss(ESS1_ID), //
-						new DummyManagedAsymmetricEss(ESS2_ID))) //
+				.addReference("addEss", new DummyManagedSymmetricEss(ESS1_ID)) //
+				.addReference("addEss", new DummyManagedAsymmetricEss(ESS2_ID)) //
 				.activate(MyConfig.create() //
 						.setId(CLUSTER_ID) //
 						.setEssIds(ESS1_ID, ESS2_ID) //
@@ -104,10 +101,9 @@ public class EssClusterTest {
 		new ComponentTest(new EssClusterImpl()) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("esss", Lists.newArrayList(//
-						new DummyManagedSymmetricEss(ESS1_ID), //
-						new DummyManagedSymmetricEss(ESS2_ID), //
-						new DummyManagedAsymmetricEss(ESS3_ID))) //
+				.addReference("addEss", new DummyManagedSymmetricEss(ESS1_ID)) //
+				.addReference("addEss", new DummyManagedSymmetricEss(ESS2_ID)) //
+				.addReference("addEss", new DummyManagedAsymmetricEss(ESS3_ID)) //
 				.activate(MyConfig.create() //
 						.setId(CLUSTER_ID) //
 						.setEssIds(ESS1_ID, ESS2_ID, ESS3_ID) //
@@ -138,9 +134,8 @@ public class EssClusterTest {
 		new ComponentTest(new EssClusterImpl()) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("esss", Lists.newArrayList(//
-						new DummyManagedSymmetricEss(ESS1_ID).withCapacity(50000), //
-						new DummyManagedSymmetricEss(ESS2_ID).withCapacity(3000))) //
+				.addReference("addEss", new DummyManagedSymmetricEss(ESS1_ID).withCapacity(50000)) //
+				.addReference("addEss", new DummyManagedSymmetricEss(ESS2_ID).withCapacity(3000)) //
 				.activate(MyConfig.create() //
 						.setId(CLUSTER_ID) //
 						.setEssIds(ESS1_ID, ESS2_ID) //
