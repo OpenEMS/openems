@@ -28,9 +28,8 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Implements the PQ Plus UMD 96 meter.
- * 
- * https://www.pq-plus.de/en/products/hardware-components/umd-96/ doc :
- * https://www.pq-plus.de/site/assets/files/2795/pqplus-com-protokoll-modbus_3_0.pdf
+ * https://www.pq-plus.de/produkte/hardwarekomponenten/umd-96/ 
+ * doc : https://www.pq-plus.de/site/assets/files/2795/pqplus-com-protokoll-modbus_3_0.pdf
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.PqPlus.UMD96", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)

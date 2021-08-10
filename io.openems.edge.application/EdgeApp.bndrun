@@ -122,7 +122,7 @@
 	bnd.identity;id='io.openems.edge.meter.discovergy',\
 	bnd.identity;id='io.openems.edge.meter.janitza',\
 	bnd.identity;id='io.openems.edge.meter.microcare.sdm630',\
-	bnd.identity;id='io.openems.edge.meter.pqplus.umd97',\
+	bnd.identity;id='io.openems.edge.meter.pqplus',\
 	bnd.identity;id='io.openems.edge.meter.schneider.acti9.smartlink',\
 	bnd.identity;id='io.openems.edge.meter.sma.shm20',\
 	bnd.identity;id='io.openems.edge.meter.socomec',\
@@ -256,7 +256,7 @@
 	io.openems.edge.meter.discovergy;version=snapshot,\
 	io.openems.edge.meter.janitza;version=snapshot,\
 	io.openems.edge.meter.microcare.sdm630;version=snapshot,\
-	io.openems.edge.meter.pqplus.umd97;version=snapshot,\
+	io.openems.edge.meter.pqplus;version=snapshot,\
 	io.openems.edge.meter.schneider.acti9.smartlink;version=snapshot,\
 	io.openems.edge.meter.sma.shm20;version=snapshot,\
 	io.openems.edge.meter.socomec;version=snapshot,\

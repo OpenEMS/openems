@@ -29,7 +29,6 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Implements the PQ Plus UMD 97 meter.
- * 
  * https://www.pq-plus.de/news/pqplus/umd-97-messgeraet.html
  */
 @Designate(ocd = Config.class, factory = true)

@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.meter.api.MeterType;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Meter PQ-Plus UMD 96", //
 		description = "Implements the PQ-Plus UMD 96 power meter.")
 @interface Config {
