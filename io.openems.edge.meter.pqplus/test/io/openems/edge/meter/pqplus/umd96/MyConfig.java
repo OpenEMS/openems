@@ -1,9 +1,9 @@
-package io.openems.edge.meter.pqplus.umd97;
+package io.openems.edge.meter.pqplus.umd96;
 
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.pqplus.umd97.Config;
+import io.openems.edge.meter.pqplus.umd96.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
