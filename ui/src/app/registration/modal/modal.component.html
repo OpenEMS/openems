@@ -78,24 +78,6 @@
                         [placeholder]="'Register.form.confirmPassword' | translate">
                     </ion-input>
                 </ion-item>
-
-                <ion-item>
-                    <ion-label style="white-space: pre-wrap;"
-                        [innerHTML]="'Register.form.user.acceptPrivacyPolicy' | translate">
-                    </ion-label>
-                    <ion-checkbox slot="start" formControlName="acceptPrivacyPolicy"></ion-checkbox>
-                </ion-item>
-                <ion-item>
-                    <ion-label style="white-space: pre-wrap;" [innerHTML]="'Register.form.acceptAgb' | translate">
-                    </ion-label>
-                    <ion-checkbox slot="start" formControlName="acceptAgb"></ion-checkbox>
-                </ion-item>
-                <ion-item>
-                    <ion-label style="white-space: pre-wrap;"
-                        [innerHTML]="'Register.form.subscribeNewsletter' | translate">
-                    </ion-label>
-                    <ion-checkbox slot="start" formControlName="subscribeNewsletter"></ion-checkbox>
-                </ion-item>
             </div>
             <!-- installer form -->
             <div *ngSwitchCase="'installer'">
@@ -158,29 +140,6 @@
                     <ion-input formControlName="confirmPassword" type="password"
                         [placeholder]="'Register.form.confirmPassword' | translate">
                     </ion-input>
-                </ion-item>
-
-                <ion-item>
-                    <ion-label style="white-space: pre-wrap;" [innerHTML]="'Register.form.isElectrician'| translate">
-                    </ion-label>
-                    <ion-checkbox slot="start" formControlName="isElectrician"></ion-checkbox>
-                </ion-item>
-                <ion-item>
-                    <ion-label style="white-space: pre-wrap;"
-                        [innerHTML]="'Register.form.installer.acceptPrivacyPolicy' | translate">
-                    </ion-label>
-                    <ion-checkbox slot="start" formControlName="acceptPrivacyPolicy"></ion-checkbox>
-                </ion-item>
-                <ion-item>
-                    <ion-label style="white-space: pre-wrap;" [innerHTML]="'Register.form.acceptAgb' | translate">
-                    </ion-label>
-                    <ion-checkbox slot="start" formControlName="acceptAgb"></ion-checkbox>
-                </ion-item>
-                <ion-item>
-                    <ion-label style="white-space: pre-wrap;"
-                        [innerHTML]="'Register.form.subscribeNewsletter' | translate">
-                    </ion-label>
-                    <ion-checkbox slot="start" formControlName="subscribeNewsletter"></ion-checkbox>
                 </ion-item>
             </div>
             <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->

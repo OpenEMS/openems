@@ -44,7 +44,7 @@ public interface Field {
 		OPENEMS_SUM_STATE("openems_sum_state_level", true), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false);
 
-		public static final String ODOO_MODEL = "fems.device";
+		public static final String ODOO_MODEL = "edge.device";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -95,7 +95,7 @@ public interface Field {
 		LAST_ACKNOWLEDGE("last_acknowledge", false), //
 		ACKNOWLEDGE_DAYS("acknowledge_days", false);
 
-		public static final String ODOO_MODEL = "fems.device_status";
+		public static final String ODOO_MODEL = "edge.device_status";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -142,7 +142,7 @@ public interface Field {
 		TEASER("teaser", false), //
 		DETAILS("details", false);
 
-		public static final String ODOO_MODEL = "fems.openemsconfigupdate";
+		public static final String ODOO_MODEL = "edge.openemsconfigupdate";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -189,7 +189,7 @@ public interface Field {
 		USER_ID("user_id", false), //
 		ROLE("role", false);
 
-		public static final String ODOO_MODEL = "fems.device_user_role";
+		public static final String ODOO_MODEL = "edge.device_user_role";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -296,7 +296,6 @@ public interface Field {
 		CITY("city", true), //
 		COUNTRY("country_id", true), //
 		ADDRESS_TYPE("type", true), //
-		NEWSLETTER("fenecon_crm_newsletter", true),
 		LANGUAGE("lang", true);
 
 		public static final String ODOO_MODEL = "res.partner";
@@ -392,9 +391,9 @@ public interface Field {
 		CUSTOMER("customer_id", true), //
 		DIFFERENT_LOCATION("different_location_id", true), //
 		INSTALLER("installer_id", true), //
-		FEMS("fems_device_id", true);
+		EDGE("edge_device_id", true);
 
-		public static final String ODOO_MODEL = "fems.setup_protocol";
+		public static final String ODOO_MODEL = "edge.setup_protocol";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -441,7 +440,7 @@ public interface Field {
 		SEQUENCE("sequence", true), //
 		LOT("lot_id", true);
 
-		public static final String ODOO_MODEL = "fems.setup_protocol_production_lot";
+		public static final String ODOO_MODEL = "edge.setup_protocol_production_lot";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -487,7 +486,7 @@ public interface Field {
 		SETUP_PROTOCOL("setup_protocol_id", true), //
 		SEQUENCE("sequence", true);
 
-		public static final String ODOO_MODEL = "fems.setup_protocol_item";
+		public static final String ODOO_MODEL = "edge.setup_protocol_item";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {

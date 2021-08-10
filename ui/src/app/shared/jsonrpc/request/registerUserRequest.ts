@@ -18,8 +18,7 @@ import { JsonrpcRequest } from "../base";
  *       "phone": string,
  *       "email": string,
  *       "password": string,
- *       "confirmPassword": string,
- *       "subscribeNewsletter": boolean
+ *       "confirmPassword": string
  *     }
  *   }
  * }
@@ -47,7 +46,6 @@ export class RegisterUserRequest extends JsonrpcRequest {
                 company?: {
                     name: string
                 },
-                subscribeNewsletter: boolean,
                 role: string
             }
         }

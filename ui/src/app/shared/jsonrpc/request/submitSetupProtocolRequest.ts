@@ -1,7 +1,7 @@
 import { JsonrpcRequest } from "../base";
 
 export type SetupProtocol = {
-    fems: {
+    edge: {
         id: string
     },
     customer: {
@@ -55,7 +55,7 @@ export type SetupProtocol = {
  *   "method": "submitSetupProtocol",
  *   "params": {
  *      protocol: {
- *          fems: {
+ *          edge: {
  *              id: string
  *          },
  *          customer: {

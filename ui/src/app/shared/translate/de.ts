@@ -122,12 +122,6 @@ export const TRANSLATION = {
             installer: "Installateur"
         },
         form: {
-            user: {
-                acceptPrivacyPolicy: "Durch das Erstellen eines FENECON Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*",
-            },
-            installer: {
-                acceptPrivacyPolicy: "Durch das Erstellen eines FENECON Installateur Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*",
-            },
             companyName: "Firmenname",
             firstname: "Vorname",
             lastname: "Nachname",
@@ -138,11 +132,7 @@ export const TRANSLATION = {
             phone: "Telefonnummer",
             email: "E-Mail Adresse",
             password: "Passwort",
-            confirmPassword: "Passwort wiederholen",
-            isElectrician: "Hiermit bestätige ich, dass mein Betrieb ins Installateursverzeichnis eingetragen ist und somit bin ich berechtigt ein Speichersystem anzuschließen und in Betrieb zu nehmen.*",
-            acceptPrivacyPolicy: "Durch das Erstellen eines FENECON Installateur Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*",
-            acceptAgb: "Hiermit bestätige ich die <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
-            subscribeNewsletter: "Ich möchte den FENECON Newsletter abonnieren um immer alle Neuigkeiten von FENECON zu erhalten."
+            confirmPassword: "Passwort wiederholen"
         },
         button: "Anlegen",
         errors: {

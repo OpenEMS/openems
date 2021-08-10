@@ -66,7 +66,6 @@ export class RegistrationModalComponent implements OnInit {
           city: this.formGroup.value.city,
           country: this.formGroup.value.country
         },
-        subscribeNewsletter: this.formGroup.value.subscribeNewsletter,
         role: this.activeSegment
       }
     });
@@ -105,11 +104,7 @@ export class RegistrationModalComponent implements OnInit {
         phone: new FormControl("", Validators.required),
         email: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
-        confirmPassword: new FormControl("", Validators.required),
-        isElectrician: new FormControl(false, Validators.requiredTrue),
-        acceptPrivacyPolicy: new FormControl(false, Validators.requiredTrue),
-        acceptAgb: new FormControl(false, Validators.requiredTrue),
-        subscribeNewsletter: new FormControl(false)
+        confirmPassword: new FormControl("", Validators.required)
       });
     } else {
       return this.formBuilder.group({
@@ -122,10 +117,7 @@ export class RegistrationModalComponent implements OnInit {
         phone: new FormControl("", Validators.required),
         email: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
-        confirmPassword: new FormControl("", Validators.required),
-        acceptPrivacyPolicy: new FormControl(false, Validators.requiredTrue),
-        acceptAgb: new FormControl(false, Validators.requiredTrue),
-        subscribeNewsletter: new FormControl(false)
+        confirmPassword: new FormControl("", Validators.required)
       });
     }
   }

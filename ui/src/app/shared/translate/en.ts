@@ -114,12 +114,6 @@ export const TRANSLATION = {
             installer: "Installer"
         },
         form: {
-            user: {
-                acceptPrivacyPolicy: "By creating a FENECON account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
-            },
-            installer: {
-                acceptPrivacyPolicy: "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
-            },
             companyName: "Company name",
             firstname: "Firstname",
             lastname: "Lastname",
@@ -130,11 +124,7 @@ export const TRANSLATION = {
             phone: "Phone number",
             email: "E-Mail",
             password: "Password",
-            confirmPassword: "Confirm password",
-            isElectrician: "I confirm that my company is registered in the installer register and i am therefore authorised to connect and commission a storage system.",
-            acceptPrivacyPolicy: "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
-            acceptAgb: "I confirm the <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
-            subscribeNewsletter: "I would like to subscribe to the FENECON newsletter to receive all the latest news from FENECON."
+            confirmPassword: "Confirm password"
         },
         button: "Create",
         errors: {
