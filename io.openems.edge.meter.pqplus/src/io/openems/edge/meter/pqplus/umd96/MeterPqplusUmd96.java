@@ -17,7 +17,6 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
@@ -30,8 +29,8 @@ import io.openems.edge.meter.api.SymmetricMeter;
 /**
  * Implements the PQ Plus UMD 96 meter.
  * 
- * https://www.pq-plus.de/en/products/hardware-components/umd-96/
- * doc : https://www.pq-plus.de/site/assets/files/2795/pqplus-com-protokoll-modbus_3_0.pdf
+ * https://www.pq-plus.de/en/products/hardware-components/umd-96/ doc :
+ * https://www.pq-plus.de/site/assets/files/2795/pqplus-com-protokoll-modbus_3_0.pdf
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.PqPlus.UMD96", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -93,36 +92,43 @@ public class MeterPqplusUmd96 extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(19000, Priority.HIGH, //
-						m(new FloatDoublewordElement(19000)) //
+				// Frequency
+				new FC3ReadRegistersTask(0x1004, Priority.LOW, //
+						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(0x1004),
+								ElementToChannelConverter.SCALE_FACTOR_3)),
+				// Voltages
+				new FC3ReadRegistersTask(0x1100, Priority.HIGH, //
+						m(new FloatDoublewordElement(0x1100)) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_3) //
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_3) //
 								.build(), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(19002),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(0x1102),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(19004),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(0x1104),
+								ElementToChannelConverter.SCALE_FACTOR_3)),
+				// Currents
+				new FC3ReadRegistersTask(0x1200, Priority.HIGH, //
+						m(new FloatDoublewordElement(0x1200))
+								.m(AsymmetricMeter.ChannelId.CURRENT_L1, ElementToChannelConverter.SCALE_FACTOR_3) //
+								.m(SymmetricMeter.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_3) //
+								.build(), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(0x1202), //
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						new DummyRegisterElement(19006, 19011), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(19012),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(19014),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(19016),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(SymmetricMeter.ChannelId.CURRENT, new FloatDoublewordElement(19018),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(19020)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(19022)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(19024)),
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(19026)),
-						new DummyRegisterElement(19028, 19035), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(19036)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(19038)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(19040)),
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(19042)),
-						new DummyRegisterElement(19044, 19049), //
-						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(19050),
-								ElementToChannelConverter.SCALE_FACTOR_3)));
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(0x1204), //
+								ElementToChannelConverter.SCALE_FACTOR_3)),
+				// Power values
+				new FC3ReadRegistersTask(0x1320, Priority.HIGH, //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(0x1320)),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(0x1322)),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(0x1324)),
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(0x1326)),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(0x1328)),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(0x132A)),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(0x132C)),
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(0x132E)))
+
+		);
+
 	}
 
 	@Override
