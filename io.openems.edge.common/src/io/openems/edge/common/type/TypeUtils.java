@@ -1,5 +1,6 @@
 package io.openems.edge.common.type;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -34,6 +35,15 @@ public class TypeUtils {
 		if (value instanceof Enum<?>) {
 			value = ((Enum<?>) value).ordinal();
 		}
+		// Extract value from Array
+		if (type != OpenemsType.STRING && value != null && value.getClass().isArray()) {
+			if (Array.getLength(value) == 1) {
+				return TypeUtils.getAsType(type, Array.get(value, 0));
+			} else {
+				return null;
+			}
+		}
+
 		switch (type) {
 		case BOOLEAN:
 			if (value == null) {

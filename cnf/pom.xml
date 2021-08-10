@@ -89,6 +89,25 @@
 			<artifactId>commons-fileupload</artifactId>
 			<version>1.4</version>
 		</dependency>
+		<!-- eu -->
+		<dependency>
+			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<groupId>eu.chargetime.ocpp</groupId>
+			<artifactId>common</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<groupId>eu.chargetime.ocpp</groupId>
+			<artifactId>OCPP-J</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<groupId>eu.chargetime.ocpp</groupId>
+			<artifactId>v1_6</artifactId>
+			<version>1.0</version>
+		</dependency>
 		<!-- info -->
 		<dependency>
 			<groupId>info.faljse</groupId>
@@ -127,6 +146,12 @@
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.eventadmin</artifactId>
 			<version>1.6.2</version>
+		</dependency>
+		<dependency>
+			<!-- Apache Felix Framework -->
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.framework</artifactId>
+			<version>7.0.1</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Inventory -->
@@ -190,11 +215,6 @@
 			<version>1.2.5</version>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.platform</groupId>
-			<artifactId>org.eclipse.osgi</artifactId>
-			<version>3.16.300</version>
-		</dependency>
-		<dependency>
 			<groupId>org.influxdb</groupId>
 			<artifactId>influxdb-java</artifactId>
 			<version>2.17</version>
@@ -203,6 +223,11 @@
 			<groupId>org.java-websocket</groupId>
 			<artifactId>Java-WebSocket</artifactId>
 			<version>1.5.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.framework</artifactId>
+			<version>1.10.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.msgpack</groupId>
@@ -243,7 +268,7 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.2.22</version>
+			<version>42.2.23</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.edge.timedata.rrd4j -->
@@ -254,12 +279,12 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.30</version>
+			<version>1.7.32</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
-			<version>1.7.30</version>
+			<version>1.7.32</version>
 		</dependency>
 	</dependencies>
 </project>

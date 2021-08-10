@@ -701,6 +701,21 @@ public class JsonUtils {
 	}
 
 	/**
+	 * Gets the member with given index of the {@link JsonArray} as int.
+	 * 
+	 * @param jArray the {@link JsonArray}
+	 * @param index  the index of the member
+	 * @return the int value
+	 * @throws OpenemsNamedException on error
+	 */
+	public static int getAsInt(JsonArray jArray, int index) throws OpenemsNamedException {
+		if (index < 0 || jArray.size() <= index) {
+			throw OpenemsError.JSON_NO_INTEGER_MEMBER.exception(index, jArray.toString().replaceAll("%", "%%"));
+		}
+		return JsonUtils.getAsInt(jArray.get(index));
+	}
+
+	/**
 	 * Gets the {@link JsonElement} as {@link Optional} {@link Integer}.
 	 * 
 	 * @param jElement the {@link JsonElement}
@@ -1283,22 +1298,40 @@ public class JsonUtils {
 		if (j.isJsonNull()) {
 			return null;
 		}
-		switch (type) {
-		case BOOLEAN:
-			return JsonUtils.getAsBoolean(j);
-		case DOUBLE:
-			return JsonUtils.getAsDouble(j);
-		case FLOAT:
-			return JsonUtils.getAsFloat(j);
-		case INTEGER:
-			return JsonUtils.getAsInt(j);
-		case LONG:
-			return JsonUtils.getAsLong(j);
-		case SHORT:
-			return JsonUtils.getAsShort(j);
-		case STRING:
-			return JsonUtils.getAsString(j);
+
+		if (j.isJsonPrimitive()) {
+			switch (type) {
+			case BOOLEAN:
+				return JsonUtils.getAsBoolean(j);
+			case DOUBLE:
+				return JsonUtils.getAsDouble(j);
+			case FLOAT:
+				return JsonUtils.getAsFloat(j);
+			case INTEGER:
+				return JsonUtils.getAsInt(j);
+			case LONG:
+				return JsonUtils.getAsLong(j);
+			case SHORT:
+				return JsonUtils.getAsShort(j);
+			case STRING:
+				return JsonUtils.getAsString(j);
+			}
 		}
+
+		if (j.isJsonObject() || j.isJsonArray()) {
+			switch (type) {
+			case BOOLEAN:
+			case DOUBLE:
+			case FLOAT:
+			case INTEGER:
+			case LONG:
+			case SHORT:
+				break;
+			case STRING:
+				return j.toString();
+			}
+		}
+
 		throw new NotImplementedException(
 				"Converter for value [" + j + "] to class type [" + type + "] is not implemented.");
 	}
@@ -1350,8 +1383,7 @@ public class JsonUtils {
 	 */
 	public static JsonElement parse(String string) throws OpenemsNamedException {
 		try {
-			JsonParser parser = new JsonParser();
-			return parser.parse(string);
+			return JsonParser.parseString(string);
 		} catch (JsonParseException e) {
 			throw OpenemsError.JSON_PARSE_FAILED.exception(e.getMessage(), string);
 		}
@@ -1378,4 +1410,5 @@ public class JsonUtils {
 		String json = gson.toJson(j);
 		System.out.println(json);
 	}
+
 }

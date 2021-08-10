@@ -50,7 +50,7 @@ public abstract class AbstractChannelListenerManager {
 	/**
 	 * Called on deactivate(). Remove all callbacks from Channels.
 	 */
-	public void deactivate() {
+	public synchronized void deactivate() {
 		for (OnSetNextValueListener<?> listener : this.onSetNextValueListeners) {
 			Channel<?> channel = listener.component.channel(listener.channelId);
 			channel.removeOnSetNextValueCallback(listener.callback);
