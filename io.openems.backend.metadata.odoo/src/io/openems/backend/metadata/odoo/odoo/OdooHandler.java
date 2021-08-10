@@ -102,7 +102,7 @@ public class OdooHandler {
 
 			return Optional.of(name);
 		} catch (OpenemsException e) {
-			this.parent.logInfo(this.log, "Unable to find Edge by setupPassowrd [" + setupPassword + "]");
+			this.parent.logInfo(this.log, "Unable to find edge by setup passowrd [" + setupPassword + "]");
 		}
 
 		return Optional.empty();
