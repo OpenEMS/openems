@@ -1,4 +1,4 @@
--runfw: org.eclipse.osgi
+-runfw: org.apache.felix.framework;version='[7.0.1,7.0.1]'
 -runee: JavaSE-1.8
 -runprovidedcapabilities: ${native_capability}
 

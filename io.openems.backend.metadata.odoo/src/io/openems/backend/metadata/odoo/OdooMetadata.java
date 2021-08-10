@@ -217,7 +217,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
-	public void registerUser(JsonObject jsonObject) throws OpenemsException {
+	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException {
 		OdooUserRole role = OdooUserRole.OWNER;
 
 		Optional<String> optRole = JsonUtils.getAsOptionalString(jsonObject, "role");

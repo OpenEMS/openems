@@ -1,5 +1,6 @@
 package io.openems.edge.common.component;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Map;
@@ -24,6 +25,7 @@ import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Factory.Property;
+import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -283,13 +285,25 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 				// Do not add 'Password' properties as Channels
 				continue;
 			}
+
+			// Evaluate Channel-Type
+			final OpenemsType channelType;
+			Object propertyValue = properties.get(property.getId());
+			if (propertyValue != null && propertyValue.getClass().isArray() && Array.getLength(propertyValue) > 1) {
+				// Arrays with more than one value can only be stored as string
+				channelType = OpenemsType.STRING;
+			} else {
+				channelType = property.getType();
+			}
+
+			// Create Channel
 			String channelName = PROPERTY_CHANNEL_ID_PREFIX
 					+ CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, property.getId().replace(".", "_"));
 			Channel<?> channel = this.channels
 					.get(io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel(channelName));
 			if (channel == null) {
 				// Channel does not already exist -> create new Channel
-				AbstractDoc<?> doc = Doc.of(property.getType());
+				AbstractDoc<?> doc = Doc.of(channelType);
 				doc.persistencePriority(PersistencePriority.MEDIUM);
 				io.openems.edge.common.channel.ChannelId channelId = new io.openems.edge.common.channel.ChannelId() {
 
@@ -307,11 +321,16 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 			}
 
 			// Set the Value
-			Object value = TypeUtils.getAsType(property.getType(), properties.get(property.getId()));
+			Object value = null;
+			try {
+				value = TypeUtils.getAsType(channelType, properties.get(property.getId()));
+			} catch (IllegalArgumentException e) {
+				// can be ignored
+			}
 			if (value == null) {
 				try {
-					value = JsonUtils.getAsType(property.getType(), property.getDefaultValue());
-				} catch (OpenemsNamedException e) {
+					value = JsonUtils.getAsType(channelType, property.getDefaultValue());
+				} catch (OpenemsNamedException | IllegalArgumentException e) {
 					this.logError(this.log, "Unable to parse Property [" + property.getId() + "] value ["
 							+ property.getDefaultValue() + "] to [" + property.getType() + "]: " + e.getMessage());
 				}

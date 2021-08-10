@@ -1,13 +1,4 @@
 pipeline:
-  restore-cache:
-    image: drillster/drone-volume-cache
-    restore: true
-    mount:
-      - /drone/.gradle
-      - ./ui/node_modules
-    volumes:
-      - cache:/cache
-
   build:
     image: openems-build:latest
     environment:
@@ -19,12 +10,3 @@ pipeline:
       - ./gradlew resolve.EdgeApp
       - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
       - ./gradlew buildUiForEdge --continue
-
-  rebuild-cache:
-    image: drillster/drone-volume-cache
-    rebuild: true
-    mount:
-      - /drone/.gradle
-      - ./ui/node_modules
-    volumes:
-      - cache:/cache
