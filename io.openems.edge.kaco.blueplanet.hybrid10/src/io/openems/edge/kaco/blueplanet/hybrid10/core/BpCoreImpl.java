@@ -374,8 +374,16 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 		if (this.isConnected()) {
 			SystemInfo systemInfo = this.getSystemInfo();
 			if (systemInfo != null) {
-				serialNumber = Long.parseLong(systemInfo.getSerialNumber());
-				versionCom = Float.parseFloat(systemInfo.getComVersion());
+				try {
+					serialNumber = Long.parseLong(systemInfo.getSerialNumber());
+				} catch (NumberFormatException e) {
+					this.logWarn(this.log, "Unable to parse Serial-Number from [" + systemInfo.getSerialNumber() + "]");
+				}
+				try {
+					versionCom = Float.parseFloat(systemInfo.getComVersion());
+				} catch (NumberFormatException e) {
+					this.logWarn(this.log, "Unable to parse Com-Version from [" + systemInfo.getComVersion() + "]");
+				}
 			}
 		}
 
