@@ -14,7 +14,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
 	String alias() default "";
 
-	@AttributeDefinition(name = "Enabled", description = "Enable Component")
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 	
 	@AttributeDefinition(name = "Read DataOut Initially", description = "Init Outputs with state from hardware initially")
