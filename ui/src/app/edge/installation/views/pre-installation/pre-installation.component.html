@@ -1,10 +1,17 @@
 <installation-view iconName="key-outline" header="Installateursschlüssel eingeben" (nextClicked)="onNextClicked()"
   [isWaiting]="isWaiting || websocket.status !== 'online'" [isFirstView]="true">
 
-  <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+  <table class="full_width ion-text-center">
+    <tr>
+      <td>
+        <!-- [(ngModel)]="setupKey" - Two way binding is not working with keymask directive. The last letter in upper case, is not set to the setup key property-->
+        <input keyMask type="text" #setupKey style="width: 13em;" placeholder="XXXX-XXXX-XXXX-XXXX">
+      </td>
+    </tr>
+  </table>
 
-  <ion-item lines="none">
-    <img src="assets/img/type_label.png">
+  <ion-item lines="none" class="ion-padding-top">
+    <img src="assets/img/fenecon_home_label.JPG">
   </ion-item>
 
 </installation-view>

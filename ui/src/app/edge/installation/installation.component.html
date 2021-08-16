@@ -11,99 +11,105 @@
       </ion-item>
     </ion-row>
 
-    <ng-container [ngSwitch]="displayedView">
+    <ng-container *ngIf="websocket.status === 'online'; else spinner">
+      <ng-container [ngSwitch]="displayedView">
 
-      <!-- Collect Data -->
+        <!-- Collect Data -->
 
-      <ion-row *ngSwitchCase="view.PreInstallation" class="ion-justify-content-center">
-        <pre-installation [installationData]="installationData" (nextViewEvent)="displayNextView($event)">
-        </pre-installation>
-      </ion-row>
+        <ion-row *ngSwitchCase="view.PreInstallation" class="ion-justify-content-center">
+          <pre-installation [installationData]="installationData" (nextViewEvent)="displayNextView($event)">
+          </pre-installation>
+        </ion-row>
 
-      <ion-row *ngSwitchCase="view.ProtocolInstaller" class="ion-justify-content-center">
-        <protocol-installer [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
-          (nextViewEvent)="displayNextView($event)">
-        </protocol-installer>
-      </ion-row>
+        <ion-row *ngSwitchCase="view.ProtocolInstaller" class="ion-justify-content-center">
+          <protocol-installer [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
+            (nextViewEvent)="displayNextView($event)">
+          </protocol-installer>
+        </ion-row>
 
-      <ion-row *ngSwitchCase="view.ProtocolCustomer" class="ion-justify-content-center">
-        <protocol-customer [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
-          (nextViewEvent)="displayNextView($event)">
-        </protocol-customer>
-      </ion-row>
+        <ion-row *ngSwitchCase="view.ProtocolCustomer" class="ion-justify-content-center">
+          <protocol-customer [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
+            (nextViewEvent)="displayNextView($event)">
+          </protocol-customer>
+        </ion-row>
 
-      <ion-row *ngSwitchCase="view.ProtocolSystem" class="ion-justify-content-center">
-        <protocol-system [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
-          (nextViewEvent)="displayNextView($event)">
-        </protocol-system>
-      </ion-row>
+        <ion-row *ngSwitchCase="view.ProtocolSystem" class="ion-justify-content-center">
+          <protocol-system [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
+            (nextViewEvent)="displayNextView($event)">
+          </protocol-system>
+        </ion-row>
 
-      <ion-row *ngSwitchCase="view.ConfigurationSystem" class="ion-justify-content-center">
-        <configuration-system [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
-          (nextViewEvent)="displayNextView($event)">
-        </configuration-system>
-      </ion-row>
+        <ion-row *ngSwitchCase="view.ConfigurationSystem" class="ion-justify-content-center">
+          <configuration-system [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
+            (nextViewEvent)="displayNextView($event)">
+          </configuration-system>
+        </ion-row>
 
-      <ion-row *ngSwitchCase="view.ConfigurationEmergencyReserve" class="ion-justify-content-center">
-        <configuration-emergency-reserve [installationData]="installationData"
-          (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
-        </configuration-emergency-reserve>
-      </ion-row>
+        <ion-row *ngSwitchCase="view.ConfigurationEmergencyReserve" class="ion-justify-content-center">
+          <configuration-emergency-reserve [installationData]="installationData"
+            (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
+          </configuration-emergency-reserve>
+        </ion-row>
 
-      <ion-row *ngSwitchCase="view.ConfigurationLineSideMeterFuse" class="ion-justify-content-center">
-        <configuration-line-side-meter-fuse [installationData]="installationData"
-          (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
-        </configuration-line-side-meter-fuse>
-      </ion-row>
+        <ion-row *ngSwitchCase="view.ConfigurationLineSideMeterFuse" class="ion-justify-content-center">
+          <configuration-line-side-meter-fuse [installationData]="installationData"
+            (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
+          </configuration-line-side-meter-fuse>
+        </ion-row>
 
-      <ion-row *ngSwitchCase="view.ProtocolPv" class="ion-justify-content-center">
-        <protocol-pv [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
-          (nextViewEvent)="displayNextView($event)">
-        </protocol-pv>
-      </ion-row>
+        <ion-row *ngSwitchCase="view.ProtocolPv" class="ion-justify-content-center">
+          <protocol-pv [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
+            (nextViewEvent)="displayNextView($event)">
+          </protocol-pv>
+        </ion-row>
 
-      <ion-row *ngSwitchCase="view.ProtocolAdditionalAcProducers" class="ion-justify-content-center">
-        <protocol-additional-ac-producers [installationData]="installationData"
-          (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
-        </protocol-additional-ac-producers>
-      </ion-row>
+        <ion-row *ngSwitchCase="view.ProtocolAdditionalAcProducers" class="ion-justify-content-center">
+          <protocol-additional-ac-producers [installationData]="installationData"
+            (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
+          </protocol-additional-ac-producers>
+        </ion-row>
 
-      <ion-row *ngSwitchCase="view.ProtocolDynamicFeedInLimitation" class="ion-justify-content-center">
-        <protocol-dynamic-feed-in-limitation [installationData]="installationData"
-          (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
-        </protocol-dynamic-feed-in-limitation>
-      </ion-row>
+        <ion-row *ngSwitchCase="view.ProtocolDynamicFeedInLimitation" class="ion-justify-content-center">
+          <protocol-dynamic-feed-in-limitation [installationData]="installationData"
+            (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
+          </protocol-dynamic-feed-in-limitation>
+        </ion-row>
 
-      <!-- Configuration and Protocol -->
+        <!-- Configuration and Protocol -->
 
-      <ion-row *ngSwitchCase="view.ConfigurationSummary" class="ion-justify-content-center">
-        <configuration-summary [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
-          (nextViewEvent)="displayNextView()">
-        </configuration-summary>
-      </ion-row>
+        <ion-row *ngSwitchCase="view.ConfigurationSummary" class="ion-justify-content-center">
+          <configuration-summary [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
+            (nextViewEvent)="displayNextView()">
+          </configuration-summary>
+        </ion-row>
 
-      <ion-row *ngSwitchCase="view.ConfigurationExecute" class="ion-justify-content-center">
-        <configuration-execute [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
-          (nextViewEvent)="displayNextView()">
-        </configuration-execute>
-      </ion-row>
+        <ion-row *ngSwitchCase="view.ConfigurationExecute" class="ion-justify-content-center">
+          <configuration-execute [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
+            (nextViewEvent)="displayNextView()">
+          </configuration-execute>
+        </ion-row>
 
-      <ion-row *ngSwitchCase="view.ProtocolCompletion" class="ion-justify-content-center">
-        <protocol-completion [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
-          (nextViewEvent)="displayNextView()"></protocol-completion>
-      </ion-row>
+        <ion-row *ngSwitchCase="view.ProtocolCompletion" class="ion-justify-content-center">
+          <protocol-completion [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
+            (nextViewEvent)="displayNextView()"></protocol-completion>
+        </ion-row>
 
-      <ion-row *ngSwitchCase="view.ProtocolSerialNumbers" class="ion-justify-content-center">
-        <protocol-serial-numbers [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
-          (nextViewEvent)="displayNextView()"></protocol-serial-numbers>
-      </ion-row>
+        <ion-row *ngSwitchCase="view.ProtocolSerialNumbers" class="ion-justify-content-center">
+          <protocol-serial-numbers [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
+            (nextViewEvent)="displayNextView()"></protocol-serial-numbers>
+        </ion-row>
 
-      <ion-row *ngSwitchCase="view.Completion" class="ion-justify-content-center">
-        <completion [installationData]="installationData" (previousViewEvent)="displayPreviousView()">
-        </completion>
-      </ion-row>
+        <ion-row *ngSwitchCase="view.Completion" class="ion-justify-content-center">
+          <completion [installationData]="installationData" (previousViewEvent)="displayPreviousView()">
+          </completion>
+        </ion-row>
 
+      </ng-container>
     </ng-container>
+
+    <ng-template #spinner>
+      <ngx-spinner [name]="spinnerId"></ngx-spinner>
+    </ng-template>
 
   </ion-grid>
 </ion-content>

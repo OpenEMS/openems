@@ -37,6 +37,9 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
 
   public ngOnInit() {
 
+    // Initialize AC Object
+    this.installationData.pv.ac ??= [];
+
     this.form = new FormGroup({});
     this.fields = this.getFields();
     this.model = {};
@@ -89,12 +92,12 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       templateOptions: {
         label: "Ausrichtung",
         options: [
-          { label: "Nordwest", value: "nw" },
-          { label: "West", value: "w" },
-          { label: "Südwest", value: "sw" },
           { label: "Süd", value: "s" },
+          { label: "Südwest", value: "sw" },
+          { label: "West", value: "w" },
           { label: "Südost", value: "so" },
           { label: "Ost", value: "o" },
+          { label: "Nordwest", value: "nw" },
           { label: "Nordost", value: "no" },
           { label: "Nord", value: "n" },
           { label: "", value: undefined }

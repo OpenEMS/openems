@@ -27,13 +27,11 @@ export class ConfigurationSummaryComponent implements OnInit {
   constructor(private service: Service) { }
 
   public ngOnInit(): void {
-
     this.form = new FormGroup({});
     this.fields = this.getFields();
     this.model = {};
 
     this.generateTableData();
-
   }
 
   public onPreviousClicked() {
@@ -91,14 +89,14 @@ export class ConfigurationSummaryComponent implements OnInit {
   }
 
   public generateTableData() {
-
     //#region General
 
-    let lineSideMeterFuse = this.installationData.misc.lineSideMeterFuse;
     let generalData: { label: string, value: any }[] = [
       { label: "Zeitpunkt der Installation", value: (new Date()).toLocaleString() },
       { label: "FEMS-Nummer", value: this.installationData.edge.id }
     ];
+
+    let lineSideMeterFuse = this.installationData.lineSideMeterFuse;
 
     if (lineSideMeterFuse.fixedValue === -1) {
       generalData.push({ label: "Zählervorsicherung", value: lineSideMeterFuse.otherValue })
@@ -157,22 +155,24 @@ export class ConfigurationSummaryComponent implements OnInit {
 
     //#region Location
 
-    let location = this.installationData.customer;
+    let location = this.installationData.location;
     let locationData: { label: string, value: any }[] = location.isCorporateClient ? [{ label: "Firma", value: location.companyName }] : [];
 
-    this.tableData.push({
-      header: "Standort",
-      rows: locationData.concat([
-        { label: "Nachname", value: location.lastName },
-        { label: "Vorname", value: location.firstName },
-        { label: "Straße", value: location.street },
-        { label: "PLZ", value: location.zip },
-        { label: "Ort", value: location.city },
-        { label: "Land", value: this.getCountryLabel(location.country) },
-        { label: "E-Mail", value: location.email },
-        { label: "Telefonnummer", value: location.phone }
-      ])
-    });
+    if (!location.isEqualToCustomerData) {
+      this.tableData.push({
+        header: "Standort",
+        rows: locationData.concat([
+          { label: "Nachname", value: location.lastName },
+          { label: "Vorname", value: location.firstName },
+          { label: "Straße", value: location.street },
+          { label: "PLZ", value: location.zip },
+          { label: "Ort", value: location.city },
+          { label: "Land", value: this.getCountryLabel(location.country) },
+          { label: "E-Mail", value: location.email },
+          { label: "Telefonnummer", value: location.phone }
+        ])
+      });
+    }
 
     //#endregion
 
@@ -210,6 +210,16 @@ export class ConfigurationSummaryComponent implements OnInit {
       batteryInverterData.push({ label: "Cos ɸ Festwert ", value: batteryInverter.dynamicFeedInLimitation.fixedPowerFactor });
     }
 
+    let safetyCountry;
+
+    if (location.isEqualToCustomerData) {
+      safetyCountry = customer.country;
+    } else {
+      safetyCountry = location.country;
+    }
+
+    batteryInverterData.push({ label: "Ländereinstellung", value: this.getCountryLabel(safetyCountry) })
+
     this.tableData.push({
       header: "Wechselrichter",
       rows: batteryInverterData
@@ -217,6 +227,49 @@ export class ConfigurationSummaryComponent implements OnInit {
 
     //#endregion
 
+    //#region Producers
+
+    let pv = this.installationData.pv;
+    let pvData: { label: string, value: any }[] = [];
+
+    // DC
+    let dcNr = 1;
+    for (let dc of [pv.dc1, pv.dc2]) {
+      if (dc.isSelected) {
+        pvData = pvData.concat([
+          { label: "Alias MPPT" + dcNr, value: dc.alias },
+          { label: "Wert MPPT" + dcNr, value: dc.value },
+          { label: "Ausrichtung MPPT" + dcNr, value: dc.orientation },
+          { label: "Modultyp MPPT" + dcNr, value: dc.moduleType },
+          { label: "Modulanzahl MPPT" + dcNr, value: dc.modulesPerString }
+        ]);
+        dcNr++;
+      }
+    }
+
+    // AC
+    let acNr = 1;
+    for (let ac of pv.ac) {
+      pvData = pvData.concat([
+        { label: "Alias AC" + acNr, value: ac.alias },
+        { label: "Wert AC" + acNr, value: ac.value },
+        { label: "Ausrichtung AC" + acNr, value: ac.orientation },
+        { label: "Modultyp AC" + acNr, value: ac.moduleType },
+        { label: "Modulanzahl AC" + acNr, value: ac.modulesPerString },
+        { label: "Zählertyp AC" + acNr, value: ac.meterType },
+        { label: "Modbus Kommunikationsadresse AC" + acNr, value: ac.modbusCommunicationAddress }
+      ]);
+      acNr++;
+    }
+
+    if (pvData.length > 0) {
+      this.tableData.push({
+        header: "Erzeuger",
+        rows: pvData
+      });
+    }
+
+    //#endregion
   }
 
   public getCountryLabel(countryValue: string) {

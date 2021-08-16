@@ -1,3 +1,5 @@
+import { Subscription } from "rxjs";
+import { filter } from "rxjs/operators";
 import { Websocket, EdgeConfig, Edge, ChannelAddress } from "src/app/shared/shared";
 
 export enum ConfigurationMode {
@@ -5,17 +7,24 @@ export enum ConfigurationMode {
     RemoveOnly = "remove-only",                     // The component will only be removed
 }
 
-export enum ConfigurationStatus {
+export enum ConfigurationState {
     Missing = "missing",                // Component is not configured
     PreConfigured = "pre-configured",   // Component is already configured
 
     Configuring = "configuring",        // Component is being configured
 
     Configured = "configured",          // Configuration of component was successful
-    Error = "error",                    // Configuration of component was not successful
+    Error = "error"                     // Configuration of component was not successful
+}
 
-    FunctionTestPassed = "function-test-passed",    // TODO implement function test
-    FunctionTestFailed = "function-test-failed"     // TODO implement function test
+export enum FunctionState {
+    Undefined = "undefined",
+
+    Testing = "testing",
+
+    Ok = "ok",
+    Warning = "warning",
+    Fault = "fault"
 }
 
 export type ConfigurationObject = {
@@ -24,32 +33,45 @@ export type ConfigurationObject = {
     alias: string,
     properties?: { name: string, value: any }[],
     mode: ConfigurationMode,
-    status?: ConfigurationStatus
+    configState?: ConfigurationState,
+    functionState?: FunctionState
 }
 
-const DELAY = 10000;    // Delay between the configuration of every component
+const DELAY_CLEAR = 15000;          // Time between the clear and the start of the configurations
+const DELAY_CONFIG = 15000;         // Time between the configuration of every component
+const DELAY_FUNCTION_TEST = 15000;  // Time between the configuration and the function test of every component
 
 export class ComponentConfigurator {
 
     private configurationObjects: ConfigurationObject[] = [];
+    private channelMappings: { configurationObject: ConfigurationObject, channelAddress: ChannelAddress }[] = [];
+    private subscriptions: Subscription[] = [];
 
     constructor(private edge: Edge, private config: EdgeConfig, private websocket: Websocket) { }
 
     /**
      * Adds a configuration object to be configured
-     * and determines its configuration status before.
+     * and determines its configuration state before.
      * 
      * @param configurationObject 
      */
     public add(configurationObject: ConfigurationObject) {
-
-        if (this.exists(configurationObject.componentId)) {
-            configurationObject.status = ConfigurationStatus.PreConfigured;
-        } else {
-            configurationObject.status = ConfigurationStatus.Missing;
-        }
-
+        this.refreshConfigurationState(configurationObject);
         this.configurationObjects.push(configurationObject);
+    }
+
+    private refreshConfigurationState(configurationObject: ConfigurationObject) {
+        if (this.exists(configurationObject.componentId)) {
+            configurationObject.configState = ConfigurationState.PreConfigured;
+        } else {
+            configurationObject.configState = ConfigurationState.Missing;
+        }
+    }
+
+    private refreshAllConfigurationStates() {
+        for (let configurationObject of this.configurationObjects) {
+            this.refreshConfigurationState(configurationObject);
+        }
     }
 
     /**
@@ -59,11 +81,13 @@ export class ComponentConfigurator {
      * @returns a promise of type void
      */
     public start(): Promise<void> {
+        this.refreshAllConfigurationStates();
         return new Promise((resolve, reject) => {
-            this.clear().then(() => {
+            this.clear().then(response => {
                 this.configureNext(0).then(() => {
                     this.updateScheduler();
-                    resolve();
+                    //this.stopFunctionTests(); TODO
+                    resolve(response);
                 }).catch((reason) => {
                     reject(reason);
                 });
@@ -93,13 +117,13 @@ export class ComponentConfigurator {
 
     /**
      * Determines, whether all components added via @method add()
-     * have the given @param status
+     * have the given @param configurationState
      * 
      * @returns a boolean representing the result
      */
-    public allHaveStatus(status: ConfigurationStatus): boolean {
+    public allHaveConfigurationState(configurationState: ConfigurationState): boolean {
         for (let configurationObject of this.configurationObjects) {
-            if (configurationObject.status !== status) {
+            if (configurationObject.configState !== configurationState) {
                 return false;
             }
         }
@@ -108,17 +132,26 @@ export class ComponentConfigurator {
 
     /**
      * Determines, whether any component added via @method add()
-     * has the given @param status
+     * has the given @param configurationState
      * 
      * @returns a boolean representing the result
      */
-    public anyHasStatus(status: ConfigurationStatus): boolean {
+    public anyHasConfigurationState(configurationState: ConfigurationState): boolean {
         for (let configurationObject of this.configurationObjects) {
-            if (configurationObject.status === status) {
+            if (configurationObject.configState === configurationState) {
                 return true;
             }
         }
         return false;
+    }
+
+    public allHaveFunctionState(functionState: FunctionState): boolean {
+        for (let configurationObject of this.configurationObjects) {
+            if (configurationObject.functionState !== functionState) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -131,21 +164,25 @@ export class ComponentConfigurator {
 
     /**
      * Deletes all existing components which
-     * have the status 'PreInstalled'.
+     * have the state 'PreInstalled'.
      */
     private clear(): Promise<void> {
         return new Promise((resolve, reject) => {
-            for (let configurationObject of this.configurationObjects) {
-                if (configurationObject.status === ConfigurationStatus.PreConfigured) {
+            let reverseConfigurationObjects = this.configurationObjects.slice().reverse();
+            for (let configurationObject of reverseConfigurationObjects) {
+
+                if (configurationObject.configState === ConfigurationState.PreConfigured) {
                     this.edge.deleteComponentConfig(this.websocket, configurationObject.componentId).then(() => {
-                        configurationObject.status = ConfigurationStatus.Missing;
+                        configurationObject.configState = ConfigurationState.Missing;
                     }).catch((reason) => {
-                        configurationObject.status = ConfigurationStatus.Error;
+                        configurationObject.configState = ConfigurationState.Error;
                         reject(reason);
                     });
                 }
             }
-            resolve();
+            setTimeout(() => {
+                resolve();
+            }, DELAY_CLEAR);
         });
     }
 
@@ -180,39 +217,112 @@ export class ComponentConfigurator {
     private configureNext(index: number): Promise<void> {
         return new Promise((resolve, reject) => {
             let configurationObject = this.configurationObjects[index];
-            let properties: { name: string, value: any }[] = this.generateProperties(configurationObject);
 
-            configurationObject.status = ConfigurationStatus.Configuring;
+            configurationObject.configState = ConfigurationState.Configuring;
 
+            this.configure(configurationObject).then(() => {
+                configurationObject.configState = ConfigurationState.Configured;
+                this.startFunctionTest(configurationObject);
+
+                // Recursively installs the next elements with the set delay between
+                setTimeout(() => {
+                    if (index + 1 < this.configurationObjects.length) {
+                        this.configureNext(index + 1).then(() => {
+                            resolve();
+                        }).catch((reason) => {
+                            reject(reason);
+                        });
+                    } else {
+                        resolve();
+                    }
+                }, DELAY_CONFIG);
+            }).catch((reason) => {
+                configurationObject.configState = ConfigurationState.Error;
+                reject(reason);
+            });
+        });
+    }
+
+    private configure(configurationObject: ConfigurationObject): Promise<void> {
+        return new Promise((resolve, reject) => {
             if (configurationObject.mode === ConfigurationMode.RemoveAndConfigure) {
+                let properties: { name: string, value: any }[] = this.generateProperties(configurationObject);
+
                 // When in RemoveAndConfigure-Mode the component gets configured and
-                // marked as 'Configured'. When the configuration fails, the corresponding
-                // configuration object gets marked with 'Error' and the Promise gets rejected. 
+                // the Promise resolved. When the configuration fails, the Promise gets rejected.
                 this.edge.createComponentConfig(this.websocket, configurationObject.factoryId, properties).then(() => {
-                    configurationObject.status = ConfigurationStatus.Configured;
+                    resolve();
                 }).catch((reason) => {
-                    configurationObject.status = ConfigurationStatus.Error;
                     reject(reason);
                 });
             } else {
-                // When in RemoveOnly-Mode, the component simply gets marked
-                // as 'Configured'.
-                configurationObject.status = ConfigurationStatus.Configured;
+                // When in RemoveOnly-Mode, the component doesen't
+                // have to be configured, so this Promise just gets resolved.
+                resolve();
+            }
+        });
+    }
+
+    private startFunctionTest(configurationObject: ConfigurationObject) {
+
+        configurationObject.functionState = FunctionState.Testing;
+
+        setTimeout(() => {
+            let channelAddress = new ChannelAddress(configurationObject.componentId, "State");
+            let channelMapping = { configurationObject: configurationObject, channelAddress: channelAddress };
+
+            // Add the subscription
+            this.channelMappings.push(channelMapping);
+
+            // Get all channel addresses
+            let channelAddresses: ChannelAddress[] = [];
+
+            for (let subscription of this.channelMappings) {
+                channelAddresses.push(subscription.channelAddress);
             }
 
-            setTimeout(() => {
-                // Recursively installs the next elements
-                if (index + 1 < this.configurationObjects.length) {
-                    this.configureNext(index + 1).then(() => {
-                        resolve();
-                    }).catch((reason) => {
-                        reject(reason);
-                    });
-                } else {
-                    resolve();
+            // Do edge subscribe for all channels
+            this.edge.subscribeChannels(this.websocket, "component-configurator", channelAddresses);
+
+            // Subscribe to the new channel
+            let subscription: Subscription = this.edge.currentData.pipe(
+                filter(currentData => currentData !== null)
+            ).subscribe((currentData) => {
+                let channelAddress: ChannelAddress = channelMapping.channelAddress;
+                let channelValue: number = currentData.channel[channelAddress.componentId + "/" + channelAddress.channelId];
+
+                let functionState;
+
+                switch (channelValue) {
+                    case 0:
+                    case 1:
+                        functionState = FunctionState.Ok
+                        break;
+                    case 2:
+                        functionState = FunctionState.Warning
+                        break;
+                    case 3:
+                        functionState = FunctionState.Fault
+                        break;
+                    default:
+                        functionState = undefined;
+                        break;
                 }
-            }, DELAY);
-        });
+
+                channelMapping.configurationObject.functionState = functionState;
+            });
+
+            // Add subscription to list
+            this.subscriptions.push(subscription);
+        }, DELAY_FUNCTION_TEST);
+
+    }
+
+    private stopFunctionTests() {
+        for (let subscription of this.subscriptions) {
+            subscription.unsubscribe();
+        }
+        this.edge.unsubscribeChannels(this.websocket, "component-configurator");
     }
 
     /**
@@ -248,43 +358,6 @@ export class ComponentConfigurator {
             ]);
         }
     }
-
-    /**
-     * @deprecated in development
-     */
-    public startFunctionTest() {
-
-        let configurationObjects = this.getConfigurationObjectsToBeConfigured();
-        let channelAddresses: ChannelAddress[] = [];
-        let subscriptionId = "component-configurator";
-        let currentDataSubscription;
-
-        // Subscribe to all required channels
-        for (let configurationObject of configurationObjects) {
-            channelAddresses.push(new ChannelAddress(configurationObject.componentId, "State"));
-        }
-
-        this.edge.subscribeChannels(this.websocket, subscriptionId, channelAddresses);
-
-        // Read all channels and set the state
-        currentDataSubscription = this.edge.currentData.subscribe((currentData) => {
-            if (!currentData) {
-                return;
-            }
-
-            for (let configurationObject of configurationObjects) {
-                let channelValue = currentData.channel[configurationObject.componentId + "/State"];
-
-                if (channelValue === 0) {
-                    configurationObject.status = ConfigurationStatus.FunctionTestPassed;
-                } else {
-                    configurationObject.status = ConfigurationStatus.FunctionTestFailed;
-                }
-            }
-        });
-
-    }
-
 
     /**
      * @deprecated only for development

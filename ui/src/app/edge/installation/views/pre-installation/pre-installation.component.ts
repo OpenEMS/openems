@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { FormlyFieldConfig } from '@ngx-formly/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { FormlyField, FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 
 import { AddEdgeToUserRequest } from 'src/app/shared/jsonrpc/request/addEdgeToUserRequest';
@@ -16,13 +16,12 @@ export class PreInstallationComponent implements OnInit {
 
   private static readonly SELECTOR = "pre-installation";
 
+  @ViewChild('setupKey', { static: false })
+  private setupKey: ElementRef;
+
   @Input() public installationData: InstallationData;
 
   @Output() public nextViewEvent = new EventEmitter<InstallationData>();
-
-  public form: FormGroup;
-  public fields: FormlyFieldConfig[];
-  public model;
 
   public isWaiting: boolean = false;
 
@@ -31,39 +30,15 @@ export class PreInstallationComponent implements OnInit {
   public ngOnInit(): void {
 
     this.service.currentPageTitle = "Installation";
-
-    this.form = new FormGroup({});
-    this.fields = this.getFields();
-    this.model = {};
-
-  }
-
-  public getFields(): FormlyFieldConfig[] {
-
-    let fields: FormlyFieldConfig[] = [];
-
-    fields.push({
-      key: "setupPassword",
-      type: "input",
-      templateOptions: {
-        type: "text",
-        required: true
-      }
-    });
-
-    return fields;
-
   }
 
   public onNextClicked() {
 
-    if (this.form.invalid) {
-      return;
-    }
+    let setupPassword = this.setupKey.nativeElement.value;
 
     this.isWaiting = true;
 
-    this.websocket.sendRequest(new AddEdgeToUserRequest({ setupPassword: this.model.setupPassword })).then((response: AddEdgeToUserResponse) => {
+    this.websocket.sendRequest(new AddEdgeToUserRequest({ setupPassword: setupPassword })).then((response: AddEdgeToUserResponse) => {
 
       let edge = response.result.edge;
 

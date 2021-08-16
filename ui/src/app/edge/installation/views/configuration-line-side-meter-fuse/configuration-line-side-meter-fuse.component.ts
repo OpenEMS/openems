@@ -26,9 +26,7 @@ export class ConfigurationLineSideMeterFuseComponent implements OnInit {
 
     this.form = new FormGroup({});
     this.fields = this.getFields();
-    this.model = this.installationData.misc.lineSideMeterFuse ?? {
-      fixedValue: 50
-    };
+    this.model = this.installationData.lineSideMeterFuse ?? {};
 
   }
 
@@ -42,7 +40,7 @@ export class ConfigurationLineSideMeterFuseComponent implements OnInit {
       return;
     }
 
-    this.installationData.misc.lineSideMeterFuse = this.model;
+    this.installationData.lineSideMeterFuse = this.model;
     this.nextViewEvent.emit(this.installationData);
   }
 
@@ -62,7 +60,8 @@ export class ConfigurationLineSideMeterFuseComponent implements OnInit {
           { label: "63", value: 63 },
           { label: "80", value: 80 },
           { label: "Sonstige", value: -1 },
-        ]
+        ],
+        required: true
       },
       parsers: [Number]
     });

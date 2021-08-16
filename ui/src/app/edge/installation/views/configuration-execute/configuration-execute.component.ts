@@ -4,7 +4,7 @@ import { filter, takeUntil } from 'rxjs/operators';
 import { Service, Websocket } from 'src/app/shared/shared';
 import { InstallationData } from '../../installation.component';
 import { FeedInSetting } from '../protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component';
-import { ComponentConfigurator, ConfigurationMode, ConfigurationObject, ConfigurationStatus } from './component-configurator';
+import { ComponentConfigurator, ConfigurationMode, ConfigurationObject, ConfigurationState, FunctionState } from './component-configurator';
 import { SafetyCountry } from './safety-country';
 
 @Component({
@@ -26,12 +26,10 @@ export class ConfigurationExecuteComponent implements OnInit {
 
   public configurationObjectsToBeConfigured: ConfigurationObject[];
   public isAnyConfigurationObjectPreConfigured: boolean;
-  public isConfigurationStarted: boolean;
 
   constructor(private service: Service, private websocket: Websocket) { }
 
   public ngOnInit() {
-
     let stopOnRequest: Subject<void> = new Subject<void>();
 
     this.installationData.edge.getConfig(this.websocket).pipe(
@@ -115,7 +113,32 @@ export class ConfigurationExecuteComponent implements OnInit {
           { name: "setfeedInPowerSettings", value: feedInSetting },
           { name: "emsPowerMode", value: "UNDEFINED" },
           { name: "emsPowerSet", value: -1 },
-          { name: "blockWrites", value: false }
+        ],
+        mode: ConfigurationMode.RemoveAndConfigure
+      });
+
+      // meter0
+      this.componentConfigurator.add({
+        factoryId: "GoodWe.Grid-Meter",
+        componentId: "meter0",
+        alias: "Netzzähler",
+        properties: [
+          { name: "enabled", value: true },
+          { name: "modbus.id", value: "modbus1" },
+          { name: "modbusUnitId", value: 247 }
+        ],
+        mode: ConfigurationMode.RemoveAndConfigure
+      });
+
+      // io0
+      this.componentConfigurator.add({
+        factoryId: "IO.KMtronic.4Port",
+        componentId: "io0",
+        alias: "Relaisboard",
+        properties: [
+          { name: "enabled", value: true },
+          { name: "modbus.id", value: "modbus0" },
+          { name: "modbusUnitId", value: 2 }
         ],
         mode: ConfigurationMode.RemoveAndConfigure
       });
@@ -148,32 +171,6 @@ export class ConfigurationExecuteComponent implements OnInit {
         mode: this.installationData.pv.dc2.isSelected ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
       });
 
-      // meter0
-      this.componentConfigurator.add({
-        factoryId: "GoodWe.Grid-Meter",
-        componentId: "meter0",
-        alias: "Netzzähler",
-        properties: [
-          { name: "enabled", value: true },
-          { name: "modbus.id", value: "modbus1" },
-          { name: "modbusUnitId", value: 247 }
-        ],
-        mode: ConfigurationMode.RemoveAndConfigure
-      });
-
-      // io0
-      this.componentConfigurator.add({
-        factoryId: "IO.KMtronic.4Port",
-        componentId: "io0",
-        alias: "Relaisboard",
-        properties: [
-          { name: "enabled", value: true },
-          { name: "modbus.id", value: "modbus0" },
-          { name: "modbusUnitId", value: 1 }
-        ],
-        mode: ConfigurationMode.RemoveAndConfigure
-      });
-
       // battery0
       this.componentConfigurator.add({
         factoryId: "Battery.Fenecon.Home",
@@ -198,6 +195,23 @@ export class ConfigurationExecuteComponent implements OnInit {
           { name: "startStop", value: "START" },
           { name: "batteryInverter.id", value: "batteryInverter0" },
           { name: "battery.id", value: "battery0" }
+        ],
+        mode: ConfigurationMode.RemoveAndConfigure
+      });
+
+      // predictor0
+      this.componentConfigurator.add({
+        factoryId: "Predictor.PersistenceModel",
+        componentId: "predictor0",
+        alias: "Prognose",
+        properties: [
+          { name: "enabled", value: true },
+          {
+            name: "channelAddresses", value: [
+              "_sum/ProductionActivePower",
+              "_sum/ConsumptionActivePower"
+            ]
+          },
         ],
         mode: ConfigurationMode.RemoveAndConfigure
       });
@@ -252,10 +266,12 @@ export class ConfigurationExecuteComponent implements OnInit {
       //#endregion
 
       this.configurationObjectsToBeConfigured = this.componentConfigurator.getConfigurationObjectsToBeConfigured();
-      this.isAnyConfigurationObjectPreConfigured = this.componentConfigurator.anyHasStatus(ConfigurationStatus.PreConfigured);
+      this.isAnyConfigurationObjectPreConfigured = this.componentConfigurator.anyHasConfigurationState(ConfigurationState.PreConfigured);
 
       // Auto-start configuration when no components pre-configured
-      if (!this.isAnyConfigurationObjectPreConfigured) {
+      if (this.isAnyConfigurationObjectPreConfigured) {
+        this.service.toast("Es wurden eine bestehende Konfiguration gefunden. Sie können diese überschreiben, indem Sie den Konfigurationsvorgang manuell starten.", "warning");
+      } else {
         this.startConfiguration();
       }
     });
@@ -266,33 +282,30 @@ export class ConfigurationExecuteComponent implements OnInit {
   }
 
   public onNextClicked() {
-
-    // If all components have been configured,
-    // the submit-event is triggered and no further
-    // action is done
-    if (this.componentConfigurator.allHaveStatus(ConfigurationStatus.Configured)) {
-      this.nextViewEvent.emit();
-      return;
-    }
-
-    // Start Configuration
-    this.startConfiguration();
+    this.nextViewEvent.emit();
   }
 
   public startConfiguration() {
     this.isWaiting = true;
-    this.isConfigurationStarted = true;
 
     // Starts the configuration
     this.componentConfigurator.start().then(() => {
       this.service.toast("Konfiguration erfolgreich.", "success");
     }).catch((reason) => {
-      this.service.toast("Bei der Konfiguration ist ein Fehler aufgetreten. Versuchen Sie diese erneut zu starten.", "danger");
       console.log(reason);
+
+      if (!this.componentConfigurator.allHaveConfigurationState(ConfigurationState.Configured)) {
+        this.service.toast("Es konnten nicht alle Komponenten richtig konfiguriert werden.", "danger");
+        return;
+      }
+
+      if (!this.componentConfigurator.allHaveFunctionState(FunctionState.Ok)) {
+        this.service.toast("Funktionstest mit Fehlern abgeschlossen.", "warning");
+        return;
+      }
     }).finally(() => {
       this.isWaiting = false;
     });
   }
 
 }
-

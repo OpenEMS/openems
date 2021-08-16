@@ -21,6 +21,7 @@ import { ProtocolAdditionalAcProducersComponent } from "./views/protocol-additio
 import { FormControl, ValidationErrors } from "@angular/forms";
 import { ConfigurationSummaryComponent } from "./views/configuration-summary/configuration-summary.component";
 import { ProtocolSerialNumbersComponent } from "./views/protocol-serial-numbers/protocol-serial-numbers.component";
+import { KeyMask } from "./keymask";
 
 //#region Validators
 
@@ -37,6 +38,10 @@ export function EmailMatchValidator(control: FormControl): ValidationErrors {
   }
 
   return { emailMatch: { message: 'E-Mails stimmen nicht überein.' } };
+}
+
+export function SerialNumberValidator(control: FormControl): ValidationErrors {
+  return /^\d{24}$/.test(control.value) ? null : { "serialNumber": true };
 }
 
 //#endregion
@@ -63,6 +68,10 @@ export function EmailValidatorMessage(err, field: FormlyFieldConfig) {
   return `"${field.formControl.value}" ist keine gültige E-Mail-Adresse.`;
 }
 
+export function SerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
+  return `"${field.formControl.value}" ist keine gültige Seriennummer.`;
+}
+
 //#endregion
 
 @NgModule({
@@ -70,14 +79,16 @@ export function EmailValidatorMessage(err, field: FormlyFieldConfig) {
     FormlyModule.forRoot({
       validators: [
         { name: "zip", validation: ZipValidator },
-        { name: "emailMatch", validation: EmailMatchValidator }
+        { name: "emailMatch", validation: EmailMatchValidator },
+        { name: "serialNumber", validation: SerialNumberValidator }
       ],
       validationMessages: [
         { name: "required", message: RequiredValidatorMessage },
         { name: "min", message: MinValidatorMessage },
         { name: "max", message: MaxValidatorMessage },
         { name: "zip", message: ZipValidatorMessage },
-        { name: "email", message: EmailValidatorMessage }
+        { name: "email", message: EmailValidatorMessage },
+        { name: "serialNumber", message: SerialNumberValidatorMessage }
       ]
     }),
     SharedModule
@@ -87,6 +98,7 @@ export function EmailValidatorMessage(err, field: FormlyFieldConfig) {
     ConfigurationEmergencyReserveComponent,
     ConfigurationExecuteComponent,
     ConfigurationLineSideMeterFuseComponent,
+    KeyMask,
     ProtocolCompletionComponent,
     ProtocolCustomerComponent,
     ProtocolDynamicFeedInLimitation,

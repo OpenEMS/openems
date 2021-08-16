@@ -37,6 +37,9 @@ export class ProtocolPv implements OnInit {
 
   public ngOnInit() {
 
+    // Initialize PV-Object
+    this.installationData.pv ??= {};
+
     this.formMppt1 = new FormGroup({});
     this.fieldsMppt1 = this.getFields(1);
     this.modelMppt1 = this.installationData.pv.dc1 ?? {
@@ -111,12 +114,12 @@ export class ProtocolPv implements OnInit {
       templateOptions: {
         label: "Ausrichtung",
         options: [
-          { label: "Nordwest", value: "nw" },
-          { label: "West", value: "w" },
-          { label: "Südwest", value: "sw" },
           { label: "Süd", value: "s" },
+          { label: "Südwest", value: "sw" },
+          { label: "West", value: "w" },
           { label: "Südost", value: "so" },
           { label: "Ost", value: "o" },
+          { label: "Nordwest", value: "nw" },
           { label: "Nordost", value: "no" },
           { label: "Nord", value: "n" },
           { label: "", value: undefined }

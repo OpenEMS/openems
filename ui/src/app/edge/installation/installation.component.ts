@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { Edge } from 'src/app/shared/shared';
 import { AcPv } from './views/protocol-additional-ac-producers/protocol-additional-ac-producers.component';
-import { FeedInSetting } from './views/protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component';
+import { Component, OnInit } from '@angular/core';
 import { DcPv } from './views/protocol-pv/protocol-pv.component';
+import { Edge, Service, Websocket } from 'src/app/shared/shared';
+import { FeedInSetting } from './views/protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component';
+import { SetupProtocol } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 
 enum View {
   Completion,
@@ -23,6 +24,8 @@ enum View {
 };
 
 export type InstallationData = {
+  // pre-installation
+  edge?: Edge,
 
   // protocol-installer
   installer?: {
@@ -67,22 +70,20 @@ export type InstallationData = {
     phone?: string
   },
 
-  edge?: Edge,
-
-  battery: {
+  battery?: {
     // configuration-system
     type?: string,
     // protocol-serial-numbers
-    serialNumbers: {
-      tower1: {
+    serialNumbers?: {
+      tower1?: {
         label: string,
         value: string
       }[],
-      tower2: {
+      tower2?: {
         label: string,
         value: string
       }[],
-      tower3: {
+      tower3?: {
         label: string,
         value: string
       }[]
@@ -94,18 +95,15 @@ export type InstallationData = {
     },
   },
 
-  misc: {
-    // configuration-line-side-meter-fuse
-    lineSideMeterFuse?: {
-      fixedValue: number,
-      otherValue: number
-    }
-  },
+  // configuration-line-side-meter-fuse
+  lineSideMeterFuse?: {
+    fixedValue: number,
+    otherValue: number
+  }
 
   batteryInverter?: {
-    // -> Channel
-    type: string,
-    serialNumber: string,
+    // protocol-serial-numbers
+    serialNumber?: string,
     // protocol-dynamic-feed-in-limitation
     dynamicFeedInLimitation?: {
       maximumFeedInPower: number,
@@ -115,11 +113,14 @@ export type InstallationData = {
   },
 
   // protocol-pv
-  pv: {
+  pv?: {
     dc1?: DcPv,
     dc2?: DcPv,
     ac?: AcPv[]
   }
+
+  // configuration-summary
+  setupProtocol?: SetupProtocol
 
   // protocol-serial-numbers
   setupProtocolId?: string
@@ -139,12 +140,13 @@ export class InstallationComponent implements OnInit {
 
   private static readonly SELECTOR = "installation";
 
+  public installationData: InstallationData;
+
   public progressValue: number;
   public progressText: string;
-  public displayedView: View;
+
   public edge: Edge = null;
-  public view = View;
-  public installationData: InstallationData;
+
   public view_display_order: View[] = [
     View.PreInstallation,
     View.ProtocolInstaller,
@@ -163,40 +165,39 @@ export class InstallationComponent implements OnInit {
     View.ProtocolSerialNumbers,
     View.Completion
   ];
+  public displayedView: View;
+  public view = View;
 
-  constructor() { }
+  public spinnerId: string;
+
+  constructor(private service: Service, public websocket: Websocket) { }
 
   public ngOnInit() {
+    this.spinnerId = "installation-websocket-spinner";
+    this.service.startSpinner(this.spinnerId);
 
-    // TODO Find better initialization solution
-    //#region Init installation data
-
-    this.installationData = {
-      battery: {
-        serialNumbers: {
-          tower1: [],
-          tower2: [],
-          tower3: []
-        }
-      },
-      misc: {
-        lineSideMeterFuse: {
-          fixedValue: 0,
-          otherValue: 0
-        }
-      },
-      batteryInverter: {
-        type: "",
-        serialNumber: ""
-      },
-      pv: {
-        ac: []
-      }
-    }
-
-    //#endregion
+    this.installationData = {};
 
     this.displayViewAtIndex(0);
+
+    // JSON.stringify is not able to parse the prototype function getConfig() of Edge
+    // let installationData: InstallationData;
+    // let viewIndex: number;
+
+    // if (sessionStorage && sessionStorage.installationData) {
+    //   installationData = JSON.parse(sessionStorage.installationData);
+    // } else {
+    //   installationData = {};
+    // }
+
+    // if (sessionStorage && sessionStorage.viewIndex) {
+    //   viewIndex = parseInt(sessionStorage.viewIndex);
+    // } else {
+    //   viewIndex = 0;
+    // }
+
+    // this.installationData = installationData;
+    // this.displayViewAtIndex(viewIndex);
   }
 
   public getViewIndex(view: View): number {
@@ -213,6 +214,7 @@ export class InstallationComponent implements OnInit {
       this.progressValue = viewCount === 0 ? 0 : index / (viewCount - 1);
       this.progressText = "Schritt " + (index + 1) + " von " + viewCount;
 
+      // sessionStorage.setItem("viewIndex", index.toString());
     } else {
       console.warn("The given view index is out of bounds.");
     }
@@ -234,9 +236,11 @@ export class InstallationComponent implements OnInit {
   public displayNextView(installationData?: InstallationData) {
     if (installationData) {
       this.installationData = installationData;
+
+      // JSON.stringify is not able to parse the prototype function getConfig() of Edge
+      // sessionStorage.setItem("installationData", JSON.stringify(installationData));
     }
 
     this.displayViewAtIndex(this.getViewIndex(this.displayedView) + 1);
   }
-
 }
