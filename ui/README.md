@@ -6,7 +6,7 @@ This project was generated with [angular-cli](https://github.com/angular/angular
 
  - connect to live OpenEMS Backend server
 
-    `ng serve -c backend-dev-live` (Expects openems-backend on `wss://localhost:443/openems-backend-ui`)
+    `ng serve -c backend-dev-live` (Expects openems-backend on `wss://portal.fenecon.de/openems-backend-ui2`)
 
  - connect to local OpenEMS Backend server
 
