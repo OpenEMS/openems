@@ -123,29 +123,43 @@ public class WriteHandler implements Runnable {
 					this.parent.logInfoInDebugmode(log, "Setting KEBA " + this.parent.alias() + " current to ["
 							+ current + " A] - calculated from [" + power + " W] by " + phases.orElse(3) + " Phase");
 
-					try {
-						Channel<Integer> currPower = this.parent.channel(KebaChannelId.ACTUAL_POWER);
-						this.parent.setDisplayText((currPower.value().orElse(0) / 1000) + "W");
-					} catch (OpenemsNamedException e) {
-						e.printStackTrace();
-					}
-
-					boolean sentSuccessfully = parent.send("currtime " + current + " 1");
-					if (sentSuccessfully) {
-						this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
-						this.lastCurrent = current;
-						this.parent._setSetChargePowerLimit(power);
-					}
+					this.setTarget(current, power);
 				}
-			} else {
-				try {
-					this.parent.setDisplayText(energyLimit + " Wh limit reached");
-				} catch (OpenemsNamedException e) {
-					e.printStackTrace();
-				}
-				this.parent.logInfoInDebugmode(log, "Maximum energy limit reached");
-				this.parent._setStatus(Status.ENERGY_LIMIT_REACHED);
 			}
+		} else {
+			try {
+				this.parent.setDisplayText(energyLimit + " Wh limit reached");
+			} catch (OpenemsNamedException e) {
+				e.printStackTrace();
+			}
+			this.parent.logInfoInDebugmode(log, "Maximum energy limit reached");
+			this.parent._setStatus(Status.ENERGY_LIMIT_REACHED);
+
+			if (!this.lastCurrent.equals(0) || this.parent.getChargePower().orElse(0) != 0) {
+				this.setTarget(0, 0);
+			}
+		}
+	}
+
+	/**
+	 * Set current target to the charger.
+	 * 
+	 * @param current current target in mA
+	 * @param power   current target in W
+	 */
+	private void setTarget(int current, int power) {
+		try {
+			Channel<Integer> currPower = this.parent.channel(KebaChannelId.ACTUAL_POWER);
+			this.parent.setDisplayText((currPower.value().orElse(0) / 1000) + "W");
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
+		}
+
+		boolean sentSuccessfully = parent.send("currtime " + current + " 1");
+		if (sentSuccessfully) {
+			this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
+			this.lastCurrent = current;
+			this.parent._setSetChargePowerLimit(power);
 		}
 	}
 
