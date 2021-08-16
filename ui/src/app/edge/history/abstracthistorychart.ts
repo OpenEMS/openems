@@ -1,7 +1,7 @@
 import { Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets } from 'chart.js';
-import { differenceInDays, differenceInMonths } from 'date-fns';
+import { addDays, addMonths, differenceInDays, differenceInMonths } from 'date-fns';
 import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
@@ -70,13 +70,16 @@ export abstract class AbstractHistoryChart {
      * @param ws       the websocket
      */
     protected queryHistoricTimeseriesData(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesDataResponse> {
+
+        // TODO should be removed, edge delivers too much data 
+        let newDate = (this.service.periodString == 'year' ? addMonths(fromDate, 1) : this.service.periodString == 'month' ? addDays(fromDate, 1) : fromDate);
         let resolution = calculateResolution(this.service, fromDate, toDate);
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
                     this.setLabel(config);
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
-                        let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses, resolution);
+                        let request = new QueryHistoricTimeseriesDataRequest(newDate, toDate, channelAddresses, resolution);
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             let result = (response as QueryHistoricTimeseriesDataResponse).result;
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
@@ -99,12 +102,15 @@ export abstract class AbstractHistoryChart {
      * @param channelAddresses       the Channel-Addresses
      */
     protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date, channelAddresses: ChannelAddress[]): Promise<queryHistoricTimeseriesEnergyPerPeriodResponse> {
+
+        // TODO should be removed, edge delivers too much data 
+        let newDate = this.service.periodString == 'year' ? addMonths(fromDate, 1) : addDays(fromDate, 1)
         let resolution = calculateResolution(this.service, fromDate, toDate);
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
 
-                    edge.sendRequest(this.service.websocket, new queryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution)).then(response => {
+                    edge.sendRequest(this.service.websocket, new queryHistoricTimeseriesEnergyPerPeriodRequest(newDate, toDate, channelAddresses, resolution)).then(response => {
                         let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
                         if (Object.keys(result).length != 0) {
