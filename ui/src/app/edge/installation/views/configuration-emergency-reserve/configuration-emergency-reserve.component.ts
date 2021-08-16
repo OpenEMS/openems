@@ -70,6 +70,9 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
         required: true,
         min: 0,
         max: 100,
+        attributes: {
+          pin: "true"
+        },
         change: (field, event) => { field.templateOptions.description = "Aktuell: " + field.formControl.value; }
       },
       parsers: [Number],

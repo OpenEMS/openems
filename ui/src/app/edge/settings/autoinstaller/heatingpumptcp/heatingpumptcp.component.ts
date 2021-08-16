@@ -9,6 +9,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../
 import { GetNetworkConfigRequest } from '../../network/getNetworkConfigRequest';
 import { GetNetworkConfigResponse } from '../../network/getNetworkConfigResponse';
 import { SetNetworkConfigRequest } from '../../network/setNetworkConfigRequest';
+import { Interface } from '../evcs/evcs.component';
 
 @Component({
   selector: HeatingpumpTcpInstallerComponent.SELECTOR,
@@ -433,27 +434,60 @@ export class HeatingpumpTcpInstallerComponent {
    */
   private addIpAddress(interfaceName: string, ip: string): boolean {
 
+    let iface: Interface;
+
     this.edge.sendRequest(this.websocket,
       new ComponentJsonApiRequest({ componentId: "_host", payload: new GetNetworkConfigRequest() })).then(response => {
-
         let result = (response as GetNetworkConfigResponse).result;
-        if (result.interfaces[interfaceName].addresses.includes(ip)) {
-          this.loadingStrings.push({ string: 'Statische IP-Adresse existiert bereits', type: 'success' });
-          return false;
-        } else {
-          result.interfaces[interfaceName].addresses.push(ip);
 
-          this.edge.sendRequest(this.websocket,
-            new ComponentJsonApiRequest({
-              componentId: "_host", payload: new SetNetworkConfigRequest(result)
-            })).then(response => {
-              this.loadingStrings.push({ string: 'Statische IP-Adresse wird hinzugefügt', type: 'success' });
-              return true;
-            }).catch(reason => {
-              this.loadingStrings.push({ string: 'Fehler statische IP-Adresse hinzuzufügen', type: 'danger' });
-              return true;
-            })
+        for (let name of Object.keys(result.interfaces)) {
+
+          if (name == interfaceName) {
+            iface = { name: name, model: result.interfaces[name] };
+          }
         }
+
+        // Unset Gateway and DNS if DHCP is activated
+        if (iface.model.dhcp) {
+          iface.model.gateway = null;
+          iface.model.dns = null;
+        }
+
+        if (iface.model.addresses == null) {
+          iface.model.addresses = new Array(ip);
+
+        } else {
+          if (iface.model.addresses.includes(ip)) {
+            this.loadingStrings.push({ string: 'Statische IP-Adresse existiert bereits', type: 'success' });
+            return false;
+          }
+
+          iface.model.addresses.push(ip);
+        }
+
+        // Unset Gateway and DNS if DHCP is activated
+        if (iface.model.dhcp) {
+          iface.model.gateway = null;
+          iface.model.dns = null;
+        }
+
+        let request = {
+          interfaces: {}
+        };
+        request.interfaces[iface.name] = iface.model;
+
+        this.edge.sendRequest(this.websocket,
+          new ComponentJsonApiRequest({
+            componentId: "_host", payload: new SetNetworkConfigRequest(request)
+          })).then(response => {
+            this.loadingStrings.push({ string: 'Statische IP-Adresse wird hinzugefügt', type: 'success' });
+            return true;
+          }).catch(reason => {
+            this.loadingStrings.push({ string: 'Fehler statische IP-Adresse hinzuzufügen', type: 'danger' });
+            return true;
+          })
+      }).catch(reason => {
+        this.service.toast("Error reading current network configuration:" + reason.error.message, 'danger');
       })
     return false;
   }

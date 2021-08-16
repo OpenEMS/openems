@@ -10,7 +10,7 @@ import { InstallationData } from '../../installation.component';
 export class ConfigurationSystemComponent implements OnInit {
 
   private static readonly SELECTOR = "configuration-system";
-  private static readonly LINK_INFOCENTER = "https://www.fenecon.de/page/infocenter/";
+  private static readonly LINK_HOME_MANUAL = "https://www.fenecon.de/download/home-anleitung/";
 
   @Input() public installationData: InstallationData;
 
@@ -25,27 +25,25 @@ export class ConfigurationSystemComponent implements OnInit {
 
   public ngOnInit() {
 
+    // Initialize battery object
+    this.installationData.battery ??= {};
+
     this.form = new FormGroup({});
     this.fields = this.getFields();
-    this.model = { type: this.installationData.battery.type }
-
+    this.model = this.installationData.battery.type ? { type: this.installationData.battery.type } : {};
   }
 
   public onPreviousClicked() {
-
     this.previousViewEvent.emit();
-
   }
 
   public onNextClicked() {
-
     if (this.form.invalid) {
       return;
     }
 
     this.installationData.battery.type = this.model.type;
     this.nextViewEvent.emit(this.installationData);
-
   }
 
   public getFields(): FormlyFieldConfig[] {
@@ -71,7 +69,7 @@ export class ConfigurationSystemComponent implements OnInit {
 
   public openInfocenter() {
 
-    window.open(ConfigurationSystemComponent.LINK_INFOCENTER);
+    window.open(ConfigurationSystemComponent.LINK_HOME_MANUAL);
 
   }
 

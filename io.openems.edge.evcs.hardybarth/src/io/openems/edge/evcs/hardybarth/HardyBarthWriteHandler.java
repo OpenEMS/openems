@@ -104,29 +104,43 @@ public class HardyBarthWriteHandler implements Runnable {
 				// Send every WRITE_INTERVAL_SECONDS or if the current to send changed
 				if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
 
-					try {
-						this.parent.debugLog("Setting HardyBarth " + this.parent.alias() + " current to [" + current
-								+ " A] - calculated from [" + power + " W] by " + phases.orElse(3) + " Phase");
+					this.parent.debugLog("Setting HardyBarth " + this.parent.alias() + " current to [" + current
+							+ " A] - calculated from [" + power + " W] by " + phases.orElse(3) + " Phase");
 
-						// Send charge power limit
-						JsonElement result = this.parent.api.sendPutRequest("/api/secc", "grid_current_limit",
-								current.toString());
-
-						// Set results
-						this.parent._setSetChargePowerLimit(power);
-						this.parent.debugLog(result.toString());
-
-						// Prepare next write
-						this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
-						this.lastCurrent = current;
-					} catch (OpenemsNamedException e) {
-						e.printStackTrace();
-					}
+					this.setTarget(current, power);
 				}
 			}
 		} else {
 			this.parent.debugLog("Maximum energy limit reached");
 			this.parent._setStatus(Status.ENERGY_LIMIT_REACHED);
+
+			if (!this.lastCurrent.equals(0) || this.parent.getChargePower().orElse(0) != 0) {
+				this.setTarget(0, 0);
+			}
+		}
+	}
+
+	/**
+	 * Set current target to the charger.
+	 * 
+	 * @param current current target in A
+	 * @param power   current target in W
+	 */
+	private void setTarget(int current, int power) {
+		try {
+			// Send charge power limit
+			JsonElement result = this.parent.api.sendPutRequest("/api/secc", "grid_current_limit", "" + current);
+
+			// Set results
+			this.parent._setSetChargePowerLimit(current);
+			this.parent.debugLog(result.toString());
+
+			// Prepare next write
+			this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
+			this.lastCurrent = current;
+			this.parent._setSetChargePowerLimit(power);
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -141,7 +155,6 @@ public class HardyBarthWriteHandler implements Runnable {
 		if (valueOpt.isPresent()) {
 			Integer energyLimit = valueOpt.get();
 
-
 			// Set if the energy target to set changed
 			if (!energyLimit.equals(this.lastEnergySession)) {
 
@@ -149,7 +162,7 @@ public class HardyBarthWriteHandler implements Runnable {
 				this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT).setNextValue(energyLimit);
 				this.parent.debugLog("Setting EVCS " + this.parent.alias() + " Energy Limit in this Session to ["
 						+ energyLimit + " Wh]");
-				
+
 				// Prepare next write
 				this.lastEnergySession = energyLimit;
 			}

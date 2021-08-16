@@ -37,12 +37,22 @@ export class ProtocolInstallerComponent implements OnInit {
   public fields: FormlyFieldConfig[];
   public model;
 
+  public spinnerId: string;
+
   public editModeEnabled: boolean;
 
   constructor(private service: Service) { }
 
   public ngOnInit() {
+
+    this.spinnerId = ProtocolInstallerComponent.SELECTOR + "-spinner";
+
+    this.service.startSpinner(this.spinnerId);
+
     this.getUserInformation().then((userInformation) => {
+
+      this.service.stopSpinner(this.spinnerId);
+
       this.form = new FormGroup({});
       this.fields = this.getFields();
       this.model = userInformation;

@@ -139,7 +139,7 @@ export class ProtocolCustomerComponent implements OnInit {
           templateOptions: {
             type: "email",
             label: "E-Mail-Adresse",
-            description: "Wird zum Anlegen des persönlichen Zugangs verwendet",
+            description: "zum Anlegen des persönlichen Zugangs",
             required: true
           },
           validators: {

@@ -1,6 +1,8 @@
 <installation-view iconName="clipboard-outline" header="Kontaktdaten Installateur"
   (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()">
 
+  <ngx-spinner [name]="spinnerId"></ngx-spinner>
+
   <formly-form [form]="form" [fields]="fields" [model]="model" [contentEditable]="false"></formly-form>
 
   <ion-item>
