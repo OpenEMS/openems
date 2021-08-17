@@ -82,15 +82,18 @@ export class ComponentConfigurator {
      */
     public start(): Promise<void> {
         this.refreshAllConfigurationStates();
+
         return new Promise((resolve, reject) => {
-            this.clear().then(response => {
-                this.configureNext(0).then(() => {
-                    this.updateScheduler();
-                    //this.stopFunctionTests(); TODO
-                    resolve(response);
-                }).catch((reason) => {
-                    reject(reason);
-                });
+            this.clear().then(() => {
+                setTimeout(() => {
+                    this.configureNext(0).then(() => {
+                        this.updateScheduler();
+                        //this.stopFunctionTests(); TODO
+                        resolve();
+                    }).catch((reason) => {
+                        reject(reason);
+                    });
+                }, DELAY_CLEAR);
             }).catch((reason) => {
                 reject(reason);
             });
@@ -168,9 +171,7 @@ export class ComponentConfigurator {
      */
     private clear(): Promise<void> {
         return new Promise((resolve, reject) => {
-            let reverseConfigurationObjects = this.configurationObjects.slice().reverse();
-            for (let configurationObject of reverseConfigurationObjects) {
-
+            for (let configurationObject of this.configurationObjects) {
                 if (configurationObject.configState === ConfigurationState.PreConfigured) {
                     this.edge.deleteComponentConfig(this.websocket, configurationObject.componentId).then(() => {
                         configurationObject.configState = ConfigurationState.Missing;
@@ -180,9 +181,7 @@ export class ComponentConfigurator {
                     });
                 }
             }
-            setTimeout(() => {
-                resolve();
-            }, DELAY_CLEAR);
+            resolve();
         });
     }
 

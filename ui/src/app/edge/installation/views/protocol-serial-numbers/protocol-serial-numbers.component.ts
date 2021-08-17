@@ -22,19 +22,19 @@ export class ProtocolSerialNumbersComponent implements OnInit {
   @Output() public nextViewEvent = new EventEmitter<InstallationData>();
 
   public formSettings: FormGroup;
+  public formTower0: FormGroup;
   public formTower1: FormGroup;
   public formTower2: FormGroup;
-  public formTower3: FormGroup;
 
   public fieldsSettings: FormlyFieldConfig[];
+  public fieldsTower0: FormlyFieldConfig[];
   public fieldsTower1: FormlyFieldConfig[];
   public fieldsTower2: FormlyFieldConfig[];
-  public fieldsTower3: FormlyFieldConfig[];
 
   public modelSettings;
+  public modelTower0;
   public modelTower1;
   public modelTower2;
-  public modelTower3;
 
   public numberOfTowers: number;
   public numberOfModulesPerTower: number;
@@ -73,7 +73,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       // Apply values and initialize fields
       this.numberOfTowers = parseInt(numberOfTowers);
       this.numberOfModulesPerTower = parseInt(numberOfModulesPerTower);
-      this.modelTower1 = {
+      this.modelTower0 = {
         batteryInverter: batteryInverterSerialNumber
       };
 
@@ -107,33 +107,33 @@ export class ProtocolSerialNumbersComponent implements OnInit {
   public onNextClicked() {
     if (
       this.formSettings.invalid ||
+      this.formTower0.invalid ||
       this.formTower1.invalid ||
-      this.formTower2.invalid ||
-      this.formTower3.invalid
+      this.formTower2.invalid
     ) {
       return;
     }
 
     // Initialize serial numbers object
     this.installationData.battery.serialNumbers = {
+      tower0: [],
       tower1: [],
-      tower2: [],
-      tower3: []
+      tower2: []
     };
 
     // Fill data from field into the installationData object
     let serialNumbers = this.installationData.battery.serialNumbers;
 
-    for (let field of this.fieldsTower1) {
-      serialNumbers.tower1.push({
+    for (let field of this.fieldsTower0) {
+      serialNumbers.tower0.push({
         label: field.templateOptions.label,
         value: field.formControl.value
       })
     }
 
     if (this.numberOfTowers >= 2) {
-      for (let field of this.fieldsTower2) {
-        serialNumbers.tower2.push({
+      for (let field of this.fieldsTower1) {
+        serialNumbers.tower1.push({
           label: field.templateOptions.label,
           value: field.formControl.value
         })
@@ -141,8 +141,8 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     }
 
     if (this.numberOfTowers === 3) {
-      for (let field of this.fieldsTower3) {
-        serialNumbers.tower3.push({
+      for (let field of this.fieldsTower2) {
+        serialNumbers.tower2.push({
           label: field.templateOptions.label,
           value: field.formControl.value
         })
@@ -199,7 +199,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
   }
 
   /**
-   * Generates the fields for the specific tower number (1 - 3).
+   * Generates the fields for the specific tower number (0 - 2).
    * 
    * @param towerNr 
    * @returns an array with the generated fields
@@ -209,12 +209,12 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     let fields: FormlyFieldConfig[] = [];
 
     switch (towerNr) {
-      case 1:
+      case 0:
         fields.push({
           key: "batteryInverter",
           type: "input",
           templateOptions: {
-            label: "Home - Wechselrichter",
+            label: "Wechselrichter",
             required: true
           }
         });
@@ -222,37 +222,37 @@ export class ProtocolSerialNumbersComponent implements OnInit {
           key: "emsBox",
           type: "input",
           templateOptions: {
-            label: "Home - EMS Box",
+            label: "FEMS Box",
             required: true
           },
           validators: {
-            validation: ["serialNumber"]
+            validation: ["femsSerialNumber"]
+          }
+        });
+        break;
+      case 1:
+        fields.push({
+          key: "parallelBox",
+          type: "input",
+          templateOptions: {
+            label: "Parallel Box",
+            required: true
+          },
+          validators: {
+            validation: ["batterySerialNumber"]
           }
         });
         break;
       case 2:
         fields.push({
-          key: "parallelBox",
-          type: "input",
-          templateOptions: {
-            label: "Home - Parallel Box",
-            required: true
-          },
-          validators: {
-            validation: ["serialNumber"]
-          }
-        });
-        break;
-      case 3:
-        fields.push({
           key: "extensionBox",
           type: "input",
           templateOptions: {
-            label: "Home - Extension Box",
+            label: "Extension Box",
             required: true
           },
           validators: {
-            validation: ["serialNumber"]
+            validation: ["batterySerialNumber"]
           }
         });
         break;
@@ -262,26 +262,26 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       key: "bmsBox",
       type: "input",
       templateOptions: {
-        label: "Home - BMS Box & Sockel",
+        label: "BMS Box & Sockel",
         required: true
       },
-      defaultValue: 519100001009,
+      defaultValue: "519100001009",
       validators: {
-        validation: ["serialNumber"]
+        validation: ["batterySerialNumber"]
       }
     });
 
-    for (let moduleNr = 1; moduleNr <= this.numberOfModulesPerTower; moduleNr++) {
+    for (let moduleNr = 0; moduleNr < this.numberOfModulesPerTower; moduleNr++) {
       fields.push({
         key: "module" + moduleNr,
         type: "input",
         templateOptions: {
-          label: "Home - Batteriemodul " + moduleNr,
+          label: "Batteriemodul " + moduleNr,
           required: true
         },
-        defaultValue: 519110001210,
+        defaultValue: "519110001210",
         validators: {
-          validation: ["serialNumber"]
+          validation: ["batterySerialNumber"]
         }
       });
     }
@@ -295,14 +295,17 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     this.formSettings = new FormGroup({});
     this.fieldsSettings = this.getSettingsFields();
 
+    this.formTower0 = new FormGroup({});
+    this.fieldsTower0 = this.getFields(0);
+    this.modelTower0 = {};
+
     this.formTower1 = new FormGroup({});
     this.fieldsTower1 = this.getFields(1);
+    this.modelTower1 = {};
 
     this.formTower2 = new FormGroup({});
     this.fieldsTower2 = this.getFields(2);
-
-    this.formTower3 = new FormGroup({});
-    this.fieldsTower3 = this.getFields(3);
+    this.modelTower2 = {};
   }
 
   public onSettingsFieldsChange(event) {
@@ -477,7 +480,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       protocol.items.push({
         category: "DC-PV-Installation",
         name: "Modulanzahl MPPT1",
-        value: dc1.modulesPerString != undefined ? dc1.modulesPerString.toString() : ""
+        value: dc1.modulesPerString.toString()
       });
     }
 
@@ -486,7 +489,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       protocol.items.push({
         category: "DC-PV-Installation",
         name: "Wert MPPT2 [Wp]",
-        value: dc2.value ? dc2.value.toString() : ""
+        value: dc2.value.toString()
       });
 
       protocol.items.push({
@@ -510,7 +513,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       protocol.items.push({
         category: "DC-PV-Installation",
         name: "Modulanzahl MPPT2",
-        value: dc2.modulesPerString != undefined ? dc2.modulesPerString.toString() : ""
+        value: dc2.modulesPerString.toString()
       });
     }
 
@@ -521,7 +524,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     protocol.items.push({
       category: "Dynamische Begrenzung der Einspeisung",
       name: "Maximale Einspeiseleistung [W]",
-      value: dynamicFeedInLimitation.maximumFeedInPower != undefined ? dynamicFeedInLimitation.maximumFeedInPower.toString() : ""
+      value: dynamicFeedInLimitation.maximumFeedInPower.toString()
     });
 
     protocol.items.push({
@@ -573,7 +576,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       protocol.items.push({
         category: "Zusätzliche AC-Erzeuger",
         name: "Modulanzahl " + label,
-        value: element.modulesPerString != undefined ? element.modulesPerString.toString() : ""
+        value: element.modulesPerString.toString()
       });
 
       protocol.items.push({
@@ -585,7 +588,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       protocol.items.push({
         category: "Zusätzliche AC-Erzeuger",
         name: "Modbus Kommunikationsadresse " + label,
-        value: element.modbusCommunicationAddress != undefined ? element.modbusCommunicationAddress.toString() : ""
+        value: element.modbusCommunicationAddress.toString()
       });
     }
 
@@ -608,7 +611,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     protocol.lots = [];
 
     // Speichersystemkomponenten
-    for (let serialNumber of serialNumbers.tower1) {
+    for (let serialNumber of serialNumbers.tower0) {
       if (serialNumber.value !== null && serialNumber.value !== "") {
         protocol.lots.push({
           category: "Speichersystemkomponenten",
@@ -619,7 +622,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     }
 
     // Batterieturm 2
-    for (let serialNumber of serialNumbers.tower2) {
+    for (let serialNumber of serialNumbers.tower1) {
       if (serialNumber.value !== null && serialNumber.value !== "") {
         protocol.lots.push({
           category: "Batterieturm 2",
@@ -630,7 +633,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     }
 
     // Batterieturm 3
-    for (let serialNumber of serialNumbers.tower3) {
+    for (let serialNumber of serialNumbers.tower2) {
       if (serialNumber.value !== null && serialNumber.value !== "") {
         protocol.lots.push({
           category: "Batterieturm 3",

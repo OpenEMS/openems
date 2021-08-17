@@ -40,8 +40,12 @@ export function EmailMatchValidator(control: FormControl): ValidationErrors {
   return { emailMatch: { message: 'E-Mails stimmen nicht überein.' } };
 }
 
-export function SerialNumberValidator(control: FormControl): ValidationErrors {
-  return /^\d{24}$/.test(control.value) ? null : { "serialNumber": true };
+export function BatterySerialNumberValidator(control: FormControl): ValidationErrors {
+  return /^\d{24}$/.test(control.value) ? null : { "batterySerialNumber": true };
+}
+
+export function FemsSerialNumberValidator(control: FormControl): ValidationErrors {
+  return /^FHS\d{9}$/.test(control.value) ? null : { "femsSerialNumber": true };
 }
 
 //#endregion
@@ -68,8 +72,12 @@ export function EmailValidatorMessage(err, field: FormlyFieldConfig) {
   return `"${field.formControl.value}" ist keine gültige E-Mail-Adresse.`;
 }
 
-export function SerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${field.formControl.value}" ist keine gültige Seriennummer.`;
+export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
+  return `"${field.formControl.value}" ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus 24 Ziffern.`;
+}
+
+export function FemsSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
+  return `"${field.formControl.value}" ist keine gültige FEMS-Seriennummer.`;
 }
 
 //#endregion
@@ -80,7 +88,8 @@ export function SerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
       validators: [
         { name: "zip", validation: ZipValidator },
         { name: "emailMatch", validation: EmailMatchValidator },
-        { name: "serialNumber", validation: SerialNumberValidator }
+        { name: "batterySerialNumber", validation: BatterySerialNumberValidator },
+        { name: "femsSerialNumber", validation: FemsSerialNumberValidator }
       ],
       validationMessages: [
         { name: "required", message: RequiredValidatorMessage },
@@ -88,7 +97,8 @@ export function SerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
         { name: "max", message: MaxValidatorMessage },
         { name: "zip", message: ZipValidatorMessage },
         { name: "email", message: EmailValidatorMessage },
-        { name: "serialNumber", message: SerialNumberValidatorMessage }
+        { name: "batterySerialNumber", message: BatterySerialNumberValidatorMessage },
+        { name: "femsSerialNumber", message: FemsSerialNumberValidatorMessage }
       ]
     }),
     SharedModule

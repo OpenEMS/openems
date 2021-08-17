@@ -2,67 +2,58 @@
   (nextClicked)="onNextClicked()" [isWaiting]="isWaiting">
 
   <ng-container *ngIf="numberOfTowers; else spinner">
+    <ion-card>
+      <ion-card-header>
+        <ion-item>
+          <ion-label>
+            <ion-card-title>Voreinstellungen</ion-card-title>
+          </ion-label>
+        </ion-item>
+      </ion-card-header>
+      <ion-card-content>
+        <formly-form [form]="formSettings" [fields]="fieldsSettings" [model]="modelSettings"
+          (modelChange)="onSettingsFieldsChange($event)">
+        </formly-form>
+      </ion-card-content>
+    </ion-card>
 
-    <ion-item lines="none">
-      <ion-card>
-        <ion-card-header>
-          <ion-item>
-            <ion-label>
-              <ion-card-title>Voreinstellungen</ion-card-title>
-            </ion-label>
-          </ion-item>
-        </ion-card-header>
-        <ion-card-content>
-          <formly-form [form]="formSettings" [fields]="fieldsSettings" [model]="modelSettings"
-            (modelChange)="onSettingsFieldsChange($event)">
-          </formly-form>
-        </ion-card-content>
-      </ion-card>
-    </ion-item>
+    <ion-card>
+      <ion-card-header>
+        <ion-item>
+          <ion-card-title>Speichersystemkomponenten</ion-card-title>
+        </ion-item>
+      </ion-card-header>
+      <ion-card-content>
+        <formly-form [form]="formTower0" [fields]="fieldsTower0" [model]="modelTower0"></formly-form>
+      </ion-card-content>
+    </ion-card>
 
-    <ion-item lines=" none">
-      <ion-card>
-        <ion-card-header>
-          <ion-item>
-            <ion-card-title>Speichersystemkomponenten</ion-card-title>
-          </ion-item>
-        </ion-card-header>
-        <ion-card-content>
-          <formly-form [form]="formTower1" [fields]="fieldsTower1" [model]="modelTower1"></formly-form>
-        </ion-card-content>
-      </ion-card>
-    </ion-item>
+    <ion-card *ngIf="numberOfTowers >= 2">
+      <ion-card-header>
+        <ion-item>
+          <ion-card-title class="ion-text-wrap">Batterieturm 2</ion-card-title>
+        </ion-item>
+      </ion-card-header>
+      <ion-card-content>
+        <formly-form [form]="formTower1" [fields]="fieldsTower1" [model]="modelTower1"></formly-form>
+      </ion-card-content>
+    </ion-card>
 
-    <ion-item *ngIf="numberOfTowers >= 2" lines="none">
-      <ion-card>
-        <ion-card-header>
-          <ion-item>
-            <ion-card-title class="ion-text-wrap">Batterieturm 2</ion-card-title>
-          </ion-item>
-        </ion-card-header>
-        <ion-card-content>
-          <formly-form [form]="formTower2" [fields]="fieldsTower2" [model]="modelTower2"></formly-form>
-        </ion-card-content>
-      </ion-card>
-    </ion-item>
+    <ion-card *ngIf="numberOfTowers === 3">
+      <ion-card-header>
+        <ion-item>
+          <ion-card-title class="ion-text-wrap">Batterieturm 3</ion-card-title>
+        </ion-item>
+      </ion-card-header>
+      <ion-card-content>
+        <formly-form [form]="formTower2" [fields]="fieldsTower2" [model]="modelTower2"></formly-form>
+      </ion-card-content>
+    </ion-card>
 
-    <ion-item *ngIf="numberOfTowers === 3" lines="none">
-      <ion-card>
-        <ion-card-header>
-          <ion-item>
-            <ion-card-title class="ion-text-wrap">Batterieturm 3</ion-card-title>
-          </ion-item>
-        </ion-card-header>
-        <ion-card-content>
-          <formly-form [form]="formTower3" [fields]="fieldsTower3" [model]="modelTower3"></formly-form>
-        </ion-card-content>
-      </ion-card>
-    </ion-item>
-
-    <ion-label>
-      Wenn Sie jetzt auf weiter klicken, wird das IBN-Protokoll automatisch an die FENECON GmbH übermittelt.
-    </ion-label>
-
+    <ion-card>
+      <ion-card-content>Wenn Sie jetzt auf weiter klicken, wird das IBN-Protokoll automatisch an die FENECON GmbH
+        übermittelt.</ion-card-content>
+    </ion-card>
   </ng-container>
 
 </installation-view>

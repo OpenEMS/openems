@@ -72,11 +72,12 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
       this.edge = edge;
 
       // Update version information now and every minute
-      const source = timer(0, 60000);
+      const source = timer(0, 30000);
       source.pipe(
         takeUntil(this.ngUnsubscribe)
       ).subscribe(ignore => {
         this.updateVersions();
+        this.readLog();
       });
     });
   }
@@ -109,11 +110,19 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
         })
       })).then(response => {
         let result = (response as ExecuteSystemCommandResponse).result;
-        this.log("INFO", "Versionen gelesen: " + result.stdout.join(", ") + ", " + result.stderr.join(", "));
+        this.log("INFO", "Versionen gelesen: "
+          + result.stdout.join(", ") + " | "
+          + result.stderr.join(", ")
+            .replace("dpkg-query: no packages found matching fems", "veralteter Stand mit openems-core/openems-core-fems Paketen")
+        );
 
         if (result.stderr.length >= 1 && result.stderr[0].includes("dpkg-query: no packages found matching fems")) {
           // Handle migration from 'openems-core' and 'openems-core-fems' to 'fems'
           this.package.setVersions(this.edge.version + "-veraltet", result.stdout[0].split(":")[1]);
+
+        } else if (result.stderr.length >= 1 && result.stderr[0].includes("getcwd: cannot access parent directories")) {
+          // ignore
+          this.package.setVersions(this.edge.version, result.stdout[0].split(":")[1]);
 
         } else {
           // Default package version handling
@@ -161,6 +170,31 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
       });
   }
 
+  private readLog() {
+    if (this.isCurrentlyInstalling) {
+      this.edge.sendRequest(this.websocket,
+        new ComponentJsonApiRequest({
+          componentId: "_host",
+          payload: new ExecuteSystemCommandRequest({
+            username: SystemUpdateComponent.USERNAME,
+            password: SystemUpdateComponent.PASSWORD,
+            timeoutSeconds: 300,
+            runInBackground: false,
+            command: "tail -n 5 /proc/$(pgrep --full /tmp/update-fems.sh --oldest)/fd/1"
+          })
+
+        })).then(response => {
+          let result = (response as ExecuteSystemCommandResponse).result;
+          for (let stdout of result.stdout) {
+            this.log("OTHER", stdout);
+          }
+
+        }).catch(reason => {
+          this.log("ERROR", reason.error.message);
+        });
+    }
+  }
+
   private getColor(level): string {
     switch (level) {
       case 'INFO':
@@ -175,7 +209,7 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
     return 'black';
   }
 
-  private log(level: 'INFO' | 'ERROR', message: string) {
+  private log(level: 'INFO' | 'ERROR' | 'OTHER', message: string) {
     this.logLines.unshift({
       time: new Date().toLocaleString(),
       color: this.getColor(level),
