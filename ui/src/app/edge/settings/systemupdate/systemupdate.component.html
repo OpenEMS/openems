@@ -9,7 +9,7 @@
         <ion-card>
           <ion-item lines="full" color="danger">
             <ion-icon slot="start" name="alert-circle-outline" color="primary"></ion-icon>
-            <ion-label>FEMS ist nicht online!</ion-label>
+            <ion-label>{{ edge.id }} ist nicht online!</ion-label>
           </ion-item>
         </ion-card>
       </ion-col>
@@ -37,7 +37,7 @@
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" name="cloud-download-outline" color="primary"></ion-icon>
-            <ion-label>FEMS Systemupdate</ion-label>
+            <ion-label>Systemupdate für {{ edge.id }}</ion-label>
           </ion-item>
 
           <ion-card-content>
@@ -48,22 +48,22 @@
                 <ion-col>Neueste Version</ion-col>
                 <ion-col></ion-col>
               </ion-row>
-              <ion-row *ngFor="let pkg of packages">
+              <ion-row>
                 <ion-col>
-                  {{ pkg.description }}
+                  {{ package.description }}
                 </ion-col>
-                <ion-col>{{ pkg.currentVersion }}</ion-col>
-                <ion-col>{{ pkg.latestVersion }}</ion-col>
+                <ion-col>{{ package.currentVersion }}</ion-col>
+                <ion-col>{{ package.latestVersion }}</ion-col>
                 <ion-col>
-                  <ion-button [disabled]="isCurrentlyInstalling" *ngIf="pkg.isUpdateAvailable == true"
-                    (click)="updatePackage(pkg)">Neueste Version
+                  <ion-button [disabled]="isCurrentlyInstalling" *ngIf="package.isUpdateAvailable == true"
+                    (click)="updatePackage(package)">Neueste Version
                     installieren
                   </ion-button>
-                  <p *ngIf="pkg.isUpdateAvailable == false">
+                  <p *ngIf="package.isUpdateAvailable == false">
                     <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
                     Version ist aktuell
                   </p>
-                  <p *ngIf="pkg.isUpdateAvailable == null">
+                  <p *ngIf="package.isUpdateAvailable == null">
                     <ion-icon name="refresh-circle-outline"></ion-icon>
                     Version wird gelesen...
                   </p>

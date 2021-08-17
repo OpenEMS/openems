@@ -1,8 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { parse } from 'date-fns';
 import { Subject, timer } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { cmp } from 'semver-compare-multi';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { ExecuteSystemCommandRequest } from 'src/app/shared/jsonrpc/request/executeCommandRequest';
@@ -19,10 +18,6 @@ class Package {
     public readonly name: string,
     public readonly description: string,
   ) {
-  }
-
-  public getNameUnderscore() {
-    return this.name.replace(/-/g, "_");
   }
 
   public setVersions(current: string, latest: string) {
@@ -63,16 +58,13 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
     source: string
   }[] = [];
 
-  public packages = [
-    new Package("openems-core", "OpenEMS"),
-    new Package("openems-core-fems", "FEMS"),
-  ]
+  public package = new Package("fems", "FEMS");
 
   constructor(
     private route: ActivatedRoute,
     protected utils: Utils,
     private websocket: Websocket,
-    private service: Service
+    private service: Service,
   ) { }
 
   ngOnInit() {
@@ -80,35 +72,30 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
       this.edge = edge;
 
       // Update version information now and every minute
-      const source = timer(0, 30000);
+      const source = timer(0, 60000);
       source.pipe(
         takeUntil(this.ngUnsubscribe)
       ).subscribe(ignore => {
         this.updateVersions();
       });
-
-      // Subscribe to system log
-      this.subscribeSystemLog();
     });
   }
 
   ngOnDestroy() {
-    this.unsubscribeSystemLog();
+    this.stopUpdateVersions();
   }
 
   private updateVersions() {
-    this.log("INFO", "Updating versions");
+    this.log("INFO", "Lese Versionen von FEMS");
 
-    let command = "";
-    for (let pkg of this.packages) {
-      pkg.resetVersions();
+    let command = ""
       // Read currently installed version
-      command += "dpkg-query --showformat='" + pkg.name + " current:${Version}\\n' --show " + pkg.name + "; ";
+      + "dpkg-query --showformat='" + this.package.name + " current:${Version}\\n' --show " + this.package.name + "; "
       // Read latest version
-      command += "echo -n \"" + pkg.name + " latest:\"; "
-        + "wget -qO- http://fenecon.de/debian-test/" + pkg.getNameUnderscore() + "-latest.version; ";
-    }
-    command += "ps ax | grep 'wget.*deb\\|dpkg ' | wc -l";
+      + "echo -n \"" + this.package.name + " latest:\"; "
+      + "wget -qO- http://fenecon.de/debian-test/" + this.package.name + "-latest.version; "
+      // Read running deb/dpkg processes
+      + "ps ax | grep 'update-fems.sh\\|wget.*deb\\|dpkg' | wc -l";
 
     this.edge.sendRequest(this.websocket,
       new ComponentJsonApiRequest({
@@ -122,27 +109,29 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
         })
       })).then(response => {
         let result = (response as ExecuteSystemCommandResponse).result;
-        if (result.stdout.length = this.packages.length * 2 + 1) {
-          for (let i = 0; i < this.packages.length; i++) {
-            let pkg = this.packages[i];
-            pkg.setVersions(result.stdout[i * 2].split(":")[1], result.stdout[i * 2 + 1].split(":")[1]);
-          }
-          let isCurrentlyInstallingLog = result.stdout[result.stdout.length - 1];
-          if (isCurrentlyInstallingLog && parseInt(isCurrentlyInstallingLog) > 2) {
-            this.isCurrentlyInstalling = true;
-          } else {
-            this.isCurrentlyInstalling = false;
-          }
+        this.log("INFO", "Versionen gelesen: " + result.stdout.join(", ") + ", " + result.stderr.join(", "));
 
-          let isAnyUpdateAvailable = false;
-          for (let pkg of this.packages) {
-            if (pkg.isUpdateAvailable) {
-              isAnyUpdateAvailable = true;
-            }
-          }
-          if (!isAnyUpdateAvailable) {
-            this.unsubscribeSystemLog();
-          }
+        if (result.stderr.length >= 1 && result.stderr[0].includes("dpkg-query: no packages found matching fems")) {
+          // Handle migration from 'openems-core' and 'openems-core-fems' to 'fems'
+          this.package.setVersions(this.edge.version + "-veraltet", result.stdout[0].split(":")[1]);
+
+        } else {
+          // Default package version handling
+          this.package.setVersions(result.stdout[0].split(":")[1], result.stdout[1].split(":")[1]);
+        }
+
+        // Is currently installing packages?
+        let isCurrentlyInstallingLog = result.stdout[result.stdout.length - 1];
+        if (isCurrentlyInstallingLog && parseInt(isCurrentlyInstallingLog) > 2) {
+          this.isCurrentlyInstalling = true;
+        } else {
+          this.isCurrentlyInstalling = false;
+        }
+
+        // Stop regular check if there is no Update available
+        if (!this.package.isUpdateAvailable) {
+          this.stopUpdateVersions();
+          this.log("INFO", "Update abgeschlossen");
         }
 
       }).catch(reason => {
@@ -152,8 +141,7 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
 
   public updatePackage(pkg: Package) {
     this.isCurrentlyInstalling = true;
-    let filename = pkg.getNameUnderscore() + "-" + pkg.latestVersion + ".deb";
-    this.log("INFO", "Downloading [" + filename + "]");
+    this.log("INFO", "Starte FEMS Update");
 
     // Start Download
     this.edge.sendRequest(this.websocket,
@@ -165,49 +153,12 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
           timeoutSeconds: 300,
           runInBackground: false,
           command: "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; "
-            + "wget http://fenecon.de/debian-test/" + filename + " -q --show-progress --progress=dot:mega -O /tmp/" + filename + " "
-            + "&& echo 'DEBIAN_FRONTEND=noninteractive nohup dpkg -i /tmp/" + filename + "' | at now"
+            + "echo 'wget http://fenecon.de/debian-test/update-fems.sh -O /tmp/update-fems.sh && chmod +x /tmp/update-fems.sh && /tmp/update-fems.sh' | at now"
         })
 
       })).catch(reason => {
         this.log("ERROR", reason.error.message);
       });
-  }
-
-  private subscribeSystemLog() {
-    this.service.getCurrentEdge().then(edge => {
-      // send request to Edge
-      edge.subscribeSystemLog(this.websocket);
-
-      // subscribe to notifications
-      edge.systemLog.pipe(
-        takeUntil(this.ngUnsubscribe),
-        filter(line => line.source.startsWith("io.openems.edge.core.host."))
-      ).subscribe(line => {
-        // add line
-        this.logLines.unshift({
-          time: parse(line.time, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx", new Date()).toLocaleString(),
-          color: this.getColor(line.level),
-          level: line.level,
-          source: line.source,
-          message: line.message,
-        })
-
-        // remove old lines
-        if (this.logLines.length > SystemUpdateComponent.MAX_LOG_ENTRIES) {
-          this.logLines.length = SystemUpdateComponent.MAX_LOG_ENTRIES;
-        }
-      });
-    })
-  };
-
-  private unsubscribeSystemLog() {
-    this.service.getCurrentEdge().then(edge => {
-      edge.unsubscribeSystemLog(this.websocket);
-    });
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-    this.ngUnsubscribe = new Subject<void>();
   }
 
   private getColor(level): string {
@@ -224,15 +175,7 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
     return 'black';
   }
 
-  private wasNotConnected: boolean = false;
-
   private log(level: 'INFO' | 'ERROR', message: string) {
-    if (message.endsWith("is not connected")) {
-      this.wasNotConnected = true;
-    } else if (this.wasNotConnected) {
-      // send request to Edge
-      this.edge.subscribeSystemLog(this.websocket);
-    }
     this.logLines.unshift({
       time: new Date().toLocaleString(),
       color: this.getColor(level),
@@ -240,5 +183,10 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
       source: "",
       message: message,
     })
+  }
+
+  private stopUpdateVersions() {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 }
