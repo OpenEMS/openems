@@ -141,7 +141,7 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
 
   public updatePackage(pkg: Package) {
     this.isCurrentlyInstalling = true;
-    this.log("INFO", "Update FEMS");
+    this.log("INFO", "Starte FEMS Update");
 
     // Start Download
     this.edge.sendRequest(this.websocket,
