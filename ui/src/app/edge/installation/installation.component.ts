@@ -75,15 +75,15 @@ export type InstallationData = {
     type?: string,
     // protocol-serial-numbers
     serialNumbers?: {
+      tower0?: {
+        label: string,
+        value: string
+      }[],
       tower1?: {
         label: string,
         value: string
       }[],
       tower2?: {
-        label: string,
-        value: string
-      }[],
-      tower3?: {
         label: string,
         value: string
       }[]
