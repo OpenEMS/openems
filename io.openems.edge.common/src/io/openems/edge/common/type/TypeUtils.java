@@ -36,7 +36,7 @@ public class TypeUtils {
 			value = ((Enum<?>) value).ordinal();
 		}
 		// Extract value from Array
-		if (type != OpenemsType.STRING && value.getClass().isArray()) {
+		if (type != OpenemsType.STRING && value != null && value.getClass().isArray()) {
 			if (Array.getLength(value) == 1) {
 				return TypeUtils.getAsType(type, Array.get(value, 0));
 			} else {
