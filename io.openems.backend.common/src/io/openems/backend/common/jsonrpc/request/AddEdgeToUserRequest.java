@@ -7,6 +7,8 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
 
 /**
+ * Adds a Edge to a User.
+ * 
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -55,7 +57,7 @@ public class AddEdgeToUserRequest extends JsonrpcRequest {
 	}
 
 	public String getSetupPassword() {
-		return setupPassword;
+		return this.setupPassword;
 	}
 
 }

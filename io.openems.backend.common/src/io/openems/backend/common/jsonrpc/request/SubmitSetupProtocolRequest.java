@@ -7,6 +7,8 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
 
 /**
+ * Submits the Setup Protocol.
+ * 
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -91,8 +93,13 @@ public class SubmitSetupProtocolRequest extends JsonrpcRequest {
 		return this.jsonObject;
 	}
 
+	/**
+	 * Gets the Setup Protocol information as {@link JsonObject}.
+	 * 
+	 * @return the {@link JsonObject}
+	 */
 	public JsonObject getJsonObject() {
-		return jsonObject;
+		return this.jsonObject;
 	}
 
 }

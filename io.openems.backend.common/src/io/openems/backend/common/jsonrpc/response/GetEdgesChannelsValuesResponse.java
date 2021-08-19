@@ -40,6 +40,13 @@ public class GetEdgesChannelsValuesResponse extends JsonrpcResponseSuccess {
 		super(id);
 	}
 
+	/**
+	 * Adds a Value to the JSON-RPC Response.
+	 * 
+	 * @param edgeId  the Edge-ID
+	 * @param channel the {@link ChannelAddress}
+	 * @param value   the value
+	 */
 	public void addValue(String edgeId, ChannelAddress channel, JsonElement value) {
 		this.values.put(edgeId, channel, value);
 	}

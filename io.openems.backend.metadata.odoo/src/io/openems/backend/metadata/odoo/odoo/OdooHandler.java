@@ -442,7 +442,7 @@ public class OdooHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	private void sendSetupProtocolMail(MyUser user, int protocolId, String edgeId) throws OpenemsNamedException {
-		OdooUtils.sendAdminJsonrpcRequest(credentials, "/openems_backend/sendSetupProtocolEmail",
+		OdooUtils.sendAdminJsonrpcRequest(this.credentials, "/openems_backend/sendSetupProtocolEmail",
 				JsonUtils.buildJsonObject() //
 						.add("params", JsonUtils.buildJsonObject() //
 								.addProperty("setupProtocolId", protocolId) //
@@ -599,13 +599,12 @@ public class OdooHandler {
 	private void createNotFoundSerialNumbers(int setupProtocolId, List<JsonElement> serialNumbers)
 			throws OpenemsException {
 		for (int i = 0; i < serialNumbers.size(); i++) {
-			JsonElement item = serialNumbers.get(i);
-
 			Map<String, Object> setupProtocolItem = new HashMap<>();
 			setupProtocolItem.put(Field.SetupProtocolItem.SETUP_PROTOCOL.id(), setupProtocolId);
 			setupProtocolItem.put(Field.SetupProtocolItem.SEQUENCE.id(), i);
 			setupProtocolItem.put("category", "Seriennummern wurden im System nicht gefunden");
 
+			JsonElement item = serialNumbers.get(i);
 			JsonUtils.getAsOptionalString(item, "name") //
 					.ifPresent(name -> setupProtocolItem.put("name", name));
 			JsonUtils.getAsOptionalString(item, "serialNumber") //
@@ -731,7 +730,7 @@ public class OdooHandler {
 	 * @throws OpenemsNamedException error
 	 */
 	private void sendRegistrationMail(int odooUserId, String password) throws OpenemsNamedException {
-		OdooUtils.sendAdminJsonrpcRequest(credentials, "/openems_backend/sendRegistrationEmail",
+		OdooUtils.sendAdminJsonrpcRequest(this.credentials, "/openems_backend/sendRegistrationEmail",
 				JsonUtils.buildJsonObject() //
 						.add("params", JsonUtils.buildJsonObject() //
 								.addProperty("userId", odooUserId) //
