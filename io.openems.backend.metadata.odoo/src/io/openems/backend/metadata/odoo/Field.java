@@ -297,7 +297,8 @@ public interface Field {
 		CITY("city", true), //
 		COUNTRY("country_id", true), //
 		ADDRESS_TYPE("type", true), //
-		NEWSLETTER("fenecon_crm_newsletter", true), LANGUAGE("lang", true);
+		NEWSLETTER("fenecon_crm_newsletter", true), //
+		LANGUAGE("lang", true);
 
 		public static final String ODOO_MODEL = "res.partner";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
@@ -394,7 +395,7 @@ public interface Field {
 		INSTALLER("installer_id", true), //
 		FEMS("fems_device_id", true);
 
-		public static final String ODOO_MODEL = "fems.setup_protocol";
+		public static final String ODOO_MODEL = "edge.setup_protocol";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -532,7 +533,6 @@ public interface Field {
 	public enum StockProductionLot implements Field {
 		SERIAL_NUMBER("name", true), //
 		PRODUCT("product_id", true);
-
 		public static final String ODOO_MODEL = "stock.production.lot";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
@@ -573,52 +573,6 @@ public interface Field {
 		public boolean isQuery() {
 			return this.query;
 		}
-	}
-
-	public enum Language implements Field {
-		CODE("code", true);
-
-		public static final String ODOO_MODEL = "res.lang";
-		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
-
-		private static final class StaticFields {
-			private static int nextQueryIndex = 1;
-		}
-
-		private final int queryIndex;
-		private final String id;
-
-		/**
-		 * Holds information if this Field should be queried from and written to
-		 * Database.
-		 */
-		private final boolean query;
-
-		private Language(String id, boolean query) {
-			this.id = id;
-			this.query = query;
-			if (query) {
-				this.queryIndex = StaticFields.nextQueryIndex++;
-			} else {
-				this.queryIndex = -1;
-			}
-		}
-
-		@Override
-		public String id() {
-			return this.id;
-		}
-
-		@Override
-		public int index() {
-			return this.queryIndex;
-		}
-
-		@Override
-		public boolean isQuery() {
-			return this.query;
-		}
-
 	}
 
 }

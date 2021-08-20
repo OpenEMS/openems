@@ -174,6 +174,21 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
+	 * Handles a {@link RegisterUserRequest}.
+	 * 
+	 * @param wsData  the WebSocket attachment
+	 * @param request the {@link RegisterUserRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleRegisterUserReuqest(WsData wsData,
+			RegisterUserRequest request) throws OpenemsNamedException {
+		this.parent.metadata.registerUser(request.getJsonObject());
+
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	/**
 	 * Handles a {@link LogoutRequest}.
 	 * 
 	 * @param wsData  the WebSocket attachment

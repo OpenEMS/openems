@@ -207,4 +207,23 @@ public interface Channel<T> {
 	 */
 	public void deactivate();
 
+	/**
+	 * Sets an object that holds information about the read source of this Channel,
+	 * i.e. a Modbus Register or REST-Api endpoint address. Defaults to null.
+	 * 
+	 * @param <SOURCE> the type of the source attachment
+	 * @param source   the source object
+	 * @throws IllegalArgumentException if there is already a source registered with
+	 *                                  the Channel
+	 */
+	public <SOURCE> void setReadSource(SOURCE source) throws IllegalArgumentException;
+
+	/**
+	 * Gets the read source information object. Defaults to empty String.
+	 * 
+	 * @param <SOURCE> the type of the source attachment
+	 * @return the source information object
+	 */
+	public <SOURCE> SOURCE getReadSource();
+
 }

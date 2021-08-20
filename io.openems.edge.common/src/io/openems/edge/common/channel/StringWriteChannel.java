@@ -30,7 +30,7 @@ public class StringWriteChannel extends StringReadChannel implements WriteChanne
 						+ "] is not an StringWriteChannel! Unable to register \"onSetNextWrite\"-Listener!");
 				return;
 			}
-			
+
 			// on each setNextWrite to the channel -> store the value in the DEBUG-channel
 			((StringWriteChannel) channel).onSetNextWrite(value -> {
 				channel.getComponent().channel(this.targetChannelId).setNextValue(value);
@@ -73,4 +73,20 @@ public class StringWriteChannel extends StringReadChannel implements WriteChanne
 		this.getOnSetNextWrites().add(callback);
 	}
 
+	/**
+	 * An object that holds information about the write target of this Channel, i.e.
+	 * a Modbus Register or REST-Api endpoint address. Defaults to null.
+	 */
+	private Object writeTarget = null;
+
+	@Override
+	public <WRITE_TARGET> void setWriteTarget(WRITE_TARGET writeTarget) throws IllegalArgumentException {
+		this.writeTarget = WriteChannel.checkWriteTarget(this, writeTarget, writeTarget);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <WRITE_TARGET> WRITE_TARGET getWriteTarget() {
+		return (WRITE_TARGET) this.writeTarget;
+	}
 }
