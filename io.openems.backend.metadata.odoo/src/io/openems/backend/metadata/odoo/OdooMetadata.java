@@ -28,6 +28,7 @@ import io.openems.backend.metadata.odoo.odoo.OdooHandler;
 import io.openems.backend.metadata.odoo.odoo.OdooUserRole;
 import io.openems.backend.metadata.odoo.postgres.PostgresHandler;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
@@ -226,6 +227,11 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 		}
 
 		this.odooHandler.registerUser(jsonObject, role);
+	}
+
+	@Override
+	public void updateUserLanguage(User user, Language language) throws OpenemsNamedException {
+		this.odooHandler.updateUserLanguage((MyUser) user, language);
 	}
 
 }
