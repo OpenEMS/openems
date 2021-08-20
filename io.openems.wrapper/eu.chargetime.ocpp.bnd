@@ -15,8 +15,8 @@ Include-Resource: \
 
 Import-Package: \
     com.sun.activation.registries;resolution:=optional,\
+    javax.xml.soap;resolution:=optional,\
     com.google.gson,\
-    javax.xml.soap,\
     javax.xml.transform,\
     org.java_websocket,\
     org.java_websocket.drafts,\
