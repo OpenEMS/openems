@@ -247,34 +247,4 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 		LANGUAGE = locale;
 	}
 
-	@Override
-	public void addEdgeToUser(User user, Edge edge) throws OpenemsNamedException {
-		throw new NotImplementedException("FileMetadata.addEdgeToUser()");
-	}
-
-	@Override
-	public Map<String, Object> getUserInformation(User user) throws OpenemsNamedException {
-		throw new NotImplementedException("FileMetadata.getUserInformation()");
-	}
-
-	@Override
-	public void setUserInformation(User user, JsonObject jsonObject) throws OpenemsNamedException {
-		throw new NotImplementedException("FileMetadata.setUserInformation()");
-	}
-
-	@Override
-	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException {
-		throw new IllegalArgumentException("FileMetadata.getSetupProtocol() is not implemented");
-	}
-
-	@Override
-	public int submitSetupProtocol(User user, JsonObject jsonObject) {
-		throw new IllegalArgumentException("FileMetadata.submitSetupProtocol() is not implemented");
-	}
-
-	@Override
-	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException {
-		throw new IllegalArgumentException("FileMetadata.registerUser() is not implemented");
-	}
-
 }

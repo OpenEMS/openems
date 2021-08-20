@@ -24,8 +24,4 @@ public class MyEdge extends Edge {
 		return this.setupPassword;
 	}
 
-	public String getSetupPassword() {
-		return setupPassword;
-	}
-	
 }
