@@ -24,6 +24,7 @@ import io.openems.common.jsonrpc.response.Base64PayloadResponse;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.internal.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -50,8 +51,9 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 	private static final int COL_VALUE = 1;
 	private static final int COL_UNIT = 2;
 	private static final int COL_DESCRIPTION = 3;
-	private static final int COL_ACCESS = 5;
-	private static final int COL_SOURCE = 4;
+	private static final int COL_READ_SOURCE = 4;
+	private static final int COL_WRITE_TARGET = 5;
+	private static final int COL_ACCESS = 6;
 
 	public ChannelExportXlsxResponse(UUID id, OpenemsComponent component) throws OpenemsException {
 		super(id, generatePayload(component));
@@ -118,12 +120,29 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 						ws.value(row, COL_UNIT, channel.channelDoc().getUnit().getSymbol());
 						ws.value(row, COL_DESCRIPTION, description);
 						ws.value(row, COL_ACCESS, channel.channelDoc().getAccessMode().getAbbreviation());
-						row++;
 
-						Object source = channel.channelDoc().getSource();
-						if (source != null) {
-							ws.value(row, COL_SOURCE, source.toString());
+						// Read Source
+						{
+							final Object readSource = channel.getReadSource();
+							if (readSource != null) {
+								ws.value(row, COL_READ_SOURCE, readSource.toString());
+							}
 						}
+
+						// Write Target
+						{
+							final Object writeTarget;
+							if (channel instanceof WriteChannel<?>) {
+								writeTarget = ((WriteChannel<?>) channel).getWriteTarget();
+							} else {
+								writeTarget = null;
+							}
+							if (writeTarget != null) {
+								ws.value(row, COL_WRITE_TARGET, writeTarget.toString());
+							}
+						}
+
+						row++;
 					}
 				} finally {
 					if (wb != null) {
@@ -172,8 +191,9 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 		addTableHeader(wb, ws, row, COL_VALUE, "Value", 35);
 		addTableHeader(wb, ws, row, COL_UNIT, "Unit", 20);
 		addTableHeader(wb, ws, row, COL_DESCRIPTION, "Description", 25);
+		addTableHeader(wb, ws, row, COL_READ_SOURCE, "Read Source", 20);
+		addTableHeader(wb, ws, row, COL_WRITE_TARGET, "Write Target", 20);
 		addTableHeader(wb, ws, row, COL_ACCESS, "Access", 10);
-		addTableHeader(wb, ws, row, COL_SOURCE, "Source", 20);
 
 		return ++row;
 	}
