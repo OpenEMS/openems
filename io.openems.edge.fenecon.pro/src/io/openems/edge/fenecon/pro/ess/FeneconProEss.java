@@ -23,6 +23,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusChannelSource;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -438,9 +439,11 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 						m(ProChannelId.RTC_MINUTE, new UnsignedWordElement(9018)), //
 						m(ProChannelId.RTC_SECOND, new UnsignedWordElement(9019))), //
 				new FC16WriteRegistersTask(30558, //
-						m(ProChannelId.SETUP_MODE, new UnsignedWordElement(30558))), //
+						m(ProChannelId.SETUP_MODE, new UnsignedWordElement(30558),
+								ModbusChannelSource.IGNORE_DUPLICATED_SOURCE)), //
 				new FC16WriteRegistersTask(30559, //
-						m(ProChannelId.PCS_MODE, new UnsignedWordElement(30559))), //
+						m(ProChannelId.PCS_MODE, new UnsignedWordElement(30559),
+								ModbusChannelSource.IGNORE_DUPLICATED_SOURCE)), //
 				new FC3ReadRegistersTask(30157, Priority.LOW, //
 						m(ProChannelId.SETUP_MODE, new UnsignedWordElement(30157)), //
 						m(ProChannelId.PCS_MODE, new UnsignedWordElement(30158)))//
