@@ -363,7 +363,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * Creates a ChannelMapper that can be used with builder pattern inside the
 	 * protocol definition.
 	 * 
-	 * @param <T>       the type of the {@link AbstractModbusElement}d
+	 * @param <T>     the type of the {@link AbstractModbusElement}d
 	 * @param element the ModbusElement
 	 * @return a {@link ChannelMapper}
 	 */
@@ -395,6 +395,23 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	}
 
 	/**
+	 * Maps the given element 1-to-1 to the Channel identified by channelId.
+	 * 
+	 * @param <T>                    the type of the {@link AbstractModbusElement}d
+	 * @param channelId              the Channel-ID
+	 * @param element                the ModbusElement
+	 * @param ignoreDuplicatedSource set to
+	 *                               {@link ModbusChannelSource#IGNORE_DUPLICATED_SOURCE}
+	 *                               to ignore the check for channels with multiple
+	 *                               mapped modbus registers
+	 * @return the element parameter
+	 */
+	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
+			T element, ModbusChannelSource.IgnoreDuplicatedSource ignoreDuplicatedSource) {
+		return this.m(channelId, element, ElementToChannelConverter.DIRECT_1_TO_1, ignoreDuplicatedSource);
+	}
+
+	/**
 	 * Maps the given element to the Channel identified by channelId, applying the
 	 * given @link{ElementToChannelConverter}.
 	 * 
@@ -411,7 +428,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
 			T element, ElementToChannelConverter converter,
 			ModbusChannelSource.IgnoreDuplicatedSource ignoreDuplicatedSource) {
-		if (ignoreDuplicatedSource != null) {
+		if (ignoreDuplicatedSource != ModbusChannelSource.IGNORE_DUPLICATED_SOURCE) {
 			try {
 				channelId.doc().source(new ModbusChannelSource(element.getStartAddress()));
 			} catch (IllegalArgumentException e) {

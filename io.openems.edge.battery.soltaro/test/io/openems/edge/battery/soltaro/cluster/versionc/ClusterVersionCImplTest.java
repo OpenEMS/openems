@@ -30,9 +30,9 @@ public class ClusterVersionCImplTest {
 						.setModuleType(ModuleType.MODULE_3_5_KWH) //
 						.setStartStop(StartStopConfig.AUTO) //
 						.setNumberOfSlaves(0) //
-						.setRack1Used(false) //
-						.setRack2Used(false) //
-						.setRack3Used(false) //
+						.setRack1Used(true) //
+						.setRack2Used(true) //
+						.setRack3Used(true) //
 						.setRack4Used(false) //
 						.setRack5Used(false) //
 						.build()) //

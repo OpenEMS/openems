@@ -1,8 +1,8 @@
 package io.openems.edge.battery.soltaro.cluster.versionc;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -31,8 +31,8 @@ import io.openems.edge.battery.soltaro.cluster.enums.Rack;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.Context;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine.State;
-import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3500Wh;
 import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3000Wh;
+import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3500Wh;
 import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.versionc.SoltaroBatteryVersionC;
@@ -40,6 +40,7 @@ import io.openems.edge.battery.soltaro.versionc.utils.Constants;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusChannelSource;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
@@ -89,7 +90,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private Config config;
-	private Set<Rack> racks = new HashSet<>();
+	private TreeSet<Rack> racks = new TreeSet<>();
 	private BatteryProtection batteryProtection = null;
 
 	public ClusterVersionCImpl() {
@@ -381,18 +382,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		// getModbusProtocol, and it is using racks...
 		for (Rack r : this.racks) {
 			protocol.addTasks(//
-					// Single Cluster Control Registers (running without Master BMS)
-					new FC6WriteRegisterTask(r.offset + 0x0010, //
-							m(this.rack(r, RackChannel.PRE_CHARGE_CONTROL), new UnsignedWordElement(r.offset + 0x0010)) //
-					), //
-					new FC16WriteRegistersTask(r.offset + 0x000B, //
-							m(this.rack(r, RackChannel.EMS_ADDRESS), new UnsignedWordElement(r.offset + 0x000B)), //
-							m(this.rack(r, RackChannel.EMS_BAUDRATE), new UnsignedWordElement(r.offset + 0x000C)) //
-					), //
-					new FC6WriteRegisterTask(r.offset + 0x00F4, //
-							m(this.rack(r, RackChannel.EMS_COMMUNICATION_TIMEOUT),
-									new UnsignedWordElement(r.offset + 0x00F4)) //
-					), //
+
 					new FC3ReadRegistersTask(r.offset + 0x000B, Priority.LOW, //
 							m(this.rack(r, RackChannel.EMS_ADDRESS), new UnsignedWordElement(r.offset + 0x000B)), //
 							m(this.rack(r, RackChannel.EMS_BAUDRATE), new UnsignedWordElement(r.offset + 0x000C)), //
@@ -406,6 +396,22 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 							m(this.rack(r, RackChannel.EMS_COMMUNICATION_TIMEOUT),
 									new UnsignedWordElement(r.offset + 0x00F4)) //
 					),
+
+					// Single Cluster Control Registers (running without Master BMS)
+					new FC6WriteRegisterTask(r.offset + 0x0010, //
+							m(this.rack(r, RackChannel.PRE_CHARGE_CONTROL), new UnsignedWordElement(r.offset + 0x0010),
+									ModbusChannelSource.IGNORE_DUPLICATED_SOURCE) //
+					), //
+					new FC6WriteRegisterTask(r.offset + 0x00F4, //
+							m(this.rack(r, RackChannel.EMS_COMMUNICATION_TIMEOUT),
+									new UnsignedWordElement(r.offset + 0x00F4),
+									ModbusChannelSource.IGNORE_DUPLICATED_SOURCE) //
+					), //
+					new FC16WriteRegistersTask(r.offset + 0x000B, //
+							m(this.rack(r, RackChannel.EMS_ADDRESS), new UnsignedWordElement(r.offset + 0x000B),
+									ModbusChannelSource.IGNORE_DUPLICATED_SOURCE), //
+							m(this.rack(r, RackChannel.EMS_BAUDRATE), new UnsignedWordElement(r.offset + 0x000C)) //
+					), //
 
 					// Single Cluster Control Registers (General)
 					new FC6WriteRegisterTask(r.offset + 0x00CC, //
