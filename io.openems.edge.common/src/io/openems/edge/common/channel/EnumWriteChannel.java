@@ -1,6 +1,7 @@
 package io.openems.edge.common.channel;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -8,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.types.OptionsEnum;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<Integer> {
@@ -101,4 +102,24 @@ public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<In
 		this.getOnSetNextWrites().add(callback);
 	}
 
+	/**
+	 * An object that holds information about the write target of this Channel, i.e.
+	 * a Modbus Register or REST-Api endpoint address. Defaults to null.
+	 */
+	private Object writeTarget = null;
+
+	@Override
+	public <WRITE_TARGET> void setWriteTarget(WRITE_TARGET writeTarget) throws IllegalArgumentException {
+		if (this.writeTarget != null && writeTarget != null && !Objects.equals(this.writeTarget, writeTarget)) {
+			throw new IllegalArgumentException("Unable to set write target [" + writeTarget.toString()
+					+ "]. Channel already has a write target [" + this.writeTarget.toString() + "]");
+		}
+		this.writeTarget = writeTarget;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <WRITE_TARGET> WRITE_TARGET getWriteTarget() {
+		return (WRITE_TARGET) this.writeTarget;
+	}
 }

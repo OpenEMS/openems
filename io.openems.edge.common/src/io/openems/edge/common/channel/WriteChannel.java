@@ -93,4 +93,23 @@ public interface WriteChannel<T> extends Channel<T> {
 
 	public List<ThrowingConsumer<T, OpenemsNamedException>> getOnSetNextWrites();
 
+	/**
+	 * Sets an object that holds information about the write target of this Channel,
+	 * i.e. a Modbus Register or REST-Api endpoint address. Defaults to null.
+	 * 
+	 * @param <TARGET> the type of the target attachment
+	 * @param target   the target object
+	 * @return myself
+	 * @throws IllegalArgumentException if there is already a target registered with
+	 *                                  the Channel
+	 */
+	public <TARGET> void setWriteTarget(TARGET target) throws IllegalArgumentException;
+
+	/**
+	 * Gets the write target information object. Defaults to empty String.
+	 * 
+	 * @param <SOURCE> the type of the target attachment
+	 * @return the target information object
+	 */
+	public <TARGET> TARGET getWriteTarget();
 }

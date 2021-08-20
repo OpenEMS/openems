@@ -259,4 +259,25 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	public CircularTreeMap<LocalDateTime, Value<T>> getPastValues() {
 		return this.pastValues;
 	}
+
+	/**
+	 * An object that holds information about the source of this Channel, i.e. a
+	 * Modbus Register or REST-Api endpoint address. Defaults to null.
+	 */
+	private Object readSource = null;
+
+	@Override
+	public <READ_SOURCE> void setReadSource(READ_SOURCE readSource) throws IllegalArgumentException {
+		if (this.readSource != null && readSource != null && !Objects.equals(this.readSource, readSource)) {
+			throw new IllegalArgumentException("Unable to set read source [" + readSource.toString()
+					+ "]. Channel already has a read source [" + this.readSource.toString() + "]");
+		}
+		this.readSource = readSource;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <READ_SOURCE> READ_SOURCE getReadSource() {
+		return (READ_SOURCE) this.readSource;
+	}
 }

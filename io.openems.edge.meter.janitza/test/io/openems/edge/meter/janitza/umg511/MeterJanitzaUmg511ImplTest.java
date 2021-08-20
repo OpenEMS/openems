@@ -1,23 +1,16 @@
 package io.openems.edge.meter.janitza.umg511;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.janitza.ResetChannelSources;
 
 public class MeterJanitzaUmg511ImplTest {
 
 	private static final String METER_ID = "meter0";
 	private static final String MODBUS_ID = "modbus0";
-
-	@Before
-	public void before() {
-		ResetChannelSources.run();
-	}
 
 	@Test
 	public void test() throws Exception {
