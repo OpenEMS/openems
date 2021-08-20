@@ -94,5 +94,5 @@ testpath: \
 	Edge_Thermometer;member=${filter;${p};io\.openems\.edge\.onewire\.thermometer|io\.openems\.edge\.thermometer\..*},\
 	Edge_Timedata;member=${filter;${p};io\.openems\.edge\.timedata\..*},\
 
-javac.source: 1.8
-javac.target: 1.8
+javac.source: 11
+javac.target: 11
