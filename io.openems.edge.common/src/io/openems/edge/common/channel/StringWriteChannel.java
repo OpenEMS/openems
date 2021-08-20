@@ -1,7 +1,6 @@
 package io.openems.edge.common.channel;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -82,11 +81,7 @@ public class StringWriteChannel extends StringReadChannel implements WriteChanne
 
 	@Override
 	public <WRITE_TARGET> void setWriteTarget(WRITE_TARGET writeTarget) throws IllegalArgumentException {
-		if (this.writeTarget != null && writeTarget != null && !Objects.equals(this.writeTarget, writeTarget)) {
-			throw new IllegalArgumentException("Unable to set write target [" + writeTarget.toString()
-					+ "]. Channel already has a write target [" + this.writeTarget.toString() + "]");
-		}
-		this.writeTarget = writeTarget;
+		this.writeTarget = WriteChannel.checkWriteTarget(this, writeTarget, writeTarget);
 	}
 
 	@Override

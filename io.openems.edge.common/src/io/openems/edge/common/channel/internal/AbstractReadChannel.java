@@ -269,8 +269,9 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	@Override
 	public <READ_SOURCE> void setReadSource(READ_SOURCE readSource) throws IllegalArgumentException {
 		if (this.readSource != null && readSource != null && !Objects.equals(this.readSource, readSource)) {
-			throw new IllegalArgumentException("Unable to set read source [" + readSource.toString()
-					+ "]. Channel already has a read source [" + this.readSource.toString() + "]");
+			throw new IllegalArgumentException("Unable to set read source [" + readSource.toString() + "]." //
+					+ " Channel [" + this.address() + "] already has a read source [" + this.readSource.toString()
+					+ "]");
 		}
 		this.readSource = readSource;
 	}
