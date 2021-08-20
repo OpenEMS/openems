@@ -1,25 +1,11 @@
 package io.openems.edge.goodwe.charger;
 
-import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.Unit;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.channel.Doc;
 
-public enum PvChannelId implements ChannelId {
-	V(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)),
-	I(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY));
+public interface PvChannelId extends ChannelId {
 
-	private final Doc doc;
+	public ChannelId getV();
 
-	private PvChannelId(Doc doc) {
-		this.doc = doc;
-	}
+	public ChannelId getI();
 
-	@Override
-	public Doc doc() {
-		return this.doc;
-	}
 }

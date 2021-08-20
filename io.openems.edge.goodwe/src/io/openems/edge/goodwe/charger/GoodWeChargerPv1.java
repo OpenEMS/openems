@@ -49,7 +49,7 @@ public class GoodWeChargerPv1 extends AbstractGoodWeEtCharger
 	}
 
 	public GoodWeChargerPv1() {
-		super();
+		super(Pv1ChannelId.values());
 	}
 
 	@Activate

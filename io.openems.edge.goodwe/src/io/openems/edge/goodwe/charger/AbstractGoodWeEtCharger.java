@@ -6,6 +6,7 @@ import org.osgi.service.event.EventHandler;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusChannelSource;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
@@ -23,12 +24,15 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 	private final CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(this,
 			EssDcCharger.ChannelId.ACTUAL_ENERGY);
 
-	protected AbstractGoodWeEtCharger() {
+	private final PvChannelId pvChannelId;
+
+	protected AbstractGoodWeEtCharger(PvChannelId[] channelIds) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				EssDcCharger.ChannelId.values(), //
-				PvChannelId.values() //
+				channelIds //
 		);
+		this.pvChannelId = channelIds[0];
 	}
 
 	@Override
@@ -36,12 +40,13 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 		int startAddress = this.getStartAddress();
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(startAddress, Priority.LOW, //
-						m(PvChannelId.V, new UnsignedWordElement(startAddress), //
+						m(this.pvChannelId.getV(), new UnsignedWordElement(startAddress), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(PvChannelId.I, new UnsignedWordElement(startAddress + 1),
+						m(this.pvChannelId.getI(), new UnsignedWordElement(startAddress + 1),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 				new FC3ReadRegistersTask(startAddress + 2, Priority.HIGH, //
-						m(EssDcCharger.ChannelId.ACTUAL_POWER, new UnsignedDoublewordElement(startAddress + 2))));
+						m(EssDcCharger.ChannelId.ACTUAL_POWER, new UnsignedDoublewordElement(startAddress + 2),
+								ModbusChannelSource.IGNORE_DUPLICATED_SOURCE)));
 	}
 
 	@Override
