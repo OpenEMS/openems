@@ -461,9 +461,11 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_2,
 								ModbusChannelSource.IGNORE_DUPLICATED_SOURCE)), //
 				new FC16WriteRegistersTask(30558, //
-						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30558))), //
+						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30558),
+								ModbusChannelSource.IGNORE_DUPLICATED_SOURCE)), //
 				new FC16WriteRegistersTask(30559, //
-						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30559))), //
+						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30559),
+								ModbusChannelSource.IGNORE_DUPLICATED_SOURCE)), //
 
 				new FC3ReadRegistersTask(30126, Priority.LOW, //
 						m(FeneconMiniEss.ChannelId.GRID_MAX_CHARGE_CURRENT, new UnsignedWordElement(30126),
