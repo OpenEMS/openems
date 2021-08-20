@@ -266,6 +266,11 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		public ChannelMapper<T> m(io.openems.edge.common.channel.ChannelId channelId,
 				ElementToChannelConverter converter) {
 			Channel<?> channel = channel(channelId);
+			if (channel instanceof WriteChannel<?>) {
+				((WriteChannel<?>) channel).setWriteTarget(new ModbusChannelMetaInfo(element.getStartAddress()));
+			} else {
+				channel.setReadSource(new ModbusChannelMetaInfo(element.getStartAddress()));
+			}
 			this.channelMaps.put(channel, converter);
 			return this;
 		}
@@ -363,7 +368,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * Creates a ChannelMapper that can be used with builder pattern inside the
 	 * protocol definition.
 	 * 
-	 * @param <T>       the type of the {@link AbstractModbusElement}d
+	 * @param <T>     the type of the {@link AbstractModbusElement}d
 	 * @param element the ModbusElement
 	 * @return a {@link ChannelMapper}
 	 */
@@ -398,46 +403,17 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * Maps the given element to the Channel identified by channelId, applying the
 	 * given @link{ElementToChannelConverter}.
 	 * 
-	 * @param <T>                    the type of the {@link AbstractModbusElement}d
-	 * @param channelId              the Channel-ID
-	 * @param element                the ModbusElement
-	 * @param converter              the ElementToChannelConverter
-	 * @param ignoreDuplicatedSource set to
-	 *                               {@link ModbusChannelSource#IGNORE_DUPLICATED_SOURCE}
-	 *                               to ignore the check for channels with multiple
-	 *                               mapped modbus registers
-	 * @return the element parameter
-	 */
-	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
-			T element, ElementToChannelConverter converter,
-			ModbusChannelSource.IgnoreDuplicatedSource ignoreDuplicatedSource) {
-		if (ignoreDuplicatedSource != null) {
-			try {
-				channelId.doc().source(new ModbusChannelSource(element.getStartAddress()));
-			} catch (IllegalArgumentException e) {
-				throw new IllegalArgumentException(
-						"Unable to add Modbus mapping for [" + channelId.id() + "]: " + e.getMessage());
-			}
-		}
-
-		return new ChannelMapper<T>(element) //
-				.m(channelId, converter) //
-				.build();
-	}
-
-	/**
-	 * Maps the given element to the Channel identified by channelId, applying the
-	 * given @link{ElementToChannelConverter}.
-	 * 
-	 * @param <T>       the type of the {@link AbstractModbusElement}
+	 * @param <T>       the type of the {@link AbstractModbusElement}d
 	 * @param channelId the Channel-ID
 	 * @param element   the ModbusElement
-	 * @param converter the {@link ElementToChannelConverter}
+	 * @param converter the ElementToChannelConverter
 	 * @return the element parameter
 	 */
 	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
 			T element, ElementToChannelConverter converter) {
-		return this.m(channelId, element, converter, null);
+		return new ChannelMapper<T>(element) //
+				.m(channelId, converter) //
+				.build();
 	}
 
 	public enum BitConverter {

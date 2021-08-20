@@ -75,4 +75,20 @@ public class BooleanWriteChannel extends BooleanReadChannel implements WriteChan
 		this.getOnSetNextWrites().add(callback);
 	}
 
+	/**
+	 * An object that holds information about the write target of this Channel, i.e.
+	 * a Modbus Register or REST-Api endpoint address. Defaults to null.
+	 */
+	private Object writeTarget = null;
+
+	@Override
+	public <WRITE_TARGET> void setWriteTarget(WRITE_TARGET writeTarget) throws IllegalArgumentException {
+		this.writeTarget = WriteChannel.checkWriteTarget(this, writeTarget, writeTarget);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <WRITE_TARGET> WRITE_TARGET getWriteTarget() {
+		return (WRITE_TARGET) this.writeTarget;
+	}
 }

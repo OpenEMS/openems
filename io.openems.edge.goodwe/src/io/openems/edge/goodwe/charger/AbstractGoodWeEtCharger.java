@@ -18,7 +18,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusComponent
-		implements EssDcCharger, OpenemsComponent, TimedataProvider, EventHandler {
+		implements GoodWeEtCharger, EssDcCharger, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(this,
 			EssDcCharger.ChannelId.ACTUAL_ENERGY);
@@ -27,7 +27,7 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				EssDcCharger.ChannelId.values(), //
-				PvChannelId.values() //
+				GoodWeEtCharger.ChannelId.values() //
 		);
 	}
 
@@ -36,9 +36,9 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 		int startAddress = this.getStartAddress();
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(startAddress, Priority.LOW, //
-						m(PvChannelId.V, new UnsignedWordElement(startAddress), //
+						m(GoodWeEtCharger.ChannelId.V, new UnsignedWordElement(startAddress), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(PvChannelId.I, new UnsignedWordElement(startAddress + 1),
+						m(GoodWeEtCharger.ChannelId.I, new UnsignedWordElement(startAddress + 1),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 				new FC3ReadRegistersTask(startAddress + 2, Priority.HIGH, //
 						m(EssDcCharger.ChannelId.ACTUAL_POWER, new UnsignedDoublewordElement(startAddress + 2))));
