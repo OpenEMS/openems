@@ -734,11 +734,8 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 								new UnsignedWordElement(r.offset + 0x400)), //
 						m(this.rack(r, RackChannel.LEVEL2_CELL_OVER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x401)), //
-						m(new UnsignedWordElement(r.offset + 0x402)) //
-								.m(this.rack(r, RackChannel.LEVEL2_SYSTEM_OVER_VOLTAGE_PROTECTION),
-										ElementToChannelConverter.SCALE_FACTOR_2) // [mV]
-								.m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]
-								.build(), //
+						m(this.rack(r, RackChannel.LEVEL2_SYSTEM_OVER_VOLTAGE_PROTECTION),
+								new UnsignedWordElement(r.offset + 0x402)), //
 						m(this.rack(r, RackChannel.LEVEL2_SYSTEM_OVER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x403), ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(this.rack(r, RackChannel.LEVEL2_SYSTEM_CHARGE_OVER_CURRENT_PROTECTION),
