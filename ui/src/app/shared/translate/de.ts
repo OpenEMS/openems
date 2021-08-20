@@ -112,7 +112,34 @@ export const TRANSLATION = {
         preamble: "Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",
         passwordLabel: "Passwort",
         passwordPlaceholder: "Passwort",
+        passwordReset: "Passwort zurücksetzen",
         authenticationFailed: "Authentifizierung fehlgeschlagen",
+    },
+    Register: {
+        title: "Benutzer Account anlegen",
+        segment: {
+            user: "Benutzer",
+            installer: "Installateur"
+        },
+        form: {
+            companyName: "Firmenname",
+            firstname: "Vorname",
+            lastname: "Nachname",
+            street: "Straße | Hausnummer",
+            zip: "PLZ",
+            city: "Ort",
+            country: "Land",
+            phone: "Telefonnummer",
+            email: "E-Mail Adresse",
+            password: "Passwort",
+            confirmPassword: "Passwort wiederholen"
+        },
+        button: "Anlegen",
+        errors: {
+            requiredFields: "Bitte alle Felder ausfüllen",
+            passwordNotEqual: "Passwörter sind nicht gleich"
+        },
+        success: "Registrierung erfolgreich"
     },
     Edge: {
         Index: {

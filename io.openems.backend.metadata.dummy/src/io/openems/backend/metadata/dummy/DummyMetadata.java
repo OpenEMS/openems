@@ -19,12 +19,15 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
+
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Role;
@@ -104,15 +107,18 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 		Optional<Integer> idOpt = DummyMetadata.parseNumberFromName(apikey);
 		int id;
 		String edgeId;
+		String setupPassword;
 		if (idOpt.isPresent()) {
 			edgeId = apikey;
 			id = idOpt.get();
+			setupPassword = edgeId;
 		} else {
 			// create new ID
 			id = this.nextEdgeId.incrementAndGet();
 			edgeId = "edge" + id;
+			setupPassword = edgeId;
 		}
-		MyEdge edge = new MyEdge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "", Level.OK,
+		MyEdge edge = new MyEdge(edgeId, apikey, setupPassword, "OpenEMS Edge #" + id, State.ACTIVE, "", "", Level.OK,
 				new EdgeConfig());
 		edge.onSetConfig(config -> {
 			this.logInfo(this.log, "Edge [" + edgeId + "]. Update config: "
@@ -121,6 +127,19 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 		this.edges.put(edgeId, edge);
 		return Optional.ofNullable(edgeId);
 
+	}
+
+	@Override
+	public Optional<Edge> getEdgeBySetupPassword(String setupPassword) {
+		Optional<MyEdge> optEdge = this.edges.values().stream()
+				.filter(edge -> edge.getSetupPassword().equals(setupPassword)).findFirst();
+
+		if (optEdge.isPresent()) {
+			MyEdge edge = optEdge.get();
+			return Optional.of(edge);
+		}
+
+		return Optional.empty();
 	}
 
 	@Override
@@ -151,4 +170,35 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 		}
 		return Optional.empty();
 	}
+
+	@Override
+	public void addEdgeToUser(User user, Edge edge) throws OpenemsNamedException {
+		throw new NotImplementedException("DummyMetadata.addEdgeToUser()");
+	}
+
+	@Override
+	public Map<String, Object> getUserInformation(User user) throws OpenemsNamedException {
+		throw new NotImplementedException("DummyMetadata.getUserInformation()");
+	}
+
+	@Override
+	public void setUserInformation(User user, JsonObject jsonObject) throws OpenemsNamedException {
+		throw new NotImplementedException("DummyMetadata.setUserInformation()");
+	}
+
+	@Override
+	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException {
+		throw new IllegalArgumentException("DummyMetadata.getSetupProtocol() is not implemented");
+	}
+
+	@Override
+	public int submitSetupProtocol(User user, JsonObject jsonObject) {
+		throw new IllegalArgumentException("DummyMetadata.submitSetupProtocol() is not implemented");
+	}
+
+	@Override
+	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException {
+		throw new IllegalArgumentException("DummyMetadata.registerUser() is not implemented");
+	}
+
 }
