@@ -1,0 +1,21 @@
+Bundle-Name: paho-mqttv5
+Bundle-DocURL: https://github.com/eclipse/paho.mqtt.java
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.2.5
+
+Fragment-Host: org.eclipse.paho.mqttv5.client
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+Export-Package: \
+	org.eclipse.paho.mqttv5.client,\
+	org.eclipse.paho.mqttv5.client.internal,\
+	org.eclipse.paho.mqttv5.client.util,\
+	org.eclipse.paho.mqttv5.client.spi,\
+	org.eclipse.paho.mqttv5.common,\
+	org.eclipse.paho.mqttv5.common.packet,\
+	org.eclipse.paho.mqttv5.common.packet.util,\
+	
+-sources: false

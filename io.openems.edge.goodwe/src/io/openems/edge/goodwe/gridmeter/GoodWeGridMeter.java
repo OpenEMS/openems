@@ -69,12 +69,13 @@ public class GoodWeGridMeter extends AbstractOpenemsModbusComponent
 				SymmetricMeter.ChannelId.values(), //
 				GridMeterChannelId.values() //
 		);
+		AsymmetricMeter.initializePowerSumChannels(this);
 	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
-				config.modbus_id())) {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
 			return;
 		}
 	}
@@ -95,10 +96,6 @@ public class GoodWeGridMeter extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(36006),
 								ElementToChannelConverter.INVERT), //
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(36007),
-								ElementToChannelConverter.INVERT), //
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(36008),
-								ElementToChannelConverter.INVERT),
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedWordElement(36009),
 								ElementToChannelConverter.INVERT)), //
 
 				// Voltage, current and Grid Frequency of each phase

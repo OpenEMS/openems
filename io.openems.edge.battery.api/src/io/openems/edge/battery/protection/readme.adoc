@@ -1,0 +1,83 @@
+= Battery-Protection
+
+The "Battery-Protection" implementation serves as an addition to low-level battery management systems (BMS).
+It allows a fine grained definition of battery protection parameters and handles logics that are shared between different BMS implementations.
+
+== Implementation details
+
+The Battery-Protection utilities allow the definition of the following parameters. They are used to evaluate the allowed Maximum Charge Current and Maximum Discharge Current. Consequently the Battery-Protection internally sets the respective Channels `Battery.ChargeMaxCurrent` and `Battery.DischargeMaxCurrent`. Be sure to not directly map the BMS registers to these Channels if you use the Battery-Protection utilities.
+
+== Input
+
+The Battery-Protection utilities require a number of specific Channels provided in `BatteryProtection.ChannelId`. 
+
+The Channels `BP_CHARGE_BMS` and `BP_DISCHARGE_BMS` are meant to be mapped to the data originally provided by the BMS. The Unit is Ampere.
+
+== Output
+
+The Battery-Protection utilities evaluate the allowed Maximum Charge Current and Maximum Discharge Current. Consequently the Battery-Protection internally sets the respective Channels `Battery.ChargeMaxCurrent` and `Battery.DischargeMaxCurrent`.
+
+WARNING: Be sure to not directly map the BMS registers to these Channels if you use the Battery-Protection utilities.
+
+== Parameters
+
+The easiest way to provide all required parameters is via a class that implements the `BatteryProtectionDefinition` interface. See that interface for details on the parameters.
+
+== Debugging
+
+The utilities write data to the Channels provided in `BatteryProtection.ChannelId`. These Channels are useful to debug the behavior of the battery protection algorithm, i.e. finding out, why the Maximum Charge Current or Maximum Discharge Current are limited in a specific case.
+
+== Using the Battery-Protection
+
+To use the Battery-Protection utilities in your BMS component:
+
+. Implement the `BatteryProtection.ChannelId`s
++
+[source,java]
+----
+public BatteryImpl() {
+	super(//
+			OpenemsComponent.ChannelId.values(), //
+			Battery.ChannelId.values(), //
+			StartStoppable.ChannelId.values(), //
+			BatteryProtection.ChannelId.values() // <--
+	);
+}
+----
+
+. Hold a local instance of `BatteryProtection`
++
+[source,java]
+----
+private BatteryProtection batteryProtection = null;
+----
+
+. Initialize the `batteryProtection` instance in your `activate()` method
++
+[source,java]
+----
+this.batteryProtection = BatteryProtection.create(this) //
+		.applyBatteryProtectionDefinition(new MyBatteryProtectionDefinition(), this.componentManager) //
+		.build();
+----
++
+The easiest way is via a class that implements the `BatteryProtectionDefinition` interface. This will guide you through all the required battery protection parameters. Alternatively there is also an initialization that follows the Builder pattern. See the JUnit tests for examples.
+
+. Call the logic
++
+Call the BatteryProtection logic in every cycle, e.g. in an Eventhandler:
++
+[source,java]
+----
+@Override
+public void handleEvent(Event event) {
+	if (!this.isEnabled()) {
+		return;
+	}
+	switch (event.getTopic()) {
+	case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+		this.batteryProtection.apply();
+		break;
+	}
+}
+----

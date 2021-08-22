@@ -19,7 +19,8 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	COM_MODULE(Doc.of(OpenemsType.STRING).text("Communication module is installed; KeContact P30 only")),
 	DIP_SWITCH_1(Doc.of(OpenemsType.STRING).text("The first eight dip switch settings as binary")),
 	DIP_SWITCH_2(Doc.of(OpenemsType.STRING).text("The second eight dip switch settings as binary")),
-
+	DIP_SWITCH_MAX_HW(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).text("The raw maximum limit configured by the dip switches")),
+	
 	/*
 	 * Report 2
 	 */
@@ -56,10 +57,9 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	CURRENT_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current on L3")), //
 	ACTUAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIWATT).text("Total real power")), //
 	COS_PHI(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT).text("Power factor")), //
-	ENERGY_TOTAL(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)
+	ENERGY_TOTAL(Doc.of(OpenemsType.LONG).unit(Unit.WATT_HOURS)
 			.text("Total power consumption (persistent) without current loading session. "
 					+ "Is summed up after each completed charging session")), //
-
 	DIP_SWITCH_ERROR_1_3_NOT_SET_FOR_COMM(Doc.of(Level.FAULT) //
 			.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
 			.text("Dip-Switch 1.3. for communication must be on")), //
@@ -68,13 +68,17 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 			.text("A static ip is configured. The Dip-Switch 2.6. must be on")), //
 	DIP_SWITCH_ERROR_2_6_SET_FOR_DYNAMIC_IP(Doc.of(Level.FAULT) //
 			.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
-			.text("A dynamic ip is configured. Ether the Dip-Switch 2.6. must be off or a static ip has to be configured")), //
+			.text("A dynamic ip is configured. Either the Dip-Switch 2.6. must be off or a static ip has to be configured")), //
 	DIP_SWITCH_INFO_2_5_SET_FOR_MASTER_SLAVE_COMM(Doc.of(Level.INFO) //
 			.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
 			.text("Master-Slave communication is configured. If this is a normal KEBA that should be not controlled by a KEBA x-series, Dip-Switch 2.5. should be off")), //
 	DIP_SWITCH_INFO_2_8_SET_FOR_INSTALLATION(Doc.of(Level.WARNING) //
 			.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
 			.text("Installation mode is configured. If the installation has finished, Dip-Switch 2.8. should be off")), //
+	PRODUCT_SERIES_IS_NOT_COMPATIBLE(Doc.of(Level.FAULT) //
+			.text("Keba e- and b-series cannot be controlled because their software and hardware are not designed for it.")), //
+	NO_ENERGY_METER_INSTALLED(Doc.of(Level.INFO) //
+			.text("This keba cannot measure energy values, because there is no energy meter in it.")), //
 	CHARGINGSTATION_STATE_ERROR(Doc.of(Level.WARNING) //
 			.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE));
 

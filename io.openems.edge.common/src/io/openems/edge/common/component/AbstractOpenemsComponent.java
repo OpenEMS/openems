@@ -1,35 +1,37 @@
 package io.openems.edge.common.component;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.metatype.MetaTypeInformation;
+import org.osgi.service.metatype.MetaTypeService;
+import org.osgi.service.metatype.ObjectClassDefinition;
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CaseFormat;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.channel.PersistencePriority;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.OptionsEnum;
-import io.openems.edge.common.channel.BooleanDoc;
+import io.openems.common.types.EdgeConfig.Factory.Property;
+import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.DoubleDoc;
-import io.openems.edge.common.channel.EnumDoc;
-import io.openems.edge.common.channel.FloatDoc;
-import io.openems.edge.common.channel.IntegerDoc;
-import io.openems.edge.common.channel.LongDoc;
-import io.openems.edge.common.channel.ShortDoc;
 import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.StringDoc;
 import io.openems.edge.common.channel.internal.AbstractDoc;
+import io.openems.edge.common.type.TypeUtils;
 
 /**
  * This is the default implementation of the {@link OpenemsComponent} interface.
@@ -47,14 +49,17 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Holds all Channels by their Channel-ID String representation (in
-	 * CaseFormat.UPPER_CAMEL)
+	 * CaseFormat.UPPER_CAMEL).
 	 */
-	private final Map<String, Channel<?>> channels = Collections.synchronizedMap(new HashMap<>());
+	private final Map<String, Channel<?>> channels = new ConcurrentHashMap<>();
 
 	private String id = null;
 	private String alias = null;
 	private ComponentContext componentContext = null;
 	private boolean enabled = true;
+
+	private ServiceTracker<MetaTypeService, MetaTypeService> metaTypeServiceTracker = null;
+	private AtomicReference<MetaTypeService> metaTypeService = new AtomicReference<>();
 
 	/**
 	 * Default constructor for AbstractOpenemsComponent.
@@ -109,9 +114,34 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param enabled is the Component enabled?
 	 */
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
+		// Get the MetaTypeService via ServiceTracker
+		// If we wouldn't do this here, each inheriting Component would have to get an
+		// @Reference to MetaTypeService, which would be cumbersome.
+		if (context != null && context.getBundleContext() != null) {
+			this.metaTypeServiceTracker = new ServiceTracker<MetaTypeService, MetaTypeService>(
+					context.getBundleContext(), MetaTypeService.class, null) {
+
+				@Override
+				public MetaTypeService addingService(ServiceReference<MetaTypeService> serviceReference) {
+					MetaTypeService metaTypeService = super.addingService(serviceReference);
+					AbstractOpenemsComponent.this.metaTypeService.set(metaTypeService);
+					AbstractOpenemsComponent.this.addChannelsForProperties();
+					return metaTypeService;
+				}
+
+				@Override
+				public void removedService(ServiceReference<MetaTypeService> serviceReference,
+						MetaTypeService service) {
+					AbstractOpenemsComponent.this.metaTypeService.set(null);
+					super.removedService(serviceReference, service);
+				}
+			};
+			this.metaTypeServiceTracker.open(true);
+		}
+
 		this.updateContext(context, id, alias, enabled);
 
-		if (isEnabled()) {
+		if (this.isEnabled()) {
 			this.logMessage("Activate");
 		} else {
 			this.logMessage("Activate DISABLED");
@@ -130,7 +160,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	protected void modified(ComponentContext context, String id, String alias, boolean enabled) {
 		this.updateContext(context, id, alias, enabled);
 
-		if (isEnabled()) {
+		if (this.isEnabled()) {
 			this.logMessage("Modified");
 		} else {
 			this.logMessage("Modified DISABLED");
@@ -142,6 +172,11 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 */
 	protected void deactivate() {
 		this.logMessage("Deactivate");
+		// disable the ServiceTracker
+		if (this.metaTypeServiceTracker != null) {
+			this.metaTypeServiceTracker.close();
+		}
+
 		// deactivate all Channels
 		for (Channel<?> channel : this.channels.values()) {
 			channel.deactivate();
@@ -189,7 +224,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		this.enabled = enabled;
 		this.componentContext = context;
 
-		this.addChannelsForProperties(context);
+		this.addChannelsForProperties();
 	}
 
 	/**
@@ -198,67 +233,109 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * <p>
 	 * If the Property key is "enabled" then a Channel with the ID
 	 * "_PropertyEnabled" is generated.
-	 * 
-	 * @param context the {@link ComponentContext}
 	 */
-	private void addChannelsForProperties(ComponentContext context) {
-		if (context == null) {
+	private synchronized void addChannelsForProperties() {
+		// Make sure ComponentContext, MetaTypeService, Bundle and MetaTypeInformation
+		// are available
+		final ComponentContext context = this.componentContext;
+		final MetaTypeService metaTypeService = this.metaTypeService.get();
+		if (context == null || metaTypeService == null) {
 			return;
 		}
-		Dictionary<String, Object> properties = context.getProperties();
+		final Bundle bundle = context.getUsingBundle();
+		if (bundle == null) {
+			return;
+		}
+		final MetaTypeInformation mti = metaTypeService.getMetaTypeInformation(bundle);
+		if (mti == null) {
+			return;
+		}
+		final Dictionary<String, Object> properties = context.getProperties();
 		if (properties == null) {
 			return;
 		}
 
-		Enumeration<String> keys = properties.keys();
-		while (keys.hasMoreElements()) {
-			try {
-				String key = keys.nextElement();
-				Object value = properties.get(key);
-				if (EdgeConfig.ignorePropertyKey(key)) {
-					// ignore
-					continue;
-				}
-				switch (key) {
-				case "alias":
-					// ignore
-					continue;
-				case "enabled":
-					// special treatment as the value always comes as a String
-					if (value != null && value instanceof String) {
-						value = ((String) value).toLowerCase().equals("true");
-					}
-				}
-				key = key.replace(".", "_");
+		// get Factory-PIDs in this Bundle
+		String[] factoryPids = mti.getFactoryPids();
+		for (String factoryPid : factoryPids) {
+			ObjectClassDefinition ocd = mti.getObjectClassDefinition(factoryPid, null);
+			this.addChannelsForProperties(ocd, properties);
+		}
 
-				String channelName = PROPERTY_CHANNEL_ID_PREFIX
-						+ CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, key);
-
-				Channel<?> channel = this.channels
-						.get(io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel(channelName));
-				if (channel == null) {
-					// Channel does not already exist -> create new Channel
-					Doc doc = AbstractOpenemsComponent.getDocFromObject(value);
-					io.openems.edge.common.channel.ChannelId channelId = new io.openems.edge.common.channel.ChannelId() {
-
-						@Override
-						public String name() {
-							return channelName;
-						}
-
-						@Override
-						public Doc doc() {
-							return doc;
-						}
-					};
-					channel = this.addChannel(channelId);
-				}
-				channel.setNextValue(value);
-
-			} catch (OpenemsException e) {
-				this.logWarn(this.log, "Unable to add Property Channel: " + e.getMessage());
-				e.printStackTrace();
+		// get Singleton PIDs in this Bundle
+		for (String pid : mti.getPids()) {
+			switch (pid) {
+			default:
+				ObjectClassDefinition ocd = mti.getObjectClassDefinition(pid, null);
+				this.addChannelsForProperties(ocd, properties);
 			}
+		}
+	}
+
+	/**
+	 * Adds Channels for Properties defined by {@link ObjectClassDefinition}..
+	 * 
+	 * @param ocd        The {@link ObjectClassDefinition}, i.e. the main annotation
+	 *                   on the Config class
+	 * @param properties the configuration properties {@link Dictionary}
+	 */
+	private void addChannelsForProperties(ObjectClassDefinition ocd, Dictionary<String, Object> properties) {
+		for (Property property : EdgeConfig.Factory.toProperties(ocd)) {
+			if (property.isPassword()) {
+				// Do not add 'Password' properties as Channels
+				continue;
+			}
+
+			// Evaluate Channel-Type
+			final OpenemsType channelType;
+			Object propertyValue = properties.get(property.getId());
+			if (propertyValue != null && propertyValue.getClass().isArray() && Array.getLength(propertyValue) > 1) {
+				// Arrays with more than one value can only be stored as string
+				channelType = OpenemsType.STRING;
+			} else {
+				channelType = property.getType();
+			}
+
+			// Create Channel
+			String channelName = PROPERTY_CHANNEL_ID_PREFIX
+					+ CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, property.getId().replace(".", "_"));
+			Channel<?> channel = this.channels
+					.get(io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel(channelName));
+			if (channel == null) {
+				// Channel does not already exist -> create new Channel
+				AbstractDoc<?> doc = Doc.of(channelType);
+				doc.persistencePriority(PersistencePriority.MEDIUM);
+				io.openems.edge.common.channel.ChannelId channelId = new io.openems.edge.common.channel.ChannelId() {
+
+					@Override
+					public String name() {
+						return channelName;
+					}
+
+					@Override
+					public Doc doc() {
+						return doc;
+					}
+				};
+				channel = this.addChannel(channelId);
+			}
+
+			// Set the Value
+			Object value = null;
+			try {
+				value = TypeUtils.getAsType(channelType, properties.get(property.getId()));
+			} catch (IllegalArgumentException e) {
+				// can be ignored
+			}
+			if (value == null) {
+				try {
+					value = JsonUtils.getAsType(channelType, property.getDefaultValue());
+				} catch (OpenemsNamedException | IllegalArgumentException e) {
+					this.logError(this.log, "Unable to parse Property [" + property.getId() + "] value ["
+							+ property.getDefaultValue() + "] to [" + property.getType() + "]: " + e.getMessage());
+				}
+			}
+			channel.setNextValue(value);
 		}
 	}
 
@@ -405,8 +482,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param message the message
 	 */
 	protected void logDebug(Logger log, String message) {
-		// TODO use log.debug(String, Object...) to improve speed
-		log.debug("[" + this.id() + "] " + message);
+		OpenemsComponent.logDebug(this, log, message);
 	}
 
 	/**
@@ -416,7 +492,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param message the message
 	 */
 	protected void logInfo(Logger log, String message) {
-		log.info("[" + this.id() + "] " + message);
+		OpenemsComponent.logInfo(this, log, message);
 	}
 
 	/**
@@ -426,7 +502,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param message the message
 	 */
 	protected void logWarn(Logger log, String message) {
-		log.warn("[" + this.id() + "] " + message);
+		OpenemsComponent.logWarn(this, log, message);
 	}
 
 	/**
@@ -436,83 +512,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param message the message
 	 */
 	protected void logError(Logger log, String message) {
-		log.error("[" + this.id() + "] " + message);
+		OpenemsComponent.logError(this, log, message);
 	}
 
-	/**
-	 * Gets an {@link AbstractDoc} from an Object.
-	 * 
-	 * @param value the Object
-	 * @return the {@link AbstractDoc}
-	 * @throws OpenemsException if the TypeDoc cannot be guessed from the Object.
-	 */
-	private static AbstractDoc<?> getDocFromObject(Object value) throws OpenemsException {
-		if (value instanceof Enum) {
-			Object[] enumValues = value.getClass().getEnumConstants();
-			OptionsEnum[] optionsEnums = new OptionsEnum[enumValues.length + 1];
-			final PropertyOptionsEnum undefined = new PropertyOptionsEnum(null, -1, "UNDEFINED");
-			undefined.setUndefined(undefined);
-			for (int i = 0; i < enumValues.length; i++) {
-				Enum<?> enumValue = ((Enum<?>) enumValues[i]);
-				optionsEnums[i] = new PropertyOptionsEnum(undefined, enumValue.ordinal(), enumValue.name());
-			}
-			return new EnumDoc(optionsEnums);
-		} else if (value instanceof Boolean) {
-			return new BooleanDoc();
-		} else if (value instanceof Float) {
-			return new FloatDoc();
-		} else if (value instanceof Double) {
-			return new DoubleDoc();
-		} else if (value instanceof Short) {
-			return new ShortDoc();
-		} else if (value instanceof Integer) {
-			return new IntegerDoc();
-		} else if (value instanceof Long) {
-			return new LongDoc();
-		} else if (value instanceof String) {
-			return new StringDoc();
-		} else if (value.getClass().isArray()) {
-			return new StringDoc();
-		}
-		throw new OpenemsException(
-				"Unable to find OpenemsType for Class [" + value.getClass() + "] of Object [" + value + "]");
-	}
-
-	/**
-	 * Wraps a config property enum to an {@link OptionsEnum}. This way it can be
-	 * used for Property-Channels.
-	 */
-	private static class PropertyOptionsEnum implements OptionsEnum {
-
-		private final int value;
-		private final String name;
-
-		private PropertyOptionsEnum undefined;
-
-		protected PropertyOptionsEnum(PropertyOptionsEnum undefined, int value, String name) {
-			this.undefined = undefined;
-			this.value = value;
-			this.name = name;
-		}
-
-		@Override
-		public int getValue() {
-			return this.value;
-		}
-
-		@Override
-		public String getName() {
-			return this.name;
-		}
-
-		protected void setUndefined(PropertyOptionsEnum undefined) {
-			this.undefined = undefined;
-		}
-
-		@Override
-		public OptionsEnum getUndefined() {
-			return this.undefined;
-		}
-
-	}
 }

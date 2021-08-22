@@ -51,7 +51,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private SymmetricMeter meter;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
 
 	@Reference
@@ -125,7 +125,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 		if (this.pByUCharacteristics == null) {
 			power = null;
 		} else {
-			Float p = this.pByUCharacteristics.getValue(voltageRatio);
+			Double p = this.pByUCharacteristics.getValue(voltageRatio);
 			if (p == null) {
 				power = null;
 			} else {

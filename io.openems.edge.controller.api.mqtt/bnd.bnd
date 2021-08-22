@@ -1,0 +1,18 @@
+Bundle-Name: OpenEMS Edge Controller Api MQTT
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.controller.api.common,\
+	io.openems.edge.timedata.api,\
+	io.openems.wrapper.paho-mqttv5,\
+	org.eclipse.paho.mqttv5.client;version='1.2',\
+	org.ops4j.pax.logging.pax-logging-api,\
+
+-testpath: \
+	${testpath}

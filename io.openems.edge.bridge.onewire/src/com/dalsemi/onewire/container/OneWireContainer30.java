@@ -629,7 +629,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * <A HREF="#EEPROM_REGISTER"><CODE>EEPROM_REGISTER</CODE></A> and <A HREF=
 	 * "#SPECIAL_FEATURE_REGISTER"><CODE>SPECIAL_FEATURE_REGISTER</CODE></A>.
 	 *
-	 * @param memAddr   registers address. Pre-defined fields for each register are
+	 * @param memAddr   registers address. Predefined fields for each register are
 	 *                  defined above.
 	 * @param flagToGet bitmask of desired flag, the acceptable parameters
 	 *                  pertaining to each register are defined as constant fields

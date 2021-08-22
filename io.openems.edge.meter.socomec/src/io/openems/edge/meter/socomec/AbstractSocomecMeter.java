@@ -8,14 +8,11 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
-import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.SymmetricMeter;
 
@@ -37,14 +34,47 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 		return this.modbusProtocol;
 	}
 
-	protected abstract void identifiedCountisE23_E24() throws OpenemsException;
+	/**
+	 * Applies the modbus protocol for Socomec Countis E23, E24, E27 and E28. All
+	 * are identical.
+	 * 
+	 * @throws OpenemsException on error
+	 */
+	protected abstract void identifiedCountisE23_E24_E27_E28() throws OpenemsException;
 
+	/**
+	 * Applies the modbus protocol for Socomec Countis E34, E44.
+	 * 
+	 * @throws OpenemsException on error
+	 */
+	protected abstract void identifiedCountisE34_E44() throws OpenemsException;
+
+	/**
+	 * Applies the modbus protocol for Socomec Diris A10.
+	 * 
+	 * @throws OpenemsException on error
+	 */
 	protected abstract void identifiedDirisA10() throws OpenemsException;
 
+	/**
+	 * Applies the modbus protocol for Socomec Diris A14.
+	 * 
+	 * @throws OpenemsException on error
+	 */
 	protected abstract void identifiedDirisA14() throws OpenemsException;
 
+	/**
+	 * Applies the modbus protocol for Socomec Diris B30.
+	 * 
+	 * @throws OpenemsException on error
+	 */
 	protected abstract void identifiedDirisB30() throws OpenemsException;
 
+	/**
+	 * Applies the modbus protocol for Socomec Countis E14.
+	 * 
+	 * @throws OpenemsException on error
+	 */
 	protected abstract void identifiedCountisE14() throws OpenemsException;
 
 	protected final void identifySocomecMeter() {
@@ -53,11 +83,27 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 
 				if (name.startsWith("countis e23")) {
 					this.logInfo(this.log, "Identified Socomec Countis E23 meter");
-					this.identifiedCountisE23_E24();
+					this.identifiedCountisE23_E24_E27_E28();
 
 				} else if (name.startsWith("countis e24")) {
 					this.logInfo(this.log, "Identified Socomec Countis E24 meter");
-					this.identifiedCountisE23_E24();
+					this.identifiedCountisE23_E24_E27_E28();
+
+				} else if (name.startsWith("countis e27")) {
+					this.logInfo(this.log, "Identified Socomec Countis E27 meter");
+					this.identifiedCountisE23_E24_E27_E28();
+
+				} else if (name.startsWith("countis e28")) {
+					this.logInfo(this.log, "Identified Socomec Countis E28 meter");
+					this.identifiedCountisE23_E24_E27_E28();
+
+				} else if (name.startsWith("countis e34")) {
+					this.logInfo(this.log, "Identified Socomec Countis E34 meter");
+					this.identifiedCountisE34_E44();
+					
+				} else if (name.startsWith("countis e44")) {
+					this.logInfo(this.log, "Identified Socomec Countis E44 meter");
+					this.identifiedCountisE34_E44();
 
 				} else if (name.startsWith("diris a-10") || name.startsWith("diris a10")) {
 					this.logInfo(this.log, "Identified Socomec Diris A10 meter");
@@ -101,59 +147,31 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 
 		// Search for Socomec identifier register. Needs to be "SOCO".
 		try {
-			this.readELementOnce(new UnsignedQuadruplewordElement(0xC350)).thenAccept(value -> {
-				if (value != 0x0053004F0043004FL /* SOCO */) {
-					this.channel(SocomecMeter.ChannelId.NO_SOCOMEC_METER).setNextValue(true);
-					return;
-				}
-				// Found Socomec meter
-				try {
-					this.readELementOnce(new StringWordElement(0xC38A, 8)).thenAccept(name -> {
-						result.complete(name.toLowerCase());
-					});
+			ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedQuadruplewordElement(0xC350), true)
+					.thenAccept(value -> {
+						if (value != 0x0053004F0043004FL /* SOCO */) {
+							this.channel(SocomecMeter.ChannelId.NO_SOCOMEC_METER).setNextValue(true);
+							return;
+						}
+						// Found Socomec meter
+						try {
+							ModbusUtils.readELementOnce(this.modbusProtocol, new StringWordElement(0xC38A, 8), true)
+									.thenAccept(name -> {
+										result.complete(name.toLowerCase());
+									});
 
-				} catch (OpenemsException e) {
-					this.logWarn(this.log, "Error while trying to identify Socomec meter: " + e.getMessage());
-					e.printStackTrace();
-					result.complete("");
-				}
-			});
+						} catch (OpenemsException e) {
+							this.logWarn(this.log, "Error while trying to identify Socomec meter: " + e.getMessage());
+							e.printStackTrace();
+							result.complete("");
+						}
+					});
 
 		} catch (OpenemsException e) {
 			this.logWarn(this.log, "Error while trying to identify Socomec meter: " + e.getMessage());
 			e.printStackTrace();
 			result.complete("");
 		}
-
-		return result;
-	}
-
-	/**
-	 * Reads given Element once from Modbus.
-	 * 
-	 * @param <T>     the Type of the element
-	 * @param element the element
-	 * @return a future value, e.g. a integer
-	 * @throws OpenemsException on error
-	 */
-	private <T> CompletableFuture<T> readELementOnce(AbstractModbusElement<T> element) throws OpenemsException {
-		// Prepare result
-		final CompletableFuture<T> result = new CompletableFuture<T>();
-
-		// Activate task
-		final Task task = new FC3ReadRegistersTask(element.getStartAddress(), Priority.HIGH, element);
-		this.modbusProtocol.addTask(task);
-
-		// Register listener for element
-		element.onUpdateCallback(value -> {
-			if (value == null) {
-				// try again
-				return;
-			}
-			// do not try again
-			this.modbusProtocol.removeTask(task);
-			result.complete(value);
-		});
 
 		return result;
 	}

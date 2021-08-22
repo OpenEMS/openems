@@ -25,7 +25,7 @@ task buildEdge() {
     doLast {
         file("${buildDir}/openems-edge.jar").delete()
         copy {
-            from file("${project(":io.openems.edge.application").distsDir}/executable/EdgeApp.jar")
+            from file("io.openems.edge.application/generated/distributions/executable/EdgeApp.jar")
             into file("${buildDir}")
             rename ("EdgeApp.jar", "openems-edge.jar")
         }
@@ -40,7 +40,7 @@ task buildBackend() {
     doLast {
         file("${buildDir}/openems-backend.jar").delete()
         copy {
-            from file("${project(":io.openems.backend.application").distsDir}/executable/BackendApp.jar")
+            from file("io.openems.backend.application/generated/distributions/executable/BackendApp.jar")
             into file("${buildDir}")
             rename ("BackendApp.jar", "openems-backend.jar")
         }
@@ -69,6 +69,7 @@ task buildAggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from
     title = "OpenEMS Javadoc"
     subprojects.each { proj ->
         proj.tasks.withType(Javadoc).each { javadocTask ->
+            options.addStringOption('Xdoclint:none', '-quiet')
             source += javadocTask.source
             classpath += javadocTask.classpath
             excludes += javadocTask.excludes

@@ -228,7 +228,12 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		this.isActivePowerAllowed = false;
 
 		// do always
-		setBatteryRanges();
+		try {
+			this.setBatteryRanges();
+		} catch (OpenemsNamedException e) {
+			this.logError(this.log, "Unable to set battery ranges: " + e.getMessage());
+			e.printStackTrace();
+		}
 		setWatchdog();
 
 		EnumReadChannel currentStateChannel = this.channel(ChannelId.CURRENT_STATE);
@@ -287,55 +292,93 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		stopSystem();
 	}
 
-	private void setBatteryRanges() {
+	private float lastAllowedChargePower = 0;
+	private float lastAllowedDischargePower = 0;
+
+	private void setBatteryRanges() throws OpenemsNamedException {
+		final float efficiencyFactor = 0.95F;
+		final int disMaxA;
+		final int chaMaxA;
+		final int voltage;
+		final int soc;
+		final int soh;
+		final int temperature;
+		int disMinV;
+		int chaMaxV;
+
+		// Evaluate input data
 		if (battery == null) {
-			return;
+			disMaxA = 0;
+			chaMaxA = 0;
+			disMinV = 0;
+			chaMaxV = 0;
+			voltage = 0;
+			soc = 0;
+			soh = 0;
+			temperature = 0;
+		} else {
+			disMaxA = battery.getDischargeMaxCurrent().orElse(0);
+			chaMaxA = battery.getChargeMaxCurrent().orElse(0);
+			disMinV = battery.getDischargeMinVoltage().orElse(0);
+			chaMaxV = battery.getChargeMaxVoltage().orElse(0);
+			voltage = battery.getVoltage().orElse(0);
+			soc = battery.getSoc().orElse(0);
+			soh = battery.getSoh().orElse(0);
+			temperature = battery.getMaxCellTemperature().orElse(0);
 		}
 
-		// Read some Channels from Battery
-		int disMinV = battery.getDischargeMinVoltage().orElse(0);
-		int chaMaxV = battery.getChargeMaxVoltage().orElse(0);
-		int disMaxA = battery.getDischargeMaxCurrent().orElse(0);
-		int chaMaxA = battery.getChargeMaxCurrent().orElse(0);
-		int batSoC = battery.getSoc().orElse(0);
-		int batSoH = battery.getSoh().orElse(0);
-		int batTemp = battery.getMaxCellTemperature().orElse(0);
-
-		// Update Power Constraints
-		// TODO: The actual AC allowed charge and discharge should come from the KACO
-		// Blueplanet instead of calculating it from DC parameters.
-		final double EFFICIENCY_FACTOR = 0.9;
-
-		// FIXME
-		// allowedCharge += battery.getVoltage().value().orElse(0) *
-		// battery.getChargeMaxCurrent().value().orElse(0) * -1;
-		// allowedDischarge += battery.getVoltage().value().orElse(0) *
-		// battery.getDischargeMaxCurrent().value().orElse(0);
-
-		this._setAllowedChargePower((int) (chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR));
-		this._setAllowedDischargePower((int) (disMaxA * disMinV * EFFICIENCY_FACTOR));
-
-		if (disMinV == 0 || chaMaxV == 0) {
-			return; // according to setup manual 64202.DisMinV and 64202.ChaMaxV must not be zero
+		// According to setup manual 64202.DisMinV and 64202.ChaMaxV must not be zero
+		if (disMinV == 0) {
+			disMinV = 1;
+		}
+		if (chaMaxV == 0) {
+			chaMaxV = 1;
 		}
 
-		// Set Battery values to inverter
-		try {
-			this.getDischargeMinVoltageChannel().setNextWriteValue(disMinV);
-			this.getChargeMaxVoltageChannel().setNextWriteValue(chaMaxV);
-			this.getDischargeMaxAmpereChannel().setNextWriteValue(disMaxA);
-			this.getChargeMaxAmpereChannel().setNextWriteValue(chaMaxA);
-			this.getEnLimitChannel().setNextWriteValue(1);
+		// Set Inverter Registers
+		this.getChargeMaxAmpereChannel().setNextWriteValue(//
+				/* enforce positive */ Math.max(0, chaMaxA));
+		this.getDischargeMaxAmpereChannel().setNextWriteValue(//
+				/* enforce positive */ Math.max(0, disMaxA));
+		this.getDischargeMinVoltageChannel().setNextWriteValue(disMinV);
+		this.getChargeMaxVoltageChannel().setNextWriteValue(chaMaxV);
+		this.getEnLimitChannel().setNextWriteValue(1);
 
-			// battery stats to display on inverter
-			this.getBatterySocChannel().setNextWriteValue(batSoC);
-			this.getBatterySohChannel().setNextWriteValue(batSoH);
-			this.getBatteryTempChannel().setNextWriteValue(batTemp);
+		// Calculate AllowedCharge- and -DischargePower
+		float allowedChargePower;
+		float allowedDischargePower;
 
-			this._setCapacity(battery.getCapacity().get());
-		} catch (OpenemsNamedException e) {
-			log.error("Error during setBatteryRanges, " + e.getMessage());
+		// efficiency factor is not considered in chargeMaxCurrent (DC Power > AC Power)
+		allowedChargePower = chaMaxA * voltage * -1;
+		allowedDischargePower = disMaxA * voltage * efficiencyFactor;
+
+		// Allow max increase of 1 %
+		if (allowedDischargePower > lastAllowedDischargePower + allowedDischargePower * 0.01F) {
+			allowedDischargePower = lastAllowedDischargePower + allowedDischargePower * 0.01F;
 		}
+		this.lastAllowedDischargePower = allowedDischargePower;
+
+		if (allowedChargePower < lastAllowedChargePower + allowedChargePower * 0.01F) {
+			allowedChargePower = lastAllowedChargePower + allowedChargePower * 0.01F;
+		}
+		this.lastAllowedChargePower = allowedChargePower;
+
+		// Make sure solution is feasible
+		if (allowedChargePower > allowedDischargePower) { // Force Discharge
+			allowedDischargePower = allowedChargePower;
+		}
+		if (allowedDischargePower < allowedChargePower) { // Force Charge
+			allowedChargePower = allowedDischargePower;
+		}
+
+		this._setAllowedChargePower(Math.round(allowedChargePower));
+		this._setAllowedDischargePower(Math.round(allowedDischargePower));
+
+		// Further values
+		this.getBatterySocChannel().setNextWriteValue(soc);
+		this.getBatterySohChannel().setNextWriteValue(soh);
+		this.getBatteryTempChannel().setNextWriteValue(temperature);
+		this._setCapacity(battery.getCapacity().get());
 	}
 
 	public String debugLog() {

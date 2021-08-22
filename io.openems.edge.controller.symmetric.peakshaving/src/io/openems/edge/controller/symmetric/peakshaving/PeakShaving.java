@@ -95,8 +95,8 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		}
 
 		// Calculate 'real' grid-power (without current ESS charge/discharge)
-		int gridPower = meter.getActivePower().orElse(0) /* current buy-from/sell-to grid */
-				+ ess.getActivePower().orElse(0) /* current charge/discharge Ess */;
+		int gridPower = meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
+				+ ess.getActivePower().getOrError() /* current charge/discharge Ess */;
 
 		int calculatedPower;
 		if (gridPower >= this.config.peakShavingPower()) {

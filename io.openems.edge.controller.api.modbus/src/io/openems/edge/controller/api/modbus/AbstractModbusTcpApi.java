@@ -18,7 +18,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.session.User;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
@@ -34,6 +33,7 @@ import io.openems.edge.common.modbusslave.ModbusRecordUint16Hash;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.ApiWorker;
 import io.openems.edge.controller.api.common.WritePojo;
@@ -49,7 +49,7 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 	public static final int DEFAULT_PORT = 502;
 	public static final int DEFAULT_MAX_CONCURRENT_CONNECTIONS = 5;
 
-	protected final ApiWorker apiWorker = new ApiWorker();
+	protected final ApiWorker apiWorker = new ApiWorker(this);
 
 	private final Logger log = LoggerFactory.getLogger(AbstractModbusTcpApi.class);
 	private final MyProcessImage processImage;

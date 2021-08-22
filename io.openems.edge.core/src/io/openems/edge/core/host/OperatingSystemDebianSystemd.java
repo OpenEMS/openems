@@ -9,6 +9,7 @@ import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,12 +28,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.types.ConfigurationProperty;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
+import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 
 /**
  * OperatingSystem implementation for Debian with systemd.
@@ -40,24 +44,15 @@ import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
 public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 	private static final String NETWORK_BASE_PATH = "/etc/systemd/network";
+	private static final Path UDEV_PATH = Paths.get("/etc/udev/rules.d/99-usb-serial.rules");
 
 	private static enum Block {
 		UNDEFINED, MATCH, NETWORK
 	}
 
-	private static final Pattern MATCH_NAME = Pattern.compile("^Name=(\\w+)$");
-	private static final Pattern NETWORK_ADDRESS = Pattern
-			.compile("^Address=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + "/\\d+)$");
-	private static final Pattern NETWORK_DHCP = Pattern.compile("^DHCP=(\\w+)$");
-	private static final Pattern NETWORK_LINK_LOCAL_ADDRESSING = Pattern.compile("^LinkLocalAddressing=(\\w+)$");
-	private static final Pattern NETWORK_GATEWAY = Pattern
-			.compile("^Gateway=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
-	private static final Pattern NETWORK_DNS = Pattern
-			.compile("^DNS=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
+	private final HostImpl parent;
 
-	private final Host parent;
-
-	protected OperatingSystemDebianSystemd(Host parent) {
+	protected OperatingSystemDebianSystemd(HostImpl parent) {
 		this.parent = parent;
 	}
 
@@ -87,85 +82,17 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				/*
 				 * Parse the content of the network configuration file
 				 */
-				Block currentBlock = Block.UNDEFINED;
-				final AtomicReference<String> name = new AtomicReference<>();
-				final AtomicReference<ConfigurationProperty<Boolean>> dhcp = new AtomicReference<>(
-						ConfigurationProperty.asNotSet());
-				final AtomicReference<ConfigurationProperty<Boolean>> linkLocalAddressing = new AtomicReference<>(
-						ConfigurationProperty.asNotSet());
-				final AtomicReference<ConfigurationProperty<Inet4Address>> gateway = new AtomicReference<>(
-						ConfigurationProperty.asNotSet());
-				final AtomicReference<ConfigurationProperty<Inet4Address>> dns = new AtomicReference<>(
-						ConfigurationProperty.asNotSet());
-				final AtomicReference<ConfigurationProperty<Set<Inet4AddressWithNetmask>>> addresses = new AtomicReference<>(
-						ConfigurationProperty.asNotSet());
-
 				List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.US_ASCII);
-				for (String line : lines) {
-					line = line.trim();
-					/*
-					 * Find current configuration block
-					 */
-					if (line.startsWith("[")) {
-						switch (line) {
-						case "[Match]":
-							currentBlock = Block.MATCH;
-							break;
-						case "[Network]":
-							currentBlock = Block.NETWORK;
-							break;
-						default:
-							currentBlock = Block.UNDEFINED;
-							break;
-						}
-						continue;
-					}
-
-					/*
-					 * Parse Block
-					 */
-					switch (currentBlock) {
-					case MATCH:
-						onMatchString(MATCH_NAME, line, property -> {
-							name.set(property);
-						});
-						break;
-					case NETWORK:
-						onMatchString(NETWORK_ADDRESS, line, property -> {
-							Set<Inet4AddressWithNetmask> content = addresses.get().getValue();
-							if (content == null) {
-								content = new HashSet<>();
-							}
-							content.add(Inet4AddressWithNetmask.fromString(property));
-							addresses.set(ConfigurationProperty.of(content));
-						});
-						onMatchString(NETWORK_DHCP, line, property -> {
-							dhcp.set(ConfigurationProperty.of(property.toLowerCase().equals("yes")));
-						});
-						onMatchString(NETWORK_LINK_LOCAL_ADDRESSING, line, property -> {
-							linkLocalAddressing.set(ConfigurationProperty.of(property.toLowerCase().equals("yes")));
-						});
-						onMatchInet4Address(NETWORK_GATEWAY, line, property -> {
-							gateway.set(ConfigurationProperty.of(property));
-						});
-						onMatchInet4Address(NETWORK_DNS, line, property -> {
-							dns.set(ConfigurationProperty.of(property));
-						});
-						break;
-					case UNDEFINED:
-						break;
-					}
-				}
+				NetworkInterface<File> networkInterface = parseSystemdNetworkdConfigurationFile(lines, file);
 
 				// check for null value
-				TypeUtils.assertNull("Network interface Name", name.get());
+				TypeUtils.assertNull("Network interface Name", networkInterface.getName());
 
 				// add to result
-				interfaces.put(name.get(), new NetworkInterface<File>(name.get(), //
-						dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), file));
+				interfaces.put(networkInterface.getName(), networkInterface);
 
-			} catch (IOException e) {
-				throw new OpenemsException("Unable to read file [" + file + "]");
+			} catch (IllegalArgumentException | IOException e) {
+				throw new OpenemsException("Unable to read file [" + file + "]: " + e.getMessage());
 			}
 		}
 
@@ -362,11 +289,11 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	private static class InputStreamToString implements Supplier<List<String>> {
 		private final Logger log = LoggerFactory.getLogger(InputStreamToString.class);
 
-		private final Host parent;
+		private final HostImpl parent;
 		private final String command;
 		private final InputStream stream;
 
-		public InputStreamToString(Host parent, String command, InputStream stream) {
+		public InputStreamToString(HostImpl parent, String command, InputStream stream) {
 			this.parent = parent;
 			this.command = StringUtils.toShortString(command, 20);
 			this.stream = stream;
@@ -397,4 +324,118 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			return result;
 		}
 	}
+
+	@Override
+	public String getUsbConfiguration() throws OpenemsNamedException {
+		try {
+			if (!Files.exists(UDEV_PATH)) {
+				return "";
+			} else {
+				List<String> lines = Files.readAllLines(UDEV_PATH, StandardCharsets.US_ASCII);
+				return String.join("\n", lines);
+			}
+		} catch (IOException e) {
+			throw new OpenemsException("Unable to read file [" + UDEV_PATH + "]: " + e.getMessage());
+		}
+	}
+
+	private static final Pattern MATCH_NAME = Pattern.compile("^Name=([a-zA-Z0-9*]+)$");
+	private static final Pattern NETWORK_ADDRESS = Pattern
+			.compile("^Address=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + "/\\d+)$");
+	private static final Pattern NETWORK_DHCP = Pattern.compile("^DHCP=(\\w+)$");
+	private static final Pattern NETWORK_LINK_LOCAL_ADDRESSING = Pattern.compile("^LinkLocalAddressing=(\\w+)$");
+	private static final Pattern NETWORK_GATEWAY = Pattern
+			.compile("^Gateway=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
+	private static final Pattern NETWORK_DNS = Pattern
+			.compile("^DNS=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
+
+	/**
+	 * Parses a Systemd-Networkd configuration file.
+	 * 
+	 * <p>
+	 * See <a href=
+	 * "https://man7.org/linux/man-pages/man5/systemd.network.5.html">systemd.network.5</a>
+	 * man page
+	 * 
+	 * @param <A>        the type of the attachment
+	 * @param lines      the lines to parse
+	 * @param attachment to be added as an attachment to the
+	 *                   {@link NetworkInterface}
+	 * @return a {@link NetworkInterface}
+	 * @throws OpenemsNamedException on error
+	 */
+	protected static <A> NetworkInterface<A> parseSystemdNetworkdConfigurationFile(List<String> lines, A attachment)
+			throws OpenemsNamedException {
+		Block currentBlock = Block.UNDEFINED;
+		final AtomicReference<String> name = new AtomicReference<>();
+		final AtomicReference<ConfigurationProperty<Boolean>> dhcp = new AtomicReference<>(
+				ConfigurationProperty.asNotSet());
+		final AtomicReference<ConfigurationProperty<Boolean>> linkLocalAddressing = new AtomicReference<>(
+				ConfigurationProperty.asNotSet());
+		final AtomicReference<ConfigurationProperty<Inet4Address>> gateway = new AtomicReference<>(
+				ConfigurationProperty.asNotSet());
+		final AtomicReference<ConfigurationProperty<Inet4Address>> dns = new AtomicReference<>(
+				ConfigurationProperty.asNotSet());
+		final AtomicReference<ConfigurationProperty<Set<Inet4AddressWithNetmask>>> addresses = new AtomicReference<>(
+				ConfigurationProperty.asNotSet());
+
+		for (String line : lines) {
+			line = line.trim();
+			/*
+			 * Find current configuration block
+			 */
+			if (line.startsWith("[")) {
+				switch (line) {
+				case "[Match]":
+					currentBlock = Block.MATCH;
+					break;
+				case "[Network]":
+					currentBlock = Block.NETWORK;
+					break;
+				default:
+					currentBlock = Block.UNDEFINED;
+					break;
+				}
+				continue;
+			}
+
+			/*
+			 * Parse Block
+			 */
+			switch (currentBlock) {
+			case MATCH:
+				onMatchString(MATCH_NAME, line, property -> {
+					name.set(property);
+				});
+				break;
+			case NETWORK:
+				onMatchString(NETWORK_ADDRESS, line, property -> {
+					Set<Inet4AddressWithNetmask> content = addresses.get().getValue();
+					if (content == null) {
+						content = new HashSet<>();
+					}
+					content.add(Inet4AddressWithNetmask.fromString(property));
+					addresses.set(ConfigurationProperty.of(content));
+				});
+				onMatchString(NETWORK_DHCP, line, property -> {
+					dhcp.set(ConfigurationProperty.of(property.toLowerCase().equals("yes")));
+				});
+				onMatchString(NETWORK_LINK_LOCAL_ADDRESSING, line, property -> {
+					linkLocalAddressing.set(ConfigurationProperty.of(property.toLowerCase().equals("yes")));
+				});
+				onMatchInet4Address(NETWORK_GATEWAY, line, property -> {
+					gateway.set(ConfigurationProperty.of(property));
+				});
+				onMatchInet4Address(NETWORK_DNS, line, property -> {
+					dns.set(ConfigurationProperty.of(property));
+				});
+				break;
+			case UNDEFINED:
+				break;
+			}
+		}
+		return new NetworkInterface<A>(name.get(), //
+				dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), attachment);
+	}
+
 }

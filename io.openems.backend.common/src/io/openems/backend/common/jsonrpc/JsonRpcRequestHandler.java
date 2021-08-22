@@ -2,7 +2,7 @@ package io.openems.backend.common.jsonrpc;
 
 import java.util.concurrent.CompletableFuture;
 
-import io.openems.backend.metadata.api.BackendUser;
+import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -18,7 +18,7 @@ public interface JsonRpcRequestHandler {
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleRequest(String context, BackendUser user,
+	public CompletableFuture<? extends JsonrpcResponseSuccess> handleRequest(String context, User user,
 			JsonrpcRequest request) throws OpenemsNamedException;
 
 }

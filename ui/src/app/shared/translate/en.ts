@@ -32,6 +32,7 @@ export const TRANSLATION = {
         inactive: 'Inactive',
         info: 'Info',
         inputNotValid: 'Input not valid',
+        insufficientRights: 'Insufficient rights',
         live: 'Live',
         load: 'Load',
         manually: 'Manually',
@@ -94,6 +95,8 @@ export const TRANSLATION = {
         logout: 'Sign Out',
         menu: 'Menu',
         overview: 'OpenEMS Edge Overview',
+        settings: 'Settings',
+        user: 'User',
     },
     Index: {
         allConnected: 'All connections established.',
@@ -108,6 +111,7 @@ export const TRANSLATION = {
         preamble: "Please enter your password or submit the default value to login as a guest.",
         passwordLabel: "Password",
         passwordPlaceholder: "Password",
+        authenticationFailed: "Authentication Failed",
     },
     Edge: {
         Index: {
@@ -138,6 +142,7 @@ export const TRANSLATION = {
                     currentValue: 'Current value',
                     dependendOn: 'Dependend on',
                     minSwitchingTime: 'Minimum swichting time',
+                    moreThanMaxPower: 'Value must not be lower than the maximum power of the controlled device',
                     other: 'Other',
                     relationError: 'Threshold must be greater than the switched load power',
                     switchedLoadPower: 'Switched load power',
@@ -147,13 +152,24 @@ export const TRANSLATION = {
                     switchOnBelow: 'Switch on below',
                     threshold: 'Threshold',
                 },
+                DelayedSellToGrid: {
+                    sellToGridPowerLimit: 'Charge above',
+                    continuousSellToGridPower: 'Discharge below',
+                    relationError: 'Charge limit must be greater than the Discharge limit',
+                },
                 Peakshaving: {
                     asymmetricInfo: 'The entered performance values ​​refer to individual phases. It is adjusted to the most stressed phase.',
+                    endDate: 'End date',
+                    endTime: 'End time',
                     mostStressedPhase: 'Most stressed phase',
                     peakshaving: 'Peak-Shaving',
                     peakshavingPower: 'Discharge above',
+                    recharge: 'Recharge Power',
                     rechargePower: 'Charge below',
-                    relationError: 'Discharge limit must be greater than or equal to the load limit',
+                    relationError: 'Discharge limit must be greater than or equal to the charge limit',
+                    startDate: 'Start date',
+                    startTime: 'Start time',
+                    startTimeCharge: 'Charge Start time',
                 },
                 CHP: {
                     highThreshold: 'High Threshold',
@@ -238,6 +254,22 @@ export const TRANSLATION = {
                     minimalEnergyAmount: 'Minimal charge amount',
                     minimumRunTime: 'Minimum runtime',
                     timeCountdown: 'time until start',
+                },
+                HeatPump: {
+                    aboveSoc: 'and above the state of charge of',
+                    belowSoc: 'and below state of charge of',
+                    gridBuy: 'From grid purchase of',
+                    gridSell: 'From excess feed-in of',
+                    lock: 'Lock',
+                    moreThanHpPower: 'The value must not be lower than the maximum output of the heat pump',
+                    normalOperation: 'Normal operation',
+                    normalOperationShort: 'Normal',
+                    relationError: 'Switch-on command excess value must be greater than switch-on recommended value',
+                    switchOnCom: 'Switch-on command',
+                    switchOnComShort: 'Command',
+                    switchOnRec: 'Switch-on recommendation',
+                    switchOnRecShort: 'Recommendation',
+                    undefined: 'Undefined',
                 }
             }
         },
@@ -349,5 +381,11 @@ export const TRANSLATION = {
         failed: 'Connection failed.',
         loggedIn: 'Logged in.',
         loggedInAs: 'Logged in as \'{{value}}\'.', // value = username
+    },
+    Role: {
+        guest: 'Guest',
+        owner: 'Owner',
+        installer: 'Installer',
+        admin: 'Administrator',
     }
 }

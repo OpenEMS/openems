@@ -419,25 +419,25 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 				.unit(Unit.NONE)),
 		BATTERY_STRING_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)),
-		BATTERY_STRING_MAX_VOLTAGE_TEMPARATURE(Doc.of(OpenemsType.INTEGER)//
+		BATTERY_STRING_MAX_VOLTAGE_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)),
 		BATTERY_NUMBER_MIN_STRING_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.NONE)),
 		BATTERY_STRING_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)),
-		BATTERY_STRING_MIN_VOLTAGE_TEMPARATURE(Doc.of(OpenemsType.INTEGER)//
+		BATTERY_STRING_MIN_VOLTAGE_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)),
 		BATTERY_NUMBER_MAX_STRING_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.NONE)),
 		BATTERY_STRING_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)),
-		BATTERY_STRING_MAX_TEMPARATURE_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+		BATTERY_STRING_MAX_TEMPERATURE_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)),
 		BATTERY_NUMBER_MIN_STRING_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.NONE)),
 		BATTERY_STRING_MIN_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)),
-		BATTERY_STRING_MIN_TEMPARATURE_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+		BATTERY_STRING_MIN_TEMPERATURE_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)),
 		BATTERY_STRING_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.AMPERE)),
@@ -540,7 +540,8 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_188(Doc.of(Level.WARNING).text("Harmonic protection")), //
 		STATE_189(Doc.of(Level.WARNING).text("Battery emergency stop")), //
 		// ADAS_WARNING_1_0
-		STATE_190(Doc.of(Level.FAULT).text("Reserved")),
+		STATE_190(Doc.of(Level.FAULT).text("Reserved")), //
+		STATE_203(Doc.of(Level.FAULT).text("Reserved")), //
 		// ADAS_WARNING_1_1
 		STATE_191(Doc.of(Level.FAULT).text("Serious overheating of ambient temperature in PCS room")), //
 		STATE_192(Doc.of(Level.FAULT).text("Serious overheating of ambient temperature in Battery room")), //
@@ -554,8 +555,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_199(Doc.of(Level.FAULT).text("DCAC module 4 Communication disconnected")), //
 		STATE_200(Doc.of(Level.FAULT).text("BECU1 Communication disconnected")), //
 		STATE_201(Doc.of(Level.FAULT).text("BECU2 Communication disconnected")), //
-		STATE_202(Doc.of(Level.FAULT).text("BECU3 Communication disconnected")), //
-		STATE_203(Doc.of(Level.FAULT).text("BECU4 Communication disconnected"));//
+		STATE_202(Doc.of(Level.FAULT).text("BECU3 Communication disconnected")); //
 
 		private final Doc doc;
 
@@ -766,24 +766,24 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						m(EssFeneconBydContainer.ChannelId.BATTERY_NUMBER_MAX_STRING_VOLTAGE,
 								new UnsignedWordElement(0x6007)),
 						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_MAX_VOLTAGE, new UnsignedWordElement(0x6008)),
-						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_MAX_VOLTAGE_TEMPARATURE,
+						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_MAX_VOLTAGE_TEMPERATURE,
 								new SignedWordElement(0x6009)),
 						m(EssFeneconBydContainer.ChannelId.BATTERY_NUMBER_MIN_STRING_VOLTAGE,
 								new UnsignedWordElement(0x600A)),
 						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_MIN_VOLTAGE, new UnsignedWordElement(0x600B)),
-						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_MIN_VOLTAGE_TEMPARATURE,
+						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_MIN_VOLTAGE_TEMPERATURE,
 								new SignedWordElement(0x600C)),
 						m(EssFeneconBydContainer.ChannelId.BATTERY_NUMBER_MAX_STRING_TEMPERATURE,
 								new UnsignedWordElement(0x600D)),
 						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_MAX_TEMPERATURE,
 								new SignedWordElement(0x600E)),
-						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_MAX_TEMPARATURE_VOLTAGE,
+						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_MAX_TEMPERATURE_VOLTAGE,
 								new UnsignedWordElement(0x600F)),
 						m(EssFeneconBydContainer.ChannelId.BATTERY_NUMBER_MIN_STRING_TEMPERATURE,
 								new UnsignedWordElement(0x6010)),
 						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_MIN_TEMPERATURE,
 								new SignedWordElement(0x6011)),
-						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_MIN_TEMPARATURE_VOLTAGE,
+						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_MIN_TEMPERATURE_VOLTAGE,
 								new UnsignedWordElement(0x6012)),
 						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_CHARGE_CURRENT_LIMIT,
 								new UnsignedWordElement(0x6013)),
@@ -910,7 +910,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						), //
 							// ADAS_WARNING_1_1
 						m(new BitsWordElement(0x3451, this) //
-								.bit(3, EssFeneconBydContainer.ChannelId.STATE_190) //
+								.bit(3, EssFeneconBydContainer.ChannelId.STATE_203) //
 								.bit(4, EssFeneconBydContainer.ChannelId.STATE_191) //
 								.bit(5, EssFeneconBydContainer.ChannelId.STATE_192) //
 								.bit(6, EssFeneconBydContainer.ChannelId.STATE_193) //

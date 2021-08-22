@@ -2,22 +2,23 @@ package io.openems.edge.common.user;
 
 import java.util.Optional;
 
-// TODO evaluate org.osgi.service.useradmin.User;
-
 public interface UserService {
-	/**
-	 * Authenticates a user with his password
-	 *
-	 * @param password
-	 * @return the authenticated User or Empty if authentication failed
-	 */
-	Optional<EdgeUser> authenticate(String password);
 
 	/**
-	 * Authenticates a user with his username and password
+	 * Authenticates a user with his password.
 	 *
-	 * @param password
+	 * @param password the password
 	 * @return the authenticated User or Empty if authentication failed
 	 */
-	Optional<EdgeUser> authenticate(String username, String password);
+	Optional<User> authenticate(String password);
+
+	/**
+	 * Authenticates a user with his username and password.
+	 *
+	 * @param username the username
+	 * @param password the password
+	 * @return the authenticated User or Empty if authentication failed
+	 */
+	Optional<User> authenticate(String username, String password);
+
 }

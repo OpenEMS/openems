@@ -10,6 +10,6 @@ public interface ComponentManagerProvider extends OpenemsComponent {
 	 * 
 	 * @return the service or null if it is not (yet) available.
 	 */
-	public ComponentManager getTimedata();
+	public ComponentManager getComponentManager();
 
 }

@@ -1,6 +1,7 @@
 package io.openems.edge.battery.bydcommercial;
 
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -26,15 +27,18 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.bydcommercial.statemachine.Context;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
+import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -49,15 +53,26 @@ import io.openems.edge.common.taskmanager.Priority;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
 public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 		implements BatteryBoxC130, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
+
+	private static final float CAPACITY_PER_MODULE = 6.9f;
+	private static final int MIN_ALLOWED_VOLTAGE_PER_MODULE = 34;
+	private static final int MAX_ALLOWED_VOLTAGE_PER_MODULE = 42;
+
+	private static final int OLD_VERSION_DEFAULT_CHARGE_MAX_VOLTAGE = 820;
+	private static final int OLD_VERSION_DEFAULT_DISCHARGE_MIN_VOLTAGE = 638;
 
 	private final Logger log = LoggerFactory.getLogger(BatteryBoxC130Impl.class);
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	@Reference
+	protected ComponentManager componentManager;
 
 	/**
 	 * Manages the {@link State}s of the StateMachine.
@@ -65,13 +80,15 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private Config config;
+	private BatteryProtection batteryProtection = null;
 
 	public BatteryBoxC130Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
-				BatteryBoxC130.ChannelId.values() //
+				BatteryBoxC130.ChannelId.values(), //
+				BatteryProtection.ChannelId.values() //
 		);
 	}
 
@@ -87,6 +104,20 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 				"Modbus", config.modbus_id())) {
 			return;
 		}
+
+		// Initialize Battery-Protection
+		this.batteryProtection = BatteryProtection.create(this) //
+				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionBydC130(), this.componentManager) //
+				.build();
+
+		int maxVoltage = this.config.numberOfSlaves() * MAX_ALLOWED_VOLTAGE_PER_MODULE;
+		_setChargeMaxVoltage(maxVoltage);
+
+		int minVoltage = this.config.numberOfSlaves() * MIN_ALLOWED_VOLTAGE_PER_MODULE;
+		_setDischargeMinVoltage(minVoltage);
+
+		int capacity = (int) (this.config.numberOfSlaves() * CAPACITY_PER_MODULE);
+		_setCapacity(capacity);
 	}
 
 	@Deactivate
@@ -100,6 +131,10 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
+
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.batteryProtection.apply();
+			break;
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.handleStateMachine();
@@ -147,11 +182,11 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 						m(BatteryBoxC130.ChannelId.POWER_CIRCUIT_CONTROL, new UnsignedWordElement(0x2010)) //
 				), //
 				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
-						m(new UnsignedWordElement(0x2100)) //
+						m(new UnsignedWordElement(0x2100).onUpdateCallback(this.onRegister0x2100Update)) //
 								.m(BatteryBoxC130.ChannelId.CLUSTER_1_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_2) // [mV]
 								.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]
 								.build(), //
-						m(new UnsignedWordElement(0x2101)) //
+						m(new SignedWordElement(0x2101)) //
 								.m(BatteryBoxC130.ChannelId.CLUSTER_1_CURRENT, ElementToChannelConverter.SCALE_FACTOR_2) // [mA]
 								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [A]
 								.build(), //
@@ -173,21 +208,20 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 								.m(Battery.ChannelId.MIN_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.build(), //
 						m(BatteryBoxC130.ChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x2109)), //
-						m(new UnsignedWordElement(0x210A)) //
+						m(new SignedWordElement(0x210A)) //
 								.m(BatteryBoxC130.ChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE,
 										ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(Battery.ChannelId.MAX_CELL_TEMPERATURE,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build(), //
 						m(BatteryBoxC130.ChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x210B)), //
-						m(new UnsignedWordElement(0x210C)) //
+						m(new SignedWordElement(0x210C)) //
 								.m(BatteryBoxC130.ChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE,
 										ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(Battery.ChannelId.MIN_CELL_TEMPERATURE,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-								.build(), //
-						m(BatteryBoxC130.ChannelId.MODULE_QTY, new UnsignedWordElement(0x210D)), //
-						m(BatteryBoxC130.ChannelId.TOTAL_VOLTAGE_OF_SINGLE_MODULE, new UnsignedWordElement(0x210E))), //
+								.build()), //
+
 				new FC3ReadRegistersTask(0x211D, Priority.HIGH, //
 						m(new BitsWordElement(0x211D, this) //
 								.bit(1, BatteryBoxC130.ChannelId.NEED_CHARGE)) //
@@ -238,7 +272,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 								.bit(1, BatteryBoxC130.ChannelId.ALARM_BCU_NTC) //
 								.bit(2, BatteryBoxC130.ChannelId.ALARM_CONTACTOR_ADHESION) //
 								.bit(3, BatteryBoxC130.ChannelId.ALARM_BCU_BMU_COMMUNICATION)//
-								.bit(4, BatteryBoxC130.ChannelId.FAILURE_EEPROM) //
+								.bit(4, BatteryBoxC130.ChannelId.FAILURE_EEPROM2) //
 								.bit(5, BatteryBoxC130.ChannelId.ALARM_CURRENT_SENSOR) //
 								.bit(6, BatteryBoxC130.ChannelId.ALARM_INSULATION_CHECK) //
 								.bit(7, BatteryBoxC130.ChannelId.ALARM_BAU_COMMUNICATION) //
@@ -284,13 +318,9 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 
 				), //
 				new FC3ReadRegistersTask(0x216C, Priority.HIGH, //
-						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new SignedWordElement(0x216C), //
+						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new UnsignedWordElement(0x216C),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new SignedWordElement(0x216D), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(0x216E), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(0x216F), //
+						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new UnsignedWordElement(0x216D),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), //
 
@@ -648,5 +678,62 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 		assert false;
 		return StartStop.UNDEFINED; // can never happen
 	}
+
+	/*
+	 * Handle incompatibility with old hardware protocol.
+	 * 
+	 * 'onRegister0x2100Update()' callback is called when register 0x2100 is read.
+	 */
+
+	private boolean isModbusProtocolInitialized = false;
+	private final Consumer<Integer> onRegister0x2100Update = (value) -> {
+		if (value == null) {
+			// ignore invalid values; modbus bridge has no connection yet
+			return;
+		}
+		if (BatteryBoxC130Impl.this.isModbusProtocolInitialized) {
+			// execute only once
+			return;
+		}
+		BatteryBoxC130Impl.this.isModbusProtocolInitialized = true;
+
+		// Try to read MODULE_QTY Register
+		try {
+			ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(0x210D), false)
+					.thenAccept(moduleQtyValue -> {
+						if (moduleQtyValue != null) {
+							// Register is available -> add Registers for current hardware to protocol
+							try {
+								this.getModbusProtocol().addTasks(//
+										new FC3ReadRegistersTask(0x210D, Priority.LOW, //
+												m(BatteryBoxC130.ChannelId.MODULE_QTY, new UnsignedWordElement(0x210D)), //
+												m(BatteryBoxC130.ChannelId.TOTAL_VOLTAGE_OF_SINGLE_MODULE,
+														new UnsignedWordElement(0x210E))), //
+										new FC3ReadRegistersTask(0x216E, Priority.LOW, //
+												m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(0x216E), //
+														ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+												m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
+														new UnsignedWordElement(0x216F), //
+														ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								));
+							} catch (OpenemsException e) {
+								BatteryBoxC130Impl.this.logError(BatteryBoxC130Impl.this.log,
+										"Unable to add registers for detected hardware version: " + e.getMessage());
+								e.printStackTrace();
+							} //
+						} else {
+							BatteryBoxC130Impl.this.logInfo(BatteryBoxC130Impl.this.log,
+									"Detected old hardware version. Registers are not available. Setting default values.");
+
+							this._setChargeMaxVoltage(OLD_VERSION_DEFAULT_CHARGE_MAX_VOLTAGE);
+							this._setDischargeMinVoltage(OLD_VERSION_DEFAULT_DISCHARGE_MIN_VOLTAGE);
+						}
+					});
+		} catch (OpenemsException e) {
+			BatteryBoxC130Impl.this.logError(BatteryBoxC130Impl.this.log,
+					"Unable to detect hardware version: " + e.getMessage());
+			e.printStackTrace();
+		}
+	};
 
 }

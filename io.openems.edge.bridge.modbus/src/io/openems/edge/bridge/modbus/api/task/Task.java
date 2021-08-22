@@ -23,6 +23,13 @@ public interface Task extends ManagedTask {
 	int getStartAddress();
 
 	/**
+	 * Gets the length from first to last Modbus register address.
+	 * 
+	 * @return the address
+	 */
+	int getLength();
+
+	/**
 	 * Sets the parent.
 	 * 
 	 * @param parent the parent {@link AbstractOpenemsModbusComponent}.

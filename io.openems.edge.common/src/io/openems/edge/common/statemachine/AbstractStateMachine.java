@@ -15,7 +15,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
  * @param <CONTEXT> the context type, i.e. a class wrapping a State-Machine
  *                  context
  */
-public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT> {
+public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT extends AbstractContext<?>> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractStateMachine.class);
 
@@ -110,7 +110,7 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT> 
 
 		// Call StateMachine events on transition
 		if (lastState != this.state) {
-			this.log.info("Changing StateMachine from [" + lastState + "] to [" + this.state + "]");
+			context.logInfo(this.log, "Changing StateMachine from [" + lastState + "] to [" + this.state + "]");
 
 			// On-Exit of the last State
 			try {

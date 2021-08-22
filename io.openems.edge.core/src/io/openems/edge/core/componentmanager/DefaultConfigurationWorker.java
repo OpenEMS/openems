@@ -2,7 +2,6 @@ package io.openems.edge.core.componentmanager;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -12,6 +11,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -19,17 +19,57 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
-import io.openems.common.utils.JsonUtils;
 
 /**
  * This Worker checks if certain OpenEMS-Components are configured and - if not
  * - configures them. It is used to make sure a set of standard components are
  * always activated by default on a deployed energy management system.
+ * 
+ * <p>
+ * Example 1: Add JSON/REST-Api Controller by default:
+ * 
+ * <pre>
+ * if (existingConfigs.stream().noneMatch(c -> //
+ * // Check if either "Controller.Api.Rest.ReadOnly" or
+ * // "Controller.Api.Rest.ReadWrite" exist
+ * "Controller.Api.Rest.ReadOnly".equals(c.factoryPid) || "Controller.Api.Rest.ReadWrite".equals(c.factoryPid))) {
+ * 	// if not -> create configuration for "Controller.Api.Rest.ReadOnly"
+ * 	this.createConfiguration(defaultConfigurationFailed, "Controller.Api.Rest.ReadOnly", Arrays.asList(//
+ * 			new Property("id", "ctrlApiRest0"), //
+ * 			new Property("alias", ""), //
+ * 			new Property("enabled", true), //
+ * 			new Property("port", 8084), //
+ * 			new Property("debugMode", false) //
+ * 	));
+ * }
+ * </pre>
+ * 
+ * <p>
+ * Example 2: Add Modbus/TCP-Api Controller by default:
+ * 
+ * <pre>
+ * if (existingConfigs.stream().noneMatch(c -> //
+ * // Check if either "Controller.Api.Rest.ReadOnly" or
+ * // "Controller.Api.Rest.ReadWrite" exist
+ * "Controller.Api.ModbusTcp.ReadOnly".equals(c.factoryPid)
+ * 		|| "Controller.Api.ModbusTcp.ReadWrite".equals(c.factoryPid))) {
+ * 	// if not -> create configuration for "Controller.Api.Rest.ReadOnly"
+ * 	this.createConfiguration(defaultConfigurationFailed, "Controller.Api.ModbusTcp.ReadOnly", Arrays.asList(//
+ * 			new Property("id", "ctrlApiModbusTcp0"), //
+ * 			new Property("alias", ""), //
+ * 			new Property("enabled", true), //
+ * 			new Property("port", 502), //
+ * 			new Property("component.ids", JsonUtils.buildJsonArray().add("_sum").build()), //
+ * 			new Property("maxConcurrentConnections", 5) //
+ * 	));
+ * }
+ * </pre>
  */
 public class DefaultConfigurationWorker extends ComponentManagerWorker {
 
@@ -76,42 +116,6 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 				e.printStackTrace();
 				defaultConfigurationFailed.set(true);
 			}
-		}
-
-		/*
-		 * Create Controller.Api.Rest.ReadOnly
-		 */
-		if (existingConfigs.stream().noneMatch(c -> //
-		// Check if either "Controller.Api.Rest.ReadOnly" or
-		// "Controller.Api.Rest.ReadWrite" exist
-		"Controller.Api.Rest.ReadOnly".equals(c.factoryPid) || "Controller.Api.Rest.ReadWrite".equals(c.factoryPid))) {
-			// if not -> create configuration for "Controller.Api.Rest.ReadOnly"
-			this.createConfiguration(defaultConfigurationFailed, "Controller.Api.Rest.ReadOnly", Arrays.asList(//
-					new Property("id", "ctrlApiRest0"), //
-					new Property("alias", ""), //
-					new Property("enabled", true), //
-					new Property("port", 8084), //
-					new Property("debugMode", false) //
-			));
-		}
-
-		/*
-		 * Create Controller.Api.Modbus.ReadOnly
-		 */
-		if (existingConfigs.stream().noneMatch(c -> //
-		// Check if either "Controller.Api.Rest.ReadOnly" or
-		// "Controller.Api.Rest.ReadWrite" exist
-		"Controller.Api.ModbusTcp.ReadOnly".equals(c.factoryPid)
-				|| "Controller.Api.ModbusTcp.ReadWrite".equals(c.factoryPid))) {
-			// if not -> create configuration for "Controller.Api.Rest.ReadOnly"
-			this.createConfiguration(defaultConfigurationFailed, "Controller.Api.ModbusTcp.ReadOnly", Arrays.asList(//
-					new Property("id", "ctrlApiModbusTcp0"), //
-					new Property("alias", ""), //
-					new Property("enabled", true), //
-					new Property("port", 502), //
-					new Property("component.ids", JsonUtils.buildJsonArray().add("_sum").build()), //
-					new Property("maxConcurrentConnections", 5) //
-			));
 		}
 
 		return defaultConfigurationFailed.get();
@@ -170,6 +174,10 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 	protected void createConfiguration(AtomicBoolean defaultConfigurationFailed, String factoryPid,
 			List<Property> properties) {
 		try {
+			this.parent.logInfo(this.log,
+					"Creating Component configuration [" + factoryPid + "]: " + properties.stream() //
+							.map(p -> p.getName() + ":" + p.getValue().toString()) //
+							.collect(Collectors.joining(", ")));
 			CompletableFuture<JsonrpcResponseSuccess> response = this.parent.handleCreateComponentConfigRequest(
 					null /* no user */, new CreateComponentConfigRequest(factoryPid, properties));
 			response.get(60, TimeUnit.SECONDS);
@@ -193,6 +201,11 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 	protected void updateConfiguration(AtomicBoolean defaultConfigurationFailed, String componentId,
 			List<Property> properties) {
 		try {
+			this.parent.logInfo(this.log,
+					"Updating Component configuration [" + componentId + "]: " + properties.stream() //
+							.map(p -> p.getName() + ":" + p.getValue().toString()) //
+							.collect(Collectors.joining(", ")));
+
 			CompletableFuture<JsonrpcResponseSuccess> response = this.parent.handleUpdateComponentConfigRequest(
 					null /* no user */, new UpdateComponentConfigRequest(componentId, properties));
 			response.get(60, TimeUnit.SECONDS);
@@ -214,6 +227,8 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 	 */
 	protected void deleteConfiguration(AtomicBoolean defaultConfigurationFailed, String componentId) {
 		try {
+			this.parent.logInfo(this.log, "Deleting Component [" + componentId + "]");
+
 			CompletableFuture<JsonrpcResponseSuccess> response = this.parent.handleDeleteComponentConfigRequest(
 					null /* no user */, new DeleteComponentConfigRequest(componentId));
 			response.get(60, TimeUnit.SECONDS);
@@ -229,8 +244,11 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 	 * Holds a configuration.
 	 */
 	protected static class Config {
-		protected static Config from(Configuration config) {
+		protected static Config from(Configuration config) throws OpenemsException {
 			Dictionary<String, Object> properties = config.getProperties();
+			if (properties == null) {
+				throw new OpenemsException(config.getPid() + ": Properties is 'null'");
+			}
 			Object componentIdObj = properties.get("id");
 			String componentId;
 			if (componentIdObj != null) {

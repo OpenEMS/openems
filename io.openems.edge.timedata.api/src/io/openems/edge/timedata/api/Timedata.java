@@ -5,7 +5,6 @@ import java.util.concurrent.CompletableFuture;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.CommonTimedataService;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Doc;
@@ -33,7 +32,6 @@ public interface Timedata extends CommonTimedataService, OpenemsComponent {
 	 * 
 	 * @param channelAddress the ChannelAddress to be queried
 	 * @return the latest known value or Empty
-	 * @throws OpenemsNamedException on error
 	 */
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress);
 

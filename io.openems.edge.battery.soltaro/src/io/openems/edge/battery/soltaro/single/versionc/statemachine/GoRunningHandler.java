@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.battery.soltaro.single.versionc.SingleRackVersionC;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.State;
 import io.openems.edge.battery.soltaro.versionc.utils.Constants;
@@ -18,12 +19,14 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		this.lastAttempt = Instant.MIN;
 		this.attemptCounter = 0;
-		context.component._setMaxStartAttempts(false);
+		SingleRackVersionC battery = context.getParent();
+		battery._setMaxStartAttempts(false);
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		PreChargeControl preChargeControl = context.component.getPreChargeControl();
+		SingleRackVersionC battery = context.getParent();
+		PreChargeControl preChargeControl = battery.getPreChargeControl();
 
 		if (preChargeControl == PreChargeControl.RUNNING) {
 			return State.RUNNING;
@@ -36,12 +39,12 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 
 			if (this.attemptCounter > Constants.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				context.component._setMaxStartAttempts(true);
+				battery._setMaxStartAttempts(true);
 				return State.UNDEFINED;
 
 			} else {
 				// Trying to switch on
-				context.component.setPreChargeControl(PreChargeControl.SWITCH_ON);
+				battery.setPreChargeControl(PreChargeControl.SWITCH_ON);
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
 				return State.GO_RUNNING;

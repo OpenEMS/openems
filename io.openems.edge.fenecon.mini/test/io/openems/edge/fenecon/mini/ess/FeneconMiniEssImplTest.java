@@ -1,5 +1,6 @@
 package io.openems.edge.fenecon.mini.ess;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
@@ -9,6 +10,7 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.api.SinglePhase;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
+import io.openems.edge.fenecon.mini.ResetChannelSources;
 import io.openems.edge.fenecon.mini.ess.statemachine.StateMachine.State;
 
 public class FeneconMiniEssImplTest {
@@ -20,6 +22,11 @@ public class FeneconMiniEssImplTest {
 	private static final ChannelAddress ESS_STATE_MACHINE = new ChannelAddress(ESS_ID, "StateMachine");
 	private static final ChannelAddress ESS_PCS_MODE = new ChannelAddress(ESS_ID, "PcsMode");
 	private static final ChannelAddress ESS_SETUP_MODE = new ChannelAddress(ESS_ID, "SetupMode");
+
+	@Before
+	public void before() {
+		ResetChannelSources.run();
+	}
 
 	/**
 	 * Tests activating write-mode when it was not activated before.

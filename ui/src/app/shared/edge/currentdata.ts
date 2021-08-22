@@ -1,6 +1,7 @@
 import { DefaultTypes } from "../service/defaulttypes";
 import { Utils } from "../service/utils";
 
+// TODO this class will eventually be dropped, when abstract-widgets are finished and used everywhere.
 export class CurrentData {
 
   public readonly summary: DefaultTypes.Summary;
@@ -227,14 +228,14 @@ export class CurrentData {
         + (result.consumption.activePower > 0 ? result.consumption.activePower : 0)
       );
       result.system.autarchy = CurrentData.calculateAutarchy(result.grid.buyActivePower, result.consumption.activePower);
-      result.system.selfConsumption = CurrentData.calculateSelfConsumption(result.grid.sellActivePower, result.production.activePower);
+      result.system.selfConsumption = Utils.calculateSelfConsumption(result.grid.sellActivePower, result.production.activePower);
       // State
       result.system.state = c['_sum/State'];
     }
     return result;
   }
   public static calculateAutarchy(buyFromGrid: number, consumptionActivePower: number): number | null {
-    if (buyFromGrid && consumptionActivePower) {
+    if (buyFromGrid != null && consumptionActivePower != null) {
       return Math.max(
         Utils.orElse(
           (
@@ -251,27 +252,4 @@ export class CurrentData {
     }
   }
 
-  public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number): number | null {
-    if (sellToGrid && productionActivePower) {
-      if (productionActivePower == 0) {
-        return null;
-      }
-      else {
-        return Math.max(
-          Utils.orElse(
-            (
-              1 - (
-                Utils.divideSafely(
-                  Utils.orElse(sellToGrid, 0), (
-                  Math.max(Utils.orElse(productionActivePower, 0), 0)
-                )
-                )
-              )
-            ) * 100, 0
-          ), 0)
-      }
-    } else {
-      return null;
-    }
-  }
 }

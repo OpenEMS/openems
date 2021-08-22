@@ -3,6 +3,8 @@ package io.openems.edge.controller.api.backend;
 import java.net.Proxy;
 import java.net.URI;
 import java.util.Map;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +64,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 	@Override
 	protected WsData createWsData() {
-		return new WsData();
+		return new WsData(this);
 	}
 
 	@Override
@@ -73,5 +75,19 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	@Override
 	protected void logWarn(Logger log, String message) {
 		this.parent.logWarn(log, message);
+	}
+
+	public boolean isConnected() {
+		return this.ws.isOpen();
+	}
+
+	@Override
+	protected void execute(Runnable command) {
+		this.parent.executor.execute(command);
+	}
+
+	protected ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
+			TimeUnit unit) {
+		return this.parent.executor.scheduleWithFixedDelay(command, initialDelay, delay, unit);
 	}
 }

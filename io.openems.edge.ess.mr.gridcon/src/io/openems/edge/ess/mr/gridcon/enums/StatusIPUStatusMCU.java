@@ -2,7 +2,7 @@ package io.openems.edge.ess.mr.gridcon.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum StatusIPUStatusMCU implements OptionsEnum {
+public enum StatusIpuStatusMcu implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	FAN_MONITOR(1, "Fan monitor"), //
 	HARD_TRIP(2, "Hard trip"), //
@@ -19,25 +19,25 @@ public enum StatusIPUStatusMCU implements OptionsEnum {
 	READY_INTERN(13, "Ready intern"), //
 	RUN(14, "Run extern"), //
 	RUN_INTERN(15, "Run intern"), //
-	UNKNOWN_STATE_18(18, "Unknown State"), //
-	UNKNOWN_STATE_21(21, "Unknown State");
+	UNKNOWN_STATE_18(18, "Unknown StateObject"), //
+	UNKNOWN_STATE_21(21, "Unknown StateObject");
 
 	private final int value;
 	private final String name;
 
-	private StatusIPUStatusMCU(int value, String name) {
+	private StatusIpuStatusMcu(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

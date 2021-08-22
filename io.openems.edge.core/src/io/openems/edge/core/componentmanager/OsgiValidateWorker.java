@@ -75,9 +75,12 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 
 	@Override
 	protected void forever() {
-		final Configuration[] configs = this.readEnabledConfigurations();
+		this.findDuplicatedComponentIds();
+		this.findDefectiveComponents();
+	}
 
-		// Handle duplicated Component-IDs
+	private void findDuplicatedComponentIds() {
+		final Configuration[] configs = this.readAllConfigurations();
 		final Set<String> duplicatedComponentIds = new HashSet<String>();
 		updateDuplicatedComponentIds(duplicatedComponentIds, configs);
 		this.parent._setDuplicatedComponentId(!this.duplicatedComponentIds.isEmpty());
@@ -85,8 +88,10 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 			this.duplicatedComponentIds.clear();
 			this.duplicatedComponentIds.addAll(duplicatedComponentIds);
 		}
+	}
 
-		// Handle defective Components
+	private void findDefectiveComponents() {
+		final Configuration[] configs = this.readEnabledConfigurations();
 		final Map<String, String> defectiveComponents = new HashMap<>();
 		updateInactiveComponentsUsingScr(defectiveComponents, this.parent.serviceComponentRuntime);
 		updateInactiveComponentsUsingConfigurationAdmin(defectiveComponents, this.parent.getEnabledComponents(),
@@ -120,6 +125,11 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 		for (ComponentDescriptionDTO description : descriptions) {
 			Collection<ComponentConfigurationDTO> configurations = scr.getComponentConfigurationDTOs(description);
 			for (ComponentConfigurationDTO configuration : configurations) {
+				if (!MapUtils.getAsOptionalBoolean(configuration.properties, "enabled").orElse(true)) {
+					// Component is not enabled -> ignore
+					continue;
+				}
+
 				final String defectDetails;
 				switch (configuration.state) {
 				case ComponentConfigurationDTO.ACTIVE:
@@ -164,7 +174,17 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 	private static void updateInactiveComponentsUsingConfigurationAdmin(Map<String, String> defectiveComponents,
 			List<OpenemsComponent> enabledComponents, Configuration[] configs) {
 		for (Configuration config : configs) {
-			Dictionary<String, Object> properties = config.getProperties();
+			Dictionary<String, Object> properties;
+			try {
+				properties = config.getProperties();
+				if (properties == null) {
+					// configuration was just created and update has not been called
+					continue;
+				}
+			} catch (IllegalStateException e) {
+				// Configuration has been deleted
+				continue;
+			}
 			String componentId = (String) properties.get("id");
 			if (componentId != null) {
 				if (defectiveComponents.containsKey(componentId)) {
@@ -175,6 +195,29 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 					defectiveComponents.putIfAbsent(componentId, "Missing Bundle");
 				}
 			}
+		}
+	}
+
+	/**
+	 * Read all configurations from ConfigurationAdmin - no matter if enabled or
+	 * not.
+	 * 
+	 * @return {@link Configuration}s from {@link ConfigurationAdmin}; empty array
+	 *         on error
+	 */
+	private Configuration[] readAllConfigurations() {
+		try {
+			ConfigurationAdmin cm = this.parent.cm;
+			Configuration[] configs = cm.listConfigurations(null);
+			if (configs != null) {
+				return configs;
+			} else {
+				return new Configuration[0];
+			}
+		} catch (Exception e) {
+			this.parent.logError(this.log, e.getMessage());
+			e.printStackTrace();
+			return new Configuration[0];
 		}
 	}
 
@@ -221,6 +264,10 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 		Set<String> componentIds = new HashSet<>();
 		for (Configuration config : configs) {
 			Dictionary<String, Object> properties = config.getProperties();
+			if (properties == null) {
+				System.err.println(config.getPid() + ": Properties is 'null'");
+				continue;
+			}
 			String componentId = (String) properties.get("id");
 			if (componentId != null) {
 				if (componentIds.contains(componentId)) {

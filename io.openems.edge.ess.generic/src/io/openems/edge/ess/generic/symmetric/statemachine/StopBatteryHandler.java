@@ -5,7 +5,7 @@ import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.ess.generic.symmetric.GenericManagedSymmetricEss;
+import io.openems.edge.ess.generic.common.GenericManagedEss;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 
 public class StopBatteryHandler extends StateHandler<State, Context> {
@@ -17,23 +17,26 @@ public class StopBatteryHandler extends StateHandler<State, Context> {
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		this.lastAttempt = Instant.MIN;
 		this.attemptCounter = 0;
-		context.component._setMaxBatteryStopAttemptsFault(false);
+		GenericManagedEss ess = context.getParent();
+		ess._setMaxBatteryStopAttemptsFault(false);
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
+		GenericManagedEss ess = context.getParent();
+
 		if (context.battery.isStopped()) {
 			return State.STOPPED;
 		}
 
 		boolean isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
-				.getSeconds() > GenericManagedSymmetricEss.RETRY_COMMAND_SECONDS;
+				.getSeconds() > GenericManagedEss.RETRY_COMMAND_SECONDS;
 		if (isMaxStartTimePassed) {
 			// First try - or waited long enough for next try
 
-			if (this.attemptCounter > GenericManagedSymmetricEss.RETRY_COMMAND_MAX_ATTEMPTS) {
+			if (this.attemptCounter > GenericManagedEss.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				context.component._setMaxBatteryStopAttemptsFault(true);
+				ess._setMaxBatteryStopAttemptsFault(true);
 				return State.UNDEFINED;
 
 			} else {

@@ -19,7 +19,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.goodwe.ess.GoodWeEss;
+import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
@@ -38,7 +38,7 @@ public class GoodWeChargerPv2 extends AbstractGoodWeEtCharger
 	protected ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private GoodWeEss ess;
+	private GoodWe essOrBatteryInverter;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -54,25 +54,26 @@ public class GoodWeChargerPv2 extends AbstractGoodWeEtCharger
 
 	@Activate
 	void activate(ComponentContext context, ConfigPV2 config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
-				config.modbus_id())) {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
 			return;
 		}
 
 		// update filter for 'Ess'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "essOrBatteryInverter",
+				config.essOrBatteryInverter_id())) {
 			return;
 		}
 
-		if (this.ess != null) {
-			this.ess.addCharger(this);
+		if (this.essOrBatteryInverter != null) {
+			this.essOrBatteryInverter.addCharger(this);
 		}
 	}
 
 	@Deactivate
 	protected void deactivate() {
-		if (this.ess != null) {
-			this.ess.removeCharger(this);
+		if (this.essOrBatteryInverter != null) {
+			this.essOrBatteryInverter.removeCharger(this);
 		}
 		super.deactivate();
 	}

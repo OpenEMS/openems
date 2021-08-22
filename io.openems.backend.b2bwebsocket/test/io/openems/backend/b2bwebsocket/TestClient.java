@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.websocket.AbstractWebsocketClient;
+import io.openems.common.websocket.DummyWsData;
 import io.openems.common.websocket.OnClose;
 import io.openems.common.websocket.OnError;
 import io.openems.common.websocket.OnNotification;
@@ -89,18 +90,9 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 		this.onNotification = onNotification;
 	}
 
-	private static class TestWsData extends WsData {
-
-		@Override
-		public String toString() {
-			return "TestWsData[]";
-		}
-
-	}
-
 	@Override
 	protected WsData createWsData() {
-		return new TestWsData();
+		return new DummyWsData();
 	}
 
 	@Override
@@ -111,5 +103,10 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	@Override
 	protected void logWarn(Logger log, String message) {
 		log.warn(message);
+	}
+
+	@Override
+	protected void execute(Runnable command) {
+		command.run();
 	}
 }

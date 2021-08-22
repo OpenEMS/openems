@@ -1,5 +1,8 @@
 package io.openems.backend.b2bwebsocket;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -10,10 +13,13 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
-import io.openems.backend.metadata.api.Metadata;
-import io.openems.backend.timedata.api.Timedata;
+import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.timedata.Timedata;
+import io.openems.common.utils.ThreadPoolUtils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -36,27 +42,41 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile Timedata timeData;
 
+	protected final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1,
+			new ThreadFactoryBuilder().setNameFormat("B2bWebsocket-%d").build());
+
 	public B2bWebsocket() {
 		super("Backend2Backend.Websocket");
 	}
 
+	private Config config;
+
+	private final Runnable startServerWhenMetadataIsInitialized = () -> {
+		this.startServer(config.port(), config.poolSize(), config.debugMode());
+	};
+
 	@Activate
 	void activate(Config config) {
-		this.startServer(config.port());
+		this.config = config;
+		this.metadata.addOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 	}
 
 	@Deactivate
 	void deactivate() {
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
+		this.metadata.removeOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 		this.stopServer();
 	}
 
 	/**
 	 * Create and start new server.
 	 * 
-	 * @param port the port
+	 * @param port      the port
+	 * @param poolSize  number of threads dedicated to handle the tasks
+	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port) {
-		this.server = new WebsocketServer(this, this.getName(), port);
+	private synchronized void startServer(int port, int poolSize, boolean debugMode) {
+		this.server = new WebsocketServer(this, this.getName(), port, poolSize, debugMode);
 		this.server.start();
 	}
 

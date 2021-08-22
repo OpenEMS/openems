@@ -1,18 +1,19 @@
 package io.openems.common.jsonrpc.request;
 
-import java.util.UUID;
+import java.util.Optional;
 
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
 
 /**
  * Represents a JSON-RPC Request to authenticate with a Password.
  * 
- * This is used by UI to login with password-only at the Edge.
+ * <p>
+ * This is used by UI to login with username + password at Edge or Backend.
  * 
  * <pre>
  * {
@@ -20,6 +21,7 @@ import io.openems.common.utils.JsonUtils;
  *   "id": "UUID",
  *   "method": "authenticateWithPassword",
  *   "params": {
+ *     "username"?: string,
  *     "password": string
  *   }
  * }
@@ -27,37 +29,63 @@ import io.openems.common.utils.JsonUtils;
  */
 public class AuthenticateWithPasswordRequest extends JsonrpcRequest {
 
-	public final static String METHOD = "authenticateWithPassword";
+	public static final String METHOD = "authenticateWithPassword";
 
+	/**
+	 * Create {@link AuthenticateWithPasswordRequest} from a template
+	 * {@link JsonrpcRequest}.
+	 * 
+	 * @param r the template {@link JsonrpcRequest}
+	 * @return the {@link AuthenticateWithPasswordRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
 	public static AuthenticateWithPasswordRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
+		Optional<String> username = JsonUtils.getAsOptionalString(p, "username");
 		String password = JsonUtils.getAsString(p, "password");
-		return new AuthenticateWithPasswordRequest(r.getId(), password);
+		return new AuthenticateWithPasswordRequest(r, username, password);
 	}
 
-	public static AuthenticateWithPasswordRequest from(JsonObject j) throws OpenemsNamedException {
-		return from(GenericJsonrpcRequest.from(j));
-	}
-
+	private final Optional<String> username;
 	private final String password;
 
-	public AuthenticateWithPasswordRequest(UUID id, String password) {
-		super(id, METHOD);
+	private AuthenticateWithPasswordRequest(JsonrpcRequest request, Optional<String> username, String password) {
+		super(request, METHOD);
+		this.username = username;
 		this.password = password;
 	}
 
-	public AuthenticateWithPasswordRequest(String password) {
-		this(UUID.randomUUID(), password);
+	public AuthenticateWithPasswordRequest(Optional<String> username, String password) {
+		super(METHOD);
+		this.username = username;
+		this.password = password;
 	}
 
+	/**
+	 * Gets the Username if given.
+	 * 
+	 * @return Username
+	 */
+	public Optional<String> getUsername() {
+		return this.username;
+	}
+
+	/**
+	 * Gets the Password.
+	 * 
+	 * @return Password
+	 */
 	public String getPassword() {
-		return password;
+		return this.password;
 	}
 
 	@Override
 	public JsonObject getParams() {
-		return JsonUtils.buildJsonObject() //
-				.addProperty("password", this.password) //
-				.build();
+		JsonObjectBuilder result = JsonUtils.buildJsonObject() //
+				.addProperty("password", this.password); //
+		if (this.username.isPresent()) {
+			result.addProperty("username", this.username.get()); //
+		}
+		return result.build();
 	}
 }

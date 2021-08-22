@@ -33,6 +33,7 @@ export const TRANSLATION = {
         inactive: 'Inaktiv',
         info: 'Info',
         inputNotValid: 'Eingabe ungültig',
+        insufficientRights: 'Unzureichende Rechte',
         live: 'Live',
         load: 'Last',
         manually: 'Manuell',
@@ -95,6 +96,8 @@ export const TRANSLATION = {
         logout: 'Abmelden',
         menu: 'Menü',
         overview: 'OpenEMS Edge Übersicht',
+        settings: 'Einstellungen',
+        user: 'Benutzer',
     },
     Index: {
         allConnected: 'Alle Verbindungen hergestellt.',
@@ -109,6 +112,7 @@ export const TRANSLATION = {
         preamble: "Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",
         passwordLabel: "Passwort",
         passwordPlaceholder: "Passwort",
+        authenticationFailed: "Authentifizierung fehlgeschlagen",
     },
     Edge: {
         Index: {
@@ -139,6 +143,7 @@ export const TRANSLATION = {
                     currentValue: 'Aktueller Wert',
                     dependendOn: 'Abhängig von',
                     minSwitchingTime: 'Mindestumschaltzeit',
+                    moreThanMaxPower: 'Wert darf nicht niedriger als Maximalleistung des angesteuerten Geräts sein',
                     other: 'Sonstige',
                     relationError: 'Schwellenwert muss größer als die geschaltete Last sein',
                     switchedLoadPower: 'Geschaltete Last',
@@ -148,13 +153,24 @@ export const TRANSLATION = {
                     switchOnBelow: 'Einschalten unter',
                     threshold: 'Schwellenwert',
                 },
+                DelayedSellToGrid: {
+                    sellToGridPowerLimit: 'Beladung über',
+                    continuousSellToGridPower: 'Entladung unter',
+                    relationError: 'Beladungsgrenze muss größer der Entladungsgrenze sein',
+                },
                 Peakshaving: {
                     asymmetricInfo: 'Eingetragene Leistungswerte beziehen sich auf einzelne Phasen. Es wird auf die jeweils am stärksten belastete Phase ausgeregelt.',
+                    endDate: 'End Datum',
+                    endTime: 'Endzeit',
                     mostStressedPhase: 'Meist belastete Phase',
                     peakshaving: 'Lastspitzenkappung',
                     peakshavingPower: 'Entladung über',
+                    recharge: 'Beladeleistung',
                     rechargePower: 'Beladung unter',
                     relationError: 'Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein',
+                    startDate: 'Start Datum',
+                    startTime: 'Startzeit',
+                    startTimeCharge: 'Start-Zeit Beladung',
                 },
                 CHP: {
                     highThreshold: 'Oberer Schwellenwert',
@@ -238,6 +254,22 @@ export const TRANSLATION = {
                     priority: 'Priorität',
                     time: 'Zeit',
                     timeCountdown: 'Spätester Start',
+                },
+                HeatPump: {
+                    aboveSoc: 'und über Ladezustand von',
+                    belowSoc: 'und unter Ladezustand von',
+                    gridBuy: 'Ab Netzbezug von',
+                    gridSell: 'Ab Überschusseinspeisung von',
+                    lock: 'Sperre',
+                    moreThanMaxPower: 'Wert darf nicht niedriger als Maximalleistung der Wärmepumpe sein',
+                    normalOperation: 'Normalbetrieb',
+                    normalOperationShort: 'Normal',
+                    relationError: 'Einschaltbefehl Überschusswert muss größer als Einschaltempfehlungswert sein',
+                    switchOnCom: 'Einschaltbefehl',
+                    switchOnComShort: 'Befehl',
+                    switchOnRec: 'Einschaltempfehlung',
+                    switchOnRecShort: 'Empfehlung',
+                    undefined: 'Nicht definiert',
                 }
             }
         },
@@ -349,5 +381,11 @@ export const TRANSLATION = {
         failed: 'Verbindungsaufbau fehlgeschlagen.',
         loggedIn: 'Angemeldet.',
         loggedInAs: 'Angemeldet als Benutzer \'{{value}}\'.', // value = username
+    },
+    Role: {
+        guest: 'Gast',
+        owner: 'Eigentümer',
+        installer: 'Installateur',
+        admin: 'Administrator',
     }
 }

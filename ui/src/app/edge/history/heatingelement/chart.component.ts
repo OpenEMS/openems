@@ -14,7 +14,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class HeatingelementChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-  @Input() private period: DefaultTypes.HistoryPeriod;
+  @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public component: EdgeConfig.Component;
 
 
@@ -101,7 +101,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   }
 
   protected setLabel() {
-    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    let options = this.createDefaultChartOptions();
     options.scales.yAxes[0].id = 'yAxis1'
     options.scales.yAxes[0].scaleLabel.labelString = 'Level';
     options.scales.yAxes[0].ticks.beginAtZero = true;
