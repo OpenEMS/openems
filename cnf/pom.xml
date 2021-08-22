@@ -286,5 +286,12 @@
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.7.32</version>
 		</dependency>
+		 
+		<!-- HTML processing -->
+        <dependency>
+    		<groupId>org.jsoup</groupId>
+    		<artifactId>jsoup</artifactId>
+    		<version>1.10.2</version>
+		</dependency>
 	</dependencies>
 </project>
