@@ -182,6 +182,7 @@ export const TRANSLATION = {
                     clusterConfigError: 'Er is een fout opgetreden in de configuratie van het Evcs-cluster',
                     currentCharge: 'Huidige lading',
                     energieSinceBeginning: 'Energie sinds de laatste lading start',
+                    evcsSoc: 'Batteriestand',
                     energyLimit: 'Energielimiet',
                     enforceCharging: 'Handhaaf het laden',
                     error: 'Fout',

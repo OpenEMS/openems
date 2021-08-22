@@ -185,6 +185,7 @@ export const TRANSLATION = {
                     clusterConfigError: 'Se ha producido un error en la configuración del clúster Evcs.',
                     currentCharge: 'Carga actual',
                     energieSinceBeginning: 'Energía desde el último inicio de carga',
+                    evcsSoc: 'Batteriestand',
                     energyLimit: 'Límite de la energía',
                     enforceCharging: 'Forzar la carga',
                     error: 'Error',

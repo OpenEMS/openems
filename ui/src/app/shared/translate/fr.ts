@@ -191,6 +191,7 @@ export const TRANSLATION = {
                     clusterConfigError: 'Une erreur s\'est produite dans la configuration du cluster de stations de recharge',
                     currentCharge: 'Reharge actuelle',
                     energieSinceBeginning: 'Energie depuis le début de la dernière recharge',
+                    evcsSoc: 'Batteriestand',
                     energyLimit: 'Limite d\'énergie',
                     enforceCharging: 'Appliquer la charge',
                     error: 'Erreur',

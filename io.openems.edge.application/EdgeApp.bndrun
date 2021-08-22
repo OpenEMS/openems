@@ -125,7 +125,8 @@
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
 	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
 	bnd.identity;id='io.openems.edge.controller.evcs.vw.chargesurplus',\
-	bnd.identity;id='io.openems.edge.bosch.bpts5hybrid'
+	bnd.identity;id='io.openems.edge.bosch.bpts5hybrid',\
+	bnd.identity;id='io.openems.edge.evcs.vw.weconnect'
 -runbundles: \
 	Java-WebSocket;version='[1.5.2,1.5.3)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
@@ -277,4 +278,6 @@
 	rrd4j;version='[3.8.0,3.8.1)',\
 	io.openems.edge.controller.evcs.vw.chargesurplus;version=snapshot,\
 	org.jsoup;version='[1.10.2,1.10.3)',\
-	io.openems.edge.bosch.bpts5hybrid;version=snapshot
+	io.openems.edge.bosch.bpts5hybrid;version=snapshot,\
+	io.openems.edge.evcs.vw.weconnect;version=snapshot,\
+	joda-time;version='[2.10.8,2.10.9)'
