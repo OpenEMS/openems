@@ -264,21 +264,22 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	 * An object that holds information about the source of this Channel, i.e. a
 	 * Modbus Register or REST-Api endpoint address. Defaults to null.
 	 */
-	private Object readSource = null;
+	private Object source = null;
 
 	@Override
-	public <READ_SOURCE> void setReadSource(READ_SOURCE readSource) throws IllegalArgumentException {
-		if (this.readSource != null && readSource != null && !Objects.equals(this.readSource, readSource)) {
-			throw new IllegalArgumentException("Unable to set read source [" + readSource.toString() + "]." //
-					+ " Channel [" + this.address() + "] already has a read source [" + this.readSource.toString()
-					+ "]");
+	public <SOURCE> void setMetaInfo(SOURCE source) throws IllegalArgumentException {
+		if (this.source != null && source != null && !Objects.equals(this.source, source)) {
+			throw new IllegalArgumentException("Unable to set meta info [" + source.toString() + "]." //
+					+ " Channel [" + this.address() + "] already has one [" + this.source.toString() + "]. " //
+					+ "Hint: Possibly you are trying to map a single Channel to multiple Modbus Registers. " //
+					+ "If this is on purpose, you can manually provide a `ChannelMetaInfoReadAndWrite` object.");
 		}
-		this.readSource = readSource;
+		this.source = source;
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <READ_SOURCE> READ_SOURCE getReadSource() {
-		return (READ_SOURCE) this.readSource;
+	public <SOURCE> SOURCE getMetaInfo() {
+		return (SOURCE) this.source;
 	}
 }
