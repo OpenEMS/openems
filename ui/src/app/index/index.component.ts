@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from '../../environments';
@@ -40,6 +40,7 @@ export class IndexComponent {
     public service: Service,
     public websocket: Websocket,
     public utils: Utils,
+    private router: Router,
     private route: ActivatedRoute,
   ) {
     service.metadata
@@ -48,8 +49,19 @@ export class IndexComponent {
         filter(metadata => metadata != null)
       )
       .subscribe(metadata => {
-        this.noEdges = Object.keys(metadata.edges).length === 0;
+        let edgeIds = Object.keys(metadata.edges);
+        this.noEdges = edgeIds.length === 0;
         this.loggedInUserCanInstall = Role.isAtLeast(metadata.user.globalRole, "installer");
+
+        // Forward directly to device page, if
+        // - Direct local access to Edge
+        // - No installer (i.e. guest or owner) and access to only one Edge
+        if (environment.backend == 'OpenEMS Edge' || (!this.loggedInUserCanInstall && edgeIds.length == 1)) {
+          let edge = metadata.edges[edgeIds[0]];
+          if (edge.isOnline) {
+            this.router.navigate(['/device', edge.id]);
+          }
+        }
 
         this.updateFilteredEdges();
       })
