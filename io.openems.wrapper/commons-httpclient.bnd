@@ -1,0 +1,24 @@
+Bundle-Name: Apache HTTP-Client
+Bundle-Description:  The HttpClient component supports the client-side of RFC 1945 (HTTP/1.0) and RFC 2616 (HTTP/1.1) , several related specifications (RFC 2109 (Cookies) , RFC 2617 (HTTP Authentication) , etc.), and provides a framework by which new request types (methods) or HTTP extensions can be created easily. 
+Bundle-DocURL: https://hc.apache.org/httpcomponents-client-5.1.x/
+Bundle-License: https://opensource.org/licenses/Apache-2.0
+Bundle-Version: 3.1
+
+Include-Resource: \
+	@commons-httpclient-3.1.jar
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+Export-Package: \
+	org.apache.commons.httpclient,\
+	org.apache.commons.httpclient.auth,\
+	org.apache.commons.httpclient.cookie,\
+	org.apache.commons.httpclient.methods,\
+	org.apache.commons.httpclient.methods.multipart,\
+	org.apache.commons.httpclient.params,\
+	org.apache.commons.httpclient.protocol,\
+	org.apache.commons.httpclient.util,\
+	
+-sources: false

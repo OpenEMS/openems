@@ -1,0 +1,23 @@
+Bundle-Name: Apache XML RPC
+Bundle-Description: Apache XML RPC Client and Common Library
+Bundle-DocURL: http://ws.apache.org/xmlrpc/
+Bundle-License: https://opensource.org/licenses/Apache-2.0
+Bundle-Version: 3.1.3
+
+Include-Resource: \
+	@xmlrpc-client-3.1.3.jar,\
+	@xmlrpc-common-3.1.3.jar,\
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+Export-Package: \
+	javax.xml.bind;resolution:=optional,\
+	org.apache.xmlrpc,\
+	org.apache.xmlrpc.client,\
+	org.apache.xmlrpc.common,\
+	org.apache.xmlrpc.parser,\
+	org.apache.xmlrpc.serializer,\
+	
+-sources: false
