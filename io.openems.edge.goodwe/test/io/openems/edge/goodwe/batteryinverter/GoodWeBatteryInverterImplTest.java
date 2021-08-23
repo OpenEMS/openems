@@ -7,7 +7,7 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.goodwe.GoodWeConstants;
-import io.openems.edge.goodwe.charger.GoodWeChargerPv1;
+import io.openems.edge.goodwe.charger.GoodWeEtCharger1;
 
 public class GoodWeBatteryInverterImplTest {
 
@@ -19,7 +19,7 @@ public class GoodWeBatteryInverterImplTest {
 
 	@Test
 	public void testEt() throws Exception {
-		GoodWeChargerPv1 charger = new GoodWeChargerPv1();
+		GoodWeEtCharger1 charger = new GoodWeEtCharger1();
 		new ComponentTest(charger) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //

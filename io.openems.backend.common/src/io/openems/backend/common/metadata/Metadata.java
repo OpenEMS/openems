@@ -15,6 +15,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
@@ -269,5 +270,14 @@ public interface Metadata {
 	 * @throws OpenemsNamedException on error
 	 */
 	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException;
+
+	/**
+	 * Update language from given user.
+	 * 
+	 * @param user     {@link User} the current user
+	 * @param language to set language
+	 * @throws OpenemsNamedException on error
+	 */
+	public void updateUserLanguage(User user, Language language) throws OpenemsNamedException;
 
 }

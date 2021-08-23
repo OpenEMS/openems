@@ -34,6 +34,11 @@ public class RegisterUserRequest extends JsonrpcRequest {
 		return this.jsonObject;
 	}
 
+	/**
+	 * Gets the User Registration information as {@link JsonObject}.
+	 * 
+	 * @return the {@link JsonObject}
+	 */
 	public JsonObject getJsonObject() {
 		return this.jsonObject;
 	}

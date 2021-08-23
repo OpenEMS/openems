@@ -237,7 +237,8 @@ public interface Field {
 		PASSWORD("password", true), //
 		PARTNER("partner_id", true), //
 		GLOBAL_ROLE("global_role", true), //
-		GROUPS("groups_id", true);
+		GROUPS("groups_id", true), //
+		OPENEMS_LANGUAGE("openems_language", true);
 
 		public static final String ODOO_MODEL = "res.users";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
@@ -296,7 +297,7 @@ public interface Field {
 		CITY("city", true), //
 		COUNTRY("country_id", true), //
 		ADDRESS_TYPE("type", true), //
-		NEWSLETTER("fenecon_crm_newsletter", true),
+		NEWSLETTER("fenecon_crm_newsletter", true), //
 		LANGUAGE("lang", true);
 
 		public static final String ODOO_MODEL = "res.partner";
@@ -394,7 +395,7 @@ public interface Field {
 		INSTALLER("installer_id", true), //
 		FEMS("fems_device_id", true);
 
-		public static final String ODOO_MODEL = "fems.setup_protocol";
+		public static final String ODOO_MODEL = "edge.setup_protocol";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {

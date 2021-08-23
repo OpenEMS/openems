@@ -27,6 +27,7 @@ import io.openems.backend.metadata.odoo.MyUser;
 import io.openems.backend.metadata.odoo.OdooMetadata;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ObjectUtils;
 import io.openems.common.utils.PasswordUtils;
@@ -102,7 +103,7 @@ public class OdooHandler {
 
 			return Optional.of(name);
 		} catch (OpenemsException e) {
-			this.parent.logInfo(this.log, "Unable to find Edge by setupPassowrd [" + setupPassword + "]");
+			this.parent.logInfo(this.log, "Unable to find Edge by setup password [" + setupPassword + "]");
 		}
 
 		return Optional.empty();
@@ -406,13 +407,13 @@ public class OdooHandler {
 	 */
 	public int submitSetupProtocol(MyUser user, JsonObject setupProtocolJson) throws OpenemsNamedException {
 		JsonObject userJson = JsonUtils.getAsJsonObject(setupProtocolJson, "customer");
-		JsonObject femsJson = JsonUtils.getAsJsonObject(setupProtocolJson, "fems");
+		JsonObject edgeJson = JsonUtils.getAsJsonObject(setupProtocolJson, "fems");
 
-		String femsId = JsonUtils.getAsString(femsJson, "id");
-		int[] foundFems = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,
-				new Domain(Field.EdgeDevice.NAME, "=", femsId));
-		if (foundFems.length != 1) {
-			throw new OpenemsException("FEMS not found for id [" + femsId + "]");
+		String edgeId = JsonUtils.getAsString(edgeJson, "id");
+		int[] foundEdge = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,
+				new Domain(Field.EdgeDevice.NAME, "=", edgeId));
+		if (foundEdge.length != 1) {
+			throw new OpenemsException("Edge not found for id [" + edgeId + "]");
 		}
 
 		String password = PasswordUtils.generateRandomPassword(24);
@@ -420,12 +421,12 @@ public class OdooHandler {
 
 		int customerId = this.getOdooPartnerId(odooUserId);
 		int installerId = this.getOdooPartnerId(user);
-		this.assignEdgeToUser(odooUserId, foundFems[0], OdooUserRole.OWNER);
+		this.assignEdgeToUser(odooUserId, foundEdge[0], OdooUserRole.OWNER);
 
-		int protocolId = this.createSetupProtocol(setupProtocolJson, foundFems[0], customerId, installerId);
+		int protocolId = this.createSetupProtocol(setupProtocolJson, foundEdge[0], customerId, installerId);
 
 		try {
-			this.sendSetupProtocolMail(user, protocolId, femsId);
+			this.sendSetupProtocolMail(user, protocolId, edgeId);
 		} catch (OpenemsNamedException ex) {
 			this.log.warn("Unable to send email", ex);
 		}
@@ -438,15 +439,15 @@ public class OdooHandler {
 	 * 
 	 * @param user       the Odoo user
 	 * @param protocolId the Odoo setup protocol id
-	 * @param femsId     the Odoo edge
+	 * @param edgeId     the Odoo edge
 	 * @throws OpenemsNamedException on error
 	 */
-	private void sendSetupProtocolMail(MyUser user, int protocolId, String femsId) throws OpenemsNamedException {
-		OdooUtils.sendAdminJsonrpcRequest(credentials, "/openems_backend/sendSetupProtocolEmail",
+	private void sendSetupProtocolMail(MyUser user, int protocolId, String edgeId) throws OpenemsNamedException {
+		OdooUtils.sendAdminJsonrpcRequest(this.credentials, "/openems_backend/sendSetupProtocolEmail",
 				JsonUtils.buildJsonObject() //
 						.add("params", JsonUtils.buildJsonObject() //
 								.addProperty("setupProtocolId", protocolId) //
-								.addProperty("femsId", femsId) //
+								.addProperty("femsId", edgeId) //
 								.build()) //
 						.build());
 	}
@@ -499,13 +500,13 @@ public class OdooHandler {
 	 * Create a setup protocol in Odoo.
 	 * 
 	 * @param jsonObject  {@link SetupProtocol} to create
-	 * @param femsId      the Edge-ID
+	 * @param edgeId      the Edge-ID
 	 * @param customerId  Odoo customer id to set
 	 * @param installerId Odoo installer id to set
 	 * @return the Odoo id of created setup protocol
 	 * @throws OpenemsException on error
 	 */
-	private int createSetupProtocol(JsonObject jsonObject, int femsId, int customerId, int installerId)
+	private int createSetupProtocol(JsonObject jsonObject, int edgeId, int customerId, int installerId)
 			throws OpenemsException {
 		Integer locationId = null;
 
@@ -533,7 +534,7 @@ public class OdooHandler {
 		setupProtocolFields.put(Field.SetupProtocol.CUSTOMER.id(), customerId);
 		setupProtocolFields.put(Field.SetupProtocol.DIFFERENT_LOCATION.id(), locationId);
 		setupProtocolFields.put(Field.SetupProtocol.INSTALLER.id(), installerId);
-		setupProtocolFields.put(Field.SetupProtocol.FEMS.id(), femsId);
+		setupProtocolFields.put(Field.SetupProtocol.FEMS.id(), edgeId);
 
 		int setupProtocolId = OdooUtils.create(this.credentials, Field.SetupProtocol.ODOO_MODEL, setupProtocolFields);
 
@@ -599,13 +600,12 @@ public class OdooHandler {
 	private void createNotFoundSerialNumbers(int setupProtocolId, List<JsonElement> serialNumbers)
 			throws OpenemsException {
 		for (int i = 0; i < serialNumbers.size(); i++) {
-			JsonElement item = serialNumbers.get(i);
-
 			Map<String, Object> setupProtocolItem = new HashMap<>();
 			setupProtocolItem.put(Field.SetupProtocolItem.SETUP_PROTOCOL.id(), setupProtocolId);
 			setupProtocolItem.put(Field.SetupProtocolItem.SEQUENCE.id(), i);
 			setupProtocolItem.put("category", "Seriennummern wurden im System nicht gefunden");
 
+			JsonElement item = serialNumbers.get(i);
 			JsonUtils.getAsOptionalString(item, "name") //
 					.ifPresent(name -> setupProtocolItem.put("name", name));
 			JsonUtils.getAsOptionalString(item, "serialNumber") //
@@ -733,13 +733,29 @@ public class OdooHandler {
 	 * @throws OpenemsNamedException error
 	 */
 	private void sendRegistrationMail(int odooUserId, String password) throws OpenemsNamedException {
-		OdooUtils.sendAdminJsonrpcRequest(credentials, "/openems_backend/sendRegistrationEmail",
+		OdooUtils.sendAdminJsonrpcRequest(this.credentials, "/openems_backend/sendRegistrationEmail",
 				JsonUtils.buildJsonObject() //
 						.add("params", JsonUtils.buildJsonObject() //
 								.addProperty("userId", odooUserId) //
 								.addProperty("password", password) //
 								.build()) //
 						.build());
+	}
+
+	/**
+	 * Update language for the given user.
+	 * 
+	 * @param user   {@link MyUser} the current user
+	 * @param language to set
+	 * @throws OpenemsException on error
+	 */
+	public void updateUserLanguage(MyUser user, Language language) throws OpenemsException {
+		try {
+			OdooUtils.write(this.credentials, Field.User.ODOO_MODEL, new Integer[] { user.getOdooId() }, //
+					new FieldValue<String>(Field.User.OPENEMS_LANGUAGE, language.name()));
+		} catch (OpenemsNamedException ex) {
+			throw new OpenemsException("Unable to set language [" + language.name() + "] for current user", ex);
+		}
 	}
 
 }

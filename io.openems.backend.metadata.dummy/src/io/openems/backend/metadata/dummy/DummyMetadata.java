@@ -30,6 +30,7 @@ import io.openems.common.channel.Level;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfigDiff;
@@ -52,7 +53,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 	private final Map<String, User> users = new HashMap<>();
 	private final Map<String, MyEdge> edges = new HashMap<>();
 
-	private final String DEFAULT_LANGUAGE = "de_DE";
+	private Language defaultLanguage = Language.DE;
 
 	public DummyMetadata() {
 		super("Metadata.Dummy");
@@ -77,7 +78,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 		for (String edgeId : this.edges.keySet()) {
 			roles.put(edgeId, Role.ADMIN);
 		}
-		User user = new User(username, name, token, Role.ADMIN, roles, DEFAULT_LANGUAGE);
+		User user = new User(username, name, token, Role.ADMIN, roles, this.defaultLanguage.name());
 		this.users.put(user.getId(), user);
 		return user;
 	}
@@ -201,6 +202,11 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 	@Override
 	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException {
 		throw new IllegalArgumentException("DummyMetadata.registerUser() is not implemented");
+	}
+
+	@Override
+	public void updateUserLanguage(User user, Language language) throws OpenemsNamedException {
+		this.defaultLanguage = language;
 	}
 
 }

@@ -1,9 +1,7 @@
 package io.openems.edge.battery.soltaro.single.versiona;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import io.openems.edge.battery.soltaro.cluster.versionc.ResetChannelSources;
 import io.openems.edge.battery.soltaro.common.enums.BatteryState;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
@@ -13,11 +11,6 @@ public class SingleRackTest {
 
 	private static final String BATTERY_ID = "battery0";
 	private static final String MODBUS_ID = "modbus0";
-
-	@Before
-	public void before() {
-		ResetChannelSources.run();
-	}
 
 	@Test
 	public void test() throws Exception {

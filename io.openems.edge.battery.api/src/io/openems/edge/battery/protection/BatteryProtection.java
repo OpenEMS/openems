@@ -300,6 +300,9 @@ public class BatteryProtection {
 		this.battery = battery;
 		this.chargeMaxCurrentHandler = chargeMaxCurrentHandler;
 		this.dischargeMaxCurrentHandler = dischargeMaxCurrentHandler;
+
+		this.battery.getChargeMaxCurrentChannel().setReadSource("Battery-Protection");
+		this.battery.getDischargeMaxCurrentChannel().setReadSource("Battery-Protection");
 	}
 
 	/**

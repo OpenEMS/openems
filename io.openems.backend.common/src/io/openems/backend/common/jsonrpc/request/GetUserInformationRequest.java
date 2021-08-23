@@ -5,6 +5,8 @@ import com.google.gson.JsonObject;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
 /**
+ * Gets the User Information.
+ * 
  * <pre>
  * {
  *   "jsonrpc": "2.0",

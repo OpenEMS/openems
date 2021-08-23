@@ -31,8 +31,8 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
-public class GoodWeChargerPv2 extends AbstractGoodWeEtCharger
-		implements EssDcCharger, OpenemsComponent, EventHandler, TimedataProvider {
+public class GoodWeEtCharger2 extends AbstractGoodWeEtCharger
+		implements GoodWeEtCharger, EssDcCharger, OpenemsComponent, EventHandler, TimedataProvider {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -48,7 +48,7 @@ public class GoodWeChargerPv2 extends AbstractGoodWeEtCharger
 		super.setModbus(modbus);
 	}
 
-	public GoodWeChargerPv2() {
+	public GoodWeEtCharger2() {
 		super();
 	}
 
