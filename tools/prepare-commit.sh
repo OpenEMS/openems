@@ -81,6 +81,11 @@ for D in *; do
 EOT
 				fi
 
+				# Remove .settings directory
+				if [ -d "${D}/.settings" ]; then
+					rm -R "${D}/.settings"
+				fi
+
 				# Verify bnd.bnd file
 				if [ -f "${D}/bnd.bnd" ]; then
 					start=$(grep -n '${buildpath},' "${D}/bnd.bnd" | grep -Eo '^[^:]+' | head -n1)
