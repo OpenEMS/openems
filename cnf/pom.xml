@@ -106,7 +106,7 @@
 			<!-- Used by io.openems.edge.evcs.ocpp. -->
 			<groupId>eu.chargetime.ocpp</groupId>
 			<artifactId>v1_6</artifactId>
-			<version>1.0</version>
+			<version>1.0.1</version>
 		</dependency>
 		<!-- info -->
 		<dependency>
