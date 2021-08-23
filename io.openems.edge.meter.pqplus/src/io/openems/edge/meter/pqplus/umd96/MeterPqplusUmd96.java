@@ -17,6 +17,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
@@ -28,8 +29,8 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Implements the PQ Plus UMD 96 meter.
- * https://www.pq-plus.de/produkte/hardwarekomponenten/umd-96/ 
- * doc : https://www.pq-plus.de/site/assets/files/2795/pqplus-com-protokoll-modbus_3_0.pdf
+ * https://www.pq-plus.de/produkte/hardwarekomponenten/umd-96/ doc :
+ * https://www.pq-plus.de/site/assets/files/2795/pqplus-com-protokoll-modbus_3_0.pdf
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.PqPlus.UMD96", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -116,18 +117,18 @@ public class MeterPqplusUmd96 extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(0x1204), //
 								ElementToChannelConverter.SCALE_FACTOR_3)),
 				// Power values
-				new FC3ReadRegistersTask(0x1320, Priority.HIGH, //
+				new FC3ReadRegistersTask(0x1314, Priority.HIGH, //
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(0x1314)),
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(0x1316)),//
+						new DummyRegisterElement(0x1318,0x131F),//
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(0x1320)),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(0x1322)),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(0x1324)),
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(0x1326)),
+						new DummyRegisterElement(0x1326,0x1327),//
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(0x1328)),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(0x132A)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(0x132C)),
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(0x132E)))
-
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(0x132C)))//
 		);
-
 	}
 
 	@Override
