@@ -1,5 +1,18 @@
 pipeline:
-  build:
+  restore-cache:
+    image: drillster/drone-volume-cache
+    restore: true
+    mount:
+      - /drone/.gradle
+      - /drone/.npm
+    volumes:
+      - cache:/cache
+
+  build-java:
+    when:
+      branch: 
+        exclude:
+          ui_dev/*
     image: openems-build:latest
     environment:
       - GRADLE_USER_HOME=/drone/.gradle
@@ -9,4 +22,34 @@ pipeline:
       - git diff --exit-code io.openems.backend.application/BackendApp.bndrun
       - ./gradlew resolve.EdgeApp
       - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
-      - ./gradlew buildUiForEdge --continue
+
+  build-ui:
+    image: openems-build:latest
+    environment:
+      - GRADLE_USER_HOME=/drone/.gradle
+    commands:
+      - cd ui
+      - npm ci --prefer-offline --cache /drone/.npm
+      - sed --in-place s#/m/#/${DRONE_BRANCH}/#g angular.json
+      - node_modules/@angular/cli/bin/ng build -c backend
+
+  refresh-dev:
+    image: appleboy/drone-scp
+    host: 10.0.0.11
+    user: fenecon-docs
+    secrets: 
+      - source: ssh_key_intranet 
+        target: scp_key
+    rm: true
+    source: ./ui/target/backend
+    strip_components: 4
+    target: /opt/docker/gitea/data/openems-ui-dev/html/${DRONE_COMMIT_BRANCH}
+
+  rebuild-cache:
+    image: drillster/drone-volume-cache
+    rebuild: true
+    mount:
+      - /drone/.gradle
+      - /drone/.npm
+    volumes:
+      - cache:/cache

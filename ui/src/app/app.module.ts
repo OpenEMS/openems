@@ -51,7 +51,6 @@ import { UserModule } from './user/user.module';
     BrowserModule,
     EdgeModule,
     EdgeSettingsModule,
-    env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],
     FormlyModule.forRoot({
       wrappers: [
         { name: 'form-field', component: FormlyWrapperFormField }
