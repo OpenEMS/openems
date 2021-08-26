@@ -7,6 +7,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -323,6 +324,15 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.getComponentId(),
 					config.getPid() + ": Properties is 'null'");
 		}
+
+		// Reset all target properties to avoid missing old references
+		for (Enumeration<String> k = properties.keys(); k.hasMoreElements();) {
+			String property = k.nextElement();
+			if (property.endsWith(".target")) {
+				properties.put(property, "(enabled=true)");
+			}
+		}
+
 		for (Property property : request.getProperties()) {
 			// do not allow certain properties to be updated, like pid and service.pid
 			if (!EdgeConfig.ignorePropertyKey(property.getName())) {

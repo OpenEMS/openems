@@ -21,7 +21,7 @@ import io.openems.edge.common.jsonapi.JsonApi;
 public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvider {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
+		CONFIG_NOT_ACTIVATED(Doc.of(Level.FAULT) //
 				.text("A configured OpenEMS Component was not activated")), //
 		DUPLICATED_COMPONENT_ID(Doc.of(Level.FAULT) //
 				.text("Configuration has duplicated Component-IDs")), //
