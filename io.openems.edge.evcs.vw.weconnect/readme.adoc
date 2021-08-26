@@ -1,3 +1,0 @@
-= io.openems.edge.evcs.vw.weconnect
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.vw.weconnect[Source Code icon:github[]]

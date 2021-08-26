@@ -33,29 +33,28 @@ import io.openems.edge.common.event.EdgeEventConstants;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 		} //
 )
-public class BoschBpts5HybridCoreImpl extends AbstractOpenemsComponent implements 
-								BoschBpts5HybridCore, OpenemsComponent, EventHandler {
-	
+public class BoschBpts5HybridCoreImpl extends AbstractOpenemsComponent
+		implements BoschBpts5HybridCore, OpenemsComponent, EventHandler {
+
 	@Reference
 	private ConfigurationAdmin cm;
 
-	BoschBpts5HybridReadWorker worker = null;
-	
+	private BoschBpts5HybridReadWorker worker = null;
+
 	private AtomicReference<BoschBpts5HybridEss> ess = new AtomicReference<>();
 	private AtomicReference<BoschBpts5HybridPv> pv = new AtomicReference<>();
-	private AtomicReference<BoschBpts5HybridMeter> meter  = new AtomicReference<>();
-	
+	private AtomicReference<BoschBpts5HybridMeter> meter = new AtomicReference<>();
+
 	public BoschBpts5HybridCoreImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				CoreChannelId.values()
-		);
+				CoreChannelId.values());
 	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws ConfigurationException, IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.worker = new BoschBpts5HybridReadWorker(this, config.ipaddress(),config.interval());
+		this.worker = new BoschBpts5HybridReadWorker(this, config.ipaddress(), config.interval());
 		this.worker.activate(config.id());
 	}
 
@@ -83,14 +82,14 @@ public class BoschBpts5HybridCoreImpl extends AbstractOpenemsComponent implement
 	public void setEss(BoschBpts5HybridEss boschBpts5HybridEss) {
 		this.ess.set(boschBpts5HybridEss);
 	}
-	
+
 	public Optional<BoschBpts5HybridEss> getEss() {
 		return Optional.ofNullable(ess.get());
 	}
 
 	@Override
 	public void setPv(BoschBpts5HybridPv boschBpts5HybridPv) {
-		this.pv.set(boschBpts5HybridPv);		
+		this.pv.set(boschBpts5HybridPv);
 	}
 
 	@Override
