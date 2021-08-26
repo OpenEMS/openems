@@ -89,7 +89,7 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 		final Configuration[] configs = this.readEnabledConfigurations();
 		final Map<String, String> defectiveComponents = new HashMap<>();
 		updateInactiveComponentsUsingScr(defectiveComponents, this.parent.serviceComponentRuntime);
-		updateInactiveComponentsUsingConfigurationAdmin(defectiveComponents, this.parent.getEnabledComponents(),
+		this.updateInactiveComponentsUsingConfigurationAdmin(defectiveComponents, this.parent.getEnabledComponents(),
 				configs, this.parent.serviceComponentRuntime);
 		this.parent._setConfigNotActivated(!defectiveComponents.isEmpty());
 		synchronized (this.defectiveComponents) {
@@ -160,7 +160,7 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 	 * 
 	 * @param configs enabled {@link Configuration}s from {@link ConfigurationAdmin}
 	 */
-	private static void updateInactiveComponentsUsingConfigurationAdmin(Map<String, String> defectiveComponents,
+	private void updateInactiveComponentsUsingConfigurationAdmin(Map<String, String> defectiveComponents,
 			List<OpenemsComponent> enabledComponents, Configuration[] configs, ServiceComponentRuntime scr) {
 		for (Configuration config : configs) {
 			Dictionary<String, Object> properties;
@@ -186,6 +186,7 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 							.anyMatch(description -> factoryPid.equals(description.name))) {
 						// Bundle exists -> try to restart Component
 						try {
+							this.parent.logInfo(this.log, "Trying to restart Component [" + componentId + "]");
 							config.update(properties);
 						} catch (IOException e) {
 							e.printStackTrace();
