@@ -1,7 +1,6 @@
 package io.openems.edge.common.channel;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -94,44 +93,4 @@ public interface WriteChannel<T> extends Channel<T> {
 
 	public List<ThrowingConsumer<T, OpenemsNamedException>> getOnSetNextWrites();
 
-	/**
-	 * Sets an object that holds information about the write target of this Channel,
-	 * i.e. a Modbus Register or REST-Api endpoint address. Defaults to null.
-	 * 
-	 * @param <WRITE_TARGET> the type of the target attachment
-	 * @param target         the target object
-	 * @return myself
-	 * @throws IllegalArgumentException if there is already a target registered with
-	 *                                  the Channel
-	 */
-	public <WRITE_TARGET> void setWriteTarget(WRITE_TARGET target) throws IllegalArgumentException;
-
-	/**
-	 * Gets the write target information object. Defaults to empty String.
-	 * 
-	 * @param <WRITE_TARGET> the type of the target attachment
-	 * @return the target information object
-	 */
-	public <WRITE_TARGET> WRITE_TARGET getWriteTarget();
-
-	/**
-	 * Static helper method to be used within {@link #setWriteTarget(Object)}.
-	 * 
-	 * @param <WRITE_TARGET> the type of the target attachment
-	 * @param channel        the {@link WriteChannel}
-	 * @param existingValue  the existing value, or null
-	 * @param newValue       the new value
-	 * @return the new value
-	 * @throws IllegalArgumentException if the Channel already has a different
-	 *                                  Write-Target set
-	 */
-	public static <WRITE_TARGET> WRITE_TARGET checkWriteTarget(WriteChannel<?> channel, WRITE_TARGET existingValue,
-			WRITE_TARGET newValue) throws IllegalArgumentException {
-		if (existingValue != null && newValue != null && !Objects.equals(existingValue, newValue)) {
-			throw new IllegalArgumentException("Unable to set write target [" + newValue.toString() + "]." //
-					+ " Channel [" + channel.address() + "] already has a write target [" + existingValue.toString()
-					+ "]");
-		}
-		return newValue;
-	}
 }

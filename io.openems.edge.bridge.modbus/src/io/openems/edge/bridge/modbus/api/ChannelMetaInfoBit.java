@@ -2,25 +2,18 @@ package io.openems.edge.bridge.modbus.api;
 
 import java.util.Objects;
 
-public class ModbusChannelMetaInfo {
-
-	/**
-	 * Holds the Start-Address of the Modbus Register.
-	 */
-	private final int address;
+/**
+ * Describes a Channel that has a read-mapping to a Modbus Coil.
+ */
+public class ChannelMetaInfoBit extends ChannelMetaInfo {
 
 	/**
 	 * Holds the index of the bit inside the Register if applicable.
 	 */
 	private final int bit;
 
-	public ModbusChannelMetaInfo(int address) {
-		this.address = address;
-		this.bit = -1;
-	}
-
-	public ModbusChannelMetaInfo(int address, int bit) {
-		this.address = address;
+	public ChannelMetaInfoBit(int address, int bit) {
+		super(address);
 		this.bit = bit;
 	}
 
@@ -50,7 +43,7 @@ public class ModbusChannelMetaInfo {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		ModbusChannelMetaInfo other = (ModbusChannelMetaInfo) obj;
+		ChannelMetaInfoBit other = (ChannelMetaInfoBit) obj;
 		return this.address == other.address && this.bit == other.bit;
 	}
 

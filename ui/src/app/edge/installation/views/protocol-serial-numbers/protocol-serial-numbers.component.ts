@@ -41,6 +41,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
   public spinnerId: string;
 
+  public isInitialized: boolean = false;
   public isWaiting: boolean = false;
 
   constructor(private service: Service, private websocket: Websocket) { }
@@ -88,15 +89,17 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     // If data isn't available after the timeout, the
     // fields get initialized with default values
     setTimeout(() => {
-      this.numberOfTowers ??= 1;
-      this.numberOfModulesPerTower ??= 5;
+      if (!this.isInitialized) {
+        this.numberOfTowers ??= 1;
+        this.numberOfModulesPerTower ??= 5;
 
-      this.initFields();
+        this.initFields();
 
-      // Unsubscribe
-      stopOnRequest.next();
-      stopOnRequest.complete();
-      this.unsubscribeToChannels();
+        // Unsubscribe
+        stopOnRequest.next();
+        stopOnRequest.complete();
+        this.unsubscribeToChannels();
+      }
     }, 5000);
   }
 
@@ -124,29 +127,14 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     // Fill data from field into the installationData object
     let serialNumbers = this.installationData.battery.serialNumbers;
 
-    for (let field of this.fieldsTower0) {
-      serialNumbers.tower0.push({
-        label: field.templateOptions.label,
-        value: field.formControl.value
-      })
-    }
+    serialNumbers.tower0 = this.extractSerialNumbers(this.fieldsTower0);
 
     if (this.numberOfTowers >= 2) {
-      for (let field of this.fieldsTower1) {
-        serialNumbers.tower1.push({
-          label: field.templateOptions.label,
-          value: field.formControl.value
-        })
-      }
+      serialNumbers.tower1 = this.extractSerialNumbers(this.fieldsTower1);
     }
 
     if (this.numberOfTowers === 3) {
-      for (let field of this.fieldsTower2) {
-        serialNumbers.tower2.push({
-          label: field.templateOptions.label,
-          value: field.formControl.value
-        })
-      }
+      serialNumbers.tower2 = this.extractSerialNumbers(this.fieldsTower2);
     }
 
     // Submit the setup protocol
@@ -216,18 +204,22 @@ export class ProtocolSerialNumbersComponent implements OnInit {
           templateOptions: {
             label: "Wechselrichter",
             required: true
-          }
+          },
+          wrappers: ["input-serial-number"]
         });
         fields.push({
           key: "emsBox",
           type: "input",
           templateOptions: {
-            label: "FEMS Box",
-            required: true
+            label: "EMS Box (FEMS Box)",
+            required: true,
+            prefix: "FH",
+            placeholder: "xxxxxxxxxx"
           },
           validators: {
-            validation: ["femsSerialNumber"]
-          }
+            validation: ["emsBoxSerialNumber"]
+          },
+          wrappers: ["input-serial-number"]
         });
         break;
       case 1:
@@ -236,11 +228,14 @@ export class ProtocolSerialNumbersComponent implements OnInit {
           type: "input",
           templateOptions: {
             label: "Parallel Box",
-            required: true
+            required: true,
+            prefix: "FHP",
+            placeholder: "xxxxxxxxx"
           },
           validators: {
-            validation: ["batterySerialNumber"]
-          }
+            validation: ["boxSerialNumber"]
+          },
+          wrappers: ["input-serial-number"]
         });
         break;
       case 2:
@@ -249,11 +244,14 @@ export class ProtocolSerialNumbersComponent implements OnInit {
           type: "input",
           templateOptions: {
             label: "Extension Box",
-            required: true
+            required: true,
+            prefix: "FHE",
+            placeholder: "xxxxxxxxx"
           },
           validators: {
-            validation: ["batterySerialNumber"]
-          }
+            validation: ["boxSerialNumber"]
+          },
+          wrappers: ["input-serial-number"]
         });
         break;
     }
@@ -263,12 +261,14 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       type: "input",
       templateOptions: {
         label: "BMS Box & Sockel",
-        required: true
+        required: true,
+        prefix: "519100001009",
+        placeholder: "xxxxxxxxxxxx"
       },
-      defaultValue: "519100001009",
       validators: {
         validation: ["batterySerialNumber"]
-      }
+      },
+      wrappers: ["input-serial-number"]
     });
 
     for (let moduleNr = 0; moduleNr < this.numberOfModulesPerTower; moduleNr++) {
@@ -276,13 +276,15 @@ export class ProtocolSerialNumbersComponent implements OnInit {
         key: "module" + moduleNr,
         type: "input",
         templateOptions: {
-          label: "Batteriemodul " + moduleNr,
-          required: true
+          label: "Batteriemodul " + (moduleNr + 1),
+          required: true,
+          prefix: "519110001210",
+          placeholder: "xxxxxxxxxxxx"
         },
-        defaultValue: "519110001210",
         validators: {
           validation: ["batterySerialNumber"]
-        }
+        },
+        wrappers: ["input-serial-number"]
       });
     }
 
@@ -290,6 +292,8 @@ export class ProtocolSerialNumbersComponent implements OnInit {
   }
 
   public initFields() {
+    this.isInitialized = true;
+
     this.service.stopSpinner(this.spinnerId);
 
     this.formSettings = new FormGroup({});
@@ -297,15 +301,12 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
     this.formTower0 = new FormGroup({});
     this.fieldsTower0 = this.getFields(0);
-    this.modelTower0 = {};
 
     this.formTower1 = new FormGroup({});
     this.fieldsTower1 = this.getFields(1);
-    this.modelTower1 = {};
 
     this.formTower2 = new FormGroup({});
     this.fieldsTower2 = this.getFields(2);
-    this.modelTower2 = {};
   }
 
   public onSettingsFieldsChange(event) {
@@ -329,6 +330,19 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
   public unsubscribeToChannels() {
     this.installationData.edge.unsubscribeChannels(this.websocket, ProtocolSerialNumbersComponent.SELECTOR);
+  }
+
+  public extractSerialNumbers(fields: FormlyFieldConfig[]): { label: string, value: string }[] {
+    let serialNumbers: { label: string, value: string }[] = [];
+
+    for (let field of fields) {
+      serialNumbers.push({
+        label: field.templateOptions.label + " Seriennummer",
+        value: (field.templateOptions.prefix ?? "") + field.formControl.value
+      })
+    }
+
+    return serialNumbers;
   }
 
   /**

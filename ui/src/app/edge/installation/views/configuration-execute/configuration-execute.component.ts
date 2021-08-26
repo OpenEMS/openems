@@ -117,6 +117,32 @@ export class ConfigurationExecuteComponent implements OnInit {
         mode: ConfigurationMode.RemoveAndConfigure
       });
 
+      // meter0
+      this.componentConfigurator.add({
+        factoryId: "GoodWe.Grid-Meter",
+        componentId: "meter0",
+        alias: "Netzzähler",
+        properties: [
+          { name: "enabled", value: true },
+          { name: "modbus.id", value: "modbus1" },
+          { name: "modbusUnitId", value: 247 }
+        ],
+        mode: ConfigurationMode.RemoveAndConfigure
+      });
+
+      // io0
+      this.componentConfigurator.add({
+        factoryId: "IO.KMtronic.4Port",
+        componentId: "io0",
+        alias: "Relaisboard",
+        properties: [
+          { name: "enabled", value: true },
+          { name: "modbus.id", value: "modbus0" },
+          { name: "modbusUnitId", value: 2 }
+        ],
+        mode: ConfigurationMode.RemoveAndConfigure
+      });
+
       // charger0
       this.componentConfigurator.add({
         factoryId: "GoodWe.Charger-PV1",
@@ -143,32 +169,6 @@ export class ConfigurationExecuteComponent implements OnInit {
           { name: "modbusUnitId", value: 247 }
         ],
         mode: this.installationData.pv.dc2.isSelected ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
-      });
-
-      // meter0
-      this.componentConfigurator.add({
-        factoryId: "GoodWe.Grid-Meter",
-        componentId: "meter0",
-        alias: "Netzzähler",
-        properties: [
-          { name: "enabled", value: true },
-          { name: "modbus.id", value: "modbus1" },
-          { name: "modbusUnitId", value: 247 }
-        ],
-        mode: ConfigurationMode.RemoveAndConfigure
-      });
-
-      // io0
-      this.componentConfigurator.add({
-        factoryId: "IO.KMtronic.4Port",
-        componentId: "io0",
-        alias: "Relaisboard",
-        properties: [
-          { name: "enabled", value: true },
-          { name: "modbus.id", value: "modbus0" },
-          { name: "modbusUnitId", value: 2 }
-        ],
-        mode: ConfigurationMode.RemoveAndConfigure
       });
 
       // battery0
