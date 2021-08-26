@@ -54,9 +54,7 @@ export class EvcsComponent {
         // channels for modal component, subscribe here for better UX
         new ChannelAddress(this.componentId, 'MinimumHardwarePower'),
         new ChannelAddress(this.componentId, 'MaximumHardwarePower'),
-        new ChannelAddress(this.componentId, 'SetChargePowerLimit'),
-        // channels for Soc
-        new ChannelAddress(this.componentId, 'Soc')
+        new ChannelAddress(this.componentId, 'SetChargePowerLimit')
       ]);
 
     });

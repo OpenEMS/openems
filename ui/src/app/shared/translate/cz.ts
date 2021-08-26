@@ -188,7 +188,6 @@ export const TRANSLATION = {
                     clusterConfigError: 'V konfiguraci clusteru Evcs došlo k chybě',
                     currentCharge: 'Aktuální nabíjení',
                     energieSinceBeginning: 'Energie od posledního začátku nabíjení',
-                    evcsSoc: 'Batteriestand',
                     energyLimit: 'Limit energie',
                     enforceCharging: 'Prosazování poplatků',
                     error: 'Chyba',

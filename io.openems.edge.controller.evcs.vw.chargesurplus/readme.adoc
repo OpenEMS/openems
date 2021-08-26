@@ -1,3 +1,0 @@
-= io.openems.edge.controller.evcs.vw.chargesurplus
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.evcs.vw.chargesurplus[Source Code icon:github[]]

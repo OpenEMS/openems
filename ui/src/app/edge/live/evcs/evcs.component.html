@@ -27,13 +27,6 @@
               {{ currentData[componentId + "/EnergySession"] | unitvalue:'kWh' }}
             </td>
           </tr>
-          <tr *ngIf="currentData[componentId + '/Soc'] > 0">
-            <td style="width:65%" translate>
-              Edge.Index.Widgets.EVCS.evcsSoc</td>
-            <td style="width:35%" class="align_right">
-              {{ currentData[componentId + "/Soc"] | unitvalue:'%' }}
-            </td>
-          </tr>
         </table>
         <ng-container *ngIf="controller">
           <table class="full_width">
@@ -91,8 +84,7 @@
                 <td style="width: 65%" translate>Edge.Index.Widgets.EVCS.ForceChargeMode.maxCharging</td>
                 <ng-container *ngIf="currentData[componentId + '/Phases']; else noPhases">
                   <td style="width: 35%" class="align_right">
-                    {{controller.properties['forceChargeMinPower'] * currentData[componentId + '/Phases'] |
-                    unitvalue:'kW'}}
+                    {{controller.properties['forceChargeMinPower'] * currentData[componentId + '/Phases'] | unitvalue:'kW'}}
                   </td>
                 </ng-container>
                 <ng-template #noPhases>
