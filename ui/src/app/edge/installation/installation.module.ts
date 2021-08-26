@@ -1,27 +1,25 @@
-import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { NgModule } from "@angular/core";
+import { FormControl, ValidationErrors } from "@angular/forms";
+import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { SharedModule } from "src/app/shared/shared.module";
-
+import { InstallationViewComponent } from "./installation-view/installation-view.component";
+import { InstallationComponent } from "./installation.component";
+import { KeyMask } from "./keymask";
 import { CompletionComponent } from "./views/completion/completion.component";
 import { ConfigurationEmergencyReserveComponent } from "./views/configuration-emergency-reserve/configuration-emergency-reserve.component";
 import { ConfigurationExecuteComponent } from "./views/configuration-execute/configuration-execute.component";
 import { ConfigurationLineSideMeterFuseComponent } from "./views/configuration-line-side-meter-fuse/configuration-line-side-meter-fuse.component";
+import { ConfigurationSummaryComponent } from "./views/configuration-summary/configuration-summary.component";
+import { ConfigurationSystemComponent } from "./views/configuration-system/configuration-system.component";
+import { PreInstallationComponent } from "./views/pre-installation/pre-installation.component";
+import { ProtocolAdditionalAcProducersComponent } from "./views/protocol-additional-ac-producers/protocol-additional-ac-producers.component";
 import { ProtocolCompletionComponent } from "./views/protocol-completion/protocol-completion.component";
 import { ProtocolCustomerComponent } from "./views/protocol-customer/protocol-customer.component";
+import { ProtocolDynamicFeedInLimitation } from "./views/protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component";
 import { ProtocolInstallerComponent } from "./views/protocol-installer/protocol-installer.component";
 import { ProtocolPv } from "./views/protocol-pv/protocol-pv.component";
-import { ProtocolSystemComponent } from "./views/protocol-system/protocol-system.component";
-import { InstallationComponent } from "./installation.component";
-import { InstallationViewComponent } from "./installation-view/installation-view.component";
-import { PreInstallationComponent } from "./views/pre-installation/pre-installation.component";
-import { ConfigurationSystemComponent } from "./views/configuration-system/configuration-system.component";
-import { ProtocolDynamicFeedInLimitation } from "./views/protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component";
-import { ProtocolAdditionalAcProducersComponent } from "./views/protocol-additional-ac-producers/protocol-additional-ac-producers.component";
-
-import { FormControl, ValidationErrors } from "@angular/forms";
-import { ConfigurationSummaryComponent } from "./views/configuration-summary/configuration-summary.component";
 import { ProtocolSerialNumbersComponent } from "./views/protocol-serial-numbers/protocol-serial-numbers.component";
-import { KeyMask } from "./keymask";
+import { ProtocolSystemComponent } from "./views/protocol-system/protocol-system.component";
 
 //#region Validators
 
@@ -40,12 +38,19 @@ export function EmailMatchValidator(control: FormControl): ValidationErrors {
   return { emailMatch: { message: 'E-Mails stimmen nicht überein.' } };
 }
 
-export function BatterySerialNumberValidator(control: FormControl): ValidationErrors {
-  return /^\d{24}$/.test(control.value) ? null : { "batterySerialNumber": true };
+export function EmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
+  // This validator only checks the value after the prefix
+  return /^[FS]\d{9}$/.test(control.value) ? null : { "emsBoxSerialNumber": true };
 }
 
-export function FemsSerialNumberValidator(control: FormControl): ValidationErrors {
-  return /^FHS\d{9}$/.test(control.value) ? null : { "femsSerialNumber": true };
+export function BoxSerialNumberValidator(control: FormControl): ValidationErrors {
+  // This validator only checks the value after the prefix
+  return /^\d{9}$/.test(control.value) ? null : { "boxSerialNumber": true };
+}
+
+export function BatterySerialNumberValidator(control: FormControl): ValidationErrors {
+  // This validator only checks the value after the prefix
+  return /^\d{12}$/.test(control.value) ? null : { "batterySerialNumber": true };
 }
 
 //#endregion
@@ -72,12 +77,16 @@ export function EmailValidatorMessage(err, field: FormlyFieldConfig) {
   return `"${field.formControl.value}" ist keine gültige E-Mail-Adresse.`;
 }
 
-export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${field.formControl.value}" ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus 24 Ziffern.`;
+export function EmsBoxSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
+  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer.`;
 }
 
-export function FemsSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${field.formControl.value}" ist keine gültige FEMS-Seriennummer.`;
+export function BoxSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
+  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer.`;
+}
+
+export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
+  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus 24 Ziffern.`;
 }
 
 //#endregion
@@ -88,8 +97,9 @@ export function FemsSerialNumberValidatorMessage(err, field: FormlyFieldConfig) 
       validators: [
         { name: "zip", validation: ZipValidator },
         { name: "emailMatch", validation: EmailMatchValidator },
+        { name: "emsBoxSerialNumber", validation: EmsBoxSerialNumberValidator },
+        { name: "boxSerialNumber", validation: BoxSerialNumberValidator },
         { name: "batterySerialNumber", validation: BatterySerialNumberValidator },
-        { name: "femsSerialNumber", validation: FemsSerialNumberValidator }
       ],
       validationMessages: [
         { name: "required", message: RequiredValidatorMessage },
@@ -97,8 +107,9 @@ export function FemsSerialNumberValidatorMessage(err, field: FormlyFieldConfig) 
         { name: "max", message: MaxValidatorMessage },
         { name: "zip", message: ZipValidatorMessage },
         { name: "email", message: EmailValidatorMessage },
-        { name: "batterySerialNumber", message: BatterySerialNumberValidatorMessage },
-        { name: "femsSerialNumber", message: FemsSerialNumberValidatorMessage }
+        { name: "emsBoxSerialNumber", message: EmsBoxSerialNumberValidatorMessage },
+        { name: "boxSerialNumber", message: BoxSerialNumberValidatorMessage },
+        { name: "batterySerialNumber", message: BatterySerialNumberValidatorMessage }
       ]
     }),
     SharedModule
@@ -121,7 +132,7 @@ export function FemsSerialNumberValidatorMessage(err, field: FormlyFieldConfig) 
     ProtocolPv,
     ProtocolAdditionalAcProducersComponent,
     ConfigurationSummaryComponent,
-    ProtocolSerialNumbersComponent
+    ProtocolSerialNumbersComponent,
   ]
 })
 export class InstallationModule { }
