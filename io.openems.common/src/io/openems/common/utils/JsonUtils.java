@@ -1298,22 +1298,40 @@ public class JsonUtils {
 		if (j.isJsonNull()) {
 			return null;
 		}
-		switch (type) {
-		case BOOLEAN:
-			return JsonUtils.getAsBoolean(j);
-		case DOUBLE:
-			return JsonUtils.getAsDouble(j);
-		case FLOAT:
-			return JsonUtils.getAsFloat(j);
-		case INTEGER:
-			return JsonUtils.getAsInt(j);
-		case LONG:
-			return JsonUtils.getAsLong(j);
-		case SHORT:
-			return JsonUtils.getAsShort(j);
-		case STRING:
-			return JsonUtils.getAsString(j);
+
+		if (j.isJsonPrimitive()) {
+			switch (type) {
+			case BOOLEAN:
+				return JsonUtils.getAsBoolean(j);
+			case DOUBLE:
+				return JsonUtils.getAsDouble(j);
+			case FLOAT:
+				return JsonUtils.getAsFloat(j);
+			case INTEGER:
+				return JsonUtils.getAsInt(j);
+			case LONG:
+				return JsonUtils.getAsLong(j);
+			case SHORT:
+				return JsonUtils.getAsShort(j);
+			case STRING:
+				return JsonUtils.getAsString(j);
+			}
 		}
+
+		if (j.isJsonObject() || j.isJsonArray()) {
+			switch (type) {
+			case BOOLEAN:
+			case DOUBLE:
+			case FLOAT:
+			case INTEGER:
+			case LONG:
+			case SHORT:
+				break;
+			case STRING:
+				return j.toString();
+			}
+		}
+
 		throw new NotImplementedException(
 				"Converter for value [" + j + "] to class type [" + type + "] is not implemented.");
 	}
@@ -1391,6 +1409,36 @@ public class JsonUtils {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String json = gson.toJson(j);
 		System.out.println(json);
+	}
+
+	/**
+	 * Check if the given {@link JsonElement} is an empty JsonObject {}.
+	 * 
+	 * @param j the {@link JsonElement} to check
+	 * @return true if is empty, otherwise false
+	 */
+	public static boolean isEmptyJsonObject(JsonElement j) {
+		if (j != null && j.isJsonObject()) {
+			JsonObject object = j.getAsJsonObject();
+			return object.size() == 0;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check if the given {@link JsonElement} is an empty JsonArray [].
+	 * 
+	 * @param j the {@link JsonElement} to check
+	 * @return true if is empty, otherwise false
+	 */
+	public static boolean isEmptyJsonArray(JsonElement j) {
+		if (j != null && j.isJsonArray()) {
+			JsonArray array = j.getAsJsonArray();
+			return array.size() == 0;
+		}
+
+		return false;
 	}
 
 }

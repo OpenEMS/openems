@@ -50,8 +50,8 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 	private static final int COL_VALUE = 1;
 	private static final int COL_UNIT = 2;
 	private static final int COL_DESCRIPTION = 3;
-	private static final int COL_ACCESS = 5;
 	private static final int COL_SOURCE = 4;
+	private static final int COL_ACCESS = 5;
 
 	public ChannelExportXlsxResponse(UUID id, OpenemsComponent component) throws OpenemsException {
 		super(id, generatePayload(component));
@@ -118,12 +118,14 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 						ws.value(row, COL_UNIT, channel.channelDoc().getUnit().getSymbol());
 						ws.value(row, COL_DESCRIPTION, description);
 						ws.value(row, COL_ACCESS, channel.channelDoc().getAccessMode().getAbbreviation());
-						row++;
 
-						Object source = channel.channelDoc().getSource();
-						if (source != null) {
-							ws.value(row, COL_SOURCE, source.toString());
+						// Source
+						final Object readSource = channel.getMetaInfo();
+						if (readSource != null) {
+							ws.value(row, COL_SOURCE, readSource.toString());
 						}
+
+						row++;
 					}
 				} finally {
 					if (wb != null) {
@@ -172,8 +174,8 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 		addTableHeader(wb, ws, row, COL_VALUE, "Value", 35);
 		addTableHeader(wb, ws, row, COL_UNIT, "Unit", 20);
 		addTableHeader(wb, ws, row, COL_DESCRIPTION, "Description", 25);
+		addTableHeader(wb, ws, row, COL_SOURCE, "Read Source", 20);
 		addTableHeader(wb, ws, row, COL_ACCESS, "Access", 10);
-		addTableHeader(wb, ws, row, COL_SOURCE, "Source", 20);
 
 		return ++row;
 	}

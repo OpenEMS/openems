@@ -259,4 +259,27 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	public CircularTreeMap<LocalDateTime, Value<T>> getPastValues() {
 		return this.pastValues;
 	}
+
+	/**
+	 * An object that holds information about the source of this Channel, i.e. a
+	 * Modbus Register or REST-Api endpoint address. Defaults to null.
+	 */
+	private Object source = null;
+
+	@Override
+	public <SOURCE> void setMetaInfo(SOURCE source) throws IllegalArgumentException {
+		if (this.source != null && source != null && !Objects.equals(this.source, source)) {
+			throw new IllegalArgumentException("Unable to set meta info [" + source.toString() + "]." //
+					+ " Channel [" + this.address() + "] already has one [" + this.source.toString() + "]. " //
+					+ "Hint: Possibly you are trying to map a single Channel to multiple Modbus Registers. " //
+					+ "If this is on purpose, you can manually provide a `ChannelMetaInfoReadAndWrite` object.");
+		}
+		this.source = source;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <SOURCE> SOURCE getMetaInfo() {
+		return (SOURCE) this.source;
+	}
 }

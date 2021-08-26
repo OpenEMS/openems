@@ -19,7 +19,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent.BitConverter;
-import io.openems.edge.bridge.modbus.api.ModbusChannelSource;
+import io.openems.edge.bridge.modbus.api.ChannelMetaInfoBit;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.WriteChannel;
@@ -69,12 +69,14 @@ public class BitsWordElement extends UnsignedWordElement {
 		@SuppressWarnings("unchecked")
 		Channel<Boolean> booleanChannel = (Channel<Boolean>) channel;
 
-		// Add Modbus Address and Bit-Index to Channel Source
-		channelId.doc().source(new ModbusChannelSource(this.getStartAddress(), bitIndex));
-
-		// Handle Writes to Bit-Channels
 		ChannelWrapper channelWrapper = new ChannelWrapper(booleanChannel, converter);
+
+		// Set Channel-Source
+		channel.setMetaInfo(new ChannelMetaInfoBit(this.getStartAddress(), bitIndex));
+
+		// Add Modbus Address and Bit-Index to Channel Source
 		if (channel instanceof WriteChannel<?>) {
+			// Handle Writes to Bit-Channels
 			WriteChannel<Boolean> booleanWriteChannel = (WriteChannel<Boolean>) booleanChannel;
 			booleanWriteChannel.onSetNextWrite(value -> {
 				// Listen on Writes to the BooleanChannel and store the value
