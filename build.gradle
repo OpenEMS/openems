@@ -6,6 +6,12 @@ tasks.named('wrapper') {
   jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
 }
 
+// UTF-8 encoding
+// compileJava.options.encoding = 'UTF-8'
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
 /*
  * Build OpenEMS Edge and Backend Components
  */
