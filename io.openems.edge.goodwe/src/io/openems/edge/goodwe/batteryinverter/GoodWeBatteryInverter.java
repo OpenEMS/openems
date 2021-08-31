@@ -1,6 +1,7 @@
 package io.openems.edge.goodwe.batteryinverter;
 
 import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
@@ -16,9 +17,12 @@ public interface GoodWeBatteryInverter
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		RUN_FAILED(Doc.of(Level.FAULT) //
 				.text("Running the Logic failed")), //
-		MAX_AC_EXPORT(Doc.of(OpenemsType.INTEGER)), //
-		MAX_AC_IMPORT(Doc.of(OpenemsType.INTEGER)) //
-		;
+		MAX_AC_EXPORT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		MAX_AC_IMPORT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		SMART_MODE_NOT_WORKING_WITH_PID_FILTER(Doc.of(Level.WARNING) //
+				.text("SMART mode does not work correctly with active PID filter"));
 
 		private final Doc doc;
 

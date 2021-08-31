@@ -29,9 +29,9 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		Integer bmsChargeImax = bmsChargeImaxChannel.value().get();
 		IntegerReadChannel bmsDischargeImaxChannel = parent.channel(GoodWe.ChannelId.BMS_DISCHARGE_IMAX);
 		Integer bmsDischargeImax = bmsDischargeImaxChannel.value().get();
-		IntegerReadChannel wbmsBatVoltageChannel = parent.channel(GoodWe.ChannelId.WBMS_BAT_VOLTAGE);
-		Integer wbmsBatVoltage = wbmsBatVoltageChannel.value().get();
-		this.calculateAllowedChargeDischargePower(clockProvider, true, bmsChargeImax, bmsDischargeImax, wbmsBatVoltage);
+		IntegerReadChannel wbmsVoltageChannel = parent.channel(GoodWe.ChannelId.WBMS_VOLTAGE);
+		Integer wbmsVoltage = wbmsVoltageChannel.value().get();
+		this.calculateAllowedChargeDischargePower(clockProvider, true, bmsChargeImax, bmsDischargeImax, wbmsVoltage);
 
 		// Battery limits
 		int batteryAllowedChargePower = Math.round(this.lastBatteryAllowedChargePower);

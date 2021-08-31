@@ -3,20 +3,26 @@ package io.openems.edge.goodwe.common.enums;
 import io.openems.common.types.OptionsEnum;
 
 public enum GoodweType implements OptionsEnum {
-	UNDEFINED(-1, "Undefined"), //
-	GOODWE_10K_BT(10, "GoodWe GW10K-BT"), //
-	GOODWE_8K_BT(11, "GoodWe GW8K-BT"), //
-	GOODWE_5K_BT(12, "GoodWe GW5K-BT"), //
-	GOODWE_10K_ET(20, "GoodWe GW10K-ET"), //
-	GOODWE_8K_ET(21, "GoodWe GW8K-ET"), //
-	GOODWE_5K_ET(22, "GoodWe GW5K-ET");
+	UNDEFINED(-1, "Undefined", Series.UNDEFINED), //
+	GOODWE_10K_BT(10, "GoodWe GW10K-BT", Series.BT), //
+	GOODWE_8K_BT(11, "GoodWe GW8K-BT", Series.BT), //
+	GOODWE_5K_BT(12, "GoodWe GW5K-BT", Series.BT), //
+	GOODWE_10K_ET(20, "GoodWe GW10K-ET", Series.ET), //
+	GOODWE_8K_ET(21, "GoodWe GW8K-ET", Series.ET), //
+	GOODWE_5K_ET(22, "GoodWe GW5K-ET", Series.ET);
+
+	public static enum Series {
+		UNDEFINED, BT, ET;
+	}
 
 	private final int value;
 	private final String option;
+	private final Series series;
 
-	private GoodweType(int value, String option) {
+	private GoodweType(int value, String option, Series series) {
 		this.value = value;
 		this.option = option;
+		this.series = series;
 	}
 
 	@Override
@@ -27,6 +33,15 @@ public enum GoodweType implements OptionsEnum {
 	@Override
 	public String getName() {
 		return this.option;
+	}
+
+	/**
+	 * Is this GoodWe a ET-Series or BT-Series.
+	 * 
+	 * @return the Series or UNDEFINED if unknown
+	 */
+	public Series getSeries() {
+		return series;
 	}
 
 	@Override

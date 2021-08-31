@@ -4,11 +4,9 @@ import io.openems.common.types.OptionsEnum;
 
 public enum MeterConnectStatus implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	NOT_CHECKED(0, "Not Checked"), //
 	CORRECT(1, "connect correctly"), //
 	REVERSE(2, "connect reverse"), //
-	INCORRRECT(3, "connect incorrectly"), //
-	FAULT(4, "Fault,fault mode,something is in fault mode"); //
+	INCORRRECT(3, "connect incorrectly");
 
 	private final int value;
 	private final String option;

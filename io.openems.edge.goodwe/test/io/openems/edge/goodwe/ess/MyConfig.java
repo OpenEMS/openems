@@ -2,17 +2,19 @@ package io.openems.edge.goodwe.ess;
 
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.edge.goodwe.common.enums.ControlMode;
+import io.openems.edge.goodwe.ess.MyConfig.Builder;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id = null;
-		public boolean readOnlyMode;
 		public String modbusId;
 		public int modbusUnitId;
 		public int capacity;
 		public int maxBatteryPower;
+		public ControlMode controlMode;
 
 		private Builder() {
 
@@ -38,13 +40,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setReadOnlyMode(boolean readOnlyMode) {
-			this.readOnlyMode = readOnlyMode;
+		public Builder setModbusUnitId(int modbusUnitId) {
+			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
 
-		public Builder setModbusUnitId(int modbusUnitId) {
-			this.modbusUnitId = modbusUnitId;
+		public Builder setControlMode(ControlMode controlMode) {
+			this.controlMode = controlMode;
 			return this;
 		}
 
@@ -70,11 +72,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public boolean readOnlyMode() {
-		return this.builder.readOnlyMode;
-	}
-
-	@Override
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;
 	}
@@ -97,6 +94,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String Modbus_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
+	}
+
+	@Override
+	public ControlMode controlMode() {
+		return this.builder.controlMode;
 	}
 
 }
