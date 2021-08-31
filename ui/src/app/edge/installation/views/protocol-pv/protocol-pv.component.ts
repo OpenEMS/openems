@@ -143,7 +143,7 @@ export class ProtocolPv implements OnInit {
       type: "input",
       templateOptions: {
         type: "number",
-        label: "Anzahl Module"
+        label: "Anzahl PV-Module"
       },
       parsers: [Number],
       hideExpression: model => !model.isSelected

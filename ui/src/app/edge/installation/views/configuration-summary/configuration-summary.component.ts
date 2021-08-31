@@ -99,9 +99,9 @@ export class ConfigurationSummaryComponent implements OnInit {
     let lineSideMeterFuse = this.installationData.lineSideMeterFuse;
 
     if (lineSideMeterFuse.fixedValue === -1) {
-      generalData.push({ label: "Zählervorsicherung", value: lineSideMeterFuse.otherValue })
+      generalData.push({ label: "Vorsicherung Hausanschlusszähler", value: lineSideMeterFuse.otherValue })
     } else {
-      generalData.push({ label: "Zählervorsicherung", value: lineSideMeterFuse.fixedValue })
+      generalData.push({ label: "Vorsicherung Hausanschlusszähler", value: lineSideMeterFuse.fixedValue })
     }
 
     this.tableData.push({
@@ -241,7 +241,7 @@ export class ConfigurationSummaryComponent implements OnInit {
           { label: "Wert MPPT" + dcNr, value: dc.value },
           { label: "Ausrichtung MPPT" + dcNr, value: dc.orientation },
           { label: "Modultyp MPPT" + dcNr, value: dc.moduleType },
-          { label: "Modulanzahl MPPT" + dcNr, value: dc.modulesPerString }
+          { label: "Anzahl PV-Module MPPT" + dcNr, value: dc.modulesPerString }
         ]);
         dcNr++;
       }
@@ -255,7 +255,7 @@ export class ConfigurationSummaryComponent implements OnInit {
         { label: "Wert AC" + acNr, value: ac.value },
         { label: "Ausrichtung AC" + acNr, value: ac.orientation },
         { label: "Modultyp AC" + acNr, value: ac.moduleType },
-        { label: "Modulanzahl AC" + acNr, value: ac.modulesPerString },
+        { label: "Anzahl PV-Module AC" + acNr, value: ac.modulesPerString },
         { label: "Zählertyp AC" + acNr, value: ac.meterType },
         { label: "Modbus Kommunikationsadresse AC" + acNr, value: ac.modbusCommunicationAddress }
       ]);

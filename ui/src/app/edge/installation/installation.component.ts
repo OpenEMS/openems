@@ -14,7 +14,6 @@ enum View {
   ConfigurationSystem,
   PreInstallation,
   ProtocolAdditionalAcProducers,
-  ProtocolCompletion,
   ProtocolCustomer,
   ProtocolDynamicFeedInLimitation,
   ProtocolInstaller,
@@ -160,8 +159,6 @@ export class InstallationComponent implements OnInit {
     View.ProtocolDynamicFeedInLimitation,
     View.ConfigurationSummary,
     View.ConfigurationExecute,
-    // TODO Read data from batttery inverter here if possible
-    // View.ProtocolCompletion,
     View.ProtocolSerialNumbers,
     View.Completion
   ];

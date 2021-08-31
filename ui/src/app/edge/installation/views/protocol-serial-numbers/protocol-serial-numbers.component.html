@@ -1,22 +1,27 @@
 <installation-view iconName="clipboard-outline" header="Seriennummern" (previousClicked)="onPreviousClicked()"
   (nextClicked)="onNextClicked()" [isWaiting]="isWaiting">
 
-  <ng-container *ngIf="numberOfTowers; else spinner">
-    <ion-card>
-      <ion-card-header>
-        <ion-item>
-          <ion-label>
-            <ion-card-title>Voreinstellungen</ion-card-title>
-          </ion-label>
-        </ion-item>
-      </ion-card-header>
-      <ion-card-content>
-        <formly-form [form]="formSettings" [fields]="fieldsSettings" [model]="modelSettings"
-          (modelChange)="onSettingsFieldsChange($event)">
-        </formly-form>
-      </ion-card-content>
-    </ion-card>
+  <ngx-spinner [name]="spinnerId"></ngx-spinner>
 
+  <ion-card>
+    <ion-card-header>
+      <ion-item>
+        <ion-label>
+          <ion-card-title>Voreinstellungen</ion-card-title>
+        </ion-label>
+      </ion-item>
+    </ion-card-header>
+    <ion-card-content>
+      <formly-form [form]="formSettings" [fields]="fieldsSettings" [model]="modelSettings"></formly-form>
+      <ion-item>
+        <ion-button (click)="saveSettings()">
+          <ion-label>speichern</ion-label>
+        </ion-button>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+  <ng-container *ngIf="!isWaiting">
     <ion-card>
       <ion-card-content>Vervollständigen Sie die Seriennummern, indem Sie die Platzhalter (mit "x" gekennzeichnet) durch
         die entsprechenden Zeichen ersetzen.</ion-card-content>
@@ -60,9 +65,4 @@
         übermittelt.</ion-card-content>
     </ion-card>
   </ng-container>
-
 </installation-view>
-
-<ng-template #spinner>
-  <ngx-spinner [name]="spinnerId"></ngx-spinner>
-</ng-template>
