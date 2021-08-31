@@ -63,10 +63,7 @@
                   <ion-label class="ion-text-wrap">
                     <ion-text>
                       <ion-text color="primary">
-                        <h3>{{ item.alias }}
-                          <span *ngIf="item.id != item.alias"> ({{ item.id }}) </span>
-                          <small *ngIf="!item.isEnabled"> (<span translate>General.componentInactive</span>) </small>
-                          <ion-icon *ngIf="edge.roleIsAtLeast('owner')" style="cursor: pointer;" color="dark"
+                        <h3>{{ item.alias }} <ion-icon *ngIf="edge.roleIsAtLeast('owner')" style="cursor: pointer;"
                             [routerLink]="item.id" name="create-outline">
                           </ion-icon>
                         </h3>
@@ -77,15 +74,17 @@
                           </ion-icon>
                           <ion-icon *ngIf="item['showProperties']" name="arrow-up-circle-outline">
                           </ion-icon>
-                          {{ factory.name }} <small>({{ factory.description }})</small>
+                          <span>&nbsp;{{ item.id }}</span>&nbsp;<span style="color:gray">{{ factory.name }}</span><span
+                            *ngIf="!item.isEnabled"> - <span translate>General.componentInactive</span></span>
                         </p>
                       </ng-container>
                     </ion-text>
                     <ng-container *ngIf="item['showProperties']">
-                      <ul style="font-family: monospace">
+                      <!-- Component details -->
+                      <ul style="font-family: monospace; list-style-type: square">
                         <ng-container *ngFor="let p of (item.properties | keys)">
                           <li
-                            *ngIf="!['alias', '_lastChangeBy', '_lastChangeAt', 'enabled', ':org.apache.felix.configadmin.revision:'].includes(p.key)">
+                            *ngIf="!['alias', '_lastChangeBy', '_lastChangeAt', 'enabled', ':org.apache.felix.configadmin.revision:'].includes(p.key) && !p.key.endsWith('.target')">
                             {{ p.key }}: {{ p.value }}
                           </li>
                         </ng-container>
