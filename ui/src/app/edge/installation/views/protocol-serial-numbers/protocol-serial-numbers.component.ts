@@ -16,6 +16,8 @@ import { FeedInSetting } from '../protocol-dynamic-feed-in-limitation/protocol-d
 export class ProtocolSerialNumbersComponent implements OnInit {
   private static readonly SELECTOR = "protocol-serial-numbers";
 
+  private readonly READ_TIMEOUT = 5000;
+
   @Input() public installationData: InstallationData;
 
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
@@ -40,8 +42,6 @@ export class ProtocolSerialNumbersComponent implements OnInit {
   public numberOfModulesPerTower: number;
 
   public spinnerId: string;
-
-  public isInitialized: boolean = false;
   public isWaiting: boolean = false;
 
   constructor(private service: Service, private websocket: Websocket) { }
@@ -49,58 +49,18 @@ export class ProtocolSerialNumbersComponent implements OnInit {
   public ngOnInit() {
     // Start spinner
     this.spinnerId = "installation-serial-number-spinner";
-    this.service.startSpinner(this.spinnerId);
+    this.setIsWaiting(true);
 
-    // Subscribe to channels of battery inverter
-    this.subscribeToChannels();
+    // Read settings
+    this.getSettings().then((settings) => {
+      this.numberOfTowers = settings.numberOfTowers;
+      this.numberOfModulesPerTower = settings.numberOfModulesPerTower;
 
-    // Subject to stop the subscription to currentData
-    let stopOnRequest: Subject<void> = new Subject<void>();
-
-    // Read data from battery inverter
-    this.installationData.edge.currentData.pipe(
-      takeUntil(stopOnRequest),
-      filter(currentData => currentData != null)
-    ).subscribe((currentData) => {
-      let numberOfTowers = currentData.channel["battery0/NumberOfTowers"];
-      let numberOfModulesPerTower = currentData.channel["battery0/NumberOfModulesPerTower"];
-      let batteryInverterSerialNumber = currentData.channel["batteryInverter0/SerialNumber"];
-
-      // Make sure values are available
-      if (!numberOfTowers || !numberOfModulesPerTower || !batteryInverterSerialNumber) {
-        return;
-      }
-
-      // Apply values and initialize fields
-      this.numberOfTowers = parseInt(numberOfTowers);
-      this.numberOfModulesPerTower = parseInt(numberOfModulesPerTower);
-      this.modelTower0 = {
-        batteryInverter: batteryInverterSerialNumber
-      };
-
-      this.initFields();
-
-      // Unsubscribe
-      stopOnRequest.next();
-      stopOnRequest.complete();
-      this.unsubscribeToChannels();
+      // Read all module serial numbers
+      this.initializeAllFields().then(() => {
+        this.setIsWaiting(false);
+      });
     });
-
-    // If data isn't available after the timeout, the
-    // fields get initialized with default values
-    setTimeout(() => {
-      if (!this.isInitialized) {
-        this.numberOfTowers ??= 1;
-        this.numberOfModulesPerTower ??= 5;
-
-        this.initFields();
-
-        // Unsubscribe
-        stopOnRequest.next();
-        stopOnRequest.complete();
-        this.unsubscribeToChannels();
-      }
-    }, 5000);
   }
 
   public onPreviousClicked() {
@@ -149,6 +109,146 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     }).finally(() => {
       this.isWaiting = false;
       this.nextViewEvent.emit(this.installationData);
+    });
+  }
+
+  public setIsWaiting(isWaiting: boolean) {
+    this.isWaiting = isWaiting;
+
+    if (isWaiting) {
+      this.service.startSpinner(this.spinnerId);
+    } else {
+      this.service.stopSpinner(this.spinnerId);
+    }
+  }
+
+  public getSettings(): Promise<{ numberOfTowers: number, numberOfModulesPerTower: number }> {
+    return new Promise((resolve) => {
+      let isResolved: boolean = false;
+
+      // Edge-subscribe
+      this.installationData.edge.subscribeChannels(this.websocket, ProtocolSerialNumbersComponent.SELECTOR, [
+        new ChannelAddress("battery0", "NumberOfTowers"),
+        new ChannelAddress("battery0", "NumberOfModulesPerTower")
+      ]);
+
+      // Subject to stop the subscription to currentData
+      let stopOnRequest: Subject<void> = new Subject<void>();
+
+      // Read tower and module numbers
+      this.installationData.edge.currentData.pipe(
+        takeUntil(stopOnRequest),
+        filter(currentData => currentData != null)
+      ).subscribe((currentData) => {
+        let numberOfTowers = currentData.channel["battery0/NumberOfTowers"];
+        let numberOfModulesPerTower = currentData.channel["battery0/NumberOfModulesPerTower"];
+
+        // If values are available, resolve the promise with them
+        if (numberOfTowers && numberOfModulesPerTower) {
+          isResolved = true;
+          resolve({ numberOfTowers: parseInt(numberOfTowers), numberOfModulesPerTower: parseInt(numberOfModulesPerTower) });
+        }
+      });
+
+      setTimeout(() => {
+        // If data isn't available after the timeout, the
+        // promise gets resolved with default values
+        if (!isResolved) {
+          resolve({ numberOfTowers: 1, numberOfModulesPerTower: 5 });
+        }
+
+        // Unsubscribe to currentData and channels after timeout
+        stopOnRequest.next();
+        stopOnRequest.complete();
+        this.installationData.edge.unsubscribeChannels(this.websocket, ProtocolSerialNumbersComponent.SELECTOR);
+      }, this.READ_TIMEOUT);
+    });
+  }
+
+  public getSerialNumbers(towerNr: number): Promise<Object> {
+    return new Promise((resolve) => {
+      let isResolved: boolean = false;
+      let channelAddresses: { [key: string]: ChannelAddress } = {};
+      let subscriptionId = ProtocolSerialNumbersComponent.SELECTOR + "-tower" + towerNr;
+      let model: Object = {};
+
+      // Gather channel addresses
+      channelAddresses["batteryInverter"] = new ChannelAddress("batteryInverter0", "SerialNumber");
+      channelAddresses["bmsBox"] = new ChannelAddress("battery0", "Tower" + towerNr + "BmsSerialNumber");
+
+      for (let moduleNr = 0; moduleNr < this.numberOfModulesPerTower; moduleNr++) {
+        channelAddresses["module" + moduleNr] = new ChannelAddress("battery0", "Tower" + towerNr + "Module" + moduleNr + "SerialNumber");
+      }
+
+      // Edge-subscribe
+      this.installationData.edge.subscribeChannels(this.websocket, subscriptionId, Object.values(channelAddresses));
+
+      // Subject to stop the subscription to currentData
+      let stopOnRequest: Subject<void> = new Subject<void>();
+
+      // Read data
+      this.installationData.edge.currentData.pipe(
+        takeUntil(stopOnRequest),
+        filter(currentData => currentData != null)
+      ).subscribe((currentData) => {
+        for (let key in channelAddresses) {
+          let channelAddress: ChannelAddress = channelAddresses[key];
+          let serialNumber: string = currentData.channel[channelAddress.componentId + "/" + channelAddress.channelId];
+
+          // If one serial number is undefined return
+          if (!serialNumber) {
+            return;
+          }
+
+          // Only take the last 12 characters if it's a module serial number because the prefix is always the same
+          model[key] = key.startsWith("module") ? serialNumber.substr(12, 12) : serialNumber;
+        }
+
+        // Resolve the promise
+        isResolved = true;
+        resolve(model);
+      });
+
+      setTimeout(() => {
+        // If data isn't available after the timeout, the
+        // promise gets resolved with an empty object
+        if (!isResolved) {
+          resolve({});
+        }
+
+        // Unsubscribe to currentData and channels after timeout
+        stopOnRequest.next();
+        stopOnRequest.complete();
+        this.installationData.edge.unsubscribeChannels(this.websocket, subscriptionId);
+      }, this.READ_TIMEOUT);
+    });
+  }
+
+  public initializeAllFields(): Promise<void> {
+    return new Promise((resolve) => {
+      Promise.all([
+        this.getSerialNumbers(0),
+        this.getSerialNumbers(1),
+        this.getSerialNumbers(2)
+      ]).then((models) => {
+        this.formSettings = new FormGroup({});
+        this.fieldsSettings = this.getSettingsFields();
+        this.modelSettings = {};
+
+        this.formTower0 = new FormGroup({});
+        this.fieldsTower0 = this.getFields(0);
+        this.modelTower0 = models[0];
+
+        this.formTower1 = new FormGroup({});
+        this.fieldsTower1 = this.getFields(1);
+        this.modelTower1 = models[1];
+
+        this.formTower2 = new FormGroup({});
+        this.fieldsTower2 = this.getFields(2);
+        this.modelTower2 = models[2];
+
+        resolve();
+      });
     });
   }
 
@@ -262,11 +362,10 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       templateOptions: {
         label: "BMS Box & Sockel",
         required: true,
-        prefix: "519100001009",
-        placeholder: "xxxxxxxxxxxx"
+        placeholder: "xxxxxxxxxxxxxxxxxxxxxxxx"
       },
       validators: {
-        validation: ["batterySerialNumber"]
+        validation: ["bmsBoxSerialNumber"]
       },
       wrappers: ["input-serial-number"]
     });
@@ -291,45 +390,19 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     return fields;
   }
 
-  public initFields() {
-    this.isInitialized = true;
-
-    this.service.stopSpinner(this.spinnerId);
-
-    this.formSettings = new FormGroup({});
-    this.fieldsSettings = this.getSettingsFields();
-
-    this.formTower0 = new FormGroup({});
-    this.fieldsTower0 = this.getFields(0);
-
-    this.formTower1 = new FormGroup({});
-    this.fieldsTower1 = this.getFields(1);
-
-    this.formTower2 = new FormGroup({});
-    this.fieldsTower2 = this.getFields(2);
-  }
-
-  public onSettingsFieldsChange(event) {
+  public saveSettings() {
     if (this.formSettings.invalid) {
+      this.service.toast("Um die Einstellungen zu übernehmen, geben Sie gültige Werte ein.", "warning");
       return;
     }
 
-    this.numberOfTowers = event.numberOfTowers;
-    this.numberOfModulesPerTower = event.numberOfModulesPerTower;
+    this.numberOfTowers = this.modelSettings.numberOfTowers;
+    this.numberOfModulesPerTower = this.modelSettings.numberOfModulesPerTower;
 
-    this.initFields();
-  }
-
-  public subscribeToChannels() {
-    this.installationData.edge.subscribeChannels(this.websocket, ProtocolSerialNumbersComponent.SELECTOR, [
-      new ChannelAddress("battery0", "NumberOfTowers"),
-      new ChannelAddress("battery0", "NumberOfModulesPerTower"),
-      new ChannelAddress("batteryInverter0", "SerialNumber")
-    ]);
-  }
-
-  public unsubscribeToChannels() {
-    this.installationData.edge.unsubscribeChannels(this.websocket, ProtocolSerialNumbersComponent.SELECTOR);
+    this.setIsWaiting(true);
+    this.initializeAllFields().then(() => {
+      this.setIsWaiting(false);
+    });
   }
 
   public extractSerialNumbers(fields: FormlyFieldConfig[]): { label: string, value: string }[] {
@@ -455,7 +528,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     }
 
     protocol.items.push({
-      category: "Zählervorsicherung",
+      category: "Vorsicherung Hausanschlusszähler",
       name: "Wert [A]",
       value: lineSideMeterFuseValue.toString()
     });
@@ -466,7 +539,6 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
     // DC-PV 1
     if (dc1.isSelected) {
-
       protocol.items.push({
         category: "DC-PV-Installation",
         name: "Alias MPPT1",
@@ -493,7 +565,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
       protocol.items.push({
         category: "DC-PV-Installation",
-        name: "Modulanzahl MPPT1",
+        name: "Anzahl PV-Module MPPT1",
         value: dc1.modulesPerString.toString()
       });
     }
@@ -526,7 +598,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
       protocol.items.push({
         category: "DC-PV-Installation",
-        name: "Modulanzahl MPPT2",
+        name: "Anzahl PV-Module MPPT2",
         value: dc2.modulesPerString.toString()
       });
     }
@@ -589,7 +661,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
       protocol.items.push({
         category: "Zusätzliche AC-Erzeuger",
-        name: "Modulanzahl " + label,
+        name: "Anzahl PV-Module " + label,
         value: element.modulesPerString.toString()
       });
 

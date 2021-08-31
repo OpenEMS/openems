@@ -89,11 +89,6 @@
           </configuration-execute>
         </ion-row>
 
-        <ion-row *ngSwitchCase="view.ProtocolCompletion" class="ion-justify-content-center">
-          <protocol-completion [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
-            (nextViewEvent)="displayNextView()"></protocol-completion>
-        </ion-row>
-
         <ion-row *ngSwitchCase="view.ProtocolSerialNumbers" class="ion-justify-content-center">
           <protocol-serial-numbers [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
             (nextViewEvent)="displayNextView()"></protocol-serial-numbers>

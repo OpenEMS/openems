@@ -13,7 +13,6 @@ import { ConfigurationSummaryComponent } from "./views/configuration-summary/con
 import { ConfigurationSystemComponent } from "./views/configuration-system/configuration-system.component";
 import { PreInstallationComponent } from "./views/pre-installation/pre-installation.component";
 import { ProtocolAdditionalAcProducersComponent } from "./views/protocol-additional-ac-producers/protocol-additional-ac-producers.component";
-import { ProtocolCompletionComponent } from "./views/protocol-completion/protocol-completion.component";
 import { ProtocolCustomerComponent } from "./views/protocol-customer/protocol-customer.component";
 import { ProtocolDynamicFeedInLimitation } from "./views/protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component";
 import { ProtocolInstallerComponent } from "./views/protocol-installer/protocol-installer.component";
@@ -46,6 +45,10 @@ export function EmsBoxSerialNumberValidator(control: FormControl): ValidationErr
 export function BoxSerialNumberValidator(control: FormControl): ValidationErrors {
   // This validator only checks the value after the prefix
   return /^\d{9}$/.test(control.value) ? null : { "boxSerialNumber": true };
+}
+
+export function BmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
+  return /^\d{24}$/.test(control.value) ? null : { "bmsBoxSerialNumber": true };
 }
 
 export function BatterySerialNumberValidator(control: FormControl): ValidationErrors {
@@ -85,6 +88,10 @@ export function BoxSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
   return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer.`;
 }
 
+export function BmsBoxSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
+  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus 24 Ziffern.`;
+}
+
 export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
   return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus 24 Ziffern.`;
 }
@@ -99,6 +106,7 @@ export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfi
         { name: "emailMatch", validation: EmailMatchValidator },
         { name: "emsBoxSerialNumber", validation: EmsBoxSerialNumberValidator },
         { name: "boxSerialNumber", validation: BoxSerialNumberValidator },
+        { name: "bmsBoxSerialNumber", validation: BmsBoxSerialNumberValidator },
         { name: "batterySerialNumber", validation: BatterySerialNumberValidator },
       ],
       validationMessages: [
@@ -109,6 +117,7 @@ export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfi
         { name: "email", message: EmailValidatorMessage },
         { name: "emsBoxSerialNumber", message: EmsBoxSerialNumberValidatorMessage },
         { name: "boxSerialNumber", message: BoxSerialNumberValidatorMessage },
+        { name: "bmsBoxSerialNumber", message: BmsBoxSerialNumberValidatorMessage },
         { name: "batterySerialNumber", message: BatterySerialNumberValidatorMessage }
       ]
     }),
@@ -120,7 +129,6 @@ export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfi
     ConfigurationExecuteComponent,
     ConfigurationLineSideMeterFuseComponent,
     KeyMask,
-    ProtocolCompletionComponent,
     ProtocolCustomerComponent,
     ProtocolDynamicFeedInLimitation,
     ProtocolInstallerComponent,

@@ -119,7 +119,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       type: "input",
       templateOptions: {
         type: "number",
-        label: "Anzahl Module"
+        label: "Anzahl PV-Module"
       },
       parsers: [Number]
     });

@@ -4,6 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.goodwe.GoodWeConstants;
+import io.openems.edge.goodwe.common.enums.ControlMode;
 
 @ObjectClassDefinition(//
 		name = "GoodWe ESS", //
@@ -19,8 +20,8 @@ import io.openems.edge.goodwe.GoodWeConstants;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Read-Only mode", description = "Enables Read-Only mode")
-	boolean readOnlyMode() default true;
+	@AttributeDefinition(name = "Control mode", description = "Sets the Control mode")
+	ControlMode controlMode() default ControlMode.SMART;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";

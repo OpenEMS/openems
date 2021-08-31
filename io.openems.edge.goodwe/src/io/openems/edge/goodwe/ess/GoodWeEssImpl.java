@@ -20,14 +20,11 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
@@ -47,6 +44,8 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 		SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final AllowedChargeDischargeHandler allowedChargeDischargeHandler = new AllowedChargeDischargeHandler(this);
+	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler();
+
 	private Config config;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
@@ -56,10 +55,13 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 	protected ConfigurationAdmin cm;
 
 	@Reference
-	protected ComponentManager componentManager;
+	private Power power;
 
 	@Reference
-	private Power power;
+	private Sum sum;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -101,7 +103,8 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		// Apply Power Set-Point
-		ApplyPowerHandler.apply(this, config.readOnlyMode(), activePower);
+		this.applyPowerHandler.apply(this, activePower, this.config.controlMode(),
+				this.sum.getGridActivePower().orElse(0), this.getActivePower().orElse(0));
 	}
 
 	@Override
@@ -140,25 +143,13 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 	}
 
 	@Override
-	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
-		// Handle Read-Only mode -> no charge/discharge
-		if (this.config.readOnlyMode()) {
-			return new Constraint[] { //
-					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
-					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
-			};
-		}
-
-		return Power.NO_CONSTRAINTS;
-	}
-
-	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
 
 	@Override
 	public Integer getSurplusPower() {
+		// TODO logic is insufficient
 		if (this.getSoc().orElse(0) < 99) {
 			return null;
 		}
@@ -169,8 +160,4 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 		return productionPower + 200 /* discharge more than PV production to avoid PV curtail */;
 	}
 
-	@Override
-	public boolean isManaged() {
-		return !this.config.readOnlyMode();
-	}
 }
