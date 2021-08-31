@@ -1,0 +1,22 @@
+Bundle-Name: OpenEMS Edge Bosch BPT-S 5 Hybrid
+Bundle-Vendor: OpenEMS Association e.V.
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.ess.api;version=latest,\
+	io.openems.edge.meter.api;version=latest,\
+	org.eclipse.jetty.client;version='9.4.35',\
+	org.eclipse.jetty.http;version='9.4.35',\
+	org.eclipse.jetty.util;version='9.4.35',\
+	org.jsoup;version='1.10.2',\
+
+-testpath: \
+	${testpath},\
+	org.eclipse.jetty.client,\
+	org.eclipse.jetty.http,\
+	org.eclipse.jetty.util,\
+	org.eclipse.jetty.io,\
