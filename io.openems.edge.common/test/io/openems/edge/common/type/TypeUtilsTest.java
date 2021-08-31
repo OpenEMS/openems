@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import io.openems.common.types.OpenemsType;
+
 public class TypeUtilsTest {
 
 	@Test
@@ -47,4 +49,15 @@ public class TypeUtilsTest {
 		assertEquals(34, (int) TypeUtils.min(null, 34, 40));
 	}
 
+	@Test
+	public void testGetAsType() {
+		try {
+			TypeUtils.getAsType(OpenemsType.SHORT, Double.valueOf(Short.MAX_VALUE + 1));
+			assert false;
+		} catch (IllegalArgumentException e) {
+			// ok
+		}
+		assertEquals((Short) Short.MAX_VALUE,
+				(Short) (TypeUtils.getAsType(OpenemsType.SHORT, Double.valueOf(Short.MAX_VALUE))));
+	}
 }
