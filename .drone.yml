@@ -31,7 +31,7 @@ pipeline:
       - cd ui
       - npm ci --prefer-offline --cache /drone/.npm
       - sed --in-place s#/m/#/${DRONE_BRANCH}/#g angular.json
-      - node_modules/@angular/cli/bin/ng build -c backend
+      - node_modules/@angular/cli/bin/ng build -c "fenecon,fenecon-backend-prod,prod"
 
   refresh-dev:
     image: appleboy/drone-scp
@@ -41,8 +41,8 @@ pipeline:
       - source: ssh_key_intranet 
         target: scp_key
     rm: true
-    source: ./ui/target/backend
-    strip_components: 4
+    source: ./ui/target
+    strip_components: 3
     target: /opt/docker/gitea/data/openems-ui-dev/html/${DRONE_COMMIT_BRANCH}
 
   rebuild-cache:

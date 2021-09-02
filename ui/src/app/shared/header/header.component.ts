@@ -16,7 +16,7 @@ export class HeaderComponent {
 
     @ViewChild(PickDateComponent, { static: false }) PickDateComponent: PickDateComponent
 
-    public env = environment;
+    public environment = environment;
     public backUrl: string | boolean = '/';
     public enableSideMenu: boolean;
     public currentPage: 'EdgeSettings' | 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
@@ -104,7 +104,7 @@ export class HeaderComponent {
         }
 
         // disable backUrl to first 'index' page from Edge index if there is only one Edge in the system
-        if (file === 'live' && urlArray.length == 3 && this.env.backend === "OpenEMS Edge") {
+        if (file === 'live' && urlArray.length == 3 && this.environment.backend === "OpenEMS Edge") {
             this.backUrl = false;
             return;
         }

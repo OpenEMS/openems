@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { environment } from '../../environments';
+import { environment } from 'src/environments';
 import { Service, Websocket } from '../shared/shared';
 import { Language, LanguageTag } from '../shared/translate/language';
 
@@ -11,7 +11,7 @@ import { Language, LanguageTag } from '../shared/translate/language';
 })
 export class UserComponent {
 
-  public env = environment;
+  public environment = environment;
 
   public readonly languages: LanguageTag[];
   public currentLanguage: LanguageTag;
@@ -38,7 +38,7 @@ export class UserComponent {
   }
 
   public toggleDebugMode(event: CustomEvent) {
-    this.env.debugMode = event.detail['checked'];
+    this.environment.debugMode = event.detail['checked'];
   }
 
   public setLanguage(language: LanguageTag): void {

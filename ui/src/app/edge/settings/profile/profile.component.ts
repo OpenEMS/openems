@@ -18,7 +18,7 @@ export class ProfileComponent {
 
   private static readonly SELECTOR = "profile";
 
-  public env = environment;
+  public environment = environment;
 
   public edge: Edge = null;
   public config: EdgeConfig = null;

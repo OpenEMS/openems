@@ -1,18 +1,7 @@
 {
-  "name": "fems-ui",
-  "version": "2021.15.2-SNAPSHOT",
-  "author": "FENECON GmbH",
-  "homepage": "http://openems.io",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "build-edge": "ng build -prod --env=edge --base-href / --output-path=target/edge",
-    "build-backend": "ng build -prod --env=backend --base-href /m/ --output-path=target/backend",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
-  },
+  "name": "openems-ui",
+  "version": "2021.14.1-SNAPSHOT",
+  "license": "AGPL-3.0",
   "private": true,
   "dependencies": {
     "@angular/animations": "~12.1.4",
@@ -76,6 +65,5 @@
     "protractor": "~7.0.0",
     "ts-node": "~10.1.0",
     "typescript": "~4.3.5"
-  },
-  "description": "FEMS"
+  }
 }

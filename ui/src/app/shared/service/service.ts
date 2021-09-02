@@ -5,6 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
+import { environment } from 'src/environments';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
 import { JsonrpcResponseError } from '../jsonrpc/base';
@@ -137,7 +138,7 @@ export class Service implements ErrorHandler {
       // Set the currentPageTitle only once per ActivatedRoute
       if (this.currentActivatedRoute != activatedRoute) {
         if (currentPageTitle == null || currentPageTitle.trim() === '') {
-          this.currentPageTitle = 'FENECON Online-Monitoring';
+          this.currentPageTitle = environment.title;
         } else {
           this.currentPageTitle = currentPageTitle;
         }
