@@ -130,13 +130,14 @@ ion-toast.container {
 }
 
 /*
- * Applies to ngx-formly sections
- */
+* Applies to ngx-formly sections
+*/
 formly-input-section {
     flex: auto; // use all remaining space in a row
 }
 
 :root {
+
     /*
      * Used in HeatingElement, because ion-picker is not accessible via ion-datetime tag
      */
@@ -184,5 +185,9 @@ formly-input-section {
     ion-input.regularFont {
         font-family: $font-family;
         font-size: 14px;
+    }
+    
+    ion-toggle{
+        --background-checked: var(--ion-color-primary-tint);
     }
 }
