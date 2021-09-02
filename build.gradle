@@ -53,20 +53,6 @@ task buildBackend() {
 }
 
 /*
- * Build OpenEMS UI for OpenEMS Backend
- */
-task buildUiForBackend() {
-    dependsOn ":ui:buildForBackend"
-}
-
-/*
- * Build OpenEMS UI for OpenEMS Edge
- */
-task buildUiForEdge() {
-    dependsOn ":ui:buildForEdge"
-}
-
-/*
  * Javadoc
  */
 task buildAggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
@@ -74,6 +60,7 @@ task buildAggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from
     title = "OpenEMS Javadoc"
     subprojects.each { proj ->
         proj.tasks.withType(Javadoc).each { javadocTask ->
+            options.encoding = 'UTF-8'
             options.addStringOption('Xdoclint:none', '-quiet')
             source += javadocTask.source
             classpath += javadocTask.classpath

@@ -2,21 +2,110 @@
 
 This project was generated with [angular-cli](https://github.com/angular/angular-cli).
 
-## Development server
+## Theme OpenEMS
 
- - connect to live OpenEMS Backend server
+- OpenEMS Edge - expects a Edge *Controller.Api.Websocket* on default port `8075`
 
-    `ng serve -c backend-dev-live` (Expects openems-backend on `wss://portal.fenecon.de/openems-backend-ui2`)
+   - Serve to port `4200`
+   
+      `ng serve`
 
- - connect to local OpenEMS Backend server
+      `ng serve -o -c openems-edge-dev`
 
-    `ng serve -c backend-dev-local` (Expects openems-backend on `ws://localhost:8078`)
+   - Build Development
 
- - connect to local OpenEMS Edge
+      `ng build`
 
-	`ng serve`  (Expects openems-edge on `ws://localhost:8075`)
+      `ng build -c "openems,openems-edge-dev"`
+
+   - Build Production
+
+      `ng build -c "openems,openems-edge-dev,prod"`
+
+- OpenEMS Backend - expects a Backend *Ui.Websocket* on default port `8082`
+
+   - Serve to port `4200`
+   
+      `ng serve -o -c openems-backend-dev`
+
+   - Build Development
+
+      `ng build -c "openems,openems-backend-dev"`
+
+   - Build Production
+
+      `ng build -c "openems,openems-backend-prod,prod"`
+
+## Theme FENECON
+
+- OpenEMS Edge
+
+   - Serve to port `4200`
+   
+      `ng serve -o -c fenecon-edge-dev`
+
+   - Build Development
+
+      `ng build -c "fenecon,fenecon-edge-dev"`
+
+   - Build Production
+
+      `ng build -c "fenecon,fenecon-edge-dev,prod"`
+
+- OpenEMS Backend
+
+   - Serve to port `4200`
+   
+      `ng serve -o -c fenecon-backend-dev`
+
+   - Build Development
+
+      `ng build -c "fenecon,fenecon-backend-dev"`
+
+   - Build Production
+
+      `ng build -c "fenecon,fenecon-backend-prod,prod"`
+
+## Theme Heckert
+
+- OpenEMS Edge
+
+   - Serve to port `4200`
+   
+      `ng serve -o -c heckert-edge-dev`
+
+   - Build Development
+
+      `ng build -c "heckert,heckert-edge-dev"`
+
+   - Build Production
+
+      `ng build -c "heckert,heckert-edge-dev,prod"`
+
+- OpenEMS Backend
+
+   - Serve to port `4200`
+   
+      `ng serve -o -c heckert-backend-dev`
+
+   - Build Development
+
+      `ng build -c "heckert,heckert-backend-dev"`
+
+   - Build Production
+
+      `ng build -c "heckert,heckert-backend-prod,prod"`
 
 ## Further help
+
+#### Creating a Theme
+
+- Create new folder under `/src/themes`
+   - Files in `root` will be copied to `/` of the OpenEMS UI
+   - `scss/variables.scss` will be used for styling
+   - `environments/*.ts` define settings for Backend/Edge and development/production environments
+- Generate contents of `root` folder using https://realfavicongenerator.net Place them in `root` subdirectory
+- Add entries in `angular.json`
 
 #### i18n - internationalization
 
