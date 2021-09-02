@@ -238,11 +238,12 @@ export class ConfigurationSummaryComponent implements OnInit {
       if (dc.isSelected) {
         pvData = pvData.concat([
           { label: "Alias MPPT" + dcNr, value: dc.alias },
-          { label: "Wert MPPT" + dcNr, value: dc.value },
-          { label: "Ausrichtung MPPT" + dcNr, value: dc.orientation },
-          { label: "Modultyp MPPT" + dcNr, value: dc.moduleType },
-          { label: "Anzahl PV-Module MPPT" + dcNr, value: dc.modulesPerString }
+          { label: "Wert MPPT" + dcNr, value: dc.value }
         ]);
+        if (dc.orientation) pvData.push({ label: "Ausrichtung MPPT" + dcNr, value: dc.orientation });
+        if (dc.moduleType) pvData.push({ label: "Modultyp MPPT" + dcNr, value: dc.moduleType });
+        if (dc.modulesPerString) pvData.push({ label: "Anzahl PV-Module MPPT" + dcNr, value: dc.modulesPerString });
+
         dcNr++;
       }
     }
@@ -252,10 +253,12 @@ export class ConfigurationSummaryComponent implements OnInit {
     for (let ac of pv.ac) {
       pvData = pvData.concat([
         { label: "Alias AC" + acNr, value: ac.alias },
-        { label: "Wert AC" + acNr, value: ac.value },
-        { label: "Ausrichtung AC" + acNr, value: ac.orientation },
-        { label: "Modultyp AC" + acNr, value: ac.moduleType },
-        { label: "Anzahl PV-Module AC" + acNr, value: ac.modulesPerString },
+        { label: "Wert AC" + acNr, value: ac.value }
+      ]);
+      if (ac.orientation) pvData.push({ label: "Ausrichtung AC" + acNr, value: ac.orientation });
+      if (ac.moduleType) pvData.push({ label: "Modultyp AC" + acNr, value: ac.moduleType });
+      if (ac.modulesPerString) pvData.push({ label: "Anzahl PV-Module AC" + acNr, value: ac.modulesPerString });
+      pvData = pvData.concat([
         { label: "Zählertyp AC" + acNr, value: ac.meterType },
         { label: "Modbus Kommunikationsadresse AC" + acNr, value: ac.modbusCommunicationAddress }
       ]);

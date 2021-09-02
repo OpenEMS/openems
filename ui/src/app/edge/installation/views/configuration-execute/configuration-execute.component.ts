@@ -143,6 +143,29 @@ export class ConfigurationExecuteComponent implements OnInit {
         mode: ConfigurationMode.RemoveAndConfigure
       });
 
+      // meter1
+      let acArray = this.installationData.pv.ac;
+      let isAcCreated: boolean = acArray.length >= 1;
+
+      // TODO if more than 1 meter should be created, this logic must be changed
+      let acAlias = isAcCreated ? acArray[0].alias : "";
+      let acModbusUnitId = isAcCreated ? acArray[0].modbusCommunicationAddress : 0;
+
+      this.componentConfigurator.add({
+        factoryId: "Meter.Socomec.Threephase",
+        componentId: "meter1",
+        alias: acAlias,
+        properties: [
+          { name: "enabled", value: true },
+          { name: "type", value: "PRODUCTION" },
+          { name: "modbus.id", value: "modbus1" },
+          { name: "modbusUnitId", value: acModbusUnitId },
+          { name: "invert", value: false },
+
+        ],
+        mode: isAcCreated ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
+      });
+
       // charger0
       this.componentConfigurator.add({
         factoryId: "GoodWe.Charger-PV1",

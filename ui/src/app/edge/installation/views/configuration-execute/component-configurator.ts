@@ -222,7 +222,16 @@ export class ComponentConfigurator {
 
             this.configure(configurationObject).then(() => {
                 configurationObject.configState = ConfigurationState.Configured;
-                this.startFunctionTest(configurationObject);
+
+                let timeout = DELAY_CONFIG;
+
+                if (configurationObject.mode !== ConfigurationMode.RemoveOnly) {
+                    // Only do function test if in RemoveAndConfigure-Mode
+                    this.startFunctionTest(configurationObject);
+                } else {
+                    // Do not wait if in RemoveOnly-Mode
+                    timeout = 0;
+                }
 
                 // Recursively installs the next elements with the set delay between
                 setTimeout(() => {
@@ -235,7 +244,8 @@ export class ComponentConfigurator {
                     } else {
                         resolve();
                     }
-                }, DELAY_CONFIG);
+                }, timeout);
+
             }).catch((reason) => {
                 configurationObject.configState = ConfigurationState.Error;
                 reject(reason);
@@ -358,14 +368,4 @@ export class ComponentConfigurator {
             ]);
         }
     }
-
-    /**
-     * @deprecated only for development
-     */
-    public devClear() {
-        for (let configurationObject of this.configurationObjects) {
-            this.edge.deleteComponentConfig(this.websocket, configurationObject.componentId);
-        }
-    }
-
 }

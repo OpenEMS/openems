@@ -19,8 +19,8 @@ export type AcPv = {
   templateUrl: './protocol-additional-ac-producers.component.html'
 })
 export class ProtocolAdditionalAcProducersComponent implements OnInit {
-
   private static readonly SELECTOR = "protocol-additional-ac-producers";
+  private readonly LINK_SOCOMEC_MANUAL = "https://www.fenecon.de/download/fems-app-socomec-zaehler/";
 
   @Input() public installationData: InstallationData;
 
@@ -36,7 +36,6 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
   constructor(private service: Service) { }
 
   public ngOnInit() {
-
     // Initialize AC Object
     this.installationData.pv.ac ??= [];
 
@@ -129,6 +128,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       type: "select",
       templateOptions: {
         label: "Zählertyp",
+        required: true,
         options: [
           { label: "SOCOMEC", value: "socomec" }
         ]
@@ -143,6 +143,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
         type: "number",
         label: "Modbus Kommunikationsadresse",
         description: "Der Zähler muss mit den folgenden Parametern konfiguriert werden: Kommunikationsgeschwindigkeit (bAud) ''9600'', Kommunikationsparität (PrtY) ''n'', Kommunikations-Stopbit (StoP) ''1''",
+        required: true,
         min: 6
       },
       parsers: [Number],
@@ -188,4 +189,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
     ac.splice(ac.indexOf(element), 1);
   }
 
+  public openManual() {
+    window.open(this.LINK_SOCOMEC_MANUAL);
+  }
 }
