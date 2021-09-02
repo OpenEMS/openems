@@ -10,7 +10,7 @@ import { InstallationData } from '../../installation.component';
 export class ConfigurationSystemComponent implements OnInit {
 
   private static readonly SELECTOR = "configuration-system";
-  private static readonly LINK_HOME_MANUAL = "https://www.fenecon.de/download/home-anleitung/";
+  private readonly LINK_HOME_MANUAL = "https://www.fenecon.de/download/home-anleitung/";
 
   @Input() public installationData: InstallationData;
 
@@ -67,10 +67,7 @@ export class ConfigurationSystemComponent implements OnInit {
 
   }
 
-  public openInfocenter() {
-
-    window.open(ConfigurationSystemComponent.LINK_HOME_MANUAL);
-
+  public openManual() {
+    window.open(this.LINK_HOME_MANUAL);
   }
-
 }
