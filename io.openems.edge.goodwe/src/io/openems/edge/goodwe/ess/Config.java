@@ -21,7 +21,7 @@ import io.openems.edge.goodwe.common.enums.ControlMode;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Control mode", description = "Sets the Control mode")
-	ControlMode controlMode() default ControlMode.SMART;
+	ControlMode controlMode() default ControlMode.INTERNAL;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
