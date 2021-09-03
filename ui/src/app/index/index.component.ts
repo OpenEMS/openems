@@ -3,7 +3,7 @@ import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
-import { environment } from '../../environments';
+import { environment } from 'src/environments';
 import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
 import { Edge, Service, Utils, Websocket } from '../shared/shared';
 import { Role } from '../shared/type/role';
@@ -16,7 +16,7 @@ export class IndexComponent {
 
   private static readonly EDGE_ID_REGEXP = new RegExp('\\d+');
 
-  public env = environment;
+  public environment = environment;
 
   /**
    * True, if there is no access to any Edge.

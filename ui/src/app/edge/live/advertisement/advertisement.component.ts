@@ -3,6 +3,7 @@ import { AdvertWidgets } from 'src/app/shared/type/widget';
 import { Component, ViewChild, Input } from '@angular/core';
 import { Edge, Service, EdgeConfig } from '../../../shared/shared';
 import { ModalController, IonSlides } from '@ionic/angular';
+import { environment } from 'src/environments';
 
 @Component({
   selector: AdvertisementComponent.SELECTOR,
@@ -17,6 +18,7 @@ export class AdvertisementComponent {
 
   public edge: Edge;
   public config: EdgeConfig;
+  public environment = environment;
 
   private static readonly SELECTOR = "advertisement";
 

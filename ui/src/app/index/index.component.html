@@ -18,7 +18,7 @@
             </ion-item>
 
             <!-- OpenEMS Edge Login -->
-            <ion-card-content *ngIf="env.backend === 'OpenEMS Edge'">
+            <ion-card-content *ngIf="environment.backend === 'OpenEMS Edge'">
               <form (ngSubmit)="doLogin({ password: password.value})">
                 <div class="ion-padding">
                   <ion-item>
@@ -43,7 +43,7 @@
             </ion-card-content>
 
             <!-- OpenEMS Backend Login -->
-            <ion-card-content *ngIf="env.backend === 'OpenEMS Backend'">
+            <ion-card-content *ngIf="environment.backend === 'OpenEMS Backend'">
               <form (ngSubmit)="doLogin({ username: username.value, password: password.value})">
                 <ion-item>
                   <ion-label position="floating">E-Mail / Benutzername</ion-label>
@@ -78,7 +78,7 @@
 
           <!-- Logged in + normal operation -->
           <ng-container *ngSwitchCase="'online'">
-            <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
+            <ng-container *ngIf="environment.backend === 'OpenEMS Backend'">
               <ng-container *ngIf="noEdges; else showEdges">
 
                 <ion-card class="ion-justify-content-center">
@@ -133,7 +133,7 @@
                             </p>
                           </ion-label>
                           <ion-label>
-                            <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
+                            <ng-container *ngIf="environment.backend === 'OpenEMS Backend'">
                               <p>ID: {{ edge.id }}</p>
                               <p class="ion-text-wrap">
                                 <ion-text translate>Index.type</ion-text> {{ edge.producttype }}
@@ -166,7 +166,8 @@
                 <ion-icon name="add-outline"></ion-icon>
               </ion-fab-button>
               <ion-fab-list side="top" style="left: 0; align-items: flex-start;" id="blurred">
-                <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">Neues FEMS
+                <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">Neues
+                  {{ environment.systemName }}
                   hinzufügen
                 </ion-button>
               </ion-fab-list>

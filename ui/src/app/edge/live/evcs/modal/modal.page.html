@@ -151,10 +151,12 @@
                                     color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="500"
                                     value="{{controller.properties['defaultChargeMinPower']}}">
                                     <ion-label slot="start">
-                                        {{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) | unitvalue:'W'}}
+                                        {{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) |
+                                        unitvalue:'W'}}
                                     </ion-label>
                                     <ion-label slot="end">
-                                        {{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) | unitvalue:'W'}}
+                                        {{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) |
+                                        unitvalue:'W'}}
                                     </ion-label>
                                 </ion-range>
                             </tr>
@@ -214,10 +216,12 @@
                                     color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="500"
                                     value="{{controller.properties['forceChargeMinPower'] * numberOfPhases}}">
                                     <ion-label slot="start">
-                                        {{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) | unitvalue:'W'}}
+                                        {{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) |
+                                        unitvalue:'W'}}
                                     </ion-label>
                                     <ion-label slot="end">
-                                        {{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) | unitvalue:'W'}}
+                                        {{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) |
+                                        unitvalue:'W'}}
                                     </ion-label>
                                 </ion-range>
                             </tr>

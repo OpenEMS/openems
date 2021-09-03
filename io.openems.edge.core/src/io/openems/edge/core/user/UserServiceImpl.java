@@ -98,8 +98,11 @@ public class UserServiceImpl implements UserService {
 	 * @param salt     the base64 hashed salt
 	 */
 	private void initializeUser(String id, String name, Role role, String password, String salt) {
-		// Does the password match the id?
-		if (ManagedUser.validatePassword(password, salt, role.toString().toLowerCase())) {
+		if (
+		// Is this a FEMS (i.e. no development environment)?
+		this.host.getHostname().orElse(host.getHostnameChannel().getNextValue().orElse("UNKNOWN")).startsWith("fems")
+				// Does the password match the id (i.e. the password is insecure)?
+				&& ManagedUser.validatePassword(password, salt, role.toString().toLowerCase())) {
 			// -> yes. Replace with generated password.
 			byte[] generatedSalt = UserServiceUtils.generateSalt(this.host, id);
 			byte[] generatedPassword = ManagedUser.hashPassword(UserServiceUtils.generatePassword(this.host, id, role),
