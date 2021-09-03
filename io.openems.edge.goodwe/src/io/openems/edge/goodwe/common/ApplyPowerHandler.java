@@ -17,12 +17,12 @@ public class ApplyPowerHandler {
 	 * Apply the desired Active-Power Set-Point by setting the appropriate
 	 * EMS_POWER_SET and EMS_POWER_MODE settings.
 	 * 
-	 * @param goodWe           the GoodWe - either Battery-Inverter or ESS
-	 * @param setActivePower   the Active-Power Set-Point
-	 * @param controlMode      the {@link ControlMode} to handle the different
-	 *                         {@link EmsPowerMode} for the GoodWe battery inverter
+	 * @param goodWe          the GoodWe - either Battery-Inverter or ESS
+	 * @param setActivePower  the Active-Power Set-Point
+	 * @param controlMode     the {@link ControlMode} to handle the different
+	 *                        {@link EmsPowerMode} for the GoodWe battery inverter
 	 * @param gridActivePower the grid active power
-	 * @param essActivePower   the ESS active power
+	 * @param essActivePower  the ESS active power
 	 * @throws OpenemsNamedException on error
 	 */
 	public synchronized void apply(AbstractGoodWe goodWe, int setActivePower, ControlMode controlMode,
@@ -90,22 +90,22 @@ public class ApplyPowerHandler {
 			diffSurplus = activePowerSetPoint - surplusPower;
 		}
 
-		// Is charging from AC at maximum?
-		// PV = 10.000
-		// Max AC import = 3.000
-		// ActivePowerSetPoint = 3.000
-		IntegerReadChannel maxAcImportChannel = goodWe.channel(GoodWeBatteryInverter.ChannelId.MAX_AC_IMPORT);
-		int diffAcMaximum = Integer.MAX_VALUE;
-		if (maxAcImportChannel.value().isDefined()) {
-			diffAcMaximum = activePowerSetPoint - maxAcImportChannel.value().get();
+		final int diffAcMaximum;
+		if (goodWe instanceof GoodWeBatteryInverter) {
+			// Is charging from AC at maximum?
+			// PV = 10.000
+			// Max AC import = 3.000
+			// ActivePowerSetPoint = 3.000
+			IntegerReadChannel maxAcImportChannel = goodWe.channel(GoodWeBatteryInverter.ChannelId.MAX_AC_IMPORT);
+			if (maxAcImportChannel.value().isDefined()) {
+				diffAcMaximum = activePowerSetPoint - maxAcImportChannel.value().get();
+			} else {
+				diffAcMaximum = Integer.MAX_VALUE;
+			}
+		} else {
+			// Force internal mode
+			diffAcMaximum = 0;
 		}
-
-		System.out.println("ApplyPowerHandler activePowerSetPoint[" + activePowerSetPoint + "]pvProduction["
-				+ pvProduction + "]meterActivePower[" + meterActivePower + "]essActivePower[" + essActivePower
-				+ "]surplusPower[" + surplusPower + "]maxAcImport[" + maxAcImportChannel.value().orElse(0) + "]");
-
-		System.out.println("ApplyPowerHandler diffBalancing[" + diffBalancing + "]diffSurplus[" + diffSurplus
-				+ "]diffAcMaximum[" + diffAcMaximum + "]");
 
 		if ((diffBalancing > -1 && diffBalancing < 1) || (diffSurplus > -1 && diffSurplus < 1)
 				|| (diffAcMaximum > -1 && diffAcMaximum < 1)) {
