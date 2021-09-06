@@ -204,4 +204,9 @@ public class GenericManagedSymmetricEssImpl
 		return this.componentManager;
 	}
 
+	@Override
+	public boolean isManaged() {
+		return this.batteryInverter.isManaged();
+	}
+	
 }

@@ -506,4 +506,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				.setNextValue(enableWarning);
 	}
 
+	@Override
+	public boolean isManaged() {
+		return !this.config.controlMode().equals(ControlMode.INTERNAL);
+	}
+
 }

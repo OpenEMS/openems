@@ -28,6 +28,7 @@ import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
+import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
@@ -158,6 +159,11 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 			return null;
 		}
 		return productionPower + 200 /* discharge more than PV production to avoid PV curtail */;
+	}
+
+	@Override
+	public boolean isManaged() {
+		return !this.config.controlMode().equals(ControlMode.INTERNAL);
 	}
 
 }
