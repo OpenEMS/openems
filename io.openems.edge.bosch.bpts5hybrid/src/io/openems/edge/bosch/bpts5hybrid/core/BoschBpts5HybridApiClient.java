@@ -119,7 +119,7 @@ public class BoschBpts5HybridApiClient {
 				Element tableNode = document.select("table").get(0);
 				Element firstRow = tableNode.select("tr").get(0);
 				String firstRowText = firstRow.text();
-				if(firstRowText.contains("Störung") && !firstRowText.contains("Keine")) {
+				if(firstRowText.contains("StÃ¶rung") && !firstRowText.contains("Keine")) {
 					return 1;
 				}
 				else {
