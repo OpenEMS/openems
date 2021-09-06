@@ -1,5 +1,8 @@
 name: Build OpenEMS
-on: [push]
+on:
+  push:
+    branches:
+      - develop
 jobs:
   build-code:
     runs-on: ubuntu-latest
