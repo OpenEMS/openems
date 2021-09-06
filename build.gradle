@@ -6,6 +6,11 @@ tasks.named('wrapper') {
   jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
 }
 
+// UTF-8
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
 /*
  * Build OpenEMS Edge and Backend Components
  */
@@ -69,6 +74,7 @@ task buildAggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from
     title = "OpenEMS Javadoc"
     subprojects.each { proj ->
         proj.tasks.withType(Javadoc).each { javadocTask ->
+            options.encoding = 'UTF-8'
             options.addStringOption('Xdoclint:none', '-quiet')
             source += javadocTask.source
             classpath += javadocTask.classpath
