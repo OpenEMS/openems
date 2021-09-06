@@ -138,7 +138,7 @@ public class MeterWeidmueller525 extends AbstractOpenemsModbusComponent
 						m(WeidmuellerChannelId.HARMONIC_THD_VOLT_L2N, new FloatDoublewordElement(19112)), //
 						m(WeidmuellerChannelId.HARMONIC_THD_VOLT_L3N, new FloatDoublewordElement(19114)), //
 						m(WeidmuellerChannelId.HARMONIC_THD_CURRENT_L1N, new FloatDoublewordElement(19116)), //
-						m(WeidmuellerChannelId.HARMONIC_THD_VOLT_L2N, new FloatDoublewordElement(19118)), //
+						m(WeidmuellerChannelId.HARMONIC_THD_CURRENT_L2N, new FloatDoublewordElement(19118)), //
 						m(WeidmuellerChannelId.HARMONIC_THD_CURRENT_L3N, new FloatDoublewordElement(19120))));
 	}
 

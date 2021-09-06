@@ -43,5 +43,4 @@ public class DoubleWriteChannel extends DoubleReadChannel implements WriteChanne
 	public void onSetNextWrite(ThrowingConsumer<Double, OpenemsNamedException> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
-
 }

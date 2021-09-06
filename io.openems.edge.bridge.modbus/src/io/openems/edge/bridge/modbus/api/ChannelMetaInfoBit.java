@@ -2,34 +2,18 @@ package io.openems.edge.bridge.modbus.api;
 
 import java.util.Objects;
 
-public class ModbusChannelSource {
-
-	/**
-	 * This can be used in {@link AbstractOpenemsModbusComponent} to ignore the
-	 * check for duplicated source mappings.
-	 */
-	public static final IgnoreDuplicatedSource IGNORE_DUPLICATED_SOURCE = new IgnoreDuplicatedSource();
-
-	protected static class IgnoreDuplicatedSource {
-	}
-
-	/**
-	 * Holds the Start-Address of the Modbus Register.
-	 */
-	private final int address;
+/**
+ * Describes a Channel that has a read-mapping to a Modbus Coil.
+ */
+public class ChannelMetaInfoBit extends ChannelMetaInfo {
 
 	/**
 	 * Holds the index of the bit inside the Register if applicable.
 	 */
 	private final int bit;
 
-	public ModbusChannelSource(int address) {
-		this.address = address;
-		this.bit = -1;
-	}
-
-	public ModbusChannelSource(int address, int bit) {
-		this.address = address;
+	public ChannelMetaInfoBit(int address, int bit) {
+		super(address);
 		this.bit = bit;
 	}
 
@@ -59,7 +43,7 @@ public class ModbusChannelSource {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		ModbusChannelSource other = (ModbusChannelSource) obj;
+		ChannelMetaInfoBit other = (ChannelMetaInfoBit) obj;
 		return this.address == other.address && this.bit == other.bit;
 	}
 
