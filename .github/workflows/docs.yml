@@ -1,8 +1,5 @@
 name: Build Docs
-on:
-  push:
-    branches:
-      - develop
+on: [push]
 
 jobs:
   build-docs:
