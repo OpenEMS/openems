@@ -48,6 +48,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	private final Logger log = LoggerFactory.getLogger(AbstractGoodWe.class);
 
 	private final io.openems.edge.common.channel.ChannelId activePowerChannelId;
+	private final io.openems.edge.common.channel.ChannelId reactivePowerChannelId;
 	private final io.openems.edge.common.channel.ChannelId dcDischargePowerChannelId;
 	private final CalculateEnergyFromPower calculateAcChargeEnergy;
 	private final CalculateEnergyFromPower calculateAcDischargeEnergy;
@@ -58,6 +59,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 	protected AbstractGoodWe(//
 			io.openems.edge.common.channel.ChannelId activePowerChannelId, //
+			io.openems.edge.common.channel.ChannelId reactivePowerChannelId, //
 			io.openems.edge.common.channel.ChannelId dcDischargePowerChannelId, //
 			io.openems.edge.common.channel.ChannelId activeChargeEnergyChannelId, //
 			io.openems.edge.common.channel.ChannelId activeDischargeEnergyChannelId, //
@@ -67,6 +69,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsNamedException {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 		this.activePowerChannelId = activePowerChannelId;
+		this.reactivePowerChannelId = reactivePowerChannelId;
 		this.dcDischargePowerChannelId = dcDischargePowerChannelId;
 		this.calculateAcChargeEnergy = new CalculateEnergyFromPower(this, activeChargeEnergyChannelId);
 		this.calculateAcDischargeEnergy = new CalculateEnergyFromPower(this, activeDischargeEnergyChannelId);
@@ -185,7 +188,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.TOTAL_INV_POWER, new SignedDoublewordElement(35137)), //
 						m(GoodWe.ChannelId.AC_ACTIVE_POWER, new SignedDoublewordElement(35139), //
 								ElementToChannelConverter.INVERT), //
-						m(GoodWe.ChannelId.AC_REACTIVE_POWER, new SignedDoublewordElement(35141), //
+						m(this.reactivePowerChannelId, new SignedDoublewordElement(35141), //
 								ElementToChannelConverter.INVERT), //
 						m(GoodWe.ChannelId.AC_APPARENT_POWER, new SignedDoublewordElement(35143), //
 								ElementToChannelConverter.INVERT), //
@@ -282,7 +285,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								.bit(14, GoodWe.ChannelId.STATE_30) //
 								.bit(15, GoodWe.ChannelId.STATE_31) //
 						), //
-							// The total PV production energy from installation
+
+						// The total PV production energy from installation
 						m(GoodWe.ChannelId.PV_E_TOTAL, new UnsignedDoublewordElement(35191),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodWe.ChannelId.PV_E_DAY, new UnsignedDoublewordElement(35193),
@@ -426,27 +430,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.INV_CPLD_WARNING_RECORD_FOR_EMS, new UnsignedDoublewordElement(35290)) //
 				),
 
-				// Illegal Data Address
-//				new FC3ReadRegistersTask(36066, Priority.LOW, //
-				// Communication between SEC1000S,
-//						m(GoodWe.ChannelId.EZLOGGER_PRO_COMM_STATUS, new UnsignedWordElement(36066)),
-//				m(GoodWe.ChannelId.ACTIVE_E_TOTAL_SELL_R, new UnsignedQuadruplewordElement(36092),
-//						ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-//				m(GoodWe.ChannelId.ACTIVE_E_TOTAL_SELL_S, new UnsignedQuadruplewordElement(36096),
-//						ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-//				m(GoodWe.ChannelId.ACTIVE_E_TOTAL_SELL_T, new UnsignedQuadruplewordElement(36100),
-//						ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-//				m(GoodWe.ChannelId.ACTIVE_E_TOTAL_BUY_R, new UnsignedQuadruplewordElement(36108),
-//						ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-//				m(GoodWe.ChannelId.ACTIVE_E_TOTAL_BUY_S, new UnsignedQuadruplewordElement(36112),
-//						ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-//				m(GoodWe.ChannelId.ACTIVE_E_TOTAL_SELL_TOTAL, new UnsignedQuadruplewordElement(36104),
-//						ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-//				m(GoodWe.ChannelId.ACTIVE_E_TOTAL_BUY_T, new UnsignedQuadruplewordElement(36116),
-//						ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-//				m(GoodWe.ChannelId.ACTIVE_E_TOTAL_BUY_TOTAL, new UnsignedQuadruplewordElement(36120),
-//						ElementToChannelConverter.SCALE_FACTOR_MINUS_2)
-//				), //
+				// Registers 36066 to 36120 throw "Illegal Data Address"
 
 				new FC3ReadRegistersTask(37000, Priority.LOW, //
 						m(new BitsWordElement(37000, this) //
@@ -552,21 +536,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.PASS_INFORMATION_31, new UnsignedWordElement(37054)), //
 						m(GoodWe.ChannelId.PASS_INFORMATION_32, new UnsignedWordElement(37055))), //
 
-				// Setting and Controlling Data Registers
-//				new FC3ReadRegistersTask(40000, Priority.LOW, //
-				// Illegal Data Address
-//						m(GoodWe.ChannelId.SERIAL_NUMBER, new StringWordElement(40000, 8)), //
-//						m(GoodWe.ChannelId.EMS_CHECK_INVERTER_OPERATION_STATUS, new UnsignedWordElement(40008)) //
-				// !!!!! Only for BTC and ETC !!!!!!!!!!
-//						m(GoodWe.ChannelId.EMS_POWER_MODE, new UnsignedWordElement(42000)), //
-//						m(GoodWe.ChannelId.EMS_POWER_SET, new UnsignedDoublewordElement(42001)), //
-// 						m(GoodWe.ChannelId.FEED_POWER_ENABLE, new UnsignedWordElement(42003)), //
-//						m(GoodWe.ChannelId.FEED_POWER_PARA_SET, new SignedDoublewordElement(42004)), //
-//						m(GoodWe.ChannelId.THREE_PHASE_FEED_POWER_ENABLE, new UnsignedWordElement(42006)), //
-//						m(GoodWe.ChannelId.R_PHASE_FEED_POWER_PARA, new SignedDoublewordElement(42007)), //
-//						m(GoodWe.ChannelId.S_PHASE_FEED_POWER_PARA, new SignedDoublewordElement(42009)), //
-//						m(GoodWe.ChannelId.T_PHASE_FEED_POWER_PARA, new SignedDoublewordElement(42011))
-//				), //
+				// Registers 40000 to 42011 for BTC and ETC throw "Illegal Data Address"
 
 				// Setting and Controlling Data Registers
 				new FC3ReadRegistersTask(45127, Priority.ONCE, //
@@ -642,11 +612,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.DCV_CHECK_OFF, new UnsignedWordElement(45279))//
 
 				), //
-					// Illegal data adress
-					// new FC3ReadRegistersTask(45333, Priority.LOW, //
-					// m(GoodWe.ChannelId.USER_LICENCE, new StringWordElement(45333, 3)), //
-					// m(GoodWe.ChannelId.REMOTE_USER_LICENCE, new StringWordElement(45336, 3)), //
-					// m(GoodWe.ChannelId.REMOTE_LOCK_CODE, new StringWordElement(45339, 3))), //
+
+				// Registers 45333 to 45339 for License throw "Illegal Data Address"
 
 				new FC3ReadRegistersTask(45352, Priority.LOW, //
 						m(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, new UnsignedWordElement(45352),
@@ -1345,9 +1312,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						 * </ul>
 						 */
 						m(GoodWe.ChannelId.WBMS_STATUS, new UnsignedWordElement(47915)), //
-						m(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, new UnsignedWordElement(47916)))
-				// TODO .debug()
-				, //
+						m(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, new UnsignedWordElement(47916))), //
 
 				new FC3ReadRegistersTask(47900, Priority.LOW, //
 						m(GoodWe.ChannelId.WBMS_VERSION, new UnsignedWordElement(47900)), //
@@ -1379,21 +1344,17 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		ModbusUtils.readELementOnce(protocol, new UnsignedWordElement(35016), true) //
 				.thenAccept(dspVersion -> {
 					try {
+						if (dspVersion >= 5) {
+							this.handleDspVersion5(protocol);
+						}
+						if (dspVersion >= 6) {
+							this.handleDspVersion6(protocol);
+						}
 						if (dspVersion >= 7) {
 							this.handleDspVersion7(protocol);
-							this.handleDspVersion6(protocol);
-							this.handleDspVersion5(protocol);
-						} else if (dspVersion >= 6) {
-							this.handleDspVersion6(protocol);
-							this.handleDspVersion5(protocol);
-						} else if (dspVersion >= 5) {
-							this.handleDspVersion5(protocol);
-						} else {
-							this.logInfo(log,
-									"For DSP Version [" + dspVersion + "] no special modbus register mapping");
 						}
 					} catch (OpenemsException e) {
-						this.logError(log, "Unable to add task for modbus protocol");
+						this.logError(this.log, "Unable to add task for modbus protocol");
 					}
 				});
 
@@ -1502,7 +1463,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.FAST_CHARGE_STOP_SOC, new UnsignedWordElement(47546))) //
 		);
 
-		protocol.addTask( //
+		protocol.addTask(//
 				// Economic mode setting for ARM version => 18
 				new FC3ReadRegistersTask(47547, Priority.LOW, //
 						m(GoodWe.ChannelId.WORK_WEEK_1_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
@@ -1728,21 +1689,11 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	}
 
 	private void handleDspVersion6(ModbusProtocol protocol) throws OpenemsException {
-		protocol.addTask( //
+		// Registers 36000 for COM_MODE throw "Illegal Data Address"
+
+		protocol.addTask(//
 				new FC3ReadRegistersTask(36001, Priority.LOW, //
-				// Only for BTC Series
-//								m(GoodWe.ChannelId.HITSINK_TEMP_DCDC, new SignedWordElement(35600),
-//										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-				// Only for BTC Series
-//								m(GoodWe.ChannelId.HITSINK_TEMP_MPPT, new SignedWordElement(35601),
-//										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-				// Only for BTC Series
-//								m(GoodWe.ChannelId.HITSINK_TEMP_STS, new SignedWordElement(35602),
-//										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-//								new DummyRegisterElement(35603, 35999), //
-				// External Communication Data(ARM)
-				// Illegal Data Address
-//								m(GoodWe.ChannelId.COM_MODE, new UnsignedWordElement(36000)), //
+						// External Communication Data(ARM)
 						m(GoodWe.ChannelId.RSSI, new UnsignedWordElement(36001)), //
 						new DummyRegisterElement(36002), //
 						m(GoodWe.ChannelId.B_METER_COMMUNICATE_STATUS, new UnsignedWordElement(36003)), //
@@ -1861,21 +1812,10 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	}
 
 	private void handleDspVersion5(ModbusProtocol protocol) throws OpenemsException {
-		protocol.addTask( //
+		// Registers 36000 for COM_MODE throw "Illegal Data Address"
+
+		protocol.addTask(//
 				new FC3ReadRegistersTask(36001, Priority.LOW, //
-				// Only for BTC Series
-//								m(GoodWe.ChannelId.HITSINK_TEMP_DCDC, new SignedWordElement(35600),
-//										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-				// Only for BTC Series
-//								m(GoodWe.ChannelId.HITSINK_TEMP_MPPT, new SignedWordElement(35601),
-//										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-				// Only for BTC Series
-//								m(GoodWe.ChannelId.HITSINK_TEMP_STS, new SignedWordElement(35602),
-//										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-//								new DummyRegisterElement(35603, 35999), //
-				// External Communication Data(ARM)
-				// Illegal Data Address
-//								m(GoodWe.ChannelId.COM_MODE, new UnsignedWordElement(36000)), //
 						m(GoodWe.ChannelId.RSSI, new UnsignedWordElement(36001)), //
 						new DummyRegisterElement(36002), //
 						m(GoodWe.ChannelId.B_METER_COMMUNICATE_STATUS, new UnsignedWordElement(36003)), //
@@ -2010,6 +1950,38 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 			this.calculateDcChargeEnergy.update(dcDischargePower * -1);
 			this.calculateDcDischargeEnergy.update(0);
 		}
+	}
+
+	/**
+	 * Calculate and store Max-AC-Export and -Import channels.
+	 * 
+	 * @param maxApparentPower the max apparent power
+	 */
+	protected void calculateMaxAcPower(int maxApparentPower) {
+		// Calculate and store Max-AC-Export and -Import for use in
+		// getStaticConstraints()
+		Integer maxDcChargePower = /* can be negative for force-discharge */
+				TypeUtils.multiply(//
+						/* Inverter Charge-Max-Current */ this.getWbmsChargeMaxCurrent().get(), //
+						/* Voltage */ this.getWbmsVoltage().orElse(0));
+		int pvProduction = TypeUtils.max(0, this.calculatePvProduction());
+
+		// Calculates Max-AC-Import and Max-AC-Export as positive numbers
+		Integer maxAcImport = TypeUtils.subtract(maxDcChargePower,
+				TypeUtils.min(maxDcChargePower /* avoid negative number for `subtract` */, pvProduction));
+		Integer maxAcExport = TypeUtils.sum(//
+				/* Max DC-Discharge-Power */ TypeUtils.multiply(//
+						/* Inverter Discharge-Max-Current */ this.getWbmsDischargeMaxCurrent().get(), //
+						/* Voltage */ this.getWbmsVoltage().orElse(0)),
+				/* PV Production */ pvProduction);
+
+		// Limit Max-AC-Power to inverter specific limit
+		maxAcImport = TypeUtils.min(maxAcImport, maxApparentPower);
+		maxAcExport = TypeUtils.min(maxAcExport, maxApparentPower);
+
+		// Set Channels
+		this._setMaxAcImport(TypeUtils.multiply(maxAcImport, /* negate */ -1));
+		this._setMaxAcExport(maxAcExport);
 	}
 
 	/**

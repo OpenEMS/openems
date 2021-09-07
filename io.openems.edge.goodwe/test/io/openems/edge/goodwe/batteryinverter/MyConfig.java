@@ -4,7 +4,6 @@ import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.goodwe.common.enums.BackupEnable;
 import io.openems.edge.goodwe.common.enums.ControlMode;
-import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
 import io.openems.edge.goodwe.common.enums.FeedPowerEnable;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
@@ -22,8 +21,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public FeedPowerEnable feedPowerEnable;
 		public int feedPowerPara;
 		public FeedInPowerSettings feedInPowerSettings;
-		public EmsPowerMode emsPowerMode;
-		public int emsPowerSet;
 
 		private Builder() {
 
@@ -38,7 +35,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.controlMode = controlMode;
 			return this;
 		}
-		
+
 		public Builder setModbusId(String modbusId) {
 			this.modbusId = modbusId;
 			return this;
@@ -71,16 +68,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setFeedInPowerSettings(FeedInPowerSettings feedInPowerSettings) {
 			this.feedInPowerSettings = feedInPowerSettings;
-			return this;
-		}
-
-		public Builder setEmsPowerMode(EmsPowerMode emsPowerMode) {
-			this.emsPowerMode = emsPowerMode;
-			return this;
-		}
-
-		public Builder setEmsPowerSet(int emsPowerSet) {
-			this.emsPowerSet = emsPowerSet;
 			return this;
 		}
 
@@ -143,16 +130,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public FeedInPowerSettings setfeedInPowerSettings() {
 		return this.builder.feedInPowerSettings;
-	}
-
-	@Override
-	public EmsPowerMode emsPowerMode() {
-		return this.builder.emsPowerMode;
-	}
-
-	@Override
-	public int emsPowerSet() {
-		return this.builder.emsPowerSet;
 	}
 
 	@Override

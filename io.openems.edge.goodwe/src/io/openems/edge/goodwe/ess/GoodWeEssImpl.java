@@ -87,6 +87,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 	public GoodWeEssImpl() throws OpenemsNamedException {
 		super(//
 				SymmetricEss.ChannelId.ACTIVE_POWER, //
+				SymmetricEss.ChannelId.REACTIVE_POWER, //
 				HybridEss.ChannelId.DC_DISCHARGE_POWER, //
 				SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, //
 				SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
@@ -103,9 +104,11 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
+		this.calculateMaxAcPower(this.getMaxApparentPower().orElse(0));
+
 		// Apply Power Set-Point
-		this.applyPowerHandler.apply(this, activePower, this.config.controlMode(),
-				this.sum.getGridActivePower().orElse(0), this.getActivePower().orElse(0));
+		this.applyPowerHandler.apply(this, activePower, this.config.controlMode(), this.sum.getGridActivePower(),
+				this.getActivePower(), this.getMaxAcImport(), this.getMaxAcExport());
 	}
 
 	@Override
