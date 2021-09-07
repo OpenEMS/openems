@@ -237,7 +237,8 @@ public interface Field {
 		PASSWORD("password", true), //
 		PARTNER("partner_id", true), //
 		GLOBAL_ROLE("global_role", true), //
-		GROUPS("groups_id", true);
+		GROUPS("groups_id", true), //
+		OPENEMS_LANGUAGE("openems_language", true);
 
 		public static final String ODOO_MODEL = "res.users";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
