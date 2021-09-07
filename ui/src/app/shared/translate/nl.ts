@@ -167,13 +167,18 @@ export const TRANSLATION = {
                 GridOptimizedCharge: {
                     considerGridFeedInLimit: 'Houd rekening met de maximale teruglevering van het net',
                     endTime: 'Eindtijd',
-                    endTimeDescription: 'De belading vindt niet gedurende enkele uren met het maximale vermogen plaats, maar tot op dat moment gestaag.',
+                    endTimeDescription: 'Het opladen gebeurt niet met de maximale hoeveelheid voor een paar uur, maar gestaag over een langere periode.',
+                    endTimeDetailedDescription: 'Het laden vindt niet plaats met de maximale output voor een paar uur, maar gestaag met een maximum van {{value1}} tot {{value2}} uur.', // value1 = maximum charge, value2 = end time
                     endTimeLong: 'Eindtijd van beperkt laden',
                     expectedSoc: 'Verwachte laadstatus',
                     expectedSocWithoutSellToGridLimit: 'Zonder de maximale teruglevering aan het net te vermijden',
                     gridFeedInLimitationAvoided: 'Netterugleveringsbeperking vermeden',
                     gridOptimizedChargeDisabled: 'Laden geoptimaliseerd voor raster gedeactiveerd',
                     high: 'Hoog',
+                    History: {
+                        batteryChargeGridLimitDescription: 'De maximale netvoeding waarboven het opladen van de batterijen (voor zover mogelijk) wordt verhoogd, ligt onder de maximaal toegestane netvoeding om voortijdige productiebeperking te voorkomen.',
+                        priorityDescription: 'De minimale acculading heeft een hogere prioriteit dan de maximale acculading',
+                    },
                     low: 'Laag',
                     maximumCharge: 'Maximale lading',
                     maximumGridFeedIn: 'Maximaal toegestane teruglevering',

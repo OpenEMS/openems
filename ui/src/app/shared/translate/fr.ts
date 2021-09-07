@@ -177,13 +177,18 @@ export const TRANSLATION = {
                 GridOptimizedCharge: {
                     considerGridFeedInLimit: 'Tenir compte de l\'injection maximale du réseau',
                     endTime: 'Heure de fin',
-                    endTimeDescription: 'Le chargement n\'a pas lieu avec la puissance maximale pendant quelques heures, mais régulièrement jusqu\'à ce moment.',
+                    endTimeDescription: 'La charge n\'a pas lieu avec la quantité maximale pendant quelques heures, mais régulièrement sur une plus longue période de temps.',
+                    endTimeDetailedDescription: 'Le chargement n\'a pas lieu avec la puissance maximale pendant quelques heures, mais régulièrement avec un maximum de {{value1}} à {{value2}} heures.', // value1 = maximum charge, value2 = end time
                     endTimeLong: 'Heure de fin du chargement restreint',
                     expectedSoc: 'État de charge prévu',
                     expectedSocWithoutSellToGridLimit: 'Sans éviter l\'injection maximale du réseau',
                     gridFeedInLimitationAvoided: 'Limitation de l\'alimentation du réseau évitée',
                     gridOptimizedChargeDisabled: 'Charge optimisée pour le réseau désactivée',
                     high: 'Haute',
+                    History: {
+                        batteryChargeGridLimitDescription: 'L\'alimentation maximale du réseau, au-delà de laquelle la charge des batteries est augmentée (dans la mesure du possible), est inférieure à l\'alimentation maximale autorisée du réseau afin d\'éviter une réduction prématurée de la production.',
+                        priorityDescription: 'La charge minimale de la batterie a une priorité plus élevée que la charge maximale de la batterie.',
+                    },
                     low: 'Faible',
                     maximumCharge: 'Charge maximale',
                     maximumGridFeedIn: 'Alimentation réseau maximale autorisée',

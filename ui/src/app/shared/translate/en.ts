@@ -219,13 +219,18 @@ export const TRANSLATION = {
                 GridOptimizedCharge: {
                     considerGridFeedInLimit: 'Consider maximum grid feed-in',
                     endTime: 'End time',
-                    endTimeDescription: 'The charging does not take place with the maximum output for a few hours, but steadily up to that point.',
+                    endTimeDescription: 'The charging does not take place with the maximum amount for a few hours, but steadily over a longer period of time.',
+                    endTimeDetailedDescription: 'The charging does not take place with the maximum amount for a few hours, but steadily with a maximum of {{value1}} to {{value2}} o\'clock.', // value1 = maximum charge, value2 = end time
                     endTimeLong: 'End time of restricted loading',
                     expectedSoc: 'Expected state of charge',
                     expectedSocWithoutSellToGridLimit: 'Without avoiding the maximum grid feed-in',
                     gridFeedInLimitationAvoided: 'Grid feed-in limitation avoided',
                     gridOptimizedChargeDisabled: 'Grid optimized charge deactivated',
                     high: 'High',
+                    History: {
+                        batteryChargeGridLimitDescription: 'The maximum grid feed-in, above which battery charging is increased (as far as possible) is below the maximum permitted grid feed-in in order to prevent premature production curtailment.',
+                        priorityDescription: 'The minimum charge has a higher priority than the maximum charge',
+                    },
                     low: 'Low',
                     maximumCharge: 'Maximum charge',
                     maximumGridFeedIn: 'Maximum allowed grid feed-in',

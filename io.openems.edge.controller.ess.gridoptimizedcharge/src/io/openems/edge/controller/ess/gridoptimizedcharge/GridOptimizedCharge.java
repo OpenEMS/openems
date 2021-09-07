@@ -1,5 +1,6 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -13,6 +14,8 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.LongReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -84,7 +87,7 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 		 * <p>
 		 * Automatically set, when the original TARGET_MINUTE is set.
 		 */
-		TARGET_EPOCH_SECONDS(Doc.of(OpenemsType.STRING) //
+		TARGET_EPOCH_SECONDS(Doc.of(OpenemsType.LONG) //
 				.text("Target minute as epoch seconds independent of the current mode Manual and Automatic.")),
 
 		/**
@@ -116,6 +119,16 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 				})),
 
 		/**
+		 * Start time as epoch seconds of the current day.
+		 * 
+		 * <p>
+		 * Keeps the time, when the production higher than the consumption for the first
+		 * time on the current day.
+		 */
+		START_EPOCH_SECONDS(Doc.of(OpenemsType.LONG) //
+				.text("Time when the production is higher than the consumption for the first time on the current day.")), //
+
+		/**
 		 * Info State Channel, if the delay charge limit would be negative.
 		 */
 		DELAY_CHARGE_NEGATIVE_LIMIT(Doc.of(Level.INFO) //
@@ -126,6 +139,12 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 		 */
 		NO_VALID_MANUAL_TARGET_TIME(Doc.of(Level.INFO) //
 				.text("Configured manual target time is not valid. Default of 5 pm is used.")), //
+
+		/**
+		 * Configured ESS is not managed.
+		 */
+		CONFIGURED_ESS_IS_NOT_MANAGED(Doc.of(Level.FAULT) //
+				.text("The Energy Storage System is in read-only mode and does not allow to be controlled.")), //
 
 		/**
 		 * Cumulated seconds of the state delay charge.
@@ -452,6 +471,78 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 	 */
 	public default void _setTargetMinute(int value) {
 		this.getTargetMinuteChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#START_EPOCH_SECONDS}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getStartEpochSecondsChannel() {
+		return this.channel(ChannelId.START_EPOCH_SECONDS);
+	}
+
+	/**
+	 * Gets the actual start time of the Day. See
+	 * {@link ChannelId#START_EPOCH_SECONDS}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getStartEpochSeconds() {
+		return this.getStartEpochSecondsChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#START_EPOCH_SECONDS} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setStartEpochSeconds(LocalTime value, Clock clock) {
+
+		LocalDateTime startDateTime = LocalDate.now(clock).atTime(value);
+		ZonedDateTime zonedDateTime = ZonedDateTime.ofLocal(startDateTime, clock.getZone(), null);
+
+		this.getStartEpochSecondsChannel().setNextValue(zonedDateTime.toEpochSecond());
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#START_EPOCH_SECONDS} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setStartEpochSeconds(Long value) {
+		this.getStartEpochSecondsChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CONFIGURED_ESS_IS_NOT_MANAGED}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getConfiguredEssIsNotManagedChannel() {
+		return this.channel(ChannelId.CONFIGURED_ESS_IS_NOT_MANAGED);
+	}
+
+	/**
+	 * Gets the boolean if the state channel is active. See
+	 * {@link ChannelId#CONFIGURED_ESS_IS_NOT_MANAGED}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getConfiguredEssIsNotManaged() {
+		return this.getConfiguredEssIsNotManagedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CONFIGURED_ESS_IS_NOT_MANAGED} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setConfiguredEssIsNotManaged(Boolean value) {
+		this.getConfiguredEssIsNotManagedChannel().setNextValue(value);
 	}
 
 	/**

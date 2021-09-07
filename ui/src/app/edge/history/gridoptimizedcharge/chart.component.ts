@@ -65,8 +65,8 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
 
           let delayChargeData = result.data[this.component.id + '/DelayChargeMaximumChargeLimit'].map(value => {
             if (value == null) {
-              return null
-            } else if (value == 0) {
+              return null;
+            } else if (value <= 0) {
               return 0;
             } else {
               return value / 1000; // convert to kW
@@ -84,8 +84,6 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
           })
         }
 
-        // Create a second Chart for the maximum discharge data (limit & discharge of the battery)
-
         // Sell to grid limit - Minimum charge limit data
         if (this.component.id + '/SellToGridLimitMinimumChargeLimit' in result.data) {
           let sellToGridLimitData = result.data[this.component.id + '/SellToGridLimitMinimumChargeLimit'].map(value => {
@@ -94,7 +92,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
             } else if (value == 0) {
               return 0;
             } else if (value < 0) {
-              return null;
+              return 0;
             } else {
               return value / 1000; // convert to kW
             }

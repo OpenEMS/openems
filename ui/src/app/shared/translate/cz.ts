@@ -174,13 +174,18 @@ export const TRANSLATION = {
                 GridOptimizedCharge: {
                     considerGridFeedInLimit: 'Vezměte v úvahu maximální přívod sítě',
                     endTime: 'Čas ukončení',
-                    endTimeDescription: 'Načítání neprobíhá s maximálním výkonem po dobu několika hodin, ale stabilně až do tohoto okamžiku.',
+                    endTimeDescription: 'Nabíjení neprobíhá maximálním množstvím po dobu několika hodin, ale stabilně po delší dobu.',
+                    endTimeDetailedDescription: 'Načítání neprobíhá s maximálním výkonem po dobu několika hodin, ale stabilně s maximem od {{value1}} do {{value2}} hodin.', // value1 = maximum charge, value2 = end time
                     endTimeLong: 'Čas ukončení omezeného načítání',
                     expectedSoc: 'Očekávaný stav nabití',
                     expectedSocWithoutSellToGridLimit: 'Aniž bychom se vyhnuli maximálnímu přívodu do sítě',
                     gridFeedInLimitationAvoided: 'Omezení přívodu do sítě vyloučeno',
                     gridOptimizedChargeDisabled: 'Mřížkově optimalizované nabíjení deaktivováno',
                     high: 'Vysoké',
+                    History: {
+                        batteryChargeGridLimitDescription: 'Maximální příkon sítě, při jehož překročení se nabíjení baterií (pokud je to možné) zvýší, je nižší než maximální povolený příkon sítě, aby se zabránilo předčasnému omezení výroby.',
+                        priorityDescription: 'Minimální nabití baterie má vyšší prioritu než maximální nabití baterie.',
+                    },
                     low: 'Nízký',
                     maximumCharge: 'Maximální zatížení',
                     maximumGridFeedIn: 'Maximální povolený přívod mřížky',
