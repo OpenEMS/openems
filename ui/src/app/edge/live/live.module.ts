@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SharedModule } from './../../shared/shared.module';
 import { AdvertisementModule } from './advertisement/advertisement.module';
-import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.component';
+import { Controller_ChannelthresholdComponent } from './Controller/Channelthreshold/Channelthreshold';
 import { ChpSocComponent } from './chpsoc/chpsoc.component';
 import { ChpsocModalComponent } from './chpsoc/modal/modal.component';
 import { AutarchyComponent } from './common/autarchy/autarchy.component';
@@ -16,21 +16,21 @@ import { SelfconsumptionModalComponent } from './common/selfconsumption/modal/mo
 import { SelfConsumptionComponent } from './common/selfconsumption/selfconsumption.component';
 import { StorageModalComponent } from './common/storage/modal/modal.component';
 import { StorageComponent } from './common/storage/storage.component';
-import { Controller_Ess_FixActivePower } from './Controller_Ess_FixActivePower/Controller_Ess_FixActivePower';
-import { Controller_Ess_FixActivePowerModalComponent } from './Controller_Ess_FixActivePower/modal/modal.component';
-import { Controller_Io_FixDigitalOutput } from './Controller_Io_FixDigitalOutput/Controller_Io_FixDigitalOutput';
-import { Controller_Io_FixDigitalOutputModalComponent } from './Controller_Io_FixDigitalOutput/modal/modal.component';
-import { Controller_Io_HeatingElementComponent } from './Controller_Io_HeatingElement/Controller_Io_HeatingElement';
-import { Controller_Io_HeatingElementModalComponent } from './Controller_Io_HeatingElement/modal/modal.component';
+import { Controller_Ess_FixActivePower } from './Controller/Ess_FixActivePower/Ess_FixActivePower';
+import { Controller_Ess_FixActivePowerModalComponent } from './Controller/Ess_FixActivePower/modal/modal.component';
+import { Controller_Io_FixDigitalOutput } from './Controller/Io_FixDigitalOutput/Io_FixDigitalOutput';
+import { Controller_Io_FixDigitalOutputModalComponent } from './Controller/Io_FixDigitalOutput/modal/modal.component';
+import { Controller_Io_HeatingElementComponent } from './Controller/Io_HeatingElement/Io_HeatingElement';
+import { Controller_Io_HeatingElementModalComponent } from './Controller/Io_HeatingElement/modal/modal.component';
 import { DelayedSellToGridComponent } from './delayedselltogrid/delayedselltogrid.component';
 import { DelayedSellToGridModalComponent } from './delayedselltogrid/modal/modal.component';
-import { DigitalInputComponent } from './digitalinput/digitalinput.component';
-import { DigitalInputModalComponent } from './digitalinput/modal/modal.component';
+import { Io_Api_DigitalInputComponent } from './Io/Api_DigitalInput/Io_Api_DigitalInput';
+import { Io_Api_DigitalInput_ModalComponent } from './Io/Api_DigitalInput/modal/modal.component';
 import { EnergymonitorModule } from './energymonitor/energymonitor.module';
-import { EvcsComponent } from './evcs/evcs.component';
-import { AdministrationComponent } from './evcs/modal/administration/administration.component';
-import { EvcsModalComponent } from './evcs/modal/modal.page';
-import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
+import { Controller_EvcsComponent } from './Controller/Evcs/Evcs';
+import { AdministrationComponent } from './Controller/Evcs/modal/administration/administration.component';
+import { Controller_EvcsModalComponent } from './Controller/Evcs/modal/modal.page';
+import { Controller_EvcsPopoverComponent } from './Controller/Evcs/modal/popover/popover.page';
 import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
 import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
@@ -77,10 +77,10 @@ import { SinglethresholdComponent } from './singlethreshold/singlethreshold.comp
     Controller_Io_FixDigitalOutputModalComponent,
     Controller_Io_HeatingElementModalComponent,
     DelayedSellToGridModalComponent,
-    DigitalInputComponent,
-    DigitalInputModalComponent,
-    EvcsModalComponent,
-    EvcsPopoverComponent,
+    Io_Api_DigitalInputComponent,
+    Io_Api_DigitalInput_ModalComponent,
+    Controller_EvcsModalComponent,
+    Controller_EvcsPopoverComponent,
     FlatWidgetComponent,
     FlatWidgetHorizontalLine,
     FlatWidgetLine,
@@ -102,7 +102,7 @@ import { SinglethresholdComponent } from './singlethreshold/singlethreshold.comp
     AsymmetricPeakshavingModalComponent,
     AutarchyComponent,
     AutarchyModalComponent,
-    ChannelthresholdComponent,
+    Controller_ChannelthresholdComponent,
     ChpSocComponent,
     ChpsocModalComponent,
     ConsumptionComponent,
@@ -115,13 +115,13 @@ import { SinglethresholdComponent } from './singlethreshold/singlethreshold.comp
     Controller_Io_HeatingElementModalComponent,
     DelayedSellToGridComponent,
     DelayedSellToGridModalComponent,
-    DigitalInputComponent,
-    DigitalInputModalComponent,
+    Io_Api_DigitalInputComponent,
+    Io_Api_DigitalInput_ModalComponent,
     EvcsChart,
     EvcsClusterComponent,
-    EvcsComponent,
-    EvcsModalComponent,
-    EvcsPopoverComponent,
+    Controller_EvcsComponent,
+    Controller_EvcsModalComponent,
+    Controller_EvcsPopoverComponent,
     FlatWidgetComponent,
     FlatWidgetHorizontalLine,
     FlatWidgetLine,

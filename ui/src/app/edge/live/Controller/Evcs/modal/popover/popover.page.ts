@@ -1,12 +1,12 @@
 import { Component, Input } from '@angular/core';
-import { EdgeConfig } from '../../../../../shared/shared';
+import { EdgeConfig } from '../../../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-    selector: 'evcs-popover',
+    selector: 'Controller_Evcs-popover',
     templateUrl: './popover.page.html'
 })
-export class EvcsPopoverComponent {
+export class Controller_EvcsPopoverComponent {
 
     @Input() public controller: EdgeConfig.Component;
 

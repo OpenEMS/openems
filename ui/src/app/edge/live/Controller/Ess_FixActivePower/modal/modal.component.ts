@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../../../shared/shared';
 
 @Component({
   selector: 'fixactivepower-modal',

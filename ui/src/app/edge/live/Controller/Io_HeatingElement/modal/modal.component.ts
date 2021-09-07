@@ -4,7 +4,7 @@ import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { Websocket, Service, EdgeConfig, Edge } from '../../../../shared/shared';
+import { Websocket, Service, EdgeConfig, Edge } from '../../../../../shared/shared';
 
 type Mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 

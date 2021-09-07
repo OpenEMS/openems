@@ -241,7 +241,7 @@ export const TRANSLATION = {
                     chargingStationPluggedInLocked: 'Estación de carga enchufada + bloqueado',
                     clusterConfigError: 'Se ha producido un error en la configuración del clúster Evcs.',
                     currentCharge: 'Carga actual',
-                    energieSinceBeginning: 'Energía desde el último inicio de carga',
+                    energySinceBeginning: 'Energía desde el último inicio de carga',
                     energyLimit: 'Límite de la energía',
                     enforceCharging: 'Forzar la carga',
                     error: 'Error',

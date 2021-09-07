@@ -1,6 +1,6 @@
 import { AdministrationComponent } from './administration/administration.component';
 import { Component, OnInit, Input } from '@angular/core';
-import { EvcsPopoverComponent } from './popover/popover.page';
+import { Controller_EvcsPopoverComponent } from './popover/popover.page';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Websocket, Service, EdgeConfig, Edge } from 'src/app/shared/shared';
@@ -9,10 +9,10 @@ type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER' | 'OFF';
 type Priority = 'CAR' | 'STORAGE';
 
 @Component({
-  selector: 'evcs-modal',
+  selector: 'Controller_Evcs-modal',
   templateUrl: './modal.page.html'
 })
-export class EvcsModalComponent implements OnInit {
+export class Controller_EvcsModalComponent implements OnInit {
 
   @Input() public edge: Edge;
   @Input() public controller: EdgeConfig.Component;
@@ -372,7 +372,7 @@ export class EvcsModalComponent implements OnInit {
 
   async presentPopover(ev: any) {
     const popover = await this.popoverController.create({
-      component: EvcsPopoverComponent,
+      component: Controller_EvcsPopoverComponent,
       event: ev,
       translucent: true,
       componentProps: {

@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
-import { AbstractFlatWidget } from '../flat/abstract-flat-widget';
+import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
 import { Controller_Ess_FixActivePowerModalComponent } from './modal/modal.component';
 
 @Component({
   selector: 'Controller_Ess_FixActivePower',
-  templateUrl: './Controller_Ess_FixActivePower.html'
+  templateUrl: './Ess_FixActivePower.html'
 })
 export class Controller_Ess_FixActivePower extends AbstractFlatWidget {
 

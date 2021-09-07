@@ -1,12 +1,12 @@
-import { ChannelAddress, EdgeConfig, CurrentData, Utils } from '../../../shared/shared';
+import { ChannelAddress, EdgeConfig, CurrentData, Utils } from '../../../../shared/shared';
 import { Component } from '@angular/core';
 import { Controller_Io_HeatingElementModalComponent } from './modal/modal.component';
 import { BehaviorSubject } from 'rxjs';
-import { AbstractFlatWidget } from '../flat/abstract-flat-widget';
+import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
 
 @Component({
     selector: 'Controller_Io_HeatingElement',
-    templateUrl: './Controller_Io_HeatingElement.html'
+    templateUrl: './Io_HeatingElement.html'
 })
 export class Controller_Io_HeatingElementComponent extends AbstractFlatWidget {
 

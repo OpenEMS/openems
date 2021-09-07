@@ -246,7 +246,7 @@ export const TRANSLATION = {
                     chargingStationPluggedInLocked: 'Nabíjecí stanice zapojena + uzamčena',
                     clusterConfigError: 'V konfiguraci clusteru Evcs došlo k chybě',
                     currentCharge: 'Aktuální nabíjení',
-                    energieSinceBeginning: 'Energie od posledního začátku nabíjení',
+                    energySinceBeginning: 'Energie od posledního začátku nabíjení',
                     energyLimit: 'Limit energie',
                     enforceCharging: 'Prosazování poplatků',
                     error: 'Chyba',

@@ -239,7 +239,7 @@ export const TRANSLATION = {
                     charingStationPluggedIn: 'Laadstation aangesloten',
                     clusterConfigError: 'Er is een fout opgetreden in de configuratie van het Evcs-cluster',
                     currentCharge: 'Huidige lading',
-                    energieSinceBeginning: 'Energie sinds de laatste lading start',
+                    energySinceBeginning: 'Energie sinds de laatste lading start',
                     energyLimit: 'Energielimiet',
                     enforceCharging: 'Handhaaf het laden',
                     error: 'Fout',

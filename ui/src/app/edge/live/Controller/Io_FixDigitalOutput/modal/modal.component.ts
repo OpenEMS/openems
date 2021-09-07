@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Edge, Service, Websocket, EdgeConfig } from '../../../../shared/shared';
+import { Edge, Service, Websocket, EdgeConfig } from '../../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
