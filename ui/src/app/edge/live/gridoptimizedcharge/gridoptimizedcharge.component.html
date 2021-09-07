@@ -52,7 +52,7 @@
                                     <ng-container>
                                         {{currentData[component.id + '/SellToGridLimitMinimumChargeLimit'] |
                                         unitvalue:
-                                        'W'}}
+                                        'kW'}}
                                     </ng-container>
                                 </td>
                             </tr>
@@ -87,6 +87,9 @@
                                     <ng-container *ngSwitchCase="5">
                                         Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive
                                     </ng-container>
+                                    <ng-container *ngSwitchCase="7">
+                                        Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive
+                                    </ng-container>
                                 </td>
                             </tr>
                             <!--DelayCharge maximum charge limit-->
@@ -98,7 +101,7 @@
                                     <td style="width:35%" class="align_right" translate>
                                         <ng-container>
                                             {{ currentData[component.id + '/DelayChargeMaximumChargeLimit'] |
-                                            unitvalue:'W' }}
+                                            unitvalue:'kW' }}
                                         </ng-container>
                                     </td>
                                 </tr>
@@ -106,19 +109,6 @@
                         </table>
                     </ng-template>
 
-                    <!--DelayCharge target minute-->
-                    <table class="full_width">
-                        <tr *ngIf="currentData[component.id + '/TargetMinute'] as targetMinute">
-                            <ng-container *ngIf="currentData[component.id + '/DelayChargeState'] != 1">
-                                <td style="width: 65%" translate>
-                                    Edge.Index.Widgets.GridOptimizedCharge.endTimeLong
-                                </td>
-                                <td style="width:35%" class="align_right">
-                                    {{ targetMinute * 60 * 1000 | date:'H:mm':'UTC' }}&nbsp;h
-                                </td>
-                            </ng-container>
-                        </tr>
-                    </table>
                 </ng-container>
             </ion-card-content>
         </ion-card>

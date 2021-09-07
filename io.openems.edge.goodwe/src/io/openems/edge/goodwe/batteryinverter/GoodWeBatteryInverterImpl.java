@@ -44,7 +44,6 @@ import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
 import io.openems.edge.goodwe.common.enums.ControlMode;
-import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
 import io.openems.edge.timedata.api.Timedata;
@@ -120,6 +119,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	public GoodWeBatteryInverterImpl() throws OpenemsNamedException {
 		super(//
 				SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, //
+				SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, //
 				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_POWER, //
 				SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY, //
 				SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
@@ -297,11 +297,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 			this.writeToChannel(GoodWe.ChannelId.BATTERY_PROTOCOL_ARM, 287); // EMS-Mode
 
-			// Registers 45350
-			this.writeToChannel(GoodWe.ChannelId.BMS_LEAD_CAPACITY, 200); // TODO: calculate value
-			this.writeToChannel(GoodWe.ChannelId.BMS_STRINGS, setBatteryStrings); // [4-12]
-			// TODO is writing BMS_STRINGS and BMS_LEAD_CAPACITY still required with latest
-			// firmware?
+			// Registers 45352
 			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, setChargeMaxVoltage); // [150-600]
 			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, setChargeMaxCurrent); // [0-100]
 			this.writeToChannel(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, setDischargeMinVoltage); // [150-600]
@@ -392,9 +388,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 		// Reduce PV Production power by DC max charge power
 		IntegerReadChannel wbmsVoltageChannel = this.channel(GoodWe.ChannelId.WBMS_VOLTAGE);
-		int surplusPower = productionPower -
-		/* Charge-Max-Current */ this.getBmsChargeMaxCurrent().orElse(0) * //
-		/* Battery Voltage */ wbmsVoltageChannel.value().orElse(0);
+		int surplusPower = productionPower //
+				/* Charge-Max-Current */ - this.getBmsChargeMaxCurrent().orElse(0) //
+						/* Battery Voltage */ * wbmsVoltageChannel.value().orElse(0);
 
 		// Must be positive
 		return Math.max(surplusPower, 0);
@@ -409,75 +405,23 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
 		// Calculate ActivePower, Energy and Max-AC-Power.
 		this.updatePowerAndEnergyChannels();
-		this.calculateMaxAcPower(battery);
+		this.calculateMaxAcPower(this.getMaxApparentPower().orElse(0));
 
 		this.lastChargeMaxCurrent = battery.getChargeMaxCurrent();
 
+		// Update Warn Channels
 		this.checkControlModeWithActivePid();
 
-		if (this.config.emsPowerMode() != EmsPowerMode.UNDEFINED && this.config.emsPowerSet() >= 0) {
-			System.out.println("Static " + this.config.emsPowerMode() + "[" + this.config.emsPowerSet() + "]");
-			IntegerWriteChannel emsPowerSetChannel = this.channel(GoodWe.ChannelId.EMS_POWER_SET);
-			emsPowerSetChannel.setNextWriteValue(this.config.emsPowerSet());
-			EnumWriteChannel emsPowerModeChannel = this.channel(GoodWe.ChannelId.EMS_POWER_MODE);
-			emsPowerModeChannel.setNextWriteValue(this.config.emsPowerMode());
-
-		} else {
-			// Apply Power Set-Point
-			this.applyPowerHandler.apply(this, setActivePower, this.config.controlMode(),
-					this.sum.getGridActivePower().orElse(0), this.getActivePower().orElse(0));
-		}
+		// Apply Power Set-Point
+		this.applyPowerHandler.apply(this, setActivePower, this.config.controlMode(), this.sum.getGridActivePower(),
+				this.getActivePower(), this.getMaxAcImport(), this.getMaxAcExport());
 
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
 	}
 
-	/**
-	 * Calculate and store Max-AC-Export and -Import for use in
-	 * getStaticConstraints().
-	 * 
-	 * @param battery the Battery
-	 */
-	private void calculateMaxAcPower(Battery battery) {
-		// Calculate and store Max-AC-Export and -Import for use in
-		// getStaticConstraints()
-		Integer maxDcChargePower = /* can be negative for force-discharge */
-				TypeUtils.multiply(//
-						/* Charge-Max-Current */ this.getBmsChargeMaxCurrent().get(), //
-						/* Battery Voltage */ battery.getVoltage().get());
-		int pvProduction = TypeUtils.max(0, this.calculatePvProduction());
-
-		// Calculates Max-AC-Import and Max-AC-Export as positive numbers
-		Integer maxAcImport = TypeUtils.subtract(maxDcChargePower,
-				TypeUtils.min(maxDcChargePower /* avoid negative number for `subtract` */, pvProduction));
-		Integer maxAcExport = TypeUtils.sum(//
-				/* Max DC-Discharge-Power */ TypeUtils.multiply(//
-						/* Discharge-Max-Current */ this.getBmsDischargeMaxCurrent().get(), //
-						/* Battery Voltage */ battery.getVoltage().get()),
-				/* PV Production */ pvProduction);
-
-		// Limit Max-AC-Power to inverter specific limit
-		int maxApparentPower = this.getMaxApparentPower().orElse(0);
-		maxAcImport = TypeUtils.min(maxAcImport, maxApparentPower);
-		maxAcExport = TypeUtils.min(maxAcExport, maxApparentPower);
-
-		// Set Channels
-		this._setMaxAcImport(TypeUtils.multiply(maxAcImport, /* negate */ -1));
-		this._setMaxAcExport(maxAcExport);
-	}
-
 	@Override
 	public BatteryInverterConstraint[] getStaticConstraints() throws OpenemsNamedException {
-		if (this.config.emsPowerMode() != EmsPowerMode.UNDEFINED && this.config.emsPowerSet() >= 0) {
-			// Manual EMS Settings active
-			return new BatteryInverterConstraint[] { //
-					new BatteryInverterConstraint("Manual Override", Phase.ALL, Pwr.ACTIVE, //
-							Relationship.EQUALS, 0), //
-					new BatteryInverterConstraint("Manual Override", Phase.ALL, Pwr.REACTIVE, //
-							Relationship.EQUALS, 0), //
-			};
-		}
-
 		return new BatteryInverterConstraint[] { //
 				new BatteryInverterConstraint("Max AC Import", Phase.ALL, Pwr.ACTIVE, //
 						Relationship.GREATER_OR_EQUALS, this.getMaxAcImport().orElse(0)), //
@@ -504,6 +448,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 		this.channel(GoodWeBatteryInverter.ChannelId.SMART_MODE_NOT_WORKING_WITH_PID_FILTER)
 				.setNextValue(enableWarning);
+	}
+
+	@Override
+	public boolean isManaged() {
+		return !this.config.controlMode().equals(ControlMode.INTERNAL);
 	}
 
 }

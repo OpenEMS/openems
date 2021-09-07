@@ -6,7 +6,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.goodwe.GoodWeConstants;
 import io.openems.edge.goodwe.common.enums.BackupEnable;
 import io.openems.edge.goodwe.common.enums.ControlMode;
-import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
 import io.openems.edge.goodwe.common.enums.FeedPowerEnable;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
@@ -58,12 +57,6 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 			+ "For PuEnableCurve inverter will operate based on power factor(cos phi)"
 			+ "Rest of the selections for specific Lagging or Leading factors.")
 	FeedInPowerSettings setfeedInPowerSettings() default FeedInPowerSettings.UNDEFINED;
-
-	@AttributeDefinition(name = "Fixed EMS Power Mode", description = "")
-	EmsPowerMode emsPowerMode() default EmsPowerMode.UNDEFINED;
-
-	@AttributeDefinition(name = "Fixed EMS Power Set", description = "")
-	int emsPowerSet() default -1;
 
 	String webconsole_configurationFactory_nameHint() default "GoodWe Battery Inverter [{id}]";
 }

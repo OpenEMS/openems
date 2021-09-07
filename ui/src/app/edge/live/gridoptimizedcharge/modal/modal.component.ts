@@ -51,6 +51,8 @@ export class GridOptimizedChargeModalComponent implements OnInit {
             this.isInstaller = true;
         }
         this.formGroup = this.formBuilder.group({
+
+            mode: new FormControl(this.component.properties.mode),
             sellToGridLimitEnabled: new FormControl(this.component.properties.sellToGridLimitEnabled),
             maximumSellToGridPower: new FormControl(this.component.properties.maximumSellToGridPower, Validators.compose([
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
@@ -60,25 +62,6 @@ export class GridOptimizedChargeModalComponent implements OnInit {
             manualTargetTime: new FormControl(this.component.properties.manualTargetTime),
         })
     };
-
-    updateMode(event: CustomEvent, currentController: EdgeConfig.Component) {
-        let oldMode = currentController.properties.mode;
-        let newMode: Mode = event.detail.value;
-        this.formGroup.markAsPristine()
-
-        if (this.edge != null) {
-            this.edge.updateComponentConfig(this.websocket, currentController.id, [
-                { name: 'mode', value: newMode }
-            ]).then(() => {
-                currentController.properties.mode = newMode;
-                this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-            }).catch(reason => {
-                currentController.properties.mode = oldMode;
-                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-                console.warn(reason);
-            });
-        }
-    }
 
     updateProperty(property: string, event: CustomEvent) {
         this.formGroup.controls[property].setValue(event.detail.value);
@@ -132,6 +115,7 @@ export class GridOptimizedChargeModalComponent implements OnInit {
 
                 this.loading = true;
                 this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
+                    this.component.properties.mode = this.formGroup.controls['mode'].value;
                     this.component.properties.sellToGridLimitEnabled = this.formGroup.controls['sellToGridLimitEnabled'].value;
                     this.component.properties.maximumSellToGridPower = this.formGroup.controls['maximumSellToGridPower'].value;
                     this.component.properties.delayChargeRiskLevel = this.formGroup.value.delayChargeRiskLevel;
@@ -140,6 +124,7 @@ export class GridOptimizedChargeModalComponent implements OnInit {
                     this.refreshChart = true;
                     this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
                 }).catch(reason => {
+                    this.formGroup.controls['mode'].setValue(this.component.properties.mode);
                     this.formGroup.controls['sellToGridLimitEnabled'].setValue(this.component.properties.sellToGridLimitEnabled);
                     this.formGroup.controls['maximumSellToGridPower'].setValue(this.component.properties.maximumSellToGridPower);
                     this.formGroup.controls['delayChargeRiskLevel'].setValue(this.component.properties.delayChargeRiskLevel);

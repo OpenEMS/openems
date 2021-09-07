@@ -1,11 +1,13 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 
 import org.junit.Test;
 
+import io.openems.common.function.ThrowingRunnable;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -57,10 +59,15 @@ public class MyControllerTest {
 			"SellToGridLimitMinimumChargeLimit");
 	private static final ChannelAddress RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT = new ChannelAddress(CTRL_ID,
 			"RawSellToGridLimitChargeLimit");
+	private static final ChannelAddress START_EPOCH_SECONDS = new ChannelAddress(CTRL_ID, "StartEpochSeconds");
 
 	// Sum channels
 	private static final ChannelAddress SUM_PRODUCTION_DC_ACTUAL_POWER = new ChannelAddress("_sum",
 			"ProductionDcActualPower");
+	private static final ChannelAddress SUM_PRODUCTION_ACTIVE_POWER = new ChannelAddress("_sum",
+			"ProductionActivePower");
+	private static final ChannelAddress SUM_CONSUMPTION_ACTIVE_POWER = new ChannelAddress("_sum",
+			"ConsumptionActivePower");
 
 	/*
 	 * Default Prediction values
@@ -167,12 +174,13 @@ public class MyControllerTest {
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
 						.output(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, -6650) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, 6650) //
-						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 533));
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 540));
 	}
 
 	@Test
@@ -223,12 +231,13 @@ public class MyControllerTest {
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
 						.output(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, -6650) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, 6650) //
-						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2666));
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2700));
 	}
 
 	@Test
@@ -280,10 +289,12 @@ public class MyControllerTest {
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.input(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.input(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120)) //
 				.next(new TestCase() //
 						.input(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
 						.input(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
 						.output(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.NO_REMAINING_TIME) //
@@ -335,6 +346,7 @@ public class MyControllerTest {
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, -6650) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, 6650) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.TARGET_MINUTE_NOT_CALCULATED));
@@ -379,6 +391,7 @@ public class MyControllerTest {
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.input(ESS_ACTIVE_POWER, 0) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.TARGET_MINUTE_NOT_CALCULATED) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, null) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -850) //
@@ -388,6 +401,7 @@ public class MyControllerTest {
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -12000) //
 						.input(ESS_ACTIVE_POWER, -850) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6200) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -6200) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6200) //
@@ -395,6 +409,7 @@ public class MyControllerTest {
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -7000) //
 						.input(ESS_ACTIVE_POWER, -6200) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6550) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -6550) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6550) //
@@ -402,6 +417,7 @@ public class MyControllerTest {
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -5000) //
 						.input(ESS_ACTIVE_POWER, -6550) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6050) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -6050) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6050) //
@@ -409,6 +425,7 @@ public class MyControllerTest {
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -8000) //
 						.input(ESS_ACTIVE_POWER, -6050) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -7400) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -7400) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 7400) //
@@ -418,6 +435,7 @@ public class MyControllerTest {
 						// applied
 						.input(METER_ACTIVE_POWER, -7000) //
 						.input(ESS_ACTIVE_POWER, -7400) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -7750) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -7750) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 7750) //
@@ -425,6 +443,7 @@ public class MyControllerTest {
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -6000) //
 						.input(ESS_ACTIVE_POWER, -7750) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -7250) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -7250) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 7250) //
@@ -470,6 +489,7 @@ public class MyControllerTest {
 						.input(ESS_SOC, 100) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.input(ESS_ACTIVE_POWER, 0) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.TARGET_MINUTE_NOT_CALCULATED) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, null) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -500) //
@@ -480,6 +500,7 @@ public class MyControllerTest {
 						.input(METER_ACTIVE_POWER, -12000) //
 						.input(ESS_ACTIVE_POWER, -1000) //
 						.input(ESS_SOC, 100) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6000) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -6000) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6000) //
@@ -488,6 +509,7 @@ public class MyControllerTest {
 						.input(METER_ACTIVE_POWER, -7000) //
 						.input(ESS_ACTIVE_POWER, -6000) //
 						.input(ESS_SOC, 100) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6000) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -6000) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6000) //
@@ -567,6 +589,7 @@ public class MyControllerTest {
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.input(ESS_ACTIVE_POWER, 0) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.TARGET_MINUTE_NOT_CALCULATED) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, null) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -850) //
@@ -576,6 +599,7 @@ public class MyControllerTest {
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -12000) //
 						.input(ESS_ACTIVE_POWER, -1000) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6350) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -6350) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6350) //
@@ -583,6 +607,7 @@ public class MyControllerTest {
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -7000) //
 						.input(ESS_ACTIVE_POWER, -6000) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6350) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -6350) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6350) //
@@ -590,6 +615,7 @@ public class MyControllerTest {
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -5000) //
 						.input(ESS_ACTIVE_POWER, -6000) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -5850) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -5850) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 5850) //
@@ -597,6 +623,7 @@ public class MyControllerTest {
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -8000) //
 						.input(ESS_ACTIVE_POWER, -5500) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6850) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -6850) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6850) //
@@ -606,6 +633,7 @@ public class MyControllerTest {
 						// applied
 						.input(METER_ACTIVE_POWER, -7000) //
 						.input(ESS_ACTIVE_POWER, -6300) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6650) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -6650) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6650) //
@@ -613,6 +641,7 @@ public class MyControllerTest {
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -6000) //
 						.input(ESS_ACTIVE_POWER, -6000) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6150) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -6150) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6150) //
@@ -666,12 +695,15 @@ public class MyControllerTest {
 						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000)) //
-				.next(new TestCase().output(TARGET_MINUTE, /* QuarterHour */ 1020) //
+				.next(new TestCase() //
+						.input(START_EPOCH_SECONDS, 1630566000) //
+						.output(TARGET_MINUTE, /* QuarterHour */ 1020) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, 6650) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, -6650) //
-						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 470));
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 476));
 	}
 
 	@Test
@@ -721,12 +753,13 @@ public class MyControllerTest {
 						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.output(TARGET_MINUTE, /* QuarterHour */ 1020) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, 6650) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, -6650) //
-						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 1600));
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 1620));
 	}
 
 	@Test
@@ -777,6 +810,7 @@ public class MyControllerTest {
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.input(SUM_PRODUCTION_DC_ACTUAL_POWER, 10_000).output(TARGET_MINUTE, /* QuarterHour */ 1020) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.NO_CHARGE_LIMIT) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 3350) //
@@ -827,11 +861,235 @@ public class MyControllerTest {
 						.input(METER_ACTIVE_POWER, -7500) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.input(ESS_ACTIVE_POWER, 0) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.DISABLED) //
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, null) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -850) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -850) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 850)); //
+	}
+
+	@Test
+	public void start_production_no_enough_test() throws Exception {
+		// Sleep between every TestCase to make sure that the Channel Values are added
+		// to the pastValues Map. This is required because the Channel Value timestamp
+		// does not consider the mocked Clock.
+		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(10);
+
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+
+		// Predictions
+		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+
+		// Predictors
+		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				productionPrediction, "_sum/ProductionActivePower");
+		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				consumptionPrediction, "_sum/ConsumptionActivePower");
+
+		// PredictorManager
+		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+				consumptionPredictor);
+
+		new ControllerTest(new GridOptimizedChargeImpl()) //
+				.addReference("predictorManager", predictorManager) //
+				.addReference("componentManager", cm) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", ESS) //
+				.addReference("meter", METER) //
+				.addReference("sum", new DummySum()) //
+				.activate(MyConfig.create() //
+						.setEssId(ESS_ID) //
+						.setId(CTRL_ID) //
+						.setMaximumSellToGridPower(7_000) //
+						.setMeterId(METER_ID) //
+						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
+						.setMode(Mode.OFF) //
+						.setSellToGridLimitEnabled(true) //
+						.setSellToGridLimitRampPercentage(5) //
+						.setManualTargetTime("") //
+						.build()) //
+				.next(new TestCase() //
+						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
+						.input(SUM_CONSUMPTION_ACTIVE_POWER, 1000) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.NOT_STARTED) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.NOT_STARTED) //
+						.output(START_EPOCH_SECONDS, null))
+				.next(new TestCase() //
+						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
+						.input(SUM_CONSUMPTION_ACTIVE_POWER, 0) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.NOT_STARTED) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.NOT_STARTED) //
+						.output(START_EPOCH_SECONDS, null))
+				.next(new TestCase() //
+						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 5000) //
+						.input(SUM_CONSUMPTION_ACTIVE_POWER, 6000) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.NOT_STARTED) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.NOT_STARTED) //
+						.output(START_EPOCH_SECONDS, null)); //
+	}
+
+	@Test
+	public void start_production_average_test() throws Exception {
+		// Sleep between every TestCase to make sure that the Channel Values are added
+		// to the pastValues Map. This is required because the Channel Value timestamp
+		// does not consider the mocked Clock.
+		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(10);
+
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"),
+				ZoneId.of("Europe/Berlin"));
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+
+		// Predictions
+		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+
+		// Predictors
+		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				productionPrediction, "_sum/ProductionActivePower");
+		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				consumptionPrediction, "_sum/ConsumptionActivePower");
+
+		// PredictorManager
+		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+				consumptionPredictor);
+
+		new ControllerTest(new GridOptimizedChargeImpl()) //
+				.addReference("predictorManager", predictorManager) //
+				.addReference("componentManager", cm) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", ESS) //
+				.addReference("meter", METER) //
+				.addReference("sum", new DummySum()) //
+				.activate(MyConfig.create() //
+						.setEssId(ESS_ID) //
+						.setId(CTRL_ID) //
+						.setMaximumSellToGridPower(7_000) //
+						.setMeterId(METER_ID) //
+						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
+						.setMode(Mode.MANUAL) //
+						.setSellToGridLimitEnabled(true) //
+						.setManualTargetTime("17:00") //
+						.setSellToGridLimitRampPercentage(5) //
+						.build()) //
+				/*
+				 * As there was five times zero production, it needs another five cycles with
+				 * 2_000 W production to reach the 1_000 W consumption. Because of the
+				 * DEFAULT_POWER_BUFFER it needs a sixth & seventh value to have more average
+				 * production than consumption + buffer
+				 */
+				.next(new TestCase("Cycle 1 - no production") //
+						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
+						.input(SUM_CONSUMPTION_ACTIVE_POWER, 1000) //
+						.input(START_EPOCH_SECONDS, null) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.NOT_STARTED) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.NOT_STARTED) //
+						.output(START_EPOCH_SECONDS, null))
+				.next(new TestCase("Cycle 2 - no production") //
+						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
+						.input(SUM_CONSUMPTION_ACTIVE_POWER, 1000) //
+						.input(START_EPOCH_SECONDS, null) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.NOT_STARTED) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.NOT_STARTED) //
+						.output(START_EPOCH_SECONDS, null))
+				.next(new TestCase("Cycle 3 - no production") //
+						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
+						.input(SUM_CONSUMPTION_ACTIVE_POWER, 1000) //
+						.input(START_EPOCH_SECONDS, null) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.NOT_STARTED) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.NOT_STARTED) //
+						.output(START_EPOCH_SECONDS, null))
+				.next(new TestCase("Cycle 4 - no production") //
+						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
+						.input(SUM_CONSUMPTION_ACTIVE_POWER, 1000) //
+						.input(START_EPOCH_SECONDS, null) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.NOT_STARTED) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.NOT_STARTED) //
+						.output(START_EPOCH_SECONDS, null))
+				.next(new TestCase("Cycle 5 - no production") //
+						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) // Avg: 0
+						.input(SUM_CONSUMPTION_ACTIVE_POWER, 1000) //
+						.input(START_EPOCH_SECONDS, null) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.NOT_STARTED) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.NOT_STARTED) //
+						.output(START_EPOCH_SECONDS, null))
+				.next(new TestCase("Cycle 6 - 2_000 production") //
+						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 2000) // Avg: 333
+						.input(SUM_CONSUMPTION_ACTIVE_POWER, 1000) //
+						.input(START_EPOCH_SECONDS, null) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.NOT_STARTED) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.NOT_STARTED) //
+						.output(START_EPOCH_SECONDS, null))
+				.next(new TestCase("Cycle 7 - 2_000 production") //
+						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 2000) // Avg: 571
+						.input(SUM_CONSUMPTION_ACTIVE_POWER, 1000) //
+						.input(START_EPOCH_SECONDS, null) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.NOT_STARTED) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.NOT_STARTED) //
+						.output(START_EPOCH_SECONDS, null))
+				.next(new TestCase("Cycle 8 - 2_000 production") //
+						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 2000) // Avg: 750
+						.input(SUM_CONSUMPTION_ACTIVE_POWER, 1000) //
+						.input(START_EPOCH_SECONDS, null) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.NOT_STARTED) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.NOT_STARTED) //
+						.output(START_EPOCH_SECONDS, null))
+				.next(new TestCase("Cycle 9 - 2_000 production") //
+						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 2000) // Avg: 888
+						.input(SUM_CONSUMPTION_ACTIVE_POWER, 1000) //
+						.input(START_EPOCH_SECONDS, null) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.NOT_STARTED) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.NOT_STARTED) //
+						.output(START_EPOCH_SECONDS, null))
+				.next(new TestCase("Cycle 10 - 2_000 production") //
+						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 2000) // Avg: 1000
+						.input(SUM_CONSUMPTION_ACTIVE_POWER, 1000) //
+						.input(START_EPOCH_SECONDS, null) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.NOT_STARTED) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.NOT_STARTED) //
+						.output(START_EPOCH_SECONDS, null))
+				.next(new TestCase("Cycle 11 - 2_000 production") //
+						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 2000) // Avg: 1090
+						.input(SUM_CONSUMPTION_ACTIVE_POWER, 1000) //
+						.input(START_EPOCH_SECONDS, null) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.NOT_STARTED) //
+						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.NOT_STARTED) //
+						.output(START_EPOCH_SECONDS, null)) //
+				.next(new TestCase("Cycle 12 - 2_000 production") //
+						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 2000) // Avg: 1166
+						.input(SUM_CONSUMPTION_ACTIVE_POWER, 1000) //
+						.input(START_EPOCH_SECONDS, null) //
+						.input(METER_ACTIVE_POWER, 0) //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(ESS_CAPACITY, 10_000) //
+						.input(ESS_SOC, 20) //
+						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+
+						// Epoch seconds at 2020-01-01 00:00:00: 1577836800 (Clock is not updated every
+						// cycle)
+						.output(START_EPOCH_SECONDS, 1577836800L) //
+						.output(TARGET_MINUTE, /* QuarterHour */ 1020) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
+						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, 6650) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, -6650) //
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 506)); //
 	}
 }

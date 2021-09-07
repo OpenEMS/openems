@@ -2,8 +2,8 @@
     <ion-toolbar class="ion-justify-content-center" color="primary">
         <ion-title>{{ component.alias }}</ion-title>
         <ion-buttons slot="end">
-            <!--Todo: Change href to docs.fenecon.de-->
-            <ion-button target="_blank" href="https://fenecon.de/fems-2-2/fems-app-netzdienliche-beladung/">
+            <ion-button target="_blank"
+                href="https://docs.fenecon.de/de/_/latest/fems/fems-app/includes/FEMS_App_Netzdienliche_Beladung.html">
                 <ion-icon name="help-circle-outline"></ion-icon>
             </ion-button>
             <ion-button (click)="modalCtrl.dismiss()">
@@ -16,8 +16,10 @@
 <ion-content>
     <ng-container *ngIf="!loading">
         <ng-container *ngIf="component && service.currentEdge | async as edge">
+
+
             <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
-                <ion-card-content class="underline" *ngIf="component.properties.mode != 'OFF'">
+                <ion-card-content class="underline" *ngIf="this.formGroup.controls['mode'].value != 'OFF'">
 
                     <!--SellToGridLimit - Grid feed in limitation is avoided-->
                     <table class="full_width"
@@ -73,6 +75,9 @@
                                     <ng-container *ngSwitchCase="5">
                                         Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive
                                     </ng-container>
+                                    <ng-container *ngSwitchCase="7">
+                                        Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive
+                                    </ng-container>
                                 </td>
                             </tr>
                             <!--DelayCharge maximum charge limit-->
@@ -111,7 +116,8 @@
                                 Speicher-Kapazität (nur sichtbar für admin)
                             </td>
                             <td style="width:35%" class="align_right">
-                                {{ currentData[channelCapacity] }}&nbsp;Wh
+                                {{ currentData[channelCapacity] | unitvalue:
+                                'Wh' }}
                             </td>
                         </tr>
 
@@ -122,45 +128,47 @@
                             </td>
                             <td style="width: 35%" class="align_right">
                                 <ion-text>
-                                    {{ component.properties.maximumSellToGridPower }}&nbsp;W
+                                    {{ component.properties.maximumSellToGridPower | unitvalue:
+                                    'W' }}
                                 </ion-text>
                             </td>
                         </tr>
                     </table>
                 </ion-card-content>
 
-                <!--Select Mode-->
-                <ion-card-content class="underline">
-                    <table class="full_width">
-                        <ion-text translate>General.mode</ion-text>
-                    </table>
-                    <ion-segment (ionChange)="updateMode($event, component);" (click)="showPreview()"
-                        value="{{ component.properties['mode'] }}" scrollable="false">
-                        <ion-segment-button value="MANUAL">
-                            <ion-label translate>
-                                General.manually
-                            </ion-label>
-                            <ion-icon color="success" style="width:40px" name="power"></ion-icon>
-                        </ion-segment-button>
-                        <ion-segment-button value="AUTOMATIC">
-                            <ion-label translate>
-                                General.automatic
-                            </ion-label>
-                            <ion-icon style="width:40px" name="sunny">
-                            </ion-icon>
-                        </ion-segment-button>
-                        <ion-segment-button value="OFF">
-                            <ion-label translate>
-                                General.off
-                            </ion-label>
-                            <ion-icon name="power" style="width: 40px"></ion-icon>
-                        </ion-segment-button>
-                    </ion-segment>
-                </ion-card-content>
                 <form [formGroup]="formGroup">
 
+                    <!--Select Mode-->
+                    <ion-card-content class="underline">
+                        <table class="full_width">
+                            <ion-text translate>General.mode</ion-text>
+                        </table>
+                        <ion-segment (ionChange)="updateProperty('mode',$event)" (click)="showPreview()"
+                            [value]="this.formGroup.controls['mode'].value" scrollable="false">
+                            <ion-segment-button value="MANUAL">
+                                <ion-label translate>
+                                    General.manually
+                                </ion-label>
+                                <ion-icon color="success" style="width:40px" name="power"></ion-icon>
+                            </ion-segment-button>
+                            <ion-segment-button value="AUTOMATIC">
+                                <ion-label translate>
+                                    General.automatic
+                                </ion-label>
+                                <ion-icon style="width:40px" name="sunny">
+                                </ion-icon>
+                            </ion-segment-button>
+                            <ion-segment-button value="OFF">
+                                <ion-label translate>
+                                    General.off
+                                </ion-label>
+                                <ion-icon name="power" style="width: 40px"></ion-icon>
+                            </ion-segment-button>
+                        </ion-segment>
+                    </ion-card-content>
+
                     <!--Manual Mode-->
-                    <ng-container *ngIf="component.properties['mode'] == 'MANUAL'">
+                    <ng-container *ngIf="this.formGroup.controls['mode'].value == 'MANUAL'">
                         <ion-card-content class="underline">
                             <table class="full_width">
                                 <tr>
@@ -202,14 +210,28 @@
                     </ng-container>
 
                     <!--Automatic Mode-->
-                    <ng-container *ngIf="component.properties['mode'] == 'AUTOMATIC'">
+                    <ng-container *ngIf="this.formGroup.controls['mode'].value == 'AUTOMATIC'">
                         <ion-card-content class="underline">
                             <table class="full_width">
                                 <tr>
                                     <td style="width:100%">
-                                        <ion-label class="ion-text-wrap" translate>
-                                            Edge.Index.Widgets.GridOptimizedCharge.endTimeDescription <br>
-                                        </ion-label>
+                                        <ng-container
+                                            *ngIf="currentData[component.id + '/TargetMinute'] as targetMinute; else defaultEndTimeDescription">
+                                            <ng-container
+                                                *ngIf="currentData[component.id + '/DelayChargeMaximumChargeLimit'] as delayChargeMaximumChargeLimit; else defaultEndTimeDescription">
+
+                                                <ion-label class="ion-text-wrap"
+                                                    [translateParams]="{value1: delayChargeMaximumChargeLimit | unitvalue:'W', value2: (targetMinute * 60 * 1000) | date:'H:mm':'UTC' }"
+                                                    translate>
+                                                    Edge.Index.Widgets.GridOptimizedCharge.endTimeDetailedDescription
+                                                </ion-label>
+                                            </ng-container>
+                                        </ng-container>
+                                        <ng-template #defaultEndTimeDescription>
+                                            <ion-label class="ion-text-wrap" translate>
+                                                Edge.Index.Widgets.GridOptimizedCharge.endTimeDescription
+                                            </ion-label>
+                                        </ng-template>
                                     </td>
                                 </tr>
                             </table>
@@ -298,8 +320,8 @@
                             </table>
                             <br>
                             <ng-container *ngFor="let description of riskDescription.riskLevelDescription">
-                                <table class="full_width">
-                                    <tr style="padding-bottom: 10px;">
+                                <table class="full_width" style="margin-bottom: 10px;">
+                                    <tr>
                                         <td style="width:5%">
                                         </td>
                                         <td style="width:5%">
@@ -329,7 +351,7 @@
                     </ng-container>
 
                     <!--OFF Mode-->
-                    <ng-container *ngIf="component.properties['mode'] == 'OFF'">
+                    <ng-container *ngIf="this.formGroup.controls['mode'].value == 'OFF'">
                         <ng-container>
                             <ion-card-content>
                                 <table class="full_width">

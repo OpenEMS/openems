@@ -92,7 +92,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
         */
         if (this.component.id + '/_PropertyMaximumSellToGridPower' in result.data) {
 
-          let delayChargeData = result.data[this.component.id + '/_PropertyMaximumSellToGridPower'].map(value => {
+          let sellToGridLimitData = result.data[this.component.id + '/_PropertyMaximumSellToGridPower'].map(value => {
             if (value == null) {
               return null
             } else if (value == 0) {
@@ -101,15 +101,39 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
               return value / 1000; // convert to kW
             }
           });
+
           datasets.push({
             label: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.maximumGridFeedIn'),
-            data: delayChargeData,
+            data: sellToGridLimitData,
             hidden: false,
             borderDash: [3, 3]
           })
           this.colors.push({
             backgroundColor: 'rgba(0,0,0,0.05)',
             borderColor: 'rgba(0,0,0,1)'
+          })
+
+          let batterySellToGridLimitData = result.data[this.component.id + '/_PropertyMaximumSellToGridPower'].map(value => {
+            if (value == null) {
+              return null
+            } else if (value == 0) {
+              return 0;
+            } else {
+              // 
+              return value / 1000 * 0.95; // convert to kW
+            }
+          });
+
+          datasets.push({
+            // TODO: Translate
+            label: "Maximale Netzeinspeisung durch Batteriebeladung",
+            data: batterySellToGridLimitData,
+            hidden: false,
+            borderDash: [3, 3]
+          })
+          this.colors.push({
+            backgroundColor: 'rgba(200,0,0,0.05)',
+            borderColor: 'rgba(200,0,0,1)',
           })
         }
 

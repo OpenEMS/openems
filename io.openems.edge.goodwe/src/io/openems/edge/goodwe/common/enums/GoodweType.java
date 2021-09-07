@@ -41,7 +41,7 @@ public enum GoodweType implements OptionsEnum {
 	 * @return the Series or UNDEFINED if unknown
 	 */
 	public Series getSeries() {
-		return series;
+		return this.series;
 	}
 
 	@Override

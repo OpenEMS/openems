@@ -169,13 +169,18 @@ export const TRANSLATION = {
                 GridOptimizedCharge: {
                     considerGridFeedInLimit: 'Tenga en cuenta la alimentación máxima a la red',
                     endTime: 'Hora de finalización',
-                    endTimeDescription: 'La carga no se realiza con el rendimiento máximo durante unas horas, sino de forma constante hasta este momento.',
+                    endTimeDescription: 'La carga no se realiza con la cantidad máxima durante unas pocas horas, sino de manera constante durante un período de tiempo más largo.',
+                    endTimeDetailedDescription: 'La carga no se realiza con la salida máxima durante unas horas, sino de manera constante con un máximo de {{value1}} a {{value2}} en punto.', // value1 = maximum charge, value2 = end time
                     endTimeLong: 'Hora de finalización de la carga restringida',
                     expectedSoc: 'Estado de carga esperado',
                     expectedSocWithoutSellToGridLimit: 'Sin evitar la máxima inyección a la red',
                     gridFeedInLimitationAvoided: 'Se evitó una limitación de la fuente de alimentación de la red',
                     gridOptimizedChargeDisabled: 'Carga optimizada de red desactivada',
                     high: 'Alto',
+                    History: {
+                        batteryChargeGridLimitDescription: 'La inyección máxima a la red, por encima de la cual se incrementa la carga de las baterías (en la medida de lo posible), está por debajo de la inyección máxima a la red permitida para evitar una reducción prematura de la producción.',
+                        priorityDescription: 'La carga mínima de la batería tiene mayor prioridad que la carga máxima de la batería',
+                    },
                     low: 'Bajo',
                     maximumCharge: 'Carga máxima',
                     maximumGridFeedIn: 'Inyección de red máxima permitida',

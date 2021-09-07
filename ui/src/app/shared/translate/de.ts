@@ -221,13 +221,18 @@ export const TRANSLATION = {
                 GridOptimizedCharge: {
                     considerGridFeedInLimit: 'Maximale Netzeinspeisung berücksichtigen',
                     endTime: 'Endzeit',
-                    endTimeDescription: 'Die Beladung erfolgt nicht mit der Maximalleistung für wenige Stunden, sondern gleichmäßig bis zu diesem Zeitpunkt.',
+                    endTimeDescription: 'Die Beladung erfolgt nicht mit der Maximalleistung für wenige Stunden, sondern gleichmäßig über einen längeren Zeitraum.',
+                    endTimeDetailedDescription: 'Die Beladung erfolgt nicht mit der Maximalleistung für wenige Stunden, sondern gleichmäßig mit maximal {{value1}} bis {{value2}} Uhr.', // value1 = maximum charge, value2 = end time
                     endTimeLong: 'Endzeitpunkt der beschränkten Beladung',
                     expectedSoc: 'Erwarteter Ladezustand',
                     expectedSocWithoutSellToGridLimit: 'Ohne Vermeidung der maximalen Netzeinspeisung',
                     gridFeedInLimitationAvoided: 'Einspeisebegrenzung vermieden',
                     gridOptimizedChargeDisabled: 'Netzdienliche Beladung deaktiviert',
                     high: 'Hoch',
+                    History: {
+                        batteryChargeGridLimitDescription: 'Die maximale Netzeinspeisung, ab der die Batteriebeladung erhöht wird (soweit möglich), liegt unter der maximal erlaubten Netzeinspeisung, um ein vorzeitiges Abregeln der Erzeugung zu verhindern.',
+                        priorityDescription: 'Die minimale Beladung hat eine höhere Priorität als die maximale Beladung',
+                    },
                     low: 'Gering',
                     maximumCharge: 'Maximale Beladung',
                     maximumGridFeedIn: 'Maximal erlaubte Netzeinspeisung',

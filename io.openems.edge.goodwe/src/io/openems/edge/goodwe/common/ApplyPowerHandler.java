@@ -3,11 +3,9 @@ package io.openems.edge.goodwe.common;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.goodwe.batteryinverter.GoodWeBatteryInverter;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 
@@ -23,16 +21,24 @@ public class ApplyPowerHandler {
 	 *                        {@link EmsPowerMode} for the GoodWe battery inverter
 	 * @param gridActivePower the grid active power
 	 * @param essActivePower  the ESS active power
+	 * @param maxAcImport     the max AC import power
+	 * @param maxAcExport     the max AC export power
 	 * @throws OpenemsNamedException on error
 	 */
 	public synchronized void apply(AbstractGoodWe goodWe, int setActivePower, ControlMode controlMode,
-			int gridActivePower, int essActivePower) throws OpenemsNamedException {
+			Value<Integer> gridActivePower, Value<Integer> essActivePower, Value<Integer> maxAcImport,
+			Value<Integer> maxAcExport) throws OpenemsNamedException {
 		int pvProduction = TypeUtils.max(0, goodWe.calculatePvProduction());
-		ApplyPowerHandler.Result apply = calculate(goodWe, setActivePower, pvProduction, controlMode, gridActivePower,
-				essActivePower);
 
-		System.out.println(
-				"ApplyPowerHandler emsPowerMode[" + apply.emsPowerMode + "]emsPowerSet[" + apply.emsPowerSet + "]");
+		final ApplyPowerHandler.Result apply;
+		if (gridActivePower.isDefined() && essActivePower.isDefined() && maxAcImport.isDefined()
+				&& maxAcExport.isDefined()) {
+			apply = calculate(goodWe, setActivePower, pvProduction, controlMode, gridActivePower.get(),
+					essActivePower.get(), maxAcImport.get(), maxAcExport.get());
+		} else {
+			// If any Channel Value is not available: fall back to AUTO mode
+			apply = new ApplyPowerHandler.Result(EmsPowerMode.AUTO, 0);
+		}
 
 		// Set Channels
 		IntegerWriteChannel emsPowerSetChannel = goodWe.channel(GoodWe.ChannelId.EMS_POWER_SET);
@@ -54,7 +60,8 @@ public class ApplyPowerHandler {
 	}
 
 	private static ApplyPowerHandler.Result calculate(AbstractGoodWe goodWe, int activePowerSetPoint, int pvProduction,
-			ControlMode controlMode, int gridActivePower, int essActivePower) throws OpenemsNamedException {
+			ControlMode controlMode, int gridActivePower, int essActivePower, int maxAcImport, int maxAcExport)
+			throws OpenemsNamedException {
 		EnumReadChannel meterCommunicationChannel = goodWe.channel(GoodWe.ChannelId.METER_COMMUNICATE_STATUS);
 		Value<Integer> meterCommunication = meterCommunicationChannel.value();
 		if (!meterCommunication.isDefined() || meterCommunication.get() != 1) {
@@ -65,7 +72,8 @@ public class ApplyPowerHandler {
 		case INTERNAL:
 			return handleInternalMode();
 		case SMART:
-			return handleSmartMode(goodWe, activePowerSetPoint, pvProduction, gridActivePower, essActivePower);
+			return handleSmartMode(goodWe, activePowerSetPoint, pvProduction, gridActivePower, essActivePower,
+					maxAcImport, maxAcExport);
 		case REMOTE:
 			return handleRemoteMode(activePowerSetPoint, pvProduction);
 		default:
@@ -78,10 +86,10 @@ public class ApplyPowerHandler {
 	}
 
 	private static Result handleSmartMode(AbstractGoodWe goodWe, int activePowerSetPoint, int pvProduction,
-			int meterActivePower, int essActivePower) throws OpenemsNamedException {
+			int gridActivePower, int essActivePower, int maxAcImport, int maxAcExport) throws OpenemsNamedException {
 
 		// Is Balancing to zero active?
-		int diffBalancing = activePowerSetPoint - (meterActivePower + essActivePower);
+		int diffBalancing = activePowerSetPoint - (gridActivePower + essActivePower);
 
 		// Is Surplus-Feed-In active?
 		final Integer surplusPower = goodWe.getSurplusPower();
@@ -90,25 +98,20 @@ public class ApplyPowerHandler {
 			diffSurplus = activePowerSetPoint - surplusPower;
 		}
 
-		final int diffAcMaximum;
-		if (goodWe instanceof GoodWeBatteryInverter) {
-			// Is charging from AC at maximum?
-			// PV = 10.000
-			// Max AC import = 3.000
-			// ActivePowerSetPoint = 3.000
-			IntegerReadChannel maxAcImportChannel = goodWe.channel(GoodWeBatteryInverter.ChannelId.MAX_AC_IMPORT);
-			if (maxAcImportChannel.value().isDefined()) {
-				diffAcMaximum = activePowerSetPoint - maxAcImportChannel.value().get();
-			} else {
-				diffAcMaximum = Integer.MAX_VALUE;
-			}
-		} else {
-			// Force internal mode
-			diffAcMaximum = 0;
-		}
+		// Is charging from AC at maximum?
+		// PV = 10.000
+		// Max AC import = 3.000
+		// ActivePowerSetPoint = 3.000
+		int diffMaxAcImport = activePowerSetPoint - maxAcImport;
+
+		// Is discharging from AC at maximum?
+		// PV = 0
+		// Max AC import = 8.000
+		// ActivePowerSetPoint = 8.000
+		int diffMaxAcExport = activePowerSetPoint - maxAcExport;
 
 		if ((diffBalancing > -1 && diffBalancing < 1) || (diffSurplus > -1 && diffSurplus < 1)
-				|| (diffAcMaximum > -1 && diffAcMaximum < 1)) {
+				|| (diffMaxAcImport > -1 && diffMaxAcImport < 1) || (diffMaxAcExport > -1 && diffMaxAcExport < 1)) {
 			// avoid rounding errors
 			return handleInternalMode();
 		}

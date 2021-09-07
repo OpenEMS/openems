@@ -8,7 +8,8 @@ public enum SellToGridLimitState implements OptionsEnum {
 	NO_LIMIT(1, "No active limitation"), //
 	NO_FEASABLE_SOLUTION(2, "Limit cannot be adapted because of other constraints with higher priority"), //
 	ACTIVE_LIMIT_CONSTRAINT(3, "Active limitation - Minimum charge power "), //
-	DISABLED(4, "SellToGridLimit part is disabled"); //
+	DISABLED(4, "SellToGridLimit part is disabled"), //
+	NOT_STARTED(5, "SellToGridLimit part was not started because there is no production or to less production"); //
 
 	private final int value;
 	private final String name;

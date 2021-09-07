@@ -80,17 +80,16 @@ public enum SafetyCountry implements OptionsEnum {
 	AUSTRALIA_PWCORE_CITI_PW(0x49, "Australia Pwcore_CitiPW"), //
 
 	// TODO: No Grid connection standards given by GoodWe
-//	CHINA_HONGKONG(0x31, "China Hongkong"), //
-//	POLAND_MV(0x31, "Poland MV"), //
-//	HOLLAND_MV(0x31, "Holland MV"), //
-//	SWEDEN_MV(0x31, "Sweden MV"), //
-//	VDE4110(0x31, "VDE4110"), //
-//	SPAIN_MV(0x31, "Spain MV"), //
-//	(0x31, "Australia Endeavour"), //
-//	DEFAULT_50_HZ_LV(0x31, "Argentina"), //
-//	DEFAULT_50_HZ_LV(0x31, "AustralianB"), //
-//	DEFAULT_50_HZ_LV(0x31, "AustralianC")
-
+	// CHINA_HONGKONG(0x31, "China Hongkong"), //
+	// POLAND_MV(0x31, "Poland MV"), //
+	// HOLLAND_MV(0x31, "Holland MV"), //
+	// SWEDEN_MV(0x31, "Sweden MV"), //
+	// VDE4110(0x31, "VDE4110"), //
+	// SPAIN_MV(0x31, "Spain MV"), //
+	// (0x31, "Australia Endeavour"), //
+	// DEFAULT_50_HZ_LV(0x31, "Argentina"), //
+	// DEFAULT_50_HZ_LV(0x31, "AustralianB"), //
+	// DEFAULT_50_HZ_LV(0x31, "AustralianC")
 	;
 
 	private final int value;
