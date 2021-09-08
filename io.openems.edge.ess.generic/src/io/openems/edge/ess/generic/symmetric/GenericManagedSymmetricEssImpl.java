@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -187,6 +188,15 @@ public class GenericManagedSymmetricEssImpl
 	@Override
 	protected ManagedSymmetricBatteryInverter getBatteryInverter() {
 		return this.batteryInverter;
+	}
+
+	@Override
+	public Integer getSurplusPower() {
+		if (this.batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
+			return ((HybridManagedSymmetricBatteryInverter) this.batteryInverter).getSurplusPower();
+		} else {
+			return null;
+		}
 	}
 
 	@Override
