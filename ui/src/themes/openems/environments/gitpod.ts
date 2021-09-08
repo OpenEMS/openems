@@ -1,9 +1,13 @@
-import { Environment } from "../app/shared/type/environment";
+import { Environment } from "src/environments";
 
 export const environment: Environment = {
-  production: false,
-  debugMode: true,
+  title: "OpenEMS UI",
+  shortName: "OpenEMS",
+
+  backend: 'OpenEMS Backend',
   // gitpod puts the port number in front of the hostname
   url: "wss://8082-" + location.hostname.substring(location.hostname.indexOf("-") + 1),
-  backend: "OpenEMS Backend"
+
+  production: false,
+  debugMode: true,
 };
