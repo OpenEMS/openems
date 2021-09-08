@@ -31,9 +31,6 @@ import { Controller_EvcsComponent } from './Controller/Evcs/Evcs';
 import { AdministrationComponent } from './Controller/Evcs/modal/administration/administration.component';
 import { Controller_EvcsModalComponent } from './Controller/Evcs/modal/modal.page';
 import { Controller_EvcsPopoverComponent } from './Controller/Evcs/modal/popover/popover.page';
-import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
-import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';
-import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
 import { FlatWidgetHorizontalLine } from './flat/flat-widget-line/flat-widget-horizontal-line';
 import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
 import { FlatWidgetPercentagebar } from './flat/flat-widget-line/flat-widget-percentagebar';
@@ -41,8 +38,6 @@ import { FlatWidgetComponent } from './flat/flat-widget.component';
 import { GridOptimizedChargeComponent } from './gridoptimizedcharge/gridoptimizedcharge.component';
 import { GridOptimizedChargeModalComponent } from './gridoptimizedcharge/modal/modal.component';
 import { PredictionChartComponent } from './gridoptimizedcharge/modal/predictionChart';
-import { HeatPumpComponent } from './heatpump/heatpump.component';
-import { HeatPumpModalComponent } from './heatpump/modal/modal.component';
 import { InfoComponent } from './info/info.component';
 import { LiveComponent } from './live.component';
 import { OfflineComponent } from './offline/offline.component';
@@ -56,6 +51,11 @@ import { ProductionModalComponent } from './production/modal/modal.component';
 import { ProductionComponent } from './production/production.component';
 import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.component';
 import { SinglethresholdComponent } from './singlethreshold/singlethreshold.component';
+import { Evcs_Api_Cluster } from './Multiple/Evcs_Api_Cluster/Evcs_Api_Cluster';
+import { EvcsChart } from './Multiple/Evcs_Api_Cluster/modal/evcs-chart/evcs.chart';
+import { Evcs_Api_ClusterModalComponent } from './Multiple/Evcs_Api_Cluster/modal/evcsCluster-modal.page';
+import { Controller_Io_HeatpumpComponent } from './Controller/Io_Heatpump/Io_Heatpump';
+import { Controller_Io_HeatpumpModalComponent } from './Controller/Io_Heatpump/modal/modal.component';
 
 @NgModule({
   imports: [
@@ -73,22 +73,22 @@ import { SinglethresholdComponent } from './singlethreshold/singlethreshold.comp
     ConsumptionModalComponent,
     Controller_Ess_FixActivePower,
     Controller_Ess_FixActivePowerModalComponent,
+    Controller_EvcsModalComponent,
+    Controller_EvcsPopoverComponent,
     Controller_Io_FixDigitalOutput,
     Controller_Io_FixDigitalOutputModalComponent,
     Controller_Io_HeatingElementModalComponent,
+    Controller_Io_HeatpumpModalComponent,
     DelayedSellToGridModalComponent,
-    Io_Api_DigitalInputComponent,
-    Io_Api_DigitalInput_ModalComponent,
-    Controller_EvcsModalComponent,
-    Controller_EvcsPopoverComponent,
+    Evcs_Api_ClusterModalComponent,
     FlatWidgetComponent,
     FlatWidgetHorizontalLine,
     FlatWidgetLine,
     FlatWidgetPercentagebar,
     GridModalComponent,
     GridOptimizedChargeModalComponent,
-    HeatPumpModalComponent,
-    ModalComponentEvcsCluster,
+    Io_Api_DigitalInput_ModalComponent,
+    Io_Api_DigitalInputComponent,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
     SinglethresholdModalComponent,
@@ -102,26 +102,27 @@ import { SinglethresholdComponent } from './singlethreshold/singlethreshold.comp
     AsymmetricPeakshavingModalComponent,
     AutarchyComponent,
     AutarchyModalComponent,
-    Controller_ChannelthresholdComponent,
     ChpSocComponent,
     ChpsocModalComponent,
     ConsumptionComponent,
     ConsumptionModalComponent,
+    Controller_ChannelthresholdComponent,
     Controller_Ess_FixActivePower,
     Controller_Ess_FixActivePowerModalComponent,
+    Controller_EvcsComponent,
+    Controller_EvcsModalComponent,
+    Controller_EvcsPopoverComponent,
     Controller_Io_FixDigitalOutput,
     Controller_Io_FixDigitalOutputModalComponent,
     Controller_Io_HeatingElementComponent,
     Controller_Io_HeatingElementModalComponent,
+    Controller_Io_HeatpumpComponent,
+    Controller_Io_HeatpumpModalComponent,
     DelayedSellToGridComponent,
     DelayedSellToGridModalComponent,
-    Io_Api_DigitalInputComponent,
-    Io_Api_DigitalInput_ModalComponent,
+    Evcs_Api_Cluster,
+    Evcs_Api_ClusterModalComponent,
     EvcsChart,
-    EvcsClusterComponent,
-    Controller_EvcsComponent,
-    Controller_EvcsModalComponent,
-    Controller_EvcsPopoverComponent,
     FlatWidgetComponent,
     FlatWidgetHorizontalLine,
     FlatWidgetLine,
@@ -130,11 +131,10 @@ import { SinglethresholdComponent } from './singlethreshold/singlethreshold.comp
     GridModalComponent,
     GridOptimizedChargeComponent,
     GridOptimizedChargeModalComponent,
-    HeatPumpComponent,
-    HeatPumpModalComponent,
     InfoComponent,
+    Io_Api_DigitalInput_ModalComponent,
+    Io_Api_DigitalInputComponent,
     LiveComponent,
-    ModalComponentEvcsCluster,
     OfflineComponent,
     PredictionChartComponent,
     ProductionComponent,

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../../../shared/shared';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
@@ -8,12 +8,10 @@ type ManualMode = 'FORCE_ON' | 'RECOMMENDATION' | 'REGULAR' | 'LOCK';
 type AutomaticEnableMode = 'automaticRecommendationCtrlEnabled' | 'automaticForceOnCtrlEnabled' | 'automaticLockCtrlEnabled'
 
 @Component({
-  selector: HeatPumpModalComponent.SELECTOR,
+  selector: 'heatpump-modal',
   templateUrl: './modal.component.html'
 })
-export class HeatPumpModalComponent {
-
-  private static readonly SELECTOR = "heatpump-modal";
+export class Controller_Io_HeatpumpModalComponent {
 
   @Input() public edge: Edge | null = null;
   @Input() public component: EdgeConfig.Component | null = null;

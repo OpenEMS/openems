@@ -62,11 +62,11 @@
               </ng-container>
 
               <ion-col *ngSwitchCase="'Evcs.Cluster.SelfConsumption'" size="12" size-lg="6" class="ion-no-padding">
-                <evcsCluster [componentId]="widget.componentId"></evcsCluster>
+                <Evcs_Api_Cluster [componentId]="widget.componentId"></Evcs_Api_Cluster>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Evcs.Cluster.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
-                <evcsCluster [componentId]="widget.componentId"></evcsCluster>
+                <Evcs_Api_Cluster [componentId]="widget.componentId"></Evcs_Api_Cluster>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="12" size-lg="6" class="ion-no-padding">
@@ -93,7 +93,7 @@
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Io.HeatPump.SgReady'" size="12" size-lg="6" class="ion-no-padding">
-                <heatpump [componentId]="widget.componentId"></heatpump>
+                <Controller_Io_Heatpump [componentId]="widget.componentId"></Controller_Io_Heatpump>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Symmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">

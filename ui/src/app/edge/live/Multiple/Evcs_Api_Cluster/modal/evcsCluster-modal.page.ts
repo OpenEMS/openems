@@ -8,10 +8,10 @@ type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 type Priority = 'CAR' | 'STORAGE';
 
 @Component({
-    selector: 'evcsCluster-modal',
+    selector: 'Evcs_Api_Cluster-modal',
     templateUrl: './evcsCluster-modal.page.html'
 })
-export class ModalComponentEvcsCluster implements OnInit {
+export class Evcs_Api_ClusterModalComponent implements OnInit {
 
     @Input() public edge: Edge;
     @Input() public config: EdgeConfig.Component = null;
