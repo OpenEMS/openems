@@ -1,4 +1,4 @@
--runfw: org.eclipse.osgi
+-runfw: org.apache.felix.framework;version='[7.0.1,7.0.1]'
 -runee: JavaSE-1.8
 -runprovidedcapabilities: ${native_capability}
 
@@ -35,6 +35,7 @@
 	bnd.identity;id='io.openems.edge.batteryinverter.refu88k',\
 	bnd.identity;id='io.openems.edge.batteryinverter.sunspec',\
 	bnd.identity;id='io.openems.edge.battery.soltaro',\
+	bnd.identity;id='io.openems.edge.bosch.bpts5hybrid',\
 	bnd.identity;id='io.openems.edge.bridge.mbus',\
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
 	bnd.identity;id='io.openems.edge.bridge.onewire',\
@@ -100,6 +101,7 @@
 	bnd.identity;id='io.openems.edge.ess.sma',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.core',\
+	bnd.identity;id='io.openems.edge.evcs.goe.chargerhome',\
 	bnd.identity;id='io.openems.edge.evcs.hardybarth',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.abl',\
@@ -131,6 +133,7 @@
 	bnd.identity;id='io.openems.edge.meter.weidmueller',\
 	bnd.identity;id='io.openems.edge.onewire.thermometer',\
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
+	bnd.identity;id='io.openems.edge.predictor.similardaymodel',\
 	bnd.identity;id='io.openems.edge.pvinverter.cluster',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
 	bnd.identity;id='io.openems.edge.pvinverter.sma',\
@@ -149,10 +152,10 @@
 	Java-WebSocket;version='[1.5.2,1.5.3)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
 	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
-	com.google.gson;version='[2.8.7,2.8.8)',\
+	com.google.gson;version='[2.8.8,2.8.9)',\
 	com.google.guava;version='[30.1.1,30.1.2)',\
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
-	com.sun.jna;version='[5.8.0,5.8.1)',\
+	com.sun.jna;version='[5.9.0,5.9.1)',\
 	io.openems.common;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
 	io.openems.edge.battery.api;version=snapshot,\
@@ -164,6 +167,7 @@
 	io.openems.edge.batteryinverter.kaco.blueplanetgridsave;version=snapshot,\
 	io.openems.edge.batteryinverter.refu88k;version=snapshot,\
 	io.openems.edge.batteryinverter.sunspec;version=snapshot,\
+	io.openems.edge.bosch.bpts5hybrid;version=snapshot,\
 	io.openems.edge.bridge.mbus;version=snapshot,\
 	io.openems.edge.bridge.modbus;version=snapshot,\
 	io.openems.edge.bridge.onewire;version=snapshot,\
@@ -232,6 +236,7 @@
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
 	io.openems.edge.evcs.core;version=snapshot,\
+	io.openems.edge.evcs.goe.chargerhome;version=snapshot,\
 	io.openems.edge.evcs.hardybarth;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.evcs.ocpp.abl;version=snapshot,\
@@ -266,6 +271,7 @@
 	io.openems.edge.onewire.thermometer;version=snapshot,\
 	io.openems.edge.predictor.api;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
+	io.openems.edge.predictor.similardaymodel;version=snapshot,\
 	io.openems.edge.pvinverter.api;version=snapshot,\
 	io.openems.edge.pvinverter.cluster;version=snapshot,\
 	io.openems.edge.pvinverter.kaco.blueplanet;version=snapshot,\
@@ -301,14 +307,15 @@
 	org.apache.felix.inventory;version='[1.1.0,1.1.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
 	org.apache.felix.scr;version='[2.1.20,2.1.21)',\
-	org.apache.felix.webconsole;version='[4.6.2,4.6.3)',\
+	org.apache.felix.webconsole;version='[4.7.0,4.7.1)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.1.0,2.1.1)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
+	org.jsoup;version='[1.14.2,1.14.3)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[2.0.9,2.0.10)',\
-	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.9,2.0.10)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[2.0.10,2.0.11)',\
+	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.10,2.0.11)',\
 	org.osgi.util.function;version='[1.1.0,1.1.1)',\
 	org.osgi.util.promise;version='[1.1.1,1.1.2)',\
 	rrd4j;version='[3.8.0,3.8.1)'

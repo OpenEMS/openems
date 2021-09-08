@@ -2,6 +2,7 @@ package io.openems.backend.metadata.odoo;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -24,6 +25,7 @@ import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.metadata.odoo.odoo.OdooHandler;
+import io.openems.backend.metadata.odoo.odoo.OdooUserRole;
 import io.openems.backend.metadata.odoo.postgres.PostgresHandler;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -130,6 +132,15 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
+	public Optional<Edge> getEdgeBySetupPassword(String setupPassword) {
+		Optional<String> optEdgeId = this.odooHandler.getEdgeIdBySetupPassword(setupPassword);
+		if (!optEdgeId.isPresent()) {
+			return Optional.empty();
+		}
+		return this.getEdge(optEdgeId.get());
+	}
+
+	@Override
 	public Optional<Edge> getEdge(String edgeId) {
 		return Optional.ofNullable(this.edgeCache.getEdgeFromEdgeId(edgeId));
 	}
@@ -176,4 +187,42 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	public void logError(Logger log, String message) {
 		super.logError(log, message);
 	}
+
+	@Override
+	public void addEdgeToUser(User user, Edge edge) throws OpenemsNamedException {
+		this.odooHandler.assignEdgeToUser((MyUser) user, (MyEdge) edge, OdooUserRole.INSTALLER);
+	}
+
+	@Override
+	public Map<String, Object> getUserInformation(User user) throws OpenemsNamedException {
+		return this.odooHandler.getUserInformation((MyUser) user);
+	}
+
+	@Override
+	public void setUserInformation(User user, JsonObject jsonObject) throws OpenemsNamedException {
+		this.odooHandler.setUserInformation((MyUser) user, jsonObject);
+	}
+
+	@Override
+	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException {
+		return this.odooHandler.getOdooSetupProtocolReport(setupProtocolId);
+	}
+
+	@Override
+	public int submitSetupProtocol(User user, JsonObject jsonObject) throws OpenemsNamedException {
+		return this.odooHandler.submitSetupProtocol((MyUser) user, jsonObject);
+	}
+
+	@Override
+	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException {
+		OdooUserRole role = OdooUserRole.OWNER;
+
+		Optional<String> optRole = JsonUtils.getAsOptionalString(jsonObject, "role");
+		if (optRole.isPresent()) {
+			role = OdooUserRole.getRole(optRole.get());
+		}
+
+		this.odooHandler.registerUser(jsonObject, role);
+	}
+
 }

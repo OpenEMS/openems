@@ -1,5 +1,6 @@
 package io.openems.edge.meter.socomec.singlephase;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
@@ -13,9 +14,11 @@ public class SocomecMeterSinglephaseImplTest {
 	private static final String METER_ID = "meter0";
 	private static final String MODBUS_ID = "modbus0";
 
-	@Test
-	public void test() throws Exception {
-		SocomecMeterSinglephaseImpl meter = new SocomecMeterSinglephaseImpl();
+	private static SocomecMeterSinglephaseImpl meter;
+
+	@Before
+	public void setup() throws Exception {
+		meter = new SocomecMeterSinglephaseImpl();
 		new ComponentTest(meter) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -26,12 +29,35 @@ public class SocomecMeterSinglephaseImplTest {
 						.setInvert(false) //
 						.setPhase(SinglePhase.L1) //
 						.build()); //
+	}
 
+	@Test
+	public void testCountisE14() throws Exception {
 		meter.identifiedCountisE14();
+	}
+
+	@Test
+	public void testCountisE23_E24_E27_E28() throws Exception {
 		meter.identifiedCountisE23_E24_E27_E28();
+	}
+
+	@Test
+	public void testCountisE34_E44() throws Exception {
 		meter.identifiedCountisE34_E44();
+	}
+
+	@Test
+	public void testDirisA10() throws Exception {
 		meter.identifiedDirisA10();
+	}
+
+	@Test
+	public void testDirisA14() throws Exception {
 		meter.identifiedDirisA14();
+	}
+
+	@Test
+	public void testDirisB30() throws Exception {
 		meter.identifiedDirisB30();
 	}
 

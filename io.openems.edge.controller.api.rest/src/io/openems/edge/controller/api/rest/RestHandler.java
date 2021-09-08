@@ -16,6 +16,8 @@ import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
@@ -230,10 +232,10 @@ public class RestHandler extends AbstractHandler {
 		List<OpenemsComponent> ComponentList = this.parent.getComponentManager().getEnabledComponents();
 		for (OpenemsComponent component : ComponentList) {
 			// Loop over enabled ComponentIds, look for exact or RegExp match
-			if (component.id().matches(channelAddress.getComponentId())) {
+			if (matchesSafely(component.id(), channelAddress.getComponentId())) {
 				for (Channel<?> channel : component.channels()) {
 					// Loop over attached channels, look for exact or RegExp match
-					if (channel.channelId().id().matches(channelAddress.getChannelId())) {
+					if (matchesSafely(channelAddress.getChannelId(), channel.channelId().id())) {
 						channellist.add(channel);
 					}
 				}
@@ -277,6 +279,22 @@ public class RestHandler extends AbstractHandler {
 		}
 
 		return this.sendOkResponse(baseRequest, response, result);
+	}
+
+	/**
+	 * Safely matches a regular expression against a string.
+	 * 
+	 * @param str   the string
+	 * @param regex the regular expression
+	 * @return true on match
+	 * @throws OpenemsException on error
+	 */
+	private boolean matchesSafely(String str, String regex) throws OpenemsException {
+		try {
+			return Pattern.matches(str, regex);
+		} catch (PatternSyntaxException e) {
+			throw new OpenemsException("Syntax error in regular expression [" + regex + "]");
+		}
 	}
 
 	private void sendErrorResponse(Request baseRequest, HttpServletResponse response, UUID jsonrpcId, Throwable ex) {
@@ -362,10 +380,12 @@ public class RestHandler extends AbstractHandler {
 	 * @throws OpenemsException on error
 	 */
 	private static JsonObject parseJson(Request baseRequest) throws OpenemsException {
-		JsonParser parser = new JsonParser();
 		try {
-			return parser.parse(new BufferedReader(new InputStreamReader(baseRequest.getInputStream())).lines()
-					.collect(Collectors.joining("\n"))).getAsJsonObject();
+			return JsonParser.parseString(//
+					new BufferedReader(new InputStreamReader(baseRequest.getInputStream())) //
+							.lines() //
+							.collect(Collectors.joining("\n"))) //
+					.getAsJsonObject();
 		} catch (Exception e) {
 			throw new OpenemsException("Unable to parse: " + e.getMessage());
 		}

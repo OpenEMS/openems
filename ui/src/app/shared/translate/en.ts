@@ -105,12 +105,40 @@ export const TRANSLATION = {
         connectionSuccessful: 'Successfully connected to {{value}}.', // value = name of websocket
         isOffline: 'OpenEMS is offline!',
         toEnergymonitor: 'To Energymonitor...',
+        type: 'Type:'
+    },
+    Register: {
+        title: "Create user account",
+        segment: {
+            user: "User",
+            installer: "Installer"
+        },
+        form: {
+            companyName: "Company name",
+            firstname: "Firstname",
+            lastname: "Lastname",
+            street: "Street",
+            zip: "Postal code",
+            city: "City",
+            country: "Country",
+            phone: "Phone number",
+            email: "E-Mail",
+            password: "Password",
+            confirmPassword: "Confirm password"
+        },
+        button: "Create",
+        errors: {
+            requiredFields: "Please fill in all fields",
+            passwordNotEqual: "Passwords are not equal"
+        },
+        success: "Registration successful"
     },
     Login: {
         title: "Login",
         preamble: "Please enter your password or submit the default value to login as a guest.",
         passwordLabel: "Password",
         passwordPlaceholder: "Password",
+        passwordReset: "Reset Password",
         authenticationFailed: "Authentication Failed",
     },
     Edge: {
