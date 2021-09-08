@@ -58,5 +58,5 @@ jobs:
       - name: Build OpenEMS UI
         run: |
           cd ui
-          npm install
-          node_modules/@angular/cli/bin/ng build -c openems-edge-dev
+          npm ci --prefer-offline --cache ~/.npm
+          node_modules/@angular/cli/bin/ng build -c "openems,openems-edge-prod,prod"

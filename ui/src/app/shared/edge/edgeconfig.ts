@@ -454,7 +454,7 @@ export class EdgeConfig {
                 factories.forEach(factory => {
                     ignoreFactoryIds.push(factory.id);
                 });
-                result.push({ category: item.category, factories: factories.sort((a, b) => a.id.localeCompare(b.id)), filter: (properties) => true })
+                result.push({ category: item.category, factories: factories.sort((a, b) => a.id.localeCompare(b.id)) });
             }
         })
         return result;
