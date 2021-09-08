@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -36,6 +37,7 @@ import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectio
 import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.versionc.SoltaroBatteryVersionC;
+import io.openems.edge.battery.soltaro.versionc.utils.CellChannelFactory;
 import io.openems.edge.battery.soltaro.versionc.utils.Constants;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -161,8 +163,8 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		// Initialize Battery Limits
 		this._setChargeMaxCurrent(0 /* default value 0 to avoid damages */);
 		this._setDischargeMaxCurrent(0 /* default value 0 to avoid damages */);
-		this._setChargeMaxVoltage(this.config.numberOfSlaves() * Constants.MAX_VOLTAGE_MILLIVOLT / 1000);
-		this._setDischargeMinVoltage(this.config.numberOfSlaves() * Constants.MIN_VOLTAGE_MILLIVOLT / 1000);
+		this._setChargeMaxVoltage(this.config.numberOfSlaves() * Constants.MAX_VOLTAGE_MILLIVOLT_PER_MODULE / 1000);
+		this._setDischargeMinVoltage(this.config.numberOfSlaves() * Constants.MIN_VOLTAGE_MILLIVOLT_PER_MODULE / 1000);
 	}
 
 	@Override
@@ -552,35 +554,35 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 									.bit(12, this.rack(r, RackChannel.SLAVE_BMS_INIT)) //
 							)) //
 			); //
-
-			// TODO /*
-			// * Add tasks for cell voltages and temperatures according to the number of
-			// * slaves, one task per module is created Cell voltages
+			// TODO
+			/*
+			   Possibly improve it, see @link RackChannel deepCopyDoc()
 			// */
-			// Consumer<CellChannelFactory.Type> addCellChannels = (type) -> {
-			// for (int i = 0; i < this.config.numberOfSlaves(); i++) {
-			// AbstractModbusElement<?>[] elements = new
-			// AbstractModbusElement<?>[type.getSensorsPerModule()];
-			// for (int j = 0; j < type.getSensorsPerModule(); j++) {
-			// int sensorIndex = i * type.getSensorsPerModule() + j;
-			// io.openems.edge.common.channel.ChannelId channelId =
-			// CellChannelFactory.create(r, type,
-			// sensorIndex);
-			// // Register the Channel at this Component
-			// this.addChannel(channelId);
-			// // Add the Modbus Element and map it to the Channel
-			// elements[j] = m(channelId, new UnsignedWordElement(r.offset +
-			// type.getOffset() + sensorIndex));
-			// }
-			// // Add a Modbus read task for this module
-			// protocol.addTask(//
-			// new FC3ReadRegistersTask(r.offset + type.getOffset() + i *
-			// type.getSensorsPerModule(),
-			// Priority.LOW, elements));
-			// }
-			// };
-			// addCellChannels.accept(CellChannelFactory.Type.VOLTAGE);
-			// addCellChannels.accept(CellChannelFactory.Type.TEMPERATURE);
+			Consumer<CellChannelFactory.Type> addCellChannels = (type) -> {
+				for (int i = 0; i < this.config.numberOfSlaves(); i++) {
+					AbstractModbusElement<?>[] elements = new AbstractModbusElement<?>[type.getSensorsPerModule()];
+					for (int j = 0; j < type.getSensorsPerModule(); j++) {
+						int sensorIndex = i * type.getSensorsPerModule() + j;
+						io.openems.edge.common.channel.ChannelId channelId = CellChannelFactory.create(r, type,
+								sensorIndex);
+						// Register the Channel at this Component
+						this.addChannel(channelId);
+						// Add the Modbus Element and map it to the Channel
+						elements[j] = m(channelId, new UnsignedWordElement(r.offset + type.getOffset() + sensorIndex));
+					}
+					// Add a Modbus read task for this module
+			 try {
+				protocol.addTask(//
+				 new FC3ReadRegistersTask(r.offset + type.getOffset() + i *
+				 type.getSensorsPerModule(),
+				 Priority.LOW, elements));
+			} catch (OpenemsException e) {
+				this.log.error("! ERROR ! occurred while creating modbus tasks" + e.getMessage());
+			}
+				}
+			};
+			addCellChannels.accept(CellChannelFactory.Type.VOLTAGE_CLUSTER);
+			addCellChannels.accept(CellChannelFactory.Type.TEMPERATURE_CLUSTER);
 
 			// WARN_LEVEL_Pre Alarm (Pre Alarm configuration registers RW)
 			{
