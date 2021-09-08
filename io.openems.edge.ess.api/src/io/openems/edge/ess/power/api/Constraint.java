@@ -74,6 +74,10 @@ public class Constraint {
 		return b.toString();
 	}
 
+	public String getDescription() {
+		return this.description;
+	}
+
 	public LinearCoefficient[] getCoefficients() {
 		return coefficients;
 	}

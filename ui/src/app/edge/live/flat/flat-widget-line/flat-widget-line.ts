@@ -23,5 +23,9 @@ export class FlatWidgetLine extends AbstractFlatWidgetLine {
     set channelAddress(channelAddress: string) {
         this.subscribe(ChannelAddress.fromString(channelAddress));
     }
+
+    /** Width of left Column, right Column is (100 - width of left Column) */
+    @Input()
+    leftColumnWidth: number;
 }
 

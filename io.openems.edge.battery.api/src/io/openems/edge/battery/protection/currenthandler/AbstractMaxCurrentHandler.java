@@ -188,6 +188,7 @@ public abstract class AbstractMaxCurrentHandler {
 	 * 
 	 * <ul>
 	 * <li>Is the battery started? (block any charge/discharge if not)
+	 * <li>Is there any value from the BMS? (block any charge/discharge if not)
 	 * <li>Allowed Current Limit provided by Battery Management System
 	 * <li>Voltage-to-Percent characteristics for Min-Cell-Voltage
 	 * <li>Voltage-to-Percent characteristics for Max-Cell-Voltage
@@ -250,13 +251,15 @@ public abstract class AbstractMaxCurrentHandler {
 		Double limit = TypeUtils.min(TypeUtils.toDouble(bpBms), minCellVoltageLimit, maxCellVoltageLimit,
 				minCellTemperatureLimit, maxCellTemperatureLimit, maxIncreaseAmpereLimit, forceCurrent);
 
-		// Battery not started? Set '0' to block charge/discharge
-		if (!battery.isStarted()) {
-			limit = 0.;
-		}
-
-		// No limit? Set '0' to block charge/discharge
-		if (limit == null) {
+		// Set '0' to block charge/discharge?
+		if (
+		// Battery not started?
+		!battery.isStarted()
+				// No limit?
+				|| limit == null
+				// No value from BMS and no force charge/discharge?
+				|| (limit > 0 && bpBms == null) //
+		) {
 			limit = 0.;
 		}
 

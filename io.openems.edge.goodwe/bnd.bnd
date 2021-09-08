@@ -14,7 +14,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.ess.generic,\
 	io.openems.edge.meter.api,\
 	io.openems.edge.timedata.api,\
-	
+
 -testpath: \
 	${testpath},\
 	com.ghgande.j2mod

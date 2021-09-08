@@ -14,7 +14,7 @@ public class GoodWeGridMeterTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new GoodWeGridMeter()) //
+		new ComponentTest(new GoodWeGridMeterImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

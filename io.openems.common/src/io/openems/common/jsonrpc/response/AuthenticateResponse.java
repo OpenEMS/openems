@@ -92,12 +92,18 @@ public class AuthenticateResponse extends JsonrpcResponseSuccess {
 	private final String token;
 	private final AbstractUser user;
 	private final List<EdgeMetadata> edges;
+	private final String language;
 
 	public AuthenticateResponse(UUID id, String token, AbstractUser user, List<EdgeMetadata> edges) {
+		this(id, token, user, edges, null);
+	}
+
+	public AuthenticateResponse(UUID id, String token, AbstractUser user, List<EdgeMetadata> edges, String language) {
 		super(id);
 		this.token = token;
 		this.user = user;
 		this.edges = edges;
+		this.language = language;
 	}
 
 	/**
@@ -111,6 +117,7 @@ public class AuthenticateResponse extends JsonrpcResponseSuccess {
 				.add("user", JsonUtils.buildJsonObject() //
 						.addProperty("id", this.user.getId()) //
 						.addProperty("name", this.user.getName()) //
+						.addProperty("language", this.language) //
 						.add("globalRole", this.user.getGlobalRole().asJson()) //
 						.build()) //
 				.add("edges", EdgeMetadata.toJson(this.edges)) //
