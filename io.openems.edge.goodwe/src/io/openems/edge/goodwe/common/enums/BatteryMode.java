@@ -7,9 +7,7 @@ public enum BatteryMode implements OptionsEnum {
 	NO_BATTERY(0, "NO Battery,inverter disconnects to Battery"), //
 	STANDBY(1, "Standby,no diacharging and no charging"), //
 	DISCHARGING(2, "Discharging"), //
-	CHARGING(3, "Charging"), //
-	WAITING_FOR_CHARGE(4, "Waiting for charge"), //
-	WAITING_FOR_DISCHARGE(5, "Waiting for discharge");
+	CHARGING(3, "Charging");
 
 	private final int value;
 	private final String option;

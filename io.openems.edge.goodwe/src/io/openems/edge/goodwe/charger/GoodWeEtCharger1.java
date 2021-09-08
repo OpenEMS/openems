@@ -88,4 +88,8 @@ public class GoodWeEtCharger1 extends AbstractGoodWeEtCharger
 		return this.timedata;
 	}
 
+	@Override
+	protected GoodWe getEssOrBatteryInverter() {
+		return this.essOrBatteryInverter;
+	}
 }
