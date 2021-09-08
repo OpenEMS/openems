@@ -29,6 +29,9 @@ import { FixDigitalOutputWidgetComponent } from './fixdigitaloutput/widget.compo
 import { GridChartComponent } from './grid/chart.component';
 import { GridChartOverviewComponent } from './grid/gridchartoverview/gridchartoverview.component';
 import { GridComponent } from './grid/widget.component';
+import { GridOptimizedChargeWidgetComponent } from './gridoptimizedcharge/widget.component';
+import { GridOptimizedChargeChartComponent } from './gridoptimizedcharge/chart.component';
+import { GridOptimizedChargeChartOverviewComponent } from './gridoptimizedcharge/gridoptimizedchargechartoverview/gridoptimizedchargechartoverview.component';
 import { HeatingelementChartComponent } from './heatingelement/chart.component';
 import { HeatingelementChartOverviewComponent } from './heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
 import { HeatingelementWidgetComponent } from './heatingelement/widget.component';
@@ -48,6 +51,7 @@ import { ProductionTotalDcChartComponent } from './production/totaldcchart';
 import { SelfconsumptionChartComponent } from './selfconsumption/chart.component';
 import { SelfconsumptionChartOverviewComponent } from './selfconsumption/selfconsumptionchartoverview/selfconsumptionchartoverview.component';
 import { SelfconsumptionWidgetComponent } from './selfconsumption/widget.component';
+import { SellToGridLimitChartComponent } from './gridoptimizedcharge/sellToGridLimitChart.component';
 import { SharedModule } from '../../shared/shared.module';
 import { SinglethresholdChartComponent } from './singlethreshold/chart.component';
 import { SinglethresholdChartOverviewComponent } from './singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
@@ -105,6 +109,9 @@ import { TimeslotPeakshavingWidgetComponent } from './peakshaving/timeslot/widge
     GridChartComponent,
     GridChartOverviewComponent,
     GridComponent,
+    GridOptimizedChargeChartComponent,
+    GridOptimizedChargeChartOverviewComponent,
+    GridOptimizedChargeWidgetComponent,
     HeatingelementChartComponent,
     HeatingelementChartOverviewComponent,
     HeatingelementWidgetComponent,
@@ -123,6 +130,7 @@ import { TimeslotPeakshavingWidgetComponent } from './peakshaving/timeslot/widge
     SelfconsumptionChartComponent,
     SelfconsumptionChartOverviewComponent,
     SelfconsumptionWidgetComponent,
+    SellToGridLimitChartComponent,
     SinglethresholdChartComponent,
     SinglethresholdChartOverviewComponent,
     SinglethresholdWidgetComponent,

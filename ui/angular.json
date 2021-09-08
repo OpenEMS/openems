@@ -112,43 +112,45 @@
                   "with": "src/themes/openems/environments/gitpod.ts"
                 }
               ]
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "app:build:openems,openems-edge-dev"
+          },
+          "configurations": {
+            "openems-backend-dev": {
+              "browserTarget": "app:build:openems,openems-backend-dev"
             },
-            "serve": {
-              "builder": "@angular-devkit/build-angular:dev-server",
-              "options": {
-                "browserTarget": "app:build:openems,openems-edge-dev"
-              },
-              "configurations": {
-                "openems-backend-dev": {
-                  "browserTarget": "app:build:openems,openems-backend-dev"
-                },
-                "openems-edge-dev": {
-                  "browserTarget": "app:build:openems,openems-edge-dev"
-                },
-                "openems-backend-prod": {
-                  "browserTarget": "app:build:openems,openems-backend-prod,prod"
-                },
-                "openems-edge-prod": {
-                  "browserTarget": "app:build:openems,openems-edge-prod,prod"
-                },
-                "openems-gitpod": {
-                  "browserTarget": "app:build:openems,openems-gitpod"
-                }
-              }
+            "openems-edge-dev": {
+              "browserTarget": "app:build:openems,openems-edge-dev"
+            },
+            "openems-backend-prod": {
+              "browserTarget": "app:build:openems,openems-backend-prod,prod"
+            },
+            "openems-edge-prod": {
+              "browserTarget": "app:build:openems,openems-edge-prod,prod"
+            },
+            "openems-gitpod": {
+              "browserTarget": "app:build:openems,openems-gitpod"
             }
           }
         }
-      },
-      "cli": {
-        "analytics": false,
-        "defaultCollection": "@ionic/angular-toolkit"
-      },
-      "schematics": {
-        "@ionic/angular-toolkit:component": {
-          "styleext": "scss"
-        },
-        "@ionic/angular-toolkit:page": {
-          "styleext": "scss"
-        }
       }
     }
+  },
+  "cli": {
+    "analytics": false,
+    "defaultCollection": "@ionic/angular-toolkit"
+  },
+  "schematics": {
+    "@ionic/angular-toolkit:component": {
+      "styleext": "scss"
+    },
+    "@ionic/angular-toolkit:page": {
+      "styleext": "scss"
+    }
+  }
+}

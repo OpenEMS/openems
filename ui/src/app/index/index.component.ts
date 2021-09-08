@@ -23,6 +23,12 @@ export class IndexComponent {
    */
   public noEdges: boolean = false;
 
+  /**
+   * True, if the logged in user is allowed to install
+   * new edges.
+   */
+  public loggedInUserCanInstall: boolean = false;
+
   public form: FormGroup;
   public filter: string = '';
   public filteredEdges: Edge[] = [];
@@ -31,16 +37,12 @@ export class IndexComponent {
   public slice: number = 20;
 
   constructor(
+    public service: Service,
     public websocket: Websocket,
     public utils: Utils,
     private router: Router,
-    private service: Service,
     private route: ActivatedRoute,
-    private toastController: ToastController,
-    private translate: TranslateService,
   ) {
-
-    //Forwarding to device index if there is only 1 edge
     service.metadata
       .pipe(
         takeUntil(this.stopOnDestroy),
@@ -48,13 +50,19 @@ export class IndexComponent {
       )
       .subscribe(metadata => {
         let edgeIds = Object.keys(metadata.edges);
-        this.noEdges = edgeIds.length == 0;
-        if (edgeIds.length == 1) {
+        this.noEdges = edgeIds.length === 0;
+        this.loggedInUserCanInstall = Role.isAtLeast(metadata.user.globalRole, "installer");
+
+        // Forward directly to device page, if
+        // - Direct local access to Edge
+        // - No installer (i.e. guest or owner) and access to only one Edge
+        if (environment.backend == 'OpenEMS Edge' || (!this.loggedInUserCanInstall && edgeIds.length == 1)) {
           let edge = metadata.edges[edgeIds[0]];
           if (edge.isOnline) {
             this.router.navigate(['/device', edge.id]);
           }
         }
+
         this.updateFilteredEdges();
       })
   }

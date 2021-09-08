@@ -153,6 +153,23 @@ export class EdgeConfig {
     }
 
     /**
+     * Get Factories by Factory-IDs pattern.
+     * 
+     * @param ids the given Factory-IDs pattern.
+     */
+    public getFactoriesByIdsPattern(patterns: RegExp[]): EdgeConfig.Factory[] {
+        let result = [];
+        for (let pattern of patterns) {
+            for (let factoryId in this.factories) {
+                if (pattern.test(factoryId)) {
+                    result.push(this.factories[factoryId]);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
      * Get Component instances by the given Factory.
      * 
      * @param factoryId the Factory PID.
@@ -303,58 +320,104 @@ export class EdgeConfig {
                 factories: Object.values(this.factories).filter(factory => factory.id.startsWith('Simulator.'))
             },
             {
-                category: { title: 'Serielle Verbindungen', icon: 'swap-horizontal-outline' },
-                factories: [
-                    this.getFactoriesByIds([
-                        'Bridge.Mbus', 'Bridge.Onewire', 'Bridge.Modbus.Serial', 'Bridge.Modbus.Tcp'
-                    ])
-                ]
-            },
-            {
                 category: { title: 'Zähler', icon: 'speedometer-outline' },
                 factories: [
-                    this.getFactoriesByNature("io.openems.edge.meter.api.SymmetricMeter")
+                    this.getFactoriesByNature("io.openems.edge.meter.api.SymmetricMeter"),
+                    this.getFactoriesByNature("io.openems.edge.ess.dccharger.api.EssDcCharger"),
                 ]
             },
             {
                 category: { title: 'Speichersysteme', icon: 'battery-charging-outline' },
                 factories: [
                     this.getFactoriesByNature("io.openems.edge.ess.api.SymmetricEss"),
-                    this.getFactoriesByNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
+                    this.getFactoriesByNature("io.openems.edge.battery.api.Battery"),
+                    this.getFactoriesByNature("io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter"),
                 ]
             },
             {
-                category: { title: 'Batterien', icon: 'battery-full-outline' },
+                category: { title: 'Speichersystem-Steuerung', icon: 'options-outline' },
                 factories: [
-                    this.getFactoriesByNature("io.openems.edge.battery.api.Battery")
+                    this.getFactoriesByIdsPattern([
+                        /Controller\.Asymmetric.*/,
+                        /Controller\.Ess.*/,
+                        /Controller\.Symmetric.*/,
+                    ]),
+                ]
+            },
+            {
+                category: { title: 'E-Auto-Ladestation', icon: 'car-outline' },
+                factories: [
+                    this.getFactoriesByNature("io.openems.edge.evcs.api.Evcs"),
+                ]
+            },
+            {
+                category: { title: 'E-Auto-Ladestation-Steuerung', icon: 'options-outline' },
+                factories: [
+                    this.getFactoriesByIds([
+                        'Controller.Evcs',
+                    ]),
                 ]
             },
             {
                 category: { title: 'I/Os', icon: 'log-in-outline' },
                 factories: [
                     this.getFactoriesByNature("io.openems.edge.io.api.DigitalOutput"),
-                    this.getFactoriesByNature("io.openems.edge.io.api.DigitalInput")
+                    this.getFactoriesByNature("io.openems.edge.io.api.DigitalInput"),
                 ]
             },
             {
-                category: { title: 'E-Auto-Ladestation', icon: 'car-outline' },
+                category: { title: 'I/O-Steuerung', icon: 'options-outline' },
                 factories: [
-                    this.getFactoriesByNature("io.openems.edge.evcs.api.Evcs")
+                    this.getFactoriesByIds([
+                        'Controller.IO.ChannelSingleThreshold',
+                        'Controller.Io.FixDigitalOutput',
+                        'Controller.IO.HeatingElement',
+                        'Controller.Io.HeatPump.SgReady',
+                    ]),
                 ]
             },
             {
-                category: { title: 'Standard-Controller', icon: 'resize-outline' },
+                category: { title: 'Temperatursensoren', icon: 'thermometer-outline' },
                 factories: [
-                    this.getFactoriesByIds(['Controller.Debug.Log', 'Controller.Debug.DetailedLog'])
+                    this.getFactoriesByNature("io.openems.edge.thermometer.api.Thermometer"),
                 ]
             },
             {
                 category: { title: 'Externe Schnittstellen', icon: 'megaphone-outline' },
                 factories: [
                     this.getFactoriesByIds([
-                        'Controller.Api.Backend', 'Controller.Api.Websocket', 'Controller.Api.ModbusTcp', 'Controller.Api.ModbusTcp.ReadOnly',
-                        'Controller.Api.ModbusTcp.ReadWrite', 'Controller.Api.Rest.ReadOnly', 'Controller.Api.Rest.ReadWrite'
+                        'Controller.Api.Websocket',
+                        'Controller.Api.ModbusTcp',
+                        'Controller.Api.ModbusTcp.ReadOnly',
+                        'Controller.Api.ModbusTcp.ReadWrite',
+                        'Controller.Api.MQTT',
+                        'Controller.Api.Rest.ReadOnly',
+                        'Controller.Api.Rest.ReadWrite',
                     ])
+                ]
+            },
+            {
+                category: { title: 'Geräte-Schnittstellen', icon: 'swap-horizontal-outline' },
+                factories: [
+                    this.getFactoriesByIds([
+                        'Bridge.Mbus',
+                        'Bridge.Onewire',
+                        'Bridge.Modbus.Serial',
+                        'Bridge.Modbus.Tcp',
+                    ])
+                ]
+            },
+            {
+                category: { title: 'Standard-Komponenten', icon: 'resize-outline' },
+                factories: [
+                    this.getFactoriesByIds([
+                        'Controller.Api.Backend',
+                        'Controller.Debug.Log',
+                        'Controller.Debug.DetailedLog',
+                    ]),
+                    this.getFactoriesByNature("io.openems.edge.timedata.api.Timedata"),
+                    this.getFactoriesByNature("io.openems.edge.predictor.api.oneday.Predictor24Hours"),
+                    this.getFactoriesByNature("io.openems.edge.scheduler.api.Scheduler"),
                 ]
             },
             {
@@ -364,22 +427,9 @@ export class EdgeConfig {
                 ]
             },
             {
-                category: { title: 'Timeseries-Datenbank', icon: 'repeat-outline' },
-                factories: [
-                    this.getFactoriesByNature("io.openems.edge.timedata.api.Timedata"),
-                ]
-            },
-            {
-                category: { title: 'Scheduler', icon: 'stopwatch-outline' },
-                factories: [
-                    this.getFactoriesByNature("io.openems.edge.scheduler.api.Scheduler")
-                ]
-            },
-            {
                 category: { title: 'Weitere', icon: 'radio-button-off-outline' },
                 factories: Object.values(this.factories)
             }
-            // TODO weitere Factories?
         ];
 
         let ignoreFactoryIds: string[] = [];
@@ -396,7 +446,7 @@ export class EdgeConfig {
                 factories.forEach(factory => {
                     ignoreFactoryIds.push(factory.id);
                 });
-                result.push({ category: item.category, factories: factories.sort((a, b) => a.id.localeCompare(b.id)) })
+                result.push({ category: item.category, factories: factories.sort((a, b) => a.id.localeCompare(b.id)) });
             }
         })
         return result;
@@ -443,7 +493,9 @@ export class EdgeConfig {
                     // remove Components from list that have already been listed before
                     .filter(component => !ignoreComponentIds.includes(component.id))
                     // remove duplicates
-                    .filter((e, i, arr) => arr.indexOf(e) === i);
+                    .filter((e, i, arr) => arr.indexOf(e) === i)
+                    // sort by ID
+                    .sort((c1, c2) => c1.id.localeCompare(c2.id));
             if (components.length > 0) {
                 components.forEach(component => {
                     ignoreComponentIds.push(component.id);
