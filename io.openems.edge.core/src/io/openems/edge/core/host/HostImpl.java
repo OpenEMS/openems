@@ -116,8 +116,6 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	@Override
 	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
 			throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.ADMIN);
-
 		switch (request.getMethod()) {
 
 		case GetNetworkConfigRequest.METHOD:
@@ -144,6 +142,8 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetNetworkConfigRequest(User user,
 			GetNetworkConfigRequest request) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast("handleGetNetworkConfigRequest", Role.OWNER);
+		
 		NetworkConfiguration config = this.operatingSystem.getNetworkConfiguration();
 		GetNetworkConfigResponse response = new GetNetworkConfigResponse(request.getId(), config);
 		return CompletableFuture.completedFuture(response);
@@ -159,6 +159,8 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleSetNetworkConfigRequest(User user,
 			SetNetworkConfigRequest request) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast("handleSetNetworkConfigRequest", Role.OWNER);
+		
 		NetworkConfiguration oldNetworkConfiguration = this.operatingSystem.getNetworkConfiguration();
 		this.operatingSystem.handleSetNetworkConfigRequest(oldNetworkConfiguration, request);
 
@@ -178,6 +180,8 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	 */
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleExecuteCommandRequest(User user,
 			ExecuteSystemCommandRequest request) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast("handleExecuteCommandRequest", Role.ADMIN);
+
 		return this.operatingSystem.handleExecuteCommandRequest(request);
 	}
 

@@ -63,8 +63,8 @@ public class HardyBarthImpl extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 		this._setChargingType(ChargingType.AC);
-		this._setMinimumHardwarePower(config.minHwCurrent() * 3 * 230);
-		this._setMaximumHardwarePower(config.maxHwCurrent() * 3 * 230);
+		this._setMinimumHardwarePower(config.minHwCurrent() / 1000 * 3 * 230);
+		this._setMaximumHardwarePower(config.maxHwCurrent() / 1000 * 3 * 230);
 		this._setPowerPrecision(230);
 
 		if (config.enabled()) {

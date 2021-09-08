@@ -20,6 +20,7 @@ export const TRANSLATION = {
         currentValue: 'Aktuální hodnota',
         dateFormat: 'dd.MM.yyyy', // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         digitalInputs: 'Digitální vstupy',
+        numberOfComponents: 'Počet komponentů',
         directConsumption: 'Přímá spotřeba',
         dischargePower: 'Vybíjecí výkon',
         fault: 'Chyba',
@@ -35,6 +36,7 @@ export const TRANSLATION = {
         insufficientRights: 'Nedostatečná práva',
         live: 'Live',
         load: 'nálož',
+        manual: 'pokyny',
         manually: 'Ruční',
         measuredValue: 'Měřená Hodnota',
         mode: 'Režim',
@@ -88,21 +90,27 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'About OpenEMS UI',
-        edgeSettings: 'OpenEMS Edge Předvolby',
+        accessLevel: 'Úroveň přístupu',
+        edgeSettings: 'OpenEMS Předvolby',
         generalSettings: 'Obecné Nastavení',
         index: 'Přehled',
         logout: 'Odhlásit',
         menu: 'Menu',
-        overview: 'OpenEMS Edge Přehled',
+        name: 'Název',
+        overview: 'OpenEMS Přehled',
         settings: 'nastavení',
         user: 'Uživatel',
     },
     Index: {
         allConnected: 'Všechna připojení aktivní.',
+        connectionInProgress: 'Navázání spojení...',
         connectionFailed: 'Připojení k {{value}} selhalo.', // value = name of websocket
         connectionSuccessful: 'Úspěšně připojeno k {{value}}.', // value = name of websocket
+        deviceOffline: 'Zařízení není připojeno!',
         isOffline: 'OpenEMS je ve stavu offline!',
+        loggedInAs: 'Registrováno jako:',
         toEnergymonitor: 'Do Monitoringu energetických toků…',
+        type: 'Typ:'
     },
     Edge: {
         Index: {
@@ -121,8 +129,9 @@ export const TRANSLATION = {
                 autarchyInfo: 'Autarky označuje procento aktuální energie, kterou lze pokrýt vybitím z výroby a skladování.',
                 phasesInfo: 'Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.',
                 selfconsumptionInfo: 'Vlastní spotřeba označuje procento aktuálně generovaného výstupu, který lze použít přímou spotřebou a samotným zatížením úložiště.',
-                twoWayInfoGrid: 'Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug',
-                twoWayInfoStorage: 'Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung',
+                twoWayInfoGrid: 'Záporné hodnoty odpovídají dodávkám ze sítě, Kladné hodnoty odpovídají napájení ze sítě',
+                InfoStorageForCharge: 'Záporné hodnoty odpovídají zatížení paměti',
+                InfoStorageForDischarge: 'Kladné hodnoty odpovídají vybití paměti',
                 Channeltreshold: {
                     output: 'Výstup'
                 },
@@ -162,6 +171,56 @@ export const TRANSLATION = {
                     startTime: 'Doba spuštění',
                     startTimeCharge: 'Čas zahájení načítání',
                 },
+                GridOptimizedCharge: {
+                    considerGridFeedInLimit: 'Vezměte v úvahu maximální přívod sítě',
+                    endTime: 'Čas ukončení',
+                    endTimeDescription: 'Nabíjení neprobíhá maximálním množstvím po dobu několika hodin, ale stabilně po delší dobu.',
+                    endTimeDetailedDescription: 'Načítání neprobíhá s maximálním výkonem po dobu několika hodin, ale stabilně s maximem od {{value1}} do {{value2}} hodin.', // value1 = maximum charge, value2 = end time
+                    endTimeLong: 'Čas ukončení omezeného načítání',
+                    expectedSoc: 'Očekávaný stav nabití',
+                    expectedSocWithoutSellToGridLimit: 'Aniž bychom se vyhnuli maximálnímu přívodu do sítě',
+                    gridFeedInLimitationAvoided: 'Omezení přívodu do sítě vyloučeno',
+                    gridOptimizedChargeDisabled: 'Mřížkově optimalizované nabíjení deaktivováno',
+                    high: 'Vysoké',
+                    History: {
+                        batteryChargeGridLimitDescription: 'Maximální příkon sítě, při jehož překročení se nabíjení baterií (pokud je to možné) zvýší, je nižší než maximální povolený příkon sítě, aby se zabránilo předčasnému omezení výroby.',
+                        priorityDescription: 'Minimální nabití baterie má vyšší prioritu než maximální nabití baterie.',
+                    },
+                    low: 'Nízký',
+                    maximumCharge: 'Maximální zatížení',
+                    maximumGridFeedIn: 'Maximální povolený přívod mřížky',
+                    medium: 'Střední',
+                    minimumCharge: 'Minimální zatížení',
+                    RiskDescription: {
+                        Low: {
+                            functionDescription: 'Relativně brzké načtení obchodu',
+                            storageDescription: 'Vyšší pravděpodobnost, že paměť bude plně načtena',
+                            pvCurtail: 'Nižší pravděpodobnost, že nedojde ke zkrácení FV systému',
+                        },
+                        Medium: {
+                            functionDescription: 'Srovnatelně rovnoměrné načítání obchodu',
+                            storageDescription: 'Vysoká pravděpodobnost, že úložiště bude plně načteno',
+                            pvCurtail: 'Vysoká pravděpodobnost, že nedojde ke zkrácení FV systému',
+                        },
+                        High: {
+                            functionDescription: 'Poměrně pozdější nabíjení úložného systému',
+                            storageDescription: 'Menší pravděpodobnost, že systém úložiště bude plně nabitý',
+                            pvCurtail: 'Vyšší pravděpodobnost, že nedojde ke zkrácení FV systémuVyšší pravděpodobnost, že nedojde ke zkrácení FV systému',
+                        },
+                    },
+                    riskPropensity: 'Sklon k riziku',
+                    settingOnlyVisableForInstaller: 'Toto nastavení je viditelné pouze pro instalačního technika',
+                    State: {
+                        chargeLimitActive: 'Aktivní limit načítání',
+                        endTimeNotCalculated: 'Čas ukončení se nepočítá',
+                        gridFeedInLimitationIsAvoided: 'Je vyloučeno omezení přívodu mřížky',
+                        noLimitActive: 'Není aktivní žádný limit načítání',
+                        noLimitPossible: 'Žádné omezení není možné (omezeno ovládacími prvky s vyšší prioritou)',
+                        notDefined: 'Není definovaný',
+                        passedEndTime: 'Byl překročen čas ukončení omezeného načítání',
+                        storageAlreadyFull: 'Paměť je již plná',
+                    },
+                },
                 CHP: {
                     highThreshold: 'vysoký práh',
                     lowThreshold: 'Nízký práh',
@@ -187,7 +246,7 @@ export const TRANSLATION = {
                     chargingStationPluggedInLocked: 'Nabíjecí stanice zapojena + uzamčena',
                     clusterConfigError: 'V konfiguraci clusteru Evcs došlo k chybě',
                     currentCharge: 'Aktuální nabíjení',
-                    energieSinceBeginning: 'Energie od posledního začátku nabíjení',
+                    energySinceBeginning: 'Energie od posledního začátku nabíjení',
                     energyLimit: 'Limit energie',
                     enforceCharging: 'Prosazování poplatků',
                     error: 'Chyba',
@@ -276,6 +335,7 @@ export const TRANSLATION = {
             lastYear: 'Poslední rok',
             month: 'Měsíc',
             noData: 'data nejsou k dispozici',
+            tryAgain: 'Zkuste to později znovu...',
             otherPeriod: 'Další období',
             period: 'Období',
             selectedDay: '{{value}}',
@@ -355,16 +415,26 @@ export const TRANSLATION = {
                 newConnection: 'Nové připojení...',
                 newDevice: 'Nové zařízení...',
             }
+        },
+        Service: {
+            entireSystem: "Celý systém",
+            Cell: {
+                voltages: "Napětí článků",
+                temperatures: "Teplota buňky",
+                insulation: "Izolace",
+            }
         }
     },
     About: {
-        build: 'Aktuální verze',
-        contact: 'S případnými návrhy a pro další informace k systému prosím kontaktujte náš tým na <a href=\'mailto:{{value}}\'>{{value}}</a>.',
-        currentDevelopments: 'Aktuální vývoj',
-        developed: 'Toto uživatelské rozhraní bylo vyvinuto jako open-source software.',
-        language: 'Zvolte jazyk:',
-        sourcecode: 'Zdrojový kód',
-        ui: 'Uživatelské rozhraní pro OpenEMS',
+        build: "Aktuální verze",
+        contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš tým na <a href=\"mailto:{{value}}\">{{value}}</a>.",
+        currentDevelopments: "Aktuální vývoj",
+        developed: "Toto uživatelské rozhraní bylo vyvinuto jako open-source software.",
+        faq: "Často kladené otázky (FAQ)",
+        language: "Zvolte jazyk:",
+        openEMS: "Více o OpenEMS",
+        patchnotes: "Změny v monitorování tohoto sestavení",
+        ui: "Uživatelské rozhraní pro OpenEMS",
     },
     Notifications: {
         authenticationFailed: 'Žádné připojení: Ověření uživatele selhalo.',

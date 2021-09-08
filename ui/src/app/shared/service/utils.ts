@@ -1,4 +1,6 @@
 import { formatNumber } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
+import { format } from 'date-fns';
 import { saveAs } from 'file-saver-es';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 
@@ -196,6 +198,35 @@ export class Utils {
     }
   }
 
+  /**
+   * Converts a value in Seconds [s] to Dateformat [kk:mm:ss].
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
+  public static CONVERT_SECONDS_TO_DATE_FORMAT = (value: any): string => {
+    return format(new Date(value * 1000), 'HH:mm:ss')
+  }
+
+  /**
+  * Converts a value to WattHours [Wh]
+  * 
+  * @param value the value from passed value in html
+  * @returns converted value
+  */
+  public static CONVERT_TO_WATTHOURS = (value: any): string => {
+    return formatNumber(value, 'de', '1.0-1') + ' Wh'
+  }
+
+  /**
+  * Converts a value in WattHours [Wh] to KiloWattHours [kWh]
+  * 
+  * @param value the value from passed value in html
+  * @returns converted value
+  */
+  public static CONVERT_TO_KILO_WATTHOURS = (value: any): string => {
+    return formatNumber(value / 1000, 'de', '1.0-1') + ' kWh'
+  }
   /**
    * Gets the image path for storage depending on State-of-Charge.
    * 

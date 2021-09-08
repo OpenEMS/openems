@@ -1,5 +1,6 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
@@ -10,14 +11,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public String essId;
 		public String meterId;
 		public int maximumSellToGridPower;
-		public int noOfBufferMinutes;
 		public Mode mode;
 		public String manualTargetTime;
 		public boolean sellToGridLimitEnabled;
 		public int sellToGridLimitRampPercentage;
-
-		private Builder() {
-		}
+		public DelayChargeRiskLevel delayChargeRiskLevel;
 
 		public Builder setId(String id) {
 			this.id = id;
@@ -39,11 +37,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setNoOfBufferMinutes(int noOfBufferMinutes) {
-			this.noOfBufferMinutes = noOfBufferMinutes;
-			return this;
-		}
-
 		public Builder setMode(Mode mode) {
 			this.mode = mode;
 			return this;
@@ -61,6 +54,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setSellToGridLimitEnabled(boolean sellToGridLimitEnabled) {
 			this.sellToGridLimitEnabled = sellToGridLimitEnabled;
+			return this;
+		}
+
+		public Builder setDelayChargeRiskLevel(DelayChargeRiskLevel delayChargeRiskLevel) {
+			this.delayChargeRiskLevel = delayChargeRiskLevel;
 			return this;
 		}
 
@@ -101,18 +99,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int noOfBufferMinutes() {
-		return this.builder.noOfBufferMinutes;
-	}
-
-	@Override
 	public String ess_target() {
-		return "(&(enabled=true)(!(service.pid=" + this.builder.id + "))(|(id=" + this.ess_id() + ")))";
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
 	}
 
 	@Override
 	public String meter_target() {
-		return "(&(enabled=true)(!(service.pid=" + this.builder.id + "))(|(id=" + this.meter_id() + ")))";
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.meter_id());
 	}
 
 	@Override
@@ -138,5 +131,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int sellToGridLimitRampPercentage() {
 		return this.builder.sellToGridLimitRampPercentage;
+	}
+
+	@Override
+	public DelayChargeRiskLevel delayChargeRiskLevel() {
+		return this.builder.delayChargeRiskLevel;
 	}
 }

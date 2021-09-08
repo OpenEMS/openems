@@ -21,20 +21,26 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.LongReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
+import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.Evcs", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 public class SimulatedEvcs extends AbstractOpenemsComponent
-		implements ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
+		implements SymmetricMeter, AsymmetricMeter, ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
 
 	@Reference
 	private EvcsPower evcsPower;
@@ -56,6 +62,8 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 	public SimulatedEvcs() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				AsymmetricMeterEvcs.ChannelId.values(), //
+				AsymmetricMeter.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				ChannelId.values() //
@@ -69,7 +77,7 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 	void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this._setMaximumHardwarePower(22080);
-		this._setMinimumHardwarePower(6000);
+		this._setMinimumHardwarePower(4200);
 		this._setPhases(3);
 		this._setStatus(Status.CHARGING);
 		this._setPowerPrecision(1);
@@ -91,6 +99,7 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 			break;
 		}
 	}
+	
 
 	private LocalDateTime lastUpdate = LocalDateTime.now();
 	private double exactEnergySession = 0;
@@ -114,6 +123,16 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 		int sentPower = this.getSetChargePowerLimitChannel().getNextWriteValue().orElse(0);
 		this._setSetChargePowerLimit(sentPower);
 		this._setChargePower(sentPower);
+		
+		/*
+		 * get and store Simulated "meter" Active Power
+		 */
+		this._setActivePower(sentPower);
+
+		Integer simulatedActivePowerByThree = TypeUtils.divide(sentPower, 3);
+		this._setActivePowerL1(simulatedActivePowerByThree);
+		this._setActivePowerL2(simulatedActivePowerByThree);
+		this._setActivePowerL3(simulatedActivePowerByThree);
 
 		long timeDiff = ChronoUnit.MILLIS.between(this.lastUpdate, LocalDateTime.now());
 		double energyTransfered = (timeDiff / 1000.0 / 60.0 / 60.0) * this.getChargePower().orElse(0);
@@ -132,5 +151,30 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 	@Override
 	public EvcsPower getEvcsPower() {
 		return this.evcsPower;
+	}
+
+	@Override
+	public Value<Long> getActiveConsumptionEnergy() {
+		return ManagedEvcs.super.getActiveConsumptionEnergy();
+	}
+	
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.CONSUMPTION_NOT_METERED;
+	}
+
+	@Override
+	public void _setActiveConsumptionEnergy(Long value) {
+		ManagedEvcs.super._setActiveConsumptionEnergy(value);
+	}
+
+	@Override
+	public void _setActiveConsumptionEnergy(long value) {
+		ManagedEvcs.super._setActiveConsumptionEnergy(value);
+	}
+
+	@Override
+	public LongReadChannel getActiveConsumptionEnergyChannel() {
+		return ManagedEvcs.super.getActiveConsumptionEnergyChannel();
 	}
 }

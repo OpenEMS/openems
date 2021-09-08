@@ -94,8 +94,8 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(3845, Priority.HIGH, //
 						m(new FloatDoublewordElement(3845))
-								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.DIRECT_1_TO_1)//
-								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1)//
+								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_3)//
+								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_3)//
 								.build(),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3847),
 								ElementToChannelConverter.SCALE_FACTOR_3), //
@@ -130,7 +130,8 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(3927), //
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert))), //
 				new FC3ReadRegistersTask(3995, Priority.LOW, //
-						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3995))));
+						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3995), //
+								ElementToChannelConverter.SCALE_FACTOR_3)));
 
 		if (this.invert) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(19068, Priority.LOW, //
