@@ -22,9 +22,13 @@ public class User extends AbstractUser {
 	 */
 	private final String token;
 
-	public User(String id, String name, String token, Role globalRole, NavigableMap<String, Role> roles) {
+	private final String language;
+
+	public User(String id, String name, String token, Role globalRole, NavigableMap<String, Role> roles,
+			String language) {
 		super(id, name, globalRole, roles);
 		this.token = token;
+		this.language = language;
 	}
 
 	/**
@@ -34,6 +38,15 @@ public class User extends AbstractUser {
 	 */
 	public String getToken() {
 		return this.token;
+	}
+
+	/**
+	 * Gets the user language.
+	 * 
+	 * @return the language
+	 */
+	public String getLanguage() {
+		return language;
 	}
 
 	/**

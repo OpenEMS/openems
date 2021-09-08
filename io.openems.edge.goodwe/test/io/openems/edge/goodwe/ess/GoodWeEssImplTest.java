@@ -9,6 +9,7 @@ import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 import io.openems.edge.goodwe.GoodWeConstants;
 import io.openems.edge.goodwe.charger.GoodWeEtCharger1;
+import io.openems.edge.goodwe.common.enums.ControlMode;
 
 public class GoodWeEssImplTest {
 
@@ -42,7 +43,7 @@ public class GoodWeEssImplTest {
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setCapacity(9_000) //
 						.setMaxBatteryPower(5_200) //
-						.setReadOnlyMode(false) //
+						.setControlMode(ControlMode.SMART)
 						.build()) //
 		;
 	}
@@ -60,7 +61,7 @@ public class GoodWeEssImplTest {
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setCapacity(9_000) //
 						.setMaxBatteryPower(5_200) //
-						.setReadOnlyMode(false) //
+						.setControlMode(ControlMode.SMART)
 						.build()) //
 		;
 	}

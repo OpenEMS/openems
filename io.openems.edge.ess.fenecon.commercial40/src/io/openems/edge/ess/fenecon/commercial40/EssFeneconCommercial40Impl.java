@@ -763,6 +763,11 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	}
 
 	@Override
+	public boolean isManaged() {
+		return !this.config.readOnlyMode();
+	}
+
+	@Override
 	public int getPowerPrecision() {
 		return 100; // the modbus field for SetActivePower has the unit 0.1 kW
 	}

@@ -1,7 +1,7 @@
 import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Edge, EdgeConfig, Service, Widgets } from '../../shared/shared';
-import { environment } from '../../../environments/environment';
+import { Edge, EdgeConfig, Service, Widgets } from 'src/app/shared/shared';
+import { environment } from 'src/environments';
 import { HeaderComponent } from 'src/app/shared/header/header.component';
 import { TranslateService } from '@ngx-translate/core';
 

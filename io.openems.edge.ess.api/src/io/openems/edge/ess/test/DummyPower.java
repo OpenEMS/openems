@@ -99,4 +99,13 @@ public class DummyPower implements Power {
 		return this.pidFilter;
 	}
 
+	@Override
+	public boolean isPidEnabled() {
+		if (this.pidFilter instanceof DisabledPidFilter) {
+			return false;
+		}
+
+		return true;
+	}
+
 }

@@ -52,7 +52,45 @@ public enum SafetyCountry implements OptionsEnum {
 	IEEE1547_220VAC(0x2E, "IEEE1547 220Vac"), //
 	IEEE1547_240VAC(0x2F, "IEEE1547 240Vac"), //
 	DEFAULT_60_HZ_LV(0x30, "60Hz LV Default"), //
-	DEFAULT_50_HZ_LV(0x31, "50Hz LV Default"); //
+	DEFAULT_50_HZ_LV(0x31, "50Hz LV Default"), //
+
+	AUSTRALIA_WESTERN(0x32, "Australia Western"), //
+	AUSTRALIA_MICRO_GRID(0x33, "Australia MicroGrid"), //
+	JP_50_HZ(0x34, "JP_50Hz"), //
+	JP_60_HZ(0x35, "JP_60Hz"), //
+	INDIA_HIGHER(0x36, "India Higher"), //
+	DEWA_LV(0x37, "DEWA LV"), //
+	DEWA_MV(0x38, "DEWA MV"), //
+	SLOVAKIA(0x39, "Slovakia"), //
+	GREEN_GRID(0x3A, "GreenGrid"), //
+	HUNGARY(0x3B, "Hungary"), //
+	SRILANKA(0x3C, "SriLanka"), //
+	SPAIN_ISLANDS(0x3D, "SpainIslands"), //
+	ERAGON_30_K(0x3E, "Ergon30K"), //
+	ENERGE_30_K(0x3F, "Energe30K"), //
+	IEEE1547_230VAC(0x40, "IEEE1547_230VAC"), //
+	IEC61727_60HZ(0x41, "IEC61727_60Hz"), //
+	SWITZERLAND(0x42, "Switzerland"), //
+	CEI_016(0x43, "CEI_016"), //
+	AUSTRALIA_HORIZON(0x44, "Australia Horizon"), //
+	CYPRUS(0x45, "Cyprus"), //
+	AUSTRALIA_SAPN(0x46, "Australia SAPN"), //
+	AUSTRALIA_AUSGRID(0x47, "Australia Ausgrid"), //
+	AUSTRALIA_ESSENTIAL(0x48, "Australia Essential"), //
+	AUSTRALIA_PWCORE_CITI_PW(0x49, "Australia Pwcore_CitiPW"), //
+
+	// TODO: No Grid connection standards given by GoodWe
+	// CHINA_HONGKONG(0x31, "China Hongkong"), //
+	// POLAND_MV(0x31, "Poland MV"), //
+	// HOLLAND_MV(0x31, "Holland MV"), //
+	// SWEDEN_MV(0x31, "Sweden MV"), //
+	// VDE4110(0x31, "VDE4110"), //
+	// SPAIN_MV(0x31, "Spain MV"), //
+	// (0x31, "Australia Endeavour"), //
+	// DEFAULT_50_HZ_LV(0x31, "Argentina"), //
+	// DEFAULT_50_HZ_LV(0x31, "AustralianB"), //
+	// DEFAULT_50_HZ_LV(0x31, "AustralianC")
+	;
 
 	private final int value;
 	private final String option;

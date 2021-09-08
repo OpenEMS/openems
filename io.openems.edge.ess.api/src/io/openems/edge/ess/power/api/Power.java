@@ -112,4 +112,11 @@ public interface Power {
 	 * @return an instance of {@link PidFilter}
 	 */
 	public PidFilter getPidFilter();
+
+	/**
+	 * Check if PidFilter is enabled.
+	 * 
+	 * @return true if PidFilter is enable, otherwise false
+	 */
+	public boolean isPidEnabled();
 }
