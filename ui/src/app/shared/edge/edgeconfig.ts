@@ -15,8 +15,7 @@ export interface CategorizedFactories {
         title: string,
         icon: string
     },
-    factories: EdgeConfig.Factory[],
-    filter: (properties) => boolean,
+    factories: EdgeConfig.Factory[]
 };
 
 export class EdgeConfig {
