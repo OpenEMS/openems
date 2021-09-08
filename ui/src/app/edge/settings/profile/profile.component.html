@@ -97,26 +97,6 @@
                         <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'">
                           <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
                         </ion-text>
-                        <ion-text *ngSwitchCase="'Controller.Api.Rest.ReadOnly'">
-                          <ion-button target="_blank"
-                            href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_restjson_api_lesend"
-                            translate>General.manual</ion-button>
-                        </ion-text>
-                        <ion-text *ngSwitchCase="'Controller.Api.Rest.ReadWrite'">
-                          <ion-button target="_blank"
-                            href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_restjson_api_schreibzugriff"
-                            translate>General.manual</ion-button>
-                        </ion-text>
-                        <ion-text *ngSwitchCase="'Controller.Api.Backend'">
-                          <ion-button target="_blank"
-                            href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_cloud_schnittstellen" translate>
-                            General.manual</ion-button>
-                        </ion-text>
-                        <ion-text *ngSwitchCase="'Controller.Api.Websocket'">
-                          <ion-button target="_blank"
-                            href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_cloud_websocketjson_api"
-                            translate>General.manual</ion-button>
-                        </ion-text>
                       </ng-container>
                       <!-- Additional information for all Components -->
                       <ng-container *ngIf="edge.roleIsAtLeast('admin')">
