@@ -1,7 +1,6 @@
 package io.openems.edge.goodwe.common;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -62,12 +61,6 @@ public class ApplyPowerHandler {
 	private static ApplyPowerHandler.Result calculate(AbstractGoodWe goodWe, int activePowerSetPoint, int pvProduction,
 			ControlMode controlMode, int gridActivePower, int essActivePower, int maxAcImport, int maxAcExport)
 			throws OpenemsNamedException {
-		EnumReadChannel meterCommunicationChannel = goodWe.channel(GoodWe.ChannelId.METER_COMMUNICATE_STATUS);
-		Value<Integer> meterCommunication = meterCommunicationChannel.value();
-		if (!meterCommunication.isDefined() || meterCommunication.get() != 1) {
-			return handleRemoteMode(activePowerSetPoint, pvProduction);
-		}
-
 		switch (controlMode) {
 		case INTERNAL:
 			return handleInternalMode();
