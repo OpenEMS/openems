@@ -11,6 +11,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public interface Cycle extends OpenemsComponent {
 
+	public final static String SINGLETON_SERVICE_PID = "Core.Cycle";
+	public final static String SINGLETON_COMPONENT_ID = "_cycle";
+
 	public static final int DEFAULT_CYCLE_TIME = 1000; // in [ms]
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
