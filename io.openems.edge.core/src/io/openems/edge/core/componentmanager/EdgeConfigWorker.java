@@ -38,14 +38,18 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.Level;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetail;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailOpenemsType;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
+import io.openems.common.types.EdgeConfig.Factory;
+import io.openems.common.types.EdgeConfig.Factory.Property;
 import io.openems.common.types.OptionsEnum;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
@@ -273,9 +277,11 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 				String componentId = null;
 				Object componentIdObj = properties.get("id");
 				if (componentIdObj != null && (componentIdObj instanceof String)) {
+					// Read 'id' property
 					componentId = (String) componentIdObj;
+
 				} else {
-					// Singleton?
+					// Singleton
 					for (OpenemsComponent component : this.parent.getAllComponents()) {
 						if (config.getPid().equals(component.serviceFactoryPid())) {
 							componentId = component.id();
@@ -283,6 +289,23 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 						}
 					}
 				}
+
+				if (componentId == null) {
+					// Use default value for 'id' property
+					String factoryPid = config.getFactoryPid();
+					if (factoryPid == null) {
+						continue;
+					}
+					Factory factory = result.getFactories().get(factoryPid);
+					if (factory != null) {
+						Optional<String> defaultValue = JsonUtils
+								.getAsOptionalString(getPropertyDefaultValue(factory, "id"));
+						if (defaultValue.isPresent()) {
+							componentId = defaultValue.get();
+						}
+					}
+				}
+
 				if (componentId == null) {
 					continue;
 				}
@@ -333,6 +356,21 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Gets the default value of a property.
+	 * 
+	 * @param edgeConfig the {@link EdgeConfig}
+	 * @param factoryPid the Factory-PID
+	 * @param propertyId the Property ID
+	 */
+	private static JsonElement getPropertyDefaultValue(Factory factory, String propertyId) {
+		Optional<Property> property = factory.getProperty(propertyId);
+		if (!property.isPresent()) {
+			return JsonNull.INSTANCE;
+		}
+		return property.get().getDefaultValue();
 	}
 
 	/**
@@ -562,24 +600,61 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	private static TreeMap<String, JsonElement> convertProperties(Dictionary<String, Object> properties,
 			EdgeConfig.Factory factory) {
 		TreeMap<String, JsonElement> result = new TreeMap<>();
+
+		/*
+		 * Read Factory Properties
+		 */
+		for (EdgeConfig.Factory.Property property : factory.getProperties()) {
+			String key = property.getId();
+
+			if (EdgeConfig.ignorePropertyKey(key)) {
+				// Ignore this Property
+				continue;
+			}
+
+			JsonElement value = null;
+			if (property.isPassword()) {
+				// hide Password fields
+				value = new JsonPrimitive("xxx");
+
+			} else {
+				// get configured value
+				value = getPropertyAsJsonElement(properties, key);
+
+				if (value == null || value.isJsonNull()) {
+					// get default value
+					value = getPropertyDefaultValue(factory, key);
+				}
+			}
+
+			if (value == null) {
+				// fallback to JsonNull
+				value = JsonNull.INSTANCE;
+			}
+
+			result.put(key, value);
+		}
+
+		/*
+		 * Add remaining existing properties
+		 */
 		Enumeration<String> keys = properties.keys();
 		while (keys.hasMoreElements()) {
 			String key = keys.nextElement();
-			if (!EdgeConfig.ignorePropertyKey(key)) {
+			if (result.containsKey(key)) {
+				// already added
+				continue;
+			}
 
-				JsonElement value = getPropertyAsJsonElement(properties, key);
-				if (factory != null) {
-					Optional<EdgeConfig.Factory.Property> propertyOpt = factory.getProperty(key);
-					if (propertyOpt.isPresent()) {
-						EdgeConfig.Factory.Property property = propertyOpt.get();
-						// hide Password fields
-						if (property.isPassword()) {
-							value = new JsonPrimitive("xxx");
-						}
-					}
-				}
+			if (EdgeConfig.ignorePropertyKey(key)) {
+				// has to be ignored
+				continue;
+			}
 
-				result.put(key, value);
+			if (key.startsWith("_") || key.equals(OpenemsConstants.PROPERTY_FACTORY_PID)
+					|| key.equals(OpenemsConstants.PROPERTY_PID)) {
+				// starting with "_" or known property
+				result.put(key, getPropertyAsJsonElement(properties, key));
 			}
 		}
 		return result;
