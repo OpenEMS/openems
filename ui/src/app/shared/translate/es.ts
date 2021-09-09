@@ -18,6 +18,7 @@ export const TRANSLATION = {
         currentValue: 'Valor actual',
         dateFormat: 'dd.MM.yyyy', // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         digitalInputs: 'Entradas digitales',
+        numberOfComponents: 'número de componentes',
         directConsumption: 'Consumo directo',
         dischargePower: 'Descarga',
         fault: 'Error',
@@ -84,20 +85,28 @@ export const TRANSLATION = {
         },
     },
     Menu: {
-        aboutUI: 'Sobre OpenEMS-UI',
-        edgeSettings: 'Configuración OpenEMS Edge',
+        aboutUI: 'Sobre OpenEMS',
+        accessLevel: 'Nivel de acceso',
+        edgeSettings: 'Configuración OpenEMS',
         generalSettings: 'Configuración general',
         index: 'Visión general',
         logout: 'Desuscribirse',
         menu: 'Menú',
-        overview: 'estudio OpenEMS Edge',
+        name: 'Nombre',
+        overview: 'estudio OpenEMS',
+        settings: 'Ajustes',
+        user: 'Usuario'
     },
     Index: {
         allConnected: 'Todas las conexiones establecidas.',
+        connectionInProgress: 'Establecimiento de la conexión...',
         connectionFailed: 'Conexión a {{value}} seperados.', // value = name of websocket
         connectionSuccessful: 'Conexión a {{value}} hecho.', // value = name of websocket
+        deviceOffline: 'El aparato no está conectado!',
         isOffline: 'OpenEMS está fuera de línea!',
+        loggedInAs: 'Conectado como:',
         toEnergymonitor: 'Al monitor de energía...',
+        type: 'Tipo:'
     },
     Edge: {
         Index: {
@@ -116,9 +125,9 @@ export const TRANSLATION = {
                 autarchyInfo: 'La autarquía indica el porcentaje de energía actual que puede cubrirse mediante la descarga de generación y almacenamiento.',
                 phasesInfo: 'La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.',
                 selfconsumptionInfo: 'El autoconsumo indica el porcentaje de la salida generada actualmente que puede ser utilizado por el consumo directo y la carga de almacenamiento.',
-                twoWayInfoGrid: 'Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug',
-                twoWayInfoStorage: 'Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung',
-                Channeltreshold: {
+                twoWayInfoGrid: 'Los valores negativos corresponden a la inyección a la red, Los valores positivos corresponden a la alimentación de la red',
+                InfoStorageForCharge: 'Los valores negativos corresponden a la carga de memoria',
+                InfoStorageForDischarge: 'Los valores positivos corresponden a la descarga de la memoria', Channeltreshold: {
                     output: 'Salida'
                 },
                 Singlethreshold: {
@@ -157,6 +166,56 @@ export const TRANSLATION = {
                     startTime: 'Hora de inicio',
                     startTimeCharge: 'Hora de inicio de carga',
                 },
+                GridOptimizedCharge: {
+                    considerGridFeedInLimit: 'Tenga en cuenta la alimentación máxima a la red',
+                    endTime: 'Hora de finalización',
+                    endTimeDescription: 'La carga no se realiza con la cantidad máxima durante unas pocas horas, sino de manera constante durante un período de tiempo más largo.',
+                    endTimeDetailedDescription: 'La carga no se realiza con la salida máxima durante unas horas, sino de manera constante con un máximo de {{value1}} a {{value2}} en punto.', // value1 = maximum charge, value2 = end time
+                    endTimeLong: 'Hora de finalización de la carga restringida',
+                    expectedSoc: 'Estado de carga esperado',
+                    expectedSocWithoutSellToGridLimit: 'Sin evitar la máxima inyección a la red',
+                    gridFeedInLimitationAvoided: 'Se evitó una limitación de la fuente de alimentación de la red',
+                    gridOptimizedChargeDisabled: 'Carga optimizada de red desactivada',
+                    high: 'Alto',
+                    History: {
+                        batteryChargeGridLimitDescription: 'La inyección máxima a la red, por encima de la cual se incrementa la carga de las baterías (en la medida de lo posible), está por debajo de la inyección máxima a la red permitida para evitar una reducción prematura de la producción.',
+                        priorityDescription: 'La carga mínima de la batería tiene mayor prioridad que la carga máxima de la batería',
+                    },
+                    low: 'Bajo',
+                    maximumCharge: 'Carga máxima',
+                    maximumGridFeedIn: 'Inyección de red máxima permitida',
+                    medium: 'Medio',
+                    minimumCharge: 'Carga mínima',
+                    RiskDescription: {
+                        Low: {
+                            functionDescription: 'Carga relativamente temprana de la tienda',
+                            storageDescription: 'Mayor probabilidad de que la memoria se cargue por completo',
+                            pvCurtail: 'Menor probabilidad de que se evite la reducción del sistema fotovoltaico',
+                        },
+                        Medium: {
+                            functionDescription: 'Carga comparativamente uniforme de la tienda',
+                            storageDescription: 'Alta probabilidad de que el almacenamiento esté completamente cargado',
+                            pvCurtail: '',
+                        },
+                        High: {
+                            functionDescription: 'Carga comparativamente posterior del sistema de almacenamiento',
+                            storageDescription: 'Menos probabilidad de que el sistema de almacenamiento se cargue por completo',
+                            pvCurtail: 'Mayor probabilidad de que se evite la reducción del sistema fotovoltaico',
+                        },
+                    },
+                    riskPropensity: 'Propensión al riesgo',
+                    settingOnlyVisableForInstaller: 'Esta configuración solo es visible para el instalador',
+                    State: {
+                        chargeLimitActive: 'Límite de carga activo',
+                        endTimeNotCalculated: 'Hora de finalización no calculada',
+                        gridFeedInLimitationIsAvoided: 'Se evita la limitación de la alimentación a la red',
+                        noLimitActive: 'Sin límite de carga activo',
+                        noLimitPossible: 'Sin limitación posible (restringido por controles con mayor prioridad)',
+                        notDefined: 'No definida',
+                        passedEndTime: 'Se superó el tiempo de finalización de la carga limitada',
+                        storageAlreadyFull: 'Memoria ya llena',
+                    },
+                },
                 CHP: {
                     highThreshold: 'Umbral alto',
                     lowThreshold: 'Umbral bajo',
@@ -182,7 +241,7 @@ export const TRANSLATION = {
                     chargingStationPluggedInLocked: 'Estación de carga enchufada + bloqueado',
                     clusterConfigError: 'Se ha producido un error en la configuración del clúster Evcs.',
                     currentCharge: 'Carga actual',
-                    energieSinceBeginning: 'Energía desde el último inicio de carga',
+                    energySinceBeginning: 'Energía desde el último inicio de carga',
                     energyLimit: 'Límite de la energía',
                     enforceCharging: 'Forzar la carga',
                     error: 'Error',
@@ -353,14 +412,15 @@ export const TRANSLATION = {
         }
     },
     About: {
-        build: 'Esta compilación',
-        contact: 'Para preguntas y sugerencias sobre el sistema, por favor contacte a nuestro OpenEMS-Team en <a href=\'mailto:{{value}}\'>{{value}}</a>.',
-        currentDevelopments: 'Desarrollos actuales',
-        developed: 'Esta interfaz de usario es desarrollada por FENECON como software de código abierto.',
-        fenecon: 'Acerca de FENECON',
-        language: 'Seleccionar idioma:',
-        openEMS: 'Acerca de OpenEMS',
-        ui: 'Interfaz de usario para OpenEMS',
+        build: "Esta compilación",
+        contact: "Para preguntas y sugerencias sobre el sistema, por favor contacte a nuestro FEMS-Team en <a href=\"mailto:{{value}}\">{{value}}</a>.",
+        currentDevelopments: "Desarrollos actuales",
+        developed: "Esta interfaz de usario es desarrollada por OpenEMS como software de código abierto.",
+        faq: "Preguntas frecuentes (FAQ)",
+        language: "Seleccionar idioma:",
+        openEMS: "Acerca de OpenEMS",
+        patchnotes: "Cambios en la supervisión de esta compilación",
+        ui: "Interfaz de usario para OpenEMS",
     },
     Notifications: {
         authenticationFailed: 'Sin conexión: error de autenticación.',

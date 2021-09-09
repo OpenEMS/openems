@@ -14,7 +14,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 /**
  * Provides static meta information for a {@link Channel}.
  * 
+ * <p>
  * Possible meta information include:
+ * 
  * <ul>
  * <li>access-mode (read-only/read-write/write-only) flag
  * {@link Doc#accessMode(AccessMode)}. Defaults to Read-Only.
@@ -94,9 +96,9 @@ public interface Doc {
 	public OpenemsType getType();
 
 	/**
-	 * Gets the 'Access-Mode' information
+	 * Gets the 'Access-Mode' information.
 	 * 
-	 * @return
+	 * @return the {@link AccessMode}
 	 */
 	public AccessMode getAccessMode();
 
@@ -134,7 +136,7 @@ public interface Doc {
 	public String getText();
 
 	/**
-	 * Is the more verbose debug mode activated?
+	 * Is the more verbose debug mode activated?.
 	 * 
 	 * @return true for debug mode
 	 */
@@ -144,6 +146,8 @@ public interface Doc {
 	 * Creates an instance of {@link Channel} for the given Channel-ID using its
 	 * Channel-{@link AbstractDoc}.
 	 * 
+	 * @param <C>       the type of the Channel
+	 * @param component the {@link OpenemsComponent}
 	 * @param channelId the Channel-ID
 	 * @return the Channel
 	 */

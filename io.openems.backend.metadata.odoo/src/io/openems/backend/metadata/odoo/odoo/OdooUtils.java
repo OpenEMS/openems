@@ -11,25 +11,22 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.MissingFormatArgumentException;
-import java.util.UUID;
+import java.util.Optional;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
+import com.google.common.io.ByteStreams;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.StringUtils;
 
 public class OdooUtils {
 
@@ -46,27 +43,43 @@ public class OdooUtils {
 
 	/**
 	 * Wrapper for the reply of a call to
-	 * {@link OdooUtils#sendJsonrpcRequest(String, JsonrpcRequest)}.
+	 * {@link OdooUtils#sendJsonrpcRequest(String, JsonObject)}.
 	 */
-	public static class JsonrpcResponseSuccessAndHeaders {
-		public final JsonrpcResponseSuccess response;
+	public static class SuccessResponseAndHeaders {
+		public final JsonElement result;
 		public final Map<String, List<String>> headers;
 
-		public JsonrpcResponseSuccessAndHeaders(JsonrpcResponseSuccess response, Map<String, List<String>> headers) {
-			this.response = response;
+		public SuccessResponseAndHeaders(JsonElement result, Map<String, List<String>> headers) {
+			this.result = result;
 			this.headers = headers;
 		}
+	}
+
+	/**
+	 * Sends a JSON-RPC Request to an Odoo server - without Cookie header.
+	 * 
+	 * @param url     the URL
+	 * @param request the JSON-RPC Request as {@link JsonObject}
+	 * @return the {@link JsonObject} response and HTTP connection headers on
+	 *         success
+	 * @throws OpenemsNamedException on error
+	 */
+	public static SuccessResponseAndHeaders sendJsonrpcRequest(String url, JsonObject request)
+			throws OpenemsNamedException {
+		return OdooUtils.sendJsonrpcRequest(url, "", request);
 	}
 
 	/**
 	 * Sends a JSON-RPC Request to an Odoo server.
 	 * 
 	 * @param url     the URL
-	 * @param request the JSON-RPC Request
-	 * @return the JSON-RPC Response and HTTP connection headers
+	 * @param cookie  a Cookie string
+	 * @param request the JSON-RPC Request as {@link JsonObject}
+	 * @return the {@link JsonObject} response and HTTP connection headers on
+	 *         success
 	 * @throws OpenemsNamedException on error
 	 */
-	public static JsonrpcResponseSuccessAndHeaders sendJsonrpcRequest(String url, JsonrpcRequest request)
+	public static SuccessResponseAndHeaders sendJsonrpcRequest(String url, String cookie, JsonObject request)
 			throws OpenemsNamedException {
 		HttpURLConnection connection = null;
 		try {
@@ -78,10 +91,13 @@ public class OdooUtils {
 			connection.setRequestMethod("POST");
 			connection.setDoOutput(true);
 			connection.setRequestProperty("Content-Type", "application/json");
+			if (!cookie.isEmpty()) {
+				connection.setRequestProperty("Cookie", cookie);
+			}
 
 			// send JSON-RPC request
 			try (OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream())) {
-				out.write(request.toJsonObject().toString());
+				out.write(request.toString());
 				out.flush();
 			}
 
@@ -96,13 +112,7 @@ public class OdooUtils {
 			JsonObject json = JsonUtils.parseToJsonObject(sb.toString());
 
 			// Handle Success or Error
-			if (json.has("result")) {
-				UUID id = UUID.fromString(JsonUtils.getAsString(json, "id"));
-				JsonObject result = JsonUtils.getAsJsonObject(json, "result");
-				JsonrpcResponseSuccess response = new GenericJsonrpcResponseSuccess(id, result);
-				return new JsonrpcResponseSuccessAndHeaders(response, connection.getHeaderFields());
-
-			} else if (json.has("error")) {
+			if (json.has("error")) {
 				JsonObject error = JsonUtils.getAsJsonObject(json, "error");
 				// "code":200",
 				int code = JsonUtils.getAsInt(error, "code");
@@ -135,15 +145,18 @@ public class OdooUtils {
 							+ " ExceptionType [" + dataExceptionType + "]" //
 							+ " Arguments [" + dataArguments + "]" //
 							+ " Debug [" + dataDebug + "]";
-					try {
-						throw new OpenemsException(exception);
-					} catch (MissingFormatArgumentException e) {
-						System.out.println("Unable to throw Exception: " + exception + "; " + e.getMessage());
-						e.printStackTrace();
-					}
+					throw new OpenemsException(exception);
 				}
+			} else if (json.has("result")) {
+				return new SuccessResponseAndHeaders(JsonUtils.getSubElement(json, "result"),
+						connection.getHeaderFields());
+
+			} else {
+				// JSON-RPC response by Odoo on /logout is {jsonrpc:2.0, id:null} - without
+				// 'result' attribute
+				return new SuccessResponseAndHeaders(json, connection.getHeaderFields());
+
 			}
-			throw new OpenemsException("Unable to parse JsonrpcResponse from " + StringUtils.toShortString(json, 100));
 
 		} catch (IOException e) {
 			throw OpenemsError.GENERIC.exception(e.getMessage());
@@ -151,6 +164,50 @@ public class OdooUtils {
 			if (connection != null) {
 				connection.disconnect();
 			}
+		}
+	}
+
+	/**
+	 * Sends a request with admin privileges.
+	 * 
+	 * @param credentials the Odoo credentials
+	 * @param url         to send the request
+	 * @param request     to send
+	 * @throws OpenemsNamedException on error
+	 */
+	protected static void sendAdminJsonrpcRequest(Credentials credentials, String url, JsonObject request)
+			throws OpenemsNamedException {
+		String session = login(credentials, "admin", credentials.getPassword());
+		sendJsonrpcRequest(credentials.getUrl() + url, "session_id=" + session, request);
+	}
+
+	/**
+	 * Authenticates a user using Username and Password.
+	 * 
+	 * @param credentials used to get Odoo url
+	 * @param username    the Username
+	 * @param password    the Password
+	 * @return the session_id
+	 * @throws OpenemsNamedException on login error
+	 */
+	protected static String login(Credentials credentials, String username, String password)
+			throws OpenemsNamedException {
+		JsonObject request = JsonUtils.buildJsonObject() //
+				.addProperty("jsonrpc", "2.0") //
+				.addProperty("method", "call") //
+				.add("params", JsonUtils.buildJsonObject() //
+						.addProperty("db", "v12") //
+						.addProperty("login", username) //
+						.addProperty("password", password) //
+						.build()) //
+				.build();
+		SuccessResponseAndHeaders response = OdooUtils
+				.sendJsonrpcRequest(credentials.getUrl() + "/web/session/authenticate", request);
+		Optional<String> sessionId = OdooHandler.getFieldFromSetCookieHeader(response.headers, "session_id");
+		if (!sessionId.isPresent()) {
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+		} else {
+			return sessionId.get();
 		}
 	}
 
@@ -412,6 +469,53 @@ public class OdooUtils {
 	}
 
 	/**
+	 * Create a record in Odoo.
+	 * 
+	 * @param credentials the Odoo credentials
+	 * @param model       the Oddo model
+	 * @param fieldValues fields and values that should be written
+	 * @return Odoo id of created record
+	 * @throws OpenemsException on error
+	 */
+	protected static int create(Credentials credentials, String model, FieldValue<?>... fieldValues)
+			throws OpenemsException {
+		Map<String, Object> paramsFieldValues = new HashMap<>();
+		for (FieldValue<?> fieldValue : fieldValues) {
+			paramsFieldValues.put(fieldValue.getField().id(), fieldValue.getValue());
+		}
+
+		return create(credentials, model, paramsFieldValues);
+	}
+
+	/**
+	 * Create a record in Odoo.
+	 * 
+	 * @param credentials the Odoo credentials
+	 * @param model       the Oddo model
+	 * @param fieldValues fields and values that should be written
+	 * @return Odoo id of created record
+	 * @throws OpenemsException on error
+	 */
+	protected static int create(Credentials credentials, String model, Map<String, Object> fieldValues)
+			throws OpenemsException {
+		String action = "create";
+
+		Object[] params = new Object[] { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(),
+				model, action, new Object[] { fieldValues } };
+
+		try {
+			Object resultObj = (Object) executeKw(credentials.getUrl(), params);
+			if (resultObj == null) {
+				throw new OpenemsException("Not created.");
+			}
+
+			return OdooUtils.getAsInteger(resultObj);
+		} catch (Throwable e) {
+			throw new OpenemsException("Unable to write to Odoo: " + e.getMessage());
+		}
+	}
+
+	/**
 	 * Update a record in Odoo.
 	 * 
 	 * @param credentials the Odoo credentials
@@ -433,16 +537,32 @@ public class OdooUtils {
 		// }
 		// System.out.println(b.toString());
 
-		// Create request params
-		String action = "write";
 		// Add fieldValues
 		Map<String, Object> paramsFieldValues = new HashMap<>();
 		for (FieldValue<?> fieldValue : fieldValues) {
 			paramsFieldValues.put(fieldValue.getField().id(), fieldValue.getValue());
 		}
+
+		write(credentials, model, ids, paramsFieldValues);
+	}
+
+	/**
+	 * Update a record in Odoo.
+	 * 
+	 * @param credentials the Odoo credentials
+	 * @param model       the Odoo model
+	 * @param ids         ids of model to update
+	 * @param fieldValues fields and values that should be written
+	 * @throws OpenemsException on error
+	 */
+	protected static void write(Credentials credentials, String model, Integer[] ids, Map<String, Object> fieldValues)
+			throws OpenemsException {
+		// Create request params
+		String action = "write";
+
 		// Create request params
 		Object[] params = new Object[] { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(),
-				model, action, new Object[] { ids, paramsFieldValues } };
+				model, action, new Object[] { ids, fieldValues } };
 		try {
 			// Execute XML request
 			Boolean resultObj = (Boolean) executeKw(credentials.getUrl(), params);
@@ -481,4 +601,58 @@ public class OdooUtils {
 			return null;
 		}
 	}
+
+	/**
+	 * Return the odoo reference id as a {@link Integer}, otherwise empty
+	 * {@link Optional}.
+	 * 
+	 * @param object the odoo reference to extract
+	 * @return the odoo reference id or empty {@link Optional}
+	 */
+	protected static Optional<Integer> getOdooRefernceId(Object object) {
+		if (object != null && object instanceof Object[]) {
+			Object[] odooRefernce = (Object[]) object;
+
+			if (odooRefernce[0] != null && odooRefernce[0] instanceof Integer) {
+				return Optional.of((Integer) odooRefernce[0]);
+			}
+		}
+
+		return Optional.empty();
+	}
+
+	/**
+	 * Returns a Odoo report as a byte array. Search for the given template id in
+	 * combination with the concrete report id.
+	 * 
+	 * @param credentials the Odoo credentialss
+	 * @param report      the Odoo template id
+	 * @param id          the Odoo report id
+	 * @return the Odoo report as a byte array
+	 * @throws OpenemsNamedException on error
+	 */
+	protected static byte[] getOdooReport(Credentials credentials, String report, int id)
+			throws OpenemsNamedException {
+		String session = login(credentials, "admin", credentials.getPassword());
+
+		HttpURLConnection connection = null;
+		try {
+			connection = (HttpURLConnection) new URL(
+					credentials.getUrl() + "/report/pdf/" + report + "/" + id + "?session_id=" + session)
+							.openConnection();
+			connection.setConnectTimeout(5000);
+			connection.setReadTimeout(5000);
+			connection.setRequestMethod("GET");
+			connection.setDoOutput(true);
+
+			return ByteStreams.toByteArray(connection.getInputStream());
+		} catch (Exception e) {
+			throw OpenemsError.GENERIC.exception(e.getMessage());
+		} finally {
+			if (connection != null) {
+				connection.disconnect();
+			}
+		}
+	}
+
 }

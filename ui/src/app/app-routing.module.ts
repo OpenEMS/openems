@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { AboutComponent } from './about/about.component';
 import { AutarchyChartOverviewComponent } from './edge/history/autarchy/autarchychartoverview/autarchychartoverview.component';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { FixDigitalOutputChartOverviewComponent } from './edge/history/fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
 import { GridChartOverviewComponent } from './edge/history/grid/gridchartoverview/gridchartoverview.component';
+import { GridOptimizedChargeChartOverviewComponent } from './edge/history/gridoptimizedcharge/gridoptimizedchargechartoverview/gridoptimizedchargechartoverview.component';
 import { HeatingelementChartOverviewComponent } from './edge/history/heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
 import { HeatPumpChartOverviewComponent } from './edge/history/heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
 import { HistoryComponent as EdgeHistoryComponent } from './edge/history/history.component';
@@ -30,15 +30,15 @@ import { SettingsComponent as EdgeSettingsComponent } from './edge/settings/sett
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { IndexComponent } from './index/index.component';
-import { SettingsComponent } from './settings/settings.component';
+import { UserComponent } from './user/user.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
   { path: 'index', component: IndexComponent },
 
-  { path: 'about', component: AboutComponent },
-  { path: 'settings', component: SettingsComponent },
+  { path: 'user', component: UserComponent },
 
+  // Edge Pages
   { path: 'device/:edgeId', redirectTo: 'device/:edgeId/live', pathMatch: 'full' },
   { path: 'device/:edgeId/live', component: EdgeLiveComponent },
   { path: 'device/:edgeId/history', component: EdgeHistoryComponent },
@@ -48,6 +48,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/history/:componentId/channelthresholdchart', component: ChannelthresholdChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/delayedselltogridchart', component: DelayedSellToGridChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/fixdigitaloutputchart', component: FixDigitalOutputChartOverviewComponent },
+  { path: 'device/:edgeId/history/:componentId/gridOptimizedChargeChart', component: GridOptimizedChargeChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/heatingelementchart', component: HeatingelementChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/heatpumpchart', component: HeatPumpChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/singlethresholdchart', component: SinglethresholdChartOverviewComponent },

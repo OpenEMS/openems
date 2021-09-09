@@ -2,11 +2,11 @@ import { Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { environment } from '../../environments';
+import { filter, takeUntil } from 'rxjs/operators';
+import { environment } from 'src/environments';
 import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
-import { AuthenticateWithPasswordResponse } from '../shared/jsonrpc/response/authenticateWithPasswordResponse';
 import { Edge, Service, Utils, Websocket } from '../shared/shared';
+import { Role } from '../shared/type/role';
 
 @Component({
   selector: 'index',
@@ -16,12 +16,18 @@ export class IndexComponent {
 
   private static readonly EDGE_ID_REGEXP = new RegExp('\\d+');
 
-  public env = environment;
+  public environment = environment;
 
   /**
    * True, if there is no access to any Edge.
    */
   public noEdges: boolean = false;
+
+  /**
+   * True, if the logged in user is allowed to install
+   * new edges.
+   */
+  public loggedInUserCanInstall: boolean = false;
 
   public form: FormGroup;
   public filter: string = '';
@@ -31,34 +37,43 @@ export class IndexComponent {
   public slice: number = 20;
 
   constructor(
+    public service: Service,
     public websocket: Websocket,
     public utils: Utils,
     private router: Router,
-    private service: Service,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {
+    service.metadata
+      .pipe(
+        takeUntil(this.stopOnDestroy),
+        filter(metadata => metadata != null)
+      )
+      .subscribe(metadata => {
+        let edgeIds = Object.keys(metadata.edges);
+        this.noEdges = edgeIds.length === 0;
+        this.loggedInUserCanInstall = Role.isAtLeast(metadata.user.globalRole, "installer");
 
-    //Forwarding to device index if there is only 1 edge
-    service.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
-      let edgeIds = Object.keys(edges);
-      this.noEdges = edgeIds.length == 0;
-      if (edgeIds.length == 1) {
-        let edge = edges[edgeIds[0]];
-        if (edge.isOnline) {
-          this.router.navigate(['/device', edge.id]);
+        // Forward directly to device page, if
+        // - Direct local access to Edge
+        // - No installer (i.e. guest or owner) and access to only one Edge
+        if (environment.backend == 'OpenEMS Edge' || (!this.loggedInUserCanInstall && edgeIds.length == 1)) {
+          let edge = metadata.edges[edgeIds[0]];
+          if (edge.isOnline) {
+            this.router.navigate(['/device', edge.id]);
+          }
         }
-      }
-      this.updateFilteredEdges();
-    })
+
+        this.updateFilteredEdges();
+      })
   }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     this.service.setCurrentComponent('', this.route);
   }
 
   updateFilteredEdges() {
     let filter = this.filter.toLowerCase();
-    let allEdges = this.service.edges.getValue();
+    let allEdges = this.service.metadata.value?.edges ?? {};
     this.filteredEdges = Object.keys(allEdges)
       .filter(edgeId => {
         let edge = allEdges[edgeId];
@@ -88,22 +103,13 @@ export class IndexComponent {
       .map(edgeId => allEdges[edgeId]);
   }
 
-  doLogin(password: string) {
-    let request = new AuthenticateWithPasswordRequest({ password: password });
-    this.websocket.sendRequest(request).then(response => {
-      this.handleAuthenticateWithPasswordResponse(response as AuthenticateWithPasswordResponse);
-    }).catch(reason => {
-      console.error("Error on Login", reason);
-    })
-  }
-
   /**
-   * Handles a AuthenticateWithPasswordResponse.
+   * Login to OpenEMS Edge or Backend.
    * 
-   * @param message 
+   * @param param data provided in login form
    */
-  private handleAuthenticateWithPasswordResponse(message: AuthenticateWithPasswordResponse) {
-    this.service.handleAuthentication(message.result.token, message.result.user, message.result.edges);
+  public doLogin(param: { username?: string, password: string }) {
+    this.websocket.login(new AuthenticateWithPasswordRequest(param));
   }
 
   doInfinite(infiniteScroll) {

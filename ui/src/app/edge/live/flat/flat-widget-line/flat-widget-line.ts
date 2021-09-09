@@ -8,7 +8,7 @@ import { AbstractFlatWidgetLine } from "./abstract-flat-widget-line";
 })
 export class FlatWidgetLine extends AbstractFlatWidgetLine {
 
-    /** Name for parameter, displayed on the left side*/
+    /** Name for parameter, displayed on the left side */
     @Input()
     name: string;
 
@@ -23,5 +23,9 @@ export class FlatWidgetLine extends AbstractFlatWidgetLine {
     set channelAddress(channelAddress: string) {
         this.subscribe(ChannelAddress.fromString(channelAddress));
     }
+
+    /** Width of left Column, right Column is (100 - width of left Column) */
+    @Input()
+    leftColumnWidth: number;
 }
 

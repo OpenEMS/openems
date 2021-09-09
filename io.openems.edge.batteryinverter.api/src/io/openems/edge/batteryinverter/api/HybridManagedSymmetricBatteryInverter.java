@@ -2,6 +2,7 @@ package io.openems.edge.batteryinverter.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -39,6 +40,7 @@ public interface HybridManagedSymmetricBatteryInverter
 		DC_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text(POWER_DOC_TEXT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 		),
 		/**
 		 * DC Charge Energy.
@@ -50,7 +52,9 @@ public interface HybridManagedSymmetricBatteryInverter
 		 * </ul>
 		 */
 		DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH) //
+		),
 		/**
 		 * DC Discharge Energy.
 		 * 
@@ -61,7 +65,9 @@ public interface HybridManagedSymmetricBatteryInverter
 		 * </ul>
 		 */
 		DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS)),;
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH) //
+		);
 
 		private final Doc doc;
 
@@ -73,6 +79,14 @@ public interface HybridManagedSymmetricBatteryInverter
 			return this.doc;
 		}
 	}
+
+	/**
+	 * Gets the DC-PV Power, i.e. the sum of the {@link EssDcCharger}s of this
+	 * {@link HybridManagedSymmetricBatteryInverter}.
+	 * 
+	 * @return the DC-PV power, or 'null' if there is no {@link EssDcCharger}
+	 */
+	public Integer getDcPvPower();
 
 	/**
 	 * Gets the Surplus Power of the {@link EssDcCharger}s of this

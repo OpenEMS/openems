@@ -18,9 +18,9 @@
     </module>
     <module name="OuterTypeFilename"/>
     <module name="IllegalTokenText">
-      <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
       <property name="format" value="\\u00(09|0(a|A)|0(c|C)|0(d|D)|22|27|5(C|c))|\\(0(10|11|12|14|15|42|47)|134)"/>
       <property name="message" value="Consider using special escape sequence instead of octal value or Unicode escaped value."/>
+      <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
     </module>
     <module name="AvoidEscapedUnicodeCharacters">
       <property name="allowEscapesForControlCharacters" value="true"/>
@@ -124,7 +124,7 @@
       <message key="name.invalidPattern" value="Class type name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="MethodTypeParameterName">
-      <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+      <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]$)"/>
       <message key="name.invalidPattern" value="Method type name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="InterfaceTypeParameterName">
@@ -140,9 +140,9 @@
     </module>
     <module name="Indentation">
       <property name="severity" value="ignore"/>
-      <property name="arrayInitIndent" value="2"/>
       <property name="basicOffset" value="2"/>
       <property name="caseIndent" value="2"/>
+      <property name="arrayInitIndent" value="2"/>
       <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
     </module>
     <module name="AbbreviationAsWordInName">
@@ -167,8 +167,8 @@
     </module>
     <module name="AnnotationLocation">
       <property name="id" value="AnnotationLocationVariables"/>
-      <property name="tokens" value="VARIABLE_DEF"/>
       <property name="allowSamelineMultipleAnnotations" value="true"/>
+      <property name="tokens" value="VARIABLE_DEF"/>
     </module>
     <module name="NonEmptyAtclauseDescription"/>
     <module name="JavadocTagContinuationIndentation"/>
@@ -201,6 +201,7 @@
     </module>
     <module name="MissingJavadocMethod">
       <property name="allowedAnnotations" value="Before,Test,After,Override"/>
+      <property name="allowMissingPropertyJavadoc" value="true"/>
       <property name="ignoreMethodNamesRegex" value="doc|set.+"/>
       <property name="tokens" value="METHOD_DEF,ANNOTATION_FIELD_DEF"/>
     </module>

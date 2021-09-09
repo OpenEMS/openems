@@ -72,5 +72,4 @@ public class FloatWriteChannel extends FloatReadChannel implements WriteChannel<
 	public void onSetNextWrite(ThrowingConsumer<Float, OpenemsNamedException> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
-
 }

@@ -1,11 +1,14 @@
-import { ActivatedRoute } from '@angular/router';
-import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { Component } from '@angular/core';
-import { environment } from '../../../../environments';
-import { ModbusApiUtil } from './modbusapi/modbusapi';
+import { ActivatedRoute } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
+import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
+import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
+import { environment } from '../../../../environments';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
+import { ChannelExportXlsxRequest } from './channelexport/channelExportXlsxRequest';
+import { GetModbusProtocolExportXlsxRequest } from './modbusapi/getModbusProtocolExportXlsxRequest';
 
 @Component({
   selector: ProfileComponent.SELECTOR,
@@ -15,7 +18,7 @@ export class ProfileComponent {
 
   private static readonly SELECTOR = "profile";
 
-  public env = environment;
+  public environment = environment;
 
   public edge: Edge = null;
   public config: EdgeConfig = null;
@@ -35,13 +38,32 @@ export class ProfileComponent {
       this.edge = edge;
       this.service.getConfig().then(config => {
         this.config = config;
-        let categorizedComponentIds: string[] = ["_componentManager", "_cycle", "_meta", "_power", "_sum"]
+        let categorizedComponentIds: string[] = ["_componentManager", "_cycle", "_meta", "_power", "_sum", "_predictorManager", "_host", "_evcsSlowPowerIncreaseFilter"]
         this.components = config.listActiveComponents(categorizedComponentIds);
       })
     });
   }
 
   public getModbusProtocol(componentId: string) {
-    ModbusApiUtil.getModbusProtocol(this.service, componentId);
+    this.service.getCurrentEdge().then(edge => {
+      let request = new ComponentJsonApiRequest({ componentId: componentId, payload: new GetModbusProtocolExportXlsxRequest() });
+      edge.sendRequest(this.service.websocket, request).then(response => {
+        Utils.downloadXlsx(response as Base64PayloadResponse, "Modbus-TCP-" + edge.id);
+      }).catch(reason => {
+        console.warn(reason);
+      })
+    });
+  }
+
+  public getChannelExport(componentId: string) {
+    this.service.getCurrentEdge().then(edge => {
+      let request = new ComponentJsonApiRequest({ componentId: '_componentManager', payload: new ChannelExportXlsxRequest({ componentId: componentId }) });
+      edge.sendRequest(this.service.websocket, request).then(response => {
+        Utils.downloadXlsx(response as Base64PayloadResponse, "ChannelExport-" + edge.id + "-" + componentId);
+      }).catch(reason => {
+        console.warn(reason);
+      })
+    });
   };
+
 }

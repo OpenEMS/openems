@@ -8,7 +8,7 @@ import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse.EdgeMetadata;
+import io.openems.common.jsonrpc.response.AuthenticateResponse.EdgeMetadata;
 import io.openems.common.session.AbstractUser;
 import io.openems.common.session.Role;
 
@@ -17,8 +17,36 @@ import io.openems.common.session.Role;
  */
 public class User extends AbstractUser {
 
-	public User(String id, String name, Role globalRole, NavigableMap<String, Role> roles) {
+	/**
+	 * Keeps the login token.
+	 */
+	private final String token;
+
+	private final String language;
+
+	public User(String id, String name, String token, Role globalRole, NavigableMap<String, Role> roles,
+			String language) {
 		super(id, name, globalRole, roles);
+		this.token = token;
+		this.language = language;
+	}
+
+	/**
+	 * Gets the login token.
+	 * 
+	 * @return the token
+	 */
+	public String getToken() {
+		return this.token;
+	}
+
+	/**
+	 * Gets the user language.
+	 * 
+	 * @return the language
+	 */
+	public String getLanguage() {
+		return language;
 	}
 
 	/**
@@ -62,6 +90,7 @@ public class User extends AbstractUser {
 	/**
 	 * Gets the Metadata information of the accessible Edges.
 	 * 
+	 * @param user            the {@link User}
 	 * @param metadataService a {@link Metadata} provider
 	 * @return a list of {@link EdgeMetadata}
 	 */
