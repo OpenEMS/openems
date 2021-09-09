@@ -59,10 +59,6 @@ export class Controller_EvcsComponent extends AbstractFlatWidget {
       this.isEnergySinceBeginningAllowed = true;
     }
 
-    // Check if Charging is enabled
-    this.isChargingEnabled = this.controller.properties['enabledCharging'] ? true : false;
-    // ChargeMode
-    this.chargeMode = this.controller.properties['chargeMode']
     // Mode
     if (this.isChargingEnabled) {
       if (this.chargeMode == 'FORCE_CHARGE') {
@@ -71,23 +67,33 @@ export class Controller_EvcsComponent extends AbstractFlatWidget {
         this.mode = this.translate.instant('Edge.Index.Widgets.EVCS.OptimizedChargeMode.shortName')
       }
     }
-    // DefaultChargeMinPower
-    this.defaultChargeMinPower = this.controller.properties['defaultChargeMinPower'];
-    // Prioritization
-    this.prioritization =
-      this.controller.properties['priority'] in Prioritization
-        ? 'Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.' + this.controller.properties['priority'].toLowerCase()
-        : '';
+
+    // Check if Controller is set
+    if (this.controller) {
+
+      // ChargeMode
+      this.chargeMode = this.controller.properties['chargeMode']
+      // Check if Charging is enabled
+      this.isChargingEnabled = this.controller.properties['enabledCharging'] ? true : false;
+      // DefaultChargeMinPower
+      this.defaultChargeMinPower = this.controller.properties['defaultChargeMinPower'];
+      // Prioritization
+      this.prioritization =
+        this.controller.properties['priority'] in Prioritization
+          ? 'Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.' + this.controller.properties['priority'].toLowerCase()
+          : '';
+      // MaxChargingValue
+      if (this.phases) {
+        this.maxChargingValue = Utils.multiplySafely(this.controller.properties['forceChargeMinPower'], this.phases)
+      } else {
+        this.maxChargingValue = Utils.multiplySafely(this.controller.properties['forceChargeMinPower'], 3)
+      }
+      // EnergySessionLimit
+      this.energySessionLimit = this.controller.properties['energySessionLimit']
+    }
+
     // Phases
     this.phases = currentData.allComponents[this.componentId + '/Phases']
-    // MaxChargingValue
-    if (this.phases) {
-      this.maxChargingValue = Utils.multiplySafely(this.controller.properties['forceChargeMinPower'], this.phases)
-    } else {
-      this.maxChargingValue = Utils.multiplySafely(this.controller.properties['forceChargeMinPower'], 3)
-    }
-    // EnergySessionLimit
-    this.energySessionLimit = this.controller.properties['energySessionLimit']
   }
 
   /**
