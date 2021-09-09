@@ -8,10 +8,10 @@ import java.time.temporal.ChronoUnit;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.sum.GridMode;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.TimeLeapClock;
@@ -26,7 +26,7 @@ public class StandbyControllerImplTest {
 	private static final String CTRL_ID = "ctrlEssStandby0";
 	private static final ChannelAddress STATE_MACHINE = new ChannelAddress(CTRL_ID, "StateMachine");
 
-	private static final String SUM_ID = OpenemsConstants.SUM_ID;
+	private static final String SUM_ID = Sum.SINGLETON_COMPONENT_ID;
 	private static final ChannelAddress SUM_GRID_ACTIVE_POWER = new ChannelAddress(SUM_ID, "GridActivePower");
 	private static final ChannelAddress SUM_PRODUCTION_ACTIVE_POWER = new ChannelAddress(SUM_ID,
 			"ProductionActivePower");
