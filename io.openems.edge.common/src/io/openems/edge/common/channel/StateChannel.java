@@ -80,6 +80,7 @@ public class StateChannel extends AbstractReadChannel<AbstractDoc<Boolean>, Bool
 		super(OpenemsType.BOOLEAN, component, channelId, channelDoc, false);
 		this.level = level;
 		this.debounce = debounce;
+		this.debounceCounter = debounce;
 		this.debounceMode = debounceMode;
 	}
 
