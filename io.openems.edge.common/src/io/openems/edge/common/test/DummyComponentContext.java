@@ -22,7 +22,7 @@ public class DummyComponentContext implements ComponentContext {
 
 	private final Dictionary<String, Object> properties;
 
-	private DummyComponentContext(Dictionary<String, Object> properties) {
+	public DummyComponentContext(Dictionary<String, Object> properties) {
 		this.properties = properties;
 		// TODO create DummyBundleContext
 	}

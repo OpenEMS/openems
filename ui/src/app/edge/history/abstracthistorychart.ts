@@ -1,19 +1,21 @@
+import { Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets } from 'chart.js';
-import { differenceInDays } from 'date-fns';
+import { addDays, addMonths, differenceInDays, differenceInMonths } from 'date-fns';
 import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared/shared";
-import { ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET } from './shared';
+import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from './shared';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
 
     public loading: boolean = true;
     public spinnerId: string = "";
+    protected edge: Edge | null = null;
 
     //observable is used to fetch new chart data every 10 minutes
     // private refreshChartData = interval(600000);
@@ -68,12 +70,16 @@ export abstract class AbstractHistoryChart {
      * @param ws       the websocket
      */
     protected queryHistoricTimeseriesData(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesDataResponse> {
+
+        // TODO should be removed, edge delivers too much data 
+        let newDate = (this.service.periodString == 'year' ? addMonths(fromDate, 1) : this.service.periodString == 'month' ? addDays(fromDate, 1) : fromDate);
+        let resolution = calculateResolution(this.service, fromDate, toDate);
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
                     this.setLabel(config);
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
-                        let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses);
+                        let request = new QueryHistoricTimeseriesDataRequest(newDate, toDate, channelAddresses, resolution);
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             let result = (response as QueryHistoricTimeseriesDataResponse).result;
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
@@ -87,23 +93,27 @@ export abstract class AbstractHistoryChart {
             });
         });
     }
+
     /**
      * Sends the Historic Timeseries Energy per Period Query and makes sure the result is not empty.
      * 
      * @param fromDate the From-Date
      * @param toDate   the To-Date
-     * @param resolution the resolution in seconds
-     * @param edge     the current Edge
-     * @param ws       the websocket
+     * @param channelAddresses       the Channel-Addresses
      */
-    protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date, channelAddresses: ChannelAddress[], resolution: number): Promise<queryHistoricTimeseriesEnergyPerPeriodResponse> {
+    protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date, channelAddresses: ChannelAddress[]): Promise<queryHistoricTimeseriesEnergyPerPeriodResponse> {
+
+        // TODO should be removed, edge delivers too much data 
+        let newDate = this.service.periodString == 'year' ? addMonths(fromDate, 1) : addDays(fromDate, 1)
+        let resolution = calculateResolution(this.service, fromDate, toDate);
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
-                    let request = new queryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution);
-                    edge.sendRequest(this.service.websocket, request).then(response => {
+
+                    edge.sendRequest(this.service.websocket, new queryHistoricTimeseriesEnergyPerPeriodRequest(newDate, toDate, channelAddresses, resolution)).then(response => {
                         let result = (response as QueryHistoricTimeseriesDataResponse).result;
-                        if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
+
+                        if (Object.keys(result).length != 0) {
                             resolve(response as queryHistoricTimeseriesEnergyPerPeriodResponse);
                         } else {
                             reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
@@ -114,10 +124,43 @@ export abstract class AbstractHistoryChart {
         });
     }
 
+    /**
+     * Generates a Tooltip Title string from a 'fromDate' and 'toDate'.
+     * 
+     * @param fromDate the From-Date
+     * @param toDate the To-Date 
+     * @param date Date from TooltipItem
+     * @returns period for Tooltip Header
+     */
+    protected toTooltipTitle(fromDate: Date, toDate: Date, date: Date): string {
+        let resolution = calculateResolution(this.service, fromDate, toDate);
+        if (resolution >= (31 * 24 * 60 * 60)) {
+            // Yearly view
+            return date.toLocaleDateString('default', { month: 'long' });
+
+        } else if (resolution >= (24 * 60 * 60)) {
+            // Monthly view
+            return date.toLocaleDateString('default', { day: '2-digit', month: 'long' });
+
+        } else {
+            // Default
+            return date.toLocaleString('default', { day: '2-digit', month: '2-digit', year: '2-digit', }) + ' ' + date.toLocaleTimeString('default', { hour12: false, hour: '2-digit', minute: '2-digit' });
+        }
+    }
+
     protected createDefaultChartOptions(): ChartOptions {
         let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+
+        // Overwrite TooltipsTitle
+        options.tooltips.callbacks.title = (tooltipItems: TooltipItem[], data: Data): string => {
+            let date = new Date(tooltipItems[0].xLabel);
+            return this.toTooltipTitle(this.service.historyPeriod.from, this.service.historyPeriod.to, date);
+        }
+
         //x-axis
-        if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 5) {
+        if (differenceInMonths(this.service.historyPeriod.to, this.service.historyPeriod.from) > 1) {
+            options.scales.xAxes[0].time.unit = "month";
+        } else if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 5 && differenceInMonths(this.service.historyPeriod.to, this.service.historyPeriod.from) <= 1) {
             options.scales.xAxes[0].time.unit = "day";
         } else {
             options.scales.xAxes[0].time.unit = "hour";

@@ -1,11 +1,11 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Data, TooltipItem } from './../shared';
 
 @Component({
     selector: 'gridChart',
@@ -44,7 +44,9 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
         this.loading = true;
         this.service.startSpinner(this.spinnerId);
         this.colors = [];
+
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+
             let result = response.result;
             // convert labels
             let labels: Date[] = [];

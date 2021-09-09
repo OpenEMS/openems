@@ -7,6 +7,7 @@ export const TRANSLATION = {
         automatic: 'Automatiquement',
         cancel: 'cancel',
         capacity: 'Capacité',
+        numberOfComponents: 'nombre de composants',
         changeAccepted: 'Changement accepté',
         changeFailed: 'Changement échoué',
         chargeDischarge: 'Puissance de Charge/Décharge',
@@ -19,6 +20,7 @@ export const TRANSLATION = {
         currentValue: 'current value',
         dateFormat: 'yyyy-MM-dd', // e.g. German: dd.MM.yyyy (dd = Day, MM = Month, yyyy = Year)
         dischargePower: 'Puissance de décharge',
+        digitalInputs: 'Entrées numériques',
         fault: 'Fault',
         grid: 'Réseau',
         gridBuy: 'Acheté sur le réseau',
@@ -86,21 +88,27 @@ export const TRANSLATION = {
     },
     Menu: {
         aboutUI: 'à propos de OpenEMS UI',
-        edgeSettings: 'Réglages de FEMS',
+        accessLevel: 'Niveau d\'accès',
+        edgeSettings: 'Réglages de OpenEMS',
         generalSettings: 'Réglages généraux',
         index: 'Index',
         logout: 'Déconnexion',
         menu: 'Menu',
-        overview: 'Apperçu FEMS ',
+        name: 'Nom',
+        overview: 'Apperçu OpenEMS',
         profile: 'Utilisateur',
         settings: 'Réglages',
     },
     Index: {
         allConnected: 'Toutes les connections sont établies.',
+        connectionInProgress: 'Établir la connexion...',
         connectionSuccessful: 'Connecté avec succès à {{value}}.', // value = name of websocket
         connectionFailed: 'Connection avec {{value}} échouée.', // value = name of websocket
+        deviceOffline: 'Ld\'appareil n d\'est pas connecté!',
         isOffline: 'OpenEMS est hors ligne!',
+        loggedInAs: 'Enregistré en tant que:',
         toEnergymonitor: 'Vers le moniteur d\'énergie...',
+        type: 'Type:'
     },
     Edge: {
         Index: {
@@ -124,8 +132,9 @@ export const TRANSLATION = {
                 autarchyInfo: 'L\'AUtarcie indique le pourcentage de la puissance actuelle qui peut être couverte par la production et la décharge du stockage.',
                 phasesInfo: 'Pour des raisons technique, la somme des phases individuelles peut être légerement différente de la somme totale.',
                 selfconsumptionInfo: 'L\'auto-consommation indique le pourcentage de la puissance générée actuellement qui peut être utilisé par une consommation directe et une recharge du stockage.',
-                twoWayInfoStorage: 'Les valeurs négatives correspondent à la charge de la batterie, les valeurs positives correspondent à la charge de la batterie',
-                twoWayInfoGrid: 'Les valeurs négatives correspondent à l\'injection sur le réseau, les valeurs positives correspondent à la consommation sur le réseau',
+                twoWayInfoGrid: "Les valeurs négatives correspondent à l'alimentation du réseau, Les valeurs positives correspondent à l'alimentation secteur",
+                InfoStorageForCharge: 'Les valeurs négatives correspondent au chargement de la mémoire',
+                InfoStorageForDischarge: 'Les valeurs positives correspondent à une décharge de la mémoire',
                 Channeltreshold: {
                     output: 'Output'
                 },
@@ -165,6 +174,56 @@ export const TRANSLATION = {
                     startTime: 'Heure de début',
                     startTimeCharge: 'Heure de début du chargement',
                 },
+                GridOptimizedCharge: {
+                    considerGridFeedInLimit: 'Tenir compte de l\'injection maximale du réseau',
+                    endTime: 'Heure de fin',
+                    endTimeDescription: 'La charge n\'a pas lieu avec la quantité maximale pendant quelques heures, mais régulièrement sur une plus longue période de temps.',
+                    endTimeDetailedDescription: 'Le chargement n\'a pas lieu avec la puissance maximale pendant quelques heures, mais régulièrement avec un maximum de {{value1}} à {{value2}} heures.', // value1 = maximum charge, value2 = end time
+                    endTimeLong: 'Heure de fin du chargement restreint',
+                    expectedSoc: 'État de charge prévu',
+                    expectedSocWithoutSellToGridLimit: 'Sans éviter l\'injection maximale du réseau',
+                    gridFeedInLimitationAvoided: 'Limitation de l\'alimentation du réseau évitée',
+                    gridOptimizedChargeDisabled: 'Charge optimisée pour le réseau désactivée',
+                    high: 'Haute',
+                    History: {
+                        batteryChargeGridLimitDescription: 'L\'alimentation maximale du réseau, au-delà de laquelle la charge des batteries est augmentée (dans la mesure du possible), est inférieure à l\'alimentation maximale autorisée du réseau afin d\'éviter une réduction prématurée de la production.',
+                        priorityDescription: 'La charge minimale de la batterie a une priorité plus élevée que la charge maximale de la batterie.',
+                    },
+                    low: 'Faible',
+                    maximumCharge: 'Charge maximale',
+                    maximumGridFeedIn: 'Alimentation réseau maximale autorisée',
+                    medium: 'Moyen',
+                    minimumCharge: 'Charge minimale',
+                    RiskDescription: {
+                        Low: {
+                            functionDescription: 'Chargement relativement précoce du magasin',
+                            storageDescription: 'Plus grande probabilité que la mémoire soit complètement chargée',
+                            pvCurtail: 'Plus faible probabilité que la réduction du système PV soit évitée',
+                        },
+                        Medium: {
+                            functionDescription: 'Chargement relativement uniforme du magasin',
+                            storageDescription: 'Forte probabilité que le stockage soit complètement chargé',
+                            pvCurtail: 'Forte probabilité que la réduction du système PV soit évitée',
+                        },
+                        High: {
+                            functionDescription: 'Charge relativement tardive du système de stockage',
+                            storageDescription: 'Moins de probabilité que le système de stockage soit complètement chargé',
+                            pvCurtail: 'Probabilité plus élevée que la réduction du système PV sera évitée',
+                        },
+                    },
+                    riskPropensity: 'Propension au risque',
+                    settingOnlyVisableForInstaller: 'Ce paramètre n\'est visible que par l\'installateur',
+                    State: {
+                        chargeLimitActive: 'Limite de chargement active',
+                        endTimeNotCalculated: 'Heure de fin non calculée',
+                        gridFeedInLimitationIsAvoided: 'La limitation Grid-Feed-in est évitée',
+                        noLimitActive: 'Aucune limite de chargement active',
+                        noLimitPossible: 'Aucune limitation possible (limitée par des contrôles de priorité plus élevée)',
+                        notDefined: 'Non défini',
+                        passedEndTime: 'Heure de fin du chargement limité dépassée',
+                        storageAlreadyFull: 'Mémoire déjà pleine',
+                    },
+                },
                 CHP: {
                     highThreshold: 'Seuil Haut',
                     lowThreshold: 'Seuil Bas',
@@ -190,7 +249,7 @@ export const TRANSLATION = {
                     chargingStationPluggedInEVLocked: 'Station de recharge + EV branchée + Verrouillée',
                     clusterConfigError: 'Une erreur s\'est produite dans la configuration du cluster de stations de recharge',
                     currentCharge: 'Reharge actuelle',
-                    energieSinceBeginning: 'Energie depuis le début de la dernière recharge',
+                    energySinceBeginning: 'Energie depuis le début de la dernière recharge',
                     energyLimit: 'Limite d\'énergie',
                     enforceCharging: 'Appliquer la charge',
                     error: 'Erreur',

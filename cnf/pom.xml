@@ -165,7 +165,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty</artifactId>
-			<version>4.1.10</version>
+			<version>4.1.12</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Metatype Service -->
@@ -186,7 +186,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>4.6.4</version>
+			<version>4.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>

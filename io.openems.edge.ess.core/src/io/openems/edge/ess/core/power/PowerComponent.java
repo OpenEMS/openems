@@ -15,6 +15,9 @@ import io.openems.edge.ess.power.api.SolverStrategy;
 
 public interface PowerComponent extends OpenemsComponent, EventHandler, Power {
 
+	public final static String SINGLETON_SERVICE_PID = "Ess.Power";
+	public final static String SINGLETON_COMPONENT_ID = "_power";
+
 	public static final boolean DEFAULT_SYMMETRIC_MODE = true;
 	public static final boolean DEFAULT_DEBUG_MODE = false;
 	public static final SolverStrategy DEFAULT_SOLVER_STRATEGY = SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET;
