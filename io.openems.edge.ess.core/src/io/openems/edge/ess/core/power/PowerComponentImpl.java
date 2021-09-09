@@ -3,6 +3,7 @@ package io.openems.edge.ess.core.power;
 import java.util.List;
 
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -41,11 +42,10 @@ import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
-		name = "Ess.Power", //
+		name = PowerComponent.SINGLETON_SERVICE_PID, //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.OPTIONAL, //
 		property = { //
-				"id=_power", //
 				"enabled=true", //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
@@ -54,6 +54,9 @@ public class PowerComponentImpl extends AbstractOpenemsComponent
 		implements PowerComponent, OpenemsComponent, EventHandler, Power {
 
 	private final Logger log = LoggerFactory.getLogger(PowerComponentImpl.class);
+
+	@Reference
+	private ConfigurationAdmin cm;
 
 	private final Data data;
 	private final Solver solver;
@@ -81,7 +84,10 @@ public class PowerComponentImpl extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, "_power", "Ess.Power", true);
+		super.activate(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
+		}
 		this.updateConfig(config);
 	}
 
@@ -92,7 +98,10 @@ public class PowerComponentImpl extends AbstractOpenemsComponent
 
 	@Modified
 	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.modified(context, "_power", "Ess.Power", true);
+		super.modified(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
+		}
 		this.updateConfig(config);
 	}
 
