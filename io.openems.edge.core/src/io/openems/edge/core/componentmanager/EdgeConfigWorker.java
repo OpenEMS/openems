@@ -49,7 +49,6 @@ import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetail;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailOpenemsType;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
 import io.openems.common.types.EdgeConfig.Factory;
-import io.openems.common.types.EdgeConfig.Factory.Property;
 import io.openems.common.types.OptionsEnum;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
@@ -299,7 +298,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					Factory factory = result.getFactories().get(factoryPid);
 					if (factory != null) {
 						Optional<String> defaultValue = JsonUtils
-								.getAsOptionalString(getPropertyDefaultValue(factory, "id"));
+								.getAsOptionalString(factory.getPropertyDefaultValue("id"));
 						if (defaultValue.isPresent()) {
 							componentId = defaultValue.get();
 						}
@@ -356,21 +355,6 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			}
 		}
 		return true;
-	}
-
-	/**
-	 * Gets the default value of a property.
-	 * 
-	 * @param edgeConfig the {@link EdgeConfig}
-	 * @param factoryPid the Factory-PID
-	 * @param propertyId the Property ID
-	 */
-	private static JsonElement getPropertyDefaultValue(Factory factory, String propertyId) {
-		Optional<Property> property = factory.getProperty(propertyId);
-		if (!property.isPresent()) {
-			return JsonNull.INSTANCE;
-		}
-		return property.get().getDefaultValue();
 	}
 
 	/**
@@ -623,7 +607,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 
 				if (value == null || value.isJsonNull()) {
 					// get default value
-					value = getPropertyDefaultValue(factory, key);
+					value = factory.getPropertyDefaultValue(key);
 				}
 			}
 
