@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
@@ -41,7 +42,11 @@ public class PowerComponentTest {
 				.withMaxApparentPower(12000) //
 				.withSoc(30);
 
+		final DummyConfigurationAdmin cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(PowerComponent.SINGLETON_SERVICE_PID);
+
 		ComponentTest componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
 				.addReference("addEss", ess0) //
 				.activate(MyConfig.create() //
 						.setStrategy(SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET) //
@@ -66,7 +71,11 @@ public class PowerComponentTest {
 				.withMaxApparentPower(30000) //
 				.withSoc(30);
 
+		final DummyConfigurationAdmin cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(PowerComponent.SINGLETON_SERVICE_PID);
+
 		final ComponentTest componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
 				.addReference("addEss", ess0) //
 				.activate(MyConfig.create() //
 						.setStrategy(SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET) //
@@ -95,7 +104,11 @@ public class PowerComponentTest {
 				.withMaxApparentPower(30000) //
 				.withSoc(30);
 
+		final DummyConfigurationAdmin cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(PowerComponent.SINGLETON_SERVICE_PID);
+
 		ComponentTest componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
 				.addReference("addEss", ess0) //
 				.activate(MyConfig.create() //
 						.setStrategy(SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL) //
@@ -125,7 +138,11 @@ public class PowerComponentTest {
 				.withSoc(60);
 		DummyMetaEss ess0 = new DummyMetaEss("ess0", powerComponent, ess1, ess2); //
 
+		final DummyConfigurationAdmin cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(PowerComponent.SINGLETON_SERVICE_PID);
+
 		final ComponentTest componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
 				.addReference("addEss", ess0) //
 				.addReference("addEss", ess1) //
 				.addReference("addEss", ess2) //
@@ -263,7 +280,11 @@ public class PowerComponentTest {
 				.withSoc(70);
 		DummyMetaEss ess0 = new DummyMetaEss("ess0", powerComponent, ess1, ess2, ess3, ess4, ess5, ess6); //
 
+		final DummyConfigurationAdmin cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(PowerComponent.SINGLETON_SERVICE_PID);
+
 		final ComponentTest componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
 				.addReference("addEss", ess0) //
 				.addReference("addEss", ess1) //
 				.addReference("addEss", ess2) //
@@ -346,7 +367,11 @@ public class PowerComponentTest {
 				.withPowerPrecision(100);
 		DummyMetaEss ess0 = new DummyMetaEss("ess0", powerComponent, ess1, ess2); //
 
+		final DummyConfigurationAdmin cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(PowerComponent.SINGLETON_SERVICE_PID);
+
 		final ComponentTest componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
 				.addReference("addEss", ess0) //
 				.addReference("addEss", ess1) //
 				.addReference("addEss", ess2) //

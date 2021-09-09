@@ -3,6 +3,7 @@ package io.openems.edge.controller.api.backend;
 import java.net.Proxy;
 import java.net.URI;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -83,11 +84,20 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 	@Override
 	protected void execute(Runnable command) {
-		this.parent.executor.execute(command);
+		this.parent.execute(command);
 	}
 
+	/**
+	 * Schedules a command using the {@link ScheduledExecutorService}.
+	 * 
+	 * @param command      a {@link Runnable}
+	 * @param initialDelay the initial delay
+	 * @param delay        the delay
+	 * @param unit         the {@link TimeUnit}
+	 * @return a {@link ScheduledFuture}, or null if Executor is shutting down
+	 */
 	protected ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
 			TimeUnit unit) {
-		return this.parent.executor.scheduleWithFixedDelay(command, initialDelay, delay, unit);
+		return this.parent.scheduleWithFixedDelay(command, initialDelay, delay, unit);
 	}
 }
