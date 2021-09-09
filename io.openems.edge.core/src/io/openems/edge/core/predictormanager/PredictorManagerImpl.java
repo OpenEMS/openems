@@ -36,7 +36,7 @@ import io.openems.edge.predictor.api.oneday.Predictor24Hours;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
-		name = "Core.PredictorManager", //
+		name = PredictorManager.SINGLETON_SERVICE_PID, //
 		immediate = true, //
 		property = { //
 				"enabled=true" //
@@ -65,8 +65,8 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context) {
-		super.activate(context, PredictorManager.SINGLETON_COMPONENT_ID, "Core.PredictorManager", true);
-		if (OpenemsComponent.validateSingleton(this.cm, this.serviceFactoryPid(), SINGLETON_COMPONENT_ID)) {
+		super.activate(context, PredictorManager.SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
 	}

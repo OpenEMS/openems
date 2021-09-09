@@ -26,7 +26,7 @@ public class DummyPredictorManager extends AbstractOpenemsComponent implements P
 		for (Predictor24Hours predictor : predictors) {
 			this.predictors.add(predictor);
 		}
-		super.activate(null, PredictorManager.SINGLETON_COMPONENT_ID, "", true);
+		super.activate(null, PredictorManager.SINGLETON_COMPONENT_ID, PredictorManager.SINGLETON_SERVICE_PID, true);
 	}
 
 	public void addPredictor(Predictor24Hours predictor) {

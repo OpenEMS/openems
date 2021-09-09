@@ -90,7 +90,7 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
-		this.worker.activate("Core.Cycle");
+		this.worker.activate(SINGLETON_SERVICE_PID);
 	}
 
 	@Deactivate
@@ -101,10 +101,10 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 
 	@Modified
 	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.modified(context, SINGLETON_COMPONENT_ID, "Core.Cycle", true);
+		super.modified(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		Config oldConfig = this.config;
 		this.config = config;
-		if (OpenemsComponent.validateSingleton(this.cm, this.serviceFactoryPid(), SINGLETON_COMPONENT_ID)) {
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
 		// make sure the worker starts if it had been stopped
