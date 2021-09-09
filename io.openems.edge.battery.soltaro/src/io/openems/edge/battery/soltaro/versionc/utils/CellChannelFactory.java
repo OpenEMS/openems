@@ -1,8 +1,8 @@
 package io.openems.edge.battery.soltaro.versionc.utils;
 
 import io.openems.common.channel.Unit;
-import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
+import io.openems.edge.battery.soltaro.common.ChannelIdImpl;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.IntegerDoc;
 
@@ -14,17 +14,28 @@ public class CellChannelFactory {
 	private static final String NUMBER_FORMAT = "%03d";
 
 	public static enum Type {
-		TEMPERATURE(//
+		TEMPERATURE_SINGLE(//
+				"_TEMPERATURE", //
+				Unit.DEZIDEGREE_CELSIUS, //
+				Constants.TEMPERATURE_ADDRESS_OFFSET + Constants.SINGLE_RACK_ADDRESS_OFFSET, //
+				Constants.TEMPERATURE_SENSORS_PER_MODULE), //
+		VOLTAGE_SINGLE(//
+				"_VOLTAGE", //
+				Unit.MILLIVOLT, //
+				Constants.VOLTAGE_ADDRESS_OFFSET + Constants.SINGLE_RACK_ADDRESS_OFFSET, //
+				Constants.VOLTAGE_SENSORS_PER_MODULE), //
+
+		TEMPERATURE_CLUSTER(//
 				"_TEMPERATURE", //
 				Unit.DEZIDEGREE_CELSIUS, //
 				Constants.TEMPERATURE_ADDRESS_OFFSET, //
 				Constants.TEMPERATURE_SENSORS_PER_MODULE), //
-		VOLTAGE(//
+		VOLTAGE_CLUSTER(//
 				"_VOLTAGE", //
 				Unit.MILLIVOLT, //
 				Constants.VOLTAGE_ADDRESS_OFFSET, //
 				Constants.VOLTAGE_SENSORS_PER_MODULE); //
-
+		
 		private final String key;
 		private final Unit unit;
 		private final int offset;
@@ -33,7 +44,7 @@ public class CellChannelFactory {
 		private Type(String key, Unit unit, int offset, int sensorsPerModule) {
 			this.key = key;
 			this.unit = unit;
-			this.offset = Constants.ADDRESS_OFFSET + offset;
+			this.offset = + offset;
 			this.sensorsPerModule = sensorsPerModule;
 		}
 

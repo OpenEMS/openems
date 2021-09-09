@@ -6,6 +6,11 @@ tasks.named('wrapper') {
   jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
 }
 
+// UTF-8
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
 /*
  * Build OpenEMS Edge and Backend Components
  */
@@ -13,6 +18,11 @@ task buildComponents() {
     subprojects.each { proj ->
         if (proj.tasks.findAll { it.name == 'compileJava' }) {
             dependsOn(proj.compileJava)
+            proj.test {
+                testLogging {
+                    events "passed", "skipped", "failed", "standardOut", "standardError"
+                }
+            }
         }
     }
 }
@@ -25,7 +35,7 @@ task buildEdge() {
     doLast {
         file("${buildDir}/openems-edge.jar").delete()
         copy {
-            from file("${project(":io.openems.edge.application").distsDir}/executable/EdgeApp.jar")
+            from file("io.openems.edge.application/generated/distributions/executable/EdgeApp.jar")
             into file("${buildDir}")
             rename ("EdgeApp.jar", "openems-edge.jar")
         }
@@ -40,25 +50,11 @@ task buildBackend() {
     doLast {
         file("${buildDir}/openems-backend.jar").delete()
         copy {
-            from file("${project(":io.openems.backend.application").distsDir}/executable/BackendApp.jar")
+            from file("io.openems.backend.application/generated/distributions/executable/BackendApp.jar")
             into file("${buildDir}")
             rename ("BackendApp.jar", "openems-backend.jar")
         }
     }
-}
-
-/*
- * Build OpenEMS UI for OpenEMS Backend
- */
-task buildUiForBackend() {
-    dependsOn ":ui:buildForBackend"
-}
-
-/*
- * Build OpenEMS UI for OpenEMS Edge
- */
-task buildUiForEdge() {
-    dependsOn ":ui:buildForEdge"
 }
 
 /*
@@ -69,6 +65,7 @@ task buildAggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from
     title = "OpenEMS Javadoc"
     subprojects.each { proj ->
         proj.tasks.withType(Javadoc).each { javadocTask ->
+            javadocTask.options.encoding = 'UTF-8'
             options.addStringOption('Xdoclint:none', '-quiet')
             source += javadocTask.source
             classpath += javadocTask.classpath

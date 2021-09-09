@@ -67,16 +67,16 @@
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="12" size-lg="6" class="ion-no-padding">
-                <channelthreshold [componentId]="widget.componentId"></channelthreshold>
+                <Controller_Channelthreshold [componentId]="widget.componentId"></Controller_Channelthreshold>
               </ion-col>
 
               <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'"
                 size="12" size-lg="6" class="ion-no-padding">
-                <channelthreshold [componentId]="widget.componentId"></channelthreshold>
+                <Controller_Channelthreshold [componentId]="widget.componentId"></Controller_Channelthreshold>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="12" size-lg="6" class="ion-no-padding">
-                <fixdigitaloutput [componentId]="widget.componentId"></fixdigitaloutput>
+                <Controller_Io_FixDigitalOutput [componentId]="widget.componentId"></Controller_Io_FixDigitalOutput>
               </ion-col>
 
               <!-- Widgets that are likely to be configured seldomly -->
@@ -86,7 +86,7 @@
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.IO.HeatingElement'" size="12" size-lg="6" class="ion-no-padding">
-                <heatingelement [componentId]="widget.componentId"></heatingelement>
+                <Controller_Io_HeatingElement [componentId]="widget.componentId"></Controller_Io_HeatingElement>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Io.HeatPump.SgReady'" size="12" size-lg="6" class="ion-no-padding">
@@ -116,11 +116,16 @@
 
               <ion-col *ngSwitchCase="'io.openems.edge.io.api.DigitalInput'" size="12" size-lg="6"
                 class="ion-no-padding">
-                <digitalinput></digitalinput>
+                <Io_Api_DigitalInput></Io_Api_DigitalInput>
               </ion-col>
 
               <ion-col size="12" *ngSwitchCase="'Controller.Ess.FixActivePower'" size-lg="6" class="ion-no-padding">
-                <fixactivepower [componentId]="widget.componentId"></fixactivepower>
+                <Controller_Ess_FixActivePower [componentId]="widget.componentId"></Controller_Ess_FixActivePower>
+              </ion-col>
+
+              <ion-col size="12" *ngSwitchCase="'Controller.Ess.GridOptimizedCharge'" size-lg="6"
+                class="ion-no-padding">
+                <gridoptimizedcharge [componentId]="widget.componentId"></gridoptimizedcharge>
               </ion-col>
             </ng-container>
 

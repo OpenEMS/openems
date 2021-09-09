@@ -29,10 +29,10 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.protection.BatteryProtection;
-import io.openems.edge.battery.soltaro.BatteryProtectionDefinitionSoltaro;
-import io.openems.edge.battery.soltaro.BatteryState;
-import io.openems.edge.battery.soltaro.ChargeIndication;
-import io.openems.edge.battery.soltaro.State;
+import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3000Wh;
+import io.openems.edge.battery.soltaro.common.enums.BatteryState;
+import io.openems.edge.battery.soltaro.common.enums.ChargeIndication;
+import io.openems.edge.battery.soltaro.common.enums.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -94,7 +94,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	private int unsuccessfulStarts = 0;
 	private LocalDateTime startAttemptTime = null;
 
-	// indicates that system is stopping; during that time no commands should be
+	// Indicates that system is stopping; during that time no commands should be
 	// sent
 	private boolean isStopping = false;
 
@@ -131,7 +131,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 		// Initialize Battery-Protection
 		this.batteryProtection = BatteryProtection.create(this) //
-				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro(), this.componentManager) //
+				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionSoltaro3000Wh(), this.componentManager) //
 				.build();
 
 		this._setCapacity(config.capacity() * 1000);
@@ -1106,7 +1106,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				.text("Voltage sampling fault")), //
 		FAILURE_LTC6803(Doc.of(Level.FAULT) //
 				.text("LTC6803 fault")), //
-		FAILURE_CONNECTOR_WIRE(Doc.of(Level.FAULT) //
+		FAILURE_CONNECTOR_WIRE(Doc.of(Level.WARNING) //
 				.text("connector wire fault")), //
 		FAILURE_SAMPLING_WIRE(Doc.of(Level.FAULT) //
 				.text("sampling wire fault")), //

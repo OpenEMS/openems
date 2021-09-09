@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -21,11 +22,12 @@ import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
 import io.openems.common.session.Role;
-import io.openems.common.session.User;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
+import io.openems.edge.common.user.User;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
@@ -42,7 +44,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		switch (request.getMethod()) {
 
 		case AuthenticatedRpcRequest.METHOD:
-			return this.handleAuthenticatedRpcRequest(AuthenticatedRpcRequest.from(request));
+			return this.handleAuthenticatedRpcRequest(AuthenticatedRpcRequest.<User>from(request, User::from));
 
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
@@ -51,14 +53,14 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a AuthenticatedRpcRequest.
+	 * Handles a {@link AuthenticatedRpcRequest}.
 	 *
-	 * @param authenticatedRpcRequest the AuthenticatedRpcRequest
+	 * @param authenticatedRpcRequest the {@link AuthenticatedRpcRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<AuthenticatedRpcResponse> handleAuthenticatedRpcRequest(
-			AuthenticatedRpcRequest authenticatedRpcRequest) throws OpenemsNamedException {
+			AuthenticatedRpcRequest<User> authenticatedRpcRequest) throws OpenemsNamedException {
 		User user = authenticatedRpcRequest.getUser();
 		JsonrpcRequest request = authenticatedRpcRequest.getPayload();
 
@@ -92,6 +94,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case SubscribeSystemLogRequest.METHOD:
 			resultFuture = this.handleSubscribeSystemLogRequest(user, SubscribeSystemLogRequest.from(request));
 			break;
+		case UpdateUserLanguageRequest.METHOD:
+			resultFuture = this.handleUpdateUserLanguageRequest(user, UpdateUserLanguageRequest.from(request));
 
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
@@ -113,10 +117,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a GetEdgeConfigRequest.
+	 * Handles a {@link GetEdgeConfigRequest}.
 	 *
-	 * @param user                 the User
-	 * @param getEdgeConfigRequest the GetEdgeConfigRequest
+	 * @param user                 the {@link User}
+	 * @param getEdgeConfigRequest the {@link GetEdgeConfigRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
@@ -130,10 +134,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a CreateComponentConfigRequest.
+	 * Handles a {@link CreateComponentConfigRequest}.
 	 * 
-	 * @param user                         the User
-	 * @param createComponentConfigRequest the CreateComponentConfigRequest
+	 * @param user                         the {@link User}
+	 * @param createComponentConfigRequest the {@link CreateComponentConfigRequest}
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
@@ -149,10 +153,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a UpdateComponentConfigRequest.
+	 * Handles a {@link UpdateComponentConfigRequest}.
 	 * 
-	 * @param user                         the User
-	 * @param updateComponentConfigRequest the UpdateComponentConfigRequest
+	 * @param user                         the {@link User}
+	 * @param updateComponentConfigRequest the {@link UpdateComponentConfigRequest}
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
@@ -168,10 +172,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a DeleteComponentConfigRequest.
+	 * Handles a {@link DeleteComponentConfigRequest}.
 	 * 
-	 * @param user                         the User
-	 * @param deleteComponentConfigRequest the DeleteComponentConfigRequest
+	 * @param user                         the {@link User}
+	 * @param deleteComponentConfigRequest the {@link DeleteComponentConfigRequest}
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
@@ -187,10 +191,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a SetChannelValueRequest.
+	 * Handles a {@link SetChannelValueRequest}.
 	 * 
-	 * @param user    the User
-	 * @param request the SetChannelValueRequest
+	 * @param user    the {@link User}
+	 * @param request the {@link SetChannelValueRequest}
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
@@ -202,10 +206,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a ComponentJsonApiRequest.
+	 * Handles a {@link ComponentJsonApiRequest}.
 	 * 
 	 * @param user    the {@link User}
-	 * @param request the ComponentJsonApiRequest
+	 * @param request the {@link ComponentJsonApiRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
@@ -250,10 +254,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a SubscribeSystemLogRequest.
+	 * Handles a {@link SubscribeSystemLogRequest}.
 	 *
 	 * @param user    the {@link User}
-	 * @param request the SubscribeSystemLogRequest
+	 * @param request the {@link SubscribeSystemLogRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
@@ -262,4 +266,18 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		this.parent.setSystemLogSubscribed(request.getSubscribe());
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
+
+	/**
+	 * Handles a {@link UpdateUserLanguageRequest}.
+	 * 
+	 * @param user    the {@link User}
+	 * @param request the {@link UpdateUserLanguageRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateUserLanguageRequest(User user,
+			UpdateUserLanguageRequest request) throws OpenemsNamedException {
+		throw new NotImplementedException("Edge backend api update user language not implemented");
+	}
+
 }

@@ -20,7 +20,6 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -106,7 +105,7 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 		 * We are using the FLOAT registers from the modbus table, because they are all
 		 * reachable within one ReadMultipleRegistersRequest.
 		 */
-		return new ModbusProtocol(this, //
+		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(800, Priority.HIGH, //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(800),
 								ElementToChannelConverter.SCALE_FACTOR_3),
@@ -143,12 +142,21 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(880),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(882),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.invert))),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert))));
 
-				new FC3ReadRegistersTask(5800, Priority.LOW, //
-						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(5800)),
-						new DummyRegisterElement(5802, 5815),
-						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(5816))));
+		if (this.invert) {
+			modbusProtocol.addTask(new FC3ReadRegistersTask(19068, Priority.LOW, //
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(19068)),
+					new DummyRegisterElement(19070, 19075),
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(19076))));
+		} else {
+			modbusProtocol.addTask(new FC3ReadRegistersTask(19068, Priority.LOW, //
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(19068)),
+					new DummyRegisterElement(19070, 19075),
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(19076))));
+		}
+
+		return modbusProtocol;
 	}
 
 	@Override

@@ -29,9 +29,9 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Setup Cache for Node.js
         uses: actions/cache@v2
@@ -56,4 +56,7 @@ jobs:
         run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 
       - name: Build OpenEMS UI
-        run: ./gradlew buildUiForEdge --continue
+        run: |
+          cd ui
+          npm ci --prefer-offline --cache ~/.npm
+          node_modules/@angular/cli/bin/ng build -c "openems,openems-edge-prod,prod"

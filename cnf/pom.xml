@@ -29,12 +29,12 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.8.5</version>
+			<version>2.8.8</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>29.0-jre</version>
+			<version>30.1.1-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -45,7 +45,7 @@
 			<!-- Used by org.influxdb: influxdb-java -->
 			<groupId>com.squareup.moshi</groupId>
 			<artifactId>moshi</artifactId>
-			<version>1.11.0</version>
+			<version>1.12.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by org.influxdb: influxdb-java -->
@@ -75,19 +75,38 @@
 			<!-- Used by org.influxdb: influxdb-java -->
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>retrofit</artifactId>
-			<version>2.8.1</version>
+			<version>2.9.0</version>
 		</dependency>
 		<dependency>
 			<!-- HikariCP A solid, high-performance, JDBC connection pool at last. -->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>4.0.2</version>
+			<version>4.0.3</version>
 		</dependency>
 		<!-- commons -->
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
 			<version>1.4</version>
+		</dependency>
+		<!-- eu -->
+		<dependency>
+			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<groupId>eu.chargetime.ocpp</groupId>
+			<artifactId>common</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<groupId>eu.chargetime.ocpp</groupId>
+			<artifactId>OCPP-J</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+		<dependency>
+			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<groupId>eu.chargetime.ocpp</groupId>
+			<artifactId>v1_6</artifactId>
+			<version>1.0.1</version>
 		</dependency>
 		<!-- info -->
 		<dependency>
@@ -106,7 +125,7 @@
 			<!-- Used by SDNotify -->
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.7.0</version>
+			<version>5.9.0</version>
 		</dependency>
 		<!-- org -->
 		<dependency>
@@ -129,18 +148,24 @@
 			<version>1.6.2</version>
 		</dependency>
 		<dependency>
+			<!-- Apache Felix Framework -->
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.framework</artifactId>
+			<version>7.0.1</version>
+		</dependency>
+		<dependency>
 			<!-- Apache Felix Inventory -->
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/inventory/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.inventory</artifactId>
-			<version>1.0.6</version>
+			<version>1.1.0</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix HTTP Service -->
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty</artifactId>
-			<version>4.1.4</version>
+			<version>4.1.12</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Metatype Service -->
@@ -161,7 +186,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>4.6.0</version>
+			<version>4.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
@@ -181,12 +206,13 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.12.3</version>
+			<version>0.12.11</version>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.platform</groupId>
-			<artifactId>org.eclipse.osgi</artifactId>
-			<version>3.16.100</version>
+			<!-- Eclipse Paho MQTTv5 Client -->
+			<groupId>org.eclipse.paho</groupId>
+			<artifactId>org.eclipse.paho.mqttv5.client</artifactId>
+			<version>1.2.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.influxdb</groupId>
@@ -196,12 +222,23 @@
 		<dependency>
 			<groupId>org.java-websocket</groupId>
 			<artifactId>Java-WebSocket</artifactId>
-			<version>1.5.1</version>
+			<version>1.5.2</version>
+		</dependency>
+		<dependency>
+			<!-- HTML processing -->
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.14.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.framework</artifactId>
+			<version>1.10.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.msgpack</groupId>
 			<artifactId>msgpack-core</artifactId>
-			<version>0.8.22</version>
+			<version>0.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openmuc</groupId>
@@ -211,12 +248,12 @@
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>2.0.8</version>
+			<version>2.0.10</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-log4j1</artifactId>
-			<version>2.0.8</version>
+			<version>2.0.10</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -237,7 +274,7 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.2.19</version>
+			<version>42.2.23</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.edge.timedata.rrd4j -->
@@ -248,12 +285,12 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.30</version>
+			<version>1.7.32</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
-			<version>1.7.30</version>
+			<version>1.7.32</version>
 		</dependency>
 	</dependencies>
 </project>

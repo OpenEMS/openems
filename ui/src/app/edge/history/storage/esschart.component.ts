@@ -1,11 +1,11 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Data, TooltipItem } from '../shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'storageESSChart',
@@ -14,9 +14,9 @@ import { TranslateService } from '@ngx-translate/core';
 export class StorageESSChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
-    @Input() private componentId: string;
-    @Input() private showPhases: boolean;
+    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input() public componentId: string;
+    @Input() public showPhases: boolean;
 
     moreThanOneProducer: boolean = null;
 

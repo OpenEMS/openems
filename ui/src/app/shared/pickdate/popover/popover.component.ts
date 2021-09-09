@@ -1,4 +1,4 @@
-import { addDays, getDate, getMonth, getYear, startOfWeek, endOfWeek } from 'date-fns/esm';
+import { addDays, getDate, getMonth, getYear, startOfWeek, endOfWeek, startOfYear, endOfYear } from 'date-fns/esm';
 import { Component, Input } from '@angular/core';
 import { DefaultTypes } from '../../service/defaulttypes';
 import { Edge } from '../../edge/edge';
@@ -16,7 +16,7 @@ import { TranslateService } from '@ngx-translate/core';
 export class PickDatePopoverComponent {
 
 
-    @Input() private setDateRange: (period: DefaultTypes.HistoryPeriod) => void;
+    @Input() public setDateRange: (period: DefaultTypes.HistoryPeriod) => void;
     @Input() public edge: Edge | null = null;
 
     private readonly TODAY = new Date();
@@ -85,12 +85,12 @@ export class PickDatePopoverComponent {
                 this.popoverCtrl.dismiss();
                 break;
             }
-            // case 'year': {
-            //     this.setDateRange(new DefaultTypes.HistoryPeriod(startOfYear(this.TODAY), endOfYear(this.TODAY)));
-            //     this.service.periodString = period;
-            //     this.popoverCtrl.dismiss();
-            //     break;
-            // }
+            case 'year': {
+                this.setDateRange(new DefaultTypes.HistoryPeriod(startOfYear(this.TODAY), endOfYear(this.TODAY)));
+                this.service.periodString = period;
+                this.popoverCtrl.dismiss();
+                break;
+            }
         }
     }
 

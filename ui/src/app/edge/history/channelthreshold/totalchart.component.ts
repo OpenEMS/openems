@@ -14,7 +14,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-  @Input() private period: DefaultTypes.HistoryPeriod;
+  @Input() public period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
     this.updateChart();
@@ -44,6 +44,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
       // convert labels
       let labels: Date[] = [];

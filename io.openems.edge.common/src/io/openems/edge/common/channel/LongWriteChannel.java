@@ -72,5 +72,4 @@ public class LongWriteChannel extends LongReadChannel implements WriteChannel<Lo
 	public void onSetNextWrite(ThrowingConsumer<Long, OpenemsNamedException> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
-
 }

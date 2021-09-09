@@ -29,6 +29,7 @@ import org.influxdb.dto.QueryResult.Series;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
@@ -37,6 +38,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
+import io.openems.common.utils.ThreadPoolUtils;
 import okhttp3.OkHttpClient;
 
 public class InfluxConnector {
@@ -63,7 +65,10 @@ public class InfluxConnector {
 	private final boolean isReadOnly;
 	private final BiConsumer<Iterable<Point>, Throwable> onWriteError;
 	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(EXECUTOR_MIN_THREADS, EXECUTOR_MAX_THREADS, 60L,
-			TimeUnit.SECONDS, new ArrayBlockingQueue<>(EXECUTOR_QUEUE_SIZE), new ThreadPoolExecutor.DiscardPolicy());
+			TimeUnit.SECONDS, //
+			new ArrayBlockingQueue<>(EXECUTOR_QUEUE_SIZE), //
+			new ThreadFactoryBuilder().setNameFormat("InfluxConnector-%d").build(), //
+			new ThreadPoolExecutor.DiscardPolicy());
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	/**
@@ -142,19 +147,7 @@ public class InfluxConnector {
 
 	public void deactivate() {
 		// Shutdown executor
-		if (this.executor != null) {
-			try {
-				this.executor.shutdown();
-				this.executor.awaitTermination(5, TimeUnit.SECONDS);
-			} catch (InterruptedException e) {
-				this.log.warn("tasks interrupted");
-			} finally {
-				if (!this.executor.isTerminated()) {
-					this.log.warn("cancel non-finished tasks");
-				}
-				this.executor.shutdownNow();
-			}
-		}
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 		if (this._influxDB != null) {
 			this._influxDB.close();
 		}

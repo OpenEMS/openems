@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.metadata.odoo.postgres.task.DatabaseTask;
@@ -18,6 +19,7 @@ import io.openems.backend.metadata.odoo.postgres.task.InsertEdgeConfigUpdate;
 import io.openems.backend.metadata.odoo.postgres.task.InsertOrUpdateDeviceStates;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeConfig;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeProducttype;
+import io.openems.common.utils.ThreadPoolUtils;
 
 /**
  * This worker writes all Statements in a queue.
@@ -27,7 +29,7 @@ public class QueueWriteWorker {
 	/**
 	 * DEBUG_MODE activates printing of reqular statistics about queued tasks.
 	 */
-	private final static boolean DEBUG_MODE = false;
+	private static final boolean DEBUG_MODE = false;
 
 	private final Logger log = LoggerFactory.getLogger(QueueWriteWorker.class);
 	private final PostgresHandler parent;
@@ -36,7 +38,8 @@ public class QueueWriteWorker {
 	// Executor for subscriptions task. Like a CachedThreadPool, but properly typed
 	// for DEBUG_MODE.
 	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
-			new SynchronousQueue<Runnable>());
+			new SynchronousQueue<Runnable>(),
+			new ThreadFactoryBuilder().setNameFormat("Metadata.Odoo.PGQueue-%d").build());
 
 	private final ScheduledExecutorService debugLogExecutor;
 
@@ -51,32 +54,29 @@ public class QueueWriteWorker {
 		}
 	}
 
+	/**
+	 * Starts the {@link QueueWriteWorker}.
+	 */
 	public synchronized void start() {
 		if (DEBUG_MODE) {
 			this.initializeDebugLog();
 		}
 	}
 
+	/**
+	 * Stops the {@link QueueWriteWorker}.
+	 */
 	public synchronized void stop() {
-		// Shutdown executor
-		if (this.executor != null) {
-			try {
-				this.executor.shutdown();
-				this.executor.awaitTermination(5, TimeUnit.SECONDS);
-			} catch (InterruptedException e) {
-				this.parent.logWarn(this.log, "tasks interrupted");
-			} finally {
-				if (!this.executor.isTerminated()) {
-					this.parent.logWarn(this.log, "cancel non-finished tasks");
-				}
-				this.executor.shutdownNow();
-			}
-		}
-		if (this.debugLogExecutor != null) {
-			this.debugLogExecutor.shutdown();
-		}
+		// Shutdown executors
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 5);
 	}
 
+	/**
+	 * Adds a {@link DatabaseTask} to the queue.
+	 * 
+	 * @param task the {@link DatabaseTask}
+	 */
 	public void addTask(DatabaseTask task) {
 		if (DEBUG_MODE) {
 			this.count(task, true);

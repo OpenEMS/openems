@@ -1,12 +1,12 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Service } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Data, TooltipItem } from '../shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
-import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Service } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'consumptionMeterChart',
@@ -14,8 +14,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class ConsumptionMeterChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
-    @Input() private componentId: string;
+    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input() public componentId: string;
 
     ngOnChanges() {
         this.updateChart();

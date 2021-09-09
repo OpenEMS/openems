@@ -25,6 +25,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ChannelMetaInfoReadAndWrite;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ElementToChannelOffsetConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -90,6 +91,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private final Logger log = LoggerFactory.getLogger(FeneconMiniEssImpl.class);
+	private final MaxApparentPowerHandler maxApparentPowerHandler = new MaxApparentPowerHandler(this);
 
 	/**
 	 * Manages the {@link State}s of the StateMachine.
@@ -116,6 +118,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 				FeneconMiniEss.ServiceInfoChannelId.values(), //
 				FeneconMiniEss.ChannelId.values() //
 		);
+		this._setMaxApparentPower(FeneconMiniEss.MAX_APPARENT_POWER);
 		this._setCapacity(3_000);
 	}
 
@@ -174,9 +177,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(109), //
 						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110)), //
 						m(FeneconMiniEss.ChannelId.BATTERY_CURRENT, new SignedWordElement(111)), //
-						m(FeneconMiniEss.ChannelId.BATTERY_POWER, new SignedWordElement(112)), //
-						new DummyRegisterElement(113, 133), //
-						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(134))), //
+						m(FeneconMiniEss.ChannelId.BATTERY_POWER, new SignedWordElement(112))), //
 				new FC3ReadRegistersTask(2007, Priority.HIGH, //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2007),
 								UNSIGNED_POWER_CONVERTER)), //
@@ -455,22 +456,30 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 						m(FeneconMiniEss.ChannelId.RTC_SECOND, new UnsignedWordElement(9019))), //
 				new FC16WriteRegistersTask(30526, //
 						m(FeneconMiniEss.ChannelId.GRID_MAX_CHARGE_CURRENT, new UnsignedWordElement(30526),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								ElementToChannelConverter.SCALE_FACTOR_2,
+								new ChannelMetaInfoReadAndWrite(30126, 30526)), //
 						m(FeneconMiniEss.ChannelId.GRID_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(30527),
-								ElementToChannelConverter.SCALE_FACTOR_2)), //
+								ElementToChannelConverter.SCALE_FACTOR_2,
+								new ChannelMetaInfoReadAndWrite(30127, 30527))), //
 				new FC16WriteRegistersTask(30558, //
-						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30558))), //
+						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30558),
+								new ChannelMetaInfoReadAndWrite(30157, 30558))), //
 				new FC16WriteRegistersTask(30559, //
-						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30559))), //
+						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30559),
+								new ChannelMetaInfoReadAndWrite(30158, 30559))), //
 
 				new FC3ReadRegistersTask(30126, Priority.LOW, //
 						m(FeneconMiniEss.ChannelId.GRID_MAX_CHARGE_CURRENT, new UnsignedWordElement(30126),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								ElementToChannelConverter.SCALE_FACTOR_2,
+								new ChannelMetaInfoReadAndWrite(30126, 30526)), //
 						m(FeneconMiniEss.ChannelId.GRID_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(30127),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								ElementToChannelConverter.SCALE_FACTOR_2,
+								new ChannelMetaInfoReadAndWrite(30127, 30527)), //
 						new DummyRegisterElement(30128, 30156), //
-						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30157)), //
-						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30158)), //
+						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30157),
+								new ChannelMetaInfoReadAndWrite(30157, 30558)), //
+						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30158),
+								new ChannelMetaInfoReadAndWrite(30158, 30559)), //
 						new DummyRegisterElement(30159, 30165), //
 						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(30166),
 								new ElementToChannelConverter(
@@ -541,6 +550,11 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
+	public boolean isManaged() {
+		return !this.config.readonly();
+	}
+
+	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		// Store the current State
 		this.channel(FeneconMiniEss.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
@@ -594,6 +608,9 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.calculateEnergy();
+			if (!this.config.readonly()) {
+				this.maxApparentPowerHandler.calculateMaxApparentPower();
+			}
 			break;
 		}
 	}
@@ -622,5 +639,10 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
+	}
+
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 }

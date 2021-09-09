@@ -38,8 +38,6 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	public final static Proxy NO_PROXY = null;
 	public final static Draft DEFAULT_DRAFT = new Draft_6455();
 
-	private final static int MAXIMUM_POOL_SIZE = 10;
-
 	protected final WebSocketClient ws;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractWebsocketClient.class);
@@ -60,7 +58,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 	protected AbstractWebsocketClient(String name, URI serverUri, Draft draft, Map<String, String> httpHeaders,
 			Proxy proxy) {
-		super(name, MAXIMUM_POOL_SIZE, false /* debugMode */);
+		super(name);
 		this.serverUri = serverUri;
 		this.ws = new WebSocketClient(serverUri, draft, httpHeaders) {
 

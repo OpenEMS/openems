@@ -1,13 +1,12 @@
-import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { environment } from 'src/environments';
-import { MenuController, ModalController, ToastController } from '@ionic/angular';
-import { PickDateComponent } from '../pickdate/pickdate.component';
-import { Router, NavigationEnd } from '@angular/router';
-import { Service, Websocket, ChannelAddress, Edge } from '../shared';
-import { StatusSingleComponent } from '../status/single/status.component';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { MenuController, ModalController } from '@ionic/angular';
 import { Subject } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
-
+import { filter, takeUntil } from 'rxjs/operators';
+import { environment } from 'src/environments';
+import { PickDateComponent } from '../pickdate/pickdate.component';
+import { ChannelAddress, Edge, Service, Websocket } from '../shared';
+import { StatusSingleComponent } from '../status/single/status.component';
 
 @Component({
     selector: 'header',
@@ -17,7 +16,7 @@ export class HeaderComponent {
 
     @ViewChild(PickDateComponent, { static: false }) PickDateComponent: PickDateComponent
 
-    public env = environment;
+    public environment = environment;
     public backUrl: string | boolean = '/';
     public enableSideMenu: boolean;
     public currentPage: 'EdgeSettings' | 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
@@ -30,7 +29,6 @@ export class HeaderComponent {
         public modalCtrl: ModalController,
         public router: Router,
         public service: Service,
-        public toastController: ToastController,
         public websocket: Websocket,
     ) { }
 
@@ -71,7 +69,7 @@ export class HeaderComponent {
         let urlArray = url.split('/');
         let file = urlArray.pop();
 
-        if (file == 'settings' || file == 'about' || urlArray.length > 3) {
+        if (file == 'user' || file == 'settings' || urlArray.length > 3) {
             // disable side-menu; show back-button instead
             this.enableSideMenu = false;
         } else {
@@ -87,9 +85,9 @@ export class HeaderComponent {
             return;
         }
 
-        // set backUrl for general settings when an Edge had been selected before
+        // set backUrl for user when an Edge had been selected before
         let currentEdge: Edge = this.service.currentEdge.value;
-        if (url === '/settings' && currentEdge != null) {
+        if (url === '/user' && currentEdge != null) {
             this.backUrl = '/device/' + currentEdge.id + "/live"
             return;
         }
@@ -106,7 +104,7 @@ export class HeaderComponent {
         }
 
         // disable backUrl to first 'index' page from Edge index if there is only one Edge in the system
-        if (file === 'live' && urlArray.length == 3 && this.env.backend === "OpenEMS Edge") {
+        if (file === 'live' && urlArray.length == 3 && this.environment.backend === "OpenEMS Edge") {
             this.backUrl = false;
             return;
         }
@@ -148,11 +146,11 @@ export class HeaderComponent {
 
     public segmentChanged(event) {
         if (event.detail.value == "IndexLive") {
-            this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/live");
+            this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/live", { replaceUrl: true });
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
-            this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/history");
+            this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/history", { replaceUrl: true });
             this.cdRef.detectChanges();
         }
     }

@@ -11,7 +11,9 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.adapter.PDKAdapterUSB;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.worker.AbstractImmediateWorker;
+import io.openems.edge.bridge.onewire.jsonrpc.GetDeviceResponse;
 
 public class OneWireTaskWorker extends AbstractImmediateWorker {
 
@@ -28,7 +30,7 @@ public class OneWireTaskWorker extends AbstractImmediateWorker {
 	}
 
 	@Override
-	protected void forever() throws InterruptedException {
+	protected synchronized void forever() throws InterruptedException {
 		DSPortAdapter adapter;
 		try {
 			adapter = this.getAdapter();
@@ -49,7 +51,7 @@ public class OneWireTaskWorker extends AbstractImmediateWorker {
 	 * @return the DSPortAdapter
 	 * @throws OpenemsException on error
 	 */
-	private DSPortAdapter getAdapter() throws OpenemsException {
+	private synchronized DSPortAdapter getAdapter() throws OpenemsException {
 		if (this._adapter != null) {
 			return this._adapter;
 		}
@@ -71,7 +73,7 @@ public class OneWireTaskWorker extends AbstractImmediateWorker {
 	}
 
 	@Override
-	public void deactivate() {
+	public synchronized void deactivate() {
 		if (this._adapter != null) {
 			try {
 				this._adapter.freePort();
@@ -88,5 +90,22 @@ public class OneWireTaskWorker extends AbstractImmediateWorker {
 
 	public void removeTask(Consumer<DSPortAdapter> task) {
 		this.tasks.remove(task);
+	}
+
+	public synchronized GetDeviceResponse handleGetDevicesRequest(JsonrpcRequest request) throws OpenemsException {
+		GetDeviceResponse response = new GetDeviceResponse(request.getId());
+
+		DSPortAdapter adapter = this.getAdapter();
+		try {
+			while (adapter.findNextDevice()) {
+				response.addDevice(//
+						GetDeviceResponse.Device.from(//
+								adapter.getDeviceContainer(adapter.getAddressAsLong())));
+			}
+		} catch (OneWireException e) {
+			e.printStackTrace();
+			throw new OpenemsException(e.getMessage());
+		}
+		return response;
 	}
 }

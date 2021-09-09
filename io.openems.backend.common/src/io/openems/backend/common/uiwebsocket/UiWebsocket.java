@@ -1,6 +1,5 @@
 package io.openems.backend.common.uiwebsocket;
 
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -22,7 +21,7 @@ public interface UiWebsocket {
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<JsonrpcResponseSuccess> send(UUID token, JsonrpcRequest request)
+	public CompletableFuture<JsonrpcResponseSuccess> send(String token, JsonrpcRequest request)
 			throws OpenemsNamedException;
 
 	/**
@@ -32,7 +31,7 @@ public interface UiWebsocket {
 	 * @param notification the JsonrpcNotification
 	 * @throws OpenemsNamedException on error
 	 */
-	public void send(UUID token, JsonrpcNotification notification) throws OpenemsNamedException;
+	public void send(String token, JsonrpcNotification notification) throws OpenemsNamedException;
 
 	/**
 	 * Send a JSON-RPC Notification broadcast to all UI sessions with a given
@@ -42,6 +41,6 @@ public interface UiWebsocket {
 	 * @param notification the JsonrpcNotification
 	 * @throws OpenemsNamedException on error
 	 */
-	public void send(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException;
+	public void sendBroadcast(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException;
 
 }

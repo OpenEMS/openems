@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
@@ -243,8 +244,11 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 	 * Holds a configuration.
 	 */
 	protected static class Config {
-		protected static Config from(Configuration config) {
+		protected static Config from(Configuration config) throws OpenemsException {
 			Dictionary<String, Object> properties = config.getProperties();
+			if (properties == null) {
+				throw new OpenemsException(config.getPid() + ": Properties is 'null'");
+			}
 			Object componentIdObj = properties.get("id");
 			String componentId;
 			if (componentIdObj != null) {

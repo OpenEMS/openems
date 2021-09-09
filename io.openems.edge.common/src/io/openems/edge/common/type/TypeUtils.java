@@ -1,5 +1,6 @@
 package io.openems.edge.common.type;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -34,6 +35,15 @@ public class TypeUtils {
 		if (value instanceof Enum<?>) {
 			value = ((Enum<?>) value).ordinal();
 		}
+		// Extract value from Array
+		if (type != OpenemsType.STRING && value != null && value.getClass().isArray()) {
+			if (Array.getLength(value) == 1) {
+				return TypeUtils.getAsType(type, Array.get(value, 0));
+			} else {
+				return null;
+			}
+		}
+
 		switch (type) {
 		case BOOLEAN:
 			if (value == null) {
@@ -59,7 +69,9 @@ public class TypeUtils {
 
 			} else if (value instanceof String) {
 				String stringValue = (String) value;
-				if (stringValue.equalsIgnoreCase("false")) {
+				if (stringValue.isEmpty()) {
+					return null;
+				} else if (stringValue.equalsIgnoreCase("false")) {
 					return (T) Boolean.FALSE;
 				} else if (stringValue.equalsIgnoreCase("true")) {
 					return (T) Boolean.TRUE;
@@ -110,8 +122,8 @@ public class TypeUtils {
 			} else if (value instanceof Double) {
 				double doubleValue = (Double) value;
 				long longValue = Math.round(doubleValue);
-				if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
-					return (T) Integer.valueOf((int) longValue);
+				if (longValue >= Short.MIN_VALUE && longValue <= Short.MAX_VALUE) {
+					return (T) Short.valueOf((short) longValue);
 				} else {
 					throw new IllegalArgumentException(
 							"Cannot convert. Double [" + value + "] is not fitting in Short range.");
@@ -119,7 +131,14 @@ public class TypeUtils {
 
 			} else if (value instanceof String) {
 				String stringValue = (String) value;
-				return (T) Short.valueOf(Short.parseShort(stringValue));
+				if (stringValue.isEmpty()) {
+					return null;
+				}
+				try {
+					return (T) Short.valueOf(Short.parseShort(stringValue));
+				} catch (NumberFormatException e) {
+					throw new IllegalArgumentException("Cannot convert String [" + stringValue + "] to Short.");
+				}
 			}
 			break;
 
@@ -148,7 +167,12 @@ public class TypeUtils {
 
 			} else if (value instanceof Float) {
 				float floatValue = (Float) value;
-				return (T) (Integer) Math.round(floatValue);
+				if (floatValue >= Integer.MIN_VALUE && floatValue <= Integer.MAX_VALUE) {
+					return (T) Integer.valueOf((int) floatValue);
+				} else {
+					throw new IllegalArgumentException(
+							"Cannot convert. Float [" + value + "] is not fitting in Integer range.");
+				}
 
 			} else if (value instanceof Double) {
 				double doubleValue = (Double) value;
@@ -162,7 +186,14 @@ public class TypeUtils {
 
 			} else if (value instanceof String) {
 				String stringValue = (String) value;
-				return (T) Integer.valueOf(Integer.parseInt(stringValue));
+				if (stringValue.isEmpty()) {
+					return null;
+				}
+				try {
+					return (T) Integer.valueOf(Integer.parseInt(stringValue));
+				} catch (NumberFormatException e) {
+					throw new IllegalArgumentException("Cannot convert String [" + stringValue + "] to Integer.");
+				}
 			}
 			break;
 
@@ -184,14 +215,34 @@ public class TypeUtils {
 				return (T) (Long) value;
 
 			} else if (value instanceof Float) {
-				return (T) (Long) Math.round(Double.valueOf((Float) value));
+				float floatValue = (Float) value;
+				if (floatValue >= Long.MIN_VALUE && floatValue <= Long.MAX_VALUE) {
+					return (T) Long.valueOf((long) floatValue);
+				} else {
+					throw new IllegalArgumentException(
+							"Cannot convert. Float [" + value + "] is not fitting in Long range.");
+				}
 
 			} else if (value instanceof Double) {
-				return (T) (Long) Math.round((Double) value);
+				double doubleValue = (Double) value;
+				long longValue = Math.round(doubleValue);
+				if (longValue >= Long.MIN_VALUE && longValue <= Long.MAX_VALUE) {
+					return (T) Long.valueOf((long) longValue);
+				} else {
+					throw new IllegalArgumentException(
+							"Cannot convert. Double [" + value + "] is not fitting in Long range.");
+				}
 
 			} else if (value instanceof String) {
 				String stringValue = (String) value;
-				return (T) Long.valueOf(Long.parseLong(stringValue));
+				if (stringValue.isEmpty()) {
+					return null;
+				}
+				try {
+					return (T) Long.valueOf(Long.parseLong(stringValue));
+				} catch (NumberFormatException e) {
+					throw new IllegalArgumentException("Cannot convert String [" + stringValue + "] to Long.");
+				}
 			}
 			break;
 
@@ -210,13 +261,7 @@ public class TypeUtils {
 				return (T) (Float) ((Integer) value).floatValue();
 
 			} else if (value instanceof Long) {
-				long longValue = (Long) value;
-				if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
-					return (T) (Float) Float.valueOf((int) longValue);
-				} else {
-					throw new IllegalArgumentException(
-							"Cannot convert. Long [" + value + "] is not fitting in Float range.");
-				}
+				return (T) (Float) ((Long) value).floatValue();
 
 			} else if (value instanceof Float) {
 				return (T) (Float) value;
@@ -227,12 +272,19 @@ public class TypeUtils {
 					return (T) (Float) Float.valueOf((float) doubleValue);
 				} else {
 					throw new IllegalArgumentException(
-							"Cannot convert. Double [" + value + "] is not fitting in Integer range.");
+							"Cannot convert. Double [" + value + "] is not fitting in Float range.");
 				}
 
 			} else if (value instanceof String) {
 				String stringValue = (String) value;
-				return (T) Float.valueOf(Float.parseFloat(stringValue));
+				if (stringValue.isEmpty()) {
+					return null;
+				}
+				try {
+					return (T) Float.valueOf(Float.parseFloat(stringValue));
+				} catch (NumberFormatException e) {
+					throw new IllegalArgumentException("Cannot convert String [" + stringValue + "] to Float.");
+				}
 			}
 			break;
 
@@ -261,7 +313,14 @@ public class TypeUtils {
 
 			} else if (value instanceof String) {
 				String stringValue = (String) value;
-				return (T) Double.valueOf(Double.parseDouble(stringValue));
+				if (stringValue.isEmpty()) {
+					return null;
+				}
+				try {
+					return (T) Double.valueOf(Double.parseDouble(stringValue));
+				} catch (NumberFormatException e) {
+					throw new IllegalArgumentException("Cannot convert String [" + stringValue + "] to Double.");
+				}
 			}
 			break;
 
@@ -644,4 +703,45 @@ public class TypeUtils {
 		}
 	}
 
+	/**
+	 * Returns the 'alternativeValue' if the 'nullableValue' is null.
+	 * 
+	 * @param nullableValue    the value, can be null
+	 * @param alternativeValue the alternative value
+	 * @return either the value (not null), alternatively the 'orElse' value
+	 */
+	public static <T> T orElse(T nullableValue, T alternativeValue) {
+		if (nullableValue != null) {
+			return nullableValue;
+		} else {
+			return alternativeValue;
+		}
+	}
+
+	/**
+	 * Fits a value within a lower and upper boundary.
+	 * 
+	 * @param lowLimit  the lower boundary
+	 * @param highLimit the upper boundary
+	 * @param value     the actual value
+	 * @return the adjusted value
+	 */
+	public static Integer fitWithin(Integer lowLimit, Integer highLimit, Integer value) {
+		return TypeUtils.max(lowLimit, //
+				TypeUtils.min(highLimit, value));
+	}
+
+	/**
+	 * Safely returns the absolute value of an Integer value.
+	 *
+	 * @param value the Integer value, possibly null
+	 * @return the absolute value, possibly null
+	 */
+	public static Integer abs(Integer value) {
+		if (value == null) {
+			return null;
+		} else {
+			return Math.abs(value);
+		}
+	}
 }

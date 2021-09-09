@@ -14,8 +14,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class ConsumptionTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
-    @Input() private showPhases: boolean;
+    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input() public showPhases: boolean;
 
     // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;

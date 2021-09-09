@@ -1,26 +1,67 @@
-// http://ionicframework.com/docs/theming/
-@import '~@ionic/angular/css/core.css';
-@import '~@ionic/angular/css/normalize.css';
-@import '~@ionic/angular/css/structure.css';
-@import '~@ionic/angular/css/typography.css';
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
 
-@import '~@ionic/angular/css/padding.css';
-@import '~@ionic/angular/css/float-elements.css';
-@import '~@ionic/angular/css/text-alignment.css';
-@import '~@ionic/angular/css/text-transformation.css';
-@import '~@ionic/angular/css/flex-utils.css';
-@import '~@ionic/angular/css/display.css';
+/* Core CSS required for Ionic components to work properly */
+@import "~@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "~@ionic/angular/css/normalize.css";
+@import "~@ionic/angular/css/structure.css";
+@import "~@ionic/angular/css/typography.css";
+@import "~@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "~@ionic/angular/css/padding.css";
+@import "~@ionic/angular/css/float-elements.css";
+@import "~@ionic/angular/css/text-alignment.css";
+@import "~@ionic/angular/css/text-transformation.css";
+@import "~@ionic/angular/css/flex-utils.css";
+@import "variables";
 
 .active {
-    color: #2d8fab;
+    color: $primary-color;
+}
+.primary-color {
+    fill: $primary-color;
+}
+.primary-color-contrast {
+    fill: $primary-color-contrast;
+}
+.secondary-color {
+    fill: $secondary-color;
+}
+.secondary-color-contrast {
+    fill: $secondary-color-contrast;
+}
+html.ios {
+    --ion-default-font: -apple-system, BlinkMacSystemFont, $font-family;
+}
+
+html.md {
+    --ion-default-font: $font-family;
 }
 
 //252px for the exact width of my-date-range-picker in PickDateComponent
-.pickdate-popover .popover-content{
+.pickdate-popover .popover-content {
     width: 251px;
     position: center;
     overflow-y: hidden;
     overflow-x: hidden;
+}
+
+.slides {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    height: 100%;
 }
 
 ion-label {
@@ -34,16 +75,16 @@ ion-item.noPadding {
 mat-card.single {
     margin: 20px;
 }
-  
+
 mat-card.single_leftright {
     margin-left: 20px;
     margin-right: 20px;
 }
-  
+
 mat-card.single_top {
     margin-top: 20px;
 }
-  
+
 table.full_width {
     width: 100%;
 }
@@ -55,26 +96,26 @@ table.full_width {
 td.align_right {
     text-align: right;
 }
-  
+
 table {
     border-collapse: collapse;
 }
-  
+
 .underline {
     border-bottom: 1pt solid lightgray;
 }
-  
+
 .gray_color {
     color: gray;
 }
-  
+
 button.activated {
     color: black;
     background-color: lightgreen;
 }
-  
+
 #toast-container {
-    font-family: Roboto, "Helvetica Neue", sans-serif;
+    font-family: $font-family;
 }
 
 // 360px is approximate min. width of mobile devices
@@ -89,8 +130,64 @@ ion-toast.container {
 }
 
 /*
- * Applies to ngx-formly sections
- */
+* Applies to ngx-formly sections
+*/
 formly-input-section {
     flex: auto; // use all remaining space in a row
+}
+
+:root {
+
+    /*
+     * Used in HeatingElement, because ion-picker is not accessible via ion-datetime tag
+     */
+    ion-picker {
+        max-width: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    // CSS class is here because ion-label is inside ion-item tag, CSS within ion-item doesn't work with global.scss
+    // this class is used to get the same style like in a html table
+    ion-label.regularFont {
+        font-family: $font-family;
+        font-size: 14px;
+    }
+
+    // use in HeatingElementWidget Line:80
+    // CSS class is here because ion-picker is not accessible via ion-datetime tag
+    ion-picker {
+        max-width: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    // CSS class is here because ion-label is inside ion-item tag, CSS within ion-item doesn't work with global.scss
+    // this class is used to get the same style like in a html table
+    ion-label.regularFont {
+        font-family: $font-family;
+        font-size: 14px;
+    }
+
+    // CSS class is used to get the same style like in a html table
+    ion-select {
+        font-family: $font-family;
+        font-size: 14px;
+    }
+
+    .alert-wrapper {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    ion-input.regularFont {
+        font-family: $font-family;
+        font-size: 14px;
+    }
+    
+    ion-toggle{
+        --background-checked: var(--ion-color-primary-tint);
+    }
 }

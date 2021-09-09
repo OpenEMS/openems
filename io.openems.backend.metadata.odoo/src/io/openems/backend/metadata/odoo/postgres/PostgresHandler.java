@@ -1,13 +1,6 @@
 package io.openems.backend.metadata.odoo.postgres;
 
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.postgresql.Driver;
@@ -18,14 +11,8 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.EdgeCache;
-import io.openems.backend.metadata.odoo.OdooMetadata;
 import io.openems.backend.metadata.odoo.MyEdge;
-import io.openems.backend.metadata.odoo.postgres.task.InsertOrUpdateDeviceStates;
-import io.openems.common.channel.Level;
-import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.EdgeConfig.Component.Channel;
-import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetail;
-import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
+import io.openems.backend.metadata.odoo.OdooMetadata;
 
 public class PostgresHandler {
 
@@ -66,43 +53,6 @@ public class PostgresHandler {
 	 */
 	public Optional<MyEdge> getEdgeForApikey(String apikey) {
 		return Optional.ofNullable(this.edgeCache.getEdgeForApikey(apikey));
-	}
-
-	/**
-	 * Updates the Device States table.
-	 * 
-	 * @param edge                the Edge
-	 * @param activeStateChannels the active State-Channels
-	 */
-	public synchronized void updateDeviceStates(MyEdge edge, Map<ChannelAddress, Channel> activeStateChannels) {
-		/*
-		 * Update the EdgeDeviceState table
-		 */
-		List<InsertOrUpdateDeviceStates.DeviceState> deviceStates = new ArrayList<>();
-		for (Entry<ChannelAddress, Channel> entry : activeStateChannels.entrySet()) {
-			ChannelDetail detail = entry.getValue().getDetail();
-			if (!(detail instanceof ChannelDetailState)) {
-				continue;
-			}
-			Level level = ((ChannelDetailState) detail).getLevel();
-			ChannelAddress channelAddress = entry.getKey();
-			Channel channel = entry.getValue();
-			String stateChannelName;
-			if (!channel.getText().isEmpty()) {
-				stateChannelName = channel.getText();
-			} else {
-				stateChannelName = channel.getId();
-			}
-			deviceStates.add(new InsertOrUpdateDeviceStates.DeviceState(channelAddress, level, stateChannelName));
-		}
-
-		// Add this Task to the write queue
-		InsertOrUpdateDeviceStates task = new InsertOrUpdateDeviceStates(edge.getOdooId(),
-				Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)), deviceStates);
-		this.queueWriteWorker.addTask(task);
-
-		// Update Sum-State from time to time
-		this.periodicWriteWorker.triggerUpdateEdgeStatesSum(edge);
 	}
 
 	public PeriodicWriteWorker getPeriodicWriteWorker() {

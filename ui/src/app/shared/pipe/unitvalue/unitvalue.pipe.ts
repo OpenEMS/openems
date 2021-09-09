@@ -1,5 +1,4 @@
 import { DecimalPipe } from '@angular/common';
-import { isBoolean, isString } from 'util';
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
@@ -10,7 +9,9 @@ export class UnitvaluePipe implements PipeTransform {
     constructor(private decimalPipe: DecimalPipe) { }
 
     transform(value: any, unit: string): any {
-        if (value == null || (isString(value) && value.trim() === "") || isBoolean(value) || isNaN(value)) {
+        if (value == null
+            || (typeof value === 'string' && value.trim() === "")
+            || typeof value === 'boolean' || isNaN(value)) {
             return '-' + '\u00A0';
         } else {
             if (unit == 'kWh' || unit == 'kW') {

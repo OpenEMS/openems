@@ -4,10 +4,10 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.battery.soltaro.ChannelIdImpl;
-import io.openems.edge.battery.soltaro.ChargeIndication;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
-import io.openems.edge.battery.soltaro.enums.EmsBaudrate;
+import io.openems.edge.battery.soltaro.common.ChannelIdImpl;
+import io.openems.edge.battery.soltaro.common.enums.ChargeIndication;
+import io.openems.edge.battery.soltaro.common.enums.EmsBaudrate;
 import io.openems.edge.battery.soltaro.single.versionc.enums.ClusterRunState;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.common.channel.ChannelId;
@@ -565,5 +565,5 @@ public enum RackChannel {
 	private String generateChannelId(Rack rack) {
 		return rack.getChannelIdPrefix() + this.name();
 	}
-
+	
 }

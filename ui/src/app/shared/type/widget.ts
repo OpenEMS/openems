@@ -21,16 +21,23 @@ export enum WidgetFactory {
     'Controller.Asymmetric.PeakShaving',
     'Controller.ChannelThreshold',
     'Controller.CHP.SoC',
+    'Controller.Ess.DelayedSellToGrid',
     'Controller.Ess.FixActivePower',
+    'Controller.Ess.GridOptimizedCharge',
     'Controller.IO.ChannelSingleThreshold',
     'Controller.Io.FixDigitalOutput',
     'Controller.IO.HeatingElement',
     'Controller.Io.HeatPump.SgReady',
     'Controller.Symmetric.PeakShaving',
     'Controller.TimeslotPeakshaving',
-    'Controller.Ess.DelayedSellToGrid',
     'Evcs.Cluster.PeakShaving',
     'Evcs.Cluster.SelfConsumption',
+}
+
+export type Icon = {
+    color: string;
+    size: string;
+    name: string;
 }
 
 export class Widget {

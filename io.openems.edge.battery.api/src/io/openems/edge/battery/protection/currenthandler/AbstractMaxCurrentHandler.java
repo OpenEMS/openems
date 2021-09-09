@@ -188,6 +188,7 @@ public abstract class AbstractMaxCurrentHandler {
 	 * 
 	 * <ul>
 	 * <li>Is the battery started? (block any charge/discharge if not)
+	 * <li>Is there any value from the BMS? (block any charge/discharge if not)
 	 * <li>Allowed Current Limit provided by Battery Management System
 	 * <li>Voltage-to-Percent characteristics for Min-Cell-Voltage
 	 * <li>Voltage-to-Percent characteristics for Max-Cell-Voltage
@@ -231,26 +232,34 @@ public abstract class AbstractMaxCurrentHandler {
 		final Double forceCurrent = this.getForceCurrent(minCellVoltage, maxCellVoltage);
 
 		/*
-		 * Store limits in Channels
+		 * Store limits in Channels. If value is 'null', store the bmsMaxEverCurrent
 		 */
-		battery.channel(this.getBpMinVoltageChannelId()).setNextValue(minCellVoltageLimit);
-		battery.channel(this.getBpMaxVoltageChannelId()).setNextValue(maxCellVoltageLimit);
-		battery.channel(this.getBpMinTemperatureChannelId()).setNextValue(minCellTemperatureLimit);
-		battery.channel(this.getBpMaxTemperatureChannelId()).setNextValue(maxCellTemperatureLimit);
-		battery.channel(this.getBpMaxIncreaseAmpereChannelId()).setNextValue(maxIncreaseAmpereLimit);
-		battery.channel(this.getBpForceCurrentChannelId()).setNextValue(forceCurrent);
+		battery.channel(this.getBpMinVoltageChannelId())
+				.setNextValue(TypeUtils.orElse(minCellVoltageLimit, this.bmsMaxEverCurrent));
+		battery.channel(this.getBpMaxVoltageChannelId())
+				.setNextValue(TypeUtils.orElse(maxCellVoltageLimit, this.bmsMaxEverCurrent));
+		battery.channel(this.getBpMinTemperatureChannelId())
+				.setNextValue(TypeUtils.orElse(minCellTemperatureLimit, this.bmsMaxEverCurrent));
+		battery.channel(this.getBpMaxTemperatureChannelId())
+				.setNextValue(TypeUtils.orElse(maxCellTemperatureLimit, this.bmsMaxEverCurrent));
+		battery.channel(this.getBpMaxIncreaseAmpereChannelId())
+				.setNextValue(TypeUtils.orElse(maxIncreaseAmpereLimit, this.bmsMaxEverCurrent));
+		battery.channel(this.getBpForceCurrentChannelId())
+				.setNextValue(TypeUtils.orElse(forceCurrent, this.bmsMaxEverCurrent));
 
 		// Get the minimum limit of all limits in Ampere
 		Double limit = TypeUtils.min(TypeUtils.toDouble(bpBms), minCellVoltageLimit, maxCellVoltageLimit,
 				minCellTemperatureLimit, maxCellTemperatureLimit, maxIncreaseAmpereLimit, forceCurrent);
 
-		// Battery not started? Set '0' to block charge/discharge
-		if (!battery.isStarted()) {
-			limit = 0.;
-		}
-
-		// No limit? Set '0' to block charge/discharge
-		if (limit == null) {
+		// Set '0' to block charge/discharge?
+		if (
+		// Battery not started?
+		!battery.isStarted()
+				// No limit?
+				|| limit == null
+				// No value from BMS and no force charge/discharge?
+				|| (limit > 0 && bpBms == null) //
+		) {
 			limit = 0.;
 		}
 

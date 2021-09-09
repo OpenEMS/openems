@@ -8,9 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.types.OptionsEnum;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<Integer> {
@@ -100,5 +100,4 @@ public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<In
 	public void onSetNextWrite(ThrowingConsumer<Integer, OpenemsNamedException> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
-
 }
