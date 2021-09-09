@@ -40,7 +40,7 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 	private final CycleWorker worker = new CycleWorker(this);
 
 	@Reference
-	ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference
 	protected EventAdmin eventAdmin;
