@@ -2,7 +2,6 @@ package io.openems.edge.controller.generic.jsonlogic;
 
 import org.junit.Test;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.sum.Sum;
@@ -13,9 +12,9 @@ import io.openems.edge.io.test.DummyInputOutput;
 
 public class JsonLogicControllerTest2 {
 
-	private final static ChannelAddress SUM_PRODUCTION_POWER = new ChannelAddress(OpenemsConstants.SUM_ID,
+	private final static ChannelAddress SUM_PRODUCTION_POWER = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
 			Sum.ChannelId.PRODUCTION_ACTIVE_POWER.id());
-	private final static ChannelAddress SUM_SOC = new ChannelAddress(OpenemsConstants.SUM_ID,
+	private final static ChannelAddress SUM_SOC = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
 			Sum.ChannelId.ESS_SOC.id());
 
 	private final static String IO_ID = "io0";

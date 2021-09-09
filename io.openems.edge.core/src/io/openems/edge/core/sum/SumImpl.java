@@ -2,6 +2,7 @@ package io.openems.edge.core.sum;
 
 import java.util.Optional;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -12,7 +13,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.calculate.CalculateAverage;
@@ -39,13 +39,15 @@ import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
-		name = "Core.Sum", //
+		name = Sum.SINGLETON_SERVICE_PID, //
 		immediate = true, //
 		property = { //
-				"id=" + OpenemsConstants.SUM_ID, //
 				"enabled=true" //
 		})
 public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsComponent, ModbusSlave {
+
+	@Reference
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	protected volatile Timedata timedata = null;
@@ -72,7 +74,10 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 
 	@Activate
 	void activate(ComponentContext context) {
-		super.activate(context, OpenemsConstants.SUM_ID, "Sum", true);
+		super.activate(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
+		}
 		this.energyValuesHandler.activate();
 	}
 

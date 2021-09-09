@@ -3,7 +3,6 @@ package io.openems.edge.predictor.api.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -27,7 +26,7 @@ public class DummyPredictorManager extends AbstractOpenemsComponent implements P
 		for (Predictor24Hours predictor : predictors) {
 			this.predictors.add(predictor);
 		}
-		super.activate(null, OpenemsConstants.PREDICTOR_MANAGER_ID, "", true);
+		super.activate(null, PredictorManager.SINGLETON_COMPONENT_ID, "", true);
 	}
 
 	public void addPredictor(Predictor24Hours predictor) {

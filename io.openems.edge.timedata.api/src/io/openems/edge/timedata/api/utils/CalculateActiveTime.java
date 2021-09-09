@@ -1,6 +1,5 @@
 package io.openems.edge.timedata.api.utils;
 
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 

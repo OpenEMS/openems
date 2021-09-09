@@ -588,35 +588,37 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 		/*
 		 * Read Factory Properties
 		 */
-		for (EdgeConfig.Factory.Property property : factory.getProperties()) {
-			String key = property.getId();
+		if (factory != null) {
+			for (EdgeConfig.Factory.Property property : factory.getProperties()) {
+				String key = property.getId();
 
-			if (EdgeConfig.ignorePropertyKey(key)) {
-				// Ignore this Property
-				continue;
-			}
-
-			JsonElement value = null;
-			if (property.isPassword()) {
-				// hide Password fields
-				value = new JsonPrimitive("xxx");
-
-			} else {
-				// get configured value
-				value = getPropertyAsJsonElement(properties, key);
-
-				if (value == null || value.isJsonNull()) {
-					// get default value
-					value = factory.getPropertyDefaultValue(key);
+				if (EdgeConfig.ignorePropertyKey(key)) {
+					// Ignore this Property
+					continue;
 				}
-			}
 
-			if (value == null) {
-				// fallback to JsonNull
-				value = JsonNull.INSTANCE;
-			}
+				JsonElement value = null;
+				if (property.isPassword()) {
+					// hide Password fields
+					value = new JsonPrimitive("xxx");
 
-			result.put(key, value);
+				} else {
+					// get configured value
+					value = getPropertyAsJsonElement(properties, key);
+
+					if (value == null || value.isJsonNull()) {
+						// get default value
+						value = factory.getPropertyDefaultValue(key);
+					}
+				}
+
+				if (value == null) {
+					// fallback to JsonNull
+					value = JsonNull.INSTANCE;
+				}
+
+				result.put(key, value);
+			}
 		}
 
 		/*

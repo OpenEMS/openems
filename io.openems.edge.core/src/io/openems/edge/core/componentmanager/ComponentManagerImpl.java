@@ -65,10 +65,9 @@ import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxResponse;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
-		name = "Core.ComponentManager", //
+		name = ComponentManager.SINGLETON_SERVICE_PID, //
 		immediate = true, //
 		property = { //
-				"id=" + OpenemsConstants.COMPONENT_MANAGER_ID, //
 				"enabled=true" //
 		})
 public class ComponentManagerImpl extends AbstractOpenemsComponent
@@ -119,9 +118,12 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext componentContext, BundleContext bundleContext) throws OpenemsException {
-		super.activate(componentContext, OpenemsConstants.COMPONENT_MANAGER_ID, "Component-Manager", true);
-
+		super.activate(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		this.bundleContext = bundleContext;
+
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
+		}
 
 		for (ComponentManagerWorker worker : this.workers) {
 			worker.activate(this.id());

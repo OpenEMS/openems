@@ -7,6 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -17,7 +18,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -39,11 +39,13 @@ import io.openems.edge.predictor.api.oneday.Predictor24Hours;
 		name = "Core.PredictorManager", //
 		immediate = true, //
 		property = { //
-				"id=" + OpenemsConstants.PREDICTOR_MANAGER_ID, //
 				"enabled=true" //
 		})
 public class PredictorManagerImpl extends AbstractOpenemsComponent
 		implements PredictorManager, OpenemsComponent, JsonApi {
+
+	@Reference
+	private ConfigurationAdmin cm;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -63,7 +65,10 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context) {
-		super.activate(context, OpenemsConstants.PREDICTOR_MANAGER_ID, "Core.PredictorManager", true);
+		super.activate(context, PredictorManager.SINGLETON_COMPONENT_ID, "Core.PredictorManager", true);
+		if (OpenemsComponent.validateSingleton(this.cm, this.serviceFactoryPid(), SINGLETON_COMPONENT_ID)) {
+			return;
+		}
 	}
 
 	@Deactivate
@@ -95,7 +100,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 		Predictor24Hours predictor = this.getPredictorBestMatch(channelAddress);
 		if (predictor == null) {
 			// No explicit predictor found
-			if (channelAddress.getComponentId().equals(OpenemsConstants.SUM_ID)) {
+			if (channelAddress.getComponentId().equals(Sum.SINGLETON_COMPONENT_ID)) {
 				// This is a Sum-Channel. Try to get predictions for each source channel.
 				Sum.ChannelId channelId = Sum.ChannelId.valueOf(
 						io.openems.edge.common.channel.ChannelId.channelIdCamelToUpper(channelAddress.getChannelId()));
