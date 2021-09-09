@@ -4,6 +4,8 @@ import { DcPv } from './views/protocol-pv/protocol-pv.component';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { FeedInSetting } from './views/protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component';
 import { SetupProtocol } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
+import { EmsApp } from './views/heckert-app-installer/heckert-app-installer.component';
+import { environment } from 'src/environments';
 
 enum View {
   Completion,
@@ -19,7 +21,8 @@ enum View {
   ProtocolInstaller,
   ProtocolPv,
   ProtocolSerialNumbers,
-  ProtocolSystem
+  ProtocolSystem,
+  HeckertAppInstaller
 };
 
 export type InstallationData = {
@@ -118,6 +121,9 @@ export type InstallationData = {
     ac?: AcPv[]
   }
 
+  // heckert-app-installer
+  selectedFreeApp?: EmsApp,
+
   // configuration-summary
   setupProtocol?: SetupProtocol
 
@@ -157,6 +163,7 @@ export class InstallationComponent implements OnInit {
     View.ProtocolPv,
     View.ProtocolAdditionalAcProducers,
     View.ProtocolDynamicFeedInLimitation,
+    View.HeckertAppInstaller,
     View.ConfigurationSummary,
     View.ConfigurationExecute,
     View.ProtocolSerialNumbers,
@@ -174,6 +181,12 @@ export class InstallationComponent implements OnInit {
     this.service.startSpinner(this.spinnerId);
 
     this.installationData = {};
+
+    // Only show app-installer view for Heckert
+    if (environment.theme !== "Heckert") {
+      let viewIndex = this.view_display_order.indexOf(View.HeckertAppInstaller);
+      this.view_display_order.splice(viewIndex, 1);
+    }
 
     this.displayViewAtIndex(0);
 

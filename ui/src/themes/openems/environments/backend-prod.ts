@@ -1,6 +1,8 @@
 import { Environment } from "src/environments";
 
 export const environment: Environment = {
+    theme: "OpenEMS",
+
     title: "OpenEMS UI",
     shortName: "OpenEMS",
 

@@ -1,6 +1,8 @@
 import { Environment } from "src/environments";
 
 export const environment: Environment = {
+    theme: "Heckert",
+
     title: "Heckert Solar Symphon-E Online Monitoring",
     shortName: "EMS",
 
