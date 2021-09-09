@@ -10,7 +10,6 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -32,7 +31,7 @@ public class ConsumptionPredictor extends AbstractPersistenceModelPredictor
 	protected ComponentManager componentManager;
 
 	public ConsumptionPredictor() {
-		super(OpenemsConstants.SUM_ID, Sum.ChannelId.CONSUMPTION_ACTIVE_ENERGY);
+		super(Sum.SINGLETON_COMPONENT_ID, Sum.ChannelId.CONSUMPTION_ACTIVE_ENERGY);
 	}
 
 	@Activate

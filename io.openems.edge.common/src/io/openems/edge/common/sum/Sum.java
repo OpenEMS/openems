@@ -19,6 +19,9 @@ import io.openems.edge.common.modbusslave.ModbusType;
  */
 public interface Sum extends OpenemsComponent {
 
+	public final static String SINGLETON_SERVICE_PID = "Core.Sum";
+	public final static String SINGLETON_COMPONENT_ID = "_sum";
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Ess: Average State of Charge.

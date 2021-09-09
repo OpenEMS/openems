@@ -27,6 +27,7 @@ import io.openems.backend.metadata.odoo.MyUser;
 import io.openems.backend.metadata.odoo.OdooMetadata;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ObjectUtils;
 import io.openems.common.utils.PasswordUtils;
@@ -102,7 +103,7 @@ public class OdooHandler {
 
 			return Optional.of(name);
 		} catch (OpenemsException e) {
-			this.parent.logInfo(this.log, "Unable to find edge by setup passowrd [" + setupPassword + "]");
+			this.parent.logInfo(this.log, "Unable to find Edge by setup password [" + setupPassword + "]");
 		}
 
 		return Optional.empty();
@@ -737,6 +738,22 @@ public class OdooHandler {
 								.addProperty("password", password) //
 								.build()) //
 						.build());
+	}
+
+	/**
+	 * Update language for the given user.
+	 * 
+	 * @param user   {@link MyUser} the current user
+	 * @param language to set
+	 * @throws OpenemsException on error
+	 */
+	public void updateUserLanguage(MyUser user, Language language) throws OpenemsException {
+		try {
+			OdooUtils.write(this.credentials, Field.User.ODOO_MODEL, new Integer[] { user.getOdooId() }, //
+					new FieldValue<String>(Field.User.OPENEMS_LANGUAGE, language.name()));
+		} catch (OpenemsNamedException ex) {
+			throw new OpenemsException("Unable to set language [" + language.name() + "] for current user", ex);
+		}
 	}
 
 }

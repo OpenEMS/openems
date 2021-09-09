@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import com.google.gson.JsonObject;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -32,8 +31,8 @@ import io.openems.edge.common.test.TimeLeapClock;
 public class BackendApiImplTest {
 
 	private static final String CTRL_ID = "ctrl0";
+	private static final String SUM_ID = Sum.SINGLETON_COMPONENT_ID;
 
-	private static final String SUM_ID = OpenemsConstants.SUM_ID;
 	private static final ChannelAddress SUM_GRID_ACTIVE_POWER = new ChannelAddress(SUM_ID,
 			Sum.ChannelId.GRID_ACTIVE_POWER.id());
 	private static final ChannelAddress SUM_PRODUCTION_ACTIVE_POWER = new ChannelAddress(SUM_ID,

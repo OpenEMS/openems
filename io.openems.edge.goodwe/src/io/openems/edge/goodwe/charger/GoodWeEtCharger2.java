@@ -87,4 +87,9 @@ public class GoodWeEtCharger2 extends AbstractGoodWeEtCharger
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
+
+	@Override
+	protected GoodWe getEssOrBatteryInverter() {
+		return this.essOrBatteryInverter;
+	}
 }

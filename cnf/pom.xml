@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.8.7</version>
+			<version>2.8.8</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -100,13 +100,13 @@
 			<!-- Used by io.openems.edge.evcs.ocpp. -->
 			<groupId>eu.chargetime.ocpp</groupId>
 			<artifactId>OCPP-J</artifactId>
-			<version>1.0</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.edge.evcs.ocpp. -->
 			<groupId>eu.chargetime.ocpp</groupId>
 			<artifactId>v1_6</artifactId>
-			<version>1.0</version>
+			<version>1.0.1</version>
 		</dependency>
 		<!-- info -->
 		<dependency>
@@ -125,7 +125,7 @@
 			<!-- Used by SDNotify -->
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.8.0</version>
+			<version>5.9.0</version>
 		</dependency>
 		<!-- org -->
 		<dependency>
@@ -165,7 +165,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty</artifactId>
-			<version>4.1.10</version>
+			<version>4.1.12</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Metatype Service -->
@@ -186,7 +186,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>4.6.2</version>
+			<version>4.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
@@ -228,7 +228,7 @@
 			<!-- HTML processing -->
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.10.2</version>
+			<version>1.14.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -248,12 +248,12 @@
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>2.0.9</version>
+			<version>2.0.10</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-log4j1</artifactId>
-			<version>2.0.9</version>
+			<version>2.0.10</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>

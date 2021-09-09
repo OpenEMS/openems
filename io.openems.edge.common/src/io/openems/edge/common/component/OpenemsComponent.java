@@ -3,12 +3,15 @@ package io.openems.edge.common.component;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
+
+import com.google.common.base.Objects;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
@@ -341,6 +344,89 @@ public interface OpenemsComponent {
 			}
 		} catch (IOException | SecurityException e) {
 			System.err.println("updateReferenceFilter ERROR " + e.getClass().getSimpleName() + ": " + e.getMessage());
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	/**
+	 * Validates and possibly fixes the Component-ID of a Singleton.
+	 * 
+	 * <p>
+	 * Singleton Components are allowed to live only exactly once in an OpenEMS
+	 * instance. These Components are marked with an Annotation:
+	 * 
+	 * <pre>
+	 * &#64;Designate(factory = false)
+	 * </pre>
+	 * 
+	 * By design it is required for these Singleton Components to have a predefined
+	 * Component-ID, like '_cycle', '_sum', etc. This method makes sure the
+	 * Component-ID matches this predefined ID - and if not automatically adjusts
+	 * it.
+	 * 
+	 * <p>
+	 * Sidenote: ideally it would be possible to use the Component Annotation
+	 * 
+	 * <pre>
+	 * &#64;Component(property = { "id=_cycle" })
+	 * </pre>
+	 * 
+	 * for this purpose. Unfortunately this is not sufficient to have the 'id'
+	 * property listed in EdgeConfig, ConfigurationAdmin, etc. This is why this
+	 * workaround is required.
+	 * 
+	 * <p>
+	 * Usage:
+	 * 
+	 * <pre>
+	 * if (OpenemsComponent.validateSingletonComponentId(this.cm, this.serviceFactoryPid(), SINGLETON_COMPONENT_ID)) {
+	 * 	return;
+	 * }
+	 * </pre>
+	 * 
+	 * @param cm         a ConfigurationAdmin instance. Get one using
+	 * 
+	 *                   <pre>
+	 *                   &#64;Reference
+	 *                   ConfigurationAdmin cm;
+	 *                   </pre>
+	 * 
+	 * @param pid        PID of the calling component (use 'config.service_pid()' or
+	 *                   '(String)prop.get(Constants.SERVICE_PID)'; if null,
+	 *                   Component-ID can not be updated.
+	 * @param expectedId The expected predefined Component-ID
+	 * 
+	 * @return true if the ID was updated. You may use it to abort the activate()
+	 *         method.
+	 */
+	public static boolean validateSingleton(ConfigurationAdmin cm, String pid, String expectedId) {
+		Configuration c;
+		try {
+			c = cm.getConfiguration(pid, "?");
+			Dictionary<String, Object> properties = c.getProperties();
+
+			final String actualId;
+			final String actualAlias;
+			if (properties == null) {
+				// trigger creation of new configuration
+				properties = new Hashtable<>();
+				actualId = null;
+				actualAlias = null;
+			} else {
+				actualId = (String) properties.get("id");
+				actualAlias = (String) properties.get("alias");
+			}
+			// Fix Component-ID if required
+			if (!Objects.equal(expectedId, actualId) || !Objects.equal(pid, actualAlias)) {
+				properties.put("id", expectedId);
+				properties.put("alias", pid);
+				c.update(properties);
+				return true;
+			}
+		} catch (IOException | SecurityException e) {
+			System.err.println(
+					"validateSingletonComponentId ERROR " + e.getClass().getSimpleName() + ": " + e.getMessage());
 			e.printStackTrace();
 		}
 		return false;

@@ -14,7 +14,7 @@ export class LiveComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private service: Service,
+    public service: Service,
     protected utils: Utils,
   ) {
   }

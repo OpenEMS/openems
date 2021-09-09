@@ -88,4 +88,17 @@ public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverte
 	 */
 	public int getPowerPrecision();
 
+	/**
+	 * Gets a boolean if the battery inverter is managed or not.
+	 * 
+	 * <p>
+	 * Returns false if the battery inverter itself is not managed or in a read only
+	 * mode.
+	 * 
+	 * @return is managed or not
+	 */
+	public default boolean isManaged() {
+		return true;
+	}
+
 }
