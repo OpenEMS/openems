@@ -38,6 +38,8 @@ export class UserComponent {
   }
 
   public toggleDebugMode(event: CustomEvent) {
+
+    sessionStorage.setItem("DEBUGMODE", event.detail['checked'])
     this.environment.debugMode = event.detail['checked'];
   }
 

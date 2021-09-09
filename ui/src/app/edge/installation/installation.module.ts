@@ -11,6 +11,7 @@ import { ConfigurationExecuteComponent } from "./views/configuration-execute/con
 import { ConfigurationLineSideMeterFuseComponent } from "./views/configuration-line-side-meter-fuse/configuration-line-side-meter-fuse.component";
 import { ConfigurationSummaryComponent } from "./views/configuration-summary/configuration-summary.component";
 import { ConfigurationSystemComponent } from "./views/configuration-system/configuration-system.component";
+import { HeckertAppInstallerComponent } from "./views/heckert-app-installer/heckert-app-installer.component";
 import { PreInstallationComponent } from "./views/pre-installation/pre-installation.component";
 import { ProtocolAdditionalAcProducersComponent } from "./views/protocol-additional-ac-producers/protocol-additional-ac-producers.component";
 import { ProtocolCustomerComponent } from "./views/protocol-customer/protocol-customer.component";
@@ -141,6 +142,7 @@ export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfi
     ProtocolAdditionalAcProducersComponent,
     ConfigurationSummaryComponent,
     ProtocolSerialNumbersComponent,
+    HeckertAppInstallerComponent
   ]
 })
 export class InstallationModule { }

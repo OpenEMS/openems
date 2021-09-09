@@ -249,7 +249,7 @@ export const TRANSLATION = {
                     chargingStationPluggedInEVLocked: 'Station de recharge + EV branchée + Verrouillée',
                     clusterConfigError: 'Une erreur s\'est produite dans la configuration du cluster de stations de recharge',
                     currentCharge: 'Reharge actuelle',
-                    energieSinceBeginning: 'Energie depuis le début de la dernière recharge',
+                    energySinceBeginning: 'Energie depuis le début de la dernière recharge',
                     energyLimit: 'Limite d\'énergie',
                     enforceCharging: 'Appliquer la charge',
                     error: 'Erreur',

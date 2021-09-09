@@ -1,6 +1,8 @@
 import { Environment } from "src/environments";
 
 export const environment: Environment = {
+    theme: "FENECON",
+
     title: "FENECON Online-Monitoring",
     shortName: "FEMS",
 

@@ -22,6 +22,7 @@ public class FeneconHomeBatteryProtection implements BatteryProtectionDefinition
 		return PolyLine.empty();
 	}
 
+	@Override
 	public PolyLine getDischargeVoltageToPercent() {
 		return PolyLine.create() //
 				.addPoint(3000, 0.1) //

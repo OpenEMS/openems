@@ -15,8 +15,7 @@ export interface CategorizedFactories {
         title: string,
         icon: string
     },
-    factories: EdgeConfig.Factory[],
-    filter: (properties) => boolean,
+    factories: EdgeConfig.Factory[]
 };
 
 export class EdgeConfig {
@@ -455,7 +454,7 @@ export class EdgeConfig {
                 factories.forEach(factory => {
                     ignoreFactoryIds.push(factory.id);
                 });
-                result.push({ category: item.category, factories: factories.sort((a, b) => a.id.localeCompare(b.id)), filter: (properties) => true })
+                result.push({ category: item.category, factories: factories.sort((a, b) => a.id.localeCompare(b.id)) });
             }
         })
         return result;

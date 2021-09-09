@@ -292,7 +292,7 @@ export const TRANSLATION = {
                     chargingStationPluggedInLocked: 'Ladestation eingesteckt + gesperrt',
                     clusterConfigError: 'Bei der Konfiguration des Evcs-Clusters ist ein Fehler aufgetreten',
                     currentCharge: 'Aktuelle Beladung',
-                    energieSinceBeginning: 'Energie seit Ladebeginn',
+                    energySinceBeginning: 'Energie seit Ladebeginn',
                     energyLimit: 'Energielimit',
                     enforceCharging: 'Erzwinge Beladung',
                     error: 'Fehler',

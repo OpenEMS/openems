@@ -4,6 +4,8 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Service } from 'src/app/shared/shared';
 import { COUNTRY_OPTIONS, InstallationData } from '../../installation.component';
 import { FeedInSetting } from '../protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component';
+import { EmsApp, EmsAppId } from '../heckert-app-installer/heckert-app-installer.component';
+import { environment } from 'src/environments';
 
 @Component({
   selector: ConfigurationSummaryComponent.SELECTOR,
@@ -273,10 +275,24 @@ export class ConfigurationSummaryComponent implements OnInit {
     }
 
     //#endregion
+
+    //#region [Heckert] Free App
+
+    if (environment.theme === "Heckert") {
+      let selectedFreeApp: EmsApp = this.installationData.selectedFreeApp;
+
+      if (selectedFreeApp.id !== EmsAppId.None) {
+        this.tableData.push({
+          header: "Apps",
+          rows: [{ label: "Ihre gewählte kostenlose App", value: selectedFreeApp.alias }]
+        });
+      }
+    }
+
+    //#endregion
   }
 
   public getCountryLabel(countryValue: string) {
     return COUNTRY_OPTIONS.find((country) => { return country.value === countryValue }).label;
   }
-
 }

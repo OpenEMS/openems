@@ -34,6 +34,12 @@ export class AppComponent {
   }
 
   ngOnInit() {
+
+    // Checks if sessionStorage is not null, undefined or empty string
+    if (sessionStorage.getItem("DEBUGMODE")) {
+      this.environment.debugMode = JSON.parse(sessionStorage.getItem("DEBUGMODE"));
+    }
+
     this.titleService.setTitle(environment.shortName);
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
       const toast = await this.toastController.create({

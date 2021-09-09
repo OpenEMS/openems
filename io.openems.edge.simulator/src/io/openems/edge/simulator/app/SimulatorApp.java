@@ -39,7 +39,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -72,20 +71,25 @@ import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
-		name = "Simulator.App", //
+		name = SimulatorApp.SINGLETON_SERVICE_PID, //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				"id=" + OpenemsConstants.SIMULATOR_ID, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 		})
 public class SimulatorApp extends AbstractOpenemsComponent
 		implements SimulatorDatasource, ClockProvider, OpenemsComponent, JsonApi, EventHandler, Timedata {
 
+	public final static String SINGLETON_SERVICE_PID = "Simulator.App";
+	public final static String SINGLETON_COMPONENT_ID = "_simulator";
+
 	private static final long MILLISECONDS_BETWEEN_LOGS = 5_000;
 
 	private final Logger log = LoggerFactory.getLogger(SimulatorApp.class);
+
+	@Reference
+	private ConfigurationAdmin cm;
 
 	@Reference
 	private ConfigurationAdmin configurationAdmin;
@@ -144,7 +148,10 @@ public class SimulatorApp extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext componentContext, Config config) throws OpenemsException {
-		super.activate(componentContext, OpenemsConstants.SIMULATOR_ID, "Simulator", config.enabled());
+		super.activate(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, config.enabled());
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
+		}
 	}
 
 	@Deactivate

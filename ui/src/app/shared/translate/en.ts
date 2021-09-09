@@ -291,7 +291,7 @@ export const TRANSLATION = {
                     chargingStationPluggedInLocked: 'Charing Station plugged in + locked',
                     clusterConfigError: 'An error has occurred in the configuration of the Evcs cluster',
                     currentCharge: 'Current charge',
-                    energieSinceBeginning: 'Energy since the last charge start',
+                    energySinceBeginning: 'Energy since the last charge start',
                     energyLimit: 'Energy Limit',
                     enforceCharging: 'Enforce charging',
                     error: 'Error',
