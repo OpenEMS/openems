@@ -1,19 +1,18 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { Service, EdgeConfig, Edge, Websocket } from '../../../../../shared/shared';
+import { Service, EdgeConfig, Edge, Websocket } from '../../../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-    selector: SymmetricPeakshavingModalComponent.SELECTOR,
+    selector: 'symmetricpeakshaving-modal',
     templateUrl: './modal.component.html'
 })
-export class SymmetricPeakshavingModalComponent {
+export class Controller_Symmetric_PeakShavingModalComponent {
 
     @Input() component: EdgeConfig.Component;
     @Input() edge: Edge;
 
-    private static readonly SELECTOR = "symmetricpeakshaving-modal";
 
     public formGroup: FormGroup;
     public loading: boolean = false;

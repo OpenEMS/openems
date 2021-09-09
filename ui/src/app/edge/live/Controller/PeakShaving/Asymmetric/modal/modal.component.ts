@@ -1,21 +1,19 @@
 import { Component, Input } from '@angular/core';
-import { Edge, EdgeConfig, Service, Websocket } from '../../../../../shared/shared';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/shared';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-    selector: AsymmetricPeakshavingModalComponent.SELECTOR,
+    selector: 'asymmetricpeakshaving-modal',
     templateUrl: './modal.component.html'
 })
-export class AsymmetricPeakshavingModalComponent {
+export class Controller_Asymmetric_PeakShavingModalComponent {
 
     @Input() component: EdgeConfig.Component;
     @Input() edge: Edge;
     @Input() mostStressedPhase: Subject<{ name: 'L1' | 'L2' | 'L3' | '', value: number }>;
-
-    private static readonly SELECTOR = "asymmetricpeakshaving-modal";
 
     public formGroup: FormGroup;
     public loading: boolean = false;

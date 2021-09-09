@@ -41,12 +41,6 @@ import { PredictionChartComponent } from './gridoptimizedcharge/modal/prediction
 import { InfoComponent } from './info/info.component';
 import { LiveComponent } from './live.component';
 import { OfflineComponent } from './offline/offline.component';
-import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmetricpeakshaving.component';
-import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
-import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
-import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetricpeakshaving.component';
-import { TimeslotPeakshavingModalComponent } from './peakshaving/timeslot/modal/modal.component';
-import { TimeslotPeakshavingComponent } from './peakshaving/timeslot/timeslotpeakshaving.component';
 import { ProductionModalComponent } from './production/modal/modal.component';
 import { ProductionComponent } from './production/production.component';
 import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.component';
@@ -56,6 +50,12 @@ import { EvcsChart } from './Multiple/Evcs_Api_Cluster/modal/evcs-chart/evcs.cha
 import { Evcs_Api_ClusterModalComponent } from './Multiple/Evcs_Api_Cluster/modal/evcsCluster-modal.page';
 import { Controller_Io_HeatpumpComponent } from './Controller/Io_Heatpump/Io_Heatpump';
 import { Controller_Io_HeatpumpModalComponent } from './Controller/Io_Heatpump/modal/modal.component';
+import { Controller_Asymmetric_PeakShavingModalComponent } from './Controller/PeakShaving/Asymmetric/modal/modal.component';
+import { Controller_Symmetric_PeakShavingModalComponent } from './Controller/PeakShaving/Symmetric/modal/modal.component';
+import { Controller_Symmetric_TimeSlot_PeakShavingModalComponent } from './Controller/PeakShaving/Symmetric_TimeSlot/modal/modal.component';
+import { Controller_Asymmetric_PeakShavingComponent } from './Controller/PeakShaving/Asymmetric/Asymmetric';
+import { Controller_Symmetric_PeakShavingComponent } from './Controller/PeakShaving/Symmetric/Symmetric';
+import { Controller_Symmetric_TimeSlot_PeakShavingComponent } from './Controller/PeakShaving/Symmetric_TimeSlot/Symmetric_TimeSlot';
 
 @NgModule({
   imports: [
@@ -67,7 +67,7 @@ import { Controller_Io_HeatpumpModalComponent } from './Controller/Io_Heatpump/m
   ],
   entryComponents: [
     AdministrationComponent,
-    AsymmetricPeakshavingModalComponent,
+    Controller_Asymmetric_PeakShavingModalComponent,
     AutarchyModalComponent,
     ChpsocModalComponent,
     ConsumptionModalComponent,
@@ -93,14 +93,11 @@ import { Controller_Io_HeatpumpModalComponent } from './Controller/Io_Heatpump/m
     SelfconsumptionModalComponent,
     SinglethresholdModalComponent,
     StorageModalComponent,
-    SymmetricPeakshavingModalComponent,
-    TimeslotPeakshavingModalComponent,
+    Controller_Symmetric_PeakShavingComponent,
+    Controller_Symmetric_TimeSlot_PeakShavingModalComponent,
   ],
   declarations: [
     AdministrationComponent,
-    AsymmetricPeakshavingComponent,
-    AsymmetricPeakshavingModalComponent,
-    AutarchyComponent,
     AutarchyModalComponent,
     ChpSocComponent,
     ChpsocModalComponent,
@@ -145,10 +142,13 @@ import { Controller_Io_HeatpumpModalComponent } from './Controller/Io_Heatpump/m
     SinglethresholdModalComponent,
     StorageComponent,
     StorageModalComponent,
-    SymmetricPeakshavingComponent,
-    SymmetricPeakshavingModalComponent,
-    TimeslotPeakshavingComponent,
-    TimeslotPeakshavingModalComponent,
+    Controller_Symmetric_PeakShavingComponent,
+    Controller_Symmetric_PeakShavingModalComponent,
+    Controller_Symmetric_TimeSlot_PeakShavingComponent,
+    Controller_Symmetric_TimeSlot_PeakShavingModalComponent,
+    Controller_Asymmetric_PeakShavingComponent,
+    Controller_Asymmetric_PeakShavingModalComponent,
+    AutarchyComponent,
   ]
 })
 export class LiveModule { }

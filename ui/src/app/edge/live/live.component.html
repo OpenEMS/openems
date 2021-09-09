@@ -97,15 +97,17 @@
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Symmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
-                <symmetricpeakshaving [componentId]="widget.componentId"></symmetricpeakshaving>
+                <Controller_Symmetric_PeakShaving [componentId]="widget.componentId"></Controller_Symmetric_PeakShaving>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Asymmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
-                <asymmetricpeakshaving [componentId]="widget.componentId"></asymmetricpeakshaving>
+                <Controller_Asymmetric_PeakShaving [componentId]="widget.componentId">
+                </Controller_Asymmetric_PeakShaving>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.TimeslotPeakshaving'" size="12" size-lg="6" class="ion-no-padding">
-                <timeslotpeakshaving [componentId]="widget.componentId"></timeslotpeakshaving>
+                <Controller_Symmetric_TimeSlot_PeakShaving [componentId]="widget.componentId">
+                </Controller_Symmetric_TimeSlot_PeakShaving>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Ess.DelayedSellToGrid'" size="12" size-lg="6" class="ion-no-padding">
