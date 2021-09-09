@@ -9,7 +9,6 @@ import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.component.ComponentContext;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
@@ -77,12 +76,12 @@ public class DummyComponentManager implements ComponentManager {
 
 	@Override
 	public String id() {
-		return OpenemsConstants.COMPONENT_MANAGER_ID;
+		return ComponentManager.SINGLETON_COMPONENT_ID;
 	}
 
 	@Override
 	public String alias() {
-		return OpenemsConstants.COMPONENT_MANAGER_ID;
+		return ComponentManager.SINGLETON_COMPONENT_ID;
 	}
 
 	@Override
