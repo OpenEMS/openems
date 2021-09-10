@@ -26,7 +26,6 @@ import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -47,7 +46,6 @@ import io.openems.edge.goodwe.common.enums.AppModeIndex;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
-import io.openems.edge.goodwe.common.enums.MeterCommunicateStatus;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -411,13 +409,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 		this.lastChargeMaxCurrent = battery.getChargeMaxCurrent();
 
-		// Update Warn Channels
-		this.checkControlModeWithActivePid();
-		this.checkControlModeRequiresSmartMeter();
-
 		// Apply Power Set-Point
 		this.applyPowerHandler.apply(this, setActivePower, this.config.controlMode(), this.sum.getGridActivePower(),
-				this.getActivePower(), this.getMaxAcImport(), this.getMaxAcExport());
+				this.getActivePower(), this.getMaxAcImport(), this.getMaxAcExport(), this.power.isPidEnabled());
 
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
@@ -436,62 +430,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	@Override
 	public String debugLog() {
 		return "AllowedAC:" + this.getMaxAcImport().asStringWithoutUnit() + ";" + this.getMaxAcExport().asString();
-	}
-
-	/**
-	 * Check current {@link ControlMode} is set to SMART and PID filter is enabled.
-	 * If true warning channel SMART_MODE_NOT_WORKING_WITH_PID_FILTER set to true,
-	 * otherwise to false.
-	 */
-	private void checkControlModeWithActivePid() {
-		boolean enableWarning = false;
-		if (this.config.controlMode().equals(ControlMode.SMART) && this.power.isPidEnabled()) {
-			enableWarning = true;
-		}
-
-		this.channel(GoodWeBatteryInverter.ChannelId.SMART_MODE_NOT_WORKING_WITH_PID_FILTER)
-				.setNextValue(enableWarning);
-	}
-
-	/**
-	 * Check if configured {@link ControlMode} is possible - depending on if a
-	 * GoodWe Smart Meter is connected or not.
-	 */
-	private void checkControlModeRequiresSmartMeter() {
-		EnumReadChannel meterCommunicateStatusChannel = this.channel(GoodWe.ChannelId.METER_COMMUNICATE_STATUS);
-		MeterCommunicateStatus meterCommunicateStatus = meterCommunicateStatusChannel.value().asEnum();
-
-		boolean enableWarning = false;
-		switch (meterCommunicateStatus) {
-		case UNDEFINED:
-			// We don't know if GoodWe Smart Meter is connected. Either not read yet (on
-			// startup) or DSP version too low.
-			enableWarning = false;
-			break;
-
-		case OK:
-			// GoodWe Smart Meter is connected.
-			enableWarning = false;
-			break;
-
-		case NG:
-			// GoodWe Smart Meter is NOT connected.
-			switch (this.config.controlMode()) {
-			case REMOTE:
-				// REMOTE mode is ok without GoodWe Smart Meter
-				enableWarning = false;
-				break;
-
-			case INTERNAL:
-			case SMART:
-				// INTERNAL and SMART mode require a GoodWe Smart Meter
-				enableWarning = true;
-				break;
-			}
-			break;
-		}
-
-		this.channel(GoodWeBatteryInverter.ChannelId.NO_SMART_METER_DETECTED).setNextValue(enableWarning);
 	}
 
 	@Override

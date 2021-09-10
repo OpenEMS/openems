@@ -1317,7 +1317,11 @@ public interface GoodWe extends OpenemsComponent {
 		MAX_AC_EXPORT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		MAX_AC_IMPORT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)); //
+				.unit(Unit.WATT)), //
+		SMART_MODE_NOT_WORKING_WITH_PID_FILTER(Doc.of(Level.WARNING) //
+				.text("SMART mode does not work correctly with active PID filter")),
+		NO_SMART_METER_DETECTED(Doc.of(Level.WARNING) //
+				.text("No GoodWe Smart Meter detected. Only REMOTE mode can work correctly"));
 
 		private final Doc doc;
 

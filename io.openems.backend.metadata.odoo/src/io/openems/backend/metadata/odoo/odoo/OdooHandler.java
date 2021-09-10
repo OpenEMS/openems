@@ -18,6 +18,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.odoo.Config;
+import io.openems.backend.metadata.odoo.Constants;
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.Partner;
 import io.openems.backend.metadata.odoo.Field.SetupProtocol;
@@ -394,7 +395,8 @@ public class OdooHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	public byte[] getOdooSetupProtocolReport(int setupProtocolId) throws OpenemsNamedException {
-		return OdooUtils.getOdooReport(this.credentials, "fems.report_fems_setup_protocol_template", setupProtocolId);
+		return OdooUtils.getOdooReport(this.credentials,
+				Constants.ODOO_MODULE_NAME + ".report_fems_setup_protocol_template", setupProtocolId);
 	}
 
 	/**
@@ -745,7 +747,7 @@ public class OdooHandler {
 	/**
 	 * Update language for the given user.
 	 * 
-	 * @param user   {@link MyUser} the current user
+	 * @param user     {@link MyUser} the current user
 	 * @param language to set
 	 * @throws OpenemsException on error
 	 */
