@@ -103,7 +103,7 @@ export class Controller_EvcsComponent extends AbstractFlatWidget {
    * @param plug 
    * 
    */
-  getState(state: number, plug: number) {
+  private getState(state: number, plug: number): string {
     if (this.controller != null) {
       if (this.controller.properties.enabledCharging != null && this.controller.properties.enabledCharging == false) {
         return this.translate.instant('Edge.Index.Widgets.EVCS.chargingStationDeactivated');
