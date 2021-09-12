@@ -1,4 +1,4 @@
-package io.openems.edge.sma;
+package io.openems.edge.sma.sunnyisland6;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;

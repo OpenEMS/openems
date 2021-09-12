@@ -1,4 +1,4 @@
-package io.openems.edge.sma;
+package io.openems.edge.sma.sunnyisland6;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;

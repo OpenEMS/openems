@@ -1,4 +1,4 @@
-package io.openems.edge.sma;
+package io.openems.edge.sma.sunnyisland6;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
