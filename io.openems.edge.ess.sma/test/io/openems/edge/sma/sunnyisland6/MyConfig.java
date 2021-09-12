@@ -1,8 +1,9 @@
-package io.openems.edge.sma;
+package io.openems.edge.sma.sunnyisland6;
 
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.ess.api.SinglePhase;
+import io.openems.edge.sma.sunnyisland6.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
