@@ -32,8 +32,10 @@ import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -73,6 +75,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 
 	private User user;
 	private String path = "";
+	private static Language LANGUAGE = Language.DE;
 
 	public FileMetadata() {
 		super("Metadata.File");
@@ -126,6 +129,17 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
+	public synchronized Optional<Edge> getEdgeBySetupPassword(String setupPassword) {
+		this.refreshData();
+		for (MyEdge edge : this.edges.values()) {
+			if (edge.getSetupPassword().equals(setupPassword)) {
+				return Optional.of(edge);
+			}
+		}
+		return Optional.empty();
+	}
+
+	@Override
 	public synchronized Optional<Edge> getEdge(String edgeId) {
 		this.refreshData();
 		Edge edge = this.edges.get(edgeId);
@@ -169,6 +183,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 					edges.add(new MyEdge(//
 							entry.getKey(), // Edge-ID
 							JsonUtils.getAsString(edge, "apikey"), //
+							JsonUtils.getAsString(edge, "setuppassword"), //
 							JsonUtils.getAsString(edge, "comment"), //
 							State.ACTIVE, // State
 							"", // Version
@@ -194,7 +209,42 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 
 	private static User generateUser() {
 		return new User(FileMetadata.USER_ID, FileMetadata.USER_NAME, UUID.randomUUID().toString(),
-				FileMetadata.USER_GLOBAL_ROLE, new TreeMap<>());
+				FileMetadata.USER_GLOBAL_ROLE, new TreeMap<>(), LANGUAGE.name());
+	}
+
+	@Override
+	public void addEdgeToUser(User user, Edge edge) throws OpenemsNamedException {
+		throw new NotImplementedException("FileMetadata.addEdgeToUser()");
+	}
+
+	@Override
+	public Map<String, Object> getUserInformation(User user) throws OpenemsNamedException {
+		throw new NotImplementedException("FileMetadata.getUserInformation()");
+	}
+
+	@Override
+	public void setUserInformation(User user, JsonObject jsonObject) throws OpenemsNamedException {
+		throw new NotImplementedException("FileMetadata.setUserInformation()");
+	}
+
+	@Override
+	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException {
+		throw new IllegalArgumentException("FileMetadata.getSetupProtocol() is not implemented");
+	}
+
+	@Override
+	public int submitSetupProtocol(User user, JsonObject jsonObject) {
+		throw new IllegalArgumentException("FileMetadata.submitSetupProtocol() is not implemented");
+	}
+
+	@Override
+	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException {
+		throw new IllegalArgumentException("FileMetadata.registerUser() is not implemented");
+	}
+
+	@Override
+	public void updateUserLanguage(User user, Language locale) throws OpenemsNamedException {
+		LANGUAGE = locale;
 	}
 
 }

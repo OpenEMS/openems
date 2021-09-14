@@ -6,6 +6,11 @@ tasks.named('wrapper') {
   jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
 }
 
+// UTF-8
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
 /*
  * Build OpenEMS Edge and Backend Components
  */
@@ -13,6 +18,11 @@ task buildComponents() {
     subprojects.each { proj ->
         if (proj.tasks.findAll { it.name == 'compileJava' }) {
             dependsOn(proj.compileJava)
+            proj.test {
+                testLogging {
+                    events "passed", "skipped", "failed", "standardOut", "standardError"
+                }
+            }
         }
     }
 }
@@ -48,20 +58,6 @@ task buildBackend() {
 }
 
 /*
- * Build OpenEMS UI for OpenEMS Backend
- */
-task buildUiForBackend() {
-    dependsOn ":ui:buildForBackend"
-}
-
-/*
- * Build OpenEMS UI for OpenEMS Edge
- */
-task buildUiForEdge() {
-    dependsOn ":ui:buildForEdge"
-}
-
-/*
  * Javadoc
  */
 task buildAggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
@@ -69,6 +65,7 @@ task buildAggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from
     title = "OpenEMS Javadoc"
     subprojects.each { proj ->
         proj.tasks.withType(Javadoc).each { javadocTask ->
+            javadocTask.options.encoding = 'UTF-8'
             options.addStringOption('Xdoclint:none', '-quiet')
             source += javadocTask.source
             classpath += javadocTask.classpath

@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { CookieService } from 'ngx-cookie-service';
 import { delay, retryWhen } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { environment as env } from '../../../environments';
+import { environment } from "src/environments";
 import { Edge } from '../edge/edge';
 import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
@@ -15,6 +15,7 @@ import { AuthenticateWithPasswordRequest } from '../jsonrpc/request/authenticate
 import { AuthenticateWithTokenRequest } from '../jsonrpc/request/authenticateWithTokenRequest';
 import { EdgeRpcRequest } from '../jsonrpc/request/edgeRpcRequest';
 import { LogoutRequest } from '../jsonrpc/request/logoutRequest';
+import { RegisterUserRequest } from '../jsonrpc/request/registerUserRequest';
 import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
 import { AuthenticateResponse } from '../jsonrpc/response/authenticateResponse';
 import { Role } from '../type/role';
@@ -59,19 +60,19 @@ export class Websocket {
     // trying to connect
     this.status = 'connecting';
 
-    if (env.debugMode) {
-      console.info("Websocket connecting to URL [" + env.url + "]");
+    if (environment.debugMode) {
+      console.info("Websocket connecting to URL [" + environment.url + "]");
     }
 
     /*
      * Open Websocket connection + define onOpen/onClose callbacks.
      */
     this.socket = webSocket({
-      url: env.url,
+      url: environment.url,
       openObserver: {
         next: (value) => {
           // Websocket connection is open
-          if (env.debugMode) {
+          if (environment.debugMode) {
             console.info("Websocket connection opened");
           }
           let token = this.cookieService.get('token');
@@ -89,7 +90,7 @@ export class Websocket {
       closeObserver: {
         next: (value) => {
           // Websocket connection is closed. Auto-Reconnect starts.
-          if (env.debugMode) {
+          if (environment.debugMode) {
             console.info("Websocket connection closed");
           }
           // trying to connect
@@ -109,7 +110,7 @@ export class Websocket {
 
       if (message instanceof JsonrpcRequest) {
         // handle JSON-RPC Request
-        if (env.debugMode) {
+        if (environment.debugMode) {
           console.info("Receive Request", message);
         }
         this.onRequest(message);
@@ -120,7 +121,7 @@ export class Websocket {
 
       } else if (message instanceof JsonrpcNotification) {
         // handle JSON-RPC Notification
-        if (env.debugMode) {
+        if (environment.debugMode) {
           if (message.method == EdgeRpcNotification.METHOD && 'payload' in message.params) {
             const payload = message.params['payload'];
             console.info("Notification [" + payload["method"] + "]", payload['params']);
@@ -210,19 +211,21 @@ export class Websocket {
       // logged in + normal operation
       this.status == 'online'
       // otherwise only authentication request allowed
-      || (request instanceof AuthenticateWithPasswordRequest || request instanceof AuthenticateWithTokenRequest)) {
+      || (request instanceof AuthenticateWithPasswordRequest || request instanceof AuthenticateWithTokenRequest || request instanceof RegisterUserRequest)) {
 
       return new Promise((resolve, reject) => {
         this.wsdata.sendRequest(this.socket, request).then(response => {
-          if (request instanceof EdgeRpcRequest) {
-            console.info("Response     [" + request.params.payload.method + ":" + request.params.edgeId + "]", response.result['payload']['result']);
-          } else {
-            console.info("Response     [" + request.method + "]", response.result);
+          if (environment.debugMode) {
+            if (request instanceof EdgeRpcRequest) {
+              console.info("Response     [" + request.params.payload.method + ":" + request.params.edgeId + "]", response.result['payload']['result']);
+            } else {
+              console.info("Response     [" + request.method + "]", response.result);
+            }
           }
           resolve(response);
 
         }).catch(reason => {
-          if (env.debugMode) {
+          if (environment.debugMode) {
             if (reason instanceof JsonrpcResponseError) {
               console.warn("Request failed [" + request.method + "]", reason.error);
             } else {

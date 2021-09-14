@@ -654,7 +654,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 					// Register the Channel at this Component
 					this.addChannel(channelId);
 					// Add the Modbus Element and map it to the Channel
-					if (type == Type.VOLTAGE) {
+					if (type == Type.VOLTAGE_SINGLE) {
 						elements[j] = m(channelId, new UnsignedWordElement(type.getOffset() + sensorIndex));
 					} else {
 						elements[j] = m(channelId, new SignedWordElement(type.getOffset() + sensorIndex));
@@ -673,8 +673,8 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 				}
 			}
 		};
-		addCellChannels.accept(CellChannelFactory.Type.VOLTAGE);
-		addCellChannels.accept(CellChannelFactory.Type.TEMPERATURE);
+		addCellChannels.accept(CellChannelFactory.Type.VOLTAGE_SINGLE);
+		addCellChannels.accept(CellChannelFactory.Type.TEMPERATURE_SINGLE);
 
 		return protocol;
 	}

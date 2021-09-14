@@ -136,26 +136,6 @@ public interface Doc {
 	public String getText();
 
 	/**
-	 * Sets an object that holds information about the source of this Channel, i.e.
-	 * a Modbus Register or REST-Api endpoint address. Defaults to null.
-	 * 
-	 * @param <SOURCE> the type of the source attachment
-	 * @param source   the source object
-	 * @return myself
-	 * @throws IllegalArgumentException if there is already a source registered with
-	 *                                  the Channel
-	 */
-	public <SOURCE> Doc source(SOURCE source) throws IllegalArgumentException;
-
-	/**
-	 * Gets the source information object. Defaults to empty String.
-	 * 
-	 * @param <SOURCE> the type of the source attachment
-	 * @return the soure information object
-	 */
-	public <SOURCE> SOURCE getSource();
-
-	/**
 	 * Is the more verbose debug mode activated?.
 	 * 
 	 * @return true for debug mode

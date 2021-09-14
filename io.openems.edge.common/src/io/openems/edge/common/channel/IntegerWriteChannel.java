@@ -72,5 +72,4 @@ public class IntegerWriteChannel extends IntegerReadChannel implements WriteChan
 	public void onSetNextWrite(ThrowingConsumer<Integer, OpenemsNamedException> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
-
 }

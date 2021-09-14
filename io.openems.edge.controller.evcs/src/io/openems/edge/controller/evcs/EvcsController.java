@@ -31,11 +31,7 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
@@ -183,7 +179,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				if (storageSoc > 97) {
 					nextChargePower = this.calculateChargePowerFromExcessPower(this.evcs);
 				} else {
-					nextChargePower = this.calculateExcessPowerAfterEss(this.evcs, this.ess);
+					nextChargePower = this.calculateExcessPowerAfterEss(this.evcs);
 				}
 				break;
 			}
@@ -299,30 +295,21 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	}
 
 	/**
-	 * Calculates the next charging power from excess power after Ess charging.
+	 * Calculate result depending on the current evcs power and grid power.
 	 * 
-	 * @param evcs the ManagedEvcs
-	 * @param ess  the ManagedSymmetricEss
-	 * @return the available excess power for charging
+	 * @param evcs
+	 * @return
 	 */
-	private int calculateExcessPowerAfterEss(ManagedEvcs evcs, SymmetricEss ess) {
-		int maxEssCharge;
-		if (ess instanceof ManagedSymmetricEss) {
-			ManagedSymmetricEss e = (ManagedSymmetricEss) ess;
-			Power power = ((ManagedSymmetricEss) ess).getPower();
-			maxEssCharge = power.getMinPower(e, Phase.ALL, Pwr.ACTIVE);
-			maxEssCharge = Math.abs(maxEssCharge);
-		} else {
-			maxEssCharge = ess.getMaxApparentPower().orElse(0);
-		}
+	private int calculateExcessPowerAfterEss(ManagedEvcs evcs) {
 		int buyFromGrid = this.sum.getGridActivePower().orElse(0);
-		int essActivePower = this.sum.getEssActivePower().orElse(0);
-		int essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
 		int evcsCharge = evcs.getChargePower().orElse(0);
-		int result = -buyFromGrid + evcsCharge - (maxEssCharge + (essActivePower - essActivePowerDC));
-		result = result > 0 ? result : 0;
 
-		return result;
+		int result = evcsCharge - buyFromGrid;
+
+		// Add a buffer in Watt to have lower priority than the ess
+		result -= 200;
+
+		return result > 0 ? result : 0;
 	}
 
 	@Override

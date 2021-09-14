@@ -30,7 +30,7 @@ public class StringWriteChannel extends StringReadChannel implements WriteChanne
 						+ "] is not an StringWriteChannel! Unable to register \"onSetNextWrite\"-Listener!");
 				return;
 			}
-			
+
 			// on each setNextWrite to the channel -> store the value in the DEBUG-channel
 			((StringWriteChannel) channel).onSetNextWrite(value -> {
 				channel.getComponent().channel(this.targetChannelId).setNextValue(value);
@@ -72,5 +72,4 @@ public class StringWriteChannel extends StringReadChannel implements WriteChanne
 	public void onSetNextWrite(ThrowingConsumer<String, OpenemsNamedException> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
-
 }

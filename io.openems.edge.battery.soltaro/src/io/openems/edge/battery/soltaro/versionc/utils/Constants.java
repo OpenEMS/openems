@@ -12,7 +12,7 @@ public class Constants {
 	 */
 	public static int RETRY_COMMAND_MAX_ATTEMPTS = 30;
 
-	public static int ADDRESS_OFFSET = 0x2000;
+	public static int SINGLE_RACK_ADDRESS_OFFSET = 0x2000;
 
 	public static int VOLTAGE_ADDRESS_OFFSET = 0x800;
 	public static int VOLTAGE_SENSORS_PER_MODULE = 12;
@@ -20,10 +20,7 @@ public class Constants {
 	public static int TEMPERATURE_ADDRESS_OFFSET = 0xC00;
 	public static int TEMPERATURE_SENSORS_PER_MODULE = 12;
 
-	/**
-	 * Cell constants.
-	 */
-	public static int MIN_VOLTAGE_MILLIVOLT = 34_800;
-	public static int MAX_VOLTAGE_MILLIVOLT = 42_700;
+	public static int MIN_VOLTAGE_MILLIVOLT_PER_MODULE = 34_800;
+	public static int MAX_VOLTAGE_MILLIVOLT_PER_MODULE = 42_700;
 
 }

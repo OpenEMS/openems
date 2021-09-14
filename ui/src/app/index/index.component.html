@@ -18,7 +18,7 @@
             </ion-item>
 
             <!-- OpenEMS Edge Login -->
-            <ion-card-content *ngIf="env.backend === 'OpenEMS Edge'">
+            <ion-card-content *ngIf="environment.backend === 'OpenEMS Edge'">
               <form (ngSubmit)="doLogin({ password: password.value})">
                 <div class="ion-padding">
                   <ion-item>
@@ -43,7 +43,7 @@
             </ion-card-content>
 
             <!-- OpenEMS Backend Login -->
-            <ion-card-content *ngIf="env.backend === 'OpenEMS Backend'">
+            <ion-card-content *ngIf="environment.backend === 'OpenEMS Backend'">
               <form (ngSubmit)="doLogin({ username: username.value, password: password.value})">
                 <ion-item>
                   <ion-label position="floating">E-Mail / Benutzername</ion-label>
@@ -58,29 +58,55 @@
                 <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
                 <input type="submit" style="visibility: hidden; position: absolute; position: -999px" />
 
-                <ion-button type="submit" class="ion-float-right ion-margin-top ion-margin-bottom" size="medium">
-                  <small>LOGIN</small>
-                  <ion-icon slot="end" name="log-in-outline"></ion-icon>
-                </ion-button>
+                <ion-item lines="none" class="ion-margin-top">
+                  <table class=" full_width">
+                    <ion-button type="submit" class="ion-float-right" size="medium">
+                      <small>Login</small>
+                      <ion-icon slot="end" name="log-in-outline"></ion-icon>
+                    </ion-button>
+                    <br>
+                    <registration style="cursor: pointer;"></registration>
+                  </table>
+                </ion-item>
               </form>
             </ion-card-content>
           </ion-card>
 
           <!-- Logged in + normal operation -->
           <ng-container *ngSwitchCase="'online'">
-            <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
-              <ion-card *ngIf="noEdges; else showEdges" class="ion-justify-content-center">
-                <!-- No access to Edges -->
-                <ion-item color="warning" lines="full">
-                  <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
-                  <ion-label>No access</ion-label>
-                </ion-item>
-                <ion-card-content>
-                  <p>Unfortunately, it seems that you do not have permission to access any OpenEMS Edge devices.
-                  </p>
-                </ion-card-content>
-              </ion-card>
+            <ng-container *ngIf="environment.backend === 'OpenEMS Backend'">
+              <ng-container *ngIf="noEdges; else showEdges">
 
+                <ion-card class="ion-justify-content-center">
+
+                  <ng-container *ngIf="(service.metadata | async)?.user as user">
+                    <ng-container *ngIf="(user.globalRole == 'installer' || user.globalRole == 'admin'), else others">
+                      <!-- No access to Edges -->
+                      <ion-item color="warning" lines="full">
+                        <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
+                        <ion-label class="ion-text-wrap ion-text-center">Sie haben noch kein FEMS (Fenecon Energie
+                          Management System) hinzugefügt.</ion-label>
+                      </ion-item>
+                      <ion-card-content class="ion-text-center">
+                        <p>Bitte klicken Sie unten auf den "Hinzufügen"-Button wenn sie ein FEMS in Betrieb nehmen
+                          wollen.</p>
+                      </ion-card-content>
+                    </ng-container>
+                    <ng-template #others>
+                      <ion-item color="warning" lines="full">
+                        <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
+                        <ion-label class="ion-text-wrap ion-text-center">Leider wurde noch kein FEMS (Fenecon Energie
+                          Management System) mit Ihrem Account verknüpft.</ion-label>
+                      </ion-item>
+                      <ion-card-content class="ion-text-center">
+                        <p>Nach dem Ihr FEMS durch einen Installateur in Betrieb genommen wurde, sehen Sie es an dieser
+                          Stelle.</p>
+                      </ion-card-content>
+                    </ng-template>
+                  </ng-container>
+                </ion-card>
+
+              </ng-container>
               <ng-template #showEdges>
                 <!-- Show searchbar and list of Edges -->
                 <ion-grid>
@@ -98,14 +124,20 @@
                           [routerLink]="['/device', edge.id]" [color]="edge.isOnline ? null : 'light'">
                           <ion-label>
                             <h2 class="ion-text-wrap">{{ edge.comment }}</h2>
-                            <p *ngIf="!edge.isOnline" class="ion-text-wrap">Das Gerät ist nicht verbunden!</p>
+                            <p *ngIf="!edge.isOnline" class="ion-text-wrap">
+                              <ion-text translate>Index.deviceOffline</ion-text>
+                            </p>
                           </ion-label>
                           <ion-label>
-                            <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
+                            <ng-container *ngIf="environment.backend === 'OpenEMS Backend'">
                               <p>ID: {{ edge.id }}</p>
-                              <p class="ion-text-wrap">Typ: {{ edge.producttype }}</p>
+                              <p class="ion-text-wrap">
+                                <ion-text translate>Index.type</ion-text> {{ edge.producttype }}
+                              </p>
                             </ng-container>
-                            <p class="ion-text-wrap">Angemeldet als: {{ edge.getRoleString() }}.</p>
+                            <p class="ion-text-wrap">
+                              <ion-text translate>Index.loggedInAs</ion-text> {{ edge.getRoleString() }}.
+                            </p>
                           </ion-label>
                           <ion-icon slot="end" name="play-outline" color="primary"></ion-icon>
                         </ion-item>
@@ -125,6 +157,7 @@
           </ng-container>
         </ng-container>
       </ion-col>
+
     </ion-row>
   </ion-grid>
 </ion-content>

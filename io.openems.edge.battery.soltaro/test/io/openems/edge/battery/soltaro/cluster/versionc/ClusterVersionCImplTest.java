@@ -1,6 +1,5 @@
 package io.openems.edge.battery.soltaro.cluster.versionc;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.edge.battery.soltaro.common.enums.ModuleType;
@@ -14,11 +13,6 @@ public class ClusterVersionCImplTest {
 	private static final String BATTERY_ID = "battery0";
 	private static final String MODBUS_ID = "modbus0";
 
-	@Before
-	public void before() {
-		ResetChannelSources.run();
-	}
-
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new ClusterVersionCImpl()) //
@@ -30,9 +24,9 @@ public class ClusterVersionCImplTest {
 						.setModuleType(ModuleType.MODULE_3_5_KWH) //
 						.setStartStop(StartStopConfig.AUTO) //
 						.setNumberOfSlaves(0) //
-						.setRack1Used(false) //
-						.setRack2Used(false) //
-						.setRack3Used(false) //
+						.setRack1Used(true) //
+						.setRack2Used(true) //
+						.setRack3Used(true) //
 						.setRack4Used(false) //
 						.setRack5Used(false) //
 						.build()) //
