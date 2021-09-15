@@ -524,7 +524,7 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 		BACK_UP_ENABLE(Doc.of(BackupEnable.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		AUTO_START_BACKUP(Doc.of(OpenemsType.INTEGER) //
+		AUTO_START_BACKUP(Doc.of(BackupEnable.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		GRID_WAVE_CHECK_LEVEL(Doc.of(GridWaveCheckLevel.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
