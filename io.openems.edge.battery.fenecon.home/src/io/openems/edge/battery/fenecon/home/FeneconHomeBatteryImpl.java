@@ -25,6 +25,7 @@ import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.home.statemachine.Context;
@@ -42,6 +43,7 @@ import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
@@ -147,10 +149,18 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		Context context = new Context(this);
+		BooleanWriteChannel batteryStartUpRelayChannel;
+		try {
+			batteryStartUpRelayChannel = this.componentManager
+					.getChannel(ChannelAddress.fromString(this.config.batteryStartUpRelay()));
+		} catch (IllegalArgumentException | OpenemsNamedException e1) {
+			batteryStartUpRelayChannel = null;
+		}
+		Context context = new Context(this, batteryStartUpRelayChannel);
 
 		// Call the StateMachine
 		try {
+
 			this.stateMachine.run(context);
 
 			this.channel(FeneconHomeBattery.ChannelId.RUN_FAILED).setNextValue(false);
@@ -775,8 +785,8 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	 * @param value  the serial number
 	 * @return The serial number
 	 */
-	protected static String buildSerialNumber(String prefix, int value) {
-		if (value == 0) {
+	protected static String buildSerialNumber(String prefix, Integer value) {
+		if (value == null || value == 0) {
 			// Old BMS firmware versions do not provide serial number
 			return null;
 		}
@@ -815,5 +825,4 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	private static int extractNumber(int value, int length, int position) {
 		return ((1 << length) - 1) & (value >> (position - 1));
 	}
-
 }

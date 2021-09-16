@@ -101,7 +101,8 @@
         </ion-row>
 
         <ion-row *ngSwitchCase="view.Completion" class="ion-justify-content-center">
-          <completion [installationData]="installationData" (previousViewEvent)="displayPreviousView()">
+          <completion [installationData]="installationData" (previousViewEvent)="displayPreviousView()"
+            (nextViewEvent)="displayNextView()">
           </completion>
         </ion-row>
 

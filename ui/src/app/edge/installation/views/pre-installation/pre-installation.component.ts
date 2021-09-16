@@ -1,8 +1,5 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { FormlyField, FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
-
 import { AddEdgeToUserRequest } from 'src/app/shared/jsonrpc/request/addEdgeToUserRequest';
 import { AddEdgeToUserResponse } from 'src/app/shared/jsonrpc/response/addEdgeToUserResponse';
 import { InstallationData } from '../../installation.component';
@@ -12,7 +9,7 @@ import { Role } from 'src/app/shared/type/role';
   selector: PreInstallationComponent.SELECTOR,
   templateUrl: './pre-installation.component.html'
 })
-export class PreInstallationComponent implements OnInit {
+export class PreInstallationComponent {
 
   private static readonly SELECTOR = "pre-installation";
 
@@ -26,11 +23,6 @@ export class PreInstallationComponent implements OnInit {
   public isWaiting: boolean = false;
 
   constructor(private service: Service, public websocket: Websocket) { }
-
-  public ngOnInit(): void {
-
-    this.service.currentPageTitle = "Installation";
-  }
 
   public onNextClicked() {
 

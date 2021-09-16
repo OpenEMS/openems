@@ -117,37 +117,13 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		AC_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE)), //
-		BACK_UP_V_LOAD_R(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)), //
-		BACK_UP_I_LOAD_R(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)), //
-		BACK_UP_F_LOAD_R(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ)), //
 
 		/**
 		 * Off means there is No voltage of Backup port. Also used for 1-p inverter
 		 */
 		LOAD_MODE_R(Doc.of(LoadMode.values())), //
-		BACK_UP_P_LOAD_R(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
-		BACK_UP_V_LOAD_S(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)), //
-		BACK_UP_I_LOAD_S(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)), //
-		BACK_UP_F_LOAD_S(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ)), //
 		LOAD_MODE_S(Doc.of(LoadMode.values())), //
-		BACK_UP_P_LOAD_S(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
-		BACK_UP_V_LOAD_T(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)), //
-		BACK_UP_I_LOAD_T(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)), //
-		BACK_UP_F_LOAD_T(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ)), //
 		LOAD_MODE_T(Doc.of(LoadMode.values())), //
-		BACK_UP_P_LOAD_T(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
 		P_LOAD_R(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		P_LOAD_S(Doc.of(OpenemsType.INTEGER) //
@@ -548,7 +524,7 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 		BACK_UP_ENABLE(Doc.of(BackupEnable.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		AUTO_START_BACKUP(Doc.of(OpenemsType.INTEGER) //
+		AUTO_START_BACKUP(Doc.of(BackupEnable.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		GRID_WAVE_CHECK_LEVEL(Doc.of(GridWaveCheckLevel.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //

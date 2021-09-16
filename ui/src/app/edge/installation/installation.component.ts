@@ -1,9 +1,10 @@
 import { AcPv } from './views/protocol-additional-ac-producers/protocol-additional-ac-producers.component';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DcPv } from './views/protocol-pv/protocol-pv.component';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { FeedInSetting } from './views/protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component';
 import { SetupProtocol } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
+import { Router } from '@angular/router';
 import { EmsApp } from './views/heckert-app-installer/heckert-app-installer.component';
 import { environment } from 'src/environments';
 
@@ -103,15 +104,11 @@ export type InstallationData = {
     otherValue: number
   }
 
-  batteryInverter?: {
-    // protocol-serial-numbers
-    serialNumber?: string,
-    // protocol-dynamic-feed-in-limitation
-    dynamicFeedInLimitation?: {
-      maximumFeedInPower: number,
-      feedInSetting: FeedInSetting,
-      fixedPowerFactor: FeedInSetting
-    }
+  // protocol-dynamic-feed-in-limitation
+  dynamicFeedInLimitation?: {
+    maximumFeedInPower: number,
+    feedInSetting: FeedInSetting,
+    fixedPowerFactor: FeedInSetting
   },
 
   // protocol-pv
@@ -141,8 +138,7 @@ export const COUNTRY_OPTIONS: { value: string, label: string }[] = [
   selector: InstallationComponent.SELECTOR,
   templateUrl: './installation.component.html'
 })
-export class InstallationComponent implements OnInit {
-
+export class InstallationComponent implements OnInit, OnDestroy {
   private static readonly SELECTOR = "installation";
 
   public installationData: InstallationData;
@@ -152,7 +148,7 @@ export class InstallationComponent implements OnInit {
 
   public edge: Edge = null;
 
-  public view_display_order: View[] = [
+  public viewArrangement: View[] = [
     View.PreInstallation,
     View.ProtocolInstaller,
     View.ProtocolCustomer,
@@ -174,57 +170,81 @@ export class InstallationComponent implements OnInit {
 
   public spinnerId: string;
 
-  constructor(private service: Service, public websocket: Websocket) { }
+  constructor(private service: Service, private router: Router, public websocket: Websocket) { }
 
   public ngOnInit() {
+    this.service.currentPageTitle = "Installation";
+
     this.spinnerId = "installation-websocket-spinner";
     this.service.startSpinner(this.spinnerId);
 
-    this.installationData = {};
-
     // Only show app-installer view for Heckert
     if (environment.theme !== "Heckert") {
-      let viewIndex = this.view_display_order.indexOf(View.HeckertAppInstaller);
-      this.view_display_order.splice(viewIndex, 1);
+      let viewIndex = this.viewArrangement.indexOf(View.HeckertAppInstaller);
+      this.viewArrangement.splice(viewIndex, 1);
     }
 
-    this.displayViewAtIndex(0);
+    let installationData: InstallationData;
+    let viewIndex: number;
 
-    // JSON.stringify is not able to parse the prototype function getConfig() of Edge
-    // let installationData: InstallationData;
-    // let viewIndex: number;
+    // Determine installation data
+    if (sessionStorage && sessionStorage.installationData) {
+      installationData = JSON.parse(sessionStorage.installationData);
 
-    // if (sessionStorage && sessionStorage.installationData) {
-    //   installationData = JSON.parse(sessionStorage.installationData);
-    // } else {
-    //   installationData = {};
-    // }
+      // Recreate edge object to provide the correct
+      // functionality of it (the prototype can't be saved as JSON,
+      // so it has to get instantiated here again)
+      installationData.edge = new Edge(
+        installationData.edge.id,
+        installationData.edge.comment,
+        installationData.edge.producttype,
+        installationData.edge.version,
+        installationData.edge.role,
+        installationData.edge.isOnline
+      );
+    } else {
+      installationData = {};
+    }
 
-    // if (sessionStorage && sessionStorage.viewIndex) {
-    //   viewIndex = parseInt(sessionStorage.viewIndex);
-    // } else {
-    //   viewIndex = 0;
-    // }
+    // Determine view index
+    if (sessionStorage && sessionStorage.viewIndex) {
+      viewIndex = parseInt(sessionStorage.viewIndex);
+    } else {
+      viewIndex = 0;
+    }
 
-    // this.installationData = installationData;
-    // this.displayViewAtIndex(viewIndex);
+    this.installationData = installationData;
+    this.displayViewAtIndex(viewIndex);
   }
 
+  ngOnDestroy() { }
+
   public getViewIndex(view: View): number {
-    return this.view_display_order.indexOf(view);
+    return this.viewArrangement.indexOf(view);
   }
 
   public displayViewAtIndex(index: number) {
-    let viewCount = this.view_display_order.length;
+    let viewCount = this.viewArrangement.length;
 
     if (index >= 0 && index < viewCount) {
-
-      this.displayedView = this.view_display_order[index];
+      this.displayedView = this.viewArrangement[index];
 
       this.progressValue = viewCount === 0 ? 0 : index / (viewCount - 1);
       this.progressText = "Schritt " + (index + 1) + " von " + viewCount;
 
-      // sessionStorage.setItem("viewIndex", index.toString());
+      if (sessionStorage) {
+        sessionStorage.setItem("viewIndex", index.toString());
+      }
+      // When clicking next on the last view
+    } else if (index === viewCount) {
+      // Explictly destroy the installation component 
+      this.ngOnDestroy();
+
+      // Navigate to online monitoring of the edge
+      this.router.navigate(["device", this.installationData.edge.id]);
+
+      // Clear session storage
+      sessionStorage.clear();
     } else {
       console.warn("The given view index is out of bounds.");
     }
@@ -247,8 +267,9 @@ export class InstallationComponent implements OnInit {
     if (installationData) {
       this.installationData = installationData;
 
-      // JSON.stringify is not able to parse the prototype function getConfig() of Edge
-      // sessionStorage.setItem("installationData", JSON.stringify(installationData));
+      if (sessionStorage) {
+        sessionStorage.setItem("installationData", JSON.stringify(installationData));
+      }
     }
 
     this.displayViewAtIndex(this.getViewIndex(this.displayedView) + 1);

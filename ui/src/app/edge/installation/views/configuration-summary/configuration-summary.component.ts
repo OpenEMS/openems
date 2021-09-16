@@ -199,17 +199,15 @@ export class ConfigurationSummaryComponent implements OnInit {
 
     //#region Battery-Inverter
 
-    let batteryInverter = this.installationData.batteryInverter;
+    let dynamicFeedInLimitation = this.installationData.dynamicFeedInLimitation;
     let batteryInverterData: { label: string, value: any }[] = [
-      { label: "Maximale Einspeiseleistung", value: batteryInverter.dynamicFeedInLimitation.maximumFeedInPower }
+      { label: "Maximale Einspeiseleistung", value: dynamicFeedInLimitation.maximumFeedInPower }
     ]
 
-    let feedInSetting = batteryInverter.dynamicFeedInLimitation.feedInSetting;
+    batteryInverterData.push({ label: "Typ", value: dynamicFeedInLimitation.feedInSetting });
 
-    batteryInverterData.push({ label: "Typ", value: feedInSetting });
-
-    if (feedInSetting === FeedInSetting.FixedPowerFactor) {
-      batteryInverterData.push({ label: "Cos ɸ Festwert ", value: batteryInverter.dynamicFeedInLimitation.fixedPowerFactor });
+    if (dynamicFeedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor) {
+      batteryInverterData.push({ label: "Cos ɸ Festwert ", value: dynamicFeedInLimitation.fixedPowerFactor });
     }
 
     let safetyCountry;

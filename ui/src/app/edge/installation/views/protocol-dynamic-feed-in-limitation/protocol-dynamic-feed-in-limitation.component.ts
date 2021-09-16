@@ -72,32 +72,22 @@ export class ProtocolDynamicFeedInLimitation implements OnInit {
   constructor() { }
 
   public ngOnInit() {
-
-    // Initialize battery inverter object
-    this.installationData.batteryInverter ??= {};
-
     this.form = new FormGroup({});
     this.fields = this.getFields();
-    this.model = this.installationData.batteryInverter.dynamicFeedInLimitation ?? {};
-
+    this.model = this.installationData.dynamicFeedInLimitation ?? {};
   }
 
   public onPreviousClicked() {
-
     this.previousViewEvent.emit();
-
   }
 
   public onNextClicked() {
-
     if (this.form.invalid) {
       return;
     }
 
-    this.installationData.batteryInverter.dynamicFeedInLimitation = this.model;
-
+    this.installationData.dynamicFeedInLimitation = this.model;
     this.nextViewEvent.emit(this.installationData);
-
   }
 
   public getFields(): FormlyFieldConfig[] {

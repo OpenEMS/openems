@@ -200,8 +200,14 @@ export class ProtocolSerialNumbersComponent implements OnInit {
             return;
           }
 
-          // Only take the last 12 characters if it's a module serial number because the prefix is always the same
-          model[key] = key.startsWith("module") ? serialNumber.substr(12, 12) : serialNumber;
+          // Only take a part of the characters if the serial number has a fixed prefix
+          if (key === "batteryInverter") {
+            model[key] = serialNumber.substr(8, 8);
+          } else if (key.startsWith("module")) {
+            model[key] = serialNumber.substr(12, 12)
+          } else {
+            model[key] = serialNumber;
+          }
         }
 
         // Resolve the promise
@@ -303,7 +309,12 @@ export class ProtocolSerialNumbersComponent implements OnInit {
           type: "input",
           templateOptions: {
             label: "Wechselrichter",
-            required: true
+            required: true,
+            prefix: "9010KETU",
+            placeholder: "xxxxxxxx"
+          },
+          validators: {
+            validation: ["batteryInverterSerialNumber"]
           },
           wrappers: ["input-serial-number"]
         });
@@ -430,12 +441,11 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
     let customer = installationData.customer;
     let battery = installationData.battery;
-    let batteryInverter = installationData.batteryInverter;
+    let dynamicFeedInLimitation = installationData.dynamicFeedInLimitation;
     let pv = installationData.pv;
 
     let emergencyReserve = battery.emergencyReserve;
     let lineSideMeterFuse = installationData.lineSideMeterFuse;
-    let dynamicFeedInLimitation = batteryInverter.dynamicFeedInLimitation;
     let serialNumbers = battery.serialNumbers;
     let dc1 = pv.dc1;
     let dc2 = pv.dc2;

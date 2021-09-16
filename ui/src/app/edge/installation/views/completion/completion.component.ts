@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Router } from '@angular/router';
 import { GetSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/getSetupProtocolRequest';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
 import { Service, Websocket } from 'src/app/shared/shared';
@@ -18,19 +17,19 @@ export class CompletionComponent {
   @Input() public installationData: InstallationData;
 
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
+  @Output() public nextViewEvent: EventEmitter<any> = new EventEmitter();
 
-  constructor(private service: Service, private websocket: Websocket, private router: Router) { }
+  constructor(private service: Service, private websocket: Websocket) { }
 
   public onPreviousClicked() {
     this.previousViewEvent.emit();
   }
 
   public onNextClicked() {
-    this.router.navigate(["device", this.installationData.edge.id]);
+    this.nextViewEvent.emit();
   }
 
   public downloadProtocol() {
-
     let request = new GetSetupProtocolRequest({ setupProtocolId: this.installationData.setupProtocolId })
 
     this.websocket.sendRequest(request).then((response: Base64PayloadResponse) => {

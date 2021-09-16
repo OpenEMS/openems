@@ -159,30 +159,27 @@
               </ng-template>
             </ng-container>
 
-            <!-- "Add FEMS"-Button for desktop devices -->
+            <!-- Add-Button for desktop devices -->
             <ion-fab style="position: fixed;" vertical="bottom" horizontal="center"
               *ngIf="loggedInUserCanInstall && !this.service.isSmartphoneResolution">
               <ion-fab-button size="large">
                 <ion-icon name="add-outline"></ion-icon>
               </ion-fab-button>
               <ion-fab-list side="top" style="left: 0; align-items: flex-start;" id="blurred">
-                <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">Neues
-                  {{ environment.systemName }}
-                  hinzufügen
-                </ion-button>
+                <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">Neues {{
+                  environment.systemName }} hinzufügen</ion-button>
               </ion-fab-list>
             </ion-fab>
 
-            <!-- "Add FEMS"-Button for mobile devices -->
+            <!-- Add-Button for mobile devices -->
             <ion-fab style="position: fixed;" horizontal="end" vertical="bottom"
               *ngIf="loggedInUserCanInstall && this.service.isSmartphoneResolution">
               <ion-fab-button size="small">
                 <ion-icon name="add-outline"></ion-icon>
               </ion-fab-button>
               <ion-fab-list side="top" style="right: 0; align-items: flex-end;">
-                <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">Neues FEMS
-                  hinzufügen
-                </ion-button>
+                <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">Neues {{
+                  environment.systemName }} hinzufügen</ion-button>
               </ion-fab-list>
             </ion-fab>
 

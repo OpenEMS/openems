@@ -162,6 +162,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 		// Backup Power on / off
 		this.writeToChannel(GoodWe.ChannelId.BACK_UP_ENABLE, config.backupEnable());
+		
+		//Should be updated according to backup power
+		this.writeToChannel(GoodWe.ChannelId.AUTO_START_BACKUP, config.backupEnable());
 
 		// Feed-in limitation on / off
 		this.writeToChannel(GoodWe.ChannelId.FEED_POWER_ENABLE, config.feedPowerEnable());
