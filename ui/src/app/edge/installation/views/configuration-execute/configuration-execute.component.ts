@@ -103,10 +103,10 @@ export class ConfigurationExecuteComponent implements OnInit {
       // Determine feed-in-setting
       let feedInSetting: FeedInSetting;
 
-      if (this.installationData.batteryInverter.dynamicFeedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor) {
-        feedInSetting = this.installationData.batteryInverter.dynamicFeedInLimitation.fixedPowerFactor;
+      if (this.installationData.dynamicFeedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor) {
+        feedInSetting = this.installationData.dynamicFeedInLimitation.fixedPowerFactor;
       } else {
-        feedInSetting = this.installationData.batteryInverter.dynamicFeedInLimitation.feedInSetting
+        feedInSetting = this.installationData.dynamicFeedInLimitation.feedInSetting
       }
 
       // batteryInverter0
@@ -121,7 +121,7 @@ export class ConfigurationExecuteComponent implements OnInit {
           { name: "safetyCountry", value: safetyCountry },
           { name: "backupEnable", value: this.installationData.battery.emergencyReserve.isEnabled ? "ENABLE" : "DISABLE" },
           { name: "feedPowerEnable", value: "ENABLE" },
-          { name: "feedPowerPara", value: this.installationData.batteryInverter.dynamicFeedInLimitation.maximumFeedInPower },
+          { name: "feedPowerPara", value: this.installationData.dynamicFeedInLimitation.maximumFeedInPower },
           { name: "setfeedInPowerSettings", value: feedInSetting },
           { name: "emsPowerMode", value: "UNDEFINED" },
           { name: "emsPowerSet", value: -1 },
@@ -261,7 +261,7 @@ export class ConfigurationExecuteComponent implements OnInit {
           { name: "ess.id", value: "ess0" },
           { name: "meter.id", value: "meter0" },
           { name: "sellToGridLimitEnabled", value: true },
-          { name: "maximumSellToGridPower", value: this.installationData.batteryInverter.dynamicFeedInLimitation.maximumFeedInPower },
+          { name: "maximumSellToGridPower", value: this.installationData.dynamicFeedInLimitation.maximumFeedInPower },
           { name: "delayChargeRiskLevel", value: "MEDIUM" },
           { name: "mode", value: "AUTOMATIC" },
           { name: "manualTargetTime", value: "17:00" },

@@ -38,6 +38,11 @@ export function EmailMatchValidator(control: FormControl): ValidationErrors {
   return { emailMatch: { message: 'E-Mails stimmen nicht überein.' } };
 }
 
+export function BatteryInverterSerialNumberValidator(control: FormControl): ValidationErrors {
+  // This validator only checks the value after the prefix
+  return /^.{8}$/.test(control.value) ? null : { "batteryInverterSerialNumber": true };
+}
+
 export function EmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
   // This validator only checks the value after the prefix
   return /^[FS]\d{9}$/.test(control.value) ? null : { "emsBoxSerialNumber": true };
@@ -81,6 +86,10 @@ export function EmailValidatorMessage(err, field: FormlyFieldConfig) {
   return `"${field.formControl.value}" ist keine gültige E-Mail-Adresse.`;
 }
 
+export function BatteryInverterSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
+  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer.`;
+}
+
 export function EmsBoxSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
   return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer.`;
 }
@@ -105,6 +114,7 @@ export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfi
       validators: [
         { name: "zip", validation: ZipValidator },
         { name: "emailMatch", validation: EmailMatchValidator },
+        { name: "batteryInverterSerialNumber", validation: BatteryInverterSerialNumberValidator },
         { name: "emsBoxSerialNumber", validation: EmsBoxSerialNumberValidator },
         { name: "boxSerialNumber", validation: BoxSerialNumberValidator },
         { name: "bmsBoxSerialNumber", validation: BmsBoxSerialNumberValidator },
@@ -116,6 +126,7 @@ export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfi
         { name: "max", message: MaxValidatorMessage },
         { name: "zip", message: ZipValidatorMessage },
         { name: "email", message: EmailValidatorMessage },
+        { name: "batteryInverterSerialNumber", message: BatteryInverterSerialNumberValidatorMessage },
         { name: "emsBoxSerialNumber", message: EmsBoxSerialNumberValidatorMessage },
         { name: "boxSerialNumber", message: BoxSerialNumberValidatorMessage },
         { name: "bmsBoxSerialNumber", message: BmsBoxSerialNumberValidatorMessage },
