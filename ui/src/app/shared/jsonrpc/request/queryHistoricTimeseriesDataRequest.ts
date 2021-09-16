@@ -27,18 +27,21 @@ export class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
     public constructor(
         private fromDate: Date,
         private toDate: Date,
-        private channels: ChannelAddress[]
+        private channels: ChannelAddress[],
+        private resolution: number
     ) {
         super(QueryHistoricTimeseriesDataRequest.METHOD, {
             timezone: new Date().getTimezoneOffset() * 60,
             fromDate: format(fromDate, 'yyyy-MM-dd'),
             toDate: format(toDate, 'yyyy-MM-dd'),
-            channels: JsonRpcUtils.channelsToStringArray(channels)
+            channels: JsonRpcUtils.channelsToStringArray(channels),
+            resolution: resolution
         });
         // delete local fields, otherwise they are sent with the JSON-RPC Request
         delete this.fromDate;
         delete this.toDate;
         delete this.channels;
+        delete this.resolution;
     }
 
 }

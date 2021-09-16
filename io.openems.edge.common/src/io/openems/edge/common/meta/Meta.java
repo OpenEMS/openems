@@ -10,6 +10,9 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 
 public interface Meta extends ModbusSlave {
 
+	public final static String SINGLETON_SERVICE_PID = "Core.Meta";
+	public final static String SINGLETON_COMPONENT_ID = "_meta";
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * OpenEMS Version

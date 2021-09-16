@@ -1,11 +1,10 @@
-import { ActivatedRoute } from '@angular/router';
-import { CategorizedComponents, EdgeConfig } from '../../edge/edgeconfig';
 import { Component } from '@angular/core';
-import { Edge, Service, Websocket, ChannelAddress } from '../../../shared/shared';
-import { environment } from 'src/environments';
+import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared';
+import { CategorizedComponents, EdgeConfig } from '../../edge/edgeconfig';
 
 @Component({
     selector: StatusSingleComponent.SELECTOR,
@@ -20,11 +19,8 @@ export class StatusSingleComponent {
     public components: CategorizedComponents[];
     public subscribedInfoChannels: ChannelAddress[] = [];
     public onInfoChannels: ChannelAddress[] = [];
-    public env = environment;
-
 
     private static readonly SELECTOR = "statussingle";
-
 
     constructor(
         private route: ActivatedRoute,

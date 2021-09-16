@@ -34,7 +34,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -59,6 +58,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.common.utils.UuidUtils;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
@@ -554,7 +554,7 @@ public class RestHandler extends AbstractHandler {
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
 			GetEdgeConfigRequest getEdgeConfigRequest) throws OpenemsNamedException {
 		// wrap original request inside ComponentJsonApiRequest
-		ComponentJsonApiRequest request = new ComponentJsonApiRequest(OpenemsConstants.COMPONENT_MANAGER_ID,
+		ComponentJsonApiRequest request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
 				getEdgeConfigRequest);
 
 		return this.handleComponentJsonApiRequest(user, request);
@@ -571,8 +571,8 @@ public class RestHandler extends AbstractHandler {
 	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
 			CreateComponentConfigRequest createComponentConfigRequest) throws OpenemsNamedException {
 		// wrap original request inside ComponentJsonApiRequest
-		String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
-		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, createComponentConfigRequest);
+		ComponentJsonApiRequest request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
+				createComponentConfigRequest);
 
 		return this.handleComponentJsonApiRequest(user, request);
 	}
@@ -588,8 +588,8 @@ public class RestHandler extends AbstractHandler {
 	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
 			UpdateComponentConfigRequest updateComponentConfigRequest) throws OpenemsNamedException {
 		// wrap original request inside ComponentJsonApiRequest
-		String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
-		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, updateComponentConfigRequest);
+		ComponentJsonApiRequest request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
+				updateComponentConfigRequest);
 
 		return this.handleComponentJsonApiRequest(user, request);
 	}
@@ -605,8 +605,8 @@ public class RestHandler extends AbstractHandler {
 	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(User user,
 			DeleteComponentConfigRequest deleteComponentConfigRequest) throws OpenemsNamedException {
 		// wrap original request inside ComponentJsonApiRequest
-		String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
-		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, deleteComponentConfigRequest);
+		ComponentJsonApiRequest request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
+				deleteComponentConfigRequest);
 
 		return this.handleComponentJsonApiRequest(user, request);
 	}

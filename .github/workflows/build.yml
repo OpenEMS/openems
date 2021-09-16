@@ -56,4 +56,7 @@ jobs:
         run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 
       - name: Build OpenEMS UI
-        run: ./gradlew buildUiForEdge --continue
+        run: |
+          cd ui
+          npm ci --prefer-offline --cache ~/.npm
+          node_modules/@angular/cli/bin/ng build -c "openems,openems-edge-prod,prod"
