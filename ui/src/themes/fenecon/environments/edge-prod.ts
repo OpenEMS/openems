@@ -7,7 +7,7 @@ export const environment: Environment = {
     shortName: "FEMS",
 
     backend: 'OpenEMS Edge',
-    url: "ws://" + location.hostname + ":8085",
+    url: "ws://" + location.hostname + (location.port ? ":" + location.port : "") + "/websocket",
 
     production: true,
     debugMode: false,

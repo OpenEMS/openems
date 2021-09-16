@@ -20,7 +20,7 @@ This project was generated with [angular-cli](https://github.com/angular/angular
 
    - Build Production
 
-      `ng build -c "openems,openems-edge-dev,prod"`
+      `ng build -c "openems,openems-edge-prod,prod"`
 
 - OpenEMS Backend - expects a Backend *Ui.Websocket* on default port `8082`
 
@@ -50,7 +50,7 @@ This project was generated with [angular-cli](https://github.com/angular/angular
 
    - Build Production
 
-      `ng build -c "fenecon,fenecon-edge-dev,prod"`
+      `ng build -c "fenecon,fenecon-edge-prod,prod"`
 
 - OpenEMS Backend
 
@@ -80,7 +80,7 @@ This project was generated with [angular-cli](https://github.com/angular/angular
 
    - Build Production
 
-      `ng build -c "heckert,heckert-edge-dev,prod"`
+      `ng build -c "heckert,heckert-edge-prod,prod"`
 
 - OpenEMS Backend
 
