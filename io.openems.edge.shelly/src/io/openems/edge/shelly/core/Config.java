@@ -6,6 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @ObjectClassDefinition(//
 		name = "Shelly core", //
 		description = "Implements core functionality around shelly meters and relays")
+public
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
