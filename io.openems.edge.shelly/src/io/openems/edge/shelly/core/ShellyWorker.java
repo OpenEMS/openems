@@ -24,30 +24,140 @@ import io.openems.common.worker.AbstractCycleWorker;
  * See https://shelly-api-docs.shelly.cloud
  */
 public class ShellyWorker extends AbstractCycleWorker {
-	
-	public enum ShellyType {
-		
-	}
 
+	private ShellyCore parent;
 	private final String baseUrl;
+	private String shellyType;
+	private int numMeters, numRelays, numEmeters;
+	private boolean commFailed;
+	private boolean valid;
 	JsonObject status;
 
-	public ShellyWorker(String ip) {
+	public ShellyWorker(ShellyCore parent,String ip) {
 		this.baseUrl = "http://" + ip;
+		this.parent = parent;
+		this.resetBaseValues();
 	}
 
-	
-	@Override
-	protected void forever() throws Throwable {
+	/**
+	 * Used to initialize members
+	 */
+	private void resetBaseValues() {
+		this.numEmeters = 0;
+		this.numMeters = 0;
+		this.numRelays = 0;
+		this.shellyType = "Unknown";
+		this.commFailed = false;
+		this.valid = false;
 		
+		setParentBaseChannels();
+		setParentDynChannels();
+	}
+
+	private void setParentDynChannels() {
+		if(parent != null) {
+			parent._setCommunicationFailed(this.commFailed);
+		}
+	}
+	
+	private void setParentBaseChannels() {
+		if(parent != null) {
+			parent._setShellyType(this.shellyType);
+		}
+	}
+	
+	private boolean readBaseValues() {
+		JsonObject device;
+
 		try {
-			status = getStatus();
-		} catch(OpenemsNamedException e) {
-			status = null;
+			device = JsonUtils.getAsJsonObject(this.sendGetRequest("/shelly"));
+			this.shellyType = JsonUtils.getAsString(device,"type");			
+		} catch (OpenemsNamedException e) {			
+			this.resetBaseValues();
+			this.commFailed = true;
+			parent._setCommunicationFailed(this.commFailed);
+			return false;
+		}	
+
+		try {
+			this.numRelays = JsonUtils.getAsInt(device,"num_outputs");			
+		} catch (OpenemsNamedException e) {
+			this.numRelays = 0;
 		}
 
+		try {
+			this.numMeters = JsonUtils.getAsInt(device,"num_meters");			
+		} catch (OpenemsNamedException e) {
+			this.numMeters = 0;
+		}
+
+		try {
+			this.numMeters = JsonUtils.getAsInt(device,"num_emeters");			
+		} catch (OpenemsNamedException e) {
+			this.numEmeters = 0;
+		}
+
+		this.valid = true;
+		
+		setParentBaseChannels();
+		setParentDynChannels();
+				
+		return true;
+	}
+
+	@Override 
+	public void activate(String name) {
+		super.activate(name);
+		this.readBaseValues();			
+	}
+
+	@Override
+	protected void forever() throws Throwable {
+
+		if(!this.valid) {
+			if(!readBaseValues()) {
+				return;
+			}
+		}
+
+		try {
+			status = getStatus();
+			this.commFailed = false;
+		} catch(OpenemsNamedException e) {
+			status = null;
+			this.commFailed = true;
+		}
+		
+		setParentDynChannels();
+		
+	}
+
+	public boolean isValid() {
+		return this.valid;
+	}
+
+	public boolean getCommFailed() {
+		return this.commFailed;
 	}
 	
+	public String getType() {
+		return this.shellyType; 
+	}
+	
+	public int getNumRelays() {
+		return this.numRelays;
+	}
+
+	public int getNumMeters() {
+		return this.numMeters;
+	}
+
+	public int getNumEmeters() {
+		return this.numEmeters;
+	}
+	
+	
+
 	/**
 	 * Gets the status of the device.
 	 * 

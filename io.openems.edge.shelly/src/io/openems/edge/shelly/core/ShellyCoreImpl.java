@@ -27,11 +27,12 @@ import io.openems.edge.common.event.EdgeEventConstants;
 public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCore, OpenemsComponent, EventHandler {
 
 	private Config config = null;
+	private ShellyWorker worker = null;
 
 	public ShellyCoreImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				ShellyCore.ChannelId.values() //
+				ShellyCore.ChannelId.values() //				
 		);
 	}
 
@@ -39,6 +40,8 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
+		this.worker = new ShellyWorker(this,config.ip());
+		this.worker.activate(config.id());
 	}
 
 	@Deactivate
