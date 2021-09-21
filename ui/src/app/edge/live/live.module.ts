@@ -4,8 +4,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SharedModule } from './../../shared/shared.module';
 import { AdvertisementModule } from './advertisement/advertisement.module';
 import { Controller_ChannelthresholdComponent } from './Controller/Channelthreshold/Channelthreshold';
-import { ChpSocComponent } from './chpsoc/chpsoc.component';
-import { ChpsocModalComponent } from './chpsoc/modal/modal.component';
 import { AutarchyComponent } from './common/autarchy/autarchy.component';
 import { AutarchyModalComponent } from './common/autarchy/modal/modal.component';
 import { ConsumptionComponent } from './common/consumption/consumption.component';
@@ -43,8 +41,8 @@ import { LiveComponent } from './live.component';
 import { OfflineComponent } from './offline/offline.component';
 import { ProductionModalComponent } from './production/modal/modal.component';
 import { ProductionComponent } from './production/production.component';
-import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.component';
-import { SinglethresholdComponent } from './singlethreshold/singlethreshold.component';
+import { Controller_Io_ChannelSingleThresholdModalComponent } from './Controller/Io_ChannelSingleThreshold/modal/modal.component';
+import { Controller_Io_ChannelSingleThresholdComponent } from './Controller/Io_ChannelSingleThreshold/Io_ChannelSingleThreshold';
 import { Evcs_Api_Cluster } from './Multiple/Evcs_Api_Cluster/Evcs_Api_Cluster';
 import { EvcsChart } from './Multiple/Evcs_Api_Cluster/modal/evcs-chart/evcs.chart';
 import { Evcs_Api_ClusterModalComponent } from './Multiple/Evcs_Api_Cluster/modal/evcsCluster-modal.page';
@@ -56,6 +54,8 @@ import { Controller_Symmetric_TimeSlot_PeakShavingModalComponent } from './Contr
 import { Controller_Asymmetric_PeakShavingComponent } from './Controller/PeakShaving/Asymmetric/Asymmetric';
 import { Controller_Symmetric_PeakShavingComponent } from './Controller/PeakShaving/Symmetric/Symmetric';
 import { Controller_Symmetric_TimeSlot_PeakShavingComponent } from './Controller/PeakShaving/Symmetric_TimeSlot/Symmetric_TimeSlot';
+import { Controller_ChpSocComponent } from './Controller/ChpSoc/ChpSoc';
+import { ChpsocModalComponent } from './Controller/ChpSoc/modal/modal.component';
 
 @NgModule({
   imports: [
@@ -91,7 +91,7 @@ import { Controller_Symmetric_TimeSlot_PeakShavingComponent } from './Controller
     Io_Api_DigitalInputComponent,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
-    SinglethresholdModalComponent,
+    Controller_Io_ChannelSingleThresholdModalComponent,
     StorageModalComponent,
     Controller_Symmetric_PeakShavingComponent,
     Controller_Symmetric_TimeSlot_PeakShavingModalComponent,
@@ -99,7 +99,7 @@ import { Controller_Symmetric_TimeSlot_PeakShavingComponent } from './Controller
   declarations: [
     AdministrationComponent,
     AutarchyModalComponent,
-    ChpSocComponent,
+    Controller_ChpSocComponent,
     ChpsocModalComponent,
     ConsumptionComponent,
     ConsumptionModalComponent,
@@ -138,8 +138,8 @@ import { Controller_Symmetric_TimeSlot_PeakShavingComponent } from './Controller
     ProductionModalComponent,
     SelfConsumptionComponent,
     SelfconsumptionModalComponent,
-    SinglethresholdComponent,
-    SinglethresholdModalComponent,
+    Controller_Io_ChannelSingleThresholdComponent,
+    Controller_Io_ChannelSingleThresholdModalComponent,
     StorageComponent,
     StorageModalComponent,
     Controller_Symmetric_PeakShavingComponent,

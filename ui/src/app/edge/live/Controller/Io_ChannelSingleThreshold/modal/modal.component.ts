@@ -2,24 +2,22 @@ import { Component, Input } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../../../shared/shared';
 
 type mode = 'ON' | 'AUTOMATIC' | 'OFF';
 type inputMode = 'SOC' | 'GRIDSELL' | 'GRIDBUY' | 'PRODUCTION' | 'OTHER'
 
 @Component({
-  selector: SinglethresholdModalComponent.SELECTOR,
+  selector: 'Io_ChannelSingleThresholdModalComponent',
   templateUrl: './modal.component.html'
 })
-export class SinglethresholdModalComponent {
+export class Controller_Io_ChannelSingleThresholdModalComponent {
 
   @Input() public edge: Edge;
   @Input() public config: EdgeConfig;
   @Input() public component: EdgeConfig.Component;
   @Input() public outputChannel: ChannelAddress;
   @Input() public inputChannel: ChannelAddress;
-
-  private static readonly SELECTOR = "singlethreshold-modal";
 
   public formGroup: FormGroup;
 

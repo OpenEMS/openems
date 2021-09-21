@@ -85,7 +85,7 @@
               <!-- Widgets that are likely to be configured seldomly -->
 
               <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="12" size-lg="6" class="ion-no-padding">
-                <chpsoc [componentId]="widget.componentId"></chpsoc>
+                <Controller_ChpSocComponent [componentId]="widget.componentId"></Controller_ChpSocComponent>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.IO.HeatingElement'" size="12" size-lg="6" class="ion-no-padding">
@@ -116,7 +116,8 @@
 
               <ion-col *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'" size="12" size-lg="6"
                 class="ion-no-padding">
-                <singlethreshold [componentId]="widget.componentId"></singlethreshold>
+                <Controller_Io_ChannelSingleThresholdComponent [componentId]="widget.componentId">
+                </Controller_Io_ChannelSingleThresholdComponent>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Symmetric.DynamicDischarge'" size="12" size-lg="6"
@@ -150,9 +151,9 @@
 
 
 
-            <!-- <ion-col size="12" size-lg="12">
-            <info></info>
-          </ion-col> -->
+            <ion-col size="12" size-lg="12">
+              <info></info>
+            </ion-col>
 
           </ion-row>
         </ion-grid>
