@@ -149,7 +149,14 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 
 					// Any logs? Add them to the output
 					if (!logs.isEmpty()) {
-						result.add(component.id() + "[" + String.join("|", logs) + "]");
+						StringBuilder b = new StringBuilder();
+						b.append(component.id()).append("[");
+						if (this.config.showAlias() && !Objects.equal(component.id(), component.alias())) {
+							b.append(component.alias()).append("|");
+						}
+						b.append(String.join("|", logs));
+						b.append("]");
+						result.add(b.toString());
 					}
 				});
 		if (this.config.condensedOutput()) {

@@ -17,6 +17,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
+	@AttributeDefinition(name = "Show Alias", description = "Print the Alias for each Component")
+	boolean showAlias() default false;
+
 	@AttributeDefinition(name = "Condensed output", description = "Print all logs in one joint line")
 	boolean condensedOutput() default true;
 
