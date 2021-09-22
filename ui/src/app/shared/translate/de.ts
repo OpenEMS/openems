@@ -103,6 +103,7 @@ export const TRANSLATION = {
         overview: 'Alle Systeme',
         settings: 'Einstellungen',
         user: 'Benutzer',
+        changelog: 'Changelog',
     },
     Index: {
         allConnected: 'Alle Verbindungen hergestellt.',

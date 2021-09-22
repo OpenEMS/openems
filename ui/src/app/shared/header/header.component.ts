@@ -69,7 +69,7 @@ export class HeaderComponent {
         let urlArray = url.split('/');
         let file = urlArray.pop();
 
-        if (file == 'user' || file == 'settings' || urlArray.length > 3) {
+        if (file == 'user' || file == 'settings' || file == 'changelog' || urlArray.length > 3) {
             // disable side-menu; show back-button instead
             this.enableSideMenu = false;
         } else {
@@ -89,6 +89,11 @@ export class HeaderComponent {
         let currentEdge: Edge = this.service.currentEdge.value;
         if (url === '/user' && currentEdge != null) {
             this.backUrl = '/device/' + currentEdge.id + "/live"
+            return;
+        }
+        if (url === '/changelog' && currentEdge != null) {
+            // TODO this does not work if Changelog was opened from /user
+            this.backUrl = '/device/' + currentEdge.id + "/settings/profile"
             return;
         }
 

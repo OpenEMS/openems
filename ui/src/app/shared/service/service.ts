@@ -138,7 +138,7 @@ export class Service implements ErrorHandler {
       // Set the currentPageTitle only once per ActivatedRoute
       if (this.currentActivatedRoute != activatedRoute) {
         if (currentPageTitle == null || currentPageTitle.trim() === '') {
-          this.currentPageTitle = environment.title;
+          this.currentPageTitle = environment.uiTitle;
         } else {
           this.currentPageTitle = currentPageTitle;
         }

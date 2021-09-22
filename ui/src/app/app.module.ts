@@ -10,6 +10,7 @@ import { AngularMyDatePickerModule } from 'angular-mydatepicker';
 import { CookieService } from 'ngx-cookie-service';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { ChangelogModule } from './changelog/changelog.module';
 import { EdgeModule } from './edge/edge.module';
 import { InstallationModule } from './edge/installation/installation.module';
 import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.module';
@@ -40,6 +41,7 @@ import { UserModule } from './user/user.module';
     AppRoutingModule,
     BrowserAnimationsModule,
     BrowserModule,
+    ChangelogModule,
     EdgeModule,
     EdgeSettingsModule,
     IndexModule,

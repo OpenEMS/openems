@@ -98,6 +98,7 @@ export const TRANSLATION = {
         overview: 'Apperçu FEMS ',
         profile: 'Utilisateur',
         settings: 'Réglages',
+        changelog: 'Changelog',
     },
     Index: {
         allConnected: 'Toutes les connections sont établies.',

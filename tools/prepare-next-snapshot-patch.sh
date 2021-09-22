@@ -41,7 +41,7 @@ echo "# Update $package_lock"
 sed --in-place "s/\(^  \"version\": \"\).*\(\".*$\)/\1$new_version\2/" $package_lock
 
 echo "# Update $user_component"
-sed --in-place "s/\(.*About.build.*: \).*\(<\/a>\)/\1$new_version\2/" $user_component
+sed --in-place "s/\(.*changelog*: \).*\(<\/a>\)/\1$new_version\2/" $user_component
 
 echo "# Finished"
 

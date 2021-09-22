@@ -123,8 +123,9 @@ export class Websocket {
         // handle JSON-RPC Notification
         if (environment.debugMode) {
           if (message.method == EdgeRpcNotification.METHOD && 'payload' in message.params) {
-            const payload = message.params['payload'];
-            console.info("Notification [" + payload["method"] + "]", payload['params']);
+            const m = message as EdgeRpcNotification;
+            const payload = m.params.payload;
+            console.info("Notification [" + m.params.edgeId + "] [" + payload["method"] + "]", payload['params']);
           } else {
             console.info("Notification [" + message.method + "]", message.params);
           }

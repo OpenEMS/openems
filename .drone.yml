@@ -12,7 +12,8 @@ pipeline:
     when:
       branch: 
         exclude:
-          ui_dev/*
+          - ui_dev/*
+          - feature/ui-*
     image: openems-build:latest
     environment:
       - GRADLE_USER_HOME=/drone/.gradle

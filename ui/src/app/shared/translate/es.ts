@@ -95,7 +95,8 @@ export const TRANSLATION = {
         name: 'Nombre',
         overview: 'estudio FEMS',
         settings: 'Ajustes',
-        user: 'Usuario'
+        user: 'Usuario',
+        changelog: 'Changelog',
     },
     Index: {
         allConnected: 'Todas las conexiones establecidas.',

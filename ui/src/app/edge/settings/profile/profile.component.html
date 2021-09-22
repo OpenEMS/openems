@@ -25,8 +25,8 @@
                 {{ edge.producttype }}
               </ion-item>
               <ion-item>
-                <ion-label>OpenEMS-Edge Version</ion-label>
-                {{ edge.version }}
+                <ion-label>{{ environment.shortName }} Version</ion-label>
+                <a routerLinkActive="active" routerLink="/changelog">{{ edge.version }}</a>
               </ion-item>
               <ion-item>
                 <ion-label>Rolle</ion-label>

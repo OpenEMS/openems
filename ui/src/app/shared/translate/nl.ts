@@ -95,6 +95,7 @@ export const TRANSLATION = {
         overview: 'FEMS overzicht',
         settings: 'Instellingen',
         user: 'Gebruiker',
+        changelog: 'Changelog',
     },
     Index: {
         allConnected: 'Alle verbindingen gemaakt.',

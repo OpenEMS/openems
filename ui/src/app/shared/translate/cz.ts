@@ -100,6 +100,7 @@ export const TRANSLATION = {
         overview: 'FEMS Přehled',
         settings: 'nastavení',
         user: 'Uživatel',
+        changelog: 'Changelog',
     },
     Index: {
         allConnected: 'Všechna připojení aktivní.',
