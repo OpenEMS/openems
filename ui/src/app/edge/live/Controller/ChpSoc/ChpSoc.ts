@@ -6,7 +6,7 @@ import { Controller_ChpSocModalComponent } from './modal/modal.component';
 
 @Component({
     selector: 'Controller_ChpSocComponent',
-    templateUrl: './chpSoc.html'
+    templateUrl: './ChpSoc.html'
 })
 export class Controller_ChpSocComponent extends AbstractFlatWidget {
 
