@@ -3,7 +3,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SharedModule } from './../../shared/shared.module';
 import { AdvertisementModule } from './advertisement/advertisement.module';
-import { Controller_ChannelthresholdComponent } from './Controller/Channelthreshold/Channelthreshold';
 import { AutarchyComponent } from './common/autarchy/autarchy.component';
 import { AutarchyModalComponent } from './common/autarchy/modal/modal.component';
 import { ConsumptionComponent } from './common/consumption/consumption.component';
@@ -14,21 +13,32 @@ import { SelfconsumptionModalComponent } from './common/selfconsumption/modal/mo
 import { SelfConsumptionComponent } from './common/selfconsumption/selfconsumption.component';
 import { StorageModalComponent } from './common/storage/modal/modal.component';
 import { StorageComponent } from './common/storage/storage.component';
+import { Controller_ChannelthresholdComponent } from './Controller/Channelthreshold/Channelthreshold';
+import { Controller_ChpSocComponent } from './Controller/ChpSoc/ChpSoc';
+import { Controller_ChpSocModalComponent } from './Controller/ChpSoc/modal/modal.component';
 import { Controller_Ess_FixActivePower } from './Controller/Ess_FixActivePower/Ess_FixActivePower';
 import { Controller_Ess_FixActivePowerModalComponent } from './Controller/Ess_FixActivePower/modal/modal.component';
-import { Controller_Io_FixDigitalOutput } from './Controller/Io_FixDigitalOutput/Io_FixDigitalOutput';
-import { Controller_Io_FixDigitalOutputModalComponent } from './Controller/Io_FixDigitalOutput/modal/modal.component';
-import { Controller_Io_HeatingElementComponent } from './Controller/Io_HeatingElement/Io_HeatingElement';
-import { Controller_Io_HeatingElementModalComponent } from './Controller/Io_HeatingElement/modal/modal.component';
-import { DelayedSellToGridComponent } from './delayedselltogrid/delayedselltogrid.component';
-import { DelayedSellToGridModalComponent } from './delayedselltogrid/modal/modal.component';
-import { Io_Api_DigitalInputComponent } from './Io/Api_DigitalInput/Io_Api_DigitalInput';
-import { Io_Api_DigitalInput_ModalComponent } from './Io/Api_DigitalInput/modal/modal.component';
-import { EnergymonitorModule } from './energymonitor/energymonitor.module';
 import { Controller_EvcsComponent } from './Controller/Evcs/Evcs';
 import { AdministrationComponent } from './Controller/Evcs/modal/administration/administration.component';
 import { Controller_EvcsModalComponent } from './Controller/Evcs/modal/modal.page';
 import { Controller_EvcsPopoverComponent } from './Controller/Evcs/modal/popover/popover.page';
+import { Controller_Io_ChannelSingleThresholdComponent } from './Controller/Io_ChannelSingleThreshold/Io_ChannelSingleThreshold';
+import { Controller_Io_ChannelSingleThresholdModalComponent } from './Controller/Io_ChannelSingleThreshold/modal/modal.component';
+import { Controller_Io_FixDigitalOutput } from './Controller/Io_FixDigitalOutput/Io_FixDigitalOutput';
+import { Controller_Io_FixDigitalOutputModalComponent } from './Controller/Io_FixDigitalOutput/modal/modal.component';
+import { Controller_Io_HeatingElementComponent } from './Controller/Io_HeatingElement/Io_HeatingElement';
+import { Controller_Io_HeatingElementModalComponent } from './Controller/Io_HeatingElement/modal/modal.component';
+import { Controller_Io_HeatpumpComponent } from './Controller/Io_Heatpump/Io_Heatpump';
+import { Controller_Io_HeatpumpModalComponent } from './Controller/Io_Heatpump/modal/modal.component';
+import { Controller_Asymmetric_PeakShavingComponent } from './Controller/PeakShaving/Asymmetric/Asymmetric';
+import { Controller_Asymmetric_PeakShavingModalComponent } from './Controller/PeakShaving/Asymmetric/modal/modal.component';
+import { Controller_Symmetric_PeakShavingModalComponent } from './Controller/PeakShaving/Symmetric/modal/modal.component';
+import { Controller_Symmetric_PeakShavingComponent } from './Controller/PeakShaving/Symmetric/Symmetric';
+import { Controller_Symmetric_TimeSlot_PeakShavingModalComponent } from './Controller/PeakShaving/Symmetric_TimeSlot/modal/modal.component';
+import { Controller_Symmetric_TimeSlot_PeakShavingComponent } from './Controller/PeakShaving/Symmetric_TimeSlot/Symmetric_TimeSlot';
+import { DelayedSellToGridComponent } from './delayedselltogrid/delayedselltogrid.component';
+import { DelayedSellToGridModalComponent } from './delayedselltogrid/modal/modal.component';
+import { EnergymonitorModule } from './energymonitor/energymonitor.module';
 import { FlatWidgetHorizontalLine } from './flat/flat-widget-line/flat-widget-horizontal-line';
 import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
 import { FlatWidgetPercentagebar } from './flat/flat-widget-line/flat-widget-percentagebar';
@@ -37,25 +47,15 @@ import { GridOptimizedChargeComponent } from './gridoptimizedcharge/gridoptimize
 import { GridOptimizedChargeModalComponent } from './gridoptimizedcharge/modal/modal.component';
 import { PredictionChartComponent } from './gridoptimizedcharge/modal/predictionChart';
 import { InfoComponent } from './info/info.component';
+import { Io_Api_DigitalInputComponent } from './Io/Api_DigitalInput/Io_Api_DigitalInput';
+import { Io_Api_DigitalInput_ModalComponent } from './Io/Api_DigitalInput/modal/modal.component';
 import { LiveComponent } from './live.component';
-import { OfflineComponent } from './offline/offline.component';
-import { ProductionModalComponent } from './production/modal/modal.component';
-import { ProductionComponent } from './production/production.component';
-import { Controller_Io_ChannelSingleThresholdModalComponent } from './Controller/Io_ChannelSingleThreshold/modal/modal.component';
-import { Controller_Io_ChannelSingleThresholdComponent } from './Controller/Io_ChannelSingleThreshold/Io_ChannelSingleThreshold';
 import { Evcs_Api_Cluster } from './Multiple/Evcs_Api_Cluster/Evcs_Api_Cluster';
 import { EvcsChart } from './Multiple/Evcs_Api_Cluster/modal/evcs-chart/evcs.chart';
 import { Evcs_Api_ClusterModalComponent } from './Multiple/Evcs_Api_Cluster/modal/evcsCluster-modal.page';
-import { Controller_Io_HeatpumpComponent } from './Controller/Io_Heatpump/Io_Heatpump';
-import { Controller_Io_HeatpumpModalComponent } from './Controller/Io_Heatpump/modal/modal.component';
-import { Controller_Asymmetric_PeakShavingModalComponent } from './Controller/PeakShaving/Asymmetric/modal/modal.component';
-import { Controller_Symmetric_PeakShavingModalComponent } from './Controller/PeakShaving/Symmetric/modal/modal.component';
-import { Controller_Symmetric_TimeSlot_PeakShavingModalComponent } from './Controller/PeakShaving/Symmetric_TimeSlot/modal/modal.component';
-import { Controller_Asymmetric_PeakShavingComponent } from './Controller/PeakShaving/Asymmetric/Asymmetric';
-import { Controller_Symmetric_PeakShavingComponent } from './Controller/PeakShaving/Symmetric/Symmetric';
-import { Controller_Symmetric_TimeSlot_PeakShavingComponent } from './Controller/PeakShaving/Symmetric_TimeSlot/Symmetric_TimeSlot';
-import { Controller_ChpSocComponent } from './Controller/ChpSoc/ChpSoc';
-import { ChpsocModalComponent } from './Controller/ChpSoc/modal/modal.component';
+import { OfflineComponent } from './offline/offline.component';
+import { ProductionModalComponent } from './production/modal/modal.component';
+import { ProductionComponent } from './production/production.component';
 
 @NgModule({
   imports: [
@@ -69,8 +69,9 @@ import { ChpsocModalComponent } from './Controller/ChpSoc/modal/modal.component'
     AdministrationComponent,
     Controller_Asymmetric_PeakShavingModalComponent,
     AutarchyModalComponent,
-    ChpsocModalComponent,
     ConsumptionModalComponent,
+    Controller_ChpSocComponent,
+    Controller_ChpSocModalComponent,
     Controller_Ess_FixActivePower,
     Controller_Ess_FixActivePowerModalComponent,
     Controller_EvcsModalComponent,
@@ -100,10 +101,11 @@ import { ChpsocModalComponent } from './Controller/ChpSoc/modal/modal.component'
     AdministrationComponent,
     AutarchyModalComponent,
     Controller_ChpSocComponent,
-    ChpsocModalComponent,
     ConsumptionComponent,
     ConsumptionModalComponent,
     Controller_ChannelthresholdComponent,
+    Controller_ChpSocComponent,
+    Controller_ChpSocModalComponent,
     Controller_Ess_FixActivePower,
     Controller_Ess_FixActivePowerModalComponent,
     Controller_EvcsComponent,

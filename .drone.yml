@@ -25,9 +25,7 @@ pipeline:
       - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 
   build-ui:
-    image: openems-build:latest
-    environment:
-      - GRADLE_USER_HOME=/drone/.gradle
+    image: node:16-alpine
     commands:
       - cd ui
       - npm ci --prefer-offline --cache /drone/.npm

@@ -1,8 +1,8 @@
-import { ChannelAddress, CurrentData } from '../../../../shared/shared';
-import { ChpsocModalComponent } from './modal/modal.component';
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
 import { Icon } from 'src/app/shared/type/widget';
+import { ChannelAddress, CurrentData } from '../../../../shared/shared';
+import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
+import { Controller_ChpSocModalComponent } from './modal/modal.component';
 
 @Component({
     selector: 'Controller_ChpSocComponent',
@@ -75,7 +75,7 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
 
     async presentModal() {
         const modal = await this.modalController.create({
-            component: ChpsocModalComponent,
+            component: Controller_ChpSocModalComponent,
             componentProps: {
                 component: this.component,
                 edge: this.edge,
