@@ -81,6 +81,7 @@ export class ComponentConfigurator {
      * @returns a promise of type void
      */
     public start(): Promise<void> {
+
         this.refreshAllConfigurationStates();
         return new Promise((resolve, reject) => {
             this.clear().then(response => {
@@ -342,7 +343,13 @@ export class ComponentConfigurator {
      */
     private updateScheduler() {
         let scheduler: EdgeConfig.Component = this.config.getComponent("scheduler0");
-        let requiredControllerIds = ["ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0", "ctrlBalancing0"];
+
+        let requiredControllerIds = ["ctrlEmergencyCapacityReserve0", "ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0", "ctrlBalancing0"];
+        let installationData = JSON.parse(sessionStorage.installationData);
+
+        if (installationData && installationData.battery && (!installationData.battery.emergencyReserve.isEnabled)) {
+            requiredControllerIds = ["ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0", "ctrlBalancing0"];
+        }
 
         if (!scheduler) {
             // If scheduler is not existing, it gets configured as required

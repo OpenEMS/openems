@@ -1,18 +1,18 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
-import { Service, Websocket } from 'src/app/shared/shared';
-import { InstallationData } from '../../installation.component';
-import { FeedInSetting } from '../protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component';
-import { ComponentConfigurator, ConfigurationMode, ConfigurationObject, ConfigurationState, FunctionState } from './component-configurator';
-import { SafetyCountry } from './safety-country';
-import { environment } from 'src/environments';
 import { GetNetworkConfigRequest } from 'src/app/edge/settings/network/getNetworkConfigRequest';
 import { GetNetworkConfigResponse } from 'src/app/edge/settings/network/getNetworkConfigResponse';
 import { SetNetworkConfigRequest } from 'src/app/edge/settings/network/setNetworkConfigRequest';
 import { NetworkInterface } from 'src/app/edge/settings/network/shared';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
+import { Service, Websocket } from 'src/app/shared/shared';
+import { environment } from 'src/environments';
+import { InstallationData } from '../../installation.component';
 import { EmsAppId } from '../heckert-app-installer/heckert-app-installer.component';
+import { FeedInSetting } from '../protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component';
+import { ComponentConfigurator, ConfigurationMode, ConfigurationObject, ConfigurationState, FunctionState } from './component-configurator';
+import { SafetyCountry } from './safety-country';
 
 export interface Interface {
   name: string,
@@ -55,6 +55,17 @@ export class ConfigurationExecuteComponent implements OnInit {
 
       //#region Add objects to component configurator
 
+      // Change EssPower's enablePid to false
+      if (this.installationData.edge != null) {
+        this.installationData.edge.updateComponentConfig(this.websocket, '_power', [
+          { name: "enablePid", value: false },
+        ]).then(() => {
+        }).catch(reason => {
+          this.service.toast('Changing PID failed' + '\n' + reason.error.message, 'danger');
+          console.warn(reason);
+        });
+      }
+
       // modbus1
       this.componentConfigurator.add({
         factoryId: "Bridge.Modbus.Serial",
@@ -91,6 +102,47 @@ export class ConfigurationExecuteComponent implements OnInit {
         mode: ConfigurationMode.RemoveAndConfigure
       });
 
+      // meter0
+      this.componentConfigurator.add({
+        factoryId: "GoodWe.Grid-Meter",
+        componentId: "meter0",
+        alias: "Netzzähler",
+        properties: [
+          { name: "enabled", value: true },
+          { name: "modbus.id", value: "modbus1" },
+          { name: "modbusUnitId", value: 247 }
+        ],
+        mode: ConfigurationMode.RemoveAndConfigure
+      });
+
+      // io0
+      this.componentConfigurator.add({
+        factoryId: "IO.KMtronic.4Port",
+        componentId: "io0",
+        alias: "Relaisboard",
+        properties: [
+          { name: "enabled", value: true },
+          { name: "modbus.id", value: "modbus0" },
+          { name: "modbusUnitId", value: 2 }
+        ],
+        mode: ConfigurationMode.RemoveAndConfigure
+      });
+
+      // battery0
+      this.componentConfigurator.add({
+        factoryId: "Battery.Fenecon.Home",
+        componentId: "battery0",
+        alias: "Batterie",
+        properties: [
+          { name: "enabled", value: true },
+          { name: "startStop", value: "AUTO" },
+          { name: "modbus.id", value: "modbus0" },
+          { name: "modbusUnitId", value: 1 }
+        ],
+        mode: ConfigurationMode.RemoveAndConfigure
+      });
+
+
       // Determine safety country
       let safetyCountry: SafetyCountry;
 
@@ -125,32 +177,6 @@ export class ConfigurationExecuteComponent implements OnInit {
           { name: "setfeedInPowerSettings", value: feedInSetting },
           { name: "emsPowerMode", value: "UNDEFINED" },
           { name: "emsPowerSet", value: -1 },
-        ],
-        mode: ConfigurationMode.RemoveAndConfigure
-      });
-
-      // meter0
-      this.componentConfigurator.add({
-        factoryId: "GoodWe.Grid-Meter",
-        componentId: "meter0",
-        alias: "Netzzähler",
-        properties: [
-          { name: "enabled", value: true },
-          { name: "modbus.id", value: "modbus1" },
-          { name: "modbusUnitId", value: 247 }
-        ],
-        mode: ConfigurationMode.RemoveAndConfigure
-      });
-
-      // io0
-      this.componentConfigurator.add({
-        factoryId: "IO.KMtronic.4Port",
-        componentId: "io0",
-        alias: "Relaisboard",
-        properties: [
-          { name: "enabled", value: true },
-          { name: "modbus.id", value: "modbus0" },
-          { name: "modbusUnitId", value: 2 }
         ],
         mode: ConfigurationMode.RemoveAndConfigure
       });
@@ -204,20 +230,6 @@ export class ConfigurationExecuteComponent implements OnInit {
           { name: "modbusUnitId", value: 247 }
         ],
         mode: this.installationData.pv.dc2.isSelected ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
-      });
-
-      // battery0
-      this.componentConfigurator.add({
-        factoryId: "Battery.Fenecon.Home",
-        componentId: "battery0",
-        alias: "Batterie",
-        properties: [
-          { name: "enabled", value: true },
-          { name: "startStop", value: "AUTO" },
-          { name: "modbus.id", value: "modbus0" },
-          { name: "modbusUnitId", value: 1 }
-        ],
-        mode: ConfigurationMode.RemoveAndConfigure
       });
 
       // ess0
@@ -297,6 +309,36 @@ export class ConfigurationExecuteComponent implements OnInit {
         ],
         mode: ConfigurationMode.RemoveAndConfigure
       });
+
+      let emergencyReserve = this.installationData.battery.emergencyReserve;
+      if (emergencyReserve != undefined) {
+        this.componentConfigurator.add({
+          factoryId: "GoodWe.EmergencyPowerMeter",
+          componentId: "meter2",
+          alias: "Notstromzähler",
+          properties: [
+            { name: "enabled", value: true },
+            { name: "modbus.id", value: "modbus1" },
+            { name: "modbusUnitId", value: 247 }
+          ],
+          mode: emergencyReserve.isEnabled ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
+        });
+
+        if (emergencyReserve.isEnabled) {
+          this.componentConfigurator.add({
+            factoryId: "Controller.Ess.EmergencyCapacityReserve",
+            componentId: "ctrlEmergencyCapacityReserve0",
+            alias: "Ansteuerung der Notstromreserve",
+            properties: [
+              { name: "enabled", value: true },
+              { name: "ess.id", value: "ess0" },
+              { name: "mode", value: emergencyReserve.isReserveSocEnabled },
+              { name: "reserveSoc", value: emergencyReserve.value }
+            ],
+            mode: ConfigurationMode.RemoveAndConfigure
+          });
+        }
+      }
 
       //#endregion
 

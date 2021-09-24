@@ -224,6 +224,10 @@ export class Utils {
     return format(new Date(value * 1000), 'HH:mm:ss')
   }
 
+  public static CONVERT_TO_PERCENT = (value: any): string => {
+    return value + ' %'
+  }
+
   /**
   * Converts a value to WattHours [Wh]
   * 

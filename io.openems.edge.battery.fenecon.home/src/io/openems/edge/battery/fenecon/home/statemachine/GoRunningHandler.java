@@ -54,7 +54,7 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 			// Turns the 12 V power off after battery start-up
 			this.setBatteryStartUpRelay(context, false);
 
-			if (this.getBatteryStartUpRelay(context) != Boolean.FALSE) {
+			if (this.getBatteryStartUpRelay(context) != Boolean.TRUE) {
 				// Relay switched off or Relay state unknown -> battery is running
 				this.state = BatteryRelayState.FINISHED;
 			}

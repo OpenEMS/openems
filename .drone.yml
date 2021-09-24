@@ -8,30 +8,31 @@ pipeline:
     volumes:
       - cache:/cache
 
-  build-java:
-    when:
-      branch: 
-        exclude:
-          ui_dev/*
-    image: openems-build:latest
-    environment:
-      - GRADLE_USER_HOME=/drone/.gradle
-    commands:
-      - ./gradlew build
-      - ./gradlew resolve.BackendApp
-      - git diff --exit-code io.openems.backend.application/BackendApp.bndrun
-      - ./gradlew resolve.EdgeApp
-      - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
-
   build-ui:
-    image: openems-build:latest
-    environment:
-      - GRADLE_USER_HOME=/drone/.gradle
+    image: node:16-alpine
     commands:
       - cd ui
       - npm ci --prefer-offline --cache /drone/.npm
       - sed --in-place s#/m/#/${DRONE_BRANCH}/#g angular.json
       - node_modules/@angular/cli/bin/ng build -c "fenecon,fenecon-backend-prod,prod"
+
+  build-java:
+    when:
+      branch: 
+        exclude:
+          - ui_dev/*
+          - feature/ui-*
+    image: openems-build:latest
+    environment:
+      - GRADLE_USER_HOME=/drone/.gradle
+    commands:
+      - sed --in-place 's#\(VERSION_STRING = .*\)";#\1-'"${DRONE_BRANCH}"'";#g' io.openems.common/src/io/openems/common/OpenemsConstants.java
+      - ./gradlew build buildEdge
+      - ./gradlew resolve.BackendApp
+      - git diff --exit-code io.openems.backend.application/BackendApp.bndrun
+      - ./gradlew resolve.EdgeApp
+      - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
+      - cp build/openems.jar ui/target
 
   refresh-dev:
     image: appleboy/drone-scp

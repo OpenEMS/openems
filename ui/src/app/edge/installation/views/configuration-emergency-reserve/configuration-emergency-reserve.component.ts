@@ -62,6 +62,16 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
     });
 
     fields.push({
+      key: "isReserveSocEnabled",
+      type: "toggle",
+      templateOptions: {
+        label: "Notstromreserve aktivieren?",
+        required: true,
+      },
+      hideExpression: model => !model.isEnabled
+    });
+
+    fields.push({
       key: "value",
       type: "range",
       templateOptions: {
@@ -76,7 +86,7 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
         change: (field, event) => { field.templateOptions.description = "Aktuell: " + field.formControl.value; }
       },
       parsers: [Number],
-      hideExpression: model => !model.isEnabled
+      hideExpression: model => !model.isEnabled || !model.isReserveSocEnabled
     });
 
     return fields;

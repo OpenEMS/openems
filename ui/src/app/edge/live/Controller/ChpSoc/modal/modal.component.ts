@@ -1,18 +1,18 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { RangeValue } from '@ionic/core';
-import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 type mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 
 
 @Component({
-    selector: ChpsocModalComponent.SELECTOR,
+    selector: Controller_ChpSocModalComponent.SELECTOR,
     templateUrl: './modal.component.html'
 })
-export class ChpsocModalComponent implements OnInit {
+export class Controller_ChpSocModalComponent implements OnInit {
 
     private static readonly SELECTOR = "chpsoc-modal";
 

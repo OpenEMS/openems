@@ -84,13 +84,13 @@
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="code-slash-outline"></ion-icon>
             <ion-label class="ion-text-wrap">
-              FEMS - FENECON Energie Management System
+              {{ environment.edgeShortName }} - {{ environment.edgeLongName }}
             </ion-label>
           </ion-item>
 
           <ion-card-content class="ion-text-wrap">
-            <p class="ion-padding">FEMS wird auf Basis von OpenEMS als Open-Source-Software entwickelt.</p>
-            <p class="ion-padding">OpenEMS - das Open Source Energy Management System - ist eine modulare Plattform für
+            <p class="ion-padding">Dieses Energiemanagementsystem wird auf Basis von OpenEMS als Open-Source-Software
+              entwickelt. OpenEMS - das Open Source Energy Management System - ist eine modulare Plattform für
               Energiemanagement-Anwendungen. Es wurde von FENECON initiiert und wird mittlerweile von einer breiten Zahl
               an Unternehmen, Universitäten und Instituten für deren Forschung und Entwicklung als auch eigene
               Energiemanagementsysteme eingesetzt. Die Entwicklung wird in der OpenEMS Association e.V. koordiniert.</p>
@@ -98,16 +98,17 @@
               <li>
                 <a target="_blank" href="https://openems.io" translate>About.openEMS</a>
               </li>
+            </ul>
+            <p class="ion-padding" translate>About.build</p>
+            <ul>
               <li>
-                <a target="_blank" href="https://github.com/OpenEMS/openems/releases/tag/2021.15.12">
-                  <span translate>About.build</span>: 2021.15.12 (2021-09-16)</a>
+                <a routerLinkActive="active" routerLink="/changelog">2021.17.1-SNAPSHOT</a>
               </li>
             </ul>
-            <p class="ion-padding">Für Rückfragen und Anregungen zu FEMS und den FENECON Produkten, wenden Sie sich
-              bitte an unser Team unter <a href="mailto:service@fenecon.de">service@fenecon.de</a>. Für Fragen zu
+            <p class="ion-padding">Für Rückfragen und Anregungen zum Energiemanagement und unseren Produkten, wenden Sie
+              sich bitte an unser Team unter <a href="mailto:service@fenecon.de">service@fenecon.de</a>. Für Fragen zu
               OpenEMS steht Ihnen das <a target="_blank" href="https://community.openems.io/">OpenEMS
-                Community-Forum</a> zur
-              Verfügung.
+                Community-Forum</a> zur Verfügung.
             </p>
             <ion-item lines="inset">
               <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">

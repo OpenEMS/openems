@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { ChangelogComponent } from './changelog/changelog.component';
 import { AutarchyChartOverviewComponent } from './edge/history/autarchy/autarchychartoverview/autarchychartoverview.component';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
@@ -41,6 +42,7 @@ const routes: Routes = [
   { path: 'index', component: IndexComponent },
 
   { path: 'user', component: UserComponent },
+  { path: 'changelog', component: ChangelogComponent },
 
   { path: 'index/installation', component: InstallationComponent },
 

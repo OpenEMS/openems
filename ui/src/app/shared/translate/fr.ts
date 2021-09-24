@@ -98,6 +98,7 @@ export const TRANSLATION = {
         overview: 'Apperçu FEMS ',
         profile: 'Utilisateur',
         settings: 'Réglages',
+        changelog: 'Changelog',
     },
     Index: {
         allConnected: 'Toutes les connections sont établies.',
@@ -112,6 +113,11 @@ export const TRANSLATION = {
     },
     Edge: {
         Index: {
+            // TODO Translations
+            EmergencyReserve: {
+                InfoForEmergencyReserveSlider: 'By activating the emergency power reserve, the value can be freely selected between 5% and 100%.',
+                emergencyReserve: 'Emergencyreserve',
+            },
             Energymonitor: {
                 activePower: 'Puissance Active',
                 consumptionWarning: 'Consommation & production inconnue',

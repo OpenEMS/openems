@@ -38,7 +38,11 @@ public class FeneconHomeBatteryTest {
 			Battery.ChannelId.CHARGE_MAX_CURRENT.id());
 	private static final ChannelAddress BATTERY_RELAY = new ChannelAddress(IO_ID, "InputOutput4");
 
-	// Battery start up when the relay and battery off test
+	/**
+	 * Battery start up when the relay and battery off test.
+	 * 
+	 * @throws Exception on error
+	 */
 	@Test
 	public void test() throws Exception {
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
@@ -58,7 +62,7 @@ public class FeneconHomeBatteryTest {
 
 				.next(new TestCase("Battery Relay false") //
 						.input(BATTERY_RELAY, false)//
-						.input(BMS_CONTROL, false)//
+						.input(BMS_CONTROL, BmsControl.SWITCHED_OFF)//
 						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
 				.next(new TestCase() //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
@@ -72,8 +76,11 @@ public class FeneconHomeBatteryTest {
 						.input(BMS_CONTROL, BmsControl.SWITCHED_ON) //
 						.output(BATTERY_RELAY, false)) //
 				.next(new TestCase("in WAIT_FOR_SWITCH_OFF") //
-						.output(STATE_MACHINE, StateMachine.State.RUNNING))//
+						.input(BATTERY_RELAY, false) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
 				.next(new TestCase("FINISHED")//
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
+				.next(new TestCase()//
 						.output(STATE_MACHINE, StateMachine.State.RUNNING))//
 
 				// Ramp-Up ChargeMaxCurrent (0.1 A / Second)
@@ -101,7 +108,12 @@ public class FeneconHomeBatteryTest {
 		;
 	}
 
-	// Battery start up when the relay is on and battery is off test
+	/**
+	 * Battery start up when the relay is on and battery is off test.
+	 * 
+	 * @throws Exception on error
+	 */
+	@Test
 	public void test2() throws Exception {
 		new ComponentTest(new FeneconHomeBatteryImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -118,7 +130,7 @@ public class FeneconHomeBatteryTest {
 
 				.next(new TestCase()//
 						.input(BATTERY_RELAY, true)//
-						.input(BMS_CONTROL, false)//
+						.input(BMS_CONTROL, BmsControl.SWITCHED_OFF)//
 						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
 				.next(new TestCase() //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
@@ -127,15 +139,23 @@ public class FeneconHomeBatteryTest {
 				.next(new TestCase("in WAIT_FOR_BMS_CONTROL") //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
 				.next(new TestCase("in WAIT_FOR_BMS_CONTROL")//
-						.input(BMS_CONTROL, BmsControl.SWITCHED_ON) //
-						.output(BATTERY_RELAY, false)) //
+						.input(BMS_CONTROL, BmsControl.SWITCHED_ON)) //
 				.next(new TestCase("in WAIT_FOR_SWITCH_OFF") //
-						.output(STATE_MACHINE, StateMachine.State.RUNNING))//
+						.input(BATTERY_RELAY, false) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
 				.next(new TestCase("FINISHED")//
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase()//
 						.output(STATE_MACHINE, StateMachine.State.RUNNING));
 	}
 
-	// Battery start up when the relay is off and battery has already started, FEMS restarted
+	/**
+	 * Battery start up when the relay is off and battery has already started, FEMS
+	 * restarted.
+	 * 
+	 * @throws Exception on error
+	 */
+	@Test
 	public void test3() throws Exception {
 		new ComponentTest(new FeneconHomeBatteryImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -152,7 +172,7 @@ public class FeneconHomeBatteryTest {
 
 				.next(new TestCase()//
 						.input(BATTERY_RELAY, false)//
-						.input(BMS_CONTROL, true)//
+						.input(BMS_CONTROL, BmsControl.SWITCHED_ON)//
 						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
 				.next(new TestCase() //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
@@ -160,17 +180,19 @@ public class FeneconHomeBatteryTest {
 						.output(BATTERY_RELAY, false)//
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
 				.next(new TestCase("in WAIT_FOR_BMS_CONTROL") //
-						.output(BATTERY_RELAY, false)//
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
-				.next(new TestCase("in WAIT_FOR_SWITCH_OFF")//
-						.output(BATTERY_RELAY, false)//
-						.output(STATE_MACHINE, StateMachine.State.RUNNING))//
+				.next(new TestCase("in WAIT_FOR_SWITCH_OFF") //
+						.output(STATE_MACHINE, StateMachine.State.RUNNING)) //
 				.next(new TestCase("FINISHED")//
-						.output(BATTERY_RELAY, false)//
 						.output(STATE_MACHINE, StateMachine.State.RUNNING));
 	}
 
-	// Battery hard switch is off, should stay in GO_RUNNING
+	/**
+	 * Battery hard switch is off, should stay in GO_RUNNING.
+	 * 
+	 * @throws Exception on error
+	 */
+	@Test
 	public void test4() throws Exception {
 		new ComponentTest(new FeneconHomeBatteryImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -187,7 +209,7 @@ public class FeneconHomeBatteryTest {
 
 				.next(new TestCase()//
 						.input(BATTERY_RELAY, false)//
-						.input(BMS_CONTROL, false)//
+						.input(BMS_CONTROL, BmsControl.SWITCHED_OFF)//
 						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
 				.next(new TestCase() //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
@@ -209,16 +231,24 @@ public class FeneconHomeBatteryTest {
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
 				// Ex; after long time if hard switch turned on....
 				.next(new TestCase("in WAIT_FOR_BMS_CONTROL")//
-						.input(BMS_CONTROL, true)//
+						.input(BMS_CONTROL, BmsControl.SWITCHED_ON)//
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
-				.next(new TestCase("in WAIT_FOR_SWITCH_OFF")//
-						.output(STATE_MACHINE, StateMachine.State.RUNNING))//
+				.next(new TestCase("in WAIT_FOR_SWITCH_OFF") //
+						.input(BATTERY_RELAY, false) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
 				.next(new TestCase("FINISHED")//
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase()//
 						.output(STATE_MACHINE, StateMachine.State.RUNNING));
 	}
 
-	// Configuration problems, IO wrong configured channel, if battery has not
-	// started yet, in these case Fault state should be taken care(TODO)
+	/**
+	 * Configuration problems, IO wrong configured channel, if battery has not
+	 * started yet, in these case Fault state should be taken care(TODO).
+	 * 
+	 * @throws Exception on error
+	 */
+	@Test
 	public void test5() throws Exception {
 		new ComponentTest(new FeneconHomeBatteryImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -235,7 +265,7 @@ public class FeneconHomeBatteryTest {
 
 				.next(new TestCase("Battery Relay false") //
 						.input(BATTERY_RELAY, false)//
-						.input(BMS_CONTROL, false)//
+						.input(BMS_CONTROL, BmsControl.SWITCHED_OFF)//
 						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
 				.next(new TestCase() //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
@@ -255,40 +285,43 @@ public class FeneconHomeBatteryTest {
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING));//
 
 	}
-	
-	// Configuration problems, or Relay board is not connected, if battery already started
+
+	/**
+	 * Configuration problems, or Relay board is not connected, if battery already
+	 * started.
+	 * 
+	 * @throws Exception on error
+	 */
+	@Test
 	public void test6() throws Exception {
 		new ComponentTest(new FeneconHomeBatteryImpl()) //
-		.addReference("cm", new DummyConfigurationAdmin()) //
-		.addReference("componentManager", new DummyComponentManager()) //
-		.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
-		.addComponent(new DummyInputOutput(IO_ID))//
-		.activate(MyConfig.create() //
-				.setId(BATTERY_ID) //
-				.setModbusId(MODBUS_ID) //
-				.setModbusUnitId(0) //
-				.setStartStop(StartStopConfig.START) //
-				.setBatteryStartUpRelay("io1/InputOutput4")//
-				.build())//
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addComponent(new DummyInputOutput(IO_ID))//
+				.activate(MyConfig.create() //
+						.setId(BATTERY_ID) //
+						.setModbusId(MODBUS_ID) //
+						.setModbusUnitId(0) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartUpRelay("io1/InputOutput4")//
+						.build())//
 
-		.next(new TestCase()//
-				.input(BATTERY_RELAY, false)//
-				.input(BMS_CONTROL, true)//
-				.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
-		.next(new TestCase() //
-				.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
-		.next(new TestCase("in WAIT_FOR_SWITCH_ON")//
-				.output(BATTERY_RELAY, false)//
-				.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
-		.next(new TestCase("in WAIT_FOR_BMS_CONTROL") //
-				.output(BATTERY_RELAY, false)//
-				.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
-		.next(new TestCase("in WAIT_FOR_SWITCH_OFF")//
-				.output(BATTERY_RELAY, false)//
-				.output(STATE_MACHINE, StateMachine.State.RUNNING))//
-		.next(new TestCase("FINISHED")//
-				.output(BATTERY_RELAY, false)//
-				.output(STATE_MACHINE, StateMachine.State.RUNNING));
+				.next(new TestCase()//
+						.input(BATTERY_RELAY, false)//
+						.input(BMS_CONTROL, BmsControl.SWITCHED_ON)//
+						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
+				.next(new TestCase() //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase("in WAIT_FOR_SWITCH_ON")//
+						.output(BATTERY_RELAY, false)//
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
+				.next(new TestCase("in WAIT_FOR_BMS_CONTROL") //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
+				.next(new TestCase("in WAIT_FOR_SWITCH_OFF")//
+						.output(STATE_MACHINE, StateMachine.State.RUNNING))//
+				.next(new TestCase("FINISHED")//
+						.output(STATE_MACHINE, StateMachine.State.RUNNING));
 	}
-	
+
 }

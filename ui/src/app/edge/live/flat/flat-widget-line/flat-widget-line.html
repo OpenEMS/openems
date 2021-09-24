@@ -6,7 +6,10 @@
         </td>
         <!-- Value of Parameter on the right side -->
         <td [style.width]="leftColumnWidth != null ? (100 - leftColumnWidth): 35 + '%'" class="align_right">
-            <ng-container *ngIf="displayValue != null">{{ displayValue }}</ng-container>
+            <ng-container *ngIf="displayValue != null && !icon">{{ displayValue }}</ng-container>
+            <ion-icon *ngIf="icon != null && !displayValue" [name]="icon.name || 'help-outline'"
+                [color]="icon.color || 'primary'" [size]="icon.size || 'medium'"></ion-icon>
+
         </td>
     </tr>
 </table>

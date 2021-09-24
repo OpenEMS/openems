@@ -1,5 +1,6 @@
 import { Component, Input } from "@angular/core";
 import { ChannelAddress } from "src/app/shared/shared";
+import { Icon } from "src/app/shared/type/widget";
 import { AbstractFlatWidgetLine } from "./abstract-flat-widget-line";
 
 @Component({
@@ -27,5 +28,8 @@ export class FlatWidgetLine extends AbstractFlatWidgetLine {
     /** Width of left Column, right Column is (100 - width of left Column) */
     @Input()
     leftColumnWidth: number;
+
+    @Input()
+    icon: Icon;
 }
 
