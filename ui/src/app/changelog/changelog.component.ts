@@ -35,6 +35,20 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2021.16.1',
+        changes: [
+          Changelog.openems('2021.16.0'),
+          Changelog.UI,
+          Changelog.product(Product.HOME) + "Verbesserungen an der Notstromfunktion: Algorithmus zur Vorhaltung einer Notstromreserve; einstellbar via IBN-Assistent oder über das Widget 'Stromspeicher' im Online-Monitoring",
+          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + "Verbesserung der Fehlermeldung bei Kommunikationsabbruch (Cluster Version B)",
+          Changelog.library(Library.GRADLE),
+          Changelog.product(Product.FEMS_NETZDIENLICHE_BELADUNG) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.product(Product.HOME) + "Fehlerbehebung bei der Start-Prozedur",
+          { roleIsAtLeast: Role.ADMIN, change: "Die 'openems.jar'-Datei für jeden Branch wird jetzt automatisch bei jedem 'push' gebaut. Download unter 'https://dev.intranet.fenecon.de/{branch}/openems.jar'" },
+          { roleIsAtLeast: Role.ADMIN, change: "Mit einer Konfigurationseinstellungen in der 'Sum'-Komponente können jetzt Warnungen und Fehler des Gesamtsystems ignoriert/ausgeblendet werden" },
+        ]
+      },
+      {
         version: '2021.15.12',
         changes: [
           Changelog.product(Product.HOME, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Verbrauchszähler für notstromversorgte Lasten ('GoodWe.EmergencyPowerMeter'); Bei aktiviertem Notstrom aktiviere auch Schwarzstart-Funktion",
