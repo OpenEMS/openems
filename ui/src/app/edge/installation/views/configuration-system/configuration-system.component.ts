@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { environment } from 'src/environments';
 import { InstallationData } from '../../installation.component';
 
 @Component({
@@ -50,6 +51,16 @@ export class ConfigurationSystemComponent implements OnInit {
 
     let fields: FormlyFieldConfig[] = [];
 
+    let label: string;
+    switch (environment.theme) {
+      case 'Heckert':
+        label = "Symphon-E";
+        break;
+      case 'FENECON':
+      default:
+        label = "FENECON Home";
+        break;
+    }
     fields.push({
       key: "type",
       type: "radio",
@@ -57,7 +68,7 @@ export class ConfigurationSystemComponent implements OnInit {
         label: "Speichertyp",
         type: "radio",
         options: [
-          { value: "fenecon-home", label: "FENECON Home" }
+          { value: "fenecon-home", label: label }
         ],
         required: true
       }

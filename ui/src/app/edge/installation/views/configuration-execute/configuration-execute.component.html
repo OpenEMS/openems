@@ -1,11 +1,18 @@
 <installation-view iconName="settings-outline" header="Konfiguration" (previousClicked)="onPreviousClicked()"
   (nextClicked)="onNextClicked()" [isWaiting]="isWaiting">
 
-  <ion-item>
+  <ion-item lines="none">
     <ion-button (click)="startConfiguration()" [disabled]="isWaiting">
       <ion-label>{{this.isWaiting ? "Konfiguration läuft..." : "Konfiguration starten"}}</ion-label>
       <ion-icon name="play-outline" slot="start"></ion-icon>
     </ion-button>
+  </ion-item>
+  <ion-item>
+    <ion-label class="ion-text-wrap">
+      Um sicherzustellen, dass alle Komponenten Ihres Systems korrekt eingerichtet werden,
+      <br>
+      können die Konfiguration und die nachfolgenden Funktionstests bis zu 10 Minuten in Anspruch nehmen.
+    </ion-label>
   </ion-item>
 
   <!-- Items -->

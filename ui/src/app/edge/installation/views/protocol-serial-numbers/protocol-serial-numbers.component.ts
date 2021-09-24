@@ -521,7 +521,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       protocol.items.push({
         category: "Angaben zu Notstrom",
         name: "Notstromreserve [%]",
-        value: emergencyReserve.value.toString()
+        value: emergencyReserve.value ? emergencyReserve.value.toString() : ""
       });
     }
 
@@ -540,7 +540,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     protocol.items.push({
       category: "Vorsicherung Hausanschlusszähler",
       name: "Wert [A]",
-      value: lineSideMeterFuseValue.toString()
+      value: lineSideMeterFuseValue ? lineSideMeterFuseValue.toString() : ""
     });
 
     //#endregion
@@ -558,7 +558,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       protocol.items.push({
         category: "DC-PV-Installation",
         name: "Wert MPPT1 [Wp]",
-        value: dc1.value.toString()
+        value: dc1.value ? dc1.value.toString() : ""
       });
 
       protocol.items.push({
@@ -576,7 +576,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       protocol.items.push({
         category: "DC-PV-Installation",
         name: "Anzahl PV-Module MPPT1",
-        value: dc1.modulesPerString.toString()
+        value: dc1.modulesPerString ? dc1.modulesPerString.toString() : ""
       });
     }
 
@@ -585,7 +585,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       protocol.items.push({
         category: "DC-PV-Installation",
         name: "Wert MPPT2 [Wp]",
-        value: dc2.value.toString()
+        value: dc2.value ? dc2.value.toString() : ""
       });
 
       protocol.items.push({
@@ -597,7 +597,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       protocol.items.push({
         category: "DC-PV-Installation",
         name: "Ausrichtung MPPT2",
-        value: dc2.alias
+        value: dc2.orientation
       });
 
       protocol.items.push({
@@ -609,7 +609,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       protocol.items.push({
         category: "DC-PV-Installation",
         name: "Anzahl PV-Module MPPT2",
-        value: dc2.modulesPerString.toString()
+        value: dc2.modulesPerString ? dc2.modulesPerString.toString() : ""
       });
     }
 
@@ -620,7 +620,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     protocol.items.push({
       category: "Dynamische Begrenzung der Einspeisung",
       name: "Maximale Einspeiseleistung [W]",
-      value: dynamicFeedInLimitation.maximumFeedInPower.toString()
+      value: dynamicFeedInLimitation.maximumFeedInPower ? dynamicFeedInLimitation.maximumFeedInPower.toString() : ""
     });
 
     protocol.items.push({
@@ -654,7 +654,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       protocol.items.push({
         category: "Zusätzliche AC-Erzeuger",
         name: "Wert " + label + " [Wp]",
-        value: element.value.toString()
+        value: element.value ? element.value.toString() : ""
       });
 
       protocol.items.push({
@@ -672,7 +672,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       protocol.items.push({
         category: "Zusätzliche AC-Erzeuger",
         name: "Anzahl PV-Module " + label,
-        value: element.modulesPerString.toString()
+        value: element.modulesPerString ? element.modulesPerString.toString() : ""
       });
 
       protocol.items.push({
@@ -684,7 +684,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       protocol.items.push({
         category: "Zusätzliche AC-Erzeuger",
         name: "Modbus Kommunikationsadresse " + label,
-        value: element.modbusCommunicationAddress.toString()
+        value: element.modbusCommunicationAddress ? element.modbusCommunicationAddress.toString() : ""
       });
     }
 

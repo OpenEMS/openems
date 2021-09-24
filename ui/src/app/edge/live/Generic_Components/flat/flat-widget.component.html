@@ -1,0 +1,19 @@
+<ion-card style="cursor: pointer;">
+    <ion-item color="light" lines="full">
+
+        <!-- Check if img or icon is handed over. -->
+        <ion-avatar *ngIf="img" slot="start">
+            <img [src]="img">
+        </ion-avatar>
+        <ion-icon *ngIf="icon" slot="start" [size]="icon.size || 'large'" [color]="icon.color || 'primary'"
+            [name]="icon.name">
+        </ion-icon>
+
+        <!-- Check which title type is handed over. -->
+        <ion-label *ngIf="title">{{ title }}</ion-label>
+    </ion-item>
+
+    <ion-card-content>
+        <ng-content></ng-content>
+    </ion-card-content>
+</ion-card>

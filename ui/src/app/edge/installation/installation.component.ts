@@ -94,6 +94,7 @@ export type InstallationData = {
     // configuration-emergency-reserve
     emergencyReserve?: {
       isEnabled: boolean,
+      isReserveSocEnabled: boolean,
       value: number
     },
   },
