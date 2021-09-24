@@ -64,19 +64,26 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
 
                     // gather EVCS consumption
                     let totalEvcsConsumption: number[] = [];
-                    config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption')).forEach(component => {
-                        totalEvcsConsumption = result.data[component.id + '/ChargePower'].map((value, index) => {
-                            return Utils.addSafely(totalEvcsConsumption[index], value / 1000)
-                        });
-                    })
+                    config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+                        .filter(component => !(
+                            component.factoryId == 'Evcs.Cluster' ||
+                            component.factoryId == 'Evcs.Cluster.PeakShaving' ||
+                            component.factoryId == 'Evcs.Cluster.SelfConsumption'))
+                        .forEach(component => {
+                            totalEvcsConsumption = result.data[component.id + '/ChargePower'].map((value, index) => {
+                                return Utils.addSafely(totalEvcsConsumption[index], value / 1000)
+                            });
+                        })
 
                     // gather consumptionMetered cosumption
                     let totalMeteredConsumption: number[] = [];
-                    config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED').forEach(component => {
-                        totalMeteredConsumption = result.data[component.id + '/ActivePower'].map((value, index) => {
-                            return Utils.addSafely(totalMeteredConsumption[index], value / 1000)
+                    config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+                        .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component))
+                        .forEach(component => {
+                            totalMeteredConsumption = result.data[component.id + '/ActivePower'].map((value, index) => {
+                                return Utils.addSafely(totalMeteredConsumption[index], value / 1000)
+                            })
                         })
-                    })
 
                     // gather other Consumption (Total - EVCS - consumptionMetered)
                     let otherConsumption: number[] = [];
@@ -262,12 +269,19 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                 new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
                 new ChannelAddress('_sum', 'ConsumptionActivePowerL3'),
             ];
-            config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption')).forEach(component => {
-                result.push(new ChannelAddress(component.id, 'ChargePower'));
-            })
-            config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED').forEach(component => {
-                result.push(new ChannelAddress(component.id, 'ActivePower'))
-            });
+            config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+                .filter(component => !(
+                    component.factoryId == 'Evcs.Cluster' ||
+                    component.factoryId == 'Evcs.Cluster.PeakShaving' ||
+                    component.factoryId == 'Evcs.Cluster.SelfConsumption'))
+                .forEach(component => {
+                    result.push(new ChannelAddress(component.id, 'ChargePower'));
+                })
+            config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+                .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component))
+                .forEach(component => {
+                    result.push(new ChannelAddress(component.id, 'ActivePower'))
+                });
             resolve(result);
         })
     }

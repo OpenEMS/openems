@@ -294,12 +294,17 @@ export class EdgeConfig {
         return false;
     }
 
+    /**
+     * Is the given Meter of type 'PRODUCTION'?
+     * 
+     * @param component the Meter Component
+     * @returns true for PRODUCTION
+     */
     public isProducer(component: EdgeConfig.Component) {
-        // TODO make sure 'type' is provided for all Meters
         if (component.properties['type'] == "PRODUCTION") {
             return true;
         } else {
-            // TODO remove, once all Edges are at least version 2019.15
+            // TODO properties in OSGi Component annotations are not transmitted correctly with Apache Felix SCR
             switch (component.factoryId) {
                 case 'Fenecon.Mini.PvMeter':
                 case 'Fenecon.Dess.PvMeter':
@@ -312,6 +317,24 @@ export class EdgeConfig {
                 case 'SolarEdge.PV-Inverter':
                 case 'Simulator.PvInverter':
                 case 'Simulator.ProductionMeter.Acting':
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Is the given Meter of type 'CONSUMPTION_METERED'?
+     * 
+     * @param component the Meter Component
+     * @returns true for CONSUMPTION_METERED
+     */
+    public isTypeConsumptionMetered(component: EdgeConfig.Component) {
+        if (component.properties['type'] == "CONSUMPTION_METERED") {
+            return true;
+        } else {
+            switch (component.factoryId) {
+                case 'GoodWe.EmergencyPowerMeter':
                     return true;
             }
         }
