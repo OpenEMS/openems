@@ -50,17 +50,24 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
         this.queryHistoricTimeseriesData(this.service.historyPeriod.from, this.service.historyPeriod.to).then(response => {
             this.service.getConfig().then(config => {
                 let result = (response as QueryHistoricTimeseriesDataResponse).result;
-                let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
-                this.activeTimeOverPeriod = calculateActiveTimeOverPeriod(outputChannel, result);
+                let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+                if (typeof outputChannelAddress !== 'string') {
+                    // Takes only the first output for simplicity reasons
+                    outputChannelAddress = outputChannelAddress[0];
+                }
+                this.activeTimeOverPeriod = calculateActiveTimeOverPeriod(ChannelAddress.fromString(outputChannelAddress), result);
             });
         });
     };
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
-            let channeladdresses = [outputChannel];
-            resolve(channeladdresses);
+            let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+            if (typeof outputChannelAddress === 'string') {
+                resolve([ChannelAddress.fromString(outputChannelAddress)]);
+            } else {
+                resolve(outputChannelAddress.map(c => ChannelAddress.fromString(c)));
+            }
         });
     }
 }
