@@ -35,6 +35,12 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2021.16.2',
+        changes: [
+          Changelog.product(Product.FEMS_SCHWELLWERT_STEUERUNG) + "Parallele Ansteuerung mehrerer Relaisausgänge",
+        ]
+      },
+      {
         version: '2021.16.1',
         changes: [
           Changelog.openems('2021.16.0'),

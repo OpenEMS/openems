@@ -24,7 +24,7 @@ public class ChannelSingleThresholdTest {
 	@Test
 	public void test() throws Exception {
 		final TimeLeapClock clock = new TimeLeapClock();
-		new ControllerTest(new ChannelSingleThreshold()) //
+		new ControllerTest(new ChannelSingleThresholdImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addComponent(new DummyManagedSymmetricEss(ESS_ID)) //
 				.addComponent(new DummyInputOutput(IO_ID)) //

@@ -13,7 +13,7 @@ git fetch openems develop
 git checkout develop
 
 echo "Merge from openems/develop"
-git merge openems/develop
+git merge openems/develop --no-edit
 
 echo "Push to fems/develop"
 git push origin develop
@@ -21,7 +21,13 @@ git push origin develop
 version="$(grep version ui/package.json | cut -d'"' -f4 | cut -d'-' -f1)"
 
 echo
-read -p "Releasing version $version"
+echo "#"
+echo "# Releasing version $version"
+echo "# Update Changelog!"
+echo "#"
+read -p ""
+git add .
+git commit --no-edit -m "Update Changelog for $version"
 
 git flow release start "$version"
 bash tools/prepare-release.sh

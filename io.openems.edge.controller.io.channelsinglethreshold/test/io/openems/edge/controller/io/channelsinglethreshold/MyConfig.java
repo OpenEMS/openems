@@ -13,7 +13,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public int switchedLoadPower;
 		public int minimumSwitchingTime;
 		public boolean invert;
-		public String outputChannelAddress;
+		public String[] outputChannelAddress;
 
 		private Builder() {
 		}
@@ -53,7 +53,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setOutputChannelAddress(String outputChannelAddress) {
+		public Builder setOutputChannelAddress(String... outputChannelAddress) {
 			this.outputChannelAddress = outputChannelAddress;
 			return this;
 		}
@@ -110,7 +110,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String outputChannelAddress() {
+	public String[] outputChannelAddress() {
 		return this.builder.outputChannelAddress;
 	}
 

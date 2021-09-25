@@ -154,12 +154,20 @@ export class Widgets {
 
         // explicitely sort ChannelThresholdControllers by their outputChannelAddress
         list.sort((w1, w2) => {
-            const outputChannelAddress1 = config.getComponentProperties(w1.componentId)['outputChannelAddress'];
-            const outputChannelAddress2 = config.getComponentProperties(w2.componentId)['outputChannelAddress'];
-            if (outputChannelAddress1 && outputChannelAddress2) {
-                return outputChannelAddress1.localeCompare(outputChannelAddress2);
-            } else if (outputChannelAddress1) {
-                return 1;
+            if (w1.name === 'Controller.IO.ChannelSingleThreshold' && w2.name === 'Controller.IO.ChannelSingleThreshold') {
+                let outputChannelAddress1: string | string[] = config.getComponentProperties(w1.componentId)['outputChannelAddress'];
+                if (typeof outputChannelAddress1 !== 'string') {
+                    // Takes only the first output for simplicity reasons
+                    outputChannelAddress1 = outputChannelAddress1[0];
+                }
+                let outputChannelAddress2: string | string[] = config.getComponentProperties(w2.componentId)['outputChannelAddress'];
+                if (typeof outputChannelAddress2 !== 'string') {
+                    // Takes only the first output for simplicity reasons
+                    outputChannelAddress2 = outputChannelAddress2[0];
+                }
+                if (outputChannelAddress1 && outputChannelAddress2) {
+                    return outputChannelAddress1.localeCompare(outputChannelAddress2);
+                }
             }
 
             return w1.componentId.localeCompare(w1.componentId);
