@@ -1,8 +1,8 @@
-import { ChannelAddress, CurrentData, Utils } from '../../../../shared/shared';
 import { Component } from '@angular/core';
-import { Controller_Io_ChannelSingleThresholdModalComponent } from './modal/modal.component';
-import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
 import { Icon } from 'src/app/shared/type/widget';
+import { ChannelAddress, CurrentData, Utils } from '../../../../shared/shared';
+import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
+import { Controller_Io_ChannelSingleThresholdModalComponent } from './modal/modal.component';
 
 @Component({
   selector: 'Controller_Io_ChannelSingleThresholdComponent',
@@ -30,8 +30,13 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
   public switchConverter = Utils.CONVERT_WATT_TO_KILOWATT;
 
   protected getChannelAddresses() {
-    this.outputChannel = ChannelAddress.fromString(
-      this.component.properties['outputChannelAddress']);
+    let outputChannelAddress: string | string[] = this.component.properties['outputChannelAddress'];
+    if (typeof outputChannelAddress === 'string') {
+      this.outputChannel = ChannelAddress.fromString(outputChannelAddress);
+    } else {
+      // Takes only the first output for simplicity reasons
+      this.outputChannel = ChannelAddress.fromString(outputChannelAddress[0]);
+    }
     this.inputChannel = ChannelAddress.fromString(
       this.component.properties['inputChannelAddress']);
     return [
