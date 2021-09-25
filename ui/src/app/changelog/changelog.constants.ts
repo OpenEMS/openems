@@ -46,12 +46,13 @@ export class Product {
     public static readonly ALL_EVCS = [Product.FEMS_KEBA, Product.FEMS_HARDY_BARTH];
 
     public static readonly FEMS_NETZDIENLICHE_BELADUNG = new Product('FEMS-App Netzdienliche Beladung', 'https://fenecon.de/fems-2-2/fems-app-netzdienliche-beladung/');
-    public static readonly FEMS_MODBUS_TCP_API = new Product('FEMS App Modbus/TCP-Api', 'https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_modbustcp_api_lesend');
-    public static readonly FEMS_REST_JSON_API = new Product('FEMS App REST/JSON-Api', 'https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_restjson_api_lesend');
+    public static readonly FEMS_MODBUS_TCP_API = new Product('FEMS-App Modbus/TCP-Api', 'https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_modbustcp_api_lesend');
+    public static readonly FEMS_REST_JSON_API = new Product('FEMS-App REST/JSON-Api', 'https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_restjson_api_lesend');
     public static readonly FEMS_PV_KACO = new Product('FEMS-App KACO PV-Wechselrichter', 'https://fenecon.de/fems-2-2/fems-app-kaco-pv-wechselrichter/');
     public static readonly FEMS_PV_SMA = new Product('FEMS-App SMA PV-Wechselrichter', 'https://fenecon.de/fems-2-2/fems-app-sma-pv-wechselrichter/');
     public static readonly FEMS_JANITZA_ZAEHLER = new Product('FEMS-App Janitza Zähler', 'https://fenecon.de/fems-2-2/fems-app-janitza-zaehler-2/');
     public static readonly FEMS_HEIZSTAB = new Product('FEMS-App Heizstab', 'https://fenecon.de/fems-2-2/fems-app-heizstab-6-kw/');
+    public static readonly FEMS_SCHWELLWERT_STEUERUNG = new Product('FEMS-App Schwellwertsteuerung', 'https://fenecon.de/fems-2-2/fems-app-schwellwert-steuerung/');
 
     // Industrial
     public static readonly INDUSTRIAL = new Product('FENECON Industrial-Serie', 'https://fenecon.de/industrial/');
