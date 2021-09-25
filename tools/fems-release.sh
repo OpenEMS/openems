@@ -26,6 +26,7 @@ echo "# Releasing version $version"
 echo "# Update Changelog!"
 echo "#"
 read -p ""
+git add .
 git commit --no-edit -m "Update Changelog for $version"
 
 git flow release start "$version"
