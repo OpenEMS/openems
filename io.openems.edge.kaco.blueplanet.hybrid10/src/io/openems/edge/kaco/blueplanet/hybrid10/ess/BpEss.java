@@ -23,7 +23,10 @@ public interface BpEss extends OpenemsComponent {
 		POWER_MANAGEMENT_CONFIGURATION(Doc.of(PowerManagementConfiguration.values())), //
 
 		EXTERNAL_CONTROL_FAULT(Doc.of(Level.FAULT) //
-				.text("Inverter is not configured for External EMS")) //
+				.text("Inverter is not configured for External EMS")), //
+
+		NO_GRID_METER_DETECTED(Doc.of(Level.WARNING) //
+				.text("No hy-switch Grid-Meter detected. Read-Only mode can not work correctly"));
 		;
 
 		private final Doc doc;
@@ -64,6 +67,25 @@ public interface BpEss extends OpenemsComponent {
 	 */
 	public default void _setExternalControlFault(boolean value) {
 		this.getExternalControlFaultChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#NO_GRID_METER_DETECTED}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getNoGridMeterDetectedChannel() {
+		return this.channel(ChannelId.NO_GRID_METER_DETECTED);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#NO_GRID_METER_DETECTED} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setNoGridMeterDetected(boolean value) {
+		this.getNoGridMeterDetectedChannel().setNextValue(value);
 	}
 
 }
