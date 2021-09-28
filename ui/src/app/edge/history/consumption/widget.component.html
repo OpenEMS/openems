@@ -40,7 +40,8 @@
                         </ng-container>
                     </ng-container>
                 </ng-container>
-                <tr *ngIf="(evcsComponents.length != 0 || consumptionMeterComponents.length != 0)">
+                <tr *ngIf="(evcsComponents.length != 0 || consumptionMeterComponents.length != 0)"
+                    style="border-top: 1px solid lightgray;">
                     <td style="width:65%" translate>General.otherConsumption</td>
                     <td style="width:35%" class="align_right">
                         {{ totalOtherEnergy ?? 0 | unitvalue:'kWh' }}
