@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
-import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/Generic_Components/flat/abstract-flat-widget';
 import { Controller_Ess_FixActivePowerModalComponent } from './modal/modal.component';
 
 @Component({

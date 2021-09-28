@@ -315,7 +315,7 @@ export class ConfigurationExecuteComponent implements OnInit {
         this.componentConfigurator.add({
           factoryId: "GoodWe.EmergencyPowerMeter",
           componentId: "meter2",
-          alias: "Notstromzähler",
+          alias: "Notstromverbraucher",
           properties: [
             { name: "enabled", value: true },
             { name: "modbus.id", value: "modbus1" },

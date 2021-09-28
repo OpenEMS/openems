@@ -117,7 +117,7 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 		// Set Max-Apparent-Power
 		timedata.getLatestValue(new ChannelAddress(config.id(), SymmetricEss.ChannelId.MAX_APPARENT_POWER.id()))
 				.thenAccept(latestValue -> {
-					Integer lastMaxApparentPower = TypeUtils.getAsType(OpenemsType.INTEGER, latestValue.get());
+					Integer lastMaxApparentPower = TypeUtils.getAsType(OpenemsType.INTEGER, latestValue);
 					if (lastMaxApparentPower != null
 							&& lastMaxApparentPower != 10_000 /* throw away value that was previously fixed */ ) {
 						this._setMaxApparentPower(lastMaxApparentPower);
@@ -303,13 +303,17 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
-		if (this.config.readOnly()) {
+		Status status = this.core.getStatusData();
+		Settings settings = this.core.getSettings();
+		if (status == null || settings == null) {
 			return;
 		}
 
-		Settings settings = this.core.getSettings();
-		if (settings == null) {
-			return;
+		// Detect if hy-switch Grid-Meter is available for Read-Only mode
+		if (this.config.readOnly() && status.getVectisConfig() == 0 /* VECTIS disabled */) {
+			this._setNoGridMeterDetected(true);
+		} else {
+			this._setNoGridMeterDetected(false);
 		}
 
 		Instant now = Instant.now();
@@ -319,14 +323,18 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 			return;
 		}
 
-		if (activePower == 0) {
+		if (this.config.readOnly()) {
+			activePower = 0;
+			// read-only: activates 'compensator normal operation'
+			settings.setPacSetPoint(0);
+
+		} else if (activePower == 0) {
 			// avoid setting active power to zero, because this activates 'compensator
 			// normal operation'
 			settings.setPacSetPoint(0.0001f);
 
 		} else {
 			// apply power
-			this.logInfo(this.log, "Apply new Active Power [" + activePower + " W].");
 			settings.setPacSetPoint(activePower);
 		}
 

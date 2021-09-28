@@ -2,7 +2,7 @@ import { BehaviorSubject } from 'rxjs';
 import { ChannelAddress, CurrentData, EdgeConfig } from '../../../../shared/shared';
 import { Component } from '@angular/core';
 import { Controller_Io_HeatpumpModalComponent } from './modal/modal.component';
-import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/Generic_Components/flat/abstract-flat-widget';
 
 @Component({
   selector: 'Controller_Io_Heatpump',

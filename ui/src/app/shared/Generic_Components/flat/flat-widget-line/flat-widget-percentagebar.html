@@ -4,9 +4,9 @@
         ngClass="primary-color" />
     <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" style="font-weight: 500"
         ngClass="secondary-color">
-        <ng-container *ngIf="displayValue != null, else noValue">
-            {{ displayValue | number:'1.0-0' }}&nbsp;%
+        <ng-container>
+            {{displayValue |unitvalue: '%' }}
         </ng-container>
-        <ng-template #noValue>-</ng-template>
     </text>
+    <ng-content></ng-content>
 </svg>

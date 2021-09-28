@@ -8,15 +8,18 @@ public class NoLimitHandler extends StateHandler<State, Context> {
 
 	@Override
 	protected State runAndGetNextState(Context context) throws OpenemsNamedException {
-		// set target power
-		context.setTargetPower(context.maxApparentPower);
+		if (context.soc != null && context.maxApparentPower != null) {
+			// set target power
+			context.setTargetPower(context.maxApparentPower);
+			context.setRampPower(context.maxApparentPower * 0.01);
 
-		int reserveSoc = context.reserveSoc;
-		Integer soc = context.soc;
+			int reserveSoc = context.reserveSoc;
+			Integer soc = context.soc;
 
-		// SoC is just above reserveSoC
-		if (soc != null && soc <= reserveSoc + 1) {
-			return State.ABOVE_RESERVE_SOC;
+			// SoC is just above reserveSoC
+			if (soc <= reserveSoc + 1) {
+				return State.ABOVE_RESERVE_SOC;
+			}
 		}
 
 		return State.NO_LIMIT;

@@ -2,6 +2,7 @@ package io.openems.edge.controller.ess.emergencycapacityreserve;
 
 import org.junit.Test;
 
+import io.openems.common.function.ThrowingRunnable;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -212,10 +213,10 @@ public class EmergencyCapacityReserveImplTest {
 						.input(ESS_SOC, 80) //
 						.input(ESS_MAX_APPARENT_POWER, 10000) //
 						.output(STATE_MACHINE, State.NO_LIMIT) //
-						.output(SET_ACTIVE_POWER_LESS_OR_EQUALS, 10000) //
-						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 10000) //
+						.output(SET_ACTIVE_POWER_LESS_OR_EQUALS, null) //
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, null) //
 						.output(DEBUG_TARGET_POWER, 10000f) //
-						.output(DEBUG_RAMP_POWER, 0f));
+						.output(DEBUG_RAMP_POWER, 100f));
 	}
 
 	@Test
@@ -238,8 +239,8 @@ public class EmergencyCapacityReserveImplTest {
 				.next(new TestCase() //
 						.input(ESS_SOC, 21) //
 						.output(STATE_MACHINE, State.NO_LIMIT)//
-						.output(SET_ACTIVE_POWER_LESS_OR_EQUALS, 10000) //
-						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 10000)) //
+						.output(SET_ACTIVE_POWER_LESS_OR_EQUALS, null) //
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, null)) //
 
 				// to reach 50% of maxApparentPower
 				.next(new TestCase() //
@@ -305,8 +306,8 @@ public class EmergencyCapacityReserveImplTest {
 				.next(new TestCase() //
 						.input(ESS_SOC, 20) //
 						.output(STATE_MACHINE, State.NO_LIMIT)//
-						.output(SET_ACTIVE_POWER_LESS_OR_EQUALS, 10000)//
-						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 10000)) //
+						.output(SET_ACTIVE_POWER_LESS_OR_EQUALS, null)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, null)) //
 				.next(new TestCase() //
 						.input(ESS_SOC, 20) //
 						.output(STATE_MACHINE, State.ABOVE_RESERVE_SOC)//
@@ -348,8 +349,8 @@ public class EmergencyCapacityReserveImplTest {
 				.next(new TestCase() //
 						.input(ESS_SOC, 19) //
 						.output(STATE_MACHINE, State.NO_LIMIT)//
-						.output(SET_ACTIVE_POWER_LESS_OR_EQUALS, 10000)//
-						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 10000)) //
+						.output(SET_ACTIVE_POWER_LESS_OR_EQUALS, null)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, null)) //
 				.next(new TestCase() //
 						.input(ESS_SOC, 19) //
 						.output(STATE_MACHINE, State.ABOVE_RESERVE_SOC)//
@@ -395,8 +396,8 @@ public class EmergencyCapacityReserveImplTest {
 				.next(new TestCase() //
 						.input(ESS_SOC, 16) //
 						.output(STATE_MACHINE, State.NO_LIMIT)//
-						.output(SET_ACTIVE_POWER_LESS_OR_EQUALS, 10000)//
-						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 10000)) //
+						.output(SET_ACTIVE_POWER_LESS_OR_EQUALS, null)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, null)) //
 				.next(new TestCase() //
 						.input(ESS_SOC, 16) //
 						.output(STATE_MACHINE, State.ABOVE_RESERVE_SOC)//
@@ -441,6 +442,42 @@ public class EmergencyCapacityReserveImplTest {
 
 	@Test
 	public void testUndefinedSoc() throws Exception {
+		// Sleep between every TestCase to make sure that the Channel Values are added
+		// to the pastValues Map. This is required because the Channel Value timestamp
+		// does not consider the mocked Clock.
+		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(10);
+
+		new ControllerTest(new EmergencyCapacityReserveImpl()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("sum", new DummySum()) //
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
+						.withMaxApparentPower(10000)) //
+				.activate(MyConfig.create() //
+						.setId(CTRL_ID) //
+						.setEssId(ESS_ID) //
+						.setReserveSoc(20) //
+						.setReserveSocEnabled(true) //
+						.build()) //
+				.next(new TestCase() //
+						.onAfterProcessImage(sleep) //
+						.output(STATE_MACHINE, State.NO_LIMIT)) //
+				.next(new TestCase() //
+						.onAfterProcessImage(sleep) //
+						.input(ESS_SOC, 16)) //
+				.next(new TestCase() //
+						.onAfterProcessImage(sleep) //
+						.output(STATE_MACHINE, State.ABOVE_RESERVE_SOC))//
+				.next(new TestCase() //
+						.onAfterProcessImage(sleep) //
+						.input(ESS_SOC, null)) //
+				.next(new TestCase() //
+						.onAfterProcessImage(sleep) //
+						.output(STATE_MACHINE, State.BELOW_RESERVE_SOC));
+	}
+
+	@Test
+	public void testIncreaseRampToMaxApparentPower() throws Exception {
 		new ControllerTest(new EmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -456,13 +493,51 @@ public class EmergencyCapacityReserveImplTest {
 				.next(new TestCase() //
 						.output(STATE_MACHINE, State.NO_LIMIT)) //
 				.next(new TestCase() //
-						.input(ESS_SOC, 16)) //
+						.input(ESS_SOC, 21)) //
 				.next(new TestCase() //
-						.output(STATE_MACHINE, State.ABOVE_RESERVE_SOC))//
+						.output(STATE_MACHINE, State.ABOVE_RESERVE_SOC) //
+						.output(DEBUG_TARGET_POWER, 5000f) //
+						.output(DEBUG_RAMP_POWER, 100f) //
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9900)) //
 				.next(new TestCase() //
-						.input(ESS_SOC, null)) //
+						.output(STATE_MACHINE, State.ABOVE_RESERVE_SOC) //
+						.output(DEBUG_TARGET_POWER, 5000f) //
+						.output(DEBUG_RAMP_POWER, 100f) //
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9800)) //
 				.next(new TestCase() //
-						.output(STATE_MACHINE, State.NO_LIMIT));
+						.output(STATE_MACHINE, State.ABOVE_RESERVE_SOC) //
+						.output(DEBUG_TARGET_POWER, 5000f) //
+						.output(DEBUG_RAMP_POWER, 100f) //
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9700)) //
+				.next(new TestCase() //
+						.input(ESS_SOC, 22)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, State.NO_LIMIT) //
+						.output(DEBUG_TARGET_POWER, 10000f) //
+						.output(DEBUG_RAMP_POWER, 100f) //
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9700)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, State.NO_LIMIT) //
+						.output(DEBUG_TARGET_POWER, 10000f) //
+						.output(DEBUG_RAMP_POWER, 100f) //
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9800)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, State.NO_LIMIT) //
+						.output(DEBUG_TARGET_POWER, 10000f) //
+						.output(DEBUG_RAMP_POWER, 100f) //
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9900)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, State.NO_LIMIT) //
+						.output(DEBUG_TARGET_POWER, 10000f) //
+						.output(DEBUG_RAMP_POWER, 100f) //
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, null) //
+						.output(SET_ACTIVE_POWER_LESS_OR_EQUALS, null)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, State.NO_LIMIT) //
+						.output(DEBUG_TARGET_POWER, 10000f) //
+						.output(DEBUG_RAMP_POWER, 100f) //
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, null) //
+						.output(SET_ACTIVE_POWER_LESS_OR_EQUALS, null));
 	}
 
 }
