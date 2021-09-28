@@ -35,6 +35,17 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2021.16.3',
+        changes: [
+          Changelog.UI,
+          Changelog.product(Product.FEMS_AWATTAR) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.product(Product.PRO_HYBRID_10) + "Verbesserung der Fehleranalyse für die interne Eigenverbrauchsoptimierung",
+          Changelog.product(Product.FEMS_SCHWELLWERT_STEUERUNG) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.product(Product.FEMS_REST_JSON_API) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.product(Product.HOME) + "Verbesserungen an der Notstromfunktion",
+        ]
+      },
+      {
         version: '2021.16.2',
         changes: [
           Changelog.product(Product.FEMS_SCHWELLWERT_STEUERUNG) + "Parallele Ansteuerung mehrerer Relaisausgänge",
@@ -45,13 +56,14 @@ export class ChangelogComponent {
         changes: [
           Changelog.openems('2021.16.0'),
           Changelog.UI,
-          Changelog.product(Product.HOME) + "Verbesserungen an der Notstromfunktion: Algorithmus zur Vorhaltung einer Notstromreserve; einstellbar via IBN-Assistent oder über das Widget 'Stromspeicher' im Online-Monitoring",
+          Changelog.product(Product.HOME) + "Verbesserungen an der Notstromfunktion: Algorithmus zur Vorhaltung einer Notstromreserve; einstellbar via IBN-Assistent oder über das Widget 'Speichersystem' im Online-Monitoring",
           Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + "Verbesserung der Fehlermeldung bei Kommunikationsabbruch (Cluster Version B)",
           Changelog.library(Library.GRADLE),
           Changelog.product(Product.FEMS_NETZDIENLICHE_BELADUNG) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.product(Product.HOME) + "Fehlerbehebung bei der Start-Prozedur",
           { roleIsAtLeast: Role.ADMIN, change: "Die 'openems.jar'-Datei für jeden Branch wird jetzt automatisch bei jedem 'push' gebaut. Download unter 'https://dev.intranet.fenecon.de/{branch}/openems.jar'" },
           { roleIsAtLeast: Role.ADMIN, change: "Mit einer Konfigurationseinstellungen in der 'Sum'-Komponente können jetzt Warnungen und Fehler des Gesamtsystems ignoriert/ausgeblendet werden" },
+          { roleIsAtLeast: Role.ADMIN, change: "Der Debug-Log-Controller kann so konfiguriert werden, dass er auch den Alias mit ausgibt" },
         ]
       },
       {
