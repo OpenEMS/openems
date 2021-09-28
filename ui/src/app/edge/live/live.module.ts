@@ -1,6 +1,10 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FlatWidgetHorizontalLine } from 'src/app/shared/Generic_Components/flat/flat-widget-line/flat-widget-horizontal-line';
+import { FlatWidgetLine } from 'src/app/shared/Generic_Components/flat/flat-widget-line/flat-widget-line';
+import { FlatWidgetPercentagebar } from 'src/app/shared/Generic_Components/flat/flat-widget-line/flat-widget-percentagebar';
+import { FlatWidgetComponent } from 'src/app/shared/Generic_Components/flat/flat-widget.component';
 import { SharedModule } from './../../shared/shared.module';
 import { AdvertisementModule } from './advertisement/advertisement.module';
 import { AutarchyComponent } from './common/autarchy/autarchy.component';
@@ -39,10 +43,6 @@ import { Controller_Symmetric_TimeSlot_PeakShavingComponent } from './Controller
 import { DelayedSellToGridComponent } from './delayedselltogrid/delayedselltogrid.component';
 import { DelayedSellToGridModalComponent } from './delayedselltogrid/modal/modal.component';
 import { EnergymonitorModule } from './energymonitor/energymonitor.module';
-import { FlatWidgetHorizontalLine } from './flat/flat-widget-line/flat-widget-horizontal-line';
-import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
-import { FlatWidgetPercentagebar } from './flat/flat-widget-line/flat-widget-percentagebar';
-import { FlatWidgetComponent } from './flat/flat-widget.component';
 import { GridOptimizedChargeComponent } from './gridoptimizedcharge/gridoptimizedcharge.component';
 import { GridOptimizedChargeModalComponent } from './gridoptimizedcharge/modal/modal.component';
 import { PredictionChartComponent } from './gridoptimizedcharge/modal/predictionChart';

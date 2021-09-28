@@ -1,7 +1,7 @@
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../../shared/shared';
 import { Component } from '@angular/core';
 import { Evcs_Api_ClusterModalComponent } from './modal/evcsCluster-modal.page';
-import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/Generic_Components/flat/abstract-flat-widget';
 
 @Component({
   selector: 'Evcs_Api_Cluster',
