@@ -1,4 +1,4 @@
-package io.openems.edge.ess.generic.symmetric;
+package io.openems.edge.ess.generic.offgrid;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -10,21 +10,22 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
+import io.openems.edge.batteryinverter.api.OffGridBatteryInverter;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.HybridEss;
@@ -32,27 +33,37 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.AbstractGenericManagedEss;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
-import io.openems.edge.ess.generic.symmetric.statemachine.Context;
-import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine;
-import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
+import io.openems.edge.ess.generic.offgrid.statemachine.Context;
+import io.openems.edge.ess.generic.offgrid.statemachine.StateMachine;
+import io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState;
+import io.openems.edge.ess.generic.symmetric.ChannelManager;
+import io.openems.edge.ess.generic.symmetric.GenericManagedSymmetricEss;
 import io.openems.edge.ess.offgrid.api.OffGridEss;
+import io.openems.edge.ess.offgrid.api.OffGridSwitch;
 import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Ess.Generic.ManagedSymmetric", //
+		name = "Ess.Generic.OffGridEss", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		} //
 )
-public class GenericManagedSymmetricEssImpl
-		extends AbstractGenericManagedEss<GenericManagedSymmetricEss, Battery, ManagedSymmetricBatteryInverter>
-		implements GenericManagedSymmetricEss, GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
-		OffGridEss, OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
-	private final Logger log = LoggerFactory.getLogger(AbstractGenericManagedEss.class);
+public class GenericOffGridEssImpl
+		extends AbstractGenericManagedEss<GenericManagedSymmetricEss, Battery, ManagedSymmetricBatteryInverter>
+		implements GenericManagedSymmetricEss, OffGridEss, GenericManagedEss, ManagedSymmetricEss, SymmetricEss,
+		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
+
+	private final Logger log = LoggerFactory.getLogger(GenericOffGridEssImpl.class);
+
+	/**
+	 * Manages the {@link OffGridState}s of the StateMachine.
+	 */
+	private final StateMachine stateMachine = new StateMachine(OffGridState.UNDEFINED);
+	private final ChannelManager channelManager = new ChannelManager(this);
 
 	@Reference
 	private Power power;
@@ -64,19 +75,15 @@ public class GenericManagedSymmetricEssImpl
 	private ComponentManager componentManager;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private ManagedSymmetricBatteryInverter batteryInverter;
+	private OffGridBatteryInverter batteryInverter;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private Battery battery;
 
-	/**
-	 * Manages the {@link State}s of the StateMachine.
-	 */
-	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	private OffGridSwitch offGridSwitch;
 
-	private final ChannelManager channelManager = new ChannelManager(this);
-
-	public GenericManagedSymmetricEssImpl() {
+	public GenericOffGridEssImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
@@ -84,61 +91,69 @@ public class GenericManagedSymmetricEssImpl
 				ManagedSymmetricEss.ChannelId.values(), //
 				GenericManagedEss.ChannelId.values(), //
 				HybridEss.ChannelId.values(), //
-				GenericManagedSymmetricEss.ChannelId.values() //
+				GenericOffGridEss.ChannelId.values() //
 		);
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), this.cm, config.batteryInverter_id(),
 				config.battery_id(), config.startStop());
+
+		// update filter for 'Off Grid Switch'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "offGridSwitch",
+				config.offGridSwitch_id())) {
+			return;
+		}
 	}
 
 	@Deactivate
 	protected void deactivate() {
+		this.getChannelManager().deactivate();
 		super.deactivate();
 	}
 
 	@Override
 	protected void handleStateMachine() {
 		// Store the current State
-		this.channel(GenericManagedSymmetricEss.ChannelId.STATE_MACHINE)
-				.setNextValue(this.stateMachine.getCurrentState());
+		this.channel(GenericOffGridEss.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
 
 		// Initialize 'Start-Stop' Channel
 		this._setStartStop(StartStop.UNDEFINED);
 
+		// TODO check if grid switched -> then force next state;
+		// tell to GridSwitch-State via Context, that grid switched and handle the logic
+		// that is currently in StartedInOffGrid
+
 		// Prepare Context
-		Context context = new Context(this, this.getBattery(), this.getBatteryInverter());
+		Context context = new Context(this, this.getBattery(), this.getBatteryInverter(), this.getOffGridSwitch());
 
 		// Call the StateMachine
 		try {
 			this.stateMachine.run(context);
 
-			this.channel(GenericManagedSymmetricEss.ChannelId.RUN_FAILED).setNextValue(false);
-
+			this.channel(GenericOffGridEss.ChannelId.RUN_FAILED).setNextValue(false);
 		} catch (OpenemsNamedException e) {
-			this.channel(GenericManagedSymmetricEss.ChannelId.RUN_FAILED).setNextValue(true);
+			this.channel(GenericOffGridEss.ChannelId.RUN_FAILED).setNextValue(true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
 	}
 
 	@Override
-	public void handleEvent(Event event) {
-		super.handleEvent(event);
-	}
-
-	@Override
 	public String debugLog() {
 		return super.genericDebugLog() //
-				.append("|")
-				.append(this.channel(GenericManagedSymmetricEss.ChannelId.STATE_MACHINE).value().asOptionString()) //
+				.append("|").append(this.channel(GenericOffGridEss.ChannelId.STATE_MACHINE).value().asOptionString()) //
+				.append("|").append(this.getGridModeChannel().value().asOptionString()) //
 				.toString();
 	}
 
 	@Override
-	public Power getPower() {
-		return this.power;
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
+		);
 	}
 
 	@Override
@@ -152,17 +167,8 @@ public class GenericManagedSymmetricEssImpl
 	}
 
 	@Override
-	protected ManagedSymmetricBatteryInverter getBatteryInverter() {
+	protected OffGridBatteryInverter getBatteryInverter() {
 		return this.batteryInverter;
-	}
-
-	@Override
-	public Integer getSurplusPower() {
-		if (this.batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
-			return ((HybridManagedSymmetricBatteryInverter) this.batteryInverter).getSurplusPower();
-		} else {
-			return null;
-		}
 	}
 
 	@Override
@@ -170,17 +176,20 @@ public class GenericManagedSymmetricEssImpl
 		return this.componentManager;
 	}
 
+	protected OffGridSwitch getOffGridSwitch() {
+		return this.offGridSwitch;
+	}
+
 	@Override
-	public boolean isManaged() {
-		return this.batteryInverter.isManaged();
+	public Power getPower() {
+		return this.power;
 	}
 
 	@Override
 	public void setStartStop(StartStop value) {
 		if (this.startStopTarget.getAndSet(value) != value) {
 			// Set only if value changed
-			this.stateMachine.forceNextState(State.UNDEFINED);
+			this.stateMachine.forceNextState(OffGridState.UNDEFINED);
 		}
 	}
-
 }

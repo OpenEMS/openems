@@ -1,14 +1,15 @@
-package io.openems.edge.ess.generic.symmetric.statemachine;
+package io.openems.edge.ess.generic.offgrid.statemachine;
 
 import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
-import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
+import io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState;
 
-public class StartBatteryHandler extends StateHandler<State, Context> {
+public class StartBatteryInOnGridHandler extends StateHandler<OffGridState, Context> {
 
 	private Instant lastAttempt = Instant.MIN;
 	private int attemptCounter = 0;
@@ -22,11 +23,12 @@ public class StartBatteryHandler extends StateHandler<State, Context> {
 	}
 
 	@Override
-	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		GenericManagedEss ess = context.getParent();
+	public OffGridState runAndGetNextState(Context context) throws OpenemsNamedException {
+		final GenericManagedEss ess = context.getParent();
+		final Battery battery = context.battery;
 
-		if (context.battery.isStarted()) {
-			return State.START_BATTERY_INVERTER;
+		if (battery.isStarted()) {
+			return OffGridState.START_BATTERY_INVERTER_IN_ON_GRID;
 		}
 
 		boolean isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
@@ -37,21 +39,20 @@ public class StartBatteryHandler extends StateHandler<State, Context> {
 			if (this.attemptCounter > GenericManagedEss.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
 				ess._setMaxBatteryStartAttemptsFault(true);
-				return State.UNDEFINED;
+				return OffGridState.UNDEFINED;
 
 			} else {
 				// Trying to start Battery
-				context.battery.start();
+				battery.start();
 
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
-				return State.START_BATTERY;
-
+				return OffGridState.START_BATTERY_IN_ON_GRID;
 			}
 
 		} else {
 			// Still waiting...
-			return State.START_BATTERY;
+			return OffGridState.START_BATTERY_IN_ON_GRID;
 		}
 	}
 

@@ -43,6 +43,7 @@ import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
+import io.openems.edge.goodwe.common.enums.BackupEnable;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
@@ -162,8 +163,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 		// Backup Power on / off
 		this.writeToChannel(GoodWe.ChannelId.BACK_UP_ENABLE, config.backupEnable());
-		
-		//Should be updated according to backup power
+
+		// Should be updated according to backup power
 		this.writeToChannel(GoodWe.ChannelId.AUTO_START_BACKUP, config.backupEnable());
 
 		// Feed-in limitation on / off
@@ -343,9 +344,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	}
 
 	private static Integer preprocessAmpereValue47900(Value<Integer> v) {
-		Integer value = v.get();
-		value = TypeUtils.fitWithin(0, MAX_DC_CURRENT, value);
-		return value;
+		return TypeUtils.fitWithin(0, MAX_DC_CURRENT, v.orElse(0));
 	}
 
 	private void writeToChannel(GoodWe.ChannelId channelId, OptionsEnum value)
@@ -438,6 +437,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	@Override
 	public boolean isManaged() {
 		return !this.config.controlMode().equals(ControlMode.INTERNAL);
+	}
+
+	@Override
+	public boolean isOffGridPossible() {
+		return this.config.backupEnable().equals(BackupEnable.ENABLE);
 	}
 
 }

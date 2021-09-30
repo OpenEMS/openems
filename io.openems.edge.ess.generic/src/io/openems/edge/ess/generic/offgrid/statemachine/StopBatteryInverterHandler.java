@@ -1,14 +1,15 @@
-package io.openems.edge.ess.generic.symmetric.statemachine;
+package io.openems.edge.ess.generic.offgrid.statemachine;
 
 import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.batteryinverter.api.OffGridBatteryInverter;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
-import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
+import io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState;
 
-public class StartBatteryHandler extends StateHandler<State, Context> {
+public class StopBatteryInverterHandler extends StateHandler<OffGridState, Context> {
 
 	private Instant lastAttempt = Instant.MIN;
 	private int attemptCounter = 0;
@@ -18,15 +19,16 @@ public class StartBatteryHandler extends StateHandler<State, Context> {
 		this.lastAttempt = Instant.MIN;
 		this.attemptCounter = 0;
 		GenericManagedEss ess = context.getParent();
-		ess._setMaxBatteryStartAttemptsFault(false);
+		ess._setMaxBatteryInverterStopAttemptsFault(false);
 	}
 
 	@Override
-	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		GenericManagedEss ess = context.getParent();
+	public OffGridState runAndGetNextState(Context context) throws OpenemsNamedException {
+		final GenericManagedEss ess = context.getParent();
+		final OffGridBatteryInverter inverter = context.batteryInverter;
 
-		if (context.battery.isStarted()) {
-			return State.START_BATTERY_INVERTER;
+		if (inverter.isStopped()) {
+			return OffGridState.STOP_BATTERY;
 		}
 
 		boolean isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
@@ -36,22 +38,22 @@ public class StartBatteryHandler extends StateHandler<State, Context> {
 
 			if (this.attemptCounter > GenericManagedEss.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				ess._setMaxBatteryStartAttemptsFault(true);
-				return State.UNDEFINED;
+				ess._setMaxBatteryInverterStopAttemptsFault(true);
+				return OffGridState.UNDEFINED;
 
 			} else {
-				// Trying to start Battery
-				context.battery.start();
+				// Trying to stop Battery Inverter
+				inverter.stop();
 
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
-				return State.START_BATTERY;
+				return OffGridState.STOP_BATTERY_INVERTER;
 
 			}
 
 		} else {
 			// Still waiting...
-			return State.START_BATTERY;
+			return OffGridState.STOP_BATTERY_INVERTER;
 		}
 	}
 
