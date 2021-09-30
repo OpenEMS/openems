@@ -23,7 +23,7 @@ import io.openems.common.worker.AbstractCycleWorker;
  * <p>
  * See https://shelly-api-docs.shelly.cloud
  */
-public class ShellyWorker extends AbstractCycleWorker {
+public class ShellyApi  {
 
 	private ShellyCore parent;
 	private final String baseUrl;
@@ -33,10 +33,11 @@ public class ShellyWorker extends AbstractCycleWorker {
 	private boolean valid;
 	JsonObject status;
 
-	public ShellyWorker(ShellyCore parent,String ip) {
+	public ShellyApi(ShellyCore parent,String ip) {
 		this.baseUrl = "http://" + ip;
 		this.parent = parent;
 		this.resetBaseValues();
+		this.commFailed = false;
 	}
 
 	/**
@@ -47,7 +48,6 @@ public class ShellyWorker extends AbstractCycleWorker {
 		this.numMeters = 0;
 		this.numRelays = 0;
 		this.shellyType = "Unknown";
-		this.commFailed = false;
 		this.valid = false;
 		
 		setParentBaseChannels();
@@ -97,22 +97,12 @@ public class ShellyWorker extends AbstractCycleWorker {
 			this.numEmeters = 0;
 		}
 
-		this.valid = true;
-		
-		setParentBaseChannels();
-		setParentDynChannels();
-				
+		this.valid = true;		
 		return true;
 	}
 
-	@Override 
-	public void activate(String name) {
-		super.activate(name);
-		this.readBaseValues();			
-	}
 
-	@Override
-	protected void forever() throws Throwable {
+	void iterate() {
 
 		if(!this.valid) {
 			if(!readBaseValues()) {
@@ -126,10 +116,7 @@ public class ShellyWorker extends AbstractCycleWorker {
 		} catch(OpenemsNamedException e) {
 			status = null;
 			this.commFailed = true;
-		}
-		
-		setParentDynChannels();
-		
+		}				
 	}
 
 	public boolean isValid() {
