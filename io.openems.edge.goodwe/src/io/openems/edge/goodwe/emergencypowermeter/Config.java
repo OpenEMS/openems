@@ -20,7 +20,7 @@ import io.openems.edge.goodwe.GoodWeConstants;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
-	String modbus_id() default "modbus0";
+	String modbus_id() default "modbus1";
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId() default GoodWeConstants.DEFAULT_UNIT_ID;
