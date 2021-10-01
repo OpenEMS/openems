@@ -35,6 +35,7 @@ import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
@@ -66,8 +67,8 @@ import io.openems.edge.common.type.TypeUtils;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		})
-public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
-		implements OpenemsComponent, Battery, EventHandler, ModbusSlave, StartStoppable, FeneconHomeBattery {
+public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent implements ModbusComponent, OpenemsComponent,
+		Battery, EventHandler, ModbusSlave, StartStoppable, FeneconHomeBattery {
 
 	private static final int SENSORS_PER_MODULE = 14;
 	private static final int MODULE_MIN_VOLTAGE = 42; // [V]
@@ -97,6 +98,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	public FeneconHomeBatteryImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				BatteryProtection.ChannelId.values(), //

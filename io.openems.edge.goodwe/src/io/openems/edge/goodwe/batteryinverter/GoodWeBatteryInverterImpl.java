@@ -25,6 +25,7 @@ import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -57,7 +58,7 @@ import io.openems.edge.timedata.api.Timedata;
 ) //
 public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		implements GoodWeBatteryInverter, GoodWe, HybridManagedSymmetricBatteryInverter,
-		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent {
+		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, ModbusComponent, OpenemsComponent {
 
 	private static final int MAX_DC_CURRENT = 25; // [A]
 
@@ -127,6 +128,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				HybridManagedSymmetricBatteryInverter.ChannelId.DC_CHARGE_ENERGY, //
 				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_ENERGY, //
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				SymmetricBatteryInverter.ChannelId.values(), //
 				ManagedSymmetricBatteryInverter.ChannelId.values(), //

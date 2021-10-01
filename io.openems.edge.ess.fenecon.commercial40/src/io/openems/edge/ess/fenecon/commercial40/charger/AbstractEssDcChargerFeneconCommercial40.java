@@ -6,6 +6,7 @@ import org.osgi.service.event.EventHandler;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -22,7 +23,8 @@ import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 public abstract class AbstractEssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusComponent
-		implements EssDcChargerFeneconCommercial40, EssDcCharger, OpenemsComponent, TimedataProvider, EventHandler {
+		implements EssDcChargerFeneconCommercial40, EssDcCharger, ModbusComponent, OpenemsComponent, TimedataProvider,
+		EventHandler {
 
 	private final CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(this,
 			EssDcCharger.ChannelId.ACTUAL_ENERGY);
@@ -37,6 +39,7 @@ public abstract class AbstractEssDcChargerFeneconCommercial40 extends AbstractOp
 	public AbstractEssDcChargerFeneconCommercial40() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				EssDcCharger.ChannelId.values(), //
 				EssDcChargerFeneconCommercial40.ChannelId.values() //
 		);

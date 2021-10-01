@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.ServerSocket;
 import java.net.URL;
 import java.util.Base64;
 
@@ -35,6 +34,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.test.DummyUserService;
+import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.timedata.test.DummyTimedata;
 
@@ -50,7 +50,7 @@ public class RestApiReadWriteImplTest {
 
 	@Test
 	public void test() throws OpenemsException, Exception {
-		final int port = findRandomOpenPortOnAllLocalInterfaces();
+		final int port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
 
 		RestApiReadWriteImpl sut = new RestApiReadWriteImpl();
 		ControllerTest test = new ControllerTest(sut) //
@@ -117,18 +117,6 @@ public class RestApiReadWriteImplTest {
 		}
 
 		sut.deactivate();
-	}
-
-	/**
-	 * Source https://stackoverflow.com/a/26644672
-	 * 
-	 * @return an open port
-	 * @throws IOException on error
-	 */
-	private static int findRandomOpenPortOnAllLocalInterfaces() throws IOException {
-		try (ServerSocket socket = new ServerSocket(0);) {
-			return socket.getLocalPort();
-		}
 	}
 
 	private static JsonElement sendGetRequest(int port, String password, String endpoint) throws OpenemsNamedException {

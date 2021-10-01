@@ -34,6 +34,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverterChain;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -69,7 +70,7 @@ import io.openems.edge.ess.power.api.Relationship;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 		}) //
 public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sinexcel, OffGridBatteryInverter,
-		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, StartStoppable {
+		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, ModbusComponent, OpenemsComponent, StartStoppable {
 
 	private final Logger log = LoggerFactory.getLogger(SinexcelImpl.class);
 
@@ -101,6 +102,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 	public SinexcelImpl() throws OpenemsNamedException {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricBatteryInverter.ChannelId.values(), //
 				ManagedSymmetricBatteryInverter.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
@@ -460,7 +462,8 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 								.bit(14, Sinexcel.ChannelId.STATE_14) //
 								.bit(15, Sinexcel.ChannelId.STATE_15))),
 
-				// Required in high priority during startup/stop phase or on change of target grid-mode
+				// Required in high priority during startup/stop phase or on change of target
+				// grid-mode
 				new FC3ReadRegistersTask(0x28A, Priority.HIGH, //
 						m(Sinexcel.ChannelId.SET_START_COMMAND, new UnsignedWordElement(0x28A)),
 						m(Sinexcel.ChannelId.SET_STOP_COMMAND, new UnsignedWordElement(0x28B)),
