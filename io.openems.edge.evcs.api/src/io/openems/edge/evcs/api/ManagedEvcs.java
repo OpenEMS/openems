@@ -107,13 +107,9 @@ public interface ManagedEvcs extends Evcs {
 							value = TypeUtils.fitWithin(evcs.getMinimumHardwarePower().orElse(0),
 									evcs.getMaximumHardwarePower().orElse(0), value);
 
-							if (value == null) {
-								return;
-							}
 							int currentPower = evcs.getChargePower().orElse(0);
 							float increaseRate = evcs.getEvcsPower().getIncreaseRate();
-							int result = rampFilter.getFilteredValueAsInteger(
-									currentPower, value.floatValue(),
+							int result = rampFilter.getFilteredValueAsInteger(currentPower, value.floatValue(),
 									evcs.getMaximumHardwarePower().orElse(22080), increaseRate);
 
 							evcs.setChargePowerLimit(result);

@@ -39,6 +39,7 @@ import io.openems.edge.battery.soltaro.common.enums.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
@@ -70,8 +71,8 @@ import io.openems.edge.common.taskmanager.Priority;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
-public class ClusterVersionB extends AbstractOpenemsModbusComponent
-		implements SoltaroCluster, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
+public class ClusterVersionB extends AbstractOpenemsModbusComponent implements SoltaroCluster, Battery, ModbusComponent,
+		OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	private static final int ADDRESS_OFFSET_RACK_1 = 0x2000;
 	private static final int ADDRESS_OFFSET_RACK_2 = 0x3000;
@@ -114,6 +115,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 	public ClusterVersionB() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				SoltaroCluster.ChannelId.values(), //

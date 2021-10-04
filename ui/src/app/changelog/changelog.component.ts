@@ -35,6 +35,17 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2021.16.4',
+        changes: [
+          Changelog.product(Product.COMMERCIAL_30) + "Umstellung der Software-Architektur",
+          {
+            roleIsAtLeast: Role.ADMIN, change: "Ab dieser Version muss der Sinexcel Wechselrichter als Battery-Inverter angelegt werden; "
+              + "je nach Anwendungsfall zusammen mit einem 'ESS Generic Off Grid' oder einem 'ESS Generic Managed Symmetric'"
+          },
+          Changelog.EDGE + "Fehlermeldung bei Modbus-Kommunikationsabbruch wird bei dem Gerät und nicht mehr bei der Modbus-Bridge angezeigt",
+        ]
+      },
+      {
         version: '2021.16.3',
         changes: [
           Changelog.UI,

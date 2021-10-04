@@ -33,6 +33,7 @@
 	bnd.identity;id='io.openems.edge.battery.fenecon.home',\
 	bnd.identity;id='io.openems.edge.batteryinverter.kaco.blueplanetgridsave',\
 	bnd.identity;id='io.openems.edge.batteryinverter.refu88k',\
+	bnd.identity;id='io.openems.edge.batteryinverter.sinexcel',\
 	bnd.identity;id='io.openems.edge.batteryinverter.sunspec',\
 	bnd.identity;id='io.openems.edge.battery.soltaro',\
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
@@ -95,7 +96,6 @@
 	bnd.identity;id='io.openems.edge.ess.fenecon.commercial40',\
 	bnd.identity;id='io.openems.edge.ess.generic',\
 	bnd.identity;id='io.openems.edge.ess.mr.gridcon',\
-	bnd.identity;id='io.openems.edge.ess.sinexcel',\
 	bnd.identity;id='io.openems.edge.ess.sma',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.core',\
@@ -164,6 +164,7 @@
 	io.openems.edge.batteryinverter.api;version=snapshot,\
 	io.openems.edge.batteryinverter.kaco.blueplanetgridsave;version=snapshot,\
 	io.openems.edge.batteryinverter.refu88k;version=snapshot,\
+	io.openems.edge.batteryinverter.sinexcel;version=snapshot,\
 	io.openems.edge.batteryinverter.sunspec;version=snapshot,\
 	io.openems.edge.bridge.modbus;version=snapshot,\
 	io.openems.edge.bridge.onewire;version=snapshot,\
@@ -227,7 +228,6 @@
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
 	io.openems.edge.ess.generic;version=snapshot,\
 	io.openems.edge.ess.mr.gridcon;version=snapshot,\
-	io.openems.edge.ess.sinexcel;version=snapshot,\
 	io.openems.edge.ess.sma;version=snapshot,\
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
@@ -245,6 +245,7 @@
 	io.openems.edge.goodwe;version=snapshot,\
 	io.openems.edge.io.api;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
+	io.openems.edge.io.offgridswitch;version=snapshot,\
 	io.openems.edge.io.revpi;version=snapshot,\
 	io.openems.edge.io.shelly;version=snapshot,\
 	io.openems.edge.io.wago;version=snapshot,\

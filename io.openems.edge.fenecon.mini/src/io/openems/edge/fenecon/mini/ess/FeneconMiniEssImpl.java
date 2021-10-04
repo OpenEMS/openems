@@ -28,6 +28,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ChannelMetaInfoReadAndWrite;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ElementToChannelOffsetConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -74,7 +75,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		})
 public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 		implements FeneconMiniEss, ManagedSinglePhaseEss, ManagedAsymmetricEss, ManagedSymmetricEss, SinglePhaseEss,
-		AsymmetricEss, SymmetricEss, OpenemsComponent, ModbusSlave, TimedataProvider, EventHandler {
+		AsymmetricEss, SymmetricEss, ModbusComponent, OpenemsComponent, ModbusSlave, TimedataProvider, EventHandler {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -108,6 +109,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	public FeneconMiniEssImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				AsymmetricEss.ChannelId.values(), //
 				SinglePhaseEss.ChannelId.values(), //

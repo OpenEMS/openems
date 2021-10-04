@@ -25,6 +25,7 @@ import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -43,6 +44,7 @@ import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
+import io.openems.edge.goodwe.common.enums.BackupEnable;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
@@ -56,7 +58,7 @@ import io.openems.edge.timedata.api.Timedata;
 ) //
 public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		implements GoodWeBatteryInverter, GoodWe, HybridManagedSymmetricBatteryInverter,
-		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent {
+		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, ModbusComponent, OpenemsComponent {
 
 	private static final int MAX_DC_CURRENT = 25; // [A]
 
@@ -126,6 +128,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				HybridManagedSymmetricBatteryInverter.ChannelId.DC_CHARGE_ENERGY, //
 				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_ENERGY, //
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				SymmetricBatteryInverter.ChannelId.values(), //
 				ManagedSymmetricBatteryInverter.ChannelId.values(), //
@@ -162,8 +165,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 		// Backup Power on / off
 		this.writeToChannel(GoodWe.ChannelId.BACK_UP_ENABLE, config.backupEnable());
-		
-		//Should be updated according to backup power
+
+		// Should be updated according to backup power
 		this.writeToChannel(GoodWe.ChannelId.AUTO_START_BACKUP, config.backupEnable());
 
 		// Feed-in limitation on / off
@@ -343,9 +346,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	}
 
 	private static Integer preprocessAmpereValue47900(Value<Integer> v) {
-		Integer value = v.get();
-		value = TypeUtils.fitWithin(0, MAX_DC_CURRENT, value);
-		return value;
+		return TypeUtils.fitWithin(0, MAX_DC_CURRENT, v.orElse(0));
 	}
 
 	private void writeToChannel(GoodWe.ChannelId channelId, OptionsEnum value)
@@ -438,6 +439,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	@Override
 	public boolean isManaged() {
 		return !this.config.controlMode().equals(ControlMode.INTERNAL);
+	}
+
+	@Override
+	public boolean isOffGridPossible() {
+		return this.config.backupEnable().equals(BackupEnable.ENABLE);
 	}
 
 }
