@@ -44,7 +44,7 @@ import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Ess.Generic.OffGridEss", //
+		name = "Ess.Generic.OffGrid", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
