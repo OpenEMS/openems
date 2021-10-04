@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import io.openems.backend.metadata.odoo.Field.EdgeDevice;
+import io.openems.backend.metadata.odoo.Field.Edge;
 import io.openems.common.channel.Level;
 
 public class UpdateSumState extends DatabaseTask {
@@ -39,9 +39,9 @@ public class UpdateSumState extends DatabaseTask {
 	 */
 	private PreparedStatement psUpdateSumState(Connection connection) throws SQLException {
 		return connection.prepareStatement(//
-				"UPDATE " + EdgeDevice.ODOO_TABLE //
+				"UPDATE " + Edge.ODOO_TABLE //
 						+ " SET" //
-						+ " " + EdgeDevice.OPENEMS_SUM_STATE.id() + " = ?" //
+						+ " " + Edge.OPENEMS_SUM_STATE.id() + " = ?" //
 						+ " WHERE id = ?");
 	}
 

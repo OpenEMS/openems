@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 
-import io.openems.backend.metadata.odoo.Field.EdgeDeviceStatus;
+import io.openems.backend.metadata.odoo.Field.EdgeStatus;
 import io.openems.common.channel.Level;
 import io.openems.common.types.ChannelAddress;
 
@@ -68,7 +68,7 @@ public class InsertOrUpdateDeviceStates extends DatabaseTask {
 	 */
 	private PreparedStatement psInsertOrUpdateDeviceState(Connection connection) throws SQLException {
 		return connection.prepareStatement(//
-				"INSERT INTO " + EdgeDeviceStatus.ODOO_TABLE //
+				"INSERT INTO " + EdgeStatus.ODOO_TABLE //
 						+ " (device_id, last_appearance, channel_address, level, component_id, channel_name)" //
 						+ " VALUES(?, ?, ?, ?, ?, ?)" //
 						+ "	ON CONFLICT (device_id, channel_address)" //

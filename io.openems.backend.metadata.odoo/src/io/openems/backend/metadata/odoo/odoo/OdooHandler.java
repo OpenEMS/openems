@@ -52,7 +52,7 @@ public class OdooHandler {
 	 */
 	public void writeEdge(MyEdge edge, FieldValue<?>... fieldValues) {
 		try {
-			OdooUtils.write(this.credentials, Field.EdgeDevice.ODOO_MODEL, new Integer[] { edge.getOdooId() },
+			OdooUtils.write(this.credentials, Field.Edge.ODOO_MODEL, new Integer[] { edge.getOdooId() },
 					fieldValues);
 		} catch (OpenemsException e) {
 			this.parent.logError(this.log, "Unable to update Edge [" + edge.getId() + "] " //
@@ -70,7 +70,7 @@ public class OdooHandler {
 	 */
 	public void addChatterMessage(MyEdge edge, String message) {
 		try {
-			OdooUtils.addChatterMessage(this.credentials, Field.EdgeDevice.ODOO_MODEL, edge.getOdooId(), message);
+			OdooUtils.addChatterMessage(this.credentials, Field.Edge.ODOO_MODEL, edge.getOdooId(), message);
 		} catch (OpenemsException e) {
 			this.parent.logError(this.log, "Unable to add Chatter Message to Edge [" + edge.getId() + "] " //
 					+ "Message [" + message + "]" //
@@ -85,18 +85,18 @@ public class OdooHandler {
 	 * @return Edge or empty {@link Optional}
 	 */
 	public Optional<String> getEdgeIdBySetupPassword(String setupPassword) {
-		Domain filter = new Domain(Field.EdgeDevice.SETUP_PASSWORD, "=", setupPassword);
+		Domain filter = new Domain(Field.Edge.SETUP_PASSWORD, "=", setupPassword);
 
 		try {
-			int[] search = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL, filter);
+			int[] search = OdooUtils.search(this.credentials, Field.Edge.ODOO_MODEL, filter);
 			if (search.length == 0) {
 				return Optional.empty();
 			}
 
-			Map<String, Object> read = OdooUtils.readOne(this.credentials, Field.EdgeDevice.ODOO_MODEL, search[0],
-					Field.EdgeDevice.NAME);
+			Map<String, Object> read = OdooUtils.readOne(this.credentials, Field.Edge.ODOO_MODEL, search[0],
+					Field.Edge.NAME);
 
-			String name = (String) read.get(Field.EdgeDevice.NAME.id());
+			String name = (String) read.get(Field.Edge.NAME.id());
 			if (name == null) {
 				return Optional.empty();
 			}
@@ -133,18 +133,18 @@ public class OdooHandler {
 	 * @throws OpenemsException on error
 	 */
 	private void assignEdgeToUser(int userId, int edgeId, OdooUserRole userRole) throws OpenemsException {
-		int[] found = OdooUtils.search(this.credentials, Field.EdgeDeviceUserRole.ODOO_MODEL,
-				new Domain(Field.EdgeDeviceUserRole.USER_ID, "=", userId),
-				new Domain(Field.EdgeDeviceUserRole.DEVICE_ID, "=", edgeId));
+		int[] found = OdooUtils.search(this.credentials, Field.EdgeUserRole.ODOO_MODEL,
+				new Domain(Field.EdgeUserRole.USER_ID, "=", userId),
+				new Domain(Field.EdgeUserRole.EDGE_ID, "=", edgeId));
 
 		if (found.length > 0) {
 			return;
 		}
 
-		OdooUtils.create(this.credentials, Field.EdgeDeviceUserRole.ODOO_MODEL, //
-				new FieldValue<Integer>(Field.EdgeDeviceUserRole.USER_ID, userId), //
-				new FieldValue<Integer>(Field.EdgeDeviceUserRole.DEVICE_ID, edgeId), //
-				new FieldValue<String>(Field.EdgeDeviceUserRole.ROLE, userRole.getOdooRole()));
+		OdooUtils.create(this.credentials, Field.EdgeUserRole.ODOO_MODEL, //
+				new FieldValue<Integer>(Field.EdgeUserRole.USER_ID, userId), //
+				new FieldValue<Integer>(Field.EdgeUserRole.EDGE_ID, edgeId), //
+				new FieldValue<String>(Field.EdgeUserRole.ROLE, userRole.getOdooRole()));
 	}
 
 	/**
@@ -410,8 +410,8 @@ public class OdooHandler {
 		JsonObject edgeJson = JsonUtils.getAsJsonObject(setupProtocolJson, "edge");
 
 		String edgeId = JsonUtils.getAsString(edgeJson, "id");
-		int[] foundEdge = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,
-				new Domain(Field.EdgeDevice.NAME, "=", edgeId));
+		int[] foundEdge = OdooUtils.search(this.credentials, Field.Edge.ODOO_MODEL,
+				new Domain(Field.Edge.NAME, "=", edgeId));
 		if (foundEdge.length != 1) {
 			throw new OpenemsException("Edge not found for id [" + edgeId + "]");
 		}

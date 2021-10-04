@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import io.openems.backend.metadata.odoo.Field;
-import io.openems.backend.metadata.odoo.Field.EdgeDevice;
+import io.openems.backend.metadata.odoo.Field.Edge;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.common.exceptions.OpenemsException;
 
@@ -62,7 +62,7 @@ public class PgUtils {
 	 * @param other the default value
 	 * @return the value as String
 	 */
-	public static String getAsStringOrElse(ResultSet rs, EdgeDevice field, String other) {
+	public static String getAsStringOrElse(ResultSet rs, Edge field, String other) {
 		try {
 			return PgUtils.getAsString(rs, field);
 		} catch (SQLException | OpenemsException e) {
@@ -78,7 +78,7 @@ public class PgUtils {
 	 * @return the value as Integer
 	 * @throws SQLException on error
 	 */
-	public static int getAsInt(ResultSet rs, EdgeDevice field) throws SQLException {
+	public static int getAsInt(ResultSet rs, Edge field) throws SQLException {
 		return rs.getInt(field.index());
 	}
 
@@ -90,7 +90,7 @@ public class PgUtils {
 	 * @param other the default value
 	 * @return the value as Integer
 	 */
-	public static Integer getAsIntegerOrElse(ResultSet rs, EdgeDevice field, Integer other) {
+	public static Integer getAsIntegerOrElse(ResultSet rs, Edge field, Integer other) {
 		try {
 			return PgUtils.getAsInt(rs, field);
 		} catch (SQLException e) {

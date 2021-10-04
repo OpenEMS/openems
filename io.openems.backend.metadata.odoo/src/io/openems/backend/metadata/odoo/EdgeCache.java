@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Edge.State;
-import io.openems.backend.metadata.odoo.Field.EdgeDevice;
+import io.openems.backend.metadata.odoo.Field.Edge;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.postgres.PgUtils;
 import io.openems.backend.metadata.odoo.postgres.QueueWriteWorker;
@@ -63,13 +63,13 @@ public class EdgeCache {
 	 */
 	public synchronized MyEdge addOrUpate(ResultSet rs) throws SQLException, OpenemsException {
 		// simple fields
-		String edgeId = PgUtils.getAsString(rs, EdgeDevice.NAME);
-		int odooId = PgUtils.getAsInt(rs, EdgeDevice.ID);
-		String apikey = PgUtils.getAsString(rs, EdgeDevice.APIKEY);
+		String edgeId = PgUtils.getAsString(rs, Edge.NAME);
+		int odooId = PgUtils.getAsInt(rs, Edge.ID);
+		String apikey = PgUtils.getAsString(rs, Edge.APIKEY);
 
 		// Config
 		EdgeConfig config;
-		String configString = PgUtils.getAsStringOrElse(rs, EdgeDevice.OPENEMS_CONFIG, "");
+		String configString = PgUtils.getAsStringOrElse(rs, Edge.OPENEMS_CONFIG, "");
 		if (configString.isEmpty()) {
 			config = new EdgeConfig();
 		} else {
@@ -85,7 +85,7 @@ public class EdgeCache {
 		}
 
 		// State
-		String stateString = PgUtils.getAsStringOrElse(rs, EdgeDevice.STATE, State.INACTIVE.name());
+		String stateString = PgUtils.getAsStringOrElse(rs, Edge.STATE, State.INACTIVE.name());
 		State state;
 		try {
 			state = State.valueOf(stateString.toUpperCase().replaceAll("-", "_"));
@@ -96,10 +96,10 @@ public class EdgeCache {
 		}
 
 		// more simple fields
-		String comment = PgUtils.getAsStringOrElse(rs, EdgeDevice.COMMENT, "");
-		String version = PgUtils.getAsStringOrElse(rs, EdgeDevice.OPENEMS_VERSION, "");
-		String productType = PgUtils.getAsStringOrElse(rs, EdgeDevice.PRODUCT_TYPE, "");
-		int sumStateInt = PgUtils.getAsIntegerOrElse(rs, EdgeDevice.OPENEMS_SUM_STATE, -1);
+		String comment = PgUtils.getAsStringOrElse(rs, Edge.COMMENT, "");
+		String version = PgUtils.getAsStringOrElse(rs, Edge.OPENEMS_VERSION, "");
+		String productType = PgUtils.getAsStringOrElse(rs, Edge.PRODUCT_TYPE, "");
+		int sumStateInt = PgUtils.getAsIntegerOrElse(rs, Edge.OPENEMS_SUM_STATE, -1);
 		Level sumState = Level.fromValue(sumStateInt).orElse(null);
 
 		MyEdge edge = this.edgeIdToEdge.get(edgeId);
@@ -221,7 +221,7 @@ public class EdgeCache {
 			this.parent.logInfo(this.log, "Edge [" + edge.getId() + "]: Update OpenEMS Edge version to [" + version
 					+ "]. It was [" + edge.getVersion() + "]");
 			this.parent.odooHandler.writeEdge(edge,
-					new FieldValue<String>(Field.EdgeDevice.OPENEMS_VERSION, version.toString()));
+					new FieldValue<String>(Field.Edge.OPENEMS_VERSION, version.toString()));
 		});
 		edge.onSetSumState(sumState -> {
 			// Set Sum-State in Odoo/Postgres

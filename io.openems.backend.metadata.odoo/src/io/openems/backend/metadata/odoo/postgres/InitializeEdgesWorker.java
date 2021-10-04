@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.metadata.odoo.Field;
-import io.openems.backend.metadata.odoo.Field.EdgeDevice;
+import io.openems.backend.metadata.odoo.Field.Edge;
 import io.openems.common.utils.ThreadPoolUtils;
 
 public class InitializeEdgesWorker {
@@ -104,8 +104,8 @@ public class InitializeEdgesWorker {
 	 */
 	private PreparedStatement psQueryAllEdges(Connection connection) throws SQLException {
 		return connection.prepareStatement(//
-				"SELECT " + Field.getSqlQueryFields(EdgeDevice.values()) //
-						+ " FROM " + EdgeDevice.ODOO_TABLE //
+				"SELECT " + Field.getSqlQueryFields(Edge.values()) //
+						+ " FROM " + Edge.ODOO_TABLE //
 						+ ";");
 	}
 
@@ -118,8 +118,8 @@ public class InitializeEdgesWorker {
 	 */
 	private PreparedStatement psUpdateAllEdgesOffline(Connection connection) throws SQLException {
 		return connection.prepareStatement(//
-				"UPDATE " + EdgeDevice.ODOO_TABLE //
-						+ " SET " + Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = FALSE" //
+				"UPDATE " + Edge.ODOO_TABLE //
+						+ " SET " + Field.Edge.OPENEMS_IS_CONNECTED.id() + " = FALSE" //
 						+ ";");
 	}
 

@@ -45,7 +45,7 @@ public class InsertEdgeConfigUpdate extends DatabaseTask {
 		return connection.prepareStatement(//
 				"INSERT INTO " + EdgeConfigUpdate.ODOO_TABLE //
 						+ " (create_date" //
-						+ ", " + EdgeConfigUpdate.DEVICE_ID.id() //
+						+ ", " + EdgeConfigUpdate.EDGE_ID.id() //
 						+ ", " + EdgeConfigUpdate.TEASER.id() //
 						+ ", " + EdgeConfigUpdate.DETAILS.id() + ")" //
 						+ " VALUES(?, ?, ?, ?)");
