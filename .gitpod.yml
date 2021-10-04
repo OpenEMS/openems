@@ -21,6 +21,12 @@ tasks:
       -c gitpod
       --host 0.0.0.0
       --disable-host-check
+  - init: |
+      mkdir /workspace/odoo && cd /workspace/odoo
+      git clone --depth=1 https://github.com/OpenEMS/odoo-openems.git openems
+      git clone --depth=1 -b 12.0 https://github.com/OCA/partner-contact
+      ln -s ./partner-contact/partner_firstname ./partner_firstname
+    command: odoo -d odoo --addons-path=/workspace/odoo -i base,partner_firstname,stock,openems
 
 ports:
   # Backend
