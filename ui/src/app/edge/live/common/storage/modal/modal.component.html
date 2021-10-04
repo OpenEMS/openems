@@ -2,7 +2,7 @@
     <ion-toolbar color="primary">
         <ion-title translate>General.storageSystem</ion-title>
         <ion-buttons slot="end">
-            <ion-button *ngIf="emergencyReserveComponents" target="_blank"
+            <ion-button target="_blank"
                 href="https://docs.fenecon.de/de/_/latest/fems/ui/standardwidgets.html#_speicher">
                 <ion-icon name="help-circle-outline"></ion-icon>
             </ion-button>
@@ -177,18 +177,20 @@
                     </table>
 
                     <!-- Show if ess has EmergencyCapacityReserveController assigned-->
-                    <ng-container [formGroupName]="component.id" *ngIf="emergencyReserveComponents[component.id]">
+                    <ng-container [formGroupName]="component.id" *ngIf="formGroup.controls[component.id]">
                         <table class="full_width" style="margin-top: 2%;">
                             <tr>
                                 <ion-item-divider color="light">
-                                    <td style="width: 80%;" translate>
+                                    <td style="width: 70%;" translate>
                                         Edge.Index.EmergencyReserve.emergencyReserve
                                     </td>
-                                    <td style="width: 20%" class="align_right">
+                                    <td style="width: 20%; text-align: right;">
+                                        {{ formGroup.value[component.id]?.reserveSoc | unitvalue:'%' }}
+                                    </td>
+                                    <td style="width: 10%" class="align_right">
 
                                         <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
-                                        <ion-toggle formControlName="isReserveSocEnabled"
-                                            (ionChange)="toggleEnabledMode(component.id)">
+                                        <ion-toggle formControlName="isReserveSocEnabled">
                                         </ion-toggle>
                                     </td>
                                 </ion-item-divider>
@@ -213,7 +215,7 @@
                         </table>
 
                         <!-- Show only when EmergencyReserve is enabled -->
-                        <ng-container *ngIf="isEnabled[component.id]">
+                        <ng-container *ngIf="formGroup.value[component.id]?.isReserveSocEnabled">
                             <ion-range formControlName="reserveSoc" pin color="primary" min="5" max="100">
                                 <ion-label slot="start">
                                     {{ 5 | unitvalue:'%' }}
@@ -521,19 +523,20 @@
                             </table>
 
                             <!-- Show if ess has EmergencyCapacityReserveController assigned-->
-                            <ng-container [formGroupName]="component.id"
-                                *ngIf="emergencyReserveComponents[component.id]">
+                            <ng-container [formGroupName]="component.id" *ngIf="formGroup.controls[component.id]">
                                 <table class="full_width" style="margin-top: 2%;">
                                     <tr>
                                         <ion-item-divider color="light">
-                                            <td style="width: 80%;" translate>
+                                            <td style="width: 70%;" translate>
                                                 Edge.Index.EmergencyReserve.emergencyReserve
                                             </td>
-                                            <td style="width: 20%" class="align_right">
+                                            <td style="width: 20%; text-align: right;">
+                                                {{ formGroup.value[component.id]?.reserveSoc | unitvalue:'%' }}
+                                            </td>
+                                            <td style="width: 10%" class="align_right">
 
                                                 <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
-                                                <ion-toggle formControlName="isReserveSocEnabled"
-                                                    (ionChange)="toggleEnabledMode(component.id)">
+                                                <ion-toggle formControlName="isReserveSocEnabled">
                                                 </ion-toggle>
                                             </td>
                                         </ion-item-divider>
@@ -556,9 +559,8 @@
                                         </td>
                                     </tr>
                                 </table>
-
                                 <!-- Show only when EmergencyReserve is enabled -->
-                                <ng-container *ngIf="isEnabled[component.id]">
+                                <ng-container *ngIf="formGroup.value[component.id]?.isReserveSocEnabled">
                                     <ion-range formControlName="reserveSoc" pin color="primary" min="5" max="100">
                                         <ion-label slot="start">
                                             {{ 5 | unitvalue:'%' }}
@@ -602,18 +604,20 @@
                     </table>
 
                     <!-- Show if ess has EmergencyCapacityReserveController assigned-->
-                    <ng-container [formGroupName]="component.id" *ngIf="emergencyReserveComponents[component.id]">
+                    <ng-container [formGroupName]="component.id" *ngIf="formGroup.controls[component.id]">
                         <table class="full_width" style="margin-top: 2%;">
                             <tr>
                                 <ion-item-divider color="light">
-                                    <td style="width: 80%;" translate>
+                                    <td style="width: 70%;" translate>
                                         Edge.Index.EmergencyReserve.emergencyReserve
                                     </td>
-                                    <td style="width: 20%" class="align_right">
+                                    <td style="width: 20%; text-align: right;">
+                                        {{ formGroup.value[component.id]?.reserveSoc | unitvalue:'%' }}
+                                    </td>
+                                    <td style="width: 10%" class="align_right">
 
-                                        <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config -->
-                                        <ion-toggle formControlName="isReserveSocEnabled"
-                                            (ionChange)="toggleEnabledMode(component.id)">
+                                        <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
+                                        <ion-toggle formControlName="isReserveSocEnabled">
                                         </ion-toggle>
                                     </td>
                                 </ion-item-divider>
@@ -638,7 +642,7 @@
                         </table>
 
                         <!-- Show only when EmergencyReserve is enabled -->
-                        <ng-container *ngIf="isEnabled[component.id]">
+                        <ng-container *ngIf="formGroup.value[component.id]?.isReserveSocEnabled">
                             <ion-range formControlName="reserveSoc" pin color="primary" min="5" max="100">
                                 <ion-label slot="start">
                                     {{ 5 | unitvalue:'%' }}
@@ -656,7 +660,7 @@
     </form>
 
 
-    <ion-fab *ngIf="formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="center" slot="fixed">
+    <ion-fab *ngIf="formGroup?.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="center" slot="fixed">
         <ion-fab-button (click)="applyChanges()">
             <ion-icon size="large" name="checkmark-circle-outline">
             </ion-icon>

@@ -139,26 +139,62 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                         borderColor: 'rgba(253,197,7,1)',
                                     })
                                 }
-                                if (channelAddress.channelId == 'ConsumptionActivePowerL1' && this.showPhases == true) {
-                                    datasets.push({
-                                        label: this.translate.instant('General.phase') + ' ' + 'L1',
-                                        data: data
-                                    });
-                                    this.colors.push(this.phase1Color);
-                                }
-                                if (channelAddress.channelId == 'ConsumptionActivePowerL2' && this.showPhases == true) {
-                                    datasets.push({
-                                        label: this.translate.instant('General.phase') + ' ' + 'L2',
-                                        data: data
-                                    });
-                                    this.colors.push(this.phase2Color);
-                                }
-                                if (channelAddress.channelId == 'ConsumptionActivePowerL3' && this.showPhases == true) {
-                                    datasets.push({
-                                        label: this.translate.instant('General.phase') + ' ' + 'L3',
-                                        data: data
-                                    });
-                                    this.colors.push(this.phase3Color);
+
+                                // Phases View is shown
+                                if (this.showPhases == true) {
+                                    if (channelAddress.channelId == 'ConsumptionActivePowerL1') {
+                                        datasets.push({
+                                            label: this.translate.instant('General.phase') + ' ' + 'L1',
+                                            data: data
+                                        });
+                                        this.colors.push(this.phase1Color);
+                                    }
+                                    if (channelAddress.channelId == 'ConsumptionActivePowerL2') {
+                                        datasets.push({
+                                            label: this.translate.instant('General.phase') + ' ' + 'L2',
+                                            data: data
+                                        });
+                                        this.colors.push(this.phase2Color);
+                                    }
+                                    if (channelAddress.channelId == 'ConsumptionActivePowerL3') {
+                                        datasets.push({
+                                            label: this.translate.instant('General.phase') + ' ' + 'L3',
+                                            data: data
+                                        });
+                                        this.colors.push(this.phase3Color);
+                                    }
+
+                                    // consumptionMeter Phases
+                                    if (channelAddress.channelId == 'ActivePowerL1') {
+                                        datasets.push({
+                                            label: component.alias + ' Phase ' + 'L1',
+                                            data: data
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: 'rgba(255,193,193,0.1)',
+                                            borderColor: 'rgba(139,35,35,1)',
+                                        });
+                                    }
+                                    if (channelAddress.channelId == 'ActivePowerL2') {
+                                        datasets.push({
+                                            label: component.alias + ' Phase ' + 'L2',
+                                            data: data
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: 'rgba(198,226,255,0.1)',
+                                            borderColor: 'rgba(198,226,255,1)',
+                                        });
+                                    }
+                                    if (channelAddress.channelId == 'ActivePowerL3') {
+                                        datasets.push({
+                                            label: component.alias + ' Phase ' + 'L3',
+                                            data: data
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: 'rgba(121,205,205,0.1)',
+                                            borderColor: 'rgba(121,205,205,1)',
+                                        });
+                                    }
                                 }
                                 if (regularEvcsComponents.length > 1 && totalEvcsConsumption != []) {
                                     if (!this.translate.instant('Edge.Index.Widgets.EVCS.chargingStation') + ' (' + this.translate.instant('General.total') + ')' in datasets) {
@@ -226,7 +262,23 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                     }
                                 }
 
-                                if (Utils.isLastElement(channelAddress, channelAddresses) && config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption')).length > 0) {
+                                // show OtherConsumption 
+                                if (Utils.isLastElement(channelAddress, channelAddresses) && (
+
+                                    // Check if Evcs is in config
+                                    config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+                                        .filter(component =>
+                                            !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption'))
+                                        .length > 0
+
+                                    ||
+
+                                    // Check if SymmetricMeter is in config
+                                    config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+                                        .filter(component =>
+                                            component.isEnabled && config.isTypeConsumptionMetered(component))
+                                        .length > 0
+                                )) {
                                     datasets.push({
                                         label: this.translate.instant('General.otherConsumption'),
                                         data: otherConsumption,
@@ -276,12 +328,22 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                     component.factoryId == 'Evcs.Cluster.SelfConsumption'))
                 .forEach(component => {
                     result.push(new ChannelAddress(component.id, 'ChargePower'));
-                })
-            config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
-                .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component))
-                .forEach(component => {
-                    result.push(new ChannelAddress(component.id, 'ActivePower'))
                 });
+
+            let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+                .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component))
+
+            for (let meter of consumptionMeters) {
+                // Subscribe to SymmetricMeter 'ActivePower'
+                result.push(new ChannelAddress(meter.id, 'ActivePower'));
+
+                if (config.getNatureIdsByFactoryId(meter.factoryId).includes("io.openems.edge.meter.api.AsymmetricMeter")) {
+                    // Subscribe to AsymmetricMeter 'ActivePowerL1/L2/L3'
+                    result.push(new ChannelAddress(meter.id, 'ActivePowerL1'));
+                    result.push(new ChannelAddress(meter.id, 'ActivePowerL2'));
+                    result.push(new ChannelAddress(meter.id, 'ActivePowerL3'));
+                }
+            }
             resolve(result);
         })
     }
