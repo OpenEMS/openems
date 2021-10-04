@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Edge.State;
-import io.openems.backend.metadata.odoo.Field.Edge;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.postgres.PgUtils;
 import io.openems.backend.metadata.odoo.postgres.QueueWriteWorker;
@@ -63,13 +62,13 @@ public class EdgeCache {
 	 */
 	public synchronized MyEdge addOrUpate(ResultSet rs) throws SQLException, OpenemsException {
 		// simple fields
-		String edgeId = PgUtils.getAsString(rs, Edge.NAME);
-		int odooId = PgUtils.getAsInt(rs, Edge.ID);
-		String apikey = PgUtils.getAsString(rs, Edge.APIKEY);
+		String edgeId = PgUtils.getAsString(rs, Field.Edge.NAME);
+		int odooId = PgUtils.getAsInt(rs, Field.Edge.ID);
+		String apikey = PgUtils.getAsString(rs, Field.Edge.APIKEY);
 
 		// Config
 		EdgeConfig config;
-		String configString = PgUtils.getAsStringOrElse(rs, Edge.OPENEMS_CONFIG, "");
+		String configString = PgUtils.getAsStringOrElse(rs, Field.Edge.OPENEMS_CONFIG, "");
 		if (configString.isEmpty()) {
 			config = new EdgeConfig();
 		} else {
@@ -85,7 +84,7 @@ public class EdgeCache {
 		}
 
 		// State
-		String stateString = PgUtils.getAsStringOrElse(rs, Edge.STATE, State.INACTIVE.name());
+		String stateString = PgUtils.getAsStringOrElse(rs, Field.Edge.STATE, State.INACTIVE.name());
 		State state;
 		try {
 			state = State.valueOf(stateString.toUpperCase().replaceAll("-", "_"));
@@ -96,10 +95,10 @@ public class EdgeCache {
 		}
 
 		// more simple fields
-		String comment = PgUtils.getAsStringOrElse(rs, Edge.COMMENT, "");
-		String version = PgUtils.getAsStringOrElse(rs, Edge.OPENEMS_VERSION, "");
-		String productType = PgUtils.getAsStringOrElse(rs, Edge.PRODUCT_TYPE, "");
-		int sumStateInt = PgUtils.getAsIntegerOrElse(rs, Edge.OPENEMS_SUM_STATE, -1);
+		String comment = PgUtils.getAsStringOrElse(rs, Field.Edge.COMMENT, "");
+		String version = PgUtils.getAsStringOrElse(rs, Field.Edge.OPENEMS_VERSION, "");
+		String productType = PgUtils.getAsStringOrElse(rs, Field.Edge.PRODUCT_TYPE, "");
+		int sumStateInt = PgUtils.getAsIntegerOrElse(rs, Field.Edge.OPENEMS_SUM_STATE, -1);
 		Level sumState = Level.fromValue(sumStateInt).orElse(null);
 
 		MyEdge edge = this.edgeIdToEdge.get(edgeId);
