@@ -44,3 +44,8 @@ ports:
   # UI
   - port: 4200
     onOpen: open-browser
+  # Odoo
+  - port: 8069
+    onOpen: open-browser
+  - port: 5432
+    onOpen: ignore
