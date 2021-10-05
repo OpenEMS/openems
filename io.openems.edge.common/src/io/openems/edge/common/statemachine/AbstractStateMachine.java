@@ -23,6 +23,7 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 
 	private final STATE initialState;
 
+	private STATE previousState;
 	private STATE state;
 
 	/**
@@ -36,6 +37,7 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 	 */
 	public AbstractStateMachine(STATE initialState) {
 		this.initialState = initialState;
+		this.previousState = initialState;
 		this.state = initialState;
 		for (STATE state : initialState.getStates()) {
 			this.stateHandlers.put(state, this.getStateHandler(state));
@@ -53,6 +55,15 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 	 * @return the {@link StateHandler} for the given State
 	 */
 	public abstract StateHandler<STATE, CONTEXT> getStateHandler(STATE state);
+
+	/**
+	 * Gets the previously activate State.
+	 * 
+	 * @return the State
+	 */
+	public STATE getPreviousState() {
+		return this.previousState;
+	}
 
 	/**
 	 * Gets the currently activate State.
@@ -84,7 +95,7 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 	 */
 	public void run(CONTEXT context) throws OpenemsNamedException {
 		// Keep last State
-		STATE lastState = this.state;
+		this.previousState = this.state;
 
 		OpenemsNamedException exception = null;
 
@@ -98,7 +109,9 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 		} else {
 			try {
 				// Call the State Handler and receive next State.
-				nextState = this.stateHandlers.get(state).runAndGetNextState(context);
+				nextState = this.stateHandlers //
+						.get(state) //
+						.runAndGetNextState(context);
 			} catch (OpenemsNamedException e) {
 				exception = e;
 				nextState = this.initialState; // set to initial state on error
@@ -109,12 +122,15 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 		this.state = nextState;
 
 		// Call StateMachine events on transition
-		if (lastState != this.state) {
-			context.logInfo(this.log, "Changing StateMachine from [" + lastState + "] to [" + this.state + "]");
+		if (this.previousState != this.state) {
+			context.logInfo(this.log,
+					"Changing StateMachine from [" + this.previousState + "] to [" + this.state + "]");
 
 			// On-Exit of the last State
 			try {
-				this.stateHandlers.get(lastState).onExit(context);
+				this.stateHandlers //
+						.get(this.previousState) //
+						.onExit(context);
 			} catch (OpenemsNamedException e) {
 				if (exception != null) {
 					e.addSuppressed(exception);
@@ -124,7 +140,9 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 
 			// On-Entry of next State
 			try {
-				this.stateHandlers.get(state).onEntry(context);
+				this.stateHandlers //
+						.get(this.state) //
+						.onEntry(context);
 			} catch (OpenemsNamedException e) {
 				if (exception != null) {
 					e.addSuppressed(exception);

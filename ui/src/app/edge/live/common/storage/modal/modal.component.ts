@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
-import { ModalController } from '@ionic/angular';
-import { Service, EdgeConfig, Edge, Websocket, Utils } from 'src/app/shared/shared';
-import { TranslateService } from '@ngx-translate/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { ModalController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
+import { first } from 'rxjs/operators';
+import { Edge, EdgeConfig, Service, Utils, Websocket } from 'src/app/shared/shared';
 
 @Component({
     selector: 'storage-modal',
@@ -22,10 +23,6 @@ export class StorageModalComponent {
     public isLastElement = Utils.isLastElement;
 
     public formGroup: FormGroup;
-    public emergencyReserveComponents: { [essId: string]: EdgeConfig.Component } = {};
-    public isEmergencyReserveEnabled: boolean[] = [];
-    public isEnabled: boolean[] = [];
-
 
     constructor(
         public service: Service,
@@ -37,7 +34,7 @@ export class StorageModalComponent {
 
     ngOnInit() {
 
-        this.emergencyReserveComponents = this.config
+        let emergencyReserveComponents = this.config
             .getComponentsImplementingNature('io.openems.edge.controller.ess.emergencycapacityreserve.EmergencyCapacityReserve')
             .filter(component => component.isEnabled)
 
@@ -48,24 +45,22 @@ export class StorageModalComponent {
                     [component.properties['ess.id']]: component
                 }
             }, {});
+
         this.formGroup = new FormGroup({});
-
-        for (let essId in this.emergencyReserveComponents) {
-            let controller = this.emergencyReserveComponents[essId];
-
-            let reserveSoc: [] = [];
-            this.edge.currentData.subscribe(currentData => {
-                reserveSoc = currentData.channel[controller.id + "/_PropertyReserveSoc"];
-                this.isEmergencyReserveEnabled[essId] = currentData.channel[controller.id + "/_PropertyIsReserveSocEnabled"] == 1 ? true : false;
-            })
-
-            // Use EssId as FormGroupName
-            this.formGroup.addControl(essId, this.formBuilder.group({
-                isReserveSocEnabled: new FormControl(this.isEmergencyReserveEnabled[essId]),
-                reserveSoc: new FormControl(reserveSoc),
-            }));
-            this.isEnabled[essId] = this.isEmergencyReserveEnabled[essId];
-        }
+        this.edge.currentData
+            .pipe(first())
+            .subscribe(currentData => {
+                for (let essId in emergencyReserveComponents) {
+                    let controller = emergencyReserveComponents[essId];
+                    let reserveSoc = currentData.channel[controller.id + "/_PropertyReserveSoc"] ?? 20 /* default Reserve-Soc */;
+                    let isReserveSocEnabled = currentData.channel[controller.id + "/_PropertyIsReserveSocEnabled"] == 1;
+                    this.formGroup.addControl(essId, this.formBuilder.group({
+                        controllerId: new FormControl(controller.id),
+                        isReserveSocEnabled: new FormControl(isReserveSocEnabled),
+                        reserveSoc: new FormControl(reserveSoc),
+                    }));
+                }
+            });
     }
 
     applyChanges() {
@@ -81,7 +76,7 @@ export class StorageModalComponent {
             }
 
             this.edge.updateComponentConfig(this.websocket,
-                this.emergencyReserveComponents[essId].id,
+                essGroup.value['controllerId'],
                 [{
                     name: 'isReserveSocEnabled',
                     value: essGroup.value['isReserveSocEnabled']
@@ -96,9 +91,5 @@ export class StorageModalComponent {
                     this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
                 });
         }
-    }
-
-    toggleEnabledMode(componentId: string) {
-        this.isEnabled[componentId] = !this.isEnabled[componentId];
     }
 }

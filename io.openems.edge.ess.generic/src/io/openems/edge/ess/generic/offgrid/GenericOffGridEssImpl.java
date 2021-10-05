@@ -126,7 +126,8 @@ public class GenericOffGridEssImpl
 		// that is currently in StartedInOffGrid
 
 		// Prepare Context
-		Context context = new Context(this, this.getBattery(), this.getBatteryInverter(), this.getOffGridSwitch());
+		Context context = new Context(this, this.getBattery(), this.getBatteryInverter(), this.getOffGridSwitch(),
+				this.componentManager);
 
 		// Call the StateMachine
 		try {

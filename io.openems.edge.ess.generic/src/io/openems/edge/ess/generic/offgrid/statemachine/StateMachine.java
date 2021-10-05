@@ -25,6 +25,7 @@ public class StateMachine extends AbstractStateMachine<StateMachine.OffGridState
 		STOPPED(32), //
 
 		GRID_SWITCH(41), //
+		STOP_BATTERY_INVERTER_BEFORE_SWITCH(42), //
 
 		ERROR(50), //
 		; //
@@ -87,6 +88,8 @@ public class StateMachine extends AbstractStateMachine<StateMachine.OffGridState
 			return new ErrorHandler();
 		case GRID_SWITCH:
 			return new GridSwitchHandler();
+		case STOP_BATTERY_INVERTER_BEFORE_SWITCH:
+			return new StopBatteryInverterBeforeSwitchHandler();
 		}
 
 		throw new IllegalArgumentException("Unknown State [" + state + "]");
