@@ -29,9 +29,11 @@ StartBatteryInverterInOffGrid -->|isStarted| StartedInOffGrid
 StartBatteryInverterInOffGrid -->|timeout| Undefined
 
 StartedInOffGrid -->|Battery+BatteryInverter.isStarted && everythingOk| StartedInOffGrid
-StartedInOffGrid -->|isGridOn| GridSwitch
+StartedInOffGrid -->|isGridOn| StopBatteryInverterBeforeSwitch
 StartedInOffGrid -->|timeout| Undefined
 StartedInOffGrid -->|AllowedDischargePower == 0 |StopBatteryInverter
+
+StopBatteryInverterBeforeSwitch -->|BatteryInverter.isStopped| GridSwitch
 
 Undefined -->|target STOP| StopBatteryInverter
 
