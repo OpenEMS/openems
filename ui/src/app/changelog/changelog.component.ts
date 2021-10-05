@@ -35,6 +35,16 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2021.16.5',
+        changes: [
+          Changelog.UI,
+          Changelog.product(Product.COMMERCIAL_30) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.product(Product.HOME, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.EDGE + Changelog.GENERAL_OPTIMIZATION,
+          { roleIsAtLeast: Role.ADMIN, change: "Implementierung ESS Cycle-Controller für Zyklus- und Kapazitätstests" },
+        ]
+      },
+      {
         version: '2021.16.4',
         changes: [
           Changelog.product(Product.COMMERCIAL_30) + "Umstellung der Software-Architektur",
