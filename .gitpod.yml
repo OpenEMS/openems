@@ -3,17 +3,17 @@ image:
 
 tasks:
   - init: |
+      gp sync-await odoo-started
       touch /tmp/.gradle-lock
       ./gradlew build buildBackend -x test
       rm /tmp/.gradle-lock
-      gp sync-await odoo-started
     command: java 
       -Dfelix.cm.dir=$(pwd)/tools/docker/openems-backend/config.d
       -jar build/openems-backend.jar
   - init: |
-      while [ -f /tmp/.gradle-lock ]; do sleep 1; done
-      ./gradlew build buildEdge -x test
       gp sync-await odoo-started
+      sleep 10 && while [ -f /tmp/.gradle-lock ]; do sleep 1; done
+      ./gradlew build buildEdge -x test
     command: java 
       -Dfelix.cm.dir=$(pwd)/tools/docker/openems-edge/config.d
       -Dopenems.data.dir=$(pwd)/tools/docker/openems-edge/data
