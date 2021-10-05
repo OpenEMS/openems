@@ -1,9 +1,9 @@
-package io.openems.edge.controller.ess.onefullcycle;
+package io.openems.edge.controller.ess.cycle;
 
 import io.openems.common.types.OptionsEnum;
 
 public enum CycleOrder implements OptionsEnum {
-	UNDEFINED(-1, "Undefined"), //
+	AUTO(-1, "Soc < 50 %: Discharge; otherwise Charge"), //
 	START_WITH_CHARGE(0, "Start with Charge"), //
 	START_WITH_DISCHARGE(1, "Start with Discharge");
 
@@ -17,16 +17,16 @@ public enum CycleOrder implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override
 	public OptionsEnum getUndefined() {
-		return UNDEFINED;
+		return AUTO;
 	}
 }

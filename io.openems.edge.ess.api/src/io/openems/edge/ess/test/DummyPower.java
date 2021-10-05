@@ -1,7 +1,11 @@
 package io.openems.edge.ess.test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.openems.edge.common.filter.DisabledPidFilter;
 import io.openems.edge.common.filter.PidFilter;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Constraint;
@@ -14,6 +18,7 @@ import io.openems.edge.ess.power.api.Relationship;
 public class DummyPower implements Power {
 
 	private final PidFilter pidFilter;
+	private List<ManagedSymmetricEss> esss = new ArrayList<>();
 
 	private int maxApparentPower;
 
@@ -28,6 +33,8 @@ public class DummyPower implements Power {
 	/**
 	 * Creates a {@link DummyPower} with given MaxApparentPower and disabled PID
 	 * filter.
+	 * 
+	 * @param maxApparentPower the MaxApparentPower
 	 */
 	public DummyPower(int maxApparentPower) {
 		this(maxApparentPower, new DisabledPidFilter());
@@ -52,6 +59,10 @@ public class DummyPower implements Power {
 	 */
 	public DummyPower(int maxApparentPower, double p, double i, double d) {
 		this(maxApparentPower, new PidFilter(p, i, d));
+	}
+
+	public void addEss(ManagedSymmetricEss ess) {
+		this.esss.add(ess);
 	}
 
 	@Override
@@ -81,12 +92,21 @@ public class DummyPower implements Power {
 
 	@Override
 	public int getMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-		return this.maxApparentPower;
+		int result = this.maxApparentPower;
+		for (ManagedSymmetricEss e : this.esss) {
+			result = TypeUtils.min(result, e.getMaxApparentPower().get(), e.getAllowedDischargePower().get());
+		}
+		return result;
 	}
 
 	@Override
 	public int getMinPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-		return this.maxApparentPower * -1;
+		int result = this.maxApparentPower;
+		for (ManagedSymmetricEss e : this.esss) {
+			result = TypeUtils.min(result, e.getMaxApparentPower().get(),
+					TypeUtils.multiply(e.getAllowedChargePower().get(), -1));
+		}
+		return result * -1;
 	}
 
 	@Override
