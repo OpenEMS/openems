@@ -25,8 +25,10 @@ tasks:
       mkdir /workspace/odoo && cd /workspace/odoo
       git clone --depth=1 https://github.com/OpenEMS/odoo-openems.git openems
       git clone --depth=1 -b 12.0 https://github.com/OCA/partner-contact
+      git clone --depth=1 -b 12.0 https://github.com/OCA/web.git
       ln -s ./partner-contact/partner_firstname ./partner_firstname
-    command: odoo -d odoo --addons-path=/workspace/odoo -i base,partner_firstname,stock,openems
+      ln -s ./web/web_m2x_options ./web_m2x_options
+    command: odoo -d v12 --addons-path=/workspace/odoo -i base,partner_firstname,web_m2x_options,stock,openems
 
 ports:
   # Backend
