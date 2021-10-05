@@ -174,11 +174,11 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 									if (intValue != null) {
 										switch (intValue) {
 										case 0:
-											return GridMode.OFF_GRID;
+											return GridMode.UNDEFINED;
 										case 1:
 											return GridMode.ON_GRID;
 										case 2:
-											return GridMode.UNDEFINED;
+											return GridMode.OFF_GRID;
 										}
 									}
 									return GridMode.UNDEFINED;
