@@ -3,15 +3,14 @@ image:
 
 tasks:
   - init: |
-      gp await-port 8069 
       touch /tmp/.gradle-lock
       ./gradlew build buildBackend -x test
       rm /tmp/.gradle-lock
+      gp sync-await odoo-started
     command: java 
       -Dfelix.cm.dir=$(pwd)/tools/docker/openems-backend/config.d
       -jar build/openems-backend.jar
   - init: |
-      gp await-port 8081
       while [ -f /tmp/.gradle-lock ]; do sleep 1; done
       ./gradlew build buildEdge -x test
       gp sync-await odoo-started
@@ -31,7 +30,9 @@ tasks:
       git clone --depth=1 -b 12.0 https://github.com/OCA/web.git
       ln -s ./partner-contact/partner_firstname ./partner_firstname
       ln -s ./web/web_m2x_options ./web_m2x_options
-    command: odoo -d v12 --addons-path=/workspace/odoo -i base,partner_firstname,web_m2x_options,stock,openems
+    command: | 
+      gp sync-done odoo-started
+      odoo -d v12 --addons-path=/workspace/odoo -i base,partner_firstname,web_m2x_options,stock,openems
 
 ports:
   # Backend
