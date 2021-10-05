@@ -741,29 +741,30 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 				.unit(Unit.DEZIDEGREE_CELSIUS)), //
 
 		// StateChannels
-		PRE_ALARM_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_CELL_VOLTAGE_HIGH(Doc.of(Level.INFO) //
 				.text("Cluster 1 Cell Voltage High Alarm Level 1")), //
-		PRE_ALARM_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
+		PRE_ALARM_CELL_VOLTAGE_LOW(Doc.of(Level.INFO) //
 				.text("Cluster 1 Cell Voltage Low Alarm Level 1")), //
-		PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG(Doc.of(Level.WARNING) //
+		PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG(Doc.of(Level.INFO) //
 				.text("Alarm Level 1 Battery Cells Unbalanced")), //
-		PRE_ALARM_DISCHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_DISCHARGE_TEMP_HIGH(Doc.of(Level.INFO) //
 				.text("Cluster 1 Cell Discharge Temperature High Alarm Level 1")), //
-		PRE_ALARM_DISCHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
+		PRE_ALARM_DISCHARGE_TEMP_LOW(Doc.of(Level.INFO) //
 				.text("Cluster 1 Cell Discharge Temperature Low Alarm Level 1")), //
-		PRE_ALARM_CHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_CHARGE_TEMP_HIGH(Doc.of(Level.INFO) //
 				.text("Cluster 1 Cell Charge Temperature High Alarm Level 1")), //
-		PRE_ALARM_CHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
+		PRE_ALARM_CHARGE_TEMP_LOW(Doc.of(Level.INFO) //
 				.text("Cluster 1 Cell Charge Temperature Low Alarm Level 1")), //
-		PRE_ALARM_TEMP_DIFF_TOO_BIG(Doc.of(Level.WARNING) //
+		PRE_ALARM_TEMP_DIFF_TOO_BIG(Doc.of(Level.INFO) //
 				.text("Cluster 1 Cell temperature Diff High Alarm Level 1")), //
-		PRE_ALARM_POWER_POLE_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_POWER_POLE_HIGH(Doc.of(Level.INFO) //
 				.text("Cluster 1 Cell Temperature High Alarm Level 1")), //
-		PRE_ALARM_DISCHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_DISCHARGE_CURRENT_HIGH(Doc.of(Level.INFO) //
 				.text("Cluster 1 Discharge Current High Alarm Level 1")), //
-		PRE_ALARM_CHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_CHARGE_CURRENT_HIGH(Doc.of(Level.INFO) //
 				.text("Cluster 1 Charge Current High Alarm Level 1")), //
 
+		
 		LEVEL1_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 2 Cell Voltage High Alarm Level 2")), //
 		LEVEL1_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
@@ -779,7 +780,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 		LEVEL1_CHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cluster 2 Cell Charge Temperature Low Alarm Level 2")), //
 		LEVEL1_TEMP_DIFF_TOO_BIG(Doc.of(Level.WARNING) //
-				.text("Cluster 2 Cell temperature Diff High Alarm Level 2")), //
+				.text("Cluster 2 Cell Temperature Diff High Alarm Level 2")), //
 		LEVEL1_POWER_POLE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 2 Cell Temperature High Alarm Level 2")), //
 		LEVEL1_DISCHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
@@ -787,27 +788,27 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 		LEVEL1_CHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 2 Charge Current High Alarm Level 2")), //
 
-		LEVEL2_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_CELL_VOLTAGE_HIGH(Doc.of(Level.FAULT) //
 				.text("Cluster 3 Cell Voltage High Alarm Level 3")), //
-		LEVEL2_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
+		LEVEL2_CELL_VOLTAGE_LOW(Doc.of(Level.FAULT) //
 				.text("Cluster 3 Cell Voltage Low Alarm Level 3")), //
-		LEVEL2_CELL_VOLTAGE_DIFF_TOO_BIG(Doc.of(Level.WARNING) //
+		LEVEL2_CELL_VOLTAGE_DIFF_TOO_BIG(Doc.of(Level.FAULT) //
 				.text("Alarm Level 3 Battery Cells Unbalanced")), //
-		LEVEL2_DISCHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_DISCHARGE_TEMP_HIGH(Doc.of(Level.FAULT) //
 				.text("Cluster 3 Cell Discharge Temperature High Alarm Level 3")), //
-		LEVEL2_DISCHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
+		LEVEL2_DISCHARGE_TEMP_LOW(Doc.of(Level.FAULT) //
 				.text("Cluster 3 Cell Discharge Temperature Low Alarm Level 3")), //
-		LEVEL2_CHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_CHARGE_TEMP_HIGH(Doc.of(Level.FAULT) //
 				.text("Cluster 3 Cell Charge Temperature High Alarm Level 3")), //
-		LEVEL2_CHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
+		LEVEL2_CHARGE_TEMP_LOW(Doc.of(Level.FAULT) //
 				.text("Cluster 3 Cell Charge Temperature Low Alarm Level 3")), //
-		LEVEL2_TEMP_DIFF_TOO_BIG(Doc.of(Level.WARNING) //
-				.text("Cluster 3 Cell temperature Diff High Alarm Level 3")), //
-		LEVEL2_POWER_POLE_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_TEMP_DIFF_TOO_BIG(Doc.of(Level.FAULT) //
+				.text("Cluster 3 Cell Temperature Diff High Alarm Level 3")), //
+		LEVEL2_POWER_POLE_HIGH(Doc.of(Level.FAULT) //
 				.text("Cluster 3 Cell Temperature High Alarm Level 3")), //
-		LEVEL2_DISCHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_DISCHARGE_CURRENT_HIGH(Doc.of(Level.FAULT) //
 				.text("Cluster 3 Discharge Current High Alarm Level 3")), //
-		LEVEL2_CHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_CHARGE_CURRENT_HIGH(Doc.of(Level.FAULT) //
 				.text("Cluster 3 Charge Current High Alarm Level 3")), //
 
 		ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH(Doc.of(Level.WARNING) //
@@ -822,19 +823,19 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 				.text("Cluster 1 Total Voltage Low Alarm Level 1")), //
 		ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 1 Total Voltage High Alarm Level 1")), //
-		ALARM_FUSE(Doc.of(Level.WARNING) //
+		ALARM_FUSE(Doc.of(Level.FAULT) //
 				.text(" Fuse Alarm")), //
 		SHIELDED_SWITCH_STATE(Doc.of(Level.WARNING) //
 				.text("Shielded switch state")), //
 		ALARM_BAU_COMMUNICATION(Doc.of(Level.WARNING) //
 				.text("BAU Communication Alarm")), //
-		ALARM_INSULATION_CHECK(Doc.of(Level.WARNING) //
+		ALARM_INSULATION_CHECK(Doc.of(Level.FAULT) //
 				.text("Inuslation Resistance Alarm")), //
 		ALARM_CURRENT_SENSOR(Doc.of(Level.WARNING) //
 				.text("Current Sensor Alarm")), //
 		ALARM_BCU_BMU_COMMUNICATION(Doc.of(Level.WARNING) //
 				.text("BCU BMU Communication Alarm")), //
-		ALARM_CONTACTOR_ADHESION(Doc.of(Level.WARNING)//
+		ALARM_CONTACTOR_ADHESION(Doc.of(Level.FAULT)//
 				.text("Contactor Adhesion Alarm ")), //
 		ALARM_BCU_NTC(Doc.of(Level.WARNING) //
 				.text("BCU NTC Alarm")), //
@@ -888,32 +889,32 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 				.text("battery fault state")), //
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
-		PRE_ALARM_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.INFO) //
 				.text("ALARM LEVEL 1 SYSTEM VOLTAGE HIGH")), //
-		PRE_ALARM_SYSTEM_VOLTAGE_LOW(Doc.of(Level.WARNING) //
+		PRE_ALARM_SYSTEM_VOLTAGE_LOW(Doc.of(Level.INFO) //
 				.text("ALARM LEVEL 1 SYSTEM VOLTAGE LOW")), //
-		PRE_ALARM_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(Level.WARNING) //
-				.text("ALARM LEVEL 1 SYSTEM VOLTAGE LOW")), //
-		PRE_ALARM_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+		PRE_ALARM_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(Level.INFO) //
+				.text("ALARM LEVEL 1 SYSTEM VOLTAGE UNBALANCED")), //
+		PRE_ALARM_INSULATION_RESISTANCE_LOWER(Doc.of(Level.INFO) //
 				.text("ALARM LEVEL 1 INSULATION RESISTANCE LOWER")), //
-		PRE_ALARM_POS_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+		PRE_ALARM_POS_INSULATION_RESISTANCE_LOWER(Doc.of(Level.INFO) //
 				.text("ALARM LEVEL 1 POS INSULATION RESISTANCE LOWER")), //
-		PRE_ALARM_NEG_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+		PRE_ALARM_NEG_INSULATION_RESISTANCE_LOWER(Doc.of(Level.INFO) //
 				.text("ALARM LEVEL 1 NEG INSULATION RESISTANCE LOWER")), //
-		PRE_ALARM_SYSTEM_SOC_LOWER(Doc.of(Level.WARNING) //
+		PRE_ALARM_SYSTEM_SOC_LOWER(Doc.of(Level.INFO) //
 				.text("ALARM LEVEL 1 SYSTEM SOC LOWER")), //
-		PRE_ALARM_SYSTEM_SOC_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_SYSTEM_SOC_HIGH(Doc.of(Level.INFO) //
 				.text("ALARM LEVEL 1 SYSTEM SOC HIGH")), //
-		PRE_ALARM_SOH_LOWER(Doc.of(Level.WARNING) //
+		PRE_ALARM_SOH_LOWER(Doc.of(Level.INFO) //
 				.text("ALARM LEVEL 1 SOH LOWER")), //
-		PRE_ALARM_PACK_TEMP_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_PACK_TEMP_HIGH(Doc.of(Level.INFO) //
 				.text("ALARM LEVEL 1 PACK TEMP HIGH")), //
 		LEVEL1_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 SYSTEM VOLTAGE HIGH")), //
 		LEVEL1_SYSTEM_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 SYSTEM VOLTAGE LOW")), //
 		LEVEL1_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(Level.WARNING) //
-				.text("ALARM LEVEL 2 SYSTEM VOLTAGE LOW")), //
+				.text("ALARM LEVEL 2 SYSTEM VOLTAGE UNBALANCED")), //
 		LEVEL1_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 INSULATION RESISTANCE LOWER")), //
 		LEVEL1_POS_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
@@ -924,29 +925,29 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 				.text("ALARM LEVEL 2 SYSTEM SOC LOWER")), //
 		LEVEL1_SYSTEM_SOC_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 SYSTEM SOC HIGH")), //
-		LEVEL1_SOH_LOWER(Doc.of(Level.WARNING) //
+		LEVEL1_SOH_LOWER(Doc.of(Level.INFO) //
 				.text("ALARM LEVEL 2 SOH LOWER")), //
 		LEVEL1_PACK_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 PACK TEMP HIGH")), //
-		LEVEL2_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.FAULT) //
 				.text("ALARM LEVEL 3 SYSTEM VOLTAGE HIGH")), //
-		LEVEL2_SYSTEM_VOLTAGE_LOW(Doc.of(Level.WARNING) //
+		LEVEL2_SYSTEM_VOLTAGE_LOW(Doc.of(Level.FAULT) //
 				.text("ALARM LEVEL 3 SYSTEM VOLTAGE LOW")), //
-		LEVEL2_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(Level.WARNING) //
-				.text("ALARM LEVEL 3 SYSTEM VOLTAGE LOW")), //
-		LEVEL2_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+		LEVEL2_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(Level.FAULT) //
+				.text("ALARM LEVEL 3 SYSTEM VOLTAGE UNBALANCED")), //
+		LEVEL2_INSULATION_RESISTANCE_LOWER(Doc.of(Level.FAULT) //
 				.text("ALARM LEVEL 3 INSULATION RESISTANCE LOWER")), //
-		LEVEL2_POS_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+		LEVEL2_POS_INSULATION_RESISTANCE_LOWER(Doc.of(Level.FAULT) //
 				.text("ALARM LEVEL 3 POS INSULATION RESISTANCE LOWER")), //
-		LEVEL2_NEG_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+		LEVEL2_NEG_INSULATION_RESISTANCE_LOWER(Doc.of(Level.FAULT) //
 				.text("ALARM LEVEL 3 NEG INSULATION RESISTANCE LOWER")), //
-		LEVEL2_SYSTEM_SOC_LOWER(Doc.of(Level.WARNING) //
+		LEVEL2_SYSTEM_SOC_LOWER(Doc.of(Level.FAULT) //
 				.text("ALARM LEVEL 3 SYSTEM SOC LOWER")), //
-		LEVEL2_SYSTEM_SOC_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_SYSTEM_SOC_HIGH(Doc.of(Level.FAULT) //
 				.text("ALARM LEVEL 3 SYSTEM SOC HIGH")), //
 		LEVEL2_SOH_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 SOH LOWER")), //
-		LEVEL2_PACK_TEMP_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_PACK_TEMP_HIGH(Doc.of(Level.FAULT) //
 				.text("ALARM LEVEL 3 PACK TEMP HIGH")), //
 		SLAVE_11_COMMUNICATION_ERROR(Doc.of(Level.FAULT)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_11")), //

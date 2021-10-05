@@ -44,6 +44,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
       // convert labels
       let labels: Date[] = [];

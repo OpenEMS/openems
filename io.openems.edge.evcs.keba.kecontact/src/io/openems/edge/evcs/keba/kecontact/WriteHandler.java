@@ -12,6 +12,7 @@ import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.Status;
 
 /**
  * Handles writes. Called in every cycle
@@ -27,7 +28,6 @@ public class WriteHandler implements Runnable {
 	 */
 	private static final int WRITE_INTERVAL_SECONDS = 5;
 	private static final int WRITE_DISPLAY_INTERVAL_SECONDS = 60;
-	private static final int WRITE_ENERGY_SESSION_INTERVAL_SECONDS = 10;
 
 	public WriteHandler(KebaKeContact parent) {
 		this.parent = parent;
@@ -95,97 +95,98 @@ public class WriteHandler implements Runnable {
 	 */
 	private void setPower() {
 
-		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT);
-		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
-		if (valueOpt.isPresent()) {
+		WriteChannel<Integer> energyLimitChannel = this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT);
+		int energyLimit = energyLimitChannel.getNextValue().orElse(0);
 
-			Integer power = valueOpt.get();
-			Value<Integer> phases = this.parent.getPhases();
-			Integer current = power * 1000 / phases.orElse(3) /* e.g. 3 phases */ / 230; /* voltage */
-			// limits the charging value because KEBA knows only values between 6000 and
-			// 63000
-			if (current > 63000) {
-				current = 63000;
-			}
-			if (current < 6000) {
-				current = 0;
-			}
+		// Check energy limit
+		if (energyLimit == 0 || energyLimit > this.parent.getEnergySession().orElse(0)) {
 
-			if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
+			// Check current set_charge_power_limit write value
+			WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT);
+			Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
+			if (valueOpt.isPresent()) {
 
-				this.parent.logInfoInDebugmode(log, "Setting KEBA " + this.parent.alias() + " current to [" + current
-						+ " A] - calculated from [" + power + " W] by " + phases.orElse(3) + " Phase");
-
-				try {
-					Channel<Integer> currPower = this.parent.channel(KebaChannelId.ACTUAL_POWER);
-					this.parent.setDisplayText((currPower.value().orElse(0) / 1000) + "W");
-				} catch (OpenemsNamedException e) {
-					e.printStackTrace();
+				Integer power = valueOpt.get();
+				Value<Integer> phases = this.parent.getPhases();
+				Integer current = power * 1000 / phases.orElse(3) /* e.g. 3 phases */ / 230; /* voltage */
+				// limits the charging value because KEBA knows only values between 6000 and
+				// 63000
+				if (current > 63000) {
+					current = 63000;
+				}
+				if (current < 6000) {
+					current = 0;
 				}
 
-				boolean sentSuccessfully = parent.send("currtime " + current + " 1");
-				if (sentSuccessfully) {
-					this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
-					this.lastCurrent = current;
-					this.parent._setSetChargePowerLimit(power);
+				if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
+
+					this.parent.logInfoInDebugmode(log, "Setting KEBA " + this.parent.alias() + " current to ["
+							+ current + " A] - calculated from [" + power + " W] by " + phases.orElse(3) + " Phase");
+
+					this.setTarget(current, power);
 				}
+			}
+		} else {
+			try {
+				this.parent.setDisplayText(energyLimit + " Wh limit reached");
+			} catch (OpenemsNamedException e) {
+				e.printStackTrace();
+			}
+			this.parent.logInfoInDebugmode(log, "Maximum energy limit reached");
+			this.parent._setStatus(Status.ENERGY_LIMIT_REACHED);
+
+			if (!this.lastCurrent.equals(0) || this.parent.getChargePower().orElse(0) != 0) {
+				this.setTarget(0, 0);
 			}
 		}
 	}
 
+	/**
+	 * Set current target to the charger.
+	 * 
+	 * @param current current target in mA
+	 * @param power   current target in W
+	 */
+	private void setTarget(int current, int power) {
+		try {
+			Channel<Integer> currPower = this.parent.channel(KebaChannelId.ACTUAL_POWER);
+			this.parent.setDisplayText((currPower.value().orElse(0) / 1000) + "W");
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
+		}
+
+		boolean sentSuccessfully = parent.send("currtime " + current + " 1");
+		if (sentSuccessfully) {
+			this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
+			this.lastCurrent = current;
+			this.parent._setSetChargePowerLimit(power);
+		}
+	}
+
 	private Integer lastEnergySession = null;
-	private LocalDateTime nextEnergySessionWrite = LocalDateTime.MIN;
 
 	/**
 	 * Sets the Energy Limit for this session from SET_ENERGY_SESSION channel.
-	 * 
-	 * <p>
-	 * Allowed values for the command setenergy are 0; 1-999999999 the value of the
-	 * command is 0.1 Wh. The charging station will charge till this limit.
 	 */
 	private void setEnergySession() {
 
 		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT);
 
 		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
+
 		if (valueOpt.isPresent()) {
+			Integer energyLimit = valueOpt.get();
 
-			Integer energyTarget = valueOpt.get();
-			this.parent._setSetEnergyLimit(energyTarget);
+			// Set if the energy target to set changed
+			if (!energyLimit.equals(this.lastEnergySession)) {
 
-			if (energyTarget < 0) {
-				return;
-			}
+				// Set energy limit
+				this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT).setNextValue(energyLimit);
+				this.parent.logInfoInDebugmode(this.log, "Setting EVCS " + this.parent.alias()
+						+ " Energy Limit in this Session to [" + energyLimit + " Wh]");
 
-			/*
-			 * limits the target value because KEBA knows only values between 0 and
-			 * 999999999 0.1Wh
-			 */
-			energyTarget = energyTarget > 99999999 ? 99999999 : energyTarget;
-			energyTarget = energyTarget > 0 && energyTarget < 1 ? 1 : energyTarget;
-			energyTarget *= 10;
-
-			if (!energyTarget.equals(this.lastEnergySession)
-					|| this.nextEnergySessionWrite.isBefore(LocalDateTime.now())) {
-
-				this.parent.logInfoInDebugmode(this.log, "Setting KEBA " + this.parent.alias()
-						+ " Energy Limit in this Session to [" + energyTarget / 10 + " Wh]");
-
-				boolean sentSuccessfully = parent.send("setenergy " + energyTarget);
-				if (sentSuccessfully) {
-
-					try {
-						if (energyTarget > 0) {
-							this.parent.setDisplayText("Max: " + energyTarget / 10 + "Wh");
-						}
-					} catch (OpenemsNamedException e) {
-						e.printStackTrace();
-					}
-
-					this.nextEnergySessionWrite = LocalDateTime.now()
-							.plusSeconds(WRITE_ENERGY_SESSION_INTERVAL_SECONDS);
-					this.lastEnergySession = energyTarget;
-				}
+				// Prepare next write
+				this.lastEnergySession = energyLimit;
 			}
 		}
 	}

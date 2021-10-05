@@ -253,6 +253,18 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	}
 
 	/**
+	 * Gets a boolean if the ess is managed or not.
+	 * 
+	 * <p>
+	 * Returns false if the ess itself is not managed or in a read only mode.
+	 * 
+	 * @return is managed or not
+	 */
+	public default boolean isManaged() {
+		return true;
+	}
+
+	/**
 	 * Gets an instance of the 'Power' class, which allows to set limitations to
 	 * Active and Reactive Power.
 	 * 

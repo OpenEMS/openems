@@ -201,7 +201,9 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 */
 	@Override
 	protected void execute(Runnable command) {
-		this.executor.execute(command);
+		if (!this.executor.isShutdown()) {
+			this.executor.execute(command);
+		}
 	}
 
 	/**

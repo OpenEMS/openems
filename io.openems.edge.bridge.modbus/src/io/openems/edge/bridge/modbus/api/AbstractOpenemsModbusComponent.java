@@ -26,7 +26,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.TypeUtils;
 
-public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComponent {
+public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComponent implements ModbusComponent {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsModbusComponent.class);
 

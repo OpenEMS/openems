@@ -8,6 +8,9 @@ import io.openems.edge.predictor.api.oneday.Predictor24Hours;
 
 public interface PredictorManager extends OpenemsComponent {
 
+	public final static String SINGLETON_SERVICE_PID = "Core.PredictorManager";
+	public final static String SINGLETON_COMPONENT_ID = "_predictorManager";
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
 		private final Doc doc;

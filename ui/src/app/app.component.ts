@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import { environment } from '../environments';
-import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
+import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { Service, Websocket } from './shared/shared';
+import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { environment } from '../environments';
+import { Service, Websocket } from './shared/shared';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +13,7 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class AppComponent {
 
-  public env = environment;
+  public environment = environment;
   public backUrl: string | boolean = '/';
   public enableSideMenu: boolean;
   public currentPage: 'EdgeSettings' | 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
@@ -27,11 +28,13 @@ export class AppComponent {
     public service: Service,
     public toastController: ToastController,
     public websocket: Websocket,
+    private titleService: Title
   ) {
     service.setLang(this.service.browserLangToLangTag(navigator.language));
   }
 
   ngOnInit() {
+    this.titleService.setTitle(environment.shortName);
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
       const toast = await this.toastController.create({
         message: notification.message,

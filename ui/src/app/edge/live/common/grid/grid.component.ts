@@ -34,7 +34,7 @@ export class GridComponent extends AbstractFlatWidget {
     this.gridMode = currentData.allComponents[GridComponent.GRID_MODE.toString()];
     let gridActivePower = currentData.allComponents[GridComponent.GRID_ACTIVE_POWER.toString()];
     this.gridBuyPower = gridActivePower;
-    this.gridBuyPower = Utils.multiplySafely(gridActivePower, -1);
+    this.gridSellPower = Utils.multiplySafely(gridActivePower, -1);
   }
 
   async presentModal() {

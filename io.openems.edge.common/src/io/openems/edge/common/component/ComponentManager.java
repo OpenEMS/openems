@@ -3,7 +3,6 @@ package io.openems.edge.common.component;
 import java.time.Clock;
 import java.util.List;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -20,8 +19,11 @@ import io.openems.edge.common.jsonapi.JsonApi;
  */
 public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvider {
 
+	public final static String SINGLETON_SERVICE_PID = "Core.ComponentManager";
+	public final static String SINGLETON_COMPONENT_ID = "_componentManager";
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
+		CONFIG_NOT_ACTIVATED(Doc.of(Level.FAULT) //
 				.text("A configured OpenEMS Component was not activated")), //
 		DUPLICATED_COMPONENT_ID(Doc.of(Level.FAULT) //
 				.text("Configuration has duplicated Component-IDs")), //
@@ -201,7 +203,7 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 	 */
 	@SuppressWarnings("unchecked")
 	public default <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
-		if (componentId.equals(OpenemsConstants.COMPONENT_MANAGER_ID)) {
+		if (SINGLETON_COMPONENT_ID.equals(componentId)) {
 			return (T) this;
 		}
 		List<OpenemsComponent> components = this.getEnabledComponents();
@@ -226,7 +228,7 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 	@SuppressWarnings("unchecked")
 	public default <T extends OpenemsComponent> T getPossiblyDisabledComponent(String componentId)
 			throws OpenemsNamedException {
-		if (componentId == OpenemsConstants.COMPONENT_MANAGER_ID) {
+		if (SINGLETON_COMPONENT_ID.equals(componentId)) {
 			return (T) this;
 		}
 		List<OpenemsComponent> components = this.getAllComponents();

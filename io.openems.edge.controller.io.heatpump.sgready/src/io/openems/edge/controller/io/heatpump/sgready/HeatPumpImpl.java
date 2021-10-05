@@ -27,7 +27,6 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.component.ComponentManagerProvider;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.Sum;
@@ -43,7 +42,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 )
 public class HeatPumpImpl extends AbstractOpenemsComponent
-		implements Controller, OpenemsComponent, HeatPump, EventHandler, TimedataProvider, ComponentManagerProvider {
+		implements Controller, OpenemsComponent, HeatPump, EventHandler, TimedataProvider {
 
 	private final Logger log = LoggerFactory.getLogger(HeatPumpImpl.class);
 
@@ -295,11 +294,6 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 		if (this.config.debugMode()) {
 			this.logInfo(this.log, message);
 		}
-	}
-
-	@Override
-	public ComponentManager getComponentManager() {
-		return this.componentManager;
 	}
 
 	@Override

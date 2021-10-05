@@ -13,8 +13,8 @@
 
           <ion-card-content class="ion-text-wrap">
             <ion-item lines="inset">
-              <ion-label>
-                Name
+              <ion-label translate>
+                Menu.name
               </ion-label>
               <ion-label>
                 {{ user.name }}
@@ -33,8 +33,8 @@
               </ion-label>
             </ion-item>
             <ion-item lines="inset">
-              <ion-label>
-                Zugriffslevel
+              <ion-label translate>
+                Menu.accessLevel
               </ion-label>
               <ion-label>
                 {{ 'Role.' + user.globalRole | translate }}
@@ -66,7 +66,7 @@
             <ion-label translate>Menu.generalSettings</ion-label>
           </ion-item>
           <ion-card-content>
-            <ion-item lines="inset">
+            <ion-item lines="none">
               <ion-label translate>About.language</ion-label>
               <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage">
                 <ion-select-option *ngFor="let language of languages" [value]="language">
@@ -82,10 +82,9 @@
       <ion-col size="12" size-md="8" size-xl="4">
         <ion-card>
           <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="primary" name="information-circle-outline"></ion-icon>
+            <ion-icon slot="start" size="large" color="primary" name="code-slash-outline"></ion-icon>
             <ion-label class="ion-text-wrap">
               OpenEMS UI
-              <ion-card-subtitle translate>About.ui</ion-card-subtitle>
             </ion-label>
           </ion-item>
 
@@ -97,14 +96,14 @@
               </li>
               <li>
                 <a target="_blank" href="https://github.com/OpenEMS/openems/tree/develop">
-                  <span translate>About.build</span>: 2021.14.0-SNAPSHOT</a>
+                  <span translate>About.build</span>: 2021.17.0-SNAPSHOT</a>
               </li>
             </ul>
             <p class="ion-padding">
               <span [innerHTML]="'About.contact' | translate:{value: 'info@openems.io'}"></span>
             </p>
             <ion-item lines="inset">
-              <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="env.debugMode">
+              <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">
               </ion-checkbox>
               <ion-label translate>Debug-Mode</ion-label>
             </ion-item>

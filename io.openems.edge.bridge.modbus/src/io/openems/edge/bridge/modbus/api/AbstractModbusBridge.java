@@ -108,7 +108,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	public abstract void closeModbusConnection();
 
 	public LogVerbosity getLogVerbosity() {
-		return logVerbosity;
+		return this.logVerbosity;
 	}
 
 	@Override

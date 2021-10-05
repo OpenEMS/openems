@@ -1,0 +1,38 @@
+<ion-card button routerLink="/device/{{edge.id}}/history/{{componentId}}/gridOptimizedChargeChart"
+  *ngIf="component && edge">
+  <ion-item lines="full" color="light">
+    <ion-avatar slot="start">
+      <!-- <img src="assets/img/selfconsumption.png"> -->
+      <img src="assets/img/gridStorage.png">
+    </ion-avatar>
+    <ion-label>{{ component.alias }}</ion-label>
+  </ion-item>
+  <ng-container *ngIf="component && service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+      <ion-card-content>
+        <table class="full_width">
+          <tr>
+            <td style="width:65%" translate><span
+                translate>&nbsp;Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive</span></td>
+            <td style="width:35%" class="align_right" *ngIf="activeTimeDelayCharge / 60 > 59">
+              {{ activeTimeDelayCharge * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+            </td>
+            <td style="width:35%" class="align_right" *ngIf="activeTimeDelayCharge / 60 < 59">
+              {{ activeTimeDelayCharge * 1000 | date:'m':'UTC' }}&nbsp;m
+            </td>
+          </tr>
+          <tr>
+            <td style="width:65%" translate><span
+                translate>&nbsp;Edge.Index.Widgets.GridOptimizedCharge.gridFeedInLimitationAvoided</span></td>
+            <td style="width:35%" class="align_right" *ngIf="activeTimeSellToGridLimit / 60 > 59">
+              {{ activeTimeSellToGridLimit * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+            </td>
+            <td style="width:35%" class="align_right" *ngIf="activeTimeSellToGridLimit / 60 < 59">
+              {{ activeTimeSellToGridLimit * 1000 | date:'m':'UTC' }}&nbsp;m
+            </td>
+          </tr>
+        </table>
+      </ion-card-content>
+    </ng-container>
+  </ng-container>
+</ion-card>

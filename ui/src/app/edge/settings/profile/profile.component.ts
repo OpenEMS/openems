@@ -18,7 +18,7 @@ export class ProfileComponent {
 
   private static readonly SELECTOR = "profile";
 
-  public env = environment;
+  public environment = environment;
 
   public edge: Edge = null;
   public config: EdgeConfig = null;
@@ -38,7 +38,7 @@ export class ProfileComponent {
       this.edge = edge;
       this.service.getConfig().then(config => {
         this.config = config;
-        let categorizedComponentIds: string[] = ["_componentManager", "_cycle", "_meta", "_power", "_sum"]
+        let categorizedComponentIds: string[] = ["_componentManager", "_cycle", "_meta", "_power", "_sum", "_predictorManager", "_host", "_evcsSlowPowerIncreaseFilter"]
         this.components = config.listActiveComponents(categorizedComponentIds);
       })
     });

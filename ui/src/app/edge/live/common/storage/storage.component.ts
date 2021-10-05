@@ -18,7 +18,12 @@ export class StorageComponent extends AbstractFlatWidget {
 
     protected getChannelAddresses() {
         let channelAddresses: ChannelAddress[] = [
-            new ChannelAddress('_sum', 'EssSoc')
+            new ChannelAddress('_sum', 'EssSoc'),
+
+            // TODO should be moved to Modal
+            new ChannelAddress('_sum', 'EssActivePowerL1'),
+            new ChannelAddress('_sum', 'EssActivePowerL2'),
+            new ChannelAddress('_sum', 'EssActivePowerL3'),
         ];
 
         // Get Chargers

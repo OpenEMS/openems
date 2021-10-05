@@ -2,7 +2,6 @@ package io.openems.edge.controller.generic.jsonlogic;
 
 import org.junit.Test;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.sum.Sum;
@@ -13,7 +12,7 @@ import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
 public class JsonLogicControllerTest {
 
-	private final static ChannelAddress ESS_SOC = new ChannelAddress(OpenemsConstants.SUM_ID,
+	private final static ChannelAddress ESS_SOC = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
 			Sum.ChannelId.ESS_SOC.id());
 
 	private final static String ESS_ID = "ess0";
