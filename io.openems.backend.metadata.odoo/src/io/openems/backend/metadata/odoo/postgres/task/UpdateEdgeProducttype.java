@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import io.openems.backend.metadata.odoo.Field.Edge;
+import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 
 public class UpdateEdgeProducttype extends DatabaseTask {
 
@@ -32,9 +32,9 @@ public class UpdateEdgeProducttype extends DatabaseTask {
 	 */
 	private PreparedStatement psUpdateProductType(Connection connection) throws SQLException {
 		return connection.prepareStatement(//
-				"UPDATE " + Edge.ODOO_TABLE //
+				"UPDATE " + EdgeDevice.ODOO_TABLE //
 						+ " SET" //
-						+ " " + Edge.PRODUCT_TYPE.id() + " = ?" //
+						+ " " + EdgeDevice.PRODUCT_TYPE.id() + " = ?" //
 						+ " WHERE id = ?");
 	}
 

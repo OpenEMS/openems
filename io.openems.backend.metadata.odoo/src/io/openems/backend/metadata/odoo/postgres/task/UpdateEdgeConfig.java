@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 import com.google.gson.GsonBuilder;
 
-import io.openems.backend.metadata.odoo.Field.Edge;
+import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component.JsonFormat;
 import io.openems.common.utils.StringUtils;
@@ -42,10 +42,10 @@ public class UpdateEdgeConfig extends DatabaseTask {
 	 */
 	private PreparedStatement psUpdateEdgeConfig(Connection connection) throws SQLException {
 		return connection.prepareStatement(//
-				"UPDATE " + Edge.ODOO_TABLE //
+				"UPDATE " + EdgeDevice.ODOO_TABLE //
 						+ " SET" //
-						+ " " + Edge.OPENEMS_CONFIG.id() + " = ?," //
-						+ " " + Edge.OPENEMS_CONFIG_COMPONENTS.id() + " = ?" //
+						+ " " + EdgeDevice.OPENEMS_CONFIG.id() + " = ?," //
+						+ " " + EdgeDevice.OPENEMS_CONFIG_COMPONENTS.id() + " = ?" //
 						+ " WHERE id = ?");
 	}
 

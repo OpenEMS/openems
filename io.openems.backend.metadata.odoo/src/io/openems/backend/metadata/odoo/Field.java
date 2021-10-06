@@ -26,9 +26,9 @@ public interface Field {
 	}
 
 	/**
-	 * The Edge-Model.
+	 * The EdgeDevice-Model.
 	 */
-	public enum Edge implements Field {
+	public enum EdgeDevice implements Field {
 		ID("id", true), //
 		APIKEY("apikey", true), //
 		SETUP_PASSWORD("setup_password", true), //
@@ -44,7 +44,7 @@ public interface Field {
 		OPENEMS_SUM_STATE("openems_sum_state_level", true), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false);
 
-		public static final String ODOO_MODEL = "openems.edge";
+		public static final String ODOO_MODEL = "edge.device";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -58,7 +58,7 @@ public interface Field {
 		 */
 		private final boolean query;
 
-		private Edge(String id, boolean query) {
+		private EdgeDevice(String id, boolean query) {
 			this.id = id;
 			this.query = query;
 			if (query) {
@@ -83,10 +83,10 @@ public interface Field {
 	}
 
 	/**
-	 * The EdgeStatus-Model.
+	 * The EdgeDeviceStatus-Model.
 	 */
-	public enum EdgeStatus implements Field {
-		EDGE_ID("edge_id", false), //
+	public enum EdgeDeviceStatus implements Field {
+		DEVICE_ID("device_id", false), //
 		CHANNEL_ADDRESS("channel_address", false), //
 		LEVEL("level", true), //
 		COMPONENT_ID("component_id", true), //
@@ -95,7 +95,7 @@ public interface Field {
 		LAST_ACKNOWLEDGE("last_acknowledge", false), //
 		ACKNOWLEDGE_DAYS("acknowledge_days", false);
 
-		public static final String ODOO_MODEL = "openems.edge_status";
+		public static final String ODOO_MODEL = "edge.device_status";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -110,7 +110,7 @@ public interface Field {
 		 */
 		private final boolean query;
 
-		private EdgeStatus(String id, boolean query) {
+		private EdgeDeviceStatus(String id, boolean query) {
 			this.id = id;
 			this.query = query;
 			if (query) {
@@ -138,11 +138,11 @@ public interface Field {
 	 * The EdgeConfigUpdate-Model.
 	 */
 	public enum EdgeConfigUpdate implements Field {
-		EDGE_ID("edge_id", false), //
+		DEVICE_ID("device_id", false), //
 		TEASER("teaser", false), //
 		DETAILS("details", false);
 
-		public static final String ODOO_MODEL = "openems.openemsconfigupdate";
+		public static final String ODOO_MODEL = "edge.openemsconfigupdate";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -182,14 +182,14 @@ public interface Field {
 	}
 
 	/**
-	 * The EdgeUserRole-Model.
+	 * The EdgeDeviceUserRole-Model.
 	 */
-	public enum EdgeUserRole implements Field {
-		EDGE_ID("edge_id", false), //
+	public enum EdgeDeviceUserRole implements Field {
+		DEVICE_ID("device_id", false), //
 		USER_ID("user_id", false), //
 		ROLE("role", false);
 
-		public static final String ODOO_MODEL = "openems.edge_user_role";
+		public static final String ODOO_MODEL = "edge.device_user_role";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -205,7 +205,7 @@ public interface Field {
 		 */
 		private final boolean query;
 
-		private EdgeUserRole(String id, boolean query) {
+		private EdgeDeviceUserRole(String id, boolean query) {
 			this.id = id;
 			this.query = query;
 			if (query) {
@@ -392,9 +392,9 @@ public interface Field {
 		CUSTOMER("customer_id", true), //
 		DIFFERENT_LOCATION("different_location_id", true), //
 		INSTALLER("installer_id", true), //
-		EDGE("edge_id", true);
+		EDGE("edge_device_id", true);
 
-		public static final String ODOO_MODEL = "openems.setup_protocol";
+		public static final String ODOO_MODEL = "edge.setup_protocol";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -441,7 +441,7 @@ public interface Field {
 		SEQUENCE("sequence", true), //
 		LOT("lot_id", true);
 
-		public static final String ODOO_MODEL = "openems.setup_protocol_production_lot";
+		public static final String ODOO_MODEL = "edge.setup_protocol_production_lot";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -487,7 +487,7 @@ public interface Field {
 		SETUP_PROTOCOL("setup_protocol_id", true), //
 		SEQUENCE("sequence", true);
 
-		public static final String ODOO_MODEL = "openems.setup_protocol_item";
+		public static final String ODOO_MODEL = "edge.setup_protocol_item";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {

@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import io.openems.backend.metadata.odoo.Field.Edge;
+import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 
 public class UpdateEdgeStateActive extends DatabaseTask {
 
@@ -29,9 +29,9 @@ public class UpdateEdgeStateActive extends DatabaseTask {
 	 */
 	private PreparedStatement psUpdateEdgeStateActive(Connection connection) throws SQLException {
 		return connection.prepareStatement(//
-				"UPDATE " + Edge.ODOO_TABLE //
+				"UPDATE " + EdgeDevice.ODOO_TABLE //
 						+ " SET" //
-						+ " " + Edge.STATE.id() + " = 'active'" //
+						+ " " + EdgeDevice.STATE.id() + " = 'active'" //
 						+ " WHERE id = ?");
 	}
 

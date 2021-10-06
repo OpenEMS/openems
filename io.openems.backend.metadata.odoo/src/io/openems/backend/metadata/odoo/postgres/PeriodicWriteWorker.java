@@ -20,7 +20,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.metadata.odoo.Field;
-import io.openems.backend.metadata.odoo.Field.Edge;
+import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.common.utils.ThreadPoolUtils;
 
@@ -155,8 +155,8 @@ public class PeriodicWriteWorker {
 		synchronized (this.isOfflineOdooIds) {
 			if (!this.isOfflineOdooIds.isEmpty()) {
 				StringBuilder sql = new StringBuilder(//
-						"UPDATE " + Edge.ODOO_TABLE //
-								+ " SET " + Field.Edge.OPENEMS_IS_CONNECTED.id() + " = FALSE" //
+						"UPDATE " + EdgeDevice.ODOO_TABLE //
+								+ " SET " + Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = FALSE" //
 								+ " WHERE id IN (");
 				sql.append(//
 						this.isOfflineOdooIds.stream() //
@@ -173,8 +173,8 @@ public class PeriodicWriteWorker {
 		synchronized (this.isOnlineOdooIds) {
 			if (!this.isOnlineOdooIds.isEmpty()) {
 				StringBuilder sql = new StringBuilder(//
-						"UPDATE " + Edge.ODOO_TABLE //
-								+ " SET " + Field.Edge.OPENEMS_IS_CONNECTED.id() + " = TRUE" //
+						"UPDATE " + EdgeDevice.ODOO_TABLE //
+								+ " SET " + Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = TRUE" //
 								+ " WHERE id IN (");
 				sql.append(//
 						this.isOnlineOdooIds.stream() //
@@ -191,8 +191,8 @@ public class PeriodicWriteWorker {
 		synchronized (this.lastUpdateOdooIds) {
 			if (!this.lastUpdateOdooIds.isEmpty()) {
 				StringBuilder sql = new StringBuilder(//
-						"UPDATE " + Edge.ODOO_TABLE //
-								+ " SET " + Field.Edge.LAST_UPDATE.id() + " = (now() at time zone 'UTC')" //
+						"UPDATE " + EdgeDevice.ODOO_TABLE //
+								+ " SET " + Field.EdgeDevice.LAST_UPDATE.id() + " = (now() at time zone 'UTC')" //
 								+ " WHERE id IN (");
 				sql.append(//
 						this.lastUpdateOdooIds.stream() //
@@ -209,8 +209,8 @@ public class PeriodicWriteWorker {
 		synchronized (this.lastMessageOdooIds) {
 			if (!this.lastMessageOdooIds.isEmpty()) {
 				StringBuilder sql = new StringBuilder(//
-						"UPDATE " + Edge.ODOO_TABLE //
-								+ " SET " + Field.Edge.LAST_MESSAGE.id() + " = (now() at time zone 'UTC')" //
+						"UPDATE " + EdgeDevice.ODOO_TABLE //
+								+ " SET " + Field.EdgeDevice.LAST_MESSAGE.id() + " = (now() at time zone 'UTC')" //
 								+ " WHERE id IN (");
 				sql.append(//
 						this.lastMessageOdooIds.stream() //
