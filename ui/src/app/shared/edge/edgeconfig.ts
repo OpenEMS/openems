@@ -284,6 +284,7 @@ export class EdgeConfig {
                     case 'PV-Inverter.Solarlog':
                     case 'PV-Inverter.KACO.blueplanet':
                     case 'PV-Inverter.SunSpec':
+                    case 'PV-Inverter.SMA.SunnyTripower':
                     case 'SolarEdge.PV-Inverter':
                     case 'Simulator.PvInverter':
                     case 'Simulator.ProductionMeter.Acting':
@@ -314,6 +315,7 @@ export class EdgeConfig {
                 case 'PV-Inverter.Solarlog':
                 case 'PV-Inverter.KACO.blueplanet':
                 case 'PV-Inverter.SunSpec':
+                case 'PV-Inverter.SMA.SunnyTripower':
                 case 'SolarEdge.PV-Inverter':
                 case 'Simulator.PvInverter':
                 case 'Simulator.ProductionMeter.Acting':
