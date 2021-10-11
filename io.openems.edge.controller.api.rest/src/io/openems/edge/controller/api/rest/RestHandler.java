@@ -347,7 +347,7 @@ public class RestHandler extends AbstractHandler {
 	 */
 	private boolean handlePost(User user, ChannelAddress channelAddress, Request baseRequest,
 			HttpServletRequest request, HttpServletResponse response) throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("HTTP POST", Role.ADMIN);
+		user.assertRoleIsAtLeast("HTTP POST", Role.OWNER);
 
 		// parse json
 		JsonObject jHttpPost = RestHandler.parseJson(baseRequest);
@@ -398,9 +398,12 @@ public class RestHandler extends AbstractHandler {
 	 * @param baseRequest  the HTTP POST base-request
 	 * @param httpRequest  the HTTP POST request
 	 * @param httpResponse the HTTP response
+	 * @throws OpenemsNamedException on error
 	 */
 	private void handleJsonRpc(User user, Request baseRequest, HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse) {
+			HttpServletResponse httpResponse) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast("HTTP POST JSON-RPC", Role.ADMIN);
+
 		UUID requestId = new UUID(0L, 0L); /* dummy UUID */
 		try {
 			// call handler methods

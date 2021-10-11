@@ -16,6 +16,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
@@ -36,7 +37,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
-		implements MeterCarloGavazziEm300, SymmetricMeter, AsymmetricMeter, OpenemsComponent {
+		implements MeterCarloGavazziEm300, SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent {
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -46,6 +47,7 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 	public MeterCarloGavazziEm300Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //
 				MeterCarloGavazziEm300.ChannelId.values() //

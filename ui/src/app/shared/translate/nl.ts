@@ -109,6 +109,11 @@ export const TRANSLATION = {
     },
     Edge: {
         Index: {
+            // TODO Translations
+            EmergencyReserve: {
+                InfoForEmergencyReserveSlider: 'By activating the emergency power reserve, the value can be freely selected between 5% and 100%.',
+                emergencyReserve: 'Emergencyreserve',
+            },
             Energymonitor: {
                 activePower: 'Actief vermogen',
                 consumptionWarning: 'Verbruik & onbekende producenten',

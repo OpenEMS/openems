@@ -7,11 +7,8 @@ Bundle-Version: 2.17
 Include-Resource: \
 	@converter-moshi-2.9.0.jar,\
 	@influxdb-java-2.17.jar,\
-	@logging-interceptor-3.14.9.jar,\
 	@moshi-1.12.0.jar,\
 	@msgpack-core-0.9.0.jar,\
-	@okhttp-3.14.9.jar,\
-	@okio-1.17.2.jar,\
 	@retrofit-2.9.0.jar
 
 Export-Package: \
@@ -23,24 +20,14 @@ Export-Package: \
    org.msgpack.value.impl, \
    org.msgpack.core.buffer, \
    org.msgpack.core, \
-   okhttp3, \
-   okio, \
    retrofit2, \
    retrofit2.http, \
    retrofit2.converter.moshi
 
 Import-Package: \
 	android.os;resolution:=optional,\
-	android.util;resolution:=optional,\
-	android.net.http;resolution:=optional,\
-	android.net.ssl;resolution:=optional,\
-	android.security;resolution:=optional,\
-	com.android.org.conscrypt;resolution:=optional,\
-	org.conscrypt;resolution:=optional,\
-	dalvik.system;resolution:=optional,\
 	kotlin;resolution:=optional,\
 	kotlin.jvm.internal;resolution:=optional,\
-	sun.security.ssl;resolution:=optional,\
 	kotlin.coroutines;resolution:=optional,\
 	kotlin.coroutines.intrinsics;resolution:=optional,\
 	kotlin.coroutines.jvm.internal;resolution:=optional,\
@@ -49,7 +36,7 @@ Import-Package: \
 	kotlin.reflect;resolution:=optional,\
 	kotlinx.coroutines;resolution:=optional,\
 	*
-	
+
 -dsannotations: *
 
 -metatypeannotations: *

@@ -1,12 +1,15 @@
 package io.openems.edge.core.sum;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -56,6 +59,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	protected ComponentManager componentManager;
 
 	private final EnergyValuesHandler energyValuesHandler;
+	private final Set<String> ignoreStateComponents = new HashSet<>();
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
@@ -73,12 +77,30 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	}
 
 	@Activate
-	void activate(ComponentContext context) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
+		this.applyConfig(config);
 		this.energyValuesHandler.activate();
+	}
+
+	@Modified
+	private void modified(ComponentContext context, Config config) {
+		super.modified(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
+		this.applyConfig(config);
+	}
+
+	private synchronized void applyConfig(Config config) {
+		// Parse Ignore States
+		this.ignoreStateComponents.clear();
+		for (String channelId : config.ignoreStateComponents()) {
+			if (channelId.isEmpty()) {
+				continue;
+			}
+			this.ignoreStateComponents.add(channelId);
+		}
 	}
 
 	@Deactivate
@@ -374,16 +396,37 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	 */
 	private void calculateState() {
 		Level highestLevel = Level.OK;
+		boolean hasIgnoredComponentStates = false;
 		for (OpenemsComponent component : this.componentManager.getEnabledComponents()) {
 			if (component == this) {
 				// ignore myself
 				continue;
 			}
 			Level level = component.getState();
-			if (level.getValue() > highestLevel.getValue()) {
-				highestLevel = level;
+			if (this.ignoreStateComponents.contains(component.id()) && level != Level.OK) {
+				// This Components State should be ignored
+				hasIgnoredComponentStates = true;
+
+			} else {
+				this._setHasIgnoredComponentStates(false);
+				// Calculate highest State Level
+				if (level.getValue() > highestLevel.getValue()) {
+					highestLevel = level;
+				}
 			}
 		}
+
+		// There is at least one ignored State -> show info
+		if (hasIgnoredComponentStates) {
+			this._setHasIgnoredComponentStates(true);
+			// Note: this sets the StateChannel 'HAS_IGNORED_COMPONENT_STATES' to true,
+			// which sets the Sum 'STATE'-Channel to 'INFO'. We override this below with
+			// 'highestLevel'.
+			if (Level.INFO.getValue() > highestLevel.getValue()) {
+				highestLevel = Level.INFO;
+			}
+		}
+
 		this.getStateChannel().setNextValue(highestLevel);
 	}
 
