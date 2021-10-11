@@ -9,7 +9,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "ctrlChannelSingleThreshold0";
+	String id() default "ctrlIoChannelSingleThreshold0";
 
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
 	String alias() default "";
@@ -23,8 +23,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Input Channel", description = "Address of the input channel. If the value of this channel is above the configured threshold, the output is switched ON.")
 	String inputChannelAddress();
 
-	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
-	String outputChannelAddress();
+	@AttributeDefinition(name = "Output Channels", description = "Channel addresses of the Digital Outputs that should be switched")
+	String[] outputChannelAddress();
 
 	@AttributeDefinition(name = "Threshold", description = "Threshold boundary value")
 	int threshold();

@@ -105,6 +105,21 @@
               </td>
             </tr>
           </table>
+          <!-- 3 Phases -->
+          <div *ngIf="currentData[component.id + '/ActivePowerL1'] != null 
+            && currentData[component.id + '/ActivePowerL2'] != null 
+            && currentData[component.id + '/ActivePowerL3'] != null" style="padding-top: 5px;" class="full_width">
+            <table class="full_width">
+              <tr *ngFor="let phase of [1,2,3]">
+                <td style="width:2%"></td>
+                <td style="width:23%"><span translate>General.phase</span>&nbsp;L{{ phase }}</td>
+                <td style="width:40%"></td>
+                <td style="width:35%" class="align_right">
+                  {{ currentData[component.id + '/ActivePowerL' + phase] | unitvalue:'W' }}
+                </td>
+              </tr>
+            </table>
+          </div>
         </ion-card-content>
       </ng-container>
     </ng-container>

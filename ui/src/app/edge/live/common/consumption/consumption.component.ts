@@ -1,7 +1,7 @@
-import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../../shared/shared';
-import { ConsumptionModalComponent } from './modal/modal.component';
-import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
 import { Component } from '@angular/core';
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../../shared/shared';
+import { AbstractFlatWidget } from 'src/app/shared/Generic_Components/flat/abstract-flat-widget';
+import { ConsumptionModalComponent } from './modal/modal.component';
 
 @Component({
   selector: 'consumption',
@@ -29,12 +29,19 @@ export class ConsumptionComponent extends AbstractFlatWidget {
 
     // Get consumptionMeterComponents
     this.consumptionMeters = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
-      .filter(component => component.properties['type'] == 'CONSUMPTION_METERED');
+      .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component));
 
     for (let component of this.consumptionMeters) {
       channelAddresses.push(
         new ChannelAddress(component.id, 'ActivePower'),
       )
+      if (this.config.getNatureIdsByFactoryId(component.factoryId).includes('io.openems.edge.meter.api.AsymmetricMeter')) {
+        channelAddresses.push(
+          new ChannelAddress(component.id, 'ActivePowerL1'),
+          new ChannelAddress(component.id, 'ActivePowerL2'),
+          new ChannelAddress(component.id, 'ActivePowerL3'),
+        )
+      }
     }
 
     // Get EVCSs

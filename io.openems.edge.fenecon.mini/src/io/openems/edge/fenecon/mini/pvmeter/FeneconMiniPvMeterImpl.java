@@ -18,6 +18,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -40,8 +41,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 				"type=PRODUCTION" //
 		})
-public class FeneconMiniPvMeterImpl extends AbstractOpenemsModbusComponent
-		implements FeneconMiniPvMeter, SymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
+public class FeneconMiniPvMeterImpl extends AbstractOpenemsModbusComponent implements FeneconMiniPvMeter,
+		SymmetricMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -60,6 +61,7 @@ public class FeneconMiniPvMeterImpl extends AbstractOpenemsModbusComponent
 	public FeneconMiniPvMeterImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				FeneconMiniPvMeter.ChannelId.values() //
 		);

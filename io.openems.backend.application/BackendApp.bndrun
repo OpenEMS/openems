@@ -59,6 +59,7 @@
 	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\
 	io.openems.wrapper.influxdb-java;version=snapshot,\
+	io.openems.wrapper.okhttp;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
 	org.apache.commons.commons-fileupload;version='[1.4.0,1.4.1)',\
 	org.apache.commons.commons-io;version='[2.8.0,2.8.1)',\

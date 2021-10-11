@@ -180,6 +180,22 @@ export class Utils {
   }
 
   /**
+  * Converts a value in Watt [W] to KiloWatt [kW].
+  * 
+  * @param value the value from passed value in html
+  * @returns converted value
+  */
+  public static CONVERT_TO_WATT = (value: any): string => {
+    if (value == null) {
+      return '-';
+    } else if (value >= 0) {
+      return formatNumber(value, 'de', '1.0-0') + ' W';
+    } else {
+      return '0 W';
+    }
+  }
+
+  /**
    * Converts a value in Watt [W] to KiloWatt [kW].
    * 
    * @param value the value from passed value in html
@@ -206,6 +222,10 @@ export class Utils {
    */
   public static CONVERT_SECONDS_TO_DATE_FORMAT = (value: any): string => {
     return format(new Date(value * 1000), 'HH:mm:ss')
+  }
+
+  public static CONVERT_TO_PERCENT = (value: any): string => {
+    return value + ' %'
   }
 
   /**
