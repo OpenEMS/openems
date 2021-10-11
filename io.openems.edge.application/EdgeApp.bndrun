@@ -65,7 +65,6 @@
 	bnd.identity;id='io.openems.edge.controller.ess.limittotaldischarge',\
 	bnd.identity;id='io.openems.edge.controller.ess.linearpowerband',\
 	bnd.identity;id='io.openems.edge.controller.ess.mindischargeperiod',\
-	bnd.identity;id='io.openems.edge.controller.ess.onefullcycle',\
 	bnd.identity;id='io.openems.edge.controller.ess.predictivedelaycharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.reactivepowervoltagecharacteristic',\
 	bnd.identity;id='io.openems.edge.controller.ess.selltogridlimit',\
