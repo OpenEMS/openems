@@ -82,6 +82,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 	private static final int DEFAULT_BMS_TIMEOUT = 0;
 	private static final int DEFAULT_GRID_EXISTENCE_DETECTION_ON = 0;
 	private static final int DEFAULT_POWER_CHANGE_MODE = 0; // 0 = STEP_MODE; 1 = RAMP_MODE
+	private static final int MAX_TOPPING_CHARGE_VOLTAGE = 750; 
 
 	/**
 	 * Manages the {@link State}s of the StateMachine.
@@ -203,10 +204,10 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 		chargeMaxVoltageChannel.setNextWriteValue(chargeMaxVoltage);
 
 		IntegerWriteChannel setSlowChargeVoltage = this.channel(Sinexcel.ChannelId.TOPPING_CHARGE_VOLTAGE);
-		setSlowChargeVoltage.setNextWriteValue(chargeMaxVoltage);
+		setSlowChargeVoltage.setNextWriteValue(TypeUtils.min(chargeMaxVoltage, MAX_TOPPING_CHARGE_VOLTAGE));
 
 		IntegerWriteChannel setFloatChargeVoltage = this.channel(Sinexcel.ChannelId.FLOAT_CHARGE_VOLTAGE);
-		setFloatChargeVoltage.setNextWriteValue(chargeMaxVoltage);
+		setFloatChargeVoltage.setNextWriteValue(TypeUtils.min(chargeMaxVoltage, MAX_TOPPING_CHARGE_VOLTAGE));
 
 		// Discharge Max Current
 		// negative value is corrected as zero
