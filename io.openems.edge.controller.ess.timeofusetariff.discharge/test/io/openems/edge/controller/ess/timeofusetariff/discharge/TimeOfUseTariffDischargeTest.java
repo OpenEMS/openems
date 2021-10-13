@@ -147,8 +147,8 @@ public class TimeOfUseTariffDischargeTest {
 						.output(QUATERLY_PRICES_TAKEN, true) //
 						.output(TARGET_HOURS_CALCULATED, true)//
 						.output(TARGET_HOURS_IS_EMPTY, false)//
-						.output(TOTAL_CONSUMPTION, 65791) //
-						.output(REMAINING_CONSUMPTION, 53791.0))
+						.output(TOTAL_CONSUMPTION, 16447) //
+						.output(REMAINING_CONSUMPTION, 4447.0))
 				.next(new TestCase("Cycle - 3") //
 						.timeleap(clock, 1, ChronoUnit.MINUTES)//
 						.output(QUATERLY_PRICES_TAKEN, true) //

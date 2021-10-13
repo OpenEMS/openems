@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -28,6 +29,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.ess.emergencycapacityreserve.EmergencyCapacityReserveImpl;
+import io.openems.edge.controller.ess.limittotaldischarge.LimitTotalDischargeController;
 import io.openems.edge.controller.ess.timeofusetariff.discharge.tariff.AwattarProvider;
 import io.openems.edge.controller.ess.timeofusetariff.discharge.tariff.TimeOfUseTariff;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -54,6 +57,21 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	@Reference
 	private PredictorManager predictorManager;
 
+	private final List<Controller> limitUsableCapacityControllers = new CopyOnWriteArrayList<>();
+
+	@Reference(//
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE, //
+			target = "(&(enabled=true)(|(service.factoryPid=Controller.Ess.LimitTotalDischarge)(|(service.factoryPid=Controller.Ess.EmergencyCapacityReserve))))")
+	protected synchronized void addCtrlLimitTotalDischarge(Controller controller) {
+		this.limitUsableCapacityControllers.add(controller);
+	}
+
+	protected synchronized void removeCtrlLimitTotalDischarge(Controller controller) {
+		this.limitUsableCapacityControllers.remove(controller);
+	}
+
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
 
@@ -66,6 +84,7 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	private TreeMap<ZonedDateTime, Integer> productionMap = new TreeMap<>();
 	private List<ZonedDateTime> targetPeriods = new ArrayList<ZonedDateTime>();
 	private TreeMap<ZonedDateTime, Float> quarterlyPrices = new TreeMap<>();
+	private TreeMap<ZonedDateTime, Integer> socWithoutLogic = new TreeMap<>();
 	private ZonedDateTime lastAccessedTime = ZonedDateTime.of(2021, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault());
 
 	public TimeOfUseTariffDischargeImpl(TimeOfUseTariff timeOfUseTariff) {
@@ -99,6 +118,7 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
+
 		// Current Date Time rounded off to 15 minutes.
 		ZonedDateTime now = roundZonedDateTimeDownToMinutes(ZonedDateTime.now(this.componentManager.getClock()), 15);
 
@@ -184,21 +204,53 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 
 				int netCapacity = this.ess.getCapacity().getOrError();
 				int soc = this.ess.getSoc().getOrError();
-				int availableCapacity = Math.round((netCapacity * soc) / 100F);
 
-				this.channel(TimeOfUseTariffDischarge.ChannelId.AVAILABLE_CAPACITY).setNextValue(availableCapacity);
+				// Usable capacity based on min soc from Limit total discharge and emergency
+				// reserve controllers.
+				int limitSoc = 0;
+				for (Controller ctrl : limitUsableCapacityControllers) {
+					if (ctrl.serviceFactoryPid().equals("Controller.Ess.EmergencyCapacityReserve")) {
+						limitSoc = Math.max(limitSoc, ((EmergencyCapacityReserveImpl) ctrl).getMinSoc());
+					} else {
+						limitSoc = Math.max(limitSoc, ((LimitTotalDischargeController) ctrl).getMinSoc());
+					}
+				}
+				this.channel(TimeOfUseTariffDischarge.ChannelId.MIN_SOC).setNextValue(limitSoc);
 
-				int remainingCapacity = this.getRemainingCapacity(availableCapacity, this.productionMap,
-						this.consumptionMap, now, this.boundarySpace);
+				// Calculating available energy and usable energy [Wmsec] in the battery.
+				long availableEnergy = (long) (((double) netCapacity /* [Wh] */ * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */
+						/ 100 /* [%] */) * soc /* [current SoC] */);
+
+				// Value is divided by 3600 * 1000 to convert from [Wmsec] to [Wh].
+				this.channel(TimeOfUseTariffDischarge.ChannelId.AVAILABLE_CAPACITY)
+						.setNextValue(availableEnergy / 3600000);
+
+				long limitEnergy = (long) (((double) netCapacity /* [Wh] */ * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */
+						/ 100 /* [%] */) * limitSoc /* [current SoC] */);
+
+				availableEnergy = Math.max(0, (availableEnergy - limitEnergy));
+
+				// Value is divided by 3600 * 1000 to convert from [Wmsec] to [Wh].
+				this.channel(TimeOfUseTariffDischarge.ChannelId.USABLE_CAPACITY)
+						.setNextValue(availableEnergy / 3600000);
+
+				// To estimate the soc curve when controller logic is not applied
+				if (now.equals(this.boundarySpace.proLessThanCon)) {
+					this.socWithoutLogic = this.generateSocCurveWithoutLogic(netCapacity, availableEnergy, limitEnergy,
+							this.consumptionMap, soc, now, this.boundarySpace);
+				}
+
+				long remainingEnergy = this.getRemainingCapacity(availableEnergy, productionMap, consumptionMap, now,
+						boundarySpace);
 
 				// Resetting
 				this.targetPeriods.clear();
 
 				// list of periods calculation.
-				if (remainingCapacity > 0) {
+				if (remainingEnergy > 0) {
 					// Initiating the calculation
 					this.targetPeriods = this.calculateTargetPeriods(this.consumptionMap, this.quarterlyPrices,
-							remainingCapacity, this.boundarySpace);
+							remainingEnergy, this.boundarySpace);
 					this.channel(TimeOfUseTariffDischarge.ChannelId.TARGET_HOURS_CALCULATED).setNextValue(true);
 				}
 
@@ -208,6 +260,55 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 				this.lastAccessedTime = now;
 			}
 		}
+	}
+
+	/**
+	 * This method returns the map of 15 minutes soc curve values when no controller
+	 * logic is applied.
+	 * 
+	 * @param netCapacity     Net Capacity of the battery.
+	 * @param availableEnergy available energy in the battery.
+	 * @param limitEnergy     energy restricted to used based on min soc.
+	 * @param consumptionMap  map of predicted consumption values.
+	 * @param soc             current SoC of the battery.
+	 * @param now             current time.
+	 * @param boundarySpace   the {@link BoundarySpace}
+	 */
+	private TreeMap<ZonedDateTime, Integer> generateSocCurveWithoutLogic(int netCapacity, long availableEnergy,
+			long limitEnergy, TreeMap<ZonedDateTime, Integer> consumptionMap, int soc, ZonedDateTime now,
+			BoundarySpace boundarySpace) {
+
+		TreeMap<ZonedDateTime, Integer> socWithoutLogic = new TreeMap<>();
+
+		// current values.
+		socWithoutLogic.put(now, soc);
+
+		for (Entry<ZonedDateTime, Integer> entry : consumptionMap.subMap(now, boundarySpace.proMoreThanCon)
+				.entrySet()) {
+
+			long duration = 15 * 60 * 1000;
+			long currentConsumptionEnergy = entry.getValue() * duration;
+
+			if (availableEnergy > limitEnergy) {
+				availableEnergy -= currentConsumptionEnergy;
+			}
+
+			double calculatedSoc = availableEnergy //
+					/ (netCapacity * 3600. /* [Wsec] */ * 1000 /* [Wmsec] */) //
+					* 100 /* [SoC] */;
+
+			if (calculatedSoc > 100) {
+				soc = 100;
+			} else if (calculatedSoc < 0) {
+				soc = 0;
+			} else {
+				soc = (int) Math.round(calculatedSoc);
+			}
+
+			socWithoutLogic.put(entry.getKey().plusMinutes(15), soc);
+		}
+
+		return socWithoutLogic;
 	}
 
 	/**
@@ -243,8 +344,7 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	private void updateVisualizationChannels(ZonedDateTime now) {
 		// Storing quarterly prices in channel for visualization in Grafana.
 		if (!this.quarterlyPrices.isEmpty()) {
-			for (Entry<ZonedDateTime, Float> entry : this.quarterlyPrices
-					.subMap(this.boundarySpace.proLessThanCon, this.boundarySpace.proMoreThanCon).entrySet()) {
+			for (Entry<ZonedDateTime, Float> entry : this.quarterlyPrices.entrySet()) {
 
 				if (now.isEqual(entry.getKey())) {
 					this.channel(TimeOfUseTariffDischarge.ChannelId.QUARTERLY_PRICES) //
@@ -264,6 +364,21 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 							.setNextValue(this.consumptionMap.get(entry.getKey()));
 				}
 			}
+		}
+
+		if (!this.socWithoutLogic.isEmpty()) {
+			if (this.boundarySpace.isWithinBoundary(now)) {
+				for (Entry<ZonedDateTime, Integer> entry : this.socWithoutLogic.entrySet()) {
+					if (now.isEqual(entry.getKey())) {
+						this.channel(TimeOfUseTariffDischarge.ChannelId.PREDICTED_SOC_WITHOUT_LOGIC) //
+								.setNextValue(entry.getValue());
+					}
+				}
+			}
+		} else {
+			this.socWithoutLogic.clear();
+			this.channel(TimeOfUseTariffDischarge.ChannelId.PREDICTED_SOC_WITHOUT_LOGIC) //
+					.setNextValue(null);
 		}
 	}
 
@@ -307,45 +422,51 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	 * @return remainingCapacity Amount of energy that should be covered from grid
 	 *         for consumption in night.
 	 */
-	private int getRemainingCapacity(int availableCapacity, TreeMap<ZonedDateTime, Integer> productionMap,
+	private long getRemainingCapacity(long availableEnergy, TreeMap<ZonedDateTime, Integer> productionMap,
 			TreeMap<ZonedDateTime, Integer> consumptionMap, ZonedDateTime now, BoundarySpace boundarySpace) {
 
-		int consumptionTotal = 0;
-		int remainingCapacity = 0;
+		long consumptionEnergy = 0;
+		long remainingEnergy = 0;
 
 		for (Entry<ZonedDateTime, Integer> entry : consumptionMap //
 				.subMap(now, boundarySpace.proMoreThanCon) //
 				.entrySet()) {
 
-			consumptionTotal = consumptionTotal + entry.getValue() - productionMap.get(entry.getKey());
+			long duration = 15 * 60 * 1000;
+			long currentConsumptionEnergy = entry.getValue() * duration;
+			long currentProductionEnergy = productionMap.get(entry.getKey()) * duration;
+
+			consumptionEnergy = consumptionEnergy + currentConsumptionEnergy - currentProductionEnergy;
 		}
 
 		// remaining amount of energy that should be covered from grid.
-		remainingCapacity = consumptionTotal - availableCapacity;
+		remainingEnergy = consumptionEnergy - availableEnergy;
 
 		// Update Channels
-		this.channel(TimeOfUseTariffDischarge.ChannelId.TOTAL_CONSUMPTION).setNextValue(consumptionTotal);
-		this.channel(TimeOfUseTariffDischarge.ChannelId.REMAINING_CONSUMPTION).setNextValue(remainingCapacity);
+		// Values are divided by 3600 * 1000 to convert from [Wmsec] to [Wh].
+		this.channel(TimeOfUseTariffDischarge.ChannelId.TOTAL_CONSUMPTION).setNextValue((consumptionEnergy / 3600000));
+		this.channel(TimeOfUseTariffDischarge.ChannelId.REMAINING_CONSUMPTION)
+				.setNextValue((remainingEnergy / 3600000));
 
-		return remainingCapacity;
+		return remainingEnergy;
 	}
 
 	/**
 	 * This method returns the list of periods, during which ESS is avoided for
 	 * consumption.
 	 * 
-	 * @param consumptionMap    predicted consumption data along with time in
-	 *                          {@link TreeMap} format.
-	 * @param quarterlyPrices   {@link TreeMap} consisting of hourly electricity
-	 *                          prices along with time.
-	 * @param remainingCapacity Amount of energy that should be covered from grid
-	 *                          for consumption in night.
-	 * @param boundarySpace     the {@link BoundarySpace}
+	 * @param consumptionMap  predicted consumption data along with time in
+	 *                        {@link TreeMap} format.
+	 * @param quarterlyPrices {@link TreeMap} consisting of hourly electricity
+	 *                        prices along with time.
+	 * @param remainingEnergy Amount of energy that should be covered from grid for
+	 *                        consumption in night.
+	 * @param boundarySpace   the {@link BoundarySpace}
 	 * @return {@link List} list of target periods to avoid charging/discharging of
 	 *         the battery.
 	 */
 	private List<ZonedDateTime> calculateTargetPeriods(TreeMap<ZonedDateTime, Integer> consumptionMap,
-			TreeMap<ZonedDateTime, Float> quarterlyPrices, Integer remainingCapacity, BoundarySpace boundarySpace) {
+			TreeMap<ZonedDateTime, Float> quarterlyPrices, long remainingEnergy, BoundarySpace boundarySpace) {
 
 		List<ZonedDateTime> targetHours = new ArrayList<ZonedDateTime>();
 		ZonedDateTime currentQuarterHour = roundZonedDateTimeDownToMinutes(
@@ -356,14 +477,15 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 				.subMap(currentQuarterHour, boundarySpace.proMoreThanCon) //
 				.entrySet());
 		priceList.sort(Entry.comparingByValue());
+		long duration = 15 * 60 * 1000;
 
 		for (Entry<ZonedDateTime, Float> entry : priceList) {
 			targetHours.add(entry.getKey());
 
-			remainingCapacity -= consumptionMap.get(entry.getKey());
+			remainingEnergy = remainingEnergy - (consumptionMap.get(entry.getKey()) * duration);
 
 			// checks if we have sufficient capacity.
-			if (remainingCapacity <= 0) {
+			if (remainingEnergy <= 0) {
 				break;
 			}
 		}

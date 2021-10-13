@@ -77,6 +77,7 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.config = config;
 		this.updateConfig(config);
 	}
 
@@ -191,6 +192,10 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 				.filter(value -> value.isDefined()) //
 				.mapToInt(value -> value.get()) //
 				.findFirst();
+	}
+
+	public int getMinSoc() {
+		return this.config.reserveSoc();
 	}
 
 }

@@ -26,6 +26,8 @@ public interface TimeOfUseTariffDischarge extends Controller, OpenemsComponent {
 				.text("Target Hours")),
 		AVAILABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
 				.text("Available capcity in the battery during evening")), //
+		USABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
+				.text("Usable capcity in the battery during after taking limit soc into consideration")), //
 		PRO_MORE_THAN_CON(Doc.of(OpenemsType.INTEGER) //
 				.text("Hour of Production more than Consumption")),
 		PRO_LESS_THAN_CON(Doc.of(OpenemsType.INTEGER) //
@@ -33,7 +35,11 @@ public interface TimeOfUseTariffDischarge extends Controller, OpenemsComponent {
 		PRODUCTION(Doc.of(OpenemsType.INTEGER) //
 				.text("Production")),
 		CONSUMPTON(Doc.of(OpenemsType.INTEGER) //
-				.text("Consumption"));
+				.text("Consumption")),
+		MIN_SOC(Doc.of(OpenemsType.INTEGER) //
+				.text("Minimum SoC to avoid complete discharge")),
+		PREDICTED_SOC_WITHOUT_LOGIC(Doc.of(OpenemsType.INTEGER) //
+				.text("SoC prediction curve without logic"));
 
 		private final Doc doc;
 
