@@ -605,7 +605,7 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.VOLT) //
 				.accessMode(AccessMode.READ_WRITE)),
 		BMS_OFFLINE_SOC_UNDER_MIN(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+				.unit(Unit.PERCENT) //
 				.accessMode(AccessMode.READ_WRITE)),
 		CLEAR_BATTERY_SETTING(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.WRITE_ONLY)),
