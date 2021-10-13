@@ -9,12 +9,14 @@ import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
 
 public class HardyBarthReadWorker extends AbstractCycleWorker {
 
 	private final HardyBarthImpl parent;
+	private int chargingFinishedCounter = 0;
 
 	public HardyBarthReadWorker(HardyBarthImpl parent) {
 		this.parent = parent;
@@ -59,15 +61,6 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 	 */
 	private void setEvcsChannelIds(JsonElement json) {
 
-		// CHARGE_POWER
-		Long chargePower = (Long) this.getValueFromJson(Evcs.ChannelId.CHARGE_POWER, json, (value) -> {
-			if (value == null) {
-				return null;
-			}
-			return Math.round((Integer) value * 0.1);
-		}, "secc", "port0", "metering", "power", "active_total", "actual");
-		this.parent._setChargePower(chargePower == null ? null : chargePower.intValue());
-
 		// ENERGY_SESSION
 		Double energy = (Double) this.getValueFromJson(Evcs.ChannelId.ENERGY_SESSION, OpenemsType.STRING, json,
 				(value) -> {
@@ -77,7 +70,8 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 					Double rawEnergy = null;
 					String[] chargedata = value.toString().split("\\|");
 					if (chargedata.length == 3) {
-						rawEnergy = Double.parseDouble(chargedata[2]) * 1000;
+						Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, chargedata[2]);
+						rawEnergy = doubleValue * 1000;
 					}
 					return rawEnergy;
 
@@ -86,35 +80,33 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 
 		// ACTIVE_CONSUMPTION_ENERGY
 		Long activeConsumptionEnergy = (Long) this.getValueFromJson(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY, json,
-				(value) -> (long) (Double.parseDouble(value.toString()) * 0.1), "secc", "port0", "metering", "energy",
-				"active_import", "actual"); //
+				(value) -> {
+					Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, value);
+					return TypeUtils.getAsType(OpenemsType.LONG, doubleValue);
+
+				}, "secc", "port0", "metering", "energy", "active_import", "actual"); //
 		this.parent._setActiveConsumptionEnergy(activeConsumptionEnergy);
 
 		// PHASES
-		Double powerL1 = (Double) this.getValueFromJson(HardyBarth.ChannelId.RAW_ACTIVE_POWER_L1, json,
-				(value) -> Double.parseDouble(value.toString()) * 0.1, "secc", "port0", "metering", "power", "active",
-				"ac", "l1", "actual");
-		Double powerL2 = (Double) this.getValueFromJson(HardyBarth.ChannelId.RAW_ACTIVE_POWER_L2, json,
-				(value) -> Double.parseDouble(value.toString()) * 0.1, "secc", "port0", "metering", "power", "active",
-				"ac", "l2", "actual");
-		Double powerL3 = (Double) this.getValueFromJson(HardyBarth.ChannelId.RAW_ACTIVE_POWER_L3, json,
-				(value) -> Double.parseDouble(value.toString()) * 0.1, "secc", "port0", "metering", "power", "active",
-				"ac", "l3", "actual");
+		Long powerL1 = (Long) this.getValueForChannel(HardyBarth.ChannelId.RAW_ACTIVE_POWER_L1, json);
+		Long powerL2 = (Long) this.getValueForChannel(HardyBarth.ChannelId.RAW_ACTIVE_POWER_L2, json);
+		Long powerL3 = (Long) this.getValueForChannel(HardyBarth.ChannelId.RAW_ACTIVE_POWER_L3, json);
+
 		Integer phases = null;
 		if (powerL1 != null && powerL2 != null && powerL3 != null) {
 
-			Double sum = powerL1 + powerL2 + powerL3;
+			Long sum = powerL1 + powerL2 + powerL3;
 
-			if (sum > 300) {
+			if (sum > 900) {
 				phases = 0;
 
-				if (powerL1 >= 100) {
+				if (powerL1 >= 300) {
 					phases += 1;
 				}
-				if (powerL2 >= 100) {
+				if (powerL2 >= 300) {
 					phases += 1;
 				}
-				if (powerL3 >= 100) {
+				if (powerL3 >= 300) {
 					phases += 1;
 				}
 			}
@@ -124,24 +116,61 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 			this.parent.debugLog("Used phases: " + phases);
 		}
 
+		this.parent._setMinimumHardwarePower(this.parent.config.minHwCurrent() / 1000 * 3 * 230);
+		this.parent._setMaximumHardwarePower(this.parent.config.maxHwCurrent() / 1000 * 3 * 230);
+
+		// CHARGE_POWER
+		Long chargePowerLong = (Long) this.getValueFromJson(Evcs.ChannelId.CHARGE_POWER, json, (value) -> {
+			Integer integerValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
+			if (integerValue == null) {
+				return null;
+			}
+
+			long activePower = Math.round(integerValue * HardyBarth.SCALE_FACTOR_MINUS_1);
+
+			// Ignore the consumption of the charger itself
+			return activePower < 100 ? 0 : activePower;
+		}, "secc", "port0", "metering", "power", "active_total", "actual");
+
+		//
+		this.parent._setChargePower(chargePowerLong == null ? null : chargePowerLong.intValue());
+
 		// STATUS
 		Status status = (Status) this.getValueFromJson(HardyBarth.ChannelId.RAW_CHARGE_STATUS_CHARGEPOINT, json,
 				(value) -> {
+					String stringValue = TypeUtils.getAsType(OpenemsType.STRING, value);
+					if (stringValue == null) {
+						return Status.UNDEFINED;
+					}
+
 					Status rawStatus = Status.UNDEFINED;
-					switch (value.toString()) {
+					switch (stringValue) {
 					case "A":
 						rawStatus = Status.NOT_READY_FOR_CHARGING;
 						break;
 					case "B":
-						rawStatus = Status.CHARGING_REJECTED;
-						if (this.parent.getSetChargePowerLimit().orElse(0) > this.parent.getMinimumHardwarePower()
-								.orElse(0)) {
-							rawStatus = Status.CHARGING_FINISHED;
+						rawStatus = Status.READY_FOR_CHARGING;
+
+						// Detect if the car is full
+						int chargePower = chargePowerLong == null ? 0 : chargePowerLong.intValue();
+						if (this.parent.getSetChargePowerLimit().orElse(0) >= this.parent.getMinimumHardwarePower()
+								.orElse(0) && chargePower <= 0) {
+
+							if (this.chargingFinishedCounter >= 90) {
+								rawStatus = Status.CHARGING_FINISHED;
+							} else {
+								this.chargingFinishedCounter++;
+							}
+						} else {
+							this.chargingFinishedCounter = 0;
+
+							// Charging rejected because we are forcing to pause charging
+							if (this.parent.getSetChargePowerLimit().orElse(0) == 0) {
+								rawStatus = Status.CHARGING_REJECTED;
+							}
 						}
 						break;
 					case "C":
-						rawStatus = Status.CHARGING;
-						break;
 					case "D":
 						rawStatus = Status.CHARGING;
 						break;
@@ -153,10 +182,26 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 						rawStatus = Status.UNDEFINED;
 						break;
 					}
+					if (stringValue.equals("B")) {
+						this.chargingFinishedCounter = 0;
+					}
 					return rawStatus;
 				}, "secc", "port0", "ci", "charge", "cp", "status");
 
 		this.parent._setStatus(status);
+	}
+
+	/**
+	 * Call the getValueFromJson with the detailed information of the channel.
+	 * 
+	 * @param channelId Channel that value will be detect.
+	 * @param json      Whole JSON path, where the JsonElement for the given channel
+	 *                  is located.
+	 * @return Value of the last JsonElement by running through the specified JSON
+	 *         path.
+	 */
+	private Object getValueForChannel(HardyBarth.ChannelId channelId, JsonElement json) {
+		return this.getValueFromJson(channelId, json, channelId.converter, channelId.getJsonPaths());
 	}
 
 	/**
