@@ -111,12 +111,22 @@ export const TRANSLATION = {
         toEnergymonitor: 'Vers le moniteur d\'énergie...',
         type: 'Type:'
     },
+    Login: {
+        title: "Login",
+        preamble: "Veuillez saisir votre mot de passe ou confirmer l'entrée par défaut pour vous connecter en tant qu'invité.",
+        passwordLabel: "mot de passe",
+        passwordReset: "Réinitialiser le mot de passe",
+        authenticationFailed: "Échec de l'authentification",
+    },
+    Register: {
+        title: "Créer un compte utilisateur",
+    },
     Edge: {
         Index: {
             // TODO Translations
             EmergencyReserve: {
-                InfoForEmergencyReserveSlider: 'By activating the emergency power reserve, the value can be freely selected between 5% and 100%.',
-                emergencyReserve: 'Emergencyreserve',
+                InfoForEmergencyReserveSlider: "En activant la réserve d'énergie de secours, la valeur peut être librement choisie entre 5 % et 100 %.",
+                emergencyReserve: "réserve d'urgence",
             },
             Energymonitor: {
                 activePower: 'Puissance Active',

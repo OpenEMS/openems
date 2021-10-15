@@ -65,12 +65,12 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
                     });
                 })
 
-                let totalMetersConsumption: number[] = [];
+                let totalMeteredConsumption: number[] = [];
                 config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
                     .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component))
                     .forEach(component => {
-                        totalMetersConsumption = result.data[component.id + '/ActivePower'].map((value, index) => {
-                            return Utils.addSafely(totalMetersConsumption[index], value / 1000)
+                        totalMeteredConsumption = result.data[component.id + '/ActivePower'].map((value, index) => {
+                            return Utils.addSafely(totalMeteredConsumption[index], value / 1000)
                         })
                     })
 
@@ -80,13 +80,13 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
 
                     if (value != null) {
 
-                        // Check if either totalEvcsConsumption or totalMetersConsumption is not null
-                        return Utils.subtractSafely(Utils.subtractSafely(value / 1000, totalEvcsConsumption[index]), totalMetersConsumption[index]);
+                        // Check if either totalEvcsConsumption or totalMeteredConsumption is not null
+                        return Utils.subtractSafely(Utils.subtractSafely(value / 1000, totalEvcsConsumption[index]), totalMeteredConsumption[index]);
                     }
                 })
 
                 // show other consumption if at least one of the arrays is not empty
-                if (totalEvcsConsumption != [] || totalMetersConsumption != []) {
+                if (totalEvcsConsumption != [] || totalMeteredConsumption != []) {
                     datasets.push({
                         label: this.translate.instant('General.consumption'),
                         data: otherConsumption,

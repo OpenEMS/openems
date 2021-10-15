@@ -22,14 +22,14 @@
               <form (ngSubmit)="doLogin({ password: password.value})">
                 <div class="ion-padding">
                   <ion-item>
-                    <ion-text class="ion-text-wrap" color="medium">
-                      Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.
+                    <ion-text class="ion-text-wrap" color="medium" translate>
+                      Login.preamble
                     </ion-text>
                   </ion-item>
                   <ion-item>
                     <ion-label position="floating" translate>Login.passwordLabel</ion-label>
-                    <ion-input #password required type="password"
-                      [placeholder]="'Login.passwordPlaceholder' | translate" value="user"></ion-input>
+                    <ion-input #password required type="password" [placeholder]="'Login.passwordLabel' | translate"
+                      value="user"></ion-input>
                   </ion-item>
 
                   <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
@@ -46,12 +46,14 @@
             <ion-card-content *ngIf="environment.backend === 'OpenEMS Backend'">
               <form (ngSubmit)="doLogin({ username: username.value, password: password.value})">
                 <ion-item>
-                  <ion-label position="floating">E-Mail / Benutzername</ion-label>
-                  <ion-input #username required type="input" placeholder="E-Mail / Benutzername"></ion-input>
+                  <ion-label position="floating">E-Mail / <span translate>Login.passwordLabel</span></ion-label>
+                  <ion-input #username required type="input"
+                    [placeholder]="'E-Mail / ' + ('Login.passwordLabel' | translate)">
+                  </ion-input>
                 </ion-item>
                 <ion-item>
-                  <ion-label position="floating">Passwort</ion-label>
-                  <ion-input #password required type="password" [placeholder]="'Login.passwordPlaceholder' | translate">
+                  <ion-label position="floating" translate>Login.passwordLabel</ion-label>
+                  <ion-input #password required type="password" [placeholder]="'Login.passwordLabel' | translate">
                   </ion-input>
                 </ion-item>
 
@@ -88,8 +90,8 @@
                       <!-- No access to Edges -->
                       <ion-item color="warning" lines="full">
                         <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
-                        <ion-label class="ion-text-wrap ion-text-center">Sie haben noch kein FEMS (Fenecon Energie
-                          Management System) hinzugefügt.</ion-label>
+                        <ion-label class="ion-text-wrap ion-text-center">Sie haben noch kein
+                          {{environment.edgeShortName}} hinzugefügt.</ion-label>
                       </ion-item>
                       <ion-card-content class="ion-text-center">
                         <p>Bitte klicken Sie unten auf den "Hinzufügen"-Button wenn sie ein FEMS in Betrieb nehmen
@@ -99,11 +101,13 @@
                     <ng-template #others>
                       <ion-item color="warning" lines="full">
                         <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
-                        <ion-label class="ion-text-wrap ion-text-center">Leider wurde noch kein FEMS (Fenecon Energie
-                          Management System) mit Ihrem Account verknüpft.</ion-label>
+                        <ion-label class="ion-text-wrap ion-text-center">Leider wurde noch kein
+                          {{environment.edgeShortName}}
+                          mit Ihrem Account verknüpft.</ion-label>
                       </ion-item>
                       <ion-card-content class="ion-text-center">
-                        <p>Nach dem Ihr FEMS durch einen Installateur in Betrieb genommen wurde, sehen Sie es an dieser
+                        <p>Nach dem Ihr {{environment.edgeShortName}} durch einen Installateur in Betrieb genommen
+                          wurde, sehen Sie es an dieser
                           Stelle.</p>
                       </ion-card-content>
                     </ng-template>
@@ -167,7 +171,7 @@
               </ion-fab-button>
               <ion-fab-list side="top" style="left: 0; align-items: flex-start;" id="blurred">
                 <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">Neues {{
-                  environment.systemName }} hinzufügen</ion-button>
+                  environment.edgeShortName }} hinzufügen</ion-button>
               </ion-fab-list>
             </ion-fab>
 
@@ -179,7 +183,7 @@
               </ion-fab-button>
               <ion-fab-list side="top" style="right: 0; align-items: flex-end;">
                 <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">Neues {{
-                  environment.systemName }} hinzufügen</ion-button>
+                  environment.edgeShortName }} hinzufügen</ion-button>
               </ion-fab-list>
             </ion-fab>
 

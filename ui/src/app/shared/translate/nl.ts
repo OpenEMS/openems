@@ -108,12 +108,22 @@ export const TRANSLATION = {
         toEnergymonitor: 'Naar Energiemonitor...',
         type: 'Type:'
     },
+    Login: {
+        title: "Login",
+        preamble: "Voer uw wachtwoord in of bevestig de standaard om in te loggen als gast.",
+        passwordLabel: "Wachtwoord",
+        passwordReset: "Wachtwoord opnieuw instellen",
+        authenticationFailed: "Authenticatie mislukt",
+    },
+    Register: {
+        title: "Gebruikersaccount aanmaken",
+    },
     Edge: {
         Index: {
             // TODO Translations
             EmergencyReserve: {
-                InfoForEmergencyReserveSlider: 'By activating the emergency power reserve, the value can be freely selected between 5% and 100%.',
-                emergencyReserve: 'Emergencyreserve',
+                InfoForEmergencyReserveSlider: 'Door de noodstroomreserve te activeren, kan de waarde vrij worden gekozen tussen 5% en 100%.',
+                emergencyReserve: 'noodreserve',
             },
             Energymonitor: {
                 activePower: 'Actief vermogen',

@@ -98,7 +98,6 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
                     return CurrentData.calculateAutarchy(buyFromGridData[index], value);
                 }
             })
-
             datasets.push({
                 label: this.translate.instant('General.autarchy'),
                 data: autarchy,
