@@ -3,7 +3,6 @@ package io.openems.edge.battery.soltaro.single.versionc;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 import io.openems.edge.common.startstop.StartStopConfig;
 
 @ObjectClassDefinition(//
@@ -16,7 +15,7 @@ public @interface Config {
 	 * @return id
 	 */
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "bms0";
+	String id() default "battery0"; 
 
 	/**
 	 * Return the alias.
@@ -52,62 +51,6 @@ public @interface Config {
 	 */
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId() default 0;
-
-	/**
-	 * Return the numberOfSlaves.
-	 * @return numberOfSlaves
-	 */
-	@AttributeDefinition(name = "Number of slaves", description = "The number of slaves in this battery rack (max. 20)", min = "1", max = "20")
-	int numberOfSlaves() default 20;
-
-	/**
-	 * Return the moduleType.
-	 * @return moduleType
-	 */
-	@AttributeDefinition(name = "Module type", description = "The type of modules in the rack")
-	ModuleType moduleType() default ModuleType.MODULE_3_KWH;
-
-	/**
-	 * Return the errorLevel2Delay.
-	 * @return errorLevel2Delay
-	 */
-	@AttributeDefinition(name = "Error Level 2 Delay", description = "Sets the delay time in seconds how long the system should be stopped after an error level 2 has occurred")
-	int errorLevel2Delay() default 600;
-
-	/**
-	 * Return the startUnsuccessfulDelay.
-	 * @return startUnsuccessfulDelay
-	 */
-	@AttributeDefinition(name = "Start Not Successful Delay Time", description = "Sets the delay time in seconds how long the system should be stopped if it was not able to start")
-	int startUnsuccessfulDelay() default 3600;
-
-	/**
-	 * Return the watchdog.
-	 * @return watchdog
-	 */
-	@AttributeDefinition(name = "Watchdog", description = "Watchdog timeout in seconds")
-	int watchdog() default 60;
-
-	/**
-	 * Return the pendingTolerance.
-	 * @return pendingTolerance
-	 */
-	@AttributeDefinition(name = "Pending Tolerance", description = "time in seconds, that is waited if system status cannot be determined e.g. in case of reading errors")
-	int pendingTolerance() default 15;
-
-	/**
-	 * Return the soCLowAlarm.
-	 * @return soCLowAlarm
-	 */
-	@AttributeDefinition(name = "SoC Low Alarm", description = "Sets the value for BMS SoC protection (0..100)", min = "0", max = "100")
-	int SocLowAlarm() default 0;
-
-	/**
-	 * Return the minimalCellVoltage.
-	 * @return minimalCellVoltage
-	 */
-	@AttributeDefinition(name = "Minimal Cell Voltage Millivolt", description = "Minimal cell voltage in milli volt when system does not allow further discharging")
-	int minimalCellVoltage() default 2800;
 
 	/**
 	 * Return the Modbus_target.
