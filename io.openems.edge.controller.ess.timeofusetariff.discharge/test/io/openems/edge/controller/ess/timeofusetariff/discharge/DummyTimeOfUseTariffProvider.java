@@ -26,10 +26,10 @@ public class DummyTimeOfUseTariffProvider implements TimeOfUseTariff {
 				149.99f, 157.43f, 130.9f, 120.14f };
 
 		for (int i = 0; i < 24; i++) {
-			quarterlyPrices.put(now, prices[i]);
-			quarterlyPrices.put(now.plusMinutes(15), prices[i]);
-			quarterlyPrices.put(now.plusMinutes(30), prices[i]);
-			quarterlyPrices.put(now.plusMinutes(45), prices[i]);
+			quarterlyPrices.put(this.now, prices[i]);
+			quarterlyPrices.put(this.now.plusMinutes(15), prices[i]);
+			quarterlyPrices.put(this.now.plusMinutes(30), prices[i]);
+			quarterlyPrices.put(this.now.plusMinutes(45), prices[i]);
 		}
 
 		return quarterlyPrices;

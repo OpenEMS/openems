@@ -329,7 +329,17 @@ export const TRANSLATION = {
                     normalOperationShort: '',
                     switchOnComShort: '',
                     switchOnRecShort: '',
-                }
+                },
+                TimeOfUseTariff: {
+                    currentTariff: 'Huidige prijs',
+                    delayedDischarge: 'Vertraagd ontslag',
+                    State: {
+                        notStarted: 'De regelaar is nog niet gestart',
+                        delayed: 'Vertraagd',
+                        allowsDischarge: 'Vrijgegeven',
+                        standby: 'Standby',
+                    },
+                },
             }
         },
         History: {

@@ -120,9 +120,10 @@
                 </Controller_Io_ChannelSingleThresholdComponent>
               </ion-col>
 
-              <ion-col *ngSwitchCase="'Controller.Symmetric.DynamicDischarge'" size="12" size-lg="6"
+              <ion-col *ngSwitchCase="'Controller.Ess.Time-Of-Use-Tariff.Discharge'" size="12" size-lg="6"
                 class="ion-no-padding">
-                <awattar></awattar>
+                <Controller_Ess_TimeOfUseTariff_Discharge [componentId]="widget.componentId">
+                </Controller_Ess_TimeOfUseTariff_Discharge>
               </ion-col>
 
               <ion-col *ngSwitchCase="'io.openems.edge.io.api.DigitalInput'" size="12" size-lg="6"

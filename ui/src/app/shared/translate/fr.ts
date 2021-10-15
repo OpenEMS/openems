@@ -333,7 +333,17 @@ export const TRANSLATION = {
                     switchOnRec: 'Recommandation de mise en marche',
                     switchOnRecShort: 'Recommandation',
                     undefined: 'Indéfinie',
-                }
+                },
+                TimeOfUseTariff: {
+                    currentTariff: 'Prix actuel',
+                    delayedDischarge: 'Sortie retardée',
+                    State: {
+                        notStarted: 'Le contrôleur n\'a pas encore démarré',
+                        delayed: 'Retardé',
+                        allowsDischarge: 'Libéré',
+                        standby: 'Standby',
+                    },
+                },
             }
         },
         History: {

@@ -97,7 +97,7 @@ public class TimeOfUseTariffDischargeTest {
 	};
 
 	@Test
-	public void ExecutesDuringMarketTimeTest() throws Exception {
+	public void executesDuringMarketTimeTest() throws Exception {
 
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2021-01-01T13:45:00.00Z"), ZoneOffset.UTC);
 		final DummyComponentManager cm = new DummyComponentManager(clock);
@@ -133,6 +133,7 @@ public class TimeOfUseTariffDischargeTest {
 						.setEssId(ESS_ID) //
 						.setMaxStartHour(8) //
 						.setMaxEndHour(16) //
+						.setMode(Mode.AUTOMATIC) //
 						.build())
 				.next(new TestCase("Cycle - 1") //
 						.output(AVAILABLE_CAPACITY, null) //

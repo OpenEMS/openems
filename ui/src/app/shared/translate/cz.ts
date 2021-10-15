@@ -337,7 +337,17 @@ export const TRANSLATION = {
                     switchOnRec: 'Doporučení k zapnutí',
                     switchOnRecShort: 'Doporučení',
                     undefined: 'Nedefinováno',
-                }
+                },
+                TimeOfUseTariff: {
+                    currentTariff: 'Aktuální cena',
+                    delayedDischarge: 'Opožděné propuštění',
+                    State: {
+                        notStarted: 'Ovladač ještě nezačal ',
+                        delayed: 'Opožděné',
+                        allowsDischarge: 'Uvolněno',
+                        standby: 'Pohotovostní režim',
+                    },
+                },
             }
         },
         History: {

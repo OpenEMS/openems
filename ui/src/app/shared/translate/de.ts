@@ -370,7 +370,17 @@ export const TRANSLATION = {
                     switchOnRec: 'Einschaltempfehlung',
                     switchOnRecShort: 'Empfehlung',
                     undefined: 'Nicht definiert',
-                }
+                },
+                TimeOfUseTariff: {
+                    currentTariff: 'Aktueller Strompreis',
+                    delayedDischarge: 'Verzögerte Entladung',
+                    State: {
+                        notStarted: 'Noch nicht gestartet',
+                        delayed: 'Verzögert',
+                        allowsDischarge: 'Freigegeben',
+                        standby: 'Standby',
+                    },
+                },
             }
         },
         History: {

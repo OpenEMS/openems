@@ -331,7 +331,17 @@ export const TRANSLATION = {
                     normalOperationShort: 'Normal',
                     switchOnComShort: 'Mando',
                     switchOnRecShort: 'Recomendación',
-                }
+                },
+                TimeOfUseTariff: {
+                    currentTariff: 'Precio actual',
+                    delayedDischarge: 'Retraso en el alta',
+                    State: {
+                        notStarted: 'El controlador aún no se ha iniciado ',
+                        delayed: 'Retraso',
+                        allowsDischarge: 'Liberado',
+                        standby: 'Standby',
+                    },
+                },
             }
         },
         History: {

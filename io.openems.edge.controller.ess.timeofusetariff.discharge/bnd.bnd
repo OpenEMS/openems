@@ -12,6 +12,7 @@ Bundle-Version:	1.0.0.${tstamp}
 	io.openems.edge.controller.ess.limittotaldischarge,\
 	io.openems.edge.ess.api,\
 	io.openems.edge.predictor.api,\
+	io.openems.edge.timedata.api,\
 	io.openems.wrapper.okhttp
 	
 -testpath: \
