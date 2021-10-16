@@ -20,6 +20,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -191,6 +192,30 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 		
 	}
 	
+	protected void updateOutput(DigitalOutput out, Integer index ) throws OpenemsNamedException {
+		
+		// We simply assume that an output has a channel RELAY. If so, it gets updated with the relay 
+		// at the given index.
+		// If no such channel can be found, no action is taken.
+		Channel<Boolean> relayChannel=null;
+		
+		try {
+			relayChannel = out.channel("RELAY");
+			if(relayChannel != null) {
+				JsonObject status = api.getStatus();
+				JsonArray relays = null;
+				if(index < api.getNumRelays()) {							
+					relays = JsonUtils.getAsJsonArray(status, "relays");
+					JsonObject relay = JsonUtils.getAsJsonObject(relays.get(index));						
+					relayChannel.setNextValue(JsonUtils.getAsBoolean(relay, "ison"));
+				}				
+			}
+		} catch (IllegalArgumentException e) {
+			// Ok, relay not defined...
+		}
+		
+	}
+
 	protected void updateClients() {
 		for (Iterator<ShellyComponent> it = clients.iterator(); it.hasNext();) {
 			ShellyComponent client = it.next();
@@ -205,17 +230,19 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 						AsymmetricMeter meter = (AsymmetricMeter)client;						
 						updateAsymmetricMeter(meter,index);
 					}
+					if(client instanceof DigitalOutput ) {
+						DigitalOutput out = (DigitalOutput)client;						
+						updateOutput(out,index);
+					}
 				}
 				if(client.wantsExtendedData()) {
 					client.setExtendedData(api.getStatus());
 				}
-			} catch (Throwable t) {
+			} catch (OpenemsNamedException e) {
 				
 			} 
 		}
 	}
 	
-	protected void updateIos() {
-		
-	}
+	
 }
