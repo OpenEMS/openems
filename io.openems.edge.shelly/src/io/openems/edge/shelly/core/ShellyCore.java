@@ -115,4 +115,11 @@ public interface ShellyCore extends OpenemsComponent, EventHandler {
 	public default Value<String> getShellyType() {
 		return this.getShellyTypeChannel().value();
 	}
+	
+	// Returns the API object for extended access to 
+	// Parameters of the Shelly hardware
+	public ShellyApi getApi();
+	
+	// Attaches a meter or IO object to the core so that it gets updated on a regular basis
+	public void registerClient(ShellyComponent client);
 }

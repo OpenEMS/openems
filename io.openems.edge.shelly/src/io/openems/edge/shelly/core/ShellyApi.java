@@ -14,8 +14,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 
-import io.openems.common.worker.AbstractCycleWorker;
-
 
 /**
  * Implements the local Shelly REST Api.
@@ -48,23 +46,10 @@ public class ShellyApi  {
 		this.numMeters = 0;
 		this.numRelays = 0;
 		this.shellyType = "Unknown";
-		this.valid = false;
-		
-		setParentBaseChannels();
-		setParentDynChannels();
+		this.valid = false;	
 	}
 
-	private void setParentDynChannels() {
-		if(parent != null) {
-			parent._setCommunicationFailed(this.commFailed);
-		}
-	}
 	
-	private void setParentBaseChannels() {
-		if(parent != null) {
-			parent._setShellyType(this.shellyType);
-		}
-	}
 	
 	private boolean readBaseValues() {
 		JsonObject device;
