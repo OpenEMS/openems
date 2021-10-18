@@ -299,9 +299,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 					+ " Currents " //
 					+ " [Charge " + bmsChargeMaxCurrent.get() + " -> " + setChargeMaxCurrent + "]" //
 					+ " [Discharge " + bmsDischargeMaxCurrent.get() + " -> " + setDischargeMaxCurrent + "]" //
-					+ " MinSoc " //
-					+ " [" + bmsSocUnderMin.get() + " -> " + setSocUnderMin + "] " //
-					+ " [" + bmsOfflineSocUnderMin.get() + " -> " + setOfflineSocUnderMin + "]");
+					+ " MinSoc [" //
+					+ " [On-Grid " + bmsSocUnderMin.get() + " -> " + setSocUnderMin + "] " //
+					+ " [Off-Grid " + bmsOfflineSocUnderMin.get() + " -> " + setOfflineSocUnderMin + "]");
 
 			this.writeToChannel(GoodWe.ChannelId.BATTERY_PROTOCOL_ARM, 287); // EMS-Mode
 
