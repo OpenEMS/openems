@@ -9,6 +9,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String essId;
+		public Mode mode;
 		private int maxStartHour;
 		private int maxEndHour;
 
@@ -22,6 +23,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setEssId(String essId) {
 			this.essId = essId;
+			return this;
+		}
+		
+		public Builder setMode(Mode mode) {
+			this.mode = mode;
 			return this;
 		}
 
@@ -59,6 +65,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String ess_id() {
 		return this.builder.essId;
+	}
+	
+	@Override
+	public Mode mode() {
+		return this.builder.mode;
 	}
 
 	@Override

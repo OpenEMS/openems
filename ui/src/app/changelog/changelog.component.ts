@@ -35,6 +35,20 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2021.17.1',
+        changes: [
+          Changelog.openems('2021.17.0'),
+          Changelog.UI + "Permanentes Speichern der Spracheinstellung",
+          Changelog.product(Product.FEMS_PV_SMA) + "Fehlerbehebung der Darstellung im Online-Monitoring",
+          Changelog.product(Product.COMMERCIAL_30) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF) + "Darstellung im Online-Monitoring",
+          Changelog.product(Product.FEMS_HARDY_BARTH) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.product(Product.HOME, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Konfiguration des minimalen Ladezustands im Off-Grid-Fall; "
+          + "Aufzeichnung des notstromversorgten Energieverbrauchs",
+          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " (für Variante 'Single C')",
+        ]
+      },
+      {
         version: '2021.16.5',
         changes: [
           Changelog.UI,

@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { environment } from '../environments';
 import { Service, Websocket } from './shared/shared';
+import { LanguageTag } from './shared/translate/language';
 
 @Component({
   selector: 'app-root',
@@ -29,7 +30,7 @@ export class AppComponent {
     public websocket: Websocket,
     private titleService: Title
   ) {
-    service.setLang(this.service.browserLangToLangTag(navigator.language));
+    service.setLang(LanguageTag[localStorage.LANGUAGE] ?? this.service.browserLangToLangTag(navigator.language));
   }
 
   ngOnInit() {

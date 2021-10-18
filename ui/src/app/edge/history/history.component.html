@@ -61,6 +61,13 @@
           <gridOptimizedChargeWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
           </gridOptimizedChargeWidget>
         </ion-col>
+
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3"
+          *ngSwitchCase="'Controller.Ess.Time-Of-Use-Tariff.Discharge'">
+          <timeOfUseTariffDischargeWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
+          </timeOfUseTariffDischargeWidget>
+        </ion-col>
+
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.IO.HeatingElement'">
           <heatingelementWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
           </heatingelementWidget>

@@ -370,7 +370,17 @@ export const TRANSLATION = {
                     switchOnRec: 'Switch-on recommendation',
                     switchOnRecShort: 'Recommendation',
                     undefined: 'Undefined',
-                }
+                },
+                TimeOfUseTariff: {
+                    currentTariff: 'Current price',
+                    delayedDischarge: 'Delayed Discharge',
+                    State: {
+                        notStarted: 'Controller has not yet started',
+                        delayed: 'Delayed',
+                        allowsDischarge: 'Allows Discharge',
+                        standby: 'Standby',
+                    },
+                },
             }
         },
         History: {

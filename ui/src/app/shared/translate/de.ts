@@ -120,7 +120,6 @@ export const TRANSLATION = {
         title: "Login",
         preamble: "Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",
         passwordLabel: "Passwort",
-        passwordPlaceholder: "Passwort",
         passwordReset: "Passwort zurücksetzen",
         authenticationFailed: "Authentifizierung fehlgeschlagen",
     },
@@ -371,7 +370,17 @@ export const TRANSLATION = {
                     switchOnRec: 'Einschaltempfehlung',
                     switchOnRecShort: 'Empfehlung',
                     undefined: 'Nicht definiert',
-                }
+                },
+                TimeOfUseTariff: {
+                    currentTariff: 'Aktueller Strompreis',
+                    delayedDischarge: 'Entladung verzögert',
+                    State: {
+                        notStarted: 'Noch nicht gestartet',
+                        delayed: 'Verzögert',
+                        allowsDischarge: 'Freigegeben',
+                        standby: 'Standby',
+                    },
+                },
             }
         },
         History: {

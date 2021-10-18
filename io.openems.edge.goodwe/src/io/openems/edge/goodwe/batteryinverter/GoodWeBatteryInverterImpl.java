@@ -288,18 +288,20 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		if ((bmsChargeMaxCurrent.isDefined() && !Objects.equals(bmsChargeMaxCurrent.get(), setChargeMaxCurrent))
 				|| (bmsDischargeMaxCurrent.isDefined()
 						&& !Objects.equals(bmsDischargeMaxCurrent.get(), setDischargeMaxCurrent))
-				|| (bmsSocUnderMin.isDefined() && !Objects.equals(bmsSocUnderMin.get(), setSocUnderMin))) {
+				|| (bmsSocUnderMin.isDefined() && !Objects.equals(bmsSocUnderMin.get(), setSocUnderMin))
+				|| (bmsOfflineSocUnderMin.isDefined()
+						&& !Objects.equals(bmsOfflineSocUnderMin.get(), setOfflineSocUnderMin))) {
 			// Update is required
 			this.logInfo(this.log, "Update for PV-Master BMS Registers is required." //
 					+ " Voltages" //
-					+ " [Discharge" + bmsDischargeMinVoltage.get() + " -> " + setDischargeMinVoltage + "]" //
-					+ " [Charge" + bmsChargeMaxVoltage + " -> " + setChargeMaxVoltage + "]" //
+					+ " [Discharge " + bmsDischargeMinVoltage.get() + " -> " + setDischargeMinVoltage + "]" //
+					+ " [Charge " + bmsChargeMaxVoltage.get() + " -> " + setChargeMaxVoltage + "]" //
 					+ " Currents " //
 					+ " [Charge " + bmsChargeMaxCurrent.get() + " -> " + setChargeMaxCurrent + "]" //
 					+ " [Discharge " + bmsDischargeMaxCurrent.get() + " -> " + setDischargeMaxCurrent + "]" //
-					+ " MinSoc " //
-					+ " [" + bmsSocUnderMin.get() + " -> " + setSocUnderMin + "] " //
-					+ " [" + bmsOfflineSocUnderMin.get() + " -> " + setOfflineSocUnderMin + "]");
+					+ " MinSoc [" //
+					+ " [On-Grid " + bmsSocUnderMin.get() + " -> " + setSocUnderMin + "] " //
+					+ " [Off-Grid " + bmsOfflineSocUnderMin.get() + " -> " + setOfflineSocUnderMin + "]");
 
 			this.writeToChannel(GoodWe.ChannelId.BATTERY_PROTOCOL_ARM, 287); // EMS-Mode
 

@@ -21,6 +21,14 @@ tasks:
       -c openems-gitpod
       --host 0.0.0.0
       --disable-host-check
+  - init: |
+      mkdir /workspace/odoo && cd /workspace/odoo
+      git clone --depth=1 -b feature/gitpod https://github.com/OpenEMS/odoo-openems.git openems
+      git clone --depth=1 -b 12.0 https://github.com/OCA/partner-contact
+      git clone --depth=1 -b 12.0 https://github.com/OCA/web.git
+      ln -s ./partner-contact/partner_firstname ./partner_firstname
+      ln -s ./web/web_m2x_options ./web_m2x_options
+    command: odoo -d v12 --addons-path=/workspace/odoo -i base,partner_firstname,web_m2x_options,stock,openems
 
 ports:
   # Backend
@@ -44,3 +52,8 @@ ports:
   # UI
   - port: 4200
     onOpen: open-browser
+  # Odoo
+  - port: 8069
+    onOpen: open-browser
+  - port: 5432
+    onOpen: ignore

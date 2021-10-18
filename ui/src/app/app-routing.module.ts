@@ -18,6 +18,7 @@ import { ProductionChartOverviewComponent } from './edge/history/production/prod
 import { SelfconsumptionChartOverviewComponent } from './edge/history/selfconsumption/selfconsumptionchartoverview/selfconsumptionchartoverview.component';
 import { SinglethresholdChartOverviewComponent } from './edge/history/singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
 import { StorageChartOverviewComponent } from './edge/history/storage/storagechartoverview/storagechartoverview.component';
+import { TimeOfUseTariffDischargeChartOverviewComponent } from './edge/history/timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { InstallationComponent } from './edge/installation/installation.component';
 import { LiveComponent as EdgeLiveComponent } from './edge/live/live.component';
 import { AutoinstallerComponent as EdgeSettingsAutoinstallerComponent } from './edge/settings/autoinstaller/autoinstaller.component';
@@ -62,6 +63,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/history/:componentId/singlethresholdchart', component: SinglethresholdChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/symmetricpeakshavingchart', component: SymmetricPeakshavingChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/timeslotpeakshavingchart', component: TimeslotPeakshavingChartOverviewComponent },
+  { path: 'device/:edgeId/history/:componentId/timeOfUseTariffDischargeChart', component: TimeOfUseTariffDischargeChartOverviewComponent },
   { path: 'device/:edgeId/history/autarchychart', component: AutarchyChartOverviewComponent },
   { path: 'device/:edgeId/history/consumptionchart', component: ConsumptionChartOverviewComponent },
   { path: 'device/:edgeId/history/gridchart', component: GridChartOverviewComponent },

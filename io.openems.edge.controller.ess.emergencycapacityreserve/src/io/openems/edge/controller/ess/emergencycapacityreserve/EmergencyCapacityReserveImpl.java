@@ -193,4 +193,8 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 				.findFirst();
 	}
 
+	public int getMinSoc() {
+		return this.config.reserveSoc();
+	}
+
 }

@@ -19,6 +19,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
 	String ess_id();
+	
+	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
+	Mode mode() default Mode.AUTOMATIC;
 
 	@AttributeDefinition(name = "Fallback Morning-Hour", description = "Fallback for calculation to stop at this hour")
 	int maxStartHour() default 8;

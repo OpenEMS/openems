@@ -18,6 +18,7 @@ import { LogoutRequest } from '../jsonrpc/request/logoutRequest';
 import { RegisterUserRequest } from '../jsonrpc/request/registerUserRequest';
 import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
 import { AuthenticateResponse } from '../jsonrpc/response/authenticateResponse';
+import { LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { Service } from './service';
 import { WsData } from './wsdata';
@@ -151,6 +152,9 @@ export class Websocket {
   public login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest) {
     this.sendRequest(request).then(r => {
       let response = (r as AuthenticateResponse).result;
+
+      localStorage.LANGUAGE = response.user.language;
+      this.service.setLang(LanguageTag[localStorage.LANGUAGE])
       this.status = 'online';
 
       // received login token -> save in cookie

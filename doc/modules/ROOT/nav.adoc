@@ -18,6 +18,7 @@
 * OpenEMS Backend
 ** xref:backend/architecture.adoc[Architecture]
 ** xref:backend/backend-to-backend.adoc[Backend-to-Backend]
+** xref:backend/gitpod.adoc[Gitpod Workspace]
 ** xref:backend/build.adoc[Build OpenEMS Backend]
 ** xref:backend/deploy.adoc[Deploy OpenEMS Backend]
 * xref:component-communication/index.adoc[Component Communication]

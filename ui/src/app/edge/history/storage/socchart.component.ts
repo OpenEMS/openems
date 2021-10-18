@@ -14,6 +14,7 @@ import { TranslateService } from '@ngx-translate/core';
 export class SocStorageChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
+    private emergencyCapacityReserveComponents: EdgeConfig.Component[] = [];
 
     ngOnChanges() {
         this.updateChart();
@@ -97,9 +98,10 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                             }
                             if (channelAddress.channelId == '_PropertyReserveSoc') {
                                 datasets.push({
-                                    label: component.alias,
+                                    label:
+                                        this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.emergencyReserve"),
                                     data: data,
-                                    borderDash: [3, 3]
+                                    borderDash: [3, 3],
                                 })
                                 this.colors.push({
                                     backgroundColor: 'rgba(1, 1, 1,0)',
@@ -133,8 +135,11 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
             let channeladdresses: ChannelAddress[] = [];
             channeladdresses.push(new ChannelAddress('_sum', 'EssSoc'));
 
-            config.getComponentsImplementingNature('io.openems.edge.controller.ess.emergencycapacityreserve.EmergencyCapacityReserve')
+
+            this.emergencyCapacityReserveComponents = config.getComponentsByFactory('Controller.Ess.EmergencyCapacityReserve')
                 .filter(component => component.isEnabled)
+
+            this.emergencyCapacityReserveComponents
                 .forEach(component =>
                     channeladdresses.push(new ChannelAddress(component.id, '_PropertyReserveSoc'))
                 );
