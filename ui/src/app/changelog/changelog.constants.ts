@@ -54,6 +54,7 @@ export class Product {
     public static readonly FEMS_HEIZSTAB = new Product('FEMS-App Heizstab', 'https://fenecon.de/fems-2-2/fems-app-heizstab-6-kw/');
     public static readonly FEMS_SCHWELLWERT_STEUERUNG = new Product('FEMS-App Schwellwertsteuerung', 'https://fenecon.de/fems-2-2/fems-app-schwellwert-steuerung/');
     public static readonly FEMS_AWATTAR = new Product('FEMS-App Awattar HOURLY Deutschland', 'https://fenecon.de/fems-2-2/fems-app-awattar-hourly-deutschland-2/');
+    public static readonly FEMS_ALL_TIME_OF_USE_TARIFF = [Product.FEMS_KEBA, Product.FEMS_HARDY_BARTH];
 
     // Industrial
     public static readonly INDUSTRIAL = new Product('FENECON Industrial-Serie', 'https://fenecon.de/industrial/');
