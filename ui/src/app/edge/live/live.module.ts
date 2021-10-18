@@ -23,7 +23,7 @@ import { Controller_ChpSocModalComponent } from './Controller/ChpSoc/modal/modal
 import { Controller_Ess_FixActivePower } from './Controller/Ess_FixActivePower/Ess_FixActivePower';
 import { Controller_Ess_FixActivePowerModalComponent } from './Controller/Ess_FixActivePower/modal/modal.component';
 import { Controller_Ess_TimeOfUseTariff_Discharge } from './Controller/Ess_Time-Of-Use-Tariff_Discharge/Ess_Time-Of-Use-Tariff_Discharge';
-import { TimeOfUseTariffDischargeModalComponent } from './Controller/Ess_Time-Of-Use-Tariff_Discharge/modal/modal.component';
+import { Controller_Ess_TimeOfUseTariff_DischargeModalComponent } from './Controller/Ess_Time-Of-Use-Tariff_Discharge/modal/modal.component';
 import { Controller_EvcsComponent } from './Controller/Evcs/Evcs';
 import { AdministrationComponent } from './Controller/Evcs/modal/administration/administration.component';
 import { Controller_EvcsModalComponent } from './Controller/Evcs/modal/modal.page';
@@ -77,8 +77,10 @@ import { ProductionComponent } from './production/production.component';
     Controller_Ess_FixActivePower,
     Controller_Ess_FixActivePowerModalComponent,
     Controller_Ess_TimeOfUseTariff_Discharge,
+    Controller_Ess_TimeOfUseTariff_DischargeModalComponent,
     Controller_EvcsModalComponent,
     Controller_EvcsPopoverComponent,
+    Controller_Io_ChannelSingleThresholdComponent,
     Controller_Io_ChannelSingleThresholdModalComponent,
     Controller_Io_FixDigitalOutput,
     Controller_Io_FixDigitalOutputModalComponent,
@@ -99,7 +101,6 @@ import { ProductionComponent } from './production/production.component';
     ProductionModalComponent,
     SelfconsumptionModalComponent,
     StorageModalComponent,
-    TimeOfUseTariffDischargeModalComponent,
   ],
   declarations: [
     AdministrationComponent,
@@ -116,6 +117,7 @@ import { ProductionComponent } from './production/production.component';
     Controller_Ess_FixActivePower,
     Controller_Ess_FixActivePowerModalComponent,
     Controller_Ess_TimeOfUseTariff_Discharge,
+    Controller_Ess_TimeOfUseTariff_DischargeModalComponent,
     Controller_EvcsComponent,
     Controller_EvcsModalComponent,
     Controller_EvcsPopoverComponent,
@@ -156,7 +158,6 @@ import { ProductionComponent } from './production/production.component';
     SelfconsumptionModalComponent,
     StorageComponent,
     StorageModalComponent,
-    TimeOfUseTariffDischargeModalComponent,
   ]
 })
 export class LiveModule { }

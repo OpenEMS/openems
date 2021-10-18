@@ -121,7 +121,6 @@ export const TRANSLATION = {
     },
     Edge: {
         Index: {
-            // TODO Translations
             EmergencyReserve: {
                 InfoForEmergencyReserveSlider: 'Al activar la reserva de energía de emergencia, el valor puede seleccionarse libremente entre el 5% y el 100%.',
                 emergencyReserve: 'reserva de emergencia',

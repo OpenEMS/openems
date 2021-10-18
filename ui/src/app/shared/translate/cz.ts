@@ -125,8 +125,6 @@ export const TRANSLATION = {
     },
     Edge: {
         Index: {
-
-            // TODO Translations
             EmergencyReserve: {
                 InfoForEmergencyReserveSlider: 'Aktivací nouzové rezervy výkonu lze libovolně zvolit hodnotu mezi 5 % a 100 %.',
                 emergencyReserve: 'pohotovostní rezerva',

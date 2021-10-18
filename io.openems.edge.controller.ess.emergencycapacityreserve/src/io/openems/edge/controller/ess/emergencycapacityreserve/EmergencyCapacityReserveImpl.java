@@ -77,7 +77,6 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.config = config;
 		this.updateConfig(config);
 	}
 

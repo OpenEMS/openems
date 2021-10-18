@@ -8,7 +8,7 @@ public interface TimeOfUseTariff {
 	/**
 	 * This method returns the Quarterly prices in a {@link TreeMap} format.
 	 * 
-	 * @return prices {@link TreeMap} consisting of quarterly electricity prices in [€/MWh]
+	 * @return prices {@link TreeMap} consisting of quarterly electricity prices in [EUR/MWh]
 	 *         along with time; or an empty Map on error
 	 */
 	public TreeMap<ZonedDateTime, Float> getPrices();

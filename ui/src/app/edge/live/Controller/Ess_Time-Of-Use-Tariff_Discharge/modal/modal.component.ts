@@ -10,10 +10,10 @@ import { Role } from 'src/app/shared/type/role';
 type Mode = 'OFF' | 'AUTOMATIC';
 
 @Component({
-    selector: TimeOfUseTariffDischargeModalComponent.SELECTOR,
+    selector: Controller_Ess_TimeOfUseTariff_DischargeModalComponent.SELECTOR,
     templateUrl: './modal.component.html',
 })
-export class TimeOfUseTariffDischargeModalComponent implements OnInit {
+export class Controller_Ess_TimeOfUseTariff_DischargeModalComponent implements OnInit {
 
     @Input() public edge: Edge;
     @Input() public config: EdgeConfig;

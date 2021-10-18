@@ -1,8 +1,7 @@
 import { formatNumber } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/Generic_Components/flat/abstract-flat-widget';
-import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
-import { TimeOfUseTariffDischargeModalComponent } from './modal/modal.component';
+import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
 
 @Component({
     selector: 'Controller_Ess_TimeOfUseTariff_Discharge',
