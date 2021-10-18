@@ -339,7 +339,7 @@ public interface GoodWe extends OpenemsComponent {
 		STATE_51(Doc.of(Level.INFO).text("Battery lock")), //
 		STATE_52(Doc.of(Level.INFO).text("Discharge circuit fault")), //
 		STATE_53(Doc.of(Level.INFO).text("Charging circuit failure")), //
-		STATE_54(Doc.of(Level.INFO).text("Communication failure 2")), //
+		STATE_54(Doc.of(Level.INFO).text("Communication failure")), //
 		STATE_55(Doc.of(Level.INFO).text("Cell high temperature 3")), //
 		STATE_56(Doc.of(Level.INFO).text("Discharge under voltage 3")), //
 		STATE_57(Doc.of(Level.INFO).text("Charging under voltage 3")), //
