@@ -18,11 +18,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
@@ -87,7 +92,7 @@ public class Shelly3EmImpl extends AbstractOpenemsComponent
 	public Boolean wantsExtendedData() {
 		// Currently not
 		// In fact we would in order to sum all legs for the symmetric meter.
-		return false;
+		return true;
 	}
 
 	@Override
@@ -98,12 +103,96 @@ public class Shelly3EmImpl extends AbstractOpenemsComponent
 
 	@Override
 	public Boolean setBaseChannels() {
-		return true;
+		return false;
 	}
 	
 	@Override
-	public void setExtendedData(JsonObject o) {
-		// Currently not needed
+	public void setExtendedData(JsonObject json) {
+		Boolean relayIsOn = null;		
+		Integer totalPower = null;
+		
+		Integer[] powers = new Integer[3];
+		Integer[] currents = new Integer[3];
+		Integer[] voltages = new Integer[3];
+		Double[] powerfactors = new Double[3];
+		
+		Long total = 0L;
+		Long totalReturned = 0L;
+		try {			
+			totalPower =  TypeUtils.getAsType(OpenemsType.INTEGER, JsonUtils.getAsDouble(json,"total_power"));
+
+			/** 
+			 * Read relay status first
+			 */
+			JsonArray relays = JsonUtils.getAsJsonArray(json, "relays");
+			JsonObject relay1 = JsonUtils.getAsJsonObject(relays.get(0));
+			relayIsOn = JsonUtils.getAsOptionalBoolean(relay1, "ison").orElse(null);
+			
+			/**
+			 * And now the three emeters
+			 */			
+			JsonArray emeters = JsonUtils.getAsJsonArray(json, "emeters");
+			JsonObject meter;
+			for(int i=0;i<3;++i) {
+				meter = JsonUtils.getAsJsonObject(emeters.get(i));
+				Double rawValue;
+				
+				// Why is power in W while current and voltage are in mX???
+				powers[i] =  TypeUtils.getAsType(OpenemsType.INTEGER,JsonUtils.getAsDouble(meter,"power"));				
+				powerfactors[i] = JsonUtils.getAsDouble(meter,"pf");
+				
+				rawValue = JsonUtils.getAsDouble(meter,"current");
+				rawValue = TypeUtils.multiply(rawValue,1000.0);
+				currents[i] =  TypeUtils.getAsType(OpenemsType.INTEGER,rawValue);
+				
+				rawValue = JsonUtils.getAsDouble(meter,"voltage");
+				rawValue = TypeUtils.multiply(rawValue,1000.0);				
+				voltages[i] = TypeUtils.getAsType(OpenemsType.INTEGER,rawValue);
+					
+				total  = TypeUtils.sum(total,TypeUtils.getAsType(OpenemsType.LONG,JsonUtils.getAsDouble(meter,"total")));
+				totalReturned  = TypeUtils.sum(totalReturned,TypeUtils.getAsType(OpenemsType.LONG,JsonUtils.getAsDouble(meter,"total_returned")));
+			}
+		} catch (OpenemsNamedException | IndexOutOfBoundsException e) {
+			this.logError(this.log, "Unable to read from Shelly API: " + e.getMessage());
+			this._setSlaveCommunicationFailed(true);
+		} finally {
+			this._setRelay(relayIsOn);			
+			this._setVoltage(TypeUtils.averageRounded(voltages[0],voltages[1],voltages[2]));
+			this._setVoltageL1(voltages[0]);
+			this._setVoltageL2(voltages[1]);
+			this._setVoltageL3(voltages[2]);
+			
+			this._setActiveProductionEnergy(totalReturned);
+			this._setActiveConsumptionEnergy(total);
+			
+			switch (this.meterType) {
+			case GRID:
+				this._setActivePower(totalPower);
+				this._setActivePowerL1(powers[0]);
+				this._setActivePowerL2(powers[1]);
+				this._setActivePowerL3(powers[2]);
+				
+				this._setCurrent(TypeUtils.sum(currents[0],currents[1],currents[2]));
+				this._setCurrentL1(currents[0]);
+				this._setCurrentL2(currents[1]);
+				this._setCurrentL3(currents[2]);
+				break;
+			case CONSUMPTION_NOT_METERED: // to be validated
+			case CONSUMPTION_METERED: // to be validated
+			case PRODUCTION_AND_CONSUMPTION:
+			case PRODUCTION:
+				this._setActivePower(TypeUtils.multiply(totalPower, -1)); // invert
+				this._setActivePowerL1(TypeUtils.multiply(powers[0], -1)); // invert
+				this._setActivePowerL2(TypeUtils.multiply(powers[1], -1)); // invert
+				this._setActivePowerL3(TypeUtils.multiply(powers[2], -1)); // invert
+				
+				this._setCurrent(TypeUtils.multiply(TypeUtils.sum(currents[0],currents[1],currents[2]),-1));
+				this._setCurrentL1(TypeUtils.multiply(currents[0], -1));
+				this._setCurrentL2(TypeUtils.multiply(currents[1], -1));
+				this._setCurrentL3(TypeUtils.multiply(currents[2], -1));				
+				break;
+			}						
+		}				
 	}
 
 	@Override
@@ -116,17 +205,22 @@ public class Shelly3EmImpl extends AbstractOpenemsComponent
 		return this.digitalOutputChannels;
 	}
 	
+		
 	@Override
 	public String debugLog() {
-		StringBuilder b = new StringBuilder();
+		StringBuilder b = new StringBuilder("R: ");
 		Optional<Boolean> valueOpt = this.getRelayChannel().value().asOptional();
 		if (valueOpt.isPresent()) {
 			b.append(valueOpt.get() ? "On" : "Off");
 		} else {
 			b.append("Unknown");
 		}
-		b.append("|");
-		b.append(this.getActivePowerChannel().value().asString());
+		
+		b.append("L: "+ this.getActivePower().asString());
+		b.append(" L1: "+ this.getActivePowerL1().asString());
+		b.append(" L2: "+ this.getActivePowerL2().asString());
+		b.append(" L3: "+ this.getActivePowerL3().asString());		
+		b.append("|");		
 		return b.toString();
 	}
 }

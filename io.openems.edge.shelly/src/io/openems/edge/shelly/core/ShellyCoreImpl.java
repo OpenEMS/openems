@@ -1,5 +1,6 @@
 package io.openems.edge.shelly.core;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -48,6 +50,7 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 	private Config config = null;
 	private ShellyApi api = null;
 	private List<ShellyComponent> clients;
+	private final Logger log = LoggerFactory.getLogger(ShellyCoreImpl.class);
 	
 
 	public ShellyCoreImpl() {
@@ -62,6 +65,7 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 		this.api = new ShellyApi(this,config.ip());
+		clients = new ArrayList<ShellyComponent>();
 	}
 
 	@Deactivate
@@ -87,16 +91,6 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 			break;
 		}
 	}
-
-	@Override
-	public String debugLog() {
-		//return "L:" + this.getActivePower().asString();
-		if(api != null) {
-			return "Shelly: "+ api.getType();
-		}
-		return "Shelly: not valid"; 
-		
-	}
 	
 	public ShellyApi getApi() {
 		return this.api;
@@ -105,11 +99,17 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 	public void registerClient(ShellyComponent client) {
 		if(client != null && !this.clients.contains(client)) {
 			this.clients.add(client);
+			this.logInfo(log, "New client registered");
 		}
 	}
 		
 	public void unregisterClient(ShellyComponent client) {
+		this.logInfo(log, "Unregister client");
 		this.clients.remove(client);
+	}
+	
+	public void setRelay(Integer index, Boolean value) throws OpenemsNamedException{
+		this.api.setRelayTurn(index, value);
 	}
 	
 	protected void updateSymmetricMeter(SymmetricMeter meter, Integer index ) throws OpenemsNamedException  {
@@ -227,7 +227,7 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 					Integer index = client.wantedIndex();										
 					if(client instanceof DigitalOutput ) {
 						DigitalOutput out = (DigitalOutput)client;						
-						updateOutput(out,index);
+						writeOutput(out,index);
 					}
 				}				
 			} catch (OpenemsNamedException e) {
@@ -248,7 +248,7 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 			// read value == write value
 			return;
 		}
-		this.api.setRelayTurn(index, writeValue.get());
+		this.setRelay(index, writeValue.get());
 	}
 	
 	protected void updateClients() {
@@ -274,10 +274,22 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 					client.setExtendedData(api.getStatus());
 				}
 			} catch (OpenemsNamedException e) {
-				
+				this.logError(this.log, "Update clients failed with "+e.getMessage());
 			} 
 		}
 	}
 	
+	@Override
+	public String debugLog() {
+		StringBuilder b = new StringBuilder("C: ");
+		Optional<Boolean> valueOpt = this.getCommunicationFailedChannel().value().asOptional();
+		if (valueOpt.isPresent()) {
+			b.append(valueOpt.get() ? "Failed" : "OK");
+		} else {
+			b.append("Unknown");
+		}
+		b.append("|");		
+		return b.toString();
+	}
 	
 }

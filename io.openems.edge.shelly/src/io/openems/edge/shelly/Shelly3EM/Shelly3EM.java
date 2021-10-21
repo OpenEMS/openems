@@ -32,9 +32,9 @@ public interface Shelly3EM extends DigitalOutput, SymmetricMeter, AsymmetricMete
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		RELAY(Doc.of(OpenemsType.BOOLEAN)); //
+		RELAY(new BooleanDoc() //
+			  .accessMode(AccessMode.READ_WRITE)); //
 		
-				
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
