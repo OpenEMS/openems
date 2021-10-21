@@ -3,6 +3,8 @@ package io.openems.edge.shelly.core;
 import java.util.Iterator;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -20,6 +22,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -36,7 +39,8 @@ import io.openems.edge.io.api.DigitalOutput;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 		} //
 )
 public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCore, OpenemsComponent, EventHandler {
@@ -78,6 +82,9 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 				updateClients();								
 			}
 			break;
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+			this.eventExecuteWrite();
+			break;
 		}
 	}
 
@@ -96,11 +103,15 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 	}
 	
 	public void registerClient(ShellyComponent client) {
-		if(client != null) {
+		if(client != null && !this.clients.contains(client)) {
 			this.clients.add(client);
 		}
 	}
 		
+	public void unregisterClient(ShellyComponent client) {
+		this.clients.remove(client);
+	}
+	
 	protected void updateSymmetricMeter(SymmetricMeter meter, Integer index ) throws OpenemsNamedException  {
 		// Symmetric meters are updated with only one of the available meters/emeters
 		// Which one is decided by asking the client (wantedIndex())
@@ -193,29 +204,53 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 	}
 	
 	protected void updateOutput(DigitalOutput out, Integer index ) throws OpenemsNamedException {
-		
-		// We simply assume that an output has a channel RELAY. If so, it gets updated with the relay 
-		// at the given index.
-		// If no such channel can be found, no action is taken.
-		Channel<Boolean> relayChannel=null;
-		
-		try {
-			relayChannel = out.channel("RELAY");
-			if(relayChannel != null) {
-				JsonObject status = api.getStatus();
-				JsonArray relays = null;
-				if(index < api.getNumRelays()) {							
-					relays = JsonUtils.getAsJsonArray(status, "relays");
-					JsonObject relay = JsonUtils.getAsJsonObject(relays.get(index));						
-					relayChannel.setNextValue(JsonUtils.getAsBoolean(relay, "ison"));
-				}				
-			}
-		} catch (IllegalArgumentException e) {
-			// Ok, relay not defined...
-		}
-		
+
+		// This will set the digitalOutput[0] to the value of the relay represented by this class.
+
+		BooleanWriteChannel[] outputChannels = out.digitalOutputChannels();			 			
+		if(outputChannels[0] != null) {
+			JsonObject status = this.api.getStatus();
+			JsonArray relays = null;
+			if(index < this.api.getNumRelays()) {							
+				relays = JsonUtils.getAsJsonArray(status, "relays");
+				JsonObject relay = JsonUtils.getAsJsonObject(relays.get(index));						
+				outputChannels[0].setNextValue(JsonUtils.getAsBoolean(relay, "ison"));
+			}				
+		}	
 	}
 
+	protected void eventExecuteWrite() {
+		for (Iterator<ShellyComponent> it = clients.iterator(); it.hasNext();) {
+			ShellyComponent client = it.next();
+			try {				
+				if(client.setBaseChannels()) {					
+					Integer index = client.wantedIndex();										
+					if(client instanceof DigitalOutput ) {
+						DigitalOutput out = (DigitalOutput)client;						
+						updateOutput(out,index);
+					}
+				}				
+			} catch (OpenemsNamedException e) {
+				
+			} 
+		}
+	}
+	
+	protected void writeOutput(DigitalOutput out, Integer index) throws OpenemsNamedException {
+		BooleanWriteChannel[] outputChannels = out.digitalOutputChannels();		
+		Boolean readValue = outputChannels[0].value().get();
+		Optional<Boolean> writeValue = outputChannels[0].getNextWriteValueAndReset();
+		if (!writeValue.isPresent()) {
+			// no write value
+			return;
+		}
+		if (Objects.equals(readValue, writeValue.get())) {
+			// read value == write value
+			return;
+		}
+		this.api.setRelayTurn(index, writeValue.get());
+	}
+	
 	protected void updateClients() {
 		for (Iterator<ShellyComponent> it = clients.iterator(); it.hasNext();) {
 			ShellyComponent client = it.next();

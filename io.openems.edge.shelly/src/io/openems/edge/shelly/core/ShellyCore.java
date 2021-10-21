@@ -122,4 +122,7 @@ public interface ShellyCore extends OpenemsComponent, EventHandler {
 	
 	// Attaches a meter or IO object to the core so that it gets updated on a regular basis
 	public void registerClient(ShellyComponent client);
+	
+	// Detaches a meter or IO object from the core
+	public void unregisterClient(ShellyComponent client);
 }
