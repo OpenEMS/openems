@@ -21,6 +21,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -49,7 +50,7 @@ import io.openems.edge.ess.power.api.Relationship;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
-		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
+		implements ManagedSymmetricEss, SymmetricEss, ModbusComponent, OpenemsComponent {
 
 	private static final int MAX_APPARENT_POWER = 480_000;
 
@@ -65,6 +66,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 	public EssFeneconBydContainer() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				ChannelId.values() //

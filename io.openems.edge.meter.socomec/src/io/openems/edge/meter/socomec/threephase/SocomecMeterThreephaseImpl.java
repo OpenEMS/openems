@@ -20,6 +20,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -43,7 +44,7 @@ import io.openems.edge.meter.socomec.SocomecMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements SocomecMeterThreephase, SocomecMeter,
-		SymmetricMeter, AsymmetricMeter, OpenemsComponent, ModbusSlave {
+		SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(SocomecMeterThreephaseImpl.class);
 
@@ -55,6 +56,7 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 	public SocomecMeterThreephaseImpl() throws OpenemsException {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //
 				SocomecMeter.ChannelId.values(), //

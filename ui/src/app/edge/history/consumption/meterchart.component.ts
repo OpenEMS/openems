@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, Service } from '../../../shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, TooltipItem } from '../shared';
 
@@ -89,11 +89,16 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
         });
     }
 
-    protected getChannelAddresses(): Promise<ChannelAddress[]> {
+    protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
                 new ChannelAddress(this.componentId, 'ActivePower'),
             ];
+            let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+                .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component))
+            for (let meter of consumptionMeters) {
+                result.push(new ChannelAddress(meter.id, 'ActivePower'))
+            }
             resolve(result);
         })
     }

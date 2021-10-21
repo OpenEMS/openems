@@ -76,10 +76,11 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 		super.modified(context, config.id(), config.alias(), config.enabled());
 	}
 
-	private void applyConfig(Config config) throws OpenemsNamedException {
+	private synchronized void applyConfig(Config config) throws OpenemsNamedException {
 		this.config = config;
 
 		// Parse Additional Channels
+		this.additionalChannels.clear();
 		for (String channel : config.additionalChannels()) {
 			if (channel.isEmpty()) {
 				continue;
@@ -89,6 +90,7 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 		}
 
 		// Parse Ignore Components
+		this.ignoreComponents.clear();
 		for (String componentId : config.ignoreComponents()) {
 			if (componentId.isEmpty()) {
 				continue;
