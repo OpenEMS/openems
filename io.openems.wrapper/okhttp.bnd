@@ -1,0 +1,39 @@
+Bundle-Name: okttp
+Bundle-Description: Square’s meticulous HTTP client for Java and Kotlin. 
+Bundle-DocURL: https://square.github.io/okhttp/
+Bundle-License: https://opensource.org/licenses/Apache-2.0
+Bundle-Version: 3.14.9
+
+Include-Resource: \
+	@logging-interceptor-3.14.9.jar,\
+	@okhttp-3.14.9.jar,\
+	@okio-1.17.2.jar,\
+
+Export-Package: \
+   okhttp3,\
+   okhttp3.internal,\
+   okhttp3.internal.connection,\
+   okhttp3.internal.http,\
+   okhttp3.internal.http2,\
+   okhttp3.internal.ws,\
+   okhttp3.logging,\
+   okio, \
+
+Import-Package: \
+	android.os;resolution:=optional,\
+	android.net.http;resolution:=optional,\
+	android.net.ssl;resolution:=optional,\
+	android.security;resolution:=optional,\
+	android.util;resolution:=optional,\
+	com.android.org.conscrypt;resolution:=optional,\
+	dalvik.system;resolution:=optional,\
+	kotlin;resolution:=optional,\
+	org.conscrypt;resolution:=optional,\
+	sun.security.ssl;resolution:=optional,\
+	*
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false

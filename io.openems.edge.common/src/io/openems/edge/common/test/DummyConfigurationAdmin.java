@@ -179,4 +179,14 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 		}
 	}
 
+	/**
+	 * Adds a simulated {@link DummyConfiguration}.
+	 * 
+	 * @param key           the PID
+	 * @param configuration the {@link DummyConfiguration}.
+	 */
+	public void addConfiguration(String key, DummyConfiguration configuration) {
+		this.configurations.put(key, configuration);
+	}
+
 }

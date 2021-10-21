@@ -17,6 +17,7 @@ import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
+import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.meter.test.DummyAsymmetricMeter;
 import io.openems.edge.predictor.api.test.DummyPrediction48Hours;
 import io.openems.edge.predictor.api.test.DummyPredictor24Hours;
@@ -34,6 +35,8 @@ public class MyControllerTest {
 	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss(ESS_ID);
 	private static final DummyAsymmetricMeter METER = new DummyAsymmetricMeter(METER_ID);
 	private static final DummyHybridEss HYBRID_ESS = new DummyHybridEss(ESS_ID);
+	private static final DummyManagedSymmetricEss ESS_WITH_NONE_APPARENT_POWER = new DummyManagedSymmetricEss(ESS_ID,
+			new DummyPower(0));
 
 	// Ess channels
 	private static final ChannelAddress ESS_CAPACITY = new ChannelAddress(ESS_ID, "Capacity");
@@ -55,6 +58,8 @@ public class MyControllerTest {
 	private static final ChannelAddress SELL_TO_GRID_LIMIT_STATE = new ChannelAddress(CTRL_ID, "SellToGridLimitState");
 	private static final ChannelAddress DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT = new ChannelAddress(CTRL_ID,
 			"DelayChargeMaximumChargeLimit");
+	private static final ChannelAddress RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT = new ChannelAddress(CTRL_ID,
+			"RawDelayChargeMaximumChargeLimit");
 	private static final ChannelAddress SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT = new ChannelAddress(CTRL_ID,
 			"SellToGridLimitMinimumChargeLimit");
 	private static final ChannelAddress RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT = new ChannelAddress(CTRL_ID,
@@ -241,6 +246,90 @@ public class MyControllerTest {
 	}
 
 	@Test
+	public void automatic_default_predictions_at_midday_averaged_test() throws Exception {
+		// Sleep between every TestCase to make sure that the Channel Values are added
+		// to the pastValues Map. This is required because the Channel Value timestamp
+		// does not consider the mocked Clock.
+		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(10);
+
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+
+		// Predictions
+		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+
+		// Predictors
+		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				productionPrediction, "_sum/ProductionActivePower");
+		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				consumptionPrediction, "_sum/ConsumptionActivePower");
+
+		// PredictorManager
+		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+				consumptionPredictor);
+
+		System.out.println(Arrays.toString(predictorManager
+				.get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
+		System.out.println(Arrays.toString(predictorManager
+				.get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
+
+		new ControllerTest(new GridOptimizedChargeImpl()) //
+				.addReference("predictorManager", predictorManager) //
+				.addReference("componentManager", cm) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", ESS) //
+				.addReference("meter", METER) //
+				.addReference("sum", new DummySum()) //
+				.activate(MyConfig.create() //
+						.setEssId(ESS_ID) //
+						.setId(CTRL_ID) //
+						.setMaximumSellToGridPower(7_000) //
+						.setMeterId(METER_ID) //
+						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
+						.setMode(Mode.AUTOMATIC) //
+						.setSellToGridLimitEnabled(true) //
+						.setSellToGridLimitRampPercentage(5) //
+						.setManualTargetTime("") //
+						.build()) //
+				.next(new TestCase() //
+						.onAfterProcessImage(sleep) //
+						.input(METER_ACTIVE_POWER, 0) //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(ESS_CAPACITY, 10_000) //
+						.input(ESS_SOC, 20) //
+						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
+						.output(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
+						.output(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, -6650) //
+						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, 6650) //
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2700) //
+						.output(RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2700)) //
+				.next(new TestCase() //
+						.onAfterProcessImage(sleep) //
+						.input(ESS_SOC, 21) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2683) //
+						.output(RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2666)) //
+				.next(new TestCase() //
+						.onAfterProcessImage(sleep) //
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2677) //
+						.output(RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2666)) //
+				.next(new TestCase() //
+						.onAfterProcessImage(sleep) //
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2675) //
+						.output(RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2666)) //
+				.next(new TestCase() //
+						.onAfterProcessImage(sleep) //
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2673) //
+						.output(RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2666)) //
+		;
+	}
+
+	@Test
 	public void automatic_default_predictions_at_evening_test() throws Exception {
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T20:00:00.00Z"), ZoneOffset.UTC);
 		final DummyComponentManager cm = new DummyComponentManager(clock);
@@ -290,17 +379,31 @@ public class MyControllerTest {
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.input(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
-						.input(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120)) //
+						.input(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
+						.input(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2000) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
+						// Value increases steadily by 0.25% of max apparent power 10_000
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2025))
 				.next(new TestCase() //
 						.input(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
 						.input(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
 						.output(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
-						.output(DELAY_CHARGE_STATE, DelayChargeState.NO_REMAINING_TIME) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, -6650) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, 6650) //
-						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, null));
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2050))
+				.next(new TestCase() //
+						.input(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
+						.input(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
+						.output(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
+						.output(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
+						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
+						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, -6650) //
+						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, 6650) //
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2075));
 	}
 
 	@Test
@@ -868,6 +971,63 @@ public class MyControllerTest {
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -850) //
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, -850) //
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 850)); //
+	}
+
+	@Test
+	public void no_capacity_left_test() throws Exception {
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+
+		// Predictions
+		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+
+		// Predictors
+		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				productionPrediction, "_sum/ProductionActivePower");
+		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				consumptionPrediction, "_sum/ConsumptionActivePower");
+
+		// PredictorManager
+		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+				consumptionPredictor);
+
+		System.out.println(Arrays.toString(predictorManager
+				.get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
+		System.out.println(Arrays.toString(predictorManager
+				.get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
+
+		new ControllerTest(new GridOptimizedChargeImpl()) //
+				.addReference("predictorManager", predictorManager) //
+				.addReference("componentManager", cm) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", ESS_WITH_NONE_APPARENT_POWER) //
+				.addReference("meter", METER) //
+				.addReference("sum", new DummySum()) //
+				.activate(MyConfig.create() //
+						.setEssId(ESS_ID) //
+						.setId(CTRL_ID) //
+						.setMaximumSellToGridPower(7_000) //
+						.setMeterId(METER_ID) //
+						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
+						.setMode(Mode.AUTOMATIC) //
+						.setSellToGridLimitEnabled(true) //
+						.setSellToGridLimitRampPercentage(5) //
+						.setManualTargetTime("") //
+						.build()) //
+				.next(new TestCase() //
+						.input(METER_ACTIVE_POWER, 0) //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(ESS_CAPACITY, 10_000) //
+						.input(ESS_SOC, 99) //
+						.input(ESS_MAX_APPARENT_POWER, 10_000) //
+						.input(START_EPOCH_SECONDS, 1630566000) //
+
+						// ess.getPower().getMinPower() (Maximum allowed charge power) is '0' because
+						// the referenced
+						// DummyManagedSymmetricEss has an apparent power of zero.
+						.output(DELAY_CHARGE_STATE, DelayChargeState.NO_REMAINING_CAPACITY) //
+						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, null)); //
 	}
 
 	@Test

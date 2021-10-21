@@ -726,9 +726,9 @@ public class TypeUtils {
 	 * @param value     the actual value
 	 * @return the adjusted value
 	 */
-	public static Integer fitWithin(Integer lowLimit, Integer highLimit, Integer value) {
-		return TypeUtils.max(lowLimit, //
-				TypeUtils.min(highLimit, value));
+	public static int fitWithin(int lowLimit, int highLimit, int value) {
+		return Math.max(lowLimit, //
+				Math.min(highLimit, value));
 	}
 
 	/**

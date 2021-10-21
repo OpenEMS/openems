@@ -6,6 +6,7 @@ import org.osgi.service.event.EventHandler;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
@@ -19,7 +20,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusComponent
-		implements GoodWeEtCharger, EssDcCharger, OpenemsComponent, TimedataProvider, EventHandler {
+		implements GoodWeEtCharger, EssDcCharger, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler {
 
 	protected abstract GoodWe getEssOrBatteryInverter();
 
@@ -29,6 +30,7 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 	protected AbstractGoodWeEtCharger() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				EssDcCharger.ChannelId.values(), //
 				GoodWeEtCharger.ChannelId.values() //
 		);
