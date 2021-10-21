@@ -59,6 +59,7 @@
 	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\
 	io.openems.wrapper.influxdb-java;version=snapshot,\
+	io.openems.wrapper.okhttp;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
 	org.apache.commons.commons-fileupload;version='[1.4.0,1.4.1)',\
 	org.apache.commons.commons-io;version='[2.8.0,2.8.1)',\
@@ -76,6 +77,6 @@
 	org.ops4j.pax.logging.pax-logging-api;version='[2.0.10,2.0.11)',\
 	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.10,2.0.11)',\
 	org.osgi.service.jdbc;version='[1.0.0,1.0.1)',\
-	org.osgi.util.function;version='[1.1.0,1.1.1)',\
-	org.osgi.util.promise;version='[1.1.1,1.1.2)',\
-	org.postgresql.jdbc;version='[42.2.23,42.2.24)'
+	org.osgi.util.function;version='[1.2.0,1.2.1)',\
+	org.osgi.util.promise;version='[1.2.0,1.2.1)',\
+	org.postgresql.jdbc;version='[42.3.0,42.3.1)'

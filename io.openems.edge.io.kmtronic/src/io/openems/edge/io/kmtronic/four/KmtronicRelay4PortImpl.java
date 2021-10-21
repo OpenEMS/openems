@@ -15,6 +15,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
@@ -35,7 +36,7 @@ import io.openems.edge.io.kmtronic.AbstractKmtronicRelay;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class KmtronicRelay4PortImpl extends AbstractKmtronicRelay
-		implements KmtronicRelay4Port, DigitalOutput, OpenemsComponent, ModbusSlave {
+		implements KmtronicRelay4Port, DigitalOutput, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	@Reference
 	protected ConfigurationAdmin cm;

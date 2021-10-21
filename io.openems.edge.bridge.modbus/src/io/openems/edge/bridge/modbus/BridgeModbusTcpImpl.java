@@ -8,6 +8,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
@@ -21,6 +22,7 @@ import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 /**
@@ -37,6 +39,9 @@ import io.openems.edge.common.event.EdgeEventConstants;
 		})
 public class BridgeModbusTcpImpl extends AbstractModbusBridge
 		implements BridgeModbus, BridgeModbusTcp, OpenemsComponent, EventHandler {
+
+	@Reference
+	private Cycle cycle;
 
 	/**
 	 * The configured IP address.
@@ -63,6 +68,11 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	@Override
+	protected Cycle getCycle() {
+		return this.cycle;
 	}
 
 	@Override

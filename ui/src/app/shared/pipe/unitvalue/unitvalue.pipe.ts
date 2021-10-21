@@ -9,7 +9,7 @@ export class UnitvaluePipe implements PipeTransform {
     constructor(private decimalPipe: DecimalPipe) { }
 
     transform(value: any, unit: string): any {
-        if (value == null
+        if (value == null || value == undefined
             || (typeof value === 'string' && value.trim() === "")
             || typeof value === 'boolean' || isNaN(value)) {
             return '-' + '\u00A0';

@@ -1,6 +1,6 @@
 import { ChannelAddress, CurrentData } from '../../../../shared/shared';
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/Generic_Components/flat/abstract-flat-widget';
 import { Icon } from 'src/app/shared/type/widget';
 
 @Component({

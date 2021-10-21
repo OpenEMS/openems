@@ -47,7 +47,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getConfig().then(config => {
-        let outputChannel = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+        let outputChannel: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
         let inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
         let result = (response as QueryHistoricTimeseriesDataResponse).result;
         let yAxisID
@@ -69,7 +69,8 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
         // convert datasets
         for (let channel in result.data) {
-          if (channel == outputChannel) {
+          if ((typeof outputChannel === 'string' && channel == outputChannel)
+            || (typeof outputChannel !== 'string' && outputChannel.includes(channel))) {
             let address = ChannelAddress.fromString(channel);
             let data = result.data[channel].map(value => {
               if (value == null) {
@@ -181,16 +182,27 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
-      const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
       const inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
-      let channeladdresses = [outputChannel, inputChannel];
-      resolve(channeladdresses);
+      let result: ChannelAddress[] = [inputChannel];
+      let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+      if (typeof outputChannelAddress === 'string') {
+        result.push(ChannelAddress.fromString(outputChannelAddress));
+      } else {
+        outputChannelAddress.forEach(c => result.push(ChannelAddress.fromString(c)));
+      }
+      resolve(result);
     });
   }
 
   protected setLabel(config: EdgeConfig) {
     let inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
-    let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
+    let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+    let outputChannel: ChannelAddress;
+    if (typeof outputChannelAddress === 'string') {
+      outputChannel = ChannelAddress.fromString(outputChannelAddress);
+    } else {
+      outputChannel = ChannelAddress.fromString(outputChannelAddress[0]);
+    }
     let labelString;
     let options = this.createDefaultChartOptions();
     let translate = this.translate;

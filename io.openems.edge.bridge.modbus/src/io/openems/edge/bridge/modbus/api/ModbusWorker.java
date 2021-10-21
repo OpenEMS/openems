@@ -3,12 +3,9 @@ package io.openems.edge.bridge.modbus.api;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -43,13 +40,10 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	private static final long TASK_DURATION_BUFFER = 50;
 
 	private final Logger log = LoggerFactory.getLogger(ModbusWorker.class);
-	// Measures the Cycle-Length between two consecutive BeforeProcessImage events
-	private final Stopwatch cycleStopwatch = Stopwatch.createUnstarted();
+	private final Stopwatch stopwatch = Stopwatch.createUnstarted();
 	private final LinkedBlockingDeque<Task> tasksQueue = new LinkedBlockingDeque<>();
 	private final MetaTasksManager<ReadTask> readTasksManager = new MetaTasksManager<>();
 	private final MetaTasksManager<WriteTask> writeTasksManager = new MetaTasksManager<>();
-	// Holds source Component-IDs that are known to have errors.
-	private final Set<String> defectiveComponents = new HashSet<>();
 	private final AbstractModbusBridge parent;
 
 	// The measured duration between BeforeProcessImage event and ExecuteWrite event
@@ -63,13 +57,9 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * This is called on TOPIC_CYCLE_BEFORE_PROCESS_IMAGE cycle event.
 	 */
 	protected void onBeforeProcessImage() {
-		// Measure the actual cycle-time; and starts the next measure cycle
-		long cycleTime = 1000; // default to 1000 [ms] for the first run
-		if (this.cycleStopwatch.isRunning()) {
-			cycleTime = this.cycleStopwatch.elapsed(TimeUnit.MILLISECONDS);
-		}
-		this.cycleStopwatch.reset();
-		this.cycleStopwatch.start();
+		int cycleTime = this.parent.getCycle().getCycleTime();
+		this.stopwatch.reset();
+		this.stopwatch.start();
 
 		// If the current tasks queue spans multiple cycles and we are in-between ->
 		// stop here
@@ -104,9 +94,8 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		// Set EXECUTION_DURATION channel
 		this.parent._setExecutionDuration(totalDuration);
 
-		// Set CYCLE_TIME_IS_TOO_SHORT state-channel if more than one cycle is required;
-		// but only if SlaveCommunicationFailed-Channel is not set
-		if (noOfRequiredCycles > 1 && !this.parent.getSlaveCommunicationFailed().orElse(false)) {
+		// Set CYCLE_TIME_IS_TOO_SHORT state-channel
+		if (noOfRequiredCycles > 1) {
 			this.parent._setCycleTimeIsTooShort(true);
 		} else {
 			this.parent._setCycleTimeIsTooShort(false);
@@ -157,8 +146,8 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	public void onExecuteWrite() {
 		// calculate the duration between BeforeProcessImage event and ExecuteWrite
 		// event. This duration is used for planning the queue in onBeforeProcessImage()
-		if (this.cycleStopwatch.isRunning()) {
-			this.durationBetweenBeforeProcessImageTillExecuteWrite = this.cycleStopwatch.elapsed(TimeUnit.MILLISECONDS);
+		if (this.stopwatch.isRunning()) {
+			this.durationBetweenBeforeProcessImageTillExecuteWrite = this.stopwatch.elapsed(TimeUnit.MILLISECONDS);
 		} else {
 			this.durationBetweenBeforeProcessImageTillExecuteWrite = 0;
 		}
@@ -171,11 +160,10 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		// If there are no tasks in the bridge, there will always be only one
 		// 'WaitTask'.
 		if (task instanceof WaitTask && !this.hasTasks()) {
-			// Make sure to unset the 'SlaveCommunicationFailed' Status in that case.
-			this.parent._setSlaveCommunicationFailed(false);
 			return;
 		}
 
+		ModbusComponent modbusComponent = task.getParent();
 		try {
 			// execute the task
 			int noOfExecutedSubTasks = task.execute(this.parent);
@@ -183,23 +171,18 @@ public class ModbusWorker extends AbstractImmediateWorker {
 			if (noOfExecutedSubTasks > 0) {
 				// no exception & at least one sub-task executed -> remove this component from
 				// erroneous list and set the CommunicationFailedChannel to false
-				if (task.getParent() != null) {
-					this.defectiveComponents.remove(task.getParent().id());
+				if (modbusComponent != null) {
+					modbusComponent._setModbusCommunicationFailed(false);
 				}
-
-				this.parent._setSlaveCommunicationFailed(false);
 			}
 
 		} catch (OpenemsException e) {
 			this.parent.logWarn(this.log, task.toString() + " execution failed: " + e.getMessage());
 
 			// mark this component as erroneous
-			if (task.getParent() != null) {
-				this.defectiveComponents.add(task.getParent().id());
+			if (modbusComponent != null) {
+				modbusComponent._setModbusCommunicationFailed(true);
 			}
-
-			// set the CommunicationFailedChannel to true
-			this.parent._setSlaveCommunicationFailed(true);
 
 			// invalidate elements of this task
 			for (ModbusElement<?> element : task.getElements()) {
@@ -277,19 +260,18 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 */
 	private <T extends Task> List<T> filterDefectiveComponents(Multimap<String, T> tasks) {
 		List<T> result = new ArrayList<>();
-		for (Entry<String, Collection<T>> entry : tasks.asMap().entrySet()) {
-			String componentId = entry.getKey();
-
-			if (this.defectiveComponents.contains(componentId)) {
-				// Component is known to be erroneous -> add only one Task
-				Iterator<T> iterator = entry.getValue().iterator();
-				if (iterator.hasNext()) {
-					result.add(iterator.next());
+		for (Collection<T> tasksOfComponent : tasks.asMap().values()) {
+			Iterator<T> iterator = tasksOfComponent.iterator();
+			if (iterator.hasNext()) {
+				T task = iterator.next(); // get first task
+				ModbusComponent modbusComponent = task.getParent();
+				if (modbusComponent.getModbusCommunicationFailed().get() == Boolean.TRUE) {
+					// Component is known to be erroneous -> add only one Task
+					result.add(task);
+				} else {
+					// Component is ok. All all tasks.
+					result.addAll(tasksOfComponent);
 				}
-
-			} else {
-				// Component is ok. All all tasks.
-				result.addAll(entry.getValue());
 			}
 		}
 		return result;
