@@ -42,7 +42,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * 
 	 * <p>
 	 * Automatically initializes (i.e. creates {@link Channel} instances for each
-	 * given {@link ChannelId} using the Channel-{@link Doc}.
+	 * given ChannelId using the Channel-{@link Doc}.
 	 * 
 	 * <p>
 	 * It is important to list all Channel-ID enums of all inherited
@@ -108,6 +108,9 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
 			ConfigurationAdmin cm, String modbusReference, String modbusId) throws OpenemsException {
 		super.activate(context, id, alias, enabled);
+		// Initialize ModbusCommunicationFailed State (this also tests if the
+		// ModbusComponent nature was properly implemented)
+		this._setModbusCommunicationFailed(false);
 		// update filter for 'Modbus'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Modbus", modbusId)) {
 			return true;

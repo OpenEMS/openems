@@ -14,6 +14,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -22,6 +23,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.TreeMultimap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -63,11 +65,22 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		this.config = config;
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.applyConfig(config);
 		super.activate(context, config.id(), config.alias(), config.enabled());
+	}
+
+	@Modified
+	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.applyConfig(config);
+		super.modified(context, config.id(), config.alias(), config.enabled());
+	}
+
+	private synchronized void applyConfig(Config config) throws OpenemsNamedException {
+		this.config = config;
 
 		// Parse Additional Channels
+		this.additionalChannels.clear();
 		for (String channel : config.additionalChannels()) {
 			if (channel.isEmpty()) {
 				continue;
@@ -77,6 +90,7 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 		}
 
 		// Parse Ignore Components
+		this.ignoreComponents.clear();
 		for (String componentId : config.ignoreComponents()) {
 			if (componentId.isEmpty()) {
 				continue;
@@ -149,7 +163,14 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 
 					// Any logs? Add them to the output
 					if (!logs.isEmpty()) {
-						result.add(component.id() + "[" + String.join("|", logs) + "]");
+						StringBuilder b = new StringBuilder();
+						b.append(component.id()).append("[");
+						if (this.config.showAlias() && !Objects.equal(component.id(), component.alias())) {
+							b.append(component.alias()).append("|");
+						}
+						b.append(String.join("|", logs));
+						b.append("]");
+						result.add(b.toString());
 					}
 				});
 		if (this.config.condensedOutput()) {

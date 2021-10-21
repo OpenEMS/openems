@@ -12,9 +12,7 @@ public interface GoodWeBatteryInverter
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		RUN_FAILED(Doc.of(Level.FAULT) //
-				.text("Running the Logic failed")), //
-		SMART_MODE_NOT_WORKING_WITH_PID_FILTER(Doc.of(Level.WARNING) //
-				.text("SMART mode does not work correctly with active PID filter"));
+				.text("Running the Logic failed")); //
 
 		private final Doc doc;
 

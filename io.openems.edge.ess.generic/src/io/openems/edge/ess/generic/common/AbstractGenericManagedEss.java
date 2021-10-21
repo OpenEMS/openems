@@ -2,6 +2,7 @@ package io.openems.edge.ess.generic.common;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -14,6 +15,7 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
+import io.openems.edge.batteryinverter.api.OffGridBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -21,12 +23,15 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.symmetric.ChannelManager;
+import io.openems.edge.ess.offgrid.api.OffGridEss;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
@@ -38,7 +43,7 @@ import io.openems.edge.ess.power.api.Relationship;
  */
 public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTERY extends Battery, BATTERY_INVERTER extends ManagedSymmetricBatteryInverter>
 		extends AbstractOpenemsComponent implements GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
-		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
+		OffGridEss, OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	/**
 	 * Helper wrapping class to handle everything related to Channels.
@@ -53,6 +58,8 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 
 	protected abstract BATTERY_INVERTER getBatteryInverter();
 
+	private StartStopConfig startStopConfig;
+
 	protected AbstractGenericManagedEss(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
@@ -64,8 +71,9 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 	}
 
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled, ConfigurationAdmin cm,
-			String batteryInverterId, String batteryId) {
+			String batteryInverterId, String batteryId, StartStopConfig startStop) {
 		super.activate(context, id, alias, enabled);
+		this.startStopConfig = startStop;
 
 		// update filter for 'BatteryInverter'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "batteryInverter", batteryInverterId)) {
@@ -203,4 +211,37 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
+
+	@Override
+	public boolean isOffGridPossible() {
+		BATTERY_INVERTER batteryInverter = this.getBatteryInverter();
+		if (batteryInverter instanceof OffGridBatteryInverter) {
+			return batteryInverter.isOffGridPossible();
+		} else {
+			return false;
+		}
+	}
+
+	protected final AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
+
+	@Override
+	public StartStop getStartStopTarget() {
+		switch (this.startStopConfig) {
+		case AUTO:
+			// read StartStop-Channel
+			return this.startStopTarget.get();
+
+		case START:
+			// force START
+			return StartStop.START;
+
+		case STOP:
+			// force STOP
+			return StartStop.STOP;
+		}
+
+		assert false;
+		return StartStop.UNDEFINED; // can never happen
+	}
+
 }

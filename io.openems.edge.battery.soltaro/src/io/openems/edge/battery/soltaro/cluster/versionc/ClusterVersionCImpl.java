@@ -42,6 +42,7 @@ import io.openems.edge.battery.soltaro.versionc.utils.Constants;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
@@ -75,7 +76,7 @@ import io.openems.edge.common.taskmanager.Priority;
 		})
 public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implements //
 		ClusterVersionC, SoltaroBatteryVersionC, SoltaroCluster, //
-		Battery, OpenemsComponent, EventHandler, ModbusSlave {
+		Battery, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(ClusterVersionCImpl.class);
 
@@ -97,6 +98,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	public ClusterVersionCImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				SoltaroBatteryVersionC.ChannelId.values(), //
 				SoltaroCluster.ChannelId.values(), //
@@ -554,10 +556,10 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 									.bit(12, this.rack(r, RackChannel.SLAVE_BMS_INIT)) //
 							)) //
 			); //
-			// TODO
+				// TODO
 			/*
-			   Possibly improve it, see @link RackChannel deepCopyDoc()
-			// */
+			 * Possibly improve it, see @link RackChannel deepCopyDoc() //
+			 */
 			Consumer<CellChannelFactory.Type> addCellChannels = (type) -> {
 				for (int i = 0; i < this.config.numberOfSlaves(); i++) {
 					AbstractModbusElement<?>[] elements = new AbstractModbusElement<?>[type.getSensorsPerModule()];
@@ -571,14 +573,13 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 						elements[j] = m(channelId, new UnsignedWordElement(r.offset + type.getOffset() + sensorIndex));
 					}
 					// Add a Modbus read task for this module
-			 try {
-				protocol.addTask(//
-				 new FC3ReadRegistersTask(r.offset + type.getOffset() + i *
-				 type.getSensorsPerModule(),
-				 Priority.LOW, elements));
-			} catch (OpenemsException e) {
-				this.log.error("! ERROR ! occurred while creating modbus tasks" + e.getMessage());
-			}
+					try {
+						protocol.addTask(//
+								new FC3ReadRegistersTask(r.offset + type.getOffset() + i * type.getSensorsPerModule(),
+										Priority.LOW, elements));
+					} catch (OpenemsException e) {
+						this.log.error("! ERROR ! occurred while creating modbus tasks" + e.getMessage());
+					}
 				}
 			};
 			addCellChannels.accept(CellChannelFactory.Type.VOLTAGE_CLUSTER);

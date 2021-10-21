@@ -16,6 +16,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
@@ -34,7 +35,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
-		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent {
+		implements SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 	private boolean inverted;
@@ -45,6 +46,7 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 	public MeterSchneiderActi9Smartlink() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values() //
 		);
@@ -115,9 +117,11 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3110 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3)),
 				new FC4ReadInputRegistersTask(3208 - offset, Priority.LOW,
-						m(this.inverted ? SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY : SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+						m(this.inverted ? SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY
+								: SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
 								new UnsignedQuadruplewordElement(3208 - offset)),
-						m(this.inverted ? SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY : SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+						m(this.inverted ? SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY
+								: SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
 								new UnsignedQuadruplewordElement(3212 - offset))));
 	}
 

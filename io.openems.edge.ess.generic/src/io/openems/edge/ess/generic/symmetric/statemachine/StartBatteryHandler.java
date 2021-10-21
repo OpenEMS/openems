@@ -26,7 +26,6 @@ public class StartBatteryHandler extends StateHandler<State, Context> {
 		GenericManagedEss ess = context.getParent();
 
 		if (context.battery.isStarted()) {
-			// TODO should we check here the other parameters defined in Battery Nature.
 			return State.START_BATTERY_INVERTER;
 		}
 

@@ -47,7 +47,6 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
             this.service.getConfig().then(config => {
                 this.colors = [];
                 let result = (response as QueryHistoricTimeseriesDataResponse).result;
-
                 // convert labels
                 let labels: Date[] = [];
                 for (let timestamp of result.timestamps) {
@@ -66,18 +65,28 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
                     });
                 })
 
-                // gather other Consumption (Total - EVCS)
-                let otherConsumption: number[] = [];
-                if (totalEvcsConsumption != []) {
-                    otherConsumption = result.data['_sum/ConsumptionActivePower'].map((value, index) => {
-                        if (value != null && totalEvcsConsumption[index] != null) {
-                            return Utils.subtractSafely(value / 1000, totalEvcsConsumption[index]);
-                        }
+                let totalMetersConsumption: number[] = [];
+                config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+                    .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component))
+                    .forEach(component => {
+                        totalMetersConsumption = result.data[component.id + '/ActivePower'].map((value, index) => {
+                            return Utils.addSafely(totalMetersConsumption[index], value / 1000)
+                        })
                     })
-                }
 
-                // show other consumption
-                if (totalEvcsConsumption != []) {
+                // gather other Consumption (Total - EVCS - consumptionMetered)
+                let otherConsumption: number[] = [];
+                otherConsumption = result.data['_sum/ConsumptionActivePower'].map((value, index) => {
+
+                    if (value != null) {
+
+                        // Check if either totalEvcsConsumption or totalMetersConsumption is not null
+                        return Utils.subtractSafely(Utils.subtractSafely(value / 1000, totalEvcsConsumption[index]), totalMetersConsumption[index]);
+                    }
+                })
+
+                // show other consumption if at least one of the arrays is not empty
+                if (totalEvcsConsumption != [] || totalMetersConsumption != []) {
                     datasets.push({
                         label: this.translate.instant('General.consumption'),
                         data: otherConsumption,
@@ -112,6 +121,11 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
             config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster')).forEach(component => {
                 result.push(new ChannelAddress(component.id, 'ChargePower'));
             })
+            config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+                .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component))
+                .forEach(component => {
+                    result.push(new ChannelAddress(component.id, "ActivePower"))
+                })
             resolve(result);
         })
     }

@@ -38,8 +38,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	private volatile Value<T> nextValue = null;
 	private volatile Value<T> activeValue = null;
 
-	protected AbstractReadChannel(OpenemsType type, OpenemsComponent parent, ChannelId channelId, D channelDoc,
-			T initialValue) {
+	protected AbstractReadChannel(OpenemsType type, OpenemsComponent parent, ChannelId channelId, D channelDoc) {
 		this.type = type;
 		this.parent = parent;
 		this.channelId = channelId;
@@ -70,7 +69,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 			callback.accept(this);
 		});
 		// set initial value
-		this.setNextValue(initialValue);
+		this.setNextValue(channelDoc.getInitialValue());
 	}
 
 	@Override
