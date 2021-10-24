@@ -1,7 +1,5 @@
 package io.openems.edge.shelly.Shelly3EM;
 
-import java.util.Optional;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -12,7 +10,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +20,8 @@ import com.google.gson.JsonArray;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.AsymmetricMeter;
@@ -43,10 +38,9 @@ import io.openems.edge.shelly.core.ShellyCore;
 				"type=GRID" //
 		})
 public class Shelly3EmImpl extends AbstractOpenemsComponent
-		implements Shelly3EM, DigitalOutput, AsymmetricMeter, SymmetricMeter, ShellyComponent, OpenemsComponent  {
+		implements   AsymmetricMeter, SymmetricMeter, ShellyComponent, OpenemsComponent  {
 
 	private final Logger log = LoggerFactory.getLogger(Shelly3EmImpl.class);
-	private final BooleanWriteChannel[] digitalOutputChannels;
 	private MeterType meterType = MeterType.GRID;
 	
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -60,13 +54,9 @@ public class Shelly3EmImpl extends AbstractOpenemsComponent
 				ShellyComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //				
-				DigitalOutput.ChannelId.values(), //
-				Shelly3EM.ChannelId.values() //
+				DigitalOutput.ChannelId.values() //
 				);
-		
-		this.digitalOutputChannels = new BooleanWriteChannel[] { //
-				this.channel(Shelly3EM.ChannelId.RELAY) //
-		};
+				
 	}
 
 	@Activate
@@ -74,11 +64,11 @@ public class Shelly3EmImpl extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.meterType = config.type();
 		// update filter for 'core'
-		if (!OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "core", config.core_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "core", config.core_id())) {
 			return;
 		}
 		// Register with core...
-		core.registerClient(this);
+		this.core.registerClient(this);
 	}
 
 	@Deactivate
@@ -108,7 +98,6 @@ public class Shelly3EmImpl extends AbstractOpenemsComponent
 	
 	@Override
 	public void setExtendedData(JsonObject json) {
-		Boolean relayIsOn = null;		
 		Integer totalPower = null;
 		
 		Integer[] powers = new Integer[3];
@@ -119,17 +108,9 @@ public class Shelly3EmImpl extends AbstractOpenemsComponent
 		Long total = 0L;
 		Long totalReturned = 0L;
 		try {			
-			totalPower =  TypeUtils.getAsType(OpenemsType.INTEGER, JsonUtils.getAsDouble(json,"total_power"));
-
-			/** 
-			 * Read relay status first
-			 */
-			JsonArray relays = JsonUtils.getAsJsonArray(json, "relays");
-			JsonObject relay1 = JsonUtils.getAsJsonObject(relays.get(0));
-			relayIsOn = JsonUtils.getAsOptionalBoolean(relay1, "ison").orElse(null);
-			
+			totalPower =  TypeUtils.getAsType(OpenemsType.INTEGER, JsonUtils.getAsDouble(json,"total_power"));			
 			/**
-			 * And now the three emeters
+			 * Read the three emeters
 			 */			
 			JsonArray emeters = JsonUtils.getAsJsonArray(json, "emeters");
 			JsonObject meter;
@@ -155,18 +136,20 @@ public class Shelly3EmImpl extends AbstractOpenemsComponent
 		} catch (OpenemsNamedException | IndexOutOfBoundsException e) {
 			this.logError(this.log, "Unable to read from Shelly API: " + e.getMessage());
 			this._setSlaveCommunicationFailed(true);
-		} finally {
-			this._setRelay(relayIsOn);			
+		} finally {		
 			this._setVoltage(TypeUtils.averageRounded(voltages[0],voltages[1],voltages[2]));
 			this._setVoltageL1(voltages[0]);
 			this._setVoltageL2(voltages[1]);
 			this._setVoltageL3(voltages[2]);
 			
+			// Does this has to be negative?
 			this._setActiveProductionEnergy(totalReturned);
 			this._setActiveConsumptionEnergy(total);
 			
 			switch (this.meterType) {
 			case GRID:
+			case PRODUCTION_AND_CONSUMPTION:
+			case PRODUCTION:
 				this._setActivePower(totalPower);
 				this._setActivePowerL1(powers[0]);
 				this._setActivePowerL2(powers[1]);
@@ -178,9 +161,7 @@ public class Shelly3EmImpl extends AbstractOpenemsComponent
 				this._setCurrentL3(currents[2]);
 				break;
 			case CONSUMPTION_NOT_METERED: // to be validated
-			case CONSUMPTION_METERED: // to be validated
-			case PRODUCTION_AND_CONSUMPTION:
-			case PRODUCTION:
+			case CONSUMPTION_METERED: // to be validated			
 				this._setActivePower(TypeUtils.multiply(totalPower, -1)); // invert
 				this._setActivePowerL1(TypeUtils.multiply(powers[0], -1)); // invert
 				this._setActivePowerL2(TypeUtils.multiply(powers[1], -1)); // invert
@@ -200,22 +181,10 @@ public class Shelly3EmImpl extends AbstractOpenemsComponent
 		return this.meterType;
 	}
 
-	@Override
-	public BooleanWriteChannel[] digitalOutputChannels() {		
-		return this.digitalOutputChannels;
-	}
-	
 		
 	@Override
 	public String debugLog() {
-		StringBuilder b = new StringBuilder("R: ");
-		Optional<Boolean> valueOpt = this.getRelayChannel().value().asOptional();
-		if (valueOpt.isPresent()) {
-			b.append(valueOpt.get() ? "On" : "Off");
-		} else {
-			b.append("Unknown");
-		}
-		
+		StringBuilder b = new StringBuilder();		
 		b.append("L: "+ this.getActivePower().asString());
 		b.append(" L1: "+ this.getActivePowerL1().asString());
 		b.append(" L2: "+ this.getActivePowerL2().asString());

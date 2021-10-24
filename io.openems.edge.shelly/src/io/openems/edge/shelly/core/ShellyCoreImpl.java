@@ -25,11 +25,10 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -47,7 +46,6 @@ import io.openems.edge.io.api.DigitalOutput;
 )
 public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCore, OpenemsComponent, EventHandler {
 
-	private Config config = null;
 	private ShellyApi api = null;
 	private List<ShellyComponent> clients;
 	private final Logger log = LoggerFactory.getLogger(ShellyCoreImpl.class);
@@ -63,7 +61,6 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.config = config;
 		this.api = new ShellyApi(this,config.ip());
 		clients = new ArrayList<ShellyComponent>();
 	}
@@ -119,6 +116,8 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 		// data and implement that itself.
 		JsonObject status = api.getStatus();
 		JsonArray meters = null;
+		MeterType type= meter.getMeterType();
+		
 		if(index < api.getNumMeters()) {							
 			meters = JsonUtils.getAsJsonArray(status, "meters");							
 		} else if(index<api.getNumEmeters()) {
@@ -126,16 +125,41 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 		}
 		if(meters != null && index<meters.size()) {
 			JsonObject meter1 = JsonUtils.getAsJsonObject(meters.get(index));						
-			if(meter1.has("current")) {
-				meter._setCurrent(Math.round(JsonUtils.getAsFloat(meter1, "current")));
-			}
+			
 			if(meter1.has("voltage")) {
-				meter._setVoltage(Math.round(JsonUtils.getAsFloat(meter1, "voltage")));
+				meter._setVoltage(Math.round(JsonUtils.getAsFloat(meter1, "voltage")*1000.0f));
 			}
+			
+			int factor = 1;
+			switch(type) {
+			case GRID:
+			case PRODUCTION:			
+			case PRODUCTION_AND_CONSUMPTION:
+				factor = 1;
+				break;
+			case CONSUMPTION_METERED:			
+			case CONSUMPTION_NOT_METERED:
+				factor = -1;
+				break;
+			}
+			
+			if(meter1.has("current")) {
+				meter._setCurrent(Math.round(JsonUtils.getAsFloat(meter1, "current")*factor*1000.0f));
+			}
+			
 			if(meter1.has("reactive")) {
-				meter._setReactivePower(Math.round(JsonUtils.getAsFloat(meter1, "reactive")));
+				meter._setReactivePower(TypeUtils.multiply(Math.round(JsonUtils.getAsFloat(meter1, "reactive")),factor));
 			}
-			meter._setActivePower(Math.round(JsonUtils.getAsFloat(meter1, "power")));
+						
+			if(meter1.has("total")) {
+				if(factor < 0) {
+					meter._setActiveConsumptionEnergy(TypeUtils.multiply(Math.round(JsonUtils.getAsFloat(meter1, "total")),factor));
+				} else {
+					meter._setActiveProductionEnergy(TypeUtils.multiply(Math.round(JsonUtils.getAsFloat(meter1, "total")),factor));
+				}
+			}
+			
+			meter._setActivePower(TypeUtils.multiply(Math.round(JsonUtils.getAsFloat(meter1, "power")),factor));
 		}
 	}
 	
@@ -157,6 +181,7 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 		if(meters == null) {
 			return;
 		}
+		
 		// Don't like the following part. Can this be done as a loop?
 		Integer i = index;		
 		if(i<meters.size()) {
@@ -218,6 +243,21 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 			}				
 		}	
 	}
+	
+	protected void writeOutput(DigitalOutput out, Integer index) throws OpenemsNamedException {
+		BooleanWriteChannel[] outputChannels = out.digitalOutputChannels();		
+		Boolean readValue = outputChannels[0].value().get();
+		Optional<Boolean> writeValue = outputChannels[0].getNextWriteValueAndReset();
+		if (!writeValue.isPresent()) {
+			// no write value
+			return;
+		}
+		if (Objects.equals(readValue, writeValue.get())) {
+			// read value == write value
+			return;
+		}
+		this.setRelay(index, writeValue.get());
+	}
 
 	protected void eventExecuteWrite() {
 		for (Iterator<ShellyComponent> it = clients.iterator(); it.hasNext();) {
@@ -236,25 +276,11 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 		}
 	}
 	
-	protected void writeOutput(DigitalOutput out, Integer index) throws OpenemsNamedException {
-		BooleanWriteChannel[] outputChannels = out.digitalOutputChannels();		
-		Boolean readValue = outputChannels[0].value().get();
-		Optional<Boolean> writeValue = outputChannels[0].getNextWriteValueAndReset();
-		if (!writeValue.isPresent()) {
-			// no write value
-			return;
-		}
-		if (Objects.equals(readValue, writeValue.get())) {
-			// read value == write value
-			return;
-		}
-		this.setRelay(index, writeValue.get());
-	}
-	
 	protected void updateClients() {
 		for (Iterator<ShellyComponent> it = clients.iterator(); it.hasNext();) {
 			ShellyComponent client = it.next();
-			try {				
+			try {	
+				client._setSlaveCommunicationFailed(api.getCommFailed());
 				if(client.setBaseChannels()) {					
 					Integer index = client.wantedIndex();					
 					if(client instanceof SymmetricMeter ) {
@@ -278,18 +304,4 @@ public class ShellyCoreImpl extends AbstractOpenemsComponent implements ShellyCo
 			} 
 		}
 	}
-	
-	@Override
-	public String debugLog() {
-		StringBuilder b = new StringBuilder("C: ");
-		Optional<Boolean> valueOpt = this.getCommunicationFailedChannel().value().asOptional();
-		if (valueOpt.isPresent()) {
-			b.append(valueOpt.get() ? "Failed" : "OK");
-		} else {
-			b.append("Unknown");
-		}
-		b.append("|");		
-		return b.toString();
-	}
-	
 }

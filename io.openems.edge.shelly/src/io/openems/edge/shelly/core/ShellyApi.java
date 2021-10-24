@@ -60,6 +60,7 @@ public class ShellyApi  {
 		} catch (OpenemsNamedException e) {			
 			this.resetBaseValues();
 			this.commFailed = true;
+			this.valid = false;
 			parent._setCommunicationFailed(this.commFailed);
 			return false;
 		}	

@@ -1,33 +1,23 @@
-package io.openems.edge.shelly.Shelly3EM;
+package io.openems.edge.shelly.ShellyRelay;
 
-import java.util.Collection;
-
-import org.osgi.service.component.ComponentContext;
-
-import com.google.gson.JsonObject;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.io.api.DigitalOutput;
-import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
-import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.shelly.core.ShellyComponent;
 
-public interface Shelly3EM extends DigitalOutput, SymmetricMeter, AsymmetricMeter, ShellyComponent {
+public interface ShellyRelay extends DigitalOutput, ShellyComponent {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Holds status of Relay.
 		 * 
 		 * <ul>
-		 * <li>Interface: Shelly3EM
+		 * <li>Interface: ShellyPlug
 		 * <li>Type: Boolean
 		 * <li>Range: On/Off
 		 * </ul>
@@ -80,6 +70,7 @@ public interface Shelly3EM extends DigitalOutput, SymmetricMeter, AsymmetricMete
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void setRelay(boolean value) throws OpenemsNamedException {
+		// the (de)activation of the relay itself will be handled by the base class
 		this.getRelayChannel().setNextWriteValue(value);
 	}
 
