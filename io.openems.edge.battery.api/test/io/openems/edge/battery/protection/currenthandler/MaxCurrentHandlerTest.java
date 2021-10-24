@@ -119,9 +119,9 @@ public class MaxCurrentHandlerTest {
 		assertEquals(null, sut.getForceCurrent(3000, 3660));
 		clock.leap(1, ChronoUnit.MINUTES);
 		// Enter FORCE_MODE -> force discharge
-		assertEquals(-1., sut.getForceCurrent(3000, 3660), 0.001);
+		assertEquals(-2., sut.getForceCurrent(3000, 3660), 0.001);
 		clock.leap(1, ChronoUnit.SECONDS);
-		assertEquals(-1., sut.getForceCurrent(3000, 3650), 0.001);
+		assertEquals(-2., sut.getForceCurrent(3000, 3650), 0.001);
 		// Enter BLOCK_MODE -> no charge/discharge
 		assertEquals(0, sut.getForceCurrent(3000, 3639), 0.001);
 		assertEquals(0, sut.getForceCurrent(3000, 3600), 0.001);

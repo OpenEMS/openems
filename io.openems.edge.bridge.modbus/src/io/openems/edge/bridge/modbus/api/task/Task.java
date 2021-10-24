@@ -3,6 +3,7 @@ package io.openems.edge.bridge.modbus.api.task;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.ManagedTask;
 
@@ -41,7 +42,7 @@ public interface Task extends ManagedTask {
 	 * 
 	 * @return the parent
 	 */
-	AbstractOpenemsModbusComponent getParent();
+	public ModbusComponent getParent();
 
 	/**
 	 * This is called on deactivate of the Modbus-Bridge. It can be used to clear

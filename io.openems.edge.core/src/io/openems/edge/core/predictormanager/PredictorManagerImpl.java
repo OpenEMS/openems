@@ -157,6 +157,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 		case PRODUCTION_MAX_ACTIVE_POWER:
 		case PRODUCTION_MAX_AC_ACTIVE_POWER:
 		case PRODUCTION_MAX_DC_ACTUAL_POWER:
+		case HAS_IGNORED_COMPONENT_STATES:
 			return Prediction24Hours.EMPTY;
 
 		case CONSUMPTION_ACTIVE_POWER:

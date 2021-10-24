@@ -117,37 +117,13 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		AC_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE)), //
-		BACK_UP_V_LOAD_R(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)), //
-		BACK_UP_I_LOAD_R(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)), //
-		BACK_UP_F_LOAD_R(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ)), //
 
 		/**
 		 * Off means there is No voltage of Backup port. Also used for 1-p inverter
 		 */
 		LOAD_MODE_R(Doc.of(LoadMode.values())), //
-		BACK_UP_P_LOAD_R(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
-		BACK_UP_V_LOAD_S(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)), //
-		BACK_UP_I_LOAD_S(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)), //
-		BACK_UP_F_LOAD_S(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ)), //
 		LOAD_MODE_S(Doc.of(LoadMode.values())), //
-		BACK_UP_P_LOAD_S(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
-		BACK_UP_V_LOAD_T(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)), //
-		BACK_UP_I_LOAD_T(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)), //
-		BACK_UP_F_LOAD_T(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ)), //
 		LOAD_MODE_T(Doc.of(LoadMode.values())), //
-		BACK_UP_P_LOAD_T(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
 		P_LOAD_R(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		P_LOAD_S(Doc.of(OpenemsType.INTEGER) //
@@ -548,7 +524,7 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 		BACK_UP_ENABLE(Doc.of(BackupEnable.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		AUTO_START_BACKUP(Doc.of(OpenemsType.INTEGER) //
+		AUTO_START_BACKUP(Doc.of(BackupEnable.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		GRID_WAVE_CHECK_LEVEL(Doc.of(GridWaveCheckLevel.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
@@ -1317,7 +1293,11 @@ public interface GoodWe extends OpenemsComponent {
 		MAX_AC_EXPORT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		MAX_AC_IMPORT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)); //
+				.unit(Unit.WATT)), //
+		SMART_MODE_NOT_WORKING_WITH_PID_FILTER(Doc.of(Level.WARNING) //
+				.text("SMART mode does not work correctly with active PID filter")),
+		NO_SMART_METER_DETECTED(Doc.of(Level.WARNING) //
+				.text("No GoodWe Smart Meter detected. Only REMOTE mode can work correctly"));
 
 		private final Doc doc;
 

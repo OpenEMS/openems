@@ -151,6 +151,10 @@ export const TRANSLATION = {
     },
     Edge: {
         Index: {
+            EmergencyReserve: {
+                InfoForEmergencyReserveSlider: 'Durch Aktivieren kann eine Notstromreserve zwischen 5 % und 100 % der Batteriekapazität eingestellt werden.',
+                emergencyReserve: 'Notstromreserve',
+            },
             Energymonitor: {
                 activePower: 'Ausgabeleistung',
                 consumptionWarning: 'Verbrauch & unbekannte Erzeuger',

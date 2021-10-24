@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -39,7 +40,7 @@ import io.openems.edge.meter.sunspec.AbstractSunSpecMeter;
 				"type=GRID" //
 		})
 public class SolarEdgeGridMeter extends AbstractSunSpecMeter
-		implements AsymmetricMeter, SymmetricMeter, OpenemsComponent {
+		implements AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent {
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
@@ -58,6 +59,7 @@ public class SolarEdgeGridMeter extends AbstractSunSpecMeter
 		super(//
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values() //
 		);

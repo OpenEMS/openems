@@ -1,0 +1,17 @@
+graph LR
+Undefined -->|target START_WITH_DISCHARGE | StartDischarge
+Undefined -->|target START_WITH_CHARGE | StartCharge...
+
+StartDischarge -->|minSoc=0 && Ess.maxDischargePower=0| ContinueWithCharge
+StartDischarge -->|minSoc>0 && Ess.Soc=minSoc| ContinueWithCharge
+StartDischarge --> StartDischarge
+
+ContinueWithCharge -->|maxSoc=100 && Ess.maxChargePower=0| CompletedCycle
+ContinueWithCharge -->|maxSoc<100 && Ess.Soc=maxSoc| CompletedCycle
+ContinueWithCharge --> ContinueWithCharge
+
+CompletedCycle -->|all cycles completed| FinalSoc
+CompletedCycle -->|otherwise| StartDischarge
+
+FinalSoc -->|reached final Soc| Finished
+FinalSoc -->|charge/discharge| FinalSoc

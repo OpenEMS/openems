@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import io.openems.common.channel.AccessMode;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -19,7 +20,7 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.io.api.DigitalOutput;
 
 public abstract class AbstractKmtronicRelay extends AbstractOpenemsModbusComponent
-		implements DigitalOutput, OpenemsComponent, ModbusSlave {
+		implements DigitalOutput, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -34,6 +35,7 @@ public abstract class AbstractKmtronicRelay extends AbstractOpenemsModbusCompone
 	protected AbstractKmtronicRelay(io.openems.edge.common.channel.ChannelId[] kmtronicChannelIds) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
 				kmtronicChannelIds //
 		);

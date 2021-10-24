@@ -174,11 +174,11 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 									if (intValue != null) {
 										switch (intValue) {
 										case 0:
-											return GridMode.OFF_GRID;
+											return GridMode.UNDEFINED;
 										case 1:
 											return GridMode.ON_GRID;
 										case 2:
-											return GridMode.UNDEFINED;
+											return GridMode.OFF_GRID;
 										}
 									}
 									return GridMode.UNDEFINED;
@@ -192,30 +192,13 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.INVERT), //
 						m(GoodWe.ChannelId.AC_APPARENT_POWER, new SignedDoublewordElement(35143), //
 								ElementToChannelConverter.INVERT), //
-						m(GoodWe.ChannelId.BACK_UP_V_LOAD_R, new UnsignedWordElement(35145), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.BACK_UP_I_LOAD_R, new UnsignedWordElement(35146),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.BACK_UP_F_LOAD_R, new UnsignedWordElement(35147),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+						new DummyRegisterElement(35145, 35147), //
 						m(GoodWe.ChannelId.LOAD_MODE_R, new UnsignedWordElement(35148)), //
-						m(GoodWe.ChannelId.BACK_UP_P_LOAD_R, new SignedDoublewordElement(35149)), //
-						m(GoodWe.ChannelId.BACK_UP_V_LOAD_S, new UnsignedWordElement(35151),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.BACK_UP_I_LOAD_S, new UnsignedWordElement(35152),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.BACK_UP_F_LOAD_S, new UnsignedWordElement(35153),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+						new DummyRegisterElement(35149, 35153), //
 						m(GoodWe.ChannelId.LOAD_MODE_S, new UnsignedWordElement(35154)), //
-						m(GoodWe.ChannelId.BACK_UP_P_LOAD_S, new SignedDoublewordElement(35155)), //
-						m(GoodWe.ChannelId.BACK_UP_V_LOAD_T, new UnsignedWordElement(35157),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.BACK_UP_I_LOAD_T, new UnsignedWordElement(35158),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.BACK_UP_F_LOAD_T, new UnsignedWordElement(35159),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+						new DummyRegisterElement(35155, 35159), //
 						m(GoodWe.ChannelId.LOAD_MODE_T, new UnsignedWordElement(35160)), //
-						m(GoodWe.ChannelId.BACK_UP_P_LOAD_T, new SignedDoublewordElement(35161)), //
+						new DummyRegisterElement(35161, 35162), //
 						m(GoodWe.ChannelId.P_LOAD_R, new SignedDoublewordElement(35163)), //
 						m(GoodWe.ChannelId.P_LOAD_S, new SignedDoublewordElement(35165)), //
 						m(GoodWe.ChannelId.P_LOAD_T, new SignedDoublewordElement(35167)), //

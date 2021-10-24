@@ -18,6 +18,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -38,7 +39,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
-		implements MeterSmaShm20, AsymmetricMeter, SymmetricMeter, OpenemsComponent {
+		implements MeterSmaShm20, AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
@@ -48,6 +49,7 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 	public MeterSmaShm20Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //
 				MeterSmaShm20.ChannelId.values() //

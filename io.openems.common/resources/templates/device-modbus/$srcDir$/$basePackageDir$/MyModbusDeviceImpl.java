@@ -15,6 +15,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -25,13 +26,14 @@ import io.openems.edge.common.component.OpenemsComponent;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class MyModbusDeviceImpl extends AbstractOpenemsModbusComponent implements MyModbusDevice, OpenemsComponent {
+public class MyModbusDeviceImpl extends AbstractOpenemsModbusComponent implements MyModbusDevice, ModbusComponent, OpenemsComponent {
 
 	private Config config = null;
 
 	public MyModbusDevice() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				MyModbusDevice.ChannelId.values() //
 		);
 	}
