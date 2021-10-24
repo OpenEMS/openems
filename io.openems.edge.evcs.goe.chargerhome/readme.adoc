@@ -3,6 +3,9 @@
 This component implements the go-e charger home charging station, which is controlled and read out using the Rest-API protocol.
 It collects all relevant informations into the given Nature Channels and its own Channels and sends charging commands that have been set by another controllers.
 
+Tested on
+* go-eCharger device with API V1 (Firmware Version 041.0) 
+
 Implemented Natures:
 * Evcs (Electric Vehicle Charging Station)
 * ManagedEvcs

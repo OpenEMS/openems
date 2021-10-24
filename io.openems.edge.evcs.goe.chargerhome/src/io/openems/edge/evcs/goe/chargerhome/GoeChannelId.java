@@ -9,6 +9,7 @@ import io.openems.edge.evcs.api.Status;
 public enum GoeChannelId implements io.openems.edge.common.channel.ChannelId {
 
 	ALIAS(Doc.of(OpenemsType.STRING).text("A human-readable name of this Component")),
+	ALLOW_CHARGING(Doc.of(OpenemsType.INTEGER).text("allow charging")),
 	PRODUCT(Doc.of(OpenemsType.STRING).text("Model name (variant)")),
 	SERIAL(Doc.of(OpenemsType.STRING).text("Serial number")),
 	FIRMWARE(Doc.of(OpenemsType.STRING).text("Firmware version")),

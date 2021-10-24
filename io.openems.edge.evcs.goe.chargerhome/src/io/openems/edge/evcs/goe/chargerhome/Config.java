@@ -29,5 +29,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Maximum current", description = "Maximum current of the Charger in mA.", required = true)
 	int maxHwCurrent() default 32000;
 
+	@AttributeDefinition(name = "Cycles", description = "Number of core cycles to wait before new status request.", required = true)
+	int executeCycle() default 10;
+
 	String webconsole_configurationFactory_nameHint() default "EVCS go-e Charger Home [{id}]";
 }
