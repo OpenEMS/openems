@@ -17,6 +17,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
@@ -43,7 +44,7 @@ import io.openems.edge.sma.enums.SetControlMode;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements ManagedSinglePhaseEss, SinglePhaseEss,
-		ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
+		ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, SymmetricEss, ModbusComponent, OpenemsComponent {
 
 	protected static final int MAX_APPARENT_POWER = 6000;
 
@@ -58,6 +59,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 	public SunnyIsland6Ess() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				AsymmetricEss.ChannelId.values(), //

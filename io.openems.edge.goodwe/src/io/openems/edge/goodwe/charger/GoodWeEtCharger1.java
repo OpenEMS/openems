@@ -16,6 +16,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
@@ -32,7 +33,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
 public class GoodWeEtCharger1 extends AbstractGoodWeEtCharger
-		implements GoodWeEtCharger, EssDcCharger, OpenemsComponent, EventHandler, TimedataProvider {
+		implements GoodWeEtCharger, EssDcCharger, ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider {
 
 	@Reference
 	protected ConfigurationAdmin cm;

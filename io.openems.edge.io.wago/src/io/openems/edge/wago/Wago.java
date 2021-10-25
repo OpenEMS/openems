@@ -46,6 +46,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
@@ -62,7 +63,8 @@ import io.openems.edge.io.api.DigitalOutput;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "IO.WAGO", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutput, DigitalInput, OpenemsComponent {
+public class Wago extends AbstractOpenemsModbusComponent
+		implements DigitalOutput, DigitalInput, ModbusComponent, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(Wago.class);
 
@@ -92,6 +94,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	public Wago() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
 				DigitalInput.ChannelId.values(), //
 				ThisChannelId.values() //

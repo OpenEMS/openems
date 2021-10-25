@@ -22,6 +22,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ElementToChannelOffsetConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -49,7 +50,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 				"type=PRODUCTION" //
 		})
 public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
-		implements AsymmetricMeter, SymmetricMeter, OpenemsComponent {
+		implements AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent {
 
 	private static final int UNIT_ID = 4;
 
@@ -69,6 +70,7 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 	public FeneconProPvMeter() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //
 				ChannelId.values() //

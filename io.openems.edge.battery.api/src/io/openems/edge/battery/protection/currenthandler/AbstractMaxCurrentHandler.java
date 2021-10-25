@@ -393,7 +393,9 @@ public abstract class AbstractMaxCurrentHandler {
 		case WAIT_FOR_FORCE_MODE:
 			return null;
 		case FORCE_MODE:
-			return -1.;
+			// TODO Plan is making the value adaptive, i.e. start with 1 A; if voltage still
+			// decreases, then slowly increase force charge current.
+			return -2.;
 		case BLOCK_MODE:
 			return 0.;
 		}

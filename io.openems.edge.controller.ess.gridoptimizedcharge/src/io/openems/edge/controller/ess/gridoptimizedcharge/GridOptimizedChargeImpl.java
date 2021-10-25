@@ -30,6 +30,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.ComponentManagerProvider;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.filter.RampFilter;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
@@ -68,6 +69,8 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	 * time when production is lower or higher than consumption.
 	 */
 	protected static final int DEFAULT_POWER_BUFFER = 100;
+	
+	protected final RampFilter rampFilter = new RampFilter();
 
 	/**
 	 * Keeps the current day to detect changes in day.

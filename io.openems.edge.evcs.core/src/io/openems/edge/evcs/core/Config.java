@@ -3,8 +3,6 @@ package io.openems.edge.evcs.core;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.common.filter.RampFilter;
-
 @ObjectClassDefinition(//
 		name = "EVCS Power", //
 		description = "This component defines the increase rate for the ramp filter for every EVCS Component.")
@@ -14,7 +12,7 @@ import io.openems.edge.common.filter.RampFilter;
 	boolean enableSlowIncrease() default false;
 
 	@AttributeDefinition(name = "Rate of increase", description = "The rate of increase between 0 and 1.")
-	double increaseRate() default RampFilter.DEFAULT_INCREASE_RATE;
+	float increaseRate() default 0.05f;
 
 	String webconsole_configurationFactory_nameHint() default "EVCS Slow Power Increase Filter";
 

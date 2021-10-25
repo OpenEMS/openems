@@ -43,6 +43,7 @@ public class TowersAndModulesTest {
 						.setId(BATTERY_ID) //
 						.setModbusId(MODBUS_ID) //
 						.setModbusUnitId(0) //
+						.setBatteryStartUpRelay("io0/Relay4") //
 						.setStartStop(StartStopConfig.AUTO) //
 						.build());
 

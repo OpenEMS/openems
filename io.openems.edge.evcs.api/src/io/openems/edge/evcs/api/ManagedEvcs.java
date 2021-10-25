@@ -17,6 +17,7 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.filter.RampFilter;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
+import io.openems.edge.common.type.TypeUtils;
 
 @ProviderType
 public interface ManagedEvcs extends Evcs {
@@ -103,13 +104,15 @@ public interface ManagedEvcs extends Evcs {
 
 							RampFilter rampFilter = evcs.getEvcsPower().getRampFilter();
 
-							rampFilter.setLimits(evcs.getMinimumHardwarePower().orElse(0),
-									evcs.getMaximumHardwarePower().orElse(value));
+							value = TypeUtils.fitWithin(evcs.getMinimumHardwarePower().orElse(0),
+									evcs.getMaximumHardwarePower().orElse(0), value);
 
 							int currentPower = evcs.getChargePower().orElse(0);
-							int pidOutput = rampFilter.applyRampFilter(currentPower, value);
+							float increaseRate = evcs.getEvcsPower().getIncreaseRate();
+							int result = rampFilter.getFilteredValueAsInteger(currentPower, value.floatValue(),
+									evcs.getMaximumHardwarePower().orElse(22080), increaseRate);
 
-							evcs.setChargePowerLimit(pidOutput);
+							evcs.setChargePowerLimit(result);
 						}
 					});
 				})), //

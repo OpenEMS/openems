@@ -1,7 +1,6 @@
 package io.openems.edge.ess.mr.gridcon;
 
 import java.nio.ByteOrder;
-import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -22,10 +21,10 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
@@ -67,9 +66,9 @@ import io.openems.edge.ess.mr.gridcon.writewords.IpuParameter;
 		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE } //
 )
 public class GridconPcsImpl extends AbstractOpenemsModbusComponent
-		implements OpenemsComponent, GridconPcs, EventHandler {
+		implements ModbusComponent, OpenemsComponent, GridconPcs, EventHandler {
 
-	private static final int START_ADDRESS_GRID_MEASUREMENTS = 33456; 
+	private static final int START_ADDRESS_GRID_MEASUREMENTS = 33456;
 
 	private static final int START_ADDRESS_DCDC_MEASUREMENTS = 33488;
 
@@ -88,8 +87,6 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	public static final double EFFICIENCY_LOSS_CHARGE_FACTOR = EFFICIENCY_LOSS_FACTOR;
 
 	private final Logger log = LoggerFactory.getLogger(GridconPcsImpl.class);
-
-	private String modbusId;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -115,6 +112,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	public GridconPcsImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				GridConChannelId.values() //
 		);
 		this.commands = new Commands();
@@ -135,7 +133,6 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.inverterCount = config.inverterCount();
-		this.modbusId = config.modbus_id();
 		this.efficiencyLossChargeFactor = config.efficiencyLossChargeFactor();
 		this.efficiencyLossDischargeFactor = config.efficiencyLossDischargeFactor();
 		;
@@ -199,7 +196,6 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 				+ this.getActivePower();
 
 	}
-
 
 	@Override
 	public void setPower(int activePower, int reactivePower) {
@@ -1152,23 +1148,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public boolean isCommunicationBroken() {
-
-		String modbusId = this.modbusId;
-		ComponentManager manager = this.componentManager;
-		AbstractModbusBridge modbusBridge = null;
-		try {
-			modbusBridge = manager.getComponent(modbusId);
-		} catch (OpenemsNamedException e) {
-			this.log.debug("Cannot get modbus component");
-		}
-		if (modbusBridge == null) {
-			return true;
-		}
-
-		Channel<Boolean> slaveCommunicationFailedChannel = modbusBridge.getSlaveCommunicationFailedChannel();
-		Optional<Boolean> communicationFailedOpt = slaveCommunicationFailedChannel.value().asOptional();
-
-		return (communicationFailedOpt.isPresent() && communicationFailedOpt.get());
+		return this.getModbusCommunicationFailed().get() == Boolean.TRUE;
 	}
 
 	@Override
