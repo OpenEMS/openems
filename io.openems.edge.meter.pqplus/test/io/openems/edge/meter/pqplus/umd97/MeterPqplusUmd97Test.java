@@ -14,7 +14,7 @@ public class MeterPqplusUmd97Test {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new MeterPqplusUmd97()) //
+		new ComponentTest(new MeterPqplusUmd97Impl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
@@ -24,4 +24,5 @@ public class MeterPqplusUmd97Test {
 						.build()) //
 		;
 	}
+
 }

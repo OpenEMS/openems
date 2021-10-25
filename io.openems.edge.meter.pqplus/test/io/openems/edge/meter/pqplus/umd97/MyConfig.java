@@ -8,8 +8,8 @@ import io.openems.edge.meter.api.MeterType;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private String modbusId = null;
+		private String id;
+		private String modbusId;
 		public int modbusUnitId;
 		public MeterType type;
 
