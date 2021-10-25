@@ -106,9 +106,6 @@ export class ProtocolCustomerComponent implements OnInit {
       templateOptions: {
         label: "PLZ",
         required: true
-      },
-      validators: {
-        validation: ["zip"]
       }
     });
 

@@ -126,9 +126,6 @@ export class ProtocolInstallerComponent implements OnInit {
           templateOptions: {
             label: "PLZ",
             required: true
-          },
-          validators: {
-            validation: ["zip"]
           }
         },
         {
