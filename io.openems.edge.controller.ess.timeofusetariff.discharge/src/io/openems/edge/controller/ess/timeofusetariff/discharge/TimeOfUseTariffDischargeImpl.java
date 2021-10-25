@@ -136,8 +136,6 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 
 		this.calculateBoundarySpace(now);
 
-		this.calculateTargetPeriodsWithinBoundarySpace(now);
-
 		// Mode given from the configuration.
 		switch (this.config.mode()) {
 
@@ -152,50 +150,24 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 		this.updateVisualizationChannels(now);
 	}
 
-	/*
-	 * Every Day at 14:00 the Hourly Prices are updated. we receive the predictions
-	 * at 14:00 till next day 13:00.
+	/**
+	 * calculates the boundary space for the activation of the controller.
 	 * 
-	 * 'isPredictionValuesTaken' to make sure the control logic executes only once
-	 * during the hour.
+	 * @param now Current Date Time rounded off to 15 minutes.
 	 */
 	private void calculateBoundarySpace(ZonedDateTime now) {
 
+		/*
+		 * Every Day at 14:00 the Hourly Prices are updated. we receive the predictions
+		 * at 14:00 till next day 13:00.
+		 * 
+		 * 'isPredictionValuesTaken' to make sure the control logic executes only once
+		 * during the hour 14.
+		 */
 		if (now.getHour() == 14 && !this.isPredictionValuesTaken) {
 
-			// Predictions as Integer array in 15 minute intervals.
-			final Integer[] predictionProduction = this.predictorManager.get24HoursPrediction(SUM_PRODUCTION) //
-					.getValues();
-			final Integer[] predictionConsumption = this.predictorManager.get24HoursPrediction(SUM_CONSUMPTION) //
-					.getValues();
-			final ZonedDateTime predictionStartQuarterHour = roundZonedDateTimeDownToMinutes(now, 15);
-
-			// resetting values
-			this.quarterlyPrices.clear();
-
-			// Converts the given 15 minute integer array to a TreeMap values.
-			this.convertDataStructure(predictionProduction, predictionConsumption, predictionStartQuarterHour);
-
-			// calculates the boundary space, within which the controller needs to work.
-			this.boundarySpace = BoundarySpace.from(predictionStartQuarterHour, this.productionMap, this.consumptionMap,
-					this.config.maxStartHour(), this.config.maxEndHour());
-
-			// Update Channels
-			this.channel(TimeOfUseTariffDischarge.ChannelId.PRO_MORE_THAN_CON)
-					.setNextValue(this.boundarySpace.proMoreThanCon.getHour());
-			this.channel(TimeOfUseTariffDischarge.ChannelId.PRO_LESS_THAN_CON)
-					.setNextValue(this.boundarySpace.proLessThanCon.getHour());
-
-			// Hourly Prices from API
-			this.quarterlyPrices = this.timeOfUseTariff.getPrices();
-
-			// setting the channel id values
-			if (this.quarterlyPrices.isEmpty()) {
-				this.channel(TimeOfUseTariffDischarge.ChannelId.QUATERLY_PRICES_TAKEN).setNextValue(false);
-				return;
-			} else {
-				this.channel(TimeOfUseTariffDischarge.ChannelId.QUATERLY_PRICES_TAKEN).setNextValue(true);
-			}
+			// gets the prices, predictions and calculates the boundary space.
+			this.getBoundarySpace(now);
 
 			this.isPredictionValuesTaken = true; // boolean used to take prediction values only once.
 		}
@@ -203,6 +175,14 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 		// resets the 'isPredictionValuesTaken' to be ready for next day.
 		if (now.getHour() == 15 && this.isPredictionValuesTaken) {
 			this.isPredictionValuesTaken = false;
+		}
+
+		// Calculates the prices and predictions when the controller is restarted or
+		// enabled in any time before or after 14.
+		if (this.quarterlyPrices.isEmpty()) {
+
+			// gets the prices, predictions and calculates the boundary space.
+			this.getBoundarySpace(now);
 		}
 	}
 
@@ -214,12 +194,7 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	 */
 	private void calculateTargetPeriodsWithinBoundarySpace(ZonedDateTime now) throws InvalidValueException {
 		// Initializing with Default values.
-		this.channel(TimeOfUseTariffDischarge.ChannelId.TARGET_HOURS_CALCULATED).setNextValue(false);
-
-		if (this.boundarySpace == null) {
-			this._setStateMachine(StateMachine.NOT_STARTED);
-			return;
-		}
+		this._setTargetHoursCalculated(false);
 
 		// if the boundary space are calculated, start scheduling only during boundary
 		// space.
@@ -228,44 +203,7 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 			// Runs every 15 minutes.
 			if (now.isAfter(this.lastAccessedTime)) {
 
-				int netCapacity = this.ess.getCapacity().getOrError();
-				int soc = this.ess.getSoc().getOrError();
-
-				// Usable capacity based on min soc from Limit total discharge and emergency
-				// reserve controllers.
-				int limitSoc = 0;
-				for (Controller ctrl : this.limitUsableCapacityControllers) {
-					if (ctrl.serviceFactoryPid().equals("Controller.Ess.EmergencyCapacityReserve")) {
-						limitSoc = Math.max(limitSoc, ((EmergencyCapacityReserveImpl) ctrl).getMinSoc());
-					} else {
-						limitSoc = Math.max(limitSoc, ((LimitTotalDischargeController) ctrl).getMinSoc());
-					}
-				}
-				this.channel(TimeOfUseTariffDischarge.ChannelId.MIN_SOC).setNextValue(limitSoc);
-
-				// Calculating available energy and usable energy [Wmsec] in the battery.
-				long availableEnergy = (long) (((double) netCapacity /* [Wh] */ * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */
-						/ 100 /* [%] */) * soc /* [current SoC] */);
-
-				// Value is divided by 3600 * 1000 to convert from [Wmsec] to [Wh].
-				this.channel(TimeOfUseTariffDischarge.ChannelId.AVAILABLE_CAPACITY)
-						.setNextValue(availableEnergy / 3600000);
-
-				long limitEnergy = (long) (((double) netCapacity /* [Wh] */ * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */
-						/ 100 /* [%] */) * limitSoc /* [current SoC] */);
-
-				availableEnergy = Math.max(0, (availableEnergy - limitEnergy));
-
-				// Value is divided by 3600 * 1000 to convert from [Wmsec] to [Wh].
-				this.channel(TimeOfUseTariffDischarge.ChannelId.USABLE_CAPACITY)
-						.setNextValue(availableEnergy / 3600000);
-
-				// To estimate the soc curve when controller logic is not applied
-				if (now.equals(this.boundarySpace.proLessThanCon)) {
-					this.socWithoutLogic = this.generateSocCurveWithoutLogic(netCapacity, availableEnergy, limitEnergy,
-							this.consumptionMap, soc, now, this.boundarySpace);
-				}
-
+				long availableEnergy = this.getAvailableEnergy(now);
 				long remainingEnergy = this.getRemainingCapacity(availableEnergy, this.productionMap,
 						this.consumptionMap, now, this.boundarySpace);
 
@@ -277,7 +215,7 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 					// Initiating the calculation
 					this.targetPeriods = this.calculateTargetPeriods(this.consumptionMap, this.quarterlyPrices,
 							remainingEnergy, this.boundarySpace);
-					this.channel(TimeOfUseTariffDischarge.ChannelId.TARGET_HOURS_CALCULATED).setNextValue(true);
+					this._setTargetHoursCalculated(true);
 				}
 
 				this.channel(TimeOfUseTariffDischarge.ChannelId.TARGET_HOURS).setNextValue(this.targetPeriods.size());
@@ -286,6 +224,102 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 			}
 		} else {
 			this._setStateMachine(StateMachine.STANDBY);
+		}
+	}
+
+	/**
+	 * Returns the available energy in the battery which is usable for consumption
+	 * after adjusting the minimum SoC capacity.
+	 * 
+	 * @param now Current Date Time rounded off to 15 minutes.
+	 * @return available energy in Watt-milliseconds[Wmsec].
+	 * @throws InvalidValueException on error
+	 */
+	private long getAvailableEnergy(ZonedDateTime now) throws InvalidValueException {
+
+		int netCapacity = this.ess.getCapacity().getOrError();
+		int soc = this.ess.getSoc().getOrError();
+
+		// Usable capacity based on minimum SoC from Limit total discharge and emergency
+		// reserve controllers.
+		int limitSoc = 0;
+		for (Controller ctrl : this.limitUsableCapacityControllers) {
+			if (ctrl.serviceFactoryPid().equals("Controller.Ess.EmergencyCapacityReserve")) {
+				limitSoc = Math.max(limitSoc, ((EmergencyCapacityReserveImpl) ctrl).getMinSoc());
+			} else {
+				limitSoc = Math.max(limitSoc, ((LimitTotalDischargeController) ctrl).getMinSoc());
+			}
+		}
+		this.channel(TimeOfUseTariffDischarge.ChannelId.MIN_SOC).setNextValue(limitSoc);
+
+		// Calculating available energy and usable energy [Wmsec] in the battery.
+		long availableEnergy = (long) (((double) netCapacity /* [Wh] */ * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */
+				/ 100 /* [%] */) * soc /* [current SoC] */);
+
+		// Value is divided by 3600 * 1000 to convert from [Wmsec] to [Wh].
+		this.channel(TimeOfUseTariffDischarge.ChannelId.AVAILABLE_CAPACITY).setNextValue(availableEnergy / 3600000);
+
+		long limitEnergy = (long) (((double) netCapacity /* [Wh] */ * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */
+				/ 100 /* [%] */) * limitSoc /* [current SoC] */);
+
+		availableEnergy = Math.max(0, (availableEnergy - limitEnergy));
+
+		// Value is divided by 3600 * 1000 to convert from [Wmsec] to [Wh].
+		this.channel(TimeOfUseTariffDischarge.ChannelId.USABLE_CAPACITY).setNextValue(availableEnergy / 3600000);
+
+		// To estimate the soc curve when controller logic is not applied
+		if (now.equals(this.boundarySpace.proLessThanCon)) {
+			this.socWithoutLogic = this.generateSocCurveWithoutLogic(netCapacity, availableEnergy, limitEnergy,
+					this.consumptionMap, soc, now, this.boundarySpace);
+		}
+
+		return availableEnergy;
+	}
+
+	/**
+	 * This method calculates the boundary space within the prediction hours.
+	 * 
+	 * @param now current time.
+	 */
+	private void getBoundarySpace(ZonedDateTime now) {
+
+		// Predictions as Integer array in 15 minute intervals.
+		final Integer[] predictionProduction = this.predictorManager.get24HoursPrediction(SUM_PRODUCTION) //
+				.getValues();
+		final Integer[] predictionConsumption = this.predictorManager.get24HoursPrediction(SUM_CONSUMPTION) //
+				.getValues();
+		final ZonedDateTime predictionStartQuarterHour = roundZonedDateTimeDownToMinutes(now, 15);
+
+		// resetting values
+		this.quarterlyPrices.clear();
+
+		// Converts the given 15 minute integer array to a TreeMap values.
+		this.convertDataStructure(predictionProduction, predictionConsumption, predictionStartQuarterHour);
+
+		// Buffer minutes to adjust sunrise based on the risk level.
+		int bufferMinutes = this.config.delayDischargeRiskLevel().bufferMinutes;
+
+		// calculates the boundary space, within which the controller needs to work.
+		this.boundarySpace = BoundarySpace.from(predictionStartQuarterHour, this.productionMap, this.consumptionMap,
+				this.config.maxStartHour(), this.config.maxEndHour(), bufferMinutes);
+
+		// Update Channels
+		this.channel(TimeOfUseTariffDischarge.ChannelId.PRO_MORE_THAN_CON_SET)
+				.setNextValue(this.boundarySpace.proMoreThanCon.getHour());
+		this.channel(TimeOfUseTariffDischarge.ChannelId.PRO_MORE_THAN_CON_ACTUAL)
+				.setNextValue(this.boundarySpace.proMoreThanCon.plusMinutes(bufferMinutes).getHour());
+		this.channel(TimeOfUseTariffDischarge.ChannelId.PRO_LESS_THAN_CON)
+				.setNextValue(this.boundarySpace.proLessThanCon.getHour());
+
+		// Hourly Prices from API
+		this.quarterlyPrices = this.timeOfUseTariff.getPrices();
+
+		// setting the channel id values
+		if (this.quarterlyPrices.isEmpty()) {
+			this.channel(TimeOfUseTariffDischarge.ChannelId.QUATERLY_PRICES_TAKEN).setNextValue(false);
+			return;
+		} else {
+			this.channel(TimeOfUseTariffDischarge.ChannelId.QUATERLY_PRICES_TAKEN).setNextValue(true);
 		}
 	}
 
@@ -348,8 +382,10 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException on error
 	 */
 	private void modeAutomatic(ZonedDateTime now) throws OpenemsNamedException {
-		this.channel(TimeOfUseTariffDischarge.ChannelId.TARGET_HOURS_IS_EMPTY)
-				.setNextValue(this.targetPeriods.isEmpty());
+
+		this.calculateTargetPeriodsWithinBoundarySpace(now);
+
+		this._setTargetHoursIsEmpty(this.targetPeriods.isEmpty());
 
 		ZonedDateTime currentQuarterHour = roundZonedDateTimeDownToMinutes(
 				ZonedDateTime.now(this.componentManager.getClock()), 15) //
@@ -373,6 +409,8 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	 */
 	private void modeOff() {
 		// Do Nothing
+		this._setTargetHoursCalculated(false);
+		this._setTargetHoursIsEmpty(true);
 		this._setDelayed(false);
 		this._setStateMachine(StateMachine.STANDBY);
 	}
@@ -474,11 +512,11 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 			long currentConsumptionEnergy = entry.getValue() * duration;
 			long currentProductionEnergy = productionMap.get(entry.getKey()) * duration;
 
-			consumptionEnergy = consumptionEnergy + currentConsumptionEnergy - currentProductionEnergy;
+			consumptionEnergy = consumptionEnergy + currentConsumptionEnergy - Math.max(0, currentProductionEnergy);
 		}
 
 		// remaining amount of energy that should be covered from grid.
-		remainingEnergy = consumptionEnergy - availableEnergy;
+		remainingEnergy = Math.max(0, (consumptionEnergy - availableEnergy));
 
 		// Update Channels
 		// Values are divided by 3600 * 1000 to convert from [Wmsec] to [Wh].

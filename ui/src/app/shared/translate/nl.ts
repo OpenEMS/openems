@@ -333,6 +333,7 @@ export const TRANSLATION = {
                 TimeOfUseTariff: {
                     currentTariff: 'Huidige prijs',
                     delayedDischarge: 'Vertraagd ontslag',
+                    storageDischarge: 'Opslag ontlading',
                     State: {
                         notStarted: 'De regelaar is nog niet gestart',
                         delayed: 'Vertraagd',

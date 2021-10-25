@@ -226,8 +226,8 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
     } else if (price == 0) {
       return 0;
     } else {
-      price = (price / 1000);
-      return Math.round(price * 10000) / 10000;
+      price = (price / 10.0);
+      return Math.round(price * 10000) / 10000.0;
     }
   }
 
@@ -290,7 +290,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
 
     //y-axis
     options.scales.yAxes[0].id = "yAxis1"
-    options.scales.yAxes[0].scaleLabel.labelString = "€ / kWh";
+    options.scales.yAxes[0].scaleLabel.labelString = "Cent / kWh";
     options.scales.yAxes[0].scaleLabel.padding = -2;
     options.scales.yAxes[0].scaleLabel.fontSize = 11;
     options.scales.yAxes[0].ticks.padding = -5;
@@ -306,7 +306,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
         // } else if (label == 'Predicted Soc without logic') {
         //   return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
       } else {
-        return label + ": " + formatNumber(value, 'de', '1.0-4') + " €/kWh";
+        return label + ": " + formatNumber(value, 'de', '1.0-4') + " Cent/kWh";
       }
     }
     this.options = options;

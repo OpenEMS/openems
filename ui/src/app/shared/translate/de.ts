@@ -372,8 +372,9 @@ export const TRANSLATION = {
                     undefined: 'Nicht definiert',
                 },
                 TimeOfUseTariff: {
-                    currentTariff: 'Aktueller Strompreis',
+                    currentTariff: 'Aktueller Bezugsstrompreis',
                     delayedDischarge: 'Entladung verzögert',
+                    storageDischarge: 'Speicherentladung',
                     State: {
                         notStarted: 'Noch nicht gestartet',
                         delayed: 'Verzögert',
