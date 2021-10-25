@@ -68,9 +68,35 @@ public interface ShellyComponent  extends OpenemsComponent {
 		this.getSlaveCommunicationFailedChannel().setNextValue(value);
 	}
 	
-	public Boolean wantsExtendedData();	
+	/**
+	 * This method will be called by the core in order to determine
+	 * the behavior. If it returns {@code true}, {@code setExtendedData()} will be called
+	 * otherwise that method will not be called
+	 */
+	public Boolean wantsExtendedData();
+	
+	/**
+	 * This method will be called by the core in order to determine
+	 * the behavior. If it returns {@code true}, the core will set all inherited channels of 
+	 * the implemented natures ({@code AsyncMeter}, {@code SyncMeter} and {@code DigitalOutput}).
+	 * otherwise the core will not set any of these channels
+	 */
 	public Boolean setBaseChannels();
-	public Integer wantedIndex();	
+	
+	/**
+	 * This is called by the core to determine which Relay or (e)meter of a Shelly device this 
+	 * instance represents. It's an index, so the first Relay would be 0
+	 * 
+	 */
+	public Integer wantedIndex();
+	
+	/**
+	 * This is called by the core if {@code wantsExtendedData()} returns true.
+	 * It can be used to calculate certain values or set all channels of the implemented interfaces.
+	 * 
+	 * @param o : A JsonObject encapsulating the {@code /status} response of the Shelly device. 
+	 * 
+	 */
 	public void setExtendedData(JsonObject o);
 
 }
