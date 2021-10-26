@@ -712,8 +712,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		final Consumer<Value<Integer>> reactivePowerSum = ignore -> {
 			meter._setReactivePower(TypeUtils.sum(//
 					meter.getReactivePowerL1Channel().getNextValue().get(), //
-					meter.getReactivePowerL1Channel().getNextValue().get(), //
-					meter.getReactivePowerL1Channel().getNextValue().get())); //
+					meter.getReactivePowerL2Channel().getNextValue().get(), //
+					meter.getReactivePowerL3Channel().getNextValue().get())); //
 		};
 		meter.getReactivePowerL1Channel().onSetNextValue(reactivePowerSum);
 		meter.getReactivePowerL2Channel().onSetNextValue(reactivePowerSum);
