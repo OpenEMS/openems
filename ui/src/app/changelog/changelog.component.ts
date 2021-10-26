@@ -35,6 +35,18 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2021.18.1',
+        changes: [
+          Changelog.openems('2021.18.0'),
+          Changelog.product(...Product.ALL_EVCS) + "Verbesserung der Kompatibilität mit nicht aktiv gesteuerten Stromspeichersytemen",
+          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
+          Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.product(Product.FEMS_PQ_PLUS_ZAEHLER) + "Kompatibilität mit PQ Plus UMD96",
+          "Fehlerbehebung in der Datenaufzeichnung phasengenauer Blindleistung",
+          Changelog.library(Library.OSGI_UTIL_PROMISE, Library.OSGI_UTIL_FUNCTION, Library.POSTGRESQL, Library.GUAVA),
+        ]
+      },
+      {
         version: '2021.17.1',
         changes: [
           Changelog.openems('2021.17.0'),
