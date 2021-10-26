@@ -23,10 +23,6 @@ import { ProtocolSystemComponent } from "./views/protocol-system/protocol-system
 
 //#region Validators
 
-export function ZipValidator(control: FormControl): ValidationErrors {
-  return /^\d{5}$/.test(control.value) ? null : { "zip": true };
-}
-
 export function EmailMatchValidator(control: FormControl): ValidationErrors {
 
   const { email, emailConfirm } = control.value;
@@ -78,10 +74,6 @@ export function MaxValidatorMessage(err, field: FormlyFieldConfig) {
   return `Nur Werte kleiner oder gleich ${field.templateOptions.max} sind erlaubt.`;
 }
 
-export function ZipValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${field.formControl.value}" ist keine gültige Postleitzahl.`;
-}
-
 export function EmailValidatorMessage(err, field: FormlyFieldConfig) {
   return `"${field.formControl.value}" ist keine gültige E-Mail-Adresse.`;
 }
@@ -112,7 +104,6 @@ export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfi
   imports: [
     FormlyModule.forRoot({
       validators: [
-        { name: "zip", validation: ZipValidator },
         { name: "emailMatch", validation: EmailMatchValidator },
         { name: "batteryInverterSerialNumber", validation: BatteryInverterSerialNumberValidator },
         { name: "emsBoxSerialNumber", validation: EmsBoxSerialNumberValidator },
@@ -124,7 +115,6 @@ export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfi
         { name: "required", message: RequiredValidatorMessage },
         { name: "min", message: MinValidatorMessage },
         { name: "max", message: MaxValidatorMessage },
-        { name: "zip", message: ZipValidatorMessage },
         { name: "email", message: EmailValidatorMessage },
         { name: "batteryInverterSerialNumber", message: BatteryInverterSerialNumberValidatorMessage },
         { name: "emsBoxSerialNumber", message: EmsBoxSerialNumberValidatorMessage },

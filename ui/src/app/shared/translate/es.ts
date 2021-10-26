@@ -334,6 +334,7 @@ export const TRANSLATION = {
                 TimeOfUseTariff: {
                     currentTariff: 'Precio actual',
                     delayedDischarge: 'Retraso en el alta',
+                    storageDischarge: 'Descarga de almacenamiento',
                     State: {
                         notStarted: 'El controlador aún no se ha iniciado ',
                         delayed: 'Retraso',

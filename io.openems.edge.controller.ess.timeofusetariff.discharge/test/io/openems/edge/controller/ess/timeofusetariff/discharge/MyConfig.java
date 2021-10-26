@@ -12,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public Mode mode;
 		private int maxStartHour;
 		private int maxEndHour;
+		public DelayDischargeRiskLevel delayDischargeRiskLevel;
 
 		private Builder() {
 		}
@@ -25,7 +26,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.essId = essId;
 			return this;
 		}
-		
+
 		public Builder setMode(Mode mode) {
 			this.mode = mode;
 			return this;
@@ -43,6 +44,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public MyConfig build() {
 			return new MyConfig(this);
+		}
+
+		public Builder setDelayDischargeRiskLevel(DelayDischargeRiskLevel delayDischargeRiskLevel) {
+			this.delayDischargeRiskLevel = delayDischargeRiskLevel;
+			return this;
 		}
 	}
 
@@ -66,7 +72,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public String ess_id() {
 		return this.builder.essId;
 	}
-	
+
 	@Override
 	public Mode mode() {
 		return this.builder.mode;
@@ -85,5 +91,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String ess_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
+	}
+
+	@Override
+	public DelayDischargeRiskLevel delayDischargeRiskLevel() {
+		return this.builder.delayDischargeRiskLevel;
 	}
 }

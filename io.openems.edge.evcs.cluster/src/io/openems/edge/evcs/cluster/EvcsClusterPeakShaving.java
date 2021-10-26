@@ -28,6 +28,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.meter.api.AsymmetricMeter;
@@ -66,7 +67,7 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	protected Sum sum;
 
 	@Reference
-	private ManagedSymmetricEss ess;
+	private SymmetricEss ess;
 
 	@Reference
 	private SymmetricMeter meter;
@@ -182,12 +183,18 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 		int maxEssDischarge = 0;
 		long maxAvailableStoragePower = 0;
 
-		maxEssDischarge = this.ess.getAllowedDischargePower().orElse(0);
+		if(this.ess instanceof ManagedSymmetricEss) {
+			maxEssDischarge = ((ManagedSymmetricEss)this.ess).getAllowedDischargePower().orElse(0);
+			// TODO: Use PowerComponent
+		} else {
+			maxEssDischarge = this.ess.getMaxApparentPower().orElse(0);
+		}
+		
 		if (this.config.enable_secure_ess_discharge()) {
 			maxEssDischarge = this.getSecureEssDischargePower(maxEssDischarge);
 			this.channel(AbstractEvcsCluster.ChannelId.USED_ESS_MAXIMUM_DISCHARGE_POWER).setNextValue(maxEssDischarge);
 		}
-		// TODO: Should I use power component here
+		
 		// TODO: Calculate the available ESS charge power, depending on a specific ESS
 		// component (e.g. If there is a ESS cluster)
 		

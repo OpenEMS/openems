@@ -5,8 +5,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
 
-// TODO the Modal is not used yet
-
 type Mode = 'OFF' | 'AUTOMATIC';
 
 @Component({

@@ -47,8 +47,10 @@ public interface TimeOfUseTariffDischarge extends Controller, OpenemsComponent {
 				.text("Available capcity in the battery during evening")), //
 		USABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
 				.text("Usable capcity in the battery during after taking limit soc into consideration")), //
-		PRO_MORE_THAN_CON(Doc.of(OpenemsType.INTEGER) //
-				.text("Hour of Production more than Consumption")),
+		PRO_MORE_THAN_CON_ACTUAL(Doc.of(OpenemsType.INTEGER) //
+				.text("Actual Hour of Production more than Consumption")),
+		PRO_MORE_THAN_CON_SET(Doc.of(OpenemsType.INTEGER) //
+				.text("Hour of Production more than Consumption set based on risk level")),
 		PRO_LESS_THAN_CON(Doc.of(OpenemsType.INTEGER) //
 				.text("Hour of Production less than Consumption")),
 		PREDICTED_PRODUCTION(Doc.of(OpenemsType.INTEGER) //
@@ -192,5 +194,43 @@ public interface TimeOfUseTariffDischarge extends Controller, OpenemsComponent {
 	 */
 	public default void _setPredictedSocWithoutLogic(Integer value) {
 		this.getPredictedSocWithoutLogicChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#TARGET_HOURS_CALCULATED}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Integer> getTargetHoursCalculatedChannel() {
+		return this.channel(ChannelId.TARGET_HOURS_CALCULATED);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#TARGET_HOURS_CALCULATED} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setTargetHoursCalculated(Boolean value) {
+		this.getTargetHoursCalculatedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#TARGET_HOURS_IS_EMPTY}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Integer> getTargetHoursIsEmptyChannel() {
+		return this.channel(ChannelId.TARGET_HOURS_IS_EMPTY);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#TARGET_HOURS_IS_EMPTY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setTargetHoursIsEmpty(Boolean value) {
+		this.getTargetHoursIsEmptyChannel().setNextValue(value);
 	}
 }

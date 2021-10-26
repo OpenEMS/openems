@@ -119,9 +119,6 @@ export class ProtocolSystemComponent implements OnInit {
         label: "PLZ",
         required: true
       },
-      validators: {
-        validation: ["zip"]
-      },
       hideExpression: model => model.isEqualToCustomerData
     });
 

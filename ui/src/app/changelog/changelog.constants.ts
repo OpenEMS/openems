@@ -51,10 +51,13 @@ export class Product {
     public static readonly FEMS_PV_KACO = new Product('FEMS-App KACO PV-Wechselrichter', 'https://fenecon.de/fems-2-2/fems-app-kaco-pv-wechselrichter/');
     public static readonly FEMS_PV_SMA = new Product('FEMS-App SMA PV-Wechselrichter', 'https://fenecon.de/fems-2-2/fems-app-sma-pv-wechselrichter/');
     public static readonly FEMS_JANITZA_ZAEHLER = new Product('FEMS-App Janitza Zähler', 'https://fenecon.de/fems-2-2/fems-app-janitza-zaehler-2/');
+    public static readonly FEMS_PQ_PLUS_ZAEHLER = new Product('FEMS-App PQ-Plus Zähler', 'https://fenecon.de/fems/'); // TODO Add Product Page
     public static readonly FEMS_HEIZSTAB = new Product('FEMS-App Heizstab', 'https://fenecon.de/fems-2-2/fems-app-heizstab-6-kw/');
     public static readonly FEMS_SCHWELLWERT_STEUERUNG = new Product('FEMS-App Schwellwertsteuerung', 'https://fenecon.de/fems-2-2/fems-app-schwellwert-steuerung/');
     public static readonly FEMS_AWATTAR = new Product('FEMS-App Awattar HOURLY Deutschland', 'https://fenecon.de/fems-2-2/fems-app-awattar-hourly-deutschland-2/');
-    public static readonly FEMS_ALL_TIME_OF_USE_TARIFF = [Product.FEMS_KEBA, Product.FEMS_HARDY_BARTH];
+    public static readonly FEMS_CORRENTLY = new Product('FEMS-App STROMDAO Corrently', 'https://fenecon.de/fems/'); // TODO Add Product Page
+    public static readonly FEMS_TIBBER = new Product('FEMS-App Tibber', 'https://fenecon.de/fems/'); // TODO Add Product Page
+    public static readonly FEMS_ALL_TIME_OF_USE_TARIFF = [Product.FEMS_AWATTAR, Product.FEMS_CORRENTLY, Product.FEMS_TIBBER];
 
     // Industrial
     public static readonly INDUSTRIAL = new Product('FENECON Industrial-Serie', 'https://fenecon.de/industrial/');
@@ -84,6 +87,8 @@ export class Library {
     public static readonly MOSHI = new Library('Moshi', 'com.squareup.moshi');
     public static readonly MSGPACK = new Library('MsgPack', 'org.msgpack');
     public static readonly PAX_LOGGING = new Library('PAX Logging', 'org.ops4j.pax.logging');
+    public static readonly OSGI_UTIL_FUNCTION = new Library('org.osgi.util.function', 'org.osgi.util.function');
+    public static readonly OSGI_UTIL_PROMISE = new Library('org.osgi.util.promise', 'org.osgi.util.promise');
     public static readonly POSTGRESQL = new Library('Postgresql', 'org.postgresql');
     public static readonly SLF4J = new Library('SLF4j', 'org.slf4j');
 

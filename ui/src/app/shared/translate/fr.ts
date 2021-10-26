@@ -336,6 +336,7 @@ export const TRANSLATION = {
                 TimeOfUseTariff: {
                     currentTariff: 'Prix actuel',
                     delayedDischarge: 'Sortie retardée',
+                    storageDischarge: 'Décharge de stockage',
                     State: {
                         notStarted: 'Le contrôleur n\'a pas encore démarré',
                         delayed: 'Retardé',

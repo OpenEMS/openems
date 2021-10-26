@@ -339,6 +339,7 @@ export const TRANSLATION = {
                 TimeOfUseTariff: {
                     currentTariff: 'Aktuální cena',
                     delayedDischarge: 'Opožděné propuštění',
+                    storageDischarge: 'Vybíjení ze skladu',
                     State: {
                         notStarted: 'Ovladač ještě nezačal ',
                         delayed: 'Opožděné',

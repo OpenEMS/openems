@@ -18,7 +18,7 @@
             <table class="full_width">
                 <tr>
                     <td style="width: 65%" translate>
-                        Edge.Index.Energymonitor.storageDischarge
+                        Edge.Index.Widgets.TimeOfUseTariff.storageDischarge
                     </td>
                     <td style="width: 35%" class="align_right" translate>
                         {{ getState(currentData[component.id + '/StateMachine'] )}}
@@ -29,7 +29,7 @@
                         Edge.Index.Widgets.TimeOfUseTariff.currentTariff
                     </td>
                     <td style="width: 35%" class="align_right" translate>
-                        {{currentData[component.id + '/QuarterlyPrices'] / 1000 + ' € / kWh '}}
+                        {{currentData[component.id + '/QuarterlyPrices'] / 10 | number: '1.0-4'}} Cent/kWh
                     </td>
                 </tr>
             </table>

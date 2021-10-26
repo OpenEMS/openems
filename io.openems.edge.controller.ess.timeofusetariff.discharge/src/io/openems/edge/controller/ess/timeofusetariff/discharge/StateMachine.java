@@ -4,7 +4,6 @@ import io.openems.common.types.OptionsEnum;
 
 public enum StateMachine implements OptionsEnum {
 
-	NOT_STARTED(-1, "Not yet started"), //
 	DELAYED(0, "Delayed"), //
 	ALLOWS_DISCHARGE(1, "No active limitation, discharge is allowed"), //
 	STANDBY(2, "Outside controller time limits"); //
@@ -29,7 +28,7 @@ public enum StateMachine implements OptionsEnum {
 
 	@Override
 	public OptionsEnum getUndefined() {
-		return NOT_STARTED;
+		return STANDBY;
 	}
 
 }
