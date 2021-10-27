@@ -208,23 +208,20 @@ NOTE: If you receive an error message that the command `npm` could not be found,
 
 . In Visual Studios integrated terminal type...
 +
-`ng serve`
+`ng serve -o -c openems-edge-dev`
++
+NOTE: If you receive an error message, that you have no rights to execute "ng serve", set "Set-ExecutionPolicy RemoteSigned -Scope CurrentUser".
 +
 The log shows:
 +
 `NG Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/`
-
++
 . Open a browser at http://localhost:4200
 
 . You should see OpenEMS UI. Log in as user "guest" by clicking on the tick mark. Alternatively type "admin" in the password field to log in with extended permissions.
 +
 .OpenEMS UI Login screen
 image::openems-ui-login.png[OpenEMS UI Login screen]
-
-. Change to the Energymonitor by clicking on the arrow.
-+
-.OpenEMS UI Overview screen
-image::openems-ui-overview.png[OpenEMS UI Overview screen]
 
 . You should see the Energymonitor showing the same data as the DebugLog output on the console.
 +
@@ -343,11 +340,13 @@ It is again noteworthy here, that:
 
 . In Visual Studios integrated terminal type...
 +
-`ng serve`
+`ng serve -o -c openems-backend-dev`
 
 . Open a browser at http://localhost:4200
 
-. You should see again OpenEMS UI, but this time you are not asked for a login (because Metadata.Dummy does not require any) and are directly forwarded to the Energy Monitor at `http://localhost:4200/device/edge0/index`. You are now seeing the data from OpenEMS Edge via OpenEMS Backend.
+. You should see OpenEMS UI Login. Log in with any email / username and password.
+
+. You should see again OpenEMS UI, you have to login again (because Metadata.Dummy does require a login), then you are forwarded to `http://localhost:4200/device/edge0/live`. You are now seeing the data from OpenEMS Edge via OpenEMS Backend.
 +
 .UI via Backend
 image::ui-via-backend.png[UI via Backend]
