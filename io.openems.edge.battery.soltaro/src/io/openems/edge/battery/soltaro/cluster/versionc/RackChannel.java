@@ -565,5 +565,5 @@ public enum RackChannel {
 	private String generateChannelId(Rack rack) {
 		return rack.getChannelIdPrefix() + this.name();
 	}
-	
+
 }

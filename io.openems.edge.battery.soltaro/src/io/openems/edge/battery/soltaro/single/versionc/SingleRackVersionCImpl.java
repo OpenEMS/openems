@@ -239,8 +239,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 						m(SingleRackVersionC.ChannelId.EMS_BAUDRATE, new UnsignedWordElement(0x200C)) //
 				), //
 				new FC6WriteRegisterTask(0x20C1, //
-						m(SingleRackVersionC.ChannelId.WORK_PARAMETER_PCS_COMMUNICATION_RATE,
-								new UnsignedWordElement(0x20C1)) //
+						m(SingleRackVersionC.ChannelId.NUMBER_OF_MODULES_PER_TOWER, new UnsignedWordElement(0x20C1)) //
 				), //
 				new FC6WriteRegisterTask(0x20F4,
 						m(SingleRackVersionC.ChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x20F4)) //
@@ -269,8 +268,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 						m(SingleRackVersionC.ChannelId.SLEEP, new UnsignedWordElement(0x201D)) //
 				), //
 				new FC3ReadRegistersTask(0x20C1, Priority.LOW, //
-						m(SingleRackVersionC.ChannelId.WORK_PARAMETER_PCS_COMMUNICATION_RATE,
-								new UnsignedWordElement(0x20C1)), //
+						m(SingleRackVersionC.ChannelId.NUMBER_OF_MODULES_PER_TOWER, new UnsignedWordElement(0x20C1)), //
 						new DummyRegisterElement(0x20C2, 0x20CB),
 						m(SingleRackVersionC.ChannelId.SYSTEM_TOTAL_CAPACITY, new UnsignedWordElement(0x20CC)) //
 				), //
