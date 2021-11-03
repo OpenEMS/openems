@@ -390,6 +390,14 @@ export const TRANSLATION = {
             nov: 'Lis',
             dec: 'Pro',
         },
+        Installation: {
+            attentionMessage: 'Všimněte si, že výběr nelze dodatečně zrušit.',
+            backward: 'zpětně',
+            confirmAppSelection: 'Opravdu chcete vybrat následující aplikaci?',
+            confirmAppSelectionLater: 'Jste si jisti, že můžete výběr provést později?',
+            forward: 'dopředu',
+            pleaseSelectOption: 'Vyberte možnost'
+        },
         Config: {
             Index: {
                 addComponents: 'Komponenten installieren',

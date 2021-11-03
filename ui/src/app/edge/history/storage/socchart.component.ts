@@ -96,19 +96,20 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                     })
                                 }
                             }
-                            if (channelAddress.channelId == '_PropertyReserveSoc') {
-                                if (this.emergencyCapacityReserveComponents[this.emergencyCapacityReserveComponents.findIndex(element => element.id == channelAddress.componentId)].properties.isReserveSocEnabled) {
-                                    datasets.push({
-                                        label:
-                                            this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.emergencyReserve"),
-                                        data: data,
-                                        borderDash: [3, 3],
-                                    })
-                                    this.colors.push({
-                                        backgroundColor: 'rgba(1, 1, 1,0)',
-                                        borderColor: 'rgba(1, 1, 1,1)',
-                                    })
-                                }
+                            if (channelAddress.channelId == '_PropertyReserveSoc' &&
+                                this.emergencyCapacityReserveComponents.find(
+                                    element => element.id == channelAddress.componentId)
+                                    .properties.isReserveSocEnabled) {
+                                datasets.push({
+                                    label:
+                                        this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.emergencyReserve"),
+                                    data: data,
+                                    borderDash: [3, 3],
+                                })
+                                this.colors.push({
+                                    backgroundColor: 'rgba(1, 1, 1,0)',
+                                    borderColor: 'rgba(1, 1, 1,1)',
+                                })
                             }
                         });
                     });

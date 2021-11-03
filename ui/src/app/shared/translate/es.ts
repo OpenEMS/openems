@@ -384,6 +384,14 @@ export const TRANSLATION = {
             nov: 'Nov',
             dec: 'Dic'
         },
+        Installation: {
+            attentionMessage: 'Tenga en cuenta que la selección no se puede deshacer después.',
+            backward: 'volver',
+            confirmAppSelection: '¿Está seguro de que desea seleccionar la siguiente aplicación?',
+            confirmAppSelectionLater: '¿Están seguros de hacer la selección más tarde?',
+            forward: 'adelante',
+            pleaseSelectOption: 'Por favor, elija una opción'
+        },
         Config: {
             Index: {
                 addComponents: 'Instalar componentes',

@@ -1,4 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AlertController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { Service } from 'src/app/shared/shared';
 import { InstallationData } from '../../installation.component';
 
@@ -33,9 +35,11 @@ export class HeckertAppInstallerComponent implements OnInit {
   public apps: EmsApp[];
 
   public isHardyBarthVisible: boolean;
-  public isConfirmed;
 
-  constructor(private service: Service) { }
+  constructor(
+    private service: Service,
+    private alertCtrl: AlertController,
+    protected translate: TranslateService) { }
 
   public ngOnInit() {
     this.apps = [
@@ -48,14 +52,13 @@ export class HeckertAppInstallerComponent implements OnInit {
     ];
 
     this.isHardyBarthVisible = false;
-    this.isConfirmed = false;
   }
 
   public onPreviousClicked() {
     this.previousViewEvent.emit();
   }
 
-  public onNextClicked() {
+  public saveConfirmedApp() {
     // Determine the selected app
     let selectedApp: EmsApp;
 
@@ -65,22 +68,18 @@ export class HeckertAppInstallerComponent implements OnInit {
       }
     }
 
-    // Show message if nothing is selected
-    if (!selectedApp) {
-      this.service.toast("Wählen Sie eine App um fortzufahren.", "warning");
-      return;
-    }
-
-    // Show message to confirm selection
-    if (!this.isConfirmed) {
-      this.service.toast("Bestätigen Sie Ihre aktuelle Auswahl, indem Sie nochmal auf ''weiter'' klicken.", "warning");
-      this.isConfirmed = true;
-      return;
-    }
-
     // Save the id of the selected app and switch to next view
     this.installationData.selectedFreeApp = selectedApp;
+    sessionStorage.setItem("installationData", JSON.stringify(this.installationData));
     this.nextViewEvent.emit(this.installationData);
+  }
+
+  public onNextClicked() {
+    if (this.installationData.selectedFreeApp) {
+      this.nextViewEvent.emit();
+    } else {
+      this.service.toast(this.translate.instant('Edge.Installation.pleaseSelectOption'), 'danger');
+    }
   }
 
   /**
@@ -89,8 +88,6 @@ export class HeckertAppInstallerComponent implements OnInit {
    * @param clickedApp the app that has been clicked
    */
   public selectApp(clickedApp: EmsApp) {
-    // New selection must be confirmed
-    this.isConfirmed = false;
 
     // Unselect all apps
     for (let app of this.apps) {
@@ -99,5 +96,33 @@ export class HeckertAppInstallerComponent implements OnInit {
 
     // Select the clicked app
     clickedApp.isSelected = true;
+    this.presentAlert(clickedApp);
+  }
+
+  /**
+   * Method that shows a confirmation window for the app selection
+   * 
+   * @param clickedApp the app that has been clicked
+   */
+  async presentAlert(clickedApp: EmsApp) {
+
+    let isAppSelected = clickedApp.id != EmsAppId.None;
+    let alert = this.alertCtrl.create({
+      header: (isAppSelected ? this.translate.instant('Edge.Installation.confirmAppSelection') : this.translate.instant('Edge.Installation.confirmAppSelectionLater')),
+      subHeader: isAppSelected ? (clickedApp.alias ?? clickedApp.id) : '',
+      message: isAppSelected ? this.translate.instant('Edge.Installation.attentionMessage') : '',
+      buttons: [{
+        text: this.translate.instant('Edge.Installation.backward'),
+        role: 'cancel'
+      },
+      {
+        text: this.translate.instant('Edge.Installation.forward'),
+        handler: () => {
+          this.saveConfirmedApp();
+        },
+      }],
+      cssClass: 'alertController',
+    });
+    (await alert).present();
   }
 }
