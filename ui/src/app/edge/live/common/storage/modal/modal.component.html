@@ -184,10 +184,11 @@
                                     <td style="width: 70%;" translate>
                                         Edge.Index.EmergencyReserve.emergencyReserve
                                     </td>
-                                    <td style="width: 20%; text-align: right;">
+                                    <td style="width: 15%;" class="align_right">
                                         {{ formGroup.value[component.id]?.reserveSoc | unitvalue:'%' }}
                                     </td>
-                                    <td style="width: 10%" class="align_right">
+                                    <td style="width: 15%" class="align_right"
+                                        [style]="this.service.isSmartphoneResolution ? 'transform: scale(0.8)': ''">
 
                                         <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
                                         <ion-toggle formControlName="isReserveSocEnabled">
