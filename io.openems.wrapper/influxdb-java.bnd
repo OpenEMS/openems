@@ -6,7 +6,7 @@ Bundle-Version: 2.17
 
 Include-Resource: \
 	@converter-moshi-2.9.0.jar,\
-	@influxdb-java-2.17.jar,\
+	@influxdb-java-2.22.jar,\
 	@moshi-1.12.0.jar,\
 	@msgpack-core-0.9.0.jar,\
 	@retrofit-2.9.0.jar
