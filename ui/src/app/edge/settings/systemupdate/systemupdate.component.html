@@ -1,11 +1,12 @@
 <header></header>
 <ion-content>
   <ion-grid *ngIf="edge">
+
     <!--
       Is FEMS online?
     -->
-    <ion-row *ngIf="!edge.isOnline">
-      <ion-col size="12">
+    <ion-row *ngIf="!edge.isOnline" class="ion-justify-content-center">
+      <ion-col size="12" size-sm="8">
         <ion-card>
           <ion-item lines="full" color="danger">
             <ion-icon slot="start" name="alert-circle-outline" color="primary"></ion-icon>
@@ -16,100 +17,104 @@
     </ion-row>
 
     <!--
-      Is dpkg running?
+      System Update State
     -->
-    <ion-row *ngIf="isCurrentlyInstalling">
-      <ion-col size="12">
-        <ion-card>
-          <ion-item lines="full" color="secondary">
-            <ion-icon slot="start" name="chatbubble-ellipses-outline" color="primary"></ion-icon>
-            <ion-label>Derzeit wird ein Paket installiert</ion-label>
-          </ion-item>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-
-    <!--
-      Show packages and versions    
-    -->
-    <ion-row>
-      <ion-col size="12">
+    <ion-row *ngIf="edge.isOnline" class="ion-justify-content-center">
+      <ion-col size="12" size-sm="8">
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" name="cloud-download-outline" color="primary"></ion-icon>
-            <ion-label>Systemupdate für {{ edge.id }}</ion-label>
+            <ion-label>
+              <span>System Update</span>
+              <span *ngIf="environment.backend == 'OpenEMS Backend'"> für {{ edge.id }}</span>
+            </ion-label>
           </ion-item>
 
-          <ion-card-content>
+          <ngx-spinner [name]="spinnerId"></ngx-spinner>
+          <ion-card-content *ngIf="systemUpdateState">
             <ion-grid>
-              <ion-row>
-                <ion-col></ion-col>
-                <ion-col>Installierte Version</ion-col>
-                <ion-col>Neueste Version</ion-col>
-                <ion-col></ion-col>
-              </ion-row>
-              <ion-row>
-                <ion-col>
-                  {{ package.description }}
-                </ion-col>
-                <ion-col>{{ package.currentVersion }}</ion-col>
-                <ion-col>{{ package.latestVersion }}</ion-col>
-                <ion-col>
-                  <ion-button [disabled]="isCurrentlyInstalling" *ngIf="package.isUpdateAvailable == true"
-                    (click)="updatePackage(package)">Neueste Version
-                    installieren
-                  </ion-button>
-                  <p *ngIf="package.isUpdateAvailable == false">
-                    <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
-                    Version ist aktuell
-                  </p>
-                  <p *ngIf="package.isUpdateAvailable == null">
-                    <ion-icon name="refresh-circle-outline"></ion-icon>
-                    Version wird gelesen...
-                  </p>
-                </ion-col>
-              </ion-row>
+              <ng-container *ngIf="systemUpdateState.unknown as state">
+                <!--
+                  Update State is unknown
+                -->
+                <ion-row>
+                  <ion-col>Update Status ist unbekannt</ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col>{{ state | json }}</ion-col>
+                </ion-row>
+              </ng-container>
+              <ng-container *ngIf="systemUpdateState.updated as state">
+                <!--
+                  Latest update is already installed
+                -->
+                <ion-row>
+                  <ion-col>Installierte Version:</ion-col>
+                  <ion-col>{{ state.version }}</ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col>Das System ist auf dem aktuellsten Softwarestand</ion-col>
+                </ion-row>
+              </ng-container>
+              <ng-container *ngIf="systemUpdateState.available as state">
+                <!--
+                  Update is available
+                -->
+                <ion-row>
+                  <ion-col>Installierte Version:</ion-col>
+                  <ion-col>{{ state.currentVersion }}</ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col>Neueste Version:</ion-col>
+                  <ion-col>{{ state.latestVersion }}</ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col></ion-col>
+                  <ion-col>
+                    <ion-button (click)="executeSystemUpdate()">Neueste Version installieren
+                    </ion-button>
+                  </ion-col>
+                </ion-row>
+              </ng-container>
+              <ng-container *ngIf="systemUpdateState.running as state">
+                <!--
+                  Update is running
+                -->
+                <ion-row>
+                  <ion-col>
+                    <span *ngIf="state.percentCompleted < 100; else finished">Update wird ausgeführt...</span>
+                    <ng-template #finished>
+                      <span><b>Update abgeschlossen</b></span>
+                    </ng-template>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col>
+                    <percentagebar [value]="state.percentCompleted"></percentagebar>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col *ngIf="state.logs.length > 0">
+                    <p style="cursor: pointer" (click)="showLog = !showLog">
+                      <ion-icon *ngIf="!showLog" name="arrow-down-circle-outline">
+                      </ion-icon>
+                      <ion-icon *ngIf="showLog" name="arrow-up-circle-outline">
+                      </ion-icon>
+                      <span>&nbsp;Details</span>
+                    </p>
+                    <p *ngIf="showLog">
+                      <ng-container *ngFor="let log of state.logs">
+                        <small>{{ log }}</small><br />
+                      </ng-container>
+                    </p>
+                  </ion-col>
+                </ion-row>
+              </ng-container>
             </ion-grid>
           </ion-card-content>
-
         </ion-card>
       </ion-col>
     </ion-row>
 
-    <!--
-      Show relevant system logs
-    -->
-    <ion-row>
-      <ion-col size="12">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
-            <ion-label>Systemnachrichten</ion-label>
-          </ion-item>
-
-          <ion-card-content>
-            <ion-grid *ngFor="let line of logLines" class="ion-no-padding">
-              <ion-row style="font-family: monospace; font-size: small" style.color="black">
-                <ion-col size-sm="2" size="6">
-                  {{ line.time }}
-                </ion-col>
-                <ion-col size-sm="1" size="6">
-                  {{ line.level }}
-                </ion-col>
-                <ion-col size-sm="auto" size="12">
-                  {{ line.source }}
-                </ion-col>
-              </ion-row>
-              <ion-row style="font-family: monospace" [style.color]="line.color">
-                <ion-col size="12">
-                  {{ line.message }}
-                </ion-col>
-              </ion-row>
-            </ion-grid>
-          </ion-card-content>
-
-        </ion-card>
-      </ion-col>
-    </ion-row>
   </ion-grid>
 </ion-content>

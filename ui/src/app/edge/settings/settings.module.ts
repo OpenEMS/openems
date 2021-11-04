@@ -18,6 +18,7 @@ import { ServiceAssistantModule } from './serviceassistant/serviceassistant.modu
 import { SettingsComponent } from './settings.component';
 import { SystemExecuteComponent } from './systemexecute/systemexecute.component';
 import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
+import { SystemUpdateOldComponent } from './systemupdate.old/systemupdate.old.component';
 
 @NgModule({
   imports: [
@@ -42,6 +43,7 @@ import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
     SettingsComponent,
     SystemExecuteComponent,
     SystemUpdateComponent,
+    SystemUpdateOldComponent,
   ],
   entryComponents: [
     EvcsInstallerComponent,

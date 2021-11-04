@@ -121,7 +121,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 		// initialize Executor
 		String name = "Controller.Api.Websocket" + ":" + this.id();
-		this.executor = Executors.newScheduledThreadPool(1,
+		this.executor = Executors.newScheduledThreadPool(10,
 				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
 
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
