@@ -34,6 +34,7 @@ import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.shared.influxdb.InfluxConnector;
@@ -50,6 +51,9 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 		implements InfluxTimedata, Timedata, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(InfluxTimedataImpl.class);
+
+	@Reference
+	private Cycle cycle;
 
 	private InfluxConnector influxConnector = null;
 
@@ -104,11 +108,12 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 	}
 
 	protected synchronized void collectAndWriteChannelValues() {
-		long timestamp = System.currentTimeMillis() / 1000;
+		int cycleTime = this.cycle.getCycleTime(); // [ms]
+		long timestamp = System.currentTimeMillis() / cycleTime * cycleTime; // Round value to Cycle-Time in [ms]
 
 		if (++this.cycleCount >= this.config.noOfCycles()) {
 			this.cycleCount = 0;
-			final Builder point = Point.measurement(InfluxConnector.MEASUREMENT).time(timestamp, TimeUnit.SECONDS);
+			final Builder point = Point.measurement(InfluxConnector.MEASUREMENT).time(timestamp, TimeUnit.MILLISECONDS);
 			final AtomicBoolean addedAtLeastOneChannelValue = new AtomicBoolean(false);
 
 			this.componentManager.getEnabledComponents().stream().filter(c -> c.isEnabled()).forEach(component -> {
