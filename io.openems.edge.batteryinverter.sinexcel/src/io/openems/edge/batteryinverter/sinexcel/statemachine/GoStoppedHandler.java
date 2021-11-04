@@ -12,7 +12,7 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 		final SinexcelImpl inverter = context.getParent();
 
 		inverter.softStart(false);
-		inverter.setStopCommand();
+		inverter.setStopInverter();
 
 		if (inverter.getBatteryInverterState().get() == Boolean.FALSE) {
 			// Inverter is OFF

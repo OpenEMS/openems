@@ -2,18 +2,15 @@ package io.openems.edge.batteryinverter.sinexcel.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-/**
- * This enum holds the common Sinexcel definition for 0 = false and 1 = true.
- */
-public enum FalseTrue implements OptionsEnum {
+public enum DcVoltageLevel implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	FALSE(0, "False"), //
-	TRUE(1, "True"); //
+	V_750(0, "750 V"), //
+	V_830(1, "830 V");//
 
 	private final int value;
 	private final String name;
 
-	private FalseTrue(int value, String name) {
+	private DcVoltageLevel(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
