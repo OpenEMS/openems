@@ -39,8 +39,8 @@
 
 -runbundles: \
 	Java-WebSocket;version='[1.5.2,1.5.3)',\
-	com.google.gson;version='[2.8.8,2.8.9)',\
-	com.google.guava;version='[30.1.1,30.1.2)',\
+	com.google.gson;version='[2.8.9,2.8.10)',\
+	com.google.guava;version='[31.0.1,31.0.2)',\
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
 	com.zaxxer.HikariCP;version='[4.0.3,4.0.4)',\
 	io.openems.backend.application;version=snapshot,\
@@ -59,6 +59,7 @@
 	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\
 	io.openems.wrapper.influxdb-java;version=snapshot,\
+	io.openems.wrapper.okhttp;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
 	org.apache.commons.commons-fileupload;version='[1.4.0,1.4.1)',\
 	org.apache.commons.commons-io;version='[2.8.0,2.8.1)',\
@@ -75,7 +76,7 @@
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.0.10,2.0.11)',\
 	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.10,2.0.11)',\
-	org.osgi.service.jdbc;version='[1.0.0,1.0.1)',\
-	org.osgi.util.function;version='[1.1.0,1.1.1)',\
-	org.osgi.util.promise;version='[1.1.1,1.1.2)',\
-	org.postgresql.jdbc;version='[42.2.23,42.2.24)'
+	org.osgi.service.jdbc;version='[1.0.1,1.0.2)',\
+	org.osgi.util.function;version='[1.2.0,1.2.1)',\
+	org.osgi.util.promise;version='[1.2.0,1.2.1)',\
+	org.postgresql.jdbc;version='[42.3.1,42.3.2)'

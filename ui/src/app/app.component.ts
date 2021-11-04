@@ -16,7 +16,6 @@ export class AppComponent {
   public environment = environment;
   public backUrl: string | boolean = '/';
   public enableSideMenu: boolean;
-  public currentPage: 'EdgeSettings' | 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
   public isSystemLogEnabled: boolean = false;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
@@ -34,7 +33,13 @@ export class AppComponent {
   }
 
   ngOnInit() {
-    this.titleService.setTitle(environment.shortName);
+
+    // Checks if sessionStorage is not null, undefined or empty string
+    if (sessionStorage.getItem("DEBUGMODE")) {
+      this.environment.debugMode = JSON.parse(sessionStorage.getItem("DEBUGMODE"));
+    }
+
+    this.titleService.setTitle(environment.edgeShortName);
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
       const toast = await this.toastController.create({
         message: notification.message,

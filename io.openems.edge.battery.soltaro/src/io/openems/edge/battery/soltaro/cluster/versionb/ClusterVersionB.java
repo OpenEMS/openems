@@ -3,7 +3,9 @@ package io.openems.edge.battery.soltaro.cluster.versionb;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -37,6 +39,7 @@ import io.openems.edge.battery.soltaro.common.enums.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
@@ -68,8 +71,8 @@ import io.openems.edge.common.taskmanager.Priority;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
-public class ClusterVersionB extends AbstractOpenemsModbusComponent
-		implements SoltaroCluster, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
+public class ClusterVersionB extends AbstractOpenemsModbusComponent implements SoltaroCluster, Battery, ModbusComponent,
+		OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	private static final int ADDRESS_OFFSET_RACK_1 = 0x2000;
 	private static final int ADDRESS_OFFSET_RACK_2 = 0x3000;
@@ -112,6 +115,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 	public ClusterVersionB() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				SoltaroCluster.ChannelId.values(), //
@@ -613,13 +617,8 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 								.bit(1, ClusterVersionBChannelId.MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE) //
 								.bit(0, ClusterVersionBChannelId.MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER) //
 						), //
-						m(new BitsWordElement(0x1082, this) //
-								.bit(4, SoltaroCluster.ChannelId.SUB_MASTER_5_COMMUNICATION_FAILURE) //
-								.bit(3, SoltaroCluster.ChannelId.SUB_MASTER_4_COMMUNICATION_FAILURE) //
-								.bit(2, SoltaroCluster.ChannelId.SUB_MASTER_3_COMMUNICATION_FAILURE) //
-								.bit(1, SoltaroCluster.ChannelId.SUB_MASTER_2_COMMUNICATION_FAILURE) //
-								.bit(0, SoltaroCluster.ChannelId.SUB_MASTER_1_COMMUNICATION_FAILURE) //
-						), //
+						new UnsignedWordElement(0x1082).onUpdateCallback(this.parseSubMasterCommunicationFailure),
+
 						m(new BitsWordElement(0x1083, this) //
 								.bit(5, ClusterVersionBChannelId.RACK_1_LEVEL_2_ALARM) //
 								.bit(4, ClusterVersionBChannelId.RACK_1_PCS_CONTROL_FAULT) //
@@ -670,6 +669,30 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 
 		return protocol;
 	}
+
+	/**
+	 * This method is used as callback for Modbus register 0x1082, which is holding
+	 * bitwise information on the communication status of each rack. This method
+	 * parses the state for all active racks and sets the StateChannels (e.g.
+	 * SoltaroCluster.ChannelId.SUB_MASTER_1_COMMUNICATION_FAILURE) accordingly.
+	 */
+	protected final Consumer<Integer> parseSubMasterCommunicationFailure = (value) -> {
+		if (value == null) {
+			// assume no error
+			value = 0;
+		}
+		for (Entry<Integer, RackInfo> entry : RACK_INFO.entrySet()) {
+			final boolean hasFailure;
+			if (this.racks.keySet().contains(entry.getKey())) {
+				// rack is active
+				hasFailure = value << ~(entry.getKey() - 1) < 0;
+			} else {
+				// rack is inactive -> always unset failure
+				hasFailure = false;
+			}
+			this.channel(entry.getValue().subMasterCommunicationAlarmChannelId).setNextValue(hasFailure);
+		}
+	};
 
 	private int getAddressContactorControl(int addressOffsetRack) {
 		return addressOffsetRack + OFFSET_CONTACTOR_CONTROL;
@@ -796,7 +819,14 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
-		// TODO start stop is not implemented
-		throw new NotImplementedException("Start Stop is not implemented for Soltaro SingleRack Version B");
+		switch (value) {
+		case START:
+		case UNDEFINED:
+			// Current implementation always starts the Battery by default in
+			// handleStateMachine()
+			break;
+		case STOP:
+			throw new NotImplementedException("'STOP' is not implemented for Soltaro Cluster Version B");
+		}
 	}
 }

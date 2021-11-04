@@ -1,5 +1,0 @@
-= ESS Predictive Delay Charge
-
-Delays the charging of the AC or DC storage system based on predicted production and consumption.
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.predictivedelaycharge[Source Code icon:github[]]

@@ -19,6 +19,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -42,8 +43,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 				"type=GRID" //
 		})
-public class FeneconMiniGridMeterImpl extends AbstractOpenemsModbusComponent
-		implements FeneconMiniGridMeter, SymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
+public class FeneconMiniGridMeterImpl extends AbstractOpenemsModbusComponent implements FeneconMiniGridMeter,
+		SymmetricMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -64,6 +65,7 @@ public class FeneconMiniGridMeterImpl extends AbstractOpenemsModbusComponent
 	public FeneconMiniGridMeterImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				FeneconMiniGridMeter.ChannelId.values() //
 		);

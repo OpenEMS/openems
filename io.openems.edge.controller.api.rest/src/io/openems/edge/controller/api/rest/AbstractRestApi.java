@@ -41,6 +41,19 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 		this.implementationName = implementationName;
 	}
 
+	/**
+	 * Activate the {@link AbstractRestApi}.
+	 * 
+	 * @param context            the {@link ComponentContext}
+	 * @param id                 the ID
+	 * @param alias              the Alias
+	 * @param enabled            enable component?
+	 * @param isDebugModeEnabled enable debug mode?
+	 * @param apiTimeout         the API timeout
+	 * @param port               the port; if '0', the port is automatically
+	 *                           assigned
+	 * @param connectionlimit    the connection limit
+	 */
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
 			boolean isDebugModeEnabled, int apiTimeout, int port, int connectionlimit) {
 		super.activate(context, id, alias, enabled);

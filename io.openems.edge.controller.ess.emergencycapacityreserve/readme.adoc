@@ -1,0 +1,7 @@
+= ESS Emergency Capacity Reserve
+
+This Controller allows setting a `ReserveSoc` as the minimum State-Of-Charge that should be reached during normal on-grid operation, i.e. a energy storage system in self-consumption optimization mode will stop discharging at this SoC.
+
+It is used to keep a certain part of the capacity as reserve for power outage situations.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.emergencycapacityreserve[Source Code icon:github[]]

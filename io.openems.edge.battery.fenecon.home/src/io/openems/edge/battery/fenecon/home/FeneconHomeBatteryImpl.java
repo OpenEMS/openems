@@ -25,6 +25,7 @@ import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.home.statemachine.Context;
@@ -34,6 +35,7 @@ import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
@@ -42,6 +44,7 @@ import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
@@ -64,8 +67,8 @@ import io.openems.edge.common.type.TypeUtils;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		})
-public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
-		implements OpenemsComponent, Battery, EventHandler, ModbusSlave, StartStoppable, FeneconHomeBattery {
+public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent implements ModbusComponent, OpenemsComponent,
+		Battery, EventHandler, ModbusSlave, StartStoppable, FeneconHomeBattery {
 
 	private static final int SENSORS_PER_MODULE = 14;
 	private static final int MODULE_MIN_VOLTAGE = 42; // [V]
@@ -95,6 +98,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	public FeneconHomeBatteryImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				BatteryProtection.ChannelId.values(), //
@@ -147,10 +151,18 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		Context context = new Context(this);
+		BooleanWriteChannel batteryStartUpRelayChannel;
+		try {
+			batteryStartUpRelayChannel = this.componentManager
+					.getChannel(ChannelAddress.fromString(this.config.batteryStartUpRelay()));
+		} catch (IllegalArgumentException | OpenemsNamedException e1) {
+			batteryStartUpRelayChannel = null;
+		}
+		Context context = new Context(this, batteryStartUpRelayChannel);
 
 		// Call the StateMachine
 		try {
+
 			this.stateMachine.run(context);
 
 			this.channel(FeneconHomeBattery.ChannelId.RUN_FAILED).setNextValue(false);
@@ -775,8 +787,8 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	 * @param value  the serial number
 	 * @return The serial number
 	 */
-	protected static String buildSerialNumber(String prefix, int value) {
-		if (value == 0) {
+	protected static String buildSerialNumber(String prefix, Integer value) {
+		if (value == null || value == 0) {
 			// Old BMS firmware versions do not provide serial number
 			return null;
 		}
@@ -815,5 +827,4 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent
 	private static int extractNumber(int value, int length, int position) {
 		return ((1 << length) - 1) & (value >> (position - 1));
 	}
-
 }

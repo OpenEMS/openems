@@ -44,6 +44,17 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 				.text("Delay-Charge power limitation.")), //
 
 		/**
+		 * Raw Delay-Charge without consideration of the last limits.
+		 * 
+		 * <p>
+		 * This channel is used for debugging and to calculate the average for the
+		 * {@link ChannelId#DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT} channel.
+		 */
+		RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.text("Delay-Charge power limitation.")), //
+
+		/**
 		 * Sell to grid limit charge power limitation.
 		 */
 		SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
@@ -275,6 +286,45 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 	 */
 	public default void _setDelayChargeLimit(int value) {
 		this.getDelayChargeLimitChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getRawDelayChargeLimitChannel() {
+		return this.channel(ChannelId.RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT);
+	}
+
+	/**
+	 * Gets the delay charge power limit in [W]. See
+	 * {@link ChannelId#RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getRawDelayChargeLimit() {
+		return this.getRawDelayChargeLimitChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setRawDelayChargeLimit(Integer value) {
+		this.getRawDelayChargeLimitChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setRawDelayChargeLimit(int value) {
+		this.getRawDelayChargeLimitChannel().setNextValue(value);
 	}
 
 	/**
