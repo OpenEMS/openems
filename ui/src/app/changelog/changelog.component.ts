@@ -35,6 +35,18 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2021.19.1',
+        changes: [
+          Changelog.openems('2021.19.0'),
+          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " (für Varianten 'Cluster B', 'Single C' und 'Cluster C')",
+          Changelog.UI + " (Detail-Widgets)",
+          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring (OEM)",
+          Changelog.product(Product.COMMERCIAL_30) + " Überarbeitung der Implementierung für den Sinexcel Batteriewechselrichter",
+          Changelog.library(Library.GSON, Library.POSTGRESQL, Library.OSGI_SERVICE_JDBC, Library.DATE_FNS, Library.D3, Library.INFLUXDB),
+          { roleIsAtLeast: Role.ADMIN, change: "Beta-Test für neue FEMS System-Update Funktion" },
+        ]
+      },
+      {
         version: '2021.18.1',
         changes: [
           Changelog.openems('2021.18.0'),
