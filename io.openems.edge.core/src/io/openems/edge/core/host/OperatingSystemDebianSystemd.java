@@ -226,12 +226,21 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		try {
 			Process proc;
 			if (request.getUsername().isPresent() && request.getPassword().isPresent()) {
+				// Authenticate with user and password
 				proc = Runtime.getRuntime().exec(new String[] { //
 						"/bin/bash", "-c", "--", //
 						"echo " + request.getPassword().get() + " | " //
-								+ " /usr/bin/sudo -Sk -p '' -u \"" + request.getUsername().get() + "\" " //
-								+ "-- " + request.getCommand() });
+								+ " /usr/bin/sudo -Sk -p '' -u \"" + request.getUsername().get() + "\" -- " //
+								+ request.getCommand() });
+			} else if (request.getPassword().isPresent()) {
+				// Authenticate with password (user must have 'sudo' permissions)
+				proc = Runtime.getRuntime().exec(new String[] { //
+						"/bin/bash", "-c", "--", //
+						"echo " + request.getPassword().get() + " | " //
+								+ " /usr/bin/sudo -Sk -p '' -- " //
+								+ request.getCommand() });
 			} else {
+				// No authentication: run as current user
 				proc = Runtime.getRuntime().exec(new String[] { //
 						"/bin/bash", "-c", "--", request.getCommand() });
 			}
@@ -249,7 +258,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				String[] stdout = new String[] { //
 						"Command [" + request.getCommand() + "] executed in background...", //
 						"Check system logs for more information." };
-				result.complete(new ExecuteSystemCommandResponse(request.getId(), stdout, new String[0]));
+				result.complete(new ExecuteSystemCommandResponse(request.getId(), stdout, new String[0], 0));
 
 			} else {
 				/*
@@ -268,7 +277,8 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 						stderr.addAll(stderrFuture.get(1, TimeUnit.SECONDS));
 						result.complete(new ExecuteSystemCommandResponse(request.getId(), //
 								stdout.toArray(new String[stdout.size()]), //
-								stderr.toArray(new String[stderr.size()]) //
+								stderr.toArray(new String[stderr.size()]), //
+								proc.exitValue() //
 						));
 
 					} catch (Throwable e) {

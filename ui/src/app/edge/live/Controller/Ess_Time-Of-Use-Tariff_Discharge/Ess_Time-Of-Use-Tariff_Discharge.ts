@@ -1,6 +1,6 @@
 import { formatNumber } from '@angular/common';
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/Generic_Components/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
 import { Controller_Ess_TimeOfUseTariff_DischargeModalComponent } from './modal/modal.component';
 

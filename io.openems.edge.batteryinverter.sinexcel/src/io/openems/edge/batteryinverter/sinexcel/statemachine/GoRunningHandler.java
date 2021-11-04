@@ -34,7 +34,7 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 		}
 
 		inverter.softStart(true);
-		inverter.setStartCommand();
+		inverter.setStartInverter();
 
 		if (inverter.getBatteryInverterState().get() == Boolean.TRUE) {
 			// Inverter is ON

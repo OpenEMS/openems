@@ -28,6 +28,8 @@ import { SurveyComponent } from './survey/survey.component';
         MiniupgradeModalComponent,
         SurveyComponent,
     ],
-    exports: [AdvertisementComponent]
+    exports: [
+        AdvertisementComponent
+    ]
 })
 export class AdvertisementModule { }

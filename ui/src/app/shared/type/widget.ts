@@ -3,8 +3,8 @@ import { EdgeConfig } from '../edge/edgeconfig';
 
 export enum WidgetClass {
     'Energymonitor',
-    'Autarchy',
-    'Selfconsumption',
+    'Common_Autarchy',
+    'Common_Selfconsumption',
     'Storage',
     'Grid',
     'Production',
@@ -115,7 +115,7 @@ export class Widgets {
                     return true;
                 }
                 switch (clazz) {
-                    case 'Autarchy':
+                    case 'Common_Autarchy':
                     case 'Grid':
                         return config.hasMeter();
                     case 'Energymonitor':
@@ -128,7 +128,7 @@ export class Widgets {
                     case 'Storage':
                         return config.hasStorage();
                     case 'Production':
-                    case 'Selfconsumption':
+                    case 'Common_Selfconsumption':
                         return config.hasProducer();
                 };
                 return false;

@@ -384,6 +384,14 @@ export const TRANSLATION = {
             nov: 'Nov',
             dec: 'Dec'
         },
+        Installation: {
+            attentionMessage: 'Merk op dat de selectie achteraf niet ongedaan kan worden gemaakt.',
+            backward: 'achterwaarts',
+            confirmAppSelection: 'Weet u zeker dat u de volgende app wilt selecteren?',
+            confirmAppSelectionLater: 'Zijn ze er zeker van dat ze de selectie later maken?',
+            forward: 'voorwaarts',
+            pleaseSelectOption: 'Gelieve een optie te kiezen'
+        },
         Config: {
             Index: {
                 addComponents: 'Componenten installeren',

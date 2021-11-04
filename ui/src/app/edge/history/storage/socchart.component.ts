@@ -96,7 +96,10 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                     })
                                 }
                             }
-                            if (channelAddress.channelId == '_PropertyReserveSoc') {
+                            if (channelAddress.channelId == '_PropertyReserveSoc' &&
+                                this.emergencyCapacityReserveComponents.find(
+                                    element => element.id == channelAddress.componentId)
+                                    .properties.isReserveSocEnabled) {
                                 datasets.push({
                                     label:
                                         this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.emergencyReserve"),

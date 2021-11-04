@@ -425,6 +425,14 @@ export const TRANSLATION = {
             nov: 'Nov',
             dec: 'Dec'
         },
+        Installation: {
+            attentionMessage: 'Note that the selection cannot be undone afterwards.',
+            backward: 'back',
+            confirmAppSelection: 'Are you sure to select the following app?',
+            confirmAppSelectionLater: 'Are you sure to do the selection later?',
+            forward: 'continue',
+            pleaseSelectOption: 'Please select a option'
+        },
         Config: {
             Index: {
                 addComponents: 'Install components',

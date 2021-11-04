@@ -2,7 +2,7 @@ import { ChannelAddress, EdgeConfig, CurrentData, Utils } from '../../../../shar
 import { Component } from '@angular/core';
 import { Controller_Io_HeatingElementModalComponent } from './modal/modal.component';
 import { BehaviorSubject } from 'rxjs';
-import { AbstractFlatWidget } from 'src/app/shared/Generic_Components/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 
 @Component({
     selector: 'Controller_Io_HeatingElement',

@@ -386,6 +386,14 @@ export const TRANSLATION = {
             nov: 'Nov',
             dec: 'Dec'
         },
+        Installation: {
+            attentionMessage: 'Notez que la sélection ne peut pas être annulée par la suite.',
+            backward: 'arrière',
+            confirmAppSelection: 'Êtes-vous sûr de vouloir sélectionner l\'application suivante ?',
+            confirmAppSelectionLater: 'Sont-ils sûrs de faire la sélection plus tard ?',
+            forward: 'plus',
+            pleaseSelectOption: 'Veuillez choisir une option'
+        },
         Config: {
             Index: {
                 addComponents: 'Installez des componsants',

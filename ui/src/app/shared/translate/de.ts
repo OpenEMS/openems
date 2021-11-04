@@ -425,6 +425,14 @@ export const TRANSLATION = {
             nov: 'Nov',
             dec: 'Dez',
         },
+        Installation: {
+            attentionMessage: 'Beachten Sie, dass die Auswahl nachträglich nicht mehr rückgängig gemacht werden kann.',
+            backward: 'zurück',
+            confirmAppSelection: 'Sind Sie sicher, die folgende App auszuwählen?',
+            confirmAppSelectionLater: 'Sind sie sicher, die Auswahl später zu treffen?',
+            forward: 'weiter',
+            pleaseSelectOption: 'Bitte wähle eine Option aus'
+        },
         Config: {
             Index: {
                 addComponents: 'Komponenten installieren',

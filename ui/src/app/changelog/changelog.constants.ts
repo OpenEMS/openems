@@ -81,6 +81,7 @@ export class Library {
     public static readonly GUAVA = new Library('Guava', 'com.google.guava');
     public static readonly GSON = new Library('GSON', 'com.google.gson');
     public static readonly HIKARI_CP = new Library('HikariCP', 'hikaricp');
+    public static readonly INFLUXDB = new Library('influxdb-java', 'influxdb-java');
     public static readonly JNA = new Library('JNA', 'net.java.dev.jna');
     public static readonly JAVA_WEBSOCKET = new Library('Java-WebSocket', 'org.java-websocket');
     public static readonly RETROFIT = new Library('Retrofit', 'com.squareup.retrofit');
@@ -89,6 +90,7 @@ export class Library {
     public static readonly PAX_LOGGING = new Library('PAX Logging', 'org.ops4j.pax.logging');
     public static readonly OSGI_UTIL_FUNCTION = new Library('org.osgi.util.function', 'org.osgi.util.function');
     public static readonly OSGI_UTIL_PROMISE = new Library('org.osgi.util.promise', 'org.osgi.util.promise');
+    public static readonly OSGI_SERVICE_JDBC = new Library('org.osgi.service.jdbc', 'org.osgi.service.jdbc');
     public static readonly POSTGRESQL = new Library('Postgresql', 'org.postgresql');
     public static readonly SLF4J = new Library('SLF4j', 'org.slf4j');
 
