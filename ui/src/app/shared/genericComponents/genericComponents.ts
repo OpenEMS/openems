@@ -1,7 +1,8 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
+import { IonicModule } from '@ionic/angular';
 import { PipeModule } from '../pipe/pipe';
-import { SharedModule } from '../shared.module';
 import { FlatWidgetComponent } from './flat/flat';
 import { FlatWidgetHorizontalLine } from './flat/flat-widget-horizontal-line/flat-widget-horizontal-line';
 import { FlatWidgetLine } from './flat/flat-widget-line/flat-widget-line';
@@ -15,7 +16,9 @@ import { ModalHorizontalLine } from './modal/model-horizontal-line/modal-horizon
 @NgModule({
     imports: [
         BrowserModule,
-        PipeModule
+        IonicModule,
+        PipeModule,
+        ReactiveFormsModule,
     ],
     entryComponents: [
         FlatWidgetComponent,

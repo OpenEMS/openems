@@ -48,9 +48,6 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
                 if (this.component != null) {
                     this.component = config.components[this.component.id];
 
-                    // announce initialized
-                    this.isInitialized = true;
-
                     // get the channel addresses that should be subscribed
                     let channelAddresses: ChannelAddress[] = this.getChannelAddresses();
                     let channelIds = this.getChannelIds();
@@ -75,6 +72,9 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
                         this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
                     });
                     this.formGroup = this.getFormGroup();
+
+                    // announce initialized
+                    this.isInitialized = true;
                 }
             });
         });

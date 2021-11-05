@@ -13,15 +13,12 @@
         </td>
 
         <!-- 'Input' Line, name and changeable value -->
-        <td style="width: 30%; padding-right: 5%;" class="align_right" *ngIf="formGroup">
-            <form [formGroup]="formGroup">
-                <ion-item>
-                    <ion-input class="regularFont" type="number" style="text-align: right;"
-                        [formControlName]="controlName">
-                    </ion-input>
-                    <ion-label class="regularFont">&nbsp;W&nbsp;</ion-label>
-                </ion-item>
-            </form>
+        <td style="width: 30%; padding-right: 5%;" class="align_right" *ngIf="formGroup" [formGroup]="formGroup">
+            <ion-item>
+                <ion-input class="regularFont" type="number" style="text-align: right;" [formControlName]="controlName">
+                </ion-input>
+                <ion-label class="regularFont">&nbsp;W&nbsp;</ion-label>
+            </ion-item>
         </td>
 
     </tr>
