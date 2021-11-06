@@ -35,6 +35,14 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2021.19.3',
+        changes: [
+          Changelog.UI,
+          Changelog.product(Product.HOME, Product.PRO_HYBRID_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.product(Product.FEMS_KEBA) + "Kein Fehler, wenn IP-Adresse Leerzeichen am Anfang oder Ende enthält",
+        ]
+      },
+      {
         version: '2021.19.2',
         changes: [
           Changelog.UI,

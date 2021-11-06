@@ -20,10 +20,10 @@
         <ion-col *ngSwitchCase="'Consumption'" size="12" size-md="6" size-lg="4" size-xl="3">
           <consumptionWidget [period]="service.historyPeriod"></consumptionWidget>
         </ion-col>
-        <ion-col *ngSwitchCase="'Selfconsumption'" size="12" size-md="6" size-lg="4" size-xl="3">
+        <ion-col *ngSwitchCase="'Common_Selfconsumption'" size="12" size-md="6" size-lg="4" size-xl="3">
           <selfconsumptionWidget [period]="service.historyPeriod"></selfconsumptionWidget>
         </ion-col>
-        <ion-col *ngSwitchCase="'Autarchy'" size="12" size-md="6" size-lg="4" size-xl="3">
+        <ion-col *ngSwitchCase="'Common_Autarchy'" size="12" size-md="6" size-lg="4" size-xl="3">
           <autarchyWidget [period]="service.historyPeriod"></autarchyWidget>
         </ion-col>
       </ng-container>
