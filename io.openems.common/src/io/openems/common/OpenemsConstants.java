@@ -47,7 +47,7 @@ public class OpenemsConstants {
 	 * 
 	 * Note: this should be max. 32 ASCII characters long
 	 */
-	public final static String MANUFACTURER = "OpenEMS Association e.V.";
+	public final static String MANUFACTURER = OpenemsOEM.MANUFACTURER;
 
 	/**
 	 * The model identifier of the device

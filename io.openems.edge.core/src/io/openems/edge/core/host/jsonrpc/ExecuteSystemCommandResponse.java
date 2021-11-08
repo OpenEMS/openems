@@ -19,7 +19,8 @@ import io.openems.common.utils.JsonUtils;
  *   "id": "UUID",
  *   "result": {
  *     "stdout": string[],
- *     "stderr": string[]
+ *     "stderr": string[],
+ *     "exitcode": number (exit code of application: 0 = successful; otherwise error)
  *   }
  * }
  * </pre>
@@ -28,11 +29,13 @@ public class ExecuteSystemCommandResponse extends JsonrpcResponseSuccess {
 
 	private final String[] stdout;
 	private final String[] stderr;
+	private final int exitcode;
 
-	public ExecuteSystemCommandResponse(UUID id, String[] stdout, String[] stderr) {
+	public ExecuteSystemCommandResponse(UUID id, String[] stdout, String[] stderr, int exitcode) {
 		super(id);
 		this.stdout = stdout;
 		this.stderr = stderr;
+		this.exitcode = exitcode;
 	}
 
 	@Override
@@ -48,7 +51,20 @@ public class ExecuteSystemCommandResponse extends JsonrpcResponseSuccess {
 		return JsonUtils.buildJsonObject() //
 				.add("stdout", stdout) //
 				.add("stderr", stderr) //
+				.addProperty("exitcode", this.exitcode) //
 				.build();
+	}
+
+	public String[] getStdout() {
+		return this.stdout;
+	}
+
+	public String[] getStderr() {
+		return this.stderr;
+	}
+
+	public int getExitCode() {
+		return this.exitcode;
 	}
 
 }

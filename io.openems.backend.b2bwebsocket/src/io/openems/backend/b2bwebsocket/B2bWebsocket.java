@@ -42,7 +42,7 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile Timedata timeData;
 
-	protected final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1,
+	protected final ScheduledExecutorService executor = Executors.newScheduledThreadPool(10,
 			new ThreadFactoryBuilder().setNameFormat("B2bWebsocket-%d").build());
 
 	public B2bWebsocket() {

@@ -1,0 +1,25 @@
+<table class="full_width" style="line-height: 1.4;">
+    <tr>
+
+        <!-- Name of Parameter on the left side -->
+        <td style="width:45%; padding-left: 5%;" class="align_left">
+            <ng-container *ngIf="name">{{ name }}</ng-container>
+        </td>
+
+        <!-- Value of Parameter on the right side -->
+        <td style="width:45%; padding-right: 5%" class="align_right" *ngIf="displayValue">
+            <!-- 'Normal' line, name and value  -->
+            <ng-container>{{ displayValue }}</ng-container>
+        </td>
+
+        <!-- 'Input' Line, name and changeable value -->
+        <td style="width: 30%; padding-right: 5%;" class="align_right" *ngIf="formGroup" [formGroup]="formGroup">
+            <ion-item>
+                <ion-input class="regularFont" type="number" style="text-align: right;" [formControlName]="controlName">
+                </ion-input>
+                <ion-label class="regularFont">&nbsp;W&nbsp;</ion-label>
+            </ion-item>
+        </td>
+
+    </tr>
+</table>

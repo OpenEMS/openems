@@ -87,20 +87,14 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
 
                     // gather other Consumption (Total - EVCS - consumptionMetered)
                     let otherConsumption: number[] = [];
-                    if (totalEvcsConsumption != []) {
-                        otherConsumption = result.data['_sum/ConsumptionActivePower'].map((value, index) => {
-                            if (value != null && totalEvcsConsumption[index] != null) {
-                                return Utils.subtractSafely(value / 1000, totalEvcsConsumption[index]);
-                            }
-                        })
-                    }
-                    if (totalMeteredConsumption != []) {
-                        otherConsumption = result.data['_sum/ConsumptionActivePower'].map((value, index) => {
-                            if (value != null && totalMeteredConsumption[index] != null) {
-                                return Utils.subtractSafely(value / 1000, totalMeteredConsumption[index]);
-                            }
-                        })
-                    }
+                    otherConsumption = result.data['_sum/ConsumptionActivePower'].map((value, index) => {
+
+                        if (value != null) {
+
+                            // Check if either totalEvcsConsumption or totalMeteredConsumption is not null
+                            return Utils.subtractSafely(Utils.subtractSafely(value / 1000, totalEvcsConsumption[index]), totalMeteredConsumption[index]);
+                        }
+                    })
                     // convert datasets
                     let datasets = [];
 
