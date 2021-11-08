@@ -40,7 +40,7 @@
     "@angular-eslint/eslint-plugin-template": "~12.3.1",
     "@angular-eslint/template-parser": "~12.3.1",
     "@angular/cli": "~12.1.4",
-    "@angular/compiler": "~12.1.4",
+    "@angular/compiler": "~13.0.0",
     "@angular/compiler-cli": "~12.1.4",
     "@angular/language-service": "~12.1.4",
     "@ionic/angular-toolkit": "^4.0.0",
