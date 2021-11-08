@@ -687,7 +687,7 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		// Example: Rated frequency is 60Hz, the target active power is set to 10kW,
 		// Freq/Watt regulation point is set to 2Hz, ramp rate is set as 0.5, If the
 		// actual frequency reaches 63Hz, the output active power will be
-		// 10kW-(63Hz-62Hz)×0.5*(10kW/Hz) = 5kW
+		// 10kW-(63Hz-62Hz) 0.5*(10kW/Hz) = 5kW
 		SLOPE_OF_FREQUENCY_DROP(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		// AS4777 only, bias Bias from rated frequency
@@ -704,7 +704,7 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 				.accessMode(AccessMode.READ_WRITE)), //
 		// RR takes effect in Volt-Watt or Freq-Watt mode when the grid is back to
 		// normal state and the inverter trying to go back to normal output.
-		// In other words, as long as the inverter doesn’t trip, and the inverter had
+		// In other words, as long as the inverter does not trip, and the inverter had
 		// derated the output power, RR takes effect when the inverter tries to go back
 		// to normal output. Available only when Power rising mode is set to ramp
 		// mode(53626).If the value is 2.000, which means within 0.5 seconds the system
