@@ -120,7 +120,6 @@ export const TRANSLATION = {
     },
     Edge: {
         Index: {
-            // TODO Translations
             EmergencyReserve: {
                 InfoForEmergencyReserveSlider: 'Door de noodstroomreserve te activeren, kan de waarde vrij worden gekozen tussen 5% en 100%.',
                 emergencyReserve: 'noodreserve',

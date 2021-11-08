@@ -44,7 +44,7 @@ public interface Field {
 		OPENEMS_SUM_STATE("openems_sum_state_level", true), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false);
 
-		public static final String ODOO_MODEL = Constants.ODOO_MODULE_NAME + ".device";
+		public static final String ODOO_MODEL = "fems.device";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -95,7 +95,7 @@ public interface Field {
 		LAST_ACKNOWLEDGE("last_acknowledge", false), //
 		ACKNOWLEDGE_DAYS("acknowledge_days", false);
 
-		public static final String ODOO_MODEL = Constants.ODOO_MODULE_NAME + ".device_status";
+		public static final String ODOO_MODEL = "fems.device_status";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -142,7 +142,7 @@ public interface Field {
 		TEASER("teaser", false), //
 		DETAILS("details", false);
 
-		public static final String ODOO_MODEL = Constants.ODOO_MODULE_NAME + ".openemsconfigupdate";
+		public static final String ODOO_MODEL = "fems.openemsconfigupdate";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -189,7 +189,7 @@ public interface Field {
 		USER_ID("user_id", false), //
 		ROLE("role", false);
 
-		public static final String ODOO_MODEL = Constants.ODOO_MODULE_NAME + ".device_user_role";
+		public static final String ODOO_MODEL = "fems.device_user_role";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -395,7 +395,7 @@ public interface Field {
 		INSTALLER("installer_id", true), //
 		FEMS("fems_device_id", true);
 
-		public static final String ODOO_MODEL = Constants.ODOO_MODULE_NAME + ".setup_protocol";
+		public static final String ODOO_MODEL = "fems.setup_protocol";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -442,7 +442,7 @@ public interface Field {
 		SEQUENCE("sequence", true), //
 		LOT("lot_id", true);
 
-		public static final String ODOO_MODEL = Constants.ODOO_MODULE_NAME + ".setup_protocol_production_lot";
+		public static final String ODOO_MODEL = "fems.setup_protocol_production_lot";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -488,7 +488,7 @@ public interface Field {
 		SETUP_PROTOCOL("setup_protocol_id", true), //
 		SEQUENCE("sequence", true);
 
-		public static final String ODOO_MODEL = Constants.ODOO_MODULE_NAME + ".setup_protocol_item";
+		public static final String ODOO_MODEL = "fems.setup_protocol_item";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {

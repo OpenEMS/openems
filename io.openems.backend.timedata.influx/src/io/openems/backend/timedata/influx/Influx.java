@@ -35,6 +35,7 @@ import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.timedata.EdgeCache;
 import io.openems.backend.common.timedata.Timedata;
+import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
@@ -42,7 +43,6 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.StringUtils;
 import io.openems.shared.influxdb.InfluxConnector;
-import io.openems.shared.influxdb.InfluxConstants;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -148,7 +148,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			// this builds an InfluxDB record ("point") for a given timestamp
 			Point.Builder builder = Point //
 					.measurement(InfluxConnector.MEASUREMENT) //
-					.tag(InfluxConstants.TAG, String.valueOf(influxEdgeId)) //
+					.tag(OpenemsOEM.INFLUXDB_TAG, String.valueOf(influxEdgeId)) //
 					.time(timestamp, TimeUnit.MILLISECONDS);
 			for (Entry<ChannelAddress, JsonElement> channelEntry : channelEntries) {
 				this.addValue(builder, channelEntry.getKey().toString(), channelEntry.getValue());
