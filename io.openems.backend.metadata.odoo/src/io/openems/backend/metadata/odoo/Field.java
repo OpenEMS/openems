@@ -532,6 +532,7 @@ public interface Field {
 	public enum StockProductionLot implements Field {
 		SERIAL_NUMBER("name", true), //
 		PRODUCT("product_id", true);
+
 		public static final String ODOO_MODEL = "stock.production.lot";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 

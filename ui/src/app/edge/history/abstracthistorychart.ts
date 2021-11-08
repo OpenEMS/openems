@@ -69,11 +69,15 @@ export abstract class AbstractHistoryChart {
      * @param edge     the current Edge
      * @param ws       the websocket
      */
-    protected queryHistoricTimeseriesData(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesDataResponse> {
+    protected queryHistoricTimeseriesData(fromDate: Date, toDate: Date, resolution?: number): Promise<QueryHistoricTimeseriesDataResponse> {
 
         // TODO should be removed, edge delivers too much data 
         let newDate = (this.service.periodString == 'year' ? addMonths(fromDate, 1) : this.service.periodString == 'month' ? addDays(fromDate, 1) : fromDate);
-        let resolution = calculateResolution(this.service, fromDate, toDate);
+
+        if (resolution == null) {
+            resolution = calculateResolution(this.service, fromDate, toDate);
+        }
+
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
@@ -105,11 +109,12 @@ export abstract class AbstractHistoryChart {
 
         // TODO should be removed, edge delivers too much data 
         let newDate = this.service.periodString == 'year' ? addMonths(fromDate, 1) : addDays(fromDate, 1)
+
         let resolution = calculateResolution(this.service, fromDate, toDate);
+
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
-
                     edge.sendRequest(this.service.websocket, new queryHistoricTimeseriesEnergyPerPeriodRequest(newDate, toDate, channelAddresses, resolution)).then(response => {
                         let result = (response as QueryHistoricTimeseriesDataResponse).result;
 

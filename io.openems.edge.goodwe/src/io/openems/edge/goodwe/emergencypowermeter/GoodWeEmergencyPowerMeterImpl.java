@@ -151,13 +151,11 @@ public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponen
 			this.calculateProductionEnergy.update(null);
 			this.calculateConsumptionEnergy.update(null);
 		} else if (activePower > 0) {
-			// Sell-To-Grid
-			this.calculateProductionEnergy.update(0);
-			this.calculateConsumptionEnergy.update(activePower * -1);
-		} else {
-			// Buy-From-Grid
 			this.calculateProductionEnergy.update(activePower);
 			this.calculateConsumptionEnergy.update(0);
+		} else {
+			this.calculateProductionEnergy.update(0);
+			this.calculateConsumptionEnergy.update(activePower * -1);
 		}
 	}
 

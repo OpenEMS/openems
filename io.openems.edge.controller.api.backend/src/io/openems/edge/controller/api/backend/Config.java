@@ -6,6 +6,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.PersistencePriority;
 
 @ObjectClassDefinition(//
@@ -26,7 +27,7 @@ import io.openems.common.channel.PersistencePriority;
 	String apikey();
 
 	@AttributeDefinition(name = "Uri", description = "The connection Uri to OpenEMS Backend.")
-	String uri() default "ws://localhost:8081";
+	String uri() default OpenemsOEM.BACKEND_API_URI;
 
 	@AttributeDefinition(name = "Proxy Address", description = "The IP address or hostname of the proxy server.")
 	String proxyAddress() default "";

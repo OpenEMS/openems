@@ -1,26 +1,21 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FlatWidgetHorizontalLine } from 'src/app/shared/Generic_Components/flat/flat-widget-line/flat-widget-horizontal-line';
-import { FlatWidgetLine } from 'src/app/shared/Generic_Components/flat/flat-widget-line/flat-widget-line';
-import { FlatWidgetPercentagebar } from 'src/app/shared/Generic_Components/flat/flat-widget-line/flat-widget-percentagebar';
-import { FlatWidgetComponent } from 'src/app/shared/Generic_Components/flat/flat-widget.component';
 import { SharedModule } from './../../shared/shared.module';
-import { AutarchyComponent } from './common/autarchy/autarchy.component';
-import { AutarchyModalComponent } from './common/autarchy/modal/modal.component';
+import { Common_Autarchy } from './common/autarchy/Common_Autarchy';
 import { ConsumptionComponent } from './common/consumption/consumption.component';
 import { ConsumptionModalComponent } from './common/consumption/modal/modal.component';
 import { GridComponent } from './common/grid/grid.component';
 import { GridModalComponent } from './common/grid/modal/modal.component';
-import { SelfconsumptionModalComponent } from './common/selfconsumption/modal/modal.component';
-import { SelfConsumptionComponent } from './common/selfconsumption/selfconsumption.component';
+import { Common_Selfconsumption } from './common/selfconsumption/Common_Selfconsumption';
 import { StorageModalComponent } from './common/storage/modal/modal.component';
 import { StorageComponent } from './common/storage/storage.component';
 import { Controller_ChannelthresholdComponent } from './Controller/Channelthreshold/Channelthreshold';
 import { Controller_ChpSocComponent } from './Controller/ChpSoc/ChpSoc';
 import { Controller_ChpSocModalComponent } from './Controller/ChpSoc/modal/modal.component';
 import { Controller_Ess_FixActivePower } from './Controller/Ess_FixActivePower/Ess_FixActivePower';
-import { Controller_Ess_FixActivePowerModalComponent } from './Controller/Ess_FixActivePower/modal/modal.component';
+import { Controller_Ess_TimeOfUseTariff_Discharge } from './Controller/Ess_Time-Of-Use-Tariff_Discharge/Ess_Time-Of-Use-Tariff_Discharge';
+import { Controller_Ess_TimeOfUseTariff_DischargeModalComponent } from './Controller/Ess_Time-Of-Use-Tariff_Discharge/modal/modal.component';
 import { Controller_EvcsComponent } from './Controller/Evcs/Evcs';
 import { AdministrationComponent } from './Controller/Evcs/modal/administration/administration.component';
 import { Controller_EvcsModalComponent } from './Controller/Evcs/modal/modal.page';
@@ -55,74 +50,76 @@ import { Evcs_Api_ClusterModalComponent } from './Multiple/Evcs_Api_Cluster/moda
 import { OfflineComponent } from './offline/offline.component';
 import { ProductionModalComponent } from './production/modal/modal.component';
 import { ProductionComponent } from './production/production.component';
+
 @NgModule({
   imports: [
     BrowserAnimationsModule,
     BrowserModule,
+    Common_Autarchy,
+    Common_Selfconsumption,
+    Controller_Ess_FixActivePower,
     EnergymonitorModule,
     SharedModule,
   ],
   entryComponents: [
     AdministrationComponent,
-    Controller_Asymmetric_PeakShavingModalComponent,
-    AutarchyModalComponent,
     ConsumptionModalComponent,
+    Controller_Asymmetric_PeakShavingModalComponent,
     Controller_ChpSocComponent,
     Controller_ChpSocModalComponent,
-    Controller_Ess_FixActivePower,
-    Controller_Ess_FixActivePowerModalComponent,
+    Controller_Ess_TimeOfUseTariff_Discharge,
+    Controller_Ess_TimeOfUseTariff_DischargeModalComponent,
     Controller_EvcsModalComponent,
     Controller_EvcsPopoverComponent,
+    Controller_Io_ChannelSingleThresholdComponent,
+    Controller_Io_ChannelSingleThresholdModalComponent,
     Controller_Io_FixDigitalOutput,
     Controller_Io_FixDigitalOutputModalComponent,
     Controller_Io_HeatingElementModalComponent,
     Controller_Io_HeatpumpModalComponent,
+    Controller_Symmetric_PeakShavingComponent,
+    Controller_Symmetric_TimeSlot_PeakShavingModalComponent,
     DelayedSellToGridModalComponent,
     Evcs_Api_ClusterModalComponent,
-    FlatWidgetComponent,
-    FlatWidgetHorizontalLine,
-    FlatWidgetLine,
-    FlatWidgetPercentagebar,
     GridModalComponent,
     GridOptimizedChargeModalComponent,
     Io_Api_DigitalInput_ModalComponent,
     Io_Api_DigitalInputComponent,
     ProductionModalComponent,
-    SelfconsumptionModalComponent,
-    Controller_Io_ChannelSingleThresholdModalComponent,
     StorageModalComponent,
-    Controller_Symmetric_PeakShavingComponent,
-    Controller_Symmetric_TimeSlot_PeakShavingModalComponent,
   ],
   declarations: [
     AdministrationComponent,
-    AutarchyModalComponent,
-    Controller_ChpSocComponent,
     ConsumptionComponent,
     ConsumptionModalComponent,
+    Controller_Asymmetric_PeakShavingComponent,
+    Controller_Asymmetric_PeakShavingModalComponent,
     Controller_ChannelthresholdComponent,
     Controller_ChpSocComponent,
+    Controller_ChpSocComponent,
     Controller_ChpSocModalComponent,
-    Controller_Ess_FixActivePower,
-    Controller_Ess_FixActivePowerModalComponent,
+    Controller_Ess_TimeOfUseTariff_Discharge,
+    Controller_Ess_TimeOfUseTariff_DischargeModalComponent,
     Controller_EvcsComponent,
     Controller_EvcsModalComponent,
     Controller_EvcsPopoverComponent,
+    Controller_Io_ChannelSingleThresholdComponent,
+    Controller_Io_ChannelSingleThresholdModalComponent,
     Controller_Io_FixDigitalOutput,
     Controller_Io_FixDigitalOutputModalComponent,
     Controller_Io_HeatingElementComponent,
     Controller_Io_HeatingElementModalComponent,
     Controller_Io_HeatpumpComponent,
     Controller_Io_HeatpumpModalComponent,
+    Controller_Symmetric_PeakShavingComponent,
+    Controller_Symmetric_PeakShavingModalComponent,
+    Controller_Symmetric_TimeSlot_PeakShavingComponent,
+    Controller_Symmetric_TimeSlot_PeakShavingModalComponent,
     DelayedSellToGridComponent,
     DelayedSellToGridModalComponent,
     Evcs_Api_Cluster,
     Evcs_Api_ClusterModalComponent,
     EvcsChart,
-    FlatWidgetComponent,
-    FlatWidgetHorizontalLine,
-    FlatWidgetLine,
-    FlatWidgetPercentagebar,
     GridComponent,
     GridModalComponent,
     GridOptimizedChargeComponent,
@@ -135,19 +132,8 @@ import { ProductionComponent } from './production/production.component';
     PredictionChartComponent,
     ProductionComponent,
     ProductionModalComponent,
-    SelfConsumptionComponent,
-    SelfconsumptionModalComponent,
-    Controller_Io_ChannelSingleThresholdComponent,
-    Controller_Io_ChannelSingleThresholdModalComponent,
     StorageComponent,
     StorageModalComponent,
-    Controller_Symmetric_PeakShavingComponent,
-    Controller_Symmetric_PeakShavingModalComponent,
-    Controller_Symmetric_TimeSlot_PeakShavingComponent,
-    Controller_Symmetric_TimeSlot_PeakShavingModalComponent,
-    Controller_Asymmetric_PeakShavingComponent,
-    Controller_Asymmetric_PeakShavingModalComponent,
-    AutarchyComponent,
   ]
 })
 export class LiveModule { }

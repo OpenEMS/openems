@@ -25,7 +25,6 @@ public class DummyComponentContext implements ComponentContext {
 
 	public DummyComponentContext(Dictionary<String, Object> properties) {
 		this.properties = properties;
-		// TODO create DummyBundleContext
 	}
 
 	public DummyComponentContext() {

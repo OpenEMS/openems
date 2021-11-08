@@ -743,7 +743,7 @@ public class OdooHandler {
 	/**
 	 * Update language for the given user.
 	 * 
-	 * @param user   {@link MyUser} the current user
+	 * @param user     {@link MyUser} the current user
 	 * @param language to set
 	 * @throws OpenemsException on error
 	 */

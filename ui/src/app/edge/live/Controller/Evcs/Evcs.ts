@@ -1,7 +1,7 @@
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../../shared/shared';
 import { Component } from '@angular/core';
 import { Controller_EvcsModalComponent } from './modal/modal.page';
-import { AbstractFlatWidget } from 'src/app/shared/Generic_Components/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 
 @Component({
   selector: 'Controller_Evcs',

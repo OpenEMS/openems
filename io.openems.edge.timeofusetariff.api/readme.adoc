@@ -1,0 +1,7 @@
+= Time-Of-Use Tariff API.
+
+Provides abstract access for getting prices from every "Time-Of-Use" tariff providers like:
+- aWATTar
+- Stromdao with Corrently
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.api[Source Code icon:github[]]

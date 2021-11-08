@@ -81,7 +81,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 
 		this.channel(KebaChannelId.ALIAS).setNextValue(config.alias());
 
-		this.ip = Inet4Address.getByName(config.ip());
+		this.ip = Inet4Address.getByName(config.ip().trim());
 
 		this.config = config;
 		this._setPowerPrecision(0.23);
