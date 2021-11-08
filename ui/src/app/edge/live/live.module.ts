@@ -57,11 +57,11 @@ import { ProductionComponent } from './production/production.component';
     AdvertisementModule,
     BrowserAnimationsModule,
     BrowserModule,
-    EnergymonitorModule,
-    SharedModule,
     Common_Autarchy,
     Common_Selfconsumption,
     Controller_Ess_FixActivePower,
+    EnergymonitorModule,
+    SharedModule,
   ],
   entryComponents: [
     AdministrationComponent,

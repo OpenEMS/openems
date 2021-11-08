@@ -17,8 +17,8 @@ import { ProfileComponent } from './profile/profile.component';
 import { ServiceAssistantModule } from './serviceassistant/serviceassistant.module';
 import { SettingsComponent } from './settings.component';
 import { SystemExecuteComponent } from './systemexecute/systemexecute.component';
-import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
 import { SystemUpdateOldComponent } from './systemupdate.old/systemupdate.old.component';
+import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
 
 @NgModule({
   imports: [

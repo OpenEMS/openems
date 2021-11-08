@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -34,9 +35,6 @@ import okhttp3.Response;
 public class SystemUpdateHandler {
 
 	private static final int SHORT_TIMEOUT = 10; // [s]
-	private static final String PACKAGE = "fems";
-	private static final String LATEST_VERSION_URL = "https://fenecon.de/fems-download/" + PACKAGE + "-latest.version";
-	private static final String UPDATE_SCRIPT_URL = "https://fenecon.de/fems-download/update-fems.sh";
 
 	private static final String MARKER_BASH_TRACE = "+-+-+-+ ";
 	private static final String MARKER = "#-#-#-# ";
@@ -92,7 +90,7 @@ public class SystemUpdateHandler {
 
 						// Read latest version
 						try {
-							String latestVersion = this.download(LATEST_VERSION_URL).trim();
+							String latestVersion = this.download(OpenemsOEM.SYSTEM_UPDATE_LATEST_VERSION_URL).trim();
 							result.complete(
 									GetSystemUpdateStateResponse.from(request.getId(), currentVersion, latestVersion));
 							return;
@@ -177,11 +175,11 @@ public class SystemUpdateHandler {
 			this.updateState.addLog("# Creating Logfile [" + logFile + "]");
 
 			// Download Update Script to temporary file
-			this.updateState.addLog("# Downloading update script [" + UPDATE_SCRIPT_URL + "]");
+			this.updateState.addLog("# Downloading update script [" + OpenemsOEM.SYSTEM_UPDATE_SCRIPT_URL + "]");
 			scriptFile = Files.createTempFile("system-update-script-", null);
 			String script = //
 					"export PS4='" + MARKER_BASH_TRACE + "${LINENO} '; \n" //
-							+ this.download(UPDATE_SCRIPT_URL);
+							+ this.download(OpenemsOEM.SYSTEM_UPDATE_SCRIPT_URL);
 			Files.write(scriptFile, script.getBytes(StandardCharsets.US_ASCII));
 
 			final float totalNumberOfLines = script.split("\r\n|\r|\n").length;

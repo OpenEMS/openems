@@ -27,7 +27,7 @@ public class OpenemsConstants {
 	 * 
 	 * This is the number of the bugfix release
 	 */
-	public final static short VERSION_PATCH = 3;
+	public final static short VERSION_PATCH = 4;
 
 	/**
 	 * The additional version string
@@ -47,7 +47,7 @@ public class OpenemsConstants {
 	 * 
 	 * Note: this should be max. 32 ASCII characters long
 	 */
-	public final static String MANUFACTURER = "FENECON GmbH";
+	public final static String MANUFACTURER = OpenemsOEM.MANUFACTURER;
 
 	/**
 	 * The model identifier of the device

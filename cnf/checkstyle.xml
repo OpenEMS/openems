@@ -202,7 +202,7 @@
     <module name="MissingJavadocMethod">
       <property name="allowedAnnotations" value="Before,Test,After,Override"/>
       <property name="allowMissingPropertyJavadoc" value="true"/>
-      <property name="ignoreMethodNamesRegex" value="doc|set.+"/>
+      <property name="ignoreMethodNamesRegex" value="doc|set.+|build"/>
       <property name="tokens" value="METHOD_DEF"/>
     </module>
   </module>

@@ -2,8 +2,6 @@ package io.openems.edge.controller.ess.timeofusetariff.discharge;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -29,15 +27,17 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.ess.emergencycapacityreserve.EmergencyCapacityReserveImpl;
+import io.openems.edge.controller.ess.emergencycapacityreserve.EmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.LimitTotalDischargeController;
-import io.openems.edge.controller.ess.timeofusetariff.discharge.tariff.AwattarProvider;
-import io.openems.edge.controller.ess.timeofusetariff.discharge.tariff.TimeOfUseTariff;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.predictor.api.manager.PredictorManager;
+import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateActiveTime;
+import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
+import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
+import io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -66,50 +66,37 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	@Reference
 	private PredictorManager predictorManager;
 
+	@Reference
+	private TimeOfUseTariff timeOfUseTariff;
+
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
-	private final List<Controller> limitUsableCapacityControllers = new CopyOnWriteArrayList<>();
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	private volatile List<EmergencyCapacityReserve> ctrlEmergencyCapacityReserves = new CopyOnWriteArrayList<>();
 
-	@Reference(//
-			policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.MULTIPLE, //
-			target = "(&(enabled=true)(|(service.factoryPid=Controller.Ess.LimitTotalDischarge)(|(service.factoryPid=Controller.Ess.EmergencyCapacityReserve))))")
-	protected synchronized void addCtrlLimitTotalDischarge(Controller controller) {
-		this.limitUsableCapacityControllers.add(controller);
-	}
-
-	protected synchronized void removeCtrlLimitTotalDischarge(Controller controller) {
-		this.limitUsableCapacityControllers.remove(controller);
-	}
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	private volatile List<LimitTotalDischargeController> ctrlLimitTotalDischargeControllers = new CopyOnWriteArrayList<>();
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
 
-	private final TimeOfUseTariff timeOfUseTariff;
-
 	private Config config = null;
-	private boolean isPredictionValuesTaken = false;
 	private BoundarySpace boundarySpace = null;
 	private TreeMap<ZonedDateTime, Integer> consumptionMap = new TreeMap<>();
 	private TreeMap<ZonedDateTime, Integer> productionMap = new TreeMap<>();
 	private List<ZonedDateTime> targetPeriods = new ArrayList<ZonedDateTime>();
-	private TreeMap<ZonedDateTime, Float> quarterlyPrices = new TreeMap<>();
+	private TreeMap<ZonedDateTime, Float> quarterlyPricesMap = new TreeMap<>();
 	private TreeMap<ZonedDateTime, Integer> socWithoutLogic = new TreeMap<>();
 	private ZonedDateTime lastAccessedTime = ZonedDateTime.of(2021, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault());
+	private ZonedDateTime lastUpdatePriceTime = ZonedDateTime.of(2021, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault());
 
-	public TimeOfUseTariffDischargeImpl(TimeOfUseTariff timeOfUseTariff) {
+	public TimeOfUseTariffDischargeImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				TimeOfUseTariffDischarge.ChannelId.values() //
 		);
-		this.timeOfUseTariff = timeOfUseTariff;
-	}
-
-	public TimeOfUseTariffDischargeImpl() {
-		this(new AwattarProvider());
 	}
 
 	@Activate
@@ -132,9 +119,11 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	public void run() throws OpenemsNamedException {
 
 		// Current Date Time rounded off to 15 minutes.
-		ZonedDateTime now = roundZonedDateTimeDownToMinutes(ZonedDateTime.now(this.componentManager.getClock()), 15);
+		ZonedDateTime now = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(this.componentManager.getClock(), 15);
 
-		this.calculateBoundarySpace(now);
+		// Prices contains the price values and the time it is retrieved.
+		TimeOfUsePrices prices = this.timeOfUseTariff.getPrices();
+		this.calculateBoundarySpace(now, prices);
 
 		// Mode given from the configuration.
 		switch (this.config.mode()) {
@@ -153,36 +142,31 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	/**
 	 * calculates the boundary space for the activation of the controller.
 	 * 
-	 * @param now Current Date Time rounded off to 15 minutes.
+	 * @param now    Current Date Time rounded off to 15 minutes.
+	 * @param prices TimeOfUsePrices object, containing prices and the time it
+	 *               retrieved.
 	 */
-	private void calculateBoundarySpace(ZonedDateTime now) {
+	private void calculateBoundarySpace(ZonedDateTime now, TimeOfUsePrices prices) {
 
 		/*
-		 * Every Day at 14:00 the Hourly Prices are updated. we receive the predictions
-		 * at 14:00 till next day 13:00.
-		 * 
-		 * 'isPredictionValuesTaken' to make sure the control logic executes only once
-		 * during the hour 14.
+		 * Every day, Prices are updated in API at a certain hour. we update the
+		 * predictions and the prices during those hour.
 		 */
-		if (now.getHour() == 14 && !this.isPredictionValuesTaken) {
-
+		if (this.lastUpdatePriceTime.isBefore(prices.getUpdateTime())) {
 			// gets the prices, predictions and calculates the boundary space.
-			this.getBoundarySpace(now);
+			this.getBoundarySpace(now, prices);
 
-			this.isPredictionValuesTaken = true; // boolean used to take prediction values only once.
-		}
-
-		// resets the 'isPredictionValuesTaken' to be ready for next day.
-		if (now.getHour() == 15 && this.isPredictionValuesTaken) {
-			this.isPredictionValuesTaken = false;
+		} else {
+			// update the channel
+			this.channel(TimeOfUseTariffDischarge.ChannelId.QUATERLY_PRICES_TAKEN).setNextValue(false);
 		}
 
 		// Calculates the prices and predictions when the controller is restarted or
-		// enabled in any time before or after 14.
-		if (this.quarterlyPrices.isEmpty()) {
+		// re-enabled in any time.
+		if (this.quarterlyPricesMap.isEmpty()) {
 
 			// gets the prices, predictions and calculates the boundary space.
-			this.getBoundarySpace(now);
+			this.getBoundarySpace(now, prices);
 		}
 	}
 
@@ -198,7 +182,7 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 
 		// if the boundary space are calculated, start scheduling only during boundary
 		// space.
-		if (this.boundarySpace.isWithinBoundary(now)) {
+		if (this.boundarySpace != null && this.boundarySpace.isWithinBoundary(now)) {
 
 			// Runs every 15 minutes.
 			if (now.isAfter(this.lastAccessedTime)) {
@@ -213,7 +197,7 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 				// list of periods calculation.
 				if (remainingEnergy > 0) {
 					// Initiating the calculation
-					this.targetPeriods = this.calculateTargetPeriods(this.consumptionMap, this.quarterlyPrices,
+					this.targetPeriods = this.calculateTargetPeriods(this.consumptionMap, this.quarterlyPricesMap,
 							remainingEnergy, this.boundarySpace);
 					this._setTargetHoursCalculated(true);
 				}
@@ -243,12 +227,11 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 		// Usable capacity based on minimum SoC from Limit total discharge and emergency
 		// reserve controllers.
 		int limitSoc = 0;
-		for (Controller ctrl : this.limitUsableCapacityControllers) {
-			if (ctrl.serviceFactoryPid().equals("Controller.Ess.EmergencyCapacityReserve")) {
-				limitSoc = Math.max(limitSoc, ((EmergencyCapacityReserveImpl) ctrl).getMinSoc());
-			} else {
-				limitSoc = Math.max(limitSoc, ((LimitTotalDischargeController) ctrl).getMinSoc());
-			}
+		for (LimitTotalDischargeController ctrl : this.ctrlLimitTotalDischargeControllers) {
+			limitSoc = Math.max(limitSoc, ctrl.getMinSoc());
+		}
+		for (EmergencyCapacityReserve ctrl : this.ctrlEmergencyCapacityReserves) {
+			limitSoc = Math.max(limitSoc, ctrl.getConfig().reserveSoc());
 		}
 		this.channel(TimeOfUseTariffDischarge.ChannelId.MIN_SOC).setNextValue(limitSoc);
 
@@ -279,28 +262,34 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	/**
 	 * This method calculates the boundary space within the prediction hours.
 	 * 
-	 * @param now current time.
+	 * @param now    current time.
+	 * @param prices TimeOfUsePrices object, containing prices and the time it
+	 *               retrieved.
 	 */
-	private void getBoundarySpace(ZonedDateTime now) {
+	private void getBoundarySpace(ZonedDateTime now, TimeOfUsePrices prices) {
 
 		// Predictions as Integer array in 15 minute intervals.
 		final Integer[] predictionProduction = this.predictorManager.get24HoursPrediction(SUM_PRODUCTION) //
 				.getValues();
 		final Integer[] predictionConsumption = this.predictorManager.get24HoursPrediction(SUM_CONSUMPTION) //
 				.getValues();
-		final ZonedDateTime predictionStartQuarterHour = roundZonedDateTimeDownToMinutes(now, 15);
 
-		// resetting values
-		this.quarterlyPrices.clear();
+		// Prices as Float array in 15 minute intervals.
+		final Float[] quarterlyPrices = prices.getValues();
+		this.channel(TimeOfUseTariffDischarge.ChannelId.QUATERLY_PRICES_TAKEN).setNextValue(true);
 
 		// Converts the given 15 minute integer array to a TreeMap values.
-		this.convertDataStructure(predictionProduction, predictionConsumption, predictionStartQuarterHour);
+		this.convertDataStructure(predictionProduction, predictionConsumption, now, quarterlyPrices);
+
+		if (this.quarterlyPricesMap.isEmpty()) {
+			this.channel(TimeOfUseTariffDischarge.ChannelId.QUATERLY_PRICES_TAKEN).setNextValue(false);
+		}
 
 		// Buffer minutes to adjust sunrise based on the risk level.
 		int bufferMinutes = this.config.delayDischargeRiskLevel().bufferMinutes;
 
 		// calculates the boundary space, within which the controller needs to work.
-		this.boundarySpace = BoundarySpace.from(predictionStartQuarterHour, this.productionMap, this.consumptionMap,
+		this.boundarySpace = BoundarySpace.from(now, this.productionMap, this.consumptionMap,
 				this.config.maxStartHour(), this.config.maxEndHour(), bufferMinutes);
 
 		// Update Channels
@@ -310,17 +299,6 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 				.setNextValue(this.boundarySpace.proMoreThanCon.plusMinutes(bufferMinutes).getHour());
 		this.channel(TimeOfUseTariffDischarge.ChannelId.PRO_LESS_THAN_CON)
 				.setNextValue(this.boundarySpace.proLessThanCon.getHour());
-
-		// Hourly Prices from API
-		this.quarterlyPrices = this.timeOfUseTariff.getPrices();
-
-		// setting the channel id values
-		if (this.quarterlyPrices.isEmpty()) {
-			this.channel(TimeOfUseTariffDischarge.ChannelId.QUATERLY_PRICES_TAKEN).setNextValue(false);
-			return;
-		} else {
-			this.channel(TimeOfUseTariffDischarge.ChannelId.QUATERLY_PRICES_TAKEN).setNextValue(true);
-		}
 	}
 
 	/**
@@ -387,9 +365,9 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 
 		this._setTargetHoursIsEmpty(this.targetPeriods.isEmpty());
 
-		ZonedDateTime currentQuarterHour = roundZonedDateTimeDownToMinutes(
-				ZonedDateTime.now(this.componentManager.getClock()), 15) //
-						.withZoneSameInstant(ZoneId.systemDefault());
+		ZonedDateTime currentQuarterHour = TimeOfUseTariffUtils
+				.getNowRoundedDownToMinutes(this.componentManager.getClock(), 15) //
+				.withZoneSameInstant(ZoneId.systemDefault());
 
 		if (this.boundarySpace != null && this.boundarySpace.isWithinBoundary(now)) {
 			if (this.targetPeriods.contains(currentQuarterHour)) {
@@ -425,8 +403,8 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 		this.calculateDelayedTime.update(this.getDelayedChannel().getNextValue().orElse(false));
 
 		// Storing quarterly prices in channel for visualization in Grafana and UI.
-		if (!this.quarterlyPrices.isEmpty()) {
-			for (Entry<ZonedDateTime, Float> entry : this.quarterlyPrices.entrySet()) {
+		if (!this.quarterlyPricesMap.isEmpty()) {
+			for (Entry<ZonedDateTime, Float> entry : this.quarterlyPricesMap.entrySet()) {
 				if (now.isEqual(entry.getKey())) {
 					this._setQuarterlyPrices(entry.getValue());
 				}
@@ -459,34 +437,46 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * This method converts the 15 minute integer array values to a one hour
-	 * {@link TreeMap} format for ease in later calculations.
+	 * This method converts the 15 minute integer array values to a {@link TreeMap}
+	 * format for ease in later calculations.
 	 * 
 	 * @param productionValues  list of 96 production values predicted, comprising
 	 *                          for next 24 hours.
 	 * @param consumptionValues list of 96 consumption values predicted, comprising
 	 *                          for next 24 hours.
 	 * @param startHour         start hour of the predictions.
+	 * @param quarterlyPrices   list of 96 quarterly electricity prices, comprising
+	 *                          for next 24 hours.
 	 */
-	private void convertDataStructure(Integer[] productionValues, Integer[] consumptionValues,
-			ZonedDateTime startHour) {
+	private void convertDataStructure(Integer[] productionValues, Integer[] consumptionValues, ZonedDateTime startHour,
+			Float[] quarterlyPrices) {
 		this.productionMap.clear();
 		this.consumptionMap.clear();
+		this.quarterlyPricesMap.clear();
 
-		for (int i = 0; i < 96; i++) {
+		for (int i = 0; i < Prediction24Hours.NUMBER_OF_VALUES; i++) {
 			Integer production = productionValues[i];
 			Integer consumption = consumptionValues[i];
+			Float price = quarterlyPrices[i];
 			ZonedDateTime time = startHour.plusMinutes(i * 15);
 
-			if (production != null && consumption != null) {
+			if (production != null) {
 				this.productionMap.put(time, production);
+			}
+
+			if (consumption != null) {
 				this.consumptionMap.put(time, consumption);
+			}
+
+			if (price != null) {
+				this.quarterlyPricesMap.put(time, price);
 			}
 		}
 	}
 
 	/**
-	 * This Method Returns the remaining Capacity that needs to be taken from Grid.
+	 * This Method Returns the remaining Capacity that needs to be consumed from the
+	 * Grid.
 	 * 
 	 * @param availableEnergy Amount of energy available in the ess based on SoC.
 	 * @param productionMap   predicted production data along with time in
@@ -545,9 +535,9 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 			TreeMap<ZonedDateTime, Float> quarterlyPrices, long remainingEnergy, BoundarySpace boundarySpace) {
 
 		List<ZonedDateTime> targetHours = new ArrayList<ZonedDateTime>();
-		ZonedDateTime currentQuarterHour = roundZonedDateTimeDownToMinutes(
-				ZonedDateTime.now(this.componentManager.getClock()), 15) //
-						.withZoneSameInstant(ZoneId.systemDefault());
+		ZonedDateTime currentQuarterHour = TimeOfUseTariffUtils
+				.getNowRoundedDownToMinutes(this.componentManager.getClock(), 15) //
+				.withZoneSameInstant(ZoneId.systemDefault());
 
 		List<Entry<ZonedDateTime, Float>> priceList = new ArrayList<>(quarterlyPrices //
 				.subMap(currentQuarterHour, boundarySpace.proMoreThanCon) //
@@ -567,18 +557,6 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 		}
 
 		return targetHours;
-	}
-
-	/**
-	 * Rounds a {@link ZonedDateTime} down to required(m) minutes.
-	 * 
-	 * @param d the {@link ZonedDateTime}
-	 * @param m the {@link Integer} custom minutes to roundoff to.
-	 * @return the rounded result
-	 */
-	private static ZonedDateTime roundZonedDateTimeDownToMinutes(ZonedDateTime d, int m) {
-		int minuteOfDay = d.get(ChronoField.MINUTE_OF_DAY);
-		return d.with(ChronoField.NANO_OF_DAY, 0).plus(minuteOfDay / m * m, ChronoUnit.MINUTES);
 	}
 
 	@Override
