@@ -35,6 +35,12 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2021.19.6',
+        changes: [
+          Changelog.product(Product.HOME) + "Erkennung für FENECON Batteriewechselrichter",
+        ]
+      },
+      {
         version: '2021.19.5',
         changes: [
           Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF) + Changelog.GENERAL_OPTIMIZATION,
