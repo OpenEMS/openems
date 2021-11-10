@@ -11,10 +11,12 @@ public class DummyTimeOfUseTariffProvider implements TimeOfUseTariff {
 	/**
 	 * Builds a {@link DummyTimeOfUseTariffProvider} from hourly prices.
 	 * 
-	 * @param hourlyPrices an array of hourly prices
-	 * @return a {@link DummyTimeOfUseTariffProvider}
+	 * @param hourlyPrices an array of hourly prices.
+	 * @param now          {@ZonedDateTime} given during test.
+	 * @return a {@link DummyTimeOfUseTariffProvider}.
 	 */
 	public static DummyTimeOfUseTariffProvider fromHourlyPrices(ZonedDateTime now, Float[] hourlyPrices) {
+
 		Float[] quarterlyPrices = new Float[96];
 
 		for (int i = 0; i < 24; i++) {
@@ -33,6 +35,10 @@ public class DummyTimeOfUseTariffProvider implements TimeOfUseTariff {
 
 	@Override
 	public TimeOfUsePrices getPrices() {
+		// return null if the dateTime is empty.
+		if (this.prices.getUpdateTime() == null) {
+			return null;
+		}
 		return this.prices;
 	}
 
