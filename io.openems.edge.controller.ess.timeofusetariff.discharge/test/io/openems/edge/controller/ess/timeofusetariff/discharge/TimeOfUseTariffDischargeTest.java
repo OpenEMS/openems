@@ -108,7 +108,7 @@ public class TimeOfUseTariffDischargeTest {
 	};
 
 	@Test
-	public void executesBeforeMarketTimeTest() throws Exception {
+	public void nullTimeOfUseTariffTest() throws Exception {
 
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2021-01-01T13:45:00.00Z"), ZoneOffset.UTC);
 		final DummyComponentManager cm = new DummyComponentManager(clock);
@@ -128,8 +128,9 @@ public class TimeOfUseTariffDischargeTest {
 				consumptionPredictor);
 
 		// Price provider
-		final DummyTimeOfUseTariffProvider timeOfUseTariffProvider = DummyTimeOfUseTariffProvider
-				.fromHourlyPrices(ZonedDateTime.now(clock), DEFAULT_HOURLY_PRICES);
+		final DummyTimeOfUseTariffProvider timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.fromHourlyPrices(null,
+				DEFAULT_HOURLY_PRICES);
+		;
 
 		// Printing
 		// System.out.println("Time: " + clock);
@@ -154,7 +155,7 @@ public class TimeOfUseTariffDischargeTest {
 						.build())
 				.next(new TestCase("Cycle - 1") //
 						.output(AVAILABLE_CAPACITY, null) //
-						.output(QUATERLY_PRICES_TAKEN, true) //
+						.output(QUATERLY_PRICES_TAKEN, false) //
 						.output(TARGET_HOURS_CALCULATED, false) //
 						.output(TARGET_HOURS_IS_EMPTY, true) //
 						.output(STATE_MACHINE, StateMachine.STANDBY));
@@ -217,15 +218,8 @@ public class TimeOfUseTariffDischargeTest {
 						.output(REMAINING_CONSUMPTION, 3248.0) //
 						.output(STATE_MACHINE, StateMachine.ALLOWS_DISCHARGE))
 				.next(new TestCase("Cycle - 2") //
-						.timeleap(clock, 1, ChronoUnit.MINUTES)//
-						.output(QUATERLY_PRICES_TAKEN, true) //
+						.output(QUATERLY_PRICES_TAKEN, false) //
 						.output(TARGET_HOURS_CALCULATED, false)//
-						.output(TARGET_HOURS_IS_EMPTY, false) //
-						.output(STATE_MACHINE, StateMachine.ALLOWS_DISCHARGE))
-				.next(new TestCase("Cycle - 3") //
-						.timeleap(clock, 14, ChronoUnit.MINUTES)//
-						.output(QUATERLY_PRICES_TAKEN, true) //
-						.output(TARGET_HOURS_CALCULATED, true)//
 						.output(TARGET_HOURS_IS_EMPTY, false) //
 						.output(STATE_MACHINE, StateMachine.ALLOWS_DISCHARGE))
 				.activate(MyConfig.create() //
@@ -236,14 +230,14 @@ public class TimeOfUseTariffDischargeTest {
 						.setMode(Mode.OFF) //
 						.setDelayDischargeRiskLevel(DelayDischargeRiskLevel.HIGH) //
 						.build())
-				.next(new TestCase("Cycle - 4") //
-						.output(QUATERLY_PRICES_TAKEN, true) //
+				.next(new TestCase("Cycle - 3") //
+						.output(QUATERLY_PRICES_TAKEN, false) //
 						.output(TARGET_HOURS_CALCULATED, false)//
 						.output(TARGET_HOURS_IS_EMPTY, true) //
 						.output(STATE_MACHINE, StateMachine.STANDBY))
-				.next(new TestCase("Cycle - 5") //
+				.next(new TestCase("Cycle - 4") //
 						.timeleap(clock, 15, ChronoUnit.MINUTES)//
-						.output(QUATERLY_PRICES_TAKEN, true) //
+						.output(QUATERLY_PRICES_TAKEN, false) //
 						.output(TARGET_HOURS_CALCULATED, false)//
 						.output(TARGET_HOURS_IS_EMPTY, true) //
 						.output(STATE_MACHINE, StateMachine.STANDBY));

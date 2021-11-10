@@ -54,40 +54,40 @@ public class AwattarImpl extends AbstractOpenemsComponent implements TimeOfUseTa
 	private final AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>> prices = new AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>>(
 			ImmutableSortedMap.of());
 
-	private Clock updateTimeStamp = Clock.fixed(Instant.MIN, ZoneId.systemDefault());
+	private ZonedDateTime updateTimeStamp = null;
 
 	private final Runnable task = () -> {
 
 		/*
 		 * Update Map of prices
 		 */
-		ImmutableSortedMap<ZonedDateTime, Float> prices;
-		try {
-			OkHttpClient client = new OkHttpClient();
-			Request request = new Request.Builder() //
-					.url(AWATTAR_API_URL) //
-					// aWATTar currently does not anymore require an Apikey.
-					// .header("Authorization", Credentials.basic(apikey, "")) //
-					.build();
-
-			Response response = client.newCall(request).execute();
-			this.channel(Awattar.ChannelId.HTTP_STATUS_CODE).setNextValue(response.code());
+		OkHttpClient client = new OkHttpClient();
+		Request request = new Request.Builder() //
+				.url(AWATTAR_API_URL) //
+				// aWATTar currently does not anymore require an Apikey.
+				// .header("Authorization", Credentials.basic(apikey, "")) //
+				.build();
+		int httpStatusCode;
+		try (Response response = client.newCall(request).execute()) {
+			httpStatusCode = response.code();
 
 			if (!response.isSuccessful()) {
 				throw new IOException("Unexpected code " + response);
 			}
 
 			// Parse the response for the prices
-			prices = AwattarImpl.parsePrices(response.body().toString());
+			this.prices.set(AwattarImpl.parsePrices(response.body().string()));
 
 			// store the time stamp
-			this.updateTimeStamp = Clock.systemDefaultZone();
+			this.updateTimeStamp = ZonedDateTime.now();
+
 		} catch (IOException | OpenemsNamedException e) {
 			e.printStackTrace();
-			prices = ImmutableSortedMap.of();
+			httpStatusCode = 0;
 			// TODO Try again in x minutes
 		}
-		this.prices.set(prices);
+
+		this.channel(Awattar.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
 
 		/*
 		 * Schedule next price update for 2 pm
@@ -133,6 +133,11 @@ public class AwattarImpl extends AbstractOpenemsComponent implements TimeOfUseTa
 
 	@Override
 	public TimeOfUsePrices getPrices() {
+		// return null if data is not yet available.
+		if (this.updateTimeStamp == null) {
+			return null;
+		}
+
 		return TimeOfUseTariffUtils.getNext24HourPrices(Clock.systemDefaultZone() /* can be mocked for testing */,
 				this.prices.get(), this.updateTimeStamp);
 	}
@@ -149,7 +154,7 @@ public class AwattarImpl extends AbstractOpenemsComponent implements TimeOfUseTa
 
 		if (!jsonData.isEmpty()) {
 
-			JsonObject line = JsonUtils.getAsJsonObject(JsonUtils.parse(jsonData));
+			JsonObject line = JsonUtils.parseToJsonObject(jsonData);
 			JsonArray data = JsonUtils.getAsJsonArray(line, "data");
 
 			for (JsonElement element : data) {

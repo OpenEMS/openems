@@ -22,13 +22,11 @@ public class TimeOfUseTariffUtils {
 	 *         retrieved.
 	 */
 	public static TimeOfUsePrices getNext24HourPrices(Clock clock, ImmutableSortedMap<ZonedDateTime, Float> priceMap,
-			Clock updateTimeStamp) {
-
-		ZonedDateTime updateTime = getNowRoundedDownToMinutes(updateTimeStamp, 15);
+			ZonedDateTime updateTimeStamp) {
 
 		// Returns the empty array if the map is empty.
 		if (priceMap.isEmpty()) {
-			return new TimeOfUsePrices(updateTime);
+			return new TimeOfUsePrices(updateTimeStamp);
 		}
 
 		ZonedDateTime now = getNowRoundedDownToMinutes(clock, 15);
@@ -36,7 +34,7 @@ public class TimeOfUseTariffUtils {
 		// if the map size is less than 96, rest of the values will store as null.
 		final Float[] priceList = priceMap.tailMap(now).values().toArray(new Float[TimeOfUsePrices.NUMBER_OF_VALUES]);
 
-		return new TimeOfUsePrices(updateTime, priceList);
+		return new TimeOfUsePrices(updateTimeStamp, priceList);
 	}
 
 	/**

@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
  */
 public class TimeOfUsePrices {
 
-	public final static int NUMBER_OF_VALUES = 96;
+	public static final int NUMBER_OF_VALUES = 96;
 
 	private final ZonedDateTime updateTime;
 
