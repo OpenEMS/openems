@@ -7,7 +7,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
 		private String id;
-		public int zipcode;
+		public String zipcode;
 
 		private Builder() {
 		}
@@ -17,11 +17,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setZipcode(int zipcode) {
+		public Builder setZipcode(String zipcode) {
 			this.zipcode = zipcode;
 			return this;
 		}
-		
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -44,7 +44,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int zipcode() {
+	public String zipcode() {
 		return this.builder.zipcode;
 	}
 

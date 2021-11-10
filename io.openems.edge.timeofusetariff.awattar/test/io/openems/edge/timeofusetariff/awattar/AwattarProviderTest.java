@@ -17,11 +17,15 @@ public class AwattarProviderTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new AwattarImpl()) //
+		AwattarImpl awattar = new AwattarImpl();
+		new ComponentTest(awattar) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.build()) //
 		;
+
+		// Thread.sleep(5000);
+		// System.out.println(sut.getPrices());
 	}
 
 	@Test
