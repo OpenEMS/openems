@@ -429,7 +429,7 @@ export const TRANSLATION = {
             attentionMessage: 'Beachten Sie, dass die Auswahl nachträglich nicht mehr rückgängig gemacht werden kann.',
             backward: 'zurück',
             confirmAppSelection: 'Sind Sie sicher, die folgende App auszuwählen?',
-            confirmAppSelectionLater: 'Sind sie sicher, die Auswahl später zu treffen?',
+            confirmAppSelectionLater: 'Sind Sie sicher, die Auswahl später zu treffen?',
             forward: 'weiter',
             pleaseSelectOption: 'Bitte wähle eine Option aus'
         },

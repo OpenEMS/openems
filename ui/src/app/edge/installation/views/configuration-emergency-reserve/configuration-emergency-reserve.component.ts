@@ -28,7 +28,8 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
     this.fields = this.getFields();
     this.model = this.installationData.battery.emergencyReserve ?? {
       isEnabled: true,
-      value: 20
+      value: 20,
+      isReserveSocEnabled: false
     };
 
   }

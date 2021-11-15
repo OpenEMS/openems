@@ -79,7 +79,7 @@ export class ProtocolPv implements OnInit {
       key: "isSelected",
       type: "checkbox",
       templateOptions: {
-        label: "PV-Anlage " + forMpptNr + " (beschriftet mit ''PV" + forMpptNr + "'')",
+        label: "MPPT " + forMpptNr + " (beschriftet mit ''PV" + forMpptNr + "'')",
         required: true
       }
     });
