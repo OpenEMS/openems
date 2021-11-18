@@ -35,6 +35,16 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2021.20.1',
+        changes: [
+          Changelog.openems('2021.20.0'),
+          Changelog.product(Product.FEMS_CORRENTLY) + "In Abstimmung mit STOMDAO können jetzt 15-Minuten Werte genutzt werden.",
+          Changelog.product(Product.FEMS_TIBBER) + "Release",
+          Changelog.product(Product.DESS) + "Fehlerbehebung bei DC-PV-Leistung",
+          "Fehlerbehebung bei Berechnung der Kapazität in einem Cluster aus Speichersystemen"
+        ]
+      },
+      {
         version: '2021.19.6',
         changes: [
           Changelog.product(Product.HOME) + "Erkennung für FENECON Batteriewechselrichter",
