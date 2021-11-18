@@ -27,7 +27,7 @@ public class FinalSocHandler extends StateHandler<State, Context> {
 		} else {
 			int power = Math.max(context.maxChargePower, context.config.power() * -1);
 			context.logInfo(this.log, "CHARGE with [" + power + " W]");
-			context.ess.setActivePowerGreaterOrEquals(power);
+			context.ess.setActivePowerLessOrEquals(power);
 		}
 		return State.FINAL_SOC;
 	}
