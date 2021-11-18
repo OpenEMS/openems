@@ -98,26 +98,26 @@ export class RegistrationModalComponent implements OnInit {
         firstname: new FormControl("", Validators.required),
         lastname: new FormControl("", Validators.required),
         street: new FormControl("", Validators.required),
-        zip: new FormControl("", [Validators.required, Validators.minLength(4), Validators.maxLength(5)]),
+        zip: new FormControl("", Validators.required),
         city: new FormControl("", Validators.required),
         country: new FormControl("", Validators.required),
         phone: new FormControl("", Validators.required),
         email: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
-        confirmPassword: new FormControl("", Validators.required)
+        confirmPassword: new FormControl("", Validators.required),
       });
     } else {
       return this.formBuilder.group({
         firstname: new FormControl("", Validators.required),
         lastname: new FormControl("", Validators.required),
         street: new FormControl("", Validators.required),
-        zip: new FormControl("", [Validators.required, Validators.minLength(4), Validators.maxLength(5)]),
+        zip: new FormControl("", Validators.required),
         city: new FormControl("", Validators.required),
         country: new FormControl("", Validators.required),
         phone: new FormControl("", Validators.required),
         email: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
-        confirmPassword: new FormControl("", Validators.required)
+        confirmPassword: new FormControl("", Validators.required),
       });
     }
   }

@@ -1,0 +1,10 @@
+<ng-container *ngIf="index && components, else simpleLine">
+    <div *ngIf="index != (components.length - 1)"
+        style="border-bottom: 1px solid lightgray; width: 110%; margin-top: 2%; margin-bottom: 2%; margin-left: -5%;">
+    </div>
+</ng-container>
+
+<ng-template #simpleLine>
+    <div style="border-bottom: 1px solid lightgray; width: 110%; margin-top: 2%; margin-bottom: 2%; margin-left: -5%;">
+    </div>
+</ng-template>

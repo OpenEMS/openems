@@ -9,6 +9,8 @@ export module DefaultTypes {
     [componentId: string]: string[];
   }
 
+  export type ManualOnOff = 'MANUAL_ON' | 'MANUAL_OFF';
+
   /**
    * CurrentData Summary
    * 
