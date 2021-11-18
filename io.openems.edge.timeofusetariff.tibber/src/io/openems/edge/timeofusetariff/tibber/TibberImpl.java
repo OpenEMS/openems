@@ -1,11 +1,11 @@
-package io.openems.edge.timeofusetariff.corrently;
+package io.openems.edge.timeofusetariff.tibber;
 
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.TreeMap;
 import java.util.concurrent.Executors;
@@ -35,19 +35,21 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 import io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "TimeOfUseTariff.Corrently", //
+		name = "TimeOfUseTariff.Tibber", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUseTariff, OpenemsComponent, Corrently {
+public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTariff, OpenemsComponent, Tibber {
 
-	private static final String CORRENTLY_API_URL = "https://api.corrently.io/v2.0/gsi/marketdata?zipcode=";
+	private static final String TIBBER_API_URL = "https://api.tibber.com/v1-beta/gql";
 
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -64,9 +66,31 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 		 * Update Map of prices
 		 */
 		OkHttpClient client = new OkHttpClient();
+		MediaType mediaType = MediaType.parse("application/json");
+		RequestBody body = RequestBody.create(mediaType, JsonUtils.buildJsonObject() //
+				.addProperty("query", //
+						"{\n"
+						+ "  viewer {\n"
+						+ "    homes {\n"
+						+ "      currentSubscription{\n"
+						+ "        priceInfo{\n"
+						+ "          today {\n"
+						+ "            total\n"
+						+ "            startsAt\n"
+						+ "          }\n"
+						+ "          tomorrow {\n"
+						+ "            total\n"
+						+ "            startsAt\n"
+						+ "          }\n"
+						+ "        }\n"
+						+ "      }\n"
+						+ "    }\n"
+						+ "  }\n"
+						+ "}" + "") //
+				.build().toString());
 		Request request = new Request.Builder() //
-				// URL - https://api.corrently.io/v2.0/marketdata?zipcode=69256&resolution=900
-				.url(CORRENTLY_API_URL + this.config.zipcode() + "&resolution=900") //
+				.url(TIBBER_API_URL) //
+				.header("Authorization", this.config.accessToken()).post(body) //
 				.build();
 		int httpStatusCode;
 		try (Response response = client.newCall(request).execute()) {
@@ -77,7 +101,7 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 			}
 
 			// Parse the response for the prices
-			this.prices.set(CorrentlyImpl.parsePrices(response.body().string()));
+			this.prices.set(TibberImpl.parsePrices(response.body().string()));
 
 			// store the time stamp
 			this.updateTimeStamp = ZonedDateTime.now();
@@ -87,7 +111,7 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 			httpStatusCode = 0;
 		}
 
-		this.channel(Corrently.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
+		this.channel(Tibber.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
 
 		/*
 		 * Schedule next price update for 2 pm
@@ -107,10 +131,10 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 	@Reference
 	private ComponentManager componentManager;
 
-	public CorrentlyImpl() {
+	public TibberImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				Corrently.ChannelId.values() //
+				Tibber.ChannelId.values() //
 		);
 	}
 
@@ -143,9 +167,9 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 	}
 
 	/**
-	 * Parse the Corrently JSON to the Price Map.
+	 * Parse the Tibber JSON to the Price Map.
 	 * 
-	 * @param jsonData the Corrently JSON
+	 * @param jsonData the Tibber JSON
 	 * @return the Price Map
 	 * @throws OpenemsNamedException on error
 	 */
@@ -155,22 +179,35 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 		if (!jsonData.isEmpty()) {
 
 			JsonObject line = JsonUtils.parseToJsonObject(jsonData);
-			JsonArray data = JsonUtils.getAsJsonArray(line, "data");
+			JsonArray homes = JsonUtils.getAsJsonObject(line, "data") //
+					.getAsJsonObject("viewer") //
+					.getAsJsonArray("homes");
 
-			for (JsonElement element : data) {
+			for (JsonElement home : homes) {
 
-				float marketPrice = JsonUtils.getAsFloat(element, "marketprice");
-				long startTimestampLong = JsonUtils.getAsLong(element, "start_timestamp");
+				JsonObject priceInfo = JsonUtils.getAsJsonObject(home, "currentSubscription") //
+						.getAsJsonObject("priceInfo");
 
-				// Converting Long time stamp to ZonedDateTime.
-				ZonedDateTime startTimeStamp = ZonedDateTime //
-						.ofInstant(Instant.ofEpochMilli(startTimestampLong), ZoneId.systemDefault())
-						.truncatedTo(ChronoUnit.MINUTES);
-				// Adding the values in the Map.
-				result.put(startTimeStamp, marketPrice);
+				// Price info for today and tomorrow.
+				JsonArray today = JsonUtils.getAsJsonArray(priceInfo, "today");
+				JsonArray tomorrow = JsonUtils.getAsJsonArray(priceInfo, "tomorrow");
+
+				// Adding to an array to avoid individual variables for individual for loops.
+				JsonArray[] days = { today, tomorrow };
+
+				// parse the arrays for price and time stamps.
+				for (JsonArray day : days) {
+					for (JsonElement element : day) {
+						float marketPrice = JsonUtils.getAsFloat(element, "total");
+						ZonedDateTime startTime = ZonedDateTime
+								.parse(JsonUtils.getAsString(element, "startsAt"), DateTimeFormatter.ISO_DATE_TIME)
+								.withZoneSameInstant(ZoneId.systemDefault());
+						// Adding the values in the Map.
+						result.put(startTime, marketPrice);
+					}
+				}
 			}
 		}
 		return ImmutableSortedMap.copyOf(result);
 	}
-
 }
