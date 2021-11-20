@@ -12,7 +12,7 @@ import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "bms0";
+	String id() default "battery0";
 
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
 	String alias() default "";
@@ -31,7 +31,7 @@ import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 
 	@AttributeDefinition(name = "Number of slaves", description = "The number of slaves in this battery rack (max. 20)", min = "1", max = "20")
 	int numberOfSlaves() default 20;
-	
+
 	@AttributeDefinition(name = "Module type", description = "The type of modules in the rack")
 	ModuleType moduleType() default ModuleType.MODULE_3_KWH;
 
@@ -46,7 +46,7 @@ import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 
 	@AttributeDefinition(name = "Max Start Time", description = "Max Time in seconds allowed for starting the system")
 	int maxStartTime() default 20;
-	
+
 	@AttributeDefinition(name = "Pending Tolerance", description = "time in seconds, that is waited if system status cannot be determined e.g. in case of reading errors")
 	int pendingTolerance() default 15;
 

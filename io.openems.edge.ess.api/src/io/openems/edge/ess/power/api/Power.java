@@ -86,24 +86,55 @@ public interface Power {
 		 * Discharge
 		 */
 		// fit into max possible discharge power
-		int maxPower = this.getMaxPower(ess, phase, pwr);
-		if (value > maxPower) {
-			Power.log.info("[" + componentId + "] reducing requested [" + value + " W] to maximum power [" + maxPower
-					+ " W] for [" + ess.id() + pwr.getSymbol() + phase.getSymbol() + "]");
-			value = maxPower;
-		}
+		value = this.fitValueToMaxPower(componentId, ess, phase, pwr, value);
 
 		/*
 		 * Charge
 		 */
 		// fit into max possible charge power
+		value = this.fitValueToMinPower(componentId, ess, phase, pwr, value);
+
+		return value;
+	}
+
+	/**
+	 * Adjusts the given value so that it does not break an existing
+	 * Max-Power-Constraint.
+	 * 
+	 * @param componentId Component-ID of the calling component for the log message
+	 * @param value       the target value
+	 * @return a value that is compared to existing Max-Power
+	 */
+	public default int fitValueToMaxPower(String componentId, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
+			int value) {
+		int maxPower = this.getMaxPower(ess, phase, pwr);
+		if (value > maxPower) {
+			Power.log.info("[" + componentId + "] reducing requested [" + value + " W] to maximum power [" + maxPower
+					+ " W] for [" + ess.id() + pwr.getSymbol() + phase.getSymbol() + "]");
+			return maxPower;
+		} else {
+			return value;
+		}
+	}
+
+	/**
+	 * Adjusts the given value so that it does not break an existing
+	 * Min-Power-Constraint.
+	 * 
+	 * @param componentId Component-ID of the calling component for the log message
+	 * @param value       the target value
+	 * @return a value that is compared to existing Min-Power
+	 */
+	public default int fitValueToMinPower(String componentId, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
+			int value) {
 		int minPower = this.getMinPower(ess, phase, pwr);
 		if (value < minPower) {
 			Power.log.info("[" + componentId + "] increasing requested [" + value + " W] to minimum power [" + minPower
 					+ " W] for [" + ess.id() + pwr.getSymbol() + phase.getSymbol() + "]");
-			value = minPower;
+			return minPower;
+		} else {
+			return value;
 		}
-		return value;
 	}
 
 	/**

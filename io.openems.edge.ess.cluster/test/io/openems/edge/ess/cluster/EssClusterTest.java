@@ -84,7 +84,7 @@ public class EssClusterTest {
 						.output(CLUSTER_ACTIVE_CHARGE_ENERGY, 3L) //
 
 						.input(ESS2_ACTIVE_POWER_L1, 1111) //
-						.output(CLUSTER_ACTIVE_POWER_L1, 1111) //
+						.output(CLUSTER_ACTIVE_POWER_L1, 1234 / 3 + 1111) //
 
 						.input(ESS1_ALLOWED_CHARGE_POWER, 11) //
 						.input(ESS2_ALLOWED_CHARGE_POWER, 22) //

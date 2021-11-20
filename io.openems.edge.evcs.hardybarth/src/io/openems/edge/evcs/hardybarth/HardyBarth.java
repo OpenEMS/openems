@@ -7,8 +7,11 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.type.TypeUtils;
 
-interface HardyBarth {
+public interface HardyBarth {
+
+	public static final double SCALE_FACTOR_MINUS_1 = 0.1;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
@@ -40,6 +43,7 @@ interface HardyBarth {
 
 		// SALIA
 		RAW_SALIA_CHARGE_MODE(Doc.of(OpenemsType.STRING), "secc", "port0", "salia", "chargemode"), //
+		RAW_SALIA_CHANGE_METER(Doc.of(OpenemsType.STRING), "secc", "port0", "salia", "changemeter"), //
 		RAW_SALIA_AUTHMODE(Doc.of(OpenemsType.STRING), "secc", "port0", "salia", "authmode"), //
 		RAW_SALIA_FIRMWARESTATE(Doc.of(OpenemsType.STRING), "secc", "port0", "salia", "firmwarestate"), //
 		RAW_SALIA_FIRMWAREPROGRESS(Doc.of(OpenemsType.STRING), "secc", "port0", "salia", "firmwareprogress"), //
@@ -73,23 +77,34 @@ interface HardyBarth {
 		}), "secc", "port0", "metering", "meter", "available"), //
 
 		// METERING - POWER
-		RAW_ACTIVE_POWER_L1(Doc.of(OpenemsType.LONG), "secc", "port0", "metering", "power", "active", "ac", "l1",
-				"actual"), //
-		RAW_ACTIVE_POWER_L2(Doc.of(OpenemsType.LONG), "secc", "port0", "metering", "power", "active", "ac", "l2",
-				"actual"), //
-		RAW_ACTIVE_POWER_L3(Doc.of(OpenemsType.LONG), "secc", "port0", "metering", "power", "active", "ac", "l2",
-				"actual"), //
+		RAW_ACTIVE_POWER_L1(Doc.of(OpenemsType.LONG).unit(Unit.WATT), (value) -> {
+			Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, value);
+			return TypeUtils.getAsType(OpenemsType.LONG, TypeUtils.multiply(doubleValue, SCALE_FACTOR_MINUS_1));
+		}, "secc", "port0", "metering", "power", "active", "ac", "l1", "actual"), //
+
+		RAW_ACTIVE_POWER_L2(Doc.of(OpenemsType.LONG).unit(Unit.WATT), (value) -> {
+			Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, value);
+			return TypeUtils.getAsType(OpenemsType.LONG, TypeUtils.multiply(doubleValue, SCALE_FACTOR_MINUS_1));
+		}, "secc", "port0", "metering", "power", "active", "ac", "l2", "actual"), //
+
+		RAW_ACTIVE_POWER_L3(Doc.of(OpenemsType.LONG).unit(Unit.WATT), (value) -> {
+			Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, value);
+			return TypeUtils.getAsType(OpenemsType.LONG, TypeUtils.multiply(doubleValue, SCALE_FACTOR_MINUS_1));
+		}, "secc", "port0", "metering", "power", "active", "ac", "l2", "actual"), //
 
 		// METERING - CURRENT
-		RAW_ACTIVE_CURRENT_L1(Doc.of(OpenemsType.STRING), "secc", "port0", "metering", "current", "ac", "l1", "actual"), //
-		RAW_ACTIVE_CURRENT_L2(Doc.of(OpenemsType.STRING), "secc", "port0", "metering", "current", "ac", "l2", "actual"), //
-		RAW_ACTIVE_CURRENT_L3(Doc.of(OpenemsType.STRING), "secc", "port0", "metering", "current", "ac", "l3", "actual"), //
+		RAW_ACTIVE_CURRENT_L1(Doc.of(OpenemsType.LONG).unit(Unit.MILLIAMPERE), "secc", "port0", "metering", "current",
+				"ac", "l1", "actual"), //
+		RAW_ACTIVE_CURRENT_L2(Doc.of(OpenemsType.LONG).unit(Unit.MILLIAMPERE), "secc", "port0", "metering", "current",
+				"ac", "l2", "actual"), //
+		RAW_ACTIVE_CURRENT_L3(Doc.of(OpenemsType.LONG).unit(Unit.MILLIAMPERE), "secc", "port0", "metering", "current",
+				"ac", "l3", "actual"), //
 
 		// METERING - ENERGY
-		RAW_ACTIVE_ENERGY_TOTAL(Doc.of(OpenemsType.DOUBLE), "secc", "port0", "metering", "energy", "active_total",
-				"actual"), //
-		RAW_ACTIVE_ENERGY_EXPORT(Doc.of(OpenemsType.DOUBLE), "secc", "port0", "metering", "energy", "active_export",
-				"actual"), //
+		RAW_ACTIVE_ENERGY_TOTAL(Doc.of(OpenemsType.DOUBLE).unit(Unit.WATT_HOURS), "secc", "port0", "metering", "energy",
+				"active_total", "actual"), //
+		RAW_ACTIVE_ENERGY_EXPORT(Doc.of(OpenemsType.DOUBLE).unit(Unit.WATT_HOURS), "secc", "port0", "metering",
+				"energy", "active_export", "actual"), //
 
 		// EMERGENCY SHUTDOWN
 		RAW_EMERGENCY_SHUTDOWN(Doc.of(OpenemsType.STRING), "secc", "port0", "emergency_shutdown"), //

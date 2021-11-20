@@ -114,6 +114,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 										case "GW5K-ET":
 											result = GoodweType.GOODWE_5K_ET;
 											break;
+										case "FHI-10-DAH":
+											result = GoodweType.FENECON_FHI_10_DAH;
+											break;
 										default:
 											this.logInfo(this.log, "Unable to identify GoodWe by name [" + value + "]");
 											result = GoodweType.UNDEFINED;
@@ -129,6 +132,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 										case GOODWE_10K_ET:
 										case GOODWE_8K_ET:
 										case GOODWE_5K_ET:
+										case FENECON_FHI_10_DAH:
 											this.logInfo(this.log, "Identified " + result.getName());
 											break;
 										case UNDEFINED:
@@ -174,11 +178,11 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 									if (intValue != null) {
 										switch (intValue) {
 										case 0:
-											return GridMode.OFF_GRID;
+											return GridMode.UNDEFINED;
 										case 1:
 											return GridMode.ON_GRID;
 										case 2:
-											return GridMode.UNDEFINED;
+											return GridMode.OFF_GRID;
 										}
 									}
 									return GridMode.UNDEFINED;
@@ -192,30 +196,13 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.INVERT), //
 						m(GoodWe.ChannelId.AC_APPARENT_POWER, new SignedDoublewordElement(35143), //
 								ElementToChannelConverter.INVERT), //
-						m(GoodWe.ChannelId.BACK_UP_V_LOAD_R, new UnsignedWordElement(35145), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.BACK_UP_I_LOAD_R, new UnsignedWordElement(35146),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.BACK_UP_F_LOAD_R, new UnsignedWordElement(35147),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+						new DummyRegisterElement(35145, 35147), //
 						m(GoodWe.ChannelId.LOAD_MODE_R, new UnsignedWordElement(35148)), //
-						m(GoodWe.ChannelId.BACK_UP_P_LOAD_R, new SignedDoublewordElement(35149)), //
-						m(GoodWe.ChannelId.BACK_UP_V_LOAD_S, new UnsignedWordElement(35151),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.BACK_UP_I_LOAD_S, new UnsignedWordElement(35152),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.BACK_UP_F_LOAD_S, new UnsignedWordElement(35153),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+						new DummyRegisterElement(35149, 35153), //
 						m(GoodWe.ChannelId.LOAD_MODE_S, new UnsignedWordElement(35154)), //
-						m(GoodWe.ChannelId.BACK_UP_P_LOAD_S, new SignedDoublewordElement(35155)), //
-						m(GoodWe.ChannelId.BACK_UP_V_LOAD_T, new UnsignedWordElement(35157),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.BACK_UP_I_LOAD_T, new UnsignedWordElement(35158),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.BACK_UP_F_LOAD_T, new UnsignedWordElement(35159),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+						new DummyRegisterElement(35155, 35159), //
 						m(GoodWe.ChannelId.LOAD_MODE_T, new UnsignedWordElement(35160)), //
-						m(GoodWe.ChannelId.BACK_UP_P_LOAD_T, new SignedDoublewordElement(35161)), //
+						new DummyRegisterElement(35161, 35162), //
 						m(GoodWe.ChannelId.P_LOAD_R, new SignedDoublewordElement(35163)), //
 						m(GoodWe.ChannelId.P_LOAD_S, new SignedDoublewordElement(35165)), //
 						m(GoodWe.ChannelId.P_LOAD_T, new SignedDoublewordElement(35167)), //
@@ -1008,7 +995,10 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [400*N,480*N]
 						m(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, new UnsignedWordElement(45355),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [0,1000]
-						m(GoodWe.ChannelId.BMS_SOC_UNDER_MIN, new UnsignedWordElement(45356))), // [0,100]
+						m(GoodWe.ChannelId.BMS_SOC_UNDER_MIN, new UnsignedWordElement(45356)), // [0,100]
+						m(GoodWe.ChannelId.BMS_OFFLINE_DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(45357),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // ), //
+						m(GoodWe.ChannelId.BMS_OFFLINE_SOC_UNDER_MIN, new UnsignedWordElement(45358))), //
 
 				// Safety Parameters
 				new FC16WriteRegistersTask(45400, //

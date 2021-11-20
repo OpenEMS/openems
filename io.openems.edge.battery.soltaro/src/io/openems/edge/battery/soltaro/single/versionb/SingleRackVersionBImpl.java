@@ -39,6 +39,7 @@ import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
@@ -69,8 +70,8 @@ import io.openems.edge.common.taskmanager.Priority;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
-public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
-		implements Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable, SingleRackVersionB {
+public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent implements Battery, ModbusComponent,
+		OpenemsComponent, EventHandler, ModbusSlave, StartStoppable, SingleRackVersionB {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -94,6 +95,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 	public SingleRackVersionBImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				SingleRackVersionB.ChannelId.values(), //

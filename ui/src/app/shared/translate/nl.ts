@@ -107,8 +107,22 @@ export const TRANSLATION = {
         toEnergymonitor: 'Naar Energiemonitor...',
         type: 'Type:'
     },
+    Login: {
+        title: "Login",
+        preamble: "Voer uw wachtwoord in of bevestig de standaard om in te loggen als gast.",
+        passwordLabel: "Wachtwoord",
+        passwordReset: "Wachtwoord opnieuw instellen",
+        authenticationFailed: "Authenticatie mislukt",
+    },
+    Register: {
+        title: "Gebruikersaccount aanmaken",
+    },
     Edge: {
         Index: {
+            EmergencyReserve: {
+                InfoForEmergencyReserveSlider: 'Door de noodstroomreserve te activeren, kan de waarde vrij worden gekozen tussen 5% en 100%.',
+                emergencyReserve: 'noodreserve',
+            },
             Energymonitor: {
                 activePower: 'Actief vermogen',
                 consumptionWarning: 'Verbruik & onbekende producenten',
@@ -313,7 +327,18 @@ export const TRANSLATION = {
                     normalOperationShort: '',
                     switchOnComShort: '',
                     switchOnRecShort: '',
-                }
+                },
+                TimeOfUseTariff: {
+                    currentTariff: 'Huidige prijs',
+                    delayedDischarge: 'Vertraagd ontslag',
+                    storageDischarge: 'Opslag ontlading',
+                    State: {
+                        notStarted: 'De regelaar is nog niet gestart',
+                        delayed: 'Vertraagd',
+                        allowsDischarge: 'Vrijgegeven',
+                        standby: 'Standby',
+                    },
+                },
             }
         },
         History: {

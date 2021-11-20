@@ -1,4 +1,4 @@
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -15,16 +15,11 @@ import { FormlyWrapperFormField } from './formly/form-field.wrapper';
 import { InputTypeComponent } from './formly/input';
 import { FormlyInputSerialNumberWrapper as FormlyWrapperInputSerialNumber } from './formly/input-serial-number-wrapper';
 import { RepeatTypeComponent } from './formly/repeat';
+import { Generic_ComponentsModule } from './genericComponents/genericComponents';
 import { HeaderComponent } from './header/header.component';
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
 import { PickDateComponent } from './pickdate/pickdate.component';
-import { ClassnamePipe } from './pipe/classname/classname.pipe';
-import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
-import { IsclassPipe } from './pipe/isclass/isclass.pipe';
-import { KeysPipe } from './pipe/keys/keys.pipe';
-import { SecToHourMinPipe } from './pipe/sectohour/sectohour.pipe';
-import { SignPipe } from './pipe/sign/sign.pipe';
-import { UnitvaluePipe } from './pipe/unitvalue/unitvalue.pipe';
+import { PipeModule } from './pipe/pipe';
 import { Service } from './service/service';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
@@ -53,16 +48,10 @@ import { Language } from './translate/language';
         { name: 'repeat', component: RepeatTypeComponent },
       ],
     }),
+    PipeModule,
+    Generic_ComponentsModule
   ],
   declarations: [
-    // pipes
-    ClassnamePipe,
-    HasclassPipe,
-    IsclassPipe,
-    KeysPipe,
-    SecToHourMinPipe,
-    SignPipe,
-    UnitvaluePipe,
     // components
     ChartOptionsComponent,
     HeaderComponent,
@@ -75,14 +64,6 @@ import { Language } from './translate/language';
     FormlyWrapperInputSerialNumber,
   ],
   exports: [
-    // pipes
-    ClassnamePipe,
-    HasclassPipe,
-    IsclassPipe,
-    KeysPipe,
-    SecToHourMinPipe,
-    SignPipe,
-    UnitvaluePipe,
     // modules
     BrowserAnimationsModule,
     ChartsModule,
@@ -95,6 +76,8 @@ import { Language } from './translate/language';
     ReactiveFormsModule,
     RouterModule,
     TranslateModule,
+    PipeModule,
+    Generic_ComponentsModule,
     // components
     ChartOptionsComponent,
     HeaderComponent,
@@ -103,13 +86,10 @@ import { Language } from './translate/language';
   ],
   providers: [
     appRoutingProviders,
-    DecimalPipe,
-    SecToHourMinPipe,
     Service,
-    UnitvaluePipe,
     Utils,
     Websocket,
   ]
 })
-export class SharedModule {
-}
+
+export class SharedModule { }

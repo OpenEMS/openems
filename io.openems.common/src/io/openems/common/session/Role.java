@@ -83,7 +83,7 @@ public enum Role {
 			// Ok
 			return this;
 		} else {
-			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, this);
+			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, this.toString());
 		}
 	}
 

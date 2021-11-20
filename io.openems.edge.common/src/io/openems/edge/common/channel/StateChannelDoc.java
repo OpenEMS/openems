@@ -14,6 +14,7 @@ public class StateChannelDoc extends AbstractDoc<Boolean> {
 	public StateChannelDoc(Level level) {
 		super(OpenemsType.BOOLEAN);
 		this.level = level;
+		this.initialValue(false);
 	}
 
 	@Override

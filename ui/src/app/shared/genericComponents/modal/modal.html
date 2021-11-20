@@ -1,0 +1,23 @@
+<ion-header>
+    <ion-toolbar color="primary">
+        <ion-title translate>{{title}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalController.dismiss()">
+                <ion-icon name="close-outline" size="medium" color="light"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content>
+    <form [formGroup]="formGroup" style="margin-top: 3%">
+        <ng-content></ng-content>
+    </form>
+
+    <!-- Submit-Button appears when formControl values are changed -->
+    <ion-fab *ngIf="formGroup && formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="end">
+        <ion-fab-button (click)="applyChanges()">
+            <ion-icon size="large" name="checkmark-circle-outline">
+            </ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+</ion-content>

@@ -33,6 +33,10 @@ public class GetEdgeConfigRequest extends JsonrpcRequest {
 		return new GetEdgeConfigRequest(r);
 	}
 
+	public GetEdgeConfigRequest() {
+		super(METHOD);
+	}
+
 	private GetEdgeConfigRequest(JsonrpcRequest request) {
 		super(request, METHOD);
 	}

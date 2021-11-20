@@ -49,7 +49,7 @@ public class PeriodicWriteWorker {
 	/**
 	 * Executor for subscriptions task.
 	 */
-	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1,
+	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(10,
 			new ThreadFactoryBuilder().setNameFormat("Metadata.Odoo.PGPeriodic-%d").build());
 
 	public PeriodicWriteWorker(PostgresHandler parent, HikariDataSource dataSource) {

@@ -150,6 +150,14 @@ public enum Unit {
 	VOLT_AMPERE_HOURS("VAh"),
 
 	// ##########
+	// Energy Tariff
+	// ##########
+	/**
+	 * Unit of Energy Price [€/MWh].
+	 */
+	EUROS_PER_MEGAWATT_HOUR("€/MWh"),
+
+	// ##########
 	// Frequency
 	// ##########
 
@@ -267,6 +275,7 @@ public enum Unit {
 		case AMPERE:
 		case DEGREE_CELSIUS:
 		case DEZIDEGREE_CELSIUS:
+		case EUROS_PER_MEGAWATT_HOUR:
 		case HERTZ:
 		case MILLIAMPERE:
 		case MILLIHERTZ:
