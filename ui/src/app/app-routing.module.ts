@@ -87,6 +87,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/settings/systemlog', component: EdgeSettingsSystemLogComponent },
   { path: 'device/:edgeId/settings/systemupdate', component: EdgeSettingsSystemUpdateComponent },
   { path: 'device/:edgeId/settings/systemupdate.old', component: EdgeSettingsSystemUpdateOldComponent },
+  { path: 'demo', component: IndexComponent }
 ];
 
 export const appRoutingProviders: any[] = [

@@ -1,12 +1,12 @@
 import { ActivatedRoute } from '@angular/router';
 import { AdvertWidgets } from 'src/app/shared/type/widget';
-import { Component, ViewChild, Input } from '@angular/core';
+import { Component, ViewChild, Input, ChangeDetectorRef } from '@angular/core';
 import { Edge, Service, EdgeConfig } from '../../../shared/shared';
 import { ModalController, IonSlides } from '@ionic/angular';
 import { environment } from 'src/environments';
 
 @Component({
-  selector: AdvertisementComponent.SELECTOR,
+  selector: 'advertisement',
   templateUrl: './advertisement.component.html'
 })
 
@@ -19,8 +19,8 @@ export class AdvertisementComponent {
   public edge: Edge;
   public config: EdgeConfig;
   public environment = environment;
-
-  private static readonly SELECTOR = "advertisement";
+  public activeIndex: number;
+  public title: string = environment.edgeShortName + ' - App';
 
   public enableBtn: boolean = false;
   public disablePrevBtn: boolean = null;
@@ -32,15 +32,23 @@ export class AdvertisementComponent {
     preventClicks: false,
     preventClicksPropagation: false,
     speed: 5000,
-  };
+  }
 
   constructor(
     private route: ActivatedRoute,
     public modalCtrl: ModalController,
     public service: Service,
+    private cdref: ChangeDetectorRef
   ) { }
 
+  ngAfterContentChecked() {
+    this.cdref.detectChanges();
+  }
+
   ngOnInit() {
+    this.slides.getActiveIndex().then((index: number) => {
+      this.activeIndex = index;
+    });
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
     })
@@ -63,6 +71,9 @@ export class AdvertisementComponent {
   }
 
   changeSlides() {
+    this.slides.getActiveIndex().then((index: number) => {
+      this.activeIndex = index;
+    });
     this.slides.update();
   }
 

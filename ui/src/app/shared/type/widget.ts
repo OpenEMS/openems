@@ -50,7 +50,7 @@ export class AdvertWidget {
     name: string
 }
 
-export enum advertisableWidgetNautre {
+export enum advertisableWidgetNature {
     'io.openems.edge.evcs.api.Evcs',
 }
 
@@ -71,12 +71,16 @@ export class AdvertWidgets {
             }
         }
 
-        for (let nature of Object.values(advertisableWidgetNautre).filter(v => typeof v === 'string')) {
+        for (let nature of Object.values(advertisableWidgetNature).filter(v => typeof v === 'string')) {
             if (nature == 'io.openems.edge.evcs.api.Evcs' && config.widgets.names.includes('io.openems.edge.evcs.api.Evcs') == false) {
                 list.push({ name: nature });
             }
         }
-        list.push({ name: 'Heimatstrom' });
+        list.push(
+            { name: 'Heimatstrom' },
+            { name: 'Stille Beteiligung' },
+            { name: 'FENECON Home' }
+        );
         return new AdvertWidgets(list);
     }
 
