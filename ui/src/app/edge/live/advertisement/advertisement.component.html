@@ -3,7 +3,7 @@
         <ion-avatar slot="start">
             <img src="assets/img/fems-app.png">
         </ion-avatar>
-        <ion-label>{{environment.edgeShortName}}-App
+        <ion-label>{{title}}
         </ion-label>
         <ion-buttons slot="end" *ngIf="enableBtn">
             <ion-button size="small" fill="clear" (click)="swipePrevious()" *ngIf="!disablePrevBtn">
@@ -18,11 +18,16 @@
         <ion-slides [options]="slideOpts" #slides (ionSlidesDidLoad)="slidesDidLoad(slides)"
             (ionSlideWillChange)="changeSlides()" (ionSlideTransitionStart)="changeNextPrevButtons()">
             <ng-container *ngFor="let widget of advertWidgets.list" [ngSwitch]="widget.name">
-                <ion-slide *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'">
-                    <evcsupgrade></evcsupgrade>
+                <ion-slide *ngSwitchCase="'Stille Beteiligung'">
+
+                    <!-- TODO find better workaround if possible for activeIndex -->
+                    <silent_Partnership *ngIf="activeIndex == 0" (titleEvent)="title = $event">
+                    </silent_Partnership>
                 </ion-slide>
-                <ion-slide *ngSwitchCase="'Heimatstrom'">
-                    <homeelectric></homeelectric>
+
+                <ion-slide *ngSwitchCase="'FENECON Home'">
+                    <fenecon_Home *ngIf="activeIndex == 1" (titleEvent)="title = $event">
+                    </fenecon_Home>
                 </ion-slide>
             </ng-container>
         </ion-slides>

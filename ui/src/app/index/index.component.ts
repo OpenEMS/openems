@@ -68,6 +68,9 @@ export class IndexComponent {
   }
 
   ionViewWillEnter() {
+    if (this.route.snapshot.routeConfig.path == 'demo') {
+      this.websocket.login(new AuthenticateWithPasswordRequest({ username: 'demo@fenecon.de', password: 'femsdemo' }));
+    }
     this.service.setCurrentComponent('', this.route);
   }
 
