@@ -67,9 +67,18 @@ export class IndexComponent {
       })
   }
 
-  ionViewWillEnter() {
+
+  async ionViewWillEnter() {
+
+    // Execute Login-Request if url path matches 'demo' 
     if (this.route.snapshot.routeConfig.path == 'demo') {
-      this.websocket.login(new AuthenticateWithPasswordRequest({ username: 'demo@fenecon.de', password: 'femsdemo' }));
+
+      // Wait for Websocket
+      await new Promise((resolve) => setTimeout(() => {
+        if (this.websocket.status == 'waiting for credentials') {
+          resolve(this.websocket.login(new AuthenticateWithPasswordRequest({ username: 'demo@fenecon.de', password: 'femsdemo' })));
+        }
+      }, 1000))
     }
     this.service.setCurrentComponent('', this.route);
   }

@@ -52,14 +52,15 @@ export class AdvertisementComponent {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
     })
+
     // enables or disables nav buttons generally
-    if (this.advertWidgets.names.length > 1) {
-      this.enableBtn = true;
-      this.disablePrevBtn = true;
-      this.disableNextBtn = false;
-    } else {
-      this.enableBtn = false;
-    }
+    this.slides.length().then(length => {
+      if (length > 1) {
+        this.enableBtn = true;
+        this.disablePrevBtn = true;
+        this.disableNextBtn = false;
+      }
+    })
   }
 
   ngOnDestroy() {
@@ -78,15 +79,16 @@ export class AdvertisementComponent {
   }
 
   changeNextPrevButtons() {
-    // checks if slide is first/last element and sets the next/previous button accordingly
-    if (this.enableBtn == true) {
+
+    // If more than one slide
+    if (this.enableBtn) {
       this.slides.getSwiper().then(swiper => {
-        // not using isEnd/Beginning Promise because at 2 slides it sometimes returns false for both options
-        let index = swiper.realIndex
-        if (index == 0) {
+        if (swiper.isBeginning) {
+          // Show only nextButton for first slide
           this.disablePrevBtn = true
           this.disableNextBtn = false
-        } else if (index == this.advertWidgets.names.length - 1) {
+        } else if (swiper.isEnd) {
+          // Show only previousButton for last slide
           this.disablePrevBtn = false
           this.disableNextBtn = true
         } else {

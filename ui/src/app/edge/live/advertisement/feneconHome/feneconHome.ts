@@ -5,7 +5,7 @@ import { Component, EventEmitter, Output } from "@angular/core";
     templateUrl: './feneconHome.html'
 })
 export class FeneconHomeComponent {
-    public title: string = 'Fenecon Home';
+    public title: string = 'FENECON Home';
     @Output() public titleEvent: EventEmitter<String> = new EventEmitter<String>();
 
     updateParentTitle() {
