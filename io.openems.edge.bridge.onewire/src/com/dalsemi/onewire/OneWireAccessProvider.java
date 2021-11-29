@@ -227,7 +227,7 @@ public class OneWireAccessProvider {
 		// get the pure java adapter
 		try {
 			adapter_class = Class.forName("com.dalsemi.onewire.adapter.USerialAdapter");
-			adapter_instance = (DSPortAdapter) adapter_class.newInstance();
+			adapter_instance = (DSPortAdapter) adapter_class.getConstructor().newInstance();
 
 			// check if has any ports (common javax.comm problem)
 			if (!adapter_instance.getPortNames().hasMoreElements()) {
@@ -270,7 +270,7 @@ public class OneWireAccessProvider {
 		// try PDK adapter
 		try {
 			adapter_class = Class.forName("com.dalsemi.onewire.adapter.PDKAdapterUSB");
-			adapter_instance = (DSPortAdapter) adapter_class.newInstance();
+			adapter_instance = (DSPortAdapter) adapter_class.getConstructor().newInstance();
 
 			adapter_vector.addElement(adapter_instance);
 		} catch (java.lang.NoClassDefFoundError e) {
@@ -282,7 +282,7 @@ public class OneWireAccessProvider {
 		// get the network adapter
 		try {
 			adapter_class = Class.forName("com.dalsemi.onewire.adapter.NetAdapter");
-			adapter_instance = (DSPortAdapter) adapter_class.newInstance();
+			adapter_instance = (DSPortAdapter) adapter_class.getConstructor().newInstance();
 
 			adapter_vector.addElement(adapter_instance);
 		} catch (java.lang.NoClassDefFoundError e) {
@@ -303,7 +303,7 @@ public class OneWireAccessProvider {
 
 				// add it to the enum
 				adapter_class = Class.forName(class_name);
-				adapter_instance = (DSPortAdapter) adapter_class.newInstance();
+				adapter_instance = (DSPortAdapter) adapter_class.getConstructor().newInstance();
 				adapter_vector.addElement(adapter_instance);
 			}
 		} catch (java.lang.UnsatisfiedLinkError e) {
@@ -536,7 +536,7 @@ public class OneWireAccessProvider {
 			else if (propName.equals("onewire.port.default")) {
 				try {
 					adapter_class = Class.forName("com.dalsemi.onewire.adapter.USerialAdapter");
-					adapter_instance = (DSPortAdapter) adapter_class.newInstance();
+					adapter_instance = (DSPortAdapter) adapter_class.getConstructor().newInstance();
 
 					// check if has any ports (common javax.comm problem)
 					if (adapter_instance.getPortNames().hasMoreElements())

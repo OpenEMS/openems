@@ -13,7 +13,6 @@ Include-Resource: \
 -metatypeannotations: *
 
 Export-Package: \
-	javax.xml.bind;resolution:=optional,\
 	org.apache.xmlrpc,\
 	org.apache.xmlrpc.client,\
 	org.apache.xmlrpc.common,\
