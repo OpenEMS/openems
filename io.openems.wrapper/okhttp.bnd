@@ -5,9 +5,9 @@ Bundle-License: https://opensource.org/licenses/Apache-2.0
 Bundle-Version: 3.14.9
 
 Include-Resource: \
-	@logging-interceptor-3.14.9.jar,\
-	@okhttp-3.14.9.jar,\
-	@okio-1.17.2.jar,\
+	@logging-interceptor-4.9.3.jar,\
+	@okhttp-4.9.3.jar,\
+	@okio-3.0.0.jar,\
 
 Export-Package: \
    okhttp3,\
