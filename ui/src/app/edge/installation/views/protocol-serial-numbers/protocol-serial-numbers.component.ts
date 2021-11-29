@@ -310,8 +310,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
           templateOptions: {
             label: "Wechselrichter",
             required: true,
-            prefix: "9010KETU",
-            placeholder: "xxxxxxxx"
+            placeholder: "xxxxxxxxxxxxxxxx"
           },
           validators: {
             validation: ["batteryInverterSerialNumber"]
