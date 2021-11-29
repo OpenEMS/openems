@@ -1,11 +1,12 @@
-package io.openems.edge.timeofusetariff.corrently;
+package io.openems.edge.timeofusetariff.tibber;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Time-Of-Use Tariff Corrently", //
-		description = "Time-Of-Use Tariff implementation for Corrently.")
+		name = "Time-Of-Use Tariff Tibber", //
+		description = "Time-Of-Use Tariff implementation for Tibber.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -17,8 +18,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "ZIP Code", description = "German ZIP Code of the customer location")
-	String zipcode();
+	@AttributeDefinition(name = "Access Token", description = "Access token for the Tibber API", type = AttributeType.PASSWORD)
+	String accessToken() default "";
 
-	String webconsole_configurationFactory_nameHint() default "Time-Of-Use Tariff Corrently [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Time-Of-Use Tariff Tibber [{id}]";
 }

@@ -56,41 +56,37 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 	private final AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>> prices = new AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>>(
 			ImmutableSortedMap.of());
 
-	private Clock updateTimeStamp = Clock.fixed(Instant.MIN, ZoneId.systemDefault());
+	private ZonedDateTime updateTimeStamp = null;
 
 	private final Runnable task = () -> {
 
 		/*
 		 * Update Map of prices
 		 */
-		ImmutableSortedMap<ZonedDateTime, Float> prices;
-		try {
-			Integer zipcode = this.config.zipcode();
-			OkHttpClient client = new OkHttpClient();
-			Request request = new Request.Builder() //
-					.url(CORRENTLY_API_URL.concat(zipcode.toString())) //
-					// .header("Authorization", Credentials.basic(apikey, "")) //
-					.build();
-
-			Response response = client.newCall(request).execute();
-			this.channel(Corrently.ChannelId.HTTP_STATUS_CODE).setNextValue(response.code());
+		OkHttpClient client = new OkHttpClient();
+		Request request = new Request.Builder() //
+				.url(CORRENTLY_API_URL + this.config.zipcode() + "&resolution=900") //
+				.build();
+		int httpStatusCode;
+		try (Response response = client.newCall(request).execute()) {
+			httpStatusCode = response.code();
 
 			if (!response.isSuccessful()) {
 				throw new IOException("Unexpected code " + response);
 			}
 
 			// Parse the response for the prices
-			prices = CorrentlyImpl.parsePrices(response.body().toString());
+			this.prices.set(CorrentlyImpl.parsePrices(response.body().string()));
 
 			// store the time stamp
-			this.updateTimeStamp = Clock.systemDefaultZone();
+			this.updateTimeStamp = ZonedDateTime.now();
 
 		} catch (IOException | OpenemsNamedException e) {
 			e.printStackTrace();
-			prices = ImmutableSortedMap.of();
+			httpStatusCode = 0;
 		}
 
-		this.prices.set(prices);
+		this.channel(Corrently.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
 
 		/*
 		 * Schedule next price update for 2 pm
@@ -136,6 +132,11 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 
 	@Override
 	public TimeOfUsePrices getPrices() {
+		// return null if data is not yet available.
+		if (this.updateTimeStamp == null) {
+			return null;
+		}
+
 		return TimeOfUseTariffUtils.getNext24HourPrices(Clock.systemDefaultZone() /* can be mocked for testing */,
 				this.prices.get(), this.updateTimeStamp);
 	}
@@ -152,7 +153,7 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 
 		if (!jsonData.isEmpty()) {
 
-			JsonObject line = JsonUtils.getAsJsonObject(JsonUtils.parse(jsonData));
+			JsonObject line = JsonUtils.parseToJsonObject(jsonData);
 			JsonArray data = JsonUtils.getAsJsonArray(line, "data");
 
 			for (JsonElement element : data) {
@@ -163,13 +164,9 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 				// Converting Long time stamp to ZonedDateTime.
 				ZonedDateTime startTimeStamp = ZonedDateTime //
 						.ofInstant(Instant.ofEpochMilli(startTimestampLong), ZoneId.systemDefault())
-						.truncatedTo(ChronoUnit.HOURS);
-
+						.truncatedTo(ChronoUnit.MINUTES);
 				// Adding the values in the Map.
 				result.put(startTimeStamp, marketPrice);
-				result.put(startTimeStamp.plusMinutes(15), marketPrice);
-				result.put(startTimeStamp.plusMinutes(30), marketPrice);
-				result.put(startTimeStamp.plusMinutes(45), marketPrice);
 			}
 		}
 		return ImmutableSortedMap.copyOf(result);

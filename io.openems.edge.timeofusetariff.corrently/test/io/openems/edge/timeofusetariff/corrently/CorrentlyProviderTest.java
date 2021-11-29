@@ -17,12 +17,16 @@ public class CorrentlyProviderTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new CorrentlyImpl()) //
+		CorrentlyImpl corrently = new CorrentlyImpl();
+		new ComponentTest(corrently) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
-						.setZipcode(94469 /* Deggendorf, Germany */) //
+						.setZipcode("94469" /* Deggendorf, Germany */) //
 						.build()) //
 		;
+
+		// Thread.sleep(5000);
+		// System.out.println(sut.getPrices());
 	}
 
 	@Test

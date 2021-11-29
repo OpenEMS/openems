@@ -151,22 +151,19 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 		/*
 		 * Every day, Prices are updated in API at a certain hour. we update the
 		 * predictions and the prices during those hour.
+		 * 
+		 * gets the prices and predictions when the controller is restarted or //
+		 * re-enabled in any time.
 		 */
-		if (this.lastUpdatePriceTime.isBefore(prices.getUpdateTime())) {
+		if (prices != null && this.lastUpdatePriceTime.isBefore(prices.getUpdateTime())) {
 			// gets the prices, predictions and calculates the boundary space.
 			this.getBoundarySpace(now, prices);
 
+			// update lastUpdateTimestamp
+			this.lastUpdatePriceTime = prices.getUpdateTime();
 		} else {
 			// update the channel
 			this.channel(TimeOfUseTariffDischarge.ChannelId.QUATERLY_PRICES_TAKEN).setNextValue(false);
-		}
-
-		// Calculates the prices and predictions when the controller is restarted or
-		// re-enabled in any time.
-		if (this.quarterlyPricesMap.isEmpty()) {
-
-			// gets the prices, predictions and calculates the boundary space.
-			this.getBoundarySpace(now, prices);
 		}
 	}
 
@@ -221,8 +218,8 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	 */
 	private long getAvailableEnergy(ZonedDateTime now) throws InvalidValueException {
 
-		int netCapacity = this.ess.getCapacity().getOrError();
-		int soc = this.ess.getSoc().getOrError();
+		final int netCapacity = this.ess.getCapacity().getOrError();
+		final int soc = this.ess.getSoc().getOrError();
 
 		// Usable capacity based on minimum SoC from Limit total discharge and emergency
 		// reserve controllers.

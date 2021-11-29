@@ -1,4 +1,4 @@
-package io.openems.edge.timeofusetariff.corrently;
+package io.openems.edge.timeofusetariff.tibber;
 
 import io.openems.edge.common.test.AbstractComponentConfig;
 
@@ -7,7 +7,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
 		private String id;
-		public String zipcode;
+		public String accessToken;
 
 		private Builder() {
 		}
@@ -17,8 +17,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setZipcode(String zipcode) {
-			this.zipcode = zipcode;
+		public Builder setAccessToken(String accessToken) {
+			this.accessToken = accessToken;
 			return this;
 		}
 
@@ -44,8 +44,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String zipcode() {
-		return this.builder.zipcode;
+	public String accessToken() {
+		return this.builder.accessToken;
 	}
 
 }
