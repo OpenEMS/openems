@@ -38,24 +38,11 @@ public class AbstractChannelManager<ESS extends SymmetricEss, BATTERY extends Ba
 	 */
 	public void activate(ClockProvider clockProvider, Battery battery,
 			ManagedSymmetricBatteryInverter batteryInverter) {
-		/*
-		 * Battery
-		 */
-		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
-				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
-		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MAX_CURRENT,
-				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
-		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_VOLTAGE,
-				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
-		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_CURRENT,
-				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
-		this.addCopyListener(battery, //
-				Battery.ChannelId.CAPACITY, //
-				SymmetricEss.ChannelId.CAPACITY);
-		this.addCopyListener(battery, //
-				Battery.ChannelId.SOC, //
-				SymmetricEss.ChannelId.SOC);
+		this.addBatteryListener(clockProvider, battery);
+		this.addBatteryInverterListener(batteryInverter);
+	}
 
+	private void addBatteryInverterListener(ManagedSymmetricBatteryInverter batteryInverter) {
 		/*
 		 * Battery-Inverter
 		 */
@@ -102,6 +89,26 @@ public class AbstractChannelManager<ESS extends SymmetricEss, BATTERY extends Ba
 		}
 	}
 
+	private void addBatteryListener(ClockProvider clockProvider, Battery battery) {
+		/*
+		 * Battery
+		 */
+		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
+				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
+		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MAX_CURRENT,
+				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
+		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_VOLTAGE,
+				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
+		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_CURRENT,
+				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
+		this.addCopyListener(battery, //
+				Battery.ChannelId.CAPACITY, //
+				SymmetricEss.ChannelId.CAPACITY);
+		this.addCopyListener(battery, //
+				Battery.ChannelId.SOC, //
+				SymmetricEss.ChannelId.SOC);
+	}
+
 	/**
 	 * Adds a Copy-Listener. It listens on setNextValue() and copies the value to
 	 * the target channel.
@@ -118,5 +125,4 @@ public class AbstractChannelManager<ESS extends SymmetricEss, BATTERY extends Ba
 			targetChannel.setNextValue(value);
 		});
 	}
-
 }

@@ -32,6 +32,7 @@ import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.LogoutRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
+import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest;
 import io.openems.common.jsonrpc.response.AuthenticateResponse;
 import io.openems.common.jsonrpc.response.Base64PayloadResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
@@ -89,6 +90,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			break;
 		case SubmitSetupProtocolRequest.METHOD:
 			result = this.handleSubmitSetupProtocolRequest(user, SubmitSetupProtocolRequest.from(request));
+			break;
+		case UpdateUserLanguageRequest.METHOD:
+			result = this.handleUpdateUserLanguageRequest(user, UpdateUserLanguageRequest.from(request));
 			break;
 		}
 
@@ -151,7 +155,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		wsData.setUserId(user.getId());
 		wsData.setToken(user.getToken());
 		return CompletableFuture.completedFuture(new AuthenticateResponse(requestId, user.getToken(), user,
-				User.generateEdgeMetadatas(user, this.parent.metadata)));
+				User.generateEdgeMetadatas(user, this.parent.metadata), user.getLanguage()));
 	}
 
 	/**
@@ -372,6 +376,21 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		byte[] protocol = this.parent.metadata.getSetupProtocol(user, request.getSetupProtocolId());
 
 		return CompletableFuture.completedFuture(new Base64PayloadResponse(request.getId(), protocol));
+	}
+
+	/**
+	 * Handles a {@link UpdateUserLanguageRequest}.
+	 * 
+	 * @param user    the {@link User}r
+	 * @param request the {@link UpdateUserLanguageRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<? extends JsonrpcResponseSuccess> handleUpdateUserLanguageRequest(User user,
+			UpdateUserLanguageRequest request) throws OpenemsNamedException {
+		this.parent.metadata.updateUserLanguage(user, request.getLanguage());
+
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
 }

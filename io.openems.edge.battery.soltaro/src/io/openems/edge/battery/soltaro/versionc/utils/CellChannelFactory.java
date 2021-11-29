@@ -14,12 +14,23 @@ public class CellChannelFactory {
 	private static final String NUMBER_FORMAT = "%03d";
 
 	public static enum Type {
-		TEMPERATURE(//
+		TEMPERATURE_SINGLE(//
+				"_TEMPERATURE", //
+				Unit.DEZIDEGREE_CELSIUS, //
+				Constants.TEMPERATURE_ADDRESS_OFFSET + Constants.SINGLE_RACK_ADDRESS_OFFSET, //
+				Constants.TEMPERATURE_SENSORS_PER_MODULE), //
+		VOLTAGE_SINGLE(//
+				"_VOLTAGE", //
+				Unit.MILLIVOLT, //
+				Constants.VOLTAGE_ADDRESS_OFFSET + Constants.SINGLE_RACK_ADDRESS_OFFSET, //
+				Constants.VOLTAGE_SENSORS_PER_MODULE), //
+
+		TEMPERATURE_CLUSTER(//
 				"_TEMPERATURE", //
 				Unit.DEZIDEGREE_CELSIUS, //
 				Constants.TEMPERATURE_ADDRESS_OFFSET, //
 				Constants.TEMPERATURE_SENSORS_PER_MODULE), //
-		VOLTAGE(//
+		VOLTAGE_CLUSTER(//
 				"_VOLTAGE", //
 				Unit.MILLIVOLT, //
 				Constants.VOLTAGE_ADDRESS_OFFSET, //
@@ -33,12 +44,13 @@ public class CellChannelFactory {
 		private Type(String key, Unit unit, int offset, int sensorsPerModule) {
 			this.key = key;
 			this.unit = unit;
-			this.offset = Constants.ADDRESS_OFFSET + offset;
+			this.offset = +offset;
 			this.sensorsPerModule = sensorsPerModule;
 		}
 
 		/**
 		 * Gets the Offset.
+		 * 
 		 * @return int
 		 */
 		public int getOffset() {
@@ -47,6 +59,7 @@ public class CellChannelFactory {
 
 		/**
 		 * Gets the SensorsPerModule.
+		 * 
 		 * @return int
 		 */
 		public int getSensorsPerModule() {

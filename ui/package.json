@@ -1,18 +1,7 @@
 {
   "name": "openems-ui",
-  "version": "2021.14.0-SNAPSHOT",
-  "author": "OpenEMS Association e.V.",
-  "homepage": "http://openems.io",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "build-edge": "ng build -prod --env=edge --base-href / --output-path=target/edge",
-    "build-backend": "ng build -prod --env=backend --base-href /m/ --output-path=target/backend",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
-  },
+  "version": "2021.21.0-SNAPSHOT",
+  "license": "AGPL-3.0",
   "private": true,
   "dependencies": {
     "@angular/animations": "~12.1.4",
@@ -31,8 +20,8 @@
     "angular-mydatepicker": "^0.11.5",
     "chart.js": "^2.9.4",
     "classlist.js": "^1.1.20150312",
-    "d3": "^7.0.1",
-    "date-fns": "^2.23.0",
+    "d3": "^7.1.1",
+    "date-fns": "^2.25.0",
     "file-saver-es": "^2.0.5",
     "ng2-charts": "^2.4.3",
     "ngx-cookie-service": "^12.0.3",
@@ -76,6 +65,5 @@
     "protractor": "~7.0.0",
     "ts-node": "~10.1.0",
     "typescript": "~4.3.5"
-  },
-  "description": "OpenEMS UI"
+  }
 }

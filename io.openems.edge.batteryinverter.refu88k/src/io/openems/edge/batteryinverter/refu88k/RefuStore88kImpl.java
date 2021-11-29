@@ -30,6 +30,7 @@ import io.openems.edge.batteryinverter.refu88k.statemachine.StateMachine.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -65,7 +66,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 )
 public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements ManagedSymmetricBatteryInverter,
-		SymmetricBatteryInverter, OpenemsComponent, RefuStore88k, TimedataProvider, StartStoppable {
+		SymmetricBatteryInverter, ModbusComponent, OpenemsComponent, RefuStore88k, TimedataProvider, StartStoppable {
 
 	private final Logger log = LoggerFactory.getLogger(RefuStore88kImpl.class);
 	private Config config;
@@ -96,6 +97,7 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 	public RefuStore88kImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricBatteryInverter.ChannelId.values(), //
 				ManagedSymmetricBatteryInverter.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //

@@ -22,7 +22,9 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ChannelMetaInfoReadAndWrite;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -58,7 +60,7 @@ import io.openems.edge.ess.power.api.Power;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
 public class FeneconProEss extends AbstractOpenemsModbusComponent implements SymmetricEss, AsymmetricEss,
-		ManagedAsymmetricEss, ManagedSymmetricEss, OpenemsComponent, ModbusSlave, EventHandler {
+		ManagedAsymmetricEss, ManagedSymmetricEss, ModbusComponent, OpenemsComponent, ModbusSlave, EventHandler {
 
 	protected static final int MAX_APPARENT_POWER = 9000;
 
@@ -78,6 +80,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 	public FeneconProEss() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				AsymmetricEss.ChannelId.values(), //
 				ManagedAsymmetricEss.ChannelId.values(), //
@@ -438,12 +441,16 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 						m(ProChannelId.RTC_MINUTE, new UnsignedWordElement(9018)), //
 						m(ProChannelId.RTC_SECOND, new UnsignedWordElement(9019))), //
 				new FC16WriteRegistersTask(30558, //
-						m(ProChannelId.SETUP_MODE, new UnsignedWordElement(30558))), //
+						m(ProChannelId.SETUP_MODE, new UnsignedWordElement(30558),
+								new ChannelMetaInfoReadAndWrite(30157, 30558))), //
 				new FC16WriteRegistersTask(30559, //
-						m(ProChannelId.PCS_MODE, new UnsignedWordElement(30559))), //
+						m(ProChannelId.PCS_MODE, new UnsignedWordElement(30559),
+								new ChannelMetaInfoReadAndWrite(30158, 30559))), //
 				new FC3ReadRegistersTask(30157, Priority.LOW, //
-						m(ProChannelId.SETUP_MODE, new UnsignedWordElement(30157)), //
-						m(ProChannelId.PCS_MODE, new UnsignedWordElement(30158)))//
+						m(ProChannelId.SETUP_MODE, new UnsignedWordElement(30157),
+								new ChannelMetaInfoReadAndWrite(30157, 30558)), //
+						m(ProChannelId.PCS_MODE, new UnsignedWordElement(30158),
+								new ChannelMetaInfoReadAndWrite(30158, 30559)))//
 
 		);
 	}

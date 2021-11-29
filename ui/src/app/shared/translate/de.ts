@@ -21,8 +21,10 @@ export const TRANSLATION = {
         dateFormat: 'dd.MM.yyyy', // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
         dateFormatShort: 'dd.MM',
         digitalInputs: 'Digitaleingänge',
+        numberOfComponents: 'Anzahl der Komponenten',
         directConsumption: 'Direktverbrauch',
         dischargePower: 'Entladung',
+        energyLimit: 'Energielimit',
         fault: 'Fehler',
         grid: 'Netz',
         gridBuy: 'Netzbezug',
@@ -36,6 +38,7 @@ export const TRANSLATION = {
         insufficientRights: 'Unzureichende Rechte',
         live: 'Live',
         load: 'Last',
+        manual: 'Anleitung',
         manually: 'Manuell',
         measuredValue: 'Gemessener Wert',
         mode: 'Modus',
@@ -89,13 +92,15 @@ export const TRANSLATION = {
         },
     },
     Menu: {
-        aboutUI: 'Über OpenEMS UI',
-        edgeSettings: 'OpenEMS Edge Einstellungen',
+        aboutUI: 'Über OpenEMS',
+        accessLevel: 'Zugriffslevel',
+        edgeSettings: 'Einstellungen',
         generalSettings: 'Allgemeine Einstellungen',
         index: 'Übersicht',
         logout: 'Abmelden',
         menu: 'Menü',
-        overview: 'OpenEMS Edge Übersicht',
+        name: 'Name',
+        overview: 'Alle Systeme',
         settings: 'Einstellungen',
         user: 'Benutzer',
     },
@@ -104,14 +109,16 @@ export const TRANSLATION = {
         connectionInProgress: 'Verbindung wird aufgebaut...',
         connectionFailed: 'Verbindung zu {{value}} getrennt.', // value = name of websocket
         connectionSuccessful: 'Verbindung zu {{value}} hergestellt.', // value = name of websocket
+        deviceOffline: 'Das Gerät ist nicht verbunden!',
         isOffline: 'OpenEMS ist offline!',
+        loggedInAs: 'Angemeldet als:',
         toEnergymonitor: 'Zum Energiemonitor...',
+        type: 'Typ:'
     },
     Login: {
         title: "Login",
         preamble: "Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",
         passwordLabel: "Passwort",
-        passwordPlaceholder: "Passwort",
         passwordReset: "Passwort zurücksetzen",
         authenticationFailed: "Authentifizierung fehlgeschlagen",
     },
@@ -132,7 +139,7 @@ export const TRANSLATION = {
             phone: "Telefonnummer",
             email: "E-Mail Adresse",
             password: "Passwort",
-            confirmPassword: "Passwort wiederholen"
+            confirmPassword: "Passwort wiederholen",
         },
         button: "Anlegen",
         errors: {
@@ -143,6 +150,10 @@ export const TRANSLATION = {
     },
     Edge: {
         Index: {
+            EmergencyReserve: {
+                InfoForEmergencyReserveSlider: 'Durch Aktivieren kann eine Notstromreserve zwischen 5 % und 100 % der Batteriekapazität eingestellt werden.',
+                emergencyReserve: 'Notstromreserve',
+            },
             Energymonitor: {
                 activePower: 'Ausgabeleistung',
                 consumptionWarning: 'Verbrauch & unbekannte Erzeuger',
@@ -159,7 +170,8 @@ export const TRANSLATION = {
                 phasesInfo: 'Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.',
                 selfconsumptionInfo: 'Der Eigenverbrauch gibt an zu wie viel Prozent die aktuell erzeugte Leistung durch direkten Verbrauch und durch Speicherbeladung selbst genutzt wird.',
                 twoWayInfoGrid: 'Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug',
-                twoWayInfoStorage: 'Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung',
+                InfoStorageForCharge: 'Negative Werte entsprechen Speicher Beladung',
+                InfoStorageForDischarge: 'Positive Werte entsprechen Speicher Entladung',
                 Channeltreshold: {
                     output: 'Ausgang'
                 },
@@ -199,6 +211,56 @@ export const TRANSLATION = {
                     startTime: 'Startzeit',
                     startTimeCharge: 'Start-Zeit Beladung',
                 },
+                GridOptimizedCharge: {
+                    considerGridFeedInLimit: 'Maximale Netzeinspeisung berücksichtigen',
+                    endTime: 'Endzeit',
+                    endTimeDescription: 'Die Beladung erfolgt nicht mit der Maximalleistung für wenige Stunden, sondern gleichmäßig über einen längeren Zeitraum.',
+                    endTimeDetailedDescription: 'Die Beladung erfolgt nicht mit der Maximalleistung für wenige Stunden, sondern gleichmäßig mit maximal {{value1}} bis {{value2}} Uhr.', // value1 = maximum charge, value2 = end time
+                    endTimeLong: 'Endzeitpunkt der beschränkten Beladung',
+                    expectedSoc: 'Erwarteter Ladezustand',
+                    expectedSocWithoutSellToGridLimit: 'Ohne Vermeidung der maximalen Netzeinspeisung',
+                    gridFeedInLimitationAvoided: 'Einspeisebegrenzung vermieden',
+                    gridOptimizedChargeDisabled: 'Netzdienliche Beladung deaktiviert',
+                    high: 'Hoch',
+                    History: {
+                        batteryChargeGridLimitDescription: 'Die maximale Netzeinspeisung, ab der die Batteriebeladung erhöht wird (soweit möglich), liegt unter der maximal erlaubten Netzeinspeisung, um ein vorzeitiges Abregeln der Erzeugung zu verhindern.',
+                        priorityDescription: 'Die minimale Beladung hat eine höhere Priorität als die maximale Beladung',
+                    },
+                    low: 'Gering',
+                    maximumCharge: 'Maximale Beladung',
+                    maximumGridFeedIn: 'Maximal erlaubte Netzeinspeisung',
+                    medium: 'Mittel',
+                    minimumCharge: 'Minimale Beladung',
+                    RiskDescription: {
+                        Low: {
+                            functionDescription: 'Vergleichsweise frühzeitige Beladung des Speichers',
+                            storageDescription: 'Höhere Wahrscheinlichkeit, dass der Speicher vollständig beladen wird',
+                            pvCurtail: 'Geringere Wahrscheinlichkeit, dass die Abregelung der PV-Anlage vermieden wird',
+                        },
+                        Medium: {
+                            functionDescription: 'Vergleichsweise gleichmäßige Beladung des Speichers',
+                            storageDescription: 'Hohe Wahrscheinlichkeit, dass der Speicher vollständig beladen wird',
+                            pvCurtail: 'Hohe Wahrscheinlichkeit, dass die Abregelung der PV-Anlage vermieden wird',
+                        },
+                        High: {
+                            functionDescription: 'Vergleichsweise spätere Beladung des Speichers',
+                            storageDescription: 'Geringere Wahrscheinlichkeit, dass der Speicher voll wird',
+                            pvCurtail: 'Höhere Wahrscheinlichkeit, dass die Abregelung der PV-Anlage vermieden wird',
+                        },
+                    },
+                    riskPropensity: 'Risikobereitschaft',
+                    settingOnlyVisableForInstaller: 'Diese Einstellung ist nur für den Installateur sichtbar',
+                    State: {
+                        chargeLimitActive: 'Beladelimit aktiv',
+                        endTimeNotCalculated: 'Endzeitpunkt nicht berechnet',
+                        gridFeedInLimitationIsAvoided: 'Einspeisebegrenzung wird vermieden',
+                        noLimitActive: 'Kein Beladelimit aktiv',
+                        noLimitPossible: 'Keine Begrenzung Möglich(Eingeschränkt durch Steuerungen mit höherer Priorität)',
+                        notDefined: 'Nicht definiert',
+                        passedEndTime: 'Endzeitpunkt der begrenzten Beladung überschritten',
+                        storageAlreadyFull: 'Speicher bereits voll',
+                    },
+                },
                 CHP: {
                     highThreshold: 'Oberer Schwellenwert',
                     lowThreshold: 'Unterer Schwellenwert',
@@ -223,7 +285,7 @@ export const TRANSLATION = {
                     chargingStationPluggedInLocked: 'Ladestation eingesteckt + gesperrt',
                     clusterConfigError: 'Bei der Konfiguration des Evcs-Clusters ist ein Fehler aufgetreten',
                     currentCharge: 'Aktuelle Beladung',
-                    energieSinceBeginning: 'Energie seit Ladebeginn',
+                    energySinceBeginning: 'Energie seit Ladebeginn',
                     energyLimit: 'Energielimit',
                     enforceCharging: 'Erzwinge Beladung',
                     error: 'Fehler',
@@ -297,7 +359,18 @@ export const TRANSLATION = {
                     switchOnRec: 'Einschaltempfehlung',
                     switchOnRecShort: 'Empfehlung',
                     undefined: 'Nicht definiert',
-                }
+                },
+                TimeOfUseTariff: {
+                    currentTariff: 'Aktueller Bezugsstrompreis',
+                    delayedDischarge: 'Entladung verzögert',
+                    storageDischarge: 'Speicherentladung',
+                    State: {
+                        notStarted: 'Noch nicht gestartet',
+                        delayed: 'Verzögert',
+                        allowsDischarge: 'Freigegeben',
+                        standby: 'Standby',
+                    },
+                },
             }
         },
         History: {
@@ -312,6 +385,7 @@ export const TRANSLATION = {
             lastYear: 'Letztes Jahr',
             month: 'Monat',
             noData: 'keine Daten verfügbar',
+            tryAgain: 'versuchen Sie es später noch einmal...',
             otherPeriod: 'Anderer Zeitraum',
             period: 'Zeitraum',
             selectedDay: '{{value}}',
@@ -394,13 +468,15 @@ export const TRANSLATION = {
         }
     },
     About: {
-        build: 'Dieser Build',
-        contact: 'Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser Team unter <a href=\'mailto:{{value}}\'>{{value}}</a>.',
-        currentDevelopments: 'Aktuelle Entwicklungen',
-        developed: 'Diese Benutzeroberfläche wird als Open-Source-Software entwickelt.',
-        language: 'Sprache wählen:',
-        openEMS: 'Mehr zu OpenEMS',
-        ui: 'Benutzeroberfläche für OpenEMS',
+        build: "Dieser Build",
+        contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser Team unter <a href=\"mailto:{{value}}\">{{value}}</a>.",
+        currentDevelopments: "Aktuelle Entwicklungen",
+        developed: "Diese Benutzeroberfläche wird als Open-Source-Software entwickelt.",
+        faq: "Häufig gestellte Fragen (FAQ)",
+        language: "Sprache wählen:",
+        openEMS: "Mehr zu OpenEMS",
+        patchnotes: "Änderungen im Monitoring zu diesem Build",
+        ui: "Benutzeroberfläche für OpenEMS",
     },
     Notifications: {
         authenticationFailed: 'Keine Verbindung: Authentifizierung fehlgeschlagen.',

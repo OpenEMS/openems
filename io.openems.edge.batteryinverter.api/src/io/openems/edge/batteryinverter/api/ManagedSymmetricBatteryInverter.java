@@ -40,6 +40,12 @@ public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverte
 		}
 	}
 
+	/**
+	 * Gets the {@link ModbusSlaveNatureTable} for Modbus/TCP Api.
+	 * 
+	 * @param accessMode the {@link AccessMode}
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(ManagedSymmetricBatteryInverter.class, accessMode, 100) //
 				.build();
@@ -88,4 +94,29 @@ public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverte
 	 */
 	public int getPowerPrecision();
 
+	/**
+	 * Gets a boolean if the battery inverter is managed or not.
+	 * 
+	 * <p>
+	 * Returns false if the battery inverter itself is not managed or in a read only
+	 * mode.
+	 * 
+	 * @return is managed or not
+	 */
+	public default boolean isManaged() {
+		return true;
+	}
+
+	/**
+	 * Gets a boolean if the battery inverter is able to build a micro-grid in
+	 * off-grid.
+	 * 
+	 * <p>
+	 * Returns false if the battery inverter is not able to build a micro-grid.
+	 * 
+	 * @return is managed or not
+	 */
+	public default boolean isOffGridPossible() {
+		return false;
+	}
 }

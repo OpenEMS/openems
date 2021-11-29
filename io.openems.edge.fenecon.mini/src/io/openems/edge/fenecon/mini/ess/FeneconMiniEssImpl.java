@@ -25,8 +25,10 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ChannelMetaInfoReadAndWrite;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ElementToChannelOffsetConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -73,7 +75,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		})
 public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 		implements FeneconMiniEss, ManagedSinglePhaseEss, ManagedAsymmetricEss, ManagedSymmetricEss, SinglePhaseEss,
-		AsymmetricEss, SymmetricEss, OpenemsComponent, ModbusSlave, TimedataProvider, EventHandler {
+		AsymmetricEss, SymmetricEss, ModbusComponent, OpenemsComponent, ModbusSlave, TimedataProvider, EventHandler {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -107,6 +109,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	public FeneconMiniEssImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				AsymmetricEss.ChannelId.values(), //
 				SinglePhaseEss.ChannelId.values(), //
@@ -455,22 +458,30 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 						m(FeneconMiniEss.ChannelId.RTC_SECOND, new UnsignedWordElement(9019))), //
 				new FC16WriteRegistersTask(30526, //
 						m(FeneconMiniEss.ChannelId.GRID_MAX_CHARGE_CURRENT, new UnsignedWordElement(30526),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								ElementToChannelConverter.SCALE_FACTOR_2,
+								new ChannelMetaInfoReadAndWrite(30126, 30526)), //
 						m(FeneconMiniEss.ChannelId.GRID_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(30527),
-								ElementToChannelConverter.SCALE_FACTOR_2)), //
+								ElementToChannelConverter.SCALE_FACTOR_2,
+								new ChannelMetaInfoReadAndWrite(30127, 30527))), //
 				new FC16WriteRegistersTask(30558, //
-						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30558))), //
+						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30558),
+								new ChannelMetaInfoReadAndWrite(30157, 30558))), //
 				new FC16WriteRegistersTask(30559, //
-						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30559))), //
+						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30559),
+								new ChannelMetaInfoReadAndWrite(30158, 30559))), //
 
 				new FC3ReadRegistersTask(30126, Priority.LOW, //
 						m(FeneconMiniEss.ChannelId.GRID_MAX_CHARGE_CURRENT, new UnsignedWordElement(30126),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								ElementToChannelConverter.SCALE_FACTOR_2,
+								new ChannelMetaInfoReadAndWrite(30126, 30526)), //
 						m(FeneconMiniEss.ChannelId.GRID_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(30127),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								ElementToChannelConverter.SCALE_FACTOR_2,
+								new ChannelMetaInfoReadAndWrite(30127, 30527)), //
 						new DummyRegisterElement(30128, 30156), //
-						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30157)), //
-						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30158)), //
+						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30157),
+								new ChannelMetaInfoReadAndWrite(30157, 30558)), //
+						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30158),
+								new ChannelMetaInfoReadAndWrite(30158, 30559)), //
 						new DummyRegisterElement(30159, 30165), //
 						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(30166),
 								new ElementToChannelConverter(
@@ -538,6 +549,11 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public Power getPower() {
 		return this.power;
+	}
+
+	@Override
+	public boolean isManaged() {
+		return !this.config.readonly();
 	}
 
 	@Override

@@ -20,7 +20,9 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ChannelMetaInfoReadAndWrite;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -45,8 +47,8 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 				"type=PRODUCTION" //
 		})
-public class SolarLogImpl extends AbstractOpenemsModbusComponent
-		implements SolarLog, ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
+public class SolarLogImpl extends AbstractOpenemsModbusComponent implements SolarLog, ManagedSymmetricPvInverter,
+		SymmetricMeter, ModbusComponent, OpenemsComponent, EventHandler {
 
 	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this,
 			ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
@@ -59,6 +61,7 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent
 	public SolarLogImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
 				SolarLog.ChannelId.values() //
@@ -130,14 +133,16 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent
 
 				new FC16WriteRegistersTask(10400, //
 						m(SolarLog.ChannelId.P_LIMIT_TYPE, new UnsignedWordElement(10400)),
-						m(SolarLog.ChannelId.P_LIMIT_PERC, new UnsignedWordElement(10401))),
+						m(SolarLog.ChannelId.P_LIMIT_PERC, new UnsignedWordElement(10401),
+								new ChannelMetaInfoReadAndWrite(10901, 10401))),
 				new FC16WriteRegistersTask(10404,
 						m(SolarLog.ChannelId.WATCH_DOG_TAG,
 								new UnsignedDoublewordElement(10404).wordOrder(WordOrder.LSWMSW))),
 
 				new FC4ReadInputRegistersTask(10900, Priority.LOW, //
 						m(SolarLog.ChannelId.STATUS, new SignedWordElement(10900)), //
-						m(SolarLog.ChannelId.P_LIMIT_PERC, new SignedWordElement(10901)),
+						m(SolarLog.ChannelId.P_LIMIT_PERC, new SignedWordElement(10901),
+								new ChannelMetaInfoReadAndWrite(10901, 10401)),
 						m(SolarLog.ChannelId.P_LIMIT, new SignedWordElement(10902))));
 	}
 

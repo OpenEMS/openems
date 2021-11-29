@@ -20,12 +20,14 @@ public class DebugLogImplTest {
 
 	private static final String DUMMY0_ID = "dummy0";
 	private static final String DUMMY1_ID = "dummy1";
+	private static final String DUMMY1_ALIAS = "This is Dummy1";
 	private static final String DUMMY2_ID = "dummy2";
+	private static final String DUMMY2_ALIAS = DUMMY2_ID;
 	private static final String DUMMY10_ID = "dummy10";
 
 	private static final String ANY_DUMMY = "dummy*";
 
-	private final static ChannelAddress SUM_ESS_SOC = new ChannelAddress("_sum", "EssSoc");
+	private static final ChannelAddress SUM_ESS_SOC = new ChannelAddress("_sum", "EssSoc");
 
 	@Test
 	public void test() throws Exception {
@@ -42,13 +44,13 @@ public class DebugLogImplTest {
 				return "abc:xyz";
 			}
 		});
-		components.add(new DummyController(DUMMY1_ID) {
+		components.add(new DummyController(DUMMY1_ID, DUMMY1_ALIAS) {
 			@Override
 			public String debugLog() {
 				return "def:uvw";
 			}
 		});
-		components.add(new DummyController(DUMMY2_ID) {
+		components.add(new DummyController(DUMMY2_ID, DUMMY2_ALIAS) {
 			@Override
 			public String debugLog() {
 				return "ghi:rst";
@@ -66,6 +68,7 @@ public class DebugLogImplTest {
 				.addReference("components", components) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
+						.setShowAlias(true) //
 						.setCondensedOutput(true) //
 						.setAdditionalChannels(new String[] { //
 								SUM_ESS_SOC.toString() //
@@ -77,7 +80,9 @@ public class DebugLogImplTest {
 				.next(new TestCase() //
 						.input(SUM_ESS_SOC, 50));
 
-		assertEquals("_sum[foo:bar|EssSoc:50 %] dummy1[def:uvw] dummy2[ghi:rst] dummy10[jkl:opq]", sut.getLogMessage());
+		assertEquals(
+				"_sum[Core.Sum|foo:bar|EssSoc:50 %] dummy1[This is Dummy1|def:uvw] dummy2[ghi:rst] dummy10[jkl:opq]",
+				sut.getLogMessage());
 
 	}
 

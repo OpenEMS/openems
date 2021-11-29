@@ -1,12 +1,12 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Data, TooltipItem } from '../shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
-import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Data, TooltipItem } from '../shared';
 
 @Component({
   selector: 'singlethresholdChart',
@@ -44,9 +44,10 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
     this.service.startSpinner(this.spinnerId);
     this.colors = [];
     this.loading = true;
+
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getConfig().then(config => {
-        let outputChannel = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+        let outputChannel: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
         let inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
         let result = (response as QueryHistoricTimeseriesDataResponse).result;
         let yAxisID
@@ -68,7 +69,8 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
         // convert datasets
         for (let channel in result.data) {
-          if (channel == outputChannel) {
+          if ((typeof outputChannel === 'string' && channel == outputChannel)
+            || (typeof outputChannel !== 'string' && outputChannel.includes(channel))) {
             let address = ChannelAddress.fromString(channel);
             let data = result.data[channel].map(value => {
               if (value == null) {
@@ -180,16 +182,27 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
-      const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
       const inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
-      let channeladdresses = [outputChannel, inputChannel];
-      resolve(channeladdresses);
+      let result: ChannelAddress[] = [inputChannel];
+      let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+      if (typeof outputChannelAddress === 'string') {
+        result.push(ChannelAddress.fromString(outputChannelAddress));
+      } else {
+        outputChannelAddress.forEach(c => result.push(ChannelAddress.fromString(c)));
+      }
+      resolve(result);
     });
   }
 
   protected setLabel(config: EdgeConfig) {
     let inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
-    let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
+    let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+    let outputChannel: ChannelAddress;
+    if (typeof outputChannelAddress === 'string') {
+      outputChannel = ChannelAddress.fromString(outputChannelAddress);
+    } else {
+      outputChannel = ChannelAddress.fromString(outputChannelAddress[0]);
+    }
     let labelString;
     let options = this.createDefaultChartOptions();
     let translate = this.translate;

@@ -2,6 +2,7 @@ package io.openems.edge.common.sum;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
@@ -9,6 +10,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -18,6 +20,9 @@ import io.openems.edge.common.modbusslave.ModbusType;
  * Enables access to sum/average data.
  */
 public interface Sum extends OpenemsComponent {
+
+	public final static String SINGLETON_SERVICE_PID = "Core.Sum";
+	public final static String SINGLETON_COMPONENT_ID = "_sum";
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
@@ -560,7 +565,13 @@ public interface Sum extends OpenemsComponent {
 		 */
 		CONSUMPTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH));
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+		/**
+		 * Is there any Component Info/Warning/Fault that is getting ignored/hidden
+		 * because of the 'ignoreStateComponents' configuration setting?.
+		 */
+		HAS_IGNORED_COMPONENT_STATES(Doc.of(Level.INFO) //
+				.text("Component Warnings or Faults are being ignored"));
 
 		private final Doc doc;
 
@@ -2097,5 +2108,24 @@ public interface Sum extends OpenemsComponent {
 	 */
 	public default void _setConsumptionActiveEnergy(long value) {
 		this.getConsumptionActiveEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#HAS_IGNORED_COMPONENT_STATES}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getHasIgnoredComponentStatesChannel() {
+		return this.channel(ChannelId.HAS_IGNORED_COMPONENT_STATES);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#HAS_IGNORED_COMPONENT_STATES} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setHasIgnoredComponentStates(boolean value) {
+		this.getHasIgnoredComponentStatesChannel().setNextValue(value);
 	}
 }

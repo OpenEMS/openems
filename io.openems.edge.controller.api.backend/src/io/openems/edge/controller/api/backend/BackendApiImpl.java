@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
@@ -80,7 +82,7 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 	@Reference
 	protected Cycle cycle;
 
-	protected ScheduledExecutorService executor;
+	private ScheduledExecutorService executor;
 
 	public BackendApiImpl() {
 		super(//
@@ -102,7 +104,8 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 		// initialize Executor
 		String name = COMPONENT_NAME + ":" + this.id();
-		this.executor = Executors.newScheduledThreadPool(1,
+		this.executor = Executors
+				.newScheduledThreadPool(10,
 				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
 
 		// initialize ApiWorker
@@ -213,5 +216,33 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 	public boolean isConnected() {
 		return this.websocket.isConnected();
+	}
+
+	/**
+	 * Execute a command using the {@link ScheduledExecutorService}.
+	 * 
+	 * @param command a {@link Runnable}
+	 */
+	protected void execute(Runnable command) {
+		if (!this.executor.isShutdown()) {
+			this.executor.execute(command);
+		}
+	}
+
+	/**
+	 * Schedules a command using the {@link ScheduledExecutorService}.
+	 * 
+	 * @param command      a {@link Runnable}
+	 * @param initialDelay the initial delay
+	 * @param delay        the delay
+	 * @param unit         the {@link TimeUnit}
+	 * @return a {@link ScheduledFuture}, or null if Executor is shutting down
+	 */
+	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
+		if (this.executor.isShutdown()) {
+			return null;
+		} else {
+			return this.executor.scheduleWithFixedDelay(command, initialDelay, delay, unit);
+		}
 	}
 }

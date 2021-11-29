@@ -9,6 +9,7 @@ import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 /**
@@ -60,6 +61,8 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		this.closeModbusConnection();
 	}
 
+	protected abstract Cycle getCycle();
+
 	/**
 	 * Adds the protocol.
 	 * 
@@ -108,7 +111,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	public abstract void closeModbusConnection();
 
 	public LogVerbosity getLogVerbosity() {
-		return logVerbosity;
+		return this.logVerbosity;
 	}
 
 	@Override

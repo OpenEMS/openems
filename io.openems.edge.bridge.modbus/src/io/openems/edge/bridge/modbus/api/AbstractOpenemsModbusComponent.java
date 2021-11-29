@@ -26,7 +26,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.TypeUtils;
 
-public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComponent {
+public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComponent implements ModbusComponent {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsModbusComponent.class);
 
@@ -42,7 +42,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * 
 	 * <p>
 	 * Automatically initializes (i.e. creates {@link Channel} instances for each
-	 * given {@link ChannelId} using the Channel-{@link Doc}.
+	 * given ChannelId using the Channel-{@link Doc}.
 	 * 
 	 * <p>
 	 * It is important to list all Channel-ID enums of all inherited
@@ -108,6 +108,9 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
 			ConfigurationAdmin cm, String modbusReference, String modbusId) throws OpenemsException {
 		super.activate(context, id, alias, enabled);
+		// Initialize ModbusCommunicationFailed State (this also tests if the
+		// ModbusComponent nature was properly implemented)
+		this._setModbusCommunicationFailed(false);
 		// update filter for 'Modbus'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Modbus", modbusId)) {
 			return true;
@@ -265,12 +268,22 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		 */
 		public ChannelMapper<T> m(io.openems.edge.common.channel.ChannelId channelId,
 				ElementToChannelConverter converter) {
+			return this.m(channelId, converter, new ChannelMetaInfo(element.getStartAddress()));
+		}
+
+		/**
+		 * Maps the given element 1-to-1 to the Channel identified by channelId.
+		 * 
+		 * @param channelId       the Channel-ID
+		 * @param converter       the {@link ElementToChannelConverter}
+		 * @param channelMetaInfo an object that holds meta information about the
+		 *                        Channel
+		 * @return the element parameter
+		 */
+		public ChannelMapper<T> m(io.openems.edge.common.channel.ChannelId channelId,
+				ElementToChannelConverter converter, ChannelMetaInfo channelMetaInfo) {
 			Channel<?> channel = channel(channelId);
-			if (channel instanceof WriteChannel<?>) {
-				((WriteChannel<?>) channel).setWriteTarget(new ModbusChannelMetaInfo(element.getStartAddress()));
-			} else {
-				channel.setReadSource(new ModbusChannelMetaInfo(element.getStartAddress()));
-			}
+			channel.setMetaInfo(channelMetaInfo);
 			this.channelMaps.put(channel, converter);
 			return this;
 		}
@@ -400,6 +413,21 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	}
 
 	/**
+	 * Maps the given element 1-to-1 to the Channel identified by channelId.
+	 * 
+	 * @param <T>             the type of the {@link AbstractModbusElement}d
+	 * @param channelId       the Channel-ID
+	 * @param element         the ModbusElement
+	 * @param channelMetaInfo an object that holds meta information about the
+	 *                        Channel
+	 * @return the element parameter
+	 */
+	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
+			T element, ChannelMetaInfo channelMetaInfo) {
+		return this.m(channelId, element, ElementToChannelConverter.DIRECT_1_TO_1, channelMetaInfo);
+	}
+
+	/**
 	 * Maps the given element to the Channel identified by channelId, applying the
 	 * given @link{ElementToChannelConverter}.
 	 * 
@@ -413,6 +441,25 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			T element, ElementToChannelConverter converter) {
 		return new ChannelMapper<T>(element) //
 				.m(channelId, converter) //
+				.build();
+	}
+
+	/**
+	 * Maps the given element to the Channel identified by channelId, applying the
+	 * given @link{ElementToChannelConverter}.
+	 * 
+	 * @param <T>             the type of the {@link AbstractModbusElement}d
+	 * @param channelId       the Channel-ID
+	 * @param element         the ModbusElement
+	 * @param converter       the ElementToChannelConverter
+	 * @param channelMetaInfo an object that holds meta information about the
+	 *                        Channel
+	 * @return the element parameter
+	 */
+	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
+			T element, ElementToChannelConverter converter, ChannelMetaInfo channelMetaInfo) {
+		return new ChannelMapper<T>(element) //
+				.m(channelId, converter, channelMetaInfo) //
 				.build();
 	}
 

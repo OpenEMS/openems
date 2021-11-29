@@ -24,7 +24,7 @@ public class HardyBarthWriteHandler implements Runnable {
 	/*
 	 * Minimum pause between two consecutive writes.
 	 */
-	private static final int WRITE_INTERVAL_SECONDS = 30;
+	private static final int WRITE_INTERVAL_SECONDS = 1;
 
 	public HardyBarthWriteHandler(HardyBarthImpl parent) {
 		this.parent = parent;
@@ -38,6 +38,8 @@ public class HardyBarthWriteHandler implements Runnable {
 		}
 
 		this.setManualMode();
+		this.setHeartbeat();
+		// this.enableExternalMeter();
 		this.setEnergyLimit();
 		this.setPower();
 	}
@@ -66,6 +68,60 @@ public class HardyBarthWriteHandler implements Runnable {
 	}
 
 	/**
+	 * Set heartbeat.
+	 * 
+	 * <p>
+	 * Sets the heartbeat to on or off.
+	 */
+	private void setHeartbeat() {
+		// The internal heartbeat is currently too fast - it is not enough to write
+		// every second by default. We have to disable it to run the evcs
+		// properly.
+		// TODO: The manufacturer must be asked if it is possible to read the heartbeat
+		// status so that we can check if the heartbeat is really disabled and if the
+		// heartbeat time can be increased to be able to use this feature.
+
+		try {
+			this.parent.api.sendPutRequest("/api/secc", "salia/heartbeat", "off");
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Enable external meter.
+	 * 
+	 * <p>
+	 * Enables the external meter if not set.
+	 */
+	// TODO: Set the external meter to true because it's disabled per default.
+	// Not usable for now, because we haven't an update process defined and
+	// this REST Entry is only available with a beta firmware
+	// (http://salia.echarge.de/firmware/firmware_1.37.8_beta.image) or the next
+	// higher stable version. Be aware that the REST call and the update should not
+	// be called every cycle
+	/*
+	 * private void enableExternalMeter() {
+	 * 
+	 * BooleanReadChannel channelChargeMode =
+	 * this.parent.channel(HardyBarth.ChannelId.RAW_SALIA_CHANGE_METER);
+	 * Optional<Boolean> valueOpt = channelChargeMode.value().asOptional(); if
+	 * (valueOpt.isPresent()) { if (!valueOpt.get().equals(true)) { // Enable
+	 * external meter try {
+	 * this.parent.debugLog("Enable external meter of HardyBarth " +
+	 * this.parent.id()); JsonElement result =
+	 * this.parent.api.sendPutRequest("/api/secc", "salia/changemeter",
+	 * "enable | /dev/ttymxc0 | klefr | 9600 | none | 1");
+	 * this.parent.debugLog(result.toString());
+	 * 
+	 * if (result.toString().equals("{\"result\":\"ok\"}")) { // Reboot the charger
+	 * this.parent.debugLog("Reboot of HardyBarth " + this.parent.id()); JsonElement
+	 * resultReboot = this.parent.api.sendPutRequest("/api/secc",
+	 * "salia/servicereboot", "1"); this.parent.debugLog(resultReboot.toString()); }
+	 * } catch (OpenemsNamedException e) { e.printStackTrace(); } } } }
+	 */
+
+	/**
 	 * Sets the current from SET_CHARGE_POWER channel.
 	 * 
 	 * <p>
@@ -92,8 +148,8 @@ public class HardyBarthWriteHandler implements Runnable {
 				Integer current = (int) Math.round(power / (double) phases.orElse(3) / 230.0);
 
 				// TODO: Read separate saliaconf.json and set minimum and maximum dynamically
-				int maximum = this.parent.config.maxHwCurrent();
-				int minimum = this.parent.config.minHwCurrent();
+				int maximum = this.parent.config.maxHwCurrent() / 1000;
+				int minimum = this.parent.config.minHwCurrent() / 1000;
 				if (current > maximum) {
 					current = maximum;
 				}
@@ -104,34 +160,58 @@ public class HardyBarthWriteHandler implements Runnable {
 				// Send every WRITE_INTERVAL_SECONDS or if the current to send changed
 				if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
 
-					try {
-						this.parent.debugLog("Setting HardyBarth " + this.parent.alias() + " current to [" + current
-								+ " A] - calculated from [" + power + " W] by " + phases.orElse(3) + " Phase");
+					this.parent.debugLog("Setting HardyBarth " + this.parent.alias() + " current to [" + current
+							+ " A] - calculated from [" + power + " W] by " + phases.orElse(3) + " Phase");
 
-						// Send charge power limit
-						JsonElement result = this.parent.api.sendPutRequest("/api/secc", "grid_current_limit",
-								current.toString());
-
-						// Set results
-						this.parent._setSetChargePowerLimit(power);
-						this.parent.debugLog(result.toString());
-
-						// Prepare next write
-						this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
-						this.lastCurrent = current;
-					} catch (OpenemsNamedException e) {
-						e.printStackTrace();
-					}
+					this.setTarget(current, power);
 				}
 			}
 		} else {
 			this.parent.debugLog("Maximum energy limit reached");
 			this.parent._setStatus(Status.ENERGY_LIMIT_REACHED);
+
+			if (!this.lastCurrent.equals(0) || this.parent.getChargePower().orElse(0) != 0) {
+				this.setTarget(0, 0);
+			}
+		}
+	}
+
+	/**
+	 * Set current target to the charger.
+	 * 
+	 * @param current current target in A
+	 * @param power   current target in W
+	 */
+	private void setTarget(int current, int power) {
+		try {
+			JsonElement resultPause;
+			if (current > 0) {
+				// Send stop pause request
+				resultPause = this.parent.api.sendPutRequest("/api/secc", "salia/pausecharging", "" + 0);
+				this.parent.debugLog("Wake up HardyBarth " + this.parent.alias() + " from the pause");
+			} else {
+				// Send pause charging request
+				resultPause = this.parent.api.sendPutRequest("/api/secc", "salia/pausecharging", "" + 1);
+				this.parent.debugLog("Setting HardyBarth " + this.parent.alias() + " to pause");
+			}
+
+			// Send charge power limit
+			JsonElement result = this.parent.api.sendPutRequest("/api/secc", "grid_current_limit", "" + current);
+
+			// Set results
+			this.parent._setSetChargePowerLimit(power);
+			this.parent.debugLog("Pause: " + resultPause.toString());
+			this.parent.debugLog("SetActivePower: " + result.toString());
+
+			// Prepare next write
+			this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
+			this.lastCurrent = current;
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
 		}
 	}
 
 	private Integer lastEnergySession = null;
-	private LocalDateTime nextEnergySessionWrite = LocalDateTime.MIN;
 
 	/**
 	 * Sets the nextValue of the SET_ENERGY_LIMIT channel.
@@ -142,18 +222,16 @@ public class HardyBarthWriteHandler implements Runnable {
 		if (valueOpt.isPresent()) {
 			Integer energyLimit = valueOpt.get();
 
-
-			// Set every WRITE_INTERVAL_SECONDS or if the energy target to set changed
-			if (!energyLimit.equals(this.lastEnergySession) || this.nextEnergySessionWrite.isBefore(LocalDateTime.now())) {
+			// Set if the energy target to set changed
+			if (!energyLimit.equals(this.lastEnergySession)) {
 
 				// Set energy limit
 				this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT).setNextValue(energyLimit);
 				this.parent.debugLog("Setting EVCS " + this.parent.alias() + " Energy Limit in this Session to ["
 						+ energyLimit + " Wh]");
-				
+
 				// Prepare next write
 				this.lastEnergySession = energyLimit;
-				this.nextEnergySessionWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
 			}
 		}
 	}

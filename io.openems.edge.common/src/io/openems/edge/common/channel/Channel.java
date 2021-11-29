@@ -208,22 +208,23 @@ public interface Channel<T> {
 	public void deactivate();
 
 	/**
-	 * Sets an object that holds information about the read source of this Channel,
-	 * i.e. a Modbus Register or REST-Api endpoint address. Defaults to null.
+	 * Sets an object that holds meta information about the Channel, e.g. a read
+	 * source or write target of this Channel, like a Modbus Register or REST-Api
+	 * endpoint address. Defaults to null.
 	 * 
-	 * @param <SOURCE> the type of the source attachment
-	 * @param source   the source object
-	 * @throws IllegalArgumentException if there is already a source registered with
-	 *                                  the Channel
+	 * @param <META_INFO> the type of the meta info
+	 * @param metaInfo    the meta info object
+	 * @throws IllegalArgumentException if there is already a different meta-info
+	 *                                  registered with the Channel
 	 */
-	public <SOURCE> void setReadSource(SOURCE source) throws IllegalArgumentException;
+	public <META_INFO> void setMetaInfo(META_INFO metaInfo) throws IllegalArgumentException;
 
 	/**
-	 * Gets the read source information object. Defaults to empty String.
+	 * Gets the meta information object. Defaults to null.
 	 * 
-	 * @param <SOURCE> the type of the source attachment
-	 * @return the source information object
+	 * @param <META_INFO> the type of the meta info attachment
+	 * @return the meta info object
 	 */
-	public <SOURCE> SOURCE getReadSource();
+	public <META_INFO> META_INFO getMetaInfo();
 
 }

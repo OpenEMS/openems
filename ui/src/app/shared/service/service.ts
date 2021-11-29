@@ -5,6 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
+import { environment } from 'src/environments';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
 import { JsonrpcResponseError } from '../jsonrpc/base';
@@ -83,6 +84,17 @@ export class Service implements ErrorHandler {
   }
 
   /**
+   * Returns the configured language for docs.fenecon.de
+   */
+  public getDocsLang(): string {
+    if (this.translate.currentLang == "German") {
+      return "de";
+    } else {
+      return "en";
+    }
+  }
+
+  /**
    * Convert the browser language in Language Tag
    */
   public browserLangToLangTag(browserLang: string): LanguageTag {
@@ -125,7 +137,7 @@ export class Service implements ErrorHandler {
       // Set the currentPageTitle only once per ActivatedRoute
       if (this.currentActivatedRoute != activatedRoute) {
         if (currentPageTitle == null || currentPageTitle.trim() === '') {
-          this.currentPageTitle = 'OpenEMS UI';
+          this.currentPageTitle = environment.uiTitle;
         } else {
           this.currentPageTitle = currentPageTitle;
         }

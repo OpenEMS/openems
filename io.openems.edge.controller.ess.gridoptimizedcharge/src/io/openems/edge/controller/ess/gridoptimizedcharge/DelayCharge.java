@@ -1,28 +1,26 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.stream.IntStream;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 
 public class DelayCharge {
-
-	/**
-	 * Buffer in watt, considered in the calculation of the target Minute.
-	 */
-	private static final int DEFAULT_POWER_BUFFER = 100;
-
-	/**
-	 * Keeps the current day to detect changes in day.
-	 */
-	private LocalDate currentDay = LocalDate.MIN;
 
 	/**
 	 * Reference to parent controller.
@@ -66,7 +64,29 @@ public class DelayCharge {
 	 * @throws OpenemsNamedException on error
 	 */
 	protected Integer getManualDelayChargeMaxCharge() throws OpenemsNamedException {
-		int targetMinute = LocalTime.parse(this.parent.config.manualTargetTime()).get(ChronoField.MINUTE_OF_DAY);
+		LocalTime targetTime = LocalTime.of(17, 0);
+
+		// Try to parse the configured Time as LocalTime or ZonedDateTime, which is the
+		// format that comes from UI.
+		// TODO extract this feature into a DateTimeUtils class and reuse it wherever
+		// feasible
+		try {
+			targetTime = LocalTime.parse(this.parent.config.manualTargetTime());
+		} catch (DateTimeParseException e) {
+			try {
+				targetTime = ZonedDateTime.parse(this.parent.config.manualTargetTime()).toLocalTime();
+
+			} catch (DateTimeParseException i) {
+
+				// Set Info state channel and log
+				StateChannel noValidManualTargetTime = this.parent
+						.channel(GridOptimizedCharge.ChannelId.NO_VALID_MANUAL_TARGET_TIME);
+				noValidManualTargetTime.setNextValue(true);
+				this.parent.logDebug(noValidManualTargetTime.channelDoc().getText());
+			}
+		}
+
+		int targetMinute = targetTime.get(ChronoField.MINUTE_OF_DAY);
 		return this.calculateDelayChargeMaxCharge(targetMinute);
 	}
 
@@ -123,8 +143,23 @@ public class DelayCharge {
 
 		// Return if we passed the target minute
 		if (this.passedTargetMinute(targetMinute)) {
-			this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_TIME, null);
-			return null;
+			// Slowly increasing the maximum charge power with a ramp
+			float maximum = this.parent.ess.getMaxApparentPower().getOrError();
+			Optional<Integer> currentLimitOpt = this.parent.getDelayChargeLimit().asOptional();
+
+			if (currentLimitOpt.isPresent() && currentLimitOpt.get() < maximum) {
+				// Apply ramp filter
+				Integer filteredLimit = this.parent.rampFilter.getFilteredValueAsInteger(currentLimitOpt.get(), maximum,
+						maximum, 0.0025f);
+				return filteredLimit;
+			}
+
+			// Already reached the maximum
+			if ((!currentLimitOpt.isPresent()) || maximum <= currentLimitOpt.get()) {
+				this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_TIME, null);
+				return null;
+
+			}
 		}
 
 		// Calculate the power limit depending on the remaining time and capacity
@@ -163,8 +198,6 @@ public class DelayCharge {
 
 		ZonedDateTime now = ZonedDateTime.now(this.parent.componentManager.getClock());
 		ZonedDateTime predictionStartQuarterHour = roundZonedDateTimeDownTo15Minutes(now);
-
-		this.resetTargetMinutesAtMidnight();
 
 		// Predictions as Integer array
 		Integer[] hourlyProduction = hourlyPredictionProduction.getValues();
@@ -206,20 +239,25 @@ public class DelayCharge {
 			return null;
 		}
 
-		// Battery capacity in wh
-		int capacity = this.parent.ess.getCapacity().getOrError();
-
 		// State of charge
 		int soc = this.parent.ess.getSoc().getOrError();
 
-		// Remaining capacity of the battery in Ws till target point.
-		int remainingCapacity = capacity * (100 - soc) * 36;
+		// Battery capacity in wh
+		int capacity = this.parent.ess.getCapacity().getOrError();
 
-		// No remaining capacity -> no restrictions
-		if (remainingCapacity <= 0) {
+		// No remaining capacity
+		int minPower = this.parent.ess.getPower().getMinPower(this.parent.ess, Phase.ALL, Pwr.ACTIVE);
+		if (minPower >= 0 && soc > 95) {
 			this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_CAPACITY, null);
 			return null;
 		}
+
+		// Calculate the remaining capacity with soc minus one, to avoid very high
+		// results at the end.
+		soc -= 1;
+
+		// Remaining capacity of the battery in Ws till target point.
+		int remainingCapacity = Math.round(capacity * (100 - soc) * 36);
 
 		// Remaining time in seconds till the target point.
 		int remainingTime = this.calculateRemainingTime(targetMinute);
@@ -229,9 +267,8 @@ public class DelayCharge {
 			this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_TIME, null);
 			return null;
 		}
-
 		// Calculate charge power limit
-		Integer calculatedPower = remainingCapacity / remainingTime;
+		int calculatedPower = remainingCapacity / remainingTime;
 
 		// Max apparent power
 		int maxApparentPower = this.parent.ess.getMaxApparentPower().orElse(Integer.MAX_VALUE);
@@ -240,7 +277,30 @@ public class DelayCharge {
 		// seconds
 		calculatedPower = Math.min(calculatedPower, maxApparentPower);
 
-		return calculatedPower;
+		this.parent._setRawDelayChargeLimit(calculatedPower);
+
+		/**
+		 * Calculate the average with the last 900 limits
+		 */
+		IntegerReadChannel delayChargeLimitRawChannel = this.parent.getRawDelayChargeLimitChannel();
+
+		IntStream pastLimits = delayChargeLimitRawChannel.getPastValues()
+				.tailMap(LocalDateTime.now(this.parent.componentManager.getClock()).minusSeconds(900), true) //
+				.values().stream().filter(v -> v.isDefined()).mapToInt(v -> v.get());
+
+		IntStream currentLimit = IntStream.of(calculatedPower);
+
+		// Concat the limit values of the last 900 seconds with the current limit
+		IntStream limits = IntStream.concat(pastLimits, currentLimit); //
+
+		// Get the average of the past values including the current
+		OptionalDouble limitValueOpt = limits.average();
+
+		if (!limitValueOpt.isPresent()) {
+			return null;
+		}
+
+		return (int) Math.round(limitValueOpt.getAsDouble());
 	}
 
 	/**
@@ -288,7 +348,8 @@ public class DelayCharge {
 
 				// Updating last quarter hour if production is higher than consumption plus
 				// power buffer
-				if (quarterHourlyProduction[i] > quarterHourlyConsumption[i] + DEFAULT_POWER_BUFFER) {
+				if (quarterHourlyProduction[i] > quarterHourlyConsumption[i]
+						+ GridOptimizedChargeImpl.DEFAULT_POWER_BUFFER) {
 					lastQuarterHour = i;
 				}
 			}
@@ -301,7 +362,7 @@ public class DelayCharge {
 					.get(ChronoField.MINUTE_OF_DAY);
 
 			// target hour adjusted based on buffer hour.
-			targetMinuteAdjusted = targetMinuteActual - this.parent.config.noOfBufferMinutes();
+			targetMinuteAdjusted = targetMinuteActual - this.parent.config.delayChargeRiskLevel().bufferMinutes;
 		}
 
 		/*
@@ -332,18 +393,6 @@ public class DelayCharge {
 	private static ZonedDateTime roundZonedDateTimeDownTo15Minutes(ZonedDateTime d) {
 		int minuteOfDay = d.get(ChronoField.MINUTE_OF_DAY);
 		return d.with(ChronoField.NANO_OF_DAY, 0).plus(minuteOfDay / 15 * 15, ChronoUnit.MINUTES);
-	}
-
-	/**
-	 * Resets the predicted target minutes at midnight.
-	 */
-	private void resetTargetMinutesAtMidnight() {
-		LocalDate today = LocalDate.now(this.parent.componentManager.getClock());
-		if (!this.currentDay.equals(today)) {
-			this.parent._setPredictedTargetMinute(null);
-			this.parent._setPredictedTargetMinuteAdjusted(null);
-			this.currentDay = today;
-		}
 	}
 
 	/**

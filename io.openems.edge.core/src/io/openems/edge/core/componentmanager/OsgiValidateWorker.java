@@ -1,9 +1,11 @@
 package io.openems.edge.core.componentmanager;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,6 +22,7 @@ import org.osgi.service.component.runtime.dto.ComponentDescriptionDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -51,6 +54,7 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 	private static final int INITIAL_CYCLES = 60;
 	private static final int INITIAL_CYCLE_TIME = 5_000; // in ms
 	private static final int REGULAR_CYCLE_TIME = 60_000; // in ms
+	private static final int RESTART_COMPONENTS_AFTER = 3;
 
 	private final Logger log = LoggerFactory.getLogger(OsgiValidateWorker.class);
 
@@ -60,14 +64,14 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 	private final Map<String, String> defectiveComponents = new HashMap<>();
 
 	/**
-	 * Delays announcement of defective Components by one execution Cycle.
-	 */
-	private final Set<String> lastDefectiveComponents = new HashSet<>();
-
-	/**
 	 * Components with duplicated Component-IDs.
 	 */
 	private final Set<String> duplicatedComponentIds = new HashSet<String>();
+
+	/**
+	 * Components waiting for restart.
+	 */
+	private final Map<String, Integer> restartComponents = new HashMap<String, Integer>();
 
 	public OsgiValidateWorker(ComponentManagerImpl parent) {
 		super(parent);
@@ -77,6 +81,7 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 	protected void forever() {
 		this.findDuplicatedComponentIds();
 		this.findDefectiveComponents();
+		this.restartDefectiveComponents();
 	}
 
 	private void findDuplicatedComponentIds() {
@@ -94,18 +99,36 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 		final Configuration[] configs = this.readEnabledConfigurations();
 		final Map<String, String> defectiveComponents = new HashMap<>();
 		updateInactiveComponentsUsingScr(defectiveComponents, this.parent.serviceComponentRuntime);
-		updateInactiveComponentsUsingConfigurationAdmin(defectiveComponents, this.parent.getEnabledComponents(),
-				configs);
+		this.updateInactiveComponentsUsingConfigurationAdmin(defectiveComponents, this.parent.getEnabledComponents(),
+				configs, this.parent.serviceComponentRuntime);
 		this.parent._setConfigNotActivated(!defectiveComponents.isEmpty());
 		synchronized (this.defectiveComponents) {
 			this.defectiveComponents.clear();
-			for (Entry<String, String> c : defectiveComponents.entrySet()) {
-				if (this.lastDefectiveComponents.contains(c.getKey())) {
-					// Delay announcement of defective Components by one execution Cycle.
-					this.defectiveComponents.put(c.getKey(), c.getValue());
+			this.defectiveComponents.putAll(defectiveComponents);
+		}
+	}
+
+	private void restartDefectiveComponents() {
+		Iterator<Entry<String, Integer>> it = this.restartComponents.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<String, Integer> entry = it.next();
+			if (entry.getValue() >= RESTART_COMPONENTS_AFTER) {
+				String componentId = entry.getKey();
+				// Update Configuration to try to restart Component
+				try {
+					this.parent.logInfo(this.log, "Trying to restart Component [" + componentId + "]");
+					Configuration config = this.parent.getExistingConfigForId(componentId);
+					Dictionary<String, Object> properties = config.getProperties();
+					config.update(properties);
+
+				} catch (IOException | OpenemsNamedException e) {
+					this.parent.logError(this.log, "Unable to restart Component [" + componentId + "]");
+					e.printStackTrace();
 				}
+				// Remove from list
+				it.remove();
+				return;
 			}
-			this.lastDefectiveComponents.addAll(defectiveComponents.keySet());
 		}
 	}
 
@@ -171,8 +194,10 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 	 * 
 	 * @param configs enabled {@link Configuration}s from {@link ConfigurationAdmin}
 	 */
-	private static void updateInactiveComponentsUsingConfigurationAdmin(Map<String, String> defectiveComponents,
-			List<OpenemsComponent> enabledComponents, Configuration[] configs) {
+	private void updateInactiveComponentsUsingConfigurationAdmin(Map<String, String> defectiveComponents,
+			List<OpenemsComponent> enabledComponents, Configuration[] configs, ServiceComponentRuntime scr) {
+		Set<String> restartComponents = new HashSet<>();
+
 		for (Configuration config : configs) {
 			Dictionary<String, Object> properties;
 			try {
@@ -192,9 +217,36 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 					continue;
 				}
 				if (!isComponentActivated(enabledComponents, componentId)) {
-					defectiveComponents.putIfAbsent(componentId, "Missing Bundle");
+					String factoryPid = config.getFactoryPid();
+					if (factoryPid != null && scr.getComponentDescriptionDTOs().stream()
+							.anyMatch(description -> factoryPid.equals(description.name))) {
+						// Bundle exists -> try to restart Component
+						restartComponents.add(componentId);
+					} else {
+						// Bundle with this name does not exist
+						defectiveComponents.putIfAbsent(componentId, "Missing Bundle");
+					}
 				}
 			}
+		}
+
+		/*
+		 * Update already known list of Components that should be restarted
+		 */
+		Iterator<Entry<String, Integer>> it = this.restartComponents.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<String, Integer> entry = it.next();
+			if (restartComponents.remove(entry.getKey())) {
+				// increase count value
+				entry.setValue(entry.getValue() + 1);
+			} else {
+				// Remove global entry that is not anymore in the new Restart-Components
+				it.remove();
+			}
+		}
+		for (String componentId : restartComponents) {
+			// add remaining new Restart-Components
+			this.restartComponents.put(componentId, 0);
 		}
 	}
 

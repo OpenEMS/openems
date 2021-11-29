@@ -1,5 +1,5 @@
 import { TranslateService } from '@ngx-translate/core';
-import { endOfMonth, format, getDay, getMonth, getYear, isSameDay, isSameMonth, startOfMonth, subDays } from 'date-fns';
+import { endOfMonth, endOfYear, format, getDay, getMonth, getYear, isSameDay, isSameMonth, isSameYear, startOfMonth, startOfYear, subDays } from 'date-fns';
 
 export module DefaultTypes {
 
@@ -8,6 +8,8 @@ export module DefaultTypes {
   export interface ChannelAddresses {
     [componentId: string]: string[];
   }
+
+  export type ManualOnOff = 'MANUAL_ON' | 'MANUAL_OFF';
 
   /**
    * CurrentData Summary
@@ -87,7 +89,7 @@ export module DefaultTypes {
     params?: string[]
   }
 
-  export type PeriodString = 'day' | 'week' | 'month' | 'custom';
+  export type PeriodString = 'day' | 'week' | 'month' | 'year' | 'custom';
 
   export class HistoryPeriod {
 
@@ -116,10 +118,11 @@ export module DefaultTypes {
       } else if (isSameMonth(this.from, this.to) && isSameDay(this.from, startOfMonth(this.from)) && isSameDay(this.to, endOfMonth(this.to))) {
         // Selected one month
         return HistoryPeriod.getTranslatedMonthString(translate, this.from) + " " + getYear(this.from);
+      }
+      // Selected one year
+      else if (isSameYear(this.from, this.to) && isSameDay(this.from, startOfYear(this.from)) && isSameDay(this.to, endOfYear(this.to))) {
+        return getYear(this.from).toString();
 
-        // else if (isSameYear(this.from, this.to) && isSameDay(this.from, startOfYear(this.from)) && isSameDay(this.to, endOfYear(this.to))) {
-        //   return getYear(this.from).toString();
-        // }
       } else {
         return translate.instant(
           'General.periodFromTo', {

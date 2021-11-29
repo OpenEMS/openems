@@ -2,6 +2,7 @@ package io.openems.edge.common.test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -22,9 +23,16 @@ public class DummyComponentContext implements ComponentContext {
 
 	private final Dictionary<String, Object> properties;
 
-	private DummyComponentContext(Dictionary<String, Object> properties) {
+	public DummyComponentContext(Dictionary<String, Object> properties) {
 		this.properties = properties;
-		// TODO create DummyBundleContext
+	}
+
+	public DummyComponentContext() {
+		this(new Hashtable<>());
+	}
+
+	public void addProperty(String key, Object value) {
+		this.properties.put(key, value);
 	}
 
 	@Override

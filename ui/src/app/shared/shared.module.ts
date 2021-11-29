@@ -1,30 +1,29 @@
-import { appRoutingProviders } from './../app-routing.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
-import { ChartsModule } from 'ng2-charts';
-import { ClassnamePipe } from './pipe/classname/classname.pipe';
-import { CommonModule, DecimalPipe } from '@angular/common';
-import { FormlyIonicModule } from '@ngx-formly/ionic';
-import { FormlyModule } from '@ngx-formly/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
-import { HeaderComponent } from './header/header.component';
-import { IonicModule } from '@ionic/angular';
-import { IsclassPipe } from './pipe/isclass/isclass.pipe';
-import { KeysPipe } from './pipe/keys/keys.pipe';
-import { Language } from './translate/language';
+import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterModule } from '@angular/router';
+import { IonicModule } from '@ionic/angular';
+import { FormlyModule } from '@ngx-formly/core';
+import { FormlyIonicModule } from '@ngx-formly/ionic';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { ChartsModule } from 'ng2-charts';
 import { NgxSpinnerModule } from "ngx-spinner";
+import { appRoutingProviders } from './../app-routing.module';
+import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
+import { FormlyWrapperFormField } from './formly/form-field.wrapper';
+import { InputTypeComponent } from './formly/input';
+import { FormlyInputSerialNumberWrapper as FormlyWrapperInputSerialNumber } from './formly/input-serial-number-wrapper';
+import { RepeatTypeComponent } from './formly/repeat';
+import { Generic_ComponentsModule } from './genericComponents/genericComponents';
+import { HeaderComponent } from './header/header.component';
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
 import { PickDateComponent } from './pickdate/pickdate.component';
-import { RouterModule } from '@angular/router';
-import { SecToHourMinPipe } from './pipe/sectohour/sectohour.pipe';
+import { PipeModule } from './pipe/pipe';
 import { Service } from './service/service';
-import { SignPipe } from './pipe/sign/sign.pipe';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { UnitvaluePipe } from './pipe/unitvalue/unitvalue.pipe';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
+import { Language } from './translate/language';
 
 @NgModule({
   imports: [
@@ -39,31 +38,32 @@ import { Websocket } from './service/websocket';
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: Language }
     }),
+    FormlyModule.forRoot({
+      wrappers: [
+        { name: 'form-field', component: FormlyWrapperFormField },
+        { name: "input-serial-number", component: FormlyWrapperInputSerialNumber }
+      ],
+      types: [
+        { name: 'input', component: InputTypeComponent },
+        { name: 'repeat', component: RepeatTypeComponent },
+      ],
+    }),
+    PipeModule,
+    Generic_ComponentsModule
   ],
   declarations: [
-    // pipes
-    ClassnamePipe,
-    HasclassPipe,
-    IsclassPipe,
-    KeysPipe,
-    SecToHourMinPipe,
-    SignPipe,
-    UnitvaluePipe,
     // components
     ChartOptionsComponent,
     HeaderComponent,
     PercentageBarComponent,
     PickDateComponent,
+    // formly
+    InputTypeComponent,
+    FormlyWrapperFormField,
+    RepeatTypeComponent,
+    FormlyWrapperInputSerialNumber,
   ],
   exports: [
-    // pipes
-    ClassnamePipe,
-    HasclassPipe,
-    IsclassPipe,
-    KeysPipe,
-    SecToHourMinPipe,
-    SignPipe,
-    UnitvaluePipe,
     // modules
     BrowserAnimationsModule,
     ChartsModule,
@@ -76,6 +76,8 @@ import { Websocket } from './service/websocket';
     ReactiveFormsModule,
     RouterModule,
     TranslateModule,
+    PipeModule,
+    Generic_ComponentsModule,
     // components
     ChartOptionsComponent,
     HeaderComponent,
@@ -84,13 +86,10 @@ import { Websocket } from './service/websocket';
   ],
   providers: [
     appRoutingProviders,
-    DecimalPipe,
-    SecToHourMinPipe,
     Service,
-    UnitvaluePipe,
     Utils,
     Websocket,
   ]
 })
-export class SharedModule {
-}
+
+export class SharedModule { }

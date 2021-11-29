@@ -7,8 +7,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -50,6 +52,7 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.types.EdgeConfig.Factory;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ClockProvider;
@@ -62,10 +65,9 @@ import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxResponse;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
-		name = "Core.ComponentManager", //
+		name = ComponentManager.SINGLETON_SERVICE_PID, //
 		immediate = true, //
 		property = { //
-				"id=" + OpenemsConstants.COMPONENT_MANAGER_ID, //
 				"enabled=true" //
 		})
 public class ComponentManagerImpl extends AbstractOpenemsComponent
@@ -116,9 +118,12 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext componentContext, BundleContext bundleContext) throws OpenemsException {
-		super.activate(componentContext, OpenemsConstants.COMPONENT_MANAGER_ID, "Component-Manager", true);
-
+		super.activate(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		this.bundleContext = bundleContext;
+
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
+		}
 
 		for (ComponentManagerWorker worker : this.workers) {
 			worker.activate(this.id());
@@ -251,14 +256,14 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		if (componentId != null) {
 			// Normal OpenEMS Component with ID.
 			// Check that there is currently no Component with the same ID.
-			Configuration[] configs;
+			List<Configuration> configs;
 			try {
-				configs = this.cm.listConfigurations("(id=" + componentId + ")");
+				configs = this.listConfigurations(componentId);
 			} catch (IOException | InvalidSyntaxException e) {
 				throw OpenemsError.GENERIC.exception("Unable to list configurations for ID [" + componentId + "]. "
 						+ e.getClass().getSimpleName() + ": " + e.getMessage());
 			}
-			if (configs != null && configs.length > 0) {
+			if (!configs.isEmpty()) {
 				throw new OpenemsException("A Component with id [" + componentId + "] is already existing!");
 			}
 			try {
@@ -323,6 +328,15 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.getComponentId(),
 					config.getPid() + ": Properties is 'null'");
 		}
+
+		// Reset all target properties to avoid missing old references
+		for (Enumeration<String> k = properties.keys(); k.hasMoreElements();) {
+			String property = k.nextElement();
+			if (property.endsWith(".target")) {
+				properties.put(property, "(enabled=true)");
+			}
+		}
+
 		for (Property property : request.getProperties()) {
 			// do not allow certain properties to be updated, like pid and service.pid
 			if (!EdgeConfig.ignorePropertyKey(property.getName())) {
@@ -424,16 +438,16 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException on error
 	 */
 	protected Configuration getExistingConfigForId(String componentId) throws OpenemsNamedException {
-		Configuration[] configs;
+		List<Configuration> configs;
 		try {
-			configs = this.cm.listConfigurations("(id=" + componentId + ")");
+			configs = this.listConfigurations(componentId);
 		} catch (IOException | InvalidSyntaxException e) {
 			e.printStackTrace();
 			throw OpenemsError.GENERIC.exception("Unable to list configurations for ID [" + componentId + "]. "
 					+ e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
 
-		if (configs == null) {
+		if (configs.isEmpty()) {
 			// Maybe this is a Singleton?
 			String factoryPid = this.getComponent(componentId).serviceFactoryPid();
 			try {
@@ -447,12 +461,58 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		}
 
 		// Make sure we only have one config
-		if (configs == null || configs.length == 0) {
-			throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);
-		} else if (configs.length > 1) {
+		if (configs.size() > 1) {
 			throw OpenemsError.EDGE_MULTIPLE_COMPONENTS_WITH_ID.exception(componentId);
 		}
-		return configs[0];
+		return configs.get(0);
+	}
+
+	/**
+	 * Extends the ConfigurationAdmin 'listConfigurations' method by additionally
+	 * searching through Factory default values.
+	 * 
+	 * @param componentId the Component-ID
+	 * @return an array of Configurations
+	 * @throws InvalidSyntaxException on error
+	 * @throws IOException            on error
+	 */
+	private List<Configuration> listConfigurations(String componentId) throws IOException, InvalidSyntaxException {
+		List<Configuration> result = new ArrayList<>();
+		Configuration[] configs = this.cm.listConfigurations(null);
+		if (configs == null) {
+			return result;
+		}
+
+		for (Configuration config : configs) {
+			Object id = config.getProperties().get("id");
+			if (id != null) {
+				// Configuration has an 'id' property
+				if (id instanceof String && componentId.equals((String) id)) {
+					// 'id' property matches
+					result.add(config);
+				}
+
+			} else {
+				// compare default value for property 'id'
+				String factoryPid = config.getFactoryPid();
+				if (factoryPid == null) {
+					// Singleton?
+					factoryPid = config.getPid();
+					if (factoryPid == null) {
+						continue;
+					}
+				}
+				Factory factory = this.getEdgeConfig().getFactories().get(factoryPid);
+				if (factory == null) {
+					continue;
+				}
+				Optional<String> defaultValue = JsonUtils.getAsOptionalString(factory.getPropertyDefaultValue("id"));
+				if (defaultValue.isPresent() && componentId.equals(defaultValue.get())) {
+					result.add(config);
+				}
+			}
+		}
+		return result;
 	}
 
 	@Override

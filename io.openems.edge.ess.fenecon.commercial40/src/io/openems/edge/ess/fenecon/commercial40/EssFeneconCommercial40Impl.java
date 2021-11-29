@@ -28,6 +28,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -70,8 +71,9 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 		})
-public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent implements EssFeneconCommercial40,
-		ManagedSymmetricEss, SymmetricEss, HybridEss, OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
+public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
+		implements EssFeneconCommercial40, ManagedSymmetricEss, SymmetricEss, HybridEss, ModbusComponent,
+		OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
 
 	private final Logger log = LoggerFactory.getLogger(EssFeneconCommercial40Impl.class);
 
@@ -110,6 +112,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	public EssFeneconCommercial40Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				HybridEss.ChannelId.values(), //
@@ -760,6 +763,11 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	@Override
 	public Power getPower() {
 		return this.power;
+	}
+
+	@Override
+	public boolean isManaged() {
+		return !this.config.readOnlyMode();
 	}
 
 	@Override

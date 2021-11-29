@@ -1,0 +1,12 @@
+<div [formGroup]="formGroup">
+    <ion-segment [formControlName]="controlName">
+        <ng-container *ngFor="let button of buttons">
+            <ion-segment-button [value]="button.value">
+                <ion-label>{{ button.name }}</ion-label>
+                <ion-icon style="width:40px" [name]="button.icon.name || 'power-outline'"
+                    [color]="button.icon.color || 'success'" [size]="button.icon.size || 'medium'">
+                </ion-icon>
+            </ion-segment-button>
+        </ng-container>
+    </ion-segment>
+</div>

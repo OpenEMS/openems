@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ChannelAddress, CurrentData, GridMode, Utils } from 'src/app/shared/shared';
-import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { GridModalComponent } from './modal/modal.component';
 
 @Component({
@@ -34,7 +34,7 @@ export class GridComponent extends AbstractFlatWidget {
     this.gridMode = currentData.allComponents[GridComponent.GRID_MODE.toString()];
     let gridActivePower = currentData.allComponents[GridComponent.GRID_ACTIVE_POWER.toString()];
     this.gridBuyPower = gridActivePower;
-    this.gridBuyPower = Utils.multiplySafely(gridActivePower, -1);
+    this.gridSellPower = Utils.multiplySafely(gridActivePower, -1);
   }
 
   async presentModal() {

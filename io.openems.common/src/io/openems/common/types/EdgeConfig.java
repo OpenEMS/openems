@@ -940,6 +940,19 @@ public class EdgeConfig {
 		}
 
 		/**
+		 * Gets the default value of a property.
+		 * 
+		 * @param propertyId the Property ID
+		 */
+		public JsonElement getPropertyDefaultValue(String propertyId) {
+			Optional<Property> property = this.getProperty(propertyId);
+			if (!property.isPresent()) {
+				return JsonNull.INSTANCE;
+			}
+			return property.get().getDefaultValue();
+		}
+
+		/**
 		 * Gets the Nature-IDs of the {@link Factory}.
 		 * 
 		 * @return the Nature-IDs

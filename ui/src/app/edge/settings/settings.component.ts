@@ -1,7 +1,8 @@
-import { ActivatedRoute } from '@angular/router';
 import { Component } from '@angular/core';
-import { Edge, Service, Utils } from '../../shared/shared';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { environment } from 'src/environments';
+import { Edge, Service, Utils } from '../../shared/shared';
 
 @Component({
   selector: 'settings',
@@ -9,7 +10,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class SettingsComponent {
 
-  public edge: Edge = null
+  public edge: Edge = null;
+  public environment = environment;
 
   constructor(
     private route: ActivatedRoute,

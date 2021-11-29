@@ -31,7 +31,7 @@
         </ion-card>
       </ion-col>
 
-      <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('owner')">
+      <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('admin')">
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="play-outline"></ion-icon>
@@ -96,6 +96,48 @@
           </ion-item>
           <ion-card-content>
             <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/network">
+              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('admin')">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="construct-outline"></ion-icon>
+            <ion-label>{{ environment.edgeShortName }}-App Assistent</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/autoinstaller">
+              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('owner')">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="cloud-download-outline"></ion-icon>
+            <ion-label>{{ environment.edgeShortName }} Systemupdate</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/systemupdate">
+              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('admin')">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="construct-outline"></ion-icon>
+            <ion-label>{{ environment.edgeShortName }} Soltaro Service Assistent</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/servcieAssistant">
               <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
             </ion-button>
           </ion-card-content>

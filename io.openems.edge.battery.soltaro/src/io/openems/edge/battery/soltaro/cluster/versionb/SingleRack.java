@@ -34,7 +34,7 @@ import io.openems.edge.common.taskmanager.Priority;
  *
  */
 public class SingleRack {
-		private static final String KEY_VOLTAGE = "VOLTAGE";
+	private static final String KEY_VOLTAGE = "VOLTAGE";
 	private static final String KEY_CURRENT = "CURRENT";
 	private static final String KEY_CHARGE_INDICATION = "CHARGE_INDICATION";
 	private static final String KEY_SOC = "SOC";
@@ -296,7 +296,7 @@ public class SingleRack {
 
 		return tasks;
 	}
-	
+
 	private int getIntFromChannel(String key, int defaultValue) {
 		@SuppressWarnings("unchecked")
 		Optional<Integer> opt = (Optional<Integer>) this.channelMap.get(key).value().asOptional();
@@ -438,15 +438,19 @@ public class SingleRack {
 		this.addEntry(map, KEY_MIN_CELL_TEMPERATURE_ID, new IntegerDoc().unit(Unit.NONE));
 		this.addEntry(map, KEY_MIN_CELL_TEMPERATURE, new IntegerDoc().unit(Unit.DEZIDEGREE_CELSIUS));
 		this.addEntry(map, KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW,
-				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Cell Discharge Temperature Low Alarm Level 2")); // Bit 15
+				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Cell Discharge Temperature Low Alarm Level 2")); // Bit
+																														// 15
 		this.addEntry(map, KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH,
-				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Cell Discharge Temperature High Alarm Level 2")); // Bit 14
+				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Cell Discharge Temperature High Alarm Level 2")); // Bit
+																														// 14
 		this.addEntry(map, KEY_ALARM_LEVEL_2_GR_TEMPERATURE_HIGH,
 				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " GR Temperature High Alarm Level 2")); // Bit 10
 		this.addEntry(map, KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW,
-				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Cell Charge Temperature Low Alarm Level 2")); // Bit 7
+				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Cell Charge Temperature Low Alarm Level 2")); // Bit
+																													// 7
 		this.addEntry(map, KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH,
-				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Cell Charge Temperature High Alarm Level 2")); // Bit 6
+				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Cell Charge Temperature High Alarm Level 2")); // Bit
+																														// 6
 		this.addEntry(map, KEY_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH,
 				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Discharge Current High Alarm Level 2")); // Bit 5
 		this.addEntry(map, KEY_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW,
@@ -460,25 +464,32 @@ public class SingleRack {
 		this.addEntry(map, KEY_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH,
 				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Cell Voltage High Alarm Level 2")); // Bit 0
 		this.addEntry(map, KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW,
-				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell Discharge Temperature Low Alarm Level 1")); // Bit 15
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell Discharge Temperature Low Alarm Level 1")); // Bit
+																															// 15
 		this.addEntry(map, KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH, Doc.of(Level.WARNING)
 				.text("Rack" + this.rackNumber + " Cell Discharge Temperature High Alarm Level 1")); // Bit 14
 		this.addEntry(map, KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH,
-				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Total Voltage Diff High Alarm Level 1")); // Bit 13
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Total Voltage Diff High Alarm Level 1")); // Bit
+																													// 13
 		this.addEntry(map, KEY_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH,
-				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell Voltage Diff High Alarm Level 1")); // Bit 11
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell Voltage Diff High Alarm Level 1")); // Bit
+																													// 11
 		this.addEntry(map, KEY_ALARM_LEVEL_1_GR_TEMPERATURE_HIGH,
 				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " GR Temperature High Alarm Level 1")); // Bit 10
 		this.addEntry(map, KEY_ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH,
-				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell temperature Diff High Alarm Level 1")); // Bit 9
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell temperature Diff High Alarm Level 1")); // Bit
+																														// 9
 		this.addEntry(map, KEY_ALARM_LEVEL_1_SOC_LOW,
 				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " SOC Low Alarm Level 1")); // Bit 8
 		this.addEntry(map, KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_LOW,
-				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell Charge Temperature Low Alarm Level 1")); // Bit 7
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell Charge Temperature Low Alarm Level 1")); // Bit
+																														// 7
 		this.addEntry(map, KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH,
-				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell Charge Temperature High Alarm Level 1")); // Bit 6
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell Charge Temperature High Alarm Level 1")); // Bit
+																														// 6
 		this.addEntry(map, KEY_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH,
-				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Discharge Current High Alarm Level 1")); // Bit 5
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Discharge Current High Alarm Level 1")); // Bit
+																													// 5
 		this.addEntry(map, KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW,
 				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Total Voltage Low Alarm Level 1")); // Bit 4
 		this.addEntry(map, KEY_ALARM_LEVEL_1_CELL_VOLTAGE_LOW,

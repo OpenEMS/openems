@@ -16,7 +16,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -30,8 +29,10 @@ import io.openems.edge.common.host.Host;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemUpdateRequest;
 import io.openems.edge.core.host.jsonrpc.GetNetworkConfigRequest;
 import io.openems.edge.core.host.jsonrpc.GetNetworkConfigResponse;
+import io.openems.edge.core.host.jsonrpc.GetSystemUpdateStateRequest;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 
 /**
@@ -39,10 +40,9 @@ import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
  */
 @Designate(ocd = Config.class, factory = false)
 @Component(//
-		name = "Core.Host", //
+		name = Host.SINGLETON_SERVICE_PID, //
 		immediate = true, //
 		property = { //
-				"id=" + OpenemsConstants.HOST_ID, //
 				"enabled=true" //
 		})
 public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsComponent, JsonApi {
@@ -55,6 +55,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	private final DiskSpaceWorker diskSpaceWorker;
 	private final NetworkConfigurationWorker networkConfigurationWorker;
 	private final UsbConfigurationWorker usbConfigurationWorker;
+	private final SystemUpdateHandler systemUpdateHandler;
 
 	protected Config config;
 
@@ -74,6 +75,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 		this.diskSpaceWorker = new DiskSpaceWorker(this);
 		this.networkConfigurationWorker = new NetworkConfigurationWorker(this);
 		this.usbConfigurationWorker = new UsbConfigurationWorker(this);
+		this.systemUpdateHandler = new SystemUpdateHandler(this);
 
 		// Initialize 'Hostname' channel
 		try {
@@ -90,9 +92,11 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	@Activate
 	void activate(ComponentContext componentContext, BundleContext bundleContext, Config config)
 			throws OpenemsException {
-		super.activate(componentContext, OpenemsConstants.HOST_ID, "Host", true);
-
+		super.activate(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		this.config = config;
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
+		}
 
 		// Start the Workers
 		this.diskSpaceWorker.activate(this.id());
@@ -109,6 +113,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 		this.diskSpaceWorker.deactivate();
 		this.networkConfigurationWorker.deactivate();
 		this.usbConfigurationWorker.deactivate();
+		this.systemUpdateHandler.deactivate();
 
 		super.deactivate();
 	}
@@ -116,7 +121,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	@Override
 	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
 			throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.ADMIN);
+		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.OWNER);
 
 		switch (request.getMethod()) {
 
@@ -125,6 +130,12 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 
 		case SetNetworkConfigRequest.METHOD:
 			return this.handleSetNetworkConfigRequest(user, SetNetworkConfigRequest.from(request));
+
+		case GetSystemUpdateStateRequest.METHOD:
+			return this.handleGetSystemUpdateStateRequest(user, GetSystemUpdateStateRequest.from(request));
+
+		case ExecuteSystemUpdateRequest.METHOD:
+			return this.handleExecuteSystemUpdateRequest(user, ExecuteSystemUpdateRequest.from(request));
 
 		case ExecuteSystemCommandRequest.METHOD:
 			return this.handleExecuteCommandRequest(user, ExecuteSystemCommandRequest.from(request));
@@ -144,6 +155,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetNetworkConfigRequest(User user,
 			GetNetworkConfigRequest request) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast("handleGetNetworkConfigRequest", Role.OWNER);
 		NetworkConfiguration config = this.operatingSystem.getNetworkConfiguration();
 		GetNetworkConfigResponse response = new GetNetworkConfigResponse(request.getId(), config);
 		return CompletableFuture.completedFuture(response);
@@ -159,6 +171,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleSetNetworkConfigRequest(User user,
 			SetNetworkConfigRequest request) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast("handleSetNetworkConfigRequest", Role.OWNER);
 		NetworkConfiguration oldNetworkConfiguration = this.operatingSystem.getNetworkConfiguration();
 		this.operatingSystem.handleSetNetworkConfigRequest(oldNetworkConfiguration, request);
 
@@ -166,6 +179,36 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 		this.networkConfigurationWorker.triggerNextRun();
 
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	/**
+	 * Handles a {@link GetSystemUpdateStateRequest}.
+	 * 
+	 * @param user    the User
+	 * @param request the {@link GetSystemUpdateStateRequest}
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetSystemUpdateStateRequest(User user,
+			GetSystemUpdateStateRequest request) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast("handleGetSystemUpdateStateRequest", Role.OWNER);
+
+		return this.systemUpdateHandler.handleGetSystemUpdateStateRequest(request);
+	}
+
+	/**
+	 * Handles a {@link ExecuteSystemUpdateRequest}.
+	 * 
+	 * @param user    the User
+	 * @param request the {@link ExecuteSystemUpdateRequest}
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleExecuteSystemUpdateRequest(User user,
+			ExecuteSystemUpdateRequest request) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast("handleSystemUpdateRequest", Role.OWNER);
+
+		return this.systemUpdateHandler.handleExecuteSystemUpdateRequest(request);
 	}
 
 	/**
@@ -178,6 +221,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	 */
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleExecuteCommandRequest(User user,
 			ExecuteSystemCommandRequest request) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast("handleExecuteCommandRequest", Role.ADMIN);
 		return this.operatingSystem.handleExecuteCommandRequest(request);
 	}
 
@@ -201,7 +245,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	 * 
 	 * @param execCommand the command
 	 * @return the parsed result
-	 * @throws IOException
+	 * @throws IOException on error
 	 */
 	private static String execReadToString(String execCommand) throws IOException {
 		try (Scanner s = new Scanner(Runtime.getRuntime().exec(execCommand).getInputStream()).useDelimiter("\\A")) {
