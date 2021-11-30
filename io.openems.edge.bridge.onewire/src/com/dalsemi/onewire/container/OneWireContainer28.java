@@ -907,22 +907,4 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 
 		return result;
 	}
-
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Converts a temperature reading from Celsius to Fahrenheit.
-	 *
-	 * @param celsiusTemperature temperature value in Celsius
-	 *
-	 * @return the Fahrenheit conversion of the supplied temperature
-	 *
-	 * @deprecated Replace with call to
-	 *             com.dalsemi.onewire.utils.Convert.toFahrenheit()
-	 *
-	 * @see com.dalsemi.onewire.utils.Convert#toFahrenheit(double)
-	 */
-	public float convertToFahrenheit(float celsiusTemperature) {
-		return (float) Convert.toFahrenheit(celsiusTemperature);
-	}
 }
