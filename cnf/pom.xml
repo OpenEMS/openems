@@ -89,11 +89,6 @@
 			<artifactId>commons-fileupload</artifactId>
 			<version>1.4</version>
 		</dependency>
-		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
-			<version>3.1</version>
-		</dependency>
 		<!-- eu -->
 		<dependency>
 			<!-- Used by io.openems.edge.evcs.ocpp. -->
@@ -112,6 +107,12 @@
 			<groupId>eu.chargetime.ocpp</groupId>
 			<artifactId>v1_6</artifactId>
 			<version>1.0.1</version>
+		</dependency>
+		<!-- fr -->
+		<dependency>
+			<groupId>fr.turri</groupId>
+			<artifactId>aXMLRPC</artifactId>
+			<version>1.12.0</version>
 		</dependency>
 		<!-- info -->
 		<dependency>
@@ -202,16 +203,6 @@
 			<groupId>org.apache.servicemix.bundles</groupId>
 			<artifactId>org.apache.servicemix.bundles.ws-commons-util</artifactId>
 			<version>1.0.2_2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlrpc</groupId>
-			<artifactId>xmlrpc-client</artifactId>
-			<version>3.1.3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlrpc</groupId>
-			<artifactId>xmlrpc-common</artifactId>
-			<version>3.1.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
