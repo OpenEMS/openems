@@ -33,7 +33,6 @@ import com.dalsemi.onewire.OneWireException;
 import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.adapter.OneWireIOException;
 import com.dalsemi.onewire.utils.CRC8;
-import com.dalsemi.onewire.utils.Convert;
 
 //----------------------------------------------------------------------------
 
