@@ -282,7 +282,7 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 	 */
 	public static InetAddress getMatchingLocalInetAddress(InetAddress inetAddress) {
 		try (DatagramSocket socket = new DatagramSocket()) {
-			socket.connect(inetAddress, 0);
+			socket.connect(inetAddress, 9760);
 			InetAddress localAddress = socket.getLocalAddress();
 
 			if (localAddress.isAnyLocalAddress()) {
