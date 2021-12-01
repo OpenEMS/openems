@@ -35,6 +35,12 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2021.21.2',
+        changes: [
+          Changelog.product(Product.PRO_HYBRID_10) + "Fehlerbehebung für Java 11",
+        ]
+      },
+      {
         version: '2021.21.1',
         changes: [
           Changelog.openems('2021.21.0'),
