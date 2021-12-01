@@ -35,15 +35,14 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
-        version: '2021.20.3',
+        version: '2021.21.1',
         changes: [
-          Changelog.UI,
-        ]
-      },
-      {
-        version: '2021.20.2',
-        changes: [
-          Changelog.UI,
+          Changelog.openems('2021.21.0'),
+          Changelog.UI + "Entferne Leerzeichen bei Login mit Benutzername und Passwort.",
+          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
+          Changelog.library(Library.JNA, Library.IONIC, Library.NGX_FORMLY, Library.DATE_FNS, Library.GRADLE),
+          "Aktualisierung auf Java 11",
+          { roleIsAtLeast: Role.ADMIN, change: "InfluxDB: erhöhe Timeout für Abfragen" },
         ]
       },
       {
