@@ -114,6 +114,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 										case "GW5K-ET":
 											result = GoodweType.GOODWE_5K_ET;
 											break;
+										case "FHI-10-DAH":
+											result = GoodweType.FENECON_FHI_10_DAH;
+											break;
 										default:
 											this.logInfo(this.log, "Unable to identify GoodWe by name [" + value + "]");
 											result = GoodweType.UNDEFINED;
@@ -129,6 +132,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 										case GOODWE_10K_ET:
 										case GOODWE_8K_ET:
 										case GOODWE_5K_ET:
+										case FENECON_FHI_10_DAH:
 											this.logInfo(this.log, "Identified " + result.getName());
 											break;
 										case UNDEFINED:

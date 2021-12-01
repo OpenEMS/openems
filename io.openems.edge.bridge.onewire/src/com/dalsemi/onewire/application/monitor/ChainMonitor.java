@@ -258,11 +258,11 @@ public class ChainMonitor extends AbstractDeviceMonitor {
 				if (chainOn()) {
 					// loop on sending chain mode "Conditional Read ROM" until method returns false
 					while (chainConditionalReadRom(chainDeviceAddress)) {
-						Long longAddress = new Long(Address.toLong(chainDeviceAddress));
+						Long longAddress = Long.valueOf(Address.toLong(chainDeviceAddress));
 						if (!deviceAddressHash.containsKey(longAddress) && arrivals != null)
 							arrivals.addElement(longAddress);
 
-						deviceAddressHash.put(longAddress, new Integer(max_state_count));
+						deviceAddressHash.put(longAddress, Integer.valueOf(max_state_count));
 						// send chain mode "DONE" sequence
 						if (!chainDone())
 							throw new OneWireIOException(
@@ -293,7 +293,7 @@ public class ChainMonitor extends AbstractDeviceMonitor {
 					}
 				} else {
 					// it stays
-					deviceAddressHash.put(longAddress, new Integer(cnt - 1));
+					deviceAddressHash.put(longAddress, Integer.valueOf(cnt - 1));
 				}
 			}
 

@@ -65,7 +65,7 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 		 */
 		OkHttpClient client = new OkHttpClient();
 		Request request = new Request.Builder() //
-				.url(CORRENTLY_API_URL + this.config.zipcode()) //
+				.url(CORRENTLY_API_URL + this.config.zipcode() + "&resolution=900") //
 				.build();
 		int httpStatusCode;
 		try (Response response = client.newCall(request).execute()) {
@@ -164,13 +164,9 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 				// Converting Long time stamp to ZonedDateTime.
 				ZonedDateTime startTimeStamp = ZonedDateTime //
 						.ofInstant(Instant.ofEpochMilli(startTimestampLong), ZoneId.systemDefault())
-						.truncatedTo(ChronoUnit.HOURS);
-
+						.truncatedTo(ChronoUnit.MINUTES);
 				// Adding the values in the Map.
 				result.put(startTimeStamp, marketPrice);
-				result.put(startTimeStamp.plusMinutes(15), marketPrice);
-				result.put(startTimeStamp.plusMinutes(30), marketPrice);
-				result.put(startTimeStamp.plusMinutes(45), marketPrice);
 			}
 		}
 		return ImmutableSortedMap.copyOf(result);

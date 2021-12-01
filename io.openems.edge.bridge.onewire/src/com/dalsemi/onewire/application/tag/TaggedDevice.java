@@ -89,7 +89,7 @@ public class TaggedDevice {
 	 * @param Channel
 	 */
 	public void setChannelFromString(String Channel) {
-		this.channel = new Integer(Channel);
+		this.channel = Integer.valueOf(Channel);
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class TaggedDevice {
 	 * @param Channel
 	 */
 	public void setChannel(int channel) {
-		this.channel = new Integer(channel);
+		this.channel = Integer.valueOf(channel);
 	}
 
 	/**

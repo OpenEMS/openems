@@ -314,22 +314,6 @@ class MemoryBankAD implements PagedMemoryBank {
 	}
 
 	/**
-	 * Query to see if current memory bank pages when read deliver extra information
-	 * outside of the normal data space. Examples of this may be a redirection byte,
-	 * counter, tamper protection bytes, or SHA-1 result. If this method returns
-	 * true then the methods 'ReadPagePacket()' and 'readPageCRC()' with 'extraInfo'
-	 * parameter can be used.
-	 *
-	 * @return 'true' if reading the current memory bank pages provides extra
-	 *         information.
-	 *
-	 * @deprecated As of 1-Wire API 0.01, replaced by {@link #hasExtraInfo()}
-	 */
-	public boolean haveExtraInfo() {
-		return false;
-	}
-
-	/**
 	 * Checks to see if this memory bank's pages deliver extra information outside
 	 * of the normal data space, when read. Examples of this may be a redirection
 	 * byte, counter, tamper protection bytes, or SHA-1 result. If this method

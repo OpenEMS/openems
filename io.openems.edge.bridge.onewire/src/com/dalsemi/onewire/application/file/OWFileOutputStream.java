@@ -421,6 +421,7 @@ public class OWFileOutputStream extends OutputStream {
 	 * @exception IOException if an I/O error occurs.
 	 * @see com.dalsemi.onewire.application.file.OWFileInputStream#close()
 	 */
+	@Override
 	public void finalize() throws IOException {
 		if (fd != null)
 			fd.close();

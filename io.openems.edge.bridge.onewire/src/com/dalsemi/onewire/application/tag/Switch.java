@@ -118,7 +118,7 @@ public class Switch extends TaggedDevice implements TaggedActuator {
 		int initValue;
 		int channelValue;
 		int switchStateIntValue = 0;
-		Integer init = new Integer(getInit());
+		Integer init = Integer.parseInt(getInit());
 		initValue = init.intValue();
 		channelValue = getChannel();
 

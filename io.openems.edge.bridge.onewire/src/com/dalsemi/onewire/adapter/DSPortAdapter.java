@@ -332,7 +332,7 @@ public abstract class DSPortAdapter {
 			throw new OneWireException("Could not find OneWireContainer class");
 		}
 
-		Integer familyInt = new Integer(family);
+		Integer familyInt = Integer.valueOf(family);
 
 		if (OneWireContainerClass == null) {
 
@@ -1450,7 +1450,7 @@ public abstract class DSPortAdapter {
 
 		// If any user registered button exist, check the hashtable.
 		if (!registeredOneWireContainerClasses.isEmpty()) {
-			Integer familyInt = new Integer(family_code);
+			Integer familyInt = Integer.valueOf(family_code);
 
 			// Try and get a user provided container class first.
 			ibutton_class = (Class<?>) registeredOneWireContainerClasses.get(familyInt);
@@ -1483,7 +1483,7 @@ public abstract class DSPortAdapter {
 		try {
 
 			// create the iButton container with a reference to this adapter
-			new_ibutton = (OneWireContainer) ibutton_class.newInstance();
+			new_ibutton = (OneWireContainer) ibutton_class.getConstructor().newInstance();
 
 			new_ibutton.setupContainer(this, address);
 		} catch (Exception e) {
