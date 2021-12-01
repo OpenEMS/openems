@@ -195,7 +195,7 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 					// loop while devices found
 					while (search_result) {
 						// get the 1-Wire address
-						Long longAddress = new Long(adapter.getAddressAsLong());
+						Long longAddress = Long.valueOf(adapter.getAddressAsLong());
 						// check if the device already exists in our hashtable
 						if (!deviceAddressHash.containsKey(longAddress)) {
 							OneWireContainer owc = getDeviceContainer(adapter, longAddress);
@@ -230,7 +230,7 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 						}
 
 						// update count
-						deviceAddressHash.put(longAddress, new Integer(max_state_count));
+						deviceAddressHash.put(longAddress, Integer.valueOf(max_state_count));
 
 						// find the next device on this branch
 						path.open();
@@ -254,7 +254,7 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 						departures.addElement(longAddress);
 				} else {
 					// device entry isn't stale, it stays
-					deviceAddressHash.put(longAddress, new Integer(cnt - 1));
+					deviceAddressHash.put(longAddress, Integer.valueOf(cnt - 1));
 				}
 			}
 

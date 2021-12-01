@@ -78,9 +78,14 @@ export class AdvertWidgets {
         }
         list.push(
             { name: 'Heimatstrom' },
-            { name: 'Stille Beteiligung' },
-            { name: 'FENECON Home' }
-        );
+            { name: 'Stille Beteiligung' })
+
+        // Dont show home AdvertWidget for 'Homes'
+        if (!edge.producttype.includes('home')) {
+            list.push(
+                { name: 'FENECON Home' }
+            );
+        }
         return new AdvertWidgets(list);
     }
 

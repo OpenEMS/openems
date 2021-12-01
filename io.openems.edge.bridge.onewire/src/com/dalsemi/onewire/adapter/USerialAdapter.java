@@ -255,6 +255,7 @@ public class USerialAdapter extends DSPortAdapter {
 	// -------- Information Methods
 	// --------
 
+	@Override
 	protected void finalize() {
 		try {
 			freePort();

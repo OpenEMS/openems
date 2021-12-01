@@ -188,7 +188,7 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	protected static final String COMM_FAILED = "IO Error: ";
 
 	/** constant for no exclusive lock */
-	protected static final Integer NOT_OWNED = new Integer(0);
+	protected static final Integer NOT_OWNED = Integer.valueOf(0);
 	/** Keeps hash of current thread for exclusive lock */
 	protected Integer currentThreadHash = NOT_OWNED;
 
@@ -1196,7 +1196,7 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 		synchronized (currentThreadHash) {
 			if (currentThreadHash == NOT_OWNED) {
 				// not owned so take
-				currentThreadHash = new Integer(Thread.currentThread().hashCode());
+				currentThreadHash = Integer.valueOf(Thread.currentThread().hashCode());
 
 				// provided debug on standard out
 				if (DEBUG) {

@@ -35,8 +35,8 @@ export function EmailMatchValidator(control: FormControl): ValidationErrors {
 }
 
 export function BatteryInverterSerialNumberValidator(control: FormControl): ValidationErrors {
-  // This validator only checks the value after the prefix
-  return /^.{8}$/.test(control.value) ? null : { "batteryInverterSerialNumber": true };
+  // This validator checks the length of the value
+  return /^.{16}$/.test(control.value) ? null : { "batteryInverterSerialNumber": true };
 }
 
 export function EmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
