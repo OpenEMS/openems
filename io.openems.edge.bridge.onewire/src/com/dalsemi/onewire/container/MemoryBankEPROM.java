@@ -478,22 +478,6 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	}
 
 	/**
-	 * Query to see if current memory bank pages when read deliver extra information
-	 * outside of the normal data space. Examples of this may be a redirection byte,
-	 * counter, tamper protection bytes, or SHA-1 result. If this method returns
-	 * true then the methods 'ReadPagePacket()' and 'readPageCRC()' with 'extraInfo'
-	 * parameter can be used.
-	 *
-	 * @return 'true' if reading the current memory bank pages provides extra
-	 *         information.
-	 *
-	 * @deprecated As of 1-Wire API 0.01, replaced by {@link #hasExtraInfo()}
-	 */
-	public boolean haveExtraInfo() {
-		return extraInfo;
-	}
-
-	/**
 	 * Checks to see if this memory bank's pages deliver extra information outside
 	 * of the normal data space, when read. Examples of this may be a redirection
 	 * byte, counter, tamper protection bytes, or SHA-1 result. If this method
@@ -1084,35 +1068,6 @@ class MemoryBankEPROM implements OTPMemoryBank {
 
 		// write the redirection byte
 		mbRedirect.write(page + redirectOffset, wr_byte, 0, 1);
-	}
-
-	/**
-	 * Query to see if the specified page is redirected. Not supported by all
-	 * devices. See the method 'canRedirectPage()'.
-	 *
-	 * @param page number of page check for redirection
-	 *
-	 * @return return the new page number or 0 if not redirected
-	 *
-	 * @throws OneWireIOException
-	 * @throws OneWireException
-	 *
-	 * @deprecated As of 1-Wire API 0.01, replaced by
-	 *             {@link #getRedirectedPage(int)}
-	 */
-	public int isPageRedirected(int page) throws OneWireIOException, OneWireException {
-
-		// read page that redirect byte is on
-		int pg_len = mbRedirect.getPageLength();
-		int read_pg = (page + redirectOffset) / pg_len;
-
-		// read page with byte
-		byte[] read_buf = new byte[pg_len];
-
-		mbRedirect.readPageCRC(read_pg, false, read_buf, 0);
-
-		// return page
-		return ~read_buf[(page + redirectOffset) % pg_len] & 0x000000FF;
 	}
 
 	/**

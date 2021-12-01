@@ -65,7 +65,6 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 		 */
 		OkHttpClient client = new OkHttpClient();
 		Request request = new Request.Builder() //
-				// URL - https://api.corrently.io/v2.0/marketdata?zipcode=69256&resolution=900
 				.url(CORRENTLY_API_URL + this.config.zipcode() + "&resolution=900") //
 				.build();
 		int httpStatusCode;
