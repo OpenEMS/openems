@@ -36,7 +36,6 @@ import com.dalsemi.onewire.OneWireException;
 import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.adapter.OneWireIOException;
 import com.dalsemi.onewire.utils.CRC8;
-import com.dalsemi.onewire.utils.Convert;
 
 //----------------------------------------------------------------------------
 
@@ -307,7 +306,8 @@ public class OneWireContainer42 extends OneWireContainer implements TemperatureC
 				+ "'sequence detect' and 2 PIO channels. It measures "
 				+ "temperature from -40 C to +85 C in 0.75 seconds (max). "
 				+ "Its accuracy is +/-0.5 C between -10 C and 85 C and "
-				+ "+/-2 C accuracy from -40 C to +85 C. Thermometer " + "resolution is programmable at 9, 10, 11, and 12 "
+				+ "+/-2 C accuracy from -40 C to +85 C. Thermometer "
+				+ "resolution is programmable at 9, 10, 11, and 12 "
 				+ "bits. PIO channels can be used as generic channels "
 				+ "or used in 'Chain' mode to detect the physical " + "sequence of devices in a 1-Wire network.";
 	}
@@ -1032,22 +1032,6 @@ public class OneWireContainer42 extends OneWireContainer implements TemperatureC
 			result = true; // reads 0xFF for true and 0x00 for false
 
 		return result;
-	}
-
-	/**
-	 * Converts a temperature reading from Celsius to Fahrenheit.
-	 *
-	 * @param celsiusTemperature temperature value in Celsius
-	 *
-	 * @return the Fahrenheit conversion of the supplied temperature
-	 *
-	 * @deprecated Replace with call to
-	 *             com.dalsemi.onewire.utils.Convert.toFahrenheit()
-	 *
-	 * @see com.dalsemi.onewire.utils.Convert#toFahrenheit(double)
-	 */
-	public float convertToFahrenheit(float celsiusTemperature) {
-		return (float) Convert.toFahrenheit(celsiusTemperature);
 	}
 
 	// --------

@@ -241,6 +241,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	/**
 	 * Finalize to Cleanup native
 	 */
+	@Override
 	protected void finalize() {
 		cleanup_Native();
 	}

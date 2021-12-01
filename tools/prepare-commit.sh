@@ -69,7 +69,7 @@ for D in *; do
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="aQute.bnd.classpath.container"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11"/>
 	<classpathentry kind="src" output="bin" path="src"/>
 	<classpathentry kind="src" output="bin_test" path="test">
 		<attributes>
@@ -79,6 +79,11 @@ for D in *; do
 	<classpathentry kind="output" path="bin"/>
 </classpath>
 EOT
+				fi
+
+				# Remove .settings directory
+				if [ -d "${D}/.settings" ]; then
+					rm -R "${D}/.settings"
 				fi
 
 				# Verify bnd.bnd file

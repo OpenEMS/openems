@@ -127,7 +127,7 @@ public class DeviceMonitor extends AbstractDeviceMonitor {
 				// loop while devices found
 				while (search_result) {
 					// get the 1-Wire address
-					Long longAddress = new Long(adapter.getAddressAsLong());
+					Long longAddress = Long.valueOf(adapter.getAddressAsLong());
 					// if requested to do an alarm search, then check device for an alarm condition
 					// and save in list
 					if (doAlarmSearch) {
@@ -135,13 +135,13 @@ public class DeviceMonitor extends AbstractDeviceMonitor {
 							if (!deviceAddressHash.containsKey(longAddress) && arrivals != null)
 								arrivals.addElement(longAddress);
 
-							deviceAddressHash.put(longAddress, new Integer(max_state_count));
+							deviceAddressHash.put(longAddress, Integer.valueOf(max_state_count));
 						}
 					} else {
 						if (!deviceAddressHash.containsKey(longAddress) && arrivals != null)
 							arrivals.addElement(longAddress);
 
-						deviceAddressHash.put(longAddress, new Integer(max_state_count));
+						deviceAddressHash.put(longAddress, Integer.valueOf(max_state_count));
 					}
 
 					// search for the next device
@@ -167,7 +167,7 @@ public class DeviceMonitor extends AbstractDeviceMonitor {
 					}
 				} else {
 					// it stays
-					deviceAddressHash.put(longAddress, new Integer(cnt - 1));
+					deviceAddressHash.put(longAddress, Integer.valueOf(cnt - 1));
 				}
 			}
 
