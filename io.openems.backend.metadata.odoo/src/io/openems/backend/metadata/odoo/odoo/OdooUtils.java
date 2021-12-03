@@ -210,7 +210,8 @@ public class OdooUtils {
 	}
 
 	private static Object executeKw(String url, Object[] params) throws MalformedURLException, XMLRPCException {
-		XMLRPCClient client = new XMLRPCClient(new URL(String.format("%s/xmlrpc/2/object", url)));
+		XMLRPCClient client = new XMLRPCClient(new URL(String.format("%s/xmlrpc/2/object", url)),
+				XMLRPCClient.FLAGS_NIL);
 		client.setTimeout(60 /* seconds */);
 		return client.call("execute_kw", params);
 	}
