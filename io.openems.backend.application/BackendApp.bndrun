@@ -4,6 +4,10 @@
 
 -resolve.effective: active
 
+# 'file.encoding=UTF-8' is required because of https://github.com/gturri/aXMLRPC/issues/43
+-runvm: \
+	-Dfile.encoding=UTF-8
+
 -runproperties: \
 	org.osgi.service.http.port=8079,\
 	felix.cm.dir=c:/openems-backend-config,\
