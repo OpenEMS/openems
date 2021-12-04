@@ -20,6 +20,14 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
 	String ess_id();
 
+	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
+	Mode mode() default Mode.AUTOMATIC;
+
+	@AttributeDefinition(name = "Risk level of the customer", description = "" //
+			+ "Low Risk: Less dependence on predictions; Energy in battery should always be used during the night. " //
+			+ "High Risk: High dependence on predictions; Battery is scheduled to discharge completely based on predictions.")
+	DelayDischargeRiskLevel delayDischargeRiskLevel() default DelayDischargeRiskLevel.MEDIUM;
+
 	@AttributeDefinition(name = "Fallback Morning-Hour", description = "Fallback for calculation to stop at this hour")
 	int maxStartHour() default 8;
 

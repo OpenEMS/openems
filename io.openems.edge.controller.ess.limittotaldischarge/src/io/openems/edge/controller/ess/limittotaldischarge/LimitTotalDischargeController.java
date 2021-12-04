@@ -50,6 +50,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 	private int forceChargeSoc = 0;
 	private Optional<Integer> forceChargePower = Optional.empty();
 	private State state = State.NORMAL;
+	private Config config;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(State.values()) //
@@ -81,6 +82,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
+		this.config = config;
 		this.essId = config.ess_id();
 		this.minSoc = config.minSoc();
 		this.forceChargeSoc = config.forceChargeSoc();
@@ -226,5 +228,9 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 			this.channel(ChannelId.AWAITING_HYSTERESIS).setNextValue(false);
 			return false;
 		}
+	}
+
+	public int getMinSoc() {
+		return this.config.minSoc();
 	}
 }

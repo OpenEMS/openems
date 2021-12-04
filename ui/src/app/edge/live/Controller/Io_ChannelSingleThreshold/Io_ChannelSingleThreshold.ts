@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Icon } from 'src/app/shared/type/widget';
 import { ChannelAddress, CurrentData, Utils } from '../../../../shared/shared';
-import { AbstractFlatWidget } from 'src/app/shared/Generic_Components/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { Controller_Io_ChannelSingleThresholdModalComponent } from './modal/modal.component';
 
 @Component({

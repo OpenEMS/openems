@@ -3,8 +3,8 @@ import { EdgeConfig } from '../edge/edgeconfig';
 
 export enum WidgetClass {
     'Energymonitor',
-    'Autarchy',
-    'Selfconsumption',
+    'Common_Autarchy',
+    'Common_Selfconsumption',
     'Storage',
     'Grid',
     'Production',
@@ -24,6 +24,7 @@ export enum WidgetFactory {
     'Controller.Ess.DelayedSellToGrid',
     'Controller.Ess.FixActivePower',
     'Controller.Ess.GridOptimizedCharge',
+    'Controller.Ess.Time-Of-Use-Tariff.Discharge',
     'Controller.IO.ChannelSingleThreshold',
     'Controller.Io.FixDigitalOutput',
     'Controller.IO.HeatingElement',
@@ -57,7 +58,7 @@ export class Widgets {
                     return true;
                 }
                 switch (clazz) {
-                    case 'Autarchy':
+                    case 'Common_Autarchy':
                     case 'Grid':
                         return config.hasMeter();
                     case 'Energymonitor':
@@ -70,7 +71,7 @@ export class Widgets {
                     case 'Storage':
                         return config.hasStorage();
                     case 'Production':
-                    case 'Selfconsumption':
+                    case 'Common_Selfconsumption':
                         return config.hasProducer();
                 };
                 return false;

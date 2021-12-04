@@ -25,7 +25,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 		this.applyPower(context);
 
 		inverter.softStart(true);
-		inverter.setStartCommand();
+		inverter.setStartInverter();
 		return State.RUNNING;
 	}
 

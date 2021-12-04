@@ -33,7 +33,6 @@ import com.dalsemi.onewire.OneWireException;
 import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.adapter.OneWireIOException;
 import com.dalsemi.onewire.utils.CRC8;
-import com.dalsemi.onewire.utils.Convert;
 
 //----------------------------------------------------------------------------
 
@@ -906,23 +905,5 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 			result = true; // reads 0xFF for true and 0x00 for false
 
 		return result;
-	}
-
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Converts a temperature reading from Celsius to Fahrenheit.
-	 *
-	 * @param celsiusTemperature temperature value in Celsius
-	 *
-	 * @return the Fahrenheit conversion of the supplied temperature
-	 *
-	 * @deprecated Replace with call to
-	 *             com.dalsemi.onewire.utils.Convert.toFahrenheit()
-	 *
-	 * @see com.dalsemi.onewire.utils.Convert#toFahrenheit(double)
-	 */
-	public float convertToFahrenheit(float celsiusTemperature) {
-		return (float) Convert.toFahrenheit(celsiusTemperature);
 	}
 }

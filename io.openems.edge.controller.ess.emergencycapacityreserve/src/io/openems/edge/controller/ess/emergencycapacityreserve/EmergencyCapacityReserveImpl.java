@@ -193,4 +193,9 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 				.findFirst();
 	}
 
+	@Override
+	public Config getConfig() {
+		return this.config;
+	}
+
 }

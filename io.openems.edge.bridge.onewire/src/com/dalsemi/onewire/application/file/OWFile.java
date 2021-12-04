@@ -1176,6 +1176,7 @@ public class OWFile {
 	 * @exception IOException if an I/O error occurs.
 	 * @see java.io.FileInputStream#close()
 	 */
+	@Override
 	protected void finalize() throws IOException {
 		if (fd != null)
 			fd.close();

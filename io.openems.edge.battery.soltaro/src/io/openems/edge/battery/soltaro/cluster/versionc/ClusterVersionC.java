@@ -213,6 +213,11 @@ public interface ClusterVersionC extends //
 				.text("The maximum number of start attempts failed")), //
 		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
 				.text("The maximum number of stop attempts failed")), //
+		NUMBER_OF_MODULES_PER_TOWER(Doc.of(OpenemsType.INTEGER) //
+				.text("Number Modules per Tower")), //
+		NUMBER_OF_TOWERS(Doc.of(OpenemsType.INTEGER) //
+				.text("Number of Towers")), //
+
 		;
 
 		private final Doc doc;

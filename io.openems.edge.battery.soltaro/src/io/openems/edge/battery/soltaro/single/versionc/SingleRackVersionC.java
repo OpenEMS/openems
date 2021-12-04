@@ -147,7 +147,7 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStop
 		EMS_COMMUNICATION_TIMEOUT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.SECONDS) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_PARAMETER_PCS_COMMUNICATION_RATE(Doc.of(OpenemsType.INTEGER) //
+		NUMBER_OF_MODULES_PER_TOWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		SYSTEM_TOTAL_CAPACITY(Doc.of(OpenemsType.INTEGER) //

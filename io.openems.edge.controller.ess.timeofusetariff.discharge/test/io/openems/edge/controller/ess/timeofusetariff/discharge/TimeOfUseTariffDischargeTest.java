@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -18,6 +17,7 @@ import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.predictor.api.test.DummyPrediction48Hours;
 import io.openems.edge.predictor.api.test.DummyPredictor24Hours;
 import io.openems.edge.predictor.api.test.DummyPredictorManager;
+import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 
 public class TimeOfUseTariffDischargeTest {
 
@@ -34,9 +34,12 @@ public class TimeOfUseTariffDischargeTest {
 	private static final ChannelAddress TOTAL_CONSUMPTION = new ChannelAddress(CTRL_ID, "TotalConsumption");
 	private static final ChannelAddress REMAINING_CONSUMPTION = new ChannelAddress(CTRL_ID, "RemainingConsumption");
 	private static final ChannelAddress AVAILABLE_CAPACITY = new ChannelAddress(CTRL_ID, "AvailableCapacity");
+	private static final ChannelAddress USABLE_CAPACITY = new ChannelAddress(CTRL_ID, "UsableCapacity");
 	private static final ChannelAddress QUATERLY_PRICES_TAKEN = new ChannelAddress(CTRL_ID, "QuaterlyPricesTaken");
 	private static final ChannelAddress TARGET_HOURS_CALCULATED = new ChannelAddress(CTRL_ID, "TargetHoursCalculated");
 	private static final ChannelAddress TARGET_HOURS_IS_EMPTY = new ChannelAddress(CTRL_ID, "TargetHoursIsEmpty");
+	private static final ChannelAddress TARGET_HOURS = new ChannelAddress(CTRL_ID, "TargetHours");
+	private static final ChannelAddress STATE_MACHINE = new ChannelAddress(CTRL_ID, "StateMachine");
 
 	/*
 	 * Default Prediction values
@@ -96,8 +99,16 @@ public class TimeOfUseTariffDischargeTest {
 			3226, 2358, 1778, 1002, 455, 654, 534, 1587, 1638, 459, 330, 258, 368, 728, 1096, 878 //
 	};
 
+	private static final Float[] DEFAULT_HOURLY_PRICES = { 158.95f, 160.98f, 171.95f, 174.96f, //
+			161.93f, 152f, 120.01f, 111.03f, //
+			105.04f, 105f, 74.23f, 73.28f, //
+			67.97f, 72.53f, 89.66f, 150.01f, //
+			173.54f, 178.4f, 158.91f, 140.01f, //
+			149.99f, 157.43f, 130.9f, 120.14f //
+	};
+
 	@Test
-	public void ExecutesDuringMarketTimeTest() throws Exception {
+	public void nullTimeOfUseTariffTest() throws Exception {
 
 		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2021-01-01T13:45:00.00Z"), ZoneOffset.UTC);
 		final DummyComponentManager cm = new DummyComponentManager(clock);
@@ -116,30 +127,86 @@ public class TimeOfUseTariffDischargeTest {
 		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
-		// Printing
-		System.out.println("Time: " + clock);
-		System.out.println(Arrays.toString(predictorManager
-				.get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
-		System.out.println(Arrays.toString(predictorManager
-				.get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
+		// Price provider
+		final DummyTimeOfUseTariffProvider timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.fromHourlyPrices(null,
+				DEFAULT_HOURLY_PRICES);
+		;
 
-		new ControllerTest(new TimeOfUseTariffDischargeImpl(new DummyTimeOfUseTariffProvider(ZonedDateTime.now(clock)))) //
+		// Printing
+		// System.out.println("Time: " + clock);
+		// System.out.println(Arrays.toString(predictorManager
+		// .get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
+		// System.out.println(Arrays.toString(predictorManager
+		// .get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
+
+		new ControllerTest(new TimeOfUseTariffDischargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
+				.addReference("timeOfUseTariff", timeOfUseTariffProvider) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
 						.setMaxStartHour(8) //
 						.setMaxEndHour(16) //
+						.setMode(Mode.AUTOMATIC) //
+						.setDelayDischargeRiskLevel(DelayDischargeRiskLevel.HIGH) //
 						.build())
 				.next(new TestCase("Cycle - 1") //
 						.output(AVAILABLE_CAPACITY, null) //
-						.output(QUATERLY_PRICES_TAKEN, null) //
+						.output(QUATERLY_PRICES_TAKEN, false) //
 						.output(TARGET_HOURS_CALCULATED, false) //
-						.output(TARGET_HOURS_IS_EMPTY, true))
-				.next(new TestCase("Cycle - 2") //
+						.output(TARGET_HOURS_IS_EMPTY, true) //
+						.output(STATE_MACHINE, StateMachine.STANDBY));
+	}
+
+	@Test
+	public void executesDuringMarketTimeTest() throws Exception {
+
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2021-01-01T16:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+
+		// Predictions
+		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+
+		// Predictors
+		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				productionPrediction, "_sum/ProductionActivePower");
+		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				consumptionPrediction, "_sum/ConsumptionActivePower");
+
+		// PredictorManager
+		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+				consumptionPredictor);
+
+		// Price provider
+		final DummyTimeOfUseTariffProvider timeOfUseTariffProvider = DummyTimeOfUseTariffProvider
+				.fromHourlyPrices(ZonedDateTime.now(clock), DEFAULT_HOURLY_PRICES);
+
+		// Printing
+		// System.out.println("Time: " + clock);
+		// System.out.println(Arrays.toString(predictorManager
+		// .get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
+		// System.out.println(Arrays.toString(predictorManager
+		// .get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
+
+		new ControllerTest(new TimeOfUseTariffDischargeImpl()) //
+				.addReference("predictorManager", predictorManager) //
+				.addReference("componentManager", cm) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
+				.addReference("timeOfUseTariff", timeOfUseTariffProvider) //
+				.activate(MyConfig.create() //
+						.setId(CTRL_ID) //
+						.setEssId(ESS_ID) //
+						.setMaxStartHour(8) //
+						.setMaxEndHour(16) //
+						.setMode(Mode.AUTOMATIC) //
+						.setDelayDischargeRiskLevel(DelayDischargeRiskLevel.HIGH) //
+						.build())
+				.next(new TestCase("Cycle - 1") //
 						.timeleap(clock, 15, ChronoUnit.MINUTES)//
 						.input(ESS_CAPACITY, 12000) //
 						.input(ESS_SOC, 100) //
@@ -147,19 +214,144 @@ public class TimeOfUseTariffDischargeTest {
 						.output(QUATERLY_PRICES_TAKEN, true) //
 						.output(TARGET_HOURS_CALCULATED, true)//
 						.output(TARGET_HOURS_IS_EMPTY, false)//
-						.output(TOTAL_CONSUMPTION, 65791) //
-						.output(REMAINING_CONSUMPTION, 53791.0))
-				.next(new TestCase("Cycle - 3") //
-						.timeleap(clock, 1, ChronoUnit.MINUTES)//
-						.output(QUATERLY_PRICES_TAKEN, true) //
+						.output(TOTAL_CONSUMPTION, 15248) //
+						.output(REMAINING_CONSUMPTION, 3248.0) //
+						.output(STATE_MACHINE, StateMachine.ALLOWS_DISCHARGE))
+				.next(new TestCase("Cycle - 2") //
+						.output(QUATERLY_PRICES_TAKEN, false) //
 						.output(TARGET_HOURS_CALCULATED, false)//
-						.output(TARGET_HOURS_IS_EMPTY, false))//
+						.output(TARGET_HOURS_IS_EMPTY, false) //
+						.output(STATE_MACHINE, StateMachine.ALLOWS_DISCHARGE))
+				.activate(MyConfig.create() //
+						.setId(CTRL_ID) //
+						.setEssId(ESS_ID) //
+						.setMaxStartHour(8) //
+						.setMaxEndHour(16) //
+						.setMode(Mode.OFF) //
+						.setDelayDischargeRiskLevel(DelayDischargeRiskLevel.HIGH) //
+						.build())
+				.next(new TestCase("Cycle - 3") //
+						.output(QUATERLY_PRICES_TAKEN, false) //
+						.output(TARGET_HOURS_CALCULATED, false)//
+						.output(TARGET_HOURS_IS_EMPTY, true) //
+						.output(STATE_MACHINE, StateMachine.STANDBY))
 				.next(new TestCase("Cycle - 4") //
-						.timeleap(clock, 14, ChronoUnit.MINUTES)//
-						.output(QUATERLY_PRICES_TAKEN, true) //
-						.output(TARGET_HOURS_CALCULATED, true)//
-						.output(TARGET_HOURS_IS_EMPTY, false))//
+						.timeleap(clock, 15, ChronoUnit.MINUTES)//
+						.output(QUATERLY_PRICES_TAKEN, false) //
+						.output(TARGET_HOURS_CALCULATED, false)//
+						.output(TARGET_HOURS_IS_EMPTY, true) //
+						.output(STATE_MACHINE, StateMachine.STANDBY));
+	}
 
-		; //
+	@Test
+	public void executesBeforeMidnight() throws Exception {
+
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2021-01-01T21:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+
+		// Predictions
+		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+
+		// Predictors
+		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				productionPrediction, "_sum/ProductionActivePower");
+		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				consumptionPrediction, "_sum/ConsumptionActivePower");
+
+		// PredictorManager
+		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+				consumptionPredictor);
+
+		// Price provider
+		final DummyTimeOfUseTariffProvider timeOfUseTariffProvider = DummyTimeOfUseTariffProvider
+				.fromHourlyPrices(ZonedDateTime.now(clock), DEFAULT_HOURLY_PRICES);
+
+		// Printing
+		// System.out.println("Time: " + clock);
+		// System.out.println(Arrays.toString(predictorManager
+		// .get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
+		// System.out.println(Arrays.toString(predictorManager
+		// .get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
+
+		new ControllerTest(new TimeOfUseTariffDischargeImpl()) //
+				.addReference("predictorManager", predictorManager) //
+				.addReference("componentManager", cm) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
+				.addReference("timeOfUseTariff", timeOfUseTariffProvider) //
+				.activate(MyConfig.create() //
+						.setId(CTRL_ID) //
+						.setEssId(ESS_ID) //
+						.setMaxStartHour(8) //
+						.setMaxEndHour(16) //
+						.setMode(Mode.AUTOMATIC) //
+						.setDelayDischargeRiskLevel(DelayDischargeRiskLevel.HIGH) //
+						.build())
+				.next(new TestCase("Cycle - 1") //
+						.input(ESS_CAPACITY, 12000) //
+						.input(ESS_SOC, 100) //
+						.output(AVAILABLE_CAPACITY, 12000) //
+						.output(USABLE_CAPACITY, 12000) //
+						.output(REMAINING_CONSUMPTION, 0.0) //
+						.output(QUATERLY_PRICES_TAKEN, true) //
+						.output(TARGET_HOURS_CALCULATED, false) //
+						.output(TARGET_HOURS_IS_EMPTY, true) //
+						.output(STATE_MACHINE, StateMachine.ALLOWS_DISCHARGE));
+	}
+
+	@Test
+	public void executesAfterMidnight() throws Exception {
+
+		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2021-01-01T11:00:00.00Z"), ZoneOffset.UTC);
+		final DummyComponentManager cm = new DummyComponentManager(clock);
+
+		// Predictions
+		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+
+		// Predictors
+		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				productionPrediction, "_sum/ProductionActivePower");
+		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+				consumptionPrediction, "_sum/ConsumptionActivePower");
+
+		// PredictorManager
+		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+				consumptionPredictor);
+
+		// Price provider
+		final DummyTimeOfUseTariffProvider timeOfUseTariffProvider = DummyTimeOfUseTariffProvider
+				.fromHourlyPrices(ZonedDateTime.now(clock), DEFAULT_HOURLY_PRICES);
+
+		// Printing
+		// System.out.println("Time: " + clock);
+		// System.out.println(Arrays.toString(predictorManager
+		// .get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
+		// System.out.println(Arrays.toString(predictorManager
+		// .get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
+
+		new ControllerTest(new TimeOfUseTariffDischargeImpl()) //
+				.addReference("predictorManager", predictorManager) //
+				.addReference("componentManager", cm) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
+				.addReference("timeOfUseTariff", timeOfUseTariffProvider) //
+				.activate(MyConfig.create() //
+						.setId(CTRL_ID) //
+						.setEssId(ESS_ID) //
+						.setMaxStartHour(8) //
+						.setMaxEndHour(16) //
+						.setMode(Mode.AUTOMATIC) //
+						.setDelayDischargeRiskLevel(DelayDischargeRiskLevel.HIGH) //
+						.build())
+				.next(new TestCase("Cycle - 1") //
+						.output(AVAILABLE_CAPACITY, null) //
+						.output(USABLE_CAPACITY, null) //
+						.output(TARGET_HOURS, null) //
+						.output(QUATERLY_PRICES_TAKEN, true) //
+						.output(TARGET_HOURS_CALCULATED, false) //
+						.output(TARGET_HOURS_IS_EMPTY, true) //
+						.output(STATE_MACHINE, StateMachine.STANDBY));
 	}
 }

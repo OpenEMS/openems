@@ -114,6 +114,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 										case "GW5K-ET":
 											result = GoodweType.GOODWE_5K_ET;
 											break;
+										case "FHI-10-DAH":
+											result = GoodweType.FENECON_FHI_10_DAH;
+											break;
 										default:
 											this.logInfo(this.log, "Unable to identify GoodWe by name [" + value + "]");
 											result = GoodweType.UNDEFINED;
@@ -129,6 +132,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 										case GOODWE_10K_ET:
 										case GOODWE_8K_ET:
 										case GOODWE_5K_ET:
+										case FENECON_FHI_10_DAH:
 											this.logInfo(this.log, "Identified " + result.getName());
 											break;
 										case UNDEFINED:
@@ -991,7 +995,10 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [400*N,480*N]
 						m(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, new UnsignedWordElement(45355),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // [0,1000]
-						m(GoodWe.ChannelId.BMS_SOC_UNDER_MIN, new UnsignedWordElement(45356))), // [0,100]
+						m(GoodWe.ChannelId.BMS_SOC_UNDER_MIN, new UnsignedWordElement(45356)), // [0,100]
+						m(GoodWe.ChannelId.BMS_OFFLINE_DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(45357),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // ), //
+						m(GoodWe.ChannelId.BMS_OFFLINE_SOC_UNDER_MIN, new UnsignedWordElement(45358))), //
 
 				// Safety Parameters
 				new FC16WriteRegistersTask(45400, //

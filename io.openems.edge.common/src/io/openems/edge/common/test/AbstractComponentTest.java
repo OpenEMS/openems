@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -551,6 +552,10 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				if (ComponentContext.class.isAssignableFrom(parameter.getType())) {
 					// ComponentContext
 					arg = DummyComponentContext.from(config);
+
+				} else if (BundleContext.class.isAssignableFrom(parameter.getType())) {
+					// BundleContext
+					arg = null;
 
 				} else if (parameter.getType().isInstance(config)) {
 					// Config

@@ -311,7 +311,7 @@ public class OWFileDescriptor {
 				this.rawPath = "";
 
 			// check the hash to see if already have a MemoryCache for this device
-			address = new Long(owd[0].getAddressAsLong());
+			address = Long.valueOf(owd[0].getAddressAsLong());
 			cache = (MemoryCache) memoryCacheHash.get(address);
 
 			if (cache == null) {

@@ -2,7 +2,7 @@ import { Controller_Asymmetric_PeakShavingModalComponent } from './modal/modal.c
 import { BehaviorSubject } from 'rxjs';
 import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared';
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/Generic_Components/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 
 @Component({
     selector: 'Controller_Asymmetric_PeakShaving',

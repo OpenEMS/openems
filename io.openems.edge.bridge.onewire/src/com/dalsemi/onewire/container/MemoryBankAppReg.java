@@ -282,8 +282,8 @@ class MemoryBankAppReg implements OTPMemoryBank {
 	/**
 	 * Query to get Maximum data page length in bytes for a packet read or written
 	 * in the current memory bank. See the 'ReadPagePacket()' and
-	 * 'WritePagePacket()' methods. This method is only useful if the current
-	 * memory bank is general purpose memory.
+	 * 'WritePagePacket()' methods. This method is only useful if the current memory
+	 * bank is general purpose memory.
 	 *
 	 * @return max packet page length in bytes in current memory bank
 	 */
@@ -300,22 +300,6 @@ class MemoryBankAppReg implements OTPMemoryBank {
 	 */
 	public boolean hasPageAutoCRC() {
 		return false;
-	}
-
-	/**
-	 * Query to see if current memory bank pages when read deliver extra information
-	 * outside of the normal data space. Examples of this may be a redirection byte,
-	 * counter, tamper protection bytes, or SHA-1 result. If this method returns
-	 * true then the methods 'ReadPagePacket()' and 'readPageCRC()' with 'extraInfo'
-	 * parameter can be used.
-	 *
-	 * @return 'true' if reading the current memory bank pages provides extra
-	 *         information.
-	 *
-	 * @deprecated As of 1-Wire API 0.01, replaced by {@link #hasExtraInfo()}
-	 */
-	public boolean haveExtraInfo() {
-		return true;
 	}
 
 	/**
@@ -835,24 +819,6 @@ class MemoryBankAppReg implements OTPMemoryBank {
 	}
 
 	/**
-	 * Query to see if the specified page is redirected. Not supported by all
-	 * devices. See the method 'canRedirectPage()'.
-	 *
-	 * @param page number of page check for redirection
-	 *
-	 * @return return the new page number or 0 if not redirected
-	 *
-	 * @throws OneWireIOException
-	 * @throws OneWireException
-	 *
-	 * @deprecated As of 1-Wire API 0.01, replaced by
-	 *             {@link #getRedirectedPage(int)}
-	 */
-	public int isPageRedirected(int page) throws OneWireIOException, OneWireException {
-		return 0;
-	}
-
-	/**
 	 * Gets the page redirection of the specified page. Not supported by all
 	 * devices.
 	 *
@@ -878,8 +844,8 @@ class MemoryBankAppReg implements OTPMemoryBank {
 	}
 
 	/**
-	 * Lock the redirection option for the specified page in the current memory bank.
-	 * Not supported by all devices. See the method 'canLockRedirectPage()'.
+	 * Lock the redirection option for the specified page in the current memory
+	 * bank. Not supported by all devices. See the method 'canLockRedirectPage()'.
 	 *
 	 * @param page number of page to redirect
 	 *
