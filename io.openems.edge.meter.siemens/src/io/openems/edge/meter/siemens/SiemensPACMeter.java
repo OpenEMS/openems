@@ -33,17 +33,17 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
- * Implements the Siemens PAC3200 power meter.
+ * Implements the Siemens PAC2200/3200/4200 power meter.
  * 
  * <p>
  * https://cache.industry.siemens.com/dl/files/150/26504150/att_906558/v1/A5E01168664B-04_EN-US_122016_201612221316360495.pdf
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(
-		name = "Meter.Siemens.PAC3200", 
+		name = "Meter.Siemens.PAC.2200.3200.4200", 
 		immediate = true, 
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class SiemensPAC3200Meter extends AbstractOpenemsModbusComponent
+public class SiemensPACMeter extends AbstractOpenemsModbusComponent
 		implements SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	private MeterType meterType = MeterType.PRODUCTION;
@@ -56,7 +56,7 @@ public class SiemensPAC3200Meter extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	public SiemensPAC3200Meter() {
+	public SiemensPACMeter() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
