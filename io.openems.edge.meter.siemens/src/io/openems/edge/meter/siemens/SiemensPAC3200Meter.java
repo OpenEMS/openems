@@ -147,14 +147,14 @@ public class SiemensPAC3200Meter extends AbstractOpenemsModbusComponent
 						));
 		if (this.invert) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(801, Priority.LOW, //
-					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatQuadruplewordElement(801)),
-					new DummyRegisterElement(805, 808), //
-					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatQuadruplewordElement(809))));
-		} else {
-			modbusProtocol.addTask(new FC3ReadRegistersTask(801, Priority.LOW, //
 					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatQuadruplewordElement(801)),
 					new DummyRegisterElement(805, 808), //
 					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatQuadruplewordElement(809))));
+		} else {
+			modbusProtocol.addTask(new FC3ReadRegistersTask(801, Priority.LOW, //
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatQuadruplewordElement(801)),
+					new DummyRegisterElement(805, 808), //
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatQuadruplewordElement(809))));
 		}
 
 		return modbusProtocol;
