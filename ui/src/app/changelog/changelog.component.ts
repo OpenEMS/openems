@@ -35,6 +35,14 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2021.21.3',
+        changes: [
+          Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.product(Product.HOME) + "Fehlerbehebung 'Q von U' Kurve",
+          { roleIsAtLeast: Role.ADMIN, change: "Werbungswidgets im Monitoring werden nur noch für FENECON angezeigt, nicht für OEM (z. B. Heckert)" },
+        ]
+      },
+      {
         version: '2021.21.2',
         changes: [
           Changelog.product(Product.PRO_HYBRID_10) + "Fehlerbehebung für Java 11",

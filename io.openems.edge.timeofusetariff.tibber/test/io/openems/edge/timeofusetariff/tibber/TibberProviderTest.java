@@ -150,7 +150,7 @@ public class TibberProviderTest {
 		assertFalse(prices.isEmpty());
 
 		// To check if the a value input from the string is present in map.
-		assertTrue(prices.containsValue(0.1853f));
+		assertTrue(prices.containsValue(0.1853f * 1000));
 
 	}
 
