@@ -194,7 +194,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			this.writeToChannel(GoodWe.ChannelId.V3_VOLTAGE, 237);
 			this.writeToChannel(GoodWe.ChannelId.V3_VALUE, 0);
 			this.writeToChannel(GoodWe.ChannelId.V4_VOLTAGE, 247);
-			this.writeToChannel(GoodWe.ChannelId.V4_VALUE, 65009);
+			this.writeToChannel(GoodWe.ChannelId.V4_VALUE, -526);
 			break;
 		case PU_ENABLE_CURVE:
 			this.writeToChannel(GoodWe.ChannelId.A_POINT_POWER, 2000);
