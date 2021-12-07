@@ -634,38 +634,6 @@ public class OneWireContainer10 extends OneWireContainer implements TemperatureC
 		copyScratchpad();
 	}
 
-	/**
-	 * Converts a temperature reading from Celsius to Fahrenheit.
-	 *
-	 * @param celsiusTemperature temperature value in Celsius
-	 *
-	 * @return the Fahrenheit conversion of the supplied temperature
-	 *
-	 * @deprecated Replace with call to
-	 *             com.dalsemi.onewire.utils.Convert.toFahrenheit()
-	 *
-	 * @see com.dalsemi.onewire.utils.Convert#toFahrenheit(double)
-	 */
-	static public double convertToFahrenheit(double celsiusTemperature) {
-		return Convert.toFahrenheit(celsiusTemperature);
-	}
-
-	/**
-	 * Converts a temperature reading from Fahrenheit to Celsius.
-	 *
-	 * @param fahrenheitTemperature temperature value in Fahrenheit
-	 *
-	 * @return the Celsius conversion of the supplied temperature
-	 *
-	 * @deprecated Replace with call to
-	 *             com.dalsemi.onewire.utils.Convert.toCelsius()
-	 *
-	 * @see com.dalsemi.onewire.utils.Convert#toCelsius(double)
-	 */
-	static public double convertToCelsius(double fahrenheitTemperature) {
-		return Convert.toCelsius(fahrenheitTemperature);
-	}
-
 	// --------
 	// -------- Private Methods
 	// --------
