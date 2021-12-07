@@ -394,6 +394,11 @@ export class Service implements ErrorHandler {
    * checks if fems is allowed to show advertisement widget
    */
   public isAdvertAllowed(edge: Edge, advertWidgets: AdvertWidgets, widgets: Widgets) {
+    // Show adverts only for FENECON
+    if (environment.theme != 'FENECON') {
+      return false;
+    }
+
     if (advertWidgets.names.includes(edge.producttype) == true) {
       return true;
     }

@@ -228,7 +228,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_SECONDS_TO_DATE_FORMAT = (value: any): string => {
-    return format(new Date(value * 1000), 'HH:mm:ss')
+    return new Date(value * 1000).toLocaleTimeString()
   }
 
   public static CONVERT_TO_PERCENT = (value: any): string => {
