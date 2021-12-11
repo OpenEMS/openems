@@ -35,6 +35,12 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2021.21.4',
+        changes: [
+          Changelog.library(Library.PAX_LOGGING) + " (CVE-2021-44228)"
+        ]
+      },
+      {
         version: '2021.21.3',
         changes: [
           Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF) + Changelog.GENERAL_OPTIMIZATION,
