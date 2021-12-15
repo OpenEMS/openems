@@ -155,6 +155,7 @@
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Framework -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/framework/doc/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.framework</artifactId>
 			<version>7.0.3</version>
