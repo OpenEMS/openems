@@ -69,6 +69,7 @@ export class Product {
 
 export class Library {
     // Java
+    public static readonly APACHE_FELIX_FRAMEWORK = new Library('Apache Felix Framework', 'org.apache.felix.framework');
     public static readonly APACHE_FELIX_HTTP_JETTY = new Library('Apache Felix HTTP Jetty', 'org.apache.felix.http.jetty');
     public static readonly APACHE_FELIX_INVENTORY = new Library('Apache Felix Inventory', 'org.apache.felix.inventory');
     public static readonly APACHE_FELIX_METATYPE = new Library('Apache Felix MetaType', 'org.apache.felix.metatype');

@@ -201,9 +201,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
           }
 
           // Only take a part of the characters if the serial number has a fixed prefix
-          if (key === "batteryInverter") {
-            model[key] = serialNumber.substr(8, 8);
-          } else if (key.startsWith("module")) {
+          if (key.startsWith("module")) {
             model[key] = serialNumber.substr(12, 12)
           } else {
             model[key] = serialNumber;
@@ -387,6 +385,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
         templateOptions: {
           label: "Batteriemodul " + (moduleNr + 1),
           required: true,
+          // Note: Edit also validator (substring 12) if removing prefix
           prefix: "519110001210",
           placeholder: "xxxxxxxxxxxx"
         },
