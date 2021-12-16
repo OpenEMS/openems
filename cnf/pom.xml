@@ -155,9 +155,10 @@
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Framework -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/framework/doc/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.framework</artifactId>
-			<version>7.0.1</version>
+			<version>7.0.3</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Inventory -->
@@ -171,7 +172,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty</artifactId>
-			<version>4.1.12</version>
+			<version>4.1.14</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Metatype Service -->
@@ -244,12 +245,12 @@
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>2.0.10</version>
+			<version>2.0.11</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-log4j1</artifactId>
-			<version>2.0.10</version>
+			<version>2.0.11</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
