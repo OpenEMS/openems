@@ -436,7 +436,7 @@ export class ConfigurationExecuteComponent implements OnInit {
         });
 
         this.componentConfigurator.add({
-          factoryId: "Controller.IO.HeatPump.SgReady",
+          factoryId: "Controller.Io.HeatPump.SgReady",
           componentId: "ctrlIoHeatPump0",
           alias: "Wärmepumpe",
           properties: [
