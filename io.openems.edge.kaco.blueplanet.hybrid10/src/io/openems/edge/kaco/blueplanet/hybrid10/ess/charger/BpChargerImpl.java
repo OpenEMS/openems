@@ -17,9 +17,13 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import com.ed.data.InverterData;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
 import io.openems.edge.timedata.api.Timedata;
@@ -33,7 +37,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 public class BpChargerImpl extends AbstractOpenemsComponent
-		implements BpCharger, EssDcCharger, OpenemsComponent, TimedataProvider, EventHandler {
+		implements BpCharger, EssDcCharger, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -99,5 +103,14 @@ public class BpChargerImpl extends AbstractOpenemsComponent
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				EssDcCharger.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(BpCharger.class, accessMode, 100) //
+						.build());
 	}
 }

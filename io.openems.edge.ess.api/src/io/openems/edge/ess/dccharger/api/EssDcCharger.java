@@ -2,6 +2,7 @@ package io.openems.edge.ess.dccharger.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
@@ -13,6 +14,9 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
+import io.openems.edge.ess.api.SymmetricEss;
 
 @ProviderType
 public interface EssDcCharger extends OpenemsComponent {
@@ -203,4 +207,10 @@ public interface EssDcCharger extends OpenemsComponent {
 		this.getActualEnergyChannel().setNextValue(value);
 	}
 
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(SymmetricEss.class, accessMode, 100) //
+				.channel(0, ChannelId.ACTUAL_POWER, ModbusType.FLOAT32) //
+				.channel(2, ChannelId.ACTUAL_ENERGY, ModbusType.FLOAT64) //
+				.build();
+	}
 }
