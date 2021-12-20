@@ -39,12 +39,20 @@ public class BackendApp {
 			Dictionary<String, Object> properties = config.getProperties();
 			if (properties != null && properties.isEmpty()) {
 				Hashtable<String, Object> log4j = new Hashtable<>();
-				log4j.put("log4j.rootLogger", "INFO, CONSOLE, osgi:*");
-				log4j.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
-				log4j.put("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
-				log4j.put("log4j.appender.CONSOLE.layout.ConversionPattern",
-						"%d{ISO8601} [%-8.8t] %-5p [%-30.30c] %m%n");
-				log4j.put("log4j.logger.org.eclipse.osgi", "WARN");
+				log4j.put("log4j2.rootLogger", "INFO, CONSOLE, osgi:*");
+
+				log4j.put("log4j2.appender.console.type", "Console");
+				log4j.put("log4j2.appender.console.name", "console");
+				log4j.put("log4j2.appender.console.layout.type", "PatternLayout");
+				log4j.put("log4j2.appender.console.layout.pattern", "%d{ISO8601} [%-8.8t] %-5p [%-30.30c] %m%n");
+
+				log4j.put("log4j2.appender.osgi.type", "PaxOsgi");
+				log4j.put("log4j2.appender.osgi.name", "paxosgi");
+
+				log4j.put("log4j2.rootLogger.level", "info");
+				log4j.put("log4j2.rootLogger.appenderRefs", "console, osgi");
+				log4j.put("log4j2.rootLogger.appenderRef.console.ref", "console");
+				log4j.put("log4j2.rootLogger.appenderRef.paxosgi.ref", "paxosgi");
 				config.update(log4j);
 			}
 		} catch (IOException | SecurityException e) {
