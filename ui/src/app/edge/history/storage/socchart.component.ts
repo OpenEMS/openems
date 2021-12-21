@@ -14,6 +14,7 @@ import { TranslateService } from '@ngx-translate/core';
 export class SocStorageChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
+    private emergencyCapacityReserveComponents: EdgeConfig.Component[] = [];
 
     ngOnChanges() {
         this.updateChart();
@@ -95,6 +96,21 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                     })
                                 }
                             }
+                            if (channelAddress.channelId == '_PropertyReserveSoc' &&
+                                this.emergencyCapacityReserveComponents.find(
+                                    element => element.id == channelAddress.componentId)
+                                    .properties.isReserveSocEnabled) {
+                                datasets.push({
+                                    label:
+                                        this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.emergencyReserve"),
+                                    data: data,
+                                    borderDash: [3, 3],
+                                })
+                                this.colors.push({
+                                    backgroundColor: 'rgba(1, 1, 1,0)',
+                                    borderColor: 'rgba(1, 1, 1,1)',
+                                })
+                            }
                         });
                     });
                     this.datasets = datasets;
@@ -120,11 +136,22 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let channeladdresses: ChannelAddress[] = [];
-            channeladdresses.push(new ChannelAddress('_sum', 'EssSoc'))
-            if (config.getComponentIdsImplementingNature('io.openems.edge.ess.api.SymmetricEss').length > 1) {
-                config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !(component.factoryId == 'Ess.Cluster')).forEach(component => {
-                    channeladdresses.push(new ChannelAddress(component.id, 'Soc'))
-                })
+            channeladdresses.push(new ChannelAddress('_sum', 'EssSoc'));
+
+
+            this.emergencyCapacityReserveComponents = config.getComponentsByFactory('Controller.Ess.EmergencyCapacityReserve')
+                .filter(component => component.isEnabled)
+
+            this.emergencyCapacityReserveComponents
+                .forEach(component =>
+                    channeladdresses.push(new ChannelAddress(component.id, '_PropertyReserveSoc'))
+                );
+
+            let ess = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss");
+            if (ess.length > 1) {
+                ess.filter(component => !(component.factoryId == 'Ess.Cluster')).forEach(component => {
+                    channeladdresses.push(new ChannelAddress(component.id, 'Soc'));
+                });
             }
             resolve(channeladdresses);
         })

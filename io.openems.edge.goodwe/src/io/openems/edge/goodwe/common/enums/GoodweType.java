@@ -9,7 +9,8 @@ public enum GoodweType implements OptionsEnum {
 	GOODWE_5K_BT(12, "GoodWe GW5K-BT", Series.BT), //
 	GOODWE_10K_ET(20, "GoodWe GW10K-ET", Series.ET), //
 	GOODWE_8K_ET(21, "GoodWe GW8K-ET", Series.ET), //
-	GOODWE_5K_ET(22, "GoodWe GW5K-ET", Series.ET);
+	GOODWE_5K_ET(22, "GoodWe GW5K-ET", Series.ET), //
+	FENECON_FHI_10_DAH(30, "FENECON FHI 10 DAH", Series.ET);
 
 	public static enum Series {
 		UNDEFINED, BT, ET;

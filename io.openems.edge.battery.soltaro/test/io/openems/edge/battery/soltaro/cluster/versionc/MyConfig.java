@@ -13,14 +13,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String modbusId = null;
 		public int modbusUnitId;
 		public StartStopConfig startStop;
-		public int numberOfSlaves;
-		public ModuleType moduleType;
-		public boolean isRack1Used;
-		public boolean isRack2Used;
-		public boolean isRack3Used;
-		public boolean isRack4Used;
-		public boolean isRack5Used;
-		public int watchdog;
 
 		private Builder() {
 		}
@@ -37,41 +29,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setStartStop(StartStopConfig startStop) {
 			this.startStop = startStop;
-			return this;
-		}
-
-		public Builder setNumberOfSlaves(int numberOfSlaves) {
-			this.numberOfSlaves = numberOfSlaves;
-			return this;
-		}
-
-		public Builder setModuleType(ModuleType moduleType) {
-			this.moduleType = moduleType;
-			return this;
-		}
-
-		public Builder setRack1Used(boolean isRack1Used) {
-			this.isRack1Used = isRack1Used;
-			return this;
-		}
-
-		public Builder setRack2Used(boolean isRack2Used) {
-			this.isRack2Used = isRack2Used;
-			return this;
-		}
-
-		public Builder setRack3Used(boolean isRack3Used) {
-			this.isRack3Used = isRack3Used;
-			return this;
-		}
-
-		public Builder setRack4Used(boolean isRack4Used) {
-			this.isRack4Used = isRack4Used;
-			return this;
-		}
-
-		public Builder setRack5Used(boolean isRack5Used) {
-			this.isRack5Used = isRack5Used;
 			return this;
 		}
 
@@ -114,46 +71,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public StartStopConfig startStop() {
 		return this.builder.startStop;
-	}
-
-	@Override
-	public int numberOfSlaves() {
-		return this.builder.numberOfSlaves;
-	}
-
-	@Override
-	public ModuleType moduleType() {
-		return this.builder.moduleType;
-	}
-
-	@Override
-	public boolean isRack1Used() {
-		return this.builder.isRack1Used;
-	}
-
-	@Override
-	public boolean isRack2Used() {
-		return this.builder.isRack2Used;
-	}
-
-	@Override
-	public boolean isRack3Used() {
-		return this.builder.isRack3Used;
-	}
-
-	@Override
-	public boolean isRack4Used() {
-		return this.builder.isRack4Used;
-	}
-
-	@Override
-	public boolean isRack5Used() {
-		return this.builder.isRack5Used;
-	}
-
-	@Override
-	public int watchdog() {
-		return this.builder.watchdog;
 	}
 
 }

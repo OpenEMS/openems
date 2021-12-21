@@ -10,10 +10,11 @@ import { AliasUpdateComponent } from './profile/aliasupdate.component';
 import { ProfileComponent } from './profile/profile.component';
 import { SettingsComponent } from './settings.component';
 import { SystemExecuteComponent } from './systemexecute/systemexecute.component';
+import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
 
 @NgModule({
   imports: [
-    SharedModule
+    SharedModule,
   ],
   declarations: [
     AliasUpdateComponent,
@@ -26,6 +27,7 @@ import { SystemExecuteComponent } from './systemexecute/systemexecute.component'
     ProfileComponent,
     SettingsComponent,
     SystemExecuteComponent,
+    SystemUpdateComponent,
   ],
   entryComponents: []
 })

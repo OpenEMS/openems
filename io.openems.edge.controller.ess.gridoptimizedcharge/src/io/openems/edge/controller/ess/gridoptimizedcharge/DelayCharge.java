@@ -7,6 +7,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.stream.IntStream;
 
@@ -15,6 +16,8 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 
 public class DelayCharge {
@@ -28,11 +31,6 @@ public class DelayCharge {
 	 * The whole prediction should only be logged once.
 	 */
 	private boolean predictionDebugLog = true;
-
-	/**
-	 * Last delayChargePower used when the SoC is 100 percent.
-	 */
-	private Integer lastDelayChargePower;
 
 	public DelayCharge(GridOptimizedChargeImpl parent) {
 		this.parent = parent;
@@ -145,8 +143,23 @@ public class DelayCharge {
 
 		// Return if we passed the target minute
 		if (this.passedTargetMinute(targetMinute)) {
-			this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_TIME, null);
-			return null;
+			// Slowly increasing the maximum charge power with a ramp
+			float maximum = this.parent.ess.getMaxApparentPower().getOrError();
+			Optional<Integer> currentLimitOpt = this.parent.getDelayChargeLimit().asOptional();
+
+			if (currentLimitOpt.isPresent() && currentLimitOpt.get() < maximum) {
+				// Apply ramp filter
+				Integer filteredLimit = this.parent.rampFilter.getFilteredValueAsInteger(currentLimitOpt.get(), maximum,
+						maximum, 0.0025f);
+				return filteredLimit;
+			}
+
+			// Already reached the maximum
+			if ((!currentLimitOpt.isPresent()) || maximum <= currentLimitOpt.get()) {
+				this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_TIME, null);
+				return null;
+
+			}
 		}
 
 		// Calculate the power limit depending on the remaining time and capacity
@@ -226,69 +239,36 @@ public class DelayCharge {
 			return null;
 		}
 
-		// Battery capacity in wh
-		int capacity = this.parent.ess.getCapacity().getOrError();
-
 		// State of charge
 		int soc = this.parent.ess.getSoc().getOrError();
 
-		Integer calculatedPower;
+		// Battery capacity in wh
+		int capacity = this.parent.ess.getCapacity().getOrError();
 
-		// Still try to charge, even if there's 100% SoC calculated
-		if (soc >= 100) {
-			calculatedPower = this.lastDelayChargePower;
-		} else {
-
-			// Calculate the remaining capacity with soc minus one, to avoid very high
-			// results at the end.
-			soc -= 1;
-
-			// Remaining capacity of the battery in Ws till target point.
-			int remainingCapacity = Math.round(capacity * (100 - soc) * 36);
-
-			// No remaining capacity -> no restrictions
-			if (remainingCapacity <= 0) {
-				this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_CAPACITY, null);
-				return null;
-			}
-
-			// Remaining time in seconds till the target point.
-			int remainingTime = this.calculateRemainingTime(targetMinute);
-
-			// No remaining time -> no restrictions
-			if (remainingTime <= 0) {
-				this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_TIME, null);
-				return null;
-			}
-
-			// Calculate charge power limit
-			calculatedPower = remainingCapacity / remainingTime;
+		// No remaining capacity
+		int minPower = this.parent.ess.getPower().getMinPower(this.parent.ess, Phase.ALL, Pwr.ACTIVE);
+		if (minPower >= 0 && soc > 95) {
+			this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_CAPACITY, null);
+			return null;
 		}
 
-		if (calculatedPower == null) {
-			return calculatedPower;
+		// Calculate the remaining capacity with soc minus one, to avoid very high
+		// results at the end.
+		soc -= 1;
+
+		// Remaining capacity of the battery in Ws till target point.
+		int remainingCapacity = Math.round(capacity * (100 - soc) * 36);
+
+		// Remaining time in seconds till the target point.
+		int remainingTime = this.calculateRemainingTime(targetMinute);
+
+		// No remaining time -> no restrictions
+		if (remainingTime <= 0) {
+			this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_TIME, null);
+			return null;
 		}
-
-		/**
-		 * Calculate the average with the last 100 limits
-		 */
-		IntegerReadChannel delayChargeLimitChannel = this.parent.getDelayChargeLimitChannel();
-
-		IntStream pastLimits = delayChargeLimitChannel.getPastValues()
-				.tailMap(LocalDateTime.now(this.parent.componentManager.getClock()).minusSeconds(100), true) //
-				.values().stream().filter(v -> v.isDefined()).mapToInt(v -> v.get());
-
-		IntStream currentLimit = IntStream.of(calculatedPower);
-
-		// Concat the limit values of the last 100 seconds with the current limit
-		IntStream limits = IntStream.concat(pastLimits, currentLimit); //
-
-		// Get the average of the past values including the current
-		OptionalDouble limitValueOpt = limits.average();
-
-		if (limitValueOpt.isPresent()) {
-			calculatedPower = (int) Math.round(limitValueOpt.getAsDouble());
-		}
+		// Calculate charge power limit
+		int calculatedPower = remainingCapacity / remainingTime;
 
 		// Max apparent power
 		int maxApparentPower = this.parent.ess.getMaxApparentPower().orElse(Integer.MAX_VALUE);
@@ -297,8 +277,30 @@ public class DelayCharge {
 		// seconds
 		calculatedPower = Math.min(calculatedPower, maxApparentPower);
 
-		this.lastDelayChargePower = calculatedPower;
-		return calculatedPower;
+		this.parent._setRawDelayChargeLimit(calculatedPower);
+
+		/**
+		 * Calculate the average with the last 900 limits
+		 */
+		IntegerReadChannel delayChargeLimitRawChannel = this.parent.getRawDelayChargeLimitChannel();
+
+		IntStream pastLimits = delayChargeLimitRawChannel.getPastValues()
+				.tailMap(LocalDateTime.now(this.parent.componentManager.getClock()).minusSeconds(900), true) //
+				.values().stream().filter(v -> v.isDefined()).mapToInt(v -> v.get());
+
+		IntStream currentLimit = IntStream.of(calculatedPower);
+
+		// Concat the limit values of the last 900 seconds with the current limit
+		IntStream limits = IntStream.concat(pastLimits, currentLimit); //
+
+		// Get the average of the past values including the current
+		OptionalDouble limitValueOpt = limits.average();
+
+		if (!limitValueOpt.isPresent()) {
+			return null;
+		}
+
+		return (int) Math.round(limitValueOpt.getAsDouble());
 	}
 
 	/**

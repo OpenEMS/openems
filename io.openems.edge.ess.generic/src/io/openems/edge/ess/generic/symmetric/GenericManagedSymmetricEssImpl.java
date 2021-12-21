@@ -1,7 +1,5 @@
 package io.openems.edge.ess.generic.symmetric;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -37,6 +35,7 @@ import io.openems.edge.ess.generic.common.GenericManagedEss;
 import io.openems.edge.ess.generic.symmetric.statemachine.Context;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
+import io.openems.edge.ess.offgrid.api.OffGridEss;
 import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
@@ -51,7 +50,7 @@ import io.openems.edge.ess.power.api.Power;
 public class GenericManagedSymmetricEssImpl
 		extends AbstractGenericManagedEss<GenericManagedSymmetricEss, Battery, ManagedSymmetricBatteryInverter>
 		implements GenericManagedSymmetricEss, GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
-		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
+		OffGridEss, OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractGenericManagedEss.class);
 
@@ -77,8 +76,6 @@ public class GenericManagedSymmetricEssImpl
 
 	private final ChannelManager channelManager = new ChannelManager(this);
 
-	private Config config;
-
 	public GenericManagedSymmetricEssImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -93,9 +90,8 @@ public class GenericManagedSymmetricEssImpl
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled(), this.cm, config.batteryInverter_id(),
-				config.battery_id());
+				config.battery_id(), config.startStop());
 	}
 
 	@Deactivate
@@ -124,36 +120,6 @@ public class GenericManagedSymmetricEssImpl
 		} catch (OpenemsNamedException e) {
 			this.channel(GenericManagedSymmetricEss.ChannelId.RUN_FAILED).setNextValue(true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
-		}
-	}
-
-	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
-
-	@Override
-	public StartStop getStartStopTarget() {
-		switch (this.config.startStop()) {
-		case AUTO:
-			// read StartStop-Channel
-			return this.startStopTarget.get();
-
-		case START:
-			// force START
-			return StartStop.START;
-
-		case STOP:
-			// force STOP
-			return StartStop.STOP;
-		}
-
-		assert false;
-		return StartStop.UNDEFINED; // can never happen
-	}
-
-	@Override
-	public void setStartStop(StartStop value) {
-		if (this.startStopTarget.getAndSet(value) != value) {
-			// Set only if value changed
-			this.stateMachine.forceNextState(State.UNDEFINED);
 		}
 	}
 
@@ -208,5 +174,13 @@ public class GenericManagedSymmetricEssImpl
 	public boolean isManaged() {
 		return this.batteryInverter.isManaged();
 	}
-	
+
+	@Override
+	public void setStartStop(StartStop value) {
+		if (this.startStopTarget.getAndSet(value) != value) {
+			// Set only if value changed
+			this.stateMachine.forceNextState(State.UNDEFINED);
+		}
+	}
+
 }

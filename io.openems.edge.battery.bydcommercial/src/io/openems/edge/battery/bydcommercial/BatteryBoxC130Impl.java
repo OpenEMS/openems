@@ -31,6 +31,7 @@ import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
@@ -56,8 +57,8 @@ import io.openems.edge.common.taskmanager.Priority;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
-public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
-		implements BatteryBoxC130, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
+public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implements BatteryBoxC130, Battery,
+		ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	private static final float CAPACITY_PER_MODULE = 6.9f;
 	private static final int MIN_ALLOWED_VOLTAGE_PER_MODULE = 34;
@@ -85,6 +86,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 	public BatteryBoxC130Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				BatteryBoxC130.ChannelId.values(), //

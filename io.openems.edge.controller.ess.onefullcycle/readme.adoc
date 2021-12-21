@@ -1,5 +1,0 @@
-= ESS One Full Cycle
-
-Executes a full charge/discharge cycle with an energy storage system. This can be used to let the Battery Management System (BMS) reset its reference points for State-of-Charge calculation.
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.onefullcycle[Source Code icon:github[]]

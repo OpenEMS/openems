@@ -39,8 +39,8 @@ public class EvcsPowerComponent extends AbstractOpenemsComponent implements Open
 	@Reference
 	private ConfigurationAdmin cm;
 
-	private double increasingRate = RampFilter.DEFAULT_INCREASE_RATE;
 	private RampFilter rampFilter;
+	private float increaseRate;
 
 	public EvcsPowerComponent() {
 		super(//
@@ -72,8 +72,9 @@ public class EvcsPowerComponent extends AbstractOpenemsComponent implements Open
 	}
 
 	private void updateConfig(Config config) {
+		this.increaseRate = config.increaseRate();
 		if (config.enableSlowIncrease()) {
-			this.rampFilter = new RampFilter(this.increasingRate);
+			this.rampFilter = new RampFilter();
 		} else {
 			this.rampFilter = new DisabledRampFilter();
 		}
@@ -82,5 +83,10 @@ public class EvcsPowerComponent extends AbstractOpenemsComponent implements Open
 	@Override
 	public RampFilter getRampFilter() {
 		return this.rampFilter;
+	}
+	
+	@Override
+	public float getIncreaseRate() {
+		return this.increaseRate;
 	}
 }

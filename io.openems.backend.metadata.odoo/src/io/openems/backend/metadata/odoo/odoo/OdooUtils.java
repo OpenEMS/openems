@@ -13,15 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.xmlrpc.XmlRpcException;
-import org.apache.xmlrpc.client.XmlRpcClient;
-import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-
 import com.google.common.io.ByteStreams;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import de.timroes.axmlrpc.XMLRPCClient;
+import de.timroes.axmlrpc.XMLRPCException;
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -211,15 +209,11 @@ public class OdooUtils {
 		}
 	}
 
-	private static Object executeKw(String url, Object[] params) throws XmlRpcException, MalformedURLException {
-		final XmlRpcClient client = new XmlRpcClient();
-		XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-		config.setEnabledForExtensions(true);
-		config.setServerURL(new URL(String.format("%s/xmlrpc/2/object", url)));
-		config.setConnectionTimeout(10_000 /* 10 seconds */);
-		config.setReplyTimeout(60_000 /* 60 seconds */);
-		client.setConfig(config);
-		return client.execute("execute_kw", params);
+	private static Object executeKw(String url, Object[] params) throws MalformedURLException, XMLRPCException {
+		XMLRPCClient client = new XMLRPCClient(new URL(String.format("%s/xmlrpc/2/object", url)),
+				XMLRPCClient.FLAGS_NIL);
+		client.setTimeout(60 /* seconds */);
+		return client.call("execute_kw", params);
 	}
 
 	/**
@@ -631,8 +625,7 @@ public class OdooUtils {
 	 * @return the Odoo report as a byte array
 	 * @throws OpenemsNamedException on error
 	 */
-	protected static byte[] getOdooReport(Credentials credentials, String report, int id)
-			throws OpenemsNamedException {
+	protected static byte[] getOdooReport(Credentials credentials, String report, int id) throws OpenemsNamedException {
 		String session = login(credentials, "admin", credentials.getPassword());
 
 		HttpURLConnection connection = null;

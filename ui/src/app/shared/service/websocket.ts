@@ -16,8 +16,8 @@ import { AuthenticateWithTokenRequest } from '../jsonrpc/request/authenticateWit
 import { EdgeRpcRequest } from '../jsonrpc/request/edgeRpcRequest';
 import { LogoutRequest } from '../jsonrpc/request/logoutRequest';
 import { RegisterUserRequest } from '../jsonrpc/request/registerUserRequest';
-import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
 import { AuthenticateResponse } from '../jsonrpc/response/authenticateResponse';
+import { LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { Service } from './service';
 import { WsData } from './wsdata';
@@ -123,8 +123,9 @@ export class Websocket {
         // handle JSON-RPC Notification
         if (environment.debugMode) {
           if (message.method == EdgeRpcNotification.METHOD && 'payload' in message.params) {
-            const payload = message.params['payload'];
-            console.info("Notification [" + payload["method"] + "]", payload['params']);
+            const m = message as EdgeRpcNotification;
+            const payload = m.params.payload;
+            console.info("Notification [" + m.params.edgeId + "] [" + payload["method"] + "]", payload['params']);
           } else {
             console.info("Notification [" + message.method + "]", message.params);
           }
@@ -150,6 +151,9 @@ export class Websocket {
   public login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest) {
     this.sendRequest(request).then(r => {
       let response = (r as AuthenticateResponse).result;
+
+      localStorage.LANGUAGE = response.user.language;
+      this.service.setLang(LanguageTag[localStorage.LANGUAGE])
       this.status = 'online';
 
       // received login token -> save in cookie
@@ -228,6 +232,13 @@ export class Websocket {
           if (environment.debugMode) {
             if (reason instanceof JsonrpcResponseError) {
               console.warn("Request failed [" + request.method + "]", reason.error);
+
+              if (request instanceof EdgeRpcRequest && reason.error?.code == 3000 /* Edge is not connected */) {
+                let edges = this.service.metadata.value?.edges ?? {};
+                if (request.params.edgeId in edges) {
+                  edges[request.params.edgeId].isOnline = false;
+                }
+              }
             } else {
               console.warn("Request failed [" + request.method + "]", reason);
             }
@@ -303,66 +314,24 @@ export class Websocket {
     let edgeId = edgeRpcNotification.params.edgeId;
     let message = edgeRpcNotification.params.payload;
 
-    switch (message.method) {
-      case EdgeConfigNotification.METHOD:
-        this.handleEdgeConfigNotification(edgeId, message as EdgeConfigNotification);
-        break;
-
-      case CurrentDataNotification.METHOD:
-        this.handleCurrentDataNotification(edgeId, message as CurrentDataNotification);
-        break;
-
-      case SystemLogNotification.METHOD:
-        this.handleSystemLogNotification(edgeId, message as SystemLogNotification);
-        break;
-    }
-  }
-
-  /**
-   * Handles a EdgeConfigNotification.
-   * 
-   * @param edgeId the Edge-ID
-   * @param message the EdgeConfigNotification
-   */
-  private handleEdgeConfigNotification(edgeId: string, message: EdgeConfigNotification): void {
     let edges = this.service.metadata.value?.edges ?? {};
-
     if (edgeId in edges) {
       let edge = edges[edgeId];
-      edge.handleEdgeConfigNotification(message);
+
+      switch (message.method) {
+        case EdgeConfigNotification.METHOD:
+          edge.isOnline = true; // Mark Edge as online
+          edge.handleEdgeConfigNotification(message as EdgeConfigNotification);
+          break;
+
+        case CurrentDataNotification.METHOD:
+          edge.handleCurrentDataNotification(message as CurrentDataNotification);
+          break;
+
+        case SystemLogNotification.METHOD:
+          edge.handleSystemLogNotification(message as SystemLogNotification);
+          break;
+      }
     }
   }
-
-  /**
-   * Handles a CurrentDataNotification.
-   * 
-   * @param edgeId the Edge-ID
-   * @param message the CurrentDataNotification
-   */
-  private handleCurrentDataNotification(edgeId: string, message: CurrentDataNotification): void {
-    let edges = this.service.metadata.value?.edges ?? {};
-
-    if (edgeId in edges) {
-      let edge = edges[edgeId];
-      edge.handleCurrentDataNotification(message);
-    }
-  }
-
-  /**
-   * Handles a SystemLogNotification.
-   * 
-   * @param edgeId the Edge-ID
-   * @param message the SystemLogNotification
-   */
-  private handleSystemLogNotification(edgeId: string, message: SystemLogNotification): void {
-    let edges = this.service.metadata.value?.edges ?? {};
-
-    if (edgeId in edges) {
-      let edge = edges[edgeId];
-      edge.handleSystemLogNotification(message);
-    } else {
-      this.sendRequest(new SubscribeSystemLogRequest({ subscribe: false }));
-    }
-  }
-
 }

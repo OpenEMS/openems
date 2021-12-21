@@ -110,8 +110,22 @@ export const TRANSLATION = {
         toEnergymonitor: 'Vers le moniteur d\'énergie...',
         type: 'Type:'
     },
+    Login: {
+        title: "Login",
+        preamble: "Veuillez saisir votre mot de passe ou confirmer l'entrée par défaut pour vous connecter en tant qu'invité.",
+        passwordLabel: "mot de passe",
+        passwordReset: "Réinitialiser le mot de passe",
+        authenticationFailed: "Échec de l'authentification",
+    },
+    Register: {
+        title: "Créer un compte utilisateur",
+    },
     Edge: {
         Index: {
+            EmergencyReserve: {
+                InfoForEmergencyReserveSlider: "En activant la réserve d'énergie de secours, la valeur peut être librement choisie entre 5 % et 100 %.",
+                emergencyReserve: "réserve d'urgence",
+            },
             Energymonitor: {
                 activePower: 'Puissance Active',
                 consumptionWarning: 'Consommation & production inconnue',
@@ -317,7 +331,18 @@ export const TRANSLATION = {
                     switchOnRec: 'Recommandation de mise en marche',
                     switchOnRecShort: 'Recommandation',
                     undefined: 'Indéfinie',
-                }
+                },
+                TimeOfUseTariff: {
+                    currentTariff: 'Prix actuel',
+                    delayedDischarge: 'Sortie retardée',
+                    storageDischarge: 'Décharge de stockage',
+                    State: {
+                        notStarted: 'Le contrôleur n\'a pas encore démarré',
+                        delayed: 'Retardé',
+                        allowsDischarge: 'Libéré',
+                        standby: 'Standby',
+                    },
+                },
             }
         },
         History: {

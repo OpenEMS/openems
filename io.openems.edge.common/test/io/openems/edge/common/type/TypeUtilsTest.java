@@ -179,6 +179,7 @@ public class TypeUtilsTest {
 			assertException(() -> getAsFloat("foo"));
 			assertEquals(expected, getAsFloat("123"));
 			assertException(() -> getAsFloat(new Object()));
+			assertEquals(Float.valueOf(0.0f), getAsFloat(Double.valueOf(0.0)));
 		}
 
 		/*

@@ -119,7 +119,6 @@ export const TRANSLATION = {
         title: "Login",
         preamble: "Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",
         passwordLabel: "Passwort",
-        passwordPlaceholder: "Passwort",
         passwordReset: "Passwort zurücksetzen",
         authenticationFailed: "Authentifizierung fehlgeschlagen",
     },
@@ -140,7 +139,7 @@ export const TRANSLATION = {
             phone: "Telefonnummer",
             email: "E-Mail Adresse",
             password: "Passwort",
-            confirmPassword: "Passwort wiederholen"
+            confirmPassword: "Passwort wiederholen",
         },
         button: "Anlegen",
         errors: {
@@ -151,6 +150,10 @@ export const TRANSLATION = {
     },
     Edge: {
         Index: {
+            EmergencyReserve: {
+                InfoForEmergencyReserveSlider: 'Durch Aktivieren kann eine Notstromreserve zwischen 5 % und 100 % der Batteriekapazität eingestellt werden.',
+                emergencyReserve: 'Notstromreserve',
+            },
             Energymonitor: {
                 activePower: 'Ausgabeleistung',
                 consumptionWarning: 'Verbrauch & unbekannte Erzeuger',
@@ -356,7 +359,18 @@ export const TRANSLATION = {
                     switchOnRec: 'Einschaltempfehlung',
                     switchOnRecShort: 'Empfehlung',
                     undefined: 'Nicht definiert',
-                }
+                },
+                TimeOfUseTariff: {
+                    currentTariff: 'Aktueller Bezugsstrompreis',
+                    delayedDischarge: 'Entladung verzögert',
+                    storageDischarge: 'Speicherentladung',
+                    State: {
+                        notStarted: 'Noch nicht gestartet',
+                        delayed: 'Verzögert',
+                        allowsDischarge: 'Freigegeben',
+                        standby: 'Standby',
+                    },
+                },
             }
         },
         History: {

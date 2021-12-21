@@ -35,7 +35,7 @@ public class CellChannelFactory {
 				Unit.MILLIVOLT, //
 				Constants.VOLTAGE_ADDRESS_OFFSET, //
 				Constants.VOLTAGE_SENSORS_PER_MODULE); //
-		
+
 		private final String key;
 		private final Unit unit;
 		private final int offset;
@@ -44,12 +44,13 @@ public class CellChannelFactory {
 		private Type(String key, Unit unit, int offset, int sensorsPerModule) {
 			this.key = key;
 			this.unit = unit;
-			this.offset = + offset;
+			this.offset = +offset;
 			this.sensorsPerModule = sensorsPerModule;
 		}
 
 		/**
 		 * Gets the Offset.
+		 * 
 		 * @return int
 		 */
 		public int getOffset() {
@@ -58,6 +59,7 @@ public class CellChannelFactory {
 
 		/**
 		 * Gets the SensorsPerModule.
+		 * 
 		 * @return int
 		 */
 		public int getSensorsPerModule() {
