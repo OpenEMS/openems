@@ -40,7 +40,7 @@ public interface BpCore extends OpenemsComponent {
 				.text("KACO User Access denied")), //
 		VERSION_COM(Doc.of(OpenemsType.FLOAT) //
 				.text("Version of COM")), //
-		SERIAL_NUMBER(Doc.of(OpenemsType.LONG) //
+		SERIALNUMBER(Doc.of(OpenemsType.STRING) //
 				.text("Serial-Number")), //
 		;
 
@@ -143,21 +143,21 @@ public interface BpCore extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#SERIAL_NUMBER}.
+	 * Gets the Channel for {@link ChannelId#SERIALNUMBER}.
 	 * 
 	 * @return the Channel
 	 */
-	public default Channel<Long> getSerialNumberChannel() {
-		return this.channel(ChannelId.SERIAL_NUMBER);
+	public default Channel<String> getSerialnumberChannel() {
+		return this.channel(ChannelId.SERIALNUMBER);
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#SERIAL_NUMBER}
+	 * Internal method to set the 'nextValue' on {@link ChannelId#SERIALNUMBER}
 	 * Channel.
 	 * 
 	 * @param value the next value
 	 */
-	public default void _setSerialNumber(Long value) {
-		this.getSerialNumberChannel().setNextValue(value);
+	public default void _setSerialnumber(String value) {
+		this.getSerialnumberChannel().setNextValue(value);
 	}
 }

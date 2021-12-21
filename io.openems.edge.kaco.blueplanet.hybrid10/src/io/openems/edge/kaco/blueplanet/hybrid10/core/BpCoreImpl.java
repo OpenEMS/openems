@@ -368,16 +368,15 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 	}
 
 	private void updateChannels() {
-		Long serialNumber = null;
+		String serialNumber = null;
 		Float versionCom = null;
 
 		if (this.isConnected()) {
 			SystemInfo systemInfo = this.getSystemInfo();
 			if (systemInfo != null) {
-				try {
-					serialNumber = Long.parseLong(systemInfo.getSerialNumber());
-				} catch (NumberFormatException e) {
-					this.logWarn(this.log, "Unable to parse Serial-Number from [" + systemInfo.getSerialNumber() + "]");
+				serialNumber = systemInfo.getSerialNumber();
+				if (serialNumber != null) {
+					serialNumber = serialNumber.strip();
 				}
 				try {
 					versionCom = Float.parseFloat(systemInfo.getComVersion());
@@ -387,7 +386,7 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 			}
 		}
 
-		this._setSerialNumber(serialNumber);
+		this._setSerialnumber(serialNumber);
 		this._setVersionCom(versionCom);
 	}
 
