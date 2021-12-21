@@ -99,22 +99,19 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 		 * Create Default Logging configuration
 		 */
 		if (existingConfigs.stream().noneMatch(c -> //
-		"org.ops4j.pax.logging".equals(c.pid))) {
+		"org.ops4j.pax.logging".equals(c.pid) && c.properties.get("log4j2.rootLogger.level") != null)) {
 			// Adding Configuration manually, because this is not a OpenEMS Configuration
 			try {
 				Hashtable<String, Object> log4j = new Hashtable<>();
-				log4j.put("log4j2.rootLogger", "INFO, CONSOLE, osgi:*");
-
 				log4j.put("log4j2.appender.console.type", "Console");
 				log4j.put("log4j2.appender.console.name", "console");
 				log4j.put("log4j2.appender.console.layout.type", "PatternLayout");
 				log4j.put("log4j2.appender.console.layout.pattern", "%d{ISO8601} [%-8.8t] %-5p [%-30.30c] %m%n");
 
-				log4j.put("log4j2.appender.osgi.type", "PaxOsgi");
-				log4j.put("log4j2.appender.osgi.name", "paxosgi");
+				log4j.put("log4j2.appender.paxosgi.type", "PaxOsgi");
+				log4j.put("log4j2.appender.paxosgi.name", "paxosgi");
 
-				log4j.put("log4j2.rootLogger.level", "info");
-				log4j.put("log4j2.rootLogger.appenderRefs", "console, osgi");
+				log4j.put("log4j2.rootLogger.level", "INFO");
 				log4j.put("log4j2.rootLogger.appenderRef.console.ref", "console");
 				log4j.put("log4j2.rootLogger.appenderRef.paxosgi.ref", "paxosgi");
 				Configuration config = this.parent.cm.getConfiguration("org.ops4j.pax.logging", null);
