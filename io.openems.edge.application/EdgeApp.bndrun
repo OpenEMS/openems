@@ -149,9 +149,11 @@
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
 	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
+	bnd.identity;id='io.openems.edge.shelly'
 	bnd.identity;id='io.openems.edge.timeofusetariff.awattar',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
+
 
 -runbundles: \
 	Java-WebSocket;version='[1.5.2,1.5.3)',\
@@ -329,4 +331,5 @@
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.0.13,2.0.14)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.2.0,1.2.1)',\
-	rrd4j;version='[3.8.0,3.8.1)'
+	rrd4j;version='[3.8.0,3.8.1)',\
+	io.openems.edge.shelly;version=snapshot

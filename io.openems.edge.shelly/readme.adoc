@@ -1,0 +1,67 @@
+= Shelly WiFi Devices
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.shelly[Source Code icon:github[]]
+
+This bundle implements Several different Shelly WIFI devices
+
+Compatible with
+- https://shelly.cloud/products/shelly-plug-smart-home-automation-device/[Shelly Plug] (untested)
+- https://shelly.cloud/products/shelly-plug-s-smart-home-automation-device/[Shelly Plug (U)S] 
+- https://shelly.cloud/products/shelly-25-smart-home-automation-relay/[Shelly 2.5] (Relay mode only)
+- https://shelly.cloud/products/shelly-1pm-smart-home-automation-relay/[Shelly 1PM] 
+- https://shelly.cloud/products/shelly-1pm-smart-home-automation-relay/[Shelly 1L] (untested)
+- https://shelly.cloud/products/shelly-em-smart-home-automation-device/[Shelly EM] (untested)
+- https://shelly.cloud/products/shelly-3em-smart-home-automation-energy-meter/[Shelly 3EM]
+
+
+Meters functionality only of
+- https://shelly.cloud/products/shelly-vintage-smart-home-automation-bulb/[Shelly Vintage] (untested)
+- https://shelly.cloud/products/shelly-duo-smart-home-automation-bulb/[Shelly Duo] (untested)
+- https://shelly.cloud/products/shelly-rgbw2-smart-home-automation-led-controller/[Shelly RGBW2] (untested)
+- https://shelly.cloud/products/shelly-dimmer-2-smart-home-light-controller/[Shelly Dimmer 1/2] (untested)
+
+Relay functionality only of
+- https://shelly.cloud/products/shelly-1-smart-home-automation-relay/[Shelly 1]
+- https://shelly.cloud/products/shelly-uni-smart-home-automation-device/[Shelly Uni] (untested)
+
+
+The idea of the bundle is to split a shelly device into several devices. One of the devices is the *"Core"*. This represents the device itself and handles the communication. The others represent the different views as either a relay or a meter. 
+
+
+== Shelly core
+
+This implements the basic communication with the Shelly device and provides the other classes with the data.
+Main parameter is the IP-Address of the Shelly device.
+
+== Shelly Meter
+
+This class can handle a meter of a Shelly device. It needs a *"Core object"* to communicate with the Shelly device. 
+For devices that have more than one meter the parameter *"index"* defines which of the meters to display.
+
+Implemented Natures
+- SymmetricMeter
+
+
+== Shelly Relay
+
+This class can handle a relay of a Shelly device. It needs a *"Core object"* to communicate with the Shelly device. 
+For devices that have more than one meter the parameter *"index"* defines which of the relays to handle.
+
+Implemented Natures
+- DigitalOutput
+
+
+== Shelly 3EM
+
+This is a special implementation of the Shelly 3EM. It handles the three legs together and is therefore a perfect GRID meter. It also uses the sum/average of the three legs to set the values of its SymmetricMeter Nature.
+
+The Relay should be represented by a separate ShellyRelay instance.
+
+
+Implemented Natures
+- SymmetricMeter
+- AsymmetricMeter
+
+
+
+
