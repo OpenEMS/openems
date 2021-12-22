@@ -23,7 +23,6 @@ import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.FloatQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -39,12 +38,13 @@ import io.openems.edge.meter.api.SymmetricMeter;
  * https://cache.industry.siemens.com/dl/files/150/26504150/att_906558/v1/A5E01168664B-04_EN-US_122016_201612221316360495.pdf
  */
 @Designate(ocd = Config.class, factory = true)
-@Component(
-		name = "Meter.Siemens.PAC.2200.3200.4200", 
-		immediate = true, 
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class SiemensPACMeter extends AbstractOpenemsModbusComponent
-		implements SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
+@Component(//
+		name = "Meter.Siemens", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+public class SiemensPacMeterImpl extends AbstractOpenemsModbusComponent
+		implements SiemensPacMeter, SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
@@ -56,13 +56,13 @@ public class SiemensPACMeter extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	public SiemensPACMeter() {
+	public SiemensPacMeterImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //
-				ChannelId.values() //
+				SiemensPacMeter.ChannelId.values() //
 		);
 	}
 
@@ -87,19 +87,6 @@ public class SiemensPACMeter extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		public Doc doc() {
-			return this.doc;
-		}
-	}
-
 	@Override
 	public MeterType getMeterType() {
 		return this.meterType;
@@ -112,7 +99,7 @@ public class SiemensPACMeter extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(1, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(1),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3), 
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3),
 								ElementToChannelConverter.SCALE_FACTOR_3),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(5),
 								ElementToChannelConverter.SCALE_FACTOR_3),
@@ -143,8 +130,7 @@ public class SiemensPACMeter extends AbstractOpenemsModbusComponent
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(65),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(67),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.invert))
-						));
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert))));
 		if (this.invert) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(801, Priority.LOW, //
 					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatQuadruplewordElement(801)),
@@ -174,5 +160,3 @@ public class SiemensPACMeter extends AbstractOpenemsModbusComponent
 		);
 	}
 }
-
-

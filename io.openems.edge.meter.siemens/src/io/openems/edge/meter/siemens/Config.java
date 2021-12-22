@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.meter.api.MeterType;
 
 @ObjectClassDefinition(//
-		name = "Siemens PAC 2200 3200 4200", //
+		name = "Siemens PAC 2200/3200/4200", //
 		description = "Implements the Siemens PAC 2200/3200/4200 power analyser.")
 @interface Config {
 
