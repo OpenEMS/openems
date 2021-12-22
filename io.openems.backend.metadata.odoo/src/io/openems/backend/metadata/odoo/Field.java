@@ -5,17 +5,38 @@ import java.util.stream.Stream;
 
 public interface Field {
 
+	/**
+	 * Gets the Field ID.
+	 * 
+	 * @return the ID
+	 */
 	public String id();
 
+	/**
+	 * Gets the Field index.
+	 * 
+	 * @return the index
+	 */
 	public int index();
 
+	/**
+	 * Gets the Field name.
+	 * 
+	 * @return the name
+	 */
 	public String name();
 
+	/**
+	 * Should this Field be queried?.
+	 * 
+	 * @return true if yes
+	 */
 	public boolean isQuery();
 
 	/**
 	 * Gets all fields that should be queried as a comma separated string.
 	 * 
+	 * @param fields an array of {@link Field}s
 	 * @return the String
 	 */
 	public static String getSqlQueryFields(Field[] fields) {
@@ -68,10 +89,12 @@ public interface Field {
 			}
 		}
 
+		@Override
 		public String id() {
 			return this.id;
 		}
 
+		@Override
 		public int index() {
 			return this.queryIndex;
 		}
@@ -120,10 +143,12 @@ public interface Field {
 			}
 		}
 
+		@Override
 		public String id() {
 			return this.id;
 		}
 
+		@Override
 		public int index() {
 			return this.queryIndex;
 		}
@@ -167,10 +192,12 @@ public interface Field {
 			}
 		}
 
+		@Override
 		public String id() {
 			return this.id;
 		}
 
+		@Override
 		public int index() {
 			return this.queryIndex;
 		}

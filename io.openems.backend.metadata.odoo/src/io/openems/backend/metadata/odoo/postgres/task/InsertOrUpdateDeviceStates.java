@@ -63,6 +63,7 @@ public class InsertOrUpdateDeviceStates extends DatabaseTask {
 	 * <p>
 	 * Be careful to synchronize access to the resulting PreparedStatement.
 	 * 
+	 * @param connection the {@link Connection}
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
 	 */

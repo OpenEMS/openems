@@ -37,6 +37,7 @@ public class UpdateEdgeConfig extends DatabaseTask {
 	 * UPDATE {} SET openems_config = {}, openems_config_components = {} WHERE id =
 	 * {};.
 	 * 
+	 * @param connection the {@link Connection}
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
 	 */

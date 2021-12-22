@@ -194,7 +194,7 @@ public class OdooUtils {
 				.addProperty("jsonrpc", "2.0") //
 				.addProperty("method", "call") //
 				.add("params", JsonUtils.buildJsonObject() //
-						.addProperty("db", "v12") //
+						.addProperty("db", credentials.getDatabase()) //
 						.addProperty("login", username) //
 						.addProperty("password", password) //
 						.build()) //
