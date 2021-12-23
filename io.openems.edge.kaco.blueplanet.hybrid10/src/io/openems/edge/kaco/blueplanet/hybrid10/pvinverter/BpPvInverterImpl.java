@@ -24,10 +24,14 @@ import com.ed.data.InverterData;
 import com.ed.data.Settings;
 import com.ed.data.Status;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.kaco.blueplanet.hybrid10.ErrorChannelId;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
@@ -47,7 +51,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 		})
 public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvInverter, ManagedSymmetricPvInverter,
-		SymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
+		SymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(BpPvInverterImpl.class);
 	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this,
@@ -178,4 +182,13 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvIn
 		return this.timedata;
 	}
 
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(BpPvInverter.class, accessMode, 100) //
+						.build());
+	}
 }

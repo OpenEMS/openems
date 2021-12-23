@@ -20,6 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -31,6 +32,9 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
@@ -45,7 +49,7 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 				"type=PRODUCTION" //
 		})
 public class PvInverterCluster extends AbstractOpenemsComponent
-		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
+		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(PvInverterCluster.class);
 
@@ -223,5 +227,15 @@ public class PvInverterCluster extends AbstractOpenemsComponent
 			result.add(pvInverter);
 		}
 		return result;
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(PvInverterCluster.class, accessMode, 100) //
+						.build());
 	}
 }

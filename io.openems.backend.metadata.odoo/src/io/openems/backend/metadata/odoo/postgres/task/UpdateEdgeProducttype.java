@@ -27,6 +27,7 @@ public class UpdateEdgeProducttype extends DatabaseTask {
 	/**
 	 * UPDATE {} SET version = {} WHERE id = {};.
 	 * 
+	 * @param connection the {@link Connection}
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
 	 */

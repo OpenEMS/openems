@@ -64,7 +64,6 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 	private VectisData vectis = null;
 	private EnergyMeter energy = null;
 	private SystemInfo systemInfo = null;
-	private InetAddress inverterAddress;
 	private String userkey;
 	private String serialNumber;
 
@@ -87,15 +86,16 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 		this.userkey = config.userkey();
 		this.serialNumber = config.serialnumber();
 
+		final InetAddress inverterAddress;
 		if (config.ip() == null) {
-			this.inverterAddress = null;
+			inverterAddress = null;
 		} else {
-			this.inverterAddress = InetAddress.getByName(config.ip());
+			inverterAddress = InetAddress.getByName(config.ip());
 		}
 		Runnable initializeLibrary = () -> {
 			while (true) {
 				try {
-					this.initialize();
+					this.initialize(inverterAddress);
 					break; // stop forever loop
 				} catch (Exception e) {
 					this.logError(this.log, e.getMessage());
@@ -113,18 +113,14 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 		this.configFuture = configExecutor.schedule(initializeLibrary, 0, TimeUnit.SECONDS);
 	}
 
-	private void initialize() throws Exception {
-		// TODO Static instance? What happens if we have more than one instance of this
-		// component? Is it really necessary as we set the userkey with setUserKey()
-		// later?
-
+	private void initialize(InetAddress inverterAddress) throws Exception {
 		Util.getInstance().setUserName( //
 				"K+JxgBxJPPzGuCZjznH35ggVlzY8NVV8Y9vZ8nU9k3RTiQBJxBcY8F0Umv3H2tCfCTpQTcZBDIZFd52Y54WvBojYm"
 						+ "BxD84MoHXexNpr074zyhahFwppN+fZPXMIGaYTng0Mvv1XdYKdCMhh6xElc7eM3Q9e9JOWAbpD3eTX8L/yOVT8sVv"
 						+ "n0q6oL4m2+pASNLHBFAVfRFjtNYVCIsjpnEEbsNN7OwO6IdokBV1qbbXbaWWljco/Sz3zD/l35atntDHwkyTG2Tpv"
 						+ "Z1HWGBZVt39z17LxK8baCVIRw02/P6QjCStbnCPaVEEZquW/YpGrHRg5v8E3wlNx8U+Oy/TyIsA==");
 
-		if (this.inverterAddress != null) {
+		if (inverterAddress != null) {
 			/*
 			 * IP address was set. No need for discovery.
 			 */
@@ -169,20 +165,22 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 					if (inverter != null) {
 						InetAddress[] addresses = inverter.getInetAddresses();
 						if (addresses.length > 0) {
-							this.inverterAddress = addresses[0]; // use the first address
-							this.logInfo(this.log, "found inverter: " + this.inverterAddress.toString());
+							inverterAddress = addresses[0]; // use the first address
+							this.logInfo(this.log, "Found inverter: " + inverterAddress.toString());
 							break; // quit searching
 						}
 					}
 				}
 
-				if (this.inverterAddress != null) {
+				if (inverterAddress != null) {
 					break;
 				}
 			}
 		}
 
-		this.initClient();
+		if (inverterAddress != null) {
+			this.initClient(inverterAddress);
+		}
 	}
 
 	@Deactivate
@@ -295,19 +293,10 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 		}
 	}
 
-	private void initClient() throws Exception {
+	private void initClient(InetAddress inverterAddress) throws Exception {
 		// Initialize the Client
-		if (this.inverterAddress != null) {
-			InetAddress localAddress = BpCoreImpl.getMatchingLocalInetAddress(this.inverterAddress);
-			// FIXME: sometimes I receive a "java.lang.Exception: wrong parameters" here.
-			// Any idea why?
-			// this.logInfo(this.log, "Using local Address: " +
-			// localAddress.getHostAddress());
-			this.client = new Client(this.inverterAddress, localAddress, 1);
-			// if (this.client != null ) {
-			// this.initClient();
-			// }
-		}
+		InetAddress localAddress = BpCoreImpl.getMatchingLocalInetAddress(inverterAddress);
+		this.client = new Client(inverterAddress, localAddress, 1);
 
 		// Initialize all Data classes
 		this.client.setUserKey(this.userkey);
@@ -368,16 +357,15 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 	}
 
 	private void updateChannels() {
-		Long serialNumber = null;
+		String serialNumber = null;
 		Float versionCom = null;
 
 		if (this.isConnected()) {
 			SystemInfo systemInfo = this.getSystemInfo();
 			if (systemInfo != null) {
-				try {
-					serialNumber = Long.parseLong(systemInfo.getSerialNumber());
-				} catch (NumberFormatException e) {
-					this.logWarn(this.log, "Unable to parse Serial-Number from [" + systemInfo.getSerialNumber() + "]");
+				serialNumber = systemInfo.getSerialNumber();
+				if (serialNumber != null) {
+					serialNumber = serialNumber.strip();
 				}
 				try {
 					versionCom = Float.parseFloat(systemInfo.getComVersion());
@@ -387,7 +375,7 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 			}
 		}
 
-		this._setSerialNumber(serialNumber);
+		this._setSerialnumber(serialNumber);
 		this._setVersionCom(versionCom);
 	}
 

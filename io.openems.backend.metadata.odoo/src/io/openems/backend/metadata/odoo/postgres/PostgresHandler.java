@@ -39,6 +39,9 @@ public class PostgresHandler {
 		this.queueWriteWorker.start();
 	}
 
+	/**
+	 * Deactivates the {@link PostgresHandler}.
+	 */
 	public void deactivate() {
 		this.initializeEdgesWorker.stop();
 		this.periodicWriteWorker.stop();

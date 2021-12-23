@@ -18,11 +18,11 @@
 -runbundles+: \
 	org.apache.felix.scr;startlevel=10,\
 	org.eclipse.equinox.event;startlevel=11,\
-    org.ops4j.pax.logging.pax-logging-log4j1;startlevel=12
+	org.ops4j.pax.logging.pax-logging-log4j2;startlevel=12
 
 -runrequires: \
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\
-	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j1',\
+	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j2',\
 	bnd.identity;id='org.apache.felix.http.jetty',\
 	bnd.identity;id='org.apache.felix.webconsole',\
 	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
@@ -124,6 +124,7 @@
 	bnd.identity;id='io.openems.edge.meter.microcare.sdm630',\
 	bnd.identity;id='io.openems.edge.meter.pqplus',\
 	bnd.identity;id='io.openems.edge.meter.schneider.acti9.smartlink',\
+	bnd.identity;id='io.openems.edge.meter.siemens',\
 	bnd.identity;id='io.openems.edge.meter.sma.shm20',\
 	bnd.identity;id='io.openems.edge.meter.socomec',\
 	bnd.identity;id='io.openems.edge.meter.sunspec',\
@@ -262,6 +263,7 @@
 	io.openems.edge.meter.microcare.sdm630;version=snapshot,\
 	io.openems.edge.meter.pqplus;version=snapshot,\
 	io.openems.edge.meter.schneider.acti9.smartlink;version=snapshot,\
+	io.openems.edge.meter.siemens;version=snapshot,\
 	io.openems.edge.meter.sma.shm20;version=snapshot,\
 	io.openems.edge.meter.socomec;version=snapshot,\
 	io.openems.edge.meter.sunspec;version=snapshot,\
@@ -310,12 +312,12 @@
 	org.apache.felix.inventory;version='[1.1.0,1.1.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
 	org.apache.felix.scr;version='[2.1.30,2.1.31)',\
-	org.apache.felix.webconsole;version='[4.7.0,4.7.1)',\
+	org.apache.felix.webconsole;version='[4.7.2,4.7.3)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.1.0,2.1.1)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[2.0.11,2.0.12)',\
-	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.11,2.0.12)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[2.0.13,2.0.14)',\
+	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.0.13,2.0.14)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.2.0,1.2.1)',\
 	rrd4j;version='[3.8.0,3.8.1)'
