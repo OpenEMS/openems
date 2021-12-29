@@ -15,7 +15,7 @@
     "@ngx-translate/core": "^13.0.0",
     "@ionic/angular": "^5.9.1",
     "@ngx-formly/core": "^5.10.23",
-    "@ngx-formly/ionic": "^5.10.23",
+    "@ngx-formly/ionic": "^5.10.27",
     "@ngx-formly/schematics": "^5.10.23",
     "angular-mydatepicker": "^0.11.5",
     "chart.js": "^2.9.4",
