@@ -11,7 +11,6 @@ import com.google.gson.JsonElement;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
@@ -31,7 +30,6 @@ import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyPerPeriod
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.EdgeConfig;
 
 public class EdgeRpcRequestHandler {
 
@@ -43,7 +41,7 @@ public class EdgeRpcRequestHandler {
 
 	/**
 	 * Handles an {@link EdgeRpcRequest}.
-	 * 
+	 *
 	 * @param user           the {@link User}
 	 * @param edgeRpcRequest the {@link EdgeRpcRequest}
 	 * @param messageId      the JSON-RPC Message-ID
@@ -52,8 +50,8 @@ public class EdgeRpcRequestHandler {
 	 */
 	protected CompletableFuture<EdgeRpcResponse> handleRequest(User user, UUID messageId, EdgeRpcRequest edgeRpcRequest)
 			throws OpenemsNamedException {
-		String edgeId = edgeRpcRequest.getEdgeId();
-		JsonrpcRequest request = edgeRpcRequest.getPayload();
+		var edgeId = edgeRpcRequest.getEdgeId();
+		var request = edgeRpcRequest.getPayload();
 		user.assertEdgeRoleIsAtLeast(EdgeRpcRequest.METHOD, edgeRpcRequest.getEdgeId(), Role.GUEST);
 
 		CompletableFuture<JsonrpcResponseSuccess> resultFuture;
@@ -111,7 +109,7 @@ public class EdgeRpcRequestHandler {
 		}
 
 		// Wrap reply in EdgeRpcResponse
-		CompletableFuture<EdgeRpcResponse> result = new CompletableFuture<EdgeRpcResponse>();
+		var result = new CompletableFuture<EdgeRpcResponse>();
 		resultFuture.whenComplete((r, ex) -> {
 			if (ex != null) {
 				result.completeExceptionally(ex);
@@ -127,7 +125,7 @@ public class EdgeRpcRequestHandler {
 
 	/**
 	 * Handles a {@link QueryHistoricTimeseriesDataRequest}.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User} - no specific level required
 	 * @param request the {@link QueryHistoricTimeseriesDataRequest}
@@ -146,7 +144,7 @@ public class EdgeRpcRequestHandler {
 
 	/**
 	 * Handles a {@link QueryHistoricTimeseriesEnergyRequest}.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User} - no specific level required
 	 * @param request the {@link QueryHistoricTimeseriesEnergyRequest}
@@ -164,7 +162,7 @@ public class EdgeRpcRequestHandler {
 
 	/**
 	 * Handles a {@link QueryHistoricTimeseriesEnergyPerPeriodRequest}.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User} - no specific level required
 	 * @param request the {@link QueryHistoricTimeseriesEnergyPerPeriodRequest}
@@ -185,7 +183,7 @@ public class EdgeRpcRequestHandler {
 
 	/**
 	 * Handles a {@link QueryHistoricTimeseriesExportXlxsRequest}.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User}
 	 * @param request the {@link QueryHistoricTimeseriesExportXlxsRequest}
@@ -200,7 +198,7 @@ public class EdgeRpcRequestHandler {
 
 	/**
 	 * Handles a {@link GetEdgeConfigRequest}.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User} - no specific level required
 	 * @param request the {@link GetEdgeConfigRequest}
@@ -209,7 +207,7 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(String edgeId, User user,
 			GetEdgeConfigRequest request) throws OpenemsNamedException {
-		EdgeConfig config = this.parent.metadata.getEdgeOrError(edgeId).getConfig();
+		var config = this.parent.metadata.getEdgeOrError(edgeId).getConfig();
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new GetEdgeConfigResponse(request.getId(), config));
@@ -217,7 +215,7 @@ public class EdgeRpcRequestHandler {
 
 	/**
 	 * Handles a {@link CreateComponentConfigRequest}.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User} - Installer-level required
 	 * @param request the {@link CreateComponentConfigRequest}
@@ -233,7 +231,7 @@ public class EdgeRpcRequestHandler {
 
 	/**
 	 * Handles a {@link UpdateComponentConfigRequest}.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User} - Installer-level required
 	 * @param request the {@link UpdateComponentConfigRequest}
@@ -249,7 +247,7 @@ public class EdgeRpcRequestHandler {
 
 	/**
 	 * Handles a {@link DeleteComponentConfigRequest}.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User} - Installer-level required
 	 * @param request the {@link DeleteComponentConfigRequest}
@@ -265,7 +263,7 @@ public class EdgeRpcRequestHandler {
 
 	/**
 	 * Handles a {@link SetChannelValueRequest}.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User}
 	 * @param request the {@link SetChannelValueRequest}
@@ -281,7 +279,7 @@ public class EdgeRpcRequestHandler {
 
 	/**
 	 * Handles a {@link UpdateComponentConfigRequest}.
-	 * 
+	 *
 	 * @param edgeId                  the Edge-ID
 	 * @param user                    the {@link User} - Guest-level required
 	 * @param componentJsonApiRequest the {@link ComponentJsonApiRequest}
