@@ -13,21 +13,21 @@ public class OpenemsConstants {
 	 * 
 	 * This is usually the year of the release
 	 */
-	public final static short VERSION_MAJOR = 2021;
+	public final static short VERSION_MAJOR = 2022;
 
 	/**
 	 * The minor version of OpenEMS.
 	 * 
 	 * This is usually the number of the sprint within the year
 	 */
-	public final static short VERSION_MINOR = 22;
+	public final static short VERSION_MINOR = 1;
 
 	/**
 	 * The patch version of OpenEMS.
 	 * 
 	 * This is the number of the bugfix release
 	 */
-	public final static short VERSION_PATCH = 2;
+	public final static short VERSION_PATCH = 1;
 
 	/**
 	 * The additional version string
@@ -38,7 +38,7 @@ public class OpenemsConstants {
 	 * The complete version as a SemanticVersion.
 	 * 
 	 * <p>
-	 * Use toString()-method to get something like "2019.6.0-SNAPSHOT"
+	 * Use toString()-method to get something like "2022.1.0-SNAPSHOT"
 	 */
 	public final static SemanticVersion VERSION = new SemanticVersion(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
 			VERSION_STRING);
