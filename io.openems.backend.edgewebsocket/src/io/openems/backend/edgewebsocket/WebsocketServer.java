@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -51,8 +50,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	@Override
 	protected WsData createWsData() {
-		WsData wsData = new WsData(this);
-		return wsData;
+		return new WsData(this);
 	}
 
 	public boolean isOnline(String edgeId) {
@@ -73,7 +71,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	@Override
 	public OnNotification getOnNotification() {
-		return onNotification;
+		return this.onNotification;
 	}
 
 	@Override
@@ -89,24 +87,24 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	@Override
 	protected JsonrpcMessage handleNonJsonrpcMessage(String stringMessage, OpenemsNamedException lastException)
 			throws OpenemsNamedException {
-		JsonObject message = JsonUtils.parseToJsonObject(stringMessage);
+		var message = JsonUtils.parseToJsonObject(stringMessage);
 
 		// config
 		if (message.has("config")) {
-			EdgeConfig config = EdgeConfig.fromJson(JsonUtils.getAsJsonObject(message, "config"));
+			var config = EdgeConfig.fromJson(JsonUtils.getAsJsonObject(message, "config"));
 			return new EdgeConfigNotification(config);
 		}
 
 		// timedata
 		if (message.has("timedata")) {
-			TimestampedDataNotification d = new TimestampedDataNotification();
-			JsonObject timedata = JsonUtils.getAsJsonObject(message, "timedata");
+			var d = new TimestampedDataNotification();
+			var timedata = JsonUtils.getAsJsonObject(message, "timedata");
 			for (Entry<String, JsonElement> entry : timedata.entrySet()) {
-				long timestamp = Long.valueOf(entry.getKey());
-				JsonObject values = JsonUtils.getAsJsonObject(entry.getValue());
+				var timestamp = Long.parseLong(entry.getKey());
+				var values = JsonUtils.getAsJsonObject(entry.getValue());
 				Map<ChannelAddress, JsonElement> data = new HashMap<>();
 				for (Entry<String, JsonElement> value : values.entrySet()) {
-					ChannelAddress address = ChannelAddress.fromString(value.getKey());
+					var address = ChannelAddress.fromString(value.getKey());
 					data.put(address, value.getValue());
 				}
 				d.add(timestamp, data);
@@ -116,7 +114,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 		// log
 		if (message.has("log")) {
-			JsonObject log = JsonUtils.getAsJsonObject(message, "log");
+			var log = JsonUtils.getAsJsonObject(message, "log");
 			return new SystemLogNotification(new SystemLog(
 					ZonedDateTime.ofInstant(Instant.ofEpochMilli(JsonUtils.getAsLong(log, "time")),
 							ZoneId.systemDefault()), //
@@ -125,7 +123,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 					JsonUtils.getAsString(log, "message")));
 		}
 
-		log.info("EdgeWs. handleNonJsonrpcMessage: " + stringMessage);
+		this.log.info("EdgeWs. handleNonJsonrpcMessage: " + stringMessage);
 		throw new OpenemsException("EdgeWs. handleNonJsonrpcMessage", lastException);
 	}
 

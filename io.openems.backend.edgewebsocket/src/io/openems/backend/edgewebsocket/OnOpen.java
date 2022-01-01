@@ -1,7 +1,5 @@
 package io.openems.backend.edgewebsocket;
 
-import java.util.Optional;
-
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.CloseFrame;
 import org.slf4j.Logger;
@@ -9,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.metadata.Edge;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 
@@ -30,7 +27,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		String apikey = "";
 		try {
 			// get apikey from handshake
-			Optional<String> apikeyOpt = JsonUtils.getAsOptionalString(handshake, "apikey");
+			var apikeyOpt = JsonUtils.getAsOptionalString(handshake, "apikey");
 			if (!apikeyOpt.isPresent()) {
 				throw new OpenemsException("Apikey is missing in handshake");
 			}
@@ -38,19 +35,19 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			wsData.setApikey(apikey);
 
 			// get edgeId for apikey
-			Optional<String> edgeIdOpt = this.parent.metadata.getEdgeIdForApikey(apikey);
+			var edgeIdOpt = this.parent.metadata.getEdgeIdForApikey(apikey);
 			if (!edgeIdOpt.isPresent()) {
 				throw new OpenemsException("Unable to authenticate this Apikey.");
 			}
-			String edgeId = edgeIdOpt.get();
+			var edgeId = edgeIdOpt.get();
 			wsData.setEdgeId(edgeId);
 
 			// get metadata for Edge
-			Optional<Edge> edgeOpt = this.parent.metadata.getEdge(edgeId);
+			var edgeOpt = this.parent.metadata.getEdge(edgeId);
 			if (!edgeOpt.isPresent()) {
 				throw new OpenemsException("Unable to get metadata for Edge [" + edgeId + "]");
 			}
-			Edge edge = edgeOpt.get();
+			var edge = edgeOpt.get();
 
 			// log
 			this.parent.logInfo(this.log, "Edge [" + edge.getId() + "] connected.");

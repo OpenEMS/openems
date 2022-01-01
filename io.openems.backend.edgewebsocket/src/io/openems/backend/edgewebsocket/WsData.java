@@ -16,7 +16,7 @@ import io.openems.common.utils.StringUtils;
 public class WsData extends io.openems.common.websocket.WsData {
 
 	private final WebsocketServer parent;
-	private CompletableFuture<Boolean> isAuthenticated = new CompletableFuture<Boolean>();
+	private final CompletableFuture<Boolean> isAuthenticated = new CompletableFuture<>();
 	private Optional<String> apikey = Optional.empty();
 	private Optional<String> edgeId = Optional.empty();
 
@@ -53,7 +53,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	public synchronized Optional<String> getApikey() {
-		return apikey;
+		return this.apikey;
 	}
 
 	public synchronized void setEdgeId(String edgeId) {
@@ -61,21 +61,20 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	public synchronized Optional<String> getEdgeId() {
-		return edgeId;
+		return this.edgeId;
 	}
 
 	/**
 	 * Gets the Edge.
-	 * 
+	 *
 	 * @param metadata the Metadata service
 	 * @return the Edge or Optional.Empty if the Edge-ID was not set or it is not
 	 *         available from Metadata service
 	 */
 	public synchronized Optional<Edge> getEdge(Metadata metadata) {
-		Optional<String> edgeId = this.getEdgeId();
+		var edgeId = this.getEdgeId();
 		if (edgeId.isPresent()) {
-			Optional<Edge> edge = metadata.getEdge(edgeId.get());
-			return edge;
+			return metadata.getEdge(edgeId.get());
 		}
 		return Optional.empty();
 	}
@@ -83,21 +82,22 @@ public class WsData extends io.openems.common.websocket.WsData {
 	public String assertEdgeId(JsonrpcMessage message) throws OpenemsException {
 		if (this.edgeId.isPresent()) {
 			return this.edgeId.get();
-		} else {
-			throw new OpenemsException(
-					"EdgeId is not set. Unable to handle " + StringUtils.toShortString(message.toString(), 100));
 		}
+		throw new OpenemsException(
+				"EdgeId is not set. Unable to handle " + StringUtils.toShortString(message.toString(), 100));
 	}
 
 	@Override
 	public String toString() {
-		return "EdgeWebsocket.WsData [apikey=" + apikey.orElse("UNKNOWN") + ", edgeId=" + edgeId.orElse("UNKNOWN")
+		return "EdgeWebsocket.WsData [" //
+				+ "apikey=" + this.apikey.orElse("UNKNOWN") + ", " //
+				+ "edgeId=" + this.edgeId.orElse("UNKNOWN") //
 				+ "]";
 	}
 
 	/**
 	 * Gets an Id of this Edge - either the Edge-ID or the Apikey or "UNKNOWN".
-	 * 
+	 *
 	 * @return the Id
 	 */
 	private String getId() {
