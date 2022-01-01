@@ -21,12 +21,12 @@ public class EdgeCache {
 	/**
 	 * The Timestamp of the data in the Cache.
 	 */
-	private long cacheTimestamp = 0l;
+	private long cacheTimestamp = 0L;
 
 	/**
 	 * The Timestamp when the Cache was last applied to the incoming data.
 	 */
-	private long lastAppliedTimestamp = 0l;
+	private long lastAppliedTimestamp = 0L;
 
 	private final HashMap<ChannelAddress, JsonElement> cacheData = new HashMap<>();
 
@@ -52,7 +52,7 @@ public class EdgeCache {
 					if (this.cacheTimestamp != 0L) {
 						this.log.info("Edge [" + edgeId + "]: invalidate cache. Incoming ["
 								+ Instant.ofEpochMilli(incomingTimestamp) + "]. Cache ["
-								+ Instant.ofEpochMilli(cacheTimestamp) + "]");
+								+ Instant.ofEpochMilli(this.cacheTimestamp) + "]");
 					}
 					// Clear Cache
 					this.cacheData.clear();
@@ -66,7 +66,7 @@ public class EdgeCache {
 					// cache is valid (not elder than 5 minutes)
 					this.lastAppliedTimestamp = incomingTimestamp;
 					for (Entry<ChannelAddress, JsonElement> cacheEntry : this.cacheData.entrySet()) {
-						ChannelAddress channel = cacheEntry.getKey();
+						var channel = cacheEntry.getKey();
 						// check if there is a current value for this timestamp + channel
 						if (!incomingData.containsKey(channel)) {
 							// if not -> add cache data to write data

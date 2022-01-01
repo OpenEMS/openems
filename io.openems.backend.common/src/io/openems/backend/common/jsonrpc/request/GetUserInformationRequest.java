@@ -6,7 +6,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
 /**
  * Gets the User Information.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -23,7 +23,7 @@ public class GetUserInformationRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link GetUserInformationRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param request the template {@link JsonrpcRequest}
 	 * @return Created {@link GetUserInformationRequest}
 	 */
@@ -32,7 +32,7 @@ public class GetUserInformationRequest extends JsonrpcRequest {
 	}
 
 	private GetUserInformationRequest(JsonrpcRequest request) {
-		super(request, METHOD);
+		super(request, GetUserInformationRequest.METHOD);
 	}
 
 	@Override

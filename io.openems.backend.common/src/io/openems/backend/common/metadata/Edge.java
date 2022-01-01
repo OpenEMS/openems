@@ -78,10 +78,17 @@ public class Edge {
 
 	@Override
 	public String toString() {
-		return "Edge [id=" + id + ", comment=" + comment + ", state=" + state + ", version=" + version
-				+ ", producttype=" + producttype + ", deprecatedConfig="
-				+ (config.toString().isEmpty() ? "NOT_SET" : "set") + ", lastMessage=" + lastMessage + ", lastUpdate="
-				+ lastUpdate + ", isOnline=" + isOnline + "]";
+		return "Edge [" //
+				+ "id=" + this.id + ", " //
+				+ "comment=" + this.comment + ", " //
+				+ "state=" + this.state + ", " //
+				+ "version=" + this.version + ", " //
+				+ "producttype=" + this.producttype + ", " //
+				+ "deprecatedConfig=" + (this.config.toString().isEmpty() ? "NOT_SET" : "set") + ", " //
+				+ "lastMessage=" + this.lastMessage + ", " //
+				+ "lastUpdate=" + this.lastUpdate + ", " //
+				+ "isOnline=" + this.isOnline //
+				+ "]";
 	}
 
 	/*
@@ -99,7 +106,7 @@ public class Edge {
 
 	/**
 	 * Marks this Edge as being online. This is called by an event listener.
-	 * 
+	 *
 	 * @param isOnline true if the Edge is online
 	 */
 	public synchronized void setOnline(boolean isOnline) {
@@ -115,7 +122,7 @@ public class Edge {
 	/**
 	 * Adds a listener for reception of new EdgeConfig. The listener is called
 	 * before the new config is applied.
-	 * 
+	 *
 	 * @param listener the Listener
 	 */
 	public void onSetConfig(Consumer<EdgeConfig> listener) {
@@ -124,7 +131,7 @@ public class Edge {
 
 	/**
 	 * Sets the configuration for this Edge and calls the SetConfig-Listeners.
-	 * 
+	 *
 	 * @param config the configuration
 	 */
 	public synchronized void setConfig(EdgeConfig config) {
@@ -133,7 +140,7 @@ public class Edge {
 
 	/**
 	 * Sets the configuration for this Edge.
-	 * 
+	 *
 	 * @param config        the configuration
 	 * @param callListeners whether to call the SetConfig-Listeners
 	 */
@@ -173,14 +180,14 @@ public class Edge {
 
 	/**
 	 * Sets the Last-Message-Timestamp.
-	 * 
+	 *
 	 * @param callListeners whether to call the SetLastMessage-Listeners
 	 */
 	public synchronized void setLastMessageTimestamp(boolean callListeners) {
 		if (callListeners) {
-			this.onSetLastMessageTimestamp.forEach(listener -> listener.run());
+			this.onSetLastMessageTimestamp.forEach(Runnable::run);
 		}
-		ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+		var now = ZonedDateTime.now(ZoneOffset.UTC);
 		this.lastMessage = now;
 	}
 
@@ -206,14 +213,14 @@ public class Edge {
 
 	/**
 	 * Sets the Last-Update-Timestamp.
-	 * 
+	 *
 	 * @param callListeners whether to call the SetLastUpdate-Listeners
 	 */
 	public synchronized void setLastUpdateTimestamp(boolean callListeners) {
 		if (callListeners) {
-			this.onSetLastUpdateTimestamp.forEach(listener -> listener.run());
+			this.onSetLastUpdateTimestamp.forEach(Runnable::run);
 		}
-		ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+		var now = ZonedDateTime.now(ZoneOffset.UTC);
 		this.lastUpdate = now;
 	}
 
@@ -236,7 +243,7 @@ public class Edge {
 
 	/**
 	 * Sets the version and calls the SetVersion-Listeners.
-	 * 
+	 *
 	 * @param version the version
 	 */
 	public synchronized void setVersion(SemanticVersion version) {
@@ -245,7 +252,7 @@ public class Edge {
 
 	/**
 	 * Sets the version.
-	 * 
+	 *
 	 * @param version       the version
 	 * @param callListeners whether to call the SetVersion-Listeners
 	 */
@@ -275,7 +282,7 @@ public class Edge {
 
 	/**
 	 * Sets the Producttype and calls the SetProducttype-Listeners.
-	 * 
+	 *
 	 * @param producttype the Producttype
 	 */
 	public synchronized void setProducttype(String producttype) {
@@ -284,7 +291,7 @@ public class Edge {
 
 	/**
 	 * Sets the Producttype.
-	 * 
+	 *
 	 * @param producttype   the Producttype
 	 * @param callListeners whether to call the SetProducttype-Listeners
 	 */
@@ -314,7 +321,7 @@ public class Edge {
 
 	/**
 	 * Sets the sumState and calls the SetSumState-Listeners.
-	 * 
+	 *
 	 * @param sumState the sumState
 	 */
 	public synchronized void setSumState(Level sumState) {
@@ -323,7 +330,7 @@ public class Edge {
 
 	/**
 	 * Sets the version.
-	 * 
+	 *
 	 * @param sumState      the sumState
 	 * @param callListeners whether to call the SetSumState-Listeners
 	 */

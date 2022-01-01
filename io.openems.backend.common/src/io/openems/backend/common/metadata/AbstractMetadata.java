@@ -10,7 +10,7 @@ public abstract class AbstractMetadata extends AbstractOpenemsBackendComponent i
 
 	/**
 	 * Initializes the AbstractMetadata.
-	 * 
+	 *
 	 * @param name a descriptive name for this component. Available via
 	 *             {@link #getName()}
 	 */

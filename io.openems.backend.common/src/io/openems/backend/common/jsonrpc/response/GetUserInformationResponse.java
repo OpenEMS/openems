@@ -12,7 +12,7 @@ import io.openems.common.utils.ObjectUtils;
 
 /**
  * Represents a JSON-RPC Response for {@link GetUserInformationRequest}.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -48,7 +48,7 @@ public class GetUserInformationResponse extends JsonrpcResponseSuccess {
 
 	@Override
 	public JsonObject getResult() {
-		JsonObject companyJson = JsonUtils.buildJsonObject() //
+		var companyJson = JsonUtils.buildJsonObject() //
 				.addProperty("name", ObjectUtils.getAsString(this.userInformation.get("commercial_company_name"))) //
 				.build();
 
@@ -58,14 +58,14 @@ public class GetUserInformationResponse extends JsonrpcResponseSuccess {
 			country = ObjectUtils.getAsString(array[2]).toLowerCase();
 		}
 
-		JsonObject addressJson = JsonUtils.buildJsonObject() //
+		var addressJson = JsonUtils.buildJsonObject() //
 				.addProperty("street", ObjectUtils.getAsString(this.userInformation.get("street"))) //
 				.addProperty("zip", ObjectUtils.getAsString(this.userInformation.get("zip"))) //
 				.addProperty("city", ObjectUtils.getAsString(this.userInformation.get("city"))) //
 				.addProperty("country", country) //
 				.build();
 
-		JsonObject userJson = JsonUtils.buildJsonObject() //
+		var userJson = JsonUtils.buildJsonObject() //
 				.addProperty("firstname", ObjectUtils.getAsString(this.userInformation.get("firstname"))) //
 				.addProperty("lastname", ObjectUtils.getAsString(this.userInformation.get("lastname"))) //
 				.addProperty("email", ObjectUtils.getAsString(this.userInformation.get("email"))) //

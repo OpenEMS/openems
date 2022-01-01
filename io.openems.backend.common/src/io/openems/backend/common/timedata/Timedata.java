@@ -16,7 +16,7 @@ public interface Timedata extends CommonTimedataService {
 
 	/**
 	 * Sends the data points to the Timedata service.
-	 * 
+	 *
 	 * @param edgeId The unique Edge-ID
 	 * @param data   Table of timestamp (epoch in milliseconds), Channel-Address and
 	 *               the Channel value as JsonElement. Sorted by timestamp.
@@ -26,7 +26,7 @@ public interface Timedata extends CommonTimedataService {
 
 	/**
 	 * Gets the latest value for the given ChannelAddress.
-	 * 
+	 *
 	 * @param edgeId         The unique Edge-ID
 	 * @param channelAddress The Channel-Address
 	 * @return

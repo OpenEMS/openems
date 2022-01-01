@@ -11,7 +11,7 @@ public interface JsonRpcRequestHandler {
 
 	/**
 	 * Handles a JSON-RPC Request.
-	 * 
+	 *
 	 * @param context the Logger context, i.e. the name of the parent source
 	 * @param user    the User
 	 * @param request the JsonrpcRequest
