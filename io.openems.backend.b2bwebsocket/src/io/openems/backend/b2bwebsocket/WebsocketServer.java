@@ -40,7 +40,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	@Override
 	public OnNotification getOnNotification() {
-		return onNotification;
+		return this.onNotification;
 	}
 
 	@Override
