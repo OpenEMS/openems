@@ -22,7 +22,7 @@ public class UpdateSumState extends DatabaseTask {
 		PreparedStatement ps = this.psUpdateSumState(connection);
 		final String sumStateString;
 		if (this.sumState != null) {
-			sumStateString = sumState.getName().toLowerCase();
+			sumStateString = this.sumState.getName().toLowerCase();
 		} else {
 			sumStateString = "";
 		}
@@ -34,6 +34,7 @@ public class UpdateSumState extends DatabaseTask {
 	/**
 	 * UPDATE {} SET openems_sum_state_level = {} WHERE id = {};.
 	 * 
+	 * @param connection the {@link Connection}
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
 	 */

@@ -24,6 +24,7 @@ public class UpdateEdgeStateActive extends DatabaseTask {
 	/**
 	 * UPDATE {} SET state = 'active' WHERE id = {};.
 	 * 
+	 * @param connection the {@link Connection}
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
 	 */
