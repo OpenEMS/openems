@@ -19,7 +19,7 @@ public class UpdateSumState extends DatabaseTask {
 
 	@Override
 	protected void _execute(Connection connection) throws SQLException {
-		PreparedStatement ps = this.psUpdateSumState(connection);
+		var ps = this.psUpdateSumState(connection);
 		final String sumStateString;
 		if (this.sumState != null) {
 			sumStateString = this.sumState.getName().toLowerCase();
@@ -33,7 +33,7 @@ public class UpdateSumState extends DatabaseTask {
 
 	/**
 	 * UPDATE {} SET openems_sum_state_level = {} WHERE id = {};.
-	 * 
+	 *
 	 * @param connection the {@link Connection}
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
