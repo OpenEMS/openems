@@ -47,13 +47,13 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 		this.logInfo(this.log, "Deactivate");
 	}
 
+	@Override
 	public Optional<JsonElement> getChannelValue(String edgeId, ChannelAddress channelAddress) {
 		EdgeCache edgeCache = this.edgeCacheMap.get(edgeId);
 		if (edgeCache != null) {
 			return edgeCache.getChannelValue(channelAddress);
-		} else {
-			return Optional.empty();
 		}
+		return Optional.empty();
 	}
 
 	@Override
