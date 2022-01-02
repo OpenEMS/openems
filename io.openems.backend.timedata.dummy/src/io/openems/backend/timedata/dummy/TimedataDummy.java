@@ -38,12 +38,12 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 	}
 
 	@Activate
-	void activate(Config config) throws OpenemsException {
+	private void activate(Config config) throws OpenemsException {
 		this.logInfo(this.log, "Activate");
 	}
 
 	@Deactivate
-	void deactivate() {
+	private void deactivate() {
 		this.logInfo(this.log, "Deactivate");
 	}
 

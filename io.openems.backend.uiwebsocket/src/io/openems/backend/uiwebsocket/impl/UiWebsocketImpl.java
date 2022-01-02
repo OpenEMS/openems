@@ -61,13 +61,13 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	};
 
 	@Activate
-	void activate(Config config) {
+	private void activate(Config config) {
 		this.config = config;
 		this.metadata.addOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 	}
 
 	@Deactivate
-	void deactivate() {
+	private void deactivate() {
 		this.metadata.removeOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 		this.stopServer();
 	}

@@ -57,7 +57,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Activate
-	void activate(Config config) throws SQLException {
+	private void activate(Config config) throws SQLException {
 		this.logInfo(this.log, "Activate. " //
 				+ "Odoo [" + config.odooHost() + ":" + config.odooPort() + ";PW "
 				+ (config.odooPassword() != null ? "ok" : "NOT_SET") + "] " //
@@ -72,7 +72,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Deactivate
-	void deactivate() {
+	private void deactivate() {
 		this.logInfo(this.log, "Deactivate");
 		if (this.postgresHandler != null) {
 			this.postgresHandler.deactivate();

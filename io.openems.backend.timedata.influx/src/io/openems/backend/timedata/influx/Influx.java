@@ -65,7 +65,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	protected volatile Metadata metadata;
 
 	@Activate
-	void activate(Config config) throws OpenemsException {
+	private void activate(Config config) throws OpenemsException {
 		this.logInfo(this.log, "Activate [" + //
 				"url=" + config.url() + //
 				";port=" + config.port() + //
@@ -92,7 +92,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	}
 
 	@Deactivate
-	void deactivate() {
+	private void deactivate() {
 		this.logInfo(this.log, "Deactivate");
 		if (this.influxConnector != null) {
 			this.influxConnector.deactivate();
