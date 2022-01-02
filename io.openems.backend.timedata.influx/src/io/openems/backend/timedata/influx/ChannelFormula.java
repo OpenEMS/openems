@@ -37,7 +37,7 @@ public class ChannelFormula {
 	}
 
 	public Function getFunction() {
-		return function;
+		return this.function;
 	}
 
 }
