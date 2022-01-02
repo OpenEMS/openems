@@ -26,6 +26,12 @@ public class ChannelFormula {
 		this.staticValue = Optional.of(staticValue);
 	}
 
+	/**
+	 * Gets the Channel value.
+	 * 
+	 * @param cache an {@link EdgeCache}
+	 * @return the value
+	 */
 	public int getValue(EdgeCache cache) {
 		if (this.address.isPresent()) {
 			return cache.getChannelValue(this.address.get()).orElse(new JsonPrimitive(0)).getAsInt();

@@ -40,7 +40,7 @@ public class B2bWebsocketTest {
 	}
 
 	// @Test
-	public void testGetEdgesStatusRequest()
+	protected void testGetEdgesStatusRequest()
 			throws URISyntaxException, InterruptedException, ExecutionException, OpenemsNamedException {
 		var client = B2bWebsocketTest.prepareTestClient();
 
@@ -55,7 +55,7 @@ public class B2bWebsocketTest {
 	}
 
 	// @Test
-	public void testGetEdgesChannelsValuesRequest() throws URISyntaxException, InterruptedException {
+	protected void testGetEdgesChannelsValuesRequest() throws URISyntaxException, InterruptedException {
 		var client = B2bWebsocketTest.prepareTestClient();
 
 		var request = new GetEdgesChannelsValuesRequest();
@@ -72,7 +72,7 @@ public class B2bWebsocketTest {
 	}
 
 	// @Test
-	public void testSubscribeEdgesChannelsRequest()
+	protected void testSubscribeEdgesChannelsRequest()
 			throws URISyntaxException, InterruptedException, ExecutionException, OpenemsNamedException {
 		var client = B2bWebsocketTest.prepareTestClient();
 		client.setOnNotification((ws, notification) -> {
@@ -94,8 +94,8 @@ public class B2bWebsocketTest {
 		client.stop();
 	}
 
-//	@Test
-	public void testSetGridConnSchedule() throws URISyntaxException, InterruptedException {
+	// @Test
+	protected void testSetGridConnSchedule() throws URISyntaxException, InterruptedException {
 		var client = B2bWebsocketTest.prepareTestClient();
 
 		var request = new SetGridConnScheduleRequest("edge0");

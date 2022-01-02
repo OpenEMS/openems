@@ -9,6 +9,7 @@ import java.util.concurrent.TimeoutException;
 
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.utils.StringUtils;
@@ -32,6 +33,14 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return this.isAuthenticated;
 	}
 
+	/**
+	 * Asserts that the User is authenticated within a timeout.
+	 * 
+	 * @param message a identification message on error
+	 * @param timeout the timeout length
+	 * @param unit    the {@link TimeUnit} of the timeout
+	 * @throws OpenemsNamedException on error
+	 */
 	public void assertAuthenticatedWithTimeout(JsonrpcMessage message, long timeout, TimeUnit unit)
 			throws OpenemsException {
 		try {
@@ -79,6 +88,13 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return Optional.empty();
 	}
 
+	/**
+	 * Asserts that the Edge-ID is present.
+	 * 
+	 * @param message a identification message on error
+	 * @return the Edge-ID
+	 * @throws OpenemsException on error
+	 */
 	public String assertEdgeId(JsonrpcMessage message) throws OpenemsException {
 		if (this.edgeId.isPresent()) {
 			return this.edgeId.get();

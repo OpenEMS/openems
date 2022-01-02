@@ -66,16 +66,16 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 	@Activate
 	private void activate(Config config) throws OpenemsException {
-		this.logInfo(this.log, "Activate [" + //
-				"url=" + config.url() + //
-				";port=" + config.port() + //
-				";database=" + config.database() + //
-				";retentionPolicy=" + config.retentionPolicy() + //
-				";username=" + config.username() + //
-				";password=" + (config.password() != null ? "ok" : "NOT_SET") + //
-				";measurement=" + config.measurement() + //
-				(config.isReadOnly() ? ";READ_ONLY_MODE" : "") + //
-				"]");
+		this.logInfo(this.log, "Activate [" //
+				+ "url=" + config.url() + ";"//
+				+ "port=" + config.port() + ";" //
+				+ "database=" + config.database() + ";"//
+				+ "retentionPolicy=" + config.retentionPolicy() + ";"//
+				+ "username=" + config.username() + ";"//
+				+ "password=" + (config.password() != null ? "ok" : "NOT_SET") + ";"//
+				+ "measurement=" + config.measurement() //
+				+ (config.isReadOnly() ? ";READ_ONLY_MODE" : "") //
+				+ "]");
 
 		this.influxConnector = new InfluxConnector(config.url(), config.port(), config.username(), config.password(),
 				config.database(), config.retentionPolicy(), config.isReadOnly(), //
@@ -156,6 +156,16 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		}
 	}
 
+	/**
+	 * Parses the number of an Edge from its name string.
+	 * 
+	 * <p>
+	 * e.g. translates "edge0" to "0".
+	 * 
+	 * @param name the edge name
+	 * @return the number
+	 * @throws OpenemsException on error
+	 */
 	public static Integer parseNumberFromName(String name) throws OpenemsException {
 		try {
 			var matcher = Influx.NAME_NUMBER_PATTERN.matcher(name);
@@ -203,7 +213,6 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @param builder the Influx PointBuilder
 	 * @param field   the field name
 	 * @param element the value
-	 * @return
 	 */
 	private void addValue(Builder builder, String field, JsonElement element) {
 		if (element == null || element.isJsonNull()) {

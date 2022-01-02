@@ -53,6 +53,12 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 		return new WsData(this);
 	}
 
+	/**
+	 * Is the given Edge online?.
+	 * 
+	 * @param edgeId the Edge-ID
+	 * @return true if it is online.
+	 */
 	public boolean isOnline(String edgeId) {
 		final Optional<String> edgeIdOpt = Optional.of(edgeId);
 		return this.getConnections().parallelStream().anyMatch(

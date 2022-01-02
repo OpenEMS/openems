@@ -35,6 +35,14 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return this.user;
 	}
 
+	/**
+	 * Gets the logged in User with a timeout.
+	 * 
+	 * @param timeout the timeout length
+	 * @param unit    the {@link TimeUnit} of the timeout
+	 * @return the {@link User}
+	 * @throws OpenemsNamedException on error
+	 */
 	public User getUserWithTimeout(long timeout, TimeUnit unit) throws OpenemsNamedException {
 		try {
 			return this.user.get(timeout, unit);

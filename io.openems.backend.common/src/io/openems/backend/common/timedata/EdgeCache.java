@@ -30,10 +30,22 @@ public class EdgeCache {
 
 	private final HashMap<ChannelAddress, JsonElement> cacheData = new HashMap<>();
 
-	public synchronized final Optional<JsonElement> getChannelValue(ChannelAddress address) {
+	/**
+	 * Gets the channel value from cache.
+	 * 
+	 * @param address the {@link ChannelAddress} of the channel
+	 * @return the value; empty if it is not in cache
+	 */
+	public final synchronized Optional<JsonElement> getChannelValue(ChannelAddress address) {
 		return Optional.ofNullable(this.cacheData.get(address));
 	}
 
+	/**
+	 * Updates the 'incoming data' with the data from the cache.
+	 * 
+	 * @param edgeId        the Edge-ID
+	 * @param incomingDatas the incoming data
+	 */
 	public synchronized void complementDataFromCache(String edgeId,
 			SortedMap<Long, Map<ChannelAddress, JsonElement>> incomingDatas) {
 		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : incomingDatas.entrySet()) {

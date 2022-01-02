@@ -131,8 +131,9 @@ public class SystemLogHandler {
 		}
 
 		if (isAnySubscriptionForThisEdgeLeft) {
-
+			return;
 		}
+
 		// send unsubscribe to Edge
 		try {
 			this.parent.send(edgeId, user, SubscribeSystemLogRequest.unsubscribe());

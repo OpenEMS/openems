@@ -17,7 +17,7 @@ import com.google.gson.JsonElement;
  */
 public class FieldTypeConflictHandler {
 
-	private final static Pattern FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN = Pattern.compile(
+	private static final Pattern FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN = Pattern.compile(
 			"^partial write: field type conflict: input field \"(?<channel>.*)\" on measurement \"data\" is type (?<thisType>\\w+), already exists as type (?<requiredType>\\w+) dropped=\\d+$");
 
 	private final Logger log = LoggerFactory.getLogger(FieldTypeConflictHandler.class);
@@ -32,8 +32,7 @@ public class FieldTypeConflictHandler {
 	 * Handles a {@link FieldTypeConflictException}; adds special handling for
 	 * fields that already exist in the database.
 	 *
-	 * @param failedPoints the failed points
-	 * @param e            the {@link FieldTypeConflictException}
+	 * @param e the {@link FieldTypeConflictException}
 	 */
 	public synchronized void handleException(FieldTypeConflictException e) {
 		var matcher = FieldTypeConflictHandler.FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN.matcher(e.getMessage());
@@ -108,7 +107,7 @@ public class FieldTypeConflictHandler {
 	}
 
 	/**
-	 * Convert JsonElement to String
+	 * Convert JsonElement to String.
 	 *
 	 * @param jValue the value
 	 * @return the value as String; null if value represents null
@@ -121,7 +120,7 @@ public class FieldTypeConflictHandler {
 	}
 
 	/**
-	 * Convert JsonElement to Number
+	 * Convert JsonElement to Number.
 	 *
 	 * @param jValue the value
 	 * @return the value as Number; null if value represents null
@@ -149,7 +148,7 @@ public class FieldTypeConflictHandler {
 	}
 
 	/**
-	 * Convert JsonElement to Float
+	 * Convert JsonElement to Float.
 	 *
 	 * @param jValue the value
 	 * @return the value as Float; null if value represents null

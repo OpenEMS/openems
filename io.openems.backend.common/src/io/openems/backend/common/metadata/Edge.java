@@ -66,6 +66,11 @@ public class Edge {
 		return this.config;
 	}
 
+	/**
+	 * Gets this {@link Edge} as {@link JsonObject}.
+	 * 
+	 * @return a {@link JsonObject}
+	 */
 	public JsonObject toJsonObject() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("id", this.id) //
@@ -96,6 +101,11 @@ public class Edge {
 	 */
 	private final List<Consumer<Boolean>> onSetOnline = new CopyOnWriteArrayList<>();
 
+	/**
+	 * Add a Listener for Set-Online events.
+	 * 
+	 * @param listener the listener
+	 */
 	public void onSetOnline(Consumer<Boolean> listener) {
 		this.onSetOnline.add(listener);
 	}
@@ -167,6 +177,11 @@ public class Edge {
 	 */
 	private final List<Runnable> onSetLastMessageTimestamp = new CopyOnWriteArrayList<>();
 
+	/**
+	 * Add a Listener for Set-Last-Message events.
+	 * 
+	 * @param listener the listener
+	 */
 	public void onSetLastMessage(Runnable listener) {
 		this.onSetLastMessageTimestamp.add(listener);
 	}
@@ -200,6 +215,11 @@ public class Edge {
 	 */
 	private final List<Runnable> onSetLastUpdateTimestamp = new CopyOnWriteArrayList<>();
 
+	/**
+	 * Add a Listener for Set-Last-Update events.
+	 * 
+	 * @param listener the listener
+	 */
 	public void onSetLastUpdate(Runnable listener) {
 		this.onSetLastUpdateTimestamp.add(listener);
 	}
@@ -237,6 +257,11 @@ public class Edge {
 
 	private final List<Consumer<SemanticVersion>> onSetVersion = new CopyOnWriteArrayList<>();
 
+	/**
+	 * Add a Listener for Set-Version events.
+	 * 
+	 * @param listener the listener
+	 */
 	public void onSetVersion(Consumer<SemanticVersion> listener) {
 		this.onSetVersion.add(listener);
 	}
@@ -276,6 +301,11 @@ public class Edge {
 
 	private final List<Consumer<String>> onSetProducttype = new CopyOnWriteArrayList<>();
 
+	/**
+	 * Add a Listener for Set-Product-Type events.
+	 * 
+	 * @param listener the listener
+	 */
 	public void onSetProducttype(Consumer<String> listener) {
 		this.onSetProducttype.add(listener);
 	}
@@ -315,6 +345,11 @@ public class Edge {
 
 	private final List<Consumer<Level>> onSetSumState = new CopyOnWriteArrayList<>();
 
+	/**
+	 * Add a Listener for Set-Sum-State events.
+	 * 
+	 * @param listener the listener
+	 */
 	public void onSetSumState(Consumer<Level> listener) {
 		this.onSetSumState.add(listener);
 	}

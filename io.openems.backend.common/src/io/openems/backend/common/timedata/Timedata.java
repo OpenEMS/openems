@@ -20,7 +20,7 @@ public interface Timedata extends CommonTimedataService {
 	 * @param edgeId The unique Edge-ID
 	 * @param data   Table of timestamp (epoch in milliseconds), Channel-Address and
 	 *               the Channel value as JsonElement. Sorted by timestamp.
-	 * @throws OpenemsException
+	 * @throws OpenemsException on error
 	 */
 	public void write(String edgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException;
 
@@ -29,7 +29,7 @@ public interface Timedata extends CommonTimedataService {
 	 *
 	 * @param edgeId         The unique Edge-ID
 	 * @param channelAddress The Channel-Address
-	 * @return
+	 * @return the value
 	 */
 	public Optional<JsonElement> getChannelValue(String edgeId, ChannelAddress channelAddress);
 

@@ -106,6 +106,9 @@ public class SubscribedEdgesChannelsWorker {
 		}
 	}
 
+	/**
+	 * Dispose and deactivate this worker.
+	 */
 	public void dispose() {
 		// unsubscribe regular task
 		if (this.futureOpt.isPresent()) {

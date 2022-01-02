@@ -32,6 +32,13 @@ public class SubscribeEdgesChannelsRequest extends JsonrpcRequest {
 
 	public static final String METHOD = "subscribeEdgesChannels";
 
+	/**
+	 * Builds a {@link SubscribeEdgesChannelsRequest} from a {@link JsonrpcRequest}.
+	 * 
+	 * @param r the {@link JsonrpcRequest}
+	 * @return the {@link SubscribeEdgesChannelsRequest}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static SubscribeEdgesChannelsRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		var p = r.getParams();
 		var count = JsonUtils.getAsInt(p, "count");
@@ -48,6 +55,13 @@ public class SubscribeEdgesChannelsRequest extends JsonrpcRequest {
 		return result;
 	}
 
+	/**
+	 * Builds a {@link SubscribeEdgesChannelsRequest} from a {@link JsonObject}.
+	 * 
+	 * @param j the {@link JsonObject}
+	 * @return the {@link SubscribeEdgesChannelsRequest}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static SubscribeEdgesChannelsRequest from(JsonObject j) throws OpenemsNamedException {
 		return SubscribeEdgesChannelsRequest.from(GenericJsonrpcRequest.from(j));
 	}
@@ -66,10 +80,20 @@ public class SubscribeEdgesChannelsRequest extends JsonrpcRequest {
 		this.count = count;
 	}
 
+	/**
+	 * Adds an Edge-ID.
+	 * 
+	 * @param edgeId the Edge-ID.
+	 */
 	public void addEdgeId(String edgeId) {
 		this.edgeIds.add(edgeId);
 	}
 
+	/**
+	 * Removes an Edge-ID.
+	 * 
+	 * @param edgeId the Edge-ID
+	 */
 	public void removeEdgeId(String edgeId) {
 		this.edgeIds.remove(edgeId);
 	}
@@ -78,6 +102,11 @@ public class SubscribeEdgesChannelsRequest extends JsonrpcRequest {
 		return this.edgeIds;
 	}
 
+	/**
+	 * Adds a Channel.
+	 * 
+	 * @param address the {@link ChannelAddress}
+	 */
 	public void addChannel(ChannelAddress address) {
 		this.channels.add(address);
 	}

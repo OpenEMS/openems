@@ -37,6 +37,13 @@ public class EdgesCurrentDataNotification extends JsonrpcNotification {
 		super(EdgesCurrentDataNotification.METHOD);
 	}
 
+	/**
+	 * Adds a value to the notification.
+	 * 
+	 * @param edgeId  the Edge-ID
+	 * @param channel the {@link ChannelAddress}
+	 * @param value   the value
+	 */
 	public void addValue(String edgeId, ChannelAddress channel, JsonElement value) {
 		this.values.put(edgeId, channel, value);
 	}
