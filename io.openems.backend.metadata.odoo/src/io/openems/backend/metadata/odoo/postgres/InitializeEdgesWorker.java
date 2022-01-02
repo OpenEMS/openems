@@ -2,7 +2,6 @@ package io.openems.backend.metadata.odoo.postgres;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,7 +49,7 @@ public class InitializeEdgesWorker {
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 	}
 
-	private Consumer<InitializeEdgesWorker> task = (self) -> {
+	private final Consumer<InitializeEdgesWorker> task = self -> {
 		/*
 		 * First: mark all Edges as offline
 		 */
@@ -97,7 +96,7 @@ public class InitializeEdgesWorker {
 
 	/**
 	 * SELECT {} FROM {edge.device};.
-	 * 
+	 *
 	 * @param connection the {@link Connection}
 	 * @return the {@link PreparedStatement}
 	 * @throws SQLException on error
@@ -111,7 +110,7 @@ public class InitializeEdgesWorker {
 
 	/**
 	 * UPDATE {} SET openems_is_connected = FALSE;.
-	 * 
+	 *
 	 * @param connection the {@link Connection}
 	 * @return the {@link PreparedStatement}
 	 * @throws SQLException on error

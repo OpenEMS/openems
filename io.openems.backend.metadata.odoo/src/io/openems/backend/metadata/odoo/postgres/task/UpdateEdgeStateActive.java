@@ -16,14 +16,14 @@ public class UpdateEdgeStateActive extends DatabaseTask {
 
 	@Override
 	protected void _execute(Connection connection) throws SQLException {
-		PreparedStatement ps = this.psUpdateEdgeStateActive(connection);
+		var ps = this.psUpdateEdgeStateActive(connection);
 		ps.setInt(1, this.odooId);
 		ps.execute();
 	}
 
 	/**
 	 * UPDATE {} SET state = 'active' WHERE id = {};.
-	 * 
+	 *
 	 * @param connection the {@link Connection}
 	 * @return the PreparedStatement
 	 * @throws SQLException on error

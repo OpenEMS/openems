@@ -7,42 +7,42 @@ public interface Field {
 
 	/**
 	 * Gets the Field ID.
-	 * 
+	 *
 	 * @return the ID
 	 */
 	public String id();
 
 	/**
 	 * Gets the Field index.
-	 * 
+	 *
 	 * @return the index
 	 */
 	public int index();
 
 	/**
 	 * Gets the Field name.
-	 * 
+	 *
 	 * @return the name
 	 */
 	public String name();
 
 	/**
 	 * Should this Field be queried?.
-	 * 
+	 *
 	 * @return true if yes
 	 */
 	public boolean isQuery();
 
 	/**
 	 * Gets all fields that should be queried as a comma separated string.
-	 * 
+	 *
 	 * @param fields an array of {@link Field}s
 	 * @return the String
 	 */
 	public static String getSqlQueryFields(Field[] fields) {
 		return Stream.of(fields) //
-				.filter(f -> f.isQuery()) //
-				.map(f -> f.id()) //
+				.filter(Field::isQuery) //
+				.map(Field::id) //
 				.collect(Collectors.joining(","));
 	}
 
@@ -66,7 +66,7 @@ public interface Field {
 		OPENEMS_IS_CONNECTED("openems_is_connected", false);
 
 		public static final String ODOO_MODEL = "openems.edge";
-		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = EdgeDevice.ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -99,6 +99,7 @@ public interface Field {
 			return this.queryIndex;
 		}
 
+		@Override
 		public boolean isQuery() {
 			return this.query;
 		}
@@ -119,7 +120,7 @@ public interface Field {
 		ACKNOWLEDGE_DAYS("acknowledge_days", false);
 
 		public static final String ODOO_MODEL = "openems.edge_status";
-		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = EdgeDeviceStatus.ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -153,6 +154,7 @@ public interface Field {
 			return this.queryIndex;
 		}
 
+		@Override
 		public boolean isQuery() {
 			return this.query;
 		}
@@ -168,7 +170,7 @@ public interface Field {
 		DETAILS("details", false);
 
 		public static final String ODOO_MODEL = "openems.openemsconfigupdate";
-		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = EdgeConfigUpdate.ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -202,6 +204,7 @@ public interface Field {
 			return this.queryIndex;
 		}
 
+		@Override
 		public boolean isQuery() {
 			return this.query;
 		}
@@ -217,7 +220,7 @@ public interface Field {
 		ROLE("role", false);
 
 		public static final String ODOO_MODEL = "openems.edge_user_role";
-		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = EdgeDeviceUserRole.ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -268,7 +271,7 @@ public interface Field {
 		OPENEMS_LANGUAGE("openems_language", true);
 
 		public static final String ODOO_MODEL = "res.users";
-		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = User.ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -327,7 +330,7 @@ public interface Field {
 		LANGUAGE("lang", true);
 
 		public static final String ODOO_MODEL = "res.partner";
-		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = Partner.ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -374,7 +377,7 @@ public interface Field {
 		CODE("code", true);
 
 		public static final String ODOO_MODEL = "res.country";
-		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = Country.ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -422,7 +425,7 @@ public interface Field {
 		EDGE("edge_id", true);
 
 		public static final String ODOO_MODEL = "openems.setup_protocol";
-		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = SetupProtocol.ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -469,7 +472,7 @@ public interface Field {
 		LOT("lot_id", true);
 
 		public static final String ODOO_MODEL = "openems.setup_protocol_production_lot";
-		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = SetupProtocolProductionLot.ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -515,7 +518,7 @@ public interface Field {
 		SEQUENCE("sequence", true);
 
 		public static final String ODOO_MODEL = "openems.setup_protocol_item";
-		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = SetupProtocolItem.ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -561,7 +564,7 @@ public interface Field {
 		PRODUCT("product_id", true);
 
 		public static final String ODOO_MODEL = "stock.production.lot";
-		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = StockProductionLot.ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
