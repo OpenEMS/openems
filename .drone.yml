@@ -9,7 +9,7 @@ pipeline:
       - cache:/cache
 
   build-ui:
-    image: node:14-alpine
+    image: node:16-alpine
     commands:
       - cd ui
       - npm ci --prefer-offline --cache /drone/.npm
