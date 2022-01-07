@@ -12,7 +12,7 @@ public class PgUtils {
 
 	/**
 	 * Adds a message in Odoo Chatter ('mail.thread').
-	 * 
+	 *
 	 * @param credentials the Odoo credentials
 	 * @param model       Odoo model (e.g. 'res.partner')
 	 * @param id          id of model
@@ -25,7 +25,7 @@ public class PgUtils {
 
 	/**
 	 * Update a record in Odoo.
-	 * 
+	 *
 	 * @param credentials the Odoo credentials
 	 * @param model       the Odoo model
 	 * @param ids         ids of model to update
@@ -38,7 +38,7 @@ public class PgUtils {
 
 	/**
 	 * Return the Field of the ResultSet.
-	 * 
+	 *
 	 * @param rs    the ResultSet
 	 * @param field the EdgeDevice
 	 * @return the value as String
@@ -46,17 +46,16 @@ public class PgUtils {
 	 * @throws OpenemsException on null
 	 */
 	public static String getAsString(ResultSet rs, Field field) throws SQLException, OpenemsException {
-		String result = rs.getString(field.index());
+		var result = rs.getString(field.index());
 		if (result != null) {
 			return result;
-		} else {
-			throw new OpenemsException("Value of field [" + field.name() + "] is null.");
 		}
+		throw new OpenemsException("Value of field [" + field.name() + "] is null.");
 	}
 
 	/**
 	 * Return the Field of the ResultSet; or default value on error.
-	 * 
+	 *
 	 * @param rs    the ResultSet
 	 * @param field the EdgeDevice field
 	 * @param other the default value
@@ -72,7 +71,7 @@ public class PgUtils {
 
 	/**
 	 * Return the Field of the ResultSet.
-	 * 
+	 *
 	 * @param rs    the ResultSet
 	 * @param field the EdgeDevice
 	 * @return the value as Integer
@@ -84,7 +83,7 @@ public class PgUtils {
 
 	/**
 	 * Return the Field of the ResultSet; or default value on error.
-	 * 
+	 *
 	 * @param rs    the ResultSet
 	 * @param field the EdgeDevice field
 	 * @param other the default value

@@ -12,12 +12,12 @@ public class RegisterUserRequest extends JsonrpcRequest {
 
 	/**
 	 * Create {@link RegisterUserRequest} from a template {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param request the template {@link JsonrpcRequest}
 	 * @return Created {@link RegisterUserRequest}
 	 */
 	public static RegisterUserRequest from(JsonrpcRequest request) throws OpenemsNamedException {
-		JsonObject params = request.getParams();
+		var params = request.getParams();
 
 		return new RegisterUserRequest(request, JsonUtils.getAsJsonObject(params, "user"));
 	}
@@ -25,7 +25,7 @@ public class RegisterUserRequest extends JsonrpcRequest {
 	private final JsonObject jsonObject;
 
 	private RegisterUserRequest(JsonrpcRequest request, JsonObject jsonObject) {
-		super(request, METHOD);
+		super(request, RegisterUserRequest.METHOD);
 		this.jsonObject = jsonObject;
 	}
 
@@ -36,7 +36,7 @@ public class RegisterUserRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the User Registration information as {@link JsonObject}.
-	 * 
+	 *
 	 * @return the {@link JsonObject}
 	 */
 	public JsonObject getJsonObject() {

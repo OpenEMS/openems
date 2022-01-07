@@ -9,7 +9,7 @@ public class Credentials {
 
 	/**
 	 * Creates {@link Credentials} from a {@link Config}uration.
-	 * 
+	 *
 	 * @param config the configuration
 	 * @return a new {@link Credentials} object
 	 */

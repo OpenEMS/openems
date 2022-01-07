@@ -15,7 +15,7 @@ public interface UiWebsocket {
 	/**
 	 * Send a JSON-RPC Request to a UI session via WebSocket and expect a JSON-RPC
 	 * Response.
-	 * 
+	 *
 	 * @param token   the UI token
 	 * @param request the JsonrpcRequest
 	 * @return the JSON-RPC Success Response Future
@@ -26,7 +26,7 @@ public interface UiWebsocket {
 
 	/**
 	 * Send a JSON-RPC Notification to a UI session.
-	 * 
+	 *
 	 * @param token        the UI token
 	 * @param notification the JsonrpcNotification
 	 * @throws OpenemsNamedException on error
@@ -36,7 +36,7 @@ public interface UiWebsocket {
 	/**
 	 * Send a JSON-RPC Notification broadcast to all UI sessions with a given
 	 * Edge-ID.
-	 * 
+	 *
 	 * @param edgeId       the Edge-ID
 	 * @param notification the JsonrpcNotification
 	 * @throws OpenemsNamedException on error

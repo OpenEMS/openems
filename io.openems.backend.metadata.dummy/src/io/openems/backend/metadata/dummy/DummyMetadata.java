@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.osgi.service.component.annotations.Activate;
@@ -61,24 +60,24 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Activate
-	void activate() {
+	private void activate() {
 		this.logInfo(this.log, "Activate");
 	}
 
 	@Deactivate
-	void deactivate() {
+	private void deactivate() {
 		this.logInfo(this.log, "Deactivate");
 	}
 
 	@Override
 	public User authenticate(String username, String password) throws OpenemsNamedException {
-		String name = "User #" + this.nextUserId.incrementAndGet();
-		String token = UUID.randomUUID().toString();
-		TreeMap<String, Role> roles = new TreeMap<>();
+		var name = "User #" + this.nextUserId.incrementAndGet();
+		var token = UUID.randomUUID().toString();
+		var roles = new TreeMap<String, Role>();
 		for (String edgeId : this.edges.keySet()) {
 			roles.put(edgeId, Role.ADMIN);
 		}
-		User user = new User(username, name, token, Role.ADMIN, roles, this.defaultLanguage.name());
+		var user = new User(username, name, token, Role.ADMIN, roles, this.defaultLanguage.name());
 		this.users.put(user.getId(), user);
 		return user;
 	}
@@ -100,28 +99,27 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 
 	@Override
 	public Optional<String> getEdgeIdForApikey(String apikey) {
-		Optional<MyEdge> edgeOpt = this.edges.values().stream() //
+		var edgeOpt = this.edges.values().stream() //
 				.filter(edge -> apikey.equals(edge.getApikey())) //
 				.findFirst();
 		if (edgeOpt.isPresent()) {
 			return Optional.ofNullable(edgeOpt.get().getId());
 		}
 		// not found. Is apikey a valid Edge-ID?
-		Optional<Integer> idOpt = DummyMetadata.parseNumberFromName(apikey);
+		var idOpt = DummyMetadata.parseNumberFromName(apikey);
 		int id;
 		String edgeId;
 		String setupPassword;
 		if (idOpt.isPresent()) {
 			edgeId = apikey;
 			id = idOpt.get();
-			setupPassword = edgeId;
 		} else {
 			// create new ID
 			id = this.nextEdgeId.incrementAndGet();
 			edgeId = "edge" + id;
-			setupPassword = edgeId;
 		}
-		MyEdge edge = new MyEdge(edgeId, apikey, setupPassword, "OpenEMS Edge #" + id, State.ACTIVE, "", "", Level.OK,
+		setupPassword = edgeId;
+		var edge = new MyEdge(edgeId, apikey, setupPassword, "OpenEMS Edge #" + id, State.ACTIVE, "", "", Level.OK,
 				new EdgeConfig());
 		edge.onSetConfig(config -> {
 			this.logInfo(this.log, "Edge [" + edgeId + "]. Update config: "
@@ -134,11 +132,11 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 
 	@Override
 	public Optional<Edge> getEdgeBySetupPassword(String setupPassword) {
-		Optional<MyEdge> optEdge = this.edges.values().stream()
-				.filter(edge -> edge.getSetupPassword().equals(setupPassword)).findFirst();
+		var edgeOpt = this.edges.values().stream().filter(edge -> edge.getSetupPassword().equals(setupPassword))
+				.findFirst();
 
-		if (optEdge.isPresent()) {
-			MyEdge edge = optEdge.get();
+		if (edgeOpt.isPresent()) {
+			var edge = edgeOpt.get();
 			return Optional.of(edge);
 		}
 
@@ -163,9 +161,9 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 
 	private static Optional<Integer> parseNumberFromName(String name) {
 		try {
-			Matcher matcher = NAME_NUMBER_PATTERN.matcher(name);
+			var matcher = DummyMetadata.NAME_NUMBER_PATTERN.matcher(name);
 			if (matcher.find()) {
-				String nameNumberString = matcher.group(1);
+				var nameNumberString = matcher.group(1);
 				return Optional.ofNullable(Integer.parseInt(nameNumberString));
 			}
 		} catch (NullPointerException e) {

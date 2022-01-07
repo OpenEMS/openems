@@ -15,8 +15,8 @@ import com.google.gson.JsonObject;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component.Channel;
@@ -28,32 +28,32 @@ public interface Metadata {
 
 	/**
 	 * Was the Metadata service fully initialized?.
-	 * 
+	 *
 	 * <p>
 	 * The service might take some time in the beginning to establish a connection
 	 * or to cache data from an external database.
-	 * 
+	 *
 	 * @return true if it is initialized
 	 */
 	public boolean isInitialized();
 
 	/**
 	 * See {@link #isInitialized()}.
-	 * 
+	 *
 	 * @param callback the callback on 'isInitialized'
 	 */
 	public void addOnIsInitializedListener(Runnable callback);
 
 	/**
 	 * See {@link #isInitialized()}.
-	 * 
+	 *
 	 * @param callback the callback on 'isInitialized'
 	 */
 	public void removeOnIsInitializedListener(Runnable callback);
 
 	/**
 	 * Authenticates the User by username and password.
-	 * 
+	 *
 	 * @param username the Username
 	 * @param password the Password
 	 * @return the {@link User}
@@ -63,7 +63,7 @@ public interface Metadata {
 
 	/**
 	 * Authenticates the User by a Token.
-	 * 
+	 *
 	 * @param token the Token
 	 * @return the {@link User}
 	 * @throws OpenemsNamedException on error
@@ -72,14 +72,14 @@ public interface Metadata {
 
 	/**
 	 * Closes a session for a User.
-	 * 
+	 *
 	 * @param user the {@link User}
 	 */
 	public void logout(User user);
 
 	/**
 	 * Gets the Edge-ID for an API-Key, i.e. authenticates the API-Key.
-	 * 
+	 *
 	 * @param apikey the API-Key
 	 * @return the Edge-ID or Empty
 	 */
@@ -87,7 +87,7 @@ public interface Metadata {
 
 	/**
 	 * Get an Edge by its unique Edge-ID.
-	 * 
+	 *
 	 * @param edgeId the Edge-ID
 	 * @return the Edge as Optional
 	 */
@@ -96,23 +96,22 @@ public interface Metadata {
 	/**
 	 * Get an Edge by its unique Edge-ID. Throws an Exception if there is no Edge
 	 * with this ID.
-	 * 
+	 *
 	 * @param edgeId the Edge-ID
 	 * @return the Edge
 	 * @throws OpenemsException on error
 	 */
 	public default Edge getEdgeOrError(String edgeId) throws OpenemsException {
-		Optional<Edge> edgeOpt = this.getEdge(edgeId);
+		var edgeOpt = this.getEdge(edgeId);
 		if (edgeOpt.isPresent()) {
 			return edgeOpt.get();
-		} else {
-			throw new OpenemsException("Unable to get Edge for id [" + edgeId + "]");
 		}
+		throw new OpenemsException("Unable to get Edge for id [" + edgeId + "]");
 	}
 
 	/**
 	 * Get an Edge by Edge-SetupPassword.
-	 * 
+	 *
 	 * @param setupPassword to find Edge
 	 * @return Edge as a Optional
 	 */
@@ -120,7 +119,7 @@ public interface Metadata {
 
 	/**
 	 * Gets the User for the given User-ID.
-	 * 
+	 *
 	 * @param userId the User-ID
 	 * @return the {@link User}, or Empty
 	 */
@@ -128,29 +127,29 @@ public interface Metadata {
 
 	/**
 	 * Gets all Edges.
-	 * 
+	 *
 	 * @return collection of Edges.
 	 */
 	public abstract Collection<Edge> getAllEdges();
 
 	/**
 	 * Assigns Edge with given setupPassword to the logged in user and returns it.
-	 * 
+	 *
 	 * <p>
 	 * If the setupPassword is invalid, an OpenemsNamedException is thrown.
-	 * 
+	 *
 	 * @param user          the {@link User}
 	 * @param setupPassword the Setup-Password
 	 * @return the Edge for the given Setup-Password
 	 * @throws OpenemsNamedException on error
 	 */
 	public default Edge addEdgeToUser(User user, String setupPassword) throws OpenemsNamedException {
-		Optional<Edge> optEdge = this.getEdgeBySetupPassword(setupPassword);
-		if (!optEdge.isPresent()) {
+		var edgeOpt = this.getEdgeBySetupPassword(setupPassword);
+		if (!edgeOpt.isPresent()) {
 			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 		}
 
-		Edge edge = optEdge.get();
+		var edge = edgeOpt.get();
 		this.addEdgeToUser(user, edge);
 
 		return edge;
@@ -158,10 +157,10 @@ public interface Metadata {
 
 	/**
 	 * Assigns Edge to current user.
-	 * 
+	 *
 	 * <p>
 	 * If assignment fails, an OpenemsNamedException is thrown.
-	 * 
+	 *
 	 * @param user The {@link User}
 	 * @param edge The {@link Edge}
 	 *
@@ -171,7 +170,7 @@ public interface Metadata {
 
 	/**
 	 * Helper method for creating a String of all active State-Channels by Level.
-	 * 
+	 *
 	 * @param activeStateChannels Map of ChannelAddress and
 	 *                            EdgeConfig.Component.Channel; as returned by
 	 *                            Edge.onSetSumState()
@@ -180,11 +179,11 @@ public interface Metadata {
 	public static String activeStateChannelsToString(
 			Map<ChannelAddress, EdgeConfig.Component.Channel> activeStateChannels) {
 		// Sort active State-Channels by Level and Component-ID
-		HashMap<Level, HashMultimap<String, Channel>> states = new HashMap<>();
+		var states = new HashMap<Level, HashMultimap<String, Channel>>();
 		for (Entry<ChannelAddress, Channel> entry : activeStateChannels.entrySet()) {
 			ChannelDetail detail = entry.getValue().getDetail();
 			if (detail instanceof ChannelDetailState) {
-				Level level = ((ChannelDetailState) detail).getLevel();
+				var level = ((ChannelDetailState) detail).getLevel();
 				HashMultimap<String, Channel> channelsByComponent = states.get(level);
 				if (channelsByComponent == null) {
 					channelsByComponent = HashMultimap.create();
@@ -195,15 +194,15 @@ public interface Metadata {
 						entry.getValue());
 			}
 		}
-		StringBuilder result = new StringBuilder();
+		var result = new StringBuilder();
 		for (Level level : Level.values()) {
-			HashMultimap<String, Channel> channelsByComponent = states.get(level);
+			var channelsByComponent = states.get(level);
 			if (channelsByComponent != null) {
 				if (result.length() > 0) {
 					result.append("| ");
 				}
 				result.append(level.name() + ": ");
-				StringBuilder subResult = new StringBuilder();
+				var subResult = new StringBuilder();
 				for (Entry<String, Collection<Channel>> entry : channelsByComponent.asMap().entrySet()) {
 					if (subResult.length() > 0) {
 						subResult.append("; ");
@@ -213,9 +212,8 @@ public interface Metadata {
 							.map(channel -> {
 								if (!channel.getText().isEmpty()) {
 									return channel.getText();
-								} else {
-									return channel.getId();
 								}
+								return channel.getId();
 							}) //
 							.collect(Collectors.joining(", ")));
 				}
@@ -227,7 +225,7 @@ public interface Metadata {
 
 	/**
 	 * Gets information about the given user {@link User}.
-	 * 
+	 *
 	 * @param user {@link User} to read information
 	 * @return {@link Map} about the user
 	 * @throws OpenemsNamedException on error
@@ -236,7 +234,7 @@ public interface Metadata {
 
 	/**
 	 * Update the given user {@link User} with new information {@link JsonObject}.
-	 * 
+	 *
 	 * @param user       {@link User} to update
 	 * @param jsonObject {@link JsonObject} information about the user
 	 * @throws OpenemsNamedException on error
@@ -245,7 +243,7 @@ public interface Metadata {
 
 	/**
 	 * Returns the Setup Protocol PDF for the given id.
-	 * 
+	 *
 	 * @param user            {@link User} the current user
 	 * @param setupProtocolId the setup protocol id to search
 	 * @return the Setup Protocol PDF as a byte array
@@ -255,7 +253,7 @@ public interface Metadata {
 
 	/**
 	 * Submit the installation assistant protocol.
-	 * 
+	 *
 	 * @param user       {@link User} the current user
 	 * @param jsonObject {@link JsonObject} the setup protocol
 	 * @return id of created setup protocol
@@ -265,7 +263,7 @@ public interface Metadata {
 
 	/**
 	 * Register a user.
-	 * 
+	 *
 	 * @param jsonObject {@link JsonObject} that represents an user
 	 * @throws OpenemsNamedException on error
 	 */
@@ -273,7 +271,7 @@ public interface Metadata {
 
 	/**
 	 * Update language from given user.
-	 * 
+	 *
 	 * @param user     {@link User} the current user
 	 * @param language to set language
 	 * @throws OpenemsNamedException on error

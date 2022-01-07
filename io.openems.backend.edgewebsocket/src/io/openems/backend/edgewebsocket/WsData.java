@@ -9,6 +9,7 @@ import java.util.concurrent.TimeoutException;
 
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.utils.StringUtils;
@@ -16,7 +17,7 @@ import io.openems.common.utils.StringUtils;
 public class WsData extends io.openems.common.websocket.WsData {
 
 	private final WebsocketServer parent;
-	private CompletableFuture<Boolean> isAuthenticated = new CompletableFuture<Boolean>();
+	private final CompletableFuture<Boolean> isAuthenticated = new CompletableFuture<>();
 	private Optional<String> apikey = Optional.empty();
 	private Optional<String> edgeId = Optional.empty();
 
@@ -32,6 +33,14 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return this.isAuthenticated;
 	}
 
+	/**
+	 * Asserts that the User is authenticated within a timeout.
+	 * 
+	 * @param message a identification message on error
+	 * @param timeout the timeout length
+	 * @param unit    the {@link TimeUnit} of the timeout
+	 * @throws OpenemsNamedException on error
+	 */
 	public void assertAuthenticatedWithTimeout(JsonrpcMessage message, long timeout, TimeUnit unit)
 			throws OpenemsException {
 		try {
@@ -53,7 +62,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	public synchronized Optional<String> getApikey() {
-		return apikey;
+		return this.apikey;
 	}
 
 	public synchronized void setEdgeId(String edgeId) {
@@ -61,43 +70,50 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	public synchronized Optional<String> getEdgeId() {
-		return edgeId;
+		return this.edgeId;
 	}
 
 	/**
 	 * Gets the Edge.
-	 * 
+	 *
 	 * @param metadata the Metadata service
 	 * @return the Edge or Optional.Empty if the Edge-ID was not set or it is not
 	 *         available from Metadata service
 	 */
 	public synchronized Optional<Edge> getEdge(Metadata metadata) {
-		Optional<String> edgeId = this.getEdgeId();
+		var edgeId = this.getEdgeId();
 		if (edgeId.isPresent()) {
-			Optional<Edge> edge = metadata.getEdge(edgeId.get());
-			return edge;
+			return metadata.getEdge(edgeId.get());
 		}
 		return Optional.empty();
 	}
 
+	/**
+	 * Asserts that the Edge-ID is present.
+	 * 
+	 * @param message a identification message on error
+	 * @return the Edge-ID
+	 * @throws OpenemsException on error
+	 */
 	public String assertEdgeId(JsonrpcMessage message) throws OpenemsException {
 		if (this.edgeId.isPresent()) {
 			return this.edgeId.get();
-		} else {
-			throw new OpenemsException(
-					"EdgeId is not set. Unable to handle " + StringUtils.toShortString(message.toString(), 100));
 		}
+		throw new OpenemsException(
+				"EdgeId is not set. Unable to handle " + StringUtils.toShortString(message.toString(), 100));
 	}
 
 	@Override
 	public String toString() {
-		return "EdgeWebsocket.WsData [apikey=" + apikey.orElse("UNKNOWN") + ", edgeId=" + edgeId.orElse("UNKNOWN")
+		return "EdgeWebsocket.WsData [" //
+				+ "apikey=" + this.apikey.orElse("UNKNOWN") + ", " //
+				+ "edgeId=" + this.edgeId.orElse("UNKNOWN") //
 				+ "]";
 	}
 
 	/**
 	 * Gets an Id of this Edge - either the Edge-ID or the Apikey or "UNKNOWN".
-	 * 
+	 *
 	 * @return the Id
 	 */
 	private String getId() {

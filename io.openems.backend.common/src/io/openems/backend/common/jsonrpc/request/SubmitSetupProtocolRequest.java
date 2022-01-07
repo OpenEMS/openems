@@ -8,7 +8,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Submits the Setup Protocol.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -18,7 +18,7 @@ import io.openems.common.utils.JsonUtils;
  *     "protocol": {
  *       "edge": {
  *         "id": string
- *       }, 
+ *       },
  *       "customer": {
  *         "firstname": string,
  *         "lastname": string,
@@ -71,20 +71,20 @@ public class SubmitSetupProtocolRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link SubmitSetupProtocolRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param request the template {@link JsonrpcRequest}
 	 * @return Created {@link SubmitSetupProtocolRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static SubmitSetupProtocolRequest from(JsonrpcRequest request) throws OpenemsNamedException {
-		JsonObject params = request.getParams();
+		var params = request.getParams();
 		return new SubmitSetupProtocolRequest(request, JsonUtils.getAsJsonObject(params, "protocol"));
 	}
 
 	private final JsonObject jsonObject;
 
 	private SubmitSetupProtocolRequest(JsonrpcRequest request, JsonObject jsonObject) {
-		super(request, METHOD);
+		super(request, SubmitSetupProtocolRequest.METHOD);
 		this.jsonObject = jsonObject;
 	}
 
@@ -95,7 +95,7 @@ public class SubmitSetupProtocolRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the Setup Protocol information as {@link JsonObject}.
-	 * 
+	 *
 	 * @return the {@link JsonObject}
 	 */
 	public JsonObject getJsonObject() {
