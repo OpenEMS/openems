@@ -7,7 +7,7 @@ import io.openems.edge.common.statemachine.AbstractContext;
 public class Context extends AbstractContext<FeneconHomeBattery> {
 
 	/**
-	 * The Battery-Start-Up-Relay Channel used to start the battery; possibly null
+	 * The Battery-Start-Up-Relay Channel used to start the battery; possibly null.
 	 */
 	protected final BooleanWriteChannel batteryStartUpRelayChannel;
 
