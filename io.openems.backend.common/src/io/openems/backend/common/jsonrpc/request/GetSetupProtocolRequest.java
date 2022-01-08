@@ -13,12 +13,12 @@ public class GetSetupProtocolRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link GetSetupProtocolRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param request the template {@link JsonrpcRequest}
 	 * @return Created {@link GetSetupProtocolRequest}
 	 */
 	public static GetSetupProtocolRequest from(JsonrpcRequest request) throws OpenemsNamedException {
-		JsonObject params = request.getParams();
+		var params = request.getParams();
 
 		return new GetSetupProtocolRequest(request, JsonUtils.getAsInt(params, "setupProtocolId"));
 	}
@@ -26,7 +26,7 @@ public class GetSetupProtocolRequest extends JsonrpcRequest {
 	private final int setupProtocolId;
 
 	private GetSetupProtocolRequest(JsonrpcRequest request, int setupProtocolId) {
-		super(request, METHOD);
+		super(request, GetSetupProtocolRequest.METHOD);
 		this.setupProtocolId = setupProtocolId;
 	}
 
@@ -39,7 +39,7 @@ public class GetSetupProtocolRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the Setup Protocol ID.
-	 * 
+	 *
 	 * @return the Setup Protocol ID
 	 */
 	public int getSetupProtocolId() {

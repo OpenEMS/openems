@@ -8,7 +8,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Sets the User Information.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -41,13 +41,13 @@ public class SetUserInformationRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link SetUserInformationRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param request the template {@link JsonrpcRequest}
 	 * @return Created {@link SetUserInformationRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static SetUserInformationRequest from(JsonrpcRequest request) throws OpenemsNamedException {
-		JsonObject params = request.getParams();
+		var params = request.getParams();
 
 		return new SetUserInformationRequest(request, JsonUtils.getAsJsonObject(params, "user"));
 	}
@@ -55,7 +55,7 @@ public class SetUserInformationRequest extends JsonrpcRequest {
 	private final JsonObject jsonObject;
 
 	private SetUserInformationRequest(JsonrpcRequest request, JsonObject jsonObject) {
-		super(request, METHOD);
+		super(request, SetUserInformationRequest.METHOD);
 		this.jsonObject = jsonObject;
 	}
 
@@ -66,7 +66,7 @@ public class SetUserInformationRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the User Information as {@link JsonObject}.
-	 * 
+	 *
 	 * @return the {@link JsonObject}
 	 */
 	public JsonObject getJsonObject() {

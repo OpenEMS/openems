@@ -49,7 +49,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	@Override
 	public OnNotification getOnNotification() {
-		return onNotification;
+		return this.onNotification;
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	@Override
 	protected JsonrpcMessage handleNonJsonrpcMessage(String stringMessage, OpenemsNamedException lastException)
 			throws OpenemsNamedException {
-		log.info("UiWs. handleNonJsonrpcMessage: " + stringMessage);
+		this.log.info("UiWs. handleNonJsonrpcMessage: " + stringMessage);
 		throw new OpenemsException("UiWs. handleNonJsonrpcMessage", lastException);
 	}
 

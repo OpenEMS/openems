@@ -1,13 +1,10 @@
 package io.openems.backend.edgewebsocket;
 
-import java.util.Optional;
-
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.CloseFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.common.metadata.Edge;
 import io.openems.common.exceptions.OpenemsException;
 
 public class OnClose implements io.openems.common.websocket.OnClose {
@@ -23,15 +20,15 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 	public void run(WebSocket ws, int code, String reason, boolean remote) throws OpenemsException {
 		// get edgeId from websocket
 		WsData wsData = ws.getAttachment();
-		Optional<String> edgeIdOpt = wsData.getEdgeId();
+		var edgeIdOpt = wsData.getEdgeId();
 		String edgeId;
 		if (edgeIdOpt.isPresent()) {
 			edgeId = edgeIdOpt.get();
-			Optional<Edge> edgeOpt = this.parent.metadata.getEdge(edgeId);
+			var edgeOpt = this.parent.metadata.getEdge(edgeId);
 			// if there is no other websocket connection for this edgeId -> announce Edge as
 			// offline
 			if (edgeOpt.isPresent()) {
-				boolean isOnline = this.parent.isOnline(edgeId);
+				var isOnline = this.parent.isOnline(edgeId);
 				edgeOpt.get().setOnline(isOnline);
 			}
 

@@ -26,7 +26,7 @@ public class UpdateEdgeConfig extends DatabaseTask {
 
 	@Override
 	protected void _execute(Connection connection) throws SQLException {
-		PreparedStatement ps = this.psUpdateEdgeConfig(connection);
+		var ps = this.psUpdateEdgeConfig(connection);
 		ps.setString(1, this.fullConfig);
 		ps.setString(2, this.componentsConfig);
 		ps.setInt(3, this.odooId);
@@ -36,7 +36,7 @@ public class UpdateEdgeConfig extends DatabaseTask {
 	/**
 	 * UPDATE {} SET openems_config = {}, openems_config_components = {} WHERE id =
 	 * {};.
-	 * 
+	 *
 	 * @param connection the {@link Connection}
 	 * @return the PreparedStatement
 	 * @throws SQLException on error

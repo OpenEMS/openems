@@ -2,7 +2,6 @@ package io.openems.backend.timedata.influx;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.influxdb.InfluxDBException.FieldTypeConflictException;
@@ -18,7 +17,7 @@ import com.google.gson.JsonElement;
  */
 public class FieldTypeConflictHandler {
 
-	private final static Pattern FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN = Pattern.compile(
+	private static final Pattern FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN = Pattern.compile(
 			"^partial write: field type conflict: input field \"(?<channel>.*)\" on measurement \"data\" is type (?<thisType>\\w+), already exists as type (?<requiredType>\\w+) dropped=\\d+$");
 
 	private final Logger log = LoggerFactory.getLogger(FieldTypeConflictHandler.class);
@@ -32,19 +31,18 @@ public class FieldTypeConflictHandler {
 	/**
 	 * Handles a {@link FieldTypeConflictException}; adds special handling for
 	 * fields that already exist in the database.
-	 * 
-	 * @param failedPoints the failed points
-	 * @param e            the {@link FieldTypeConflictException}
+	 *
+	 * @param e the {@link FieldTypeConflictException}
 	 */
 	public synchronized void handleException(FieldTypeConflictException e) {
-		Matcher matcher = FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN.matcher(e.getMessage());
+		var matcher = FieldTypeConflictHandler.FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN.matcher(e.getMessage());
 		if (!matcher.find()) {
 			this.parent.logWarn(this.log, "Unable to add special field handler for message [" + e.getMessage() + "]");
 			return;
 		}
-		String field = matcher.group("channel");
-		String thisType = matcher.group("thisType");
-		String requiredType = matcher.group("requiredType");
+		var field = matcher.group("channel");
+		var thisType = matcher.group("thisType");
+		var requiredType = matcher.group("requiredType");
 
 		if (this.specialCaseFieldHandlers.containsKey(field)) {
 			// Special handling had already been added.
@@ -55,7 +53,7 @@ public class FieldTypeConflictHandler {
 		switch (requiredType) {
 		case "string":
 			handler = (builder, jValue) -> {
-				String value = this.getAsFieldTypeString(jValue);
+				var value = this.getAsFieldTypeString(jValue);
 				if (value != null) {
 					builder.addField(field, value);
 				}
@@ -65,14 +63,14 @@ public class FieldTypeConflictHandler {
 		case "integer":
 			handler = (builder, jValue) -> {
 				try {
-					Number value = this.getAsFieldTypeNumber(jValue);
+					var value = this.getAsFieldTypeNumber(jValue);
 					if (value != null) {
 						builder.addField(field, value);
 					}
 				} catch (NumberFormatException e1) {
 					try {
 						// Failed -> try conversion to float and then to int
-						Float value = this.getAsFieldTypeFloat(jValue);
+						var value = this.getAsFieldTypeFloat(jValue);
 						if (value != null) {
 							builder.addField(field, Math.round(value));
 						}
@@ -87,7 +85,7 @@ public class FieldTypeConflictHandler {
 		case "float":
 			handler = (builder, jValue) -> {
 				try {
-					Float value = this.getAsFieldTypeFloat(jValue);
+					var value = this.getAsFieldTypeFloat(jValue);
 					if (value != null) {
 						builder.addField(field, value);
 					}
@@ -102,17 +100,15 @@ public class FieldTypeConflictHandler {
 		if (handler == null) {
 			this.parent.logWarn(this.log, "Unable to add special field handler for [" + field + "] from [" + thisType
 					+ "] to [" + requiredType + "]");
-			return;
-		} else {
-			this.parent.logInfo(this.log,
-					"Add special field handler for [" + field + "] from [" + thisType + "] to [" + requiredType + "]");
-			this.specialCaseFieldHandlers.put(field, handler);
 		}
+		this.parent.logInfo(this.log,
+				"Add special field handler for [" + field + "] from [" + thisType + "] to [" + requiredType + "]");
+		this.specialCaseFieldHandlers.put(field, handler);
 	}
 
 	/**
-	 * Convert JsonElement to String
-	 * 
+	 * Convert JsonElement to String.
+	 *
 	 * @param jValue the value
 	 * @return the value as String; null if value represents null
 	 */
@@ -124,8 +120,8 @@ public class FieldTypeConflictHandler {
 	}
 
 	/**
-	 * Convert JsonElement to Number
-	 * 
+	 * Convert JsonElement to Number.
+	 *
 	 * @param jValue the value
 	 * @return the value as Number; null if value represents null
 	 * @throws NumberFormatException on error
@@ -134,7 +130,7 @@ public class FieldTypeConflictHandler {
 		if (jValue.isJsonNull()) {
 			return null;
 		}
-		String value = jValue.toString().replace("\"", "");
+		var value = jValue.toString().replace("\"", "");
 		if (value.isEmpty()) {
 			return null;
 		}
@@ -142,9 +138,9 @@ public class FieldTypeConflictHandler {
 			return Long.parseLong(value);
 		} catch (NumberFormatException e1) {
 			if (value.equalsIgnoreCase("false")) {
-				return 0l;
+				return 0L;
 			} else if (value.equalsIgnoreCase("true")) {
-				return 1l;
+				return 1L;
 			} else {
 				throw e1;
 			}
@@ -152,8 +148,8 @@ public class FieldTypeConflictHandler {
 	}
 
 	/**
-	 * Convert JsonElement to Float
-	 * 
+	 * Convert JsonElement to Float.
+	 *
 	 * @param jValue the value
 	 * @return the value as Float; null if value represents null
 	 * @throws NumberFormatException on error
@@ -162,7 +158,7 @@ public class FieldTypeConflictHandler {
 		if (jValue.isJsonNull()) {
 			return null;
 		}
-		String value = jValue.toString().replace("\"", "");
+		var value = jValue.toString().replace("\"", "");
 		if (value.isEmpty()) {
 			return null;
 		}
@@ -171,7 +167,7 @@ public class FieldTypeConflictHandler {
 
 	/**
 	 * Gets the handler for the given Field.
-	 * 
+	 *
 	 * @param field the Field
 	 * @return the handler or null
 	 */

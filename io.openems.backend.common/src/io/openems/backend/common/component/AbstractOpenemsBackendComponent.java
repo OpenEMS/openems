@@ -9,7 +9,7 @@ public class AbstractOpenemsBackendComponent {
 
 	/**
 	 * Initializes the AbstractOpenemsBackendComponent.
-	 * 
+	 *
 	 * @param name a descriptive name for this component. Available via
 	 *             {@link #getName()}
 	 */
@@ -19,7 +19,7 @@ public class AbstractOpenemsBackendComponent {
 
 	/**
 	 * A descriptive name for this component.
-	 * 
+	 *
 	 * @return the name
 	 */
 	public String getName() {
@@ -28,7 +28,7 @@ public class AbstractOpenemsBackendComponent {
 
 	/**
 	 * Log an info message including the Component ID.
-	 * 
+	 *
 	 * @param log     the Logger that is used for writing the log
 	 * @param message the Info-message
 	 */
@@ -38,7 +38,7 @@ public class AbstractOpenemsBackendComponent {
 
 	/**
 	 * Log a warn message including the Component ID.
-	 * 
+	 *
 	 * @param log     the Logger that is used for writing the log
 	 * @param message the Warn-message
 	 */
@@ -48,7 +48,7 @@ public class AbstractOpenemsBackendComponent {
 
 	/**
 	 * Log an error message including the Component ID.
-	 * 
+	 *
 	 * @param log     the Logger that is used for writing the log
 	 * @param message the Error-message
 	 */
@@ -58,7 +58,7 @@ public class AbstractOpenemsBackendComponent {
 
 	/**
 	 * Log a debug message including the Component ID.
-	 * 
+	 *
 	 * @param log     the Logger that is used for writing the log
 	 * @param message the Debug-message
 	 */

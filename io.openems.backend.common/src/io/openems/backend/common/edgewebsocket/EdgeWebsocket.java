@@ -17,7 +17,7 @@ public interface EdgeWebsocket {
 	/**
 	 * Send an authenticated JSON-RPC Request to an Edge via Websocket and expect a
 	 * JSON-RPC Response.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the authenticated {@link User}
 	 * @param request the {@link JsonrpcRequest}
@@ -29,7 +29,7 @@ public interface EdgeWebsocket {
 
 	/**
 	 * Send a JSON-RPC Notification to an Edge.
-	 * 
+	 *
 	 * @param edgeId       the Edge-ID
 	 * @param notification the JsonrpcNotification
 	 * @throws OpenemsNamedException on error
@@ -38,7 +38,7 @@ public interface EdgeWebsocket {
 
 	/**
 	 * Handles a {@link SubscribeSystemLogRequest}.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User}
 	 * @param token   the UI session token
