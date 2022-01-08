@@ -16,11 +16,11 @@ import io.openems.edge.common.startstop.StartStoppable;
 
 /**
  * Represents a Battery.
- * 
+ *
  * <p>
  * To indicate, that the Battery is ready for charging/discharging, the
  * following Channels need to be set:
- * 
+ *
  * <ul>
  * <li>StartStoppable.ChannelId.START_STOP must be set to 'START'
  * <li>No 'Fault'-StateChannels are set (i.e. 'OpenemsComponent.ChannelId.STATE'
@@ -33,10 +33,10 @@ import io.openems.edge.common.startstop.StartStoppable;
 public interface Battery extends StartStoppable, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		
+
 		/**
 		 * State of Charge.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
@@ -64,7 +64,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 
 		/**
 		 * Voltage of battery.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
@@ -77,7 +77,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 
 		/**
 		 * Current of battery.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
@@ -90,7 +90,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 
 		/**
 		 * Capacity of battery.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
@@ -103,7 +103,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 
 		/**
 		 * Maximal voltage for charging.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
@@ -116,7 +116,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 
 		/**
 		 * Maximum current for charging.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
@@ -130,7 +130,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 
 		/**
 		 * Minimal voltage for discharging.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
@@ -143,7 +143,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 
 		/**
 		 * Maximum current for discharging.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
@@ -184,7 +184,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 
 		/**
 		 * Minimal cell voltage.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
@@ -196,7 +196,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 
 		/**
 		 * Maximum cell voltage.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
@@ -221,7 +221,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 
 	/**
 	 * Gets the ModbusSlaveNatureTable.
-	 * 
+	 *
 	 * @param accessMode the {@link AccessMode}
 	 * @return ModbusSlaveNatureTable
 	 */
