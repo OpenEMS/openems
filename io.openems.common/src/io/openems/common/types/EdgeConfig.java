@@ -30,7 +30,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig.Component.JsonFormat;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
 
 /**
  * Holds the configuration of an Edge.
@@ -52,14 +51,14 @@ public class EdgeConfig {
 			public static interface ChannelDetail {
 				/**
 				 * Gets the {@link ChannelCategory} of the Channel.
-				 * 
+				 *
 				 * @return the {@link ChannelCategory}
 				 */
 				public ChannelCategory getCategory();
 
 				/**
 				 * Gets the {@link ChannelDetail} as {@link JsonObject}.
-				 * 
+				 *
 				 * @return the {@link JsonObject}
 				 */
 				public JsonObject toJson();
@@ -102,7 +101,7 @@ public class EdgeConfig {
 
 				/**
 				 * Gets a Map of all the options of an EnumChannel.
-				 * 
+				 *
 				 * @return the Map of options
 				 */
 				public Map<String, JsonElement> getOptions() {
@@ -111,7 +110,7 @@ public class EdgeConfig {
 
 				@Override
 				public JsonObject toJson() {
-					JsonObject options = new JsonObject();
+					var options = new JsonObject();
 					for (Entry<String, JsonElement> entry : this.options.entrySet()) {
 						options.add(entry.getKey(), entry.getValue());
 					}
@@ -134,7 +133,7 @@ public class EdgeConfig {
 
 				/**
 				 * Gets the {@link Level} of the StateChannel.
-				 * 
+				 *
 				 * @return the {@link Level}
 				 */
 				public Level getLevel() {
@@ -156,18 +155,18 @@ public class EdgeConfig {
 
 			/**
 			 * Creates a Channel from JSON.
-			 * 
+			 *
 			 * @param channelId the Channel-ID
 			 * @param json      the JSON
 			 * @return the Channel
 			 * @throws OpenemsNamedException on error
 			 */
 			public static Channel fromJson(String channelId, JsonElement json) throws OpenemsNamedException {
-				OpenemsType type = JsonUtils.getAsEnum(OpenemsType.class, json, "type");
-				Optional<String> accessModeAbbrOpt = JsonUtils.getAsOptionalString(json, "accessMode");
-				AccessMode accessMode = AccessMode.READ_ONLY;
+				var type = JsonUtils.getAsEnum(OpenemsType.class, json, "type");
+				var accessModeAbbrOpt = JsonUtils.getAsOptionalString(json, "accessMode");
+				var accessMode = AccessMode.READ_ONLY;
 				if (accessModeAbbrOpt.isPresent()) {
-					String accessModeAbbr = accessModeAbbrOpt.get();
+					var accessModeAbbr = accessModeAbbrOpt.get();
 					for (AccessMode thisAccessMode : AccessMode.values()) {
 						if (accessModeAbbr.equals(thisAccessMode.getAbbreviation())) {
 							accessMode = thisAccessMode;
@@ -175,7 +174,7 @@ public class EdgeConfig {
 						}
 					}
 				}
-				String text = JsonUtils.getAsOptionalString(json, "text").orElse("");
+				var text = JsonUtils.getAsOptionalString(json, "text").orElse("");
 				Unit unit = JsonUtils.getAsOptionalEnum(Unit.class, json, "unit").orElse(Unit.NONE);
 				ChannelCategory category = JsonUtils.getAsOptionalEnum(ChannelCategory.class, json, "category")
 						.orElse(ChannelCategory.OPENEMS_TYPE);
@@ -188,7 +187,7 @@ public class EdgeConfig {
 
 				case ENUM: {
 					Map<String, JsonElement> values = new HashMap<>();
-					Optional<JsonObject> optionsOpt = JsonUtils.getAsOptionalJsonObject(json, "options");
+					var optionsOpt = JsonUtils.getAsOptionalJsonObject(json, "options");
 					if (optionsOpt.isPresent()) {
 						for (Entry<String, JsonElement> entry : optionsOpt.get().entrySet()) {
 							values.put(entry.getKey(), entry.getValue());
@@ -229,7 +228,7 @@ public class EdgeConfig {
 
 			/**
 			 * Gets the Channel-ID.
-			 * 
+			 *
 			 * @return the Channel-ID.
 			 */
 			public String getId() {
@@ -238,7 +237,7 @@ public class EdgeConfig {
 
 			/**
 			 * Gets the {@link OpenemsType} of the Channel.
-			 * 
+			 *
 			 * @return the {@link OpenemsType}
 			 */
 			public OpenemsType getType() {
@@ -247,7 +246,7 @@ public class EdgeConfig {
 
 			/**
 			 * Gets the {@link AccessMode} of the Channel.
-			 * 
+			 *
 			 * @return the {@link AccessMode}
 			 */
 			public AccessMode getAccessMode() {
@@ -256,7 +255,7 @@ public class EdgeConfig {
 
 			/**
 			 * Gets the descriptive text of the Channel.
-			 * 
+			 *
 			 * @return the descriptive text
 			 */
 			public String getText() {
@@ -265,7 +264,7 @@ public class EdgeConfig {
 
 			/**
 			 * Gets the {@link Unit} of the Channel.
-			 * 
+			 *
 			 * @return the {@link Unit}
 			 */
 			public Unit getUnit() {
@@ -274,7 +273,7 @@ public class EdgeConfig {
 
 			/**
 			 * Gets the specific {@link ChannelDetail} object of the Channel.
-			 * 
+			 *
 			 * @return the {@link ChannelDetail}
 			 */
 			public ChannelDetail getDetail() {
@@ -283,7 +282,7 @@ public class EdgeConfig {
 
 			/**
 			 * Gets the JSON representation of this Channel.
-			 * 
+			 *
 			 * @return a JsonObject
 			 */
 			public JsonObject toJson() {
@@ -316,7 +315,7 @@ public class EdgeConfig {
 
 		/**
 		 * Gets the PID of the {@link Component}.
-		 * 
+		 *
 		 * @return the PID
 		 */
 		public String getPid() {
@@ -325,7 +324,7 @@ public class EdgeConfig {
 
 		/**
 		 * Gets the ID of the {@link Component}, e.g. 'ctrlDebugLog0'.
-		 * 
+		 *
 		 * @return the Component-ID
 		 */
 		public String getId() {
@@ -334,7 +333,7 @@ public class EdgeConfig {
 
 		/**
 		 * Gets the Alias of the {@link Component}.
-		 * 
+		 *
 		 * @return the Alias
 		 */
 		public String getAlias() {
@@ -343,7 +342,7 @@ public class EdgeConfig {
 
 		/**
 		 * Gets the Factory-ID of the {@link Component}, e.g. 'Controller.Debug.Log'.
-		 * 
+		 *
 		 * @return the Factory-ID
 		 */
 		public String getFactoryId() {
@@ -352,7 +351,7 @@ public class EdgeConfig {
 
 		/**
 		 * Gets the Properties of the {@link Component}.
-		 * 
+		 *
 		 * @return the Properties
 		 */
 		public Map<String, JsonElement> getProperties() {
@@ -361,7 +360,7 @@ public class EdgeConfig {
 
 		/**
 		 * Gets the Property with the given ID.
-		 * 
+		 *
 		 * @param propertyId the Property-ID
 		 * @return the Property as {@link Optional}
 		 */
@@ -371,7 +370,7 @@ public class EdgeConfig {
 
 		/**
 		 * Gets a map of {@link Channel}s of the {@link Component}.
-		 * 
+		 *
 		 * @return the map of {@link Channel}s by their Channel-IDs.
 		 */
 		public Map<String, Channel> getChannels() {
@@ -385,7 +384,7 @@ public class EdgeConfig {
 
 		/**
 		 * Gets the Channels of the given {@link ChannelCategory}.
-		 * 
+		 *
 		 * @param channelCategory the {@link ChannelCategory}
 		 * @return a map of {@link Channel}s
 		 */
@@ -397,7 +396,7 @@ public class EdgeConfig {
 
 		/**
 		 * Gets the StateChannels.
-		 * 
+		 *
 		 * @return the StateChannels
 		 */
 		public Map<String, Channel> getStateChannels() {
@@ -406,7 +405,7 @@ public class EdgeConfig {
 
 		/**
 		 * Is the given Channel-ID a StateChannel?.
-		 * 
+		 *
 		 * @param channelId the Channel-ID
 		 * @return true if it is a StateChannel
 		 */
@@ -421,7 +420,7 @@ public class EdgeConfig {
 
 		/**
 		 * Get the StateChannel with the given Channel-ID.
-		 * 
+		 *
 		 * @param channelId the Channel-ID
 		 * @return the Channel; or empty if the Channel does not exist or is not a
 		 *         StateChannel.
@@ -433,13 +432,13 @@ public class EdgeConfig {
 					entry.getKey().equals(channelId)
 							/* is of type StateChannel */
 							&& entry.getValue().getDetail().getCategory() == ChannelCategory.STATE) //
-					.map(entry -> entry.getValue()) //
+					.map(Entry::getValue) //
 					.findFirst();
 		}
 
 		/**
 		 * Returns the Component configuration as a JSON Object.
-		 * 
+		 *
 		 * <pre>
 		 * {
 		 *   alias: string,
@@ -452,16 +451,16 @@ public class EdgeConfig {
 		 *   }
 		 * }
 		 * </pre>
-		 * 
+		 *
 		 * @param jsonFormat the {@link JsonFormat}
 		 * @return configuration as a JSON Object
 		 */
 		public JsonObject toJson(JsonFormat jsonFormat) {
-			JsonObject properties = new JsonObject();
+			var properties = new JsonObject();
 			for (Entry<String, JsonElement> property : this.getProperties().entrySet()) {
 				properties.add(property.getKey(), property.getValue());
 			}
-			JsonObjectBuilder result = JsonUtils.buildJsonObject() //
+			var result = JsonUtils.buildJsonObject() //
 					.addProperty("alias", this.getAlias()) //
 					.addProperty("factoryId", this.getFactoryId()) //
 					.add("properties", properties); //
@@ -470,7 +469,7 @@ public class EdgeConfig {
 				break;
 
 			case COMPLETE:
-				JsonObject channels = new JsonObject();
+				var channels = new JsonObject();
 				for (Entry<String, Channel> channel : this.getChannels().entrySet()) {
 					channels.add(channel.getKey(), channel.getValue().toJson());
 				}
@@ -486,24 +485,24 @@ public class EdgeConfig {
 
 		/**
 		 * Creates a Component from JSON.
-		 * 
+		 *
 		 * @param componentId the Component-ID
 		 * @param json        the JSON
 		 * @return the Component
 		 * @throws OpenemsNamedException on error
 		 */
 		public static Component fromJson(String componentId, JsonElement json) throws OpenemsNamedException {
-			String alias = JsonUtils.getAsOptionalString(json, "alias").orElse(componentId);
-			String factoryId = JsonUtils.getAsOptionalString(json, "factoryId").orElse("NO_FACTORY_ID");
-			TreeMap<String, JsonElement> properties = new TreeMap<>();
-			Optional<JsonObject> jPropertiesOpt = JsonUtils.getAsOptionalJsonObject(json, "properties");
+			var alias = JsonUtils.getAsOptionalString(json, "alias").orElse(componentId);
+			var factoryId = JsonUtils.getAsOptionalString(json, "factoryId").orElse("NO_FACTORY_ID");
+			var properties = new TreeMap<String, JsonElement>();
+			var jPropertiesOpt = JsonUtils.getAsOptionalJsonObject(json, "properties");
 			if (jPropertiesOpt.isPresent()) {
 				for (Entry<String, JsonElement> entry : jPropertiesOpt.get().entrySet()) {
 					properties.put(entry.getKey(), entry.getValue());
 				}
 			}
-			TreeMap<String, Channel> channels = new TreeMap<>();
-			Optional<JsonObject> jChannelsOpt = JsonUtils.getAsOptionalJsonObject(json, "channels");
+			var channels = new TreeMap<String, Channel>();
+			var jChannelsOpt = JsonUtils.getAsOptionalJsonObject(json, "channels");
 			if (jChannelsOpt.isPresent()) {
 				for (Entry<String, JsonElement> entry : jChannelsOpt.get().entrySet()) {
 					channels.put(entry.getKey(), Channel.fromJson(entry.getKey(), entry.getValue()));
@@ -526,30 +525,29 @@ public class EdgeConfig {
 
 		/**
 		 * Creates a {@link Factory} from an {@link ObjectClassDefinition}.
-		 * 
+		 *
 		 * @param factoryId the Factory-ID
 		 * @param ocd       the {@link ObjectClassDefinition}
 		 * @param natureIds the Nature-IDs
 		 * @return a {@link Factory}
 		 */
 		public static Factory create(String factoryId, ObjectClassDefinition ocd, String[] natureIds) {
-			String name = ocd.getName();
-			String description = ocd.getDescription();
-			List<Property> properties = new ArrayList<>();
-			properties.addAll(Factory.toProperties(ocd));
+			var name = ocd.getName();
+			var description = ocd.getDescription();
+			List<Property> properties = new ArrayList<>(Factory.toProperties(ocd));
 			return new Factory(factoryId, name, description, properties.toArray(new Property[properties.size()]),
 					natureIds);
 		}
 
 		/**
 		 * Parses a {@link ObjectClassDefinition} to a list of {@link Property}s.
-		 * 
+		 *
 		 * @param ocd the {@link ObjectClassDefinition}
 		 * @return a list of {@link Property}s
 		 */
 		public static List<Property> toProperties(ObjectClassDefinition ocd) {
 			List<Property> properties = new ArrayList<>();
-			AttributeDefinition[] ads = ocd.getAttributeDefinitions(ObjectClassDefinition.ALL);
+			var ads = ocd.getAttributeDefinitions(ObjectClassDefinition.ALL);
 			if (ads != null) {
 				for (AttributeDefinition ad : ads) {
 					if (ad.getID().endsWith(".target")) {
@@ -597,12 +595,12 @@ public class EdgeConfig {
 
 			/**
 			 * Creates a {@link Property} from an {@link AttributeDefinition}.
-			 * 
+			 *
 			 * @param ad the {@link AttributeDefinition}
 			 * @return the {@link Property}
 			 */
 			public static Property from(AttributeDefinition ad) {
-				String description = ad.getDescription();
+				var description = ad.getDescription();
 				if (description == null) {
 					description = "";
 				}
@@ -634,11 +632,11 @@ public class EdgeConfig {
 					type = OpenemsType.STRING;
 					break;
 				default:
-					LOG.warn("AttributeDefinition type [" + ad.getType() + "] is unknown!");
+					EdgeConfig.LOG.warn("AttributeDefinition type [" + ad.getType() + "] is unknown!");
 					type = OpenemsType.STRING;
 				}
 
-				String[] defaultValues = ad.getDefaultValue();
+				var defaultValues = ad.getDefaultValue();
 				JsonElement defaultValue;
 				if (defaultValues == null) {
 					defaultValue = JsonNull.INSTANCE;
@@ -653,7 +651,7 @@ public class EdgeConfig {
 
 				} else {
 					// Array Type
-					JsonArray defaultValueArray = new JsonArray();
+					var defaultValueArray = new JsonArray();
 					for (String value : defaultValues) {
 						defaultValueArray.add(JsonUtils.getAsJsonElement(value));
 					}
@@ -661,14 +659,14 @@ public class EdgeConfig {
 				}
 
 				JsonObject schema;
-				int cardinality = Math.abs(ad.getCardinality());
+				var cardinality = Math.abs(ad.getCardinality());
 				if (cardinality > 1) {
 					schema = JsonUtils.buildJsonObject() //
 							.addProperty("type", "repeat") //
-							.add("fieldArray", getSchema(ad)) //
+							.add("fieldArray", Property.getSchema(ad)) //
 							.build();
 				} else {
-					schema = getSchema(ad);
+					schema = Property.getSchema(ad);
 				}
 
 				boolean isPassword;
@@ -678,8 +676,8 @@ public class EdgeConfig {
 					isPassword = false;
 				}
 
-				String id = ad.getID();
-				String name = ad.getName();
+				var id = ad.getID();
+				var name = ad.getName();
 				final boolean isRequired;
 				switch (id) {
 				case "alias":
@@ -693,15 +691,15 @@ public class EdgeConfig {
 			}
 
 			private static JsonObject getSchema(AttributeDefinition ad) {
-				JsonObject schema = new JsonObject();
+				var schema = new JsonObject();
 				if (//
-				(ad.getOptionLabels() != null && ad.getOptionLabels().length > 0) //
+				ad.getOptionLabels() != null && ad.getOptionLabels().length > 0 //
 						&& ad.getOptionValues() != null && ad.getOptionValues().length > 0) {
 					// use given options for schema
-					JsonArray options = new JsonArray();
-					for (int i = 0; i < ad.getOptionLabels().length; i++) {
-						String label = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
-								ad.getOptionLabels()[i].replaceAll("_", " _"));
+					var options = new JsonArray();
+					for (var i = 0; i < ad.getOptionLabels().length; i++) {
+						var label = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
+								ad.getOptionLabels()[i].replace("_", " _"));
 						options.add(JsonUtils.buildJsonObject() //
 								.addProperty("value", ad.getOptionValues()[i]) //
 								.addProperty("label", label) //
@@ -759,28 +757,27 @@ public class EdgeConfig {
 
 			/**
 			 * Creates a Property from JSON.
-			 * 
+			 *
 			 * @param json the JSON
 			 * @return the Property
 			 * @throws OpenemsNamedException on error
 			 */
 			public static Property fromJson(JsonElement json) throws OpenemsNamedException {
-				String id = JsonUtils.getAsString(json, "id");
-				String name = JsonUtils.getAsString(json, "name");
-				String description = JsonUtils.getAsString(json, "description");
+				var id = JsonUtils.getAsString(json, "id");
+				var name = JsonUtils.getAsString(json, "name");
+				var description = JsonUtils.getAsString(json, "description");
 				OpenemsType type = JsonUtils.getAsOptionalEnum(OpenemsType.class, json, "type")
 						.orElse(OpenemsType.STRING);
-				boolean isRequired = JsonUtils.getAsBoolean(json, "isRequired");
+				var isRequired = JsonUtils.getAsBoolean(json, "isRequired");
 				boolean isPassword = JsonUtils.getAsOptionalBoolean(json, "isPassword").orElse(false);
-				JsonElement defaultValue = JsonUtils.getOptionalSubElement(json, "defaultValue")
-						.orElse(JsonNull.INSTANCE);
-				JsonObject schema = JsonUtils.getAsJsonObject(json, "schema");
+				var defaultValue = JsonUtils.getOptionalSubElement(json, "defaultValue").orElse(JsonNull.INSTANCE);
+				var schema = JsonUtils.getAsJsonObject(json, "schema");
 				return new Property(id, name, description, type, isRequired, isPassword, defaultValue, schema);
 			}
 
 			/**
 			 * Returns the Factory Property as a JSON Object.
-			 * 
+			 *
 			 * <pre>
 			 * {
 			 *   id: string,
@@ -794,7 +791,7 @@ public class EdgeConfig {
 			 *   }
 			 * }
 			 * </pre>
-			 * 
+			 *
 			 * @return property as a JSON Object
 			 */
 			public JsonObject toJson() {
@@ -812,7 +809,7 @@ public class EdgeConfig {
 
 			/**
 			 * Gets the ID of the {@link Property}.
-			 * 
+			 *
 			 * @return the Property-ID
 			 */
 			public String getId() {
@@ -821,7 +818,7 @@ public class EdgeConfig {
 
 			/**
 			 * Gets the Name of the {@link Property}.
-			 * 
+			 *
 			 * @return the Name
 			 */
 			public String getName() {
@@ -830,7 +827,7 @@ public class EdgeConfig {
 
 			/**
 			 * Gets the Description of the {@link Property}.
-			 * 
+			 *
 			 * @return the Description
 			 */
 			public String getDescription() {
@@ -839,7 +836,7 @@ public class EdgeConfig {
 
 			/**
 			 * Gets the {@link OpenemsType} of the {@link Property}.
-			 * 
+			 *
 			 * @return the {@link OpenemsType}
 			 */
 			public OpenemsType getType() {
@@ -848,7 +845,7 @@ public class EdgeConfig {
 
 			/**
 			 * Does this Property represent a password?.
-			 * 
+			 *
 			 * @return true if it is a password
 			 */
 			public boolean isPassword() {
@@ -857,7 +854,7 @@ public class EdgeConfig {
 
 			/**
 			 * Is this Property required?.
-			 * 
+			 *
 			 * @return true if it is required
 			 */
 			public boolean isRequired() {
@@ -866,7 +863,7 @@ public class EdgeConfig {
 
 			/**
 			 * Gets the default value of the Property.
-			 * 
+			 *
 			 * @return the default value
 			 */
 			public JsonElement getDefaultValue() {
@@ -890,7 +887,7 @@ public class EdgeConfig {
 
 		/**
 		 * Gets the ID of the {@link Factory}.
-		 * 
+		 *
 		 * @return the ID
 		 */
 		public String getId() {
@@ -899,7 +896,7 @@ public class EdgeConfig {
 
 		/**
 		 * Gets the Name of the {@link Factory}.
-		 * 
+		 *
 		 * @return the name
 		 */
 		public String getName() {
@@ -908,7 +905,7 @@ public class EdgeConfig {
 
 		/**
 		 * Gets the Description of the {@link Factory}.
-		 * 
+		 *
 		 * @return the description
 		 */
 		public String getDescription() {
@@ -917,7 +914,7 @@ public class EdgeConfig {
 
 		/**
 		 * Gets the {@link Property}s of the {@link Factory}.
-		 * 
+		 *
 		 * @return an array of {@link Property}s
 		 */
 		public Property[] getProperties() {
@@ -926,7 +923,7 @@ public class EdgeConfig {
 
 		/**
 		 * Gets the Property with the given key.
-		 * 
+		 *
 		 * @param key the property key
 		 * @return the Property
 		 */
@@ -941,11 +938,12 @@ public class EdgeConfig {
 
 		/**
 		 * Gets the default value of a property.
-		 * 
+		 *
 		 * @param propertyId the Property ID
+		 * @return the default value as {@link JsonElement}
 		 */
 		public JsonElement getPropertyDefaultValue(String propertyId) {
-			Optional<Property> property = this.getProperty(propertyId);
+			var property = this.getProperty(propertyId);
 			if (!property.isPresent()) {
 				return JsonNull.INSTANCE;
 			}
@@ -954,7 +952,7 @@ public class EdgeConfig {
 
 		/**
 		 * Gets the Nature-IDs of the {@link Factory}.
-		 * 
+		 *
 		 * @return the Nature-IDs
 		 */
 		public String[] getNatureIds() {
@@ -963,21 +961,21 @@ public class EdgeConfig {
 
 		/**
 		 * Returns the Factory configuration as a JSON Object.
-		 * 
+		 *
 		 * <pre>
 		 * {
 		 *   natureIds: string[]
 		 * }
 		 * </pre>
-		 * 
+		 *
 		 * @return configuration as a JSON Object
 		 */
 		public JsonObject toJson() {
-			JsonArray natureIds = new JsonArray();
+			var natureIds = new JsonArray();
 			for (String naturId : this.getNatureIds()) {
 				natureIds.add(naturId);
 			}
-			JsonArray properties = new JsonArray();
+			var properties = new JsonArray();
 			for (Property property : this.getProperties()) {
 				properties.add(property.toJson());
 			}
@@ -991,7 +989,7 @@ public class EdgeConfig {
 
 		/**
 		 * Creates a Factory from JSON.
-		 * 
+		 *
 		 * @param factoryId the Factory-ID
 		 * @param json      the JSON
 		 * @return the Factory
@@ -999,20 +997,20 @@ public class EdgeConfig {
 		 */
 		public static Factory fromJson(String factoryId, JsonElement json) throws OpenemsNamedException {
 			// TODO Update to latest OpenEMS Edge! Remove "Optional"
-			String name = JsonUtils.getAsOptionalString(json, "name").orElse("Undefined");
-			String description = JsonUtils.getAsOptionalString(json, "description").orElse("");
-			Optional<JsonArray> natureIdsOpt = JsonUtils.getAsOptionalJsonArray(json, "natureIds");
+			var name = JsonUtils.getAsOptionalString(json, "name").orElse("Undefined");
+			var description = JsonUtils.getAsOptionalString(json, "description").orElse("");
+			var natureIdsOpt = JsonUtils.getAsOptionalJsonArray(json, "natureIds");
 			if (!natureIdsOpt.isPresent()) {
 				natureIdsOpt = JsonUtils.getAsOptionalJsonArray(json, "natures");
 			}
-			String[] natureIds = JsonUtils.getAsStringArray(natureIdsOpt.get());
-			Optional<JsonArray> jPropertiesOpt = JsonUtils.getAsOptionalJsonArray(json, "properties");
+			var natureIds = JsonUtils.getAsStringArray(natureIdsOpt.get());
+			var jPropertiesOpt = JsonUtils.getAsOptionalJsonArray(json, "properties");
 			Property[] properties;
 			if (jPropertiesOpt.isPresent()) {
-				JsonArray jProperties = jPropertiesOpt.get();
+				var jProperties = jPropertiesOpt.get();
 				properties = new Property[jProperties.size()];
-				for (int i = 0; i < jProperties.size(); i++) {
-					JsonElement jProperty = jProperties.get(i);
+				for (var i = 0; i < jProperties.size(); i++) {
+					var jProperty = jProperties.get(i);
 					properties[i] = Property.fromJson(jProperty);
 				}
 			} else {
@@ -1030,7 +1028,7 @@ public class EdgeConfig {
 
 	/**
 	 * Adds a {@link Component} to the {@link EdgeConfig}.
-	 * 
+	 *
 	 * @param id        the Component-ID
 	 * @param component the {@link Component}
 	 */
@@ -1040,7 +1038,7 @@ public class EdgeConfig {
 
 	/**
 	 * Removes a {@link Component} from the {@link EdgeConfig}.
-	 * 
+	 *
 	 * @param id the Component-ID
 	 */
 	public void removeComponent(String id) {
@@ -1049,7 +1047,7 @@ public class EdgeConfig {
 
 	/**
 	 * Gets a {@link Component} by its Component-ID.
-	 * 
+	 *
 	 * @param componentId the Component-ID
 	 * @return the {@link Component} as {@link Optional}
 	 */
@@ -1059,7 +1057,7 @@ public class EdgeConfig {
 
 	/**
 	 * Add a Factory.
-	 * 
+	 *
 	 * @param id      the Factory-ID
 	 * @param factory the {@link Factory}
 	 * @return true if this operation changed the {@link EdgeConfig}
@@ -1070,7 +1068,7 @@ public class EdgeConfig {
 
 	/**
 	 * Gets the {@link Component}s.
-	 * 
+	 *
 	 * @return the {@link Component}s
 	 */
 	public TreeMap<String, Component> getComponents() {
@@ -1079,7 +1077,7 @@ public class EdgeConfig {
 
 	/**
 	 * Gets the {@link Factory}s.
-	 * 
+	 *
 	 * @return the {@link Factory}s
 	 */
 	public TreeMap<String, Factory> getFactories() {
@@ -1088,7 +1086,7 @@ public class EdgeConfig {
 
 	/**
 	 * Get Component-IDs of Component instances by the given Factory.
-	 * 
+	 *
 	 * @param factoryId the given Factory.
 	 * @return a List of Component-IDs.
 	 */
@@ -1104,7 +1102,7 @@ public class EdgeConfig {
 
 	/**
 	 * Get Component instances by the given Factory.
-	 * 
+	 *
 	 * @param factoryId the given Factory PID.
 	 * @return a List of Components.
 	 */
@@ -1120,15 +1118,15 @@ public class EdgeConfig {
 
 	/**
 	 * Get Component-IDs of Components that implement the given Nature.
-	 * 
+	 *
 	 * @param nature the given Nature.
 	 * @return a List of Component-IDs.
 	 */
 	public List<String> getComponentsImplementingNature(String nature) {
 		List<String> result = new ArrayList<>();
 		for (Entry<String, Component> componentEntry : this.components.entrySet()) {
-			String factoryId = componentEntry.getValue().factoryId;
-			Factory factory = this.factories.get(factoryId);
+			var factoryId = componentEntry.getValue().factoryId;
+			var factory = this.factories.get(factoryId);
 			if (factory == null) {
 				continue;
 			}
@@ -1144,10 +1142,10 @@ public class EdgeConfig {
 
 	/**
 	 * Returns the configuration as a JSON Object.
-	 * 
+	 *
 	 * <pre>
 	 * {
-	 *   components: { {@link EdgeConfig.Component#toJson()} }, 
+	 *   components: { {@link EdgeConfig.Component#toJson()} },
 	 *   factories: {
 	 *     [: string]: {
 	 *       natureIds: string[]
@@ -1155,7 +1153,7 @@ public class EdgeConfig {
 	 *   }
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @return configuration as a JSON Object
 	 */
 	public JsonObject toJson() {
@@ -1167,18 +1165,18 @@ public class EdgeConfig {
 
 	/**
 	 * Returns the configuration Components as a JSON Object.
-	 * 
+	 *
 	 * <pre>
 	 * {
-	 *   {@link EdgeConfig.Component#toJson()} 
+	 *   {@link EdgeConfig.Component#toJson()}
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @param jsonFormat the {@link JsonFormat}
 	 * @return Components as a JSON Object
 	 */
 	public JsonObject componentsToJson(JsonFormat jsonFormat) {
-		JsonObject components = new JsonObject();
+		var components = new JsonObject();
 		for (Entry<String, Component> entry : this.getComponents().entrySet()) {
 			components.add(entry.getKey(), entry.getValue().toJson(jsonFormat));
 		}
@@ -1187,7 +1185,7 @@ public class EdgeConfig {
 
 	/**
 	 * Returns the configuration Factories as a JSON Object.
-	 * 
+	 *
 	 * <pre>
 	 * {
 	 *   [id: string]: {
@@ -1195,11 +1193,11 @@ public class EdgeConfig {
 	 *   }
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @return Factories as a JSON Object
 	 */
 	public JsonObject factoriesToJson() {
-		JsonObject factories = new JsonObject();
+		var factories = new JsonObject();
 		for (Entry<String, Factory> entry : this.getFactories().entrySet()) {
 			factories.add(entry.getKey(), entry.getValue().toJson());
 		}
@@ -1208,12 +1206,12 @@ public class EdgeConfig {
 
 	/**
 	 * Is the given Channel-Address a StateChannel?.
-	 * 
+	 *
 	 * @param channelAddress the {@link ChannelAddress}
 	 * @return true if it is a StateChannel
 	 */
 	public boolean isStateChannel(ChannelAddress channelAddress) {
-		Component component = this.components.get(channelAddress.getComponentId());
+		var component = this.components.get(channelAddress.getComponentId());
 		if (component == null) {
 			return false;
 		}
@@ -1222,13 +1220,13 @@ public class EdgeConfig {
 
 	/**
 	 * Get the StateChannel with the given Channel-Address.
-	 * 
+	 *
 	 * @param channelAddress the {@link ChannelAddress}
 	 * @return the Channel; or empty if the Channel does not exist or is not a
 	 *         StateChannel.
 	 */
 	public Optional<Component.Channel> getStateChannel(ChannelAddress channelAddress) {
-		Component component = this.components.get(channelAddress.getComponentId());
+		var component = this.components.get(channelAddress.getComponentId());
 		if (component == null) {
 			return Optional.empty();
 		}
@@ -1237,13 +1235,13 @@ public class EdgeConfig {
 
 	/**
 	 * Creates an EdgeConfig from a JSON Object.
-	 * 
+	 *
 	 * @param json the configuration in JSON format
 	 * @return the EdgeConfig
 	 * @throws OpenemsNamedException on error
 	 */
 	public static EdgeConfig fromJson(JsonObject json) throws OpenemsNamedException {
-		EdgeConfig result = new EdgeConfig();
+		var result = new EdgeConfig();
 		if (json.has("things") && json.has("meta")) {
 			return EdgeConfig.fromOldJsonFormat(json);
 		}
@@ -1261,16 +1259,16 @@ public class EdgeConfig {
 
 	@Deprecated
 	private static EdgeConfig fromOldJsonFormat(JsonObject json) throws OpenemsNamedException {
-		EdgeConfig result = new EdgeConfig();
+		var result = new EdgeConfig();
 
-		JsonObject things = JsonUtils.getAsJsonObject(json, "things");
+		var things = JsonUtils.getAsJsonObject(json, "things");
 		for (Entry<String, JsonElement> entry : things.entrySet()) {
-			JsonObject config = JsonUtils.getAsJsonObject(entry.getValue());
-			String id = JsonUtils.getAsString(config, "id");
-			String servicePid = "NO";
-			String alias = JsonUtils.getAsOptionalString(config, "alias").orElse(id);
-			String clazz = JsonUtils.getAsString(config, "class");
-			TreeMap<String, JsonElement> properties = new TreeMap<>();
+			var config = JsonUtils.getAsJsonObject(entry.getValue());
+			var id = JsonUtils.getAsString(config, "id");
+			var servicePid = "NO";
+			var alias = JsonUtils.getAsOptionalString(config, "alias").orElse(id);
+			var clazz = JsonUtils.getAsString(config, "class");
+			var properties = new TreeMap<String, JsonElement>();
 			for (Entry<String, JsonElement> property : config.entrySet()) {
 				switch (property.getKey()) {
 				case "id":
@@ -1285,16 +1283,16 @@ public class EdgeConfig {
 					}
 				}
 			}
-			TreeMap<String, Component.Channel> channels = new TreeMap<>();
+			var channels = new TreeMap<String, Component.Channel>();
 			result.addComponent(id, new EdgeConfig.Component(servicePid, id, alias, clazz, properties, channels));
 		}
 
-		JsonObject metas = JsonUtils.getAsJsonObject(json, "meta");
+		var metas = JsonUtils.getAsJsonObject(json, "meta");
 		for (Entry<String, JsonElement> entry : metas.entrySet()) {
-			JsonObject meta = JsonUtils.getAsJsonObject(entry.getValue());
-			String id = JsonUtils.getAsString(meta, "class");
-			String[] implement = JsonUtils.getAsStringArray(JsonUtils.getAsJsonArray(meta, "implements"));
-			Factory.Property[] properties = new Factory.Property[0];
+			var meta = JsonUtils.getAsJsonObject(entry.getValue());
+			var id = JsonUtils.getAsString(meta, "class");
+			var implement = JsonUtils.getAsStringArray(JsonUtils.getAsJsonArray(meta, "implements"));
+			Factory.Property[] properties = {};
 			result.addFactory(id, new EdgeConfig.Factory(id, id, "", properties, implement));
 		}
 
@@ -1303,7 +1301,7 @@ public class EdgeConfig {
 
 	/**
 	 * Internal Method to decide whether a configuration property should be ignored.
-	 * 
+	 *
 	 * @param key the property key
 	 * @return true if it should get ignored
 	 */

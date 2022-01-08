@@ -9,7 +9,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Response for 'edgeRpc'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

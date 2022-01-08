@@ -12,9 +12,9 @@ public class DateUtils {
 
 	/**
 	 * Asserts that both dates are in the same timezone.
-	 * 
+	 *
 	 * @param date1 the first Date
-	 * @param date1 the second Date
+	 * @param date2 the second Date
 	 * @throws OpenemsException if dates are not in the same timezone
 	 */
 	public static void assertSameTimezone(ZonedDateTime date1, ZonedDateTime date2) throws OpenemsException {

@@ -48,7 +48,7 @@ public abstract class AbstractUser {
 
 	/**
 	 * Gets all Roles for Edge-IDs.
-	 * 
+	 *
 	 * @return the map of Roles
 	 */
 	public NavigableMap<String, Role> getEdgeRoles() {
@@ -57,7 +57,7 @@ public abstract class AbstractUser {
 
 	/**
 	 * Gets the global Role.
-	 * 
+	 *
 	 * @return {@link Role}
 	 */
 	public Role getGlobalRole() {
@@ -66,7 +66,7 @@ public abstract class AbstractUser {
 
 	/**
 	 * Gets the Role for a given Edge-ID.
-	 * 
+	 *
 	 * @param edgeId the Edge-ID
 	 * @return the Role
 	 */
@@ -76,7 +76,7 @@ public abstract class AbstractUser {
 
 	/**
 	 * Sets the Role for a given Edge-ID.
-	 * 
+	 *
 	 * @param edgeId the Edge-ID
 	 * @param role   the Role
 	 */

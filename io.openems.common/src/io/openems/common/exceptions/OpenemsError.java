@@ -82,23 +82,23 @@ public enum OpenemsError {
 
 	/**
 	 * Gets an OpenEMS-Error from its code.
-	 * 
+	 *
 	 * @param code the error code
 	 * @return the OpenEMS-Error
 	 * @throws OpenemsException if no standard exception with this error code
 	 *                          exists.
 	 */
 	public static OpenemsError fromCode(int code) throws OpenemsException {
-		OpenemsError error = ALL_ERRORS.get(code);
+		var error = OpenemsError.ALL_ERRORS.get(code);
 		if (error == null) {
 			throw new OpenemsException("OpenEMS-Error with code [" + code + "] does not exist");
 		}
 		return error;
 	}
 
-	private final static Logger log = LoggerFactory.getLogger(OpenemsError.class);
+	private static final Logger log = LoggerFactory.getLogger(OpenemsError.class);
 
-	private final static TreeMap<Integer, OpenemsError> ALL_ERRORS = new TreeMap<>();
+	private static final TreeMap<Integer, OpenemsError> ALL_ERRORS = new TreeMap<>();
 
 	private final int code;
 	private final String message;
@@ -111,16 +111,22 @@ public enum OpenemsError {
 	}
 
 	public int getCode() {
-		return code;
+		return this.code;
 	}
 
 	public String getRawMessage() {
-		return message;
+		return this.message;
 	}
 
+	/**
+	 * Gets the formatted Error message.
+	 * 
+	 * @param params the error parameters
+	 * @return the error message as String
+	 */
 	public String getMessage(Object... params) {
 		if (params.length != this.noOfParams) {
-			log.warn("OpenEMS-Error [" + this.name() + "] expects [" + this.noOfParams + "] params, got ["
+			OpenemsError.log.warn("OpenEMS-Error [" + this.name() + "] expects [" + this.noOfParams + "] params, got ["
 					+ params.length + "]");
 		}
 		return String.format(this.message, params);
@@ -131,16 +137,16 @@ public enum OpenemsError {
 	 */
 	static {
 		for (OpenemsError error : OpenemsError.values()) {
-			OpenemsError duplicate = ALL_ERRORS.putIfAbsent(error.code, error);
+			var duplicate = OpenemsError.ALL_ERRORS.putIfAbsent(error.code, error);
 			if (duplicate != null) {
-				log.warn("Duplicate OpenEMS-Error with code [" + error.code + "]");
+				OpenemsError.log.warn("Duplicate OpenEMS-Error with code [" + error.code + "]");
 			}
 		}
 	}
 
 	/**
 	 * Creates a OpenEMS Named Exception from this Error.
-	 * 
+	 *
 	 * @param params the params for the Error message
 	 * @return never happens
 	 * @throws OpenemsNamedException always
@@ -163,7 +169,7 @@ public enum OpenemsError {
 		}
 
 		public OpenemsError getError() {
-			return error;
+			return this.error;
 		}
 
 		public int getCode() {
@@ -171,7 +177,7 @@ public enum OpenemsError {
 		}
 
 		public Object[] getParams() {
-			return params;
+			return this.params;
 		}
 	}
 }

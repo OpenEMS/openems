@@ -48,16 +48,16 @@ public class OnRequestHandler implements Runnable {
 		} catch (OpenemsNamedException e) {
 			// Get Named Exception error response
 			this.parent.logWarn(this.log, "JSON-RPC Error Response: " + e.getMessage());
-			response = new JsonrpcResponseError(request.getId(), e);
+			response = new JsonrpcResponseError(this.request.getId(), e);
 		} catch (Exception e) {
 			// Get GENERIC error response
 			this.parent.logWarn(this.log, "JSON-RPC Error Response. " + e.getClass().getSimpleName() + ". " //
 					+ "Request: " + this.request.toString() + ". " //
 					+ "Message: " + e.getMessage());
-			response = new JsonrpcResponseError(request.getId(), e.getMessage());
+			response = new JsonrpcResponseError(this.request.getId(), e.getMessage());
 		}
 
-		responseCallback.accept(response);
+		this.responseCallback.accept(response);
 	}
 
 }

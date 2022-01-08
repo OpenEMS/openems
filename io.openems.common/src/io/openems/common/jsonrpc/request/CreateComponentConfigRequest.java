@@ -12,7 +12,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request for 'createComponentConfig'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -22,7 +22,7 @@ import io.openems.common.utils.JsonUtils;
  *     "factoryPid": string,
  *     "properties": [{
  *       "name": string,
- *       "value": any 
+ *       "value": any
  *     }]
  *   }
  * }
@@ -35,28 +35,28 @@ public class CreateComponentConfigRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link CreateComponentConfigRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link CreateComponentConfigRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static CreateComponentConfigRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		String factoryPid = JsonUtils.getAsString(p, "factoryPid");
-		List<Property> properties = Property.from(JsonUtils.getAsJsonArray(p, "properties"));
+		var p = r.getParams();
+		var factoryPid = JsonUtils.getAsString(p, "factoryPid");
+		var properties = Property.from(JsonUtils.getAsJsonArray(p, "properties"));
 		return new CreateComponentConfigRequest(r, factoryPid, properties);
 	}
 
 	/**
 	 * Create {@link CreateComponentConfigRequest} from a {@link JsonObject}.
-	 * 
+	 *
 	 * @param params the {@link JsonObject}
 	 * @return the {@link CreateComponentConfigRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static CreateComponentConfigRequest from(JsonObject params) throws OpenemsNamedException {
-		String factoryPid = JsonUtils.getAsString(params, "factoryPid");
-		List<Property> properties = Property.from(JsonUtils.getAsJsonArray(params, "properties"));
+		var factoryPid = JsonUtils.getAsString(params, "factoryPid");
+		var properties = Property.from(JsonUtils.getAsJsonArray(params, "properties"));
 		return new CreateComponentConfigRequest(factoryPid, properties);
 	}
 
@@ -64,20 +64,20 @@ public class CreateComponentConfigRequest extends JsonrpcRequest {
 	private final List<Property> properties;
 
 	public CreateComponentConfigRequest(String factoryPid, List<Property> properties) {
-		super(METHOD);
+		super(CreateComponentConfigRequest.METHOD);
 		this.factoryPid = factoryPid;
 		this.properties = properties;
 	}
 
 	private CreateComponentConfigRequest(JsonrpcRequest request, String factoryPid, List<Property> properties) {
-		super(request, METHOD);
+		super(request, CreateComponentConfigRequest.METHOD);
 		this.factoryPid = factoryPid;
 		this.properties = properties;
 	}
 
 	@Override
 	public JsonObject getParams() {
-		JsonArray properties = new JsonArray();
+		var properties = new JsonArray();
 		for (Property property : this.properties) {
 			properties.add(property.toJson());
 		}
@@ -89,7 +89,7 @@ public class CreateComponentConfigRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the Factory-PID.
-	 * 
+	 *
 	 * @return Factory-PID
 	 */
 	public String getFactoryPid() {
@@ -98,7 +98,7 @@ public class CreateComponentConfigRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the Component-ID, or empty String if none is given.
-	 * 
+	 *
 	 * @return Component-ID
 	 */
 	public String getComponentId() {
@@ -112,7 +112,7 @@ public class CreateComponentConfigRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the List of Properties.
-	 * 
+	 *
 	 * @return Properties
 	 */
 	public List<UpdateComponentConfigRequest.Property> getProperties() {

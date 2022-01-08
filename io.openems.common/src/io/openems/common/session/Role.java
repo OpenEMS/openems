@@ -31,16 +31,16 @@ public enum Role {
 
 	/**
 	 * The Level of this Role. The lower the better.
-	 * 
+	 *
 	 * @return the level
 	 */
 	public int getLevel() {
-		return level;
+		return this.level;
 	}
 
 	/**
 	 * Returns the Role ENUM for this name or "GUEST" if it was not found.
-	 * 
+	 *
 	 * @param name the name of the Role
 	 * @return the Role
 	 */
@@ -61,7 +61,7 @@ public enum Role {
 	/**
 	 * Gets the information whether the current Role is equal or more privileged
 	 * than the given Role.
-	 * 
+	 *
 	 * @param role the compared Role
 	 * @return true if the current Role privileges are equal or higher
 	 */
@@ -72,7 +72,7 @@ public enum Role {
 	/**
 	 * Throws an exception if the current Role is equal or more privileged than the
 	 * given Role.
-	 * 
+	 *
 	 * @param resource a resource identifier; used for the exception
 	 * @param role     the compared Role
 	 * @return the current Role
@@ -82,15 +82,14 @@ public enum Role {
 		if (this.isAtLeast(role)) {
 			// Ok
 			return this;
-		} else {
-			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, this.toString());
 		}
+		throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, this.toString());
 	}
 
 	/**
 	 * Gets the information whether the current Role is less privileged than the
 	 * given Role.
-	 * 
+	 *
 	 * @param role the compared Role
 	 * @return true if the current Role is less privileged
 	 */
@@ -100,7 +99,7 @@ public enum Role {
 
 	/**
 	 * Gets the Role as a JsonPrimitive.
-	 * 
+	 *
 	 * @return the JsonPrimitive
 	 */
 	public JsonPrimitive asJson() {
