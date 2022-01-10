@@ -62,21 +62,20 @@ jobs:
           node_modules/@angular/cli/bin/ng build -c "openems,openems-edge-prod,prod"
 
       #
-      # Following steps only run on Tags/Releases
+      # Is this a Tag? Prepare release assets and create a draft release
       #
-
-      - name: Prepare Edge+Backend Release
+      - name: Prepare Edge+Backend assets
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           ./gradlew buildEdge buildBackend
 
-      - name: Prepare UI Release
+      - name: Prepare UI asset
         if: startsWith(github.ref, 'refs/tags/')
         uses: edgarrc/action-7z@v1
         with:
           args: 7z a openems-ui.zip ./ui/target/*
 
-      - name: Release Files
+      - name: Create draft Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
