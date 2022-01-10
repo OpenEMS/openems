@@ -61,7 +61,13 @@ jobs:
           npm ci --prefer-offline --cache ~/.npm
           node_modules/@angular/cli/bin/ng build -c "openems,openems-edge-prod,prod"
 
-      - uses: montudor/action-zip@v1
+      - name: Prepare Edge+Backend Release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          ./gradlew buildEdge buildBackend
+
+      - name: Prepare UI Release
+        uses: montudor/action-zip@v1
         if: startsWith(github.ref, 'refs/tags/')
         working-directory: ui/target
         with:
@@ -70,8 +76,6 @@ jobs:
       - name: Release Files
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          ./gradlew buildEdge buildBackend
         with:
           files: |
             build/openems-edge.jar
