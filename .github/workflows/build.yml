@@ -84,4 +84,4 @@ jobs:
           files: |
             build/openems-edge.jar
             build/openems-backend.jar
-            openems-ui.jar
+            openems-ui.zip
