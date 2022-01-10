@@ -72,11 +72,9 @@ jobs:
 
       - name: Prepare UI Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: vimtor/action-zip@v1
+        uses: edgarrc/action-7z@v1
         with:
-          files: target/ui/*
-          recursive: false
-          dest: openems-ui.zip
+          args: 7z a openems-ui.zip ./ui/target/*
 
       - name: Release Files
         if: startsWith(github.ref, 'refs/tags/')
