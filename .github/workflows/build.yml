@@ -61,6 +61,10 @@ jobs:
           npm ci --prefer-offline --cache ~/.npm
           node_modules/@angular/cli/bin/ng build -c "openems,openems-edge-prod,prod"
 
+      #
+      # Following steps only run on Tags/Releases
+      #
+
       - name: Prepare Edge+Backend Release
         if: startsWith(github.ref, 'refs/tags/')
         run: |
@@ -68,7 +72,7 @@ jobs:
 
       - name: Prepare UI Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: papeloto/action-zip@v1
+        uses: vimtor/action-zip@v1
         with:
           files: target/ui/*
           recursive: false
@@ -78,6 +82,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
+          draft: true
           files: |
             build/openems-edge.jar
             build/openems-backend.jar
