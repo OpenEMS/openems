@@ -120,10 +120,10 @@ public class BatteryProtectionTest {
 
 	@Test
 	public void test() throws Exception {
-		final DummyBattery battery = new DummyBattery(BATTERY_ID, BatteryProtection.ChannelId.values());
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
-		final BatteryProtection sut = BatteryProtection.create(battery) //
+		final var battery = new DummyBattery(BATTERY_ID, BatteryProtection.ChannelId.values());
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		final var cm = new DummyComponentManager(clock);
+		final var sut = BatteryProtection.create(battery) //
 				.setChargeMaxCurrentHandler(ChargeMaxCurrentHandler.create(cm, INITIAL_BMS_MAX_EVER_CURRENT) //
 						.setVoltageToPercent(CHARGE_VOLTAGE_TO_PERCENT) //
 						.setTemperatureToPercent(CHARGE_TEMPERATURE_TO_PERCENT) //

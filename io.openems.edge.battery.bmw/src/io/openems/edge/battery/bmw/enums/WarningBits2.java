@@ -6,9 +6,7 @@ public enum WarningBits2 implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	CONTAINER(0, "Container Warning"), //
 	SOH(1, "SoH Warning"), //
-	RACK_STRING(2, "Rack/String Warning"), //
-	
-	;
+	RACK_STRING(2, "Rack/String Warning");
 
 	private final int value;
 	private final String name;
@@ -20,12 +18,12 @@ public enum WarningBits2 implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

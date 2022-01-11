@@ -34,8 +34,8 @@ public class TowersAndModulesTest {
 
 	@Test
 	public void testChannelsCreatedDynamically() throws Exception {
-		FeneconHomeBatteryImpl battery = new FeneconHomeBatteryImpl();
-		ComponentTest componentTest = new ComponentTest(battery) //
+		var battery = new FeneconHomeBatteryImpl();
+		var componentTest = new ComponentTest(battery) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -67,13 +67,13 @@ public class TowersAndModulesTest {
 	}
 
 	@Test
-	public void testSerialNumberFormatterForBMS() {
+	public void testSerialNumberFormatterForBms() {
 		assertEquals("519100001009210104000035", //
 				FeneconHomeBatteryImpl.buildSerialNumber("519100001009", 707002403));
 	}
 
 	@Test
-	public void testSerialNumberFormatterForOldBMS() {
+	public void testSerialNumberFormatterForOldBms() {
 		assertNull(FeneconHomeBatteryImpl.buildSerialNumber("519100001009", 0));
 	}
 
@@ -87,22 +87,22 @@ public class TowersAndModulesTest {
 	 * Check if all dynamic channels depending on tower, modules and cells
 	 * parameters are created. If channel not exists an exception will be thrown and
 	 * the test fails.
-	 * 
+	 *
 	 * @param battery the {@link Battery}
 	 * @param towers  number of given towers
 	 * @param modules number of given modules
 	 * @param cells   number of given cells
 	 */
 	private static void checkDynamicChannels(Battery battery, int towers, int modules, int cells) {
-		for (int tower = 0; tower < towers; tower++) {
+		for (var tower = 0; tower < towers; tower++) {
 			// check for each tower the serial number channel is existent
 			battery.channel("Tower" + tower + "BmsSerialNumber");
 
-			for (int module = 0; module < modules; module++) {
+			for (var module = 0; module < modules; module++) {
 				// check for each tower and module the serial number channel is existent
 				battery.channel("Tower" + tower + "Module" + module + "SerialNumber");
 
-				for (int cell = 0; cell < cells; cell++) {
+				for (var cell = 0; cell < cells; cell++) {
 					// check for each tower, module and cell voltage and temperature channel are
 					// existent
 					battery.channel(getCellChannelName(tower, module, cell) + "Voltage");
@@ -114,7 +114,7 @@ public class TowersAndModulesTest {
 
 	/**
 	 * Builds the cell channel name e.g. Tower0Module3Cell004.
-	 * 
+	 *
 	 * @param tower  number to use
 	 * @param module number to use
 	 * @param cell   number to user

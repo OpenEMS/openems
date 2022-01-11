@@ -1,6 +1,5 @@
 package io.openems.edge.battery.soltaro.single.versionc.statemachine;
 
-import io.openems.edge.battery.soltaro.single.versionc.SingleRackVersionC;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
@@ -10,7 +9,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		SingleRackVersionC battery = context.getParent();
+		var battery = context.getParent();
 
 		if (battery.hasFaults()) {
 			return State.UNDEFINED;
