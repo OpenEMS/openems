@@ -26,7 +26,6 @@ import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.MyUser;
 import io.openems.backend.metadata.odoo.OdooMetadata;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
 import io.openems.common.utils.JsonUtils;
@@ -395,9 +394,7 @@ public class OdooHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	public byte[] getOdooSetupProtocolReport(int setupProtocolId) throws OpenemsNamedException {
-		return OdooUtils.getOdooReport(this.credentials,
-				OpenemsOEM.EMS_TAG + ".report_" + OpenemsOEM.EMS_TAG + "_setup_protocol_template",
-				setupProtocolId);
+		return OdooUtils.getOdooReport(this.credentials, "fems.report_fems_setup_protocol_template", setupProtocolId);
 	}
 
 	/**
@@ -410,7 +407,7 @@ public class OdooHandler {
 	 */
 	public int submitSetupProtocol(MyUser user, JsonObject setupProtocolJson) throws OpenemsNamedException {
 		JsonObject userJson = JsonUtils.getAsJsonObject(setupProtocolJson, "customer");
-		JsonObject edgeJson = JsonUtils.getAsJsonObject(setupProtocolJson, OpenemsOEM.EMS_TAG);
+		JsonObject edgeJson = JsonUtils.getAsJsonObject(setupProtocolJson, "edge");
 
 		var edgeId = JsonUtils.getAsString(edgeJson, "id");
 		int[] foundEdge = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,

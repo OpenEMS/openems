@@ -145,7 +145,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			// this builds an InfluxDB record ("point") for a given timestamp
 			var builder = Point //
 					.measurement(InfluxConnector.MEASUREMENT) //
-					.tag(OpenemsOEM.EMS_TAG, String.valueOf(influxEdgeId)) //
+					.tag(OpenemsOEM.INFLUXDB_TAG, String.valueOf(influxEdgeId)) //
 					.time(timestamp, TimeUnit.MILLISECONDS);
 			for (Entry<ChannelAddress, JsonElement> channelEntry : channelEntries) {
 				this.addValue(builder, channelEntry.getKey().toString(), channelEntry.getValue());

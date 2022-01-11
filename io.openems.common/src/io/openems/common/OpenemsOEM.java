@@ -29,8 +29,8 @@ public class OpenemsOEM {
 	public static final String SYSTEM_UPDATE_SCRIPT_URL = "https://fenecon.de/fems-download/update-fems.sh";
 
 	/*
-	 * Energy management system.
+	 * Backend InfluxDB.
 	 */
-	public static final String EMS_TAG = "fems";
+	public static final String INFLUXDB_TAG = "fems";
 
 }

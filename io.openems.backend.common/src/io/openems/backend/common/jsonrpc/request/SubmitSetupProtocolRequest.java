@@ -16,7 +16,7 @@ import io.openems.common.utils.JsonUtils;
  *   "method": "submitSetupProtocol",
  *   "params": {
  *     "protocol": {
- *       [OpenemsOEM.EMS_TAG]: {
+ *       "edge": {
  *         "id": string
  *       },
  *       "customer": {
