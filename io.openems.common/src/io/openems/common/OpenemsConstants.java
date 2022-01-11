@@ -10,103 +10,117 @@ public class OpenemsConstants {
 
 	/**
 	 * The major version of OpenEMS.
-	 * 
-	 * This is usually the year of the release
+	 *
+	 * <p>
+	 * This is the year of the release.
 	 */
-	public final static short VERSION_MAJOR = 2022;
+	public static final short VERSION_MAJOR = 2022;
 
 	/**
 	 * The minor version of OpenEMS.
-	 * 
-	 * This is usually the number of the sprint within the year
+	 *
+	 * <p>
+	 * This is the month of the release.
 	 */
 	public final static short VERSION_MINOR = 1;
 
 	/**
 	 * The patch version of OpenEMS.
-	 * 
-	 * This is the number of the bugfix release
+	 *
+	 * <p>
+	 * This is always `0` for OpenEMS open source releases and reserved for private
+	 * distributions.
 	 */
 	public final static short VERSION_PATCH = 1;
 
 	/**
-	 * The additional version string
+	 * The additional version string.
 	 */
-	public final static String VERSION_STRING = "SNAPSHOT";
+	public static final String VERSION_STRING = "SNAPSHOT";
 
 	/**
 	 * The complete version as a SemanticVersion.
-	 * 
+	 *
 	 * <p>
 	 * Use toString()-method to get something like "2022.1.0-SNAPSHOT"
 	 */
-	public final static SemanticVersion VERSION = new SemanticVersion(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
-			VERSION_STRING);
-	/**
-	 * The manufacturer of the device that is running OpenEMS
-	 * 
-	 * Note: this should be max. 32 ASCII characters long
-	 */
-	public final static String MANUFACTURER = OpenemsOEM.MANUFACTURER;
+	public static final SemanticVersion VERSION = new SemanticVersion(//
+			OpenemsConstants.VERSION_MAJOR, //
+			OpenemsConstants.VERSION_MINOR, //
+			OpenemsConstants.VERSION_PATCH, //
+			OpenemsConstants.VERSION_STRING);
 
 	/**
-	 * The model identifier of the device
-	 * 
+	 * The manufacturer of the device that is running OpenEMS.
+	 *
+	 * <p>
 	 * Note: this should be max. 32 ASCII characters long
 	 */
-	public final static String MANUFACTURER_MODEL = "OpenEMS";
+	public static final String MANUFACTURER = OpenemsOEM.MANUFACTURER;
 
 	/**
-	 * The options of the device
-	 * 
+	 * The model identifier of the device.
+	 *
+	 * <p>
 	 * Note: this should be max. 32 ASCII characters long
 	 */
-	public final static String MANUFACTURER_OPTIONS = "";
+	public static final String MANUFACTURER_MODEL = "OpenEMS";
 
 	/**
-	 * The version of the device
-	 * 
+	 * The options of the device.
+	 *
+	 * <p>
 	 * Note: this should be max. 32 ASCII characters long
 	 */
-	public final static String MANUFACTURER_VERSION = "";
+	public static final String MANUFACTURER_OPTIONS = "";
 
 	/**
-	 * The serial number of the device
-	 * 
+	 * The version of the device.
+	 *
+	 * <p>
 	 * Note: this should be max. 32 ASCII characters long
 	 */
-	public final static String MANUFACTURER_SERIAL_NUMBER = "";
+	public static final String MANUFACTURER_VERSION = "";
 
 	/**
-	 * The Energy-Management-System serial number of the device
-	 * 
+	 * The serial number of the device.
+	 *
+	 * <p>
 	 * Note: this should be max. 32 ASCII characters long
 	 */
-	public final static String MANUFACTURER_EMS_SERIAL_NUMBER = "";
+	public static final String MANUFACTURER_SERIAL_NUMBER = "";
 
-	public final static String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
+	/**
+	 * The Energy-Management-System serial number of the device.
+	 *
+	 * <p>
+	 * Note: this should be max. 32 ASCII characters long
+	 */
+	public static final String MANUFACTURER_EMS_SERIAL_NUMBER = "";
+
+	public static final String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
 
 	/*
 	 * Constants for Component properties
 	 */
-	public final static String PROPERTY_COMPONENT_ID = "id";
-	public final static String PROPERTY_OSGI_COMPONENT_ID = "component.id";
-	public final static String PROPERTY_OSGI_COMPONENT_NAME = "component.name";
-	public final static String PROPERTY_PID = Constants.SERVICE_PID;
-	public final static String PROPERTY_FACTORY_PID = "service.factoryPid";
-	public final static String PROPERTY_LAST_CHANGE_BY = "_lastChangeBy";
-	public final static String PROPERTY_LAST_CHANGE_AT = "_lastChangeAt";
+	public static final String PROPERTY_COMPONENT_ID = "id";
+	public static final String PROPERTY_OSGI_COMPONENT_ID = "component.id";
+	public static final String PROPERTY_OSGI_COMPONENT_NAME = "component.name";
+	public static final String PROPERTY_PID = Constants.SERVICE_PID;
+	public static final String PROPERTY_FACTORY_PID = "service.factoryPid";
+	public static final String PROPERTY_LAST_CHANGE_BY = "_lastChangeBy";
+	public static final String PROPERTY_LAST_CHANGE_AT = "_lastChangeAt";
 
 	private static final String OPENEMS_DATA_DIR = "openems.data.dir";
 
 	/**
 	 * Gets the path of the OpenEMS Data Directory, configured by "openems.data.dir"
 	 * command line parameter.
-	 * 
+	 *
 	 * @return the path of the OpenEMS Data Directory
 	 */
-	public final static String getOpenemsDataDir() {
-		return Optional.ofNullable(System.getProperty(OPENEMS_DATA_DIR)).orElse("");
+	public static final String getOpenemsDataDir() {
+		return Optional.ofNullable(System.getProperty(OpenemsConstants.OPENEMS_DATA_DIR)).orElse("");
 	}
 
 }

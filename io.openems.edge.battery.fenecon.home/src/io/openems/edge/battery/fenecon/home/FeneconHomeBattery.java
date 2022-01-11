@@ -19,7 +19,7 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the Channel for {@link ChannelId#BMS_CONTROL}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default Channel<BmsControl> getBmsControlChannel() {
@@ -28,7 +28,7 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the BmsControl, see {@link ChannelId#BMS_CONTROL}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default BmsControl getBmsControl() {
@@ -38,7 +38,7 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#BMS_CONTROL}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setBmsControl(BmsControl value) {
@@ -47,7 +47,7 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the target Start/Stop mode from config or StartStop-Channel.
-	 * 
+	 *
 	 * @return {@link StartStop}
 	 */
 	public StartStop getStartStopTarget();

@@ -14,7 +14,7 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 
 		/**
 		 * Creates a {@link Builder} for {@link ChargeMaxCurrentHandler}.
-		 * 
+		 *
 		 * @param clockProvider                         a {@link ClockProvider}, mainly
 		 *                                              for JUnit tests
 		 * @param initialBmsMaxEverAllowedChargeCurrent the (estimated) maximum allowed
@@ -30,7 +30,7 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 
 		/**
 		 * Configure 'Force Discharge' parameters.
-		 * 
+		 *
 		 * @param startDischargeAboveCellVoltage start force discharge if maxCellVoltage
 		 *                                       is above this value, e.g. 3660
 		 * @param dischargeAboveCellVoltage      force discharge as long as
@@ -50,7 +50,7 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 
 		/**
 		 * Sets the {@link ForceDischarge.Params} parameters.
-		 * 
+		 *
 		 * @param forceDischargeParams the {@link ForceDischarge.Params}
 		 * @return a {@link Builder}
 		 */
@@ -61,7 +61,7 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 
 		/**
 		 * Builds the {@link ChargeMaxCurrentHandler} instance.
-		 * 
+		 *
 		 * @return a {@link ChargeMaxCurrentHandler}
 		 */
 		public ChargeMaxCurrentHandler build() {
@@ -77,7 +77,7 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 
 	/**
 	 * Create a {@link ChargeMaxCurrentHandler} builder.
-	 * 
+	 *
 	 * @param clockProvider                         a {@link ClockProvider}
 	 * @param initialBmsMaxEverAllowedChargeCurrent the (estimated) maximum allowed
 	 *                                              charge current. This is used as

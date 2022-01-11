@@ -18,14 +18,14 @@ public class EdgeApp {
 
 	@Activate
 	void activate() {
-		String message = "OpenEMS version [" + OpenemsConstants.VERSION + "] started";
-		String line = Strings.repeat("=", message.length());
+		var message = "OpenEMS version [" + OpenemsConstants.VERSION + "] started";
+		var line = Strings.repeat("=", message.length());
 		this.log.info(line);
 		this.log.info(message);
 		this.log.info(line);
 
 		// Announce Operating System that OpenEMS Edge started
-		String socketName = System.getenv().get("NOTIFY_SOCKET");
+		var socketName = System.getenv().get("NOTIFY_SOCKET");
 		if (socketName != null && socketName.length() != 0) {
 			if (SDNotify.isAvailable()) {
 				SDNotify.sendNotify();

@@ -15,8 +15,6 @@ import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonObject;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
@@ -30,13 +28,13 @@ import io.openems.common.utils.StringUtils;
  * A Websocket Client implementation that automatically tries to reconnect a
  * closed connection.
  *
- * @param <T>
+ * @param <T> the type of websocket attachments inheriting {@link WsData}
  */
 public abstract class AbstractWebsocketClient<T extends WsData> extends AbstractWebsocket<T> {
 
-	public final static Map<String, String> NO_HTTP_HEADERS = new HashMap<>();
-	public final static Proxy NO_PROXY = null;
-	public final static Draft DEFAULT_DRAFT = new Draft_6455();
+	public static final Map<String, String> NO_HTTP_HEADERS = new HashMap<>();
+	public static final Proxy NO_PROXY = null;
+	public static final Draft DEFAULT_DRAFT = new Draft_6455();
 
 	protected final WebSocketClient ws;
 
@@ -45,15 +43,16 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	private final ClientReconnectorWorker reconnectorWorker;
 
 	protected AbstractWebsocketClient(String name, URI serverUri) {
-		this(name, serverUri, DEFAULT_DRAFT, NO_HTTP_HEADERS, NO_PROXY);
+		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, AbstractWebsocketClient.NO_HTTP_HEADERS,
+				AbstractWebsocketClient.NO_PROXY);
 	}
 
 	protected AbstractWebsocketClient(String name, URI serverUri, Map<String, String> httpHeaders) {
-		this(name, serverUri, DEFAULT_DRAFT, httpHeaders, NO_PROXY);
+		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, AbstractWebsocketClient.NO_PROXY);
 	}
 
 	protected AbstractWebsocketClient(String name, URI serverUri, Map<String, String> httpHeaders, Proxy proxy) {
-		this(name, serverUri, DEFAULT_DRAFT, httpHeaders, proxy);
+		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, proxy);
 	}
 
 	protected AbstractWebsocketClient(String name, URI serverUri, Draft draft, Map<String, String> httpHeaders,
@@ -64,7 +63,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 			@Override
 			public void onOpen(ServerHandshake handshake) {
-				JsonObject jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
+				var jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
 				AbstractWebsocketClient.this.execute(
 						new OnOpenHandler(AbstractWebsocketClient.this, AbstractWebsocketClient.this.ws, jHandshake));
 			}
@@ -72,20 +71,20 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 			@Override
 			public void onMessage(String stringMessage) {
 				try {
-					JsonrpcMessage message = JsonrpcMessage.from(stringMessage);
+					var message = JsonrpcMessage.from(stringMessage);
 					if (message instanceof JsonrpcRequest) {
-						AbstractWebsocketClient.this.execute(new OnRequestHandler(AbstractWebsocketClient.this, ws,
-								(JsonrpcRequest) message, (response) -> {
+						AbstractWebsocketClient.this.execute(new OnRequestHandler(AbstractWebsocketClient.this,
+								AbstractWebsocketClient.this.ws, (JsonrpcRequest) message, response -> {
 									AbstractWebsocketClient.this.sendMessage(response);
 								}));
 
 					} else if (message instanceof JsonrpcResponse) {
-						AbstractWebsocketClient.this.execute(
-								new OnResponseHandler(AbstractWebsocketClient.this, ws, (JsonrpcResponse) message));
+						AbstractWebsocketClient.this.execute(new OnResponseHandler(AbstractWebsocketClient.this,
+								AbstractWebsocketClient.this.ws, (JsonrpcResponse) message));
 
 					} else if (message instanceof JsonrpcNotification) {
-						AbstractWebsocketClient.this.execute(new OnNotificationHandler(AbstractWebsocketClient.this, ws,
-								(JsonrpcNotification) message));
+						AbstractWebsocketClient.this.execute(new OnNotificationHandler(AbstractWebsocketClient.this,
+								AbstractWebsocketClient.this.ws, (JsonrpcNotification) message));
 
 					}
 				} catch (OpenemsNamedException e) {
@@ -95,13 +94,14 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 			@Override
 			public void onError(Exception ex) {
-				AbstractWebsocketClient.this.execute(new OnErrorHandler(AbstractWebsocketClient.this, ws, ex));
+				AbstractWebsocketClient.this
+						.execute(new OnErrorHandler(AbstractWebsocketClient.this, AbstractWebsocketClient.this.ws, ex));
 			}
 
 			@Override
 			public void onClose(int code, String reason, boolean remote) {
-				AbstractWebsocketClient.this
-						.execute(new OnCloseHandler(AbstractWebsocketClient.this, ws, code, reason, remote));
+				AbstractWebsocketClient.this.execute(new OnCloseHandler(AbstractWebsocketClient.this,
+						AbstractWebsocketClient.this.ws, code, reason, remote));
 
 				AbstractWebsocketClient.this.log.info(
 						"Websocket [" + serverUri.toString() + "] closed. Code [" + code + "] Reason [" + reason + "]");
@@ -113,8 +113,8 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 		this.ws.setConnectionLostTimeout(0);
 
 		// initialize WsData
-		T wsData = AbstractWebsocketClient.this.createWsData();
-		wsData.setWebsocket(ws);
+		var wsData = AbstractWebsocketClient.this.createWsData();
+		wsData.setWebsocket(this.ws);
 		this.ws.setAttachment(wsData);
 
 		// Initialize reconnector
@@ -126,8 +126,9 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	}
 
 	/**
-	 * Starts the websocket client
+	 * Starts the websocket client.
 	 */
+	@Override
 	public void start() {
 		this.log.info("Opening connection [" + this.getName() + "] to websocket server [" + this.serverUri + "]");
 		this.ws.connect();
@@ -135,9 +136,9 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	}
 
 	/**
-	 * Starts the websocket client
-	 * 
-	 * @throws InterruptedException
+	 * Starts the websocket client; waiting till it started.
+	 *
+	 * @throws InterruptedException on waiting error
 	 */
 	public void startBlocking() throws InterruptedException {
 		this.log.info("Opening connection [" + this.getName() + "] websocket server [" + this.serverUri + "]");
@@ -145,8 +146,9 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	}
 
 	/**
-	 * Stops the websocket client
+	 * Stops the websocket client.
 	 */
+	@Override
 	public void stop() {
 		this.log.info("Closing connection [" + this.getName() + "] to websocket server [" + this.serverUri + "]");
 		// shutdown reconnector
@@ -155,13 +157,20 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 		this.ws.close(CloseFrame.NORMAL, "Closing connection [" + this.getName() + "]");
 	}
 
+	@Override
 	protected OnInternalError getOnInternalError() {
 		return (ex, wsDataString) -> {
 			this.log.warn("OnInternalError for " + wsDataString + ". " + ex.getClass() + ": " + ex.getMessage());
 			ex.printStackTrace();
 		};
-	};
+	}
 
+	/**
+	 * Sends a {@link JsonrpcMessage}.
+	 * 
+	 * @param message the {@link JsonrpcMessage}
+	 * @throws OpenemsException on error, e.g. if the websocket is not connected
+	 */
 	public void sendMessageOrError(JsonrpcMessage message) throws OpenemsException {
 		try {
 			this.ws.send(message.toString());
@@ -177,23 +186,23 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	/**
 	 * Sends a JSON-RPC message. Returns true if sending was successful, otherwise
 	 * false. Also logs a warning in that case.
-	 * 
-	 * @param message
-	 * @return
+	 *
+	 * @param message the {@link JsonrpcMessage}.
+	 * @return true if sending was successful
 	 */
 	public boolean sendMessage(JsonrpcMessage message) {
 		try {
 			this.sendMessageOrError(message);
 			return true;
 		} catch (OpenemsException e) {
-			log.warn(e.getMessage());
+			this.log.warn(e.getMessage());
 			return false;
 		}
 	}
 
 	/**
 	 * Sends a JSON-RPC Request and returns a future Response.
-	 * 
+	 *
 	 * @param request the JSON-RPC Request
 	 * @return the future JSON-RPC Response
 	 * @throws OpenemsNamedException on error

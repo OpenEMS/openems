@@ -14,6 +14,13 @@ import java.util.function.BiConsumer;
 @FunctionalInterface
 public interface ThrowingBiConsumer<T, U, E extends Exception> {
 
+	/**
+	 * Performs this operation on the given arguments.
+	 *
+	 * @param t the first input argument
+	 * @param u the second input argument
+	 * @throws E on error
+	 */
 	public void accept(T t, U u) throws E;
 
 }

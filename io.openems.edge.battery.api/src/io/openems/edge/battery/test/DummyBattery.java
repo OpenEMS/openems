@@ -38,7 +38,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 
 	/**
 	 * Sets and applies the {@link Battery.ChannelId#CAPACITY}.
-	 * 
+	 *
 	 * @param value the Capacity in [Wh]
 	 * @return myself
 	 */
@@ -50,7 +50,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 
 	/**
 	 * Sets and applies the {@link Battery.ChannelId#VOLTAGE}.
-	 * 
+	 *
 	 * @param value the Capacity in [V]
 	 * @return myself
 	 */
@@ -62,7 +62,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 
 	/**
 	 * Sets and applies the {@link Battery.ChannelId#DISCHARGE_MAX_CURRENT}.
-	 * 
+	 *
 	 * @param value the Discharge Max Current in [A]
 	 * @return myself
 	 */
@@ -74,7 +74,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 
 	/**
 	 * Sets and applies the {@link Battery.ChannelId#CHARGE_MAX_CURRENT}.
-	 * 
+	 *
 	 * @param value the Charge Max Current in [A]
 	 * @return myself
 	 */
@@ -86,7 +86,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 
 	/**
 	 * Sets and applies the {@link Battery.ChannelId#MIN_CELL_VOLTAGE}.
-	 * 
+	 *
 	 * @param value the Min-Cell-Voltage in [mV]
 	 * @return myself
 	 */
@@ -98,7 +98,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 
 	/**
 	 * Sets and applies the {@link Battery.ChannelId#MAX_CELL_VOLTAGE}.
-	 * 
+	 *
 	 * @param value the Max-Cell-Voltage in [mV]
 	 * @return myself
 	 */
@@ -110,7 +110,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 
 	/**
 	 * Sets and applies the {@link Battery.ChannelId#MIN_CELL_TEMPERATURE}.
-	 * 
+	 *
 	 * @param value the Min-Cell-Temperature in [degC]
 	 * @return myself
 	 */
@@ -122,7 +122,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 
 	/**
 	 * Sets and applies the {@link Battery.ChannelId#MAX_CELL_TEMPERATURE}.
-	 * 
+	 *
 	 * @param value the Max-Cell-Temperature in [degC]
 	 * @return myself
 	 */

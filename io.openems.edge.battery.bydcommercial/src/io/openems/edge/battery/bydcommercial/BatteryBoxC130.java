@@ -21,7 +21,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 
 	/**
 	 * Gets the Channel for {@link ChannelId#POWER_CIRCUIT_CONTROL}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default WriteChannel<PowerCircuitControl> getPowerCircuitControlChannel() {
@@ -30,7 +30,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 
 	/**
 	 * Gets the PreChargeControl, see {@link ChannelId#POWER_CIRCUIT_CONTROL}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default PowerCircuitControl getPowerCircuitControl() {
@@ -40,7 +40,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#POWER_CIRCUIT_CONTROL} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setPowerCircuitControl(PowerCircuitControl value) {
@@ -49,7 +49,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 
 	/**
 	 * Writes the value to the {@link ChannelId#POWER_CIRCUIT_CONTROL} Register.
-	 * 
+	 *
 	 * @param value the next value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -59,7 +59,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxStartAttemptsChannel() {
@@ -68,7 +68,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 
 	/**
 	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_START_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxStartAttempts() {
@@ -78,7 +78,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_START_ATTEMPTS} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxStartAttempts(Boolean value) {
@@ -87,7 +87,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_STOP_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxStopAttemptsChannel() {
@@ -96,7 +96,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 
 	/**
 	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_STOP_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxStopAttempts() {
@@ -106,7 +106,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_STOP_ATTEMPTS}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxStopAttempts(Boolean value) {
@@ -115,7 +115,7 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 
 	/**
 	 * Gets the target Start/Stop mode from config or StartStop-Channel.
-	 * 
+	 *
 	 * @return {@link StartStop}
 	 */
 	public StartStop getStartStopTarget();
@@ -764,7 +764,6 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent, StartStoppabl
 		PRE_ALARM_CHARGE_CURRENT_HIGH(Doc.of(Level.INFO) //
 				.text("Cluster 1 Charge Current High Alarm Level 1")), //
 
-		
 		LEVEL1_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 2 Cell Voltage High Alarm Level 2")), //
 		LEVEL1_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //

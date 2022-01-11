@@ -18,9 +18,10 @@ import io.openems.common.types.ChannelAddress;
 public interface CommonTimedataService {
 
 	/**
-	 * Handles a QueryHistoricTimeseriesExportXlxsRequest request. Exports historic
+	 * Handles a {@link QueryHistoricTimeseriesExportXlxsRequest}. Exports historic
 	 * data to an Excel file.
-	 * 
+	 *
+	 * @param edgeId  the Edge-ID
 	 * @param request the {@link QueryHistoricTimeseriesExportXlxsRequest} request
 	 * @return the {@link QueryHistoricTimeseriesExportXlsxResponse}
 	 * @throws OpenemsNamedException on error
@@ -43,7 +44,7 @@ public interface CommonTimedataService {
 
 	/**
 	 * Calculates the time resolution for the period in seconds.
-	 * 
+	 *
 	 * @param fromDate the From-Date
 	 * @param toDate   the To-Date
 	 * @return the resolution in seconds
@@ -80,63 +81,62 @@ public interface CommonTimedataService {
 	/**
 	 * Queries historic data. The 'resolution' of the query is calculated
 	 * dynamically according to the length of the period.
-	 * 
-	 * @param edgeId   the Edge-ID
-	 * @param fromDate the From-Date
-	 * @param toDate   the To-Date
-	 * @param channels the Channels
+	 *
+	 * @param edgeId  the Edge-ID
+	 * @param request the {@link QueryHistoricTimeseriesDataRequest}
+	 * @return the query result
 	 */
 	public default SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
 		// calculate resolution based on the length of the period
 		int resolution = request.getResolution()
-				.orElse(calculateResolution(request.getFromDate(), request.getToDate()));
+				.orElse(CommonTimedataService.calculateResolution(request.getFromDate(), request.getToDate()));
 		return this.queryHistoricData(edgeId, request.getFromDate(), request.getToDate(), request.getChannels(),
 				resolution);
 	}
 
 	/**
 	 * Queries historic data.
-	 * 
+	 *
 	 * @param edgeId     the Edge-ID; or null query all
 	 * @param fromDate   the From-Date
 	 * @param toDate     the To-Date
 	 * @param channels   the Channels
 	 * @param resolution the Resolution in seconds
+	 * @return the query result
 	 */
-
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException;
 
 	/**
 	 * Queries historic energy.
-	 * 
+	 *
 	 * @param edgeId   the Edge-ID; or null query all
 	 * @param fromDate the From-Date
 	 * @param toDate   the To-Date
 	 * @param channels the Channels
+	 * @return the query result
 	 */
-
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException;
 
 	/**
 	 * Queries historic energy per period.
-	 * 
+	 *
 	 * <p>
 	 * This is for use-cases where you want to get the energy for each period (with
 	 * length 'resolution') per Channel, e.g. to visualize energy in a histogram
 	 * chart. For each period the energy is calculated by subtracting first value of
 	 * the period from the last value of the period.
-	 * 
+	 *
 	 * @param edgeId     the Edge-ID; or null query all
 	 * @param fromDate   the From-Date
 	 * @param toDate     the To-Date
 	 * @param channels   the Channels
 	 * @param resolution the Resolution in seconds
+	 * @return the query result
 	 */
-
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException;

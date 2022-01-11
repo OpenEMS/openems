@@ -14,7 +14,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request for 'queryHistoricTimeseriesExportXlxs'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -35,20 +35,18 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link QueryHistoricTimeseriesExportXlxsRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link QueryHistoricTimeseriesExportXlxsRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static QueryHistoricTimeseriesExportXlxsRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		int timezoneDiff = JsonUtils.getAsInt(p, "timezone");
-		ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
-		ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
-		ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
-		QueryHistoricTimeseriesExportXlxsRequest result = new QueryHistoricTimeseriesExportXlxsRequest(r, fromDate,
-				toDate);
-		return result;
+		var p = r.getParams();
+		var timezoneDiff = JsonUtils.getAsInt(p, "timezone");
+		var timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
+		var fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
+		var toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
+		return new QueryHistoricTimeseriesExportXlxsRequest(r, fromDate, toDate);
 
 	}
 
@@ -60,7 +58,7 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 
 	private QueryHistoricTimeseriesExportXlxsRequest(JsonrpcRequest request, ZonedDateTime fromDate,
 			ZonedDateTime toDate) throws OpenemsNamedException {
-		super(request, METHOD);
+		super(request, QueryHistoricTimeseriesExportXlxsRequest.METHOD);
 
 		DateUtils.assertSameTimezone(fromDate, toDate);
 		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
@@ -72,14 +70,14 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 	public JsonObject getParams() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("timezone", this.timezoneDiff) //
-				.addProperty("fromDate", FORMAT.format(this.fromDate)) //
-				.addProperty("toDate", FORMAT.format(this.toDate)) //
+				.addProperty("fromDate", QueryHistoricTimeseriesExportXlxsRequest.FORMAT.format(this.fromDate)) //
+				.addProperty("toDate", QueryHistoricTimeseriesExportXlxsRequest.FORMAT.format(this.toDate)) //
 				.build();
 	}
 
 	/**
 	 * Gets the From-Date.
-	 * 
+	 *
 	 * @return From-Date
 	 */
 	public ZonedDateTime getFromDate() {
@@ -88,7 +86,7 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the To-Date.
-	 * 
+	 *
 	 * @return To-Date
 	 */
 	public ZonedDateTime getToDate() {

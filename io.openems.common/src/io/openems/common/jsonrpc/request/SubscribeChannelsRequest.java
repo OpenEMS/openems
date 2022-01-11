@@ -13,10 +13,10 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request to subscribe to Channels.
- * 
+ *
  * <p>
  * This is used by UI to get regular updates on specific channels.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -36,18 +36,18 @@ public class SubscribeChannelsRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link SubscribeChannelsRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link SubscribeChannelsRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static SubscribeChannelsRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		int count = JsonUtils.getAsInt(p, "count");
-		SubscribeChannelsRequest result = new SubscribeChannelsRequest(r, count);
-		JsonArray channels = JsonUtils.getAsJsonArray(p, "channels");
+		var p = r.getParams();
+		var count = JsonUtils.getAsInt(p, "count");
+		var result = new SubscribeChannelsRequest(r, count);
+		var channels = JsonUtils.getAsJsonArray(p, "channels");
 		for (JsonElement channel : channels) {
-			ChannelAddress address = ChannelAddress.fromString(JsonUtils.getAsString(channel));
+			var address = ChannelAddress.fromString(JsonUtils.getAsString(channel));
 			result.addChannel(address);
 		}
 		return result;
@@ -57,12 +57,12 @@ public class SubscribeChannelsRequest extends JsonrpcRequest {
 	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
 
 	private SubscribeChannelsRequest(JsonrpcRequest request, int count) {
-		super(request, METHOD);
+		super(request, SubscribeChannelsRequest.METHOD);
 		this.count = count;
 	}
 
 	public SubscribeChannelsRequest(int count) {
-		super(METHOD);
+		super(SubscribeChannelsRequest.METHOD);
 		this.count = count;
 	}
 
@@ -72,10 +72,10 @@ public class SubscribeChannelsRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the Count value.
-	 * 
+	 *
 	 * <p>
 	 * This value is increased with every request to assure order.
-	 * 
+	 *
 	 * @return the count value
 	 */
 	public int getCount() {
@@ -84,7 +84,7 @@ public class SubscribeChannelsRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the set of {@link ChannelAddress}es.
-	 * 
+	 *
 	 * @return the {@link ChannelAddress}es
 	 */
 	public TreeSet<ChannelAddress> getChannels() {
@@ -93,7 +93,7 @@ public class SubscribeChannelsRequest extends JsonrpcRequest {
 
 	@Override
 	public JsonObject getParams() {
-		JsonArray channels = new JsonArray();
+		var channels = new JsonArray();
 		for (ChannelAddress address : this.channels) {
 			channels.add(address.toString());
 		}
