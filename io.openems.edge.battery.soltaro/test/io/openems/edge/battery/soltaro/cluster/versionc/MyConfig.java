@@ -1,7 +1,6 @@
 package io.openems.edge.battery.soltaro.cluster.versionc;
 
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
@@ -39,7 +38,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

@@ -50,7 +50,7 @@ public class CellChannelFactory {
 
 		/**
 		 * Gets the Offset.
-		 * 
+		 *
 		 * @return int
 		 */
 		public int getOffset() {
@@ -59,7 +59,7 @@ public class CellChannelFactory {
 
 		/**
 		 * Gets the SensorsPerModule.
-		 * 
+		 *
 		 * @return int
 		 */
 		public int getSensorsPerModule() {
@@ -69,29 +69,29 @@ public class CellChannelFactory {
 
 	/**
 	 * Create ChannelId for a Single-Rack.
-	 * 
+	 *
 	 * @param type  the {@link Type}
 	 * @param index the index
 	 * @return the ChannelId
 	 */
 	public static ChannelId create(Type type, int index) {
-		String key = "CLUSTER_1_BATTERY_" + String.format(NUMBER_FORMAT, index) + type.key;
-		IntegerDoc doc = new IntegerDoc();
+		var key = "CLUSTER_1_BATTERY_" + String.format(NUMBER_FORMAT, index) + type.key;
+		var doc = new IntegerDoc();
 		doc.unit(type.unit);
 		return new ChannelIdImpl(key, doc);
 	}
 
 	/**
 	 * Create ChannelId for a Rack as part of a Cluster.
-	 * 
+	 *
 	 * @param rack  the {@link Rack}
 	 * @param type  the {@link Type}
 	 * @param index the index
 	 * @return the ChannelId
 	 */
 	public static ChannelId create(Rack rack, Type type, int index) {
-		String key = rack.getChannelIdPrefix() + String.format(NUMBER_FORMAT, index) + type.key;
-		IntegerDoc doc = new IntegerDoc();
+		var key = rack.getChannelIdPrefix() + String.format(NUMBER_FORMAT, index) + type.key;
+		var doc = new IntegerDoc();
 		doc.unit(type.unit);
 		return new ChannelIdImpl(key, doc);
 	}
