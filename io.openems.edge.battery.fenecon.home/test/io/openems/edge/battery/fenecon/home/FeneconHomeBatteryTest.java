@@ -73,7 +73,8 @@ public class FeneconHomeBatteryTest {
 				.next(new TestCase("in WAIT_FOR_BMS_CONTROL") //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
 				.next(new TestCase("in WAIT_FOR_BMS_CONTROL")//
-						.input(BMS_CONTROL, BmsControl.SWITCHED_ON) //
+						.input(BMS_CONTROL, BmsControl.SWITCHED_ON)) //
+				.next(new TestCase("in WAIT_FOR_BMS_CONTROL")//
 						.output(BATTERY_RELAY, false)) //
 				.next(new TestCase("in WAIT_FOR_SWITCH_OFF") //
 						.input(BATTERY_RELAY, false) //
