@@ -247,7 +247,7 @@ public class InfluxConnector {
 		b.append(InfluxConnector.toChannelAddressStringEnergy(channels));
 		b.append(" FROM data WHERE ");
 		if (influxEdgeId.isPresent()) {
-			b.append(OpenemsOEM.INFLUXDB_TAG + " = '" + influxEdgeId.get() + "' AND ");
+			b.append(OpenemsOEM.EMS_TAG + " = '" + influxEdgeId.get() + "' AND ");
 		}
 		b.append("time > ");
 		b.append(String.valueOf(fromDate.toEpochSecond()));
@@ -296,7 +296,7 @@ public class InfluxConnector {
 		b.append(InfluxConnector.toChannelAddressStringNonNegativeDifferenceLast(channels));
 		b.append(" FROM data WHERE ");
 		if (influxEdgeId.isPresent()) {
-			b.append(OpenemsOEM.INFLUXDB_TAG + " = '" + influxEdgeId.get() + "' AND ");
+			b.append(OpenemsOEM.EMS_TAG + " = '" + influxEdgeId.get() + "' AND ");
 		}
 		b.append("time > ");
 		b.append(String.valueOf(fromDate.toEpochSecond()));
@@ -338,7 +338,7 @@ public class InfluxConnector {
 		query.append(InfluxConnector.toChannelAddressStringData(channels));
 		query.append(" FROM data WHERE ");
 		if (influxEdgeId.isPresent()) {
-			query.append(OpenemsOEM.INFLUXDB_TAG + " = '" + influxEdgeId.get() + "' AND ");
+			query.append(OpenemsOEM.EMS_TAG + " = '" + influxEdgeId.get() + "' AND ");
 		}
 		query.append("time > ");
 		query.append(String.valueOf(fromDate.toEpochSecond()));
