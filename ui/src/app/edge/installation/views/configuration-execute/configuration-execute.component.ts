@@ -325,6 +325,7 @@ export class ConfigurationExecuteComponent implements OnInit {
         });
 
         if (emergencyReserve.isEnabled) {
+          // TODO shouldn't this controller always be active? otherwise 'mode' below has no sense.
           this.componentConfigurator.add({
             factoryId: "Controller.Ess.EmergencyCapacityReserve",
             componentId: "ctrlEmergencyCapacityReserve0",

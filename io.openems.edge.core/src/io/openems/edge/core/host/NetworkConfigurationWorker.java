@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.JsonUtils;
 import io.openems.common.worker.AbstractWorker;
 
 /**
@@ -31,8 +32,8 @@ public class NetworkConfigurationWorker extends AbstractWorker {
 	@Override
 	protected void forever() {
 		try {
-			String actualNetworkConfiguration = this.parent.operatingSystem.getNetworkConfiguration().toJson()
-					.toString();
+			String actualNetworkConfiguration = JsonUtils
+					.prettyToString(this.parent.operatingSystem.getNetworkConfiguration().toJson());
 			String persistedNetworkConfiguration = this.parent.config.networkConfiguration();
 
 			if (!actualNetworkConfiguration.equals(persistedNetworkConfiguration)) {
