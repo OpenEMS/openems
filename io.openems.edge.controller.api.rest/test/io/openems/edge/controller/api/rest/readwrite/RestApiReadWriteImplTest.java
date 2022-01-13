@@ -113,7 +113,7 @@ public class RestApiReadWriteImplTest {
 		var request = new GetEdgeConfigRequest().toJsonObject();
 		JsonrpcResponseSuccess.from(//
 				JsonUtils.getAsJsonObject(//
-						sendPostRequest(port, GUEST, "/jsonrpc", request)));
+						sendPostRequest(port, OWNER, "/jsonrpc", request)));
 
 		// POST fails as GUEST
 		try {
