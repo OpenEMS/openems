@@ -20,6 +20,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
@@ -108,9 +109,15 @@ public class RestApiReadWriteImplTest {
 		/*
 		 * JSON-RPC
 		 */
-		// POST fails as INSTALLER
+		// POST successful as OWNER
+		var request = new GetEdgeConfigRequest().toJsonObject();
+		JsonrpcResponseSuccess.from(//
+				JsonUtils.getAsJsonObject(//
+						sendPostRequest(port, GUEST, "/jsonrpc", request)));
+
+		// POST fails as GUEST
 		try {
-			sendPostRequest(port, INSTALLER, "/jsonrpc", new GetEdgeConfigRequest().toJsonObject());
+			sendPostRequest(port, GUEST, "/jsonrpc", new GetEdgeConfigRequest().toJsonObject());
 			assertTrue(false);
 		} catch (OpenemsNamedException e) {
 
