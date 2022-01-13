@@ -328,7 +328,8 @@ public interface Field {
 		COUNTRY("country_id", true), //
 		ADDRESS_TYPE("type", true), //
 		NEWSLETTER("fenecon_crm_newsletter", true), //
-		LANGUAGE("lang", true);
+		LANGUAGE("lang", true), //
+		CATEGORY_ID("category_id", true);
 
 		public static final String ODOO_MODEL = "res.partner";
 		public static final String ODOO_TABLE = Partner.ODOO_MODEL.replace(".", "_");
