@@ -407,7 +407,7 @@ public class OdooHandler {
 	 */
 	public int submitSetupProtocol(MyUser user, JsonObject setupProtocolJson) throws OpenemsNamedException {
 		JsonObject userJson = JsonUtils.getAsJsonObject(setupProtocolJson, "customer");
-		JsonObject edgeJson = JsonUtils.getAsJsonObject(setupProtocolJson, "edge");
+		JsonObject edgeJson = JsonUtils.getAsJsonObject(setupProtocolJson, "fems");
 
 		var edgeId = JsonUtils.getAsString(edgeJson, "id");
 		int[] foundEdge = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,
@@ -481,18 +481,40 @@ public class OdooHandler {
 				new Domain(Field.User.LOGIN, "=", email));
 
 		if (userFound.length == 1) {
+			// update existing user
 			var userId = userFound[0];
 			OdooUtils.write(this.credentials, Field.User.ODOO_MODEL, new Integer[] { userId }, customerFields);
 			return userId;
 		}
+
 		customerFields.put(Field.User.LOGIN.id(), email);
 		customerFields.put(Field.User.PASSWORD.id(), password);
 		customerFields.put(Field.User.GLOBAL_ROLE.id(), OdooUserRole.OWNER.getOdooRole());
 		customerFields.put(Field.User.GROUPS.id(), OdooUserRole.OWNER.toOdooIds());
 		var createdUserId = OdooUtils.create(this.credentials, Field.User.ODOO_MODEL, customerFields);
 
+		try {
+			this.addTagToPartner(createdUserId);
+		} catch (OpenemsException e) {
+			this.log.warn("Unable to add tag for Odoo user id [" + createdUserId + "]", e);
+		}
+
 		this.sendRegistrationMail(createdUserId, password);
 		return createdUserId;
+	}
+
+	/**
+	 * Add the "Created via IBN" tag to the referenced partner for given user id.
+	 * 
+	 * @param userId to get Odoo partner
+	 * @throws OpenemsException on error
+	 */
+	private void addTagToPartner(int userId) throws OpenemsException {
+		var tagId = OdooUtils.getObjectReference(credentials, "fems", "res_partner_category_created_via_ibn");
+		var partnerId = this.getOdooPartnerId(userId);
+
+		OdooUtils.write(this.credentials, Field.Partner.ODOO_MODEL, new Integer[] { partnerId },
+				new FieldValue<>(Field.Partner.CATEGORY_ID, new Integer[] { tagId }));
 	}
 
 	/**
