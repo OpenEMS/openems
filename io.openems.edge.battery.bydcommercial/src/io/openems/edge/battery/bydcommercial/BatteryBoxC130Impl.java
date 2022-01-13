@@ -94,6 +94,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -112,16 +113,17 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionBydC130(), this.componentManager) //
 				.build();
 
-		int maxVoltage = this.config.numberOfSlaves() * MAX_ALLOWED_VOLTAGE_PER_MODULE;
-		_setChargeMaxVoltage(maxVoltage);
+		var maxVoltage = this.config.numberOfSlaves() * MAX_ALLOWED_VOLTAGE_PER_MODULE;
+		this._setChargeMaxVoltage(maxVoltage);
 
-		int minVoltage = this.config.numberOfSlaves() * MIN_ALLOWED_VOLTAGE_PER_MODULE;
-		_setDischargeMinVoltage(minVoltage);
+		var minVoltage = this.config.numberOfSlaves() * MIN_ALLOWED_VOLTAGE_PER_MODULE;
+		this._setDischargeMinVoltage(minVoltage);
 
-		int capacity = (int) (this.config.numberOfSlaves() * CAPACITY_PER_MODULE);
-		_setCapacity(capacity);
+		var capacity = (int) (this.config.numberOfSlaves() * CAPACITY_PER_MODULE);
+		this._setCapacity(capacity);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -152,7 +154,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		Context context = new Context(this, this.config);
+		var context = new Context(this, this.config);
 
 		// Call the StateMachine
 		try {
@@ -193,7 +195,8 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [A]
 								.build(), //
 						m(BatteryBoxC130.ChannelId.BATTERY_WORK_STATE, new UnsignedWordElement(0x2102)), //
-						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), m(new UnsignedWordElement(0x2104)) //
+						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)),
+						m(new UnsignedWordElement(0x2104)) //
 								.m(BatteryBoxC130.ChannelId.CLUSTER_1_SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
 								.m(Battery.ChannelId.SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
 								.build(), //
@@ -209,14 +212,16 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 										ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(Battery.ChannelId.MIN_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.build(), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x2109)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE_ID,
+								new UnsignedWordElement(0x2109)), //
 						m(new SignedWordElement(0x210A)) //
 								.m(BatteryBoxC130.ChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE,
 										ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(Battery.ChannelId.MAX_CELL_TEMPERATURE,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build(), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x210B)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE_ID,
+								new UnsignedWordElement(0x210B)), //
 						m(new SignedWordElement(0x210C)) //
 								.m(BatteryBoxC130.ChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE,
 										ElementToChannelConverter.DIRECT_1_TO_1) //
@@ -591,54 +596,102 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_216_VOLTAGE, new UnsignedWordElement(0x28D7)) //
 				), //
 				new FC3ReadRegistersTask(0x2C00, Priority.LOW, //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_00_TEMPERATURE, new UnsignedWordElement(0x2C00)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_01_TEMPERATURE, new UnsignedWordElement(0x2C01)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_02_TEMPERATURE, new UnsignedWordElement(0x2C02)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_03_TEMPERATURE, new UnsignedWordElement(0x2C03)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_04_TEMPERATURE, new UnsignedWordElement(0x2C04)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_05_TEMPERATURE, new UnsignedWordElement(0x2C05)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_06_TEMPERATURE, new UnsignedWordElement(0x2C06)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_07_TEMPERATURE, new UnsignedWordElement(0x2C07)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_08_TEMPERATURE, new UnsignedWordElement(0x2C08)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_09_TEMPERATURE, new UnsignedWordElement(0x2C09)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_10_TEMPERATURE, new UnsignedWordElement(0x2C0A)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_11_TEMPERATURE, new UnsignedWordElement(0x2C0B)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_12_TEMPERATURE, new UnsignedWordElement(0x2C0C)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_13_TEMPERATURE, new UnsignedWordElement(0x2C0D)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_14_TEMPERATURE, new UnsignedWordElement(0x2C0E)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_15_TEMPERATURE, new UnsignedWordElement(0x2C0F)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_16_TEMPERATURE, new UnsignedWordElement(0x2C10)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_17_TEMPERATURE, new UnsignedWordElement(0x2C11)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_18_TEMPERATURE, new UnsignedWordElement(0x2C12)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_19_TEMPERATURE, new UnsignedWordElement(0x2C13)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_20_TEMPERATURE, new UnsignedWordElement(0x2C14)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_21_TEMPERATURE, new UnsignedWordElement(0x2C15)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_22_TEMPERATURE, new UnsignedWordElement(0x2C16)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_23_TEMPERATURE, new UnsignedWordElement(0x2C17)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_24_TEMPERATURE, new UnsignedWordElement(0x2C18)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_25_TEMPERATURE, new UnsignedWordElement(0x2C19)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_26_TEMPERATURE, new UnsignedWordElement(0x2C1A)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_27_TEMPERATURE, new UnsignedWordElement(0x2C1B)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_28_TEMPERATURE, new UnsignedWordElement(0x2C1C)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_29_TEMPERATURE, new UnsignedWordElement(0x2C1D)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_30_TEMPERATURE, new UnsignedWordElement(0x2C1E)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_31_TEMPERATURE, new UnsignedWordElement(0x2C1F)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_32_TEMPERATURE, new UnsignedWordElement(0x2C20)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_33_TEMPERATURE, new UnsignedWordElement(0x2C21)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_34_TEMPERATURE, new UnsignedWordElement(0x2C22)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_35_TEMPERATURE, new UnsignedWordElement(0x2C23)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_36_TEMPERATURE, new UnsignedWordElement(0x2C24)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_37_TEMPERATURE, new UnsignedWordElement(0x2C25)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_38_TEMPERATURE, new UnsignedWordElement(0x2C26)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_39_TEMPERATURE, new UnsignedWordElement(0x2C27)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_40_TEMPERATURE, new UnsignedWordElement(0x2C28)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_41_TEMPERATURE, new UnsignedWordElement(0x2C29)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_42_TEMPERATURE, new UnsignedWordElement(0x2C2A)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_43_TEMPERATURE, new UnsignedWordElement(0x2C2B)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_44_TEMPERATURE, new UnsignedWordElement(0x2C2C)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_45_TEMPERATURE, new UnsignedWordElement(0x2C2D)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_46_TEMPERATURE, new UnsignedWordElement(0x2C2E)), //
-						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_47_TEMPERATURE, new UnsignedWordElement(0x2C2F)) //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_00_TEMPERATURE,
+								new UnsignedWordElement(0x2C00)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_01_TEMPERATURE,
+								new UnsignedWordElement(0x2C01)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_02_TEMPERATURE,
+								new UnsignedWordElement(0x2C02)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_03_TEMPERATURE,
+								new UnsignedWordElement(0x2C03)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_04_TEMPERATURE,
+								new UnsignedWordElement(0x2C04)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_05_TEMPERATURE,
+								new UnsignedWordElement(0x2C05)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_06_TEMPERATURE,
+								new UnsignedWordElement(0x2C06)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_07_TEMPERATURE,
+								new UnsignedWordElement(0x2C07)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_08_TEMPERATURE,
+								new UnsignedWordElement(0x2C08)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_09_TEMPERATURE,
+								new UnsignedWordElement(0x2C09)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_10_TEMPERATURE,
+								new UnsignedWordElement(0x2C0A)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_11_TEMPERATURE,
+								new UnsignedWordElement(0x2C0B)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_12_TEMPERATURE,
+								new UnsignedWordElement(0x2C0C)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_13_TEMPERATURE,
+								new UnsignedWordElement(0x2C0D)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_14_TEMPERATURE,
+								new UnsignedWordElement(0x2C0E)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_15_TEMPERATURE,
+								new UnsignedWordElement(0x2C0F)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_16_TEMPERATURE,
+								new UnsignedWordElement(0x2C10)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_17_TEMPERATURE,
+								new UnsignedWordElement(0x2C11)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_18_TEMPERATURE,
+								new UnsignedWordElement(0x2C12)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_19_TEMPERATURE,
+								new UnsignedWordElement(0x2C13)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_20_TEMPERATURE,
+								new UnsignedWordElement(0x2C14)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_21_TEMPERATURE,
+								new UnsignedWordElement(0x2C15)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_22_TEMPERATURE,
+								new UnsignedWordElement(0x2C16)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_23_TEMPERATURE,
+								new UnsignedWordElement(0x2C17)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_24_TEMPERATURE,
+								new UnsignedWordElement(0x2C18)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_25_TEMPERATURE,
+								new UnsignedWordElement(0x2C19)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_26_TEMPERATURE,
+								new UnsignedWordElement(0x2C1A)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_27_TEMPERATURE,
+								new UnsignedWordElement(0x2C1B)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_28_TEMPERATURE,
+								new UnsignedWordElement(0x2C1C)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_29_TEMPERATURE,
+								new UnsignedWordElement(0x2C1D)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_30_TEMPERATURE,
+								new UnsignedWordElement(0x2C1E)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_31_TEMPERATURE,
+								new UnsignedWordElement(0x2C1F)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_32_TEMPERATURE,
+								new UnsignedWordElement(0x2C20)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_33_TEMPERATURE,
+								new UnsignedWordElement(0x2C21)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_34_TEMPERATURE,
+								new UnsignedWordElement(0x2C22)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_35_TEMPERATURE,
+								new UnsignedWordElement(0x2C23)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_36_TEMPERATURE,
+								new UnsignedWordElement(0x2C24)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_37_TEMPERATURE,
+								new UnsignedWordElement(0x2C25)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_38_TEMPERATURE,
+								new UnsignedWordElement(0x2C26)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_39_TEMPERATURE,
+								new UnsignedWordElement(0x2C27)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_40_TEMPERATURE,
+								new UnsignedWordElement(0x2C28)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_41_TEMPERATURE,
+								new UnsignedWordElement(0x2C29)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_42_TEMPERATURE,
+								new UnsignedWordElement(0x2C2A)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_43_TEMPERATURE,
+								new UnsignedWordElement(0x2C2B)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_44_TEMPERATURE,
+								new UnsignedWordElement(0x2C2C)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_45_TEMPERATURE,
+								new UnsignedWordElement(0x2C2D)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_46_TEMPERATURE,
+								new UnsignedWordElement(0x2C2E)), //
+						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_47_TEMPERATURE,
+								new UnsignedWordElement(0x2C2F)) //
 				)//
 		); //
 	}
@@ -651,7 +704,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 		);
 	}
 
-	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
+	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 
 	@Override
 	public void setStartStop(StartStop value) {
@@ -683,12 +736,12 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 
 	/*
 	 * Handle incompatibility with old hardware protocol.
-	 * 
+	 *
 	 * 'onRegister0x2100Update()' callback is called when register 0x2100 is read.
 	 */
 
 	private boolean isModbusProtocolInitialized = false;
-	private final Consumer<Integer> onRegister0x2100Update = (value) -> {
+	private final Consumer<Integer> onRegister0x2100Update = value -> {
 		if (value == null) {
 			// ignore invalid values; modbus bridge has no connection yet
 			return;
@@ -708,11 +761,13 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 							try {
 								this.getModbusProtocol().addTasks(//
 										new FC3ReadRegistersTask(0x210D, Priority.LOW, //
-												m(BatteryBoxC130.ChannelId.MODULE_QTY, new UnsignedWordElement(0x210D)), //
+												m(BatteryBoxC130.ChannelId.MODULE_QTY,
+														new UnsignedWordElement(0x210D)), //
 												m(BatteryBoxC130.ChannelId.TOTAL_VOLTAGE_OF_SINGLE_MODULE,
 														new UnsignedWordElement(0x210E))), //
 										new FC3ReadRegistersTask(0x216E, Priority.LOW, //
-												m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(0x216E), //
+												m(Battery.ChannelId.CHARGE_MAX_VOLTAGE,
+														new UnsignedWordElement(0x216E), //
 														ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 												m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
 														new UnsignedWordElement(0x216F), //

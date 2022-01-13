@@ -8,7 +8,7 @@ import io.openems.common.types.OptionsEnum;
 import io.openems.common.utils.JsonUtils;
 
 /**
- * Severity/visibility Level
+ * Severity/visibility Level.
  */
 public enum Level implements OptionsEnum {
 	/**
@@ -39,12 +39,12 @@ public enum Level implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public enum Level implements OptionsEnum {
 
 	/**
 	 * Is this Level at least as high as the other Level.
-	 * 
+	 *
 	 * @param level the other level
 	 * @return true if it as at least as high
 	 */
@@ -64,7 +64,7 @@ public enum Level implements OptionsEnum {
 
 	/**
 	 * Gets the Level from an integer value.
-	 * 
+	 *
 	 * @param value the integer value
 	 * @return the Level
 	 */
@@ -79,13 +79,13 @@ public enum Level implements OptionsEnum {
 
 	/**
 	 * Gets the Level from a JsonObject.
-	 * 
+	 *
 	 * @param element    the JsonObject
 	 * @param memberName the name of the member of the JsonObject
 	 * @return the Level
 	 */
 	public static Optional<Level> fromJson(JsonElement element, String memberName) {
-		Optional<Integer> valueOpt = JsonUtils.getAsOptionalInt(element, memberName);
+		var valueOpt = JsonUtils.getAsOptionalInt(element, memberName);
 		if (!valueOpt.isPresent()) {
 			return Optional.empty();
 		}
@@ -94,12 +94,12 @@ public enum Level implements OptionsEnum {
 
 	/**
 	 * Gets the Level from a JsonElement.
-	 * 
+	 *
 	 * @param element the JsonElement
 	 * @return the Level
 	 */
 	public static Optional<Level> fromJson(JsonElement element) {
-		Optional<Integer> valueOpt = JsonUtils.getAsOptionalInt(element);
+		var valueOpt = JsonUtils.getAsOptionalInt(element);
 		if (!valueOpt.isPresent()) {
 			return Optional.empty();
 		}

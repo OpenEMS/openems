@@ -94,6 +94,7 @@ export class Library {
     public static readonly OSGI_SERVICE_JDBC = new Library('org.osgi.service.jdbc', 'org.osgi.service.jdbc');
     public static readonly POSTGRESQL = new Library('Postgresql', 'org.postgresql');
     public static readonly SLF4J = new Library('SLF4j', 'org.slf4j');
+    public static readonly RRD4J = new Library('RRD4j', 'org.rrd4j');
 
     // UI
     public static readonly ANGULAR = new Library('Angular', 'angular');

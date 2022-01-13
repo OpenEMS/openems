@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from './../../shared/shared.module';
+import { AppModule } from './app/app.module';
 import { AutoinstallerComponent } from './autoinstaller/autoinstaller.component';
 import { EvcsInstallerComponent } from './autoinstaller/evcs/evcs.component';
 import { HeatingElementRtuInstallerComponent } from './autoinstaller/heatingelementrtu/heatingelementrtu.component';
@@ -22,6 +23,7 @@ import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
 
 @NgModule({
   imports: [
+    AppModule,
     SharedModule,
     ServiceAssistantModule
   ],

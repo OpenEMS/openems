@@ -21,6 +21,9 @@ import { StorageChartOverviewComponent } from './edge/history/storage/storagecha
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './edge/history/timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { InstallationComponent } from './edge/installation/installation.component';
 import { LiveComponent as EdgeLiveComponent } from './edge/live/live.component';
+import { IndexComponent as EdgeSettingsAppIndex } from './edge/settings/app/index.component';
+import { InstallAppComponent as EdgeSettingsAppInstall } from './edge/settings/app/install.component';
+import { UpdateAppComponent as EdgeSettingsAppUpdate } from './edge/settings/app/update.component';
 import { AutoinstallerComponent as EdgeSettingsAutoinstallerComponent } from './edge/settings/autoinstaller/autoinstaller.component';
 import { ChannelsComponent as EdgeSettingsChannelsComponent } from './edge/settings/channels/channels.component';
 import { IndexComponent as EdgeSettingsComponentInstallIndexComponentComponent } from './edge/settings/component/install/index.component';
@@ -87,6 +90,9 @@ const routes: Routes = [
   { path: 'device/:edgeId/settings/systemlog', component: EdgeSettingsSystemLogComponent },
   { path: 'device/:edgeId/settings/systemupdate', component: EdgeSettingsSystemUpdateComponent },
   { path: 'device/:edgeId/settings/systemupdate.old', component: EdgeSettingsSystemUpdateOldComponent },
+  { path: 'device/:edgeId/settings/app', component: EdgeSettingsAppIndex },
+  { path: 'device/:edgeId/settings/app/install/:appId', component: EdgeSettingsAppInstall },
+  { path: 'device/:edgeId/settings/app/update/:appId', component: EdgeSettingsAppUpdate },
   { path: 'demo', component: IndexComponent }
 ];
 

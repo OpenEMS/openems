@@ -48,6 +48,7 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 			} else {
 				this.state = BatteryRelayState.WAIT_FOR_BMS_CONTROL;
 			}
+			break;
 		}
 
 		case WAIT_FOR_SWITCH_OFF: {
@@ -77,9 +78,10 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 
 	/**
 	 * Set Switch to OFF or Switch ON Operation.
-	 * 
-	 * @param relayOperation true to switch the relay on; <br/>
-	 *                       false to switch the relay off
+	 *
+	 * @param context the {@link Context}
+	 * @param value   true to switch the relay on; <br/>
+	 *                false to switch the relay off
 	 * @throws OpenemsNamedException on error
 	 */
 	public void setBatteryStartUpRelay(Context context, boolean value) throws OpenemsNamedException {
@@ -88,6 +90,7 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 				context.logInfo(this.log,
 						"Because of the wrong/missed configured Battery Start Up Relay Channel Address, relay CAN NOT SWITCH ON.");
 				return;
+
 			} else {
 				context.logInfo(this.log,
 						"Set output [" + context.batteryStartUpRelayChannel.address() + "] SWITCHED ON.");
@@ -97,6 +100,7 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 				context.logInfo(this.log,
 						"Because of the wrong/missed configured Battery Start Up Relay Channel Address, relay CAN NOT SWITCH OFF.");
 				return;
+
 			} else {
 				context.logInfo(this.log,
 						"Set output [" + context.batteryStartUpRelayChannel.address() + "] SWITCHED OFF.");

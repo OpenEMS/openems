@@ -96,7 +96,7 @@ public class ApplyPowerHandler {
 		// Is Surplus-Feed-In active?
 		final Integer surplusPower = goodWe.getSurplusPower();
 		int diffSurplus = Integer.MAX_VALUE;
-		if (surplusPower != null) {
+		if (surplusPower != null && surplusPower > 0 && activePowerSetPoint != 0) {
 			diffSurplus = activePowerSetPoint - surplusPower;
 		}
 

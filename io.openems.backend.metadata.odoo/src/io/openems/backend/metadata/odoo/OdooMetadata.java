@@ -16,7 +16,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -28,8 +27,8 @@ import io.openems.backend.metadata.odoo.odoo.OdooHandler;
 import io.openems.backend.metadata.odoo.odoo.OdooUserRole;
 import io.openems.backend.metadata.odoo.postgres.PostgresHandler;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 
@@ -49,7 +48,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	/**
 	 * Maps User-ID to {@link User}.
 	 */
-	private ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
 
 	public OdooMetadata() {
 		super("Metadata.Odoo");
@@ -58,7 +57,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Activate
-	void activate(Config config) throws SQLException {
+	private void activate(Config config) throws SQLException {
 		this.logInfo(this.log, "Activate. " //
 				+ "Odoo [" + config.odooHost() + ":" + config.odooPort() + ";PW "
 				+ (config.odooPassword() != null ? "ok" : "NOT_SET") + "] " //
@@ -73,7 +72,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Deactivate
-	void deactivate() {
+	private void deactivate() {
 		this.logInfo(this.log, "Deactivate");
 		if (this.postgresHandler != null) {
 			this.postgresHandler.deactivate();
@@ -97,17 +96,17 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 		JsonObject result = this.odooHandler.authenticateSession(sessionId);
 
 		// Parse Result
-		JsonArray jDevices = JsonUtils.getAsJsonArray(result, "devices");
+		var jDevices = JsonUtils.getAsJsonArray(result, "devices");
 		NavigableMap<String, Role> roles = new TreeMap<>();
 		for (JsonElement device : jDevices) {
-			String edgeId = JsonUtils.getAsString(device, "name");
-			Role role = Role.getRole(JsonUtils.getAsString(device, "role"));
+			var edgeId = JsonUtils.getAsString(device, "name");
+			var role = Role.getRole(JsonUtils.getAsString(device, "role"));
 			roles.put(edgeId, role);
 		}
-		JsonObject jUser = JsonUtils.getAsJsonObject(result, "user");
-		int odooUserId = JsonUtils.getAsInt(jUser, "id");
+		var jUser = JsonUtils.getAsJsonObject(result, "user");
+		var odooUserId = JsonUtils.getAsInt(jUser, "id");
 
-		MyUser user = new MyUser(//
+		var user = new MyUser(//
 				odooUserId, //
 				JsonUtils.getAsString(jUser, "login"), //
 				JsonUtils.getAsString(jUser, "name"), //
@@ -127,17 +126,16 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 
 	@Override
 	public Optional<String> getEdgeIdForApikey(String apikey) {
-		Optional<MyEdge> edge = this.postgresHandler.getEdgeForApikey(apikey);
-		if (edge.isPresent()) {
-			return Optional.of(edge.get().getId());
-		} else {
-			return Optional.empty();
+		var edgeOpt = this.postgresHandler.getEdgeForApikey(apikey);
+		if (edgeOpt.isPresent()) {
+			return Optional.of(edgeOpt.get().getId());
 		}
+		return Optional.empty();
 	}
 
 	@Override
 	public Optional<Edge> getEdgeBySetupPassword(String setupPassword) {
-		Optional<String> optEdgeId = this.odooHandler.getEdgeIdBySetupPassword(setupPassword);
+		var optEdgeId = this.odooHandler.getEdgeIdBySetupPassword(setupPassword);
 		if (!optEdgeId.isPresent()) {
 			return Optional.empty();
 		}
@@ -161,7 +159,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 
 	/**
 	 * Gets the {@link OdooHandler}.
-	 * 
+	 *
 	 * @return the {@link OdooHandler}
 	 */
 	public OdooHandler getOdooHandler() {
@@ -170,7 +168,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 
 	/**
 	 * Gets the {@link PostgresHandler}.
-	 * 
+	 *
 	 * @return the {@link PostgresHandler}
 	 */
 	public PostgresHandler getPostgresHandler() {
@@ -219,11 +217,13 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 
 	@Override
 	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException {
-		OdooUserRole role = OdooUserRole.OWNER;
+		final OdooUserRole role;
 
-		Optional<String> optRole = JsonUtils.getAsOptionalString(jsonObject, "role");
-		if (optRole.isPresent()) {
-			role = OdooUserRole.getRole(optRole.get());
+		var roleOpt = JsonUtils.getAsOptionalString(jsonObject, "role");
+		if (roleOpt.isPresent()) {
+			role = OdooUserRole.getRole(roleOpt.get());
+		} else {
+			role = OdooUserRole.OWNER;
 		}
 
 		this.odooHandler.registerUser(jsonObject, role);

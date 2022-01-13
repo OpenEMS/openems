@@ -14,7 +14,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Wraps a JSON-RPC Request from an authenticated User.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -36,16 +36,16 @@ public class AuthenticatedRpcRequest<USER extends AbstractUser> extends JsonrpcR
 	/**
 	 * Create {@link AuthenticatedRpcRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * <p>
-	 * 
 	 * This method is called by OpenEMS Edge after it receives a message from
 	 * OpenEMS Backend. As such the `edgeId` is empty here.
-	 * 
+	 *
+	 * @param <USER>      the type of User
 	 * @param r           the template {@link JsonrpcRequest}
 	 * @param userFactory a {@link ThrowingFunction} that parses the following
 	 *                    {@link JsonObject} structure to a {@link AbstractUser}
-	 * 
+	 *
 	 *                    <pre>
 	 * {
 	 *   "id": string,
@@ -59,10 +59,10 @@ public class AuthenticatedRpcRequest<USER extends AbstractUser> extends JsonrpcR
 	 */
 	public static <USER extends AbstractUser> AuthenticatedRpcRequest<USER> from(JsonrpcRequest r,
 			ThrowingFunction<JsonObject, USER, OpenemsNamedException> userFactory) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
+		var p = r.getParams();
 		USER user = userFactory.apply(JsonUtils.getAsJsonObject(p, "user"));
 		JsonrpcRequest payload = GenericJsonrpcRequest.from(JsonUtils.getAsJsonObject(p, "payload"));
-		return new AuthenticatedRpcRequest<USER>(r, Optional.empty(), user, payload);
+		return new AuthenticatedRpcRequest<>(r, Optional.empty(), user, payload);
 	}
 
 	public static final String METHOD = "authenticatedRpc";
@@ -72,7 +72,7 @@ public class AuthenticatedRpcRequest<USER extends AbstractUser> extends JsonrpcR
 	private final JsonrpcRequest payload;
 
 	public AuthenticatedRpcRequest(String edgeId, USER user, JsonrpcRequest payload) {
-		super(METHOD);
+		super(AuthenticatedRpcRequest.METHOD);
 		this.edgeId = Optional.ofNullable(edgeId);
 		this.user = user;
 		this.payload = payload;
@@ -80,7 +80,7 @@ public class AuthenticatedRpcRequest<USER extends AbstractUser> extends JsonrpcR
 
 	private AuthenticatedRpcRequest(JsonrpcRequest request, Optional<String> edgeId, USER user,
 			JsonrpcRequest payload) {
-		super(request, METHOD);
+		super(request, AuthenticatedRpcRequest.METHOD);
 		this.edgeId = edgeId;
 		this.user = user;
 		this.payload = payload;
@@ -88,7 +88,7 @@ public class AuthenticatedRpcRequest<USER extends AbstractUser> extends JsonrpcR
 
 	/**
 	 * Gets the {@link AbstractUser}.
-	 * 
+	 *
 	 * @return User
 	 */
 	public USER getUser() {
@@ -97,7 +97,7 @@ public class AuthenticatedRpcRequest<USER extends AbstractUser> extends JsonrpcR
 
 	/**
 	 * Gets the Payload {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @return Payload
 	 */
 	public JsonrpcRequest getPayload() {
@@ -108,7 +108,7 @@ public class AuthenticatedRpcRequest<USER extends AbstractUser> extends JsonrpcR
 	 * This method is called in OpenEMS Backend and formats the
 	 * {@link AuthenticatedRpcRequest}, especially the `user` property so, that it
 	 * contains only the required information for OpenEMS Edge and can be parsed via
-	 * {@link #from(JsonrpcRequest, ThrowingFunction).
+	 * {@link #from(JsonrpcRequest, ThrowingFunction)}.
 	 */
 	@Override
 	public JsonObject getParams() {

@@ -8,10 +8,10 @@ public enum ErrorBits1 implements OptionsEnum {
 	LOW_VOLTAGE(1, "Low Voltage Error"), //
 	HIGH_VOLTAGE(2, "High Voltage Error"), //
 	CHARGE_CURRENT(3, "Charge Current Error"), //
-	DISCHARGE_CURRENT(4, "Discharge Current Error"), //	
+	DISCHARGE_CURRENT(4, "Discharge Current Error"), //
 	CHARGE_POWER(5, "Charge Power Error"), //
-	DISCHARGE_POWER(6, "Discharge Power Error"), //	
-	LOW_SOC(7, "Low SoC Error"), //	
+	DISCHARGE_POWER(6, "Discharge Power Error"), //
+	LOW_SOC(7, "Low SoC Error"), //
 	HIGH_SOC(8, "High SoC Error"), //
 	LOW_TEMPERATURE(9, "Low Temperature Error"), //
 	HIGH_TEMPERATURE(10, "High Temperature Error"), //
@@ -19,9 +19,7 @@ public enum ErrorBits1 implements OptionsEnum {
 	CONTACTOR_FUSE(12, "Contactor/Fuse Error"), //
 	SENSOR(13, "Sensor Error"), //
 	IMBALANCE(14, "Imbalance Error"), //
-	COMMUNICATION(15, "Communication Error"), //
-	
-	;
+	COMMUNICATION(15, "Communication Error");
 
 	private final int value;
 	private final String name;
@@ -33,12 +31,12 @@ public enum ErrorBits1 implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

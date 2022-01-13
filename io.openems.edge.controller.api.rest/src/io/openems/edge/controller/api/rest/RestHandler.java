@@ -402,7 +402,7 @@ public class RestHandler extends AbstractHandler {
 	 */
 	private void handleJsonRpc(User user, Request baseRequest, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse) throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("HTTP POST JSON-RPC", Role.ADMIN);
+		user.assertRoleIsAtLeast("HTTP POST JSON-RPC", Role.OWNER);
 
 		UUID requestId = new UUID(0L, 0L); /* dummy UUID */
 		try {

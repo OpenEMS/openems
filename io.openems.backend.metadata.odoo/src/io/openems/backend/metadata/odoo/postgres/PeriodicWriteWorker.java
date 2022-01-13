@@ -1,6 +1,5 @@
 package io.openems.backend.metadata.odoo.postgres;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -63,7 +62,8 @@ public class PeriodicWriteWorker {
 	public synchronized void start() {
 		this.future = this.executor.scheduleWithFixedDelay(//
 				() -> this.task.accept(this.dataSource), //
-				UPDATE_INTERVAL_IN_SECONDS, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
+				PeriodicWriteWorker.UPDATE_INTERVAL_IN_SECONDS, PeriodicWriteWorker.UPDATE_INTERVAL_IN_SECONDS,
+				TimeUnit.SECONDS);
 	}
 
 	/**
@@ -78,9 +78,9 @@ public class PeriodicWriteWorker {
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 	}
 
-	private Consumer<HikariDataSource> task = (dataSource) -> {
+	private final Consumer<HikariDataSource> task = dataSource -> {
 		try {
-			if (DEBUG_MODE) {
+			if (PeriodicWriteWorker.DEBUG_MODE) {
 				this.debugLog();
 			}
 
@@ -101,7 +101,7 @@ public class PeriodicWriteWorker {
 
 	/**
 	 * Called on Edge onSetLastMessage event.
-	 * 
+	 *
 	 * @param edge the {@link MyEdge}.
 	 */
 	public void onLastMessage(MyEdge edge) {
@@ -112,7 +112,7 @@ public class PeriodicWriteWorker {
 
 	/**
 	 * Called on Edge onSetLastUpdate event.
-	 * 
+	 *
 	 * @param edge the {@link MyEdge}.
 	 */
 	public void onLastUpdate(MyEdge edge) {
@@ -123,7 +123,7 @@ public class PeriodicWriteWorker {
 
 	/**
 	 * Called on Edge isOnline event.
-	 * 
+	 *
 	 * @param edge the {@link MyEdge}.
 	 */
 	public void isOnline(MyEdge edge) {
@@ -138,7 +138,7 @@ public class PeriodicWriteWorker {
 
 	/**
 	 * Called on Edge isOffline event.
-	 * 
+	 *
 	 * @param edge the {@link MyEdge}.
 	 */
 	public void isOffline(MyEdge edge) {
@@ -154,7 +154,7 @@ public class PeriodicWriteWorker {
 	private void writeIsOffline(HikariDataSource dataSource) throws SQLException {
 		synchronized (this.isOfflineOdooIds) {
 			if (!this.isOfflineOdooIds.isEmpty()) {
-				StringBuilder sql = new StringBuilder(//
+				var sql = new StringBuilder(//
 						"UPDATE " + EdgeDevice.ODOO_TABLE //
 								+ " SET " + Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = FALSE" //
 								+ " WHERE id IN (");
@@ -172,7 +172,7 @@ public class PeriodicWriteWorker {
 	private void writeIsOnline(HikariDataSource dataSource) throws SQLException {
 		synchronized (this.isOnlineOdooIds) {
 			if (!this.isOnlineOdooIds.isEmpty()) {
-				StringBuilder sql = new StringBuilder(//
+				var sql = new StringBuilder(//
 						"UPDATE " + EdgeDevice.ODOO_TABLE //
 								+ " SET " + Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = TRUE" //
 								+ " WHERE id IN (");
@@ -190,7 +190,7 @@ public class PeriodicWriteWorker {
 	private void writeLastUpdate(HikariDataSource dataSource) throws SQLException {
 		synchronized (this.lastUpdateOdooIds) {
 			if (!this.lastUpdateOdooIds.isEmpty()) {
-				StringBuilder sql = new StringBuilder(//
+				var sql = new StringBuilder(//
 						"UPDATE " + EdgeDevice.ODOO_TABLE //
 								+ " SET " + Field.EdgeDevice.LAST_UPDATE.id() + " = (now() at time zone 'UTC')" //
 								+ " WHERE id IN (");
@@ -208,7 +208,7 @@ public class PeriodicWriteWorker {
 	private void writeLastMessage(HikariDataSource dataSource) throws SQLException {
 		synchronized (this.lastMessageOdooIds) {
 			if (!this.lastMessageOdooIds.isEmpty()) {
-				StringBuilder sql = new StringBuilder(//
+				var sql = new StringBuilder(//
 						"UPDATE " + EdgeDevice.ODOO_TABLE //
 								+ " SET " + Field.EdgeDevice.LAST_MESSAGE.id() + " = (now() at time zone 'UTC')" //
 								+ " WHERE id IN (");
@@ -224,8 +224,7 @@ public class PeriodicWriteWorker {
 	}
 
 	private void executeSql(HikariDataSource dataSource, String sql) throws SQLException {
-		try (Connection con = dataSource.getConnection(); //
-		) {
+		try (var con = dataSource.getConnection()) {
 			con.createStatement().executeUpdate(sql);
 		}
 	}
@@ -236,7 +235,7 @@ public class PeriodicWriteWorker {
 	private LocalDateTime lastExecute = null;
 
 	private synchronized void debugLog() {
-		LocalDateTime now = LocalDateTime.now();
+		var now = LocalDateTime.now();
 		if (this.lastExecute != null) {
 			this.parent.logInfo(this.log, "PeriodicWriteWorker. " //
 					+ "Time since last run: [" + ChronoUnit.SECONDS.between(this.lastExecute, now) + "s]" //

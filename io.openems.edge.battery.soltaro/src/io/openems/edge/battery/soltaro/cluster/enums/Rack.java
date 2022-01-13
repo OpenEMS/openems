@@ -20,7 +20,7 @@ public enum Rack {
 
 	/**
 	 * Get the {@link Rack} for the given ID.
-	 * 
+	 *
 	 * @param rackId from 1 to 5
 	 * @return the {@link Rack}
 	 */
@@ -56,7 +56,7 @@ public enum Rack {
 
 	/**
 	 * Gets the Channel-ID Prefix for this Rack in the form "RACK_X_".
-	 * 
+	 *
 	 * @return the prefix
 	 */
 	public String getChannelIdPrefix() {
@@ -65,7 +65,7 @@ public enum Rack {
 
 	/**
 	 * Gets the Channel-Doc Text Prefix for this Rack in the form "Rack X ".
-	 * 
+	 *
 	 * @return the prefix
 	 */
 	public String getChannelDocTextPrefix() {

@@ -6,7 +6,7 @@
   <ion-item lines="none">
     <ion-button [disabled]="installationData.pv.ac.length >= 1" (click)="switchMode()" slot="start">
       <ion-label>{{insertModeEnabled ? "Erzeuger speichern" : "Erzeuger hinzufügen"}}</ion-label>
-      <ion-icon name="add-outline" slot="start"></ion-icon>
+      <ion-icon [name]="insertModeEnabled ? 'save-outline':'add-outline'" slot="start"></ion-icon>
     </ion-button>
     <ion-button (click)="openManual()" slot="end">
       <ion-label>Anleitung öffnen</ion-label>
