@@ -36,6 +36,7 @@ export class InstallAppComponent implements OnInit {
     let appId = this.route.snapshot.params["appId"];
     this.appId = appId;
     this.service.setCurrentComponent("App " + appId, this.route).then(edge => {
+      this.edge = edge;
       edge.sendRequest(this.websocket,
         new ComponentJsonApiRequest({
           componentId: "_appManager",
