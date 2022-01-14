@@ -72,7 +72,10 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
           let quarterlyPricesDelayedDischargeData = [];
           // let predictedSocWithoutLogicData = [];
 
-          for (let i = 0; i < 96; i++) {
+          //Size of the data
+          let size = result.data[TimeOfUseTariffState].length;
+
+          for (let i = 0; i < size; i++) {
             let quarterlyPrice = this.formatPrice(result.data[quarterlyPrices][i]);
             let state = result.data[TimeOfUseTariffState][i];
 
