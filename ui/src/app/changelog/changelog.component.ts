@@ -35,6 +35,12 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.1.2',
+        changes: [
+          Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF) + "Verbesserung der historischen Darstellung über einen längeren Zeitraum",
+        ]
+      },
+      {
         version: '2022.1.1',
         changes: [
           Changelog.openems('2022.1.0'),
