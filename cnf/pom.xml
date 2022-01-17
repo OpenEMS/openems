@@ -203,7 +203,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.12.13</version>
+			<version>0.12.14</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv5 Client -->
