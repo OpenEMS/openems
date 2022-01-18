@@ -406,8 +406,9 @@ public class OdooHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	public int submitSetupProtocol(MyUser user, JsonObject setupProtocolJson) throws OpenemsNamedException {
-		JsonObject userJson = JsonUtils.getAsJsonObject(setupProtocolJson, "customer");
-		JsonObject edgeJson = JsonUtils.getAsJsonObject(setupProtocolJson, "fems");
+		var userJson = JsonUtils.getAsJsonObject(setupProtocolJson, "customer");
+		var edgeJson = JsonUtils.getAsJsonObject(setupProtocolJson, "fems");
+		var installerJson = JsonUtils.getAsJsonObject(setupProtocolJson, "installer");
 
 		var edgeId = JsonUtils.getAsString(edgeJson, "id");
 		int[] foundEdge = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,
@@ -424,6 +425,20 @@ public class OdooHandler {
 		this.assignEdgeToUser(odooUserId, foundEdge[0], OdooUserRole.OWNER);
 
 		var protocolId = this.createSetupProtocol(setupProtocolJson, foundEdge[0], customerId, installerId);
+
+		var installer = OdooUtils.readOne(credentials, Field.Partner.ODOO_MODEL, installerId, Field.Partner.IS_COMPANY);
+		boolean isCompany = (boolean) installer.get("is_company");
+		if (!isCompany) {
+			Map<String, Object> fieldsToUpdate = new HashMap<>();
+			JsonUtils.getAsOptionalString(installerJson, "firstname") //
+					.ifPresent(firstname -> fieldsToUpdate.put(Field.Partner.FIRSTNAME.id(), firstname));
+			JsonUtils.getAsOptionalString(installerJson, "lastname") //
+					.ifPresent(lastname -> fieldsToUpdate.put(Field.Partner.LASTNAME.id(), lastname));
+
+			if (!fieldsToUpdate.isEmpty()) {
+				OdooUtils.write(credentials, Field.Partner.ODOO_MODEL, new Integer[] { installerId }, fieldsToUpdate);
+			}
+		}
 
 		try {
 			this.sendSetupProtocolMail(user, protocolId, edgeId);

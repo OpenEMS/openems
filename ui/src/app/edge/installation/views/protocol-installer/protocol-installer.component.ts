@@ -3,7 +3,6 @@ import { FormGroup, Validators } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
 import { GetUserInformationRequest } from 'src/app/shared/jsonrpc/request/getUserInformationRequest';
-import { SetUserInformationRequest } from 'src/app/shared/jsonrpc/request/setUserInformationRequest';
 import { GetUserInformationResponse } from 'src/app/shared/jsonrpc/response/getUserInformationResponse';
 import { Service } from 'src/app/shared/shared';
 import { COUNTRY_OPTIONS, InstallationData } from '../../installation.component';
@@ -39,8 +38,6 @@ export class ProtocolInstallerComponent implements OnInit {
 
   public spinnerId: string;
 
-  public editModeEnabled: boolean;
-
   constructor(private service: Service) { }
 
   public ngOnInit() {
@@ -64,37 +61,19 @@ export class ProtocolInstallerComponent implements OnInit {
   }
 
   public onNextClicked() {
-
-    if (this.editModeEnabled) {
-      this.service.toast("Speichern Sie zuerst die Daten, um zur nächsten Ansicht zu gelangen.", "warning");
+    if (this.form.invalid) {
       return;
     }
 
     this.installationData.installer = this.model;
 
     this.nextViewEvent.emit(this.installationData);
-
   }
 
   public getFields(): FormlyFieldConfig[] {
 
     return [{
-      hooks: {
-        onInit: ({ form }) => {
-          // When the form is invalid, edit mode
-          // gets enabled, to correct the data
-          this.enableEditMode(form.invalid);
-        }
-      },
       fieldGroup: [
-        {
-          key: "companyName",
-          type: "input",
-          templateOptions: {
-            label: "Firmenname",
-            required: true
-          }
-        },
         {
           key: "lastName",
           type: "input",
@@ -112,12 +91,19 @@ export class ProtocolInstallerComponent implements OnInit {
           }
         },
         {
+          key: "companyName",
+          type: "input",
+          templateOptions: {
+            label: "Firmenname",
+            disabled: true
+          }
+        },
+        {
           key: "street",
           type: "input",
           templateOptions: {
             label: "Straße / Hausnummer",
-            required: true
-
+            disabled: true
           }
         },
         {
@@ -125,7 +111,7 @@ export class ProtocolInstallerComponent implements OnInit {
           type: "input",
           templateOptions: {
             label: "PLZ",
-            required: true
+            disabled: true
           }
         },
         {
@@ -133,7 +119,7 @@ export class ProtocolInstallerComponent implements OnInit {
           type: "input",
           templateOptions: {
             label: "Ort",
-            required: true
+            disabled: true
           }
         },
         {
@@ -141,8 +127,8 @@ export class ProtocolInstallerComponent implements OnInit {
           type: "select",
           templateOptions: {
             label: "Land",
-            required: true,
-            options: COUNTRY_OPTIONS
+            options: COUNTRY_OPTIONS,
+            disabled: true
           }
         },
         {
@@ -150,7 +136,7 @@ export class ProtocolInstallerComponent implements OnInit {
           type: "input",
           templateOptions: {
             label: "E-Mail",
-            required: true
+            disabled: true
           },
           validators: {
             validation: [Validators.email]
@@ -161,7 +147,7 @@ export class ProtocolInstallerComponent implements OnInit {
           type: "input",
           templateOptions: {
             label: "Telefonnummer",
-            required: true
+            disabled: true
           }
         }
       ]
@@ -204,78 +190,6 @@ export class ProtocolInstallerComponent implements OnInit {
         });
 
       });
-
-    });
-
-  }
-
-  public setUserInformation(): Promise<JsonrpcResponseSuccess> {
-
-    let user = {
-      firstname: this.model.firstName,
-      lastname: this.model.lastName,
-      email: this.model.email,
-      phone: this.model.phone,
-      address: {
-        street: this.model.street,
-        zip: this.model.zip,
-        city: this.model.city,
-        country: this.model.country
-      },
-      company: {
-        name: this.model.companyName
-      }
-    }
-
-    return this.service.websocket.sendRequest(new SetUserInformationRequest({ user }));
-
-  }
-
-  public enableEditMode(enable: boolean) {
-
-    if (enable) {
-
-      this.form.enable();
-      this.editModeEnabled = true;
-
-    } else {
-
-      if (this.form.invalid) {
-        this.service.toast("Geben Sie zuerst gültige Daten ein, um diese zu speichern.", "warning");
-        return;
-      }
-
-      this.setUserInformation().then(() => {
-
-        this.form.disable();
-        this.editModeEnabled = false;
-
-      }).catch(() => {
-
-        // TODO find better solution
-
-        console.warn("Data could not be set.");
-
-        this.form.disable();
-        this.editModeEnabled = false;
-
-      });
-
-    }
-
-  }
-
-  public onEditClicked() {
-
-    this.enableEditMode(!this.editModeEnabled);
-
-  }
-
-  public onResetClicked() {
-
-    this.getUserInformation().then((userInformation) => {
-
-      this.model = userInformation;
 
     });
 
